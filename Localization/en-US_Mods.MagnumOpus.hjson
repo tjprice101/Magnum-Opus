@@ -1,0 +1,801 @@
+# This file will automatically update with entries for new content after a build and reload.
+
+Mods: {
+	MagnumOpus: {
+		Items: {
+			RemnantOfMoonlightsHarmony: {
+				DisplayName: Remnant of Moonlight's Harmony
+				Tooltip:
+					'''
+					'Fractured echoes of the first movement linger within'
+					The raw essence of lunar melodies, awaiting refinement
+					Smelt at a Moonlight Furnace to forge into Resonant Cores
+					'''
+			}
+
+			ResonantCoreOfMoonlightSonata: {
+				DisplayName: Resonant Core of Moonlight Sonata
+				Tooltip:
+					'''
+					'The Adagio sostenuto crystallized into physical form'
+					Refined lunar essence pulsing with harmonic energy
+					The foundation of all Moonlight Sonata equipment
+					'''
+			}
+
+			IncisorOfMoonlight: {
+				DisplayName: Incisor of Moonlight
+				Tooltip:
+					'''
+					"When darkness falls, the moon shall sing."
+					Forged from the resonant crystals that emerged after the Moon Lord's defeat,
+					this blade channels the haunting melody of Beethoven's Moonlight Sonata.
+					Each swing releases waves of harmonic energy that pierce through all who oppose you.
+					The first movement plays eternal.
+					'''
+			}
+
+			MoonlightsResonantEnergy: {
+				DisplayName: Moonlight's Resonant Energy
+				Tooltip:
+					'''
+					'Pure resonance extracted from the space between notes'
+					This ethereal energy defies gravity, floating as if conducted by an unseen maestro
+					A rare and precious material for the most powerful resonant equipment
+					'''
+			}
+
+			EroicasResonantEnergy: {
+				DisplayName: Eroica's Resonant Energy
+				Tooltip:
+					'''
+					'The heroic energy of Beethoven's Third Symphony'
+					A rare crafting material for powerful resonant weapons
+					'''
+			}
+
+			RemnantOfEroicasTriumph: {
+				DisplayName: Remnant of Eroica's Triumph
+				Tooltip:
+					'''
+					'Echoes of heroism crystallized in pink light'
+					Raw essence from the movements of Eroica's symphony
+					Smelt at a Moonlight Furnace to forge into Resonant Cores of Eroica
+					'''
+			}
+
+			ResonantCoreOfEroica: {
+				DisplayName: Resonant Core of Eroica
+				Tooltip:
+					'''
+					'The heroic spirit condensed into physical form'
+					Refined essence pulsing with triumphant energy
+					The foundation of all Eroica equipment
+					'''
+			}
+
+			HarmonicCoreOfMoonlightSonata: {
+				DisplayName: Harmonic Core of Moonlight Sonata
+				Tooltip:
+					'''
+					'The soul of the Adagio sostenuto bound in crystal'
+					A powerful artifact that harmonizes with your very being
+					Equip in the Harmonic Core slot to receive lunar blessings
+					Upgrade with Moonlight's Resonant Energy to unlock greater power
+					'''
+			}
+
+			HarmonicCoreOfEroica: {
+				DisplayName: Harmonic Core of Eroica
+				Tooltip:
+					'''
+					'The triumphant spirit of heroism made manifest'
+					A crystallized symphony of courage and strength
+					Equip in the Harmonic Core slot to channel heroic might
+					Upgrade with Eroica's Resonant Energy to unlock greater power
+					'''
+			}
+
+			SwanLakeResonantEnergy: {
+				DisplayName: Swan Lake Resonant Energy
+				Tooltip:
+					'''
+					'Graceful energy that flows like a dancer's movements'
+					Ethereal essence captured from the ballet of the swans
+					Used to upgrade the Harmonic Core of Swan Lake
+					'''
+			}
+
+			ResonantCoreOfSwanLake: {
+				DisplayName: Resonant Core of Swan Lake
+				Tooltip:
+					'''
+					'The grace of the white swan crystallized'
+					A foundation material for Swan Lake equipment
+					'''
+			}
+
+			HarmonicCoreOfSwanLake: {
+				DisplayName: Harmonic Core of Swan Lake
+				Tooltip:
+					'''
+					'The eternal dance of Odette and Odile'
+					A Tier 3 Harmonic Core focused on agility and grace
+					Equip in the Harmonic Core slot for movement bonuses
+					Features 4 class upgrade trees: Melee, Ranged, Magic, Summon
+					'''
+			}
+
+			LaCampanellaResonantEnergy: {
+				DisplayName: La Campanella Resonant Energy
+				Tooltip:
+					'''
+					'Each particle rings with bell-like clarity'
+					Golden energy resonating with Liszt's virtuoso piece
+					Used to upgrade the Harmonic Core of La Campanella
+					'''
+			}
+
+			ResonantCoreOfLaCampanella: {
+				DisplayName: Resonant Core of La Campanella
+				Tooltip:
+					'''
+					'The bell's toll captured in crystal form'
+					A foundation material for La Campanella equipment
+					'''
+			}
+
+			HarmonicCoreOfLaCampanella: {
+				DisplayName: Harmonic Core of La Campanella
+				Tooltip:
+					'''
+					'The bells ring with devastating precision'
+					A Tier 4 Harmonic Core focused on critical strikes
+					Equip in the Harmonic Core slot for crit bonuses
+					Features 4 class upgrade trees: Melee, Ranged, Magic, Summon
+					'''
+			}
+
+			EnigmaResonantEnergy: {
+				DisplayName: Enigma Resonant Energy
+				Tooltip:
+					'''
+					'A mystery wrapped in harmonic variance'
+					Green energy pulsing with Elgar's enigmatic themes
+					Used to upgrade the Harmonic Core of Enigma
+					'''
+			}
+
+			ResonantCoreOfEnigma: {
+				DisplayName: Resonant Core of Enigma
+				Tooltip:
+					'''
+					'The variations remain unsolved'
+					A foundation material for Enigma equipment
+					'''
+			}
+
+			HarmonicCoreOfEnigma: {
+				DisplayName: Harmonic Core of Enigma
+				Tooltip:
+					'''
+					'Each variation holds a different truth'
+					A Tier 5 Harmonic Core providing balanced bonuses to all classes
+					Equip in the Harmonic Core slot for universal power
+					Features 4 class upgrade trees: Melee, Ranged, Magic, Summon
+					'''
+			}
+
+			FateResonantEnergy: {
+				DisplayName: Fate Resonant Energy
+				Tooltip:
+					'''
+					'The knock of destiny resonates within'
+					Crimson energy thrumming with Beethoven's Fifth
+					Used to upgrade the Harmonic Core of Fate
+					'''
+			}
+
+			ResonantCoreOfFate: {
+				DisplayName: Resonant Core of Fate
+				Tooltip:
+					'''
+					'Da-da-da-DUM'
+					A foundation material for Fate equipment
+					'''
+			}
+
+			HarmonicCoreOfFate: {
+				DisplayName: Harmonic Core of Fate
+				Tooltip:
+					'''
+					'Fate itself bends to the symphony'
+					The ultimate Tier 6 Harmonic Core with the strongest bonuses
+					Equip in the Harmonic Core slot to master your destiny
+					Features 4 class upgrade trees: Melee, Ranged, Magic, Summon
+					'''
+			}
+
+			MoonlightFurnace: {
+				DisplayName: Moonlight Furnace
+				Tooltip:
+					'''
+					'Where raw remnants are reborn through lunar flame'
+					A furnace that burns with the cold fire of moonlight
+					Transmutes Remnants of Moonlight's Harmony into Resonant Cores
+					'''
+			}
+
+			MoonlightAnvil: {
+				DisplayName: Moonlight Anvil
+				Tooltip:
+					'''
+					'Upon this anvil, the first movement takes shape'
+					An ethereal workstation humming with Beethoven's melody
+					Required for forging all Moonlight Sonata equipment
+					'''
+			}
+
+			MoonlightsPickaxe: {
+				DisplayName: Moonlight's Pickaxe
+				Tooltip:
+					'''
+					'The earth itself resonates with each strike'
+					Infused with the rhythmic pulse of the Adagio sostenuto
+					300% pickaxe power - superior to all Luminite pickaxes
+					'''
+			}
+
+			MoonlightsAxe: {
+				DisplayName: Moonlight's Axe
+				Tooltip:
+					'''
+					'Trees fall in silent harmony with the first movement'
+					The blade hums a melancholic tune as it cleaves through wood
+					225% axe power - superior to all Luminite axes
+					'''
+			}
+
+			MoonlightsHammer: {
+				DisplayName: Moonlight's Hammer
+				Tooltip:
+					'''
+					'Each strike echoes like a piano key in an empty hall'
+					Walls crumble to the beat of Beethoven's moonlit masterpiece
+					125% hammer power - superior to all Luminite hammers
+					'''
+			}
+
+			WingsOfTheMoon: {
+				DisplayName: Wings of the Moon
+				Tooltip:
+					'''
+					'Woven from moonbeams and the dreams of distant stars'
+					Exceptional flight speed and duration
+					Right-click to lunar dodge toward your cursor
+					Creates a purple and blue explosion on activation
+					0.5 second cooldown between dodges
+					'''
+			}
+
+			EroicasPickaxe: {
+				DisplayName: Eroica's Pickaxe
+				Tooltip:
+					'''
+					'The earth trembles beneath heroic strikes'
+					Forged from the triumphant energy of Beethoven's Third Symphony
+					350% pickaxe power - can mine Swan Lake Resonant Ore
+					'''
+			}
+
+			EroicasAxe: {
+				DisplayName: Eroica's Axe
+				Tooltip:
+					'''
+					'Trees fall to the march of heroes'
+					Each swing resonates with Eroica's mighty chorus
+					250% axe power - superior to Moonlight tools
+					'''
+			}
+
+			EroicasHammer: {
+				DisplayName: Eroica's Hammer
+				Tooltip:
+					'''
+					'Walls shatter to the symphony's crescendo'
+					Forged in the fires of heroic triumph
+					140% hammer power - superior to Moonlight tools
+					'''
+			}
+
+			FuneralPrayer: {
+				DisplayName: Funeral Prayer
+				Tooltip:
+					'''
+					'A solemn dirge for the fallen'
+					Fires 5 electric beams in a 90-degree arc that seek enemies
+					If all beams hit, unleashes a massive ricochet beam
+					Ricochet beam bounces between enemies 5-6 times dealing massive damage
+					Applies Musical Dissonance debuff
+					The second movement - Marcia funebre
+					'''
+			}
+
+			SakurasBlossom: {
+				DisplayName: Sakura's Blossom
+				Tooltip:
+					'''
+					'Cherry petals dance in the wind of battle'
+					Creates three spectral copies that seek out enemies
+					Impacts create massive scarlet explosions
+					'''
+			}
+
+			TriumphantFractal: {
+				DisplayName: Triumphant Fractal
+				Tooltip:
+					'''
+					'Geometry of heroic victory'
+					Fires three fractal projectiles wreathed in crimson fire
+					Explodes with devastating force on impact
+					'''
+			}
+
+			BlossomOfTheSakura: {
+				DisplayName: Blossom of the Sakura
+				Tooltip:
+					'''
+					'Rapid fire brings the storm of petals'
+					High-speed assault rifle with explosive rounds
+					Each bullet bursts into scarlet flames
+					'''
+			}
+		}
+
+		Tiles: {
+			MoonlitResonanceOreTile.MapEntry: Moonlit Resonance Ore
+			MoonlightFurnaceTile.MapEntry: Moonlight Furnace
+			MoonlightAnvilTile.MapEntry: Moonlight Anvil
+			EroicaResonanceOreTile.MapEntry: Eroica Resonance Ore
+			SwanLakeResonanceOreTile.MapEntry: Swan Lake Resonance Ore
+			LaCampanellaResonanceOreTile.MapEntry: La Campanella Resonance Ore
+			EnigmaResonanceOreTile.MapEntry: Enigma Resonance Ore
+			FateResonanceOreTile.MapEntry: Fate Resonance Ore
+		}
+
+		Buffs: {
+			MusicsDissonance: {
+				DisplayName: Music's Dissonance
+				Description: Harmonic dissonance makes you 5% more vulnerable to damage
+			}
+		}
+
+		NPCs: {
+			EroicasRetribution: {
+				DisplayName: Eroica's Retribution
+				BestiaryFlavorText: A triumphant yet tragic entity born from Beethoven's Third Symphony. Its three movements - allegro con brio, marcia funebre, and scherzo - manifest as loyal guardians.
+			}
+
+			MovementI: {
+				DisplayName: Movement I
+				BestiaryFlavorText: The first movement of Eroica's symphony - Allegro con brio. It channels heroic energy towards its enemies.
+			}
+
+			MovementII: {
+				DisplayName: Movement II
+				BestiaryFlavorText: The second movement of Eroica's symphony - Marcia funebre. A funeral march that charges with relentless determination.
+			}
+
+			MovementIII: {
+				DisplayName: Movement III
+				BestiaryFlavorText: The third movement of Eroica's symphony - Scherzo. It unleashes blazing bolts of pink flame.
+			}
+		}
+
+		Projectiles: {
+			MoonlightWaveProjectile.DisplayName: Moonlight Wave
+			EnergyOfEroica.DisplayName: Energy of Eroica
+			PinkFlamingBolt.DisplayName: Pink Flaming Bolt
+			EroicasBeam.DisplayName: Eroica's Beam
+		}
+	}
+}
+
+Tiles: {
+	GrandPianoTile.MapEntry: Grand Piano
+	MoonlitResonanceOreTile.MapEntry: Moonlit Resonance Ore
+	EroicaResonanceOreTile.MapEntry: Eroica Resonance Ore
+	SwanLakeResonanceOreTile.MapEntry: Swan Lake Resonance Ore
+	LaCampanellaResonanceOreTile.MapEntry: La Campanella Resonance Ore
+	EnigmaResonanceOreTile.MapEntry: Enigma Resonance Ore
+	FateResonanceOreTile.MapEntry: Fate Resonance Ore
+}
+
+Buffs: {
+	RazerOfMoonlightsShadowBuff: {
+		DisplayName: Razer of Moonlight's Shadow
+		Description: A shadow of moonlight fights for you
+	}
+
+	GoliathOfMoonlightBuff: {
+		DisplayName: Goliath of Moonlight
+		Description: A massive lunar guardian fights by your side
+	}
+
+	SakuraOfFateBuff: {
+		DisplayName: Sakura of Fate
+		Description: A spectral sakura guardian fights by your side
+	}
+
+	MusicsDissonance: {
+		DisplayName: Musics Dissonance
+		Description: Mods.MagnumOpus.Buffs.MusicsDissonance.Description
+	}
+}
+
+Items: {
+	MoonlightsResonantEnergy: {
+		DisplayName: Moonlight's Resonant Energy
+		Tooltip: ""
+	}
+
+	EroicasResonantEnergy: {
+		DisplayName: Eroica's Resonant Energy
+		Tooltip: ""
+	}
+
+	RemnantOfEroicasTriumph: {
+		DisplayName: Remnant Of Eroicas Triumph
+		Tooltip: ""
+	}
+
+	ResonantCoreOfEroica: {
+		DisplayName: Resonant Core Of Eroica
+		Tooltip: ""
+	}
+
+	MoonlightAnvil: {
+		DisplayName: Moonlight Anvil
+		Tooltip: ""
+	}
+
+	MoonlightFurnace: {
+		DisplayName: Moonlight Furnace
+		Tooltip: ""
+	}
+
+	RemnantOfMoonlightsHarmony: {
+		DisplayName: Remnant Of Moonlights Harmony
+		Tooltip: ""
+	}
+
+	ResonantCoreOfMoonlightSonata: {
+		DisplayName: Resonant Core Of Moonlight Sonata
+		Tooltip: ""
+	}
+
+	IncisorOfMoonlight: {
+		DisplayName: Incisor Of Moonlight
+		Tooltip: ""
+	}
+
+	MoonlightsAxe: {
+		DisplayName: Moonlights Axe
+		Tooltip: ""
+	}
+
+	MoonlightsHammer: {
+		DisplayName: Moonlights Hammer
+		Tooltip: ""
+	}
+
+	MoonlightsPickaxe: {
+		DisplayName: Moonlights Pickaxe
+		Tooltip: ""
+	}
+
+	EroicaResonanceOre: {
+		DisplayName: Eroica Resonance Ore
+		Tooltip: ""
+	}
+
+	ResonanceAwakener: {
+		DisplayName: Resonance Awakener
+		Tooltip: ""
+	}
+
+	MoonlitResonanceOre: {
+		DisplayName: Moonlit Resonance Ore
+		Tooltip: ""
+	}
+
+	SwanLakeResonanceOre: {
+		DisplayName: Swan Lake Resonance Ore
+		Tooltip:
+			'''
+			'Crystallized grace from the celestial ballet'
+			White resonant ore found in sky bubbles
+			'''
+	}
+
+	LaCampanellaResonanceOre: {
+		DisplayName: La Campanella Resonance Ore
+		Tooltip:
+			'''
+			'The golden bells of Liszt echo within'
+			Orange resonant ore found in desert sands
+			'''
+	}
+
+	EnigmaResonanceOre: {
+		DisplayName: Enigma Resonance Ore
+		Tooltip:
+			'''
+			'Mysterious variations crystallized in green'
+			Green resonant ore found in jungle depths
+			'''
+	}
+
+	FateResonanceOre: {
+		DisplayName: Fate Resonance Ore
+		Tooltip:
+			'''
+			'The threads of destiny made manifest'
+			Pink resonant ore found in evil biomes
+			'''
+	}
+
+	EternalMoon: {
+		DisplayName: Eternal Moon
+		Tooltip:
+			'''
+			'The moon's eternal embrace given form'
+			A heavy sword that releases waves of purple energy
+			Inflicts Musical Dissonance on enemies
+			'''
+	}
+
+	MoonlightsCalling: {
+		DisplayName: Moonlight's Calling
+		Tooltip:
+			'''
+			'The moon beckons through arcane pages'
+			Rapidly fires beams of moonlight magic
+			Inflicts Musical Dissonance on enemies
+			'''
+	}
+
+	StaffOfTheLunarPhases: {
+		DisplayName: Staff of the Lunar Phases
+		Tooltip:
+			'''
+			'Command the shadows between crescent and full'
+			Summons a mighty Goliath of Moonlight to fight for you
+			The Goliath fires devastating moonlight beams at enemies
+			Inflicts Musical Dissonance on enemies
+			'''
+	}
+
+	ScoreOfEroica: {
+		DisplayName: Score of Eroica
+		Tooltip:
+			'''
+			'The heroic symphony, transcribed in celestial ink'
+			Use at the Grand Piano to summon Eroica's Retribution
+			'''
+	}
+
+	BlossomOfTheSakura: {
+		DisplayName: Blossom Of The Sakura
+		Tooltip: ""
+	}
+
+	FuneralPrayer: {
+		DisplayName: Funeral Prayer
+		Tooltip: ""
+	}
+
+	SakurasBlossom: {
+		DisplayName: Sakuras Blossom
+		Tooltip: ""
+	}
+
+	FinalityOfTheSakura: {
+		DisplayName: Finality of the Sakura
+		Tooltip:
+			'''
+			'A final blossom before eternal night'
+			Summons a Sakura of Fate to fight for you
+			The Sakura fires black and scarlet flames at enemies
+			'''
+	}
+
+	MoonlitEngine: {
+		DisplayName: Moonlit Engine
+		Tooltip:
+			'''
+			'The heart of moonlight given mechanical form'
+			+18% melee speed
+			Every 5th melee strike unleashes a devastating shockwave dealing 200% of the hit's damage
+			'''
+	}
+
+	MoonlitGyre: {
+		DisplayName: Moonlit Gyre
+		Tooltip:
+			'''
+			'Bullets dance in spirals of silver light'
+			+25% ranged critical strike chance
+			Missed projectiles ricochet up to 3 times seeking new targets
+			Critical hits release a piercing sonic boom
+			40% chance to not consume ammo
+			'''
+	}
+
+	FractalOfMoonlight: {
+		DisplayName: Fractal of Moonlight
+		Tooltip:
+			'''
+			'Infinite reflections of lunar power'
+			+3 max minions
+			+30% minion damage
+			Every 10 seconds, your minions enter a crescendo, combining for a devastating 500% damage strike
+			Minion attacks heal you for 2% of damage dealt
+			'''
+	}
+
+	EmberOfTheMoon: {
+		DisplayName: Ember of the Moon
+		Tooltip:
+			'''
+			'A dying ember that refuses to fade'
+			-30% mana cost
+			+25% magic damage
+			15% chance to double-cast spells
+			When mana falls below 20%, automatically restore 100 mana (120 second cooldown)
+			'''
+	}
+
+	ShardsOfMoonlitTempo: {
+		DisplayName: Shards of Moonlit Tempo
+		Tooltip: "'Crystallized fragments of lunar rhythm'"
+	}
+
+	TriumphantFractal: {
+		DisplayName: Triumphant Fractal
+		Tooltip: ""
+	}
+
+	EroicasAxe: {
+		DisplayName: Eroicas Axe
+		Tooltip: ""
+	}
+
+	EroicasHammer: {
+		DisplayName: Eroicas Hammer
+		Tooltip: ""
+	}
+
+	EroicasPickaxe: {
+		DisplayName: Eroicas Pickaxe
+		Tooltip: ""
+	}
+
+	HarmonicCoreOfEnigma: {
+		DisplayName: Harmonic Core Of Enigma
+		Tooltip: ""
+	}
+
+	ResonantCoreOfEnigma: {
+		DisplayName: Resonant Core Of Enigma
+		Tooltip: ""
+	}
+
+	EnigmaResonantEnergy: {
+		DisplayName: Enigma Resonant Energy
+		Tooltip: ""
+	}
+
+	HarmonicCoreOfEroica: {
+		DisplayName: Harmonic Core Of Eroica
+		Tooltip: ""
+	}
+
+	HarmonicCoreOfFate: {
+		DisplayName: Harmonic Core Of Fate
+		Tooltip: ""
+	}
+
+	ResonantCoreOfFate: {
+		DisplayName: Resonant Core Of Fate
+		Tooltip: ""
+	}
+
+	FateResonantEnergy: {
+		DisplayName: Fate Resonant Energy
+		Tooltip: ""
+	}
+
+	HarmonicCoreOfLaCampanella: {
+		DisplayName: Harmonic Core Of La Campanella
+		Tooltip: ""
+	}
+
+	ResonantCoreOfLaCampanella: {
+		DisplayName: Resonant Core Of La Campanella
+		Tooltip: ""
+	}
+
+	LaCampanellaResonantEnergy: {
+		DisplayName: La Campanella Resonant Energy
+		Tooltip: ""
+	}
+
+	HarmonicCoreOfMoonlightSonata: {
+		DisplayName: Harmonic Core Of Moonlight Sonata
+		Tooltip: ""
+	}
+
+	HarmonicCoreOfSwanLake: {
+		DisplayName: Harmonic Core Of Swan Lake
+		Tooltip: ""
+	}
+
+	ResonantCoreOfSwanLake: {
+		DisplayName: Resonant Core Of Swan Lake
+		Tooltip: ""
+	}
+
+	SwanLakeResonantEnergy: {
+		DisplayName: Swan Lake Resonant Energy
+		Tooltip: ""
+	}
+
+	WingsOfTheMoon: {
+		DisplayName: Wings Of The Moon
+		Tooltip: ""
+	}
+}
+
+NPCs: {
+	EroicasRetribution.DisplayName: Eroica's Retribution
+	MovementI.DisplayName: Movement I
+	MovementII.DisplayName: Movement II
+	MovementIII.DisplayName: Movement III
+	Lunus.DisplayName: Lunus
+	WaningDeer.DisplayName: Waning Deer
+	AbyssalMoonLurker.DisplayName: Abyssal Moon Lurker
+}
+
+Projectiles: {
+	EnergyOfEroica.DisplayName: Energy Of Eroica
+	EroicasBeam.DisplayName: Eroicas Beam
+	PinkFlamingBolt.DisplayName: Pink Flaming Bolt
+	MoonlightWaveProjectile.DisplayName: Moonlight Wave Projectile
+	EternalMoonWave.DisplayName: Eternal Moon Wave
+	MoonlightBeam.DisplayName: Moonlight Beam
+	RazerOfMoonlightsShadow.DisplayName: Razer of Moonlight's Shadow
+	EternalMoonBeam.DisplayName: Eternal Moon Beam
+	BlossomOfTheSakuraBulletProjectile.DisplayName: Blossom Of The Sakura Bullet Projectile
+	FuneralPrayerProjectile.DisplayName: Funeral Prayer Projectile
+	SakurasBlossomSpectral.DisplayName: Sakuras Blossom Spectral
+	TriumphantFractalProjectile.DisplayName: Triumphant Fractal Projectile
+	FuneralPrayerBeam.DisplayName: Funeral Prayer Beam
+	GoliathOfMoonlight.DisplayName: Goliath of Moonlight
+	GoliathMoonlightBeam.DisplayName: Goliath Moonlight Beam
+	GoliathDevastatingBeam.DisplayName: Goliath Devastating Beam
+	SakuraOfFate.DisplayName: Sakura of Fate
+	SakuraFlameProjectile.DisplayName: Sakura Flame
+	FuneralPrayerRicochetBeam.DisplayName: Funeral Prayer Ricochet Beam
+	MoonlitEngineShockwave.DisplayName: Moonlit Engine Shockwave
+	MoonlitGyreSonicBoom.DisplayName: Moonlit Gyre Sonic Boom
+	MoonlightFlareProjectile.DisplayName: Moonlight Flare
+	LunarBlazeProjectile.DisplayName: Lunar Blaze
+	DiatonicMoonLanternOrbiting.DisplayName: Diatonic Moon Lantern
+	SnowOfTheMoonProjectile.DisplayName: Snow of the Moon
+	WaningDeerChandelierOrbiting.DisplayName: Waning Chandelier
+	AbyssalOrbProjectile.DisplayName: Abyssal Orb
+	AbyssalBoltProjectile.DisplayName: Abyssal Bolt
+}
+
+"Keybinds.Toggle Harmonic Core UI.DisplayName": Toggle  Harmonic  Core  U I

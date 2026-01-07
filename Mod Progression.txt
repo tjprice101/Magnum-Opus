@@ -1,0 +1,648 @@
+================================================================================
+                    MAGNUM OPUS - MOD PROGRESSION
+================================================================================
+
+This document outlines the complete progression system for the Harmony of 
+Synchronicity mod, including implemented features and planned content.
+
+================================================================================
+                              OVERVIEW
+================================================================================
+
+The mod features 13 classical music themes in a LINEAR PROGRESSION.
+Each boss must be defeated to unlock the next theme's content.
+
+Each theme includes:
+  • Resonant Ores (spawned after previous boss kill)
+  • Harmonic Essence (dropped by theme's boss - REQUIRED for crafting)
+  • Resonant Weapons & Tools
+  • Crafting Station Upgrades (at Fate and Clair de Lune milestones)
+
+CRAFTING RULE: You CANNOT craft any theme's equipment without that theme's
+               Harmonic Essence, which only drops from that theme's boss.
+
+================================================================================
+                         PROGRESSION CHAIN
+================================================================================
+
+  MOON LORD ──► MOONLIGHT SONATA ──► EROICA ──► SWAN LAKE ──► LA CAMPANELLA
+                                                                    │
+       ┌────────────────────────────────────────────────────────────┘
+       │
+       ▼
+   ENIGMA ──► FATE ══════► ODE TO JOY ──► DIES IRAE ──► WINTER ──► NACHTMUSIK
+              (Major)           │
+              Milestone         │
+              Furnace &         │
+              Anvil Upgrade     │
+                                │
+       ┌────────────────────────┘
+       │
+       ▼
+   CLAIR DE LUNE ══════► MERCURY ──► MARS
+   (Final Milestone)
+   Final Furnace &
+   Anvil Upgrade
+
+================================================================================
+══════════════════════════════════════════════════════════════════════════════
+                          TIER 1: MOON LORD
+══════════════════════════════════════════════════════════════════════════════
+================================================================================
+
+TRIGGER: Defeat Moon Lord (first kill)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ "The Moonlight Sonata begins to play..."                    [PURPLE TEXT]   │
+│ → Moonlit Resonance Ore spawns throughout the world                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+                    MOONLIGHT SONATA (Beethoven)
+                         [IMPLEMENTED]
+────────────────────────────────────────────────────────────────────────────────
+
+BIOME: World-wide
+UNLOCK: Moon Lord first kill
+COLOR THEME: Deep Purple / Blue (flashing rarity)
+
+CRAFTING STATIONS (Tier 1):
+───────────────────────────
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Moonlight Furnace                                                           │
+│ Recipe: 30 Remnant of Moonlight's Harmony + Titanium/Adamantite Forge       │
+│ Crafted at: Mythril Anvil                                                   │
+│ Function: Smelts ALL mod materials (Tier 1)                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Moonlight Anvil                                                             │
+│ Recipe: 10 Resonant Core of Moonlight Sonata                                │
+│ Crafted at: Mythril Anvil                                                   │
+│ Function: Forges ALL mod equipment (Tier 1)                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+MATERIALS:
+──────────
+• Remnant of Moonlight's Harmony - Drops from mining Moonlit Resonance Ore
+• Resonant Core of Moonlight Sonata - 5 Remnants at Moonlight Furnace
+• Harmonic Essence of Moonlight Sonata - Drops from Moon Lord (subsequent kills)
+  └─ REQUIRED for all Moonlight Sonata equipment crafting
+
+TOOLS (Crafted at Moonlight Anvil):
+───────────────────────────────────
+• Moonlight's Pickaxe: 20 Cores + 15 Essence | 300% power
+• Moonlight's Axe: 15 Cores + 10 Essence | 225% power  
+• Moonlight's Hammer: 10 Cores + 5 Essence | 125% power
+
+WEAPONS:
+────────
+• Incisor of Moonlight: 10 Luminite + 15 Essence + 20 Cores | 250 damage
+
+BOSS TO UNLOCK NEXT THEME:
+──────────────────────────
+*** DEFEAT BANE OF EROICA TO PROGRESS ***
+
+================================================================================
+══════════════════════════════════════════════════════════════════════════════
+                        TIER 2: EROICA
+══════════════════════════════════════════════════════════════════════════════
+================================================================================
+
+TRIGGER: Defeat Bane of Eroica (first kill)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ "Eroica's Resonance Energy spreads throughout the           [SCARLET TEXT]  │
+│  underground..."                                                            │
+│ → Eroica Resonant Ore spawns in Underground/Cavern                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+                         EROICA (Beethoven's 3rd)
+                        [PARTIALLY IMPLEMENTED]
+────────────────────────────────────────────────────────────────────────────────
+
+BIOME: Underground / Cavern
+UNLOCK: Bane of Eroica first kill
+COLOR THEME: Scarlet / Heroic Red
+
+BOSS: Bane of Eroica [IMPLEMENTED]
+  • 75,000 HP
+  • AI: Hover → Charge → Summon minions
+  • Drops: 10-15 Harmonic Essence of Eroica
+  • Summon: Crafted from Moonlight materials (requires Moonlight progression)
+
+MATERIALS:
+──────────
+• Remnant of Eroica's Triumph - Drops from Eroica Ore [NOT IMPLEMENTED]
+• Resonant Core of Eroica - Smelted at Moonlight Furnace [NOT IMPLEMENTED]
+• Harmonic Essence of Eroica - ONLY from Bane of Eroica [IMPLEMENTED]
+  └─ REQUIRED for all Eroica equipment crafting
+
+CRAFTING REQUIREMENT:
+─────────────────────
+All Eroica equipment requires Harmonic Essence of Eroica.
+You CANNOT skip the boss and craft Eroica gear!
+
+BOSS TO UNLOCK NEXT THEME:
+──────────────────────────
+*** DEFEAT SWAN LAKE BOSS TO PROGRESS ***
+
+================================================================================
+══════════════════════════════════════════════════════════════════════════════
+                        TIER 3: SWAN LAKE
+══════════════════════════════════════════════════════════════════════════════
+================================================================================
+
+TRIGGER: Defeat Swan Lake Boss (first kill)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ "Swan Lake's Resonance Energy spreads throughout the        [WHITE TEXT]    │
+│  skies and into space..."                                                   │
+│ → Swan Lake Ore spawns in Sky/Space biome                                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+                      SWAN LAKE (Tchaikovsky)
+                        [NOT IMPLEMENTED]
+────────────────────────────────────────────────────────────────────────────────
+
+BIOME: Sky / Space
+COLOR THEME: White / Elegant Silver
+THEME: Grace, elegance, transformation
+
+BOSS: [NOT IMPLEMENTED]
+  • Drops: Harmonic Essence of Swan Lake
+  • Summon: Crafted from Eroica materials
+
+BOSS TO UNLOCK NEXT THEME:
+──────────────────────────
+*** DEFEAT LA CAMPANELLA BOSS TO PROGRESS ***
+
+================================================================================
+══════════════════════════════════════════════════════════════════════════════
+                        TIER 4: LA CAMPANELLA
+══════════════════════════════════════════════════════════════════════════════
+================================================================================
+
+TRIGGER: Defeat La Campanella Boss (first kill)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ "La Campanella's Resonance Energy spreads throughout        [GOLD TEXT]     │
+│  the dungeon..."                                                            │
+│ → La Campanella Ore spawns in the Dungeon                                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+                      LA CAMPANELLA (Liszt)
+                        [NOT IMPLEMENTED]
+────────────────────────────────────────────────────────────────────────────────
+
+BIOME: Dungeon
+COLOR THEME: Gold / Bell Bronze
+THEME: Bell-like sounds, virtuosity, technical mastery
+
+BOSS: [NOT IMPLEMENTED]
+  • Drops: Harmonic Essence of La Campanella
+  • Summon: Crafted from Swan Lake materials
+
+BOSS TO UNLOCK NEXT THEME:
+──────────────────────────
+*** DEFEAT ENIGMA BOSS TO PROGRESS ***
+
+================================================================================
+══════════════════════════════════════════════════════════════════════════════
+                        TIER 5: ENIGMA VARIATIONS
+══════════════════════════════════════════════════════════════════════════════
+================================================================================
+
+TRIGGER: Defeat Enigma Boss (first kill)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ "Enigma's Resonance Energy spreads throughout the ???..."   [GREEN TEXT]    │
+│ → Enigma Ore spawns commonly in the Jungle                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+                    ENIGMA VARIATIONS (Elgar)
+                        [NOT IMPLEMENTED]
+────────────────────────────────────────────────────────────────────────────────
+
+BIOME: Jungle (common spawn)
+COLOR THEME: Mysterious Green
+THEME: Mystery, variation, hidden meanings
+
+BOSS: [NOT IMPLEMENTED]
+  • Drops: Harmonic Essence of Enigma
+  • Summon: Crafted from La Campanella materials
+
+BOSS TO UNLOCK NEXT THEME:
+──────────────────────────
+*** DEFEAT FATE BOSS TO PROGRESS (MAJOR MILESTONE) ***
+
+================================================================================
+══════════════════════════════════════════════════════════════════════════════
+            ★★★ TIER 6: FATE - MAJOR MILESTONE ★★★
+══════════════════════════════════════════════════════════════════════════════
+================================================================================
+
+TRIGGER: Defeat Fate Boss (first kill)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ "Fate's Resonance Energy spreads throughout the             [DARK RED TEXT] │
+│  corruption/crimson..."                                                     │
+│ → Fate Ore spawns in Corruption OR Crimson biome                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ★ CRAFTING STATION UPGRADE UNLOCKED ★                                      │
+│                                                                             │
+│ Fate's Furnace - Upgraded furnace for Tier 2 materials                      │
+│ Fate's Anvil - Upgraded anvil for Tier 2 equipment                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+                 FATE (Beethoven's 5th Symphony)
+                        [NOT IMPLEMENTED]
+────────────────────────────────────────────────────────────────────────────────
+
+BIOME: Corruption OR Crimson (world evil)
+COLOR THEME: Dark Red / Ominous
+THEME: Destiny, dramatic tension, the famous "da-da-da-DUM"
+
+THIS IS A MAJOR BOSS - SIGNIFICANTLY HARDER THAN PREVIOUS THEMES
+
+BOSS: [NOT IMPLEMENTED]
+  • Should be a challenging, multi-phase fight
+  • Drops: Harmonic Essence of Fate
+  • Summon: Crafted from Enigma materials
+
+CRAFTING STATIONS (Tier 2 - Fate Upgrade):
+──────────────────────────────────────────
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Fate's Furnace                                                              │
+│ Recipe: Moonlight Furnace + Fate materials + Essence                        │
+│ Function: Smelts Tier 2 materials (Ode to Joy through Nachtmusik)           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Fate's Anvil                                                                │
+│ Recipe: Moonlight Anvil + Fate materials + Essence                          │
+│ Function: Forges Tier 2 equipment (Ode to Joy through Nachtmusik)           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+UPON DEFEAT, DISPLAYS:
+──────────────────────
+"Fate has been shattered...Ode to Joy's Resonance Energy spreads throughout 
+ the world..."
+
+BOSS TO UNLOCK NEXT THEME:
+──────────────────────────
+*** DEFEAT ODE TO JOY BOSS TO PROGRESS ***
+
+================================================================================
+══════════════════════════════════════════════════════════════════════════════
+                        TIER 7: ODE TO JOY
+══════════════════════════════════════════════════════════════════════════════
+================================================================================
+
+TRIGGER: Defeat Ode to Joy Boss (first kill)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ "Fate has been shattered...Ode to Joy's Resonance Energy    [GOLD TEXT]     │
+│  spreads throughout the world..."                                           │
+│ → Ode to Joy Ore spawns in ALL layers                                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+                   ODE TO JOY (Beethoven's 9th)
+                        [NOT IMPLEMENTED]
+────────────────────────────────────────────────────────────────────────────────
+
+BIOME: All layers (world-wide)
+COLOR THEME: Triumphant Gold
+THEME: Triumph, unity, celebration
+
+BOSS: [NOT IMPLEMENTED]
+  • Drops: Harmonic Essence of Ode to Joy
+  • Summon: Crafted from Fate materials
+
+BOSS TO UNLOCK NEXT THEME:
+──────────────────────────
+*** DEFEAT DIES IRAE BOSS TO PROGRESS ***
+
+================================================================================
+══════════════════════════════════════════════════════════════════════════════
+                        TIER 8: DIES IRAE
+══════════════════════════════════════════════════════════════════════════════
+================================================================================
+
+TRIGGER: Defeat Dies Irae Boss (first kill)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ "Fate has been shattered...Dies Irae's Resonance Energy     [DARK RED TEXT] │
+│  spreads throughout the underworld..."                                      │
+│ → Dies Irae Ore spawns in the Underworld/Hell                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+                 DIES IRAE (Day of Wrath)
+                        [NOT IMPLEMENTED]
+────────────────────────────────────────────────────────────────────────────────
+
+BIOME: Underworld / Hell
+COLOR THEME: Apocalyptic Dark Red
+THEME: Death, judgment, apocalyptic
+
+BOSS: [NOT IMPLEMENTED]
+  • Drops: Harmonic Essence of Dies Irae
+  • Summon: Crafted from Ode to Joy materials
+
+BOSS TO UNLOCK NEXT THEME:
+──────────────────────────
+*** DEFEAT WINTER BOSS TO PROGRESS ***
+
+================================================================================
+══════════════════════════════════════════════════════════════════════════════
+                        TIER 9: WINTER
+══════════════════════════════════════════════════════════════════════════════
+================================================================================
+
+TRIGGER: Defeat Winter Boss (first kill)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ "Fate has been shattered...Winter's Resonance Energy        [ICY BLUE TEXT] │
+│  spreads throughout the snow covered fields..."                             │
+│ → Winter Ore spawns in the Snow/Ice biome                                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+                 WINTER (Vivaldi's Four Seasons)
+                        [NOT IMPLEMENTED]
+────────────────────────────────────────────────────────────────────────────────
+
+BIOME: Snow / Ice biome
+COLOR THEME: Icy Blue / Frost White
+THEME: Cold, harshness, survival
+
+BOSS: [NOT IMPLEMENTED]
+  • Drops: Harmonic Essence of Winter
+  • Summon: Crafted from Dies Irae materials
+
+BOSS TO UNLOCK NEXT THEME:
+──────────────────────────
+*** DEFEAT NACHTMUSIK BOSS TO PROGRESS ***
+
+================================================================================
+══════════════════════════════════════════════════════════════════════════════
+                        TIER 10: NACHTMUSIK
+══════════════════════════════════════════════════════════════════════════════
+================================================================================
+
+TRIGGER: Defeat Nachtmusik Boss (first kill)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ "Fate has been shattered...Nachtmusik's Resonance Energy    [SILVER TEXT]   │
+│  spreads throughout the surface under moonlight..."                         │
+│ → Nachtmusik Ore spawns on Surface                                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+              NACHTMUSIK (Mozart's "Eine kleine Nachtmusik")
+                        [NOT IMPLEMENTED]
+────────────────────────────────────────────────────────────────────────────────
+
+BIOME: Surface (night-themed)
+COLOR THEME: Silver / Moonlit
+THEME: Night, serenade, lightness
+
+BOSS: [NOT IMPLEMENTED]
+  • Drops: Harmonic Essence of Nachtmusik
+  • Summon: Crafted from Winter materials
+
+BOSS TO UNLOCK NEXT THEME:
+──────────────────────────
+*** DEFEAT CLAIR DE LUNE BOSS TO PROGRESS (FINAL MILESTONE) ***
+
+================================================================================
+══════════════════════════════════════════════════════════════════════════════
+         ★★★ TIER 11: CLAIR DE LUNE - FINAL MILESTONE ★★★
+══════════════════════════════════════════════════════════════════════════════
+================================================================================
+
+TRIGGER: Defeat Clair de Lune Boss (first kill)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ "The melody of time has been shattered...the planets all    [SOFT BLUE]     │
+│  shift melodically into a syzygy. Clair de Lune's Resonance                 │
+│  Energy spreads throughout the world..."                                    │
+│ → Clair de Lune Ore spawns throughout the world                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ★ FINAL CRAFTING STATION UPGRADE UNLOCKED ★                                 │
+│                                                                             │
+│ Celestial Furnace - Final furnace for Tier 3 (Planetary) materials          │
+│ Celestial Anvil - Final anvil for Tier 3 (Planetary) equipment              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+                    CLAIR DE LUNE (Debussy)
+                        [NOT IMPLEMENTED]
+────────────────────────────────────────────────────────────────────────────────
+
+BIOME: World-wide
+COLOR THEME: Soft Blue / Dreamy
+THEME: Moonlight (impressionistic), dreams, tranquility
+
+THIS IS THE FINAL MILESTONE BOSS - EXTREMELY CHALLENGING
+
+BOSS: [NOT IMPLEMENTED]
+  • Multi-phase, time-manipulation themed fight
+  • Drops: Harmonic Essence of Clair de Lune
+  • Summon: Crafted from Nachtmusik materials
+
+CRAFTING STATIONS (Tier 3 - Celestial/Final):
+─────────────────────────────────────────────
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Celestial Furnace                                                           │
+│ Recipe: Fate's Furnace + Clair de Lune materials + Essence                  │
+│ Function: Smelts Tier 3 Planetary materials (Mercury, Mars)                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Celestial Anvil                                                             │
+│ Recipe: Fate's Anvil + Clair de Lune materials + Essence                    │
+│ Function: Forges Tier 3 Planetary equipment (Mercury, Mars)                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+BOSS TO UNLOCK NEXT THEME:
+──────────────────────────
+*** DEFEAT MERCURY BOSS TO PROGRESS ***
+
+================================================================================
+══════════════════════════════════════════════════════════════════════════════
+                        TIER 12: MERCURY
+══════════════════════════════════════════════════════════════════════════════
+================================================================================
+
+TRIGGER: Defeat Mercury Boss (first kill)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ "The melody of time has been shattered...the planets all    [QUICKSILVER]   │
+│  shift melodically into a syzygy. The first of the planets                  │
+│  awakens...Mercury's Resonance Energy spreads throughout                    │
+│  the world...should you dare seek it..."                                    │
+│ → Mercury Ore spawns throughout the world                                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+                 MERCURY (Holst's "The Planets")
+                        [NOT IMPLEMENTED]
+────────────────────────────────────────────────────────────────────────────────
+
+BIOME: World-wide
+COLOR THEME: Quicksilver / Metallic
+THEME: Speed, the winged messenger, quicksilver
+
+BOSS: [NOT IMPLEMENTED]
+  • Extremely fast, hit-and-run tactics
+  • Drops: Harmonic Essence of Mercury
+  • Summon: Crafted from Clair de Lune materials
+
+BOSS TO UNLOCK FINAL THEME:
+───────────────────────────
+*** DEFEAT MARS BOSS - THE BRINGER OF WAR ***
+
+================================================================================
+══════════════════════════════════════════════════════════════════════════════
+             ★★★ TIER 13: MARS - THE FINAL BOSS ★★★
+══════════════════════════════════════════════════════════════════════════════
+================================================================================
+
+TRIGGER: Defeat Mars Boss (first kill)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ "The melody of time has been shattered...the planets all    [BLOOD RED]     │
+│  shift melodically into a syzygy. The bringer of war                        │
+│  stirs...Mars' Resonance Energy spreads throughout                          │
+│  the world...prepare for battle..."                                         │
+│ → Mars Ore spawns throughout the world                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+                  MARS (Holst's "The Planets")
+                      THE BRINGER OF WAR
+                        [NOT IMPLEMENTED]
+────────────────────────────────────────────────────────────────────────────────
+
+BIOME: World-wide
+COLOR THEME: Blood Red / Martial
+THEME: War, aggression, martial power, "The Bringer of War"
+
+THIS IS THE FINAL BOSS OF THE MOD - THE ULTIMATE CHALLENGE
+
+BOSS: [NOT IMPLEMENTED]
+  • The most difficult boss in the mod
+  • Multi-phase, war-themed devastating attacks
+  • Drops: Harmonic Essence of Mars
+  • Summon: Crafted from Mercury materials
+
+FINAL EQUIPMENT:
+────────────────
+Mars equipment represents the pinnacle of power in the mod.
+
+================================================================================
+                    CRAFTING STATION TIERS SUMMARY
+================================================================================
+
+TIER 1 - MOONLIGHT (After Moon Lord):
+─────────────────────────────────────
+• Moonlight Furnace - Smelts: Moonlight, Eroica, Swan Lake, La Campanella, 
+                              Enigma materials
+• Moonlight Anvil - Forges: Moonlight, Eroica, Swan Lake, La Campanella, 
+                            Enigma equipment
+
+TIER 2 - FATE (After Fate Boss):
+────────────────────────────────
+• Fate's Furnace - Smelts: Fate, Ode to Joy, Dies Irae, Winter, Nachtmusik 
+                           materials
+• Fate's Anvil - Forges: Fate, Ode to Joy, Dies Irae, Winter, Nachtmusik 
+                         equipment
+
+TIER 3 - CELESTIAL (After Clair de Lune Boss):
+──────────────────────────────────────────────
+• Celestial Furnace - Smelts: Clair de Lune, Mercury, Mars materials
+• Celestial Anvil - Forges: Clair de Lune, Mercury, Mars equipment
+
+================================================================================
+                         BOSS ORDER SUMMARY
+================================================================================
+
+  1.  Moon Lord (vanilla) ──────► Unlocks Moonlight Sonata
+  2.  Bane of Eroica ───────────► Unlocks Eroica
+  3.  [Swan Lake Boss] ─────────► Unlocks Swan Lake
+  4.  [La Campanella Boss] ─────► Unlocks La Campanella
+  5.  [Enigma Boss] ────────────► Unlocks Enigma
+  6.  [FATE BOSS] ★ ────────────► Unlocks Fate + Tier 2 Stations
+  7.  [Ode to Joy Boss] ────────► Unlocks Ode to Joy
+  8.  [Dies Irae Boss] ─────────► Unlocks Dies Irae
+  9.  [Winter Boss] ────────────► Unlocks Winter
+  10. [Nachtmusik Boss] ────────► Unlocks Nachtmusik
+  11. [CLAIR DE LUNE BOSS] ★ ───► Unlocks Clair de Lune + Tier 3 Stations
+  12. [Mercury Boss] ───────────► Unlocks Mercury
+  13. [MARS BOSS] ★★★ ──────────► FINAL BOSS - Unlocks Mars (End Game)
+
+================================================================================
+                         IMPLEMENTATION STATUS
+================================================================================
+
+TIER 1 (Moonlight Stations):
+────────────────────────────
+[████████░░] 80% - MOONLIGHT SONATA
+  ✓ Ore & Tile
+  ✓ Crafting Stations (Furnace, Anvil)
+  ✓ Materials (Remnant, Core, Harmonic Energy)
+  ✓ Tools (Pickaxe, Axe, Hammer)
+  ✓ Weapon (Incisor of Moonlight)
+  ✗ Armor Set
+  ✗ Accessories
+
+[██░░░░░░░░] 20% - EROICA (Boss implemented, no ore/gear)
+[░░░░░░░░░░] 0% - SWAN LAKE
+[░░░░░░░░░░] 0% - LA CAMPANELLA
+[░░░░░░░░░░] 0% - ENIGMA VARIATIONS
+
+TIER 2 (Fate Stations) - Not Implemented:
+─────────────────────────────────────────
+[░░░░░░░░░░] 0% - FATE ★ (Major Milestone)
+[░░░░░░░░░░] 0% - ODE TO JOY
+[░░░░░░░░░░] 0% - DIES IRAE
+[░░░░░░░░░░] 0% - WINTER
+[░░░░░░░░░░] 0% - NACHTMUSIK
+
+TIER 3 (Celestial Stations) - Not Implemented:
+──────────────────────────────────────────────
+[░░░░░░░░░░] 0% - CLAIR DE LUNE ★ (Final Milestone)
+[░░░░░░░░░░] 0% - MERCURY
+[░░░░░░░░░░] 0% - MARS ★★★ (Final Boss)
+
+================================================================================
+                              TOTAL PROGRESS
+================================================================================
+
+                    [██░░░░░░░░░░░░░░░░░░] ~8%
+
+================================================================================
+                           VERSION HISTORY
+================================================================================
+
+v0.1.0 (Current)
+  • Moonlight Sonata theme mostly complete
+  • Bane of Eroica boss implemented
+  • Linear progression system designed
+  • Custom rarity system
+
+================================================================================
+                         END OF DOCUMENT
+================================================================================

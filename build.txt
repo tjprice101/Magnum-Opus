@@ -1,0 +1,3 @@
+displayName = Magnum Opus
+author = SacredTrevor
+version = 0.1

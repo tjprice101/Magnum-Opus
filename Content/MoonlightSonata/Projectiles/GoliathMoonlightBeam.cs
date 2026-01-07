@@ -1,0 +1,285 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
+using Terraria;
+using Terraria.ID;
+using Terraria.ModLoader;
+using Terraria.Audio;
+using MagnumOpus.Content.MoonlightSonata.Debuffs;
+
+namespace MagnumOpus.Content.MoonlightSonata.Projectiles
+{
+    /// <summary>
+    /// Goliath Moonlight Beam - A small, fast dark purple beam that ricochets.
+    /// Compact beam-like projectile with purple/blue effects.
+    /// </summary>
+    public class GoliathMoonlightBeam : ModProjectile
+    {
+        // Use a smaller vanilla projectile texture
+        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Bullet;
+        
+        private const int MaxRicochets = 10;
+        private const float RicochetRange = 500f;
+        private const float BeamSpeed = 20f;
+        
+        private int ricochetCount = 0;
+        private int lastHitNPC = -1;
+        
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.MinionShot[Type] = true;
+        }
+
+        public override void SetDefaults()
+        {
+            Projectile.width = 6;
+            Projectile.height = 6;
+            Projectile.friendly = true;
+            Projectile.DamageType = DamageClass.Summon;
+            Projectile.penetrate = MaxRicochets + 1;
+            Projectile.timeLeft = 300;
+            Projectile.tileCollide = false;
+            Projectile.ignoreWater = true;
+            Projectile.extraUpdates = 3; // Very fast
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 10;
+        }
+
+        public override void AI()
+        {
+            // Rotation follows velocity
+            Projectile.rotation = Projectile.velocity.ToRotation();
+            
+            // ENHANCED trail - very visible beam effect
+            for (int i = 0; i < 3; i++)
+            {
+                int dustType = Main.rand.NextBool(3) ? DustID.IceTorch : DustID.PurpleTorch;
+                Vector2 offset = Main.rand.NextVector2Circular(4f, 4f);
+                Dust dust = Dust.NewDustPerfect(Projectile.Center + offset, dustType, -Projectile.velocity * 0.08f, 0, default, 1.8f);
+                dust.noGravity = true;
+                dust.fadeIn = 1.2f;
+            }
+            
+            // Sparkle trail
+            if (Main.rand.NextBool(2))
+            {
+                Dust sparkle = Dust.NewDustPerfect(Projectile.Center, DustID.SparksMech, -Projectile.velocity * 0.05f, 100, Color.White, 1f);
+                sparkle.noGravity = true;
+            }
+            
+            // Shadowflame wisps
+            if (Main.rand.NextBool(4))
+            {
+                Dust shadow = Dust.NewDustPerfect(Projectile.Center, DustID.Shadowflame, -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f), 100, default, 1.2f);
+                shadow.noGravity = true;
+            }
+            
+            // Strong lighting
+            Lighting.AddLight(Projectile.Center, 0.5f, 0.25f, 0.7f);
+            
+            // Slight homing after a bit
+            if (Projectile.timeLeft < 250)
+            {
+                NPC target = FindNearestEnemy();
+                if (target != null && target.whoAmI != lastHitNPC)
+                {
+                    Vector2 toTarget = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity.SafeNormalize(Vector2.Zero), toTarget, 0.03f) * Projectile.velocity.Length();
+                }
+            }
+        }
+        
+        private NPC FindNearestEnemy()
+        {
+            float closestDist = RicochetRange;
+            NPC closest = null;
+            
+            foreach (NPC npc in Main.ActiveNPCs)
+            {
+                if (npc.CanBeChasedBy(this) && npc.whoAmI != lastHitNPC)
+                {
+                    float dist = Vector2.Distance(Projectile.Center, npc.Center);
+                    if (dist < closestDist)
+                    {
+                        closestDist = dist;
+                        closest = npc;
+                    }
+                }
+            }
+            
+            return closest;
+        }
+
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            // Apply debuff
+            target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 180);
+            
+            // HEAL THE PLAYER - 10 health per hit
+            Player owner = Main.player[Projectile.owner];
+            if (owner != null && owner.active)
+            {
+                int healAmount = 10;
+                owner.statLife = Math.Min(owner.statLife + healAmount, owner.statLifeMax2);
+                owner.HealEffect(healAmount, true);
+            }
+            
+            // EXPLOSION EFFECTS!
+            CreateHitExplosion(target.Center);
+            
+            // Sound
+            SoundEngine.PlaySound(SoundID.Item14 with { Volume = 0.4f, Pitch = 0.8f }, target.Center);
+            
+            // Ricochet to next target
+            ricochetCount++;
+            lastHitNPC = target.whoAmI;
+            
+            if (ricochetCount <= MaxRicochets)
+            {
+                NPC nextTarget = FindNearestEnemy();
+                if (nextTarget != null)
+                {
+                    // Ricochet toward next enemy
+                    Vector2 newDirection = (nextTarget.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                    Projectile.velocity = newDirection * BeamSpeed;
+                    Projectile.netUpdate = true;
+                    
+                    // Small ricochet effect
+                    for (int i = 0; i < 6; i++)
+                    {
+                        Vector2 vel = newDirection.RotatedByRandom(0.5f) * Main.rand.NextFloat(2f, 5f);
+                        int dustType = Main.rand.NextBool() ? DustID.IceTorch : DustID.PurpleTorch;
+                        Dust dust = Dust.NewDustPerfect(Projectile.Center, dustType, vel, 100, default, 0.9f);
+                        dust.noGravity = true;
+                    }
+                    
+                    // Soft ricochet sound
+                    SoundEngine.PlaySound(SoundID.Item12 with { Volume = 0.25f, Pitch = 0.8f + ricochetCount * 0.05f }, Projectile.Center);
+                }
+            }
+        }
+        
+        private void CreateHitExplosion(Vector2 position)
+        {
+            // MASSIVE purple/blue burst on hit - very visible!
+            // Outer ring - deep purple
+            for (int i = 0; i < 20; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 20f;
+                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(6f, 12f);
+                Dust dust = Dust.NewDustPerfect(position, DustID.PurpleTorch, vel, 0, default, 2.5f);
+                dust.noGravity = true;
+                dust.fadeIn = 1.5f;
+            }
+            
+            // Inner ring - light blue
+            for (int i = 0; i < 15; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 15f;
+                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(4f, 9f);
+                Dust dust = Dust.NewDustPerfect(position, DustID.IceTorch, vel, 0, default, 2.2f);
+                dust.noGravity = true;
+                dust.fadeIn = 1.3f;
+            }
+            
+            // Random burst
+            for (int i = 0; i < 15; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(8f, 8f);
+                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
+                Dust dust = Dust.NewDustPerfect(position, dustType, vel, 0, default, 2f);
+                dust.noGravity = true;
+            }
+            
+            // Sparkles
+            for (int i = 0; i < 12; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(6f, 6f);
+                Dust sparkle = Dust.NewDustPerfect(position, DustID.SparksMech, vel, 100, Color.White, 1.5f);
+                sparkle.noGravity = true;
+            }
+            
+            // Electric sparks
+            for (int i = 0; i < 8; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(5f, 5f);
+                Dust electric = Dust.NewDustPerfect(position, DustID.Electric, vel, 100, Color.LightBlue, 1.2f);
+                electric.noGravity = true;
+            }
+            
+            // Shadowflame accent
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(4f, 4f);
+                Dust shadow = Dust.NewDustPerfect(position, DustID.Shadowflame, vel, 100, default, 1.5f);
+                shadow.noGravity = true;
+            }
+            
+            // Strong lighting
+            Lighting.AddLight(position, 0.8f, 0.4f, 1f);
+        }
+        
+        public override void OnKill(int timeLeft)
+        {
+            // Small death puff
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(2f, 4f);
+                int dustType = Main.rand.NextBool(3) ? DustID.IceTorch : DustID.PurpleTorch;
+                Dust dust = Dust.NewDustPerfect(Projectile.Center, dustType, vel, 80, default, 0.9f);
+                dust.noGravity = true;
+            }
+        }
+
+        public override bool PreDraw(ref Color lightColor)
+        {
+            // ENHANCED beam drawing - very visible!
+            Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
+            Vector2 origin = texture.Size() / 2f;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            
+            // Large outer purple glow
+            Color purpleGlow = new Color(140, 60, 200, 0) * 0.7f;
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 offset = new Vector2(5f, 0f).RotatedBy(i * MathHelper.PiOver2 + Main.GameUpdateCount * 0.1f);
+                Main.EntitySpriteDraw(texture, drawPos + offset, null, purpleGlow, Projectile.rotation, origin, 2.5f, SpriteEffects.None, 0);
+            }
+            
+            // Medium light blue glow
+            Color blueGlow = new Color(120, 180, 255, 0) * 0.6f;
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 offset = new Vector2(3f, 0f).RotatedBy(i * MathHelper.PiOver2 + Main.GameUpdateCount * 0.15f);
+                Main.EntitySpriteDraw(texture, drawPos + offset, null, blueGlow, Projectile.rotation, origin, 2f, SpriteEffects.None, 0);
+            }
+            
+            // Core - bright purple/white
+            Color coreColor = new Color(230, 200, 255);
+            Main.EntitySpriteDraw(texture, drawPos, null, coreColor, Projectile.rotation, origin, 1.5f, SpriteEffects.None, 0);
+            
+            // Enhanced trail
+            for (int i = 0; i < Projectile.oldPos.Length && i < 10; i++)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero)
+                    continue;
+                    
+                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                float progress = 1f - (i / 10f);
+                
+                // Purple trail
+                Color trailPurple = new Color(140, 80, 200) * progress * 0.6f;
+                trailPurple.A = 0;
+                Main.EntitySpriteDraw(texture, trailPos, null, trailPurple, Projectile.rotation, origin, progress * 2f, SpriteEffects.None, 0);
+                
+                // Blue trail
+                Color trailBlue = new Color(100, 160, 255) * progress * 0.4f;
+                trailBlue.A = 0;
+                Main.EntitySpriteDraw(texture, trailPos, null, trailBlue, Projectile.rotation, origin, progress * 1.5f, SpriteEffects.None, 0);
+            }
+            
+            return false;
+        }
+    }
+}

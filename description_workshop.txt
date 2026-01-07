@@ -1,0 +1,21 @@
+[h1]Magnum Opus[/h1]
+A musical post-Moon Lord content mod that adds Beethoven-themed items, ores, and bosses!
+
+[h2]Features[/h2]
+[list]
+[*] [b]Moonlight Sonata content[/b]: New ore, crafting stations (Moonlight Furnace & Anvil), powerful tools, and unique weapons
+[*] [b]Eroica content[/b]: New ore, crafting materials, and a challenging boss fight - Eroica's Retribution
+[*] [b]Grand Piano[/b]: A mystical structure that spawns after Moon Lord's defeat - used to summon bosses
+[*] [b]Custom rarities[/b]: Animated color effects for rare items
+[*] [b]Unique boss mechanics[/b]: The Eroica boss features three movement minions representing symphony movements
+[/list]
+
+[h2]Getting Started[/h2]
+After defeating the Moon Lord:
+1. A Grand Piano will spawn somewhere in your world
+2. Resonance Ores will generate underground
+3. Mine the ores and craft new equipment
+4. Craft the Score of Eroica to summon the boss!
+
+[h2]Credits[/h2]
+Created by SacredTrevor

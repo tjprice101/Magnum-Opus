@@ -1,0 +1,11 @@
+Magnum Opus - A musical post-Moon Lord content mod!
+
+After defeating the Moon Lord, a mystical Grand Piano appears in the world, and Resonance Ores begin to generate throughout the underground.
+
+Features:
+- Moonlight Sonata content: New ore, crafting stations, tools, and weapons themed after Beethoven's Moonlight Sonata
+- Eroica content: New ore, materials, and a challenging boss fight - Eroica's Retribution
+- Custom rarities with animated colors
+- Unique boss mechanics with three movement minions
+
+Craft the Score of Eroica and use it at the Grand Piano to summon the boss!
