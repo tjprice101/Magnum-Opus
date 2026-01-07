@@ -331,24 +331,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            // Don't draw any rectangle beam - just use particles created in AI()
-            // Draw only a small gradient glow at the origin point
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
-            
-            Vector2 beamStart = Projectile.Center - Main.screenPosition;
-            
-            // Draw only a soft glow at the source point - the actual beam is particles
-            float glowSize = 20f + (float)Math.Sin(BeamTimer * 0.2f) * 5f;
-            
-            // Outer purple glow
-            Color outerGlow = new Color(100, 40, 160) * 0.3f;
-            spriteBatch.Draw(pixel, beamStart, null, outerGlow, 0f, new Vector2(0.5f, 0.5f), glowSize, SpriteEffects.None, 0f);
-            
-            // Inner white/blue glow
-            Color innerGlow = new Color(200, 180, 255) * 0.5f;
-            spriteBatch.Draw(pixel, beamStart, null, innerGlow, 0f, new Vector2(0.5f, 0.5f), glowSize * 0.5f, SpriteEffects.None, 0f);
-            
+            // Don't draw anything - particles from AI() handle all visuals
             return false;
         }
     }

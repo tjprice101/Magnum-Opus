@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
@@ -13,6 +14,9 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
         public override void SetStaticDefaults()
         {
             Main.projFrames[Projectile.type] = 1;
+            // Enable trail storage for arc effect
+            ProjectileID.Sets.TrailCacheLength[Type] = 25;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
@@ -45,91 +49,116 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
                 return;
             }
 
-            // Set rotation to match velocity direction (no spinning)
+            // Set rotation to match velocity direction
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // Purple sparkly flaming effect
-            // Main flame particles
-            for (int i = 0; i < 2; i++)
+            // White sparkle dust effect
+            if (Main.rand.NextBool(2))
+            {
+                Dust sparkle = Dust.NewDustDirect(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f), 1, 1, 
+                    DustID.SparksMech, 0f, 0f, 0, Color.White, 1.2f);
+                sparkle.noGravity = true;
+                sparkle.velocity = Main.rand.NextVector2Circular(2f, 2f);
+                sparkle.fadeIn = 1.3f;
+            }
+
+            // Purple flame trail particles
+            if (Main.rand.NextBool(2))
             {
                 Dust flame = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
                     DustID.PurpleTorch, 0f, 0f, 100, default, 1.4f);
                 flame.noGravity = true;
-                flame.velocity = Projectile.velocity * 0.05f + Main.rand.NextVector2Circular(2f, 2f);
-                flame.fadeIn = 1.2f;
+                flame.velocity = Projectile.velocity * 0.05f + Main.rand.NextVector2Circular(1f, 1f);
             }
 
-            // Sparkly particles
-            if (Main.rand.NextBool(2))
-            {
-                Dust sparkle = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
-                    DustID.Enchanted_Pink, 0f, 0f, 0, default, 1.0f);
-                sparkle.noGravity = true;
-                sparkle.velocity = Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(1.5f, 1.5f);
-            }
-
-            // Purple crystal shards for extra sparkle
-            if (Main.rand.NextBool(3))
-            {
-                Dust crystal = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
-                    DustID.PurpleCrystalShard, 0f, 0f, 100, default, 0.9f);
-                crystal.noGravity = true;
-                crystal.velocity = Main.rand.NextVector2Circular(2f, 2f);
-            }
-
-            // Trailing flame effect
-            Dust trail = Dust.NewDustDirect(Projectile.Center - Projectile.velocity * 0.5f, 1, 1, 
-                DustID.PurpleTorch, 0f, 0f, 150, default, 1.2f);
-            trail.noGravity = true;
-            trail.velocity *= 0.1f;
-
-            // Light emission - brighter purple glow
+            // Light emission
             Lighting.AddLight(Projectile.Center, 0.6f, 0.2f, 0.8f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Apply Music's Dissonance debuff for 5 seconds
+            // Apply Music's Dissonance debuff
             target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 300);
 
-            // Burst of musical energy on hit with flaming effect
-            for (int i = 0; i < 12; i++)
+            // Burst of particles on hit
+            for (int i = 0; i < 15; i++)
             {
                 Dust dust = Dust.NewDustDirect(target.Center, 1, 1, DustID.PurpleTorch, 0f, 0f, 100, default, 1.5f);
                 dust.noGravity = true;
                 dust.velocity = Main.rand.NextVector2Circular(6f, 6f);
-                dust.fadeIn = 1.3f;
             }
-
-            // Extra sparkles on hit
-            for (int i = 0; i < 6; i++)
+            
+            // White sparkle burst
+            for (int i = 0; i < 8; i++)
             {
-                Dust sparkle = Dust.NewDustDirect(target.Center, 1, 1, DustID.Enchanted_Pink, 0f, 0f, 0, default, 0.9f);
+                Dust sparkle = Dust.NewDustDirect(target.Center, 1, 1, DustID.SparksMech, 0f, 0f, 0, Color.White, 1.5f);
                 sparkle.noGravity = true;
-                sparkle.velocity = Main.rand.NextVector2Circular(4f, 4f);
+                sparkle.velocity = Main.rand.NextVector2Circular(5f, 5f);
             }
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Custom drawing for wave effect
+            SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
-            Vector2 drawOrigin = new Vector2(texture.Width / 2, texture.Height / 2);
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            // Calculate fade based on alpha
+            Vector2 origin = texture.Size() / 2f;
+            
+            // Switch to additive blending for glow effect
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, 
+                SamplerState.LinearClamp, DepthStencilState.None, 
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Draw sweeping arc trail
+            for (int i = 0; i < Projectile.oldPos.Length - 1; i++)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero || Projectile.oldPos[i + 1] == Vector2.Zero) 
+                    continue;
+                
+                float progress = (float)i / Projectile.oldPos.Length;
+                float alpha = (1f - progress) * 0.8f;
+                float trailScale = Projectile.scale * (1f - progress * 0.5f);
+                
+                Vector2 drawPos = Projectile.oldPos[i] - Main.screenPosition + Projectile.Size / 2f;
+                
+                // Purple core trail
+                Color trailColor = new Color(180, 80, 255) * alpha;
+                spriteBatch.Draw(texture, drawPos, null, trailColor, 
+                    Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
+                
+                // Light blue outer glow
+                Color glowColor = new Color(150, 200, 255) * alpha * 0.5f;
+                spriteBatch.Draw(texture, drawPos, null, glowColor, 
+                    Projectile.oldRot[i], origin, trailScale * 1.3f, SpriteEffects.None, 0f);
+                
+                // White highlight on recent trail
+                if (i < 5)
+                {
+                    Color whiteGlow = Color.White * alpha * 0.4f;
+                    spriteBatch.Draw(texture, drawPos, null, whiteGlow, 
+                        Projectile.oldRot[i], origin, trailScale * 0.7f, SpriteEffects.None, 0f);
+                }
+            }
+            
+            // Reset to normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Draw main projectile
             float fadeAlpha = 1f - (Projectile.alpha / 255f);
             Color drawColor = new Color(180, 100, 255) * fadeAlpha;
-
-            // Draw multiple layers for wave effect
+            Vector2 mainPos = Projectile.Center - Main.screenPosition;
+            
+            // Glow layers
             for (int i = 0; i < 3; i++)
             {
-                float layerScale = Projectile.scale * (1f + i * 0.2f);
-                float layerAlpha = fadeAlpha * (1f - i * 0.3f);
+                float layerScale = Projectile.scale * (1f + i * 0.15f);
+                float layerAlpha = fadeAlpha * (1f - i * 0.25f);
                 Color layerColor = drawColor * layerAlpha;
-
-                Main.EntitySpriteDraw(texture, drawPos, null, layerColor, 
-                    Projectile.rotation + i * 0.5f, drawOrigin, layerScale, SpriteEffects.None, 0);
+                Main.EntitySpriteDraw(texture, mainPos, null, layerColor, 
+                    Projectile.rotation, origin, layerScale, SpriteEffects.None, 0);
             }
 
             return false;
@@ -137,19 +166,25 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // Final burst of particles
-            for (int i = 0; i < 10; i++)
+            // Final sparkle burst
+            for (int i = 0; i < 12; i++)
             {
                 Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
                     DustID.PurpleTorch, 0f, 0f, 100, default, 0.8f);
                 dust.noGravity = true;
                 dust.velocity = Main.rand.NextVector2Circular(3f, 3f);
             }
+            
+            for (int i = 0; i < 6; i++)
+            {
+                Dust sparkle = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.SparksMech, 0f, 0f, 0, Color.White, 1.0f);
+                sparkle.noGravity = true;
+                sparkle.velocity = Main.rand.NextVector2Circular(4f, 4f);
+            }
         }
 
         public override Color? GetAlpha(Color lightColor)
         {
-            // Always visible with purple tint
             float alpha = 1f - (Projectile.alpha / 255f);
             return new Color(180, 100, 255) * alpha;
         }

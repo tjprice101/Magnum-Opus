@@ -94,6 +94,16 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                 dust.noGravity = true;
                 dust.velocity = -Projectile.velocity * 0.2f + Main.rand.NextVector2Circular(1f, 1f);
             }
+            
+            // White sparkle dust effect
+            if (Main.rand.NextBool(3))
+            {
+                Dust sparkle = Dust.NewDustDirect(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f),
+                    1, 1, DustID.SparksMech, 0f, 0f, 0, Color.White, 1.2f);
+                sparkle.noGravity = true;
+                sparkle.velocity = Main.rand.NextVector2Circular(1.5f, 1.5f);
+                sparkle.fadeIn = 1.1f;
+            }
 
             // Magical shimmer particles
             if (Main.rand.NextBool(4))
@@ -110,6 +120,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Vector2 origin = texture.Size() / 2f;
+            
+            // Switch to additive blending for vibrant glow
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, 
+                SamplerState.LinearClamp, DepthStencilState.None, 
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Draw glowing trail
             for (int i = 0; i < Projectile.oldPos.Length; i++)
@@ -117,7 +133,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 
                 float trailProgress = (float)i / Projectile.oldPos.Length;
-                float trailAlpha = (1f - trailProgress) * 0.5f;
+                float trailAlpha = (1f - trailProgress) * 0.6f;
                 float trailScale = Projectile.scale * (1f - trailProgress * 0.5f);
                 
                 // Purple/pink gradient for trail
@@ -128,27 +144,40 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                 float trailRot = Projectile.oldRot[i];
                 
                 spriteBatch.Draw(texture, trailPos, null, trailColor, trailRot, origin, trailScale * 0.8f, SpriteEffects.None, 0f);
+                
+                // White sparkle highlight on recent trail
+                if (i < 4)
+                {
+                    Color whiteGlow = Color.White * trailAlpha * 0.6f;
+                    spriteBatch.Draw(texture, trailPos, null, whiteGlow, trailRot, origin, trailScale * 0.4f, SpriteEffects.None, 0f);
+                }
             }
 
             // Draw outer glow (pink)
-            Color glowPink = new Color(255, 150, 220, 0) * 0.6f;
+            Color glowPink = new Color(255, 150, 220, 0) * 0.7f;
             spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, glowPink, 
-                Projectile.rotation, origin, Projectile.scale * 1.4f, SpriteEffects.None, 0f);
+                Projectile.rotation, origin, Projectile.scale * 1.5f, SpriteEffects.None, 0f);
 
             // Draw middle glow (purple)
-            Color glowPurple = new Color(180, 80, 255, 0) * 0.7f;
+            Color glowPurple = new Color(180, 80, 255, 0) * 0.8f;
             spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, glowPurple, 
-                Projectile.rotation, origin, Projectile.scale * 1.2f, SpriteEffects.None, 0f);
+                Projectile.rotation, origin, Projectile.scale * 1.25f, SpriteEffects.None, 0f);
+                
+            // Reset to normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Draw main sprite with purple/pink tint
             Color mainColor = new Color(220, 140, 255, 200);
             spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, mainColor, 
                 Projectile.rotation, origin, Projectile.scale, SpriteEffects.None, 0f);
 
-            // Draw bright core
-            Color coreColor = new Color(255, 200, 255, 100);
+            // Draw bright white core
+            Color coreColor = Color.White * 0.8f;
             spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, coreColor, 
-                Projectile.rotation, origin, Projectile.scale * 0.6f, SpriteEffects.None, 0f);
+                Projectile.rotation, origin, Projectile.scale * 0.5f, SpriteEffects.None, 0f);
 
             return false; // We handled drawing
         }

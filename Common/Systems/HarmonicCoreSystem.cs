@@ -452,7 +452,7 @@ namespace MagnumOpus.Common.Systems
                 electric.noGravity = true;
             }
             
-            // Find all nearby enemies and hit them with VISIBLE moonbeams
+            // Find all nearby enemies and hit them with MASSIVE WHITE MOONBEAMS
             for (int i = 0; i < Main.maxNPCs; i++)
             {
                 NPC npc = Main.npc[i];
@@ -461,66 +461,127 @@ namespace MagnumOpus.Common.Systems
                     int damage = (int)(Player.GetTotalDamage(DamageClass.Generic).ApplyTo(200));
                     npc.SimpleStrikeNPC(damage, 0, true, 0f, null, false, 0f, true);
                     
-                    // MASSIVE moon beam visual from player to enemy - highly visible!
+                    // MASSIVE WHITE PIERCING MOONBEAM - extremely visible!
                     Vector2 direction = npc.Center - Player.Center;
                     float distance = direction.Length();
                     direction.Normalize();
                     
-                    // Create thick, visible beam with multiple dust layers
-                    int beamDensity = (int)(distance / 8f); // More particles for visibility
+                    // Create extremely thick, highly visible WHITE beam with multiple dust layers
+                    int beamDensity = (int)(distance / 4f); // Much higher density for visibility
+                    
+                    // LAYER 1: Outer glow layer - very large white particles
                     for (int j = 0; j < beamDensity; j++)
                     {
                         float progress = j / (float)beamDensity;
                         Vector2 pos = Player.Center + direction * distance * progress;
                         
-                        // Core beam - bright purple
+                        // Wide outer white glow - Ice torch for white/light blue
+                        for (int k = 0; k < 6; k++)
+                        {
+                            Vector2 perpendicular = new Vector2(-direction.Y, direction.X);
+                            float spread = (k - 2.5f) * 14f; // Wider spread
+                            Vector2 offset = perpendicular * spread + Main.rand.NextVector2Circular(8f, 8f);
+                            Dust glow = Dust.NewDustPerfect(pos + offset, DustID.IceTorch, direction * 2f + Main.rand.NextVector2Circular(1f, 1f), 0, default, 3.5f);
+                            glow.noGravity = true;
+                            glow.fadeIn = 2f;
+                        }
+                    }
+                    
+                    // LAYER 2: Core white beam - very bright and thick
+                    for (int j = 0; j < beamDensity; j++)
+                    {
+                        float progress = j / (float)beamDensity;
+                        Vector2 pos = Player.Center + direction * distance * progress;
+                        
+                        // Core white particles - using SparksMech for bright white
+                        for (int k = 0; k < 8; k++)
+                        {
+                            Vector2 perpendicular = new Vector2(-direction.Y, direction.X);
+                            float spread = (k - 3.5f) * 8f;
+                            Vector2 offset = perpendicular * spread + Main.rand.NextVector2Circular(4f, 4f);
+                            Dust core = Dust.NewDustPerfect(pos + offset, DustID.SparksMech, direction * 3f, 0, Color.White, 2.5f);
+                            core.noGravity = true;
+                            core.fadeIn = 1.5f;
+                        }
+                        
+                        // Additional white shimmer particles
                         for (int k = 0; k < 4; k++)
                         {
-                            Vector2 offset = Main.rand.NextVector2Circular(12f, 12f);
-                            Dust dust = Dust.NewDustPerfect(pos + offset, DustID.PurpleTorch, direction * 3f, 0, default, 2.8f);
-                            dust.noGravity = true;
-                            dust.fadeIn = 1.5f;
+                            Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
+                            Dust shimmer = Dust.NewDustPerfect(pos + offset, DustID.SilverCoin, direction * 1.5f, 0, Color.White, 2f);
+                            shimmer.noGravity = true;
                         }
+                    }
+                    
+                    // LAYER 3: Inner purple accent for contrast
+                    for (int j = 0; j < beamDensity / 2; j++)
+                    {
+                        float progress = j / (float)(beamDensity / 2);
+                        Vector2 pos = Player.Center + direction * distance * progress;
                         
-                        // Outer beam - light blue
+                        // Thin purple core for contrast
                         for (int k = 0; k < 3; k++)
                         {
-                            Vector2 offset = Main.rand.NextVector2Circular(18f, 18f);
-                            Dust dust = Dust.NewDustPerfect(pos + offset, DustID.IceTorch, direction * 2f, 0, default, 2.5f);
-                            dust.noGravity = true;
-                            dust.fadeIn = 1.3f;
+                            Vector2 offset = Main.rand.NextVector2Circular(6f, 6f);
+                            Dust accent = Dust.NewDustPerfect(pos + offset, DustID.PurpleTorch, direction * 4f, 0, default, 2.2f);
+                            accent.noGravity = true;
+                            accent.fadeIn = 1.3f;
                         }
-                        
-                        // Sparkle layer
-                        if (Main.rand.NextBool(3))
-                        {
-                            Dust sparkle = Dust.NewDustPerfect(pos + Main.rand.NextVector2Circular(8f, 8f), 
-                                DustID.SparksMech, direction * 2f, 100, Color.White, 1.5f);
-                            sparkle.noGravity = true;
-                        }
-                        
-                        // Add lighting along the beam
-                        Lighting.AddLight(pos, 0.6f, 0.3f, 0.8f);
                     }
                     
-                    // Explosion at enemy position
-                    for (int e = 0; e < 30; e++)
+                    // LAYER 4: Trailing sparkles along the beam
+                    for (int j = 0; j < beamDensity / 3; j++)
                     {
-                        float angle = MathHelper.TwoPi * e / 30f;
-                        Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(5f, 10f);
-                        int dustType = e % 2 == 0 ? DustID.PurpleTorch : DustID.IceTorch;
-                        Dust dust = Dust.NewDustPerfect(npc.Center, dustType, vel, 0, default, 2.5f);
-                        dust.noGravity = true;
-                        dust.fadeIn = 1.5f;
+                        float progress = j / (float)(beamDensity / 3);
+                        Vector2 pos = Player.Center + direction * distance * progress;
+                        
+                        // Bright white trailing sparkles
+                        Vector2 perpendicular = new Vector2(-direction.Y, direction.X);
+                        float randomSpread = Main.rand.NextFloat(-30f, 30f);
+                        Dust sparkle = Dust.NewDustPerfect(pos + perpendicular * randomSpread, DustID.SilverCoin, 
+                            perpendicular * Main.rand.NextFloat(-2f, 2f), 0, Color.White, 1.8f);
+                        sparkle.noGravity = true;
                     }
                     
-                    // Shadowflame explosion at target
+                    // Strong lighting along entire beam
+                    for (int j = 0; j < beamDensity / 4; j++)
+                    {
+                        float progress = j / (float)(beamDensity / 4);
+                        Vector2 pos = Player.Center + direction * distance * progress;
+                        Lighting.AddLight(pos, 1.2f, 1.2f, 1.4f); // Bright white light
+                    }
+                    
+                    // MASSIVE white explosion at enemy position
+                    for (int ring = 0; ring < 3; ring++)
+                    {
+                        for (int e = 0; e < 40; e++)
+                        {
+                            float angle = MathHelper.TwoPi * e / 40f;
+                            Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * (6f + ring * 4f);
+                            Dust burst = Dust.NewDustPerfect(npc.Center, DustID.IceTorch, vel, 0, default, 3f - ring * 0.5f);
+                            burst.noGravity = true;
+                            burst.fadeIn = 1.8f;
+                        }
+                    }
+                    
+                    // White sparkle explosion at target
+                    for (int e = 0; e < 25; e++)
+                    {
+                        Vector2 vel = Main.rand.NextVector2Circular(10f, 10f);
+                        Dust sparkle = Dust.NewDustPerfect(npc.Center, DustID.SparksMech, vel, 0, Color.White, 2f);
+                        sparkle.noGravity = true;
+                    }
+                    
+                    // Purple accent explosion for contrast
                     for (int e = 0; e < 15; e++)
                     {
                         Vector2 vel = Main.rand.NextVector2Circular(8f, 8f);
-                        Dust shadow = Dust.NewDustPerfect(npc.Center, DustID.Shadowflame, vel, 100, default, 2f);
-                        shadow.noGravity = true;
+                        Dust purple = Dust.NewDustPerfect(npc.Center, DustID.PurpleTorch, vel, 100, default, 2.2f);
+                        purple.noGravity = true;
                     }
+                    
+                    // Strong light at impact
+                    Lighting.AddLight(npc.Center, 1.5f, 1.5f, 1.8f);
                 }
             }
             

@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Content.MoonlightSonata.Projectiles;
+using MagnumOpus.Content.MoonlightSonata.Accessories;
 
 namespace MagnumOpus.Content.MoonlightSonata.Minions
 {
@@ -180,7 +181,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
             if (attackCooldown <= 0 && distance < 600f && Main.myPlayer == Projectile.owner)
             {
                 FireBeam(target);
-                attackCooldown = 90; // 1.5 second cooldown
+                
+                // Fractal of Moonlight - 25% faster attack speed
+                Player owner = Main.player[Projectile.owner];
+                var modPlayer = owner.GetModPlayer<MoonlightAccessoryPlayer>();
+                attackCooldown = modPlayer.hasFractalOfMoonlight ? 68 : 90; // Faster cooldown with accessory
             }
         }
         
@@ -262,6 +267,18 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
                 Dust dust = Dust.NewDustDirect(target.Center, 1, 1, DustID.PurpleTorch, 
                     Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-2f, 2f), 100, default, 1.2f);
                 dust.noGravity = true;
+            }
+        }
+        
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            // Fractal of Moonlight - +50% damage boost for Moonlight minions
+            Player owner = Main.player[Projectile.owner];
+            var modPlayer = owner.GetModPlayer<MoonlightAccessoryPlayer>();
+            
+            if (modPlayer.hasFractalOfMoonlight)
+            {
+                modifiers.FinalDamage *= 1.5f;
             }
         }
 

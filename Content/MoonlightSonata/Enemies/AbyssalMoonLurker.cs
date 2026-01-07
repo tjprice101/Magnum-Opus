@@ -264,14 +264,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 flankDirection = Main.rand.NextBool() ? 1 : -1;
             }
 
-            // Only jump when target is significantly above
-            bool targetAbove = target.Center.Y < NPC.Center.Y - 130f;
+            // Only jump when target is above (small hop)
+            bool targetAbove = target.Center.Y < NPC.Center.Y - 50f;
 
             if (NPC.velocity.Y == 0 && JumpCooldown <= 0 && targetAbove)
             {
-                float jumpPower = -20f;
+                float jumpPower = -7f; // Small hop
                 NPC.velocity.Y = jumpPower;
-                JumpCooldown = 45;
+                JumpCooldown = 70;
                 CurrentState = AIState.Jumping;
                 StateTimer = 0;
 

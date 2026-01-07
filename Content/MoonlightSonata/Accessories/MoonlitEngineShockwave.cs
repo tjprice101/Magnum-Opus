@@ -136,38 +136,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
         
         public override bool PreDraw(ref Color lightColor)
         {
-            // Custom ring drawing with fade
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
-            
-            float progress = shockwaveRadius / MaxRadius;
-            float alpha = fadeAlpha * (1f - progress * 0.3f) * 0.6f; // Apply fade alpha
-            
-            // Draw multiple rings with fade
-            DrawRing(spriteBatch, pixel, Projectile.Center - Main.screenPosition, shockwaveRadius, 8f * fadeAlpha, new Color(180, 120, 255) * alpha);
-            DrawRing(spriteBatch, pixel, Projectile.Center - Main.screenPosition, shockwaveRadius * 0.8f, 5f * fadeAlpha, new Color(120, 180, 255) * alpha * 0.7f);
-            DrawRing(spriteBatch, pixel, Projectile.Center - Main.screenPosition, shockwaveRadius * 0.5f, 3f * fadeAlpha, new Color(255, 255, 255) * alpha * 0.5f);
-            
+            // No custom drawing - particles handle all visuals
             return false;
-        }
-        
-        private void DrawRing(SpriteBatch spriteBatch, Texture2D texture, Vector2 center, float radius, float thickness, Color color)
-        {
-            int segments = 60;
-            for (int i = 0; i < segments; i++)
-            {
-                float angle1 = MathHelper.TwoPi * i / segments;
-                float angle2 = MathHelper.TwoPi * (i + 1) / segments;
-                
-                Vector2 pos1 = center + new Vector2((float)Math.Cos(angle1), (float)Math.Sin(angle1)) * radius;
-                Vector2 pos2 = center + new Vector2((float)Math.Cos(angle2), (float)Math.Sin(angle2)) * radius;
-                
-                Vector2 direction = pos2 - pos1;
-                float length = direction.Length();
-                float rotation = direction.ToRotation();
-                
-                spriteBatch.Draw(texture, pos1, null, color, rotation, Vector2.Zero, new Vector2(length, thickness), SpriteEffects.None, 0f);
-            }
         }
     }
 }

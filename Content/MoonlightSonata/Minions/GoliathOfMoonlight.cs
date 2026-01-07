@@ -8,6 +8,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Content.MoonlightSonata.Projectiles;
+using MagnumOpus.Content.MoonlightSonata.Accessories;
 
 namespace MagnumOpus.Content.MoonlightSonata.Minions
 {
@@ -420,7 +421,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
                     isCharging = false;
                     chargeTimer = 0;
                     chargeTarget = null;
-                    attackCooldown = 180; // Longer cooldown after devastating beam
+                    
+                    // Fractal of Moonlight - 25% faster attack speed
+                    var modPlayer = owner.GetModPlayer<MoonlightAccessoryPlayer>();
+                    attackCooldown = modPlayer.hasFractalOfMoonlight ? 135 : 180; // Faster cooldown with accessory
                     State = AIState.Attacking;
                 }
                 return;
@@ -674,11 +678,26 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
             // Add lighting on hit
             Lighting.AddLight(target.Center, 0.6f, 0.3f, 0.8f);
         }
+        
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            // Fractal of Moonlight - +50% damage boost for Moonlight minions
+            Player owner = Main.player[Projectile.owner];
+            var modPlayer = owner.GetModPlayer<MoonlightAccessoryPlayer>();
+            
+            if (modPlayer.hasFractalOfMoonlight)
+            {
+                modifiers.FinalDamage *= 1.5f;
+            }
+        }
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch spriteBatch = Main.spriteBatch;
+            
             // Get the spritesheet texture
             Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
             
             // Calculate frame dimensions
             int frameWidth = texture.Width / FrameColumns;
@@ -697,8 +716,81 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
             // Flip sprite based on direction
             SpriteEffects effects = Projectile.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             
-            // Draw purple glow behind
-            Color purpleGlow = new Color(150, 80, 200, 0) * 0.4f;
+            // === CHARGING VFX - Dramatic additive blending effects ===
+            if (isCharging && chargeTimer > 0)
+            {
+                float chargeProgress = (float)chargeTimer / ChargeUpTime;
+                
+                // Switch to additive blending for glows
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                
+                // Outer pulsing energy rings
+                for (int ring = 0; ring < 3; ring++)
+                {
+                    float ringProgress = (chargeTimer * 0.05f + ring * 0.3f) % 1f;
+                    float ringSize = 80f + (1f - ringProgress) * 60f;
+                    float ringAlpha = ringProgress * (1f - ringProgress) * 4f * chargeProgress;
+                    
+                    Color ringColor = ring % 2 == 0 ? new Color(100, 50, 180) : new Color(100, 180, 255);
+                    ringColor *= ringAlpha * 0.5f;
+                    
+                    // Draw ring as circle of points
+                    for (int i = 0; i < 24; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / 24f;
+                        Vector2 ringPos = Projectile.Center - Main.screenPosition + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * ringSize;
+                        spriteBatch.Draw(pixel, ringPos, new Rectangle(0, 0, 1, 1), ringColor, 0f, new Vector2(0.5f), 4f, SpriteEffects.None, 0f);
+                    }
+                }
+                
+                // Central energy buildup glow
+                float coreSize = 30f + chargeProgress * 50f;
+                float corePulse = (float)Math.Sin(chargeTimer * 0.3f) * 0.2f + 0.8f;
+                
+                // Outer purple aura
+                Color outerGlow = new Color(120, 60, 180) * chargeProgress * corePulse * 0.6f;
+                spriteBatch.Draw(pixel, Projectile.Center - Main.screenPosition, new Rectangle(0, 0, 1, 1), outerGlow, 0f, new Vector2(0.5f), coreSize * 1.5f, SpriteEffects.None, 0f);
+                
+                // Mid blue glow
+                Color midGlow = new Color(100, 150, 255) * chargeProgress * corePulse * 0.7f;
+                spriteBatch.Draw(pixel, Projectile.Center - Main.screenPosition, new Rectangle(0, 0, 1, 1), midGlow, 0f, new Vector2(0.5f), coreSize, SpriteEffects.None, 0f);
+                
+                // Inner white-hot core
+                Color coreGlow = new Color(220, 200, 255) * chargeProgress * corePulse * 0.8f;
+                spriteBatch.Draw(pixel, Projectile.Center - Main.screenPosition, new Rectangle(0, 0, 1, 1), coreGlow, 0f, new Vector2(0.5f), coreSize * 0.5f, SpriteEffects.None, 0f);
+                
+                // Energy tendrils spiraling inward (drawn as line segments)
+                int tendrilCount = 6;
+                for (int t = 0; t < tendrilCount; t++)
+                {
+                    float baseAngle = chargeTimer * 0.08f + (MathHelper.TwoPi * t / tendrilCount);
+                    float tendrilLength = 100f - chargeProgress * 40f;
+                    
+                    for (int seg = 0; seg < 8; seg++)
+                    {
+                        float segProgress = seg / 8f;
+                        float dist = tendrilLength * (1f - segProgress);
+                        float angle = baseAngle + segProgress * 0.5f;
+                        
+                        Vector2 segPos = Projectile.Center - Main.screenPosition + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * dist;
+                        float segAlpha = segProgress * chargeProgress;
+                        
+                        Color tendrilColor = t % 2 == 0 ? new Color(150, 80, 200) : new Color(120, 180, 255);
+                        tendrilColor *= segAlpha * 0.6f;
+                        
+                        spriteBatch.Draw(pixel, segPos, new Rectangle(0, 0, 1, 1), tendrilColor, 0f, new Vector2(0.5f), 6f * segAlpha, SpriteEffects.None, 0f);
+                    }
+                }
+                
+                // Restore normal blending
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            
+            // Draw purple glow behind (normal glow, enhanced during charge)
+            float glowMult = isCharging ? 1f + (float)chargeTimer / ChargeUpTime * 0.5f : 1f;
+            Color purpleGlow = new Color(150, 80, 200, 0) * 0.4f * glowMult;
             for (int i = 0; i < 4; i++)
             {
                 Vector2 offset = new Vector2(4f, 0f).RotatedBy(i * MathHelper.PiOver2 + Main.GameUpdateCount * 0.05f);
@@ -706,7 +798,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
             }
             
             // Draw light blue inner glow
-            Color blueGlow = new Color(150, 200, 255, 0) * 0.3f;
+            Color blueGlow = new Color(150, 200, 255, 0) * 0.3f * glowMult;
             for (int i = 0; i < 4; i++)
             {
                 Vector2 offset = new Vector2(2f, 0f).RotatedBy(i * MathHelper.PiOver2 + Main.GameUpdateCount * 0.08f);

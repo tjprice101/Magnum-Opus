@@ -10,11 +10,10 @@ using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
     /// <summary>
-    /// Moonlit Gyre - Ranger accessory.
-    /// Bullets/arrows that miss ricochet up to 3 times.
-    /// +25% ranged crit chance.
-    /// Crits create sonic booms that pierce 5 enemies.
-    /// 40% chance not to consume ammo.
+    /// Moonlit Gyre - Ranger accessory for Moonlight weapons.
+    /// Specifically buffs Moonlight rifle weapons (Resurrection of the Moon).
+    /// +25% fire rate for Moonlight rifles.
+    /// +25% bullet damage for Moonlight rifles.
     /// </summary>
     public class MoonlitGyre : ModItem
     {
@@ -32,8 +31,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             var modPlayer = player.GetModPlayer<MoonlightAccessoryPlayer>();
             modPlayer.hasMoonlitGyre = true;
             
-            // +25% ranged crit chance
-            player.GetCritChance(DamageClass.Ranged) += 25f;
+            // Note: Moonlight rifle buffs (fire rate, bullet damage) are handled in the weapons themselves
+            // +25% fire rate and +25% bullet damage for Moonlight rifle weapons specifically
             
             // Ambient particles when equipped
             if (!hideVisual && Main.rand.NextBool(8))
@@ -48,27 +47,22 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "CritBoost", "+25% ranged critical strike chance")
+            tooltips.Add(new TooltipLine(Mod, "MoonlightRifleBoost", "Moonlight Rifle Weapons:")
+            {
+                OverrideColor = new Color(180, 120, 255)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "FireRateBoost", "+25% fire rate for Moonlight rifles")
             {
                 OverrideColor = new Color(255, 200, 100)
             });
             
-            tooltips.Add(new TooltipLine(Mod, "RicochetEffect", "Missed projectiles ricochet up to 3 times toward enemies")
+            tooltips.Add(new TooltipLine(Mod, "BulletDamageBoost", "+25% bullet damage for Moonlight rifles")
             {
                 OverrideColor = new Color(150, 180, 220)
             });
             
-            tooltips.Add(new TooltipLine(Mod, "SonicBoom", "Critical hits create sonic booms that pierce through 5 enemies")
-            {
-                OverrideColor = new Color(120, 80, 180)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "AmmoSave", "40% chance not to consume ammo")
-            {
-                OverrideColor = new Color(100, 200, 100)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Flavor", "'Spinning through the lunar vortex'")
+            tooltips.Add(new TooltipLine(Mod, "Flavor", "'The gyre empowers those who embrace the moon'")
             {
                 OverrideColor = new Color(120, 120, 180)
             });

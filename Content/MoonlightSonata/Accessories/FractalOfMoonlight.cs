@@ -10,11 +10,11 @@ using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
     /// <summary>
-    /// Fractal of Moonlight - Summoner accessory.
-    /// +3 minion slots.
-    /// Minions deal 30% more damage.
-    /// Every 10 seconds, all minions synchronize for a "Crescendo Attack" (500% combined damage).
-    /// Minion attacks have 2% lifesteal.
+    /// Fractal of Moonlight - Summoner accessory for Moonlight weapons.
+    /// Specifically buffs Moonlight summoning weapons (Staff of the Lunar Phases, Goliath of Moonlight, Razer).
+    /// +50% damage for Moonlight minions.
+    /// +1 extra Moonlight minion slot.
+    /// Moonlight minions attack 25% faster.
     /// </summary>
     public class FractalOfMoonlight : ModItem
     {
@@ -32,10 +32,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             var modPlayer = player.GetModPlayer<MoonlightAccessoryPlayer>();
             modPlayer.hasFractalOfMoonlight = true;
             
-            // +3 minion slots
-            player.maxMinions += 3;
-            
-            // Note: 30% damage bonus and 2% lifesteal handled in MoonlightAccessoryPlayer
+            // Note: Moonlight minion buffs are handled in the minion projectiles themselves
+            // +50% damage, +25% attack speed for Goliath of Moonlight and Razer of Moonlight's Shadow
             
             // Ambient particles when equipped
             if (!hideVisual && Main.rand.NextBool(6))

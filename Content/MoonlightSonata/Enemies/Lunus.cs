@@ -270,14 +270,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 circleAngle = (float)Math.Atan2(NPC.Center.Y - target.Center.Y, NPC.Center.X - target.Center.X);
             }
 
-            // Only jump when target is significantly above
-            bool targetAbove = target.Center.Y < NPC.Center.Y - 150f;
+            // Only jump when target is above (small hop)
+            bool targetAbove = target.Center.Y < NPC.Center.Y - 60f;
 
             if (NPC.velocity.Y == 0 && JumpCooldown <= 0 && targetAbove)
             {
-                float jumpPower = -22f;
+                float jumpPower = -8f; // Small hop
                 NPC.velocity.Y = jumpPower;
-                JumpCooldown = 40;
+                JumpCooldown = 60;
                 CurrentState = AIState.Jumping;
                 StateTimer = 0;
 

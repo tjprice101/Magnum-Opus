@@ -616,7 +616,7 @@ Items: {
 			'''
 			'The heart of moonlight given mechanical form'
 			+18% melee speed
-			Every 5th melee strike unleashes a devastating shockwave dealing 200% of the hit's damage
+			Every 5th hit unleashes a 200% damage shockwave
 			'''
 	}
 
@@ -624,11 +624,10 @@ Items: {
 		DisplayName: Moonlit Gyre
 		Tooltip:
 			'''
-			'Bullets dance in spirals of silver light'
-			+25% ranged critical strike chance
-			Missed projectiles ricochet up to 3 times seeking new targets
-			Critical hits release a piercing sonic boom
-			40% chance to not consume ammo
+			'The gyre empowers those who embrace the moon'
+			Moonlight Rifle Weapons:
+			+25% fire rate for Moonlight rifles
+			+25% bullet damage for Moonlight rifles
 			'''
 	}
 
@@ -637,10 +636,9 @@ Items: {
 		Tooltip:
 			'''
 			'Infinite reflections of lunar power'
-			+3 max minions
-			+30% minion damage
-			Every 10 seconds, your minions enter a crescendo, combining for a devastating 500% damage strike
-			Minion attacks heal you for 2% of damage dealt
+			Moonlight Minions:
+			+50% damage for Moonlight minions
+			+25% attack speed for Moonlight minions
 			'''
 	}
 
@@ -648,11 +646,10 @@ Items: {
 		DisplayName: Ember of the Moon
 		Tooltip:
 			'''
-			'A dying ember that refuses to fade'
-			-30% mana cost
-			+25% magic damage
+			'A dying star's last breath of magic'
+			-30% mana cost, +25% magic damage
 			15% chance to double-cast spells
-			When mana falls below 20%, automatically restore 100 mana (120 second cooldown)
+			Restores 100 mana when below 20% (2 min cooldown)
 			'''
 	}
 
@@ -755,6 +752,11 @@ Items: {
 		DisplayName: Wings Of The Moon
 		Tooltip: ""
 	}
+
+	ResurrectionOfTheMoon: {
+		Tooltip: ""
+		DisplayName: Resurrection Of The Moon
+	}
 }
 
 NPCs: {
@@ -796,6 +798,20 @@ Projectiles: {
 	WaningDeerChandelierOrbiting.DisplayName: Waning Chandelier
 	AbyssalOrbProjectile.DisplayName: Abyssal Orb
 	AbyssalBoltProjectile.DisplayName: Abyssal Bolt
+	ResurrectionProjectile.DisplayName: Resurrection Projectile
+
+	ResurrectionOfTheMoon: {
+		DisplayName: Resurrection of the Moon
+		Tooltip:
+			'''
+			'From death comes rebirth in silver light'
+			Fires a devastating moonlight bullet
+			Bullets ricochet 10 times to nearby enemies
+			Each hit creates a devastating radial explosion
+			Requires reloading between shots
+			Synergizes with Moonlit Gyre: +25% damage, +15% velocity
+			'''
+	}
 }
 
 "Keybinds.Toggle Harmonic Core UI.DisplayName": Toggle  Harmonic  Core  U I

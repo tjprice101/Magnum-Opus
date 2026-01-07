@@ -25,8 +25,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
         
         // Fractal of Moonlight (Summoner)
         public bool hasFractalOfMoonlight = false;
-        public int crescendoTimer = 0;
-        private const int CrescendoInterval = 600; // 10 seconds
+        public int minionSurgeTimer = 0;
+        private const int MinionSurgeInterval = 300; // 5 seconds
         
         // Ember of the Moon (Mage)
         public bool hasEmberOfTheMoon = false;
@@ -51,19 +51,19 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             if (floatAngle > MathHelper.TwoPi)
                 floatAngle -= MathHelper.TwoPi;
             
-            // Fractal of Moonlight - Crescendo Attack timer
+            // Fractal of Moonlight - Minion Surge timer (speed boost)
             if (hasFractalOfMoonlight)
             {
-                crescendoTimer++;
-                if (crescendoTimer >= CrescendoInterval)
+                minionSurgeTimer++;
+                if (minionSurgeTimer >= MinionSurgeInterval)
                 {
-                    crescendoTimer = 0;
-                    PerformCrescendoAttack();
+                    minionSurgeTimer = 0;
+                    PerformMinionSurge();
                 }
             }
             else
             {
-                crescendoTimer = 0;
+                minionSurgeTimer = 0;
             }
             
             // Ember of the Moon - Mana restore cooldown
@@ -93,110 +93,29 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             }
         }
         
-        private void PerformCrescendoAttack()
+        private void PerformMinionSurge()
         {
-            // Find nearest boss
-            NPC targetBoss = null;
-            float closestDist = 2000f;
-            
-            foreach (NPC npc in Main.ActiveNPCs)
-            {
-                if (npc.boss && npc.CanBeChasedBy())
-                {
-                    float dist = Vector2.Distance(Player.Center, npc.Center);
-                    if (dist < closestDist)
-                    {
-                        closestDist = dist;
-                        targetBoss = npc;
-                    }
-                }
-            }
-            
-            // If no boss, find strongest enemy
-            if (targetBoss == null)
-            {
-                int highestLife = 0;
-                foreach (NPC npc in Main.ActiveNPCs)
-                {
-                    if (npc.CanBeChasedBy() && npc.lifeMax > highestLife)
-                    {
-                        float dist = Vector2.Distance(Player.Center, npc.Center);
-                        if (dist < closestDist)
-                        {
-                            highestLife = npc.lifeMax;
-                            targetBoss = npc;
-                        }
-                    }
-                }
-            }
-            
-            if (targetBoss == null)
-                return;
-            
-            // Calculate combined minion damage (500% of combined damage)
-            int totalMinionDamage = 0;
-            int minionCount = 0;
-            
+            // Boost all minions' attack speed temporarily via a visual surge effect
+            // This creates a visual burst around each minion
             foreach (Projectile proj in Main.ActiveProjectiles)
             {
                 if (proj.owner == Player.whoAmI && proj.minion)
                 {
-                    totalMinionDamage += proj.damage;
-                    minionCount++;
-                }
-            }
-            
-            if (minionCount == 0)
-                return;
-            
-            int crescendoDamage = (int)(totalMinionDamage * 5f); // 500%
-            
-            // Deal the damage
-            if (Main.myPlayer == Player.whoAmI)
-            {
-                Player.ApplyDamageToNPC(targetBoss, crescendoDamage, 0f, Player.direction, false);
-            }
-            
-            // MASSIVE visual effect - Crescendo Attack!
-            Vector2 targetCenter = targetBoss.Center;
-            
-            // Converging beams from all minions
-            foreach (Projectile proj in Main.ActiveProjectiles)
-            {
-                if (proj.owner == Player.whoAmI && proj.minion)
-                {
-                    // Beam line from minion to target
-                    Vector2 direction = (targetCenter - proj.Center).SafeNormalize(Vector2.Zero);
-                    float distance = Vector2.Distance(proj.Center, targetCenter);
-                    
-                    for (float i = 0; i < distance; i += 15f)
+                    // Visual surge effect around each minion
+                    for (int i = 0; i < 15; i++)
                     {
-                        Vector2 dustPos = proj.Center + direction * i;
+                        float angle = MathHelper.TwoPi * i / 15f;
+                        Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 4f;
                         int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
-                        Dust dust = Dust.NewDustPerfect(dustPos, dustType, direction * 2f, 0, default, 2f);
+                        Dust dust = Dust.NewDustPerfect(proj.Center, dustType, vel, 0, default, 1.5f);
                         dust.noGravity = true;
-                        dust.fadeIn = 1.5f;
+                        dust.fadeIn = 1.2f;
                     }
                 }
             }
             
-            // Explosion at target
-            for (int ring = 0; ring < 3; ring++)
-            {
-                for (int i = 0; i < 25; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 25f;
-                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * (8f + ring * 4f);
-                    int dustType = (i + ring) % 2 == 0 ? DustID.PurpleTorch : DustID.IceTorch;
-                    Dust dust = Dust.NewDustPerfect(targetCenter, dustType, vel, 0, default, 2.5f - ring * 0.3f);
-                    dust.noGravity = true;
-                    dust.fadeIn = 1.5f;
-                }
-            }
-            
-            // Sound
-            SoundEngine.PlaySound(SoundID.Item122 with { Volume = 0.8f, Pitch = 0.3f }, targetCenter);
-            SoundEngine.PlaySound(SoundID.Item105 with { Volume = 0.6f }, targetCenter);
+            // Sound effect
+            SoundEngine.PlaySound(SoundID.Item29 with { Volume = 0.5f, Pitch = 0.3f }, Player.Center);
         }
         
         public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
@@ -229,19 +148,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                 }
             }
             
-            // Fractal of Moonlight - 2% lifesteal for minions
-            if (hasFractalOfMoonlight && proj.minion)
-            {
-                int healAmount = Math.Max(1, (int)(damageDone * 0.02f));
-                Player.statLife = Math.Min(Player.statLife + healAmount, Player.statLifeMax2);
-                Player.HealEffect(healAmount, false);
-            }
-            
-            // Moonlit Gyre - Crit sonic boom for ranged
-            if (hasMoonlitGyre && proj.DamageType == DamageClass.Ranged && hit.Crit)
-            {
-                CreateSonicBoom(target.Center, damageDone);
-            }
+            // Note: Sonic boom effect removed - Moonlit Gyre now only buffs Moonlight rifle weapons
         }
         
         private void CreateMoonlitShockwave(Vector2 position, int damage)
@@ -265,30 +172,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             SoundEngine.PlaySound(SoundID.Item122 with { Volume = 0.5f, Pitch = 0.8f }, position);
         }
         
-        private void CreateSonicBoom(Vector2 position, int damage)
-        {
-            // Spawn the sonic boom projectile
-            if (Main.myPlayer == Player.whoAmI)
-            {
-                Projectile.NewProjectile(
-                    Player.GetSource_Accessory(new Item()),
-                    position,
-                    Vector2.Zero,
-                    ModContent.ProjectileType<MoonlitGyreSonicBoom>(),
-                    damage,
-                    5f,
-                    Player.whoAmI
-                );
-            }
-        }
+        // Note: CreateSonicBoom removed - Moonlit Gyre now only buffs specific Moonlight rifle weapons
         
         public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers)
         {
-            // Fractal of Moonlight - +30% minion damage
-            if (hasFractalOfMoonlight && proj.minion)
-            {
-                modifiers.FinalDamage *= 1.3f;
-            }
+            // Note: Specific Moonlight minion damage boosts are now handled in the minion projectiles themselves
+            // when checking for hasFractalOfMoonlight
         }
         
         public override void ModifyWeaponDamage(Item item, ref StatModifier damage)
@@ -340,109 +229,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
         
         public override bool CanConsumeAmmo(Item weapon, Item ammo)
         {
-            // Moonlit Gyre - 40% chance not to consume ammo
-            if (hasMoonlitGyre && weapon.DamageType == DamageClass.Ranged)
-            {
-                if (Main.rand.NextFloat() < 0.4f)
-                    return false;
-            }
-            
+            // Note: Ammo save effects removed - Moonlit Gyre now specifically buffs Moonlight rifles
             return true;
         }
     }
     
-    /// <summary>
-    /// GlobalProjectile to handle Moonlit Gyre ricochet mechanics.
-    /// </summary>
-    public class MoonlitGyreGlobalProjectile : GlobalProjectile
-    {
-        public override bool InstancePerEntity => true;
-        
-        public int ricochetCount = 0;
-        public int missTimer = 0;
-        public bool hasCheckedMiss = false;
-        public Vector2 lastPosition = Vector2.Zero;
-        
-        public override bool PreAI(Projectile projectile)
-        {
-            Player owner = Main.player[projectile.owner];
-            var modPlayer = owner.GetModPlayer<MoonlightAccessoryPlayer>();
-            
-            // Only apply to ranged projectiles from players with Moonlit Gyre
-            if (!modPlayer.hasMoonlitGyre || projectile.DamageType != DamageClass.Ranged)
-                return true;
-            
-            if (!projectile.friendly || projectile.hostile)
-                return true;
-            
-            // Skip certain projectile types that shouldn't ricochet
-            if (projectile.minion || projectile.bobber || projectile.aiStyle == ProjAIStyleID.Hook)
-                return true;
-            
-            // Track for miss detection
-            if (projectile.active && projectile.timeLeft < projectile.extraUpdates * 60 + 55 && !hasCheckedMiss)
-            {
-                missTimer++;
-                
-                // After some time without hitting, check if it's about to die
-                if (projectile.timeLeft <= 5 && ricochetCount < 3)
-                {
-                    // Find new target
-                    NPC newTarget = FindNearestEnemy(projectile.Center, 500f, projectile);
-                    if (newTarget != null)
-                    {
-                        // Ricochet toward new target
-                        Vector2 newDirection = (newTarget.Center - projectile.Center).SafeNormalize(Vector2.Zero);
-                        float speed = projectile.velocity.Length();
-                        if (speed < 8f) speed = 8f;
-                        projectile.velocity = newDirection * speed;
-                        projectile.timeLeft = 120;
-                        ricochetCount++;
-                        
-                        // Ricochet visual
-                        for (int i = 0; i < 10; i++)
-                        {
-                            int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
-                            Dust dust = Dust.NewDustPerfect(projectile.Center, dustType, 
-                                Main.rand.NextVector2Circular(4f, 4f), 100, default, 1.3f);
-                            dust.noGravity = true;
-                        }
-                        
-                        SoundEngine.PlaySound(SoundID.Item10 with { Volume = 0.3f, Pitch = 0.5f }, projectile.Center);
-                    }
-                }
-            }
-            
-            lastPosition = projectile.Center;
-            return true;
-        }
-        
-        private NPC FindNearestEnemy(Vector2 position, float range, Projectile proj)
-        {
-            NPC closest = null;
-            float closestDist = range;
-            
-            foreach (NPC npc in Main.ActiveNPCs)
-            {
-                if (npc.CanBeChasedBy(proj))
-                {
-                    float dist = Vector2.Distance(position, npc.Center);
-                    if (dist < closestDist)
-                    {
-                        closestDist = dist;
-                        closest = npc;
-                    }
-                }
-            }
-            
-            return closest;
-        }
-        
-        public override void OnHitNPC(Projectile projectile, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            hasCheckedMiss = true; // Hit something, no need to ricochet
-        }
-    }
+    // Note: MoonlitGyreGlobalProjectile removed - Moonlit Gyre now only buffs specific Moonlight rifle weapons
+    // The ricochet effect for all ranged weapons has been removed as it was too powerful/not working as intended
     
     /// <summary>
     /// Drawing layer for floating accessory visuals.

@@ -100,11 +100,11 @@ namespace MagnumOpus.Content.Eroica.Minions
                 State = AIState.Idle;
             }
             
-            // Visual effects - black and scarlet red flame particles
+            // Visual effects - gold and red flame particles
             CreateAmbientEffects();
 
-            // Lighting - deep red with some black tones
-            Lighting.AddLight(Projectile.Center, 0.5f, 0.1f, 0.15f);
+            // Lighting - warm gold/orange glow
+            Lighting.AddLight(Projectile.Center, 0.5f, 0.3f, 0.1f);
             
             // Update facing direction based on velocity or target
             if (target != null)
@@ -237,49 +237,37 @@ namespace MagnumOpus.Content.Eroica.Minions
             Vector2 direction = target.Center - Projectile.Center;
             float distance = direction.Length();
             
-            // Fire black/red flame projectiles
+            // Fire gold/red flame stream (flamethrower style - very fast)
             attackCooldown--;
-            if (attackCooldown <= 0 && distance < 500f && Main.myPlayer == Projectile.owner)
+            if (attackCooldown <= 0 && distance < 400f && Main.myPlayer == Projectile.owner)
             {
                 FireFlameProjectile(target);
-                attackCooldown = 25; // Attack every ~0.4 seconds
+                attackCooldown = 4; // Rapid fire flamethrower - every ~0.07 seconds
             }
         }
         
         private void FireFlameProjectile(NPC target)
         {
             Vector2 toTarget = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-            float speed = 16f;
-            Vector2 velocity = toTarget * speed;
+            float speed = 14f + Main.rand.NextFloat(-2f, 2f);
             
-            // Muzzle flash - black and deep scarlet (no purple)
-            for (int ring = 0; ring < 2; ring++)
+            // Add spread for flamethrower feel
+            Vector2 velocity = toTarget.RotatedByRandom(0.15f) * speed;
+            
+            // Small gold/red muzzle particles (only occasional)
+            if (Main.rand.NextBool(3))
             {
-                for (int i = 0; i < 12; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 12f;
-                    Vector2 dustVel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * (3f + ring * 2f);
-                    int flashType = (i + ring) % 2 == 0 ? DustID.Smoke : DustID.CrimsonTorch;
-                    Color flashColor = (i + ring) % 2 == 0 ? Color.Black : default;
-                    Dust dust = Dust.NewDustPerfect(Projectile.Center + toTarget * 15f, flashType, dustVel, 0, flashColor, 1.8f - ring * 0.3f);
-                    dust.noGravity = true;
-                    dust.fadeIn = 1.3f;
-                }
+                Color flameColor = Main.rand.NextBool() ? new Color(255, 200, 50) : new Color(255, 80, 30);
+                Dust flame = Dust.NewDustPerfect(Projectile.Center + toTarget * 10f, DustID.Torch, 
+                    toTarget * 2f + Main.rand.NextVector2Circular(1f, 1f), 100, flameColor, 1f);
+                flame.noGravity = true;
             }
             
-            // Directional burst
-            for (int i = 0; i < 10; i++)
+            // Occasional fire sound (not every shot)
+            if (Main.rand.NextBool(8))
             {
-                Vector2 dustVel = toTarget.RotatedByRandom(0.5f) * Main.rand.NextFloat(3f, 7f);
-                int flashType = Main.rand.NextBool() ? DustID.Smoke : DustID.CrimsonTorch;
-                Color flashColor = Main.rand.NextBool() ? Color.Black : default;
-                Dust dust = Dust.NewDustPerfect(Projectile.Center + toTarget * 18f, flashType, dustVel, 0, flashColor, 1.6f);
-                dust.noGravity = true;
+                SoundEngine.PlaySound(SoundID.Item34 with { Pitch = 0.3f, Volume = 0.3f }, Projectile.Center);
             }
-            
-            // Fire sound - dark, ominous
-            SoundEngine.PlaySound(SoundID.Item20 with { Pitch = -0.4f, Volume = 0.7f }, Projectile.Center);
-            SoundEngine.PlaySound(SoundID.Item73 with { Pitch = -0.5f, Volume = 0.4f }, Projectile.Center);
             
             // Spawn the flame projectile
             Projectile.NewProjectile(
@@ -287,84 +275,59 @@ namespace MagnumOpus.Content.Eroica.Minions
                 Projectile.Center,
                 velocity,
                 ModContent.ProjectileType<SakuraFlameProjectile>(),
-                Projectile.damage,
-                Projectile.knockBack,
+                Projectile.damage / 3, // Lower damage per hit since it fires rapidly
+                Projectile.knockBack * 0.3f,
                 Projectile.owner
             );
         }
         
         private void CreateAmbientEffects()
         {
-            // Black and deep scarlet red flame particles - constantly aflame - NO PURPLE
-            if (Main.rand.NextBool(2))
+            // Subtle black and crimson aura - minimal particles
+            if (Main.rand.NextBool(5))
             {
-                // Black smoke (not Shadowflame - that has purple)
+                // Occasional black smoke wisp
                 Dust shadow = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
-                    DustID.Smoke, 0f, -2f, 150, Color.Black, 1.5f);
+                    DustID.Smoke, 0f, -1.5f, 150, Color.Black, 0.9f);
                 shadow.noGravity = true;
-                shadow.velocity *= 0.5f;
-                shadow.fadeIn = 1f;
+                shadow.velocity *= 0.3f;
             }
             
-            if (Main.rand.NextBool(2))
+            if (Main.rand.NextBool(6))
             {
-                // Deep crimson/scarlet
+                // Rare crimson spark
                 Dust crimson = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
-                    DustID.CrimsonTorch, 0f, -2f, 100, default, 1.5f);
+                    DustID.CrimsonTorch, 0f, -1.5f, 100, default, 0.8f);
                 crimson.noGravity = true;
-                crimson.velocity *= 0.5f;
-                crimson.fadeIn = 1f;
+                crimson.velocity *= 0.3f;
             }
             
-            // Occasional black smoke wisps
-            if (Main.rand.NextBool(4))
-            {
-                Dust smoke = Dust.NewDustPerfect(
-                    Projectile.Center + Main.rand.NextVector2Circular(Projectile.width / 2f, Projectile.height / 2f),
-                    DustID.Smoke, new Vector2(Main.rand.NextFloat(-1f, 1f), -2f), 100, Color.Black, 1.3f);
-                smoke.noGravity = true;
-            }
-            
-            // Ember particles rising
-            if (Main.rand.NextBool(3))
-            {
-                Dust ember = Dust.NewDustPerfect(
-                    Projectile.Center + Main.rand.NextVector2Circular(Projectile.width / 3f, Projectile.height / 3f),
-                    DustID.Torch, new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -3f), 100, new Color(180, 30, 30), 1.2f);
-                ember.noGravity = true;
-            }
-            
-            // Orbiting dark flame particles - crimson instead of shadowflame
-            if (Main.GameUpdateCount % 2 == 0)
+            // Orbiting dark flame particles - less frequent
+            if (Main.GameUpdateCount % 4 == 0)
             {
                 float orbitAngle = Main.GameUpdateCount * 0.06f;
-                Vector2 orbitOffset = new Vector2((float)Math.Cos(orbitAngle), (float)Math.Sin(orbitAngle)) * 25f;
-                int orbitType = Main.GameUpdateCount % 4 < 2 ? DustID.Smoke : DustID.CrimsonTorch;
-                Color orbitColor = Main.GameUpdateCount % 4 < 2 ? Color.Black : default;
-                Dust orbit = Dust.NewDustPerfect(Projectile.Center + orbitOffset, orbitType, Vector2.Zero, 100, orbitColor, 1.3f);
+                Vector2 orbitOffset = new Vector2((float)Math.Cos(orbitAngle), (float)Math.Sin(orbitAngle)) * 20f;
+                int orbitType = Main.GameUpdateCount % 8 < 4 ? DustID.Smoke : DustID.CrimsonTorch;
+                Color orbitColor = Main.GameUpdateCount % 8 < 4 ? Color.Black : default;
+                Dust orbit = Dust.NewDustPerfect(Projectile.Center + orbitOffset, orbitType, Vector2.Zero, 100, orbitColor, 0.8f);
                 orbit.noGravity = true;
-                orbit.fadeIn = 0.8f;
             }
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Impact effect - black and red explosion
-            for (int ring = 0; ring < 2; ring++)
+            // Small gold/red impact burst
+            for (int i = 0; i < 6; i++)
             {
-                for (int i = 0; i < 15; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 15f;
-                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * (3f + ring * 2f);
-                    int dustType = (i + ring) % 2 == 0 ? DustID.Smoke : DustID.CrimsonTorch;
-                    Color dustColor = (i + ring) % 2 == 0 ? Color.Black : default;
-                    Dust dust = Dust.NewDustPerfect(target.Center, dustType, vel, 100, dustColor, 1.6f - ring * 0.3f);
-                    dust.noGravity = true;
-                }
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 vel = new Vector2((float)System.Math.Cos(angle), (float)System.Math.Sin(angle)) * 2.5f;
+                Color flameColor = i % 2 == 0 ? new Color(255, 200, 50) : new Color(255, 80, 30);
+                Dust dust = Dust.NewDustPerfect(target.Center, DustID.Torch, vel, 100, flameColor, 1f);
+                dust.noGravity = true;
             }
             
-            // Add lighting on hit
-            Lighting.AddLight(target.Center, 0.6f, 0.15f, 0.2f);
+            // Warm lighting flash
+            Lighting.AddLight(target.Center, 0.6f, 0.3f, 0.1f);
         }
 
         public override bool PreDraw(ref Color lightColor)
