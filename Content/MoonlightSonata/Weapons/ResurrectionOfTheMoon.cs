@@ -21,12 +21,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
     /// </summary>
     public class ResurrectionOfTheMoon : ModItem
     {
-        // Reload tracking
-        private int reloadTimer = 0;
-        private const int ReloadTime = 90; // 1.5 seconds reload
-        private bool isReloaded = true;
-        private bool playedReadySound = false;
-
         public override void SetDefaults()
         {
             Item.width = 70;
@@ -52,30 +46,30 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
         {
             var modPlayer = player.GetModPlayer<MoonlightAccessoryPlayer>();
             
-            // Handle reload timer
-            if (!isReloaded)
+            // Handle reload timer using ModPlayer state
+            if (!modPlayer.resurrectionIsReloaded)
             {
-                reloadTimer++;
+                modPlayer.resurrectionReloadTimer++;
                 
                 // Play reload sound at the start
-                if (reloadTimer == 1)
+                if (modPlayer.resurrectionReloadTimer == 1)
                 {
                     SoundEngine.PlaySound(SoundID.Item149 with { Volume = 0.8f, Pitch = -0.3f }, player.Center);
-                    playedReadySound = false;
+                    modPlayer.resurrectionPlayedReadySound = false;
                 }
                 
                 // Reload complete
-                if (reloadTimer >= ReloadTime)
+                if (modPlayer.resurrectionReloadTimer >= MoonlightAccessoryPlayer.ResurrectionReloadTime)
                 {
-                    isReloaded = true;
-                    reloadTimer = 0;
+                    modPlayer.resurrectionIsReloaded = true;
+                    modPlayer.resurrectionReloadTimer = 0;
                     
                     // Play ready *clink* sound
-                    if (!playedReadySound)
+                    if (!modPlayer.resurrectionPlayedReadySound)
                     {
                         SoundEngine.PlaySound(SoundID.Unlock with { Volume = 1f, Pitch = 0.5f }, player.Center);
                         SoundEngine.PlaySound(SoundID.Item37 with { Volume = 0.6f, Pitch = 0.8f }, player.Center);
-                        playedReadySound = true;
+                        modPlayer.resurrectionPlayedReadySound = true;
                         
                         // Visual indicator when ready
                         for (int i = 0; i < 12; i++)
@@ -95,7 +89,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
 
         public override bool CanUseItem(Player player)
         {
-            return isReloaded;
+            var modPlayer = player.GetModPlayer<MoonlightAccessoryPlayer>();
+            return modPlayer.resurrectionIsReloaded;
         }
 
         public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
@@ -145,10 +140,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
                 recoil.noGravity = true;
             }
             
-            // Start reload
-            isReloaded = false;
-            reloadTimer = 0;
-            playedReadySound = false;
+            // Start reload using ModPlayer state
+            var modPlayer = player.GetModPlayer<MoonlightAccessoryPlayer>();
+            modPlayer.resurrectionIsReloaded = false;
+            modPlayer.resurrectionReloadTimer = 0;
+            modPlayer.resurrectionPlayedReadySound = false;
             
             return false; // We handled the projectile spawning
         }
@@ -187,10 +183,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
                 });
             }
             
-            // Show reload status
-            if (!isReloaded)
+            // Show reload status using ModPlayer state
+            if (!modPlayer.resurrectionIsReloaded)
             {
-                float reloadPercent = (float)reloadTimer / ReloadTime * 100f;
+                float reloadPercent = (float)modPlayer.resurrectionReloadTimer / MoonlightAccessoryPlayer.ResurrectionReloadTime * 100f;
                 tooltips.Add(new TooltipLine(Mod, "ReloadStatus", $"Reloading... {reloadPercent:F0}%")
                 {
                     OverrideColor = new Color(255, 200, 100)

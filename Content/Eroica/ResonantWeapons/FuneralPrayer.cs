@@ -28,7 +28,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void SetDefaults()
         {
-            Item.damage = 260; // Higher than MoonlightsCalling (225)
+            Item.damage = 338; // 30% increase from 260
             Item.DamageType = DamageClass.Magic;
             Item.width = 50;
             Item.height = 50;
@@ -42,9 +42,24 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<FuneralPrayerProjectile>();
             Item.shootSpeed = 16f;
-            Item.mana = 15;
+            Item.mana = 14; // 5% mana reduction from 15
             Item.noMelee = true;
             Item.maxStack = 1;
+        }
+
+        public override void HoldItem(Player player)
+        {
+            // Dark red and gold particles while holding
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(22f, 22f);
+                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.Torch;
+                Dust particle = Dust.NewDustDirect(player.Center + offset, 1, 1, dustType, 0f, -1.2f, 150, default, 1.0f);
+                particle.noGravity = true;
+                particle.velocity *= 0.35f;
+                if (dustType == DustID.Torch)
+                    particle.color = new Color(139, 0, 0); // Dark red
+            }
         }
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
@@ -55,7 +70,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             
             // Spawn 5 tracking electric beams in 90-degree arc in front of player
             int beamCount = 5;
-            int beamDamage = (int)(damage * 0.6f); // 60% of main weapon damage
+            int beamDamage = (int)(damage * 0.66f); // 66% of main weapon damage (10% increase)
             float spreadAngle = MathHelper.ToRadians(90); // 90 degree spread
             
             // Get direction towards cursor
@@ -121,14 +136,15 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             }
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient(ModContent.ItemType<ResonantCoreOfEroica>(), 25)
-                .AddIngredient(ModContent.ItemType<EroicasResonantEnergy>(), 20)
-                .AddIngredient(ItemID.LunarBar, 15)
-                .AddTile(TileID.LunarCraftingStation)
-                .Register();
-        }
+        // Recipe removed - drops from Eroica, God of Valor
+        // public override void AddRecipes()
+        // {
+        //     CreateRecipe()
+        //         .AddIngredient(ModContent.ItemType<ResonantCoreOfEroica>(), 25)
+        //         .AddIngredient(ModContent.ItemType<EroicasResonantEnergy>(), 20)
+        //         .AddIngredient(ItemID.LunarBar, 15)
+        //         .AddTile(TileID.LunarCraftingStation)
+        //         .Register();
+        // }
     }
 }

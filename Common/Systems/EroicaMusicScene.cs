@@ -16,7 +16,7 @@ namespace MagnumOpus.Common.Systems
         
         public override bool IsSceneEffectActive(Player player)
         {
-            // Check if Eroica's Retribution is active
+            // Check if Eroica, God of Valor is active
             for (int i = 0; i < Main.maxNPCs; i++)
             {
                 if (Main.npc[i].active && Main.npc[i].type == ModContent.NPCType<EroicasRetribution>())
@@ -53,9 +53,9 @@ namespace MagnumOpus.Common.Systems
             // Boost volume when Eroica fight starts
             if (eroicaActive && !wasEroicaActive)
             {
-                // Store original volume and boost by 10%
+                // Store original volume and boost by 50%
                 originalMusicVolume = Main.musicVolume;
-                Main.musicVolume = System.Math.Min(1f, Main.musicVolume * 1.1f);
+                Main.musicVolume = System.Math.Min(1f, Main.musicVolume * 1.5f);
             }
             // Restore volume when Eroica fight ends
             else if (!eroicaActive && wasEroicaActive && originalMusicVolume >= 0f)

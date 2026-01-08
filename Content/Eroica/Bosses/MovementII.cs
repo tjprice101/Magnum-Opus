@@ -11,7 +11,7 @@ using MagnumOpus.Common.Systems;
 namespace MagnumOpus.Content.Eroica.Bosses
 {
     /// <summary>
-    /// Second movement minion of Eroica's Retribution.
+    /// Flames of Valor - minion of Eroica, God of Valor.
     /// Orbits the main boss and occasionally charges at the player.
     /// </summary>
     public class MovementII : ModNPC
@@ -56,8 +56,8 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         public override void SetDefaults()
         {
-            NPC.width = 50;
-            NPC.height = 50;
+            NPC.width = 58;
+            NPC.height = 58;
             NPC.damage = 75; // Higher damage for charging
             NPC.defense = 55; // Increased armor
             NPC.lifeMax = 240254; // Endgame challenge (reduced 15% from original)
@@ -68,6 +68,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             NPC.noTileCollide = true;
             NPC.value = 0;
             NPC.aiStyle = -1;
+            NPC.scale = 0.35f; // 35% of original size
         }
 
         public override void AI()
@@ -161,7 +162,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 
                 for (int i = 0; i < 15; i++)
                 {
-                    Dust telegraph = Dust.NewDustDirect(NPC.Center, 1, 1, DustID.PinkFairy, 0f, 0f, 0, default, 2.5f);
+                    Dust telegraph = Dust.NewDustDirect(NPC.Center, 1, 1, DustID.GoldFlame, 0f, 0f, 0, default, 2.5f);
                     telegraph.noGravity = true;
                     telegraph.velocity = Main.rand.NextVector2Circular(6f, 6f);
                 }

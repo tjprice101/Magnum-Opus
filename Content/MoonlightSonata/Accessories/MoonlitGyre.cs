@@ -10,10 +10,9 @@ using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
     /// <summary>
-    /// Moonlit Gyre - Ranger accessory for Moonlight weapons.
-    /// Specifically buffs Moonlight rifle weapons (Resurrection of the Moon).
-    /// +25% fire rate for Moonlight rifles.
-    /// +25% bullet damage for Moonlight rifles.
+    /// Moonlit Gyre - Ranger accessory.
+    /// General buffs: +12% ranged damage, +10% ranged crit chance, 20% chance not to consume ammo.
+    /// Moonlight-specific: +25% fire rate, +25% bullet damage for Moonlight rifles.
     /// </summary>
     public class MoonlitGyre : ModItem
     {
@@ -31,8 +30,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             var modPlayer = player.GetModPlayer<MoonlightAccessoryPlayer>();
             modPlayer.hasMoonlitGyre = true;
             
-            // Note: Moonlight rifle buffs (fire rate, bullet damage) are handled in the weapons themselves
-            // +25% fire rate and +25% bullet damage for Moonlight rifle weapons specifically
+            // GENERAL RANGER BUFFS (applies to ALL ranged weapons)
+            player.GetDamage(DamageClass.Ranged) += 0.12f; // +12% ranged damage
+            player.GetCritChance(DamageClass.Ranged) += 10f; // +10% ranged crit chance
+            
+            // Note: Additional Moonlight-specific rifle buffs (+25% fire rate, +25% bullet damage)
+            // are handled in the Resurrection of the Moon weapon itself
             
             // Ambient particles when equipped
             if (!hideVisual && Main.rand.NextBool(8))
@@ -47,19 +50,41 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "MoonlightRifleBoost", "Moonlight Rifle Weapons:")
+            // General ranger buffs
+            tooltips.Add(new TooltipLine(Mod, "GeneralHeader", "All Ranged Weapons:")
+            {
+                OverrideColor = new Color(100, 200, 100)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+12% ranged damage")
+            {
+                OverrideColor = new Color(255, 200, 100)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "CritBoost", "+10% ranged critical strike chance")
+            {
+                OverrideColor = new Color(255, 200, 100)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "AmmoSave", "20% chance not to consume ammo")
+            {
+                OverrideColor = new Color(255, 200, 100)
+            });
+            
+            // Moonlight-specific buffs
+            tooltips.Add(new TooltipLine(Mod, "MoonlightHeader", "Moonlight Rifle Weapons:")
             {
                 OverrideColor = new Color(180, 120, 255)
             });
             
             tooltips.Add(new TooltipLine(Mod, "FireRateBoost", "+25% fire rate for Moonlight rifles")
             {
-                OverrideColor = new Color(255, 200, 100)
+                OverrideColor = new Color(200, 150, 255)
             });
             
             tooltips.Add(new TooltipLine(Mod, "BulletDamageBoost", "+25% bullet damage for Moonlight rifles")
             {
-                OverrideColor = new Color(150, 180, 220)
+                OverrideColor = new Color(200, 150, 255)
             });
             
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'The gyre empowers those who embrace the moon'")

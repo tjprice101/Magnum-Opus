@@ -12,7 +12,7 @@ using MagnumOpus.Common.Systems;
 namespace MagnumOpus.Content.Eroica.Bosses
 {
     /// <summary>
-    /// Third movement minion of Eroica's Retribution.
+    /// Flames of Valor - minion of Eroica, God of Valor.
     /// Orbits the main boss and shoots pink flaming bolts at the player.
     /// </summary>
     public class MovementIII : ModNPC
@@ -57,8 +57,8 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         public override void SetDefaults()
         {
-            NPC.width = 50;
-            NPC.height = 50;
+            NPC.width = 58;
+            NPC.height = 58;
             NPC.damage = 55;
             NPC.defense = 65; // Increased armor
             NPC.lifeMax = 240254; // Endgame challenge (reduced 15% from original)
@@ -69,6 +69,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             NPC.noTileCollide = true;
             NPC.value = 0;
             NPC.aiStyle = -1;
+            NPC.scale = 0.35f; // 35% of original size
         }
 
         public override void AI()

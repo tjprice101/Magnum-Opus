@@ -70,6 +70,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
         private const int FrameRows = 6;
         private const int TotalFrames = 36;
 
+        // Movement tracking for idle detection
+        private int lastSpriteDirection = 1;
+        private bool isMoving = false;
+
         public override void SetStaticDefaults()
         {
             Main.npcFrameCount[Type] = TotalFrames; // 36 frames for animation
@@ -86,8 +90,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
         public override void SetDefaults()
         {
             // Celestial enemies have around 4000-5000 HP, so much higher for post-Moon Lord
-            NPC.width = 40;
-            NPC.height = 40;
+            NPC.width = 43;
+            NPC.height = 43;
             NPC.damage = 90; // Celestial enemies deal ~80, slightly higher
             NPC.defense = 50; // Good defense
             NPC.lifeMax = 13000; // Double health for challenge
@@ -101,8 +105,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             NPC.noGravity = false;
             NPC.noTileCollide = false;
             
-            // Visual offset to align sprite with hitbox
-            DrawOffsetY = -25f;
+            // Visual offset to align sprite with hitbox (larger value = draw higher)
+            DrawOffsetY = -45f;
         }
 
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
@@ -634,18 +638,41 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
         
         public override void FindFrame(int frameHeight)
         {
-            // Update animation
-            frameCounter++;
-            
-            // Faster animation when moving
-            int animSpeed = Math.Abs(NPC.velocity.X) > 1f ? 3 : FrameTime;
-            
-            if (frameCounter >= animSpeed)
+            // Check if moving
+            float movementThreshold = 0.5f;
+            isMoving = Math.Abs(NPC.velocity.X) > movementThreshold || Math.Abs(NPC.velocity.Y) > movementThreshold;
+
+            // Only update sprite direction when moving
+            if (isMoving)
             {
+                if (NPC.velocity.X > 0.5f)
+                    lastSpriteDirection = 1;
+                else if (NPC.velocity.X < -0.5f)
+                    lastSpriteDirection = -1;
+            }
+            NPC.spriteDirection = lastSpriteDirection;
+
+            // Animation update - only animate when moving
+            if (isMoving)
+            {
+                frameCounter++;
+                
+                // Faster animation when moving fast
+                int animSpeed = Math.Abs(NPC.velocity.X) > 1f ? 3 : FrameTime;
+                
+                if (frameCounter >= animSpeed)
+                {
+                    frameCounter = 0;
+                    currentFrame++;
+                    if (currentFrame >= TotalFrames)
+                        currentFrame = 0;
+                }
+            }
+            else
+            {
+                // Idle - show first frame
+                currentFrame = 0;
                 frameCounter = 0;
-                currentFrame++;
-                if (currentFrame >= TotalFrames)
-                    currentFrame = 0;
             }
             
             // Calculate frame position in sprite sheet
@@ -669,8 +696,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             int frameY = currentFrame / FrameColumns;
             
             Rectangle sourceRect = new Rectangle(frameX * frameWidth, frameY * frameHeight, frameWidth, frameHeight);
-            Vector2 drawPos = NPC.Center - screenPos;
+            Vector2 drawPos = NPC.Center - screenPos + new Vector2(0f, DrawOffsetY);
             Vector2 origin = new Vector2(frameWidth / 2, frameHeight / 2);
+
+            // Use explicit scale to ensure proper size - 1.8x for better visibility
+            float drawScale = 1.8f;
 
             // White glow effect
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.2f + 0.8f;
@@ -681,12 +711,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             {
                 Vector2 offset = new Vector2(4f, 0f).RotatedBy(MathHelper.TwoPi * i / 4);
                 spriteBatch.Draw(texture, drawPos + offset, sourceRect, whiteGlow, NPC.rotation,
-                    origin, NPC.scale, NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
+                    origin, drawScale, NPC.spriteDirection == 1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
             }
 
             // Draw main sprite
             spriteBatch.Draw(texture, drawPos, sourceRect, drawColor, NPC.rotation,
-                origin, NPC.scale, NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
+                origin, drawScale, NPC.spriteDirection == 1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
             
             return false;
         }

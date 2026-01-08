@@ -24,11 +24,58 @@ namespace MagnumOpus.Content.LaCampanella.HarmonicCores
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreType", "[Tier 4 Harmonic Core]"));
-            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreDesc1", "Equip in the Harmonic Core slot (HC button)"));
-            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreDesc2", "Base Effect: +5% crit to all damage types"));
-            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreDesc3", "Upgrade using La Campanella Resonant Energy"));
-            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreDesc4", "Features 4 class trees: Melee, Ranged, Magic, Summon"));
+            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreType", "[Tier 4 Harmonic Core]")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 220, 100)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "HarmonicCore", "Equip in the Harmonic Core UI (opens with inventory)")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 220, 100)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "ClassBonus", "All Classes: +10% Damage")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(120, 200, 120)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Spacer1", " ") { OverrideColor = Microsoft.Xna.Framework.Color.Transparent });
+            
+            tooltips.Add(new TooltipLine(Mod, "ChromaticHeader", "◆ CHROMATIC (Offensive) - Right-click to toggle")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 150, 150)
+            });
+            tooltips.Add(new TooltipLine(Mod, "ChromaticBuff", "  Bell's Toll: +8% damage, crits trigger echo damage")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
+            });
+            tooltips.Add(new TooltipLine(Mod, "ChromaticSet", "  Bell Resonance: 12 hit stacks, then crit =")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
+            });
+            tooltips.Add(new TooltipLine(Mod, "ChromaticSet2", "  Triple damage echo + AoE blast")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Spacer2", " ") { OverrideColor = Microsoft.Xna.Framework.Color.Transparent });
+            
+            tooltips.Add(new TooltipLine(Mod, "DiatonicHeader", "◇ DIATONIC (Defensive) - Right-click to toggle")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(150, 150, 255)
+            });
+            tooltips.Add(new TooltipLine(Mod, "DiatonicBuff", "  Bell's Ward: +12 DEF, +12% DR")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
+            });
+            tooltips.Add(new TooltipLine(Mod, "DiatonicSet", "  Sanctuary Bells: Taking damage hurts nearby enemies")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
+            });
+            tooltips.Add(new TooltipLine(Mod, "DiatonicSet2", "  Heals 6 HP every 2.5 seconds")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
+            });
         }
 
         public override void PostUpdate()

@@ -81,7 +81,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Shimmer effect
             if (Main.rand.NextBool(5))
             {
-                Dust sparkle = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.PinkFairy, 0f, 0f, 0, default, 1.2f);
+                Dust sparkle = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.GoldFlame, 0f, 0f, 0, default, 1.2f);
                 sparkle.noGravity = true;
                 sparkle.velocity = Main.rand.NextVector2Circular(2f, 2f);
             }

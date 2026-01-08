@@ -4,7 +4,7 @@ After defeating the Moon Lord, a mystical Grand Piano appears in the world, and 
 
 Features:
 - Moonlight Sonata content: New ore, crafting stations, tools, and weapons themed after Beethoven's Moonlight Sonata
-- Eroica content: New ore, materials, and a challenging boss fight - Eroica's Retribution
+- Eroica content: New ore, materials, and a challenging boss fight - Eroica, God of Valor
 - Custom rarities with animated colors
 - Unique boss mechanics with three movement minions
 

@@ -4,7 +4,7 @@ A musical post-Moon Lord content mod that adds Beethoven-themed items, ores, and
 [h2]Features[/h2]
 [list]
 [*] [b]Moonlight Sonata content[/b]: New ore, crafting stations (Moonlight Furnace & Anvil), powerful tools, and unique weapons
-[*] [b]Eroica content[/b]: New ore, crafting materials, and a challenging boss fight - Eroica's Retribution
+[*] [b]Eroica content[/b]: New ore, crafting materials, and a challenging boss fight - Eroica, God of Valor
 [*] [b]Grand Piano[/b]: A mystical structure that spawns after Moon Lord's defeat - used to summon bosses
 [*] [b]Custom rarities[/b]: Animated color effects for rare items
 [*] [b]Unique boss mechanics[/b]: The Eroica boss features three movement minions representing symphony movements

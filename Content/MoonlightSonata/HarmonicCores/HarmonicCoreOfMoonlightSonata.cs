@@ -24,7 +24,7 @@ namespace MagnumOpus.Content.MoonlightSonata.HarmonicCores
             Item.height = 32;
             Item.scale = 1.25f; // Display 25% larger
             Item.value = Item.sellPrice(gold: 15);
-            Item.rare = ModContent.RarityType<MoonlightSonataRarity>();
+            Item.rare = ItemRarityID.Expert; // Rainbow rarity
             Item.maxStack = 1;
             
             // Not directly usable - must be placed in Harmonic Core slot
@@ -48,24 +48,48 @@ namespace MagnumOpus.Content.MoonlightSonata.HarmonicCores
                 OverrideColor = new Microsoft.Xna.Framework.Color(180, 150, 255)
             });
             
-            tooltips.Add(new TooltipLine(Mod, "HarmonicCore", "Equip in the Harmonic Core slot (HC button)")
+            tooltips.Add(new TooltipLine(Mod, "HarmonicCore", "Equip in the Harmonic Core UI (opens with inventory)")
             {
                 OverrideColor = new Microsoft.Xna.Framework.Color(180, 150, 255)
             });
             
-            tooltips.Add(new TooltipLine(Mod, "BaseBonus", "Base Effect: +20 Max Mana, +1 Mana Regen")
+            tooltips.Add(new TooltipLine(Mod, "ClassBonus", "All Classes: +4% Damage")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(150, 200, 255)
+                OverrideColor = new Microsoft.Xna.Framework.Color(120, 200, 120)
             });
             
-            tooltips.Add(new TooltipLine(Mod, "ClassTrees", "Features 4 class trees: Melee, Ranged, Magic, Summon")
+            tooltips.Add(new TooltipLine(Mod, "Spacer1", " ") { OverrideColor = Microsoft.Xna.Framework.Color.Transparent });
+            
+            tooltips.Add(new TooltipLine(Mod, "ChromaticHeader", "◆ CHROMATIC (Offensive) - Right-click to toggle")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 200)
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 150, 150)
+            });
+            tooltips.Add(new TooltipLine(Mod, "ChromaticBuff", "  Nocturne's Edge: +8% damage at night (+2% day)")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
+            });
+            tooltips.Add(new TooltipLine(Mod, "ChromaticSet", "  Lunar Crescendo: Deal damage to build moon phases")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
+            });
+            tooltips.Add(new TooltipLine(Mod, "ChromaticSet2", "  Full moon releases a devastating piercing beam")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
             });
             
-            tooltips.Add(new TooltipLine(Mod, "UpgradeInfo", "Upgrade with Moonlight's Resonant Energy")
+            tooltips.Add(new TooltipLine(Mod, "Spacer2", " ") { OverrideColor = Microsoft.Xna.Framework.Color.Transparent });
+            
+            tooltips.Add(new TooltipLine(Mod, "DiatonicHeader", "◇ DIATONIC (Defensive) - Right-click to toggle")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(200, 180, 255)
+                OverrideColor = new Microsoft.Xna.Framework.Color(150, 150, 255)
+            });
+            tooltips.Add(new TooltipLine(Mod, "DiatonicBuff", "  Lunar Veil: +10 DEF at night (+5 day), +6% DR")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
+            });
+            tooltips.Add(new TooltipLine(Mod, "DiatonicSet", "  Eclipse Shroud: Every 12s gain 0.75s invincibility")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
             });
         }
     }

@@ -372,23 +372,23 @@ Mods: {
 
 		NPCs: {
 			EroicasRetribution: {
-				DisplayName: Eroica's Retribution
-				BestiaryFlavorText: A triumphant yet tragic entity born from Beethoven's Third Symphony. Its three movements - allegro con brio, marcia funebre, and scherzo - manifest as loyal guardians.
+				DisplayName: Eroica, God of Valor
+				BestiaryFlavorText: A triumphant yet tragic entity born from Beethoven's Third Symphony. The Flames of Valor orbit as loyal guardians of its divine spirit.
 			}
 
 			MovementI: {
-				DisplayName: Movement I
-				BestiaryFlavorText: The first movement of Eroica's symphony - Allegro con brio. It channels heroic energy towards its enemies.
+				DisplayName: Flames of Valor
+				BestiaryFlavorText: The first movement of Eroica's symphony - Allegro con brio. A Flame of Valor that channels heroic energy towards its enemies.
 			}
 
 			MovementII: {
-				DisplayName: Movement II
-				BestiaryFlavorText: The second movement of Eroica's symphony - Marcia funebre. A funeral march that charges with relentless determination.
+				DisplayName: Flames of Valor
+				BestiaryFlavorText: The second movement of Eroica's symphony - Marcia funebre. A Flame of Valor that charges with relentless determination.
 			}
 
 			MovementIII: {
-				DisplayName: Movement III
-				BestiaryFlavorText: The third movement of Eroica's symphony - Scherzo. It unleashes blazing bolts of pink flame.
+				DisplayName: Flames of Valor
+				BestiaryFlavorText: The third movement of Eroica's symphony - Scherzo. A Flame of Valor that unleashes blazing bolts of pink flame.
 			}
 		}
 
@@ -430,6 +430,11 @@ Buffs: {
 	MusicsDissonance: {
 		DisplayName: Musics Dissonance
 		Description: Mods.MagnumOpus.Buffs.MusicsDissonance.Description
+	}
+
+	TriumphantColossusBuff: {
+		DisplayName: Triumphant Colossus Buff
+		Description: Mods.MagnumOpus.Buffs.TriumphantColossusBuff.Description
 	}
 }
 
@@ -581,7 +586,7 @@ Items: {
 		Tooltip:
 			'''
 			'The heroic symphony, transcribed in celestial ink'
-			Use at the Grand Piano to summon Eroica's Retribution
+			Use at the Grand Piano to summon Eroica, God of Valor
 			'''
 	}
 
@@ -592,7 +597,13 @@ Items: {
 
 	FuneralPrayer: {
 		DisplayName: Funeral Prayer
-		Tooltip: ""
+		Tooltip:
+			'''
+			'A hymn of flames for the fallen brave'
+			Fires 5 powerful homing beams of sacred fire
+			When all beams strike, unleashes a devastating ricochet beam
+			Low mana cost for its power
+			'''
 	}
 
 	SakurasBlossom: {
@@ -607,6 +618,28 @@ Items: {
 			'A final blossom before eternal night'
 			Summons a Sakura of Fate to fight for you
 			The Sakura fires black and scarlet flames at enemies
+			'''
+	}
+
+	PiercingLightOfTheSakura: {
+		DisplayName: Piercing Light of the Sakura
+		Tooltip:
+			'''
+			'A rifle forged from valor's radiance'
+			Fires rapid piercing bolts of sakura light
+			Every 10th shot fires a devastating lightning projectile
+			that calls down black and gold thunderbolts
+			'''
+	}
+
+	CelestialValor: {
+		DisplayName: Celestial Valor
+		Tooltip:
+			'''
+			'A blade that echoes with heroic triumph'
+			Each swing releases a homing celestial projectile
+			that seeks out the mightiest foes
+			Projectiles create explosive impacts that damage nearby enemies
 			'''
 	}
 
@@ -625,6 +658,10 @@ Items: {
 		Tooltip:
 			'''
 			'The gyre empowers those who embrace the moon'
+			All Ranged Weapons:
+			+12% ranged damage
+			+10% ranged critical strike chance
+			20% chance not to consume ammo
 			Moonlight Rifle Weapons:
 			+25% fire rate for Moonlight rifles
 			+25% bullet damage for Moonlight rifles
@@ -636,8 +673,11 @@ Items: {
 		Tooltip:
 			'''
 			'Infinite reflections of lunar power'
+			All Summons:
+			+2 minion slots
+			+15% summon damage
 			Moonlight Minions:
-			+50% damage for Moonlight minions
+			+50% additional damage for Moonlight minions
 			+25% attack speed for Moonlight minions
 			'''
 	}
@@ -660,7 +700,12 @@ Items: {
 
 	TriumphantFractal: {
 		DisplayName: Triumphant Fractal
-		Tooltip: ""
+		Tooltip:
+			'''
+			'Fractured lightning of victorious fury'
+			Fires 3 powerful fractal projectiles
+			Projectiles deal 115% enhanced damage and create massive explosions
+			'''
 	}
 
 	EroicasAxe: {
@@ -757,16 +802,67 @@ Items: {
 		Tooltip: ""
 		DisplayName: Resurrection Of The Moon
 	}
+
+	FuneralMarchInsignia: {
+		DisplayName: Funeral March Insignia
+		Tooltip: ""
+	}
+
+	PyreOfTheFallenHero: {
+		DisplayName: Pyre Of The Fallen Hero
+		Tooltip: ""
+	}
+
+	SakurasBurningWill: {
+		DisplayName: Sakuras Burning Will
+		Tooltip: ""
+	}
+
+	SymphonyOfScarletFlames: {
+		DisplayName: Symphony Of Scarlet Flames
+		Tooltip: ""
+	}
+
+	ShardOfTriumphsTempo: {
+		DisplayName: Shard Of Triumphs Tempo
+		Tooltip: ""
+	}
+
+	BellOfEroica: {
+		DisplayName: Bell Of Eroica
+		Tooltip: ""
+	}
+
+	HeartOfMusic: {
+		DisplayName: Heart Of Music
+		Tooltip: ""
+	}
+
+	EroicaTreasureBag: {
+		DisplayName: Eroica Treasure Bag
+		Tooltip: ""
+	}
+
+	ReincarnatedValor: {
+		DisplayName: Reincarnated Valor
+		Tooltip: ""
+	}
 }
 
 NPCs: {
-	EroicasRetribution.DisplayName: Eroica's Retribution
-	MovementI.DisplayName: Movement I
-	MovementII.DisplayName: Movement II
-	MovementIII.DisplayName: Movement III
+	EroicasRetribution.DisplayName: Eroica, God of Valor
+	MovementI.DisplayName: Flames of Valor
+	MovementII.DisplayName: Flames of Valor
+	MovementIII.DisplayName: Flames of Valor
 	Lunus.DisplayName: Lunus
 	WaningDeer.DisplayName: Waning Deer
 	AbyssalMoonLurker.DisplayName: Abyssal Moon Lurker
+	StolenValor.DisplayName: Stolen Valor
+	StolenValorMinion.DisplayName: Stolen Valor Minion
+	BehemothOfValor.DisplayName: Behemoth Of Valor
+	EroicanCenturion.DisplayName: Eroican Centurion
+	FuneralBlitzer.DisplayName: Funeral Blitzer
+	FlamesOfValor.DisplayName: Flames Of Valor
 }
 
 Projectiles: {
@@ -812,6 +908,24 @@ Projectiles: {
 			Synergizes with Moonlit Gyre: +25% damage, +15% velocity
 			'''
 	}
+
+	HeroicSpiritMinion.DisplayName: Heroic Spirit Minion
+	HeroicSpiritSlash.DisplayName: Heroic Spirit Slash
+	PetalExplosion.DisplayName: Petal Explosion
+	PyreSlashWave.DisplayName: Pyre Slash Wave
+	StolenValorFlame.DisplayName: Stolen Valor Flame
+	StolenValorMinion.DisplayName: Stolen Valor Minion
+	BehemothFlameRain.DisplayName: Behemoth Flame Rain
+	BlitzerProjectile1.DisplayName: Blitzer Projectile1
+	BlitzerProjectile2.DisplayName: Blitzer Projectile2
+	CenturionLantern.DisplayName: Centurion Lantern
+	CenturionSwordProjectile.DisplayName: Centurion Sword Projectile
+	TriumphantColossusPet.DisplayName: Triumphant Colossus Pet
+	PiercingLightOfTheSakuraProjectile.DisplayName: Piercing Light of the Sakura
+	SakuraLightning.DisplayName: Sakura Lightning
+	CelestialValorProjectile.DisplayName: Celestial Valor Slash
+	FlameOfValorBeam.DisplayName: Flame Of Valor Beam
+	HandOfValor.DisplayName: Hand Of Valor
 }
 
 "Keybinds.Toggle Harmonic Core UI.DisplayName": Toggle  Harmonic  Core  U I

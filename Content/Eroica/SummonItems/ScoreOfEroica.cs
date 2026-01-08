@@ -6,7 +6,7 @@ using MagnumOpus.Common;
 namespace MagnumOpus.Content.Eroica.SummonItems
 {
     /// <summary>
-    /// Score of Eroica - A mystical musical score used at the Grand Piano to summon Eroica's Retribution.
+    /// Score of Eroica - A mystical musical score used at the Grand Piano to summon Eroica, God of Valor.
     /// The score contains the notation for Beethoven's Eroica Symphony, imbued with magical power.
     /// </summary>
     public class ScoreOfEroica : ModItem

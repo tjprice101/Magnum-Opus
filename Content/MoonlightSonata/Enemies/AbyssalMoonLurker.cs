@@ -70,6 +70,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
         // Attack alternation
         private int attackPattern = 0;
 
+        // Movement tracking for idle detection
+        private int lastSpriteDirection = 1;
+        private bool isMoving = false;
+
         public override void SetStaticDefaults()
         {
             Main.npcFrameCount[Type] = TotalFrames; // 36 frames for 6x6 sprite sheet
@@ -86,8 +90,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
         public override void SetDefaults()
         {
             // Tougher than other Moonlight enemies
-            NPC.width = 44;
-            NPC.height = 44;
+            NPC.width = 48;
+            NPC.height = 48;
             NPC.damage = 110; // Higher than Lunus (90)
             NPC.defense = 60; // Higher defense
             NPC.lifeMax = 18000; // Double health for challenge
@@ -101,8 +105,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             NPC.noGravity = false;
             NPC.noTileCollide = false;
             
-            // Visual offset to align sprite with hitbox
-            DrawOffsetY = -28f;
+            // Visual offset to align sprite with hitbox (larger value = draw higher)
+            DrawOffsetY = -45f;
         }
 
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
@@ -230,16 +234,16 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             StateTimer++;
             stalkOffset += 0.06f;
 
-            // Predatory slow approach with weaving
-            float stalkSpeed = 3.5f;
-            float waveInfluence = (float)Math.Sin(stalkOffset * 0.8f) * 1.5f;
+            // Always chase the player aggressively (5% faster than before)
+            float chaseSpeed = 3.675f; // Was 3.5f, now 5% faster
+            float waveInfluence = (float)Math.Sin(stalkOffset * 0.8f) * 0.5f; // Less weaving
 
             float dirToPlayer = target.Center.X > NPC.Center.X ? 1f : -1f;
-            float targetVelX = dirToPlayer * stalkSpeed + waveInfluence;
+            float targetVelX = dirToPlayer * chaseSpeed + waveInfluence;
             
-            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, targetVelX, 0.06f);
+            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, targetVelX, 0.1f); // More responsive
 
-            // Suddenly rush at player (ambush)
+            // Suddenly rush at player (ambush) when close
             if (distance < 350f && distance > 100f && Main.rand.NextBool(40) && NPC.velocity.Y == 0)
             {
                 CurrentState = AIState.AmbushRush;
@@ -255,16 +259,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 }
             }
 
-            // Start flanking to get around player
-            if (distance < 300f && Main.rand.NextBool(80) && NPC.velocity.Y == 0)
-            {
-                CurrentState = AIState.Flanking;
-                StateTimer = 0;
-                flankAngle = (float)Math.Atan2(NPC.Center.Y - target.Center.Y, NPC.Center.X - target.Center.X);
-                flankDirection = Main.rand.NextBool() ? 1 : -1;
-            }
-
-            // Only jump when target is above (small hop)
+            // Jump when target is above (small hop)
             bool targetAbove = target.Center.Y < NPC.Center.Y - 50f;
 
             if (NPC.velocity.Y == 0 && JumpCooldown <= 0 && targetAbove)
@@ -382,21 +377,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 
         private void HandleFlankingState(Player target, float distance, bool canSee)
         {
+            // Flanking now just chases directly (no more circling away)
             StateTimer++;
-            flankAngle += 0.05f * flankDirection;
             
-            // Circle around the player predatorily
-            float flankRadius = 200f;
-            
-            Vector2 targetPos = target.Center + new Vector2(
-                (float)Math.Cos(flankAngle) * flankRadius,
-                0
-            );
+            float chaseSpeed = 5.775f; // 5.5 * 1.05 = 5% faster
+            float dirToPlayer = target.Center.X > NPC.Center.X ? 1f : -1f;
+            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dirToPlayer * chaseSpeed, 0.09f);
 
-            float dirX = targetPos.X > NPC.Center.X ? 1f : -1f;
-            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dirX * 5.5f, 0.09f);
-
-            // Attack while flanking
+            // Attack while chasing
             if (canSee && AttackCooldown <= 0 && Main.rand.NextBool(35))
             {
                 CurrentState = AIState.Attacking;
@@ -404,7 +392,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 return;
             }
 
-            // Sudden ambush from flank
+            // Quick ambush
             if (StateTimer > 60 && Main.rand.NextBool(50))
             {
                 CurrentState = AIState.AmbushRush;
@@ -412,43 +400,29 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 return;
             }
 
-            // Exit flanking
+            // Return to stalking
             if (StateTimer > 120 || Main.rand.NextBool(150))
             {
-                int choice = Main.rand.Next(3);
-                if (choice == 0)
-                    CurrentState = AIState.AmbushRush;
-                else if (choice == 1)
-                    CurrentState = AIState.Repositioning;
-                else
-                    CurrentState = AIState.Stalking;
+                CurrentState = AIState.Stalking;
                 StateTimer = 0;
             }
         }
 
         private void HandleRepositioningState(Player target, float distance)
         {
+            // Repositioning now just continues chasing (no more moving away)
             StateTimer++;
             stalkOffset += 0.1f;
 
-            // Quick repositioning away then back
-            float dirAway = NPC.Center.X > target.Center.X ? 1f : -1f;
-            float repoSpeed = 8f + (float)Math.Sin(stalkOffset * 1.5f) * 2f;
+            float chaseSpeed = 4.2f; // Fast chase
+            float dirToPlayer = target.Center.X > NPC.Center.X ? 1f : -1f;
             
-            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dirAway * repoSpeed, 0.15f);
+            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dirToPlayer * chaseSpeed, 0.15f);
 
-            // Return to stalking/flanking
-            if (StateTimer > 35 || distance > 450f)
+            // Return to stalking
+            if (StateTimer > 35)
             {
-                if (Main.rand.NextBool())
-                {
-                    CurrentState = AIState.Flanking;
-                    flankAngle = (float)Math.Atan2(NPC.Center.Y - target.Center.Y, NPC.Center.X - target.Center.X);
-                }
-                else
-                {
-                    CurrentState = AIState.Stalking;
-                }
+                CurrentState = AIState.Stalking;
                 StateTimer = 0;
             }
         }
@@ -592,19 +566,42 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
         
         public override void FindFrame(int frameHeight)
         {
-            // Update animation
-            frameCounter++;
-            
-            // Faster animation when ambushing or moving fast
-            bool isAggressive = CurrentState == AIState.AmbushRush || Math.Abs(NPC.velocity.X) > 3f;
-            int animSpeed = isAggressive ? 2 : FrameTime;
-            
-            if (frameCounter >= animSpeed)
+            // Check if moving
+            float movementThreshold = 0.5f;
+            isMoving = Math.Abs(NPC.velocity.X) > movementThreshold || Math.Abs(NPC.velocity.Y) > movementThreshold || CurrentState == AIState.AmbushRush;
+
+            // Only update sprite direction when moving
+            if (isMoving)
             {
+                if (NPC.velocity.X > 0.5f)
+                    lastSpriteDirection = 1;
+                else if (NPC.velocity.X < -0.5f)
+                    lastSpriteDirection = -1;
+            }
+            NPC.spriteDirection = lastSpriteDirection;
+
+            // Animation update - only animate when moving
+            if (isMoving)
+            {
+                frameCounter++;
+                
+                // Faster animation when ambushing or moving fast
+                bool isAggressive = CurrentState == AIState.AmbushRush || Math.Abs(NPC.velocity.X) > 3f;
+                int animSpeed = isAggressive ? 2 : FrameTime;
+                
+                if (frameCounter >= animSpeed)
+                {
+                    frameCounter = 0;
+                    currentFrame++;
+                    if (currentFrame >= TotalFrames)
+                        currentFrame = 0;
+                }
+            }
+            else
+            {
+                // Idle - show first frame
+                currentFrame = 0;
                 frameCounter = 0;
-                currentFrame++;
-                if (currentFrame >= TotalFrames)
-                    currentFrame = 0;
             }
             
             // Calculate frame position in sprite sheet
@@ -628,8 +625,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             int frameY = currentFrame / FrameColumns;
             
             Rectangle sourceRect = new Rectangle(frameX * frameWidth, frameY * frameHeight, frameWidth, frameHeight);
-            Vector2 drawPos = NPC.Center - screenPos;
+            Vector2 drawPos = NPC.Center - screenPos + new Vector2(0f, DrawOffsetY);
             Vector2 origin = new Vector2(frameWidth / 2, frameHeight / 2);
+
+            // Use explicit scale to ensure proper size - 1.5x for better visibility
+            float drawScale = 1.5f;
 
             // White glow effect
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.25f + 0.75f;
@@ -639,12 +639,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             {
                 Vector2 offset = new Vector2(5f, 0f).RotatedBy(MathHelper.TwoPi * i / 5);
                 spriteBatch.Draw(texture, drawPos + offset, sourceRect, whiteGlow, NPC.rotation,
-                    origin, NPC.scale, NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
+                    origin, drawScale, NPC.spriteDirection == 1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
             }
 
             // Draw main sprite
             spriteBatch.Draw(texture, drawPos, sourceRect, drawColor, NPC.rotation,
-                origin, NPC.scale, NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
+                origin, drawScale, NPC.spriteDirection == 1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
             
             return false;
         }

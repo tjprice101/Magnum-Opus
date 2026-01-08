@@ -63,7 +63,7 @@ namespace MagnumOpus.Content.Eroica.ResonantOres
 
             if (Main.rand.NextBool(20)) // Was 80
             {
-                Dust sparkle = Dust.NewDustDirect(new Vector2(i * 16, j * 16), 16, 16, DustID.PinkFairy, 0f, -1f, 0, default, 1f);
+                Dust sparkle = Dust.NewDustDirect(new Vector2(i * 16, j * 16), 16, 16, DustID.GoldFlame, 0f, -1f, 0, default, 1f);
                 sparkle.noGravity = true;
                 sparkle.velocity *= 0.5f;
             }
@@ -83,7 +83,7 @@ namespace MagnumOpus.Content.Eroica.ResonantOres
             // Extra sparkle effect when mined
             for (int k = 0; k < 3; k++)
             {
-                Dust dust = Dust.NewDustDirect(new Vector2(i * 16, j * 16), 16, 16, DustID.PinkFairy, 0f, 0f, 100, default, 0.8f);
+                Dust dust = Dust.NewDustDirect(new Vector2(i * 16, j * 16), 16, 16, DustID.GoldFlame, 0f, 0f, 100, default, 0.8f);
                 dust.noGravity = true;
                 dust.velocity = Main.rand.NextVector2Circular(2f, 2f);
             }

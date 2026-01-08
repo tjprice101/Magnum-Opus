@@ -51,7 +51,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                 float angle = spreadAngle * ((float)i / (numberOfProjectiles - 1) - 0.5f);
                 Vector2 perturbedVelocity = velocity.RotatedBy(angle);
 
-                Projectile.NewProjectile(source, position, perturbedVelocity, type, damage, knockback, player.whoAmI);
+                Projectile.NewProjectile(source, position, perturbedVelocity, type, (int)(damage * 1.15f), knockback, player.whoAmI);
             }
 
             // Spawn dramatic red and black particles at cast location
@@ -74,14 +74,15 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             return false;
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient(ModContent.ItemType<ResonantCoreOfEroica>(), 28)
-                .AddIngredient(ModContent.ItemType<EroicasResonantEnergy>(), 22)
-                .AddIngredient(ItemID.LunarBar, 16)
-                .AddTile(TileID.LunarCraftingStation)
-                .Register();
-        }
+        // Recipe removed - drops from Eroica, God of Valor
+        // public override void AddRecipes()
+        // {
+        //     CreateRecipe()
+        //         .AddIngredient(ModContent.ItemType<ResonantCoreOfEroica>(), 28)
+        //         .AddIngredient(ModContent.ItemType<EroicasResonantEnergy>(), 22)
+        //         .AddIngredient(ItemID.LunarBar, 16)
+        //         .AddTile(TileID.LunarCraftingStation)
+        //         .Register();
+        // }
     }
 }

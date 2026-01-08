@@ -24,12 +24,65 @@ namespace MagnumOpus.Content.Fate.HarmonicCores
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreType", "[Tier 6 Harmonic Core - Ultimate]"));
-            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreDesc1", "Equip in the Harmonic Core slot (HC button)"));
-            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreDesc2", "Base Effect: +12 defense, +60 max life/mana, +5% all damage"));
-            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreDesc3", "Upgrade using Fate Resonant Energy"));
-            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreDesc4", "Features 4 class trees: Melee, Ranged, Magic, Summon"));
-            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreDesc5", "The strongest Harmonic Core, forged by destiny itself"));
+            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreType", "[Tier 6 Harmonic Core - Ultimate]")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 100, 120)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "HarmonicCore", "Equip in the Harmonic Core UI (opens with inventory)")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 100, 120)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "ClassBonus", "All Classes: +15% Damage")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(120, 200, 120)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Spacer1", " ") { OverrideColor = Microsoft.Xna.Framework.Color.Transparent });
+            
+            tooltips.Add(new TooltipLine(Mod, "ChromaticHeader", "◆ CHROMATIC (Offensive) - Right-click to toggle")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 150, 150)
+            });
+            tooltips.Add(new TooltipLine(Mod, "ChromaticBuff", "  Fate's Wrath: +14% damage, execute enemies <10% HP")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
+            });
+            tooltips.Add(new TooltipLine(Mod, "ChromaticSet", "  Mark of Fate: First hit marks bosses")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
+            });
+            tooltips.Add(new TooltipLine(Mod, "ChromaticSet2", "  Marked targets take +35% damage")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Spacer2", " ") { OverrideColor = Microsoft.Xna.Framework.Color.Transparent });
+            
+            tooltips.Add(new TooltipLine(Mod, "DiatonicHeader", "◇ DIATONIC (Defensive) - Right-click to toggle")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(150, 150, 255)
+            });
+            tooltips.Add(new TooltipLine(Mod, "DiatonicBuff", "  Fate's Shield: +18 DEF, +16% DR")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
+            });
+            tooltips.Add(new TooltipLine(Mod, "DiatonicSet", "  Cheat death once per minute (set to 25% HP)")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
+            });
+            tooltips.Add(new TooltipLine(Mod, "DiatonicSet2", "  Destiny's Weave: Each save = permanent +4% DMG")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Spacer3", " ") { OverrideColor = Microsoft.Xna.Framework.Color.Transparent });
+            
+            tooltips.Add(new TooltipLine(Mod, "Flavor", "'The strongest Harmonic Core, forged by destiny itself'")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(180, 120, 140)
+            });
         }
 
         public override void PostUpdate()

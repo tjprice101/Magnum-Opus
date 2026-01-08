@@ -7,7 +7,7 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
     /// <summary>
-    /// The devastating beam attack fired by Eroica's Retribution in Phase 2.
+    /// The devastating beam attack fired by Eroica, God of Valor in Phase 2.
     /// Fires straight down at the player after a countdown.
     /// </summary>
     public class EroicasBeam : ModProjectile
@@ -57,7 +57,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             for (int i = 0; i < 3; i++)
             {
                 float yPos = Main.rand.Next(Projectile.height);
-                Dust sparkle = Dust.NewDustDirect(Projectile.position + new Vector2(0, yPos), Projectile.width, 1, DustID.PinkFairy, 0f, 0f, 0, default, 1.5f);
+                Dust sparkle = Dust.NewDustDirect(Projectile.position + new Vector2(0, yPos), Projectile.width, 1, DustID.GoldFlame, 0f, 0f, 0, default, 1.5f);
                 sparkle.noGravity = true;
                 sparkle.velocity = Main.rand.NextVector2Circular(4f, 2f);
             }

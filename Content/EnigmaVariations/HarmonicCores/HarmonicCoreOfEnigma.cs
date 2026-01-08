@@ -24,11 +24,58 @@ namespace MagnumOpus.Content.EnigmaVariations.HarmonicCores
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreType", "[Tier 5 Harmonic Core]"));
-            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreDesc1", "Equip in the Harmonic Core slot (HC button)"));
-            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreDesc2", "Base Effect: +4% damage to ALL classes"));
-            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreDesc3", "Upgrade using Enigma Resonant Energy"));
-            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreDesc4", "Features 4 class trees: Melee, Ranged, Magic, Summon"));
+            tooltips.Add(new TooltipLine(Mod, "HarmonicCoreType", "[Tier 5 Harmonic Core]")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(150, 255, 200)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "HarmonicCore", "Equip in the Harmonic Core UI (opens with inventory)")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(150, 255, 200)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "ClassBonus", "All Classes: +12% Damage")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(120, 200, 120)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Spacer1", " ") { OverrideColor = Microsoft.Xna.Framework.Color.Transparent });
+            
+            tooltips.Add(new TooltipLine(Mod, "ChromaticHeader", "◆ CHROMATIC (Offensive) - Right-click to toggle")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 150, 150)
+            });
+            tooltips.Add(new TooltipLine(Mod, "ChromaticBuff", "  Enigma's Chaos: +6-12% random damage")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
+            });
+            tooltips.Add(new TooltipLine(Mod, "ChromaticSet", "  Variations: Every 10s gain random powerful buff:")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
+            });
+            tooltips.Add(new TooltipLine(Mod, "ChromaticSet2", "  +14% DMG / +18% Speed / +14 Pen / +10% Crit / Mana")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Spacer2", " ") { OverrideColor = Microsoft.Xna.Framework.Color.Transparent });
+            
+            tooltips.Add(new TooltipLine(Mod, "DiatonicHeader", "◇ DIATONIC (Defensive) - Right-click to toggle")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(150, 150, 255)
+            });
+            tooltips.Add(new TooltipLine(Mod, "DiatonicBuff", "  Enigma's Mystery: +15 DEF, +15% DR")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
+            });
+            tooltips.Add(new TooltipLine(Mod, "DiatonicSet", "  Mystery Shield: ~17% chance to reflect")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
+            });
+            tooltips.Add(new TooltipLine(Mod, "DiatonicSet2", "  enemy projectiles back at them")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
+            });
         }
 
         public override void PostUpdate()

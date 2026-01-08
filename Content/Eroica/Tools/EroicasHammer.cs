@@ -2,7 +2,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
-using MagnumOpus.Content.MoonlightSonata.CraftingStations;
+using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Common;
 
 namespace MagnumOpus.Content.Eroica.Tools
@@ -46,7 +46,8 @@ namespace MagnumOpus.Content.Eroica.Tools
             CreateRecipe()
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfEroica>(), 12)
                 .AddIngredient(ModContent.ItemType<EroicasResonantEnergy>(), 5)
-                .AddTile(ModContent.TileType<MoonlightAnvilTile>())
+                .AddIngredient(ModContent.ItemType<ShardOfTriumphsTempo>(), 2)
+                .AddTile(ModContent.TileType<MoonlightSonata.CraftingStations.MoonlightAnvilTile>())
                 .Register();
         }
 

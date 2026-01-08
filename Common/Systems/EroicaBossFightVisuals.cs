@@ -1,6 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 using Terraria;
+using Terraria.Map;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.Bosses;
 
@@ -8,18 +10,18 @@ namespace MagnumOpus.Common.Systems
 {
     /// <summary>
     /// Handles visual effects during the Eroica boss fight.
-    /// Adds a dark pink hue overlay and cherry blossom effects.
+    /// Adds scattered black, gold, and scarlet red particles.
     /// </summary>
     public class EroicaBossFightVisuals : ModSystem
     {
         private static bool eroicaBossActive = false;
         private static float overlayIntensity = 0f;
-        private const float MaxIntensity = 0.55f; // How strong the pink overlay is (increased)
+        private const float MaxIntensity = 0.25f; // Reduced overlay intensity
         private const float FadeSpeed = 0.02f;
 
         public override void PostUpdateNPCs()
         {
-            // Check if Eroica's Retribution is active
+            // Check if Eroica, God of Valor is active
             bool bossFound = false;
             for (int i = 0; i < Main.maxNPCs; i++)
             {
@@ -39,6 +41,44 @@ namespace MagnumOpus.Common.Systems
                     overlayIntensity += FadeSpeed;
                 if (overlayIntensity > MaxIntensity)
                     overlayIntensity = MaxIntensity;
+                    
+                // Spawn scattered black, gold, and scarlet particles across the screen
+                if (!Main.dedServ && Main.rand.NextBool(5))
+                {
+                    // Spawn across the visible screen area
+                    Vector2 spawnPos = Main.screenPosition + new Vector2(
+                        Main.rand.NextFloat(0f, Main.screenWidth),
+                        Main.rand.NextFloat(-50f, Main.screenHeight * 0.4f));
+                    
+                    // Randomly choose between black, gold, and scarlet red particles
+                    int dustChoice = Main.rand.Next(3);
+                    int dustType;
+                    Color dustColor = default;
+                    
+                    if (dustChoice == 0)
+                    {
+                        // Black/dark smoke
+                        dustType = Terraria.ID.DustID.Smoke;
+                        dustColor = Color.Black;
+                    }
+                    else if (dustChoice == 1)
+                    {
+                        // Gold flame
+                        dustType = Terraria.ID.DustID.GoldFlame;
+                    }
+                    else
+                    {
+                        // Scarlet red/deep pink - use torch and tint it
+                        dustType = Terraria.ID.DustID.Torch;
+                        dustColor = new Color(220, 20, 60); // Crimson/scarlet
+                    }
+                    
+                    Dust dust = Dust.NewDustPerfect(spawnPos, dustType, 
+                        new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(0.5f, 2f)), 
+                        100, dustColor, Main.rand.NextFloat(1.0f, 1.6f));
+                    dust.noGravity = true;
+                    dust.fadeIn = 1.2f;
+                }
             }
             else
             {
@@ -54,7 +94,7 @@ namespace MagnumOpus.Common.Systems
             // Slightly dim the world during the fight
             if (overlayIntensity > 0f)
             {
-                scale *= 1f - (overlayIntensity * 0.3f);
+                scale *= 1f - (overlayIntensity * 0.2f);
             }
         }
 
@@ -62,46 +102,44 @@ namespace MagnumOpus.Common.Systems
         {
             if (overlayIntensity > 0f)
             {
-                // Tint the world with a dark pink hue
-                Color pinkTint = new Color(200, 80, 120); // Deeper dark pink
+                // Tint the world with a dark scarlet/gold hue instead of pink
+                Color scarletTint = new Color(80, 30, 30); // Dark scarlet
                 
-                tileColor = Color.Lerp(tileColor, pinkTint, overlayIntensity * 0.6f);
-                backgroundColor = Color.Lerp(backgroundColor, pinkTint, overlayIntensity * 0.85f); // Much stronger on background
+                tileColor = Color.Lerp(tileColor, scarletTint, overlayIntensity * 0.4f);
+                backgroundColor = Color.Lerp(backgroundColor, scarletTint, overlayIntensity * 0.5f);
             }
         }
 
-        public override void PostDrawTiles()
+        public override void PreDrawMapIconOverlay(IReadOnlyList<IMapLayer> layers, MapOverlayDrawContext mapOverlayDrawContext)
         {
-            if (overlayIntensity <= 0f)
+            // Empty - required override
+        }
+
+        public override void ModifyTransformMatrix(ref SpriteViewMatrix Transform)
+        {
+            // Draw scarlet overlay behind tiles but after background
+            if (!eroicaBossActive)
                 return;
 
             // Only draw on client
             if (Main.dedServ)
                 return;
 
-            // Draw the pink overlay on top of tiles but before entities
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            
             // Null check for texture
             if (Terraria.GameContent.TextureAssets.MagicPixel == null || !Terraria.GameContent.TextureAssets.MagicPixel.IsLoaded)
                 return;
 
+            SpriteBatch spriteBatch = Main.spriteBatch;
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 
-            // Dark pink overlay color
-            Color overlayColor = new Color(139, 58, 98, (int)(overlayIntensity * 180)); // Stronger transparency
+            // Flat 30% opacity scarlet red background - drawn behind tiles/entities but after background
+            Color scarletOverlay = new Color(139, 0, 0, 77); // Scarlet red with 30% opacity (77/255 = ~30%)
             
-            // Draw a full-screen rectangle
             Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
-            Rectangle screenRect = new Rectangle(
-                (int)Main.screenPosition.X - 100,
-                (int)Main.screenPosition.Y - 100,
-                Main.screenWidth + 200,
-                Main.screenHeight + 200
-            );
+            Rectangle screenRect = new Rectangle(0, 0, Main.screenWidth, Main.screenHeight);
 
-            spriteBatch.Draw(pixel, screenRect, overlayColor);
+            spriteBatch.Draw(pixel, screenRect, scarletOverlay);
 
             spriteBatch.End();
         }

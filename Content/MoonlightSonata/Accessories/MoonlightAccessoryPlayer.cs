@@ -33,6 +33,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
         public int manaRestoreCooldown = 0;
         private const int ManaRestoreCooldownMax = 7200; // 120 seconds
         
+        // Resurrection of the Moon reload state
+        public int resurrectionReloadTimer = 0;
+        public const int ResurrectionReloadTime = 90; // 1.5 seconds
+        public bool resurrectionIsReloaded = true;
+        public bool resurrectionPlayedReadySound = false;
+        
         // Floating visual tracking
         public float floatAngle = 0f;
         
@@ -113,9 +119,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                     }
                 }
             }
-            
-            // Sound effect
-            SoundEngine.PlaySound(SoundID.Item29 with { Volume = 0.5f, Pitch = 0.3f }, Player.Center);
         }
         
         public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
@@ -229,7 +232,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
         
         public override bool CanConsumeAmmo(Item weapon, Item ammo)
         {
-            // Note: Ammo save effects removed - Moonlit Gyre now specifically buffs Moonlight rifles
+            // Moonlit Gyre - 20% chance not to consume ammo for ALL ranged weapons
+            if (hasMoonlitGyre && weapon.DamageType == DamageClass.Ranged)
+            {
+                if (Main.rand.NextFloat() < 0.2f)
+                    return false;
+            }
+            
             return true;
         }
     }

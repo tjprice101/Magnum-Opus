@@ -145,7 +145,7 @@ namespace MagnumOpus.Content.Common.GrandPiano
                 // Check if Eroica boss is already alive
                 if (NPC.AnyNPCs(ModContent.NPCType<EroicasRetribution>()))
                 {
-                    Main.NewText("Eroica's Retribution is already playing...", 255, 100, 100);
+                    Main.NewText("Eroica, God of Valor is already playing...", 255, 100, 100);
                     return true;
                 }
 

@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 {
@@ -109,7 +110,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                     float pitch = -0.3f + (ricochetCount * 0.1f);
                     SoundEngine.PlaySound(SoundID.Item10 with { Volume = 0.5f, Pitch = pitch }, Projectile.Center);
                     
-                    // Ricochet visual - sparkle burst
+                    // Ricochet visual - Moonlight-themed fractal lightning to new target
+                    MagnumVFX.DrawMoonlightLightning(Projectile.Center, newTarget.Center, 8, 25f, 2, 0.3f);
+                    
+                    // Sparkle burst
                     for (int i = 0; i < 10; i++)
                     {
                         float angle = MathHelper.TwoPi * i / 10f;
@@ -118,6 +122,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                         Dust spark = Dust.NewDustPerfect(Projectile.Center, dustType, sparkVel, 0, default, 1.3f);
                         spark.noGravity = true;
                     }
+                    
+                    // Musical burst for the ricochet
+                    MagnumVFX.CreateMusicalBurst(Projectile.Center, new Color(150, 80, 200), Color.White, 1);
                 }
             }
         }
@@ -245,33 +252,47 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Draw trail
+            SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Vector2 origin = texture.Size() / 2f;
             
-            // Draw afterimages
+            // Switch to additive blending for glow
+            MagnumVFX.BeginAdditiveBlend(spriteBatch);
+            
+            // Draw enhanced glowing trail with moonlight gradient
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 
                 float progress = (float)i / Projectile.oldPos.Length;
-                Color trailColor = Color.Lerp(new Color(150, 80, 200, 150), new Color(80, 40, 120, 0), progress);
-                float scale = Projectile.scale * (1f - progress * 0.5f);
+                // Gradient from bright purple to dark purple with white center
+                Color trailColor = Color.Lerp(new Color(200, 150, 255), new Color(80, 40, 120), progress);
+                trailColor *= (1f - progress) * 0.9f;
+                float scale = Projectile.scale * (1f - progress * 0.4f);
                 
                 Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                Main.EntitySpriteDraw(texture, drawPos, null, trailColor, Projectile.oldRot[i], origin, scale, SpriteEffects.None, 0);
+                
+                // Outer glow trail
+                spriteBatch.Draw(texture, drawPos, null, trailColor * 0.5f, Projectile.oldRot[i], origin, scale * 1.5f, SpriteEffects.None, 0);
+                // Core trail
+                spriteBatch.Draw(texture, drawPos, null, trailColor, Projectile.oldRot[i], origin, scale, SpriteEffects.None, 0);
             }
             
-            // Draw main projectile with glow
-            Color glowColor = new Color(180, 100, 255, 0) * 0.6f;
-            for (int i = 0; i < 4; i++)
-            {
-                Vector2 offset = new Vector2(3f, 0f).RotatedBy(i * MathHelper.PiOver2);
-                Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition + offset, null, glowColor, Projectile.rotation, origin, Projectile.scale * 1.1f, SpriteEffects.None, 0);
-            }
+            // Draw main projectile with pulsing glow
+            float pulse = MagnumVFX.GetPulse(0.15f, 0.8f, 1.2f);
+            Vector2 mainPos = Projectile.Center - Main.screenPosition;
             
-            // Main sprite
-            Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition, null, lightColor, Projectile.rotation, origin, Projectile.scale, SpriteEffects.None, 0);
+            // Outer glow
+            spriteBatch.Draw(texture, mainPos, null, new Color(150, 80, 200) * 0.4f, Projectile.rotation, origin, Projectile.scale * 2f * pulse, SpriteEffects.None, 0);
+            // Mid glow
+            spriteBatch.Draw(texture, mainPos, null, new Color(200, 150, 255) * 0.6f, Projectile.rotation, origin, Projectile.scale * 1.4f * pulse, SpriteEffects.None, 0);
+            // White core
+            spriteBatch.Draw(texture, mainPos, null, Color.White * 0.8f, Projectile.rotation, origin, Projectile.scale * 0.8f, SpriteEffects.None, 0);
+            
+            MagnumVFX.EndAdditiveBlend(spriteBatch);
+            
+            // Main sprite (drawn normally)
+            Main.EntitySpriteDraw(texture, mainPos, null, lightColor, Projectile.rotation, origin, Projectile.scale, SpriteEffects.None, 0);
             
             return false;
         }

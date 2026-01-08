@@ -40,10 +40,10 @@ namespace MagnumOpus.Content.Eroica.ResonanceEnergies
                 dust.velocity *= 0.3f;
             }
 
-            // Occasional cherry blossom-like shimmer
+            // Occasional golden shimmer
             if (Main.rand.NextBool(30))
             {
-                Dust sparkle = Dust.NewDustDirect(Item.position, Item.width, Item.height, DustID.PinkFairy, 0f, 0f, 0, default, 0.8f);
+                Dust sparkle = Dust.NewDustDirect(Item.position, Item.width, Item.height, DustID.GoldFlame, 0f, 0f, 0, default, 0.8f);
                 sparkle.noGravity = true;
                 sparkle.velocity = Main.rand.NextVector2Circular(1f, 1f);
             }

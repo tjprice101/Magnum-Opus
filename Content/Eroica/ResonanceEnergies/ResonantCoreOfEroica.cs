@@ -51,7 +51,7 @@ namespace MagnumOpus.Content.Eroica.ResonanceEnergies
             // Occasional shimmer
             if (Main.rand.NextBool(35))
             {
-                Dust sparkle = Dust.NewDustDirect(Item.position, Item.width, Item.height, DustID.PinkFairy, 0f, 0f, 0, default, 0.6f);
+                Dust sparkle = Dust.NewDustDirect(Item.position, Item.width, Item.height, DustID.GoldFlame, 0f, 0f, 0, default, 0.6f);
                 sparkle.noGravity = true;
                 sparkle.velocity = Main.rand.NextVector2Circular(0.5f, 0.5f);
             }

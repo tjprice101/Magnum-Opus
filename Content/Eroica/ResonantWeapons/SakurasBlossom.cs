@@ -103,14 +103,15 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             }
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient(ModContent.ItemType<ResonantCoreOfEroica>(), 30)
-                .AddIngredient(ModContent.ItemType<EroicasResonantEnergy>(), 25)
-                .AddIngredient(ItemID.LunarBar, 18)
-                .AddTile(TileID.LunarCraftingStation)
-                .Register();
-        }
+        // Recipe removed - drops from Eroica, God of Valor
+        // public override void AddRecipes()
+        // {
+        //     CreateRecipe()
+        //         .AddIngredient(ModContent.ItemType<ResonantCoreOfEroica>(), 30)
+        //         .AddIngredient(ModContent.ItemType<EroicasResonantEnergy>(), 25)
+        //         .AddIngredient(ItemID.LunarBar, 18)
+        //         .AddTile(TileID.LunarCraftingStation)
+        //         .Register();
+        // }
     }
 }

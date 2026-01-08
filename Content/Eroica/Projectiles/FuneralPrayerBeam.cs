@@ -6,6 +6,7 @@ using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Content.Eroica.ResonantWeapons;
+using MagnumOpus.Common.Systems;
 using System;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
@@ -193,25 +194,14 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         private void CreateArcVisual(Vector2 start, Vector2 end)
         {
-            float arcLength = Vector2.Distance(start, end);
-            Vector2 direction = (end - start).SafeNormalize(Vector2.UnitX);
-
-            // Draw particle arc
-            for (float dist = 0; dist < arcLength; dist += 8f)
-            {
-                Vector2 arcPos = start + direction * dist;
-                
-                // Dark red particles
-                Dust arc = Dust.NewDustPerfect(arcPos, DustID.RedTorch, Vector2.Zero, 100, default, 1.5f);
-                arc.noGravity = true;
-                
-                // Pink highlights
-                if (Main.rand.NextBool(2))
-                {
-                    Dust pink = Dust.NewDustPerfect(arcPos, DustID.PinkTorch, Vector2.Zero, 100, default, 1.2f);
-                    pink.noGravity = true;
-                }
-            }
+            // Draw Funeral-themed fractal lightning arc using the VFX system
+            MagnumVFX.DrawFuneralLightning(start, end, 10, 35f, 3, 0.4f);
+            
+            // Additional pink/crimson spark burst at endpoints
+            MagnumVFX.CreateEroicaBurst(end, 1);
+            
+            // Create shockwave ring at target
+            MagnumVFX.CreateShockwaveRing(end, new Color(255, 80, 120), 30f, 3f, 20);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -270,28 +260,13 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             {
                 NPC secondary = Main.npc[secondaryTarget];
                 
-                // Create visual arc between first and second target
+                // Create visual arc between first and second target using fractal lightning
                 Vector2 startPos = hitTarget.Center;
                 Vector2 endPos = secondary.Center;
-                float arcLength = Vector2.Distance(startPos, endPos);
-                Vector2 direction = (endPos - startPos).SafeNormalize(Vector2.UnitX);
-
-                // Draw particle arc between targets
-                for (float dist = 0; dist < arcLength; dist += 8f)
-                {
-                    Vector2 arcPos = startPos + direction * dist;
-                    
-                    // Dark red particles
-                    Dust arc = Dust.NewDustPerfect(arcPos, DustID.RedTorch, Vector2.Zero, 100, default, 1.5f);
-                    arc.noGravity = true;
-                    
-                    // Pink highlights
-                    if (Main.rand.NextBool(2))
-                    {
-                        Dust pink = Dust.NewDustPerfect(arcPos, DustID.PinkTorch, Vector2.Zero, 100, default, 1.2f);
-                        pink.noGravity = true;
-                    }
-                }
+                
+                // Draw Funeral-themed fractal lightning for secondary arc (smaller, dimmer)
+                MagnumVFX.DrawFuneralLightning(startPos, endPos, 6, 25f, 2, 0.3f);
+                MagnumVFX.CreateShockwaveRing(endPos, new Color(255, 80, 120), 20f, 2f, 14);
 
                 // Deal 50% of beam damage to secondary target
                 int secondaryDamage = (int)(Projectile.damage * 0.5f);

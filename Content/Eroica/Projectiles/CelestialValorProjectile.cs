@@ -1,0 +1,273 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
+using Terraria;
+using Terraria.ID;
+using Terraria.ModLoader;
+using Terraria.Audio;
+
+namespace MagnumOpus.Content.Eroica.Projectiles
+{
+    /// <summary>
+    /// Projectile fired by Celestial Valor greatsword on swing.
+    /// A powerful energy slash with red and gold effects.
+    /// Collides with walls and creates gold/red AOE explosions on impact.
+    /// </summary>
+    public class CelestialValorProjectile : ModProjectile
+    {
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
+
+        public override void SetDefaults()
+        {
+            Projectile.width = 40;
+            Projectile.height = 40;
+            Projectile.friendly = true;
+            Projectile.hostile = false;
+            Projectile.DamageType = DamageClass.Melee;
+            Projectile.penetrate = 3;
+            Projectile.timeLeft = 90;
+            Projectile.tileCollide = true; // Now collides with walls
+            Projectile.ignoreWater = true;
+            Projectile.alpha = 50;
+            Projectile.light = 0.7f;
+            Projectile.extraUpdates = 1;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 15;
+        }
+
+        public override void AI()
+        {
+            // Face direction of travel
+            Projectile.rotation = Projectile.velocity.ToRotation();
+            
+            // Slight homing toward nearby enemies
+            float homingRange = 150f;
+            float homingStrength = 0.02f;
+            
+            NPC closestNPC = null;
+            float closestDist = homingRange;
+            
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (npc.active && !npc.friendly && npc.lifeMax > 5 && !npc.dontTakeDamage)
+                {
+                    float dist = Vector2.Distance(Projectile.Center, npc.Center);
+                    if (dist < closestDist)
+                    {
+                        closestDist = dist;
+                        closestNPC = npc;
+                    }
+                }
+            }
+            
+            if (closestNPC != null)
+            {
+                Vector2 toTarget = (closestNPC.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * Projectile.velocity.Length(), homingStrength);
+            }
+            
+            // Trail particles - red and gold
+            if (Main.rand.NextBool(2))
+            {
+                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
+                Dust trail = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
+                    dustType, 0f, 0f, 100, default, 1.5f);
+                trail.noGravity = true;
+                trail.velocity = -Projectile.velocity * 0.2f + Main.rand.NextVector2Circular(2f, 2f);
+            }
+            
+            // Lighting
+            Lighting.AddLight(Projectile.Center, 1f, 0.6f, 0.3f);
+        }
+
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            // Create AOE explosion on hit
+            CreateAOEExplosion(target.Center);
+            
+            // Deal 5% bonus explosion damage to nearby enemies
+            int explosionDamage = (int)(damageDone * 0.05f);
+            float explosionRadius = 100f;
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (npc.active && !npc.friendly && npc.lifeMax > 5 && !npc.dontTakeDamage && npc.whoAmI != target.whoAmI)
+                {
+                    if (Vector2.Distance(npc.Center, target.Center) <= explosionRadius)
+                    {
+                        Player player = Main.player[Projectile.owner];
+                        npc.SimpleStrikeNPC(explosionDamage, 0, false, 0f, DamageClass.Melee);
+                    }
+                }
+            }
+        }
+        
+        public override bool OnTileCollide(Vector2 oldVelocity)
+        {
+            // Create AOE explosion on wall collision
+            CreateAOEExplosion(Projectile.Center);
+            return true; // Destroy projectile
+        }
+
+        private void CreateAOEExplosion(Vector2 position)
+        {
+            // Large red and gold spiral explosion
+            SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.3f, Volume = 0.6f }, position);
+            
+            // Black and red lightning effect (like Funeral Prayer)
+            SpawnLightningEffect(position);
+            
+            // Outer ring - gold
+            for (int i = 0; i < 30; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 30f;
+                float speed = Main.rand.NextFloat(6f, 12f);
+                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * speed;
+                
+                Dust gold = Dust.NewDustPerfect(position, DustID.GoldFlame, vel, 100, default, 2.5f);
+                gold.noGravity = true;
+                gold.fadeIn = 1.3f;
+            }
+            
+            // Inner burst - scarlet red
+            for (int i = 0; i < 25; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 25f;
+                float speed = Main.rand.NextFloat(4f, 9f);
+                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * speed;
+                
+                Dust scarlet = Dust.NewDustPerfect(position, DustID.CrimsonTorch, vel, 100, default, 2.2f);
+                scarlet.noGravity = true;
+                scarlet.fadeIn = 1.2f;
+            }
+            
+            // Fire sparks
+            for (int i = 0; i < 15; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(8f, 8f);
+                Dust spark = Dust.NewDustPerfect(position, DustID.Torch, vel, 100, default, 1.8f);
+                spark.noGravity = false;
+            }
+            
+            // Light burst
+            Lighting.AddLight(position, 1.5f, 0.8f, 0.3f);
+        }
+        
+        private void SpawnLightningEffect(Vector2 position)
+        {
+            // Create black and red lightning bolts radiating outward
+            int boltCount = 4;
+            for (int b = 0; b < boltCount; b++)
+            {
+                float baseAngle = MathHelper.TwoPi * b / boltCount + Main.rand.NextFloat(-0.3f, 0.3f);
+                Vector2 boltStart = position;
+                Vector2 boltDirection = new Vector2((float)Math.Cos(baseAngle), (float)Math.Sin(baseAngle));
+                
+                // Create jagged lightning segments
+                int segments = Main.rand.Next(6, 10);
+                float segmentLength = Main.rand.NextFloat(15f, 25f);
+                
+                for (int s = 0; s < segments; s++)
+                {
+                    // Add randomness to direction for jagged effect
+                    float angleOffset = Main.rand.NextFloat(-0.5f, 0.5f);
+                    boltDirection = boltDirection.RotatedBy(angleOffset);
+                    
+                    Vector2 boltEnd = boltStart + boltDirection * segmentLength;
+                    
+                    // Spawn particles along the segment - alternating black and red
+                    int particlesPerSegment = 5;
+                    for (int p = 0; p < particlesPerSegment; p++)
+                    {
+                        float t = (float)p / particlesPerSegment;
+                        Vector2 particlePos = Vector2.Lerp(boltStart, boltEnd, t);
+                        
+                        // Alternate between black smoke and red torch
+                        if (Main.rand.NextBool())
+                        {
+                            // Black lightning
+                            Dust black = Dust.NewDustPerfect(particlePos, DustID.Smoke, 
+                                Main.rand.NextVector2Circular(1f, 1f), 200, Color.Black, 1.5f);
+                            black.noGravity = true;
+                        }
+                        else
+                        {
+                            // Red lightning
+                            Dust red = Dust.NewDustPerfect(particlePos, DustID.CrimsonTorch, 
+                                Main.rand.NextVector2Circular(1f, 1f), 100, default, 1.8f);
+                            red.noGravity = true;
+                        }
+                    }
+                    
+                    boltStart = boltEnd;
+                }
+            }
+            
+            // Lightning sound
+            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 0.4f }, position);
+        }
+
+        public override void OnKill(int timeLeft)
+        {
+            // Death burst if killed by time (not wall collision)
+            if (timeLeft > 0)
+                return;
+                
+            for (int i = 0; i < 15; i++)
+            {
+                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
+                Dust burst = Dust.NewDustDirect(Projectile.Center, 1, 1, dustType, 0f, 0f, 100, default, 2f);
+                burst.noGravity = true;
+                burst.velocity = Main.rand.NextVector2Circular(6f, 6f);
+            }
+            
+            SoundEngine.PlaySound(SoundID.Item10 with { Volume = 0.5f }, Projectile.Center);
+        }
+
+        public override bool PreDraw(ref Color lightColor)
+        {
+            SpriteBatch spriteBatch = Main.spriteBatch;
+            Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
+            Vector2 drawOrigin = new Vector2(texture.Width / 2, texture.Height / 2);
+            
+            // Draw trail
+            for (int k = 0; k < Projectile.oldPos.Length; k++)
+            {
+                Vector2 drawPos = Projectile.oldPos[k] - Main.screenPosition + new Vector2(Projectile.width / 2, Projectile.height / 2);
+                float progress = (float)(Projectile.oldPos.Length - k) / Projectile.oldPos.Length;
+                
+                // Red to gold gradient trail
+                Color trailColor = Color.Lerp(new Color(200, 50, 30, 80), new Color(255, 220, 100, 120), progress) * progress;
+                float scale = Projectile.scale * (0.5f + progress * 0.5f);
+                
+                spriteBatch.Draw(texture, drawPos, null, trailColor, Projectile.oldRot[k], drawOrigin, scale, SpriteEffects.None, 0f);
+            }
+            
+            // Glow effect
+            Color glowColor = new Color(255, 200, 100, 0) * 0.5f;
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 offset = new Vector2(4f, 0).RotatedBy(MathHelper.PiOver2 * i);
+                spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition + offset, null, glowColor, 
+                    Projectile.rotation, drawOrigin, Projectile.scale * 1.2f, SpriteEffects.None, 0f);
+            }
+            
+            // Draw main projectile
+            Color mainColor = new Color(255, 240, 220, 220);
+            spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, mainColor, 
+                Projectile.rotation, drawOrigin, Projectile.scale, SpriteEffects.None, 0f);
+
+            return false;
+        }
+
+        public override Color? GetAlpha(Color lightColor)
+        {
+            return new Color(255, 240, 200, 180);
+        }
+    }
+}
