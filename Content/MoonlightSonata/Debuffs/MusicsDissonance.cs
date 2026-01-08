@@ -6,7 +6,7 @@ using Terraria.ModLoader;
 
 namespace MagnumOpus.Content.MoonlightSonata.Debuffs
 {
-    public class MusicsDissonance : ModBuff
+    public class MusicsDissonance : ModBuff 
     {
         public override void SetStaticDefaults()
         {
