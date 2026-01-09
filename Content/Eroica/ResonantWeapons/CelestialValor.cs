@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.ResonantWeapons
 {
@@ -33,7 +34,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void SetDefaults()
         {
-            Item.damage = 342;
+            Item.damage = 320; // Balanced: ~1150 effective DPS with projectiles
             Item.DamageType = DamageClass.Melee;
             Item.width = 80;
             Item.height = 80;
@@ -79,59 +80,42 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                 Projectile.NewProjectile(source, player.Center, projectileVelocity, type, (int)(damage * 0.88f), knockback, player.whoAmI);
             }
             
-            // Swing particles - red and gold, more for higher swing count
-            int particleCount = 8 + swingCounter * 3;
-            for (int i = 0; i < particleCount; i++)
-            {
-                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
-                Vector2 dustVel = towardsMouse.RotatedByRandom(0.8f) * Main.rand.NextFloat(4f, 10f);
-                Dust swing = Dust.NewDustDirect(player.Center + towardsMouse * 40f, 1, 1, dustType, dustVel.X, dustVel.Y, 100, default, 1.5f);
-                swing.noGravity = true;
-            }
+            // Swing particles using themed system
+            ThemedParticles.EroicaSparks(player.Center + towardsMouse * 40f, towardsMouse, 4 + swingCounter * 2, 6f);
+            ThemedParticles.EroicaSparkles(player.Center + towardsMouse * 30f, swingCounter * 2, 20f);
+            
+            // Musical notes burst on swing!
+            ThemedParticles.EroicaMusicNotes(player.Center + towardsMouse * 30f, swingCounter + 2, 25f);
             
             return false;
         }
 
         public override void HoldItem(Player player)
         {
-            // Dark red and gold particles while holding
-            if (Main.rand.NextBool(2))
+            // Ambient particles while holding
+            if (Main.rand.NextBool(6))
             {
-                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
-                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.Torch;
-                Dust particle = Dust.NewDustDirect(player.Center + offset, 1, 1, dustType, 0f, -1.5f, 150, default, 1.1f);
-                particle.noGravity = true;
-                particle.velocity *= 0.4f;
-                if (dustType == DustID.Torch)
-                    particle.color = new Color(139, 0, 0); // Dark red
+                ThemedParticles.EroicaAura(player.Center, 30f);
             }
         }
 
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
-            // Swing trail particles - dark red and gold
-            if (Main.rand.NextBool(2))
+            // Swing trail particles
+            if (Main.rand.NextBool(3))
             {
-                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.Torch;
-                Dust trail = Dust.NewDustDirect(new Vector2(hitbox.X, hitbox.Y), hitbox.Width, hitbox.Height, 
-                    dustType, player.velocity.X * 0.2f, player.velocity.Y * 0.2f, 100, default, 1.4f);
-                trail.noGravity = true;
-                if (dustType == DustID.Torch)
-                    trail.color = new Color(139, 0, 0); // Dark red
+                Vector2 hitCenter = new Vector2(hitbox.X + hitbox.Width / 2, hitbox.Y + hitbox.Height / 2);
+                ThemedParticles.EroicaTrail(hitCenter, player.velocity * 0.3f);
             }
         }
 
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
         {
             // Impact effect
-            for (int i = 0; i < 8; i++)
-            {
-                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
-                Dust impact = Dust.NewDustDirect(target.position, target.width, target.height, 
-                    dustType, 0f, 0f, 100, default, 1.5f);
-                impact.noGravity = true;
-                impact.velocity = Main.rand.NextVector2Circular(5f, 5f);
-            }
+            ThemedParticles.EroicaImpact(target.Center, 1.2f);
+            
+            // Musical accidentals on hit
+            ThemedParticles.EroicaAccidentals(target.Center, 2, 20f);
         }
 
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)

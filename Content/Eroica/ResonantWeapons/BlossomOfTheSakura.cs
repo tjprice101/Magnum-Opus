@@ -6,6 +6,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.ResonantWeapons
 {
@@ -22,7 +23,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void SetDefaults()
         {
-            Item.damage = 115; // Higher damage per shot (fast fire rate)
+            Item.damage = 75; // Balanced: ~1125 DPS (75 × 60/4)
             Item.DamageType = DamageClass.Ranged;
             Item.width = 64;
             Item.height = 28;
@@ -60,6 +61,12 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                 Dust flash = Dust.NewDustDirect(position, 10, 10,
                     DustID.RedTorch, velocity.X * 0.3f, velocity.Y * 0.3f, 100, default, 1.2f);
                 flash.noGravity = true;
+            }
+            
+            // Occasional music notes
+            if (Main.rand.NextBool(6))
+            {
+                ThemedParticles.EroicaMusicNotes(position, 2, 15f);
             }
 
             if (Main.rand.NextBool(2))

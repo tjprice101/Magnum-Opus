@@ -84,8 +84,8 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         public override void SetDefaults()
         {
-            NPC.width = 58;
-            NPC.height = 58;
+            NPC.width = 80;   // Hitbox sized to match visual sprite
+            NPC.height = 80;  // Hitbox sized to match visual sprite
             NPC.damage = 70;
             NPC.defense = 60;
             NPC.lifeMax = 240254; // Keep original minion health
@@ -365,16 +365,28 @@ namespace MagnumOpus.Content.Eroica.Bosses
             }
             
             // Fire beam!
-            if (AttackTimer >= 50 && Main.netMode != NetmodeID.MultiplayerClient)
+            if (AttackTimer >= 40 && Main.netMode != NetmodeID.MultiplayerClient) // Fires more often (was 50)
             {
                 AttackTimer = 0;
                 currentAttack = AttackState.BeamFiring;
                 
                 Vector2 beamDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
-                Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, beamDirection * 18f,
-                    ModContent.ProjectileType<FlameOfValorBeam>(), 90, 2f, Main.myPlayer);
+                float beamSpeed = 21.6f; // 20% faster (was 18)
+                
+                // Fire 3 beams: one toward player, one +45°, one -45°
+                float[] angles = { 0f, MathHelper.ToRadians(45f), MathHelper.ToRadians(-45f) };
+                foreach (float angle in angles)
+                {
+                    Vector2 velocity = beamDirection.RotatedBy(angle) * beamSpeed;
+                    Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, velocity,
+                        ModContent.ProjectileType<FlameOfValorBeam>(), 90, 2f, Main.myPlayer);
+                }
                 
                 SoundEngine.PlaySound(SoundID.Item72 with { Pitch = -0.2f, Volume = 0.9f }, NPC.Center);
+                
+                // Musical particle burst on attack!
+                ThemedParticles.EroicaMusicNotes(NPC.Center, 6, 35f);
+                ThemedParticles.EroicaAccidentals(NPC.Center, 3, 25f);
                 
                 // Burst particles
                 for (int i = 0; i < 20; i++)
@@ -405,13 +417,14 @@ namespace MagnumOpus.Content.Eroica.Bosses
         
         private void SpawnAmbientParticles()
         {
-            if (Main.rand.NextBool(8))
+            // Use themed particles for ambient effect
+            if (isGlowing)
             {
-                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
-                float scale = isGlowing ? 1.5f : 1f;
-                Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, dustType, 0f, 0f, 100, default, scale);
-                dust.noGravity = true;
-                dust.velocity *= 0.3f;
+                ThemedParticles.EroicaAura(NPC.Center, NPC.width * 0.6f);
+            }
+            else if (Main.rand.NextBool(6))
+            {
+                ThemedParticles.EroicaAura(NPC.Center, NPC.width * 0.4f);
             }
         }
         
@@ -450,13 +463,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
         public override void OnKill()
         {
             // Death burst - red and gold
-            for (int i = 0; i < 40; i++)
-            {
-                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
-                Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, dustType, 0f, 0f, 100, default, 2.5f);
-                dust.noGravity = true;
-                dust.velocity = Main.rand.NextVector2Circular(10f, 10f);
-            }
+            ThemedParticles.EroicaImpact(NPC.Center, 2.5f);
+            ThemedParticles.EroicaShockwave(NPC.Center, 1.5f);
+            ThemedParticles.SakuraPetals(NPC.Center, 12, NPC.width);
 
             if (Main.netMode != NetmodeID.MultiplayerClient)
             {

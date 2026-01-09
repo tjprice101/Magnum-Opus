@@ -8,6 +8,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.MoonlightSonata.ResonantOres;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Enemies
 {
@@ -144,30 +145,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             // Add ambient lighting - icy blue/purple
             Lighting.AddLight(NPC.Center, 0.3f, 0.5f, 0.7f);
 
-            // Ambient particles - purple and light blue
-            if (Main.rand.NextBool(8))
+            // Enhanced ambient particles using ThemedParticles
+            ThemedParticles.MoonlightAura(NPC.Center, 35f);
+            
+            // Occasional shimmer and snow particles
+            if (Main.rand.NextBool(10))
             {
-                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
-                Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, dustType, 0f, 0f, 100, default, 0.8f);
-                dust.noGravity = true;
-                dust.velocity *= 0.3f;
-            }
-
-            // White shimmer particles for ethereal glow
-            if (Main.rand.NextBool(6))
-            {
-                Dust shimmer = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.SparksMech, 0f, 0f, 150, Color.White, 0.6f);
-                shimmer.noGravity = true;
-                shimmer.velocity = Main.rand.NextVector2Circular(1f, 1f);
-                shimmer.fadeIn = 1.2f;
-            }
-
-            // Occasional snowflake particles
-            if (Main.rand.NextBool(15))
-            {
-                Dust snow = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Snow, 0f, -1f, 100, default, 1f);
-                snow.noGravity = true;
-                snow.velocity = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2f, -0.5f));
+                ThemedParticles.MoonlightSparkles(NPC.Center, 4, 30f);
             }
 
             float distanceToTarget = Vector2.Distance(NPC.Center, target.Center);
@@ -240,14 +224,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 StateTimer = 0;
                 pranceDirection = target.Center.X > NPC.Center.X ? 1 : -1;
                 
-                // Alert dust burst - purple and light blue
-                for (int i = 0; i < 15; i++)
-                {
-                    int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
-                    Dust alert = Dust.NewDustDirect(NPC.Center, 1, 1, dustType, 0f, 0f, 0, default, 1.5f);
-                    alert.noGravity = true;
-                    alert.velocity = Main.rand.NextVector2Circular(5f, 5f);
-                }
+                // Enhanced alert burst with ThemedParticles
+                ThemedParticles.MoonlightBloomBurst(NPC.Center, 0.8f);
+                ThemedParticles.MoonlightShockwave(NPC.Center, 0.5f);
+                
+                // Musical alert - floating notes when deer spots player
+                ThemedParticles.MoonlightMusicNotes(NPC.Center, 5, 30f);
             }
         }
 

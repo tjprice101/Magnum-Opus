@@ -6,6 +6,7 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
@@ -37,19 +38,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             // Note: Additional Moonlight-specific minion buffs (+50% damage, +25% attack speed)
             // are handled in the Goliath and Razer minion projectiles themselves
             
-            // Ambient particles when equipped
-            if (!hideVisual && Main.rand.NextBool(6))
+            // Enhanced ambient particles using ThemedParticles
+            if (!hideVisual)
             {
-                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
+                // Moonlight aura around player
+                ThemedParticles.MoonlightAura(player.Center, 30f);
                 
-                // Fractal-like orbiting particles
-                float angle = Main.GameUpdateCount * 0.05f + Main.rand.NextFloat(MathHelper.TwoPi);
-                float radius = 25f + Main.rand.NextFloat(15f);
-                Vector2 offset = new Vector2((float)System.Math.Cos(angle), (float)System.Math.Sin(angle)) * radius;
-                
-                Dust dust = Dust.NewDustPerfect(player.Center + offset, dustType, 
-                    offset.SafeNormalize(Vector2.Zero) * -1f, 100, default, 1.2f);
-                dust.noGravity = true;
+                // Occasional sparkles
+                if (Main.rand.NextBool(8))
+                {
+                    ThemedParticles.MoonlightSparkles(player.Center, 4, 25f);
+                }
             }
         }
         

@@ -6,6 +6,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -28,7 +29,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void SetDefaults()
         {
-            Item.damage = 338; // 30% increase from 260
+            Item.damage = 340; // Balanced: ~1133 DPS (340 × 60/18)
             Item.DamageType = DamageClass.Magic;
             Item.width = 50;
             Item.height = 50;
@@ -88,6 +89,10 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                 int projIndex = Projectile.NewProjectile(source, player.Center, beamVelocity,
                     ModContent.ProjectileType<FuneralPrayerBeam>(), beamDamage, knockback * 0.5f, player.whoAmI, shotId);
             }
+            
+            // Musical burst on cast!
+            ThemedParticles.EroicaMusicNotes(player.Center, 6, 30f);
+            ThemedParticles.EroicaAccidentals(player.Center, 3, 20f);
 
             return false; // Don't spawn default projectile
         }

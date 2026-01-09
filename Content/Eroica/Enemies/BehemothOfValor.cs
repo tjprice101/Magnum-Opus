@@ -9,6 +9,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Enemies;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Enemies
 {
@@ -92,7 +93,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
             NPC.noGravity = false;
             NPC.noTileCollide = false;
 
-            DrawOffsetY = -74f; // Fix 4 blocks ground clipping
+            DrawOffsetY = -98f; // Raised 1.5 blocks (24 pixels) from -74
         }
 
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
@@ -126,18 +127,13 @@ namespace MagnumOpus.Content.Eroica.Enemies
             // Dark red glow
             Lighting.AddLight(NPC.Center, 0.7f, 0.15f, 0.1f);
 
-            // Ambient dark particles
-            if (Main.rand.NextBool(6))
+            // Themed ambient particles
+            ThemedParticles.EroicaAura(NPC.Center, NPC.width * 0.6f);
+            
+            // Occasional sparkles
+            if (Main.rand.NextBool(8))
             {
-                Dust dark = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Torch, 0f, 0f, 100, Color.DarkRed, 1.2f);
-                dark.noGravity = true;
-                dark.velocity *= 0.4f;
-            }
-
-            if (Main.rand.NextBool(10))
-            {
-                Dust smoke = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Smoke, 0f, 0f, 150, Color.Black, 1.5f);
-                smoke.velocity = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2f, 0f));
+                ThemedParticles.EroicaSparkles(NPC.Center, 2, NPC.width * 0.5f);
             }
 
             // Retarget
@@ -349,27 +345,16 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         public override void HitEffect(NPC.HitInfo hit)
         {
-            for (int i = 0; i < 10; i++)
-            {
-                Dust hurt = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Torch, 0f, 0f, 100, Color.DarkRed, 1.8f);
-                hurt.noGravity = true;
-                hurt.velocity = Main.rand.NextVector2Circular(5f, 5f);
-            }
+            // Hit sparks
+            ThemedParticles.EroicaSparkles(NPC.Center, 4, NPC.width * 0.4f);
+            ThemedParticles.EroicaSparks(NPC.Center, -hit.HitDirection * Vector2.UnitX, 4, 5f);
 
             if (NPC.life <= 0)
             {
-                for (int i = 0; i < 60; i++)
-                {
-                    Dust death = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Torch, 0f, 0f, 100, Color.DarkRed, 3f);
-                    death.noGravity = true;
-                    death.velocity = Main.rand.NextVector2Circular(15f, 15f);
-                }
-
-                for (int i = 0; i < 40; i++)
-                {
-                    Dust smoke = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Smoke, 0f, 0f, 150, Color.Black, 2.5f);
-                    smoke.velocity = Main.rand.NextVector2Circular(10f, 10f);
-                }
+                // Death explosion
+                ThemedParticles.EroicaImpact(NPC.Center, 3f);
+                ThemedParticles.EroicaShockwave(NPC.Center, 2f);
+                ThemedParticles.SakuraPetals(NPC.Center, 20, NPC.width);
 
                 SoundEngine.PlaySound(SoundID.Item14, NPC.Center);
             }

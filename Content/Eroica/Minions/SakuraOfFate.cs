@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Minions
 {
@@ -210,23 +211,10 @@ namespace MagnumOpus.Content.Eroica.Minions
                 Projectile.Center = owner.Center + new Vector2(-40f * owner.direction, -30f);
                 Projectile.velocity = Vector2.Zero;
                 
-                // Teleport effect - black and red (NO purple)
-                for (int i = 0; i < 25; i++)
-                {
-                    int dustType = Main.rand.NextBool() ? DustID.Smoke : DustID.CrimsonTorch;
-                    Color dustColor = Main.rand.NextBool() ? Color.Black : default;
-                    Dust dust = Dust.NewDustDirect(Projectile.Center, 1, 1, dustType, 
-                        Main.rand.NextFloat(-4f, 4f), Main.rand.NextFloat(-4f, 4f), 100, dustColor, 1.8f);
-                    dust.noGravity = true;
-                }
-                
-                // Add black smoke burst
-                for (int i = 0; i < 10; i++)
-                {
-                    Dust smoke = Dust.NewDustPerfect(Projectile.Center, DustID.Smoke,
-                        Main.rand.NextVector2Circular(3f, 3f), 100, Color.Black, 1.5f);
-                    smoke.noGravity = true;
-                }
+                // Teleport effect - black and red
+                ThemedParticles.TeleportBurst(Projectile.Center, isMoonlight: false);
+                ThemedParticles.EroicaBloomBurst(Projectile.Center, 1.5f);
+                ThemedParticles.SakuraPetals(Projectile.Center, 8, 30f);
                 
                 SoundEngine.PlaySound(SoundID.Item8 with { Pitch = -0.3f }, Projectile.Center);
             }

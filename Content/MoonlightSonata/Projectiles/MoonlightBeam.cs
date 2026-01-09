@@ -62,8 +62,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             if (Projectile.velocity.Y != oldVelocity.Y)
                 Projectile.velocity.Y = -oldVelocity.Y;
 
-            // Bounce effect with mini fractal lightning
+            // Bounce effect with enhanced visuals
             Terraria.Audio.SoundEngine.PlaySound(SoundID.Item10 with { Volume = 0.5f }, Projectile.Center);
+            
+            // Enhanced bounce impact with ThemedParticles
+            ThemedParticles.MoonlightImpact(Projectile.Center, 0.5f);
+            
+            // Musical notes burst on bounce!
+            ThemedParticles.MoonlightMusicNotes(Projectile.Center, 4, 25f);
             
             // Create small Moonlight-themed fractal sparks at bounce point
             for (int i = 0; i < 4; i++)
@@ -86,6 +92,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             
             float pulse = 1f + (float)System.Math.Sin(pulseTimer) * 0.3f;
             
+            // Enhanced trail using new ThemedParticles system
+            ThemedParticles.MoonlightTrail(Projectile.Center, Projectile.velocity);
+            
+            // Musical note trail - occasional floating notes
+            ThemedParticles.MoonlightMusicTrail(Projectile.Center, Projectile.velocity);
+            
             // Dark purple core - bigger and pulsing
             Dust core = Dust.NewDustDirect(Projectile.Center - new Vector2(4, 4), 8, 8, DustID.PurpleTorch, 0f, 0f, 50, default, 2.2f * pulse);
             core.noGravity = true;
@@ -93,7 +105,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             core.fadeIn = 1.8f;
             
             // Light purple outer glow
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 2; i++)
             {
                 Vector2 offset = Main.rand.NextVector2Circular(10f, 10f);
                 Dust glow = Dust.NewDustDirect(Projectile.Center + offset, 1, 1, DustID.PinkTorch, 0f, 0f, 100, default, 1.5f);
@@ -101,18 +113,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                 glow.velocity = Projectile.velocity * 0.02f;
             }
             
-            // Sparkle effect
-            if (Main.rand.NextBool(2))
+            // Sparkle effect using ThemedParticles
+            if (Main.rand.NextBool(4))
             {
-                Vector2 sparklePos = Projectile.Center + Main.rand.NextVector2Circular(12f, 12f);
-                Dust sparkle = Dust.NewDustDirect(sparklePos, 1, 1, DustID.PinkFairy, 0f, 0f, 200, default, 1f);
-                sparkle.noGravity = true;
-                sparkle.velocity = Main.rand.NextVector2Circular(1.5f, 1.5f);
-                sparkle.fadeIn = 0.6f;
+                ThemedParticles.MoonlightSparkles(Projectile.Center, 3, 12f);
             }
             
             // Heavy trail particles
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < 1; i++)
             {
                 Vector2 trailPos = Projectile.Center - Projectile.velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(5f, 15f);
                 Dust trail = Dust.NewDustDirect(trailPos, 1, 1, DustID.PurpleCrystalShard, 0f, 0f, 150, default, 1.3f);
@@ -128,12 +136,24 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
         {
             target.AddBuff(ModContent.BuffType<Debuffs.MusicsDissonance>(), 180);
             MagnumVFX.CreateMusicalBurst(target.Center, new Color(150, 80, 200), Color.White, 1);
+            
+            // Enhanced hit effect with ThemedParticles
+            ThemedParticles.MoonlightSparks(target.Center, target.velocity);
+            
+            // Musical accidentals on hit
+            ThemedParticles.MoonlightAccidentals(target.Center, 2, 15f);
         }
 
         public override void OnKill(int timeLeft)
         {
+            // Enhanced burst using ThemedParticles
+            ThemedParticles.MoonlightBloomBurst(Projectile.Center, 0.8f);
+            
+            // Musical death burst - notes explode outward
+            ThemedParticles.MoonlightMusicalImpact(Projectile.Center, 0.6f, false);
+            
             // Burst of sparkles with mini fractal sparks
-            for (int i = 0; i < 18; i++)
+            for (int i = 0; i < 12; i++)
             {
                 Vector2 velocity = Main.rand.NextVector2Circular(5f, 5f);
                 int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.PinkFairy;

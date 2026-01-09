@@ -7,6 +7,7 @@ using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using ReLogic.Content;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Tools
 {
@@ -63,6 +64,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
     {
         public int wingFrame = 0;
         private int frameCounter = 0;
+        private bool wasFlying = false;  // Track previous flying state
         
         // Dodge mechanic
         public bool hasWingsEquipped = false;
@@ -87,6 +89,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
             {
                 wingFrame = 0;
                 frameCounter = 0;
+                wasFlying = false;
                 return;
             }
 
@@ -115,10 +118,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
                 }
             }
 
-            // Flying = in air with wings active
-            bool flying = Player.controlJump && Player.velocity.Y != 0 && !Player.mount.Active;
+            // Wing animation logic
+            bool isFlying = Player.controlJump && Player.velocity.Y != 0 && !Player.mount.Active;
+            bool isOnGround = Player.velocity.Y == 0;
 
-            if (flying || isDodging)
+            if (isFlying || isDodging)
             {
                 frameCounter++;
                 if (frameCounter >= 2) // 33% faster animation (was 3)
@@ -128,9 +132,18 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
                     if (wingFrame >= 36)
                         wingFrame = 0;
                 }
+                wasFlying = true;
             }
-            else
+            else if (isOnGround)
             {
+                // On ground - reset to first frame (idle/folded)
+                wingFrame = 0;
+                frameCounter = 0;
+                wasFlying = false;
+            }
+            else if (wasFlying && !isFlying)
+            {
+                // Stopped flying but still in air - hold on first frame until landing
                 wingFrame = 0;
                 frameCounter = 0;
             }
@@ -171,6 +184,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
         
         private void CreateDodgeExplosion(Vector2 position)
         {
+            // Use new themed particle system for enhanced effects
+            ThemedParticles.MoonlightImpact(position, 1.5f);
+            ThemedParticles.TeleportBurst(position, true);
+            
             // Deep purple color: RGB(75, 0, 130) - indigo
             Color deepPurple = new Color(75, 0, 130);
             // Light blue color: RGB(135, 206, 250) - light sky blue
@@ -237,8 +254,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
         
         private void CreateDodgeTrailEffects()
         {
-            // Constant trail during dodge
-            for (int i = 0; i < 5; i++)
+            // Use new themed particle system for enhanced trail
+            ThemedParticles.DodgeTrail(Player.Center, Player.velocity, true);
+            
+            // Additional dust trail for density
+            for (int i = 0; i < 3; i++)
             {
                 Vector2 offset = Main.rand.NextVector2Circular(Player.width / 2f, Player.height / 2f);
                 int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
@@ -254,13 +274,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
                 Dust sparkle = Dust.NewDustPerfect(Player.Center + offset, DustID.SparksMech, -Player.velocity * 0.1f, 100, Color.White, 1.2f);
                 sparkle.noGravity = true;
             }
-            
-            // Shadowflame wisps
-            if (Main.rand.NextBool(3))
-            {
-                Dust shadow = Dust.NewDustPerfect(Player.Center, DustID.Shadowflame, -Player.velocity * 0.15f + Main.rand.NextVector2Circular(2f, 2f), 100, default, 1.5f);
-                shadow.noGravity = true;
-            }
         }
 
         public override void HideDrawLayers(PlayerDrawSet drawInfo)
@@ -274,10 +287,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
         }
     }
 
+    /// <summary>
+    /// Custom draw layer for Wings of the Moon.
+    /// Uses 6x6 sprite sheet for all animation - frame 0 when idle, animates when flying.
+    /// </summary>
     public class WingsOfTheMoonLayer : PlayerDrawLayer
     {
-        private Asset<Texture2D> _wingsTexture;    // _Wings.png - 1x4 stationary
-        private Asset<Texture2D> _animatedTexture; // _Animated.png - 6x6 flying
+        private Asset<Texture2D> _animatedTexture; // 6x6 sprite sheet for all states
 
         public override Position GetDefaultPosition() => new BeforeParent(PlayerDrawLayers.BackAcc);
 
@@ -292,41 +308,23 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
             Player player = drawInfo.drawPlayer;
             var modPlayer = player.GetModPlayer<WingsOfTheMoonPlayer>();
 
-            Texture2D tex;
-            Rectangle source;
+            // Always use the 6x6 animated sprite sheet
+            _animatedTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Content/MoonlightSonata/Tools/WingsOfTheMoon_Animated");
+            if (_animatedTexture.State != AssetState.Loaded)
+                return;
 
-            bool flying = modPlayer.wingFrame > 0;
+            Texture2D tex = _animatedTexture.Value;
+            int cols = 6;
+            int rows = 6;
+            int frameW = tex.Width / cols;
+            int frameH = tex.Height / rows;
 
-            if (flying)
-            {
-                // FLYING: _Animated.png - 6x6 grid, left to right, top to bottom
-                _animatedTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Content/MoonlightSonata/Tools/WingsOfTheMoon_Animated");
-                if (_animatedTexture.State != AssetState.Loaded)
-                    return;
+            // Use wingFrame from modPlayer - it's 0 when idle, animates when flying
+            int frame = modPlayer.wingFrame;
+            int col = frame % cols;
+            int row = frame / cols;
 
-                tex = _animatedTexture.Value;
-                int cols = 6;
-                int rows = 6;
-                int frameW = tex.Width / cols;
-                int frameH = tex.Height / rows;
-
-                int frame = modPlayer.wingFrame;
-                int col = frame % cols;
-                int row = frame / cols;
-
-                source = new Rectangle(col * frameW, row * frameH, frameW, frameH);
-            }
-            else
-            {
-                // STATIONARY: _Wings.png - 1x4 sprite sheet, use first frame
-                _wingsTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Content/MoonlightSonata/Tools/WingsOfTheMoon_Wings");
-                if (_wingsTexture.State != AssetState.Loaded)
-                    return;
-
-                tex = _wingsTexture.Value;
-                int frameH = tex.Height / 4;
-                source = new Rectangle(0, 0, tex.Width, frameH);
-            }
+            Rectangle source = new Rectangle(col * frameW, row * frameH, frameW, frameH);
 
             Vector2 pos = drawInfo.Position - Main.screenPosition + new Vector2(player.width / 2f, player.height / 2f);
             pos.Y += player.gfxOffY;

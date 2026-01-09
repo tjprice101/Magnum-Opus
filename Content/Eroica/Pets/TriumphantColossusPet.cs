@@ -104,15 +104,28 @@ namespace MagnumOpus.Content.Eroica.Pets
             
             // Check if on ground
             bool onGround = Projectile.velocity.Y == 0f || 
-                           Collision.SolidCollision(new Vector2(Projectile.position.X + 4, Projectile.Bottom.Y), Projectile.width - 8, 4);
+                           Collision.SolidCollision(new Vector2(Projectile.position.X + 4, Projectile.Bottom.Y + 8), Projectile.width - 8, 4);
             
-            // Jump over obstacles
+            // Only jump if there's a wall blocking the path AND can't walk over it
             if (onGround && isWalking)
             {
-                Vector2 checkPos = Projectile.Center + new Vector2(Projectile.velocity.X > 0 ? 30 : -30, 0);
-                if (Collision.SolidCollision(checkPos, 8, Projectile.height - 10))
+                // Check for wall ahead at mid-height
+                Vector2 wallCheckPos = new Vector2(
+                    Projectile.Center.X + (Projectile.velocity.X > 0 ? 25 : -25),
+                    Projectile.Bottom.Y - 20);
+                
+                // Check for ground ahead (can we walk there?)
+                Vector2 groundCheckPos = new Vector2(
+                    Projectile.Center.X + (Projectile.velocity.X > 0 ? 35 : -35),
+                    Projectile.Bottom.Y + 8);
+                    
+                bool wallAhead = Collision.SolidCollision(wallCheckPos, 8, 30);
+                bool groundAhead = Collision.SolidCollision(groundCheckPos, 8, 16);
+                
+                // Only jump if there's a wall we can't walk around AND there's ground to land on
+                if (wallAhead && groundAhead)
                 {
-                    Projectile.velocity.Y = -10f;
+                    Projectile.velocity.Y = -8f;
                 }
             }
 
@@ -182,8 +195,8 @@ namespace MagnumOpus.Content.Eroica.Pets
             Rectangle sourceRect = new Rectangle(frameX * frameWidth, frameY * frameHeight, frameWidth, frameHeight);
             // Origin at bottom-center so sprite stands on ground
             Vector2 origin = new Vector2(frameWidth / 2f, frameHeight);
-            // Draw at bottom of hitbox
-            Vector2 drawPos = Projectile.Bottom - Main.screenPosition;
+            // Draw at bottom of hitbox, lowered by 8 pixels (0.5 blocks)
+            Vector2 drawPos = Projectile.Bottom - Main.screenPosition + new Vector2(0, 8f);
 
             float drawScale = 0.45f;
 

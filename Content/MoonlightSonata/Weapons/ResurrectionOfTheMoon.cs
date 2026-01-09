@@ -25,7 +25,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
         {
             Item.width = 70;
             Item.height = 26;
-            Item.damage = 850; // Devastating damage
+            Item.damage = 1500; // Balanced: Heavy sniper, burst damage compensates slow rate
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 90; // Very slow fire rate
             Item.useAnimation = 90;

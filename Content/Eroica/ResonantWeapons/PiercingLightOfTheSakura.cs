@@ -26,7 +26,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void SetDefaults()
         {
-            Item.damage = 165;
+            Item.damage = 155; // Balanced: ~1163 DPS (155 × 60/8)
             Item.DamageType = DamageClass.Ranged;
             Item.width = 64;
             Item.height = 24;

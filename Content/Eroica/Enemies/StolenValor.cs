@@ -9,6 +9,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Enemies
 {
@@ -96,8 +97,8 @@ namespace MagnumOpus.Content.Eroica.Enemies
             NPC.noGravity = false;
             NPC.noTileCollide = false;
 
-            // Visual offset to align sprite with hitbox (larger value = draw higher to prevent clipping)
-            DrawOffsetY = -30f;
+            // Visual offset to align sprite with hitbox (lowered 1.5 blocks = 24 pixels)
+            DrawOffsetY = -6f;
         }
 
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
@@ -133,12 +134,12 @@ namespace MagnumOpus.Content.Eroica.Enemies
             // Dark red/black glow
             Lighting.AddLight(NPC.Center, 0.5f, 0.1f, 0.1f);
 
-            // Dark particles
-            if (Main.rand.NextBool(8))
+            // Themed ambient particles
+            ThemedParticles.EroicaAura(NPC.Center, NPC.width * 0.5f);
+            
+            if (Main.rand.NextBool(12))
             {
-                Dust dark = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Torch, 0f, 0f, 100, Color.DarkRed, 1.0f);
-                dark.noGravity = true;
-                dark.velocity *= 0.3f;
+                ThemedParticles.EroicaSparkles(NPC.Center, 2, NPC.width * 0.4f);
             }
 
             // Spawn minions on first tick
@@ -329,31 +330,17 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         public override void HitEffect(NPC.HitInfo hit)
         {
-            // Hurt particles
-            for (int i = 0; i < 8; i++)
-            {
-                Dust hurt = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Torch, 0f, 0f, 100, Color.DarkRed, 1.5f);
-                hurt.noGravity = true;
-                hurt.velocity = Main.rand.NextVector2Circular(4f, 4f);
-            }
+            // Hit sparks
+            ThemedParticles.EroicaSparkles(NPC.Center, 3, NPC.width * 0.4f);
+            ThemedParticles.EroicaSparks(NPC.Center, -hit.HitDirection * Vector2.UnitX, 3, 4f);
 
             // Death effect
             if (NPC.life <= 0)
             {
-                // Dramatic dark red explosion
-                for (int i = 0; i < 40; i++)
-                {
-                    Dust death = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Torch, 0f, 0f, 100, Color.DarkRed, 2.5f);
-                    death.noGravity = true;
-                    death.velocity = Main.rand.NextVector2Circular(12f, 12f);
-                }
-
-                // Black smoke
-                for (int i = 0; i < 25; i++)
-                {
-                    Dust smoke = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Smoke, 0f, 0f, 150, Color.Black, 2.0f);
-                    smoke.velocity = Main.rand.NextVector2Circular(8f, 8f);
-                }
+                // Dramatic death explosion
+                ThemedParticles.EroicaImpact(NPC.Center, 3f);
+                ThemedParticles.EroicaShockwave(NPC.Center, 2f);
+                ThemedParticles.SakuraPetals(NPC.Center, 15, NPC.width);
             }
         }
 

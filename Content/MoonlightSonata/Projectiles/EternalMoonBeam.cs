@@ -5,6 +5,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
+using MagnumOpus.Common.Systems;
 using System;
 
 namespace MagnumOpus.Content.MoonlightSonata.Projectiles
@@ -85,33 +86,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                 Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * Projectile.velocity.Length(), homingStrength);
             }
 
-            // Sparkle trail particles
-            if (Main.rand.NextBool(2))
-            {
-                int dustType = Main.rand.NextBool() ? DustID.PurpleCrystalShard : DustID.Enchanted_Pink;
-                Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
-                    dustType, 0f, 0f, 100, default, 0.8f);
-                dust.noGravity = true;
-                dust.velocity = -Projectile.velocity * 0.2f + Main.rand.NextVector2Circular(1f, 1f);
-            }
+            // Enhanced sparkle trail using ThemedParticles
+            ThemedParticles.MoonlightTrail(Projectile.Center, Projectile.velocity);
             
-            // White sparkle dust effect
-            if (Main.rand.NextBool(3))
-            {
-                Dust sparkle = Dust.NewDustDirect(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f),
-                    1, 1, DustID.SparksMech, 0f, 0f, 0, Color.White, 1.2f);
-                sparkle.noGravity = true;
-                sparkle.velocity = Main.rand.NextVector2Circular(1.5f, 1.5f);
-                sparkle.fadeIn = 1.1f;
-            }
-
-            // Magical shimmer particles
             if (Main.rand.NextBool(4))
             {
-                Dust shimmer = Dust.NewDustDirect(Projectile.Center + Main.rand.NextVector2Circular(12f, 12f),
-                    1, 1, DustID.PinkFairy, 0f, 0f, 150, default, 0.6f);
-                shimmer.noGravity = true;
-                shimmer.velocity = Main.rand.NextVector2Circular(0.5f, 0.5f);
+                ThemedParticles.MoonlightSparkles(Projectile.Center, 2, 10f);
             }
         }
 

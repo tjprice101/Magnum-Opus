@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 {
@@ -50,28 +51,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             // Rotation follows velocity
             Projectile.rotation = Projectile.velocity.ToRotation();
             
-            // ENHANCED trail - very visible beam effect
-            for (int i = 0; i < 3; i++)
+            // Enhanced trail using ThemedParticles
+            ThemedParticles.MoonlightTrail(Projectile.Center, Projectile.velocity);
+            
+            // Additional beam trail
+            for (int i = 0; i < 2; i++)
             {
                 int dustType = Main.rand.NextBool(3) ? DustID.IceTorch : DustID.PurpleTorch;
                 Vector2 offset = Main.rand.NextVector2Circular(4f, 4f);
                 Dust dust = Dust.NewDustPerfect(Projectile.Center + offset, dustType, -Projectile.velocity * 0.08f, 0, default, 1.8f);
                 dust.noGravity = true;
                 dust.fadeIn = 1.2f;
-            }
-            
-            // Sparkle trail
-            if (Main.rand.NextBool(2))
-            {
-                Dust sparkle = Dust.NewDustPerfect(Projectile.Center, DustID.SparksMech, -Projectile.velocity * 0.05f, 100, Color.White, 1f);
-                sparkle.noGravity = true;
-            }
-            
-            // Shadowflame wisps
-            if (Main.rand.NextBool(4))
-            {
-                Dust shadow = Dust.NewDustPerfect(Projectile.Center, DustID.Shadowflame, -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f), 100, default, 1.2f);
-                shadow.noGravity = true;
             }
             
             // Strong lighting
@@ -161,11 +151,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
         
         private void CreateHitExplosion(Vector2 position)
         {
-            // MASSIVE purple/blue burst on hit - very visible!
-            // Outer ring - deep purple
-            for (int i = 0; i < 20; i++)
+            // Enhanced explosion using ThemedParticles
+            ThemedParticles.MoonlightImpact(position, 1.5f);
+            
+            // Outer ring - deep purple (reduced count - ThemedParticles handles additional visuals)
+            for (int i = 0; i < 12; i++)
             {
-                float angle = MathHelper.TwoPi * i / 20f;
+                float angle = MathHelper.TwoPi * i / 12f;
                 Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(6f, 12f);
                 Dust dust = Dust.NewDustPerfect(position, DustID.PurpleTorch, vel, 0, default, 2.5f);
                 dust.noGravity = true;
@@ -173,30 +165,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             }
             
             // Inner ring - light blue
-            for (int i = 0; i < 15; i++)
+            for (int i = 0; i < 10; i++)
             {
-                float angle = MathHelper.TwoPi * i / 15f;
+                float angle = MathHelper.TwoPi * i / 10f;
                 Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(4f, 9f);
                 Dust dust = Dust.NewDustPerfect(position, DustID.IceTorch, vel, 0, default, 2.2f);
                 dust.noGravity = true;
                 dust.fadeIn = 1.3f;
-            }
-            
-            // Random burst
-            for (int i = 0; i < 15; i++)
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(8f, 8f);
-                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
-                Dust dust = Dust.NewDustPerfect(position, dustType, vel, 0, default, 2f);
-                dust.noGravity = true;
-            }
-            
-            // Sparkles
-            for (int i = 0; i < 12; i++)
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(6f, 6f);
-                Dust sparkle = Dust.NewDustPerfect(position, DustID.SparksMech, vel, 100, Color.White, 1.5f);
-                sparkle.noGravity = true;
             }
             
             // Electric sparks

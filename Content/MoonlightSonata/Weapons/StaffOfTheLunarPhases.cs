@@ -20,7 +20,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
         {
             Item.width = 44;
             Item.height = 44;
-            Item.damage = 220;
+            Item.damage = 280; // Balanced summon damage for Moonlight tier
             Item.DamageType = DamageClass.Summon;
             Item.mana = 15;
             Item.useTime = 36;

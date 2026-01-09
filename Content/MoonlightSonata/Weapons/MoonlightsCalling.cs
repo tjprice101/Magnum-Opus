@@ -7,6 +7,7 @@ using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.Projectiles;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons
 {
@@ -20,7 +21,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
         {
             Item.width = 28;
             Item.height = 30;
-            Item.damage = 225; // Post-Moon Lord endgame damage (+25%)
+            Item.damage = 200; // Balanced: ~1000 DPS (200 × 60/12)
             Item.DamageType = DamageClass.Magic;
             Item.mana = 8;
             Item.useTime = 12; // Fast fire rate
@@ -45,6 +46,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
             velocity = velocity.RotatedByRandom(spread);
             
             Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
+            
+            // Occasional music notes on cast
+            if (Main.rand.NextBool(4))
+            {
+                ThemedParticles.MoonlightMusicNotes(position, 2, 20f);
+            }
+            
             return false;
         }
 

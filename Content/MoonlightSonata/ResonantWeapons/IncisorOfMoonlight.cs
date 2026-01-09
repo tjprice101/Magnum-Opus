@@ -19,7 +19,7 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
         public override void SetDefaults()
         {
             // Stronger than Zenith (190 damage)
-            Item.damage = 313; // +25%
+            Item.damage = 280; // Balanced: Premium melee ~1400 DPS with projectile
             Item.DamageType = DamageClass.Melee;
             Item.width = 60;
             Item.height = 60;

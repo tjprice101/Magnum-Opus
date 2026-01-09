@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -36,6 +37,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Projectile.alpha = 50;
             Projectile.light = 0.8f;
             Projectile.extraUpdates = 1;
+            Projectile.scale = 0.65f; // 35% size reduction
         }
 
         public override void AI()
@@ -43,8 +45,11 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Face direction of travel
             Projectile.rotation = Projectile.velocity.ToRotation();
             
-            // Red and gold particle trail
-            if (Main.rand.NextBool(2))
+            // Enhanced trail using ThemedParticles
+            ThemedParticles.EroicaTrail(Projectile.Center, Projectile.velocity);
+            
+            // Red and gold particle trail (reduced count)
+            if (Main.rand.NextBool(4))
             {
                 int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
                 Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
@@ -53,22 +58,18 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 dust.velocity = -Projectile.velocity * 0.2f + Main.rand.NextVector2Circular(2f, 2f);
             }
             
-            // Sparkle effect
-            if (Main.rand.NextBool(4))
-            {
-                Dust sparkle = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.GoldCoin, 0f, 0f, 0, default, 1.2f);
-                sparkle.noGravity = true;
-                sparkle.velocity = Main.rand.NextVector2Circular(3f, 3f);
-            }
-            
             // Lighting
             Lighting.AddLight(Projectile.Center, 1f, 0.6f, 0.2f);
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Burst effect on death
-            for (int i = 0; i < 15; i++)
+            // Enhanced burst with ThemedParticles
+            ThemedParticles.EroicaBloomBurst(Projectile.Center, 0.8f);
+            ThemedParticles.EroicaSparks(Projectile.Center, Projectile.velocity);
+            
+            // Burst effect on death (reduced count)
+            for (int i = 0; i < 8; i++)
             {
                 int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
                 Dust dust = Dust.NewDustDirect(Projectile.Center, 1, 1, dustType, 0f, 0f, 100, default, 2f);

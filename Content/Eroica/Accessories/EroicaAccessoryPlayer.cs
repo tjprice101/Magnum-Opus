@@ -94,6 +94,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 heroicEncoreTimer++;
                 Player.immune = true;
                 Player.immuneTime = 2;
+                Player.immuneNoBlink = true; // Don't blink during heroic encore
                 
                 // Dramatic invulnerability visuals
                 if (Main.rand.NextBool(2))

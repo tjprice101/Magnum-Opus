@@ -6,6 +6,7 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Accessories
 {
@@ -30,32 +31,30 @@ namespace MagnumOpus.Content.Eroica.Accessories
             var modPlayer = player.GetModPlayer<EroicaAccessoryPlayer>();
             modPlayer.hasSakurasBurningWill = true;
             
-            // Ambient particles - sakura petals and embers
-            if (!hideVisual && Main.rand.NextBool(6))
+            // Enhanced ambient particles using ThemedParticles system
+            if (!hideVisual)
             {
-                // Sakura pink petal
-                Vector2 offset = new Vector2(Main.rand.NextFloat(-30f, 30f), Main.rand.NextFloat(-20f, 20f));
-                Dust petal = Dust.NewDustPerfect(player.Center + offset, DustID.PinkTorch, 
-                    new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2f, 0f)), 100, default, 1.2f);
-                petal.noGravity = true;
+                // Sakura petals swirling around player
+                ThemedParticles.SakuraPetals(player.Center, 8, 40f);
+                
+                // Eroica aura embers
+                ThemedParticles.EroicaAura(player.Center, 30f);
             }
             
-            if (!hideVisual && Main.rand.NextBool(8))
-            {
-                // Scarlet ember
-                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
-                Dust ember = Dust.NewDustPerfect(player.Center + offset, DustID.CrimsonTorch, 
-                    new Vector2(0, -1.5f), 80, default, 1f);
-                ember.noGravity = true;
-            }
-            
-            // Spirit summoning timer visual
+            // Spirit summoning timer visual with enhanced effects
             if (!hideVisual && modPlayer.heroicSpiritTimer > 600) // Last 2 seconds before summon
             {
                 float progress = (modPlayer.heroicSpiritTimer - 600f) / 120f;
+                
+                // Building energy using sparkles from particle system
+                if (Main.rand.NextFloat() < progress * 0.5f)
+                {
+                    ThemedParticles.EroicaSparkles(player.Center, 3, 25f);
+                }
+                
+                // Original gold energy converging
                 if (Main.rand.NextFloat() < progress)
                 {
-                    // Building energy particles
                     float angle = Main.rand.NextFloat(MathHelper.TwoPi);
                     Vector2 pos = player.Center + new Vector2((float)System.Math.Cos(angle), (float)System.Math.Sin(angle)) * 50f * (1f - progress);
                     Dust energy = Dust.NewDustPerfect(pos, DustID.GoldCoin, 

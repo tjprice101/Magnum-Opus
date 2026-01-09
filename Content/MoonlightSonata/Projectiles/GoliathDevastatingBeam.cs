@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Content.MoonlightSonata.Minions;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 {
@@ -115,10 +116,21 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             if (BeamTimer == 1)
             {
                 SoundEngine.PlaySound(SoundID.Item122 with { Volume = 1.2f, Pitch = -0.3f }, Projectile.Center);
+                
+                // Dramatic clef at beam start!
+                ThemedParticles.MoonlightClef(Projectile.Center, true, 1.2f);
             }
             if (BeamTimer % 15 == 0)
             {
                 SoundEngine.PlaySound(SoundID.Item15 with { Volume = 0.4f, Pitch = 0.5f }, Projectile.Center);
+            }
+            
+            // Spawn musical notes along the beam periodically
+            if (BeamTimer % 8 == 0)
+            {
+                float randomDist = Main.rand.NextFloat(100f, BeamLength * 0.8f);
+                Vector2 notePos = Projectile.Center + Projectile.velocity * randomDist;
+                ThemedParticles.MoonlightMusicNotes(notePos, 2, 20f);
             }
         }
         
@@ -234,7 +246,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
         
         private void CreateExplosionEffect(Vector2 position)
         {
-            // MASSIVE explosion burst
+            // MASSIVE explosion burst with musical elements
+            ThemedParticles.MoonlightMusicalImpact(position, 1.0f, false);
+            
             // Outer ring - dark purple
             for (int i = 0; i < 25; i++)
             {

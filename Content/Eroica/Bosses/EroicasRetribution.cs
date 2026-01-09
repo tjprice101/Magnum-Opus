@@ -40,7 +40,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
             ChargeAttack,
             ChargeRecovery,
             HandWindup,
-            HandThrow
+            HandThrow,
+            FistWindup,
+            FistAttack
         }
 
         private ActionState State
@@ -66,6 +68,10 @@ namespace MagnumOpus.Content.Eroica.Bosses
         private int chargeCount = 0;
         private const int MaxCharges = 3;
         private Vector2 chargeDirection = Vector2.Zero;
+        
+        // Speed boost mechanics
+        private int flamesKilledCount = 0; // Track how many flames have died for Phase 1 speed boost
+        private int previousFlameCount = 3; // Track previous flame count to detect deaths
         
         // Phase 2 aura pulsing
         private float auraPulse = 0f;
@@ -107,8 +113,8 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         public override void SetDefaults()
         {
-            NPC.width = 105;
-            NPC.height = 105;
+            NPC.width = 120;  // Narrower - boss is taller than wide
+            NPC.height = 180; // Taller hitbox to match visual sprite
             NPC.damage = 90;
             NPC.defense = 80;
             NPC.lifeMax = 406306; // Keep original health
@@ -239,6 +245,12 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 case ActionState.HandThrow:
                     HandThrow(target);
                     break;
+                case ActionState.FistWindup:
+                    FistWindup(target);
+                    break;
+                case ActionState.FistAttack:
+                    FistAttack(target);
+                    break;
             }
 
             // Face the player - sprite faces RIGHT by default, flip for left
@@ -294,19 +306,36 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         private void SpawnAmbientParticles()
         {
-            int spawnChance = phase2Started ? 1 : 4;
-            int particleCount = phase2Started ? 4 : 1;
+            // Enhanced ambient particles using ThemedParticles
+            if (phase2Started)
+            {
+                // Intense Phase 2 aura
+                ThemedParticles.EroicaAura(NPC.Center, NPC.width * 0.7f);
+                
+                // Sakura petals during phase 2
+                if (Main.rand.NextBool(2))
+                {
+                    ThemedParticles.SakuraPetals(NPC.Center, 8, NPC.width * 0.5f);
+                }
+            }
+            else
+            {
+                // Gentle Phase 1 aura
+                if (Main.rand.NextBool(3))
+                {
+                    ThemedParticles.EroicaSparkles(NPC.Center, 5, 35f);
+                }
+            }
             
+            // Additional dust particles
+            int spawnChance = phase2Started ? 2 : 5;
             if (Main.rand.NextBool(spawnChance))
             {
-                for (int i = 0; i < particleCount; i++)
-                {
-                    int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
-                    float scale = phase2Started ? Main.rand.NextFloat(1.5f, 2.5f) : 1.3f;
-                    Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, dustType, 0f, 0f, 100, default, scale);
-                    dust.noGravity = true;
-                    dust.velocity = phase2Started ? Main.rand.NextVector2Circular(4f, 4f) : dust.velocity * 0.4f;
-                }
+                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
+                float scale = phase2Started ? Main.rand.NextFloat(1.5f, 2.5f) : 1.3f;
+                Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, dustType, 0f, 0f, 100, default, scale);
+                dust.noGravity = true;
+                dust.velocity = phase2Started ? Main.rand.NextVector2Circular(4f, 4f) : dust.velocity * 0.4f;
             }
         }
 
@@ -314,24 +343,38 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         private void Phase1Hover(Player target)
         {
-            hoverWaveOffset += 0.03f;
+            // Check for flame deaths to increase speed
+            int currentFlameCount = CountAliveFlames();
+            if (currentFlameCount < previousFlameCount)
+            {
+                int flamesJustKilled = previousFlameCount - currentFlameCount;
+                flamesKilledCount += flamesJustKilled;
+                previousFlameCount = currentFlameCount;
+            }
             
-            // Gentle wave motion above player
-            float waveX = (float)Math.Sin(hoverWaveOffset * 2f) * 50f;
-            float waveY = (float)Math.Sin(hoverWaveOffset * 1.5f) * 25f;
+            // Calculate speed multiplier: 5% per flame killed (up to 15% at 3 flames)
+            float phase1SpeedMultiplier = 1f + (flamesKilledCount * 0.05f);
             
-            Vector2 hoverPosition = target.Center - new Vector2(-waveX, 320 + waveY);
+            hoverWaveOffset += 0.04f; // Slightly faster wave
+            
+            // More aggressive wave motion - closer to player
+            float waveX = (float)Math.Sin(hoverWaveOffset * 2.5f) * 60f;
+            float waveY = (float)Math.Sin(hoverWaveOffset * 2f) * 30f;
+            
+            Vector2 hoverPosition = target.Center - new Vector2(-waveX, 280 + waveY); // Closer hover distance
             Vector2 direction = hoverPosition - NPC.Center;
             float distance = direction.Length();
 
-            if (distance > 30f)
+            if (distance > 25f)
             {
                 direction.Normalize();
-                NPC.velocity = Vector2.Lerp(NPC.velocity, direction * 8f, 0.04f);
+                // Base speed 10f with multiplier, faster lerp for more aggressive following
+                float baseSpeed = 10f * phase1SpeedMultiplier;
+                NPC.velocity = Vector2.Lerp(NPC.velocity, direction * baseSpeed, 0.06f);
             }
             else
             {
-                NPC.velocity *= 0.92f;
+                NPC.velocity *= 0.9f;
             }
         }
 
@@ -348,8 +391,16 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 // Screen shake
                 EroicaScreenShake.Phase2EnrageShake(NPC.Center);
                 
+                // Enhanced particle burst with ThemedParticles
+                ThemedParticles.EroicaImpact(NPC.Center, 3f);
+                ThemedParticles.EroicaShockwave(NPC.Center, 2.5f);
+                
+                // DRAMATIC MUSICAL BURST - heroic clef and notes!
+                ThemedParticles.EroicaMusicalImpact(NPC.Center, 2.5f, true);
+                ThemedParticles.EroicaMusicNotes(NPC.Center, 20, 80f);
+                
                 // Massive particle burst
-                for (int i = 0; i < 100; i++)
+                for (int i = 0; i < 60; i++)
                 {
                     int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
                     Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, dustType, 0f, 0f, 100, default, 3f);
@@ -369,7 +420,15 @@ namespace MagnumOpus.Content.Eroica.Bosses
             {
                 Main.NewText("Eroica invokes a new crown for its melody...", 255, 200, 100);
                 
-                for (int i = 0; i < 80; i++)
+                // Enhanced burst with ThemedParticles
+                ThemedParticles.EroicaBloomBurst(NPC.Center, 2f);
+                ThemedParticles.SakuraPetals(NPC.Center, 16, NPC.width * 0.8f);
+                
+                // Musical staff effect for dramatic transformation
+                ThemedParticles.EroicaMusicStaff(NPC.Center, 1.5f);
+                ThemedParticles.EroicaMusicNotes(NPC.Center, 12, 60f);
+                
+                for (int i = 0; i < 50; i++)
                 {
                     int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
                     Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, dustType, 0f, 0f, 0, default, 2.5f);
@@ -390,7 +449,11 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         private void Phase2Hover(Player target)
         {
-            hoverWaveOffset += 0.05f;
+            // Calculate Phase 2 speed multiplier based on health (0% health = +45% speed)
+            float healthPercent = (float)NPC.life / NPC.lifeMax;
+            float phase2SpeedMultiplier = 1f + (1f - healthPercent) * 0.45f; // Up to 45% speed increase at low health
+            
+            hoverWaveOffset += 0.05f * phase2SpeedMultiplier;
             
             // More aggressive hover
             float waveX = (float)Math.Sin(hoverWaveOffset * 3f) * 80f;
@@ -403,8 +466,10 @@ namespace MagnumOpus.Content.Eroica.Bosses
             if (distance > 25f)
             {
                 direction.Normalize();
-                float speed = 12f + (float)Math.Sin(hoverWaveOffset * 4f) * 3f;
-                NPC.velocity = Vector2.Lerp(NPC.velocity, direction * speed, 0.06f);
+                // Base speed with health-based multiplier
+                float baseSpeed = 12f + (float)Math.Sin(hoverWaveOffset * 4f) * 3f;
+                float speed = baseSpeed * phase2SpeedMultiplier;
+                NPC.velocity = Vector2.Lerp(NPC.velocity, direction * speed, 0.06f * phase2SpeedMultiplier);
             }
             else
             {
@@ -433,15 +498,20 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 Timer = 0;
                 chargeCount = 0;
                 
-                // 60% charge attack, 40% hand throw
-                if (Main.rand.NextBool(3, 5))
+                // 40% charge attack, 30% hand throw, 30% fist attack
+                int attackChoice = Main.rand.Next(10);
+                if (attackChoice < 4) // 0-3 = 40%
                 {
                     State = ActionState.ChargeWindup;
                     chargeDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
                 }
-                else
+                else if (attackChoice < 7) // 4-6 = 30%
                 {
                     State = ActionState.HandWindup;
+                }
+                else // 7-9 = 30%
+                {
+                    State = ActionState.FistWindup;
                 }
                 
                 NPC.netUpdate = true;
@@ -454,14 +524,16 @@ namespace MagnumOpus.Content.Eroica.Bosses
             
             NPC.velocity *= 0.88f;
             
-            // Lock in charge direction
+            // Play sound at start
             if (Timer == 1)
             {
-                chargeDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
                 SoundEngine.PlaySound(SoundID.Item15 with { Pitch = -0.2f, Volume = 0.7f }, NPC.Center);
             }
             
-            // Telegraph line
+            // Continuously track player throughout windup - boss follows player until charge
+            chargeDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
+            
+            // Telegraph line that tracks player
             if (Timer >= 5)
             {
                 float lineProgress = (Timer - 5f) / (WindupTime - 5f);
@@ -497,6 +569,10 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 
                 SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.1f }, NPC.Center);
                 EroicaScreenShake.MediumShake(NPC.Center);
+                
+                // Musical burst on charge!
+                ThemedParticles.EroicaMusicNotes(NPC.Center, 12, 60f);
+                ThemedParticles.EroicaClef(NPC.Center, Main.rand.NextBool(), 1.5f);
                 
                 // Launch burst
                 for (int i = 0; i < 30; i++)
@@ -551,7 +627,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         private void ChargeRecovery(Player target)
         {
-            const int RecoveryTime = 20;
+            const int RecoveryTime = 8; // Reduced from 20 for faster chaining
             
             NPC.velocity *= 0.88f;
             
@@ -568,7 +644,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 }
                 else
                 {
-                    // Continue with another charge
+                    // Immediately chain into next charge - no hovering
                     State = ActionState.ChargeWindup;
                     chargeDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
                 }
@@ -608,7 +684,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 
                 for (int hand = 0; hand < 3; hand++)
                 {
-                    float angle = baseAngle + MathHelper.ToRadians(-60 + hand * 60); // 120 degree spread
+                    float angle = baseAngle + MathHelper.ToRadians(-45 + hand * 45); // 90 degree spread (reduced from 120)
                     Vector2 direction = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
                     
                     for (float dist = 50; dist < 200; dist += 40f)
@@ -634,14 +710,14 @@ namespace MagnumOpus.Content.Eroica.Bosses
         {
             if (Timer == 1 && Main.netMode != NetmodeID.MultiplayerClient)
             {
-                // Throw 3 Hand of Valor projectiles in a 120 degree cone
+                // Throw 3 Hand of Valor projectiles in a 90 degree cone (reduced from 120)
                 Vector2 toPlayer = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
                 float baseAngle = toPlayer.ToRotation();
                 float handSpeed = 16f;
                 
                 for (int hand = 0; hand < 3; hand++)
                 {
-                    float angle = baseAngle + MathHelper.ToRadians(-60 + hand * 60); // 120 degree spread
+                    float angle = baseAngle + MathHelper.ToRadians(-45 + hand * 45); // 90 degree spread
                     Vector2 velocity = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * handSpeed;
                     
                     Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, velocity,
@@ -650,6 +726,10 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 
                 SoundEngine.PlaySound(SoundID.Item71 with { Pitch = -0.1f, Volume = 0.8f }, NPC.Center);
                 EroicaScreenShake.SmallShake(NPC.Center);
+                
+                // Musical particle burst!
+                ThemedParticles.EroicaMusicNotes(NPC.Center, 8, 50f);
+                ThemedParticles.EroicaAccidentals(NPC.Center, 4, 30f);
                 
                 // Throw particles
                 for (int i = 0; i < 20; i++)
@@ -664,6 +744,140 @@ namespace MagnumOpus.Content.Eroica.Bosses
             NPC.velocity *= 0.95f;
             
             if (Timer >= 45)
+            {
+                Timer = 0;
+                State = ActionState.Phase2Hover;
+                NPC.netUpdate = true;
+            }
+        }
+        
+        // Store the randomly chosen attack side for fist attack (0=top, 1=bottom, 2=left, 3=right)
+        private int fistAttackSide = 0;
+
+        private void FistWindup(Player target)
+        {
+            const int WindupTime = 30; // Shorter windup since fists have their own delay
+            
+            NPC.velocity *= 0.9f;
+            
+            if (Timer == 1)
+            {
+                // Randomly choose which side all 3 fists spawn on
+                fistAttackSide = Main.rand.Next(4); // 0=top, 1=bottom, 2=left, 3=right
+                SoundEngine.PlaySound(SoundID.Item73 with { Pitch = -0.3f, Volume = 0.8f }, NPC.Center);
+            }
+            
+            // Boss raises hands dramatically - gather particles
+            if (Timer % 4 == 0)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    Vector2 offset = Main.rand.NextVector2Circular(150f, 150f);
+                    int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
+                    Dust dust = Dust.NewDustPerfect(NPC.Center + offset, dustType, -offset * 0.08f, 100, default, 2.2f);
+                    dust.noGravity = true;
+                }
+            }
+            
+            // Warning indicators at the chosen spawn side
+            if (Timer >= 10 && Timer % 4 == 0)
+            {
+                // Get spawn positions based on chosen side
+                Vector2[] spawnPositions = GetFistSpawnPositions(target.Center, fistAttackSide);
+                
+                foreach (var spawnPos in spawnPositions)
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
+                        int dustType = Main.rand.NextBool() ? DustID.GoldCoin : DustID.CrimsonTorch;
+                        Dust warning = Dust.NewDustPerfect(spawnPos + offset, dustType, -offset * 0.06f, 100, default, 1.8f);
+                        warning.noGravity = true;
+                    }
+                }
+            }
+            
+            if (Timer >= WindupTime)
+            {
+                Timer = 0;
+                State = ActionState.FistAttack;
+                NPC.netUpdate = true;
+            }
+        }
+        
+        private Vector2[] GetFistSpawnPositions(Vector2 playerCenter, int side)
+        {
+            // Returns 3 spawn positions: middle, far left/top, far right/bottom of the chosen side
+            float edgeDistance = 600f; // Distance from player to spawn edge
+            float spread = 550f; // Spread between fists along the edge (wider spacing)
+            
+            Vector2[] positions = new Vector2[3];
+            
+            switch (side)
+            {
+                case 0: // Top - spawns at top, charges down
+                    positions[0] = playerCenter + new Vector2(0, -edgeDistance); // Middle
+                    positions[1] = playerCenter + new Vector2(-spread, -edgeDistance); // Left
+                    positions[2] = playerCenter + new Vector2(spread, -edgeDistance); // Right
+                    break;
+                case 1: // Bottom - spawns at bottom, charges up
+                    positions[0] = playerCenter + new Vector2(0, edgeDistance); // Middle
+                    positions[1] = playerCenter + new Vector2(-spread, edgeDistance); // Left
+                    positions[2] = playerCenter + new Vector2(spread, edgeDistance); // Right
+                    break;
+                case 2: // Left - spawns at left, charges right
+                    positions[0] = playerCenter + new Vector2(-edgeDistance, 0); // Middle
+                    positions[1] = playerCenter + new Vector2(-edgeDistance, -spread); // Top
+                    positions[2] = playerCenter + new Vector2(-edgeDistance, spread); // Bottom
+                    break;
+                case 3: // Right - spawns at right, charges left
+                    positions[0] = playerCenter + new Vector2(edgeDistance, 0); // Middle
+                    positions[1] = playerCenter + new Vector2(edgeDistance, -spread); // Top
+                    positions[2] = playerCenter + new Vector2(edgeDistance, spread); // Bottom
+                    break;
+            }
+            
+            return positions;
+        }
+
+        private void FistAttack(Player target)
+        {
+            // Spawn fists at Timer == 1
+            if (Timer == 1 && Main.netMode != NetmodeID.MultiplayerClient)
+            {
+                // Get spawn positions based on the chosen side
+                Vector2[] spawnPositions = GetFistSpawnPositions(target.Center, fistAttackSide);
+                
+                // Charge direction encoded: 0=down, 1=up, 2=right, 3=left
+                int chargeDirectionCode;
+                switch (fistAttackSide)
+                {
+                    case 0: chargeDirectionCode = 0; break; // Top spawns -> charge down
+                    case 1: chargeDirectionCode = 1; break; // Bottom spawns -> charge up
+                    case 2: chargeDirectionCode = 2; break; // Left spawns -> charge right
+                    case 3: chargeDirectionCode = 3; break; // Right spawns -> charge left
+                    default: chargeDirectionCode = 0; break;
+                }
+                
+                for (int i = 0; i < 3; i++)
+                {
+                    // Spawn with zero velocity - projectile handles the windup and charge
+                    Projectile.NewProjectile(NPC.GetSource_FromAI(), spawnPositions[i], Vector2.Zero,
+                        ModContent.ProjectileType<FistOfEroica>(), 120, 5f, Main.myPlayer, 0f, chargeDirectionCode);
+                }
+                
+                SoundEngine.PlaySound(SoundID.Item117 with { Pitch = 0.2f, Volume = 1f }, target.Center);
+                EroicaScreenShake.MediumShake(target.Center);
+                
+                // Musical burst
+                ThemedParticles.EroicaMusicNotes(NPC.Center, 10, 60f);
+                ThemedParticles.EroicaClef(NPC.Center, true, 1.8f);
+            }
+            
+            NPC.velocity *= 0.95f;
+            
+            // Return to hover after fists have time to cross screen
+            if (Timer >= 60)
             {
                 Timer = 0;
                 State = ActionState.Phase2Hover;
@@ -918,17 +1132,8 @@ namespace MagnumOpus.Content.Eroica.Bosses
         
         public override void PostDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
-            // Dark red overlay in phase 2
-            if (phase2Started && !Main.dedServ)
-            {
-                float overlayIntensity = 0.15f + (float)Math.Sin(auraPulse) * 0.05f;
-                Color overlayColor = new Color(80, 10, 20, (int)(overlayIntensity * 255));
-                
-                Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
-                Rectangle screenRect = new Rectangle(0, 0, Main.screenWidth, Main.screenHeight);
-                
-                spriteBatch.Draw(pixel, screenRect, overlayColor);
-            }
+            // The phase 2 overlay is now handled by EroicaSkyEffect for proper layering
+            // Drawing fullscreen rectangles in NPC PostDraw can cause visual glitches
         }
 
         public override bool? DrawHealthBar(byte hbPosition, ref float scale, ref Vector2 position)

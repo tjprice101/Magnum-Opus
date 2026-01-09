@@ -6,6 +6,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.ResonantWeapons
 {
@@ -22,7 +23,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void SetDefaults()
         {
-            Item.damage = 320; // Higher than EternalMoon (275)
+            Item.damage = 350; // Balanced: ~1050 DPS (350 × 60/20)
             Item.DamageType = DamageClass.Melee;
             Item.width = 70;
             Item.height = 70;
@@ -59,6 +60,9 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                 Projectile.NewProjectile(source, player.Center, spectralVelocity,
                     ModContent.ProjectileType<SakurasBlossomSpectral>(), damage, knockback, player.whoAmI);
             }
+            
+            // Musical burst on swing!
+            ThemedParticles.EroicaMusicNotes(player.Center + cursorDirection * 30f, 4, 25f);
 
             return false;
         }

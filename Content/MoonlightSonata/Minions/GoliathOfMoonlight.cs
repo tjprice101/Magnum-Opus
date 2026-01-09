@@ -9,6 +9,7 @@ using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Content.MoonlightSonata.Projectiles;
 using MagnumOpus.Content.MoonlightSonata.Accessories;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Minions
 {
@@ -291,12 +292,16 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
                 Projectile.tileCollide = true;
             }
             
-            // Floating particles
-            if (Main.rand.NextBool(3))
+            // Floating particles with musical notes
+            if (Main.rand.NextBool(4))
             {
-                Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.IceTorch, 0f, -2f, 100, default, 1.2f);
-                dust.noGravity = true;
+                ThemedParticles.MoonlightTrail(Projectile.Center, new Vector2(0, -2f));
+            }
+            
+            // Occasional music note while floating
+            if (Main.rand.NextBool(15))
+            {
+                ThemedParticles.MoonlightMusicNotes(Projectile.Center, 1, 15f);
             }
         }
 

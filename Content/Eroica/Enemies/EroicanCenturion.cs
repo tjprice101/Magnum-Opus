@@ -9,6 +9,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Enemies;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Enemies
 {
@@ -130,19 +131,12 @@ namespace MagnumOpus.Content.Eroica.Enemies
             // Scarlet red glow
             Lighting.AddLight(NPC.Center, 0.8f, 0.2f, 0.15f);
 
-            // Ambient particles
-            if (Main.rand.NextBool(6))
+            // Themed ambient particles
+            ThemedParticles.EroicaAura(NPC.Center, NPC.width * 0.6f);
+            
+            if (Main.rand.NextBool(10))
             {
-                Dust dark = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Torch, 0f, 0f, 100, Color.DarkRed, 1.3f);
-                dark.noGravity = true;
-                dark.velocity *= 0.3f;
-            }
-
-            if (Main.rand.NextBool(12))
-            {
-                Dust gold = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.GoldFlame, 0f, 0f, 50, default, 1.0f);
-                gold.noGravity = true;
-                gold.velocity *= 0.4f;
+                ThemedParticles.EroicaSparkles(NPC.Center, 2, NPC.width * 0.5f);
             }
 
             // Spawn lanterns on first tick
@@ -425,28 +419,16 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         public override void HitEffect(NPC.HitInfo hit)
         {
-            for (int i = 0; i < 8; i++)
-            {
-                Dust hurt = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Torch, 0f, 0f, 100, Color.DarkRed, 1.5f);
-                hurt.noGravity = true;
-                hurt.velocity = Main.rand.NextVector2Circular(4f, 4f);
-            }
+            // Hit sparks
+            ThemedParticles.EroicaSparkles(NPC.Center, 3, NPC.width * 0.4f);
+            ThemedParticles.EroicaSparks(NPC.Center, -hit.HitDirection * Vector2.UnitX, 3, 4f);
 
             if (NPC.life <= 0)
             {
-                for (int i = 0; i < 45; i++)
-                {
-                    Dust death = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Torch, 0f, 0f, 100, Color.DarkRed, 2.5f);
-                    death.noGravity = true;
-                    death.velocity = Main.rand.NextVector2Circular(12f, 12f);
-                }
-
-                for (int i = 0; i < 25; i++)
-                {
-                    Dust gold = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.GoldFlame, 0f, 0f, 50, default, 2f);
-                    gold.noGravity = true;
-                    gold.velocity = Main.rand.NextVector2Circular(10f, 10f);
-                }
+                // Death explosion
+                ThemedParticles.EroicaImpact(NPC.Center, 2.5f);
+                ThemedParticles.EroicaShockwave(NPC.Center, 1.8f);
+                ThemedParticles.EroicaSparkles(NPC.Center, 15, NPC.width);
 
                 SoundEngine.PlaySound(SoundID.Item14, NPC.Center);
             }

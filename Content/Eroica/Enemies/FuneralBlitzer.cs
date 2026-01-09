@@ -94,7 +94,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
             NPC.noGravity = false;
             NPC.noTileCollide = false;
 
-            DrawOffsetY = -15f;
+            DrawOffsetY = -23f; // Raised 0.5 blocks (8 pixels)
         }
 
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)

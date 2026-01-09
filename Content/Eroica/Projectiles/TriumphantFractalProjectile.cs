@@ -63,9 +63,11 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 activeLightning[i] = (l.start, l.end, l.time + 1f);
             }
 
-            // Intense crimson flame trail with pulsing
+            // Intense crimson flame trail with pulsing using new particle system
             float pulse = 1f + (float)Math.Sin(lightningTimer * 0.3f) * 0.3f;
-            for (int i = 0; i < 3; i++)
+            ThemedParticles.EroicaTrail(Projectile.Center, Projectile.velocity);
+            
+            for (int i = 0; i < 2; i++)
             {
                 Dust flame = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
                     DustID.CrimsonTorch, 0f, 0f, 100, default, 2f * pulse);
@@ -114,12 +116,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode, Projectile.position);
             SoundEngine.PlaySound(SoundID.DD2_BetsyFireballImpact, Projectile.position);
 
-            // Create Eroica-themed fractal spark burst using the VFX system
+            // Create Eroica-themed effects using both systems for maximum impact
             MagnumVFX.CreateEroicaSparkBurst(Projectile.Center, 12, 150f);
             MagnumVFX.CreateEroicaBurst(Projectile.Center, 3);
+            
+            // Enhanced themed particle effects
+            ThemedParticles.EroicaImpact(Projectile.Center, 2.5f);
+            ThemedParticles.EroicaShockwave(Projectile.Center, 2f);
 
-            // MASSIVE crimson flames
-            for (int i = 0; i < 60; i++)
+            // MASSIVE crimson flames (reduced count - themed particles handle additional visuals)
+            for (int i = 0; i < 40; i++)
             {
                 Dust explosion = Dust.NewDustDirect(Projectile.position - new Vector2(30, 30),
                     Projectile.width + 60, Projectile.height + 60,

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.Map;
 using Terraria.ModLoader;
+using Terraria.Graphics;
 using MagnumOpus.Content.Eroica.Bosses;
 
 namespace MagnumOpus.Common.Systems
@@ -115,34 +116,8 @@ namespace MagnumOpus.Common.Systems
             // Empty - required override
         }
 
-        public override void ModifyTransformMatrix(ref SpriteViewMatrix Transform)
-        {
-            // Draw scarlet overlay behind tiles but after background
-            if (!eroicaBossActive)
-                return;
-
-            // Only draw on client
-            if (Main.dedServ)
-                return;
-
-            // Null check for texture
-            if (Terraria.GameContent.TextureAssets.MagicPixel == null || !Terraria.GameContent.TextureAssets.MagicPixel.IsLoaded)
-                return;
-
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
-
-            // Flat 30% opacity scarlet red background - drawn behind tiles/entities but after background
-            Color scarletOverlay = new Color(139, 0, 0, 77); // Scarlet red with 30% opacity (77/255 = ~30%)
-            
-            Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
-            Rectangle screenRect = new Rectangle(0, 0, Main.screenWidth, Main.screenHeight);
-
-            spriteBatch.Draw(pixel, screenRect, scarletOverlay);
-
-            spriteBatch.End();
-        }
+        // Removed ModifyTransformMatrix overlay - fullscreen overlays in this hook can interfere with player rendering
+        // The EroicaSkyEffect handles the atmospheric visuals properly through CustomSky
 
         /// <summary>
         /// Static method to check if the boss fight visuals are active.

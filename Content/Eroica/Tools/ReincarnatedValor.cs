@@ -10,6 +10,7 @@ using ReLogic.Content;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Tools
 {
@@ -54,13 +55,10 @@ namespace MagnumOpus.Content.Eroica.Tools
         {
             player.GetModPlayer<ReincarnatedValorPlayer>().hasWingsEquipped = true;
             
-            // Ambient scarlet particles when flying
-            if (!hideVisual && player.velocity.Y != 0 && Main.rand.NextBool(8))
+            // Enhanced ambient particles when flying using new particle system
+            if (!hideVisual && player.velocity.Y != 0)
             {
-                Dust flame = Dust.NewDustDirect(player.position, player.width, player.height, 
-                    DustID.CrimsonTorch, 0f, 2f, 100, default, 1.0f);
-                flame.noGravity = true;
-                flame.velocity = new Vector2(Main.rand.NextFloat(-1f, 1f), 2f);
+                ThemedParticles.EroicaAura(player.Center, 35f);
             }
         }
 
@@ -80,6 +78,7 @@ namespace MagnumOpus.Content.Eroica.Tools
     {
         public int wingFrame = 0;
         private int frameCounter = 0;
+        private bool wasFlying = false;  // Track previous flying state
         
         public bool hasWingsEquipped = false;
         private int dodgeCooldown = 0;
@@ -103,6 +102,7 @@ namespace MagnumOpus.Content.Eroica.Tools
             {
                 wingFrame = 0;
                 frameCounter = 0;
+                wasFlying = false;
                 return;
             }
 
@@ -122,9 +122,13 @@ namespace MagnumOpus.Content.Eroica.Tools
                 dodgeTimer++;
                 Player.immune = true;
                 Player.immuneTime = 2;
+                Player.immuneNoBlink = true; // Don't blink during dodge
                 
-                // Scarlet trail particles
-                for (int i = 0; i < 3; i++)
+                // Enhanced scarlet trail with new particle system
+                ThemedParticles.DodgeTrail(Player.Center, Player.velocity, false);
+                
+                // Additional dust trail
+                for (int i = 0; i < 2; i++)
                 {
                     Dust trail = Dust.NewDustDirect(Player.position, Player.width, Player.height, 
                         DustID.CrimsonTorch, -Player.velocity.X * 0.2f, -Player.velocity.Y * 0.2f, 100, default, 1.4f);
@@ -135,27 +139,44 @@ namespace MagnumOpus.Content.Eroica.Tools
                 {
                     isDodging = false;
                     dodgeTimer = 0;
+                    
+                    // End dodge burst
+                    ThemedParticles.EroicaImpact(Player.Center, 1f);
                 }
             }
 
-            // Wing animation - flying when in air with wings active
-            bool flying = Player.controlJump && Player.velocity.Y != 0 && !Player.mount.Active;
+            // Wing animation logic - matches WingsOfTheMoon behavior exactly
+            // Flying = actively holding jump while in the air with wings active
+            bool isFlying = Player.controlJump && Player.velocity.Y != 0 && !Player.mount.Active;
+            bool isOnGround = Player.velocity.Y == 0;
             
-            if (flying || isDodging)
+            if (isFlying || isDodging)
             {
+                // Animate through 6x6 sprite sheet
                 frameCounter++;
-                if (frameCounter >= 2) // Fast animation like moonlight wings
+                if (frameCounter >= 2) // Fast animation
                 {
                     frameCounter = 0;
                     wingFrame++;
                     if (wingFrame >= 36) // 6x6 = 36 frames
                         wingFrame = 0;
                 }
+                wasFlying = true;
             }
-            else
+            else if (isOnGround)
             {
+                // On ground - reset to first frame (idle/folded)
                 wingFrame = 0;
                 frameCounter = 0;
+                wasFlying = false;
+            }
+            else if (wasFlying && !isFlying)
+            {
+                // Stopped flying but still in air - hold on first frame until landing
+                // This deactivates animation but keeps wings visible
+                wingFrame = 0;
+                frameCounter = 0;
+                // Keep wasFlying true until landing
             }
         }
 
@@ -170,21 +191,9 @@ namespace MagnumOpus.Content.Eroica.Tools
             
             SoundEngine.PlaySound(SoundID.Item71 with { Pitch = 0.3f, Volume = 0.8f }, Player.Center);
             
-            // Scarlet burst particles
-            for (int i = 0; i < 20; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 20f;
-                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 4f;
-                Dust burst = Dust.NewDustPerfect(Player.Center, DustID.CrimsonTorch, vel, 0, default, 1.5f);
-                burst.noGravity = true;
-            }
-            
-            for (int i = 0; i < 10; i++)
-            {
-                Dust smoke = Dust.NewDustDirect(Player.position, Player.width, Player.height, 
-                    DustID.Smoke, 0f, 0f, 150, Color.Black, 1.2f);
-                smoke.velocity = Main.rand.NextVector2Circular(4f, 4f);
-            }
+            // Enhanced burst with new themed particle system
+            ThemedParticles.EroicaImpact(Player.Center, 1.5f);
+            ThemedParticles.TeleportBurst(Player.Center, false);
         }
         
         public override void HideDrawLayers(PlayerDrawSet drawInfo)
@@ -200,12 +209,12 @@ namespace MagnumOpus.Content.Eroica.Tools
     
     /// <summary>
     /// Custom draw layer for Reincarnated Valor wings.
-    /// Uses 6x6 sprite sheet for flying animation.
+    /// Uses 6x6 sprite sheet for all animation - frame 0 when idle, animates when flying.
+    /// Matches WingsOfTheMoon rendering behavior.
     /// </summary>
     public class ReincarnatedValorLayer : PlayerDrawLayer
     {
-        private Asset<Texture2D> _wingsTexture;    // _Wings.png - stationary (1x4)
-        private Asset<Texture2D> _animatedTexture; // Main folder sprite sheet (6x6)
+        private Asset<Texture2D> _animatedTexture; // 6x6 sprite sheet for all states
 
         public override Position GetDefaultPosition() => new BeforeParent(PlayerDrawLayers.BackAcc);
 
@@ -220,41 +229,23 @@ namespace MagnumOpus.Content.Eroica.Tools
             Player player = drawInfo.drawPlayer;
             var modPlayer = player.GetModPlayer<ReincarnatedValorPlayer>();
 
-            Texture2D tex;
-            Rectangle source;
+            // Always use the 6x6 animated sprite sheet
+            _animatedTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Content/Eroica/Tools/ReincarnatedValor_Animated");
+            if (_animatedTexture.State != AssetState.Loaded)
+                return;
 
-            bool flying = modPlayer.wingFrame > 0;
+            Texture2D tex = _animatedTexture.Value;
+            int cols = 6;
+            int rows = 6;
+            int frameW = tex.Width / cols;
+            int frameH = tex.Height / rows;
 
-            if (flying)
-            {
-                // FLYING: Use 6x6 sprite sheet
-                _animatedTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Content/Eroica/Tools/ReincarnatedValor_Animated");
-                if (_animatedTexture.State != AssetState.Loaded)
-                    return;
+            // Use wingFrame from modPlayer - it's 0 when idle, animates when flying
+            int frame = modPlayer.wingFrame;
+            int col = frame % cols;
+            int row = frame / cols;
 
-                tex = _animatedTexture.Value;
-                int cols = 6;
-                int rows = 6;
-                int frameW = tex.Width / cols;
-                int frameH = tex.Height / rows;
-
-                int frame = modPlayer.wingFrame;
-                int col = frame % cols;
-                int row = frame / cols;
-
-                source = new Rectangle(col * frameW, row * frameH, frameW, frameH);
-            }
-            else
-            {
-                // STATIONARY: Use _Wings.png (1x4)
-                _wingsTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Content/Eroica/Tools/ReincarnatedValor_Wings");
-                if (_wingsTexture.State != AssetState.Loaded)
-                    return;
-
-                tex = _wingsTexture.Value;
-                int frameH = tex.Height / 4;
-                source = new Rectangle(0, 0, tex.Width, frameH);
-            }
+            Rectangle source = new Rectangle(col * frameW, row * frameH, frameW, frameH);
 
             Vector2 pos = drawInfo.Position - Main.screenPosition + new Vector2(player.width / 2f, player.height / 2f);
             pos.Y += player.gfxOffY;
@@ -268,7 +259,8 @@ namespace MagnumOpus.Content.Eroica.Tools
 
             Vector2 origin = new Vector2(source.Width / 2f, source.Height / 2f);
 
-            DrawData data = new DrawData(tex, pos, source, color, player.bodyRotation, origin, 1f, fx, 0);
+            // Scale reduced by 8% more (0.339f)
+            DrawData data = new DrawData(tex, pos, source, color, player.bodyRotation, origin, 0.339f, fx, 0);
             drawInfo.DrawDataCache.Add(data);
         }
     }

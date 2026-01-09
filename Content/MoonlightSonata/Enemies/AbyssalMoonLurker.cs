@@ -8,6 +8,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.MoonlightSonata.ResonantOres;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Enemies
 {
@@ -139,21 +140,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             // Add ambient lighting - eerie deep purple/white
             Lighting.AddLight(NPC.Center, 0.6f, 0.5f, 0.8f);
 
-            // White shimmer particles
-            if (Main.rand.NextBool(5))
+            // Themed ambient particles
+            ThemedParticles.MoonlightAura(NPC.Center, NPC.width * 0.6f);
+            
+            // Occasional sparkles
+            if (Main.rand.NextBool(10))
             {
-                Dust shimmer = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.SparksMech, 0f, 0f, 0, Color.White, 1.2f);
-                shimmer.noGravity = true;
-                shimmer.velocity *= 0.3f;
-            }
-
-            // Purple/blue ambient particles
-            if (Main.rand.NextBool(8))
-            {
-                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
-                Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, dustType, 0f, 0f, 100, default, 0.9f);
-                dust.noGravity = true;
-                dust.velocity *= 0.3f;
+                ThemedParticles.MoonlightSparkles(NPC.Center, 2, NPC.width * 0.5f);
             }
 
             float distanceToTarget = Vector2.Distance(NPC.Center, target.Center);
@@ -218,14 +211,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 StateTimer = 0;
                 flankDirection = Main.rand.NextBool() ? 1 : -1;
                 
-                // Menacing alert burst - white and purple
-                for (int i = 0; i < 20; i++)
-                {
-                    int dustType = Main.rand.NextBool(3) ? DustID.SparksMech : (Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch);
-                    Dust alert = Dust.NewDustDirect(NPC.Center, 1, 1, dustType, 0f, 0f, 0, dustType == DustID.SparksMech ? Color.White : default, 1.5f);
-                    alert.noGravity = true;
-                    alert.velocity = Main.rand.NextVector2Circular(6f, 6f);
-                }
+                // Menacing alert burst
+                ThemedParticles.MoonlightImpact(NPC.Center, 1.2f);
             }
         }
 
@@ -544,23 +531,16 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 
         public override void HitEffect(NPC.HitInfo hit)
         {
-            for (int i = 0; i < 12; i++)
-            {
-                int dustType = Main.rand.NextBool(3) ? DustID.SparksMech : (Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch);
-                Dust hurt = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, dustType, 0f, 0f, 100, dustType == DustID.SparksMech ? Color.White : default, 1.5f);
-                hurt.noGravity = true;
-                hurt.velocity = Main.rand.NextVector2Circular(6f, 6f);
-            }
+            // Hit sparks
+            ThemedParticles.MoonlightSparkles(NPC.Center, 4, NPC.width * 0.4f);
+            ThemedParticles.MoonlightSparks(NPC.Center, -hit.HitDirection * Vector2.UnitX, 4, 4f);
 
             if (NPC.life <= 0)
             {
-                for (int i = 0; i < 40; i++)
-                {
-                    int dustType = Main.rand.NextBool(3) ? DustID.SparksMech : (Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch);
-                    Dust death = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, dustType, 0f, 0f, 100, dustType == DustID.SparksMech ? Color.White : default, 2f);
-                    death.noGravity = true;
-                    death.velocity = Main.rand.NextVector2Circular(12f, 12f);
-                }
+                // Death explosion
+                ThemedParticles.MoonlightImpact(NPC.Center, 2.5f);
+                ThemedParticles.MoonlightShockwave(NPC.Center, 1.5f);
+                ThemedParticles.MoonlightSparkles(NPC.Center, 15, NPC.width);
             }
         }
         

@@ -50,6 +50,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             // Pulsing glow scale
             float pulseScale = 1f + (float)Math.Sin(pulseTimer) * 0.2f;
             
+            // Use new themed particle trail
+            ThemedParticles.MoonlightTrail(Projectile.Center, Projectile.velocity);
+            
             // Main purple core trail
             for (int i = 0; i < 2; i++)
             {
@@ -66,15 +69,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                 Dust white = Dust.NewDustPerfect(Projectile.Center, DustID.SilverCoin, 
                     Main.rand.NextVector2Circular(1f, 1f), 0, Color.White, 1.2f);
                 white.noGravity = true;
-            }
-            
-            // Outer purple glow particles
-            if (Main.rand.NextBool(3))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(12f, 12f);
-                Dust glow = Dust.NewDustPerfect(Projectile.Center + offset, DustID.Shadowflame, 
-                    -Projectile.velocity * 0.05f, 150, default, 1.5f);
-                glow.noGravity = true;
             }
             
             // Lighting
@@ -113,15 +107,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                     // Ricochet visual - Moonlight-themed fractal lightning to new target
                     MagnumVFX.DrawMoonlightLightning(Projectile.Center, newTarget.Center, 8, 25f, 2, 0.3f);
                     
-                    // Sparkle burst
-                    for (int i = 0; i < 10; i++)
-                    {
-                        float angle = MathHelper.TwoPi * i / 10f;
-                        Vector2 sparkVel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 4f;
-                        int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.SilverCoin;
-                        Dust spark = Dust.NewDustPerfect(Projectile.Center, dustType, sparkVel, 0, default, 1.3f);
-                        spark.noGravity = true;
-                    }
+                    // Enhanced sparkle burst with new particles
+                    ThemedParticles.MoonlightSparks(Projectile.Center, (newTarget.Center - Projectile.Center).SafeNormalize(Vector2.UnitX), 8, 6f);
+                    ThemedParticles.MoonlightSparkles(Projectile.Center, 6, 20f);
                     
                     // Musical burst for the ricochet
                     MagnumVFX.CreateMusicalBurst(Projectile.Center, new Color(150, 80, 200), Color.White, 1);
@@ -131,6 +119,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 
         private void CreateRadialExplosion(Vector2 position)
         {
+            // Use new themed particle system for enhanced explosion
+            ThemedParticles.MoonlightImpact(position, 1.2f);
+            
             // Radial explosion with gradient from dark purple center to white edges
             int ringCount = 4;
             

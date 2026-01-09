@@ -8,6 +8,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.MoonlightSonata.ResonantOres;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Enemies
 {
@@ -143,21 +144,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             // Add ambient lighting - white glow
             Lighting.AddLight(NPC.Center, 0.6f, 0.6f, 0.8f);
 
-            // White shimmer particles
-            if (Main.rand.NextBool(5))
-            {
-                Dust shimmer = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.SparksMech, 0f, 0f, 0, Color.White, 1.2f);
-                shimmer.noGravity = true;
-                shimmer.velocity *= 0.3f;
-            }
-
-            // Purple/blue ambient particles
+            // Themed ambient particles
+            ThemedParticles.MoonlightAura(NPC.Center, NPC.width * 0.5f);
+            
+            // Occasional sparkles
             if (Main.rand.NextBool(8))
             {
-                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
-                Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, dustType, 0f, 0f, 100, default, 0.8f);
-                dust.noGravity = true;
-                dust.velocity *= 0.3f;
+                ThemedParticles.MoonlightSparkles(NPC.Center, 2, NPC.width * 0.4f);
             }
 
             float distanceToTarget = Vector2.Distance(NPC.Center, target.Center);
@@ -608,31 +601,16 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 
         public override void HitEffect(NPC.HitInfo hit)
         {
-            // Hurt particles
-            for (int i = 0; i < 10; i++)
-            {
-                Dust hurt = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.PurpleTorch, 0f, 0f, 100, default, 1.5f);
-                hurt.noGravity = true;
-                hurt.velocity = Main.rand.NextVector2Circular(5f, 5f);
-            }
+            // Hit sparks
+            ThemedParticles.MoonlightSparkles(NPC.Center, 3, NPC.width * 0.4f);
+            ThemedParticles.MoonlightSparks(NPC.Center, -hit.HitDirection * Vector2.UnitX, 3, 4f);
 
             // Death effect
             if (NPC.life <= 0)
             {
-                for (int i = 0; i < 30; i++)
-                {
-                    Dust death = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.PurpleTorch, 0f, 0f, 100, default, 2f);
-                    death.noGravity = true;
-                    death.velocity = Main.rand.NextVector2Circular(10f, 10f);
-                }
-
-                // Additional blue particles
-                for (int i = 0; i < 20; i++)
-                {
-                    Dust blue = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.BlueTorch, 0f, 0f, 100, default, 1.5f);
-                    blue.noGravity = true;
-                    blue.velocity = Main.rand.NextVector2Circular(8f, 8f);
-                }
+                ThemedParticles.MoonlightImpact(NPC.Center, 2f);
+                ThemedParticles.MoonlightShockwave(NPC.Center, 1.2f);
+                ThemedParticles.MoonlightSparkles(NPC.Center, 12, NPC.width);
             }
         }
         

@@ -6,6 +6,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -117,10 +118,14 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         private void CreateInitialBurst()
         {
-            // Large scarlet explosion
-            for (int i = 0; i < 40; i++)
+            // Enhanced explosion using ThemedParticles
+            ThemedParticles.EroicaImpact(Projectile.Center, 2.5f);
+            ThemedParticles.SakuraPetals(Projectile.Center, 15, 50f);
+            
+            // Large scarlet explosion (reduced count)
+            for (int i = 0; i < 25; i++)
             {
-                float angle = MathHelper.TwoPi * i / 40f;
+                float angle = MathHelper.TwoPi * i / 25f;
                 float speed = Main.rand.NextFloat(4f, 12f);
                 Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * speed;
                 
@@ -130,29 +135,25 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             }
             
             // Gold accents
-            for (int i = 0; i < 25; i++)
+            for (int i = 0; i < 15; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(10f, 10f);
                 Dust gold = Dust.NewDustPerfect(Projectile.Center, DustID.GoldFlame, vel, 100, default, 2.2f);
                 gold.noGravity = true;
                 gold.fadeIn = 1.3f;
             }
-            
-            // Fire embers
-            for (int i = 0; i < 15; i++)
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(8f, 8f);
-                Dust ember = Dust.NewDustPerfect(Projectile.Center, DustID.Torch, vel, 100, default, 1.8f);
-                ember.noGravity = false;
-            }
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Final explosion burst
-            for (int i = 0; i < 50; i++)
+            // Enhanced final explosion using ThemedParticles
+            ThemedParticles.EroicaBloomBurst(Projectile.Center, 3f);
+            ThemedParticles.EroicaShockwave(Projectile.Center, 2f);
+            
+            // Final explosion burst (reduced count)
+            for (int i = 0; i < 30; i++)
             {
-                float angle = MathHelper.TwoPi * i / 50f;
+                float angle = MathHelper.TwoPi * i / 30f;
                 float speed = Main.rand.NextFloat(6f, 15f);
                 Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * speed;
                 

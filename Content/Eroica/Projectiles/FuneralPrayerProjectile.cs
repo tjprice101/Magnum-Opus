@@ -4,6 +4,7 @@ using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -69,31 +70,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Red/gold lighting
             Lighting.AddLight(Projectile.Center, 1.0f, 0.5f, 0.1f);
             
-            // Red flames
-            for (int i = 0; i < 2; i++)
+            // Enhanced trail using ThemedParticles
+            ThemedParticles.EroicaTrail(Projectile.Center, Projectile.velocity);
+            
+            // Additional red flames
+            if (Main.rand.NextBool(2))
             {
                 Dust flame = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
                     DustID.RedTorch, 0f, 0f, 100, default, 1.8f);
                 flame.noGravity = true;
                 flame.velocity = Projectile.velocity * -0.2f + Main.rand.NextVector2Circular(1f, 1f);
-            }
-            
-            // Gold particles
-            if (Main.rand.NextBool(2))
-            {
-                Dust gold = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.GoldFlame, 0f, 0f, 100, default, 1.5f);
-                gold.noGravity = true;
-                gold.velocity = Projectile.velocity * -0.3f;
-            }
-            
-            // Ember sparks
-            if (Main.rand.NextBool(3))
-            {
-                Dust ember = Dust.NewDustDirect(Projectile.Center, 1, 1,
-                    DustID.Torch, 0f, 0f, 100, default, 1.0f);
-                ember.noGravity = true;
-                ember.velocity = Main.rand.NextVector2Circular(3f, 3f);
             }
         }
         
@@ -146,8 +132,11 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // Large fiery explosion
-            for (int i = 0; i < 40; i++)
+            // Enhanced explosion using ThemedParticles
+            ThemedParticles.EroicaImpact(Projectile.Center, 2f);
+            
+            // Large fiery explosion (reduced count)
+            for (int i = 0; i < 20; i++)
             {
                 Dust flame = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
                     DustID.RedTorch, 0f, 0f, 100, default, 2.5f);
@@ -156,21 +145,12 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             }
 
             // Gold sparks
-            for (int i = 0; i < 25; i++)
+            for (int i = 0; i < 15; i++)
             {
                 Dust gold = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
                     DustID.GoldFlame, 0f, 0f, 100, default, 2.0f);
                 gold.noGravity = true;
                 gold.velocity = Main.rand.NextVector2Circular(5f, 5f);
-            }
-            
-            // Embers
-            for (int i = 0; i < 15; i++)
-            {
-                Dust ember = Dust.NewDustDirect(Projectile.Center, 1, 1,
-                    DustID.Torch, 0f, 0f, 100, default, 1.5f);
-                ember.noGravity = false;
-                ember.velocity = Main.rand.NextVector2Circular(4f, 4f) + new Vector2(0, -2f);
             }
         }
     }

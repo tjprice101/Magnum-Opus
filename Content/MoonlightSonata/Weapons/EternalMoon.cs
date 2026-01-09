@@ -7,6 +7,7 @@ using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.Projectiles;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons
 {
@@ -23,7 +24,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
         {
             Item.width = 50;
             Item.height = 50;
-            Item.damage = 275; // Post-Moon Lord endgame damage (+25%)
+            Item.damage = 300; // Balanced: ~1000 DPS (300 × 60/18)
             Item.DamageType = DamageClass.Melee;
             Item.useTime = 18; // Faster swing
             Item.useAnimation = 18;
@@ -41,12 +42,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
             // Purple particle trail when swinging
-            if (Main.rand.NextBool(2))
+            if (Main.rand.NextBool(3))
             {
-                int dust = Dust.NewDust(new Vector2(hitbox.X, hitbox.Y), hitbox.Width, hitbox.Height, 
-                    DustID.PurpleTorch, player.velocity.X * 0.2f, player.velocity.Y * 0.2f, 100, default, 1.5f);
-                Main.dust[dust].noGravity = true;
-                Main.dust[dust].velocity *= 0.5f;
+                Vector2 hitCenter = new Vector2(hitbox.X + hitbox.Width / 2, hitbox.Y + hitbox.Height / 2);
+                ThemedParticles.MoonlightTrail(hitCenter, player.velocity * 0.3f);
             }
         }
 
@@ -93,13 +92,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
                 Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122, position);
                 
                 // Burst of particles
-                for (int i = 0; i < 20; i++)
-                {
-                    Dust dust = Dust.NewDustDirect(position, 1, 1, DustID.PurpleTorch,
-                        velocity.X * 0.5f + Main.rand.NextFloat(-3f, 3f),
-                        velocity.Y * 0.5f + Main.rand.NextFloat(-3f, 3f), 100, default, 2f);
-                    dust.noGravity = true;
-                }
+                ThemedParticles.MoonlightBloomBurst(position, 1.5f);
+                ThemedParticles.MoonlightSparkles(position, 10, 25f);
+                
+                // Musical notes burst!
+                ThemedParticles.MoonlightMusicNotes(position, 8, 30f);
+                ThemedParticles.MoonlightClef(position, Main.rand.NextBool(), 1.2f);
             }
             
             return false;

@@ -1039,5 +1039,210 @@ namespace MagnumOpus.Common.Systems
             
             Lighting.AddLight(position, 0.9f, 0.4f, 0.6f);
         }
+        
+        // ================== CALAMITY-STYLE PARTICLE INTEGRATION ==================
+        // These methods use the new particle system for higher quality effects
+        
+        /// <summary>
+        /// Creates a burst of bloom particles for explosion/impact effects.
+        /// Uses the new particle system for smooth scaling and fading.
+        /// </summary>
+        public static void CreateBloomBurst(Vector2 position, Color color, int count = 8, 
+            float minScale = 0.3f, float maxScale = 1f, int minLife = 20, int maxLife = 40)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 velocity = Main.rand.NextVector2Circular(3f, 3f);
+                float scale = Main.rand.NextFloat(minScale, maxScale);
+                int lifetime = Main.rand.Next(minLife, maxLife);
+                
+                var particle = new Particles.BloomParticle(position, velocity, color, scale, scale * 1.8f, lifetime);
+                Particles.MagnumParticleHandler.SpawnParticle(particle);
+            }
+        }
+        
+        /// <summary>
+        /// Creates an expanding animated shockwave ring particle effect.
+        /// </summary>
+        public static void CreateExpandingShockwave(Vector2 position, Color color, float startScale = 0.5f, 
+            float expansionRate = 0.1f, int lifetime = 30)
+        {
+            var ring = new Particles.BloomRingParticle(position, Vector2.Zero, color, startScale, lifetime, expansionRate);
+            Particles.MagnumParticleHandler.SpawnParticle(ring);
+        }
+        
+        /// <summary>
+        /// Creates a burst of sparkle particles.
+        /// </summary>
+        public static void CreateSparkleBurst(Vector2 position, Color color, int count = 12, 
+            float speedMultiplier = 1f, int minLife = 40, int maxLife = 80)
+        {
+            Color bloomColor = color * 0.7f;
+            
+            for (int i = 0; i < count; i++)
+            {
+                float angle = MathHelper.TwoPi * i / count + Main.rand.NextFloat(-0.2f, 0.2f);
+                Vector2 velocity = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f) * speedMultiplier;
+                float scale = Main.rand.NextFloat(0.4f, 1f);
+                int lifetime = Main.rand.Next(minLife, maxLife);
+                
+                var sparkle = new Particles.SparkleParticle(position, velocity, color, bloomColor, 
+                    scale, lifetime, 0.05f, 1.5f);
+                Particles.MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+        }
+        
+        /// <summary>
+        /// Creates directional spark particles that follow a velocity.
+        /// Great for sword slashes, impacts, etc.
+        /// </summary>
+        public static void CreateDirectionalSparks(Vector2 position, Vector2 direction, Color color, 
+            int count = 6, float spread = 0.5f, float minSpeed = 4f, float maxSpeed = 8f)
+        {
+            float baseAngle = direction.ToRotation();
+            
+            for (int i = 0; i < count; i++)
+            {
+                float angle = baseAngle + Main.rand.NextFloat(-spread, spread);
+                float speed = Main.rand.NextFloat(minSpeed, maxSpeed);
+                Vector2 velocity = angle.ToRotationVector2() * speed;
+                
+                var spark = new Particles.GlowSparkParticle(position, velocity, color, 
+                    Main.rand.NextFloat(0.4f, 0.8f), Main.rand.Next(20, 40));
+                Particles.MagnumParticleHandler.SpawnParticle(spark);
+            }
+        }
+        
+        /// <summary>
+        /// Creates an impact effect with bloom, ring, and sparks combined.
+        /// </summary>
+        public static void CreateImpactEffect(Vector2 position, Color primaryColor, Color secondaryColor, float intensity = 1f)
+        {
+            // Central bloom
+            int bloomCount = (int)(5 * intensity);
+            CreateBloomBurst(position, primaryColor, bloomCount, 0.4f * intensity, 0.8f * intensity, 15, 30);
+            
+            // Shockwave ring
+            CreateExpandingShockwave(position, primaryColor * 0.5f, 0.3f * intensity, 0.08f, 25);
+            
+            // Sparks
+            int sparkCount = (int)(8 * intensity);
+            for (int i = 0; i < sparkCount; i++)
+            {
+                Vector2 velocity = Main.rand.NextVector2Circular(6f, 6f) * intensity;
+                var spark = new Particles.GlowSparkParticle(position, velocity, true, 
+                    Main.rand.Next(30, 50), Main.rand.NextFloat(0.3f, 0.6f) * intensity, 
+                    Color.Lerp(primaryColor, secondaryColor, Main.rand.NextFloat()),
+                    new Vector2(0.4f, 1.8f), true, true);
+                Particles.MagnumParticleHandler.SpawnParticle(spark);
+            }
+            
+            // Lighting
+            float lightIntensity = 0.8f * intensity;
+            Lighting.AddLight(position, primaryColor.ToVector3() * lightIntensity);
+        }
+        
+        /// <summary>
+        /// Creates a Moonlight-themed particle burst using the new particle system.
+        /// Purple/silver/white ethereal effect.
+        /// </summary>
+        public static void CreateMoonlightParticleBurst(Vector2 position, int intensity = 1)
+        {
+            Color purple = new Color(150, 100, 200);
+            Color silver = new Color(200, 180, 255);
+            Color white = new Color(230, 220, 255);
+            
+            // Bloom particles
+            CreateBloomBurst(position, purple, 4 * intensity, 0.3f, 0.7f, 25, 45);
+            
+            // Sparkles
+            CreateSparkleBurst(position, silver, 8 * intensity, 1.2f, 50, 90);
+            
+            // Ring effect
+            CreateExpandingShockwave(position, purple * 0.6f, 0.4f, 0.06f, 35);
+            
+            // Small glowing particles
+            for (int i = 0; i < 6 * intensity; i++)
+            {
+                Vector2 velocity = Main.rand.NextVector2Circular(2f, 2f);
+                var glow = new Particles.GenericGlowParticle(position, velocity, 
+                    Color.Lerp(silver, white, Main.rand.NextFloat()), 
+                    Main.rand.NextFloat(0.2f, 0.5f), Main.rand.Next(40, 70));
+                Particles.MagnumParticleHandler.SpawnParticle(glow);
+            }
+        }
+        
+        /// <summary>
+        /// Creates an Eroica-themed particle burst using the new particle system.
+        /// Golden/crimson heroic fire effect.
+        /// </summary>
+        public static void CreateEroicaParticleBurst(Vector2 position, int intensity = 1)
+        {
+            Color crimson = new Color(200, 50, 60);
+            Color gold = new Color(255, 200, 80);
+            Color orange = new Color(255, 150, 50);
+            
+            // Fiery bloom particles
+            CreateBloomBurst(position, crimson, 5 * intensity, 0.4f, 0.9f, 20, 40);
+            CreateBloomBurst(position, gold, 3 * intensity, 0.2f, 0.5f, 15, 30);
+            
+            // Golden sparkles
+            CreateSparkleBurst(position, gold, 6 * intensity, 1.5f, 40, 70);
+            
+            // Fire sparks
+            for (int i = 0; i < 8 * intensity; i++)
+            {
+                Vector2 velocity = Main.rand.NextVector2Circular(5f, 5f) + new Vector2(0, -2f);
+                var spark = new Particles.GlowSparkParticle(position, velocity, true, 
+                    Main.rand.Next(25, 45), Main.rand.NextFloat(0.4f, 0.8f), 
+                    Color.Lerp(crimson, orange, Main.rand.NextFloat()),
+                    new Vector2(0.5f, 1.6f), false, true);
+                Particles.MagnumParticleHandler.SpawnParticle(spark);
+            }
+            
+            // Ring
+            CreateExpandingShockwave(position, gold * 0.5f, 0.5f, 0.1f, 25);
+        }
+        
+        // ================== PRIMITIVE TRAIL HELPERS ==================
+        // Convenience methods for using the PrimitiveTrailRenderer
+        
+        /// <summary>
+        /// Draws a glowing projectile trail using the new primitive renderer.
+        /// </summary>
+        public static void DrawPrimitiveProjectileTrail(Projectile proj, Color trailColor, 
+            float startWidth = 20f, float endWidth = 0f, Color? glowColor = null)
+        {
+            if (proj.oldPos[0] == Vector2.Zero) return;
+            
+            Color glow = glowColor ?? trailColor * 0.5f;
+            
+            var settings = new PrimitiveTrailRenderer.TrailSettings(
+                p => MathHelper.Lerp(startWidth, endWidth, p),
+                p => Color.Lerp(trailColor, glow * (1f - p), p),
+                null,
+                null,
+                true,
+                false
+            );
+            
+            PrimitiveTrailRenderer.RenderTrail(proj.oldPos, settings, 40);
+        }
+        
+        /// <summary>
+        /// Draws a simple projectile trail with automatic afterimages.
+        /// </summary>
+        public static void DrawSimpleProjectileTrail(Projectile proj, Color color, int afterimageMode = 0)
+        {
+            MagnumDrawingUtils.DrawAfterimagesCentered(proj, afterimageMode, color);
+        }
+        
+        /// <summary>
+        /// Draws a projectile with backglow effect.
+        /// </summary>
+        public static void DrawProjectileWithGlow(Projectile proj, Color lightColor, Color glowColor, float glowSize = 3f)
+        {
+            proj.DrawProjectileWithBackglow(glowColor, lightColor, glowSize);
+        }
     }
 }

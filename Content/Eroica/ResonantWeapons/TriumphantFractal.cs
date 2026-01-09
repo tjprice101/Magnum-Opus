@@ -6,6 +6,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.ResonantWeapons
 {
@@ -23,7 +24,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void SetDefaults()
         {
-            Item.damage = 280; // Higher than MoonlightsCalling (225)
+            Item.damage = 450; // Balanced: ~1080 DPS (450 × 60/25)
             Item.DamageType = DamageClass.Magic;
             Item.width = 56;
             Item.height = 56;
@@ -70,6 +71,9 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                 smoke.noGravity = true;
                 smoke.velocity = Main.rand.NextVector2Circular(2f, 2f);
             }
+            
+            // Musical burst on cast!
+            ThemedParticles.EroicaMusicNotes(position, 5, 25f);
 
             return false;
         }

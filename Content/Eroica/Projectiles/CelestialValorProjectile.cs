@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -81,6 +82,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 trail.velocity = -Projectile.velocity * 0.2f + Main.rand.NextVector2Circular(2f, 2f);
             }
             
+            // Heroic musical trail - fiery notes
+            ThemedParticles.EroicaMusicTrail(Projectile.Center, Projectile.velocity);
+            
             // Lighting
             Lighting.AddLight(Projectile.Center, 1f, 0.6f, 0.3f);
         }
@@ -89,6 +93,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             // Create AOE explosion on hit
             CreateAOEExplosion(target.Center);
+            
+            // Heroic musical impact with notes
+            ThemedParticles.EroicaMusicalImpact(target.Center, 0.6f, false);
             
             // Deal 5% bonus explosion damage to nearby enemies
             int explosionDamage = (int)(damageDone * 0.05f);
@@ -121,6 +128,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             
             // Black and red lightning effect (like Funeral Prayer)
             SpawnLightningEffect(position);
+            
+            // Dramatic musical burst with clef for explosion!
+            ThemedParticles.EroicaMusicalImpact(position, 1.2f, true);
             
             // Outer ring - gold
             for (int i = 0; i < 30; i++)

@@ -21,7 +21,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
         {
             Item.width = 48;
             Item.height = 48;
-            Item.damage = 280;
+            Item.damage = 320; // Balanced: Strong summon damage for Eroica tier
             Item.DamageType = DamageClass.Summon;
             Item.mana = 20;
             Item.useTime = 36;

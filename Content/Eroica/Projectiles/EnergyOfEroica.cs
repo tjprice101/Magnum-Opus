@@ -4,6 +4,7 @@ using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -69,17 +70,12 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Rotation based on velocity
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
 
-            // Particle trail
-            if (Main.rand.NextBool(2))
-            {
-                Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
-                    DustID.PinkTorch, 0f, 0f, 100, default, 1.5f);
-                dust.noGravity = true;
-                dust.velocity = -Projectile.velocity * 0.2f;
-            }
-
-            // Shimmer effect
-            if (Main.rand.NextBool(5))
+            // Enhanced particle trail using ThemedParticles (sakura petals for Eroica homing energy)
+            ThemedParticles.SakuraPetals(Projectile.Center, 3, 15f);
+            ThemedParticles.EroicaTrail(Projectile.Center, Projectile.velocity);
+            
+            // Shimmer effect (reduced - ThemedParticles handles additional visuals)
+            if (Main.rand.NextBool(8))
             {
                 Dust sparkle = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.GoldFlame, 0f, 0f, 0, default, 1.2f);
                 sparkle.noGravity = true;
@@ -89,14 +85,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // Burst of pink particles on impact/expiration
-            for (int i = 0; i < 15; i++)
-            {
-                Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
-                    DustID.PinkTorch, 0f, 0f, 100, default, 1.5f);
-                dust.noGravity = true;
-                dust.velocity = Main.rand.NextVector2Circular(5f, 5f);
-            }
+            // Enhanced burst with ThemedParticles
+            ThemedParticles.EroicaImpact(Projectile.Center, 1f);
+            ThemedParticles.SakuraPetals(Projectile.Center, 10, 30f);
 
             // Sound effect
             Terraria.Audio.SoundEngine.PlaySound(SoundID.Item110, Projectile.position);

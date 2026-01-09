@@ -926,6 +926,7 @@ Projectiles: {
 	CelestialValorProjectile.DisplayName: Celestial Valor Slash
 	FlameOfValorBeam.DisplayName: Flame Of Valor Beam
 	HandOfValor.DisplayName: Hand Of Valor
+	FistOfEroica.DisplayName: Fist Of Eroica
 }
 
 "Keybinds.Toggle Harmonic Core UI.DisplayName": Toggle  Harmonic  Core  U I

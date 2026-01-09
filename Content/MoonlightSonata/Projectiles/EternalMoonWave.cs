@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 {
@@ -32,8 +33,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             // Create purple energy wave effect with particles
             Projectile.rotation = Projectile.velocity.ToRotation();
             
-            // Main wave particles
-            for (int i = 0; i < 3; i++)
+            // Enhanced trail using ThemedParticles
+            ThemedParticles.MoonlightTrail(Projectile.Center, Projectile.velocity);
+            
+            // Musical note trail - floating notes shed from the wave
+            ThemedParticles.MoonlightMusicTrail(Projectile.Center, Projectile.velocity);
+            
+            // Main wave particles (reduced count - ThemedParticles handles additional visuals)
+            for (int i = 0; i < 2; i++)
             {
                 Vector2 offset = new Vector2(Main.rand.NextFloat(-15, 15), Main.rand.NextFloat(-15, 15));
                 Vector2 dustPos = Projectile.Center + offset;
@@ -43,18 +50,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                 dust.noGravity = true;
                 dust.velocity = Projectile.velocity * 0.1f;
                 dust.fadeIn = 1.2f;
-                
-                // Light purple outer glow
-                if (Main.rand.NextBool(2))
-                {
-                    Dust glow = Dust.NewDustDirect(dustPos + offset * 0.5f, 1, 1, DustID.PinkTorch, 0f, 0f, 150, default, 1.5f);
-                    glow.noGravity = true;
-                    glow.velocity = Projectile.velocity * 0.05f;
-                }
             }
             
             // Trailing particles
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < 1; i++)
             {
                 Vector2 trailPos = Projectile.Center - Projectile.velocity * Main.rand.NextFloat(0.5f, 1f);
                 Dust trail = Dust.NewDustDirect(trailPos, 1, 1, DustID.PurpleCrystalShard, 0f, 0f, 100, default, 1.2f);
@@ -74,19 +73,24 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             // Apply Musical Dissonance debuff
             target.AddBuff(ModContent.BuffType<Debuffs.MusicsDissonance>(), 180);
             
-            // Hit particles
-            for (int i = 0; i < 10; i++)
-            {
-                Dust dust = Dust.NewDustDirect(target.Center, 1, 1, DustID.PurpleTorch, 
-                    Main.rand.NextFloat(-3f, 3f), Main.rand.NextFloat(-3f, 3f), 100, default, 1.5f);
-                dust.noGravity = true;
-            }
+            // Enhanced hit effect with ThemedParticles
+            ThemedParticles.MoonlightSparks(target.Center, target.velocity);
+            ThemedParticles.MoonlightSparkles(target.Center, 6, 25f);
+            
+            // Musical notes on hit
+            ThemedParticles.MoonlightMusicNotes(target.Center, 3, 20f);
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Dissipation effect
-            for (int i = 0; i < 15; i++)
+            // Enhanced dissipation with ThemedParticles
+            ThemedParticles.MoonlightBloomBurst(Projectile.Center, 0.6f);
+            
+            // Musical death burst
+            ThemedParticles.MoonlightMusicalImpact(Projectile.Center, 0.5f, false);
+            
+            // Dissipation effect (reduced count)
+            for (int i = 0; i < 8; i++)
             {
                 Vector2 velocity = Main.rand.NextVector2Circular(4f, 4f);
                 Dust dust = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.PurpleTorch, velocity.X, velocity.Y, 100, default, 1.5f);
