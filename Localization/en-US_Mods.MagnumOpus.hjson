@@ -106,6 +106,36 @@ Mods: {
 					'''
 			}
 
+			ShardOfTheFeatheredTempo: {
+				DisplayName: Shard of the Feathered Tempo
+				Tooltip:
+					'''
+					'A fragment of the swan's eternal dance'
+					Raw material dropped from Swan Lake enemies
+					Refine at a Moonlight Furnace
+					'''
+			}
+
+			SwansResonanceEnergy: {
+				DisplayName: Swan's Resonance Energy
+				Tooltip:
+					'''
+					'Pure grace made manifest'
+					Rare energy from the ballet of swans
+					Used for crafting powerful Swan Lake equipment
+					'''
+			}
+
+			RemnantOfSwansHarmony: {
+				DisplayName: Remnant of Swan's Harmony
+				Tooltip:
+					'''
+					'A fragment of frozen grace'
+					Raw material mined from Swan Lake ore
+					Refine at a Moonlight Furnace
+					'''
+			}
+
 			ResonantCoreOfSwanLake: {
 				DisplayName: Resonant Core of Swan Lake
 				Tooltip:

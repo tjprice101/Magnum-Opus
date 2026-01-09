@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.GameContent;
+using MagnumOpus.Content.SwanLake.ResonanceEnergies;
 
 namespace MagnumOpus.Content.SwanLake.ResonantOres
 {
@@ -54,6 +55,17 @@ namespace MagnumOpus.Content.SwanLake.ResonantOres
         {
             type = DustID.SilverCoin;
             return true;
+        }
+
+        public override bool CanDrop(int i, int j)
+        {
+            return true;
+        }
+
+        public override IEnumerable<Item> GetItemDrops(int i, int j)
+        {
+            // Drop exactly 1 Remnant of Swan's Harmony per ore block
+            yield return new Item(ModContent.ItemType<RemnantOfSwansHarmony>(), 1);
         }
     }
 }

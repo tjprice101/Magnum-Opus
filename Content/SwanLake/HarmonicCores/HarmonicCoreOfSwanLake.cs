@@ -90,32 +90,9 @@ namespace MagnumOpus.Content.SwanLake.HarmonicCores
         {
             CreateRecipe()
                 .AddIngredient<ResonantCoreOfSwanLake>(25)
-                .AddIngredient<SwanLakeResonantEnergy>(25)
+                .AddIngredient<SwansResonanceEnergy>(25)
                 .AddTile(ModContent.TileType<Content.MoonlightSonata.CraftingStations.MoonlightAnvilTile>())
                 .Register();
-        }
-    }
-    
-    // Placeholder class for the crafting ingredient
-    public class ResonantCoreOfSwanLake : ModItem
-    {
-        public override void SetStaticDefaults()
-        {
-            Item.ResearchUnlockCount = 1;
-        }
-
-        public override void SetDefaults()
-        {
-            Item.width = 24;
-            Item.height = 24;
-            Item.maxStack = 99;
-            Item.value = Item.sellPrice(gold: 5);
-            Item.rare = ItemRarityID.Cyan;
-        }
-
-        public override void PostUpdate()
-        {
-            Lighting.AddLight(Item.Center, 0.3f, 0.4f, 0.6f);
         }
     }
 }
