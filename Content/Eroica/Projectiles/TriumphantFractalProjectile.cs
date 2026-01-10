@@ -35,7 +35,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Projectile.hostile = false;
             Projectile.DamageType = DamageClass.Magic;
             Projectile.penetrate = 1;
-            Projectile.timeLeft = 200;
+            Projectile.timeLeft = 180;
             Projectile.alpha = 0;
             Projectile.light = 1f;
             Projectile.ignoreWater = true;
@@ -46,6 +46,33 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
             lightningTimer += 1f;
+
+            // HOMING: Track nearby enemies
+            float homingRange = 400f;
+            float homingStrength = 0.045f; // Moderate tracking
+            NPC closestNPC = null;
+            float closestDist = homingRange;
+
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (npc.active && !npc.friendly && npc.CanBeChasedBy())
+                {
+                    float dist = Vector2.Distance(Projectile.Center, npc.Center);
+                    if (dist < closestDist)
+                    {
+                        closestDist = dist;
+                        closestNPC = npc;
+                    }
+                }
+            }
+
+            if (closestNPC != null)
+            {
+                Vector2 toTarget = closestNPC.Center - Projectile.Center;
+                toTarget.Normalize();
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * Projectile.velocity.Length(), homingStrength);
+            }
 
             // Spawn fractal lightning bolts around the projectile periodically
             if (lightningTimer % 8 == 0)
@@ -66,6 +93,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Intense crimson flame trail with pulsing using new particle system
             float pulse = 1f + (float)Math.Sin(lightningTimer * 0.3f) * 0.3f;
             ThemedParticles.EroicaTrail(Projectile.Center, Projectile.velocity);
+            
+            // Enhanced custom particle trail
+            CustomParticles.EroicaTrail(Projectile.Center, Projectile.velocity, 0.35f);
             
             for (int i = 0; i < 2; i++)
             {
@@ -113,63 +143,72 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         private void CreateMassiveExplosion()
         {
+            // Prevent duplicate explosions via flag
+            if (Projectile.localAI[0] >= 1f) return;
+            Projectile.localAI[0] = 1f;
+
             SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode, Projectile.position);
-            SoundEngine.PlaySound(SoundID.DD2_BetsyFireballImpact, Projectile.position);
 
-            // Create Eroica-themed effects using both systems for maximum impact
-            MagnumVFX.CreateEroicaSparkBurst(Projectile.Center, 12, 150f);
-            MagnumVFX.CreateEroicaBurst(Projectile.Center, 3);
+            // OPTIMIZED TRIUMPHANT FRACTAL EXPLOSION
+            // Use CustomParticleSystem for efficient GPU-accelerated visuals instead of massive dust counts
             
-            // Enhanced themed particle effects
-            ThemedParticles.EroicaImpact(Projectile.Center, 2.5f);
-            ThemedParticles.EroicaShockwave(Projectile.Center, 2f);
+            // Layer 1: Core white-hot flash
+            var coreFlare = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[6], Projectile.Center, Vector2.Zero,
+                new Color(255, 255, 240), 2.2f, 25, 0.025f, true, true);
+            CustomParticleSystem.SpawnParticle(coreFlare);
+            
+            // Layer 2: Expanding golden halo (single optimized halo)
+            var outerHalo = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.GlowingHalos[4], Projectile.Center, Vector2.Zero,
+                CustomParticleSystem.EroicaColors.Gold, 1.2f, 35, 0.018f, true, true).WithScaleVelocity(0.04f);
+            CustomParticleSystem.SpawnParticle(outerHalo);
+            
+            // Layer 3: Optimized burst rays (reduced count for performance)
+            CustomParticles.ExplosionBurst(Projectile.Center, new Color(255, 180, 80), 12, 10f);
+            CustomParticles.ExplosionBurst(Projectile.Center, new Color(200, 40, 40), 10, 7f);
 
-            // MASSIVE crimson flames (reduced count - themed particles handle additional visuals)
-            for (int i = 0; i < 40; i++)
+            // Single themed impact effect (handles multiple visuals internally)
+            MagnumVFX.CreateEroicaSparkBurst(Projectile.Center, 8, 120f);
+            ThemedParticles.EroicaImpact(Projectile.Center, 2f);
+            
+            // Warm glowing aftermath (single glow)
+            CustomParticles.GenericGlow(Projectile.Center, new Color(255, 150, 50), 2.2f, 45);
+
+            // OPTIMIZED crimson flames (reduced from 40 to 18)
+            for (int i = 0; i < 18; i++)
             {
-                Dust explosion = Dust.NewDustDirect(Projectile.position - new Vector2(30, 30),
-                    Projectile.width + 60, Projectile.height + 60,
-                    DustID.CrimsonTorch, 0f, 0f, 100, default, 3.0f);
+                Dust explosion = Dust.NewDustDirect(Projectile.position - new Vector2(20, 20),
+                    Projectile.width + 40, Projectile.height + 40,
+                    DustID.CrimsonTorch, 0f, 0f, 100, default, 2.5f);
                 explosion.noGravity = true;
-                explosion.velocity = Main.rand.NextVector2Circular(12f, 12f);
+                explosion.velocity = Main.rand.NextVector2Circular(10f, 10f);
             }
 
-            // Gold heroic sparks in a ring
-            for (int i = 0; i < 24; i++)
+            // Gold heroic sparks in a ring (reduced from 24 to 12)
+            for (int i = 0; i < 12; i++)
             {
-                float angle = MathHelper.TwoPi * i / 24f;
-                Vector2 velocity = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 8f;
-                Dust gold = Dust.NewDustPerfect(Projectile.Center, DustID.GoldCoin, velocity, 0, default, 1.8f);
+                float angle = MathHelper.TwoPi * i / 12f;
+                Vector2 velocity = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 7f;
+                Dust gold = Dust.NewDustPerfect(Projectile.Center, DustID.GoldCoin, velocity, 0, default, 1.5f);
                 gold.noGravity = true;
             }
 
-            // MASSIVE black smoke
-            for (int i = 0; i < 40; i++)
+            // Optimized smoke (reduced from 40 to 12)
+            for (int i = 0; i < 12; i++)
             {
-                Dust smoke = Dust.NewDustDirect(Projectile.position - new Vector2(30, 30),
-                    Projectile.width + 60, Projectile.height + 60,
-                    DustID.Smoke, 0f, 0f, 100, Color.Black, 2.5f);
-                smoke.noGravity = true;
-                smoke.velocity = Main.rand.NextVector2Circular(10f, 10f);
-            }
-
-            // Fire particles
-            for (int i = 0; i < 30; i++)
-            {
-                Dust fire = Dust.NewDustDirect(Projectile.position - new Vector2(20, 20),
+                Dust smoke = Dust.NewDustDirect(Projectile.position - new Vector2(20, 20),
                     Projectile.width + 40, Projectile.height + 40,
-                    DustID.Torch, 0f, 0f, 100, default, 2.0f);
-                fire.noGravity = true;
-                fire.velocity = Main.rand.NextVector2Circular(8f, 8f);
+                    DustID.Smoke, 0f, 0f, 100, Color.Black, 2.0f);
+                smoke.noGravity = true;
+                smoke.velocity = Main.rand.NextVector2Circular(8f, 8f);
             }
 
-            // Create multiple fractal lightning bolts radiating outward
-            for (int i = 0; i < 8; i++)
+            // Fractal lightning bolts (reduced from 8 to 5 for performance)
+            for (int i = 0; i < 5; i++)
             {
-                float angle = MathHelper.TwoPi * i / 8f;
+                float angle = MathHelper.TwoPi * i / 5f;
                 Vector2 direction = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
-                Vector2 lightningEnd = Projectile.Center + direction * Main.rand.NextFloat(100f, 180f);
-                MagnumVFX.DrawFractalLightning(Projectile.Center, lightningEnd, new Color(255, 150, 100), 10, 35f, 2, 0.5f);
+                Vector2 lightningEnd = Projectile.Center + direction * Main.rand.NextFloat(80f, 140f);
+                MagnumVFX.DrawFractalLightning(Projectile.Center, lightningEnd, new Color(255, 150, 100), 8, 28f, 1, 0.4f);
             }
         }
 
@@ -192,6 +231,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 // Draw mini lightning bolt
                 DrawMiniLightning(lightning.start, lightning.end, lightningColor);
             }
+            
+            // Draw prismatic gem trail using oldPos for brilliant diamond effect
+            MagnumVFX.DrawPrismaticGemTrail(spriteBatch, Projectile.oldPos, true, 0.5f, lightningTimer);
 
             // Draw enhanced glowing trail with color gradient
             for (int i = 0; i < Projectile.oldPos.Length; i++)
@@ -217,6 +259,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Draw the main projectile with glow
             Vector2 mainDrawPos = Projectile.Center - Main.screenPosition;
             float pulseScale = 1f + (float)Math.Sin(lightningTimer * 0.2f) * 0.15f;
+            
+            // Draw central prismatic gem effect
+            MagnumVFX.DrawEroicaPrismaticGem(spriteBatch, Projectile.Center, pulseScale * 1.2f, 1f, lightningTimer);
             
             // Outer glow
             spriteBatch.Draw(texture, mainDrawPos, null, new Color(255, 150, 80) * 0.6f, Projectile.rotation, origin,

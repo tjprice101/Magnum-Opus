@@ -72,18 +72,33 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * Projectile.velocity.Length(), homingStrength);
             }
             
-            // Trail particles - red and gold
-            if (Main.rand.NextBool(2))
+            // Sword arc wave trail - traveling heroic slash
+            if (Main.rand.NextBool(4))
+            {
+                CustomParticles.SwordArcWave(Projectile.Center, Projectile.velocity * 0.15f, CustomParticleSystem.EroicaColors.Gold * 0.8f, 0.35f);
+            }
+            
+            // Trail particles - red and gold (reduced)
+            if (Main.rand.NextBool(3))
             {
                 int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
                 Dust trail = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
-                    dustType, 0f, 0f, 100, default, 1.5f);
+                    dustType, 0f, 0f, 100, default, 1.2f);
                 trail.noGravity = true;
-                trail.velocity = -Projectile.velocity * 0.2f + Main.rand.NextVector2Circular(2f, 2f);
+                trail.velocity = -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(1.5f, 1.5f);
             }
             
-            // Heroic musical trail - fiery notes
-            ThemedParticles.EroicaMusicTrail(Projectile.Center, Projectile.velocity);
+            // Heroic musical trail - fiery notes (reduced frequency)
+            if (Main.rand.NextBool(2))
+            {
+                ThemedParticles.EroicaMusicTrail(Projectile.Center, Projectile.velocity);
+            }
+            
+            // Custom flare trail (reduced)
+            if (Main.rand.NextBool(3))
+            {
+                CustomParticles.EroicaFlare(Projectile.Center, 0.45f);
+            }
             
             // Lighting
             Lighting.AddLight(Projectile.Center, 1f, 0.6f, 0.3f);
@@ -96,6 +111,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             
             // Heroic musical impact with notes
             ThemedParticles.EroicaMusicalImpact(target.Center, 0.6f, false);
+            
+            // Custom particle impact burst (uses new particle system)
+            CustomParticles.EroicaImpactBurst(target.Center, 12);
             
             // Deal 5% bonus explosion damage to nearby enemies
             int explosionDamage = (int)(damageDone * 0.05f);
@@ -124,9 +142,23 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         private void CreateAOEExplosion(Vector2 position)
         {
             // Large red and gold spiral explosion
-            SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.3f, Volume = 0.6f }, position);
+            SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.3f, Volume = 0.5f }, position);
             
-            // Black and red lightning effect (like Funeral Prayer)
+            // Magic sparkle field burst - heroic valor explosion
+            CustomParticles.MagicSparkleFieldBurst(position, CustomParticleSystem.EroicaColors.Gold, 5, 30f);
+            
+            // Sword arc burst - radial heroic slashes
+            CustomParticles.SwordArcBurst(position, CustomParticleSystem.EroicaColors.Scarlet, 5, 0.4f);
+            
+            // Golden sun halo
+            var sunHalo = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.GlowingHalos[0], position, Vector2.Zero,
+                new Color(255, 220, 100), 0.8f, 30, 0.015f, true, true).WithScaleVelocity(0.025f);
+            CustomParticleSystem.SpawnParticle(sunHalo);
+            
+            // Prismatic sparkle radial burst
+            CustomParticles.PrismaticSparkleBurst(position, CustomParticleSystem.EroicaColors.Gold, 8);
+            
+            // Black and red lightning effect
             SpawnLightningEffect(position);
             
             // Dramatic musical burst with clef for explosion!
@@ -244,6 +276,17 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
             Vector2 drawOrigin = new Vector2(texture.Width / 2, texture.Height / 2);
+            
+            // Switch to additive blending for prismatic gem effects
+            MagnumVFX.BeginAdditiveBlend(spriteBatch);
+            
+            // Draw prismatic gem trail using oldPos for brilliant diamond effect
+            MagnumVFX.DrawPrismaticGemTrail(spriteBatch, Projectile.oldPos, true, 0.4f, (float)Projectile.timeLeft);
+            
+            // Draw central prismatic gem at projectile position
+            MagnumVFX.DrawEroicaPrismaticGem(spriteBatch, Projectile.Center, 0.7f, 0.9f, (float)Projectile.timeLeft);
+            
+            MagnumVFX.EndAdditiveBlend(spriteBatch);
             
             // Draw trail
             for (int k = 0; k < Projectile.oldPos.Length; k++)

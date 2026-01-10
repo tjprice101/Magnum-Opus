@@ -91,8 +91,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
         public override void SetDefaults()
         {
             // Tougher than other Moonlight enemies
-            NPC.width = 48;
-            NPC.height = 48;
+            // Hitbox matches visual size: ~170px frame × 1.5f drawScale = ~255px
+            NPC.width = 230;
+            NPC.height = 230;
             NPC.damage = 110; // Higher than Lunus (90)
             NPC.defense = 60; // Higher defense
             NPC.lifeMax = 18000; // Double health for challenge
@@ -142,6 +143,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 
             // Themed ambient particles
             ThemedParticles.MoonlightAura(NPC.Center, NPC.width * 0.6f);
+            
+            // Custom particle abyssal glow
+            if (Main.rand.NextBool(12))
+            {
+                CustomParticles.MoonlightFlare(NPC.Center + Main.rand.NextVector2Circular(25f, 25f), 0.28f);
+            }
             
             // Occasional sparkles
             if (Main.rand.NextBool(10))
@@ -307,6 +314,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 float rushDir = target.Center.X > NPC.Center.X ? 1f : -1f;
                 NPC.velocity.X = rushDir * 20f;
                 NPC.velocity.Y = -4f; // Slight hop for menacing effect
+                
+                // Custom particles - moonlight ambush burst
+                CustomParticles.MoonlightImpactBurst(NPC.Center, 6);
+                CustomParticles.MoonlightFlare(NPC.Center, 0.7f);
                 
                 // Explosive burst
                 for (int i = 0; i < 25; i++)

@@ -6,6 +6,7 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
@@ -33,6 +34,18 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             modPlayer.hasEmberOfTheMoon = true;
             
             // Note: -30% mana cost, +25% magic damage, and double cast handled in MoonlightAccessoryPlayer
+            
+            // Moonlight themed ambient aura
+            if (!hideVisual)
+            {
+                ThemedParticles.MoonlightAura(player.Center, 30f);
+                
+                // Occasional prismatic sparkles
+                if (Main.rand.NextBool(10))
+                {
+                    ThemedParticles.MoonlightSparkles(player.Center, 4, 25f);
+                }
+            }
             
             // Ambient particles when equipped - ember-like effect
             if (!hideVisual && Main.rand.NextBool(5))
@@ -112,6 +125,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfMoonlightSonata>(), 5)
                 .AddIngredient(ModContent.ItemType<ShardsOfMoonlitTempo>(), 5)
                 .AddIngredient(ItemID.SoulofLight, 5)
+                .AddIngredient(ItemID.SoulofNight, 8)
                 .AddTile(ModContent.TileType<MoonlightAnvilTile>())
                 .Register();
         }

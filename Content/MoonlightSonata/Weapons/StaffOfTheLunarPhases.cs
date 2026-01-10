@@ -1,12 +1,16 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.DataStructures;
+using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.Minions;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons
 {
@@ -34,6 +38,52 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
             Item.shoot = ModContent.ProjectileType<GoliathOfMoonlight>();
             Item.buffType = ModContent.BuffType<GoliathOfMoonlightBuff>();
             Item.maxStack = 1;
+        }
+
+        public override void HoldItem(Player player)
+        {
+            // Magical moonlight particles while holding the staff
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(22f, 22f);
+                ThemedParticles.MoonlightSparkles(player.Center + offset, 2, 10f);
+            }
+            
+            // Soft mystical glow
+            Lighting.AddLight(player.Center, 0.3f, 0.25f, 0.5f);
+        }
+
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            // Draw glowing backlight effect when dropped in world
+            Texture2D texture = TextureAssets.Item[Item.type].Value;
+            Vector2 position = Item.Center - Main.screenPosition;
+            Vector2 origin = texture.Size() / 2f;
+            
+            // Calculate pulse - mystical and otherworldly
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.12f + 1f;
+            
+            // Begin additive blending for glow
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Outer deep indigo aura - cosmic power
+            spriteBatch.Draw(texture, position, null, new Color(50, 30, 100) * 0.45f, rotation, origin, scale * pulse * 1.35f, SpriteEffects.None, 0f);
+            
+            // Middle purple/blue glow - lunar phases
+            spriteBatch.Draw(texture, position, null, new Color(120, 100, 220) * 0.35f, rotation, origin, scale * pulse * 1.18f, SpriteEffects.None, 0f);
+            
+            // Inner cyan/white glow - goliath's power
+            spriteBatch.Draw(texture, position, null, new Color(180, 220, 255) * 0.25f, rotation, origin, scale * pulse * 1.06f, SpriteEffects.None, 0f);
+            
+            // Return to normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Add lighting
+            Lighting.AddLight(Item.Center, 0.4f, 0.35f, 0.65f);
+            
+            return true;
         }
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)

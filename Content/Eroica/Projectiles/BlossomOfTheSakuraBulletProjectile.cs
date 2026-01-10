@@ -4,6 +4,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -51,7 +52,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 for (int i = 0; i < Main.maxNPCs; i++)
                 {
                     NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && npc.boss)
+                    if (npc.active && !npc.friendly && npc.boss && !npc.dontTakeDamage)
                     {
                         float distance = Vector2.Distance(Projectile.Center, npc.Center);
                         if (distance < maxDistance)
@@ -70,7 +71,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     for (int i = 0; i < Main.maxNPCs; i++)
                     {
                         NPC npc = Main.npc[i];
-                        if (npc.active && !npc.friendly && npc.lifeMax > 5)
+                        if (npc.active && !npc.friendly && npc.lifeMax > 5 && !npc.dontTakeDamage)
                         {
                             float distance = Vector2.Distance(Projectile.Center, npc.Center);
                             if (distance < maxDistance)
@@ -97,6 +98,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 DustID.RedTorch, 0f, 0f, 100, default, 1.2f);
             flame.noGravity = true;
             flame.velocity *= 0.3f;
+            
+            // Custom particle trail
+            CustomParticles.EroicaTrail(Projectile.Center, Projectile.velocity, 0.25f);
 
             if (Main.rand.NextBool(3))
             {
@@ -129,6 +133,20 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             SoundEngine.PlaySound(SoundID.Item14, Projectile.position);
 
+            // Delicate sakura petal burst - soft pink with SoftGlows[1] (soft bloom)
+            CustomParticles.SwanLakeHalo(Projectile.Center, 0.5f); // Pearlescent base
+            var softPink = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.SoftGlows[1], Projectile.Center, Vector2.Zero,
+                new Color(255, 180, 200), 0.9f, 30, 0f, true, false);
+            CustomParticleSystem.SpawnParticle(softPink);
+            var warmGlow = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.SoftGlows[1], Projectile.Center, Vector2.Zero,
+                new Color(255, 220, 180), 0.6f, 25, 0f, true, false);
+            CustomParticleSystem.SpawnParticle(warmGlow);
+            CustomParticles.ExplosionBurst(Projectile.Center, new Color(255, 140, 170), 8, 4f);
+            CustomParticles.MusicalImpact(Projectile.Center, new Color(255, 160, 180), new Color(255, 200, 210), 0.6f);
+            
+            // Eroica themed impact with prismatic gem burst
+            ThemedParticles.EroicaImpact(Projectile.Center, 0.8f);
+            
             // Scarlet red explosion
             for (int i = 0; i < 25; i++)
             {
@@ -156,7 +174,18 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
             Vector2 origin = texture.Size() / 2f;
 
-            // Draw trail
+            // Switch to additive blending for prismatic effect
+            MagnumVFX.BeginAdditiveBlend(spriteBatch);
+            
+            // Draw prismatic gem trail
+            MagnumVFX.DrawPrismaticGemTrail(spriteBatch, Projectile.oldPos, true, 0.3f, (float)Projectile.timeLeft);
+            
+            // Draw small prismatic gem at bullet position
+            MagnumVFX.DrawEroicaPrismaticGem(spriteBatch, Projectile.Center, 0.35f, 0.8f, (float)Projectile.timeLeft);
+            
+            MagnumVFX.EndAdditiveBlend(spriteBatch);
+            
+            // Draw standard trail
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;

@@ -648,6 +648,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
             // Apply Musical Dissonance debuff
             target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 180);
 
+            // MASSIVE Goliath impact - powerful halo burst
+            CustomParticles.MoonlightHalo(target.Center, 0.9f);
+            CustomParticles.GenericFlare(target.Center, new Color(140, 100, 220), 1.2f, 30);
+            CustomParticles.ExplosionBurst(target.Center, new Color(180, 150, 255), 10, 6f);
+
             // MASSIVE hit effect - very visible!
             // Ring explosion
             for (int ring = 0; ring < 2; ring++)

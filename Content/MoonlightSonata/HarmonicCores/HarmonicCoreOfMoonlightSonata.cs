@@ -4,6 +4,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.HarmonicCores
 {
@@ -91,6 +92,24 @@ namespace MagnumOpus.Content.MoonlightSonata.HarmonicCores
             {
                 OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
             });
+        }
+        
+        public override void PostUpdate()
+        {
+            // Ethereal purple/silver glow when in world
+            Lighting.AddLight(Item.Center, 0.4f, 0.2f, 0.6f);
+            
+            // Moonlight halo effect for item in world
+            if (Main.GameUpdateCount % 30 == 0)
+            {
+                CustomParticles.MoonlightHalo(Item.Center, 0.35f);
+            }
+            
+            if (Main.rand.NextBool(25))
+            {
+                Dust dust = Dust.NewDustDirect(Item.position, Item.width, Item.height, DustID.PurpleTorch, 0f, -0.5f, 100, default, 0.9f);
+                dust.noGravity = true;
+            }
         }
     }
 }

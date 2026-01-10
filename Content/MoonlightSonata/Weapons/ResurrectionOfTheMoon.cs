@@ -1,15 +1,19 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.DataStructures;
 using Terraria.Audio;
+using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.Enemies;
 using MagnumOpus.Content.MoonlightSonata.Projectiles;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Content.MoonlightSonata.Accessories;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons
 {
@@ -85,6 +89,46 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
             
             // Ambient glow effect when held
             Lighting.AddLight(player.Center, 0.3f, 0.15f, 0.45f);
+            
+            // Ethereal particles while holding
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
+                ThemedParticles.MoonlightAura(player.Center + offset, 12f);
+            }
+        }
+
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            // Draw glowing backlight effect when dropped in world
+            Texture2D texture = TextureAssets.Item[Item.type].Value;
+            Vector2 position = Item.Center - Main.screenPosition;
+            Vector2 origin = texture.Size() / 2f;
+            
+            // Calculate pulse - powerful and ominous
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 1f;
+            
+            // Begin additive blending for glow
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Outer deep purple aura - resurrection power
+            spriteBatch.Draw(texture, position, null, new Color(80, 20, 120) * 0.5f, rotation, origin, scale * pulse * 1.4f, SpriteEffects.None, 0f);
+            
+            // Middle violet/magenta glow - moonlight energy
+            spriteBatch.Draw(texture, position, null, new Color(180, 80, 200) * 0.35f, rotation, origin, scale * pulse * 1.2f, SpriteEffects.None, 0f);
+            
+            // Inner silver/white glow - devastating power
+            spriteBatch.Draw(texture, position, null, new Color(220, 210, 255) * 0.25f, rotation, origin, scale * pulse * 1.08f, SpriteEffects.None, 0f);
+            
+            // Return to normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Add lighting
+            Lighting.AddLight(Item.Center, 0.5f, 0.3f, 0.65f);
+            
+            return true;
         }
 
         public override bool CanUseItem(Player player)

@@ -397,6 +397,61 @@ MagnumVFX.CreateShockwaveRing(center, color, radius, thickness, dustCount);
 MagnumVFX.CreateExpandingShockwave(position, color, startScale, expansionRate, lifetime);
 ```
 
+### Prismatic Gem Effects (NEW!)
+
+Based on the HeroicSpiritMinion's brilliant diamond-like visual effect. Creates multi-layered
+radiant gem effects using additive blending.
+
+**IMPORTANT**: These methods MUST be called within additive blend mode!
+
+```csharp
+// === EROICA PRISMATIC GEM ===
+// Scarlet/pink/gold/white diamond glow - heroic flame aesthetic
+// MUST be in additive blend mode (use BeginAdditiveBlend first)
+MagnumVFX.DrawEroicaPrismaticGem(spriteBatch, position, scale, alpha, pulsePhase);
+
+// === MOONLIGHT PRISMATIC GEM ===
+// Purple/blue/silver/white diamond glow - ethereal lunar aesthetic
+MagnumVFX.DrawMoonlightPrismaticGem(spriteBatch, position, scale, alpha, pulsePhase);
+
+// === CUSTOM PRISMATIC GEM ===
+// Custom colors for unique weapon effects (outer to core colors)
+MagnumVFX.DrawCustomPrismaticGem(spriteBatch, position, 
+    outerColor, midColor, innerColor, coreColor, scale, alpha, pulsePhase);
+
+// === PRISMATIC GEM BURST ===
+// Radial burst of gems - great for explosions and impacts
+MagnumVFX.DrawPrismaticGemBurst(spriteBatch, position, isEroica, 
+    gemCount, radius, gemScale, alpha, pulsePhase);
+
+// === PRISMATIC GEM TRAIL ===
+// Trail of gems at oldPos - perfect for projectiles
+MagnumVFX.DrawPrismaticGemTrail(spriteBatch, oldPositions, isEroica, 
+    baseScale, pulsePhase);
+```
+
+**Usage Example:**
+```csharp
+public override bool PreDraw(ref Color lightColor)
+{
+    SpriteBatch spriteBatch = Main.spriteBatch;
+    
+    // Switch to additive blending
+    MagnumVFX.BeginAdditiveBlend(spriteBatch);
+    
+    // Draw prismatic gem trail
+    MagnumVFX.DrawPrismaticGemTrail(spriteBatch, Projectile.oldPos, true, 0.5f, Projectile.timeLeft);
+    
+    // Draw central gem
+    MagnumVFX.DrawEroicaPrismaticGem(spriteBatch, Projectile.Center, 0.8f, 1f, Projectile.timeLeft);
+    
+    // Return to normal blending
+    MagnumVFX.EndAdditiveBlend(spriteBatch);
+    
+    return true;
+}
+```
+
 ### Utility Methods
 
 ```csharp

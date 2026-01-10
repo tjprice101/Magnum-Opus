@@ -113,8 +113,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         public override void SetDefaults()
         {
-            NPC.width = 120;  // Narrower - boss is taller than wide
-            NPC.height = 180; // Taller hitbox to match visual sprite
+            // Hitbox matches visual: ~166px frame × 0.65f scale = ~108px
+            NPC.width = 100;
+            NPC.height = 120;
             NPC.damage = 90;
             NPC.defense = 80;
             NPC.lifeMax = 406306; // Keep original health
@@ -399,6 +400,11 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 ThemedParticles.EroicaMusicalImpact(NPC.Center, 2.5f, true);
                 ThemedParticles.EroicaMusicNotes(NPC.Center, 20, 80f);
                 
+                // Custom particles - dramatic phase transition
+                CustomParticles.EroicaBossAttack(NPC.Center, 20);
+                CustomParticles.GenericFlare(NPC.Center, new Color(200, 50, 50), 2.5f, 60);
+                CustomParticles.GenericFlare(NPC.Center, new Color(255, 200, 100), 2f, 50);
+                
                 // Massive particle burst
                 for (int i = 0; i < 60; i++)
                 {
@@ -601,6 +607,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     Dust trail = Dust.NewDustPerfect(NPC.Center + offset, dustType, -NPC.velocity * 0.12f, 100, default, 2f);
                     trail.noGravity = true;
                 }
+                
+                // Custom particles trail during charge
+                CustomParticles.EroicaFlare(NPC.Center, 0.6f);
             }
             
             Lighting.AddLight(NPC.Center, 1.2f, 0.5f, 0.3f);
@@ -609,6 +618,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
             {
                 Timer = 0;
                 State = ActionState.ChargeRecovery;
+                
+                // Custom particles burst at end of charge
+                CustomParticles.EroicaImpactBurst(NPC.Center, 8);
                 
                 // Explosion effect at end of charge
                 for (int i = 0; i < 25; i++)

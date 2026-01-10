@@ -4,6 +4,7 @@ using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Pets
 {
@@ -157,12 +158,24 @@ namespace MagnumOpus.Content.Eroica.Pets
             // Scarlet red glow effect
             Lighting.AddLight(Projectile.Center, 0.4f, 0.1f, 0.1f);
 
-            // Occasional particles when walking
+            // Occasional particles when walking - enhanced with custom particles
             if (Main.rand.NextBool(25) && isWalking)
             {
                 Dust glow = Dust.NewDustDirect(Projectile.BottomLeft, Projectile.width, 4, DustID.Torch, 0f, 0f, 100, Color.DarkRed, 0.8f);
                 glow.noGravity = true;
                 glow.velocity *= 0.3f;
+            }
+            
+            // Themed particle heroic aura
+            if (Main.rand.NextBool(15))
+            {
+                ThemedParticles.EroicaAura(Projectile.Center, 25f);
+            }
+            
+            // Custom particle soft glow trail
+            if (Main.rand.NextBool(18) && isWalking)
+            {
+                CustomParticles.EroicaTrailFlare(Projectile.Center, Projectile.velocity);
             }
         }
 

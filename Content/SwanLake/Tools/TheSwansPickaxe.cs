@@ -1,0 +1,99 @@
+using Terraria;
+using Terraria.ID;
+using Terraria.ModLoader;
+using MagnumOpus.Content.SwanLake.ResonanceEnergies;
+using MagnumOpus.Content.MoonlightSonata.CraftingStations;
+
+namespace MagnumOpus.Content.SwanLake.Tools
+{
+    /// <summary>
+    /// The Swan's Pickaxe - a graceful, powerful pickaxe crafted from Swan Lake materials.
+    /// Higher tier than Eroica's Pickaxe.
+    /// </summary>
+    public class TheSwansPickaxe : ModItem
+    {
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
+        public override void SetDefaults()
+        {
+            Item.damage = 135; // Higher than Eroica (101)
+            Item.DamageType = DamageClass.Melee;
+            Item.width = 40;
+            Item.height = 40;
+            Item.useTime = 2; // Faster than Eroica (3)
+            Item.useAnimation = 5; // Faster than Eroica (7)
+            Item.useStyle = ItemUseStyleID.Swing;
+            Item.knockBack = 7.5f;
+            Item.value = Item.sellPrice(gold: 30);
+            Item.rare = ItemRarityID.Cyan;
+            Item.UseSound = SoundID.Item29 with { Pitch = 0.5f, Volume = 0.6f }; // Fractal crystal sound
+            Item.autoReuse = true;
+            Item.useTurn = true;
+
+            // Pickaxe power - stronger than Eroica (350%), can mine La Campanella ore (400)
+            Item.pick = 425;
+            
+            // Enable reforging
+            Item.maxStack = 1;
+        }
+
+        public override void AddRecipes()
+        {
+            CreateRecipe()
+                .AddIngredient(ModContent.ItemType<ResonantCoreOfSwanLake>(), 20)
+                .AddIngredient(ModContent.ItemType<SwansResonanceEnergy>(), 15)
+                .AddIngredient(ModContent.ItemType<RemnantOfSwansHarmony>(), 10)
+                .AddIngredient(ItemID.SoulofFlight, 12)
+                .AddTile(ModContent.TileType<MoonlightAnvilTile>())
+                .Register();
+        }
+
+        public override void MeleeEffects(Player player, Microsoft.Xna.Framework.Rectangle hitbox)
+        {
+            // Icy white and blue particles with rainbow shimmer
+            if (Main.rand.NextBool(2))
+            {
+                // Main icy white dust
+                Dust dust = Dust.NewDustDirect(new Microsoft.Xna.Framework.Vector2(hitbox.X, hitbox.Y), hitbox.Width, hitbox.Height,
+                    DustID.IceTorch, player.velocity.X * 0.2f, player.velocity.Y * 0.2f, 150, default, 1.3f);
+                dust.noGravity = true;
+                dust.velocity *= 1.4f;
+            }
+
+            if (Main.rand.NextBool(3))
+            {
+                // Feathery cloud particles
+                Dust dust2 = Dust.NewDustDirect(new Microsoft.Xna.Framework.Vector2(hitbox.X, hitbox.Y), hitbox.Width, hitbox.Height,
+                    DustID.Cloud, 0f, -0.5f, 100, default, 1.0f);
+                dust2.noGravity = true;
+                dust2.velocity = Main.rand.NextVector2Circular(2f, 2f);
+            }
+
+            if (Main.rand.NextBool(4))
+            {
+                // Rainbow shimmer sparkle
+                int dustType = Main.rand.Next(4) switch
+                {
+                    0 => DustID.BlueTorch,
+                    1 => DustID.PurpleTorch,
+                    2 => DustID.PinkTorch,
+                    _ => DustID.WhiteTorch
+                };
+                Dust sparkle = Dust.NewDustDirect(new Microsoft.Xna.Framework.Vector2(hitbox.X, hitbox.Y), hitbox.Width, hitbox.Height,
+                    dustType, 0f, 0f, 0, default, 0.7f);
+                sparkle.noGravity = true;
+                sparkle.velocity *= 0.5f;
+            }
+            
+            // Swan feather trail on swing
+            if (Main.rand.NextBool(5))
+            {
+                Microsoft.Xna.Framework.Vector2 swingPos = new Microsoft.Xna.Framework.Vector2(hitbox.X + hitbox.Width / 2f, hitbox.Y + hitbox.Height / 2f);
+                global::MagnumOpus.Common.Systems.CustomParticles.SwanFeatherTrail(swingPos, player.velocity, 0.25f);
+            }
+        }
+    }
+}

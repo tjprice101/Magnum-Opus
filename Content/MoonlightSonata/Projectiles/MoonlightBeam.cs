@@ -53,6 +53,19 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                 MagnumVFX.CreateMoonlightSparkBurst(Projectile.Center, 6, 80f);
                 MagnumVFX.CreateMusicalBurst(Projectile.Center, new Color(150, 80, 200), Color.White, 2);
                 Terraria.Audio.SoundEngine.PlaySound(SoundID.Item10, Projectile.Center);
+                
+                // Prismatic finale burst - ice-blue flash with silver halo
+                // Use EnergyFlares[2] for ice-like flash
+                var iceFlare = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[2], Projectile.Center, Vector2.Zero,
+                    new Color(180, 220, 255), 1.5f, 35, 0.015f, true, true);
+                CustomParticleSystem.SpawnParticle(iceFlare);
+                // Use GlowingHalos[4] for prismatic ring
+                var prismHalo = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.GlowingHalos[4], Projectile.Center, Vector2.Zero,
+                    new Color(200, 180, 255), 0.7f, 35, 0.01f, true, true).WithScaleVelocity(0.025f);
+                CustomParticleSystem.SpawnParticle(prismHalo);
+                CustomParticles.MoonlightFlare(Projectile.Center, 0.9f);
+                CustomParticles.ExplosionBurst(Projectile.Center, new Color(150, 120, 200), 12, 5f);
+                CustomParticles.MusicalImpact(Projectile.Center, new Color(180, 140, 220), new Color(220, 210, 255), 1.2f);
                 return true;
             }
 
@@ -67,6 +80,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             
             // Enhanced bounce impact with ThemedParticles
             ThemedParticles.MoonlightImpact(Projectile.Center, 0.5f);
+            
+            // Custom particles on bounce - soft moonlight glow
+            CustomParticles.MoonlightFlare(Projectile.Center, 0.5f);
             
             // Musical notes burst on bounce!
             ThemedParticles.MoonlightMusicNotes(Projectile.Center, 4, 25f);

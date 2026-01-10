@@ -4,6 +4,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
+using MagnumOpus.Common.Systems;
 using System.Collections.Generic;
 using System;
 
@@ -81,6 +82,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             // Intense glowing red with pink highlights
             Lighting.AddLight(Projectile.Center, 1.2f, 0.2f, 0.5f);
+            
+            // Custom particle trail effect
+            CustomParticles.EroicaTrail(Projectile.Center, Projectile.velocity, 0.4f);
 
             // Large red torch particles for massive beam
             if (Main.rand.NextBool(1)) // Every frame
@@ -129,7 +133,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             for (int i = 0; i < Main.maxNPCs; i++)
             {
                 NPC npc = Main.npc[i];
-                if (npc.active && !npc.friendly && npc.boss && !hitEnemies.Contains(i))
+                if (npc.active && !npc.friendly && npc.boss && !npc.dontTakeDamage && !hitEnemies.Contains(i))
                 {
                     float distance = Vector2.Distance(searchFrom, npc.Center);
                     if (distance < minDistance)
@@ -148,7 +152,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 for (int i = 0; i < Main.maxNPCs; i++)
                 {
                     NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && npc.lifeMax > 5 && !hitEnemies.Contains(i))
+                    if (npc.active && !npc.friendly && npc.lifeMax > 5 && !npc.dontTakeDamage && !hitEnemies.Contains(i))
                     {
                         float distance = Vector2.Distance(searchFrom, npc.Center);
                         if (distance < minDistance)
@@ -173,6 +177,13 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Deal damage
             target.SimpleStrikeNPC(Projectile.damage, 0, false, 0f, null, false, 0f, true);
             target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 360); // 6 seconds for ricochet
+
+            // Sharp ricochet flash using EnergyFlares[3] (sharp burst)
+            CustomParticles.EroicaFlare(target.Center, 0.6f);
+            var ricochetFlare = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[3], target.Center, Vector2.Zero,
+                new Color(255, 100, 50), 0.5f, 15, 0.02f, true, true);
+            CustomParticleSystem.SpawnParticle(ricochetFlare);
+            CustomParticles.ExplosionBurst(target.Center, new Color(255, 120, 80), 6, 4f);
 
             // Massive explosion particles
             for (int i = 0; i < 30; i++)

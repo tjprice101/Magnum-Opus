@@ -6,6 +6,7 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Accessories
 {
@@ -41,11 +42,17 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 flame.noGravity = true;
             }
             
-            // Heroic Encore active visual
+            // Heroic Encore active visual - brilliant prismatic gem effect
             if (modPlayer.heroicEncoreActive)
             {
                 // Intense golden/red aura
                 Lighting.AddLight(player.Center, 1f, 0.6f, 0.2f);
+                
+                // Eroica themed impact burst for dramatic effect
+                if (Main.rand.NextBool(3))
+                {
+                    ThemedParticles.EroicaSparkles(player.Center, 5, 40f);
+                }
                 
                 if (Main.rand.NextBool(2))
                 {
@@ -55,6 +62,11 @@ namespace MagnumOpus.Content.Eroica.Accessories
                     Dust ring = Dust.NewDustPerfect(ringPos, DustID.GoldCoin, Vector2.Zero, 0, default, 1.5f);
                     ring.noGravity = true;
                 }
+            }
+            else if (!hideVisual)
+            {
+                // Normal state - subtle Eroica aura
+                ThemedParticles.EroicaAura(player.Center, 25f);
             }
             
             // Low mana visual (when mana regen is tripled)
@@ -137,6 +149,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfEroica>(), 5)
                 .AddIngredient(ModContent.ItemType<ShardOfTriumphsTempo>(), 5)
                 .AddIngredient(ItemID.SoulofFright, 5)
+                .AddIngredient(ItemID.SoulofMight, 15)
                 .AddTile(ModContent.TileType<MoonlightAnvilTile>())
                 .Register();
         }

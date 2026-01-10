@@ -1,8 +1,11 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.DataStructures;
+using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.Projectiles;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
@@ -39,6 +42,58 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
             Item.maxStack = 1;
         }
 
+        public override void HoldItem(Player player)
+        {
+            // Magical tome particles while holding
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
+                ThemedParticles.MoonlightSparkles(player.Center + offset, 2, 12f);
+            }
+            
+            // Custom particle ethereal glow
+            if (Main.rand.NextBool(8))
+            {
+                CustomParticles.MoonlightFlare(player.Center + Main.rand.NextVector2Circular(18f, 18f), 0.22f);
+            }
+            
+            // Mystical glow
+            Lighting.AddLight(player.Center, 0.3f, 0.2f, 0.45f);
+        }
+
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            // Draw glowing backlight effect when dropped in world
+            Texture2D texture = TextureAssets.Item[Item.type].Value;
+            Vector2 position = Item.Center - Main.screenPosition;
+            Vector2 origin = texture.Size() / 2f;
+            
+            // Calculate pulse - mystical like a calling
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 1f;
+            
+            // Begin additive blending for glow
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Outer deep purple aura
+            spriteBatch.Draw(texture, position, null, new Color(70, 30, 110) * 0.45f, rotation, origin, scale * pulse * 1.35f, SpriteEffects.None, 0f);
+            
+            // Middle violet glow
+            spriteBatch.Draw(texture, position, null, new Color(140, 90, 200) * 0.32f, rotation, origin, scale * pulse * 1.18f, SpriteEffects.None, 0f);
+            
+            // Inner silver/light purple glow
+            spriteBatch.Draw(texture, position, null, new Color(200, 180, 255) * 0.22f, rotation, origin, scale * pulse * 1.06f, SpriteEffects.None, 0f);
+            
+            // Return to normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Add lighting
+            Lighting.AddLight(Item.Center, 0.4f, 0.3f, 0.55f);
+            
+            return true;
+        }
+
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             // Add slight spread for rapid fire feel
@@ -51,6 +106,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
             if (Main.rand.NextBool(4))
             {
                 ThemedParticles.MoonlightMusicNotes(position, 2, 20f);
+                CustomParticles.MoonlightMusicNotes(position, 2, 18f);
+            }
+            
+            // Custom particle muzzle flash
+            if (Main.rand.NextBool(3))
+            {
+                CustomParticles.MoonlightFlare(position, 0.3f);
             }
             
             return false;

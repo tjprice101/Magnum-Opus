@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using ReLogic.Content;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
@@ -107,6 +108,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             {
                 if (proj.owner == Player.whoAmI && proj.minion)
                 {
+                    // Custom particles - moonlight glow flare on each minion
+                    CustomParticles.MoonlightFlare(proj.Center, 0.5f);
+                    
                     // Visual surge effect around each minion
                     for (int i = 0; i < 15; i++)
                     {
@@ -169,6 +173,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                     Player.whoAmI
                 );
             }
+            
+            // Custom particles - ethereal moonlight flash
+            CustomParticles.MoonlightFlare(position, 0.9f);
+            CustomParticles.GenericGlow(position, new Color(150, 100, 220), 1.0f, 30);
+            CustomParticles.MoonlightMusicNotes(position, 3, 25f);
             
             // Sound
             SoundEngine.PlaySound(SoundID.Item14 with { Volume = 0.7f, Pitch = 0.5f }, position);

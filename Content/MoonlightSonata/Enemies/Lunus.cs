@@ -91,8 +91,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
         public override void SetDefaults()
         {
             // Celestial enemies have around 4000-5000 HP, so much higher for post-Moon Lord
-            NPC.width = 43;
-            NPC.height = 43;
+            // Hitbox matches visual size: ~170px frame × 1.8f drawScale = ~306px
+            NPC.width = 280;
+            NPC.height = 280;
             NPC.damage = 90; // Celestial enemies deal ~80, slightly higher
             NPC.defense = 50; // Good defense
             NPC.lifeMax = 13000; // Double health for challenge
@@ -146,6 +147,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 
             // Themed ambient particles
             ThemedParticles.MoonlightAura(NPC.Center, NPC.width * 0.5f);
+            
+            // Custom particle moonlight glow
+            if (Main.rand.NextBool(10))
+            {
+                CustomParticles.MoonlightFlare(NPC.Center + Main.rand.NextVector2Circular(20f, 20f), 0.25f);
+            }
             
             // Occasional sparkles
             if (Main.rand.NextBool(8))

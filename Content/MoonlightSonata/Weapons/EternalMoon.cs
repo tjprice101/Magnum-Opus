@@ -1,8 +1,11 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.DataStructures;
+using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.Projectiles;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
@@ -39,13 +42,117 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
             Item.maxStack = 1;
         }
 
+        public override void HoldItem(Player player)
+        {
+            // Ethereal moonlight particles while holding - increased frequency and variety
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(30f, 30f);
+                ThemedParticles.MoonlightAura(player.Center + offset, 22f);
+            }
+            
+            // Custom particle moonlight glow - more frequent
+            if (Main.rand.NextBool(4))
+            {
+                CustomParticles.MoonlightFlare(player.Center + Main.rand.NextVector2Circular(25f, 25f), 0.35f);
+            }
+            
+            // NEW: Floating sparkle motes around the player
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
+                Dust sparkle = Dust.NewDustPerfect(sparklePos, DustID.Enchanted_Pink, 
+                    new Vector2(0, -0.5f) + Main.rand.NextVector2Circular(0.3f, 0.3f), 0, default, 0.9f);
+                sparkle.noGravity = true;
+                sparkle.fadeIn = 1.2f;
+            }
+            
+            // NEW: Occasional bright flare pulse
+            if (Main.rand.NextBool(12))
+            {
+                CustomParticles.GenericFlare(player.Center, new Color(200, 150, 255), 0.5f, 20);
+            }
+            
+            // Soft purple lighting aura - stronger
+            Lighting.AddLight(player.Center, 0.45f, 0.25f, 0.65f);
+        }
+
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            // ENHANCED: Draw dramatic glowing backlight effect when dropped in world
+            Texture2D texture = TextureAssets.Item[Item.type].Value;
+            Vector2 position = Item.Center - Main.screenPosition;
+            Vector2 origin = texture.Size() / 2f;
+            
+            // Calculate dual pulse - layered rhythmic pulsing like moonlit waves
+            float pulse1 = (float)Math.Sin(Main.GameUpdateCount * 0.035f) * 0.15f + 1f;
+            float pulse2 = (float)Math.Sin(Main.GameUpdateCount * 0.055f + 1f) * 0.1f + 1f;
+            float combinedPulse = pulse1 * pulse2;
+            
+            // Begin additive blending for glow
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // NEW: Outer ethereal corona - soft pink/purple haze
+            spriteBatch.Draw(texture, position, null, new Color(100, 50, 140) * 0.3f, rotation, origin, scale * pulse2 * 1.6f, SpriteEffects.None, 0f);
+            
+            // Outer deep purple aura - eternal darkness (enhanced)
+            spriteBatch.Draw(texture, position, null, new Color(80, 30, 120) * 0.5f, rotation, origin, scale * combinedPulse * 1.45f, SpriteEffects.None, 0f);
+            
+            // Middle violet glow - moonlight essence (enhanced)
+            spriteBatch.Draw(texture, position, null, new Color(180, 100, 240) * 0.4f, rotation, origin, scale * combinedPulse * 1.25f, SpriteEffects.None, 0f);
+            
+            // NEW: Bright magenta accent layer
+            spriteBatch.Draw(texture, position, null, new Color(255, 120, 220) * 0.25f, rotation, origin, scale * pulse1 * 1.12f, SpriteEffects.None, 0f);
+            
+            // Inner silver/lavender glow - lunar radiance (enhanced)
+            spriteBatch.Draw(texture, position, null, new Color(240, 220, 255) * 0.35f, rotation, origin, scale * pulse1 * 1.06f, SpriteEffects.None, 0f);
+            
+            // NEW: Hot white core flare
+            spriteBatch.Draw(texture, position, null, new Color(255, 255, 255) * 0.15f, rotation, origin, scale * 0.95f, SpriteEffects.None, 0f);
+            
+            // Return to normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Add stronger lighting
+            Lighting.AddLight(Item.Center, 0.6f, 0.4f, 0.85f);
+            
+            return true;
+        }
+
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
-            // Purple particle trail when swinging
-            if (Main.rand.NextBool(3))
+            // Purple particle trail when swinging - more frequent
+            if (Main.rand.NextBool(2))
             {
                 Vector2 hitCenter = new Vector2(hitbox.X + hitbox.Width / 2, hitbox.Y + hitbox.Height / 2);
                 ThemedParticles.MoonlightTrail(hitCenter, player.velocity * 0.3f);
+            }
+            
+            // NEW: Glowing swing trail sparkles
+            Vector2 swingPos = new Vector2(hitbox.X + hitbox.Width / 2, hitbox.Y + hitbox.Height / 2);
+            if (Main.rand.NextBool(2))
+            {
+                Dust glow = Dust.NewDustDirect(swingPos - new Vector2(8, 8), 16, 16, 
+                    DustID.PurpleTorch, 0f, 0f, 150, default, 1.5f);
+                glow.noGravity = true;
+                glow.velocity = player.velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f);
+            }
+            
+            // NEW: Crystal shimmers along swing arc
+            if (Main.rand.NextBool(4))
+            {
+                Dust crystal = Dust.NewDustDirect(swingPos - new Vector2(5, 5), 10, 10, 
+                    DustID.PurpleCrystalShard, 0f, 0f, 100, default, 1.0f);
+                crystal.noGravity = true;
+                crystal.velocity *= 0.3f;
+            }
+            
+            // NEW: Occasional bright flare during swing
+            if (Main.rand.NextBool(8))
+            {
+                CustomParticles.GenericFlare(swingPos, new Color(220, 180, 255), 0.4f, 15);
             }
         }
 
@@ -88,16 +195,25 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
                     proj.ai[1] = i * 3; // Frame delay for staggered launch effect
                 }
                 
-                // Visual and audio feedback for stars
+                // Visual and audio feedback for stars - ENHANCED
                 Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122, position);
                 
-                // Burst of particles
-                ThemedParticles.MoonlightBloomBurst(position, 1.5f);
-                ThemedParticles.MoonlightSparkles(position, 10, 25f);
+                // Burst of particles - more dramatic
+                ThemedParticles.MoonlightBloomBurst(position, 2f);
+                ThemedParticles.MoonlightSparkles(position, 15, 35f);
+                CustomParticles.MoonlightBossAttack(position, 16);
                 
-                // Musical notes burst!
-                ThemedParticles.MoonlightMusicNotes(position, 8, 30f);
-                ThemedParticles.MoonlightClef(position, Main.rand.NextBool(), 1.2f);
+                // Musical notes burst! - enhanced
+                ThemedParticles.MoonlightMusicNotes(position, 12, 40f);
+                ThemedParticles.MoonlightClef(position, Main.rand.NextBool(), 1.5f);
+                CustomParticles.MoonlightMusicNotes(position, 8, 45f);
+                
+                // NEW: Dramatic flare burst on star launch
+                CustomParticles.GenericFlare(position, new Color(220, 160, 255), 1.2f, 30);
+                CustomParticles.GenericFlare(position, new Color(255, 200, 255), 0.8f, 25);
+                
+                // NEW: Halo effect
+                CustomParticles.MoonlightHalo(position, 0.7f);
             }
             
             return false;

@@ -4,6 +4,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.HarmonicCores
 {
@@ -96,6 +97,24 @@ namespace MagnumOpus.Content.Eroica.HarmonicCores
             {
                 OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
             });
+        }
+        
+        public override void PostUpdate()
+        {
+            // Heroic red/gold glow when in world
+            Lighting.AddLight(Item.Center, 0.6f, 0.3f, 0.2f);
+            
+            // Eroica halo effect for item in world
+            if (Main.GameUpdateCount % 35 == 0)
+            {
+                CustomParticles.EroicaHalo(Item.Center, 0.4f);
+            }
+            
+            if (Main.rand.NextBool(25))
+            {
+                Dust dust = Dust.NewDustDirect(Item.position, Item.width, Item.height, DustID.CrimsonTorch, 0f, -0.5f, 100, default, 1.0f);
+                dust.noGravity = true;
+            }
         }
     }
 }

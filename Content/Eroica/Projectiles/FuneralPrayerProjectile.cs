@@ -135,6 +135,19 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Enhanced explosion using ThemedParticles
             ThemedParticles.EroicaImpact(Projectile.Center, 2f);
             
+            // Unique funeral pyre burst - dark crimson with scattered embers
+            CustomParticles.ExplosionBurst(Projectile.Center, new Color(120, 20, 20), 16, 7f);
+            CustomParticles.EroicaFlare(Projectile.Center, 0.8f);
+            CustomParticles.GenericGlow(Projectile.Center, new Color(255, 80, 40), 1.2f, 35);
+            // Scattered ember flares using EnergyFlares[3] (sharp burst)
+            for (int i = 0; i < 3; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
+                var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[3], Projectile.Center + offset, Vector2.Zero,
+                    new Color(255, 60 + i * 30, 20), 0.4f, 20, 0.01f, true, true);
+                CustomParticleSystem.SpawnParticle(p);
+            }
+            
             // Large fiery explosion (reduced count)
             for (int i = 0; i < 20; i++)
             {

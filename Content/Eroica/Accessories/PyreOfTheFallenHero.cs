@@ -6,6 +6,7 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Accessories
 {
@@ -56,7 +57,13 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 smoke.noGravity = true;
             }
             
-            // Fury stack visual indicator
+            // Eroica themed aura
+            if (!hideVisual)
+            {
+                ThemedParticles.EroicaAura(player.Center, 35f);
+            }
+            
+            // Fury stack visual indicator - intensifying prismatic glow
             if (!hideVisual && modPlayer.furyStacks > 0)
             {
                 // More intense particles as stacks build
@@ -66,6 +73,18 @@ namespace MagnumOpus.Content.Eroica.Accessories
                     Dust fury = Dust.NewDustPerfect(player.Center + Main.rand.NextVector2Circular(30f, 30f),
                         DustID.Torch, Main.rand.NextVector2Circular(2f, 2f), 50, new Color(255, 100 + (int)(155 * intensity), 50), 1f + intensity);
                     fury.noGravity = true;
+                }
+                
+                // Custom particles at high stacks
+                if (modPlayer.furyStacks >= 6 && Main.rand.NextBool(8))
+                {
+                    CustomParticles.EroicaFlare(player.Center + Main.rand.NextVector2Circular(20f, 20f), 0.3f * intensity);
+                }
+                
+                // Prismatic sparkles at high stacks
+                if (modPlayer.furyStacks >= 8 && Main.rand.NextBool(6))
+                {
+                    ThemedParticles.EroicaSparkles(player.Center, (int)(intensity * 4) + 2, 30f);
                 }
             }
         }
@@ -104,7 +123,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 .AddIngredient(ModContent.ItemType<EroicasResonantEnergy>(), 5)
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfEroica>(), 5)
                 .AddIngredient(ModContent.ItemType<ShardOfTriumphsTempo>(), 5)
-                .AddIngredient(ItemID.SoulofMight, 5)
+                .AddIngredient(ItemID.SoulofMight, 12)
                 .AddTile(ModContent.TileType<MoonlightAnvilTile>())
                 .Register();
         }

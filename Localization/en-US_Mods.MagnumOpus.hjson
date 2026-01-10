@@ -96,26 +96,6 @@ Mods: {
 					'''
 			}
 
-			SwanLakeResonantEnergy: {
-				DisplayName: Swan Lake Resonant Energy
-				Tooltip:
-					'''
-					'Graceful energy that flows like a dancer's movements'
-					Ethereal essence captured from the ballet of the swans
-					Used to upgrade the Harmonic Core of Swan Lake
-					'''
-			}
-
-			ShardOfTheFeatheredTempo: {
-				DisplayName: Shard of the Feathered Tempo
-				Tooltip:
-					'''
-					'A fragment of the swan's eternal dance'
-					Raw material dropped from Swan Lake enemies
-					Refine at a Moonlight Furnace
-					'''
-			}
-
 			SwansResonanceEnergy: {
 				DisplayName: Swan's Resonance Energy
 				Tooltip:
@@ -466,6 +446,16 @@ Buffs: {
 		DisplayName: Triumphant Colossus Buff
 		Description: Mods.MagnumOpus.Buffs.TriumphantColossusBuff.Description
 	}
+
+	FlameOfTheSwan: {
+		DisplayName: Flame Of The Swan
+		Description: Mods.MagnumOpus.Buffs.FlameOfTheSwan.Description
+	}
+
+	IridescentFlockBuff: {
+		DisplayName: Iridescent Flock Buff
+		Description: Mods.MagnumOpus.Buffs.IridescentFlockBuff.Description
+	}
 }
 
 Items: {
@@ -809,18 +799,23 @@ Items: {
 	}
 
 	HarmonicCoreOfSwanLake: {
-		DisplayName: Harmonic Core Of Swan Lake
-		Tooltip: ""
+		DisplayName: Harmonic Core of Swan Lake
+		Tooltip:
+			'''
+			A core that pulses with dual energies
+			Used to craft powerful Swan Lake equipment
+			'Where white meets black, harmony is born'
+			'''
 	}
 
 	ResonantCoreOfSwanLake: {
-		DisplayName: Resonant Core Of Swan Lake
-		Tooltip: ""
-	}
-
-	SwanLakeResonantEnergy: {
-		DisplayName: Swan Lake Resonant Energy
-		Tooltip: ""
+		DisplayName: Resonant Core of Swan Lake
+		Tooltip:
+			'''
+			Crystallized resonance of the eternal ballet
+			A key component for Swan Lake crafting
+			'Each facet reflects a different dancer'
+			'''
 	}
 
 	WingsOfTheMoon: {
@@ -877,6 +872,180 @@ Items: {
 		DisplayName: Reincarnated Valor
 		Tooltip: ""
 	}
+
+	RemnantOfSwansHarmony: {
+		DisplayName: Remnant of Swan's Harmony
+		Tooltip:
+			'''
+			A fragment of perfect synchronization
+			Drops from defeated lake denizens
+			'Two become one in this crystalline memory'
+			'''
+	}
+
+	SwansResonanceEnergy: {
+		DisplayName: Swan's Resonance Energy
+		Tooltip:
+			'''
+			A crystallized essence of duality
+			Shimmers between pure white and absolute black
+			'In the dance of swans, energy flows eternal'
+			'''
+	}
+
+	BlackWingsOfTheMonochromaticDawn: {
+		DisplayName: Black Wings of the Monochromatic Dawn
+		Tooltip:
+			'''
+			Summoner Accessory - Toggle modes with right-click
+			WHITE MODE: Up to 25% damage reduction when minions nearby (5% per minion)
+			BLACK MODE: +35% minion damage, -20% defense, minions apply Flame of the Swan
+			'At dawn, when darkness meets light, the monochromatic wings spread'
+			'''
+	}
+
+	CrownOfTheSwan: {
+		DisplayName: Crown of the Swan
+		Tooltip:
+			'''
+			Mage Accessory - Toggle modes with right-click
+			WHITE MODE: -20% mana cost, protective wisps absorb 50% of one hit each
+			BLACK MODE: +30% magic damage, +15% mana cost, spells apply Flame of the Swan
+			'A crown fit for royalty of two kingdoms - light and shadow'
+			'''
+	}
+
+	DualFeatherQuiver: {
+		DisplayName: Dual Feather Quiver
+		Tooltip:
+			'''
+			Ranger Accessory - Works with arrows AND bullets
+			Toggle modes with right-click
+			WHITE MODE: +3 life regen, hits restore 1 HP, spawns healing halos every 20 shots
+			BLACK MODE: +18% ranged damage, +2 pierce, applies Flame of the Swan
+			'Each feather remembers the flight - one toward the light, one into darkness'
+			'''
+	}
+
+	PendantOfTheTwoSwans: {
+		DisplayName: Pendant of the Two Swans
+		Tooltip:
+			'''
+			Melee Accessory - Toggle modes with right-click
+			WHITE MODE: On dodge, creates monochromatic halo (-20% damage for 30s, 3 min cooldown)
+			BLACK MODE: +25% crit damage, crits unleash black/white flares with Flame of the Swan
+			'Two souls entwined in eternal dance - light and shadow, love and deception'
+			'''
+	}
+
+	TheSwansAxe: {
+		DisplayName: The Swan's Axe
+		Tooltip:
+			'''
+			300% axe power
+			Cuts through wood like a swan glides through water
+			'Grace and power united in crystalline edge'
+			'''
+	}
+
+	TheSwansHammer: {
+		DisplayName: The Swan's Hammer
+		Tooltip:
+			'''
+			165% hammer power
+			Reshapes the world with elegant force
+			'Even walls crumble before the swan's determination'
+			'''
+	}
+
+	TheSwansPickaxe: {
+		DisplayName: The Swan's Pickaxe
+		Tooltip:
+			'''
+			425% pickaxe power
+			Can mine La Campanella Resonance Ore
+			'Unearths treasures hidden in the deepest lakes'
+			'''
+	}
+
+	CalloftheBlackSwan: {
+		DisplayName: Call of the Black Swan
+		Tooltip:
+			'''
+			Greatsword that fires 3 black/white flares per swing
+			SPECIAL: Land all 3 flares to become EMPOWERED
+			Empowered swing fires 8 projectiles at DOUBLE damage!
+			Applies Flame of the Swan on hit
+			'Odile's seduction made manifest - irresistible and devastating'
+			'''
+	}
+
+	CallofthePearlescentLake: {
+		DisplayName: Call of the Pearlescent Lake
+		Tooltip:
+			'''
+			Assault rifle that fires black/white flaming rockets
+			Creates pearlescent rainbow explosions on impact
+			Converts bullets into devastating tracking rockets
+			Applies Flame of the Swan
+			'The lake speaks in tongues of fire and light'
+			'''
+	}
+
+	ChromaticSwanSong: {
+		DisplayName: Chromatic Swan Song
+		Tooltip:
+			'''
+			Magic pistol with tracking black/white shots
+			SPECIAL: Hit the same enemy 3 times for TRIPLE EXPLOSION
+			Each explosion deals massive bonus damage
+			'The final melody plays in colors beyond mortal sight'
+			'''
+	}
+
+	FeatheroftheIridescentFlock: {
+		DisplayName: Feather of the Iridescent Flock
+		Tooltip:
+			'''
+			Summons 3 orbiting black/white crystals
+			Crystals fire homing flares and charge up rainbow beams
+			Each crystal attacks independently
+			'From one feather, a flock is born in iridescent glory'
+			'''
+	}
+
+	IridescentWingspan: {
+		DisplayName: Iridescent Wingspan
+		Tooltip:
+			'''
+			Staff that fires 3 black/white flares in a 60° cone
+			Flares create pearlescent rainbow explosions on hit
+			Each hit rings with crystalline resonance
+			Applies Flame of the Swan
+			'Wings spread wide catch light from both sun and shadow'
+			'''
+	}
+
+	TheSwansLament: {
+		DisplayName: The Swan's Lament
+		Tooltip:
+			'''
+			Shotgun rifle firing 10-15 black/white flaming bullets
+			Creates halos of destruction and black/white lightning on hit
+			Each bullet can pierce and create additional explosions
+			'A song of sorrow echoes through each devastating volley'
+			'''
+	}
+
+	ScoreOfSwanLake: {
+		Tooltip: ""
+		DisplayName: Score Of Swan Lake
+	}
+
+	SwanLakeTreasureBag: {
+		Tooltip: ""
+		DisplayName: Swan Lake Treasure Bag
+	}
 }
 
 NPCs: {
@@ -893,6 +1062,7 @@ NPCs: {
 	EroicanCenturion.DisplayName: Eroican Centurion
 	FuneralBlitzer.DisplayName: Funeral Blitzer
 	FlamesOfValor.DisplayName: Flames Of Valor
+	SwanLakeTheMonochromaticFractal.DisplayName: Swan Lake The Monochromatic Fractal
 }
 
 Projectiles: {
@@ -957,6 +1127,91 @@ Projectiles: {
 	FlameOfValorBeam.DisplayName: Flame Of Valor Beam
 	HandOfValor.DisplayName: Hand Of Valor
 	FistOfEroica.DisplayName: Fist Of Eroica
+
+	PendantOfTheTwoSwans: {
+		DisplayName: Pendant of the Two Swans
+		Tooltip:
+			'''
+			A dual-natured pendant embodying Odette and Odile
+			[Right-click to toggle between White and Black Swan modes]
+			WHITE SWAN (Odette): Dodge creates white flame shield, +15 DEF for 25s
+			BLACK SWAN (Odile): Critical hits unleash black flames, +25% crit damage
+			'Two souls entwined in eternal dance'
+			'''
+	}
+
+	DualFeatherQuiver: {
+		DisplayName: Dual Feather Quiver
+		Tooltip:
+			'''
+			A mystical quiver crafted from twin swan feathers
+			[Right-click to toggle between White and Black Swan modes]
+			WHITE SWAN: Healing white flame trails, +12% accuracy, +2 life regen
+			BLACK SWAN: +2 arrow pierce, black flame DoT, +18% ranged damage
+			'Each feather remembers the flight'
+			'''
+	}
+
+	CrownOfTheSwan: {
+		DisplayName: Crown of the Swan
+		Tooltip:
+			'''
+			A regal crown channeling dual swan magic
+			[Right-click to toggle between White and Black Swan modes]
+			WHITE SWAN: -20% mana cost, protective wisps absorb damage
+			BLACK SWAN: +30% magic damage, +15% mana cost, black flame burn
+			'True power lies in choice'
+			'''
+	}
+
+	BlackWingsOfTheMonochromaticDawn: {
+		DisplayName: Black Wings of the Monochromatic Dawn
+		Tooltip:
+			'''
+			Ethereal wings that empower minions with dual nature
+			[Right-click to toggle between White and Black Swan modes]
+			WHITE SWAN: Minions create shields, up to 25% DR when minions nearby
+			BLACK SWAN: +35% minion damage, -20% defense, black flame claws
+			'At dawn, when darkness meets light'
+			'''
+	}
+
+	TheSwansPickaxe: {
+		DisplayName: The Swan's Pickaxe
+		Tooltip:
+			'''
+			400% pickaxe power
+			'Grace flows through every swing'
+			'''
+	}
+
+	TheSwansAxe: {
+		DisplayName: The Swan's Axe
+		Tooltip:
+			'''
+			275% axe power
+			'The dancer's precision fells even the mightiest tree'
+			'''
+	}
+
+	TheSwansHammer: {
+		DisplayName: The Swan's Hammer
+		Tooltip:
+			'''
+			150% hammer power
+			'Each strike echoes with the rhythm of the lake'
+			'''
+	}
+
+	BlackSwanFlare.DisplayName: Black Swan Flare
+	ChromaticSwanSongProjectile.DisplayName: Chromatic Swan Song Projectile
+	IridescentBeam.DisplayName: Iridescent Beam
+	IridescentCrystal.DisplayName: Iridescent Crystal
+	IridescentFlare.DisplayName: Iridescent Flare
+	IridescentWingspanProjectile.DisplayName: Iridescent Wingspan Projectile
+	PearlescentRocket.DisplayName: Pearlescent Rocket
+	SwansLamentBullet.DisplayName: Swans Lament Bullet
+	HealingSwanHalo.DisplayName: Healing Swan Halo
 }
 
 "Keybinds.Toggle Harmonic Core UI.DisplayName": Toggle  Harmonic  Core  U I

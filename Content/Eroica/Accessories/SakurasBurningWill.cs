@@ -46,6 +46,12 @@ namespace MagnumOpus.Content.Eroica.Accessories
             {
                 float progress = (modPlayer.heroicSpiritTimer - 600f) / 120f;
                 
+                // Pulsing halo effect building up to summon
+                if (Main.GameUpdateCount % (int)(20 - progress * 15) == 0)
+                {
+                    CustomParticles.EroicaHalo(player.Center, 0.3f + progress * 0.4f);
+                }
+                
                 // Building energy using sparkles from particle system
                 if (Main.rand.NextFloat() < progress * 0.5f)
                 {
@@ -104,6 +110,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfEroica>(), 5)
                 .AddIngredient(ModContent.ItemType<ShardOfTriumphsTempo>(), 5)
                 .AddIngredient(ItemID.SoulofSight, 5)
+                .AddIngredient(ItemID.SoulofMight, 8)
                 .AddTile(ModContent.TileType<MoonlightAnvilTile>())
                 .Register();
         }

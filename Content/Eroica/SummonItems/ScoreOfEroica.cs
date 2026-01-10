@@ -2,6 +2,8 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Content.Eroica.ResonanceEnergies;
+using MagnumOpus.Content.Eroica.HarmonicCores;
 
 namespace MagnumOpus.Content.Eroica.SummonItems
 {
@@ -30,13 +32,10 @@ namespace MagnumOpus.Content.Eroica.SummonItems
 
         public override void AddRecipes()
         {
-            // Crafted from post-Moon Lord materials
+            // Crafted from Eroica materials
             CreateRecipe()
-                .AddIngredient(ItemID.LunarBar, 10)
-                .AddIngredient(ItemID.FragmentSolar, 5)
-                .AddIngredient(ItemID.FragmentVortex, 5)
-                .AddIngredient(ItemID.FragmentNebula, 5)
-                .AddIngredient(ItemID.FragmentStardust, 5)
+                .AddIngredient(ModContent.ItemType<RemnantOfEroicasTriumph>(), 10)
+                .AddIngredient(ModContent.ItemType<ResonantCoreOfEroica>(), 5)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
         }

@@ -216,6 +216,10 @@ namespace MagnumOpus.Content.Eroica.Minions
                 ThemedParticles.EroicaBloomBurst(Projectile.Center, 1.5f);
                 ThemedParticles.SakuraPetals(Projectile.Center, 8, 30f);
                 
+                // Subtle blossom glow for teleport - no explosion needed
+                CustomParticles.GenericGlow(Projectile.Center, new Color(255, 150, 180), 0.8f, 30);
+                CustomParticles.SwanLakeFlare(Projectile.Center, 0.4f);
+                
                 SoundEngine.PlaySound(SoundID.Item8 with { Pitch = -0.3f }, Projectile.Center);
             }
         }
@@ -271,6 +275,18 @@ namespace MagnumOpus.Content.Eroica.Minions
         
         private void CreateAmbientEffects()
         {
+            // Pulsing halo effect every 20 frames
+            if (Main.GameUpdateCount % 20 == 0)
+            {
+                CustomParticles.EroicaHalo(Projectile.Center, 0.4f);
+            }
+            
+            // Trail effect while moving
+            if (Projectile.velocity.Length() > 1f)
+            {
+                CustomParticles.EroicaTrail(Projectile.Center, Projectile.velocity, 0.25f);
+            }
+            
             // Subtle black and crimson aura - minimal particles
             if (Main.rand.NextBool(5))
             {
@@ -304,6 +320,10 @@ namespace MagnumOpus.Content.Eroica.Minions
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // Custom particles on hit - halo impact burst
+            CustomParticles.EroicaHalo(target.Center, 0.6f);
+            CustomParticles.EroicaFlare(target.Center, 0.4f);
+            
             // Small gold/red impact burst
             for (int i = 0; i < 6; i++)
             {

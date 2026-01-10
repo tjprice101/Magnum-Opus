@@ -6,6 +6,7 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Accessories
 {
@@ -53,7 +54,17 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 spark.noGravity = true;
             }
             
-            // Consecutive hit counter visual
+            // Eroica themed aura with sparkles
+            if (!hideVisual)
+            {
+                ThemedParticles.EroicaAura(player.Center, 30f);
+                if (Main.rand.NextBool(12))
+                {
+                    ThemedParticles.EroicaSparkles(player.Center, 3, 25f);
+                }
+            }
+            
+            // Consecutive hit counter visual - prismatic gem buildup effect
             if (!hideVisual && modPlayer.consecutiveHits > 0)
             {
                 float intensity = modPlayer.consecutiveHits / 3f;
@@ -101,6 +112,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfEroica>(), 5)
                 .AddIngredient(ModContent.ItemType<ShardOfTriumphsTempo>(), 5)
                 .AddIngredient(ItemID.SoulofSight, 5)
+                .AddIngredient(ItemID.SoulofMight, 10)
                 .AddTile(ModContent.TileType<MoonlightAnvilTile>())
                 .Register();
         }

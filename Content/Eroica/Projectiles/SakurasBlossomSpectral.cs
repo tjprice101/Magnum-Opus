@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -44,6 +45,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             // Align rotation with velocity direction
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver4;
+            
+            // Custom particle trail effect
+            CustomParticles.EroicaTrail(Projectile.Center, Projectile.velocity, 0.3f);
 
             // White sparkle dust effect
             if (Main.rand.NextBool(2))
@@ -83,7 +87,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 for (int i = 0; i < Main.maxNPCs; i++)
                 {
                     NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && npc.boss)
+                    if (npc.active && !npc.friendly && npc.boss && !npc.dontTakeDamage)
                     {
                         float distance = Vector2.Distance(Projectile.Center, npc.Center);
                         if (distance < maxDistance)
@@ -101,7 +105,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     for (int i = 0; i < Main.maxNPCs; i++)
                     {
                         NPC npc = Main.npc[i];
-                        if (npc.active && !npc.friendly && npc.lifeMax > 5)
+                        if (npc.active && !npc.friendly && npc.lifeMax > 5 && !npc.dontTakeDamage)
                         {
                             float distance = Vector2.Distance(Projectile.Center, npc.Center);
                             if (distance < maxDistance)
@@ -126,6 +130,15 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // Ethereal sakura bloom using SoftGlows[1] (bloom) and EnergyFlares[4] (soft spark)
+            var softGlow = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.SoftGlows[1], Projectile.Center, Vector2.Zero,
+                new Color(255, 150, 180), 1.0f, 35, 0f, true, false);
+            CustomParticleSystem.SpawnParticle(softGlow);
+            var softFlare = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[4], Projectile.Center, Vector2.Zero,
+                new Color(255, 200, 220), 0.7f, 25, 0.01f, true, true);
+            CustomParticleSystem.SpawnParticle(softFlare);
+            CustomParticles.SwanLakeFlare(Projectile.Center, 0.5f); // Iridescent shimmer
+            
             // Massive scarlet explosion with white sparkles
             for (int i = 0; i < 40; i++)
             {

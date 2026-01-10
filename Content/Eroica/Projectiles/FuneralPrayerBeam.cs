@@ -116,7 +116,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             for (int i = 0; i < Main.maxNPCs; i++)
             {
                 NPC npc = Main.npc[i];
-                if (npc.active && !npc.friendly && npc.boss)
+                if (npc.active && !npc.friendly && npc.boss && !npc.dontTakeDamage)
                 {
                     float distance = Vector2.Distance(beamEnd, npc.Center);
                     if (distance < minDistance)
@@ -135,7 +135,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 for (int i = 0; i < Main.maxNPCs; i++)
                 {
                     NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && npc.lifeMax > 5)
+                    if (npc.active && !npc.friendly && npc.lifeMax > 5 && !npc.dontTakeDamage)
                     {
                         float distance = Vector2.Distance(beamEnd, npc.Center);
                         if (distance < minDistance)

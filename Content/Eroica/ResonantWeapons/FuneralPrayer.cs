@@ -1,8 +1,11 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.GameContent;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Common;
@@ -61,6 +64,48 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                 if (dustType == DustID.Torch)
                     particle.color = new Color(139, 0, 0); // Dark red
             }
+            
+            // Custom particle dark flames
+            if (Main.rand.NextBool(5))
+            {
+                CustomParticles.EroicaFlare(player.Center + Main.rand.NextVector2Circular(20f, 20f), 0.3f);
+            }
+            
+            // Soft heroic lighting
+            Lighting.AddLight(player.Center, 0.5f, 0.3f, 0.2f);
+        }
+
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            // Draw glowing backlight effect when dropped in world
+            Texture2D texture = TextureAssets.Item[Item.type].Value;
+            Vector2 position = Item.Center - Main.screenPosition;
+            Vector2 origin = texture.Size() / 2f;
+            
+            // Calculate pulse - mystical and slow
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 1f;
+            
+            // Begin additive blending for glow
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Outer dark crimson aura - funeral darkness
+            spriteBatch.Draw(texture, position, null, new Color(80, 0, 20) * 0.5f, rotation, origin, scale * pulse * 1.4f, SpriteEffects.None, 0f);
+            
+            // Middle golden glow - heroic valor
+            spriteBatch.Draw(texture, position, null, new Color(255, 180, 50) * 0.35f, rotation, origin, scale * pulse * 1.2f, SpriteEffects.None, 0f);
+            
+            // Inner scarlet/orange glow - flames of passion
+            spriteBatch.Draw(texture, position, null, new Color(255, 100, 50) * 0.25f, rotation, origin, scale * pulse * 1.08f, SpriteEffects.None, 0f);
+            
+            // Return to normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Add lighting
+            Lighting.AddLight(Item.Center, 0.7f, 0.4f, 0.3f);
+            
+            return true;
         }
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
@@ -93,6 +138,10 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             // Musical burst on cast!
             ThemedParticles.EroicaMusicNotes(player.Center, 6, 30f);
             ThemedParticles.EroicaAccidentals(player.Center, 3, 20f);
+            
+            // Muzzle flash effect - subtle flare with glow
+            CustomParticles.EroicaFlare(player.Center, 0.5f);
+            CustomParticles.GenericGlow(player.Center, new Color(255, 150, 80), 0.6f, 20);
 
             return false; // Don't spawn default projectile
         }

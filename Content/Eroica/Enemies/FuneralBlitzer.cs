@@ -9,6 +9,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Enemies;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Enemies
 {
@@ -80,8 +81,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         public override void SetDefaults()
         {
-            NPC.width = 26;
-            NPC.height = 30;
+            // Hitbox matches visual size: ~170px frame × 0.42f drawScale = ~71px
+            NPC.width = 71;
+            NPC.height = 71;
             NPC.damage = 115; // Higher than AbyssalMoonLurker (110)
             NPC.defense = 62;
             NPC.lifeMax = 20000; // Higher than AbyssalMoonLurker (18000)
@@ -125,23 +127,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
             }
             NPC.spriteDirection = lastSpriteDirection;
 
-            // Scarlet red glow
-            Lighting.AddLight(NPC.Center, 0.6f, 0.15f, 0.15f);
-
-            // Ambient particles
-            if (Main.rand.NextBool(8))
-            {
-                Dust dark = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Torch, 0f, 0f, 100, Color.DarkRed, 1.1f);
-                dark.noGravity = true;
-                dark.velocity *= 0.3f;
-            }
-
-            if (Main.rand.NextBool(15))
-            {
-                Dust electric = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Electric, 0f, 0f, 100, default, 0.6f);
-                electric.noGravity = true;
-                electric.velocity = Main.rand.NextVector2Circular(1f, 1f);
-            }
+            // Scarlet red glow\n            Lighting.AddLight(NPC.Center, 0.6f, 0.15f, 0.15f);\n\n            // Ambient particles - enhanced with themed and custom particles\n            if (Main.rand.NextBool(8))\n            {\n                Dust dark = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Torch, 0f, 0f, 100, Color.DarkRed, 1.1f);\n                dark.noGravity = true;\n                dark.velocity *= 0.3f;\n            }\n\n            if (Main.rand.NextBool(15))\n            {\n                Dust electric = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Electric, 0f, 0f, 100, default, 0.6f);\n                electric.noGravity = true;\n                electric.velocity = Main.rand.NextVector2Circular(1f, 1f);\n            }\n            \n            // Themed particle aura\n            if (Main.rand.NextBool(10))\n            {\n                ThemedParticles.EroicaAura(NPC.Center, 20f);\n            }\n            \n            // Custom particle glow\n            if (Main.rand.NextBool(12))\n            {\n                CustomParticles.EroicaFlare(NPC.Center + Main.rand.NextVector2Circular(15f, 15f), 0.2f);\n            }
 
             // Retarget
             NPC.TargetClosest(true);

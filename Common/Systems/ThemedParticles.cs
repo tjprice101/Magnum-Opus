@@ -642,7 +642,7 @@ namespace MagnumOpus.Common.Systems
                 Vector2 noteVel = -velocity * 0.1f + new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1f, 0f));
                 Color color = Main.rand.NextBool() ? MoonlightLightPurple : MoonlightSilver;
                 
-                var note = new MusicNoteParticle(position, noteVel, color, Main.rand.NextFloat(0.3f, 0.5f),
+                var note = new MusicNoteParticle(position, noteVel, color, Main.rand.NextFloat(0.15f, 0.27f),
                     Main.rand.Next(40, 60));
                 MagnumParticleHandler.SpawnParticle(note);
             }
@@ -806,7 +806,7 @@ namespace MagnumOpus.Common.Systems
                 Vector2 noteVel = -velocity * 0.12f + new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.5f, -0.5f));
                 Color color = Main.rand.NextBool() ? EroicaGold : EroicaCrimson;
                 
-                var note = new MusicNoteParticle(position, noteVel, color, Main.rand.NextFloat(0.3f, 0.5f),
+                var note = new MusicNoteParticle(position, noteVel, color, Main.rand.NextFloat(0.15f, 0.27f),
                     Main.rand.Next(35, 55));
                 MagnumParticleHandler.SpawnParticle(note);
             }
@@ -925,6 +925,388 @@ namespace MagnumOpus.Common.Systems
                 var note = new MusicNoteParticle(center + offset, velocity, color,
                     Main.rand.NextFloat(0.4f, 0.6f), 40);
                 MagnumParticleHandler.SpawnParticle(note);
+            }
+        }
+        
+        #endregion
+        
+        #region Swan Lake Color Palette
+        
+        /// <summary>Pure white - primary swan lake color</summary>
+        public static readonly Color SwanWhite = new Color(255, 255, 255);
+        /// <summary>Deep black - contrasting swan lake color</summary>
+        public static readonly Color SwanBlack = new Color(20, 20, 25);
+        /// <summary>Pearl white with slight shimmer</summary>
+        public static readonly Color SwanPearl = new Color(250, 248, 255);
+        /// <summary>Soft gray transition</summary>
+        public static readonly Color SwanGray = new Color(180, 180, 190);
+        /// <summary>Icy blue accent</summary>
+        public static readonly Color SwanIcyBlue = new Color(200, 230, 255);
+        /// <summary>Rainbow pearlescent pink</summary>
+        public static readonly Color SwanPearlPink = new Color(255, 230, 240);
+        /// <summary>Rainbow pearlescent blue</summary>
+        public static readonly Color SwanPearlBlue = new Color(230, 240, 255);
+        /// <summary>Rainbow pearlescent green</summary>
+        public static readonly Color SwanPearlGreen = new Color(240, 255, 245);
+        
+        #endregion
+        
+        #region Swan Lake Particle Effects
+        
+        /// <summary>
+        /// Creates a swan lake bloom burst - black and white with pearlescent shimmer.
+        /// Use for projectile impacts, magical bursts, swan effects.
+        /// </summary>
+        public static void SwanLakeBloomBurst(Vector2 position, float intensity = 1f)
+        {
+            int count = (int)(8 * intensity);
+            
+            // Alternating black and white blooms
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 velocity = Main.rand.NextVector2Circular(3f, 3f) * intensity;
+                Color color = i % 2 == 0 ? SwanWhite : SwanBlack * 0.8f;
+                var bloom = new BloomParticle(position, velocity, color, 
+                    0.35f * intensity, 0.7f * intensity, Main.rand.Next(25, 45));
+                MagnumParticleHandler.SpawnParticle(bloom);
+            }
+            
+            // Pearlescent shimmer accents
+            for (int i = 0; i < count / 2; i++)
+            {
+                Vector2 velocity = Main.rand.NextVector2Circular(2f, 2f) * intensity;
+                Color pearl = i % 3 == 0 ? SwanPearlPink : (i % 3 == 1 ? SwanPearlBlue : SwanPearlGreen);
+                var bloom = new BloomParticle(position, velocity, pearl * 0.6f, 
+                    0.25f * intensity, 0.5f * intensity, Main.rand.Next(30, 50));
+                MagnumParticleHandler.SpawnParticle(bloom);
+            }
+        }
+        
+        /// <summary>
+        /// Creates swan lake sparkles - black and white twinkling with rainbow accents.
+        /// Use for ambient magical effects, enchantment visuals, ethereal auras.
+        /// </summary>
+        public static void SwanLakeSparkles(Vector2 position, int count = 8, float spreadRadius = 30f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(spreadRadius, spreadRadius);
+                Vector2 velocity = Main.rand.NextVector2Circular(1f, 1f) + new Vector2(0, -0.3f);
+                
+                // Black/white base with pearlescent bloom
+                Color color = Main.rand.NextBool() ? SwanWhite : SwanGray;
+                Color bloom = Main.rand.Next(3) switch
+                {
+                    0 => SwanPearlPink * 0.4f,
+                    1 => SwanPearlBlue * 0.4f,
+                    _ => SwanPearlGreen * 0.4f
+                };
+                
+                var sparkle = new SparkleParticle(position + offset, velocity, color, bloom, 
+                    Main.rand.NextFloat(0.5f, 1f), Main.rand.Next(45, 85), 0.05f, 1.2f);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+        }
+        
+        /// <summary>
+        /// Creates a swan lake shockwave ring - alternating black and white expanding rings.
+        /// Use for teleportation effects, wave attacks, pulse abilities.
+        /// </summary>
+        public static void SwanLakeShockwave(Vector2 position, float scale = 1f)
+        {
+            // White inner ring
+            var whiteRing = new BloomRingParticle(position, Vector2.Zero, SwanWhite * 0.9f, 
+                0.3f * scale, 35, 0.08f);
+            MagnumParticleHandler.SpawnParticle(whiteRing);
+            
+            // Black outer ring
+            var blackRing = new BloomRingParticle(position, Vector2.Zero, SwanBlack * 0.7f, 
+                0.2f * scale, 45, 0.1f);
+            MagnumParticleHandler.SpawnParticle(blackRing);
+            
+            // Rainbow shimmer ring
+            float hue = Main.rand.NextFloat();
+            Color rainbow = Main.hslToRgb(hue, 0.5f, 0.8f);
+            var rainbowRing = new BloomRingParticle(position, Vector2.Zero, rainbow * 0.4f, 
+                0.25f * scale, 40, 0.09f);
+            MagnumParticleHandler.SpawnParticle(rainbowRing);
+        }
+        
+        /// <summary>
+        /// Creates swan lake sparks - directional black/white particles with rainbow trails.
+        /// Use for sword slashes, projectile trails, hit effects.
+        /// </summary>
+        public static void SwanLakeSparks(Vector2 position, Vector2 direction, int count = 6, float speed = 5f)
+        {
+            float baseAngle = direction.ToRotation();
+            
+            for (int i = 0; i < count; i++)
+            {
+                float angle = baseAngle + Main.rand.NextFloat(-0.6f, 0.6f);
+                float sparkSpeed = Main.rand.NextFloat(speed * 0.6f, speed * 1.2f);
+                Vector2 velocity = angle.ToRotationVector2() * sparkSpeed;
+                
+                Color color = i % 2 == 0 ? SwanWhite : SwanGray;
+                var spark = new GlowSparkParticle(position, velocity, false, 
+                    Main.rand.Next(20, 40), Main.rand.NextFloat(0.3f, 0.6f), color,
+                    new Vector2(0.4f, 1.8f), false, true);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+        }
+        
+        /// <summary>
+        /// Creates a massive rainbow explosion effect for Swan Lake.
+        /// Black/white core that explodes into pearlescent rainbow colors.
+        /// </summary>
+        public static void SwanLakeRainbowExplosion(Vector2 position, float intensity = 1f)
+        {
+            // Central black/white burst
+            SwanLakeBloomBurst(position, intensity);
+            
+            // Multiple rainbow-colored shockwaves
+            for (int ring = 0; ring < 3; ring++)
+            {
+                float hue = (Main.GameUpdateCount * 0.01f + ring * 0.33f) % 1f;
+                Color rainbow = Main.hslToRgb(hue, 0.6f, 0.7f);
+                var rainbowRing = new BloomRingParticle(position, Vector2.Zero, rainbow * 0.5f, 
+                    (0.2f + ring * 0.1f) * intensity, 30 + ring * 10, 0.1f + ring * 0.02f);
+                MagnumParticleHandler.SpawnParticle(rainbowRing);
+            }
+            
+            // Radial rainbow sparkle burst
+            int sparkleCount = (int)(16 * intensity);
+            for (int i = 0; i < sparkleCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / sparkleCount;
+                Vector2 velocity = angle.ToRotationVector2() * (3f + Main.rand.NextFloat(2f)) * intensity;
+                float hue = (float)i / sparkleCount;
+                Color rainbow = Main.hslToRgb(hue, 0.7f, 0.75f);
+                
+                var sparkle = new SparkleParticle(position, velocity, rainbow, SwanWhite * 0.3f, 
+                    Main.rand.NextFloat(0.6f, 1f) * intensity, Main.rand.Next(40, 70), 0.04f, 1.3f);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // Pearlescent glow particles
+            for (int i = 0; i < (int)(12 * intensity); i++)
+            {
+                Vector2 velocity = Main.rand.NextVector2Circular(4f, 4f) * intensity;
+                Color pearl = i % 3 == 0 ? SwanPearlPink : (i % 3 == 1 ? SwanPearlBlue : SwanPearlGreen);
+                var glow = new GenericGlowParticle(position + Main.rand.NextVector2Circular(10f, 10f), 
+                    velocity, pearl, Main.rand.NextFloat(0.3f, 0.6f) * intensity, Main.rand.Next(35, 55), true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            Lighting.AddLight(position, 1f * intensity, 1f * intensity, 1f * intensity);
+        }
+        
+        /// <summary>
+        /// Creates swan lake impact effect - combined bloom, ring, sparks with rainbow burst.
+        /// Use for major hits, projectile explosions, ability triggers.
+        /// </summary>
+        public static void SwanLakeImpact(Vector2 position, float intensity = 1f)
+        {
+            // Central bloom
+            SwanLakeBloomBurst(position, intensity);
+            
+            // Shockwave
+            SwanLakeShockwave(position, intensity);
+            
+            // Radial sparks
+            for (int i = 0; i < (int)(8 * intensity); i++)
+            {
+                float angle = MathHelper.TwoPi * i / (8 * intensity);
+                Vector2 dir = angle.ToRotationVector2();
+                SwanLakeSparks(position, dir, 2, 4f * intensity);
+            }
+            
+            // Rainbow sparkles
+            SwanLakeSparkles(position, (int)(12 * intensity), 40f * intensity);
+            
+            // Light burst (white)
+            Lighting.AddLight(position, 0.9f * intensity, 0.9f * intensity, 1f * intensity);
+        }
+        
+        /// <summary>
+        /// Creates swan lake trail particles for projectiles.
+        /// Use in AI() methods for continuous black/white trailing effect.
+        /// </summary>
+        public static void SwanLakeTrail(Vector2 position, Vector2 velocity)
+        {
+            if (Main.rand.NextBool(2))
+            {
+                Color color = Main.rand.NextBool() ? SwanWhite : SwanGray;
+                var glow = new GenericGlowParticle(position + Main.rand.NextVector2Circular(6f, 6f), 
+                    -velocity * 0.1f, color, Main.rand.NextFloat(0.2f, 0.4f), 
+                    Main.rand.Next(15, 30), true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            if (Main.rand.NextBool(4))
+            {
+                // Occasional rainbow shimmer
+                float hue = Main.rand.NextFloat();
+                Color rainbow = Main.hslToRgb(hue, 0.4f, 0.85f);
+                var sparkle = new SparkleParticle(position, -velocity * 0.05f + Main.rand.NextVector2Circular(0.5f, 0.5f), 
+                    SwanWhite, rainbow * 0.5f, Main.rand.NextFloat(0.3f, 0.6f), 
+                    Main.rand.Next(20, 40), 0.04f, 1f);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+        }
+        
+        /// <summary>
+        /// Creates swan lake ambient aura particles around an entity.
+        /// Use in UpdateAccessory or AI for persistent visual effects.
+        /// </summary>
+        public static void SwanLakeAura(Vector2 center, float radius = 40f)
+        {
+            if (Main.rand.NextBool(6))
+            {
+                float angle = Main.rand.NextFloat(MathHelper.TwoPi);
+                Vector2 offset = angle.ToRotationVector2() * Main.rand.NextFloat(radius * 0.5f, radius);
+                Vector2 velocity = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-1f, -0.3f));
+                
+                Color color = Main.rand.NextBool() ? SwanWhite : SwanGray;
+                var glow = new GenericGlowParticle(center + offset, velocity, color, 
+                    Main.rand.NextFloat(0.15f, 0.35f), Main.rand.Next(40, 70), true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            // Occasional pearlescent shimmer
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(radius, radius);
+                Color pearl = Main.rand.Next(3) switch
+                {
+                    0 => SwanPearlPink,
+                    1 => SwanPearlBlue,
+                    _ => SwanPearlGreen
+                };
+                
+                var sparkle = new SparkleParticle(center + offset, Vector2.Zero, pearl * 0.8f, SwanWhite * 0.3f,
+                    Main.rand.NextFloat(0.4f, 0.7f), Main.rand.Next(30, 50), 0.03f, 1f);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+        }
+        
+        /// <summary>
+        /// Creates swan lake music notes - black and white notes with rainbow trail.
+        /// Use for musical thematic effects.
+        /// </summary>
+        public static void SwanLakeMusicNotes(Vector2 position, int count = 5, float spreadRadius = 30f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(spreadRadius, spreadRadius);
+                Vector2 velocity = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), Main.rand.NextFloat(-2f, -1f));
+                
+                // Alternate black and white notes
+                Color color = i % 2 == 0 ? SwanWhite : SwanGray;
+                
+                var note = new MusicNoteParticle(position + offset, velocity, color, 
+                    Main.rand.NextFloat(0.4f, 0.7f), Main.rand.Next(50, 80));
+                MagnumParticleHandler.SpawnParticle(note);
+            }
+        }
+        
+        /// <summary>
+        /// Creates swan lake accidentals - sharp and flat symbols in black/white.
+        /// Use for musical accent effects.
+        /// </summary>
+        public static void SwanLakeAccidentals(Vector2 position, int count = 3, float spreadRadius = 20f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(spreadRadius, spreadRadius);
+                Vector2 velocity = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), Main.rand.NextFloat(-2f, -0.8f));
+                
+                Color color = i % 2 == 0 ? SwanWhite : SwanGray;
+                bool isSharp = Main.rand.NextBool();
+                
+                var accidental = new AccidentalParticle(position + offset, velocity, color, 
+                    Main.rand.NextFloat(0.5f, 0.8f), Main.rand.Next(45, 70), isSharp);
+                MagnumParticleHandler.SpawnParticle(accidental);
+            }
+        }
+        
+        /// <summary>
+        /// Creates a full musical impact effect for Swan Lake.
+        /// Combines notes, sparkles, and rainbow burst for dramatic moments.
+        /// </summary>
+        public static void SwanLakeMusicalImpact(Vector2 position, float intensity = 1f, bool includeRainbow = true)
+        {
+            // Burst of music notes
+            SwanLakeMusicNotes(position, (int)(8 * intensity), 45f * intensity);
+            
+            // Black/white sparkles
+            SwanLakeSparkles(position, (int)(10 * intensity), 35f * intensity);
+            
+            // Accidentals
+            SwanLakeAccidentals(position, (int)(4 * intensity), 25f * intensity);
+            
+            // Central black/white bloom
+            var whiteBloom = new BloomParticle(position, Vector2.Zero, SwanWhite, 
+                0.5f * intensity, 1f * intensity, 25);
+            MagnumParticleHandler.SpawnParticle(whiteBloom);
+            
+            var blackBloom = new BloomParticle(position, Vector2.Zero, SwanBlack * 0.6f, 
+                0.4f * intensity, 0.8f * intensity, 30);
+            MagnumParticleHandler.SpawnParticle(blackBloom);
+            
+            // Rainbow explosion for major impacts
+            if (includeRainbow && intensity > 0.7f)
+            {
+                SwanLakeRainbowExplosion(position, intensity * 0.7f);
+            }
+            
+            Lighting.AddLight(position, 0.8f * intensity, 0.8f * intensity, 0.9f * intensity);
+        }
+        
+        /// <summary>
+        /// Creates a black/white halo effect around a position.
+        /// Alternating black and white particles in a ring with pearlescent shimmer.
+        /// </summary>
+        public static void SwanLakeHalo(Vector2 center, float radius = 40f, int particleCount = 12)
+        {
+            for (int i = 0; i < particleCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / particleCount;
+                Vector2 pos = center + angle.ToRotationVector2() * radius;
+                Vector2 velocity = (angle + MathHelper.PiOver2).ToRotationVector2() * 1.5f;
+                
+                Color color = i % 2 == 0 ? SwanWhite : SwanGray;
+                var glow = new GenericGlowParticle(pos, velocity, color, 0.4f, 30, true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            // Inner pearlescent ring
+            for (int i = 0; i < particleCount / 2; i++)
+            {
+                float angle = MathHelper.TwoPi * i / (particleCount / 2) + Main.rand.NextFloat(0.2f);
+                Vector2 pos = center + angle.ToRotationVector2() * (radius * 0.7f);
+                
+                Color pearl = i % 3 == 0 ? SwanPearlPink : (i % 3 == 1 ? SwanPearlBlue : SwanPearlGreen);
+                var sparkle = new SparkleParticle(pos, Vector2.Zero, pearl * 0.7f, SwanWhite * 0.3f,
+                    0.5f, 25, 0.03f, 1f);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+        }
+        
+        /// <summary>
+        /// Creates a feather-like particle burst for Swan Lake.
+        /// Gentle floating particles that drift like feathers.
+        /// </summary>
+        public static void SwanLakeFeathers(Vector2 position, int count = 8, float spreadRadius = 40f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(spreadRadius, spreadRadius);
+                Vector2 velocity = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-0.5f, 1f));
+                
+                Color color = i % 2 == 0 ? SwanWhite : SwanPearl;
+                var glow = new GenericGlowParticle(position + offset, velocity, color, 
+                    Main.rand.NextFloat(0.3f, 0.5f), Main.rand.Next(60, 100), true);
+                MagnumParticleHandler.SpawnParticle(glow);
             }
         }
         

@@ -1244,5 +1244,859 @@ namespace MagnumOpus.Common.Systems
         {
             proj.DrawProjectileWithBackglow(glowColor, lightColor, glowSize);
         }
+        
+        // ================== PRISMATIC GEM GLOW EFFECTS ==================
+        // Based on HeroicSpiritMinion's brilliant diamond-like visual effect
+        // Creates layered additive glow for gem/crystal appearances
+        
+        /// <summary>
+        /// Draws a prismatic gem/diamond glow effect with Eroica colors (scarlet/pink/gold/white).
+        /// Creates a brilliant, multi-layered radiant effect like the Heroic Spirit.
+        /// MUST be called within additive blend mode (use BeginAdditiveBlend first).
+        /// </summary>
+        /// <param name="spriteBatch">The sprite batch (must be in additive mode)</param>
+        /// <param name="position">World position of the gem center</param>
+        /// <param name="scale">Base scale multiplier (1.0 = standard size)</param>
+        /// <param name="alpha">Overall opacity (0-1)</param>
+        /// <param name="pulsePhase">Animation phase for pulsing (increment each frame)</param>
+        public static void DrawEroicaPrismaticGem(SpriteBatch spriteBatch, Vector2 position, 
+            float scale = 1f, float alpha = 1f, float pulsePhase = 0f)
+        {
+            Texture2D glowTex = TextureAssets.Extra[98].Value;
+            Vector2 drawPos = position - Main.screenPosition;
+            Vector2 origin = glowTex.Size() / 2f;
+            
+            // Pulsing animation
+            float pulse = (float)Math.Sin(pulsePhase * 0.1f) * 0.15f + 1f;
+            
+            // Layer 1: Outer scarlet aura (largest, most transparent)
+            float outerScale = 1.2f * pulse * scale;
+            spriteBatch.Draw(glowTex, drawPos, null,
+                new Color(255, 50, 70) * 0.6f * alpha, 0f, origin, outerScale, SpriteEffects.None, 0f);
+            
+            // Layer 2: Middle pink glow
+            float midScale = 0.9f * pulse * scale;
+            spriteBatch.Draw(glowTex, drawPos, null,
+                new Color(255, 120, 150) * 0.7f * alpha, 0f, origin, midScale, SpriteEffects.None, 0f);
+            
+            // Layer 3: Inner golden core
+            float innerScale = 0.5f * pulse * scale;
+            spriteBatch.Draw(glowTex, drawPos, null,
+                new Color(255, 200, 100) * 0.8f * alpha, 0f, origin, innerScale, SpriteEffects.None, 0f);
+            
+            // Layer 4: Bright white center (smallest, brightest)
+            float coreScale = 0.25f * pulse * scale;
+            spriteBatch.Draw(glowTex, drawPos, null,
+                Color.White * 0.5f * alpha, 0f, origin, coreScale, SpriteEffects.None, 0f);
+        }
+        
+        /// <summary>
+        /// Draws a prismatic gem/diamond glow effect with Moonlight colors (purple/blue/silver/white).
+        /// Creates an ethereal, multi-layered lunar radiance effect.
+        /// MUST be called within additive blend mode (use BeginAdditiveBlend first).
+        /// </summary>
+        public static void DrawMoonlightPrismaticGem(SpriteBatch spriteBatch, Vector2 position, 
+            float scale = 1f, float alpha = 1f, float pulsePhase = 0f)
+        {
+            Texture2D glowTex = TextureAssets.Extra[98].Value;
+            Vector2 drawPos = position - Main.screenPosition;
+            Vector2 origin = glowTex.Size() / 2f;
+            
+            // Pulsing animation (slightly slower for ethereal feel)
+            float pulse = (float)Math.Sin(pulsePhase * 0.08f) * 0.12f + 1f;
+            
+            // Layer 1: Outer dark purple aura
+            float outerScale = 1.2f * pulse * scale;
+            spriteBatch.Draw(glowTex, drawPos, null,
+                new Color(75, 0, 130) * 0.6f * alpha, 0f, origin, outerScale, SpriteEffects.None, 0f);
+            
+            // Layer 2: Middle blue-purple glow
+            float midScale = 0.9f * pulse * scale;
+            spriteBatch.Draw(glowTex, drawPos, null,
+                new Color(138, 43, 226) * 0.7f * alpha, 0f, origin, midScale, SpriteEffects.None, 0f);
+            
+            // Layer 3: Inner light lavender/silver
+            float innerScale = 0.5f * pulse * scale;
+            spriteBatch.Draw(glowTex, drawPos, null,
+                new Color(180, 150, 255) * 0.8f * alpha, 0f, origin, innerScale, SpriteEffects.None, 0f);
+            
+            // Layer 4: Bright moonlight white center
+            float coreScale = 0.25f * pulse * scale;
+            spriteBatch.Draw(glowTex, drawPos, null,
+                new Color(240, 235, 255) * 0.6f * alpha, 0f, origin, coreScale, SpriteEffects.None, 0f);
+        }
+        
+        /// <summary>
+        /// Draws a prismatic gem with custom colors. Use for unique weapon effects.
+        /// Colors should go from outer (darkest) to core (brightest/white).
+        /// MUST be called within additive blend mode.
+        /// </summary>
+        public static void DrawCustomPrismaticGem(SpriteBatch spriteBatch, Vector2 position,
+            Color outerColor, Color midColor, Color innerColor, Color coreColor,
+            float scale = 1f, float alpha = 1f, float pulsePhase = 0f)
+        {
+            Texture2D glowTex = TextureAssets.Extra[98].Value;
+            Vector2 drawPos = position - Main.screenPosition;
+            Vector2 origin = glowTex.Size() / 2f;
+            
+            float pulse = (float)Math.Sin(pulsePhase * 0.1f) * 0.15f + 1f;
+            
+            // Layer 1: Outer aura
+            spriteBatch.Draw(glowTex, drawPos, null,
+                outerColor * 0.6f * alpha, 0f, origin, 1.2f * pulse * scale, SpriteEffects.None, 0f);
+            
+            // Layer 2: Middle glow
+            spriteBatch.Draw(glowTex, drawPos, null,
+                midColor * 0.7f * alpha, 0f, origin, 0.9f * pulse * scale, SpriteEffects.None, 0f);
+            
+            // Layer 3: Inner core
+            spriteBatch.Draw(glowTex, drawPos, null,
+                innerColor * 0.8f * alpha, 0f, origin, 0.5f * pulse * scale, SpriteEffects.None, 0f);
+            
+            // Layer 4: Bright center
+            spriteBatch.Draw(glowTex, drawPos, null,
+                coreColor * 0.5f * alpha, 0f, origin, 0.25f * pulse * scale, SpriteEffects.None, 0f);
+        }
+        
+        /// <summary>
+        /// Creates a burst of prismatic gem particles radiating outward.
+        /// Great for explosions, impacts, and despawn effects.
+        /// MUST be called within additive blend mode.
+        /// </summary>
+        public static void DrawPrismaticGemBurst(SpriteBatch spriteBatch, Vector2 position,
+            bool isEroica, int gemCount = 8, float radius = 60f, float gemScale = 0.5f, 
+            float alpha = 1f, float pulsePhase = 0f)
+        {
+            for (int i = 0; i < gemCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / gemCount;
+                Vector2 offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+                float individualPulse = pulsePhase + i * 0.5f; // Offset each gem's pulse
+                
+                if (isEroica)
+                    DrawEroicaPrismaticGem(spriteBatch, position + offset, gemScale, alpha * 0.8f, individualPulse);
+                else
+                    DrawMoonlightPrismaticGem(spriteBatch, position + offset, gemScale, alpha * 0.8f, individualPulse);
+            }
+        }
+        
+        /// <summary>
+        /// Draws a trail of prismatic gems at old positions (for projectiles).
+        /// MUST be called within additive blend mode.
+        /// </summary>
+        public static void DrawPrismaticGemTrail(SpriteBatch spriteBatch, Vector2[] oldPositions,
+            bool isEroica, float baseScale = 0.6f, float pulsePhase = 0f)
+        {
+            for (int i = 0; i < oldPositions.Length; i++)
+            {
+                if (oldPositions[i] == Vector2.Zero) continue;
+                
+                float progress = (float)i / oldPositions.Length;
+                float trailAlpha = (1f - progress) * 0.7f;
+                float trailScale = baseScale * (1f - progress * 0.5f);
+                float individualPulse = pulsePhase + i * 0.3f;
+                
+                if (isEroica)
+                    DrawEroicaPrismaticGem(spriteBatch, oldPositions[i], trailScale, trailAlpha, individualPulse);
+                else
+                    DrawMoonlightPrismaticGem(spriteBatch, oldPositions[i], trailScale, trailAlpha, individualPulse);
+            }
+        }
+        
+        // ================== CALAMITY-INSPIRED ADVANCED VFX ==================
+        // These techniques are inspired by Calamity Mod's weapon drawing effects
+        
+        /// <summary>
+        /// Delegate for chromatic aberration drawing - called 3 times with RGB offsets.
+        /// </summary>
+        public delegate void ChromaticAberrationDelegate(Vector2 offset, Color colorMultiplier);
+        
+        /// <summary>
+        /// Draws a chromatic aberration effect (RGB split) like Calamity weapons.
+        /// Creates a "glitchy" rainbow-fringe visual.
+        /// </summary>
+        /// <param name="direction">The direction of the aberration split</param>
+        /// <param name="strength">How far the RGB channels are separated (pixels)</param>
+        /// <param name="drawCall">The actual draw code, called 3 times with offset and color</param>
+        public static void DrawChromaticAberration(Vector2 direction, float strength, ChromaticAberrationDelegate drawCall)
+        {
+            for (int i = -1; i <= 1; i++)
+            {
+                Color aberrationColor;
+                switch (i)
+                {
+                    case -1:
+                        aberrationColor = new Color(255, 0, 0, 0); // Red channel
+                        break;
+                    case 0:
+                        aberrationColor = new Color(0, 255, 0, 0); // Green channel
+                        break;
+                    default:
+                        aberrationColor = new Color(0, 0, 255, 0); // Blue channel
+                        break;
+                }
+                
+                Vector2 offset = direction.RotatedBy(MathHelper.PiOver2) * i * strength;
+                drawCall.Invoke(offset, aberrationColor);
+            }
+        }
+        
+        /// <summary>
+        /// Draws an outline glow around a texture by drawing it multiple times in a circle.
+        /// Creates the iconic "boss weapon glow" effect.
+        /// Call from PreDraw, works with normal blend mode.
+        /// </summary>
+        /// <param name="spriteBatch">The sprite batch</param>
+        /// <param name="texture">The texture to draw with outline</param>
+        /// <param name="position">World position (will subtract screenPosition)</param>
+        /// <param name="sourceRect">Source rectangle (null for full texture)</param>
+        /// <param name="outlineColor">Color of the outline glow</param>
+        /// <param name="rotation">Rotation of the sprite</param>
+        /// <param name="origin">Origin point</param>
+        /// <param name="scale">Scale of the sprite</param>
+        /// <param name="outlineThickness">How many pixels outward the outline extends</param>
+        /// <param name="outlineSteps">Number of samples in the circle (8 is good)</param>
+        public static void DrawOutlineGlow(SpriteBatch spriteBatch, Texture2D texture, Vector2 position,
+            Rectangle? sourceRect, Color outlineColor, float rotation, Vector2 origin, float scale,
+            float outlineThickness = 3f, int outlineSteps = 8)
+        {
+            Vector2 drawPos = position - Main.screenPosition;
+            
+            // Draw outline by offsetting in a circle
+            for (int i = 0; i < outlineSteps; i++)
+            {
+                float angle = MathHelper.TwoPi * i / outlineSteps;
+                Vector2 offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * outlineThickness;
+                
+                spriteBatch.Draw(texture, drawPos + offset, sourceRect, outlineColor, rotation, origin, scale, SpriteEffects.None, 0f);
+            }
+        }
+        
+        /// <summary>
+        /// Draws a texture with a pulsing glow effect behind it.
+        /// Great for making weapons look magical and alive.
+        /// Call from PreDraw with additive blend mode for best results.
+        /// </summary>
+        /// <param name="spriteBatch">The sprite batch (preferably in additive mode)</param>
+        /// <param name="texture">The texture to draw</param>
+        /// <param name="position">World position</param>
+        /// <param name="sourceRect">Source rectangle</param>
+        /// <param name="glowColor">Color of the pulsing glow</param>
+        /// <param name="rotation">Rotation</param>
+        /// <param name="origin">Origin</param>
+        /// <param name="scale">Scale</param>
+        /// <param name="pulsePhase">Animation phase (increment each frame)</param>
+        /// <param name="pulseIntensity">How much the glow scales (0.1-0.3 is subtle)</param>
+        /// <param name="glowLayers">Number of glow layers (more = smoother but slower)</param>
+        public static void DrawPulsingGlow(SpriteBatch spriteBatch, Texture2D texture, Vector2 position,
+            Rectangle? sourceRect, Color glowColor, float rotation, Vector2 origin, float scale,
+            float pulsePhase = 0f, float pulseIntensity = 0.2f, int glowLayers = 3)
+        {
+            Vector2 drawPos = position - Main.screenPosition;
+            
+            // Calculate pulse
+            float pulse = (float)Math.Sin(pulsePhase * 0.1f) * pulseIntensity + 1f;
+            
+            // Draw glow layers from largest to smallest
+            for (int i = glowLayers; i >= 1; i--)
+            {
+                float layerScale = scale * (1f + i * 0.15f * pulse);
+                float layerAlpha = 0.3f / i;
+                
+                spriteBatch.Draw(texture, drawPos, sourceRect, glowColor * layerAlpha, rotation, origin, layerScale, SpriteEffects.None, 0f);
+            }
+        }
+        
+        /// <summary>
+        /// Draws a shimmer effect that cycles through colors over time.
+        /// Creates an iridescent/holographic appearance.
+        /// </summary>
+        public static void DrawShimmerEffect(SpriteBatch spriteBatch, Texture2D texture, Vector2 position,
+            Rectangle? sourceRect, float rotation, Vector2 origin, float scale, float shimmerPhase,
+            Color baseColor, float shimmerIntensity = 0.5f)
+        {
+            Vector2 drawPos = position - Main.screenPosition;
+            
+            // Create shifting rainbow overlay
+            float hue = (shimmerPhase * 0.02f) % 1f;
+            Color shimmerColor = Main.hslToRgb(hue, 1f, 0.7f);
+            
+            // Blend between base and shimmer
+            Color finalColor = Color.Lerp(baseColor, shimmerColor, shimmerIntensity * ((float)Math.Sin(shimmerPhase * 0.15f) * 0.5f + 0.5f));
+            finalColor.A = baseColor.A;
+            
+            spriteBatch.Draw(texture, drawPos, sourceRect, finalColor, rotation, origin, scale, SpriteEffects.None, 0f);
+        }
+        
+        /// <summary>
+        /// Draws centered afterimages for a projectile - Calamity style.
+        /// Handles all the scaling, rotation, and fading automatically.
+        /// </summary>
+        public static void DrawAfterimagesCentered(SpriteBatch spriteBatch, Projectile proj, Color lightColor,
+            int trailingMode = 0, Texture2D texture = null)
+        {
+            texture ??= TextureAssets.Projectile[proj.type].Value;
+            
+            int frameHeight = texture.Height / Main.projFrames[proj.type];
+            int frameY = frameHeight * proj.frame;
+            Rectangle sourceRect = new Rectangle(0, frameY, texture.Width, frameHeight);
+            Vector2 origin = sourceRect.Size() / 2f;
+            
+            SpriteEffects effects = proj.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            
+            Color alphaColor = proj.GetAlpha(lightColor);
+            
+            // Draw afterimages based on trailing mode
+            switch (trailingMode)
+            {
+                case 0: // Standard linear fade
+                    for (int i = 0; i < proj.oldPos.Length; i++)
+                    {
+                        if (proj.oldPos[i] == Vector2.Zero) continue;
+                        
+                        Vector2 drawPos = proj.oldPos[i] + proj.Size / 2f - Main.screenPosition;
+                        float progress = (float)i / proj.oldPos.Length;
+                        Color color = alphaColor * (1f - progress);
+                        
+                        spriteBatch.Draw(texture, drawPos, sourceRect, color, proj.rotation, origin, proj.scale, effects, 0f);
+                    }
+                    break;
+                    
+                case 2: // With rotation tracking
+                    for (int i = 0; i < proj.oldPos.Length; i++)
+                    {
+                        if (proj.oldPos[i] == Vector2.Zero) continue;
+                        
+                        Vector2 drawPos = proj.oldPos[i] + proj.Size / 2f - Main.screenPosition;
+                        float progress = (float)i / proj.oldPos.Length;
+                        Color color = alphaColor * (1f - progress);
+                        float rot = proj.oldRot.Length > i ? proj.oldRot[i] : proj.rotation;
+                        
+                        spriteBatch.Draw(texture, drawPos, sourceRect, color, rot, origin, proj.scale, effects, 0f);
+                    }
+                    break;
+            }
+            
+            // Always draw the main projectile
+            Vector2 mainDrawPos = proj.Center - Main.screenPosition;
+            spriteBatch.Draw(texture, mainDrawPos, sourceRect, proj.GetAlpha(lightColor), proj.rotation, origin, proj.scale, effects, 0f);
+        }
+        
+        /// <summary>
+        /// Draws a glowing backlight effect behind an item when drawn in-world.
+        /// Use in PostDrawInWorld for dropped items.
+        /// </summary>
+        public static void DrawItemBackglow(SpriteBatch spriteBatch, Item item, Vector2 position, 
+            Color glowColor, float rotation, float scale, float glowScale = 1.5f)
+        {
+            Texture2D glowTex = TextureAssets.Extra[98].Value;
+            
+            // Pulse the glow
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 1f;
+            float finalScale = scale * glowScale * pulse;
+            
+            // Draw multiple layers for smooth glow
+            for (int i = 3; i >= 1; i--)
+            {
+                float layerAlpha = 0.2f / i;
+                float layerScale = finalScale * (1f + i * 0.2f);
+                
+                spriteBatch.Draw(glowTex, position, null, glowColor * layerAlpha, 0f, glowTex.Size() / 2f, layerScale, SpriteEffects.None, 0f);
+            }
+        }
+        
+        /// <summary>
+        /// Draws a held item's glowmask texture over the item sprite.
+        /// Use in a PlayerDrawLayer or PostDraw hook.
+        /// </summary>
+        public static void DrawItemGlowmask(SpriteBatch spriteBatch, Texture2D glowmask, Vector2 position,
+            Rectangle frame, Color glowColor, float rotation, Vector2 origin, float scale, SpriteEffects effects)
+        {
+            spriteBatch.Draw(glowmask, position, frame, glowColor, rotation, origin, scale, effects, 0f);
+        }
+        
+        /// <summary>
+        /// Creates a Calamity-style "whoosh" slash effect at the given position.
+        /// Best used on melee weapon swing.
+        /// </summary>
+        public static void DrawSlashWhoosh(SpriteBatch spriteBatch, Vector2 position, float rotation,
+            Color slashColor, float scale = 1f, float alpha = 0.8f)
+        {
+            Texture2D slashTex = TextureAssets.Extra[98].Value; // Soft glow circle
+            Vector2 drawPos = position - Main.screenPosition;
+            
+            // Draw stretched ellipse for slash effect
+            Vector2 slashScale = new Vector2(scale * 2f, scale * 0.3f);
+            
+            spriteBatch.Draw(slashTex, drawPos, null, slashColor * alpha * 0.6f, rotation, slashTex.Size() / 2f, slashScale * 1.2f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(slashTex, drawPos, null, Color.White * alpha * 0.4f, rotation, slashTex.Size() / 2f, slashScale * 0.8f, SpriteEffects.None, 0f);
+        }
+        
+        /// <summary>
+        /// Draws an energy charge-up effect with expanding rings.
+        /// Great for channeled weapons or charged attacks.
+        /// </summary>
+        public static void DrawChargeUpEffect(SpriteBatch spriteBatch, Vector2 position, Color color,
+            float chargeProgress, float maxScale = 60f)
+        {
+            Texture2D ringTex = TextureAssets.Extra[98].Value;
+            Vector2 drawPos = position - Main.screenPosition;
+            Vector2 origin = ringTex.Size() / 2f;
+            
+            // Draw multiple expanding rings
+            int ringCount = 3;
+            for (int i = 0; i < ringCount; i++)
+            {
+                float ringProgress = (chargeProgress + i * 0.33f) % 1f;
+                float ringScale = ringProgress * maxScale / ringTex.Width;
+                float ringAlpha = (1f - ringProgress) * 0.5f;
+                
+                spriteBatch.Draw(ringTex, drawPos, null, color * ringAlpha, 0f, origin, ringScale, SpriteEffects.None, 0f);
+            }
+            
+            // Central glow
+            float coreScale = chargeProgress * 0.5f;
+            spriteBatch.Draw(ringTex, drawPos, null, Color.White * 0.6f * chargeProgress, 0f, origin, coreScale, SpriteEffects.None, 0f);
+        }
+        
+        /// <summary>
+        /// Draws a bloom/lens flare effect at a position.
+        /// Creates that "blinding light" look on bright objects.
+        /// </summary>
+        public static void DrawBloomFlare(SpriteBatch spriteBatch, Vector2 position, Color color,
+            float scale = 1f, float rotation = 0f, float alpha = 1f)
+        {
+            Texture2D bloomTex = TextureAssets.Extra[98].Value;
+            Vector2 drawPos = position - Main.screenPosition;
+            Vector2 origin = bloomTex.Size() / 2f;
+            
+            // Main bloom
+            spriteBatch.Draw(bloomTex, drawPos, null, color * alpha * 0.6f, rotation, origin, scale, SpriteEffects.None, 0f);
+            
+            // Cross flare (stretched in two directions)
+            Vector2 flareScale1 = new Vector2(scale * 2f, scale * 0.1f);
+            Vector2 flareScale2 = new Vector2(scale * 0.1f, scale * 2f);
+            
+            spriteBatch.Draw(bloomTex, drawPos, null, color * alpha * 0.4f, rotation, origin, flareScale1, SpriteEffects.None, 0f);
+            spriteBatch.Draw(bloomTex, drawPos, null, color * alpha * 0.4f, rotation, origin, flareScale2, SpriteEffects.None, 0f);
+            
+            // Bright center
+            spriteBatch.Draw(bloomTex, drawPos, null, Color.White * alpha * 0.5f, rotation, origin, scale * 0.3f, SpriteEffects.None, 0f);
+        }
+        
+        /// <summary>
+        /// Draws a ripple/distortion ring effect expanding outward.
+        /// Good for impacts and magical bursts.
+        /// </summary>
+        public static void DrawRippleRing(SpriteBatch spriteBatch, Vector2 position, Color color,
+            float progress, float maxRadius = 100f, float thickness = 10f)
+        {
+            Texture2D ringTex = TextureAssets.Extra[98].Value;
+            Vector2 drawPos = position - Main.screenPosition;
+            Vector2 origin = ringTex.Size() / 2f;
+            
+            // Outer ring
+            float outerScale = (progress * maxRadius * 2f) / ringTex.Width;
+            float outerAlpha = (1f - progress) * 0.6f;
+            spriteBatch.Draw(ringTex, drawPos, null, color * outerAlpha, 0f, origin, outerScale, SpriteEffects.None, 0f);
+            
+            // Inner ring (creates the ring thickness illusion)
+            float innerScale = ((progress * maxRadius * 2f) - thickness * 2f) / ringTex.Width;
+            if (innerScale > 0)
+            {
+                // Draw inner part darker to create ring effect
+                spriteBatch.Draw(ringTex, drawPos, null, Color.Black * outerAlpha * 2f, 0f, origin, innerScale, SpriteEffects.None, 0f);
+            }
+        }
+        
+        // ================== EROICA-SPECIFIC ADVANCED EFFECTS ==================
+        
+        /// <summary>
+        /// Draws the full Eroica weapon aura - combines multiple effects.
+        /// Includes pulsing glow, occasional sparkles, and warm lighting.
+        /// Call from PreDraw/PostDraw in additive mode.
+        /// </summary>
+        public static void DrawEroicaWeaponAura(SpriteBatch spriteBatch, Vector2 position, float scale = 1f, float phase = 0f)
+        {
+            // Scarlet outer glow
+            DrawBloomFlare(spriteBatch, position, new Color(255, 60, 60), scale * 0.8f, 0f, 0.3f);
+            
+            // Golden shimmer
+            float shimmerOffset = (float)Math.Sin(phase * 0.15f) * 5f;
+            DrawBloomFlare(spriteBatch, position + new Vector2(shimmerOffset, 0), new Color(255, 200, 100), scale * 0.4f, phase * 0.01f, 0.2f);
+            
+            // Add lighting
+            Lighting.AddLight(position, 0.8f, 0.3f, 0.2f);
+        }
+        
+        /// <summary>
+        /// Draws the full Moonlight weapon aura - ethereal purple/silver glow.
+        /// Call from PreDraw/PostDraw in additive mode.
+        /// </summary>
+        public static void DrawMoonlightWeaponAura(SpriteBatch spriteBatch, Vector2 position, float scale = 1f, float phase = 0f)
+        {
+            // Purple outer glow
+            DrawBloomFlare(spriteBatch, position, new Color(138, 43, 226), scale * 0.8f, 0f, 0.3f);
+            
+            // Silver shimmer
+            float shimmerOffset = (float)Math.Sin(phase * 0.12f) * 4f;
+            DrawBloomFlare(spriteBatch, position + new Vector2(0, shimmerOffset), new Color(200, 200, 255), scale * 0.35f, -phase * 0.008f, 0.25f);
+            
+            // Add lighting
+            Lighting.AddLight(position, 0.4f, 0.3f, 0.7f);
+        }
+        
+        // ================== ADVANCED LAYERED LASER BEAM DRAWING ==================
+        // These techniques layer multiple drawings with different blend modes, colors,
+        // and scales to create polished, professional-looking laser/beam effects.
+        
+        /// <summary>
+        /// Draws a clean, professional-looking layered laser beam between two points.
+        /// Uses multiple layers: outer glow, mid glow, core, and bright center.
+        /// Best called in additive blend mode for maximum effect.
+        /// </summary>
+        /// <param name="start">Start position in world coordinates</param>
+        /// <param name="end">End position in world coordinates</param>
+        /// <param name="coreColor">The primary beam color (outer layers derive from this)</param>
+        /// <param name="width">Base width of the beam core in pixels</param>
+        /// <param name="intensity">Overall brightness multiplier (0-1)</param>
+        /// <param name="pulse">Pulsing factor - use Main.GameUpdateCount * speed for animation</param>
+        public static void DrawLayeredLaserBeam(SpriteBatch spriteBatch, Vector2 start, Vector2 end, 
+            Color coreColor, float width = 8f, float intensity = 1f, float pulse = 0f)
+        {
+            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Vector2 direction = end - start;
+            float length = direction.Length();
+            float rotation = direction.ToRotation();
+            
+            Vector2 drawStart = start - Main.screenPosition;
+            
+            // Pulse effect
+            float pulseFactor = 1f + (float)Math.Sin(pulse) * 0.15f;
+            float currentWidth = width * pulseFactor;
+            
+            // Calculate color layers (from outer to inner)
+            Color outerGlow = coreColor * 0.15f * intensity;
+            Color midGlow = coreColor * 0.35f * intensity;
+            Color innerGlow = Color.Lerp(coreColor, Color.White, 0.3f) * 0.6f * intensity;
+            Color brightCore = Color.Lerp(coreColor, Color.White, 0.7f) * 0.85f * intensity;
+            Color whiteCenter = Color.White * 0.95f * intensity;
+            
+            // Layer 1: Very wide outer atmospheric glow
+            spriteBatch.Draw(pixel, drawStart, new Rectangle(0, 0, 1, 1), outerGlow,
+                rotation, new Vector2(0, 0.5f), new Vector2(length, currentWidth * 6f), SpriteEffects.None, 0f);
+            
+            // Layer 2: Wide mid glow
+            spriteBatch.Draw(pixel, drawStart, new Rectangle(0, 0, 1, 1), midGlow,
+                rotation, new Vector2(0, 0.5f), new Vector2(length, currentWidth * 3.5f), SpriteEffects.None, 0f);
+            
+            // Layer 3: Inner colored glow
+            spriteBatch.Draw(pixel, drawStart, new Rectangle(0, 0, 1, 1), innerGlow,
+                rotation, new Vector2(0, 0.5f), new Vector2(length, currentWidth * 2f), SpriteEffects.None, 0f);
+            
+            // Layer 4: Bright colored core
+            spriteBatch.Draw(pixel, drawStart, new Rectangle(0, 0, 1, 1), brightCore,
+                rotation, new Vector2(0, 0.5f), new Vector2(length, currentWidth * 1.2f), SpriteEffects.None, 0f);
+            
+            // Layer 5: White-hot center (thinnest, brightest)
+            spriteBatch.Draw(pixel, drawStart, new Rectangle(0, 0, 1, 1), whiteCenter,
+                rotation, new Vector2(0, 0.5f), new Vector2(length, currentWidth * 0.4f), SpriteEffects.None, 0f);
+            
+            // Add bloom at start and end points
+            DrawBeamTerminator(spriteBatch, start, coreColor, currentWidth * 1.5f, intensity);
+            DrawBeamTerminator(spriteBatch, end, coreColor, currentWidth * 1.5f, intensity);
+        }
+        
+        /// <summary>
+        /// Draws a bloom/glow effect at a beam's start or end point.
+        /// </summary>
+        private static void DrawBeamTerminator(SpriteBatch spriteBatch, Vector2 position, Color color, float size, float intensity)
+        {
+            Texture2D bloomTex = TextureAssets.Extra[98].Value; // Soft glow circle
+            Vector2 drawPos = position - Main.screenPosition;
+            Vector2 origin = bloomTex.Size() / 2f;
+            float scale = size / bloomTex.Width * 4f;
+            
+            // Outer glow
+            spriteBatch.Draw(bloomTex, drawPos, null, color * 0.3f * intensity, 0f, origin, scale * 1.5f, SpriteEffects.None, 0f);
+            // Inner bright
+            spriteBatch.Draw(bloomTex, drawPos, null, Color.Lerp(color, Color.White, 0.5f) * 0.6f * intensity, 0f, origin, scale * 0.7f, SpriteEffects.None, 0f);
+            // White core
+            spriteBatch.Draw(bloomTex, drawPos, null, Color.White * 0.8f * intensity, 0f, origin, scale * 0.3f, SpriteEffects.None, 0f);
+        }
+        
+        /// <summary>
+        /// Draws an Eroica-themed scarlet/gold laser beam with heroic fire aesthetic.
+        /// </summary>
+        public static void DrawEroicaLaserBeam(SpriteBatch spriteBatch, Vector2 start, Vector2 end, 
+            float width = 10f, float intensity = 1f, float pulse = 0f)
+        {
+            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Vector2 direction = end - start;
+            float length = direction.Length();
+            float rotation = direction.ToRotation();
+            Vector2 drawStart = start - Main.screenPosition;
+            
+            float pulseFactor = 1f + (float)Math.Sin(pulse) * 0.18f;
+            float currentWidth = width * pulseFactor;
+            
+            // Eroica color palette: deep crimson -> scarlet -> gold -> white
+            Color crimsonOuter = new Color(80, 10, 10) * 0.2f * intensity;
+            Color scarletMid = new Color(200, 40, 30) * 0.4f * intensity;
+            Color goldenInner = new Color(255, 180, 80) * 0.6f * intensity;
+            Color brightCore = new Color(255, 230, 180) * 0.8f * intensity;
+            Color whiteHot = Color.White * 0.95f * intensity;
+            
+            // Layer 1: Dark crimson outer atmosphere
+            spriteBatch.Draw(pixel, drawStart, new Rectangle(0, 0, 1, 1), crimsonOuter,
+                rotation, new Vector2(0, 0.5f), new Vector2(length, currentWidth * 7f), SpriteEffects.None, 0f);
+            
+            // Layer 2: Scarlet mid glow
+            spriteBatch.Draw(pixel, drawStart, new Rectangle(0, 0, 1, 1), scarletMid,
+                rotation, new Vector2(0, 0.5f), new Vector2(length, currentWidth * 4f), SpriteEffects.None, 0f);
+            
+            // Layer 3: Golden inner glow  
+            spriteBatch.Draw(pixel, drawStart, new Rectangle(0, 0, 1, 1), goldenInner,
+                rotation, new Vector2(0, 0.5f), new Vector2(length, currentWidth * 2.2f), SpriteEffects.None, 0f);
+            
+            // Layer 4: Bright orange-white core
+            spriteBatch.Draw(pixel, drawStart, new Rectangle(0, 0, 1, 1), brightCore,
+                rotation, new Vector2(0, 0.5f), new Vector2(length, currentWidth * 1.1f), SpriteEffects.None, 0f);
+            
+            // Layer 5: White-hot center
+            spriteBatch.Draw(pixel, drawStart, new Rectangle(0, 0, 1, 1), whiteHot,
+                rotation, new Vector2(0, 0.5f), new Vector2(length, currentWidth * 0.35f), SpriteEffects.None, 0f);
+            
+            // Heroic bloom terminators
+            DrawBeamTerminator(spriteBatch, start, new Color(255, 150, 80), currentWidth * 1.8f, intensity);
+            DrawBeamTerminator(spriteBatch, end, new Color(255, 150, 80), currentWidth * 1.8f, intensity);
+            
+            // Add warm lighting along beam
+            int lightCount = (int)(length / 50f);
+            for (int i = 0; i <= lightCount; i++)
+            {
+                float t = (float)i / Math.Max(1, lightCount);
+                Vector2 lightPos = Vector2.Lerp(start, end, t);
+                Lighting.AddLight(lightPos, 1f * intensity, 0.5f * intensity, 0.2f * intensity);
+            }
+        }
+        
+        /// <summary>
+        /// Draws a Moonlight-themed purple/silver ethereal laser beam.
+        /// Smoother, more mystical appearance.
+        /// </summary>
+        public static void DrawMoonlightLaserBeam(SpriteBatch spriteBatch, Vector2 start, Vector2 end, 
+            float width = 10f, float intensity = 1f, float pulse = 0f)
+        {
+            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Vector2 direction = end - start;
+            float length = direction.Length();
+            float rotation = direction.ToRotation();
+            Vector2 drawStart = start - Main.screenPosition;
+            
+            float pulseFactor = 1f + (float)Math.Sin(pulse) * 0.12f; // Gentler pulse
+            float currentWidth = width * pulseFactor;
+            
+            // Moonlight color palette: deep indigo -> purple -> lavender -> silver -> white
+            Color indigoOuter = new Color(30, 10, 60) * 0.2f * intensity;
+            Color purpleMid = new Color(100, 50, 180) * 0.35f * intensity;
+            Color lavenderInner = new Color(180, 140, 255) * 0.55f * intensity;
+            Color silverCore = new Color(220, 210, 255) * 0.75f * intensity;
+            Color whiteCenter = Color.White * 0.9f * intensity;
+            
+            // Layer 1: Deep indigo outer atmosphere
+            spriteBatch.Draw(pixel, drawStart, new Rectangle(0, 0, 1, 1), indigoOuter,
+                rotation, new Vector2(0, 0.5f), new Vector2(length, currentWidth * 7f), SpriteEffects.None, 0f);
+            
+            // Layer 2: Purple mid glow
+            spriteBatch.Draw(pixel, drawStart, new Rectangle(0, 0, 1, 1), purpleMid,
+                rotation, new Vector2(0, 0.5f), new Vector2(length, currentWidth * 4f), SpriteEffects.None, 0f);
+            
+            // Layer 3: Lavender inner glow
+            spriteBatch.Draw(pixel, drawStart, new Rectangle(0, 0, 1, 1), lavenderInner,
+                rotation, new Vector2(0, 0.5f), new Vector2(length, currentWidth * 2.2f), SpriteEffects.None, 0f);
+            
+            // Layer 4: Silver bright core
+            spriteBatch.Draw(pixel, drawStart, new Rectangle(0, 0, 1, 1), silverCore,
+                rotation, new Vector2(0, 0.5f), new Vector2(length, currentWidth * 1.1f), SpriteEffects.None, 0f);
+            
+            // Layer 5: Pure white center
+            spriteBatch.Draw(pixel, drawStart, new Rectangle(0, 0, 1, 1), whiteCenter,
+                rotation, new Vector2(0, 0.5f), new Vector2(length, currentWidth * 0.35f), SpriteEffects.None, 0f);
+            
+            // Ethereal bloom terminators
+            DrawBeamTerminator(spriteBatch, start, new Color(180, 140, 255), currentWidth * 1.6f, intensity);
+            DrawBeamTerminator(spriteBatch, end, new Color(180, 140, 255), currentWidth * 1.6f, intensity);
+            
+            // Add cool lighting along beam
+            int lightCount = (int)(length / 50f);
+            for (int i = 0; i <= lightCount; i++)
+            {
+                float t = (float)i / Math.Max(1, lightCount);
+                Vector2 lightPos = Vector2.Lerp(start, end, t);
+                Lighting.AddLight(lightPos, 0.4f * intensity, 0.3f * intensity, 0.8f * intensity);
+            }
+        }
+        
+        /// <summary>
+        /// Draws a segmented laser beam that creates visual interest along its length.
+        /// Each segment has slightly varying intensity for a "plasma flow" effect.
+        /// </summary>
+        public static void DrawSegmentedLaserBeam(SpriteBatch spriteBatch, Vector2 start, Vector2 end,
+            Color coreColor, float width = 8f, float intensity = 1f, int segments = 8, float time = 0f)
+        {
+            Vector2 direction = (end - start);
+            float totalLength = direction.Length();
+            direction.Normalize();
+            
+            for (int i = 0; i < segments; i++)
+            {
+                float t1 = (float)i / segments;
+                float t2 = (float)(i + 1) / segments;
+                
+                Vector2 segStart = Vector2.Lerp(start, end, t1);
+                Vector2 segEnd = Vector2.Lerp(start, end, t2);
+                
+                // Vary intensity per segment for flow effect
+                float segmentPhase = time * 0.1f + i * 0.5f;
+                float segIntensity = intensity * (0.7f + 0.3f * (float)Math.Sin(segmentPhase));
+                float segWidth = width * (0.9f + 0.2f * (float)Math.Sin(segmentPhase * 1.3f));
+                
+                DrawLayeredLaserBeam(spriteBatch, segStart, segEnd, coreColor, segWidth, segIntensity, time + i * 0.3f);
+            }
+        }
+        
+        /// <summary>
+        /// Draws a curved/arcing laser beam using bezier interpolation.
+        /// Creates elegant arcing effects for magic weapons.
+        /// </summary>
+        public static void DrawArcingLaserBeam(SpriteBatch spriteBatch, Vector2 start, Vector2 end, Vector2 controlPoint,
+            Color coreColor, float width = 6f, float intensity = 1f, int resolution = 20, float pulse = 0f)
+        {
+            List<Vector2> arcPoints = new List<Vector2>();
+            
+            // Generate bezier curve points
+            for (int i = 0; i <= resolution; i++)
+            {
+                float t = (float)i / resolution;
+                Vector2 point = QuadraticBezier(start, controlPoint, end, t);
+                arcPoints.Add(point);
+            }
+            
+            // Draw beam segments along the curve
+            for (int i = 0; i < arcPoints.Count - 1; i++)
+            {
+                float segmentProgress = (float)i / (arcPoints.Count - 1);
+                // Taper the beam slightly at the ends
+                float taperFactor = (float)Math.Sin(segmentProgress * MathHelper.Pi);
+                float currentWidth = width * (0.5f + 0.5f * taperFactor);
+                
+                DrawLayeredLaserBeam(spriteBatch, arcPoints[i], arcPoints[i + 1], 
+                    coreColor, currentWidth, intensity, pulse + i * 0.2f);
+            }
+        }
+        
+        /// <summary>
+        /// Quadratic bezier curve interpolation helper.
+        /// </summary>
+        private static Vector2 QuadraticBezier(Vector2 p0, Vector2 p1, Vector2 p2, float t)
+        {
+            float u = 1f - t;
+            return u * u * p0 + 2f * u * t * p1 + t * t * p2;
+        }
+        
+        /// <summary>
+        /// Draws a pulsing energy orb with multiple glow layers.
+        /// Perfect for charge-up effects or magic focal points.
+        /// </summary>
+        public static void DrawEnergyOrb(SpriteBatch spriteBatch, Vector2 position, Color coreColor, 
+            float size = 20f, float intensity = 1f, float pulse = 0f)
+        {
+            Texture2D bloomTex = TextureAssets.Extra[98].Value;
+            Vector2 drawPos = position - Main.screenPosition;
+            Vector2 origin = bloomTex.Size() / 2f;
+            
+            float pulseFactor = 1f + (float)Math.Sin(pulse) * 0.2f;
+            float currentSize = size * pulseFactor;
+            
+            // Calculate scales
+            float outerScale = currentSize * 4f / bloomTex.Width;
+            float midScale = currentSize * 2.5f / bloomTex.Width;
+            float innerScale = currentSize * 1.5f / bloomTex.Width;
+            float coreScale = currentSize * 0.8f / bloomTex.Width;
+            
+            // Layer 1: Wide outer glow
+            spriteBatch.Draw(bloomTex, drawPos, null, coreColor * 0.15f * intensity, 0f, origin, outerScale, SpriteEffects.None, 0f);
+            
+            // Layer 2: Mid glow
+            spriteBatch.Draw(bloomTex, drawPos, null, coreColor * 0.35f * intensity, 0f, origin, midScale, SpriteEffects.None, 0f);
+            
+            // Layer 3: Inner glow (lighter)
+            Color innerColor = Color.Lerp(coreColor, Color.White, 0.4f);
+            spriteBatch.Draw(bloomTex, drawPos, null, innerColor * 0.55f * intensity, 0f, origin, innerScale, SpriteEffects.None, 0f);
+            
+            // Layer 4: Bright core
+            Color brightCore = Color.Lerp(coreColor, Color.White, 0.7f);
+            spriteBatch.Draw(bloomTex, drawPos, null, brightCore * 0.75f * intensity, 0f, origin, coreScale, SpriteEffects.None, 0f);
+            
+            // Layer 5: White-hot center
+            float centerScale = currentSize * 0.35f / bloomTex.Width;
+            spriteBatch.Draw(bloomTex, drawPos, null, Color.White * 0.9f * intensity, 0f, origin, centerScale, SpriteEffects.None, 0f);
+            
+            // Add dynamic lighting
+            float r = coreColor.R / 255f * intensity;
+            float g = coreColor.G / 255f * intensity;
+            float b = coreColor.B / 255f * intensity;
+            Lighting.AddLight(position, r, g, b);
+        }
+        
+        /// <summary>
+        /// Draws animated energy rays emanating from a central point.
+        /// Creates a "starburst" or "solar flare" effect.
+        /// </summary>
+        public static void DrawEnergyRays(SpriteBatch spriteBatch, Vector2 position, Color color,
+            int rayCount = 8, float maxLength = 60f, float width = 4f, float intensity = 1f, float rotation = 0f, float pulse = 0f)
+        {
+            for (int i = 0; i < rayCount; i++)
+            {
+                float angle = rotation + MathHelper.TwoPi * i / rayCount;
+                
+                // Vary ray length with pulse
+                float rayPhase = pulse + i * 0.4f;
+                float lengthFactor = 0.6f + 0.4f * (float)Math.Sin(rayPhase);
+                float currentLength = maxLength * lengthFactor;
+                
+                Vector2 rayEnd = position + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * currentLength;
+                
+                // Taper width toward the end
+                DrawLayeredLaserBeam(spriteBatch, position, rayEnd, color, width * 0.5f, intensity * 0.7f, rayPhase);
+            }
+        }
+        
+        /// <summary>
+        /// Draws a distortion/heat shimmer effect using offset drawing.
+        /// Call multiple times with different offsets for more pronounced effect.
+        /// </summary>
+        public static void DrawHeatDistortion(SpriteBatch spriteBatch, Texture2D texture, Vector2 position,
+            Rectangle? sourceRect, Color color, float rotation, Vector2 origin, float scale, 
+            float distortionStrength = 2f, float time = 0f)
+        {
+            Vector2 drawPos = position - Main.screenPosition;
+            
+            // Calculate wave distortion offsets
+            float waveX = (float)Math.Sin(time * 0.15f + position.Y * 0.02f) * distortionStrength;
+            float waveY = (float)Math.Cos(time * 0.12f + position.X * 0.02f) * distortionStrength * 0.5f;
+            
+            // Draw multiple offset copies for shimmer effect
+            Color fadedColor = color * 0.3f;
+            
+            // Offset copies
+            spriteBatch.Draw(texture, drawPos + new Vector2(waveX, waveY), sourceRect, fadedColor, rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, drawPos + new Vector2(-waveX, -waveY), sourceRect, fadedColor, rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
+            
+            // Main centered draw
+            spriteBatch.Draw(texture, drawPos, sourceRect, color, rotation, origin, scale, SpriteEffects.None, 0f);
+        }
     }
 }
+

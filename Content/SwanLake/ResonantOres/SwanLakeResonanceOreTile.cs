@@ -12,7 +12,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantOres
 {
     public class SwanLakeResonanceOreTile : ModTile
     {
-        // Uses vanilla Diamond Gemstone Block texture
+        // Uses SwanLakeResonanceOreTile.png - single 16x16 texture rendered for all ore blocks
 
         public override void SetStaticDefaults()
         {
@@ -28,9 +28,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantOres
             Main.tileFrameImportant[Type] = false;
 
             LocalizedText name = CreateMapEntryName();
-            AddMapEntry(new Color(255, 255, 255), name); // White color on map
+            AddMapEntry(new Color(220, 240, 255), name); // Icy white/blue color on map
 
-            DustType = DustID.SilverCoin;
+            DustType = DustID.IceTorch;
             HitSound = SoundID.Tink;
 
             MineResist = 4.5f;
@@ -39,21 +39,76 @@ namespace MagnumOpus.Content.SwanLake.ResonantOres
 
         public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b)
         {
-            // Brilliant white glow like moonlight
+            // Brilliant pearlescent white/blue glow with rainbow shimmer
             float pulse = 0.9f + (float)System.Math.Sin(Main.GameUpdateCount * 0.05f + i * 0.1f + j * 0.1f) * 0.2f;
-            r = 1.0f * pulse;
-            g = 1.0f * pulse;
-            b = 1.0f * pulse;
+            float rainbow = Main.GameUpdateCount * 0.02f + i * 0.3f + j * 0.2f;
+            
+            // Base white with subtle rainbow cycling
+            r = (0.9f + 0.1f * (float)System.Math.Sin(rainbow)) * pulse;
+            g = (0.95f + 0.05f * (float)System.Math.Sin(rainbow + 2.1f)) * pulse;
+            b = (1.0f + 0.0f * (float)System.Math.Sin(rainbow + 4.2f)) * pulse;
         }
 
         public override void NumDust(int i, int j, bool fail, ref int num)
         {
-            num = fail ? 1 : 3;
+            num = fail ? 2 : 5;
+        }
+
+        public override void RandomUpdate(int i, int j)
+        {
+            // Frequent icy sparkle particles - very visible!
+            if (Main.rand.NextBool(15))
+            {
+                Dust dust = Dust.NewDustDirect(new Vector2(i * 16, j * 16), 16, 16, DustID.IceTorch, 0f, -2f, 150, default, 1.2f);
+                dust.noGravity = true;
+                dust.velocity *= 0.8f;
+            }
+
+            // Rainbow shimmer sparkles
+            if (Main.rand.NextBool(20))
+            {
+                // Cycle through rainbow colors
+                int dustType = Main.rand.Next(6) switch
+                {
+                    0 => DustID.PinkTorch,
+                    1 => DustID.PurpleTorch,
+                    2 => DustID.BlueTorch,
+                    3 => DustID.IceTorch,
+                    4 => DustID.WhiteTorch,
+                    _ => DustID.SilverCoin
+                };
+                Dust sparkle = Dust.NewDustDirect(new Vector2(i * 16, j * 16), 16, 16, dustType, 0f, -1f, 0, default, 1f);
+                sparkle.noGravity = true;
+                sparkle.velocity = Main.rand.NextVector2Circular(1f, 1f);
+            }
+            
+            // Extra feathery white particles (swan theme)
+            if (Main.rand.NextBool(25))
+            {
+                Dust feather = Dust.NewDustDirect(new Vector2(i * 16, j * 16), 16, 16, DustID.Cloud, Main.rand.NextFloat(-0.5f, 0.5f), -1f, 100, default, 0.9f);
+                feather.noGravity = true;
+            }
         }
 
         public override bool CreateDust(int i, int j, ref int type)
         {
-            type = DustID.SilverCoin;
+            type = DustID.IceTorch;
+            
+            // Extra rainbow sparkle effect when mined
+            for (int k = 0; k < 4; k++)
+            {
+                int dustType = k switch
+                {
+                    0 => DustID.IceTorch,
+                    1 => DustID.PurpleTorch,
+                    2 => DustID.BlueTorch,
+                    _ => DustID.SilverCoin
+                };
+                Dust dust = Dust.NewDustDirect(new Vector2(i * 16, j * 16), 16, 16, dustType, 0f, 0f, 100, default, 0.9f);
+                dust.noGravity = true;
+                dust.velocity = Main.rand.NextVector2Circular(2f, 2f);
+            }
+            
             return true;
         }
 
@@ -66,6 +121,56 @@ namespace MagnumOpus.Content.SwanLake.ResonantOres
         {
             // Drop exactly 1 Remnant of Swan's Harmony per ore block
             yield return new Item(ModContent.ItemType<RemnantOfSwansHarmony>(), 1);
+        }
+
+        public override bool PreDraw(int i, int j, SpriteBatch spriteBatch)
+        {
+            // Draw the single 16x16 texture for every ore block, ignoring frame variations
+            Texture2D texture = TextureAssets.Tile[Type].Value;
+            Vector2 zero = Main.drawToScreen ? Vector2.Zero : new Vector2(Main.offScreenRange);
+            Vector2 position = new Vector2(i * 16, j * 16) - Main.screenPosition + zero;
+            
+            // Get lighting at this tile position
+            Color lightColor = Lighting.GetColor(i, j);
+            
+            // Draw the entire texture as a single 16x16 tile
+            Rectangle sourceRect = new Rectangle(0, 0, texture.Width, texture.Height);
+            spriteBatch.Draw(texture, position, sourceRect, lightColor, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+            
+            return false; // Skip default drawing
+        }
+
+        public override void PostDraw(int i, int j, SpriteBatch spriteBatch)
+        {
+            // Add rainbow shimmer overlay effect when on screen
+            if (!Main.gamePaused && Main.instance.IsActive)
+            {
+                // Only spawn particles occasionally to avoid performance issues
+                if (Main.rand.NextBool(180))
+                {
+                    Vector2 worldPos = new Vector2(i * 16 + Main.rand.Next(16), j * 16 + Main.rand.Next(16));
+                    
+                    // Check if on screen
+                    if (worldPos.X > Main.screenPosition.X - 16 && worldPos.X < Main.screenPosition.X + Main.screenWidth + 16 &&
+                        worldPos.Y > Main.screenPosition.Y - 16 && worldPos.Y < Main.screenPosition.Y + Main.screenHeight + 16)
+                    {
+                        // Rainbow prismatic sparkle
+                        int dustType = Main.rand.Next(5) switch
+                        {
+                            0 => DustID.PinkTorch,
+                            1 => DustID.PurpleTorch,
+                            2 => DustID.BlueTorch,
+                            3 => DustID.IceTorch,
+                            _ => DustID.WhiteTorch
+                        };
+                        
+                        Dust shimmer = Dust.NewDustDirect(worldPos, 1, 1, dustType, 0f, -0.5f, 0, default, 0.7f);
+                        shimmer.noGravity = true;
+                        shimmer.fadeIn = 0.8f;
+                        shimmer.velocity = Main.rand.NextVector2Circular(0.3f, 0.3f);
+                    }
+                }
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -61,6 +62,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     currentFrame = 0;
             }
             
+            // Custom particle trail
+            CustomParticles.EroicaTrail(Projectile.Center, Projectile.velocity, 0.35f);
+            
             // Trail particles - black, gold, red
             if (Main.rand.NextBool(2))
             {
@@ -113,6 +117,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         private void SpawnLightning(Vector2 position)
         {
             if (Main.netMode == NetmodeID.MultiplayerClient) return;
+            
+            // Sakura lightning flash using EnergyFlares[0] (main flash) and EnergyFlares[5] (spark)
+            var pinkFlash = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[0], position, Vector2.Zero,
+                new Color(255, 180, 200), 1.4f, 25, 0.02f, true, true);
+            CustomParticleSystem.SpawnParticle(pinkFlash);
+            var whiteFlash = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[5], position, Vector2.Zero,
+                new Color(255, 255, 220), 0.9f, 15, 0.015f, true, true);
+            CustomParticleSystem.SpawnParticle(whiteFlash);
+            CustomParticles.MoonlightHalo(position, 0.8f); // Ethereal silver undertone
+            CustomParticles.ExplosionBurst(position, new Color(255, 150, 180), 10, 5f);
             
             // Spawn 3 explosion effects at impact position
             for (int i = 0; i < 3; i++)

@@ -84,8 +84,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         public override void SetDefaults()
         {
-            NPC.width = 80;   // Hitbox sized to match visual sprite
-            NPC.height = 80;  // Hitbox sized to match visual sprite
+            // Hitbox matches visual: ~166px frame × 0.35f scale = ~58px
+            NPC.width = 58;
+            NPC.height = 58;
             NPC.damage = 70;
             NPC.defense = 60;
             NPC.lifeMax = 240254; // Keep original minion health
@@ -271,6 +272,12 @@ namespace MagnumOpus.Content.Eroica.Bosses
         {
             AttackTimer++;
             
+            // Custom particles during charge
+            if (AttackTimer % 3 == 0)
+            {
+                CustomParticles.EroicaFlare(NPC.Center, 0.4f);
+            }
+            
             // Afterimage trail
             if (AttackTimer % 2 == 0)
             {
@@ -289,6 +296,10 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 AttackTimer = 0;
                 currentAttack = AttackState.ChargeReturn;
                 returnPosition = savedOrbitPosition;
+                
+                // Subtle warm glow on charge end
+                CustomParticles.EroicaFlare(NPC.Center, 0.4f);
+                CustomParticles.GenericGlow(NPC.Center, new Color(255, 180, 80), 0.5f, 20);
             }
         }
         

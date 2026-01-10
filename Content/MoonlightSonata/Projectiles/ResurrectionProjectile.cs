@@ -122,6 +122,19 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             // Use new themed particle system for enhanced explosion
             ThemedParticles.MoonlightImpact(position, 1.2f);
             
+            // Resurrection radial burst - ascending ethereal rings using GlowingHalos[3]
+            var outerHalo = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.GlowingHalos[3], position, Vector2.Zero,
+                CustomParticleSystem.MoonlightColors.Silver, 0.9f, 40, 0.008f, true, true).WithScaleVelocity(0.02f);
+            CustomParticleSystem.SpawnParticle(outerHalo);
+            var innerHalo = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.GlowingHalos[3], position, Vector2.Zero,
+                CustomParticleSystem.MoonlightColors.Violet, 0.5f, 35, 0.01f, true, true).WithScaleVelocity(0.015f);
+            CustomParticleSystem.SpawnParticle(innerHalo);
+            // Use SoftGlows[2] for ethereal glow
+            var etherealGlow = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.SoftGlows[2], position, Vector2.Zero,
+                new Color(160, 120, 220), 1.4f, 40, 0f, true, false);
+            CustomParticleSystem.SpawnParticle(etherealGlow);
+            CustomParticles.MoonlightMusicNotes(position, 5);
+            
             // Radial explosion with gradient from dark purple center to white edges
             int ringCount = 4;
             

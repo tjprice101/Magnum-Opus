@@ -9,6 +9,7 @@ using Terraria.Audio;
 using Terraria.DataStructures;
 using ReLogic.Content;
 using static Terraria.ModLoader.PlayerDrawLayer;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Accessories
 {
@@ -290,6 +291,11 @@ namespace MagnumOpus.Content.Eroica.Accessories
         
         private void ReleaseFuryWave(int baseDamage)
         {
+            // Custom particles - dramatic fury release!
+            CustomParticles.EroicaBossAttack(Player.Center, 15);
+            CustomParticles.GenericFlare(Player.Center, new Color(200, 50, 50), 2f, 50);
+            CustomParticles.GenericFlare(Player.Center, new Color(255, 200, 100), 1.5f, 40);
+            
             // Spawn the 360° slash wave projectile
             if (Main.myPlayer == Player.whoAmI)
             {

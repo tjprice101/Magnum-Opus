@@ -92,8 +92,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
         public override void SetDefaults()
         {
             // Similar to Lunus stats
-            NPC.width = 48;
-            NPC.height = 48;
+            // Hitbox matches visual size: ~170px frame × 1.8f drawScale = ~306px
+            NPC.width = 280;
+            NPC.height = 280;
             NPC.damage = 85; // Slightly less than Lunus
             NPC.defense = 45; // Good defense
             NPC.lifeMax = 12000; // Double health for challenge
@@ -144,9 +145,31 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 
             // Add ambient lighting - icy blue/purple
             Lighting.AddLight(NPC.Center, 0.3f, 0.5f, 0.7f);
+            
+            // Moonlight halo aura pulse for graceful deer
+            if (Main.GameUpdateCount % 30 == 0)
+            {
+                CustomParticles.MoonlightHalo(NPC.Center, 0.35f);
+            }
+            
+            // Trail effect while moving
+            if (NPC.velocity.Length() > 2f)
+            {
+                CustomParticles.MoonlightTrail(NPC.Center, NPC.velocity, 0.2f);
+            }
 
             // Enhanced ambient particles using ThemedParticles
             ThemedParticles.MoonlightAura(NPC.Center, 35f);
+            
+            // Custom particle icy moonlight glow (blends swan lake icy blue with moonlight purple)
+            if (Main.rand.NextBool(10))
+            {
+                CustomParticles.MoonlightFlare(NPC.Center + Main.rand.NextVector2Circular(28f, 28f), 0.3f);
+            }
+            if (Main.rand.NextBool(15))
+            {
+                CustomParticles.SwanLakeFlare(NPC.Center + Main.rand.NextVector2Circular(25f, 25f), 0.22f);
+            }
             
             // Occasional shimmer and snow particles
             if (Main.rand.NextBool(10))

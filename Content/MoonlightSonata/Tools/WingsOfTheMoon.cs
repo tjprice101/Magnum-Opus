@@ -55,6 +55,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
                 .AddIngredient(ModContent.ItemType<ResonanceEnergies.ResonantCoreOfMoonlightSonata>(), 5)
                 .AddIngredient(ModContent.ItemType<Enemies.ShardsOfMoonlitTempo>(), 5)
                 .AddIngredient(ItemID.SoulofFlight, 25)
+                .AddIngredient(ItemID.SoulofNight, 15)
                 .AddTile(ModContent.TileType<CraftingStations.MoonlightAnvilTile>())
                 .Register();
         }

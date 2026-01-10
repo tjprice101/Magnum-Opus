@@ -1,8 +1,11 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.GameContent;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Common;
@@ -39,6 +42,58 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             Item.shoot = ModContent.ProjectileType<SakurasBlossomSpectral>();
             Item.shootSpeed = 10f;
             Item.maxStack = 1;
+        }
+
+        public override void HoldItem(Player player)
+        {
+            // Sakura flame aura while holding
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
+                ThemedParticles.EroicaAura(player.Center + offset, 18f);
+            }
+            
+            // Custom particle sakura spirit glow
+            if (Main.rand.NextBool(5))
+            {
+                CustomParticles.EroicaTrailFlare(player.Center + Main.rand.NextVector2Circular(22f, 22f), player.velocity);
+            }
+            
+            // Heroic scarlet glow
+            Lighting.AddLight(player.Center, 0.5f, 0.25f, 0.15f);
+        }
+
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            // Draw glowing backlight effect when dropped in world
+            Texture2D texture = TextureAssets.Item[Item.type].Value;
+            Vector2 position = Item.Center - Main.screenPosition;
+            Vector2 origin = texture.Size() / 2f;
+            
+            // Calculate pulse - powerful and blossoming
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.055f) * 0.12f + 1f;
+            
+            // Begin additive blending for glow
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Outer deep scarlet aura - sakura's spirit
+            spriteBatch.Draw(texture, position, null, new Color(180, 40, 50) * 0.45f, rotation, origin, scale * pulse * 1.38f, SpriteEffects.None, 0f);
+            
+            // Middle crimson/pink glow - cherry blossom
+            spriteBatch.Draw(texture, position, null, new Color(255, 100, 120) * 0.35f, rotation, origin, scale * pulse * 1.2f, SpriteEffects.None, 0f);
+            
+            // Inner golden/white glow - valor's light
+            spriteBatch.Draw(texture, position, null, new Color(255, 230, 180) * 0.25f, rotation, origin, scale * pulse * 1.08f, SpriteEffects.None, 0f);
+            
+            // Return to normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Add lighting
+            Lighting.AddLight(Item.Center, 0.65f, 0.35f, 0.3f);
+            
+            return true;
         }
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)

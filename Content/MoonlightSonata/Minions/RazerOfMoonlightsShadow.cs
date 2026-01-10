@@ -7,6 +7,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Content.MoonlightSonata.Projectiles;
 using MagnumOpus.Content.MoonlightSonata.Accessories;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Minions
 {
@@ -87,13 +88,37 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
                 IdleMovement(owner);
             }
 
-            // Visual effects - trailing particles
+            // Visual effects - trailing particles with ThemedParticles
             if (Main.rand.NextBool(3))
             {
                 Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
                     DustID.PurpleTorch, 0f, 0f, 100, default, 0.8f);
                 dust.noGravity = true;
                 dust.velocity *= 0.3f;
+            }
+            
+            // Themed particle ambient aura
+            if (Main.rand.NextBool(8))
+            {
+                ThemedParticles.MoonlightAura(Projectile.Center, 20f);
+            }
+            
+            // Custom particle moonlight trail
+            if (Main.rand.NextBool(10))
+            {
+                CustomParticles.MoonlightTrailFlare(Projectile.Center, Projectile.velocity);
+            }
+            
+            // Enhanced trail effect while moving
+            if (Projectile.velocity.Length() > 1.5f)
+            {
+                CustomParticles.MoonlightTrail(Projectile.Center, Projectile.velocity, 0.2f);
+            }
+            
+            // Periodic halo aura
+            if (Main.GameUpdateCount % 25 == 0)
+            {
+                CustomParticles.MoonlightHalo(Projectile.Center, 0.35f);
             }
 
             // Lighting

@@ -2,6 +2,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.SwanLake.ResonanceEnergies;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.SwanLake.HarmonicCores
 {
@@ -78,6 +79,12 @@ namespace MagnumOpus.Content.SwanLake.HarmonicCores
         {
             // Graceful white/blue glow
             Lighting.AddLight(Item.Center, 0.4f, 0.5f, 0.7f);
+            
+            // Pearlescent halo effect for item in world
+            if (Main.GameUpdateCount % 40 == 0)
+            {
+                CustomParticles.SwanLakeHalo(Item.Center, 0.4f);
+            }
             
             if (Main.rand.NextBool(20))
             {

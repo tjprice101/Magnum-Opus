@@ -47,6 +47,7 @@ namespace MagnumOpus.Content.Eroica.Tools
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfEroica>(), 15)
                 .AddIngredient(ModContent.ItemType<EroicasResonantEnergy>(), 10)
                 .AddIngredient(ModContent.ItemType<ShardOfTriumphsTempo>(), 5)
+                .AddIngredient(ItemID.SoulofMight, 10)
                 .AddTile(ModContent.TileType<MoonlightSonata.CraftingStations.MoonlightAnvilTile>())
                 .Register();
         }

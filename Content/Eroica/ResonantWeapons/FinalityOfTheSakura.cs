@@ -1,12 +1,15 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.DataStructures;
 using Terraria.Audio;
+using Terraria.GameContent;
 using MagnumOpus.Content.Eroica.Minions;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.ResonantWeapons
 {
@@ -35,6 +38,40 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             Item.shoot = ModContent.ProjectileType<SakuraOfFate>();
             Item.buffType = ModContent.BuffType<SakuraOfFateBuff>();
             Item.maxStack = 1;
+        }
+
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            // Draw glowing backlight effect when dropped in world
+            Texture2D texture = TextureAssets.Item[Item.type].Value;
+            Vector2 position = Item.Center - Main.screenPosition;
+            Vector2 origin = texture.Size() / 2f;
+            
+            // Calculate pulse - ominous and dark
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 1f;
+            float flicker = Main.rand.NextBool(12) ? 1.15f : 1f;
+            
+            // Begin additive blending for glow
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Outer dark shadow aura - finality's darkness
+            spriteBatch.Draw(texture, position, null, new Color(30, 10, 20) * 0.6f * flicker, rotation, origin, scale * pulse * 1.4f, SpriteEffects.None, 0f);
+            
+            // Middle deep crimson glow - sakura's blood
+            spriteBatch.Draw(texture, position, null, new Color(150, 30, 30) * 0.4f * flicker, rotation, origin, scale * pulse * 1.2f, SpriteEffects.None, 0f);
+            
+            // Inner scarlet/orange glow - burning fate
+            spriteBatch.Draw(texture, position, null, new Color(255, 120, 80) * 0.3f * flicker, rotation, origin, scale * pulse * 1.08f, SpriteEffects.None, 0f);
+            
+            // Return to normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Add lighting
+            Lighting.AddLight(Item.Center, 0.5f, 0.2f, 0.15f);
+            
+            return true;
         }
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)

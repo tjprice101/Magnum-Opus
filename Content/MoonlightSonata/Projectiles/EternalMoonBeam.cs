@@ -89,9 +89,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             // Enhanced sparkle trail using ThemedParticles
             ThemedParticles.MoonlightTrail(Projectile.Center, Projectile.velocity);
             
-            if (Main.rand.NextBool(4))
+            // Custom particle trail effect
+            CustomParticles.MoonlightTrail(Projectile.Center, Projectile.velocity, 0.2f);
+            
+            // Ambient prismatic sparkle dust - floating gem particles
+            if (Main.rand.NextBool(5))
             {
-                ThemedParticles.MoonlightSparkles(Projectile.Center, 2, 10f);
+                Vector2 offset = Main.rand.NextVector2Circular(12f, 12f);
+                CustomParticles.PrismaticSparkleAmbient(Projectile.Center + offset, CustomParticleSystem.MoonlightColors.Lavender, 8f, 2);
             }
         }
 
@@ -133,15 +138,25 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                 }
             }
 
-            // Draw outer glow (pink)
-            Color glowPink = new Color(255, 150, 220, 0) * 0.7f;
+            // Draw outer glow (pink) - ENHANCED
+            Color glowPink = new Color(255, 150, 220, 0) * 0.8f;
             spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, glowPink, 
-                Projectile.rotation, origin, Projectile.scale * 1.5f, SpriteEffects.None, 0f);
+                Projectile.rotation, origin, Projectile.scale * 1.7f, SpriteEffects.None, 0f);
+            
+            // NEW: Extra outer ethereal halo
+            Color haloColor = new Color(200, 100, 255, 0) * 0.4f;
+            spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, haloColor, 
+                Projectile.rotation, origin, Projectile.scale * 2.0f, SpriteEffects.None, 0f);
 
-            // Draw middle glow (purple)
-            Color glowPurple = new Color(180, 80, 255, 0) * 0.8f;
+            // Draw middle glow (purple) - ENHANCED
+            Color glowPurple = new Color(180, 80, 255, 0) * 0.9f;
             spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, glowPurple, 
-                Projectile.rotation, origin, Projectile.scale * 1.25f, SpriteEffects.None, 0f);
+                Projectile.rotation, origin, Projectile.scale * 1.35f, SpriteEffects.None, 0f);
+            
+            // NEW: Bright inner magenta accent
+            Color innerMagenta = new Color(255, 100, 200, 0) * 0.7f;
+            spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, innerMagenta, 
+                Projectile.rotation, origin, Projectile.scale * 1.15f, SpriteEffects.None, 0f);
                 
             // Reset to normal blending
             spriteBatch.End();
@@ -166,36 +181,43 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
         {
             target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 300); // 5 seconds
             
-            // Hit burst particles - purple/pink explosion
+            // Magic sparkle field aura burst on hit - enchantment impact
+            CustomParticles.MagicSparkleFieldBurst(target.Center, CustomParticleSystem.MoonlightColors.Violet, 4, 20f);
+            
+            // Prismatic impact sparkles
+            CustomParticles.PrismaticSparkleBurst(target.Center, new Color(220, 140, 255), 5);
+            
+            // Hit burst particles - purple/pink explosion (reduced)
             for (int i = 0; i < 10; i++)
             {
                 int dustType = Main.rand.NextBool() ? DustID.PurpleCrystalShard : DustID.Enchanted_Pink;
                 Dust dust = Dust.NewDustDirect(target.Center, 1, 1, dustType,
-                    Main.rand.NextFloat(-5f, 5f), Main.rand.NextFloat(-5f, 5f), 100, default, 1.3f);
+                    Main.rand.NextFloat(-5f, 5f), Main.rand.NextFloat(-5f, 5f), 100, default, 1.2f);
                 dust.noGravity = true;
             }
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Death burst - magical star explosion
-            for (int i = 0; i < 20; i++)
+            // Sword arc vortex on death - spinning star explosion
+            CustomParticles.SwordArcVortex(Projectile.Center, CustomParticleSystem.MoonlightColors.Violet, 3, 0.35f);
+            
+            // Rising magic sparkle field - ethereal dissipation
+            CustomParticles.MagicSparkleFieldRising(Projectile.Center, CustomParticleSystem.MoonlightColors.Silver, 5);
+            
+            // Themed bloom burst
+            ThemedParticles.MoonlightBloomBurst(Projectile.Center, 0.6f);
+            
+            // Death burst - magical star explosion (reduced)
+            for (int i = 0; i < 16; i++)
             {
-                float angle = MathHelper.TwoPi * i / 20f;
-                Vector2 velocity = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
+                float angle = MathHelper.TwoPi * i / 16f;
+                Vector2 velocity = angle.ToRotationVector2() * Main.rand.NextFloat(2.5f, 5f);
                 
                 int dustType = Main.rand.NextBool() ? DustID.PurpleCrystalShard : DustID.PinkFairy;
                 Dust dust = Dust.NewDustDirect(Projectile.Center, 1, 1, dustType,
-                    velocity.X, velocity.Y, 100, default, 1.2f);
+                    velocity.X, velocity.Y, 100, default, 1.1f);
                 dust.noGravity = true;
-            }
-
-            // Central sparkle burst
-            for (int i = 0; i < 8; i++)
-            {
-                Dust sparkle = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.Enchanted_Pink,
-                    Main.rand.NextFloat(-3f, 3f), Main.rand.NextFloat(-3f, 3f), 0, default, 1f);
-                sparkle.noGravity = true;
             }
         }
     }

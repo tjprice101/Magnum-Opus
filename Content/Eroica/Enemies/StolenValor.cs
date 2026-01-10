@@ -81,8 +81,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
         public override void SetDefaults()
         {
             // Much tougher than Moonlight enemies
-            NPC.width = 65;
-            NPC.height = 86;
+            // Hitbox matches visual size with scale 1.15f (~195px visual)
+            NPC.width = 195;
+            NPC.height = 195;
             NPC.damage = 140; // Higher than Lunus (90) and AbyssalMoonLurker (110)
             NPC.defense = 80; // Very tanky
             NPC.lifeMax = 28000; // More health than Moonlight enemies

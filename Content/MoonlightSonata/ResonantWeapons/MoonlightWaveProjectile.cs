@@ -5,7 +5,9 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
 {
@@ -52,27 +54,31 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
             // Set rotation to match velocity direction
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // White sparkle dust effect
-            if (Main.rand.NextBool(2))
+            // Sword arc trailing wave effect - elegant crescent
+            if (Main.rand.NextBool(3))
             {
-                Dust sparkle = Dust.NewDustDirect(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f), 1, 1, 
-                    DustID.SparksMech, 0f, 0f, 0, Color.White, 1.2f);
-                sparkle.noGravity = true;
-                sparkle.velocity = Main.rand.NextVector2Circular(2f, 2f);
-                sparkle.fadeIn = 1.3f;
+                CustomParticles.SwordArcWave(Projectile.Center, Projectile.velocity * 0.2f, 
+                    CustomParticleSystem.MoonlightColors.Lavender * 0.7f, 0.3f);
+            }
+            
+            // Prismatic sparkle accents along the wave
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(15f, 15f);
+                CustomParticles.PrismaticSparkle(Projectile.Center + offset, CustomParticleSystem.MoonlightColors.Silver, 0.2f);
             }
 
-            // Purple flame trail particles
-            if (Main.rand.NextBool(2))
+            // Purple flame trail particles - reduced for cleaner look
+            if (Main.rand.NextBool(3))
             {
                 Dust flame = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
-                    DustID.PurpleTorch, 0f, 0f, 100, default, 1.4f);
+                    DustID.PurpleTorch, 0f, 0f, 100, default, 1.1f);
                 flame.noGravity = true;
-                flame.velocity = Projectile.velocity * 0.05f + Main.rand.NextVector2Circular(1f, 1f);
+                flame.velocity = Projectile.velocity * 0.05f + Main.rand.NextVector2Circular(0.8f, 0.8f);
             }
 
             // Light emission
-            Lighting.AddLight(Projectile.Center, 0.6f, 0.2f, 0.8f);
+            Lighting.AddLight(Projectile.Center, 0.5f, 0.2f, 0.7f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -80,20 +86,15 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
             // Apply Music's Dissonance debuff
             target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 300);
 
-            // Burst of particles on hit
-            for (int i = 0; i < 15; i++)
-            {
-                Dust dust = Dust.NewDustDirect(target.Center, 1, 1, DustID.PurpleTorch, 0f, 0f, 100, default, 1.5f);
-                dust.noGravity = true;
-                dust.velocity = Main.rand.NextVector2Circular(6f, 6f);
-            }
+            // Prismatic sparkle impact - cleaner gem-like effect
+            CustomParticles.PrismaticSparkleBurst(target.Center, CustomParticleSystem.MoonlightColors.Violet, 5);
             
-            // White sparkle burst
-            for (int i = 0; i < 8; i++)
+            // Burst of particles on hit - reduced count
+            for (int i = 0; i < 10; i++)
             {
-                Dust sparkle = Dust.NewDustDirect(target.Center, 1, 1, DustID.SparksMech, 0f, 0f, 0, Color.White, 1.5f);
-                sparkle.noGravity = true;
-                sparkle.velocity = Main.rand.NextVector2Circular(5f, 5f);
+                Dust dust = Dust.NewDustDirect(target.Center, 1, 1, DustID.PurpleTorch, 0f, 0f, 100, default, 1.2f);
+                dust.noGravity = true;
+                dust.velocity = Main.rand.NextVector2Circular(5f, 5f);
             }
         }
 
@@ -104,10 +105,10 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
             Vector2 origin = texture.Size() / 2f;
             
             // Switch to additive blending for glow effect
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, 
-                SamplerState.LinearClamp, DepthStencilState.None, 
-                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            MagnumVFX.BeginAdditiveBlend(spriteBatch);
+            
+            // Draw prismatic gem trail using oldPos
+            MagnumVFX.DrawPrismaticGemTrail(spriteBatch, Projectile.oldPos, false, 0.4f, Projectile.timeLeft);
             
             // Draw sweeping arc trail
             for (int i = 0; i < Projectile.oldPos.Length - 1; i++)
@@ -140,14 +141,14 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
                 }
             }
             
-            // Reset to normal blending
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                SamplerState.LinearClamp, DepthStencilState.None,
-                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            // Draw main projectile
+            // Draw main prismatic gem at projectile center
             float fadeAlpha = 1f - (Projectile.alpha / 255f);
+            MagnumVFX.DrawMoonlightPrismaticGem(spriteBatch, Projectile.Center, 0.8f * Projectile.scale, fadeAlpha, Projectile.timeLeft);
+            
+            // Reset to normal blending
+            MagnumVFX.EndAdditiveBlend(spriteBatch);
+            
+            // Draw main projectile texture
             Color drawColor = new Color(180, 100, 255) * fadeAlpha;
             Vector2 mainPos = Projectile.Center - Main.screenPosition;
             
@@ -166,20 +167,22 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // Final sparkle burst
-            for (int i = 0; i < 12; i++)
+            // Magic sparkle field burst on death - ethereal dissipation
+            CustomParticles.MagicSparkleFieldBurst(Projectile.Center, CustomParticleSystem.MoonlightColors.Lavender, 4, 25f);
+            
+            // Sword arc burst - fading slash marks
+            CustomParticles.SwordArcBurst(Projectile.Center, CustomParticleSystem.MoonlightColors.Silver * 0.7f, 3, 0.3f);
+            
+            // Themed particle impact
+            ThemedParticles.MoonlightImpact(Projectile.Center, 0.9f);
+            
+            // Final sparkle burst - reduced
+            for (int i = 0; i < 8; i++)
             {
                 Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
-                    DustID.PurpleTorch, 0f, 0f, 100, default, 0.8f);
+                    DustID.PurpleTorch, 0f, 0f, 100, default, 0.7f);
                 dust.noGravity = true;
-                dust.velocity = Main.rand.NextVector2Circular(3f, 3f);
-            }
-            
-            for (int i = 0; i < 6; i++)
-            {
-                Dust sparkle = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.SparksMech, 0f, 0f, 0, Color.White, 1.0f);
-                sparkle.noGravity = true;
-                sparkle.velocity = Main.rand.NextVector2Circular(4f, 4f);
+                dust.velocity = Main.rand.NextVector2Circular(2.5f, 2.5f);
             }
         }
 

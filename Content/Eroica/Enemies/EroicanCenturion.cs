@@ -80,8 +80,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         public override void SetDefaults()
         {
-            NPC.width = 27;
-            NPC.height = 32;
+            // Hitbox matches visual size: ~170px frame × 0.45x drawScale = ~76px
+            NPC.width = 76;
+            NPC.height = 76;
             NPC.damage = 125;
             NPC.defense = 68;
             NPC.lifeMax = 25000;

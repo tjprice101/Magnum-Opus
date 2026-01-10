@@ -12,6 +12,8 @@ using Terraria.ModLoader;
 using Terraria.ObjectData;
 using MagnumOpus.Content.Eroica.Bosses;
 using MagnumOpus.Content.Eroica.SummonItems;
+using MagnumOpus.Content.SwanLake.Bosses;
+using MagnumOpus.Content.SwanLake.SummonItems;
 
 namespace MagnumOpus.Content.Common.GrandPiano
 {
@@ -166,6 +168,36 @@ namespace MagnumOpus.Content.Common.GrandPiano
                 }
 
                 Main.NewText("The Grand Piano plays Eroica's triumphant melody...", 255, 180, 200);
+                return true;
+            }
+            
+            // Check if holding Score of Swan Lake
+            if (heldItem != null && !heldItem.IsAir && heldItem.type == ModContent.ItemType<ScoreOfSwanLake>())
+            {
+                // Check if Swan Lake boss is already alive
+                if (NPC.AnyNPCs(ModContent.NPCType<SwanLakeTheMonochromaticFractal>()))
+                {
+                    Main.NewText("Swan Lake is already dancing...", 255, 255, 255);
+                    return true;
+                }
+
+                // Consume 1 item
+                heldItem.stack--;
+                if (heldItem.stack <= 0)
+                {
+                    heldItem.TurnToAir();
+                }
+
+                // Play piano sound
+                SoundEngine.PlaySound(SoundID.Item4, player.Center);
+
+                // Spawn the boss
+                if (Main.netMode != NetmodeID.MultiplayerClient)
+                {
+                    NPC.SpawnOnPlayer(player.whoAmI, ModContent.NPCType<SwanLakeTheMonochromaticFractal>());
+                }
+
+                Main.NewText("The Grand Piano plays Swan Lake's elegant yet ominous melody...", 255, 255, 255);
                 return true;
             }
 
