@@ -7,6 +7,7 @@ using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.Eroica.Accessories
 {
@@ -35,44 +36,50 @@ namespace MagnumOpus.Content.Eroica.Accessories
             player.GetDamage(DamageClass.Ranged) += 0.15f; // +15% ranged damage
             player.GetCritChance(DamageClass.Ranged) += 10f; // +10% ranged crit
             
-            // Ambient particles - scarlet flames and golden sparks
-            if (!hideVisual && Main.rand.NextBool(6))
-            {
-                // Scarlet flame
-                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
-                Dust flame = Dust.NewDustPerfect(player.Center + offset, DustID.CrimsonTorch, 
-                    new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1.5f), 100, default, 1.2f);
-                flame.noGravity = true;
-            }
-            
-            if (!hideVisual && Main.rand.NextBool(10))
-            {
-                // Golden spark
-                Vector2 offset = Main.rand.NextVector2Circular(30f, 30f);
-                Dust spark = Dust.NewDustPerfect(player.Center + offset, DustID.GoldCoin, 
-                    Main.rand.NextVector2Circular(1f, 1f), 0, default, 1f);
-                spark.noGravity = true;
-            }
-            
-            // Eroica themed aura with sparkles
+            // === UnifiedVFX EROICA AMBIENT EFFECTS ===
             if (!hideVisual)
             {
-                ThemedParticles.EroicaAura(player.Center, 30f);
-                if (Main.rand.NextBool(12))
+                // Eroica themed aura with UnifiedVFX
+                UnifiedVFX.Eroica.Aura(player.Center, 35f, 0.3f);
+                
+                // Orbiting gradient flares - signature geometric look
+                if (Main.rand.NextBool(8))
                 {
-                    ThemedParticles.EroicaSparkles(player.Center, 3, 25f);
+                    float baseAngle = Main.GameUpdateCount * 0.025f;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        float angle = baseAngle + MathHelper.TwoPi * i / 3f;
+                        float radius = 30f + (float)System.Math.Sin(Main.GameUpdateCount * 0.05f + i * 0.7f) * 8f;
+                        Vector2 flarePos = player.Center + new Vector2((float)System.Math.Cos(angle), (float)System.Math.Sin(angle)) * radius;
+                        float progress = (float)i / 3f;
+                        Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                        CustomParticles.GenericFlare(flarePos, fractalColor, 0.32f, 16);
+                    }
                 }
+                
+                // Sakura petal drift
+                if (Main.rand.NextBool(15))
+                    ThemedParticles.SakuraPetals(player.Center, 1, 35f);
+                
+                // Enhanced sparkles
+                if (Main.rand.NextBool(10))
+                    ThemedParticles.EroicaSparkles(player.Center, 2, 25f);
             }
             
-            // Consecutive hit counter visual - prismatic gem buildup effect
+            // Consecutive hit counter visual - gradient buildup effect
             if (!hideVisual && modPlayer.consecutiveHits > 0)
             {
                 float intensity = modPlayer.consecutiveHits / 3f;
-                if (Main.rand.NextFloat() < intensity * 0.3f)
+                if (Main.rand.NextFloat() < intensity * 0.4f)
                 {
-                    Dust buildup = Dust.NewDustPerfect(player.Center + Main.rand.NextVector2Circular(20f, 20f),
-                        DustID.Torch, Main.rand.NextVector2Circular(2f, 2f), 50, new Color(255, 200, 100), 1f + intensity * 0.5f);
-                    buildup.noGravity = true;
+                    // Gradient colored buildup: Scarlet → Gold based on stacks
+                    Color buildupColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, intensity);
+                    CustomParticles.GenericFlare(player.Center + Main.rand.NextVector2Circular(22f, 22f), 
+                        buildupColor, 0.3f + intensity * 0.3f, 14);
+                    
+                    // Halo ring when near max
+                    if (intensity > 0.8f && Main.rand.NextBool(5))
+                        CustomParticles.HaloRing(player.Center, UnifiedVFX.Eroica.Gold * 0.6f, 0.3f, 15);
                 }
             }
         }

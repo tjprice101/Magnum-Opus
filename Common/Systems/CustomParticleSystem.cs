@@ -42,12 +42,12 @@ namespace MagnumOpus.Common.Systems
         // SwanFeather textures (10 variants) - Swan Lake exclusive feather effects
         public static Asset<Texture2D>[] SwanFeathers { get; private set; } = new Asset<Texture2D>[10];
         
-        // Optimized particle pools
-        private static List<CustomParticle> activeParticles = new List<CustomParticle>(500);
-        private static Queue<CustomParticle> particlePool = new Queue<CustomParticle>(200);
+        // Optimized particle pools - increased for particle-heavy boss fights
+        private static List<CustomParticle> activeParticles = new List<CustomParticle>(1000);
+        private static Queue<CustomParticle> particlePool = new Queue<CustomParticle>(400);
         
         public static bool TexturesLoaded { get; private set; } = false;
-        public static int MaxParticles = 600;
+        public static int MaxParticles = 1200;
         
         public override void Load()
         {
@@ -1249,7 +1249,7 @@ namespace MagnumOpus.Common.Systems
             CustomParticleSystem.SpawnParticle(p);
         }
         
-        /// <summary>Feather aura - gentle floating feathers around player/entity</summary>
+        /// <summary>Feather aura - gentle floating feathers around player/entity (smaller and more translucent)</summary>
         public static void SwanFeatherAura(Vector2 center, float radius = 40f, int count = 3)
         {
             if (!CustomParticleSystem.TexturesLoaded) return;
@@ -1257,12 +1257,12 @@ namespace MagnumOpus.Common.Systems
             {
                 var offset = Main.rand.NextVector2Circular(radius, radius);
                 var vel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.8f, -0.2f));
-                // Chromatic feathers with pearlescent shimmer
+                // Chromatic feathers with pearlescent shimmer - more translucent
                 float hue = (float)(Main.GameUpdateCount % 360) / 360f + Main.rand.NextFloat(0.1f);
-                Color chromaCol = Main.hslToRgb(hue, 0.4f, 0.9f);
-                Color col = Color.Lerp(CustomParticleSystem.SwanLakeColors.PureWhite, chromaCol, 0.3f);
+                Color chromaCol = Main.hslToRgb(hue, 0.3f, 0.85f);
+                Color col = Color.Lerp(CustomParticleSystem.SwanLakeColors.PureWhite, chromaCol, 0.25f) * 0.5f; // 50% opacity
                 var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.RandomSwanFeather(), center + offset, vel,
-                    col, 0.25f + Main.rand.NextFloat(0.15f), 70 + Main.rand.Next(40),
+                    col, 0.12f + Main.rand.NextFloat(0.08f), 50 + Main.rand.Next(30), // Much smaller scale (0.12-0.2 vs 0.25-0.4)
                     Main.rand.NextFloat(-0.015f, 0.015f), true, false)
                     .WithGravity(-0.005f).WithDrag(0.99f);
                 CustomParticleSystem.SpawnParticle(p);

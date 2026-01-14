@@ -10,6 +10,7 @@ using Terraria.GameContent;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.Eroica.ResonantWeapons
 {
@@ -52,13 +53,19 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
         {
             shotCounter++;
             
-            // Muzzle flash particles
-            for (int i = 0; i < 3; i++)
+            // GRADIENT COLORS: Scarlet → Crimson → Gold
+            Color eroicaScarlet = new Color(139, 0, 0);
+            Color eroicaCrimson = new Color(220, 50, 50);
+            Color eroicaGold = new Color(255, 215, 0);
+            
+            // Muzzle flash with gradient custom particles
+            for (int i = 0; i < 5; i++)
             {
-                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
-                Dust flash = Dust.NewDustDirect(position, 1, 1, dustType, velocity.X * 0.2f, velocity.Y * 0.2f, 100, default, 1.2f);
-                flash.noGravity = true;
+                float progress = (float)i / 5f;
+                Color flashColor = Color.Lerp(eroicaScarlet, eroicaGold, progress);
+                CustomParticles.GenericFlare(position, flashColor, 0.35f + progress * 0.2f, 12);
             }
+            CustomParticles.HaloRing(position, eroicaCrimson, 0.3f, 10);
             
             // Every 10th shot, fire the special sakura lightning projectile
             if (shotCounter >= 10)
@@ -70,16 +77,30 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                     ModContent.ProjectileType<PiercingLightOfTheSakuraProjectile>(), 
                     (int)(damage * 2.5f), knockback * 2f, player.whoAmI);
                 
-                // Special firing effect
+                // Special firing effect with gradient burst
                 SoundEngine.PlaySound(SoundID.Item125 with { Pitch = 0.3f, Volume = 0.8f }, position);
                 
+                // Fractal geometric burst with gradient
+                for (int i = 0; i < 8; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 8f;
+                    Vector2 offset = angle.ToRotationVector2() * 25f;
+                    float progress = (float)i / 8f;
+                    Color gradientColor = Color.Lerp(eroicaScarlet, eroicaGold, progress);
+                    CustomParticles.GenericFlare(position + offset, gradientColor, 0.5f, 18);
+                }
+                
+                // Gradient explosion burst
                 for (int i = 0; i < 12; i++)
                 {
-                    int dustType = i % 3 == 0 ? DustID.Shadowflame : (i % 3 == 1 ? DustID.GoldFlame : DustID.CrimsonTorch);
-                    Dust special = Dust.NewDustDirect(position, 1, 1, dustType, 0f, 0f, 100, default, 1.8f);
-                    special.noGravity = true;
-                    special.velocity = velocity.SafeNormalize(Vector2.UnitX).RotatedByRandom(0.5f) * Main.rand.NextFloat(3f, 8f);
+                    float progress = (float)i / 12f;
+                    Color burstColor = Color.Lerp(eroicaCrimson, eroicaGold, progress);
+                    CustomParticles.GenericGlow(position, burstColor, 0.4f, 20);
                 }
+                
+                // Central white flash and themed effects
+                CustomParticles.GenericFlare(position, Color.White, 0.8f, 12);
+                ThemedParticles.EroicaHaloBurst(position, 0.8f);
                 
                 return false; // Don't fire normal bullet
             }
@@ -92,12 +113,12 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                 Main.projectile[proj].alpha = 200; // Darken the bullet
             }
             
-            // Add black tracer particles to normal shots
-            for (int i = 0; i < 2; i++)
+            // Add gradient tracer particles to normal shots
+            for (int i = 0; i < 3; i++)
             {
-                Dust tracer = Dust.NewDustDirect(position, 1, 1, DustID.Smoke, velocity.X * 0.3f, velocity.Y * 0.3f, 200, Color.Black, 0.7f);
-                tracer.noGravity = true;
-                tracer.color = Color.Black;
+                float progress = (float)i / 3f;
+                Color tracerColor = Color.Lerp(eroicaScarlet, eroicaCrimson, progress);
+                CustomParticles.GenericGlow(position, tracerColor, 0.25f, 8);
             }
             
             return false;
@@ -110,16 +131,37 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void HoldItem(Player player)
         {
-            // Dark red and gold particles while holding
+            // === UnifiedVFX EROICA AMBIENT AURA ===
+            UnifiedVFX.Eroica.Aura(player.Center, 32f, 0.28f);
+            
+            // Ambient fractal orbit pattern with gradient
+            if (Main.rand.NextBool(5))
+            {
+                float baseAngle = Main.GameUpdateCount * 0.025f;
+                for (int i = 0; i < 5; i++)
+                {
+                    float angle = baseAngle + MathHelper.TwoPi * i / 5f;
+                    float radius = 30f + (float)Math.Sin(Main.GameUpdateCount * 0.05f + i * 0.7f) * 10f;
+                    Vector2 flarePos = player.Center + angle.ToRotationVector2() * radius;
+                    float progress = (float)i / 5f;
+                    Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.32f, 16);
+                }
+            }
+            
+            // Gradient particles while holding
             if (Main.rand.NextBool(3))
             {
                 Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
-                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.Torch;
-                Dust particle = Dust.NewDustDirect(player.Center + offset, 1, 1, dustType, 0f, -1f, 150, default, 0.9f);
-                particle.noGravity = true;
-                particle.velocity *= 0.3f;
-                if (dustType == DustID.Torch)
-                    particle.color = new Color(139, 0, 0); // Dark red
+                float progress = Main.rand.NextFloat();
+                Color particleColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                CustomParticles.GenericGlow(player.Center + offset, particleColor, 0.28f, 15);
+            }
+            
+            // Sakura petals
+            if (Main.rand.NextBool(8))
+            {
+                ThemedParticles.SakuraPetals(player.Center + Main.rand.NextVector2Circular(25f, 25f), 2, 20f);
             }
             
             // Custom particle lightning energy
@@ -129,7 +171,9 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             }
             
             // Lightning-style energy aura while holding
-            Lighting.AddLight(player.Center, 0.45f, 0.3f, 0.2f);
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.9f;
+            Vector3 lightColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, 0.5f).ToVector3();
+            Lighting.AddLight(player.Center, lightColor * pulse * 0.5f);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)

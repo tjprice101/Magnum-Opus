@@ -19,22 +19,22 @@ namespace MagnumOpus.Content.SwanLake.Tools
 
         public override void SetDefaults()
         {
-            Item.damage = 135; // Higher than Eroica (101)
+            Item.damage = 185; // Near-Fate tier damage
             Item.DamageType = DamageClass.Melee;
             Item.width = 40;
             Item.height = 40;
-            Item.useTime = 2; // Faster than Eroica (3)
-            Item.useAnimation = 5; // Faster than Eroica (7)
+            Item.useTime = 2; // Fast
+            Item.useAnimation = 4; // Very fast
             Item.useStyle = ItemUseStyleID.Swing;
-            Item.knockBack = 7.5f;
-            Item.value = Item.sellPrice(gold: 30);
+            Item.knockBack = 8f;
+            Item.value = Item.sellPrice(gold: 45);
             Item.rare = ItemRarityID.Cyan;
             Item.UseSound = SoundID.Item29 with { Pitch = 0.5f, Volume = 0.6f }; // Fractal crystal sound
             Item.autoReuse = true;
             Item.useTurn = true;
 
-            // Pickaxe power - stronger than Eroica (350%), can mine La Campanella ore (400)
-            Item.pick = 425;
+            // Pickaxe power - can mine Fate ore (500), just below Fate tier
+            Item.pick = 500;
             
             // Enable reforging
             Item.maxStack = 1;
@@ -46,6 +46,7 @@ namespace MagnumOpus.Content.SwanLake.Tools
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfSwanLake>(), 20)
                 .AddIngredient(ModContent.ItemType<SwansResonanceEnergy>(), 15)
                 .AddIngredient(ModContent.ItemType<RemnantOfSwansHarmony>(), 10)
+                .AddIngredient(ModContent.ItemType<ShardOfTheFeatheredTempo>(), 5)
                 .AddIngredient(ItemID.SoulofFlight, 12)
                 .AddTile(ModContent.TileType<MoonlightAnvilTile>())
                 .Register();

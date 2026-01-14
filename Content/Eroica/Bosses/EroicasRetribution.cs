@@ -92,6 +92,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
         private int deathTimer = 0;
         private const int DeathAnimationDuration = 180;
         private float screenFlashIntensity = 0f;
+        
+        // Health bar registration
+        private bool hasRegisteredHealthBar = false;
 
         public override void SetStaticDefaults()
         {
@@ -149,6 +152,13 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         public override void AI()
         {
+            // Register with custom health bar system
+            if (!hasRegisteredHealthBar)
+            {
+                BossHealthBarUI.RegisterBoss(NPC, BossColorTheme.Eroica);
+                hasRegisteredHealthBar = true;
+            }
+            
             // Handle death animation
             if (isDying)
             {
@@ -881,9 +891,20 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 SoundEngine.PlaySound(SoundID.Item117 with { Pitch = 0.2f, Volume = 1f }, target.Center);
                 EroicaScreenShake.MediumShake(target.Center);
                 
-                // Musical burst
-                ThemedParticles.EroicaMusicNotes(NPC.Center, 10, 60f);
-                ThemedParticles.EroicaClef(NPC.Center, true, 1.8f);
+                // Enhanced musical burst with fractal pattern
+                UnifiedVFX.Eroica.Impact(NPC.Center, 1.2f);
+                ThemedParticles.EroicaMusicNotes(NPC.Center, 12, 70f);
+                ThemedParticles.EroicaClef(NPC.Center, true, 2f);
+                
+                // Fractal flare burst - signature geometric look
+                for (int i = 0; i < 8; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 8f;
+                    Vector2 flareOffset = angle.ToRotationVector2() * 35f;
+                    float progress = (float)i / 8f;
+                    Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                    CustomParticles.GenericFlare(NPC.Center + flareOffset, fractalColor, 0.5f, 20);
+                }
             }
             
             NPC.velocity *= 0.95f;
@@ -955,86 +976,129 @@ namespace MagnumOpus.Content.Eroica.Bosses
             
             deathTimer++;
             
-            // Red and gold flares with increasing intensity
+            // Phase 1: Building intensity with gradient Scarlet → Gold effects
             if (deathTimer < 120)
             {
                 float intensity = (float)deathTimer / 120f;
-                int flareCount = (int)(1 + intensity * 6);
                 
-                for (int i = 0; i < flareCount; i++)
+                // Fractal flare pattern with gradient colors
+                if (deathTimer % 5 == 0)
                 {
-                    int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
-                    Vector2 velocity = Main.rand.NextVector2Circular(15f, 15f) * (0.5f + intensity);
-                    Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, dustType, velocity.X, velocity.Y, 0, default, 2f + intensity * 2f);
-                    dust.noGravity = true;
-                    dust.fadeIn = 1.5f;
+                    int points = 6 + (int)(intensity * 4);
+                    for (int i = 0; i < points; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / points + deathTimer * 0.05f;
+                        Vector2 offset = angle.ToRotationVector2() * (30f + intensity * 40f);
+                        float progress = (float)i / points;
+                        Color flareColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                        CustomParticles.GenericFlare(NPC.Center + offset, flareColor, 0.4f + intensity * 0.4f, 15);
+                    }
+                    
+                    // Central pulsing flare
+                    CustomParticles.GenericFlare(NPC.Center, Color.Lerp(UnifiedVFX.Eroica.Crimson, UnifiedVFX.Eroica.Gold, intensity), 
+                        0.6f + intensity * 0.6f, 20);
+                }
+                
+                // Sakura petals intensifying
+                if (deathTimer % 10 == 0)
+                    ThemedParticles.SakuraPetals(NPC.Center, (int)(2 + intensity * 4), 60f + intensity * 40f);
+                
+                // Pulsing halo rings
+                if (deathTimer % 15 == 0)
+                {
+                    CustomParticles.HaloRing(NPC.Center, Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, intensity), 
+                        0.4f + intensity * 0.4f, 25);
                 }
                 
                 if (Main.LocalPlayer.Distance(NPC.Center) < 1500f)
-                {
-                    float shakeAmount = intensity * 6f;
-                    Main.LocalPlayer.velocity += Main.rand.NextVector2Circular(shakeAmount, shakeAmount) * 0.1f;
-                }
+                    MagnumScreenEffects.AddScreenShake(intensity * 3f);
                 
                 if (deathTimer % 20 == 0)
-                {
                     SoundEngine.PlaySound(SoundID.Item74, NPC.Center);
-                }
             }
+            // Phase 2: Flash buildup with intense effects
             else if (deathTimer < 150)
             {
                 float flashProgress = (deathTimer - 120f) / 30f;
                 screenFlashIntensity = flashProgress;
                 
-                for (int i = 0; i < 12; i++)
+                // Expanding gradient rings
+                if (deathTimer % 4 == 0)
                 {
-                    int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
-                    Vector2 velocity = Main.rand.NextVector2Circular(20f, 20f);
-                    Dust burst = Dust.NewDustDirect(NPC.Center, 0, 0, dustType, velocity.X, velocity.Y, 0, default, 3f);
-                    burst.noGravity = true;
+                    UnifiedVFX.Eroica.Impact(NPC.Center, 0.8f + flashProgress * 0.5f);
                 }
                 
+                // Music notes ascending
+                ThemedParticles.EroicaMusicNotes(NPC.Center, 4, 50f + flashProgress * 30f);
+                
                 if (Main.LocalPlayer.Distance(NPC.Center) < 2000f)
-                {
-                    float shakeAmount = 12f;
-                    Main.LocalPlayer.velocity += Main.rand.NextVector2Circular(shakeAmount, shakeAmount) * 0.15f;
-                }
+                    MagnumScreenEffects.AddScreenShake(8f + flashProgress * 6f);
             }
+            // Phase 3: CLIMAX - Full UnifiedVFX death explosion
             else if (deathTimer == 150)
             {
                 screenFlashIntensity = 1f;
                 SoundEngine.PlaySound(SoundID.Item122, NPC.Center);
                 
-                for (int i = 0; i < 100; i++)
+                // Massive themed death explosion
+                UnifiedVFX.Eroica.DeathExplosion(NPC.Center, 1.5f);
+                
+                // Extra spiral galaxy effect for heroic finale
+                for (int arm = 0; arm < 6; arm++)
                 {
-                    int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
-                    Vector2 velocity = Main.rand.NextVector2Circular(25f, 25f);
-                    Dust explosion = Dust.NewDustDirect(NPC.Center, 0, 0, dustType, velocity.X, velocity.Y, 0, Color.White, 4f);
-                    explosion.noGravity = true;
-                    explosion.fadeIn = 2f;
+                    float armAngle = MathHelper.TwoPi * arm / 6f;
+                    for (int point = 0; point < 8; point++)
+                    {
+                        float spiralAngle = armAngle + point * 0.4f;
+                        float spiralRadius = 25f + point * 18f;
+                        Vector2 spiralPos = NPC.Center + spiralAngle.ToRotationVector2() * spiralRadius;
+                        float progress = (arm * 8 + point) / 48f;
+                        Color galaxyColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                        CustomParticles.GenericFlare(spiralPos, galaxyColor, 0.5f + point * 0.05f, 25 + point * 2);
+                    }
                 }
+                
+                // Heroic music staff finale
+                ThemedParticles.EroicaMusicStaff(NPC.Center, 2f);
             }
+            // Phase 4: Fade out
             else if (deathTimer <= DeathAnimationDuration)
             {
                 float fadeProgress = (deathTimer - 150f) / 30f;
                 screenFlashIntensity = 1f - fadeProgress;
+                
+                // Lingering sakura petals
+                if (deathTimer % 8 == 0)
+                    ThemedParticles.SakuraPetals(NPC.Center, 3, 100f * (1f - fadeProgress));
             }
             
+            // Pulsing light with gradient color
             if (screenFlashIntensity > 0 && Main.LocalPlayer.Distance(NPC.Center) < 2000f)
             {
-                Lighting.AddLight(NPC.Center, screenFlashIntensity * 3f, screenFlashIntensity * 2f, screenFlashIntensity);
+                Color lightColor = Color.Lerp(UnifiedVFX.Eroica.Crimson, UnifiedVFX.Eroica.Gold, screenFlashIntensity);
+                Lighting.AddLight(NPC.Center, lightColor.ToVector3() * screenFlashIntensity * 3f);
             }
         }
 
         public override void OnKill()
         {
-            for (int i = 0; i < 80; i++)
+            // Final burst with gradient colors
+            UnifiedVFX.Generic.FractalBurst(NPC.Center, UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, 12, 80f, 1.5f);
+            
+            // Layered halo cascade
+            for (int ring = 0; ring < 6; ring++)
             {
-                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
-                Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, dustType, 0f, 0f, 100, default, 2.5f);
-                dust.noGravity = true;
-                dust.velocity = Main.rand.NextVector2Circular(14f, 14f);
+                float progress = (float)ring / 6f;
+                Color ringColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                CustomParticles.HaloRing(NPC.Center, ringColor * (1f - progress * 0.3f), 0.5f + ring * 0.2f, 20 + ring * 5);
             }
+            
+            // Final sakura shower
+            ThemedParticles.SakuraPetals(NPC.Center, 25, 120f);
+            
+            // Triumphant music burst
+            ThemedParticles.EroicaMusicNotes(NPC.Center, 16, 100f);
+            ThemedParticles.EroicaClef(NPC.Center, true, 2.5f);
 
             if (Main.netMode != NetmodeID.MultiplayerClient)
             {

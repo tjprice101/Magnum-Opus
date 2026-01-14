@@ -10,6 +10,7 @@ using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -53,26 +54,50 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void HoldItem(Player player)
         {
-            // Dark red and gold particles while holding
-            if (Main.rand.NextBool(2))
+            // === UnifiedVFX EROICA AMBIENT AURA ===
+            UnifiedVFX.Eroica.Aura(player.Center, 32f, 0.28f);
+            
+            // === AMBIENT FRACTAL FLARES - Dark funeral flame geometric pattern ===
+            if (Main.rand.NextBool(6))
             {
-                Vector2 offset = Main.rand.NextVector2Circular(22f, 22f);
-                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.Torch;
-                Dust particle = Dust.NewDustDirect(player.Center + offset, 1, 1, dustType, 0f, -1.2f, 150, default, 1.0f);
-                particle.noGravity = true;
-                particle.velocity *= 0.35f;
-                if (dustType == DustID.Torch)
-                    particle.color = new Color(139, 0, 0); // Dark red
+                // Orbiting dark flames in spiral pattern
+                float baseAngle = Main.GameUpdateCount * 0.025f;
+                for (int i = 0; i < 5; i++)
+                {
+                    float angle = baseAngle + MathHelper.TwoPi * i / 5f;
+                    float radius = 30f + (float)Math.Sin(Main.GameUpdateCount * 0.04f + i * 0.8f) * 12f;
+                    Vector2 flarePos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+                    // Gradient: Dark crimson to gold
+                    float progress = (float)i / 5f;
+                    Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress * 0.6f + 0.2f);
+                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.3f, 17);
+                }
             }
             
-            // Custom particle dark flames
-            if (Main.rand.NextBool(5))
+            // Custom particle dark flames with prismatic accents
+            if (Main.rand.NextBool(4))
             {
-                CustomParticles.EroicaFlare(player.Center + Main.rand.NextVector2Circular(20f, 20f), 0.3f);
+                float progress = Main.rand.NextFloat();
+                Color flameColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                CustomParticles.GenericGlow(player.Center + Main.rand.NextVector2Circular(20f, 20f), flameColor, 0.28f, 15);
             }
             
-            // Soft heroic lighting
-            Lighting.AddLight(player.Center, 0.5f, 0.3f, 0.2f);
+            // Sakura petals
+            if (Main.rand.NextBool(8))
+            {
+                ThemedParticles.SakuraPetals(player.Center + Main.rand.NextVector2Circular(22f, 22f), 2, 20f);
+            }
+            
+            // Occasional dark halo pulse
+            if (Main.rand.NextBool(20))
+            {
+                CustomParticles.HaloRing(player.Center, UnifiedVFX.Eroica.Scarlet * 0.55f, 0.32f, 20);
+            }
+            
+            // Soft heroic gradient lighting with pulse
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 0.9f;
+            Vector3 lightColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, 0.4f).ToVector3();
+            Lighting.AddLight(player.Center, lightColor * pulse * 0.5f);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
@@ -135,13 +160,36 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                     ModContent.ProjectileType<FuneralPrayerBeam>(), beamDamage, knockback * 0.5f, player.whoAmI, shotId);
             }
             
+            // === UnifiedVFX EROICA CAST EXPLOSION ===
+            Vector2 castPos = player.Center + towardsCursor * 30f;
+            UnifiedVFX.Eroica.Impact(castPos, 1.2f);
+            
+            // === FRACTAL BEAM BURST - Funeral prayer geometric pattern ===
+            for (int i = 0; i < 5; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 5f;
+                Vector2 flareOffset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 25f;
+                float progress = (float)i / 5f;
+                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                CustomParticles.GenericFlare(castPos + flareOffset, fractalColor, 0.5f, 19);
+            }
+            
+            // Gradient halo rings
+            for (int ring = 0; ring < 3; ring++)
+            {
+                float progress = (float)ring / 3f;
+                Color ringColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                CustomParticles.HaloRing(castPos, ringColor, 0.45f + ring * 0.1f, 15 + ring * 2);
+            }
+            
             // Musical burst on cast!
             ThemedParticles.EroicaMusicNotes(player.Center, 6, 30f);
             ThemedParticles.EroicaAccidentals(player.Center, 3, 20f);
             
-            // Muzzle flash effect - subtle flare with glow
+            // Muzzle flash effect - subtle flare with glow and prismatic burst
             CustomParticles.EroicaFlare(player.Center, 0.5f);
             CustomParticles.GenericGlow(player.Center, new Color(255, 150, 80), 0.6f, 20);
+            CustomParticles.PrismaticSparkleBurst(castPos, CustomParticleSystem.EroicaColors.Gold, 5);
 
             return false; // Don't spawn default projectile
         }

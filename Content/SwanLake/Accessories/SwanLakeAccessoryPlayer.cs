@@ -24,6 +24,19 @@ namespace MagnumOpus.Content.SwanLake.Accessories
         // ========== PENDANT OF THE TWO SWANS (Melee) ==========
         public bool hasPendantOfTheTwoSwans = false;
         public bool pendantIsBlackMode = false; // false = White (Odette), true = Black (Odile)
+        
+        // Shield system for white mode
+        public int pendantShieldCharges = 3; // 3 hits before depleting
+        private const int MaxShieldCharges = 3;
+        public int pendantShieldCooldown = 0;
+        private const int ShieldCooldownMax = 7200; // 2 minutes (120 seconds)
+        public bool pendantShieldActive = true;
+        
+        // Black mode explosion cooldown
+        public int blackModeExplosionCooldown = 0;
+        private const int BlackModeExplosionCooldownMax = 30; // 0.5 second cooldown
+        
+        // Legacy fields for compatibility (kept but not used)
         public int whiteHaloCooldown = 0;
         private const int WhiteHaloCooldownMax = 10800; // 3 minutes (180 seconds)
         public int whiteHaloTimer = 0;
@@ -51,12 +64,20 @@ namespace MagnumOpus.Content.SwanLake.Accessories
         public int floatAnimationFrame = 0;
         public int floatAnimationTimer = 0;
         
+        // ========== FEATHER EFFECT CONSOLIDATION ==========
+        // Track if feather aura has been spawned this tick to prevent duplicates
+        public bool hasSwanLakeFeatherEffect = false;
+        // Track if holding a Swan Lake weapon
+        public bool isHoldingSwanLakeWeapon = false;
+        
         public override void ResetEffects()
         {
             hasPendantOfTheTwoSwans = false;
             hasDualFeatherQuiver = false;
             hasCrownOfTheSwan = false;
             hasBlackWings = false;
+            hasSwanLakeFeatherEffect = false;
+            isHoldingSwanLakeWeapon = false;
         }
         
         /// <summary>
@@ -100,56 +121,132 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             if (crownFlameOfSwanCooldown > 0)
                 crownFlameOfSwanCooldown--;
             
-            // ========== PENDANT OF THE TWO SWANS ==========
+            // ========== BLACK MODE EXPLOSION COOLDOWN ==========
+            if (blackModeExplosionCooldown > 0)
+                blackModeExplosionCooldown--;
+            
+            // ========== PENDANT SHIELD SYSTEM ==========
+            if (pendantShieldCooldown > 0)
+                pendantShieldCooldown--;
+            
+            // Recharge shield when cooldown is done
+            if (pendantShieldCooldown <= 0 && pendantShieldCharges < MaxShieldCharges)
+            {
+                pendantShieldCharges = MaxShieldCharges;
+                pendantShieldActive = true;
+                if (hasPendantOfTheTwoSwans && !pendantIsBlackMode)
+                {
+                    Main.NewText("Monochromatic Shield recharged!", new Color(240, 245, 255));
+                    SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.5f }, Player.Center);
+                    
+                    // Visual recharge effect
+                    for (int i = 0; i < 30; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / 30f;
+                        Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 4f;
+                        Dust white = Dust.NewDustPerfect(Player.Center, DustID.WhiteTorch, vel, 0, default, 1.5f);
+                        white.noGravity = true;
+                    }
+                }
+            }
+            
+            // Show shield visual when active (White mode only) - VERY PROMINENT HALO SYSTEM
+            // Shield brightness scales with charges: 3 = full, 2 = 66%, 1 = 33%, 0 = fading out
+            if (hasPendantOfTheTwoSwans && !pendantIsBlackMode)
+            {
+                // Calculate halo intensity based on shield state
+                float haloIntensity = 0f;
+                if (pendantShieldActive && pendantShieldCharges > 0)
+                {
+                    haloIntensity = pendantShieldCharges / (float)MaxShieldCharges; // 0.33, 0.66, or 1.0
+                }
+                else if (pendantShieldCooldown > 0)
+                {
+                    // During recharge, slowly pulse back in
+                    float rechargeProgress = 1f - (pendantShieldCooldown / (float)ShieldCooldownMax);
+                    haloIntensity = rechargeProgress * 0.3f; // Dim glow during recharge
+                }
+                
+                // ALWAYS show SOMETHING when shield is equipped in white mode
+                haloIntensity = Math.Max(0.3f, haloIntensity); // Minimum 30% intensity always
+                
+                // === PROMINENT CONSTANT SHIELD AURA ===
+                // Rotating outer ring - ALWAYS visible
+                float ringAngle = Main.GameUpdateCount * 0.03f;
+                int ringSegments = 12;
+                for (int i = 0; i < ringSegments; i++)
+                {
+                    float segmentAngle = ringAngle + MathHelper.TwoPi * i / ringSegments;
+                    float radius = 50f + (float)Math.Sin(Main.GameUpdateCount * 0.08f + i) * 5f;
+                    Vector2 pos = Player.Center + new Vector2((float)Math.Cos(segmentAngle), (float)Math.Sin(segmentAngle)) * radius;
+                    
+                    // Alternating black and white segments
+                    if (i % 2 == 0)
+                    {
+                        Dust white = Dust.NewDustPerfect(pos, DustID.WhiteTorch, 
+                            new Vector2((float)Math.Cos(segmentAngle + MathHelper.PiOver2), (float)Math.Sin(segmentAngle + MathHelper.PiOver2)) * 0.5f, 
+                            (int)(80 - haloIntensity * 40), default, 1.2f * haloIntensity);
+                        white.noGravity = true;
+                    }
+                    else
+                    {
+                        Dust black = Dust.NewDustPerfect(pos, DustID.Smoke, 
+                            new Vector2((float)Math.Cos(segmentAngle + MathHelper.PiOver2), (float)Math.Sin(segmentAngle + MathHelper.PiOver2)) * 0.5f, 
+                            180, Color.Black, 1.0f * haloIntensity);
+                        black.noGravity = true;
+                    }
+                }
+                
+                // Rainbow shimmer particles in the shield
+                if (Main.rand.NextBool(3))
+                {
+                    float angle = Main.rand.NextFloat(MathHelper.TwoPi);
+                    float radius = 45f + Main.rand.NextFloat(15f);
+                    Vector2 pos = Player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+                    float hue = (Main.GameUpdateCount * 0.02f + angle / MathHelper.TwoPi) % 1f;
+                    Color rainbow = Main.hslToRgb(hue, 0.8f, 0.7f) * haloIntensity;
+                    Dust r = Dust.NewDustPerfect(pos, DustID.RainbowTorch, Vector2.Zero, 0, rainbow, 0.8f);
+                    r.noGravity = true;
+                }
+                
+                // Pearlescent shimmer flares
+                if (Main.rand.NextBool(6))
+                {
+                    float angle = Main.rand.NextFloat(MathHelper.TwoPi);
+                    Vector2 pos = Player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 48f;
+                    CustomParticles.GenericFlare(pos, Color.White * haloIntensity, 0.25f * haloIntensity, 12);
+                }
+                
+                // Shield charge indicator - bright flares at cardinal directions based on charges
+                for (int c = 0; c < pendantShieldCharges; c++)
+                {
+                    float chargeAngle = Main.GameUpdateCount * 0.02f + MathHelper.TwoPi * c / 3f;
+                    Vector2 chargePos = Player.Center + new Vector2((float)Math.Cos(chargeAngle), (float)Math.Sin(chargeAngle)) * 55f;
+                    
+                    // Show charge indicator every few frames
+                    if (Main.GameUpdateCount % 8 == c * 2)
+                    {
+                        CustomParticles.GenericFlare(chargePos, Color.White, 0.35f, 15);
+                        Dust indicator = Dust.NewDustPerfect(chargePos, DustID.WhiteTorch, Vector2.Zero, 0, default, 1.5f);
+                        indicator.noGravity = true;
+                    }
+                }
+                
+                // Add prominent ambient light based on halo intensity
+                float lightPulse = 0.9f + (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.1f;
+                Lighting.AddLight(Player.Center, haloIntensity * 0.6f * lightPulse, haloIntensity * 0.6f * lightPulse, haloIntensity * 0.7f * lightPulse);
+            }
+            
+            // Legacy halo system - keep for backward compatibility
             if (whiteHaloCooldown > 0)
                 whiteHaloCooldown--;
             
             if (whiteHaloActive)
             {
                 whiteHaloTimer--;
-                
-                // White and black halo visual - alternating rings
-                if (Main.rand.NextBool(2))
-                {
-                    float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                    float radius = 45f + Main.rand.NextFloat(10f);
-                    Vector2 pos = Player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
-                    
-                    // Alternating white and black particles in halo
-                    if (Main.rand.NextBool())
-                    {
-                        Dust white = Dust.NewDustPerfect(pos, DustID.WhiteTorch, 
-                            new Vector2((float)Math.Cos(angle + MathHelper.PiOver2), (float)Math.Sin(angle + MathHelper.PiOver2)) * 1.5f, 
-                            100, default, 1.4f);
-                        white.noGravity = true;
-                    }
-                    else
-                    {
-                        Dust black = Dust.NewDustPerfect(pos, DustID.Smoke, 
-                            new Vector2((float)Math.Cos(angle + MathHelper.PiOver2), (float)Math.Sin(angle + MathHelper.PiOver2)) * 1.5f, 
-                            220, Color.Black, 1.4f);
-                        black.noGravity = true;
-                    }
-                }
-                
-                // Pearlescent shimmer accent
-                if (Main.rand.NextBool(8))
-                {
-                    Color pearlescent = Main.rand.Next(3) switch
-                    {
-                        0 => new Color(255, 240, 245),
-                        1 => new Color(240, 245, 255),
-                        _ => new Color(250, 255, 245)
-                    };
-                    Dust shimmer = Dust.NewDustPerfect(Player.Center + Main.rand.NextVector2Circular(50f, 50f),
-                        DustID.TintableDustLighted, Vector2.Zero, 0, pearlescent, 0.8f);
-                    shimmer.noGravity = true;
-                }
-                
                 if (whiteHaloTimer <= 0)
                 {
                     whiteHaloActive = false;
-                    Main.NewText("Monochromatic Halo fades...", new Color(200, 200, 220));
                 }
             }
             
@@ -216,6 +313,10 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             
             // ========== AMBIENT PARTICLES ==========
             SpawnAmbientParticles();
+            
+            // ========== UNIFIED SWAN LAKE FEATHER EFFECT ==========
+            // Only spawn feather aura once regardless of how many Swan Lake items equipped
+            SpawnUnifiedFeatherEffect();
         }
         
         private void SpawnAmbientParticles()
@@ -241,57 +342,101 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             }
         }
         
+        /// <summary>
+        /// Spawns a unified feather effect around the player if they have ANY Swan Lake accessory equipped.
+        /// Only spawns once per tick regardless of how many items are equipped.
+        /// </summary>
+        private void SpawnUnifiedFeatherEffect()
+        {
+            // Check if player has any Swan Lake item (accessory OR held weapon)
+            bool hasAnySwanLakeItem = hasPendantOfTheTwoSwans || hasDualFeatherQuiver || 
+                                       hasCrownOfTheSwan || hasBlackWings || isHoldingSwanLakeWeapon;
+            
+            // If no Swan Lake items, don't spawn anything
+            if (!hasAnySwanLakeItem) return;
+            
+            // If feathers already spawned this tick, don't spawn again
+            if (hasSwanLakeFeatherEffect) return;
+            
+            // Mark that we've spawned feathers this tick
+            hasSwanLakeFeatherEffect = true;
+            
+            // Spawn ONE set of subtle feathers (much less frequent)
+            if (Main.rand.NextBool(25)) // 1 in 25 chance per tick
+            {
+                CustomParticles.SwanFeatherAura(Player.Center, 28f, 1);
+            }
+        }
+        
         public override bool FreeDodge(Player.HurtInfo info)
         {
-            // White mode Pendant - First hit activates monochromatic halo and is dodged
-            // Only works once per cooldown period
-            if (hasPendantOfTheTwoSwans && !pendantIsBlackMode && whiteHaloCooldown <= 0 && !whiteHaloActive)
+            // NEW SHIELD SYSTEM - White mode Pendant
+            // Permanent shield that absorbs up to 3 hits before needing 2 minute recharge
+            if (hasPendantOfTheTwoSwans && !pendantIsBlackMode && pendantShieldActive && pendantShieldCharges > 0)
             {
-                // Activate white & black halo
-                whiteHaloActive = true;
-                whiteHaloTimer = WhiteHaloDuration;
-                whiteHaloCooldown = WhiteHaloCooldownMax;
+                pendantShieldCharges--;
                 
-                // === DRAMATIC HALO BURST VISUAL ===
-                // Expanding white ring
-                for (int i = 0; i < 40; i++)
+                // === SHIELD ABSORB VISUAL ===
+                // Expanding white and black ring
+                for (int i = 0; i < 30; i++)
                 {
-                    float angle = MathHelper.TwoPi * i / 40f;
-                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 8f;
-                    Dust white = Dust.NewDustPerfect(Player.Center, DustID.WhiteTorch, vel, 0, default, 2.2f);
-                    white.noGravity = true;
-                    white.fadeIn = 1.5f;
+                    float angle = MathHelper.TwoPi * i / 30f;
+                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 5f;
+                    
+                    if (i % 2 == 0)
+                    {
+                        Dust white = Dust.NewDustPerfect(Player.Center, DustID.WhiteTorch, vel, 0, default, 1.8f);
+                        white.noGravity = true;
+                        white.fadeIn = 1.3f;
+                    }
+                    else
+                    {
+                        Dust black = Dust.NewDustPerfect(Player.Center, DustID.Smoke, vel, 220, Color.Black, 1.6f);
+                        black.noGravity = true;
+                        black.fadeIn = 1.1f;
+                    }
                 }
                 
-                // Expanding black ring (slightly delayed offset)
-                for (int i = 0; i < 40; i++)
+                // Pearlescent shimmer burst
+                for (int i = 0; i < 12; i++)
                 {
-                    float angle = MathHelper.TwoPi * i / 40f + MathHelper.Pi / 40f;
-                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 6f;
-                    Dust black = Dust.NewDustPerfect(Player.Center, DustID.Smoke, vel, 220, Color.Black, 2f);
-                    black.noGravity = true;
-                    black.fadeIn = 1.3f;
-                }
-                
-                // Inner pearlescent burst
-                for (int i = 0; i < 24; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 24f;
-                    Vector2 pos = Player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 30f;
+                    float angle = MathHelper.TwoPi * i / 12f;
+                    Vector2 pos = Player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 25f;
                     Color pearl = (i % 3) switch
                     {
                         0 => new Color(255, 240, 245),
                         1 => new Color(240, 245, 255),
                         _ => new Color(250, 255, 245)
                     };
-                    Dust ring = Dust.NewDustPerfect(pos, DustID.TintableDustLighted, Vector2.Zero, 0, pearl, 1.8f);
+                    Dust ring = Dust.NewDustPerfect(pos, DustID.TintableDustLighted, Vector2.Zero, 0, pearl, 1.4f);
                     ring.noGravity = true;
                 }
                 
-                // Glass-like activation sound
-                SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.5f }, Player.Center);
-                SoundEngine.PlaySound(SoundID.Item27 with { Pitch = 0.3f, Volume = 0.7f }, Player.Center);
-                Main.NewText("Monochromatic Halo activated! -20% incoming damage for 30 seconds", new Color(240, 245, 255));
+                // Sound effect
+                SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.3f, Volume = 0.8f }, Player.Center);
+                
+                // If all charges depleted, start cooldown
+                if (pendantShieldCharges <= 0)
+                {
+                    pendantShieldActive = false;
+                    pendantShieldCooldown = ShieldCooldownMax;
+                    Main.NewText("Monochromatic Shield depleted! Recharging in 2 minutes...", new Color(255, 180, 180));
+                    
+                    // Shield break visual
+                    for (int i = 0; i < 50; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / 50f;
+                        Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 8f;
+                        Dust shatter = Dust.NewDustPerfect(Player.Center, i % 2 == 0 ? DustID.WhiteTorch : DustID.Smoke, 
+                            vel, i % 2 == 0 ? 0 : 220, i % 2 == 0 ? default : Color.Black, 2f);
+                        shatter.noGravity = true;
+                    }
+                    SoundEngine.PlaySound(SoundID.Shatter with { Pitch = 0.2f }, Player.Center);
+                }
+                else
+                {
+                    Main.NewText($"Shield absorbed hit! ({pendantShieldCharges}/3 charges remaining)", new Color(240, 245, 255));
+                }
                 
                 return true; // This hit is dodged for free
             }
@@ -397,7 +542,82 @@ namespace MagnumOpus.Content.SwanLake.Accessories
         
         private void HandleMeleeHit(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Black mode Pendant - Critical hits create vivid black & white flares with pearlescent rainbow explosion
+            // Black mode Pendant - 5% chance on ANY melee hit to create rainbow electrical explosion
+            // This matches the tooltip description: "5% chance on melee hit"
+            if (hasPendantOfTheTwoSwans && pendantIsBlackMode && Main.rand.NextBool(20) && blackModeExplosionCooldown <= 0)
+            {
+                blackModeExplosionCooldown = BlackModeExplosionCooldownMax;
+                
+                // === MASSIVE PEARLESCENT RAINBOW ELECTRICAL EXPLOSION - VERY VISIBLE! ===
+                SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 1.1f }, target.Center);
+                SoundEngine.PlaySound(SoundID.Item27 with { Pitch = 0.2f, Volume = 0.7f }, target.Center);
+                
+                // HUGE Black and white lightning explosion
+                for (int i = 0; i < 50; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 50f;
+                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(8f, 16f);
+                    
+                    // Alternating black and white lightning particles
+                    if (i % 2 == 0)
+                    {
+                        Dust white = Dust.NewDustPerfect(target.Center, DustID.WhiteTorch, vel, 0, default, 2.8f);
+                        white.noGravity = true;
+                        white.fadeIn = 1.8f;
+                    }
+                    else
+                    {
+                        Dust black = Dust.NewDustPerfect(target.Center, DustID.Smoke, vel * 0.9f, 220, Color.Black, 2.5f);
+                        black.noGravity = true;
+                        black.fadeIn = 1.5f;
+                    }
+                }
+                
+                // === PEARLESCENT RAINBOW RING ===
+                for (int i = 0; i < 24; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 24f;
+                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(4f, 8f);
+                    
+                    // Rainbow cycle through pearlescent colors
+                    float hue = (float)i / 24f;
+                    Color rainbow = Main.hslToRgb(hue, 0.9f, 0.8f);
+                    
+                    Dust pearl = Dust.NewDustPerfect(target.Center, DustID.TintableDustLighted, vel, 0, rainbow, 1.8f);
+                    pearl.noGravity = true;
+                    pearl.fadeIn = 1.4f;
+                }
+                
+                // Central flash burst
+                for (int i = 0; i < 15; i++)
+                {
+                    float hue = Main.rand.NextFloat();
+                    Color flash = Main.hslToRgb(hue, 1f, 0.85f);
+                    Dust f = Dust.NewDustPerfect(target.Center + Main.rand.NextVector2Circular(10f, 10f), 
+                        DustID.RainbowTorch, Main.rand.NextVector2Circular(3f, 3f), 0, flash, 2f);
+                    f.noGravity = true;
+                }
+                
+                // Apply Flame of the Swan
+                target.AddBuff(ModContent.BuffType<FlameOfTheSwan>(), 180);
+                
+                // Lightning flash light - BRIGHT!
+                Lighting.AddLight(target.Center, 2.5f, 2.5f, 3f);
+                
+                // Themed particles - use the big signature effects!
+                ThemedParticles.SwanLakeRainbowExplosion(target.Center, 1.5f);
+                ThemedParticles.SwanLakeMusicalImpact(target.Center, 1.2f, true);
+                ThemedParticles.SwanLakeFractalGemBurst(target.Center, Color.White, 1.0f, 8, true);
+                
+                // Halo rings!
+                CustomParticles.HaloRing(target.Center, Color.White, 0.8f, 20);
+                CustomParticles.HaloRing(target.Center, Color.Black, 0.6f, 18);
+                
+                // Screen shake for impact
+                EroicaScreenShake.SmallShake(target.Center);
+            }
+            
+            // Legacy critical hit effect (kept for additional visual feedback)
             if (hasPendantOfTheTwoSwans && pendantIsBlackMode && hit.Crit)
             {
                 // === VIVID BLACK AND WHITE FLARES ===

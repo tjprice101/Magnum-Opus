@@ -46,6 +46,7 @@ namespace MagnumOpus.Content.SwanLake.Tools
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfSwanLake>(), 15)
                 .AddIngredient(ModContent.ItemType<SwansResonanceEnergy>(), 10)
                 .AddIngredient(ModContent.ItemType<RemnantOfSwansHarmony>(), 8)
+                .AddIngredient(ModContent.ItemType<ShardOfTheFeatheredTempo>(), 5)
                 .AddIngredient(ItemID.SoulofFlight, 8)
                 .AddTile(ModContent.TileType<MoonlightAnvilTile>())
                 .Register();

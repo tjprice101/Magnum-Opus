@@ -9,6 +9,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.SwanLake.Debuffs;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons
@@ -48,44 +49,41 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
 
         public override void HoldItem(Player player)
         {
-            // === EXPLOSIVE Black/white smoke effect while holding! ===
-            for (int i = 0; i < 2; i++)
+            // === UnifiedVFX SWAN LAKE AMBIENT AURA ===
+            UnifiedVFX.SwanLake.Aura(player.Center, 35f, 0.3f);
+            
+            // === AMBIENT FRACTAL FLARES - dual-polarity with rainbow shimmer ===
+            if (Main.rand.NextBool(7))
             {
-                if (Main.rand.NextBool(3))
-                {
-                    Vector2 muzzleOffset = new Vector2(45f * player.direction, -5f + Main.rand.NextFloat(-3f, 3f));
-                    Color col = Main.rand.NextBool() ? Color.White * 0.8f : new Color(30, 30, 40) * 0.9f;
-                    int dustType = Main.rand.NextBool() ? DustID.WhiteTorch : DustID.Shadowflame;
-                    Dust d = Dust.NewDustPerfect(player.Center + muzzleOffset, dustType, Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -0.5f), 
-                        col == Color.White ? 0 : 100, col, 1.2f);
-                    d.noGravity = true;
-                }
+                float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                float radius = Main.rand.NextFloat(30f, 60f);
+                Vector2 flarePos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+                // Gradient: Black → White with rainbow overlay
+                Color baseColor = Main.rand.NextBool() ? UnifiedVFX.SwanLake.Black : UnifiedVFX.SwanLake.White;
+                Color rainbow = UnifiedVFX.SwanLake.GetRainbow(Main.rand.NextFloat());
+                Color fractalColor = Color.Lerp(baseColor, rainbow, 0.35f);
+                CustomParticles.GenericFlare(flarePos, fractalColor, 0.32f, 20);
+                ThemedParticles.SwanLakeFractalTrail(flarePos, 0.25f);
             }
             
-            // Rainbow shimmer particles
-            if (Main.rand.NextBool(6))
+            // Rainbow shimmer particles at muzzle
+            if (Main.rand.NextBool(5))
             {
-                float hue = Main.rand.NextFloat();
-                Color rainbow = Main.hslToRgb(hue, 1f, 0.7f);
-                CustomParticles.GenericFlare(player.Center + new Vector2(30f * player.direction, 0) + Main.rand.NextVector2Circular(15f, 15f), rainbow, 0.35f, 15);
+                Color rainbow = UnifiedVFX.SwanLake.GetRainbow(Main.rand.NextFloat());
+                Vector2 muzzleOffset = new Vector2(30f * player.direction, 0) + Main.rand.NextVector2Circular(15f, 15f);
+                CustomParticles.GenericFlare(player.Center + muzzleOffset, rainbow, 0.38f, 16);
             }
             
-            // Pearlescent shimmer
-            if (Main.rand.NextBool(8))
+            // Floating feathers - dual-polarity
+            if (Main.rand.NextBool(10))
             {
-                CustomParticles.SwanLakeFlare(player.Center + Main.rand.NextVector2Circular(25f, 25f), 0.3f);
-            }
-            
-            // Floating feather drift
-            if (Main.rand.NextBool(12))
-            {
-                CustomParticles.SwanFeatherDrift(player.Center + new Vector2(35f * player.direction, 0), Color.White, 0.25f);
+                Color featherColor = Main.rand.NextBool() ? UnifiedVFX.SwanLake.White : UnifiedVFX.SwanLake.Black;
+                CustomParticles.SwanFeatherDrift(player.Center + new Vector2(35f * player.direction, 0), featherColor, 0.28f);
             }
             
             // Pulsing rainbow light
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.15f + 0.85f;
-            float hueLight = (Main.GameUpdateCount * 0.012f) % 1f;
-            Vector3 lightColor = Main.hslToRgb(hueLight, 0.5f, 0.6f).ToVector3();
+            Vector3 lightColor = UnifiedVFX.SwanLake.GetRainbow(Main.GameUpdateCount * 0.012f).ToVector3();
             Lighting.AddLight(player.Center, lightColor * pulse * 0.7f);
         }
 
@@ -100,31 +98,39 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // === MASSIVE Muzzle flash particles with EXPLOSIVE themed effects! ===
+            // === UnifiedVFX SWAN LAKE MUZZLE IMPACT ===
             Vector2 muzzlePos = position + velocity.SafeNormalize(Vector2.Zero) * 50f;
             Vector2 direction = velocity.SafeNormalize(Vector2.Zero);
+            UnifiedVFX.SwanLake.Impact(muzzlePos, 1.0f);
             
             // HUGE rainbow spark burst in firing direction!
-            ThemedParticles.SwanLakeSparks(muzzlePos, direction, 12, 10f);
-            ThemedParticles.SwanLakeSparkles(muzzlePos, 8, 25f);
-            ThemedParticles.SwanLakeBloomBurst(muzzlePos, 0.7f);
+            ThemedParticles.SwanLakeSparks(muzzlePos, direction, 14, 11f);
+            ThemedParticles.SwanLakeSparkles(muzzlePos, 10, 28f);
             
-            // Multiple rainbow flares!
-            for (int i = 0; i < 8; i++)
+            // Dual-polarity fractal flare burst with gradient
+            for (int i = 0; i < 10; i++)
             {
-                float hue = i / 8f;
-                Color flareColor = Main.hslToRgb(hue, 1f, 0.75f);
-                CustomParticles.GenericFlare(muzzlePos + Main.rand.NextVector2Circular(10f, 10f), flareColor, 0.6f, 20);
+                float progress = (float)i / 10f;
+                Color baseColor = Color.Lerp(UnifiedVFX.SwanLake.Black, UnifiedVFX.SwanLake.White, progress);
+                Color rainbow = UnifiedVFX.SwanLake.GetRainbow(progress);
+                Color flareColor = Color.Lerp(baseColor, rainbow, 0.4f);
+                float angle = MathHelper.TwoPi * progress;
+                Vector2 offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 15f;
+                CustomParticles.GenericFlare(muzzlePos + offset, flareColor, 0.6f, 20);
             }
             
-            // Muzzle flash halo rings!
-            CustomParticles.HaloRing(muzzlePos, Color.White, 0.6f, 20);
-            CustomParticles.HaloRing(muzzlePos, Color.Black, 0.4f, 15);
-            float hueRing = (Main.GameUpdateCount * 0.02f) % 1f;
-            CustomParticles.HaloRing(muzzlePos, Main.hslToRgb(hueRing, 1f, 0.7f), 0.5f, 18);
+            // Gradient halo rings - Black → White with rainbow edge
+            for (int ring = 0; ring < 4; ring++)
+            {
+                float progress = (float)ring / 4f;
+                Color baseColor = Color.Lerp(UnifiedVFX.SwanLake.Black, UnifiedVFX.SwanLake.White, progress);
+                Color rainbow = UnifiedVFX.SwanLake.GetRainbow(progress);
+                Color ringColor = Color.Lerp(baseColor, rainbow, 0.35f);
+                CustomParticles.HaloRing(muzzlePos, ringColor, 0.45f + ring * 0.1f, 16 + ring * 3);
+            }
             
             // Swan feather burst on shot!
-            CustomParticles.SwanFeatherBurst(muzzlePos, 4, 0.25f);
+            ThemedParticles.SwanFeatherBurst(muzzlePos, 6, 30f);
             
             // HEAVY muzzle spark dust!
             for (int i = 0; i < 16; i++)
@@ -296,6 +302,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             {
                 CustomParticles.SwanFeatherTrail(Projectile.Center, Projectile.velocity, 0.2f);
             }
+            
+            // Ambient fractal gem sparkle
+            if (Main.rand.NextBool(6))
+            {
+                ThemedParticles.SwanLakeFractalTrail(Projectile.Center, 0.45f);
+            }
 
             // BRIGHT pulsing light!
             float intensity = isBlackRocket ? 0.7f : 1.1f;
@@ -322,8 +334,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
         private void CreateHitExplosion(Vector2 position)
         {
             // Rainbow impact burst!
-            ThemedParticles.SwanLakeImpact(position, 0.9f);
-            ThemedParticles.SwanLakeRainbowExplosion(position, 0.8f);
+            ThemedParticles.SwanLakeImpact(position, 0.81f);
+            ThemedParticles.SwanLakeRainbowExplosion(position, 0.72f);
             
             // Rainbow sparkle flares!
             ThemedParticles.SwanLakeSparkles(position, 18, 35f);
@@ -354,6 +366,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             // Swan feather burst on hit!
             CustomParticles.SwanFeatherBurst(position, 5, 0.3f);
             
+            // Fractal gem burst on hit!
+            ThemedParticles.SwanLakeFractalGemBurst(position, isBlackRocket ? Color.Black : Color.White, 0.7f, 6, false);
+            
             // Lighting!
             float lightHue = (Main.GameUpdateCount * 0.025f) % 1f;
             Vector3 lightColor = Main.hslToRgb(lightHue, 0.8f, 0.7f).ToVector3();
@@ -362,82 +377,82 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
 
         private void CreatePearlescentExplosion()
         {
-            // === RAINBOW PEARLESCENT EXPLOSION (50% reduced size, more sparkles)! ===
-            SoundEngine.PlaySound(SoundID.Item27 with { Volume = 0.9f, Pitch = 0.3f }, Projectile.Center); // Glass shatter
-            SoundEngine.PlaySound(SoundID.Item107 with { Volume = 0.75f, Pitch = 0.4f }, Projectile.Center); // Crystal shatter
-            SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with { Volume = 0.4f, Pitch = 0.5f }, Projectile.Center);
+            // === RAINBOW PEARLESCENT EXPLOSION (70% size - reduced 30%)! ===
+            SoundEngine.PlaySound(SoundID.Item27 with { Volume = 0.63f, Pitch = 0.3f }, Projectile.Center);
+            SoundEngine.PlaySound(SoundID.Item107 with { Volume = 0.53f, Pitch = 0.4f }, Projectile.Center);
+            SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with { Volume = 0.28f, Pitch = 0.5f }, Projectile.Center);
             
-            // Monochrome to rainbow explosion (reduced)
-            ThemedParticles.SwanLakeRainbowExplosion(Projectile.Center, 1.25f);
-            ThemedParticles.SwanLakeMusicalImpact(Projectile.Center, 1.0f, true);
-            ThemedParticles.SwanLakeImpact(Projectile.Center, 0.9f);
+            // Monochrome to rainbow explosion (70% size)
+            ThemedParticles.SwanLakeRainbowExplosion(Projectile.Center, 0.79f);
+            ThemedParticles.SwanLakeMusicalImpact(Projectile.Center, 0.63f, true);
+            ThemedParticles.SwanLakeImpact(Projectile.Center, 0.63f);
             
-            // Stacked halo rings (50% reduced)!
-            for (int ring = 0; ring < 4; ring++)
+            // Stacked halo rings (70% size)!
+            for (int ring = 0; ring < 3; ring++)
             {
                 float hue = (Main.GameUpdateCount * 0.02f + ring * 0.25f) % 1f;
                 Color ringColor = Main.hslToRgb(hue, 1f, 0.8f);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.5f + ring * 0.15f, 20 + ring * 5);
+                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.35f + ring * 0.11f, 14 + ring * 4);
             }
-            CustomParticles.HaloRing(Projectile.Center, Color.White, 0.9f, 30);
-            CustomParticles.HaloRing(Projectile.Center, Color.Black, 0.75f, 28);
+            CustomParticles.HaloRing(Projectile.Center, Color.White, 0.63f, 21);
+            CustomParticles.HaloRing(Projectile.Center, Color.Black, 0.53f, 20);
             
-            // Music notes burst (reduced)
-            ThemedParticles.SwanLakeMusicNotes(Projectile.Center, 8, 35f);
-            ThemedParticles.SwanLakeAccidentals(Projectile.Center, 4, 28f);
-            ThemedParticles.SwanLakeFeathers(Projectile.Center, 6, 30f);
+            // Music notes burst (70% size)
+            ThemedParticles.SwanLakeMusicNotes(Projectile.Center, 6, 25f);
+            ThemedParticles.SwanLakeAccidentals(Projectile.Center, 3, 20f);
+            ThemedParticles.SwanLakeFeathers(Projectile.Center, 4, 21f);
             
-            // Swan feather explosion on rocket death!
-            CustomParticles.SwanFeatherExplosion(Projectile.Center, 10, 0.4f);
+            // Swan feather explosion on rocket death (70% size)!
+            CustomParticles.SwanFeatherExplosion(Projectile.Center, 7, 0.28f);
             
-            // EXTRA SPARKLE FLARES for added rainbow flare!
-            ThemedParticles.SwanLakeSparkles(Projectile.Center, 50, 55f);
+            // Sparkle flares (70% size)!
+            ThemedParticles.SwanLakeSparkles(Projectile.Center, 35, 39f);
             
-            // Rainbow flare explosion!
-            for (int i = 0; i < 16; i++)
+            // Rainbow flare explosion (70% count/size)!
+            for (int i = 0; i < 11; i++)
             {
-                float hue = i / 16f;
+                float hue = i / 11f;
                 Color flareColor = Main.hslToRgb(hue, 1f, 0.8f);
-                CustomParticles.GenericFlare(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f), flareColor, 0.65f, 25);
+                CustomParticles.GenericFlare(Projectile.Center + Main.rand.NextVector2Circular(14f, 14f), flareColor, 0.46f, 18);
             }
             
-            // Black flame burst (reduced)
-            for (int i = 0; i < 12; i++)
+            // Black flame burst (70% count/size)
+            for (int i = 0; i < 8; i++)
             {
-                float angle = MathHelper.TwoPi * i / 12f;
-                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(5f, 10f);
-                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Shadowflame, vel, 100, new Color(20, 20, 30), 1.8f);
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(3.5f, 7f);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Shadowflame, vel, 100, new Color(20, 20, 30), 1.26f);
                 d.noGravity = true;
-                d.fadeIn = 1.3f;
+                d.fadeIn = 0.91f;
             }
             
-            // White flame burst (reduced)
-            for (int i = 0; i < 12; i++)
+            // White flame burst (70% count/size)
+            for (int i = 0; i < 8; i++)
             {
-                float angle = MathHelper.TwoPi * i / 12f + MathHelper.Pi / 12f;
-                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(4f, 9f);
-                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.WhiteTorch, vel, 0, Color.White, 1.6f);
+                float angle = MathHelper.TwoPi * i / 8f + MathHelper.Pi / 8f;
+                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(2.8f, 6.3f);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.WhiteTorch, vel, 0, Color.White, 1.12f);
                 d.noGravity = true;
-                d.fadeIn = 1.2f;
+                d.fadeIn = 0.84f;
             }
             
-            // Rainbow spark explosion (reduced)!
-            for (int i = 0; i < 20; i++)
+            // Rainbow spark explosion (70% count/size)!
+            for (int i = 0; i < 14; i++)
             {
-                float angle = MathHelper.TwoPi * i / 20f;
-                float hue = i / 20f;
+                float angle = MathHelper.TwoPi * i / 14f;
+                float hue = i / 14f;
                 Color sparkColor = Main.hslToRgb(hue, 1f, 0.7f);
-                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(6f, 12f);
-                Dust spark = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowTorch, vel, 0, sparkColor, 1.6f);
+                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(4.2f, 8.4f);
+                Dust spark = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowTorch, vel, 0, sparkColor, 1.12f);
                 spark.noGravity = true;
-                spark.fadeIn = 1.3f;
+                spark.fadeIn = 0.91f;
             }
             
-            // Extra pearlescent shimmer burst!
-            ThemedParticles.SwanLakeSparkles(Projectile.Center, 20, 45f);
+            // Extra pearlescent shimmer burst (70% size)!
+            ThemedParticles.SwanLakeSparkles(Projectile.Center, 14, 32f);
             
-            // Light explosion (reduced)
-            Lighting.AddLight(Projectile.Center, 1.5f, 1.5f, 1.8f);
+            // Light explosion (70% intensity)
+            Lighting.AddLight(Projectile.Center, 1.05f, 1.05f, 1.26f);
         }
         
         public override bool OnTileCollide(Vector2 oldVelocity)

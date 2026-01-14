@@ -10,6 +10,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.SwanLake.Debuffs;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons
@@ -18,6 +19,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
     /// Call of the Black Swan - Greatsword that sends 3 black/white flares on swing.
     /// Landing all 3 flares empowers the sword, making the next swing fire 8 smaller projectiles at double damage.
     /// Rainbow (Swan) rarity, no crafting recipe.
+    /// Hold right-click to charge a devastating prismatic swan storm attack!
     /// </summary>
     public class CalloftheBlackSwan : ModItem
     {
@@ -25,6 +27,26 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
         private static Dictionary<int, int> flareHitCounts = new Dictionary<int, int>();
         private static Dictionary<int, bool> empoweredState = new Dictionary<int, bool>();
         private static Dictionary<int, int> empowermentTimer = new Dictionary<int, int>();
+        
+        // Charged melee attack config
+        private ChargedMeleeConfig chargedConfig;
+        
+        private ChargedMeleeConfig GetChargedConfig()
+        {
+            if (chargedConfig == null)
+            {
+                chargedConfig = new ChargedMeleeConfig
+                {
+                    PrimaryColor = UnifiedVFX.SwanLake.Black,
+                    SecondaryColor = UnifiedVFX.SwanLake.White,
+                    ChargeTime = 55f,
+                    SpawnThemeMusicNotes = (pos, count, radius) => ThemedParticles.SwanLakeMusicNotes(pos, count, radius),
+                    SpawnThemeExplosion = (pos, scale) => ThemedParticles.SwanLakeRainbowExplosion(pos, scale),
+                    DrawThemeLightning = (start, end) => MagnumVFX.DrawSwanLakeLightning(start, end, 12, 30f, 5, 0.5f)
+                };
+            }
+            return chargedConfig;
+        }
 
         public static void RegisterFlareHit(int playerIndex)
         {
@@ -94,6 +116,21 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
 
         public override void HoldItem(Player player)
         {
+            // === CHARGED MELEE ATTACK SYSTEM ===
+            var chargedPlayer = player.GetModPlayer<ChargedMeleePlayer>();
+            
+            // Start charging on right-click (only when not empowered, as empowered has its own use)
+            if (Main.mouseRight && !chargedPlayer.IsCharging && !chargedPlayer.IsReleasing && !IsEmpowered(player.whoAmI))
+            {
+                chargedPlayer.TryStartCharging(Item, GetChargedConfig());
+            }
+            
+            // Update charging state
+            if (chargedPlayer.IsCharging || chargedPlayer.IsReleasing)
+            {
+                chargedPlayer.UpdateCharging(Main.mouseRight);
+            }
+            
             // Update empowerment timer
             if (empowermentTimer.ContainsKey(player.whoAmI) && empowermentTimer[player.whoAmI] > 0)
             {
@@ -147,29 +184,40 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             }
             else
             {
+                // === UnifiedVFX SWAN LAKE AMBIENT AURA ===
+                UnifiedVFX.SwanLake.Aura(player.Center, 30f, 0.25f);
+                
+                // === AMBIENT FRACTAL FLARES - signature Swan Lake look ===
+                if (Main.rand.NextBool(7))
+                {
+                    float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                    float radius = Main.rand.NextFloat(30f, 60f);
+                    Vector2 flarePos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+                    // Dual-polarity gradient: Black → White with rainbow shimmer
+                    Color baseColor = Main.rand.NextBool() ? UnifiedVFX.SwanLake.Black : UnifiedVFX.SwanLake.White;
+                    Color rainbow = UnifiedVFX.SwanLake.GetRainbow(Main.rand.NextFloat());
+                    Color fractalColor = Color.Lerp(baseColor, rainbow, 0.35f);
+                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.32f, 20);
+                    ThemedParticles.SwanLakeFractalTrail(flarePos, 0.25f);
+                }
+                
                 // Elegant ambient glow with prismatic sparkles
                 if (Main.rand.NextBool(8))
                 {
-                    CustomParticles.PrismaticSparkleAmbient(player.Center, CustomParticleSystem.SwanLakeColors.PureWhite, 25f, 2);
+                    CustomParticles.PrismaticSparkleAmbient(player.Center, UnifiedVFX.SwanLake.White, 25f, 2);
                 }
                 
-                // Gentle floating feathers
-                if (Main.rand.NextBool(12))
+                // Gentle floating feathers - dual-polarity
+                if (Main.rand.NextBool(10))
                 {
-                    CustomParticles.SwanFeatherDrift(player.Center + Main.rand.NextVector2Circular(20f, 20f), Color.White, 0.3f);
+                    Color featherColor = Main.rand.NextBool() ? UnifiedVFX.SwanLake.White : UnifiedVFX.SwanLake.Black;
+                    CustomParticles.SwanFeatherDrift(player.Center + Main.rand.NextVector2Circular(22f, 22f), featherColor, 0.3f);
                 }
                 
-                // Occasional black/white sparks - reduced frequency
-                if (Main.rand.NextBool(7))
-                {
-                    Color col = Main.rand.NextBool() ? Color.White * 0.7f : Color.Black * 0.8f;
-                    int dustType = Main.rand.NextBool() ? DustID.WhiteTorch : DustID.Shadowflame;
-                    Dust d = Dust.NewDustPerfect(player.Center + Main.rand.NextVector2Circular(20f, 20f),
-                        dustType, new Vector2(0, -0.6f), col == Color.White ? 0 : 100, col, 1.0f);
-                    d.noGravity = true;
-                }
-                
-                Lighting.AddLight(player.Center, 0.3f, 0.3f, 0.4f);
+                // Rainbow shimmer light cycling
+                float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.1f + 0.9f;
+                Vector3 lightColor = UnifiedVFX.SwanLake.GetRainbow(Main.GameUpdateCount * 0.01f).ToVector3();
+                Lighting.AddLight(player.Center, lightColor * pulse * 0.4f);
             }
         }
 
@@ -177,15 +225,22 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
         {
             target.AddBuff(ModContent.BuffType<FlameOfTheSwan>(), 360); // 6 seconds
             
-            // === EXPLOSIVE MELEE HIT EFFECTS! ===
+            // === UnifiedVFX SWAN LAKE IMPACT! ===
+            UnifiedVFX.SwanLake.Impact(target.Center, 1.4f);
             
-            // Massive monochrome burst into rainbow explosion!
-            ThemedParticles.SwanLakeImpact(target.Center, 1.5f);
-            ThemedParticles.SwanLakeRainbowExplosion(target.Center, 1.2f);
+            // Enhanced monochrome burst into rainbow explosion!
+            ThemedParticles.SwanLakeRainbowExplosion(target.Center, 1.1f);
             
-            // HEAVY black/white spark explosion!
+                // HEAVY black/white spark explosion with GRADIENT to rainbow!
             for (int i = 0; i < 20; i++)
             {
+                // GRADIENT: Black → White with rainbow shimmer overlay
+                float progress = (float)i / 20f;
+                Color baseColor = Color.Lerp(Color.Black, Color.White, progress);
+                // Add rainbow shimmer overlay
+                float hue = (progress + Main.GameUpdateCount * 0.01f) % 1f;
+                Color rainbowShimmer = Main.hslToRgb(hue, 0.5f, 0.8f);
+                Color finalColor = Color.Lerp(baseColor, rainbowShimmer, 0.3f);
                 Color col = i % 2 == 0 ? Color.White : Color.Black;
                 int dustType = i % 2 == 0 ? DustID.WhiteTorch : DustID.Shadowflame;
                 Vector2 vel = Main.rand.NextVector2Circular(8f, 8f);
@@ -208,8 +263,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             // Rainbow explosion on critical hits - DEVASTATING!
             if (hit.Crit)
             {
-                ThemedParticles.SwanLakeRainbowExplosion(target.Center, 2.2f);
-                ThemedParticles.SwanLakeMusicalImpact(target.Center, 1.5f, true);
+                ThemedParticles.SwanLakeRainbowExplosion(target.Center, 1.98f);
+                ThemedParticles.SwanLakeMusicalImpact(target.Center, 1.35f, true);
                 
                 // MASSIVE rainbow flare burst!
                 for (int i = 0; i < 16; i++)
@@ -270,8 +325,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
                 }
                 
                 // MASSIVE rainbow explosion from monochrome burst!
-                ThemedParticles.SwanLakeRainbowExplosion(position, 3.0f);
-                ThemedParticles.SwanLakeMusicalImpact(position, 2.5f, true);
+                ThemedParticles.SwanLakeRainbowExplosion(position, 2.7f);
+                ThemedParticles.SwanLakeMusicalImpact(position, 2.25f, true);
                 
                 // Stacked shockwave rings!
                 for (int ring = 0; ring < 6; ring++)
@@ -522,6 +577,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
                 float hue = Main.rand.NextFloat();
                 CustomParticles.GenericFlare(Projectile.Center, Main.hslToRgb(hue, 1f, 0.7f), 0.35f, 15);
             }
+            
+            // Ambient fractal gem sparkle
+            if (Main.rand.NextBool(8))
+            {
+                ThemedParticles.SwanLakeFractalTrail(Projectile.Center, 0.4f);
+            }
 
             // BRIGHT pulsing light!
             float intensity = isBlack ? 0.5f : 0.9f;
@@ -637,6 +698,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             
             // Small halo
             CustomParticles.HaloRing(Projectile.Center, isBlack ? Color.Black : Color.White, 0.35f, 12);
+            
+            // Fractal gem burst on death!
+            ThemedParticles.SwanLakeFractalGemBurst(Projectile.Center, isBlack ? Color.Black : Color.White, 0.7f, 5, false);
             
             // Music notes on death!
             ThemedParticles.SwanLakeMusicNotes(Projectile.Center, 4, 25f);

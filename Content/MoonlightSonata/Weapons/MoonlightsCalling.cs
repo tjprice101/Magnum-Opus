@@ -44,11 +44,33 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
 
         public override void HoldItem(Player player)
         {
-            // Magical tome particles while holding
+            // GRADIENT COLORS: Dark Purple → Violet → Light Blue
+            Color darkPurple = new Color(75, 0, 130);
+            Color violet = new Color(138, 43, 226);
+            Color lightBlue = new Color(135, 206, 250);
+            
+            // Ambient fractal orbit pattern with GRADIENT
+            if (Main.rand.NextBool(6))
+            {
+                float baseAngle = Main.GameUpdateCount * 0.025f;
+                for (int i = 0; i < 5; i++)
+                {
+                    float angle = baseAngle + MathHelper.TwoPi * i / 5f;
+                    float radius = 28f + (float)Math.Sin(Main.GameUpdateCount * 0.05f + i * 0.6f) * 10f;
+                    Vector2 flarePos = player.Center + angle.ToRotationVector2() * radius;
+                    float progress = (float)i / 5f;
+                    Color fractalColor = Color.Lerp(darkPurple, lightBlue, progress);
+                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.28f, 16);
+                }
+            }
+            
+            // Magical tome particles with GRADIENT
             if (Main.rand.NextBool(5))
             {
                 Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
-                ThemedParticles.MoonlightSparkles(player.Center + offset, 2, 12f);
+                float progress = Main.rand.NextFloat();
+                Color gradientColor = Color.Lerp(darkPurple, lightBlue, progress);
+                CustomParticles.GenericGlow(player.Center + offset, gradientColor, 0.25f, 18);
             }
             
             // Custom particle ethereal glow
@@ -96,11 +118,32 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            // GRADIENT COLORS
+            Color darkPurple = new Color(75, 0, 130);
+            Color violet = new Color(138, 43, 226);
+            Color lightBlue = new Color(135, 206, 250);
+            
             // Add slight spread for rapid fire feel
             float spread = MathHelper.ToRadians(5f);
             velocity = velocity.RotatedByRandom(spread);
             
             Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
+            
+            // Muzzle flash with GRADIENT burst
+            for (int i = 0; i < 6; i++)
+            {
+                float progress = (float)i / 6f;
+                Color flashColor = Color.Lerp(darkPurple, lightBlue, progress);
+                CustomParticles.GenericFlare(position + Main.rand.NextVector2Circular(8f, 8f), flashColor, 0.35f, 12);
+            }
+            
+            // Gradient halo rings
+            for (int ring = 0; ring < 3; ring++)
+            {
+                float progress = (float)ring / 3f;
+                Color ringColor = Color.Lerp(darkPurple, lightBlue, progress);
+                CustomParticles.HaloRing(position, ringColor, 0.25f + ring * 0.1f, 10 + ring * 3);
+            }
             
             // Occasional music notes on cast
             if (Main.rand.NextBool(4))

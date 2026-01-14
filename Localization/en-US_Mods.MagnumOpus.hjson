@@ -2,6 +2,8 @@
 
 Mods: {
 	MagnumOpus: {
+		DropConditions.PostMoonLord: After Moon Lord has been defeated
+
 		Items: {
 			RemnantOfMoonlightsHarmony: {
 				DisplayName: Remnant of Moonlight's Harmony
@@ -142,6 +144,7 @@ Mods: {
 					'''
 					'Each particle rings with bell-like clarity'
 					Golden energy resonating with Liszt's virtuoso piece
+					Radiates with impossible speed and blazing intensity
 					Used to upgrade the Harmonic Core of La Campanella
 					'''
 			}
@@ -151,6 +154,7 @@ Mods: {
 				Tooltip:
 					'''
 					'The bell's toll captured in crystal form'
+					Refined essence of virtuosic fury and blazing passion
 					A foundation material for La Campanella equipment
 					'''
 			}
@@ -159,10 +163,15 @@ Mods: {
 				DisplayName: Harmonic Core of La Campanella
 				Tooltip:
 					'''
+					[Tier 4 Harmonic Core] - Equip in Harmonic Core UI
+					All Classes: +10% Damage
+					◆ CHROMATIC MODE (Offensive):
+					   Bell's Toll: +8% damage, crits trigger echo damage
+					   Bell Resonance: 12 hit stacks, then crit = TRIPLE damage + AOE blast
+					◇ DIATONIC MODE (Defensive):
+					   Bell's Ward: +12 DEF, +12% damage reduction
+					   Sanctuary Bells: Taking damage reflects to nearby enemies, heals 6 HP/2.5s
 					'The bells ring with devastating precision'
-					A Tier 4 Harmonic Core focused on critical strikes
-					Equip in the Harmonic Core slot for crit bonuses
-					Features 4 class upgrade trees: Melee, Ranged, Magic, Summon
 					'''
 			}
 
@@ -456,6 +465,46 @@ Buffs: {
 		DisplayName: Iridescent Flock Buff
 		Description: Mods.MagnumOpus.Buffs.IridescentFlockBuff.Description
 	}
+
+	FeathersCallBuff: {
+		DisplayName: Feather's Call
+		Description: You are one with the Swan's Melody...
+	}
+
+	ResonantToll: {
+		DisplayName: Resonant Toll
+		Description: The bells toll for thee - stacking fire damage and increased vulnerability
+	}
+
+	CampanellaChoirBuff: {
+		DisplayName: Campanella Choir
+		Description: The choir sings with infernal passion - your minions blaze with bell-fire
+	}
+
+	GrandCrescendoBuff: {
+		DisplayName: Grand Crescendo
+		Description: +50% movement speed, +4 max run speed - the finale resonates through you!
+	}
+
+	InfernoWaltzBuff: {
+		DisplayName: Inferno Waltz
+		Description: +30% movement speed - dancing through flames with virtuosic grace
+	}
+
+	BellfireCrescendoBuff: {
+		DisplayName: Bellfire Crescendo Buff
+		Description: Mods.MagnumOpus.Buffs.BellfireCrescendoBuff.Description
+	}
+
+	InfiniteBellDamageBuff: {
+		DisplayName: Infinite Bell Damage Buff
+		Description: Mods.MagnumOpus.Buffs.InfiniteBellDamageBuff.Description
+	}
+
+	InfiniteBellEmpoweredBuff: {
+		DisplayName: Infinite Bell Empowered Buff
+		Description: Mods.MagnumOpus.Buffs.InfiniteBellEmpoweredBuff.Description
+	}
 }
 
 Items: {
@@ -547,8 +596,9 @@ Items: {
 		DisplayName: La Campanella Resonance Ore
 		Tooltip:
 			'''
-			'The golden bells of Liszt echo within'
-			Orange resonant ore found in desert sands
+			'The infernal bells ring beneath the scorching sands'
+			Orange resonant ore, burning with virtuosic intensity
+			Found where desert heat meets musical legend
 			'''
 	}
 
@@ -718,6 +768,11 @@ Items: {
 		Tooltip: "'Crystallized fragments of lunar rhythm'"
 	}
 
+	ShardOfTheFeatheredTempo: {
+		DisplayName: Shard of the Feathered Tempo
+		Tooltip: "'A graceful fragment of swan-like elegance'"
+	}
+
 	TriumphantFractal: {
 		DisplayName: Triumphant Fractal
 		Tooltip:
@@ -779,18 +834,36 @@ Items: {
 	}
 
 	HarmonicCoreOfLaCampanella: {
-		DisplayName: Harmonic Core Of La Campanella
-		Tooltip: ""
+		DisplayName: Harmonic Core of La Campanella
+		Tooltip:
+			'''
+			[Tier 4 Harmonic Core] - Equip in Harmonic Core UI
+			'The Maestro's heart - where virtuosity becomes power'
+			All Classes: +10% Damage
+			◆ CHROMATIC: +8% damage, crits trigger bell echoes, 12-stack crit = TRIPLE + AOE
+			◇ DIATONIC: +12 DEF, +12% DR, reflects damage as fire, heals 6 HP/2.5s
+			'The bells toll in harmony - and the world trembles'
+			'''
 	}
 
 	ResonantCoreOfLaCampanella: {
-		DisplayName: Resonant Core Of La Campanella
-		Tooltip: ""
+		DisplayName: Resonant Core of La Campanella
+		Tooltip:
+			'''
+			'The eternal bell's toll, frozen in crystalline form'
+			Foundation material for all La Campanella armaments
+			Smelt blazing remnants to forge this sacred core
+			'''
 	}
 
 	LaCampanellaResonantEnergy: {
 		DisplayName: La Campanella Resonant Energy
-		Tooltip: ""
+		Tooltip:
+			'''
+			'Each mote of energy rings with bell-like clarity'
+			Harness this to strengthen the Harmonic Core's resonance
+			The bells grow louder with each infusion
+			'''
 	}
 
 	HarmonicCoreOfMoonlightSonata: {
@@ -899,6 +972,7 @@ Items: {
 			'''
 			Summoner Accessory - Toggle modes with right-click
 			WHITE MODE: Up to 25% damage reduction when minions nearby (5% per minion)
+			          Protective white shields orbit around you
 			BLACK MODE: +35% minion damage, -20% defense, minions apply Flame of the Swan
 			'At dawn, when darkness meets light, the monochromatic wings spread'
 			'''
@@ -921,8 +995,9 @@ Items: {
 			'''
 			Ranger Accessory - Works with arrows AND bullets
 			Toggle modes with right-click
-			WHITE MODE: +3 life regen, hits restore 1 HP, spawns healing halos every 20 shots
-			BLACK MODE: +18% ranged damage, +2 pierce, applies Flame of the Swan
+			WHITE MODE (Grace of Odette): +10% ranged crit, every 5th shot spawns a homing swan feather
+			          Enemies killed have 25% chance to drop healing feathers (+5 HP on pickup)
+			BLACK MODE (Shadow of Odile): +18% ranged damage, +2 pierce, applies Flame of the Swan
 			'Each feather remembers the flight - one toward the light, one into darkness'
 			'''
 	}
@@ -932,8 +1007,10 @@ Items: {
 		Tooltip:
 			'''
 			Melee Accessory - Toggle modes with right-click
-			WHITE MODE: On dodge, creates monochromatic halo (-20% damage for 30s, 3 min cooldown)
-			BLACK MODE: +25% crit damage, crits unleash black/white flares with Flame of the Swan
+			WHITE MODE: A monochromatic halo surrounds you, granting 3 shield charges
+			          Each charge blocks 1 lethal hit (recharges after 15 seconds)
+			          Halo brightness indicates remaining charges
+			BLACK MODE: 20% chance on ANY melee crit to trigger rainbow explosions with Flame of the Swan
 			'Two souls entwined in eternal dance - light and shadow, love and deception'
 			'''
 	}
@@ -1037,6 +1114,19 @@ Items: {
 			'''
 	}
 
+	FeathersCall: {
+		DisplayName: Feather's Call
+		Tooltip:
+			'''
+			Transforms you into a fragment of the Swan's essence
+			Drains all mana upon use - become one with the melody
+			LEFT CLICK: Rain pearlescent, black, and white flares with tracking explosions
+			RIGHT CLICK: Unleash black and white lightning with massive AOE
+			Grants infinite flight while transformed
+			'The Swan's power courses through your veins...'
+			'''
+	}
+
 	ScoreOfSwanLake: {
 		Tooltip: ""
 		DisplayName: Score Of Swan Lake
@@ -1045,6 +1135,204 @@ Items: {
 	SwanLakeTreasureBag: {
 		Tooltip: ""
 		DisplayName: Swan Lake Treasure Bag
+	}
+
+	SeedOfUniversalMelodies: {
+		DisplayName: Seed Of Universal Melodies
+		Tooltip: ""
+	}
+
+	CampanellasPyreMedallion: {
+		DisplayName: Campanella's Pyre Medallion
+		Tooltip:
+			'''
+			'Forged in the flames of Liszt's fastest passage'
+			The medallion burns with an eternal inferno
+			+15% critical strike chance
+			+8% attack speed
+			+20% damage to enemies marked by Resonant Toll
+			Your swift movements leave trails of sacred bellfire
+			'Each note blazes brighter than the last'
+			'''
+	}
+
+	ChamberOfBellfire: {
+		DisplayName: Chamber of Bellfire
+		Tooltip:
+			'''
+			'The first bell tolls - and flames answer'
+			+6 defense, +12% damage
+			Grants immunity to all fire debuffs and lava
+			Blazing aura surrounds you, damaging nearby foes
+			Every 10 strikes, the bells toll with explosive fury
+			'Within this chamber burns the virtuoso's undying passion'
+			'''
+	}
+
+	InfernalBellOfTheMaestro: {
+		DisplayName: Infernal Bell of the Maestro
+		Tooltip:
+			'''
+			'The Grand Finale - Where Music Becomes Fire'
+			+15 defense, +60 max life, +8 life regen
+			+20% all damage, +20% crit chance, +15% attack speed, +15% movement
+			Complete mastery over flame - no fire can harm you
+			INFERNAL RESONANCE: Your very presence ignites all who draw near
+			GRAND TOLLING: Every 5 seconds, the bell's voice shakes reality itself
+			Critical strikes erupt in pillars of sacred fire (+25% bonus damage)
+			Each Resonant Toll stack amplifies your fury (+5% damage per stack)
+			'Become the Maestro. Conduct the Inferno. Let the Bell Sing!'
+			'''
+	}
+
+	SymphonyOfTheBlazingSanctuary: {
+		DisplayName: Symphony of the Blazing Sanctuary
+		Tooltip:
+			'''
+			'Where bells ring, the faithful find shelter in flames'
+			+10 defense, +40 max life, +4 life regen
+			+15 defense when wounded below half health
+			BELL BARRIER: At death's door, the sanctuary's bells intervene
+			              Blocks 70% of lethal damage (30s cooldown)
+			              Repels enemies and brands them with Resonant Toll
+			Fallen enemies become pillars of healing fire
+			'The Symphony protects those who carry its flame'
+			'''
+	}
+
+	LaCampanellaTreasureBag: {
+		DisplayName: La Campanella Treasure Bag
+		Tooltip:
+			'''
+			{$CommonItemTooltip.RightClickToOpen}
+			'Within lies the Maestro's burning legacy'
+			Contains treasures forged in the infernal bells
+			'''
+	}
+
+	RemnantOfTheInfernalBell: {
+		DisplayName: Remnant of the Infernal Bell
+		Tooltip:
+			'''
+			'A fragment of the bell that played the Étude of Fire'
+			Crystallized essence from Liszt's legendary composition
+			The heat within never fades, even in the coldest depths
+			Smelt at a Moonlight Furnace to forge Resonant Cores
+			'''
+	}
+
+	ShardOfTheBurningTempo: {
+		DisplayName: Shard of the Burning Tempo
+		Tooltip:
+			'''
+			'Each shard rings with notes played faster than thought'
+			A fragment of virtuosic fury, blazing with impossible speed
+			The tempo within accelerates eternally
+			Essential for crafting La Campanella equipment
+			'''
+	}
+
+	DualFatedChime: {
+		DisplayName: Dual-Fated Chime
+		Tooltip:
+			'''
+			'Two bells, one destiny - creation and destruction in perfect harmony'
+			A Zenith-forged blade that rings with every swing
+			Each strike summons 2-4 SPECTRAL BELL ECHOES that blaze with sacred fire
+			All attacks brand enemies with the mark of Resonant Toll
+			INFERNO WALTZ: Build fury through combat until the bells overflow
+			               Unleash a spinning dance of devastating flame
+			               The waltz grants 15 seconds of blazing swiftness
+			'When the dual chimes toll, even gods take notice'
+			'''
+	}
+
+	FangOfTheInfiniteBell: {
+		DisplayName: Fang of the Infinite Bell
+		Tooltip:
+			'''
+			'The bell that never stops ringing, whose toll echoes through eternity'
+			Channel the CAMPANELLA CONFLAGRATION at your cursor
+			A vortex of blazing music draws enemies into its infernal embrace
+			Those caught within are branded with Resonant Toll endlessly
+			Every 1.5 seconds, the bell's voice erupts in devastating bursts
+			'Listen to the infinite bell - it speaks only of destruction'
+			'''
+	}
+
+	GrandioseChime: {
+		DisplayName: Grandiose Chime
+		Tooltip:
+			'''
+			'Each shot is a note in the grandest symphony ever composed'
+			A rifle that fires beams of pure musical energy
+			Piercing bell-flame projectiles strike through three foes at once
+			Every impact brands the enemy with Resonant Toll
+			BELLFIRE BARRAGE: Every 5th shot scatters seven burning notes
+			'The Grandiose Chime plays a melody of precision and fire'
+			'''
+	}
+
+	IgnitionOfTheBell: {
+		DisplayName: Ignition of the Bell
+		Tooltip:
+			'''
+			'Where this spear thrusts, the bell's flame follows'
+			A spear that ignites with every strike
+			Each thrust releases three streams of BLAZING MUSICAL WAVES
+			All attacks sear the mark of Resonant Toll into flesh
+			CHIME CYCLONE: Strike true three times to unleash judgment
+			               The bell screams, and a flaming cyclone is born
+			'The bell's ignition cannot be contained - it yearns to burn'
+			'''
+	}
+
+	InfernalChimesCalling: {
+		DisplayName: Infernal Chime's Calling
+		Tooltip:
+			'''
+			'Answer the call, and let the choir sing through fire'
+			Summon the CAMPANELLA CHOIR - minions of blazing harmony
+			Bell-flame spirits sing in unison, their voices become destruction
+			Each note brands enemies with the weight of Resonant Toll
+			MUSICAL SHOCKWAVE: Every 5 harmonized strikes trigger devastation
+			'When the infernal choir calls, none can silence their song'
+			'''
+	}
+
+	PiercingBellsResonance: {
+		DisplayName: Piercing Bell's Resonance
+		Tooltip:
+			'''
+			'The bell's resonance finds every weakness, pierces every defense'
+			Rapid-fire bullets that ring with each impact
+			Hits cascade blazing explosions to nearby enemies
+			All struck are marked by Resonant Toll
+			SCORCHING STACCATO: Sustained fire accelerates to impossible speeds
+			                    Fire rate increases up to +40% while shooting
+			'The resonance grows louder with each shot fired'
+			'''
+	}
+
+	SymphonicBellfireAnnihilator: {
+		DisplayName: Symphonic Bellfire Annihilator
+		Tooltip:
+			'''
+			'The Final Movement - An Explosive Symphony of Annihilation'
+			Launches bell-shaped rockets that detonate in MUSICAL SHOCKWAVES
+			Each explosion spawns 8 wall-piercing harmonic pulses
+			Enemies caught in the blast receive double Resonant Toll
+			GRAND CRESCENDO: Three rapid explosions trigger the finale
+			                 36 flame waves sweep the battlefield
+			                 5 seconds of blazing swiftness follows
+			                 All nearby enemy projectiles are annihilated
+			'When the symphony reaches its crescendo, only silence remains'
+			'''
+	}
+
+	InfernalBellFragment: {
+		DisplayName: Infernal Bell Fragment
+		Tooltip: ""
 	}
 }
 
@@ -1063,6 +1351,7 @@ NPCs: {
 	FuneralBlitzer.DisplayName: Funeral Blitzer
 	FlamesOfValor.DisplayName: Flames Of Valor
 	SwanLakeTheMonochromaticFractal.DisplayName: Swan Lake The Monochromatic Fractal
+	LaCampanellaChimeOfLife.DisplayName: La Campanella Chime Of Life
 }
 
 Projectiles: {
@@ -1134,8 +1423,9 @@ Projectiles: {
 			'''
 			A dual-natured pendant embodying Odette and Odile
 			[Right-click to toggle between White and Black Swan modes]
-			WHITE SWAN (Odette): Dodge creates white flame shield, +15 DEF for 25s
-			BLACK SWAN (Odile): Critical hits unleash black flames, +25% crit damage
+			WHITE SWAN (Odette): Monochromatic halo grants 3 shield charges (blocks lethal hits)
+			                     Halo brightness shows remaining charges, recharges after 15s
+			BLACK SWAN (Odile): 20% chance on ANY melee crit for rainbow explosions + Flame of the Swan
 			'Two souls entwined in eternal dance'
 			'''
 	}
@@ -1146,8 +1436,9 @@ Projectiles: {
 			'''
 			A mystical quiver crafted from twin swan feathers
 			[Right-click to toggle between White and Black Swan modes]
-			WHITE SWAN: Healing white flame trails, +12% accuracy, +2 life regen
-			BLACK SWAN: +2 arrow pierce, black flame DoT, +18% ranged damage
+			WHITE SWAN (Grace of Odette): +10% ranged crit, every 5th shot spawns homing swan feather
+			                              Kills have 25% chance to drop healing feathers (+5 HP)
+			BLACK SWAN (Shadow of Odile): +2 pierce, +18% ranged damage, Flame of the Swan
 			'Each feather remembers the flight'
 			'''
 	}
@@ -1159,7 +1450,7 @@ Projectiles: {
 			A regal crown channeling dual swan magic
 			[Right-click to toggle between White and Black Swan modes]
 			WHITE SWAN: -20% mana cost, protective wisps absorb damage
-			BLACK SWAN: +30% magic damage, +15% mana cost, black flame burn
+			BLACK SWAN: +30% magic damage, +15% mana cost, Flame of the Swan
 			'True power lies in choice'
 			'''
 	}
@@ -1170,8 +1461,8 @@ Projectiles: {
 			'''
 			Ethereal wings that empower minions with dual nature
 			[Right-click to toggle between White and Black Swan modes]
-			WHITE SWAN: Minions create shields, up to 25% DR when minions nearby
-			BLACK SWAN: +35% minion damage, -20% defense, black flame claws
+			WHITE SWAN: Up to 25% DR when minions nearby, protective shields orbit you
+			BLACK SWAN: +35% minion damage, -20% defense, minions apply Flame of the Swan
 			'At dawn, when darkness meets light'
 			'''
 	}
@@ -1212,6 +1503,60 @@ Projectiles: {
 	PearlescentRocket.DisplayName: Pearlescent Rocket
 	SwansLamentBullet.DisplayName: Swans Lament Bullet
 	HealingSwanHalo.DisplayName: Healing Swan Halo
+	FeathersCallFlare.DisplayName: Feather's Call Flare
+	HealingFeatherPickup.DisplayName: Healing Feather Pickup
+	HomingSwanFeather.DisplayName: Homing Swan Feather
+	BehemothBreathFlame.DisplayName: Behemoth Breath Flame
+	BehemothDebris.DisplayName: Behemoth Debris
+	BehemothEruptionWave.DisplayName: Behemoth Eruption Wave
+	BehemothFirePillar.DisplayName: Behemoth Fire Pillar
+	BehemothShockwave.DisplayName: Behemoth Shockwave
+	BlitzerHomingSoul.DisplayName: Blitzer Homing Soul
+	BlitzerLightningBolt.DisplayName: Blitzer Lightning Bolt
+	BlitzerSalvoProjectile.DisplayName: Blitzer Salvo Projectile
+	BlitzerSorrowBomb.DisplayName: Blitzer Sorrow Bomb
+	CenturionCrimsonMeteor.DisplayName: Centurion Crimson Meteor
+	CenturionFireTrail.DisplayName: Centurion Fire Trail
+	CenturionGoldenSword.DisplayName: Centurion Golden Sword
+	CenturionInfernoOrb.DisplayName: Centurion Inferno Orb
+	CenturionNovaWave.DisplayName: Centurion Nova Wave
+	StolenValorCageOrb.DisplayName: Stolen Valor Cage Orb
+	StolenValorChargeWave.DisplayName: Stolen Valor Charge Wave
+	StolenValorMinionShot.DisplayName: Stolen Valor Minion Shot
+	StolenValorOrbitalShot.DisplayName: Stolen Valor Orbital Shot
+	StolenValorTriumphWave.DisplayName: Stolen Valor Triumph Wave
+	WaningDeerHomingOrb.DisplayName: Waning Deer Homing Orb
+	BellEnergyBeam.DisplayName: Bell Energy Beam
+	BellFireBullet.DisplayName: Bell Fire Bullet
+	BellFlameWave.DisplayName: Bell Flame Wave
+	BellRocket.DisplayName: Bell Rocket
+	BlazingMusicalWave.DisplayName: Blazing Musical Wave
+	BurningMusicalNote.DisplayName: Burning Musical Note
+	CampanellaChoirMinion.DisplayName: Campanella Choir Minion
+	CampanellaConflagrationProjectile.DisplayName: Campanella Conflagration Projectile
+	ChimeCycloneProjectile.DisplayName: Chime Cyclone Projectile
+	ChoirFlameWave.DisplayName: Choir Flame Wave
+	DualFatedChimeProjectile.DisplayName: Dual Fated Chime Projectile
+	GrandCrescendoWave.DisplayName: Grand Crescendo Wave
+	HarmonicPulse.DisplayName: Harmonic Pulse
+	IgnitionThrustProjectile.DisplayName: Ignition Thrust Projectile
+	InfernoWaltzProjectile.DisplayName: Inferno Waltz Projectile
+	ExplosiveBellProjectile.DisplayName: Explosive Bell Projectile
+	InfernalBellLaser.DisplayName: Infernal Bell Laser
+	InfernalFireWave.DisplayName: Infernal Fire Wave
+	InfernalGroundFire.DisplayName: Infernal Ground Fire
+	MassiveInfernalLaser.DisplayName: Massive Infernal Laser
+	HomingBellRocket.DisplayName: Homing Bell Rocket
+	HomingMusicNote.DisplayName: Homing Music Note
+	MusicNoteMine.DisplayName: Music Note Mine
+	OrbitingMusicNote.DisplayName: Orbiting Music Note
+	ResonantBellBlast.DisplayName: Resonant Bell Blast
+	TrailingMusicNote.DisplayName: Trailing Music Note
+	ChargedThunderStrikeProjectile.DisplayName: Charged Thunder Strike Projectile
+	FallingMusicNoteProjectile.DisplayName: Falling Music Note Projectile
+	InfiniteBellExplosiveProjectile.DisplayName: Infinite Bell Explosive Projectile
+	InfiniteBellSpiralProjectile.DisplayName: Infinite Bell Spiral Projectile
+	SpectralBarrageBlade.DisplayName: Spectral Barrage Blade
 }
 
 "Keybinds.Toggle Harmonic Core UI.DisplayName": Toggle  Harmonic  Core  U I

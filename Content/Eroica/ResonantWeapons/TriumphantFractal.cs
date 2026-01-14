@@ -10,6 +10,7 @@ using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.Eroica.ResonantWeapons
 {
@@ -59,48 +60,73 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                 Projectile.NewProjectile(source, position, perturbedVelocity, type, (int)(damage * 1.15f), knockback, player.whoAmI);
             }
 
-            // Spawn dramatic red and black particles at cast location
-            for (int i = 0; i < 15; i++)
-            {
-                Dust cast = Dust.NewDustDirect(position, 20, 20,
-                    DustID.RedTorch, 0f, 0f, 100, default, 1.5f);
-                cast.noGravity = true;
-                cast.velocity = Main.rand.NextVector2Circular(3f, 3f);
-            }
-
+            // === UnifiedVFX EROICA IMPACT - Heroic cast effect ===
+            UnifiedVFX.Eroica.Impact(position, 1.2f);
+            
+            // === FRACTAL FLARE BURST - the signature geometric look with gradient ===
             for (int i = 0; i < 8; i++)
             {
-                Dust smoke = Dust.NewDustDirect(position, 20, 20,
-                    DustID.Smoke, 0f, 0f, 100, Color.Black, 1.2f);
-                smoke.noGravity = true;
-                smoke.velocity = Main.rand.NextVector2Circular(2f, 2f);
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 flareOffset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 35f;
+                float progress = (float)i / 8f;
+                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                CustomParticles.GenericFlare(position + flareOffset, fractalColor, 0.55f, 22);
             }
             
+            // Central halo burst with gradient
+            CustomParticles.HaloRing(position, UnifiedVFX.Eroica.Gold, 0.7f, 20);
+            CustomParticles.HaloRing(position, UnifiedVFX.Eroica.Crimson, 0.5f, 17);
+            
+            // Sakura petals for Eroica theme
+            ThemedParticles.SakuraPetals(position, 4, 30f);
+            
+            // Prismatic sparkle accents
+            CustomParticles.PrismaticSparkleBurst(position, UnifiedVFX.Eroica.Gold, 8);
+            
             // Musical burst on cast!
-            ThemedParticles.EroicaMusicNotes(position, 5, 25f);
+            ThemedParticles.EroicaMusicNotes(position, 6, 30f);
 
             return false;
         }
 
         public override void HoldItem(Player player)
         {
-            // Intense ambient particles while holding - crimson flames
-            if (Main.rand.NextBool(3))
+            // === UnifiedVFX EROICA AMBIENT AURA ===
+            UnifiedVFX.Eroica.Aura(player.Center, 50f, 0.4f);
+            
+            // === AMBIENT FRACTAL FLARES - signature Eroica heroic look ===
+            if (Main.rand.NextBool(6))
             {
-                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
-                Dust flame = Dust.NewDustPerfect(player.Center + offset, DustID.CrimsonTorch, 
-                    new Vector2(0, -2f) + Main.rand.NextVector2Circular(1f, 1f), 100, default, 1.3f);
-                flame.noGravity = true;
+                // Spawn radial fractal flares around player with gradient
+                for (int i = 0; i < 4; i++)
+                {
+                    float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                    float radius = Main.rand.NextFloat(30f, 55f);
+                    Vector2 flarePos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+                    float progress = (float)i / 4f;
+                    Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.38f, 18);
+                }
             }
             
-            // Golden sparkles
+            // Sakura petals drifting
+            if (Main.rand.NextBool(15))
+                ThemedParticles.SakuraPetals(player.Center, 1, 40f);
+            
+            // Golden sparkles with prismatic effect
             if (Main.rand.NextBool(5))
             {
                 ThemedParticles.EroicaSparkles(player.Center + Main.rand.NextVector2Circular(25f, 25f), 1, 5f);
+                CustomParticles.PrismaticSparkle(player.Center + Main.rand.NextVector2Circular(20f, 20f), UnifiedVFX.Eroica.Gold, 0.28f);
             }
             
-            // Lighting aura
-            Lighting.AddLight(player.Center, 0.6f, 0.3f, 0.2f);
+            // Heroic halo pulse
+            if (Main.rand.NextBool(25))
+                CustomParticles.HaloRing(player.Center, UnifiedVFX.Eroica.Gold * 0.5f, 0.35f, 22);
+            
+            // Lighting aura with pulse
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.1f + 0.9f;
+            Lighting.AddLight(player.Center, 0.6f * pulse, 0.3f * pulse, 0.2f * pulse);
         }
         
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)

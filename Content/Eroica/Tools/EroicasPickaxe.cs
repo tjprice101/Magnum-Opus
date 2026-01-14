@@ -35,7 +35,7 @@ namespace MagnumOpus.Content.Eroica.Tools
             Item.useTurn = true;
 
             // Pickaxe power - stronger than Moonlight (300%)
-            Item.pick = 350; // Can mine Swan Lake ore (placeholder tier)
+            Item.pick = 350; // Can mine La Campanella ore (progression: Moonlight → Eroica → La Campanella → Enigma → Swan Lake → Fate)
             
             // Enable reforging
             Item.maxStack = 1;

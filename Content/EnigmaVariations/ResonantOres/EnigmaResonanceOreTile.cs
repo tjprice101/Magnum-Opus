@@ -33,7 +33,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantOres
             HitSound = SoundID.Tink;
 
             MineResist = 5.5f;
-            MinPick = 450; // Requires La Campanella pickaxe or better
+            MinPick = 400; // Requires La Campanella pickaxe or better
         }
 
         public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b)

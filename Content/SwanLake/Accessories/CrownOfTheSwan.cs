@@ -91,21 +91,95 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                     CustomParticles.SwanFeatherDrift(player.Top + new Vector2(Main.rand.NextFloat(-10f, 10f), -5f), featherColor, 0.25f);
                 }
 
-                // Orbiting wisp visuals (white mode only)
+                // Orbiting wisp visuals (white mode only) - BIGGER AND MORE RAINBOW
                 if (!modPlayer.crownIsBlackMode && modPlayer.protectiveWispCount > 0)
                 {
                     float baseAngle = Main.GameUpdateCount * 0.03f;
                     for (int i = 0; i < modPlayer.protectiveWispCount; i++)
                     {
                         float angle = baseAngle + (MathHelper.TwoPi * i / modPlayer.protectiveWispCount);
-                        Vector2 wispPos = player.Center + new Vector2((float)Math.Cos(angle) * 45f, (float)Math.Sin(angle) * 30f - 10f);
+                        Vector2 wispPos = player.Center + new Vector2((float)Math.Cos(angle) * 55f, (float)Math.Sin(angle) * 38f - 10f);
                         
+                        // Core crystal dust - alternating black and white
+                        bool isBlackCrystal = i % 2 == 0;
+                        
+                        // === BIGGER CORE PARTICLES ===
+                        // Main wisp core - larger size
+                        if (isBlackCrystal)
+                        {
+                            // Black crystal core - BIGGER
+                            Dust blackCore = Dust.NewDustPerfect(wispPos, DustID.Smoke,
+                                Main.rand.NextVector2Circular(0.4f, 0.4f), 200, Color.Black, 2.2f);
+                            blackCore.noGravity = true;
+                            
+                            // White glow outline - larger
+                            Dust whiteGlow = Dust.NewDustPerfect(wispPos, DustID.WhiteTorch,
+                                Vector2.Zero, 100, default, 1.4f);
+                            whiteGlow.noGravity = true;
+                        }
+                        else
+                        {
+                            // White crystal core - BIGGER
+                            Dust whiteCore = Dust.NewDustPerfect(wispPos, DustID.WhiteTorch,
+                                Main.rand.NextVector2Circular(0.4f, 0.4f), 80, default, 2.2f);
+                            whiteCore.noGravity = true;
+                            
+                            // Black glow outline
+                            Dust blackGlow = Dust.NewDustPerfect(wispPos, DustID.Smoke,
+                                Vector2.Zero, 200, Color.Black, 1.0f);
+                            blackGlow.noGravity = true;
+                        }
+                        
+                        // === RAINBOW AURA AROUND EACH WISP ===
+                        float rainbowHue = (Main.GameUpdateCount * 0.02f + (float)i / modPlayer.protectiveWispCount) % 1f;
+                        Color rainbowColor = Main.hslToRgb(rainbowHue, 0.85f, 0.7f);
+                        
+                        // Rainbow ring particles orbiting each wisp
+                        for (int j = 0; j < 3; j++)
+                        {
+                            float ringAngle = Main.GameUpdateCount * 0.08f + j * MathHelper.TwoPi / 3f;
+                            float ringRadius = 8f + (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 2f;
+                            Vector2 ringPos = wispPos + new Vector2((float)Math.Cos(ringAngle), (float)Math.Sin(ringAngle)) * ringRadius;
+                            
+                            float particleHue = (rainbowHue + j * 0.33f) % 1f;
+                            Color ringColor = Main.hslToRgb(particleHue, 0.9f, 0.75f);
+                            
+                            Dust ring = Dust.NewDustPerfect(ringPos, DustID.RainbowTorch,
+                                Vector2.Zero, 0, ringColor, 0.8f);
+                            ring.noGravity = true;
+                        }
+                        
+                        // === RAINBOW SHIMMER TRAIL ===
+                        if (Main.rand.NextBool(2))
+                        {
+                            Vector2 trailPos = wispPos + new Vector2((float)Math.Cos(angle - 0.25f) * 10f, (float)Math.Sin(angle - 0.25f) * 6f);
+                            float trailHue = (rainbowHue + 0.5f) % 1f;
+                            Color trailColor = Color.Lerp(isBlackCrystal ? new Color(80, 80, 90) : new Color(240, 245, 255), 
+                                Main.hslToRgb(trailHue, 0.8f, 0.65f), 0.6f);
+                            
+                            Dust trail = Dust.NewDustPerfect(trailPos, DustID.TintableDustLighted,
+                                Vector2.Zero, 0, trailColor, 1.0f);
+                            trail.noGravity = true;
+                        }
+                        
+                        // === SPARKLE PARTICLES ===
                         if (Main.rand.NextBool(4))
                         {
-                            Dust wisp = Dust.NewDustPerfect(wispPos, DustID.WhiteTorch,
-                                Main.rand.NextVector2Circular(0.5f, 0.5f), 100, default, 1.2f);
-                            wisp.noGravity = true;
+                            Vector2 sparklePos = wispPos + Main.rand.NextVector2Circular(12f, 12f);
+                            float sparkleHue = Main.rand.NextFloat();
+                            Color sparkleColor = Main.hslToRgb(sparkleHue, 1f, 0.8f);
+                            
+                            Dust sparkle = Dust.NewDustPerfect(sparklePos, DustID.RainbowTorch,
+                                Main.rand.NextVector2Circular(0.5f, 0.5f), 0, sparkleColor, 0.6f);
+                            sparkle.noGravity = true;
                         }
+                        
+                        // Add stronger light for visibility with rainbow tint
+                        float lightInt = isBlackCrystal ? 0.4f : 0.6f;
+                        Color lightCol = rainbowColor * 0.4f;
+                        Lighting.AddLight(wispPos, lightInt + lightCol.R / 255f * 0.2f, 
+                            lightInt + lightCol.G / 255f * 0.2f, 
+                            lightInt + 0.15f + lightCol.B / 255f * 0.2f);
                     }
                 }
 
@@ -223,6 +297,7 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 .AddIngredient(ModContent.ItemType<SwansResonanceEnergy>(), 5)
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfSwanLake>(), 5)
                 .AddIngredient(ModContent.ItemType<RemnantOfSwansHarmony>(), 5)
+                .AddIngredient(ModContent.ItemType<ShardOfTheFeatheredTempo>(), 5)
                 .AddIngredient(ItemID.SoulofLight, 5)
                 .AddIngredient(ItemID.SoulofFlight, 6)
                 .AddTile(ModContent.TileType<MoonlightAnvilTile>())

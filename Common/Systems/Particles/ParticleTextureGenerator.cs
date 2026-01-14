@@ -71,28 +71,9 @@ namespace MagnumOpus.Common.Systems.Particles
 
         public override void Unload()
         {
-            // Dispose of generated textures
-            _bloomCircle?.Dispose();
-            _bloomRing?.Dispose();
-            _sparkle?.Dispose();
-            _glowSpark?.Dispose();
-            _softGlow?.Dispose();
-            _point?.Dispose();
-            _heavySmoke?.Dispose();
-            _softLine?.Dispose();
-            _hardCircle?.Dispose();
-            _star4Point?.Dispose();
-            _star6Point?.Dispose();
-            _musicNoteQuarter?.Dispose();
-            _musicNoteEighth?.Dispose();
-            _musicNoteSixteenth?.Dispose();
-            _musicNoteDouble?.Dispose();
-            _trebleClef?.Dispose();
-            _bassClef?.Dispose();
-            _musicStaff?.Dispose();
-            _musicSharp?.Dispose();
-            _musicFlat?.Dispose();
-            
+            // Don't call Dispose() here - Unload can be called from a background thread
+            // and FNA3D requires texture disposal on the main thread.
+            // Setting to null allows GC to clean up the textures safely.
             _bloomCircle = null;
             _bloomRing = null;
             _sparkle = null;

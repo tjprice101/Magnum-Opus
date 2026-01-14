@@ -87,15 +87,16 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                     }
                 }
 
-                // Pearlescent feather particles falling
+                // Pearlescent feather particles falling with GRADIENT shimmer
                 if (Main.rand.NextBool(15))
                 {
-                    Color pearlescent = Main.rand.Next(3) switch
-                    {
-                        0 => new Color(255, 240, 245),
-                        1 => new Color(240, 245, 255),
-                        _ => new Color(250, 255, 245)
-                    };
+                    // GRADIENT: Black → White with rainbow shimmer overlay
+                    float progress = Main.rand.NextFloat();
+                    Color baseColor = Color.Lerp(new Color(20, 20, 30), Color.White, progress);
+                    // Add rainbow shimmer
+                    float hue = (Main.GameUpdateCount * 0.015f + progress * 0.5f) % 1f;
+                    Color rainbow = Main.hslToRgb(hue, 0.4f, 0.9f);
+                    Color pearlescent = Color.Lerp(baseColor, rainbow, 0.25f);
                     
                     float side = Main.rand.NextBool() ? -1f : 1f;
                     Vector2 featherPos = player.Center + new Vector2(side * 18f * player.direction, -12f + Main.rand.NextFloat(-5f, 5f));
@@ -151,6 +152,150 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                             }
                             break; // Only draw to one minion per update
                         }
+                    }
+                }
+                
+                // WHITE MODE - Prominent protective shield visual around player when minions are nearby
+                if (!modPlayer.wingsIsBlackMode)
+                {
+                    // Count nearby minions for shield intensity
+                    int nearbyMinions = 0;
+                    foreach (Projectile proj in Main.ActiveProjectiles)
+                    {
+                        if (proj.owner == player.whoAmI && proj.minion && Vector2.Distance(proj.Center, player.Center) < 200f)
+                            nearbyMinions++;
+                    }
+                    
+                    if (nearbyMinions > 0)
+                    {
+                        float shieldIntensity = Math.Min(1f, nearbyMinions * 0.2f); // Up to 5 minions = full intensity
+                        float rainbowIntensity = Math.Min(1f, nearbyMinions * 0.15f); // Rainbow increases with minions
+                        
+                        // === PROMINENT ROTATING SHIELD RING ===
+                        float shieldAngle = Main.GameUpdateCount * 0.05f;
+                        int ringSegments = 8 + nearbyMinions * 2; // More segments with more minions
+                        float baseRadius = 40f;
+                        float pulseRadius = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 5f;
+                        
+                        for (int i = 0; i < ringSegments; i++)
+                        {
+                            float segmentAngle = shieldAngle + (MathHelper.TwoPi * i / ringSegments);
+                            float segmentRadius = baseRadius + pulseRadius;
+                            Vector2 shieldPos = player.Center + new Vector2((float)Math.Cos(segmentAngle), (float)Math.Sin(segmentAngle)) * segmentRadius;
+                            
+                            // Calculate rainbow hue based on segment position and minion count
+                            float hueBase = (float)i / ringSegments;
+                            float hueCycle = (Main.GameUpdateCount * 0.02f + hueBase) % 1f;
+                            Color rainbowColor = Main.hslToRgb(hueCycle, 0.7f + rainbowIntensity * 0.3f, 0.65f + shieldIntensity * 0.2f);
+                            
+                            // Blend between white and rainbow based on minion count
+                            Color shieldColor = Color.Lerp(Color.White, rainbowColor, rainbowIntensity);
+                            
+                            // Main shield orb - larger and brighter
+                            Dust shield = Dust.NewDustPerfect(shieldPos, DustID.RainbowTorch,
+                                new Vector2((float)Math.Cos(segmentAngle + MathHelper.PiOver2), (float)Math.Sin(segmentAngle + MathHelper.PiOver2)) * 0.8f,
+                                0, shieldColor, 1.3f + shieldIntensity * 0.5f);
+                            shield.noGravity = true;
+                            
+                            // Add white glow behind for prominence
+                            if (i % 2 == 0)
+                            {
+                                Dust glow = Dust.NewDustPerfect(shieldPos, DustID.WhiteTorch,
+                                    Vector2.Zero, 50, Color.White, 0.9f + shieldIntensity * 0.3f);
+                                glow.noGravity = true;
+                            }
+                        }
+                        
+                        // === INNER ROTATING RING - counter-rotating ===
+                        float innerAngle = -Main.GameUpdateCount * 0.06f;
+                        float innerRadius = 28f + pulseRadius * 0.5f;
+                        int innerSegments = 6 + nearbyMinions;
+                        
+                        for (int i = 0; i < innerSegments; i++)
+                        {
+                            float segmentAngle = innerAngle + (MathHelper.TwoPi * i / innerSegments);
+                            Vector2 innerPos = player.Center + new Vector2((float)Math.Cos(segmentAngle), (float)Math.Sin(segmentAngle)) * innerRadius;
+                            
+                            // Rainbow with offset hue
+                            float hue = ((Main.GameUpdateCount * 0.025f) + (float)i / innerSegments + 0.5f) % 1f;
+                            Color innerColor = Color.Lerp(new Color(240, 245, 255), Main.hslToRgb(hue, 0.8f, 0.7f), rainbowIntensity);
+                            
+                            Dust inner = Dust.NewDustPerfect(innerPos, DustID.TintableDustLighted,
+                                new Vector2((float)Math.Cos(segmentAngle - MathHelper.PiOver2), (float)Math.Sin(segmentAngle - MathHelper.PiOver2)) * 0.5f,
+                                0, innerColor, 1.0f + shieldIntensity * 0.4f);
+                            inner.noGravity = true;
+                        }
+                        
+                        // === MINION CONNECTION BEAMS - rainbow when high minion count ===
+                        if (Main.rand.NextBool(2))
+                        {
+                            int beamMinion = 0;
+                            foreach (Projectile proj in Main.ActiveProjectiles)
+                            {
+                                if (proj.owner == player.whoAmI && proj.minion && Vector2.Distance(proj.Center, player.Center) < 200f)
+                                {
+                                    Vector2 direction = (proj.Center - player.Center).SafeNormalize(Vector2.Zero);
+                                    float distance = Vector2.Distance(proj.Center, player.Center);
+                                    
+                                    for (int i = 0; i < 4; i++)
+                                    {
+                                        float progress = i / 4f;
+                                        Vector2 particlePos = player.Center + direction * (distance * progress);
+                                        
+                                        // Rainbow connection beam
+                                        float hue = (Main.GameUpdateCount * 0.03f + progress + beamMinion * 0.2f) % 1f;
+                                        Color beamColor = Color.Lerp(Color.White, Main.hslToRgb(hue, 0.9f, 0.75f), rainbowIntensity);
+                                        
+                                        Dust beam = Dust.NewDustPerfect(particlePos, DustID.TintableDustLighted,
+                                            Vector2.Zero, 0, beamColor, 0.6f + rainbowIntensity * 0.3f);
+                                        beam.noGravity = true;
+                                    }
+                                    beamMinion++;
+                                    if (beamMinion >= 3) break; // Limit beam minions for performance
+                                }
+                            }
+                        }
+                        
+                        // === AMBIENT RAINBOW SPARKLE FIELD ===
+                        if (Main.rand.NextBool(3))
+                        {
+                            float sparkleAngle = Main.rand.NextFloat(MathHelper.TwoPi);
+                            float sparkleRadius = 30f + Main.rand.NextFloat(15f);
+                            Vector2 sparklePos = player.Center + new Vector2((float)Math.Cos(sparkleAngle), (float)Math.Sin(sparkleAngle)) * sparkleRadius;
+                            
+                            float hue = Main.rand.NextFloat();
+                            Color sparkleColor = Main.hslToRgb(hue, 0.9f, 0.8f);
+                            sparkleColor = Color.Lerp(Color.White, sparkleColor, rainbowIntensity);
+                            
+                            Dust sparkle = Dust.NewDustPerfect(sparklePos, DustID.RainbowTorch,
+                                Vector2.Zero, 0, sparkleColor, 0.8f + shieldIntensity * 0.4f);
+                            sparkle.noGravity = true;
+                        }
+                        
+                        // === BLACK ACCENT PARTICLES - keeps monochromatic theme ===
+                        if (Main.rand.NextBool(8))
+                        {
+                            float blackAngle = Main.rand.NextFloat(MathHelper.TwoPi);
+                            Vector2 blackPos = player.Center + new Vector2((float)Math.Cos(blackAngle), (float)Math.Sin(blackAngle)) * (35f + Main.rand.NextFloat(8f));
+                            
+                            Dust black = Dust.NewDustPerfect(blackPos, DustID.Smoke,
+                                Vector2.Zero, 180, Color.Black, 0.6f);
+                            black.noGravity = true;
+                        }
+                        
+                        // === ENHANCED LIGHTING - rainbow tint with more minions ===
+                        float r = 0.35f + rainbowIntensity * 0.15f;
+                        float g = 0.35f + rainbowIntensity * 0.15f;
+                        float b = 0.4f + rainbowIntensity * 0.1f;
+                        
+                        // Add subtle rainbow cycling to light
+                        float lightHue = (Main.GameUpdateCount * 0.01f) % 1f;
+                        Color lightColor = Main.hslToRgb(lightHue, 0.3f, 0.5f);
+                        r += lightColor.R / 255f * rainbowIntensity * 0.2f;
+                        g += lightColor.G / 255f * rainbowIntensity * 0.2f;
+                        b += lightColor.B / 255f * rainbowIntensity * 0.2f;
+                        
+                        Lighting.AddLight(player.Center, r * shieldIntensity, g * shieldIntensity, b * shieldIntensity);
                     }
                 }
             }
@@ -246,6 +391,7 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 .AddIngredient(ModContent.ItemType<SwansResonanceEnergy>(), 5)
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfSwanLake>(), 5)
                 .AddIngredient(ModContent.ItemType<RemnantOfSwansHarmony>(), 5)
+                .AddIngredient(ModContent.ItemType<ShardOfTheFeatheredTempo>(), 5)
                 .AddIngredient(ItemID.SoulofNight, 5)
                 .AddIngredient(ItemID.SoulofFlight, 15)
                 .AddTile(ModContent.TileType<MoonlightAnvilTile>())
@@ -262,10 +408,21 @@ namespace MagnumOpus.Content.SwanLake.Accessories
     {
         public override void OnHitNPC(Projectile projectile, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (!projectile.minion)
+            // Check for minions, sentries, and summon damage type projectiles
+            bool isSummonProjectile = projectile.minion || projectile.sentry || 
+                                       projectile.DamageType == DamageClass.Summon ||
+                                       projectile.DamageType.CountsAsClass(DamageClass.Summon);
+            
+            if (!isSummonProjectile)
+                return;
+
+            if (projectile.owner < 0 || projectile.owner >= Main.maxPlayers)
                 return;
 
             Player player = Main.player[projectile.owner];
+            if (player == null || !player.active)
+                return;
+                
             var swanPlayer = player.GetModPlayer<SwanLakeAccessoryPlayer>();
             
             if (!swanPlayer.hasBlackWings)
@@ -294,15 +451,15 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                     }
                 }
                 
-                // Pearlescent shimmer accents
+                // Pearlescent shimmer accents with GRADIENT
                 for (int i = 0; i < 4; i++)
                 {
-                    Color pearlescent = Main.rand.Next(3) switch
-                    {
-                        0 => new Color(255, 240, 245),
-                        1 => new Color(240, 245, 255),
-                        _ => new Color(250, 255, 245)
-                    };
+                    // GRADIENT: Black → White with rainbow shimmer
+                    float progress = (float)i / 4f;
+                    Color baseColor = Color.Lerp(new Color(20, 20, 30), Color.White, progress);
+                    float hue = (Main.GameUpdateCount * 0.015f + progress * 0.5f) % 1f;
+                    Color rainbow = Main.hslToRgb(hue, 0.4f, 0.9f);
+                    Color pearlescent = Color.Lerp(baseColor, rainbow, 0.25f);
                     Dust shimmer = Dust.NewDustPerfect(target.Center + Main.rand.NextVector2Circular(20f, 20f),
                         DustID.TintableDustLighted, Main.rand.NextVector2Circular(2f, 2f), 0, pearlescent, 0.9f);
                     shimmer.noGravity = true;

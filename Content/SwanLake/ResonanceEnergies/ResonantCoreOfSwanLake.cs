@@ -8,7 +8,7 @@ namespace MagnumOpus.Content.SwanLake.ResonanceEnergies
 {
     /// <summary>
     /// Resonant Core of Swan Lake - refined crystal used for crafting powerful Swan Lake equipment.
-    /// Crafted from 5 Shards of the Feathered Tempo at a Moonlight Furnace.
+    /// Crafted from Swan's Resonance Energy at a Moonlight Furnace.
     /// </summary>
     public class ResonantCoreOfSwanLake : ModItem
     {

@@ -107,6 +107,105 @@ namespace MagnumOpus.Common.Systems
             }
         }
         
+        // ================== SWAN LAKE LIGHTNING (Black Core with Rainbow Outline) ==================
+        
+        /// <summary>
+        /// Swan Lake-themed fractal lightning with black core and rainbow outline.
+        /// Dramatic monochromatic appearance with pearlescent rainbow shimmer.
+        /// Use for: Swan Lake boss, Swan Lake weapons
+        /// </summary>
+        public static void DrawSwanLakeLightning(Vector2 start, Vector2 end, 
+            int segments = 12, float spread = 30f, int branches = 5, float branchLength = 0.5f)
+        {
+            List<Vector2> mainPath = GenerateLightningPath(start, end, segments, spread);
+            
+            // Outer rainbow shimmer outline - cycles through colors
+            float baseHue = (Main.GameUpdateCount * 0.01f) % 1f;
+            for (int i = 0; i < mainPath.Count - 1; i++)
+            {
+                float hue = (baseHue + i * 0.05f) % 1f;
+                Color rainbowColor = Main.hslToRgb(hue, 1f, 0.7f);
+                
+                Vector2 point = mainPath[i];
+                Vector2 nextPoint = mainPath[Math.Min(i + 1, mainPath.Count - 1)];
+                Vector2 perp = (nextPoint - point).SafeNormalize(Vector2.UnitX).RotatedBy(MathHelper.PiOver2) * 8f;
+                
+                // Rainbow outline particles on both sides
+                Dust outerRainbow1 = Dust.NewDustPerfect(point + perp, DustID.RainbowTorch,
+                    Main.rand.NextVector2Circular(1f, 1f), 0, rainbowColor, 2.4f);
+                outerRainbow1.noGravity = true;
+                outerRainbow1.fadeIn = 1.5f;
+                
+                Dust outerRainbow2 = Dust.NewDustPerfect(point - perp, DustID.RainbowTorch,
+                    Main.rand.NextVector2Circular(1f, 1f), 0, rainbowColor, 2.4f);
+                outerRainbow2.noGravity = true;
+                outerRainbow2.fadeIn = 1.5f;
+            }
+            
+            // Mid layer - white shimmer
+            DrawLightningPathDustCustom(mainPath, Color.White, DustID.WhiteTorch, 1.8f);
+            
+            // Inner BLACK core - the signature look
+            DrawLightningPathDustCustom(mainPath, Color.Black, DustID.Smoke, 2.5f);
+            foreach (Vector2 point in mainPath)
+            {
+                Dust blackCore = Dust.NewDustPerfect(point, DustID.Shadowflame,
+                    Vector2.Zero, 200, Color.Black, 2.0f);
+                blackCore.noGravity = true;
+                blackCore.noLight = true;
+            }
+            
+            // Branches with rainbow shimmer and black core
+            for (int i = 0; i < branches; i++)
+            {
+                if (mainPath.Count < 4) continue;
+                int branchPoint = Main.rand.Next(2, mainPath.Count - 2);
+                Vector2 branchStart = mainPath[branchPoint];
+                Vector2 direction = (mainPath[branchPoint + 1] - mainPath[branchPoint - 1]).SafeNormalize(Vector2.UnitX);
+                direction = direction.RotatedBy(Main.rand.NextFloat(-1f, 1f));
+                float length = Vector2.Distance(start, end) * branchLength * Main.rand.NextFloat(0.4f, 0.9f);
+                Vector2 branchEnd = branchStart + direction * length;
+                
+                List<Vector2> branchPath = GenerateLightningPath(branchStart, branchEnd, segments / 2, spread * 0.6f);
+                
+                // Rainbow outline for branch
+                float branchHue = (baseHue + i * 0.15f) % 1f;
+                Color branchRainbow = Main.hslToRgb(branchHue, 1f, 0.6f);
+                DrawLightningPathDustCustom(branchPath, branchRainbow, DustID.RainbowTorch, 1.5f);
+                // Black core for branch
+                DrawLightningPathDustCustom(branchPath, Color.Black, DustID.Smoke, 1.2f);
+            }
+            
+            // Rainbow sparkles along path
+            foreach (Vector2 point in mainPath)
+            {
+                if (Main.rand.NextBool(2))
+                {
+                    float sparkleHue = (baseHue + Main.rand.NextFloat()) % 1f;
+                    Color sparkleColor = Main.hslToRgb(sparkleHue, 1f, 0.8f);
+                    Dust sparkle = Dust.NewDustPerfect(point + Main.rand.NextVector2Circular(10f, 10f), DustID.RainbowTorch,
+                        Main.rand.NextVector2Circular(2f, 2f), 0, sparkleColor, 1.2f);
+                    sparkle.noGravity = true;
+                    sparkle.fadeIn = 1.4f;
+                }
+                // Black smoke wisps
+                if (Main.rand.NextBool(3))
+                {
+                    Dust smoke = Dust.NewDustPerfect(point + Main.rand.NextVector2Circular(6f, 6f), DustID.Smoke,
+                        new Vector2(0, -0.5f), 180, Color.Black, 1.5f);
+                    smoke.noGravity = true;
+                }
+            }
+            
+            // Monochromatic lighting with rainbow tint
+            foreach (Vector2 point in mainPath)
+            {
+                float lightHue = (baseHue + point.X * 0.001f) % 1f;
+                Vector3 lightColor = Main.hslToRgb(lightHue, 0.5f, 0.5f).ToVector3();
+                Lighting.AddLight(point, lightColor * 0.6f);
+            }
+        }
+        
         // ================== EROICA LIGHTNING (Crimson/Gold/Heroic) ==================
         
         /// <summary>
@@ -277,6 +376,77 @@ namespace MagnumOpus.Common.Systems
             foreach (Vector2 point in mainPath)
             {
                 Lighting.AddLight(point, 0.5f, 0.1f, 0.15f);
+            }
+        }
+        
+        // ================== LA CAMPANELLA LIGHTNING (Infernal Orange/Black Fire) ==================
+        
+        /// <summary>
+        /// La Campanella-themed fractal lightning with infernal fire appearance.
+        /// Dark core with orange/yellow fire outline and black smoke.
+        /// Use for: La Campanella boss, bell weapons, infernal effects
+        /// </summary>
+        public static void DrawLaCampanellaLightning(Vector2 start, Vector2 end, 
+            int segments = 10, float spread = 35f, int branches = 4, float branchLength = 0.45f)
+        {
+            List<Vector2> mainPath = GenerateLightningPath(start, end, segments, spread);
+            
+            // Outer black smoke shadow
+            DrawLightningPathDustCustom(mainPath, new Color(30, 20, 25), DustID.Smoke, 3.0f);
+            // Mid dark orange fire
+            DrawLightningPathDustCustom(mainPath, new Color(255, 100, 0), DustID.Torch, 2.2f);
+            // Bright yellow-orange core
+            DrawLightningPathDustCustom(mainPath, new Color(255, 200, 50), DustID.GoldFlame, 1.4f);
+            // Inner white-hot core
+            DrawLightningPathDustCustom(mainPath, new Color(255, 240, 200), DustID.Torch, 0.8f);
+            
+            // Fire branches
+            for (int i = 0; i < branches; i++)
+            {
+                if (mainPath.Count < 4) continue;
+                int branchPoint = Main.rand.Next(2, mainPath.Count - 2);
+                Vector2 branchStart = mainPath[branchPoint];
+                Vector2 direction = (mainPath[branchPoint + 1] - mainPath[branchPoint - 1]).SafeNormalize(Vector2.UnitX);
+                direction = direction.RotatedBy(Main.rand.NextFloat(-1.1f, 1.1f));
+                float length = Vector2.Distance(start, end) * branchLength * Main.rand.NextFloat(0.4f, 0.9f);
+                Vector2 branchEnd = branchStart + direction * length;
+                
+                List<Vector2> branchPath = GenerateLightningPath(branchStart, branchEnd, segments / 2, spread * 0.7f);
+                DrawLightningPathDustCustom(branchPath, new Color(255, 120, 30), DustID.Torch, 1.4f);
+                DrawLightningPathDustCustom(branchPath, new Color(255, 180, 80), DustID.GoldFlame, 0.9f);
+            }
+            
+            // Fire particles and embers along path
+            foreach (Vector2 point in mainPath)
+            {
+                if (Main.rand.NextBool(2))
+                {
+                    // Fire particles rising
+                    Dust fire = Dust.NewDustPerfect(point + Main.rand.NextVector2Circular(8f, 8f), DustID.Torch,
+                        Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -1.5f), 0, new Color(255, 150, 50), 1.4f);
+                    fire.noGravity = true;
+                    fire.fadeIn = 1.2f;
+                }
+                if (Main.rand.NextBool(3))
+                {
+                    // Golden spark
+                    Dust gold = Dust.NewDustPerfect(point, DustID.GoldCoin,
+                        Main.rand.NextVector2Circular(2f, 2f), 0, default, 0.8f);
+                    gold.noGravity = true;
+                }
+                if (Main.rand.NextBool(4))
+                {
+                    // Black smoke wisps
+                    Dust smoke = Dust.NewDustPerfect(point + Main.rand.NextVector2Circular(6f, 6f), DustID.Smoke,
+                        new Vector2(0, -0.8f), 180, Color.Black, 1.6f);
+                    smoke.noGravity = true;
+                }
+            }
+            
+            // Warm orange lighting
+            foreach (Vector2 point in mainPath)
+            {
+                Lighting.AddLight(point, 0.9f, 0.4f, 0.1f);
             }
         }
         

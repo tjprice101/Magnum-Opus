@@ -25,16 +25,16 @@ CRAFTING RULE: You CANNOT craft any theme's equipment without that theme's
                          PROGRESSION CHAIN
 ================================================================================
 
-  MOON LORD ──► MOONLIGHT SONATA ──► EROICA ──► SWAN LAKE ──► LA CAMPANELLA
-                                                                    │
-       ┌────────────────────────────────────────────────────────────┘
+  MOON LORD ──► MOONLIGHT SONATA ──► EROICA ──► LA CAMPANELLA ──► ENIGMA
+                                                                      │
+       ┌──────────────────────────────────────────────────────────────┘
        │
        ▼
-   ENIGMA ──► FATE ══════► ODE TO JOY ──► DIES IRAE ──► WINTER ──► NACHTMUSIK
-              (Major)           │
-              Milestone         │
-              Furnace &         │
-              Anvil Upgrade     │
+   SWAN LAKE ──► FATE ══════► ODE TO JOY ──► DIES IRAE ──► WINTER ──► NACHTMUSIK
+   (Penultimate   (Major)
+    Boss)         Milestone
+                  Furnace &
+                  Anvil Upgrade
                                 │
        ┌────────────────────────┘
        │
@@ -146,42 +146,11 @@ You CANNOT skip the boss and craft Eroica gear!
 
 BOSS TO UNLOCK NEXT THEME:
 ──────────────────────────
-*** DEFEAT SWAN LAKE BOSS TO PROGRESS ***
-
-================================================================================
-══════════════════════════════════════════════════════════════════════════════
-                        TIER 3: SWAN LAKE
-══════════════════════════════════════════════════════════════════════════════
-================================================================================
-
-TRIGGER: Defeat Swan Lake Boss (first kill)
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ "Swan Lake's Resonance Energy spreads throughout the        [WHITE TEXT]    │
-│  skies and into space..."                                                   │
-│ → Swan Lake Ore spawns in Sky/Space biome                                   │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-────────────────────────────────────────────────────────────────────────────────
-                      SWAN LAKE (Tchaikovsky)
-                        [NOT IMPLEMENTED]
-────────────────────────────────────────────────────────────────────────────────
-
-BIOME: Sky / Space
-COLOR THEME: White / Elegant Silver
-THEME: Grace, elegance, transformation
-
-BOSS: [NOT IMPLEMENTED]
-  • Drops: Harmonic Essence of Swan Lake
-  • Summon: Crafted from Eroica materials
-
-BOSS TO UNLOCK NEXT THEME:
-──────────────────────────
 *** DEFEAT LA CAMPANELLA BOSS TO PROGRESS ***
 
 ================================================================================
 ══════════════════════════════════════════════════════════════════════════════
-                        TIER 4: LA CAMPANELLA
+                        TIER 3: LA CAMPANELLA
 ══════════════════════════════════════════════════════════════════════════════
 ================================================================================
 
@@ -202,9 +171,13 @@ BIOME: Dungeon
 COLOR THEME: Gold / Bell Bronze
 THEME: Bell-like sounds, virtuosity, technical mastery
 
+ORE MINING REQUIREMENTS:
+────────────────────────
+• Eroica Pickaxe (350% power) can mine La Campanella Ore (MinPick 350)
+
 BOSS: [NOT IMPLEMENTED]
   • Drops: Harmonic Essence of La Campanella
-  • Summon: Crafted from Swan Lake materials
+  • Summon: Crafted from Eroica materials
 
 BOSS TO UNLOCK NEXT THEME:
 ──────────────────────────
@@ -212,7 +185,7 @@ BOSS TO UNLOCK NEXT THEME:
 
 ================================================================================
 ══════════════════════════════════════════════════════════════════════════════
-                        TIER 5: ENIGMA VARIATIONS
+                        TIER 4: ENIGMA VARIATIONS
 ══════════════════════════════════════════════════════════════════════════════
 ================================================================================
 
@@ -232,9 +205,87 @@ BIOME: Jungle (common spawn)
 COLOR THEME: Mysterious Green
 THEME: Mystery, variation, hidden meanings
 
+ORE MINING REQUIREMENTS:
+────────────────────────
+• La Campanella Pickaxe (400% power) can mine Enigma Ore (MinPick 400)
+
 BOSS: [NOT IMPLEMENTED]
   • Drops: Harmonic Essence of Enigma
   • Summon: Crafted from La Campanella materials
+
+BOSS TO UNLOCK NEXT THEME:
+──────────────────────────
+*** DEFEAT SWAN LAKE BOSS TO PROGRESS ***
+
+================================================================================
+══════════════════════════════════════════════════════════════════════════════
+                        TIER 5: SWAN LAKE (PENULTIMATE)
+══════════════════════════════════════════════════════════════════════════════
+================================================================================
+
+TRIGGER: Defeat Swan Lake Boss (first kill)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ "Swan Lake's Resonance Energy spreads throughout the        [WHITE TEXT]    │
+│  skies and into space..."                                                   │
+│ → Swan Lake Ore spawns in Sky/Space biome                                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+                      SWAN LAKE (Tchaikovsky)
+                        [IMPLEMENTED]
+────────────────────────────────────────────────────────────────────────────────
+
+BIOME: Sky / Space
+COLOR THEME: White / Black / Pearlescent Rainbow
+THEME: Grace, elegance, transformation, duality
+
+ORE MINING REQUIREMENTS:
+────────────────────────
+• Enigma Pickaxe (450% power) can mine Swan Lake Ore (MinPick 450)
+
+BOSS: Swan Lake, the Monochromatic Fractal [IMPLEMENTED]
+  • 1,200,000 HP
+  • Defense: 140
+  • Boss uses 6x6 spritesheet animation
+  • Attacks include black/rainbow lightning (new DrawSwanLakeLightning effect)
+  • Background turns to black void with pearlescent aurora waves, stars, and rainbow flares
+  • Death Message: "The Swan...Conductor of Fate, has been shattered..."
+  • Drops: Harmonic Essence of Swan Lake
+  • RARE DROP: Feather's Call (1% chance) - Transformation item
+  • Summon: Score of Swan Lake (crafted from Enigma materials)
+
+WEAPONS:
+────────
+• Call of the Black Swan (Melee) - Greatsword with empowered swings
+• Call of the Pearlescent Lake (Ranger) - Assault rifle with tracking rockets
+• Chromatic Swan Song (Magic) - Tracking pistol with triple explosion
+• Feather of the Iridescent Flock (Summoner) - Orbiting crystals with beams
+• The Swan's Lament (Ranger) - Shotgun with lightning
+• Iridescent Wingspan (Magic) - Staff with cone flares
+
+TOOLS:
+──────
+• The Swan's Pickaxe: 500% power - CAN MINE FATE ORE (MinPick 500)
+• The Swan's Axe: 300% power
+• The Swan's Hammer: 165% power
+
+ACCESSORIES (Mode-Toggle):
+──────────────────────────
+• Pendant of the Two Swans (Melee)
+• Dual Feather Quiver (Ranger)
+• Crown of the Swan (Mage)
+• Black Wings of the Monochromatic Dawn (Summoner)
+
+RARE DROP - FEATHER'S CALL:
+───────────────────────────
+• 1% drop chance from Swan Lake boss
+• Drains all mana on use
+• Transforms player into smaller version of boss sprite
+• Grants infinite flight while transformed
+• Left Click: Rain tracking pearlescent/black/white flares with explosions
+• Right Click: Unleash tracking black/white lightning with massive AOE
+• Chat message: "<player name> becomes one with the Swan's Melody..."
 
 BOSS TO UNLOCK NEXT THEME:
 ──────────────────────────
@@ -270,12 +321,16 @@ BIOME: Corruption OR Crimson (world evil)
 COLOR THEME: Dark Red / Ominous
 THEME: Destiny, dramatic tension, the famous "da-da-da-DUM"
 
+ORE MINING REQUIREMENTS:
+────────────────────────
+• Swan Lake Pickaxe (500% power) can mine Fate Ore (MinPick 500)
+
 THIS IS A MAJOR BOSS - SIGNIFICANTLY HARDER THAN PREVIOUS THEMES
 
 BOSS: [NOT IMPLEMENTED]
   • Should be a challenging, multi-phase fight
   • Drops: Harmonic Essence of Fate
-  • Summon: Crafted from Enigma materials
+  • Summon: Crafted from Swan Lake materials
 
 CRAFTING STATIONS (Tier 2 - Fate Upgrade):
 ──────────────────────────────────────────

@@ -151,6 +151,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            // GRADIENT COLORS: Dark Purple → Violet → Light Blue
+            Color darkPurple = new Color(75, 0, 130);
+            Color violet = new Color(138, 43, 226);
+            Color lightBlue = new Color(135, 206, 250);
+            Color silver = new Color(220, 220, 235);
+            
             // Fire our custom projectile instead of the ammo type
             Projectile.NewProjectile(source, position, velocity, ModContent.ProjectileType<ResurrectionProjectile>(), damage, knockback, player.whoAmI);
             
@@ -158,21 +164,56 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
             SoundEngine.PlaySound(SoundID.Item40 with { Volume = 1.2f, Pitch = -0.5f }, position);
             SoundEngine.PlaySound(SoundID.Item122 with { Volume = 0.7f, Pitch = -0.3f }, position);
             
-            // Muzzle flash effect
+            Vector2 muzzlePos = position + velocity.SafeNormalize(Vector2.Zero) * 40f;
+            
+            // === CUSTOM PARTICLES WITH GRADIENT ===
+            // Fractal geometric burst
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 offset = angle.ToRotationVector2() * 30f;
+                float progress = (float)i / 8f;
+                Color fractalColor = Color.Lerp(darkPurple, lightBlue, progress);
+                CustomParticles.GenericFlare(muzzlePos + offset, fractalColor, 0.5f, 18);
+            }
+            
+            // Gradient halo rings
+            for (int ring = 0; ring < 4; ring++)
+            {
+                float progress = (float)ring / 4f;
+                Color ringColor = Color.Lerp(darkPurple, lightBlue, progress);
+                CustomParticles.HaloRing(muzzlePos, ringColor, 0.4f + ring * 0.15f, 15 + ring * 4);
+            }
+            
+            // Explosion burst with gradient
+            for (int i = 0; i < 16; i++)
+            {
+                float progress = (float)i / 16f;
+                Color burstColor = Color.Lerp(violet, lightBlue, progress);
+                CustomParticles.GenericGlow(muzzlePos, burstColor, 0.35f, 20);
+            }
+            
+            // Central white flash
+            CustomParticles.GenericFlare(muzzlePos, silver, 0.8f, 15);
+            ThemedParticles.MoonlightHaloBurst(muzzlePos, 1.0f);
+            
+            // Muzzle flash effect with gradient dust
             for (int i = 0; i < 25; i++)
             {
                 Vector2 dustVel = velocity.SafeNormalize(Vector2.Zero).RotatedByRandom(0.4f) * Main.rand.NextFloat(3f, 8f);
-                int dustType = Main.rand.NextBool(3) ? DustID.IceTorch : DustID.PurpleTorch;
-                Dust dust = Dust.NewDustPerfect(position + velocity.SafeNormalize(Vector2.Zero) * 40f, dustType, dustVel, 100, default, 1.8f);
+                float progress = (float)i / 25f;
+                Color dustColor = Color.Lerp(darkPurple, lightBlue, progress);
+                int dustType = progress < 0.5f ? DustID.PurpleTorch : DustID.IceTorch;
+                Dust dust = Dust.NewDustPerfect(muzzlePos, dustType, dustVel, 100, dustColor, 1.8f);
                 dust.noGravity = true;
             }
             
-            // White sparkles at barrel
+            // White sparkles at barrel with gradient
             for (int i = 0; i < 10; i++)
             {
-                Vector2 sparkVel = velocity.SafeNormalize(Vector2.Zero).RotatedByRandom(0.2f) * Main.rand.NextFloat(5f, 12f);
-                Dust spark = Dust.NewDustPerfect(position + velocity.SafeNormalize(Vector2.Zero) * 40f, DustID.SilverCoin, sparkVel, 0, Color.White, 1.2f);
-                spark.noGravity = true;
+                float progress = (float)i / 10f;
+                Color sparkColor = Color.Lerp(lightBlue, silver, progress);
+                CustomParticles.GenericGlow(muzzlePos, sparkColor, 0.3f, 12);
             }
             
             // Recoil dust behind player

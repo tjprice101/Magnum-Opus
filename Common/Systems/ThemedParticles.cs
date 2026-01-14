@@ -220,6 +220,34 @@ namespace MagnumOpus.Common.Systems
             }
         }
         
+        /// <summary>
+        /// Creates a moonlight-themed halo burst with expanding rings and purple/silver gradient.
+        /// Use for major impacts, skill activations, and dramatic moments.
+        /// </summary>
+        public static void MoonlightHaloBurst(Vector2 position, float intensity = 1f)
+        {
+            // Multiple expanding halo rings with gradient
+            for (int ring = 0; ring < 4; ring++)
+            {
+                float progress = (float)ring / 4f;
+                Color ringColor = Color.Lerp(MoonlightDarkPurple, MoonlightSilver, progress);
+                CustomParticles.HaloRing(position, ringColor * intensity, 0.4f + ring * 0.15f, 18 + ring * 4);
+            }
+            
+            // Central flare burst with fractal pattern
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 offset = angle.ToRotationVector2() * 25f * intensity;
+                float gradientProgress = (float)i / 6f;
+                Color flareColor = Color.Lerp(MoonlightDarkPurple, MoonlightLightBlue, gradientProgress);
+                CustomParticles.GenericFlare(position + offset, flareColor, 0.5f * intensity, 20);
+            }
+            
+            // White core flash
+            CustomParticles.GenericFlare(position, Color.White, 0.7f * intensity, 15);
+        }
+        
         #endregion
         
         #region Eroica Particle Effects
@@ -423,6 +451,40 @@ namespace MagnumOpus.Common.Systems
                 var petal = new GenericGlowParticle(position + offset, velocity, EroicaSakura, 
                     Main.rand.NextFloat(0.25f, 0.5f), Main.rand.Next(50, 90), false);
                 MagnumParticleHandler.SpawnParticle(petal);
+            }
+        }
+        
+        /// <summary>
+        /// Creates an eroica-themed halo burst with expanding rings and scarlet/gold gradient.
+        /// Use for major impacts, skill activations, and dramatic moments.
+        /// </summary>
+        public static void EroicaHaloBurst(Vector2 position, float intensity = 1f)
+        {
+            // Multiple expanding halo rings with gradient
+            for (int ring = 0; ring < 4; ring++)
+            {
+                float progress = (float)ring / 4f;
+                Color ringColor = Color.Lerp(EroicaScarlet, EroicaGold, progress);
+                CustomParticles.HaloRing(position, ringColor * intensity, 0.4f + ring * 0.15f, 18 + ring * 4);
+            }
+            
+            // Central flare burst with fractal pattern
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 offset = angle.ToRotationVector2() * 25f * intensity;
+                float gradientProgress = (float)i / 6f;
+                Color flareColor = Color.Lerp(EroicaScarlet, EroicaGold, gradientProgress);
+                CustomParticles.GenericFlare(position + offset, flareColor, 0.5f * intensity, 20);
+            }
+            
+            // White core flash
+            CustomParticles.GenericFlare(position, Color.White, 0.7f * intensity, 15);
+            
+            // Sakura petal accent
+            if (intensity > 0.5f)
+            {
+                SakuraPetals(position, (int)(3 * intensity), 25f * intensity);
             }
         }
         
@@ -1190,6 +1252,15 @@ namespace MagnumOpus.Common.Systems
         }
         
         /// <summary>
+        /// Creates a swan feather burst effect - white and black feathers drifting outward.
+        /// Use for major impacts and elegant burst effects.
+        /// </summary>
+        public static void SwanFeatherBurst(Vector2 position, int count = 8, float spreadRadius = 40f)
+        {
+            CustomParticles.SwanFeatherBurst(position, count, spreadRadius / 100f);
+        }
+        
+        /// <summary>
         /// Creates swan lake music notes - black and white notes with rainbow trail.
         /// Use for musical thematic effects.
         /// </summary>
@@ -1307,6 +1378,1094 @@ namespace MagnumOpus.Common.Systems
                 var glow = new GenericGlowParticle(position + offset, velocity, color, 
                     Main.rand.NextFloat(0.3f, 0.5f), Main.rand.Next(60, 100), true);
                 MagnumParticleHandler.SpawnParticle(glow);
+            }
+        }
+        
+        /// <summary>
+        /// Creates a signature Fractal Gem Burst effect - the iconic visual from Feather's Call.
+        /// Spawns a geometric pattern of flares in a hexagonal arrangement with rainbow sparkles
+        /// and mini lightning effects. This is THE signature Swan Lake weapon effect.
+        /// </summary>
+        /// <param name="position">Center position for the burst</param>
+        /// <param name="baseColor">Base color for the effect (white, black, or rainbow cycling)</param>
+        /// <param name="intensity">Scale multiplier (0.5 = subtle, 1.0 = normal, 1.5+ = dramatic)</param>
+        /// <param name="flareCount">Number of gem flares in the pattern (default 6 for hexagonal)</param>
+        /// <param name="includeLightning">Whether to add mini lightning fractals (more expensive)</param>
+        public static void SwanLakeFractalGemBurst(Vector2 position, Color baseColor, float intensity = 1f, int flareCount = 6, bool includeLightning = false)
+        {
+            // Core explosion - always present
+            CustomParticles.ExplosionBurst(position, baseColor, (int)(12 * intensity), 10f * intensity);
+            CustomParticles.SwanFeatherBurst(position, (int)(6 * intensity), 0.4f * intensity);
+            
+            // FRACTAL FLARE PATTERN - the signature geometric look
+            // Create flares in a radial hexagonal/polygonal pattern
+            for (int i = 0; i < flareCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / flareCount;
+                Vector2 flareOffset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * (25f * intensity);
+                
+                // Each flare gets a cycling rainbow hue if base is rainbow, otherwise uses base color with slight variation
+                float hue = (Main.GameUpdateCount * 0.02f + i * (1f / flareCount)) % 1f;
+                Color fractalColor;
+                if (baseColor == Color.White || baseColor == Color.Black)
+                {
+                    // Add slight rainbow tint to monochrome
+                    fractalColor = Color.Lerp(baseColor, Main.hslToRgb(hue, 0.5f, 0.85f), 0.3f);
+                }
+                else
+                {
+                    // Full rainbow mode
+                    fractalColor = Main.hslToRgb(hue, 1f, 0.85f);
+                }
+                
+                CustomParticles.GenericFlare(position + flareOffset, fractalColor, 0.4f * intensity, (int)(18 * intensity));
+                
+                // Secondary smaller flares between main flares for more complex pattern
+                if (intensity >= 0.8f)
+                {
+                    float betweenAngle = angle + (MathHelper.TwoPi / flareCount / 2f);
+                    Vector2 smallOffset = new Vector2((float)Math.Cos(betweenAngle), (float)Math.Sin(betweenAngle)) * (15f * intensity);
+                    Color smallColor = Main.hslToRgb((hue + 0.5f) % 1f, 0.8f, 0.9f);
+                    CustomParticles.GenericFlare(position + smallOffset, smallColor, 0.25f * intensity, (int)(12 * intensity));
+                }
+            }
+
+            // Rainbow sparkle ring - the pearlescent shimmer
+            int sparkleCount = (int)(10 * intensity);
+            for (int i = 0; i < sparkleCount; i++)
+            {
+                float hue = i / (float)sparkleCount;
+                Color rainbowColor = Main.hslToRgb(hue, 1f, 0.8f);
+                CustomParticles.PrismaticSparkleBurst(position + Main.rand.NextVector2Circular(25f * intensity, 25f * intensity), rainbowColor, (int)(4 * intensity));
+            }
+            
+            // Mini lightning fractals - expensive but dramatic
+            if (includeLightning && Main.rand.NextBool(2))
+            {
+                int lightningCount = (int)(3 * intensity);
+                for (int i = 0; i < lightningCount; i++)
+                {
+                    Vector2 lightningEnd = position + Main.rand.NextVector2Circular(60f * intensity, 60f * intensity);
+                    MagnumVFX.DrawSwanLakeLightning(position, lightningEnd, 4, 12f * intensity, 1, 0.2f);
+                }
+            }
+            
+            // Prismatic dust explosion
+            int dustCount = (int)(20 * intensity);
+            for (int i = 0; i < dustCount; i++)
+            {
+                int dustType = i % 2 == 0 ? DustID.WhiteTorch : DustID.Shadowflame;
+                Color col = i % 2 == 0 ? Color.White : Color.Black;
+                Vector2 vel = Main.rand.NextVector2Circular(8f * intensity, 8f * intensity);
+                Dust d = Dust.NewDustPerfect(position, dustType, vel, i % 2 == 0 ? 0 : 150, col, 2f * intensity);
+                d.noGravity = true;
+                d.fadeIn = 1.5f;
+            }
+            
+            // Light burst
+            Lighting.AddLight(position, 1f * intensity, 1f * intensity, 1.2f * intensity);
+        }
+        
+        /// <summary>
+        /// Simplified version of FractalGemBurst for trails and smaller effects.
+        /// Less particles but maintains the signature look.
+        /// </summary>
+        public static void SwanLakeFractalTrail(Vector2 position, float intensity = 0.5f)
+        {
+            // Just 3 small flares in a triangle pattern
+            for (int i = 0; i < 3; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 3f + Main.GameUpdateCount * 0.1f;
+                Vector2 flareOffset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * (8f * intensity);
+                float hue = (Main.GameUpdateCount * 0.03f + i * 0.33f) % 1f;
+                Color fractalColor = Main.hslToRgb(hue, 0.8f, 0.8f);
+                CustomParticles.GenericFlare(position + flareOffset, fractalColor, 0.2f * intensity, 10);
+            }
+        }
+        
+        #endregion
+        
+        #region La Campanella Color Palette
+        
+        /// <summary>Black core - signature La Campanella darkness</summary>
+        public static readonly Color CampanellaBlack = new Color(20, 15, 20);
+        /// <summary>Dark gray accent</summary>
+        public static readonly Color CampanellaDarkGray = new Color(50, 45, 55);
+        /// <summary>White highlight - bell shine</summary>
+        public static readonly Color CampanellaWhite = new Color(255, 250, 245);
+        /// <summary>Deep red flame</summary>
+        public static readonly Color CampanellaRed = new Color(200, 40, 40);
+        /// <summary>Dark orange flame - primary fire</summary>
+        public static readonly Color CampanellaOrange = new Color(255, 100, 0);
+        /// <summary>Bright yellow flame accent</summary>
+        public static readonly Color CampanellaYellow = new Color(255, 200, 50);
+        /// <summary>Golden bell color</summary>
+        public static readonly Color CampanellaGold = new Color(218, 165, 32);
+        
+        #endregion
+        
+        #region La Campanella Particle Effects
+        
+        /// <summary>
+        /// Creates a La Campanella-themed bloom burst - black/orange bell flames.
+        /// Use for fire explosions, bell impacts, infernal effects.
+        /// </summary>
+        public static void LaCampanellaBloomBurst(Vector2 position, float intensity = 1f)
+        {
+            int count = (int)(6 * intensity);
+            
+            // Dark orange fire blooms
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 velocity = Main.rand.NextVector2Circular(2.5f, 2.5f) * intensity;
+                var bloom = new BloomParticle(position, velocity, CampanellaOrange, 
+                    0.4f * intensity, 0.9f * intensity, Main.rand.Next(20, 40));
+                MagnumParticleHandler.SpawnParticle(bloom);
+            }
+            
+            // Black smoke core
+            for (int i = 0; i < count / 2; i++)
+            {
+                Vector2 velocity = Main.rand.NextVector2Circular(2f, 2f) * intensity;
+                var bloom = new BloomParticle(position, velocity, CampanellaBlack, 
+                    0.35f * intensity, 0.7f * intensity, Main.rand.Next(25, 45));
+                MagnumParticleHandler.SpawnParticle(bloom);
+            }
+            
+            // Yellow core highlights
+            for (int i = 0; i < count / 3; i++)
+            {
+                Vector2 velocity = Main.rand.NextVector2Circular(1.5f, 1.5f) * intensity;
+                var bloom = new BloomParticle(position, velocity, CampanellaYellow * 0.8f, 
+                    0.25f * intensity, 0.5f * intensity, Main.rand.Next(15, 30));
+                MagnumParticleHandler.SpawnParticle(bloom);
+            }
+        }
+        
+        /// <summary>
+        /// Creates La Campanella sparkles - orange/gold and black sparks.
+        /// Use for bell chime effects, fire accents, impact visuals.
+        /// </summary>
+        public static void LaCampanellaSparkles(Vector2 position, int count = 8, float spreadRadius = 30f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(spreadRadius, spreadRadius);
+                Vector2 velocity = Main.rand.NextVector2Circular(1f, 1f) + new Vector2(0, -0.8f);
+                Color color = Main.rand.Next(3) switch
+                {
+                    0 => CampanellaOrange,
+                    1 => CampanellaYellow,
+                    _ => CampanellaGold
+                };
+                Color bloom = CampanellaRed * 0.5f;
+                
+                var sparkle = new SparkleParticle(position + offset, velocity, color, bloom, 
+                    Main.rand.NextFloat(0.4f, 0.9f), Main.rand.Next(35, 70), 0.05f, 1.3f);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+        }
+        
+        /// <summary>
+        /// Creates a La Campanella shockwave ring - fiery bell chime wave.
+        /// Use for bell gong effects, ability activations, infernal waves.
+        /// </summary>
+        public static void LaCampanellaShockwave(Vector2 position, float scale = 1f)
+        {
+            // Inner orange ring
+            var innerRing = new BloomRingParticle(position, Vector2.Zero, CampanellaOrange * 0.9f, 
+                0.35f * scale, 30, 0.1f);
+            MagnumParticleHandler.SpawnParticle(innerRing);
+            
+            // Outer black/dark ring
+            var outerRing = new BloomRingParticle(position, Vector2.Zero, CampanellaDarkGray * 0.6f, 
+                0.25f * scale, 40, 0.12f);
+            MagnumParticleHandler.SpawnParticle(outerRing);
+            
+            // Golden highlight ring
+            var goldRing = new BloomRingParticle(position, Vector2.Zero, CampanellaGold * 0.4f, 
+                0.2f * scale, 25, 0.08f);
+            MagnumParticleHandler.SpawnParticle(goldRing);
+        }
+        
+        /// <summary>
+        /// Creates La Campanella fire sparks - directional bell-flame particles.
+        /// Use for weapon trails, bell chime impacts, fire attacks.
+        /// </summary>
+        public static void LaCampanellaSparks(Vector2 position, Vector2 direction, int count = 6, float speed = 6f)
+        {
+            float baseAngle = direction.ToRotation();
+            
+            for (int i = 0; i < count; i++)
+            {
+                float angle = baseAngle + Main.rand.NextFloat(-0.5f, 0.5f);
+                float sparkSpeed = Main.rand.NextFloat(speed * 0.7f, speed * 1.3f);
+                Vector2 velocity = angle.ToRotationVector2() * sparkSpeed;
+                
+                Color color = i % 3 == 0 ? CampanellaOrange : (i % 3 == 1 ? CampanellaYellow : CampanellaRed);
+                var spark = new GlowSparkParticle(position, velocity, true, 
+                    Main.rand.Next(25, 45), Main.rand.NextFloat(0.35f, 0.7f), color,
+                    new Vector2(0.5f, 1.6f), false, true);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+        }
+        
+        /// <summary>
+        /// Creates La Campanella impact effect - fiery bell explosion with black smoke.
+        /// Use for major hits, bell chime explosions, infernal abilities.
+        /// </summary>
+        public static void LaCampanellaImpact(Vector2 position, float intensity = 1f)
+        {
+            // Central bloom
+            LaCampanellaBloomBurst(position, intensity);
+            
+            // Shockwave
+            LaCampanellaShockwave(position, intensity);
+            
+            // Radial fire sparks
+            for (int i = 0; i < (int)(10 * intensity); i++)
+            {
+                float angle = MathHelper.TwoPi * i / (10 * intensity);
+                Vector2 dir = angle.ToRotationVector2();
+                LaCampanellaSparks(position, dir, 2, 5f * intensity);
+            }
+            
+            // Orange/gold sparkles
+            LaCampanellaSparkles(position, (int)(8 * intensity), 35f * intensity);
+            
+            // Black smoke puffs - signature look
+            for (int i = 0; i < (int)(5 * intensity); i++)
+            {
+                Vector2 velocity = Main.rand.NextVector2Circular(3f, 3f) + new Vector2(0, -1.5f);
+                var smoke = new HeavySmokeParticle(position + Main.rand.NextVector2Circular(15f, 15f), 
+                    velocity, CampanellaBlack, Main.rand.Next(40, 70), Main.rand.NextFloat(0.4f, 0.7f) * intensity, 
+                    0.6f, 0.02f, false);
+                MagnumParticleHandler.SpawnParticle(smoke);
+            }
+            
+            // Light burst - fiery orange
+            Lighting.AddLight(position, CampanellaOrange.ToVector3() * 0.8f * intensity);
+        }
+        
+        /// <summary>
+        /// Creates La Campanella trail particles for projectiles.
+        /// Use in AI() methods for continuous bell-fire trailing effect.
+        /// </summary>
+        public static void LaCampanellaTrail(Vector2 position, Vector2 velocity)
+        {
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(6f, 6f);
+                Color color = Main.rand.NextBool() ? CampanellaOrange : CampanellaYellow;
+                var glow = new GenericGlowParticle(position + offset, -velocity * 0.15f + new Vector2(0, -0.5f), 
+                    color, Main.rand.NextFloat(0.2f, 0.45f), Main.rand.Next(15, 30), true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            if (Main.rand.NextBool(3))
+            {
+                var spark = new GlowSparkParticle(position, -velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f), 
+                    true, Main.rand.Next(15, 25), Main.rand.NextFloat(0.2f, 0.4f), 
+                    CampanellaOrange, new Vector2(0.4f, 1.4f), true, true);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+            
+            // Occasional black smoke
+            if (Main.rand.NextBool(8))
+            {
+                var smoke = new HeavySmokeParticle(position, -velocity * 0.05f, CampanellaBlack, 
+                    Main.rand.Next(30, 50), Main.rand.NextFloat(0.2f, 0.4f), 0.4f, 0.01f, false);
+                MagnumParticleHandler.SpawnParticle(smoke);
+            }
+        }
+        
+        /// <summary>
+        /// Creates La Campanella ambient aura particles - rising bell flames and black smoke.
+        /// Use in UpdateAccessory or AI for persistent fire effects.
+        /// </summary>
+        public static void LaCampanellaAura(Vector2 center, float radius = 40f)
+        {
+            // Rising flame ember
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(radius, radius * 0.5f);
+                offset.Y += radius * 0.3f; // Start lower
+                Vector2 velocity = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-2.5f, -1.5f));
+                
+                Color color = Main.rand.Next(3) switch
+                {
+                    0 => CampanellaOrange,
+                    1 => CampanellaYellow,
+                    _ => CampanellaRed
+                };
+                var glow = new GenericGlowParticle(center + offset, velocity, color, 
+                    Main.rand.NextFloat(0.15f, 0.35f), Main.rand.Next(35, 60), true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            // Black smoke wisps
+            if (Main.rand.NextBool(10))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(radius * 0.7f, radius * 0.5f);
+                Vector2 velocity = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-1.5f, -0.5f));
+                var smoke = new HeavySmokeParticle(center + offset, velocity, CampanellaBlack,
+                    Main.rand.Next(40, 70), Main.rand.NextFloat(0.2f, 0.4f), 0.5f, 0.015f, false);
+                MagnumParticleHandler.SpawnParticle(smoke);
+            }
+            
+            // Occasional spark
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(radius * 0.8f, radius * 0.8f);
+                Vector2 velocity = Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -1f);
+                
+                var spark = new GlowSparkParticle(center + offset, velocity, true, 
+                    Main.rand.Next(20, 35), Main.rand.NextFloat(0.2f, 0.4f), CampanellaOrange,
+                    new Vector2(0.3f, 1.2f), true, true);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+        }
+        
+        /// <summary>
+        /// Creates La Campanella music notes - bell-themed fiery notes.
+        /// Notes drift upward with flame colors - infernal and dramatic.
+        /// </summary>
+        public static void LaCampanellaMusicNotes(Vector2 position, int count = 5, float spreadRadius = 30f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(spreadRadius, spreadRadius);
+                Vector2 velocity = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-2.5f, -1.5f));
+                
+                // La Campanella colors - oranges, yellows, and occasional black
+                Color color = Main.rand.Next(4) switch
+                {
+                    0 => CampanellaOrange,
+                    1 => CampanellaYellow,
+                    2 => CampanellaGold,
+                    _ => CampanellaRed
+                };
+                
+                float scale = Main.rand.NextFloat(0.4f, 0.8f);
+                int lifetime = Main.rand.Next(50, 90);
+                
+                var note = new MusicNoteParticle(position + offset, velocity, color, scale, lifetime);
+                MagnumParticleHandler.SpawnParticle(note);
+            }
+        }
+        
+        /// <summary>
+        /// Creates a bell chime effect - radial burst with sound-like waves.
+        /// Perfect for bell strikes, weapon hits, and ability activations.
+        /// </summary>
+        public static void LaCampanellaBellChime(Vector2 position, float intensity = 1f)
+        {
+            // Multiple concentric rings for "sound wave" effect
+            for (int ring = 0; ring < 3; ring++)
+            {
+                float delay = ring * 0.15f;
+                Color ringColor = ring switch
+                {
+                    0 => CampanellaOrange * 0.9f,
+                    1 => CampanellaGold * 0.6f,
+                    _ => CampanellaYellow * 0.4f
+                };
+                
+                var bellRing = new BloomRingParticle(position, Vector2.Zero, ringColor, 
+                    (0.3f + ring * 0.1f) * intensity, 30 + ring * 10, 0.08f + ring * 0.02f);
+                MagnumParticleHandler.SpawnParticle(bellRing);
+            }
+            
+            // Central golden flash
+            var flash = new BloomParticle(position, Vector2.Zero, CampanellaGold, 
+                0.6f * intensity, 1.2f * intensity, 15);
+            MagnumParticleHandler.SpawnParticle(flash);
+            
+            // Music notes burst
+            LaCampanellaMusicNotes(position, (int)(6 * intensity), 25f * intensity);
+            
+            // Sparks
+            LaCampanellaSparkles(position, (int)(5 * intensity), 30f * intensity);
+            
+            Lighting.AddLight(position, CampanellaGold.ToVector3() * 0.7f * intensity);
+        }
+        
+        /// <summary>
+        /// Creates a La Campanella full musical impact effect.
+        /// Combines notes, bell chime, fire sparkles for dramatic bell-themed moments.
+        /// </summary>
+        public static void LaCampanellaMusicalImpact(Vector2 position, float intensity = 1f, bool includeBellChime = true)
+        {
+            // Burst of music notes
+            LaCampanellaMusicNotes(position, (int)(8 * intensity), 45f * intensity);
+            
+            // Fire sparkles
+            LaCampanellaSparkles(position, (int)(10 * intensity), 35f * intensity);
+            
+            // Central fire bloom
+            var bloom = new BloomParticle(position, Vector2.Zero, CampanellaOrange, 
+                0.5f * intensity, 1.1f * intensity, 25);
+            MagnumParticleHandler.SpawnParticle(bloom);
+            
+            // Black smoke core
+            var coreSmoke = new BloomParticle(position, Vector2.Zero, CampanellaBlack * 0.8f, 
+                0.3f * intensity, 0.6f * intensity, 30);
+            MagnumParticleHandler.SpawnParticle(coreSmoke);
+            
+            // Optional bell chime wave
+            if (includeBellChime)
+            {
+                LaCampanellaBellChime(position, 0.8f * intensity);
+            }
+            
+            // Heavy smoke for drama
+            if (intensity > 0.6f)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    var smoke = new HeavySmokeParticle(position + Main.rand.NextVector2Circular(15f, 15f), 
+                        Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -1f), CampanellaBlack, 
+                        50, 0.5f * intensity, 0.5f, 0.015f, false);
+                    MagnumParticleHandler.SpawnParticle(smoke);
+                }
+            }
+            
+            Lighting.AddLight(position, CampanellaOrange.ToVector3() * 0.8f * intensity);
+        }
+        
+        /// <summary>
+        /// Creates a La Campanella music trail for projectiles.
+        /// Call in AI() for continuous bell-fire musical trailing effect.
+        /// </summary>
+        public static void LaCampanellaMusicTrail(Vector2 position, Vector2 velocity)
+        {
+            // Occasional music note
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 noteVel = -velocity * 0.12f + new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.5f, -0.5f));
+                Color color = Main.rand.NextBool() ? CampanellaOrange : CampanellaGold;
+                
+                var note = new MusicNoteParticle(position, noteVel, color, Main.rand.NextFloat(0.15f, 0.27f),
+                    Main.rand.Next(35, 55));
+                MagnumParticleHandler.SpawnParticle(note);
+            }
+            
+            // Fire glow trail
+            if (Main.rand.NextBool(3))
+            {
+                Color color = Main.rand.NextBool() ? CampanellaOrange : CampanellaYellow;
+                var glow = new GenericGlowParticle(position + Main.rand.NextVector2Circular(5f, 5f), 
+                    -velocity * 0.1f + new Vector2(0, -0.4f), color, Main.rand.NextFloat(0.15f, 0.35f), 
+                    Main.rand.Next(15, 25), true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            // Occasional spark
+            if (Main.rand.NextBool(8))
+            {
+                var spark = new GlowSparkParticle(position, -velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f), 
+                    true, Main.rand.Next(15, 25), Main.rand.NextFloat(0.2f, 0.35f), 
+                    CampanellaOrange, new Vector2(0.3f, 1.2f), true, true);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+            
+            // Black smoke wisps
+            if (Main.rand.NextBool(12))
+            {
+                var smoke = new HeavySmokeParticle(position, -velocity * 0.05f, CampanellaBlack,
+                    Main.rand.Next(25, 40), Main.rand.NextFloat(0.15f, 0.3f), 0.4f, 0.015f, false);
+                MagnumParticleHandler.SpawnParticle(smoke);
+            }
+        }
+        
+        /// <summary>
+        /// Creates La Campanella sword arc slash - fiery bell-themed energy arc.
+        /// Perfect for melee slashes, spectral blade attacks, energy waves.
+        /// </summary>
+        public static void LaCampanellaSwordArc(Vector2 position, Vector2 direction, float scale = 0.6f)
+        {
+            // Main orange arc
+            CustomParticles.SwordArcSlash(position, direction, CampanellaOrange, scale, direction.ToRotation());
+            
+            // Golden afterglow arc
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 offset = direction.RotatedBy(Main.rand.NextFloat(-0.2f, 0.2f)) * 5f;
+                CustomParticles.SwordArcSlash(position + offset, direction, CampanellaGold * 0.7f, scale * 0.8f, direction.ToRotation());
+            }
+            
+            // Spark trail along arc
+            LaCampanellaSparks(position, direction, 4, 5f);
+        }
+        
+        /// <summary>
+        /// Creates La Campanella sword arc burst - radial slash explosion.
+        /// Use for melee impacts, ability activations, death effects.
+        /// </summary>
+        public static void LaCampanellaSwordArcBurst(Vector2 position, int count = 6, float scale = 0.5f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float angle = MathHelper.TwoPi * i / count + Main.rand.NextFloat(-0.15f, 0.15f);
+                Vector2 dir = angle.ToRotationVector2();
+                Color color = i % 2 == 0 ? CampanellaOrange : CampanellaGold;
+                
+                CustomParticles.SwordArcSlash(position, dir * 3f, color, scale * Main.rand.NextFloat(0.8f, 1.2f), angle);
+            }
+            
+            // Central bloom
+            LaCampanellaBloomBurst(position, 0.5f);
+        }
+        
+        /// <summary>
+        /// Creates La Campanella crescent wave - traveling arc projectile visual.
+        /// Perfect for ranged slash attacks and energy waves.
+        /// </summary>
+        public static void LaCampanellaCrescentWave(Vector2 position, Vector2 velocity, float scale = 0.7f)
+        {
+            // Main crescent
+            CustomParticles.SwordArcCrescent(position, velocity, CampanellaOrange, scale);
+            
+            // Fire glow behind
+            var glow = new GenericGlowParticle(position - velocity.SafeNormalize(Vector2.Zero) * 10f, 
+                velocity * 0.1f, CampanellaYellow, scale * 0.4f, 20, true);
+            MagnumParticleHandler.SpawnParticle(glow);
+            
+            // Sparks trailing
+            LaCampanellaSparks(position, -velocity.SafeNormalize(Vector2.Zero), 3, 4f);
+        }
+        
+        /// <summary>
+        /// Creates La Campanella prismatic bell sparkles - glittering bell-fire gems.
+        /// Use for special effects, treasure highlights, enchantment visuals.
+        /// </summary>
+        public static void LaCampanellaPrismaticSparkles(Vector2 position, int count = 8, float spreadRadius = 30f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(spreadRadius, spreadRadius);
+                Color color = Main.rand.Next(4) switch
+                {
+                    0 => CampanellaOrange,
+                    1 => CampanellaYellow,
+                    2 => CampanellaGold,
+                    _ => CampanellaRed
+                };
+                
+                CustomParticles.PrismaticSparkle(position + offset, color, Main.rand.NextFloat(0.25f, 0.5f));
+            }
+        }
+        
+        /// <summary>
+        /// Creates La Campanella prismatic burst - explosive gem/bell sparkle effect.
+        /// Use for major impacts, ability triggers, treasure discovery effects.
+        /// </summary>
+        public static void LaCampanellaPrismaticBurst(Vector2 position, int count = 10, float scale = 1f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float angle = MathHelper.TwoPi * i / count;
+                Vector2 vel = angle.ToRotationVector2() * (3f + Main.rand.NextFloat(3f)) * scale;
+                Color color = Main.rand.Next(3) switch
+                {
+                    0 => CampanellaOrange,
+                    1 => CampanellaGold,
+                    _ => CampanellaYellow
+                };
+                
+                CustomParticles.PrismaticSparkle(position + vel * 2f, color * Main.rand.NextFloat(0.8f, 1f), 
+                    Main.rand.NextFloat(0.3f, 0.5f) * scale);
+            }
+            
+            // Central flash
+            var flash = new BloomParticle(position, Vector2.Zero, CampanellaGold, 
+                0.5f * scale, 1f * scale, 15);
+            MagnumParticleHandler.SpawnParticle(flash);
+        }
+        
+        /// <summary>
+        /// Creates La Campanella halo burst - expanding golden bell halos.
+        /// Use for bell chime visuals, ability activations, divine bell effects.
+        /// </summary>
+        public static void LaCampanellaHaloBurst(Vector2 position, float intensity = 1f)
+        {
+            // Multiple expanding halos
+            for (int i = 0; i < 3; i++)
+            {
+                Color haloColor = i switch
+                {
+                    0 => CampanellaGold,
+                    1 => CampanellaOrange,
+                    _ => CampanellaYellow
+                };
+                
+                CustomParticles.HaloRing(position, haloColor * (0.9f - i * 0.2f), 
+                    (0.4f + i * 0.2f) * intensity, (20 + i * 8));
+            }
+            
+            // Inner black ring for contrast
+            CustomParticles.HaloRing(position, CampanellaBlack * 0.6f, 0.25f * intensity, 15);
+        }
+        
+        /// <summary>
+        /// Creates La Campanella grand impact - MASSIVE bell-flame explosion with everything!
+        /// Use for ultimate abilities, boss attacks, dramatic moments.
+        /// </summary>
+        public static void LaCampanellaGrandImpact(Vector2 position, float intensity = 1f)
+        {
+            // Bell chime rings
+            LaCampanellaHaloBurst(position, intensity * 1.5f);
+            
+            // Sword arc burst
+            LaCampanellaSwordArcBurst(position, 8, 0.6f * intensity);
+            
+            // Prismatic sparkle explosion
+            LaCampanellaPrismaticBurst(position, (int)(10 * intensity), intensity);
+            
+            // Fire bloom
+            LaCampanellaBloomBurst(position, intensity * 1.2f);
+            
+            // Shockwave
+            LaCampanellaShockwave(position, intensity * 1.5f);
+            
+            // Massive spark burst
+            for (int i = 0; i < (int)(16 * intensity); i++)
+            {
+                float angle = MathHelper.TwoPi * i / (16 * intensity);
+                LaCampanellaSparks(position, angle.ToRotationVector2(), 3, 8f * intensity);
+            }
+            
+            // Music notes explosion
+            LaCampanellaMusicNotes(position, (int)(12 * intensity), 60f * intensity);
+            
+            // Heavy smoke
+            for (int i = 0; i < (int)(8 * intensity); i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(4f, 4f) + new Vector2(0, -2f);
+                var smoke = new HeavySmokeParticle(position + Main.rand.NextVector2Circular(20f, 20f),
+                    vel, CampanellaBlack, Main.rand.Next(50, 80), 
+                    Main.rand.NextFloat(0.5f, 0.9f) * intensity, 0.6f, 0.02f, false);
+                MagnumParticleHandler.SpawnParticle(smoke);
+            }
+            
+            // Generic flares radially
+            for (int i = 0; i < (int)(10 * intensity); i++)
+            {
+                float angle = MathHelper.TwoPi * i / (10 * intensity);
+                Vector2 flarePos = position + angle.ToRotationVector2() * Main.rand.NextFloat(40f, 80f) * intensity;
+                Color flareColor = Main.rand.Next(3) switch
+                {
+                    0 => CampanellaOrange,
+                    1 => CampanellaGold,
+                    _ => CampanellaYellow
+                };
+                CustomParticles.GenericFlare(flarePos, flareColor, 0.6f * intensity, 25);
+            }
+            
+            // Intense lighting
+            Lighting.AddLight(position, 2.5f * intensity, 1.2f * intensity, 0.4f * intensity);
+        }
+        
+        /// <summary>
+        /// Creates La Campanella Zenith-style spectral trail - for weapon sprite ghost trails.
+        /// Spawns ghostly weapon-colored particles that follow the blade.
+        /// </summary>
+        public static void LaCampanellaZenithTrail(Vector2 position, Vector2 velocity, float rotation)
+        {
+            // Glowing spectral particles following blade path
+            for (int i = 0; i < 3; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(8f, 8f);
+                Color color = Main.rand.Next(3) switch
+                {
+                    0 => CampanellaOrange,
+                    1 => CampanellaGold * 0.8f,
+                    _ => CampanellaYellow * 0.6f
+                };
+                
+                var glow = new GenericGlowParticle(position + offset, -velocity * 0.15f, 
+                    color, Main.rand.NextFloat(0.25f, 0.45f), Main.rand.Next(12, 22), true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            // Sword arc following rotation
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 arcDir = rotation.ToRotationVector2();
+                CustomParticles.SwordArcSlash(position, arcDir * 2f, CampanellaOrange * 0.6f, 0.4f, rotation);
+            }
+            
+            // Prismatic sparkles
+            if (Main.rand.NextBool(4))
+            {
+                Color sparkColor = Main.rand.NextBool() ? CampanellaGold : CampanellaOrange;
+                CustomParticles.PrismaticSparkle(position + Main.rand.NextVector2Circular(15f, 15f), 
+                    sparkColor, Main.rand.NextFloat(0.2f, 0.35f));
+            }
+            
+            // Music note trail
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.5f, -0.8f));
+                Color noteColor = Main.rand.NextBool() ? CampanellaGold : CampanellaOrange;
+                var note = new MusicNoteParticle(position, noteVel, noteColor, Main.rand.NextFloat(0.2f, 0.35f), Main.rand.Next(30, 50));
+                MagnumParticleHandler.SpawnParticle(note);
+            }
+        }
+        
+        /// <summary>
+        /// Creates La Campanella Zenith hit effect - for when spectral blades hit enemies.
+        /// Massive bell-flame impact with sword arcs and prismatic sparkles.
+        /// </summary>
+        public static void LaCampanellaZenithHit(Vector2 position, Vector2 hitDirection, float intensity = 1f)
+        {
+            // Directional sword arcs
+            LaCampanellaSwordArc(position, hitDirection, 0.7f * intensity);
+            LaCampanellaSwordArc(position, hitDirection.RotatedBy(0.3f), 0.5f * intensity);
+            LaCampanellaSwordArc(position, hitDirection.RotatedBy(-0.3f), 0.5f * intensity);
+            
+            // Halo rings
+            LaCampanellaHaloBurst(position, intensity * 0.8f);
+            
+            // Prismatic burst
+            LaCampanellaPrismaticBurst(position, (int)(10 * intensity * 0.7f), intensity * 0.7f);
+            
+            // Fire sparks in direction
+            LaCampanellaSparks(position, hitDirection, (int)(12 * intensity), 8f * intensity);
+            LaCampanellaSparks(position, -hitDirection, (int)(6 * intensity), 5f * intensity);
+            
+            // Music notes
+            LaCampanellaMusicNotes(position, (int)(6 * intensity), 35f * intensity);
+            
+            // Central bloom
+            LaCampanellaBloomBurst(position, intensity * 0.8f);
+            
+            // Smoke puffs
+            for (int i = 0; i < (int)(4 * intensity); i++)
+            {
+                Vector2 smokeVel = hitDirection * Main.rand.NextFloat(2f, 4f) + Main.rand.NextVector2Circular(2f, 2f);
+                var smoke = new HeavySmokeParticle(position, smokeVel, CampanellaBlack,
+                    Main.rand.Next(35, 55), Main.rand.NextFloat(0.35f, 0.55f) * intensity, 0.5f, 0.02f, false);
+                MagnumParticleHandler.SpawnParticle(smoke);
+            }
+            
+            Lighting.AddLight(position, 1.5f * intensity, 0.7f * intensity, 0.2f * intensity);
+        }
+        
+        /// <summary>
+        /// Creates La Campanella critical hit effect - extra flashy for crits!
+        /// Adds additional sword arcs, halos, and prismatic effects on top of normal hit.
+        /// </summary>
+        public static void LaCampanellaZenithCrit(Vector2 position, Vector2 hitDirection, float intensity = 1f)
+        {
+            // Base hit effect
+            LaCampanellaZenithHit(position, hitDirection, intensity);
+            
+            // Extra sword arc burst
+            LaCampanellaSwordArcBurst(position, 8, 0.7f * intensity);
+            
+            // Extra halos
+            for (int i = 0; i < 4; i++)
+            {
+                Color haloColor = i % 2 == 0 ? CampanellaGold : CampanellaOrange;
+                CustomParticles.HaloRing(position, haloColor, (0.5f + i * 0.15f) * intensity, 25 + i * 5);
+            }
+            
+            // Rainbow prismatic effect (special crit flair!)
+            CustomParticles.PrismaticSparkleRainbow(position, (int)(8 * intensity));
+            
+            // Extra music notes
+            LaCampanellaMusicNotes(position, (int)(8 * intensity), 50f * intensity);
+            
+            // Bell chime effect
+            LaCampanellaBellChime(position, intensity);
+            
+            // Massive light flash
+            Lighting.AddLight(position, 2.5f * intensity, 1.2f * intensity, 0.4f * intensity);
+        }
+        
+        /// <summary>
+        /// Creates La Campanella orbiting particle effect - fire and notes circling a point.
+        /// Use for charge-up effects, channeling, and persistent auras.
+        /// </summary>
+        public static void LaCampanellaOrbiting(Vector2 center, float radius = 50f, int count = 6)
+        {
+            float baseAngle = (float)(Main.GameUpdateCount % 360) * 0.05f;
+            
+            for (int i = 0; i < count; i++)
+            {
+                float angle = baseAngle + MathHelper.TwoPi * i / count;
+                Vector2 pos = center + angle.ToRotationVector2() * radius;
+                Vector2 vel = angle.ToRotationVector2().RotatedBy(MathHelper.PiOver2) * 2f;
+                
+                // Orbiting fire glow
+                Color color = i % 2 == 0 ? CampanellaOrange : CampanellaGold;
+                var glow = new GenericGlowParticle(pos, vel, color, 
+                    Main.rand.NextFloat(0.2f, 0.35f), Main.rand.Next(15, 25), true);
+                MagnumParticleHandler.SpawnParticle(glow);
+                
+                // Occasional prismatic sparkle
+                if (Main.rand.NextBool(3))
+                {
+                    CustomParticles.PrismaticSparkle(pos, color, 0.25f);
+                }
+            }
+            
+            // Central glow
+            if (Main.rand.NextBool(4))
+            {
+                var centerGlow = new BloomParticle(center, Vector2.Zero, CampanellaGold * 0.5f, 
+                    0.3f, 0.5f, 15);
+                MagnumParticleHandler.SpawnParticle(centerGlow);
+            }
+        }
+        
+        /// <summary>
+        /// Creates La Campanella BLACK SMOKE SPARKLE MAGIC EFFECT - signature hit visual!
+        /// Dark and gray smoke mixed with golden sparkles for a mystical bell-fire aesthetic.
+        /// Use on ALL weapon hits for the signature La Campanella look.
+        /// </summary>
+        public static void LaCampanellaBlackSmokeSparkle(Vector2 position, float intensity = 1f)
+        {
+            int smokeCount = (int)(6 * intensity);
+            int sparkleCount = (int)(8 * intensity);
+            
+            // === BLACK SMOKE PUFFS - Core dark energy ===
+            for (int i = 0; i < smokeCount; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(3f, 3f) + new Vector2(0, -1.5f);
+                var blackSmoke = new HeavySmokeParticle(
+                    position + Main.rand.NextVector2Circular(15f, 15f),
+                    vel,
+                    CampanellaBlack,
+                    Main.rand.Next(40, 65),
+                    Main.rand.NextFloat(0.4f, 0.7f) * intensity,
+                    0.55f, 0.018f, false);
+                MagnumParticleHandler.SpawnParticle(blackSmoke);
+            }
+            
+            // === DARK GRAY SMOKE WISPS - Secondary layer ===
+            for (int i = 0; i < smokeCount / 2; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(2.5f, 2.5f) + new Vector2(0, -2f);
+                var graySmoke = new HeavySmokeParticle(
+                    position + Main.rand.NextVector2Circular(12f, 12f),
+                    vel,
+                    CampanellaDarkGray,
+                    Main.rand.Next(35, 55),
+                    Main.rand.NextFloat(0.3f, 0.55f) * intensity,
+                    0.5f, 0.02f, false);
+                MagnumParticleHandler.SpawnParticle(graySmoke);
+            }
+            
+            // === MAGIC SPARKLES - Golden bell magic ===
+            for (int i = 0; i < sparkleCount; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
+                Vector2 vel = Main.rand.NextVector2Circular(1.5f, 1.5f) + new Vector2(0, -1f);
+                
+                Color sparkleColor = Main.rand.Next(4) switch
+                {
+                    0 => CampanellaGold,
+                    1 => CampanellaOrange,
+                    2 => CampanellaYellow,
+                    _ => CampanellaWhite
+                };
+                
+                var sparkle = new SparkleParticle(
+                    position + offset, vel, sparkleColor, CampanellaBlack * 0.5f,
+                    Main.rand.NextFloat(0.4f, 0.9f) * intensity,
+                    Main.rand.Next(30, 55), 0.045f, 1.3f);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // === PRISMATIC GEM SPARKLES - Bell magic shimmer ===
+            for (int i = 0; i < (int)(4 * intensity); i++)
+            {
+                Vector2 sparkPos = position + Main.rand.NextVector2Circular(20f, 20f);
+                Color gemColor = Main.rand.NextBool() ? CampanellaGold : CampanellaOrange;
+                CustomParticles.PrismaticSparkle(sparkPos, gemColor, Main.rand.NextFloat(0.25f, 0.45f) * intensity);
+            }
+            
+            // === BLACK GLOW CORE - Dark magic center ===
+            var darkCore = new BloomParticle(position, Vector2.Zero, CampanellaBlack * 0.7f,
+                0.35f * intensity, 0.6f * intensity, 25);
+            MagnumParticleHandler.SpawnParticle(darkCore);
+            
+            // === DARK GRAY BLOOM RING - Shadow aura ===
+            var shadowRing = new BloomRingParticle(position, Vector2.Zero, CampanellaDarkGray * 0.5f,
+                0.25f * intensity, 30, 0.08f);
+            MagnumParticleHandler.SpawnParticle(shadowRing);
+            
+            // === GLOW SPARKS - Escaping embers ===
+            for (int i = 0; i < (int)(5 * intensity); i++)
+            {
+                float angle = Main.rand.NextFloat(MathHelper.TwoPi);
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
+                Color sparkColor = Main.rand.NextBool() ? CampanellaGold : CampanellaWhite;
+                
+                var spark = new GlowSparkParticle(position, sparkVel, true,
+                    Main.rand.Next(20, 35), Main.rand.NextFloat(0.25f, 0.45f) * intensity,
+                    sparkColor, new Vector2(0.4f, 1.5f), false, true);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+        }
+        
+        /// <summary>
+        /// Creates La Campanella SIGNATURE WEAPON HIT EFFECT - The ultimate bell-fire hit!
+        /// Combines all the signature effects: black smoke sparkle magic + fire + bell chimes.
+        /// Use for ALL La Campanella weapon hits for consistent dramatic flair.
+        /// </summary>
+        public static void LaCampanellaSignatureHit(Vector2 position, Vector2 hitDirection, float intensity = 1f)
+        {
+            // === BLACK SMOKE SPARKLE MAGIC - Signature effect! ===
+            LaCampanellaBlackSmokeSparkle(position, intensity);
+            
+            // === DIRECTIONAL FIRE SPARKS - Combat feel ===
+            LaCampanellaSparks(position, hitDirection, (int)(8 * intensity), 6f * intensity);
+            
+            // === SWORD ARC SLASH - Visual impact ===
+            LaCampanellaSwordArc(position, hitDirection, 0.55f * intensity);
+            
+            // === HALO RING - Bell resonance ===
+            CustomParticles.HaloRing(position, CampanellaOrange, 0.4f * intensity, 18);
+            CustomParticles.HaloRing(position, CampanellaBlack * 0.6f, 0.25f * intensity, 12);
+            
+            // === MUSIC NOTES - Bell theme ===
+            LaCampanellaMusicNotes(position, (int)(3 * intensity), 25f * intensity);
+            
+            // === FIRE BLOOM BURST - Heat impact ===
+            LaCampanellaBloomBurst(position, intensity * 0.6f);
+            
+            // === LIGHTING - Dramatic flash ===
+            Lighting.AddLight(position, 1.2f * intensity, 0.6f * intensity, 0.2f * intensity);
+        }
+        
+        /// <summary>
+        /// Creates La Campanella SWING AURA - Vibrant particles when weapon is swung!
+        /// Creates dramatic fire trail, black smoke wisps, and golden sparkles.
+        /// Use during weapon swing for visual flare similar to Swan Lake weapons.
+        /// </summary>
+        public static void LaCampanellaSwingAura(Vector2 position, Vector2 swingDirection, float intensity = 1f)
+        {
+            // === FIRE TRAIL BURST - Direction of swing ===
+            for (int i = 0; i < (int)(6 * intensity); i++)
+            {
+                Vector2 offset = swingDirection.RotatedBy(Main.rand.NextFloat(-0.4f, 0.4f)) * Main.rand.NextFloat(20f, 50f);
+                Color fireColor = Main.rand.Next(3) switch
+                {
+                    0 => CampanellaOrange,
+                    1 => CampanellaYellow,
+                    _ => CampanellaGold
+                };
+                
+                var glow = new GenericGlowParticle(position + offset,
+                    swingDirection * Main.rand.NextFloat(2f, 5f) + Main.rand.NextVector2Circular(1f, 1f),
+                    fireColor, Main.rand.NextFloat(0.3f, 0.5f) * intensity,
+                    Main.rand.Next(12, 22), true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            // === BLACK SMOKE WISPS - Dark magic trail ===
+            for (int i = 0; i < (int)(3 * intensity); i++)
+            {
+                Vector2 offset = swingDirection.RotatedBy(Main.rand.NextFloat(-0.3f, 0.3f)) * Main.rand.NextFloat(15f, 35f);
+                var smoke = new HeavySmokeParticle(position + offset,
+                    swingDirection * Main.rand.NextFloat(1f, 3f) + new Vector2(0, -0.5f),
+                    Main.rand.NextBool() ? CampanellaBlack : CampanellaDarkGray,
+                    Main.rand.Next(25, 40), Main.rand.NextFloat(0.25f, 0.4f) * intensity,
+                    0.5f, 0.02f, false);
+                MagnumParticleHandler.SpawnParticle(smoke);
+            }
+            
+            // === GOLDEN SPARKLES - Bell magic shimmer ===
+            for (int i = 0; i < (int)(4 * intensity); i++)
+            {
+                Vector2 sparkPos = position + swingDirection * Main.rand.NextFloat(25f, 60f) + Main.rand.NextVector2Circular(15f, 15f);
+                Color sparkColor = Main.rand.NextBool() ? CampanellaGold : CampanellaOrange;
+                CustomParticles.PrismaticSparkle(sparkPos, sparkColor, Main.rand.NextFloat(0.2f, 0.4f) * intensity);
+            }
+            
+            // === SWORD ARC - Following swing ===
+            if (Main.rand.NextBool(2))
+            {
+                CustomParticles.SwordArcSlash(position + swingDirection * 30f, swingDirection,
+                    CampanellaOrange * 0.7f, 0.4f * intensity, swingDirection.ToRotation());
+            }
+            
+            // === FLARES - Bright points along swing ===
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 flarePos = position + swingDirection * Main.rand.NextFloat(30f, 55f);
+                Color flareColor = Main.rand.NextBool() ? CampanellaOrange : CampanellaGold;
+                CustomParticles.GenericFlare(flarePos, flareColor, 0.35f * intensity, 15);
+            }
+        }
+        
+        /// <summary>
+        /// Creates La Campanella HOLD AURA - Ambient particles when weapon is held!
+        /// Elegant floating fire particles, black smoke wisps, and occasional sparkles.
+        /// Use in HoldItem for persistent visual flair like Swan Lake weapons have.
+        /// </summary>
+        public static void LaCampanellaHoldAura(Vector2 center, float intensity = 1f)
+        {
+            // === FLOATING FIRE PARTICLES - Ambient embers ===
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(35f, 35f);
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), Main.rand.NextFloat(-1.5f, -0.8f));
+                Color fireColor = Main.rand.Next(3) switch
+                {
+                    0 => CampanellaOrange,
+                    1 => CampanellaYellow,
+                    _ => CampanellaGold
+                };
+                
+                var glow = new GenericGlowParticle(center + offset, vel, fireColor,
+                    Main.rand.NextFloat(0.18f, 0.32f) * intensity,
+                    Main.rand.Next(30, 50), true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            // === BLACK SMOKE WISPS - Dark magic ambiance ===
+            if (Main.rand.NextBool(10))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
+                var smoke = new HeavySmokeParticle(center + offset,
+                    new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-1f, -0.4f)),
+                    Main.rand.NextBool() ? CampanellaBlack : CampanellaDarkGray,
+                    Main.rand.Next(35, 55), Main.rand.NextFloat(0.15f, 0.28f) * intensity,
+                    0.45f, 0.015f, false);
+                MagnumParticleHandler.SpawnParticle(smoke);
+            }
+            
+            // === PRISMATIC SPARKLES - Bell magic shimmer ===
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 sparkPos = center + Main.rand.NextVector2Circular(30f, 30f);
+                Color sparkColor = Main.rand.Next(3) switch
+                {
+                    0 => CampanellaGold,
+                    1 => CampanellaOrange,
+                    _ => CampanellaYellow
+                };
+                CustomParticles.PrismaticSparkle(sparkPos, sparkColor, Main.rand.NextFloat(0.15f, 0.3f) * intensity);
+            }
+            
+            // === ORBITING FLARES - Signature bell magic orbits ===
+            if (Main.rand.NextBool(8))
+            {
+                float angle = Main.GameUpdateCount * 0.03f + Main.rand.NextFloat() * MathHelper.TwoPi;
+                float radius = Main.rand.NextFloat(25f, 45f);
+                Vector2 flarePos = center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+                Color flareColor = Main.rand.NextBool() ? CampanellaOrange : CampanellaGold;
+                CustomParticles.GenericFlare(flarePos, flareColor, 0.22f * intensity, 18);
+            }
+            
+            // === MUSIC NOTES - Occasional floating notes ===
+            if (Main.rand.NextBool(15))
+            {
+                LaCampanellaMusicNotes(center + new Vector2(Main.rand.NextFloat(-15f, 15f), 10f), 1, 12f);
             }
         }
         

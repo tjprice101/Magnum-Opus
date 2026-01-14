@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using ReLogic.Content;
 using MagnumOpus.Content.SwanLake.ResonanceEnergies;
 using MagnumOpus.Content.SwanLake.ResonantWeapons;
+using MagnumOpus.Content.SwanLake.Items;
 using MagnumOpus.Common;
 
 namespace MagnumOpus.Content.SwanLake.Bosses
@@ -76,11 +77,15 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             // 30-35 Remnant of Swan's Harmony
             itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<RemnantOfSwansHarmony>(), 1, 30, 35));
             
-            // TODO: Add Swan Lake specific shards when created
-            // itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<ShardOfSwansGrace>(), 1, 10, 20));
+            // 10-20 Shard of the Feathered Tempo
+            itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<ShardOfTheFeatheredTempo>(), 1, 10, 20));
             
             // 3 random weapons (no duplicates)
             itemLoot.Add(new SwanLakeTreasureBagWeaponRule());
+            
+            // Feather's Call - Expert/Master exclusive drop (5% chance from treasure bag)
+            // This rare transformation item is only available in Expert/Master mode
+            itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<FeathersCall>(), 20)); // 1/20 = 5%
         }
 
         public override Color? GetAlpha(Color lightColor)

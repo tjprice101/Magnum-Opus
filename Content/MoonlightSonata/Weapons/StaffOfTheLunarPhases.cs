@@ -42,11 +42,33 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
 
         public override void HoldItem(Player player)
         {
-            // Magical moonlight particles while holding the staff
+            // GRADIENT COLORS
+            Color darkPurple = new Color(75, 0, 130);
+            Color violet = new Color(138, 43, 226);
+            Color lightBlue = new Color(135, 206, 250);
+            
+            // Ambient fractal orbit pattern with GRADIENT
+            if (Main.rand.NextBool(6))
+            {
+                float baseAngle = Main.GameUpdateCount * 0.02f;
+                for (int i = 0; i < 6; i++)
+                {
+                    float angle = baseAngle + MathHelper.TwoPi * i / 6f;
+                    float radius = 30f + (float)Math.Sin(Main.GameUpdateCount * 0.04f + i * 0.5f) * 12f;
+                    Vector2 flarePos = player.Center + angle.ToRotationVector2() * radius;
+                    float progress = (float)i / 6f;
+                    Color fractalColor = Color.Lerp(darkPurple, lightBlue, progress);
+                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.3f, 16);
+                }
+            }
+            
+            // Magical moonlight particles with GRADIENT
             if (Main.rand.NextBool(4))
             {
                 Vector2 offset = Main.rand.NextVector2Circular(22f, 22f);
-                ThemedParticles.MoonlightSparkles(player.Center + offset, 2, 10f);
+                float progress = Main.rand.NextFloat();
+                Color gradientColor = Color.Lerp(violet, lightBlue, progress);
+                CustomParticles.GenericGlow(player.Center + offset, gradientColor, 0.25f, 18);
             }
             
             // Soft mystical glow
@@ -88,45 +110,83 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            // GRADIENT COLORS: Dark Purple → Violet → Light Blue
+            Color darkPurple = new Color(75, 0, 130);
+            Color violet = new Color(138, 43, 226);
+            Color lightBlue = new Color(135, 206, 250);
+            Color silver = new Color(220, 220, 235);
+            
             // Apply the buff
             player.AddBuff(Item.buffType, 18000);
             
             // Spawn position at mouse
             position = Main.MouseWorld;
             
+            // === CUSTOM PARTICLE EFFECTS WITH GRADIENT FADING ===
+            
+            // Central fractal burst - geometric flares with gradient
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 offset = angle.ToRotationVector2() * 40f;
+                float progress = (float)i / 8f;
+                Color gradientColor = Color.Lerp(darkPurple, lightBlue, progress);
+                CustomParticles.GenericFlare(position + offset, gradientColor, 0.6f, 22);
+            }
+            
+            // Gradient halo rings - dark to bright
+            for (int ring = 0; ring < 5; ring++)
+            {
+                float progress = (float)ring / 5f;
+                Color ringColor = Color.Lerp(darkPurple, lightBlue, progress);
+                CustomParticles.HaloRing(position, ringColor, 0.4f + ring * 0.18f, 18 + ring * 4);
+            }
+            
+            // Explosion burst with gradient
+            for (int i = 0; i < 20; i++)
+            {
+                float progress = (float)i / 20f;
+                Color burstColor = Color.Lerp(violet, lightBlue, progress);
+                CustomParticles.GenericGlow(position, burstColor, 0.4f, 25);
+            }
+            
+            // Central silver flash
+            CustomParticles.GenericFlare(position, silver, 1.0f, 18);
+            
+            // Themed impact
+            ThemedParticles.MoonlightImpact(position, 1.8f);
+            ThemedParticles.MoonlightHaloBurst(position, 1.5f);
+            
+            // === VANILLA DUST WITH GRADIENT COLORS ===
+            
             // Epic summoning effects - massive moonlight vortex for Goliath
             for (int i = 0; i < 50; i++)
             {
                 float angle = MathHelper.TwoPi * i / 50f;
+                float progress = (float)i / 50f;
                 Vector2 dustPos = position + new Vector2((float)System.Math.Cos(angle), (float)System.Math.Sin(angle)) * 80f;
                 Vector2 dustVel = (position - dustPos).SafeNormalize(Vector2.Zero) * 6f;
-                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
-                Dust dust = Dust.NewDustPerfect(dustPos, dustType, dustVel, 100, default, 2.2f);
+                Color dustColor = Color.Lerp(darkPurple, lightBlue, progress);
+                int dustType = progress < 0.5f ? DustID.PurpleTorch : DustID.IceTorch;
+                Dust dust = Dust.NewDustPerfect(dustPos, dustType, dustVel, 100, dustColor, 2.2f);
                 dust.noGravity = true;
             }
             
-            // Inner purple burst
+            // Inner burst with gradient
             for (int i = 0; i < 35; i++)
             {
+                float progress = (float)i / 35f;
                 Vector2 dustVel = Main.rand.NextVector2Circular(10f, 10f);
-                Dust dust = Dust.NewDustDirect(position, 1, 1, DustID.PurpleTorch, dustVel.X, dustVel.Y, 100, default, 2.2f);
+                Color dustColor = Color.Lerp(violet, lightBlue, progress);
+                int dustType = progress < 0.5f ? DustID.PurpleTorch : DustID.IceTorch;
+                Dust dust = Dust.NewDustDirect(position, 1, 1, dustType, dustVel.X, dustVel.Y, 100, dustColor, 2.2f);
                 dust.noGravity = true;
             }
             
-            // Light blue accents
-            for (int i = 0; i < 25; i++)
-            {
-                Vector2 dustVel = Main.rand.NextVector2Circular(8f, 8f);
-                Dust dust = Dust.NewDustDirect(position, 1, 1, DustID.IceTorch, dustVel.X, dustVel.Y, 100, default, 1.8f);
-                dust.noGravity = true;
-            }
-            
-            // White sparkles
+            // White/silver sparkles
             for (int i = 0; i < 20; i++)
             {
-                Vector2 dustVel = Main.rand.NextVector2Circular(6f, 6f);
-                Dust dust = Dust.NewDustDirect(position, 1, 1, DustID.SparksMech, dustVel.X, dustVel.Y, 100, Color.White, 1.5f);
-                dust.noGravity = true;
+                CustomParticles.GenericGlow(position, silver, 0.35f, 15);
             }
             
             // Powerful summoning sound

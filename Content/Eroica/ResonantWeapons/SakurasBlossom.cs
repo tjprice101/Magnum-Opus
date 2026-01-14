@@ -10,15 +10,37 @@ using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.Eroica.ResonantWeapons
 {
     /// <summary>
     /// Sakura's Blossom - Melee weapon that creates spectral copies seeking enemies.
     /// Rainbow rarity, higher tier than Moonlight weapons.
+    /// Hold right-click to charge a devastating sakura storm attack!
     /// </summary>
     public class SakurasBlossom : ModItem
     {
+        // Charged melee attack config
+        private ChargedMeleeConfig chargedConfig;
+        
+        private ChargedMeleeConfig GetChargedConfig()
+        {
+            if (chargedConfig == null)
+            {
+                chargedConfig = new ChargedMeleeConfig
+                {
+                    PrimaryColor = UnifiedVFX.Eroica.Sakura,
+                    SecondaryColor = UnifiedVFX.Eroica.Gold,
+                    ChargeTime = 50f,
+                    SpawnThemeMusicNotes = (pos, count, radius) => ThemedParticles.EroicaMusicNotes(pos, count, radius),
+                    SpawnThemeExplosion = (pos, scale) => UnifiedVFX.Eroica.Explosion(pos, scale),
+                    DrawThemeLightning = (start, end) => MagnumVFX.DrawSakuraLightning(start, end, 10, 30f, 4, 0.4f)
+                };
+            }
+            return chargedConfig;
+        }
+        
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 1;
@@ -46,21 +68,64 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void HoldItem(Player player)
         {
-            // Sakura flame aura while holding
-            if (Main.rand.NextBool(4))
+            // === CHARGED MELEE ATTACK SYSTEM ===
+            var chargedPlayer = player.GetModPlayer<ChargedMeleePlayer>();
+            
+            // Start charging on right-click
+            if (Main.mouseRight && !chargedPlayer.IsCharging && !chargedPlayer.IsReleasing)
             {
-                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
-                ThemedParticles.EroicaAura(player.Center + offset, 18f);
+                chargedPlayer.TryStartCharging(Item, GetChargedConfig());
             }
             
-            // Custom particle sakura spirit glow
+            // Update charging state
+            if (chargedPlayer.IsCharging || chargedPlayer.IsReleasing)
+            {
+                chargedPlayer.UpdateCharging(Main.mouseRight);
+            }
+            
+            // === UnifiedVFX EROICA AMBIENT AURA ===
+            UnifiedVFX.Eroica.Aura(player.Center, 32f, 0.3f);
+            
+            // === AMBIENT FRACTAL FLARES - Sakura petal geometric pattern ===
+            if (Main.rand.NextBool(6))
+            {
+                // Sakura petal spiral pattern
+                float baseAngle = Main.GameUpdateCount * 0.03f;
+                for (int i = 0; i < 4; i++)
+                {
+                    float angle = baseAngle + MathHelper.TwoPi * i / 4f;
+                    float radius = 35f + (float)Math.Sin(Main.GameUpdateCount * 0.05f + i) * 15f;
+                    Vector2 flarePos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+                    // Gradient: Sakura pink to Scarlet to Gold
+                    float progress = (float)i / 4f;
+                    Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, progress);
+                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.32f, 17);
+                }
+            }
+            
+            // Sakura petals floating
+            if (Main.rand.NextBool(7))
+            {
+                ThemedParticles.SakuraPetals(player.Center + Main.rand.NextVector2Circular(28f, 28f), 2, 22f);
+            }
+            
+            // Custom particle sakura spirit glow with prismatic sparkles
             if (Main.rand.NextBool(5))
             {
                 CustomParticles.EroicaTrailFlare(player.Center + Main.rand.NextVector2Circular(22f, 22f), player.velocity);
+                CustomParticles.PrismaticSparkle(player.Center + Main.rand.NextVector2Circular(30f, 30f), UnifiedVFX.Eroica.Sakura, 0.22f);
             }
             
-            // Heroic scarlet glow
-            Lighting.AddLight(player.Center, 0.5f, 0.25f, 0.15f);
+            // Occasional sakura halo pulse
+            if (Main.rand.NextBool(18))
+            {
+                CustomParticles.HaloRing(player.Center, UnifiedVFX.Eroica.Sakura * 0.65f, 0.38f, 24);
+            }
+            
+            // Heroic gradient light with pulse
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.9f;
+            Vector3 lightColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, 0.4f).ToVector3();
+            Lighting.AddLight(player.Center, lightColor * pulse * 0.55f);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
@@ -144,6 +209,30 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // === UnifiedVFX EROICA IMPACT ===
+            UnifiedVFX.Eroica.Impact(target.Center, 1.2f);
+            
+            // === FRACTAL IMPACT BURST - Sakura blossom explosion pattern ===
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 flareOffset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 25f;
+                float progress = (float)i / 6f;
+                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, progress);
+                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.55f, 19);
+            }
+            
+            // Gradient halo rings
+            for (int ring = 0; ring < 3; ring++)
+            {
+                float progress = (float)ring / 3f;
+                Color ringColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Scarlet, progress);
+                CustomParticles.HaloRing(target.Center, ringColor, 0.5f + ring * 0.12f, 15 + ring * 3);
+            }
+            
+            // Sakura petals burst
+            ThemedParticles.SakuraPetals(target.Center, 6, 35f);
+            
             // Create massive scarlet and black explosion on hit
             for (int i = 0; i < 30; i++)
             {
@@ -160,6 +249,9 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                 smoke.noGravity = true;
                 smoke.velocity = Main.rand.NextVector2Circular(6f, 6f);
             }
+            
+            // Music notes on hit
+            CustomParticles.EroicaMusicNotes(target.Center, 3, 20f);
         }
 
         // Recipe removed - drops from Eroica, God of Valor

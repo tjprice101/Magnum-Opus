@@ -135,37 +135,36 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             {
                 OverrideColor = whiteColor
             });
-            tooltips.Add(new TooltipLine(Mod, "WhiteEffect1", "  On dodge, creates monochromatic halo")
+            tooltips.Add(new TooltipLine(Mod, "WhiteEffect1", "  Monochromatic Shield protects you")
             {
                 OverrideColor = whiteColor
             });
-            tooltips.Add(new TooltipLine(Mod, "WhiteEffect2", "  -20% incoming damage for 30s (3 min cooldown)")
+            tooltips.Add(new TooltipLine(Mod, "WhiteEffect2", "  Absorbs up to 3 hits before recharging (2 min)")
             {
                 OverrideColor = whiteColor
             });
             
-            // Show halo status if in white mode
+            // Show shield status if in white mode
             if (!modPlayer.pendantIsBlackMode)
             {
-                if (modPlayer.whiteHaloActive)
+                if (modPlayer.pendantShieldActive && modPlayer.pendantShieldCharges > 0)
                 {
-                    int secondsLeft = modPlayer.whiteHaloTimer / 60;
-                    tooltips.Add(new TooltipLine(Mod, "HaloActive", $"  Halo Active: {secondsLeft}s remaining")
+                    tooltips.Add(new TooltipLine(Mod, "ShieldActive", $"  Shield: {modPlayer.pendantShieldCharges}/3 charges")
                     {
                         OverrideColor = new Color(100, 255, 150)
                     });
                 }
-                else if (modPlayer.whiteHaloCooldown > 0)
+                else if (modPlayer.pendantShieldCooldown > 0)
                 {
-                    int secondsLeft = modPlayer.whiteHaloCooldown / 60;
-                    tooltips.Add(new TooltipLine(Mod, "HaloCooldown", $"  Halo on cooldown: {secondsLeft}s")
+                    int secondsLeft = modPlayer.pendantShieldCooldown / 60;
+                    tooltips.Add(new TooltipLine(Mod, "ShieldCooldown", $"  Shield recharging: {secondsLeft}s")
                     {
                         OverrideColor = new Color(255, 150, 100)
                     });
                 }
                 else
                 {
-                    tooltips.Add(new TooltipLine(Mod, "HaloReady", "  Halo ready!")
+                    tooltips.Add(new TooltipLine(Mod, "ShieldReady", "  Shield ready!")
                     {
                         OverrideColor = new Color(100, 255, 100)
                     });
@@ -180,11 +179,11 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             {
                 OverrideColor = blackColor
             });
-            tooltips.Add(new TooltipLine(Mod, "BlackEffect1", "  Critical hits unleash vivid black & white flares")
+            tooltips.Add(new TooltipLine(Mod, "BlackEffect1", "  5% chance on melee hit to unleash")
             {
                 OverrideColor = blackColor
             });
-            tooltips.Add(new TooltipLine(Mod, "BlackEffect2", "  with pearlescent rainbow explosion")
+            tooltips.Add(new TooltipLine(Mod, "BlackEffect2", "  pearlescent rainbow electrical explosion")
             {
                 OverrideColor = blackColor
             });
@@ -215,6 +214,7 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 .AddIngredient(ModContent.ItemType<SwansResonanceEnergy>(), 5)
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfSwanLake>(), 5)
                 .AddIngredient(ModContent.ItemType<RemnantOfSwansHarmony>(), 5)
+                .AddIngredient(ModContent.ItemType<ShardOfTheFeatheredTempo>(), 5)
                 .AddIngredient(ItemID.SoulofMight, 5)
                 .AddIngredient(ItemID.SoulofFlight, 10)
                 .AddTile(ModContent.TileType<MoonlightAnvilTile>())

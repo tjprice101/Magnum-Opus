@@ -11,17 +11,39 @@ using MagnumOpus.Content.MoonlightSonata.Projectiles;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons
 {
     /// <summary>
     /// Eternal Moon - A heavy sword that sends out waves of purple energy when swung.
     /// Fires multiple projectiles and occasionally a massive beam.
+    /// Hold right-click to charge a devastating lunar storm attack!
     /// Applies Musical Dissonance debuff on hit.
     /// </summary>
     public class EternalMoon : ModItem
     {
         private int swingCounter = 0;
+        
+        // Charged melee attack config
+        private ChargedMeleeConfig chargedConfig;
+        
+        private ChargedMeleeConfig GetChargedConfig()
+        {
+            if (chargedConfig == null)
+            {
+                chargedConfig = new ChargedMeleeConfig
+                {
+                    PrimaryColor = UnifiedVFX.MoonlightSonata.DarkPurple,
+                    SecondaryColor = UnifiedVFX.MoonlightSonata.Silver,
+                    ChargeTime = 55f,
+                    SpawnThemeMusicNotes = (pos, count, radius) => ThemedParticles.MoonlightMusicNotes(pos, count, radius),
+                    SpawnThemeExplosion = (pos, scale) => UnifiedVFX.MoonlightSonata.Explosion(pos, scale),
+                    DrawThemeLightning = (start, end) => MagnumVFX.DrawMoonlightLightning(start, end, 14, 25f, 4, 0.5f)
+                };
+            }
+            return chargedConfig;
+        }
 
         public override void SetDefaults()
         {
@@ -44,6 +66,38 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
 
         public override void HoldItem(Player player)
         {
+            // === CHARGED MELEE ATTACK SYSTEM ===
+            var chargedPlayer = player.GetModPlayer<ChargedMeleePlayer>();
+            
+            // Start charging on right-click
+            if (Main.mouseRight && !chargedPlayer.IsCharging && !chargedPlayer.IsReleasing)
+            {
+                chargedPlayer.TryStartCharging(Item, GetChargedConfig());
+            }
+            
+            // Update charging state
+            if (chargedPlayer.IsCharging || chargedPlayer.IsReleasing)
+            {
+                chargedPlayer.UpdateCharging(Main.mouseRight);
+            }
+            
+            // === AMBIENT FRACTAL FLARES - Lunar geometric pattern ===
+            if (Main.rand.NextBool(6))
+            {
+                // Moon phase orbital pattern
+                float baseAngle = Main.GameUpdateCount * 0.02f;
+                for (int i = 0; i < 4; i++)
+                {
+                    float angle = baseAngle + MathHelper.TwoPi * i / 4f;
+                    float radius = 35f + (float)Math.Sin(Main.GameUpdateCount * 0.035f + i * MathHelper.PiOver2) * 12f;
+                    Vector2 flarePos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+                    // Moonlight colors: deep purple to silver
+                    float hue = (Main.GameUpdateCount * 0.01f + i * 0.25f) % 1f;
+                    Color fractalColor = Color.Lerp(CustomParticleSystem.MoonlightColors.DeepPurple, CustomParticleSystem.MoonlightColors.Silver, hue);
+                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.32f, 18);
+                }
+            }
+            
             // Ethereal moonlight particles while holding - increased frequency and variety
             if (Main.rand.NextBool(3))
             {
@@ -51,13 +105,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
                 ThemedParticles.MoonlightAura(player.Center + offset, 22f);
             }
             
-            // Custom particle moonlight glow - more frequent
+            // Custom particle moonlight glow - more frequent with prismatic accents
             if (Main.rand.NextBool(4))
             {
                 CustomParticles.MoonlightFlare(player.Center + Main.rand.NextVector2Circular(25f, 25f), 0.35f);
+                CustomParticles.PrismaticSparkle(player.Center + Main.rand.NextVector2Circular(30f, 30f), CustomParticleSystem.MoonlightColors.Lavender, 0.2f);
             }
             
-            // NEW: Floating sparkle motes around the player
+            // Floating sparkle motes around the player
             if (Main.rand.NextBool(5))
             {
                 Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
@@ -67,14 +122,19 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
                 sparkle.fadeIn = 1.2f;
             }
             
-            // NEW: Occasional bright flare pulse
+            // Occasional bright flare pulse with halo
             if (Main.rand.NextBool(12))
             {
                 CustomParticles.GenericFlare(player.Center, new Color(200, 150, 255), 0.5f, 20);
             }
+            if (Main.rand.NextBool(25))
+            {
+                CustomParticles.HaloRing(player.Center, CustomParticleSystem.MoonlightColors.Lavender * 0.4f, 0.3f, 20);
+            }
             
-            // Soft purple lighting aura - stronger
-            Lighting.AddLight(player.Center, 0.45f, 0.25f, 0.65f);
+            // Soft purple lighting aura - stronger with pulse
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.1f + 0.9f;
+            Lighting.AddLight(player.Center, 0.45f * pulse, 0.25f * pulse, 0.65f * pulse);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)

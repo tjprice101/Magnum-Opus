@@ -98,6 +98,7 @@ namespace MagnumOpus.Content.SwanLake.HarmonicCores
             CreateRecipe()
                 .AddIngredient<ResonantCoreOfSwanLake>(25)
                 .AddIngredient<SwansResonanceEnergy>(25)
+                .AddIngredient<ShardOfTheFeatheredTempo>(10)
                 .AddTile(ModContent.TileType<Content.MoonlightSonata.CraftingStations.MoonlightAnvilTile>())
                 .Register();
         }

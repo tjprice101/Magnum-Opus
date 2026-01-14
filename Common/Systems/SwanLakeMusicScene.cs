@@ -29,11 +29,12 @@ namespace MagnumOpus.Common.Systems
     }
     
     /// <summary>
-    /// System to boost Swan Lake boss music volume by 50%.
+    /// System to boost Swan Lake boss music volume by 80% and reduce other sound effects by 30%.
     /// </summary>
     public class SwanLakeMusicVolumeBoost : ModSystem
     {
         private static float originalMusicVolume = -1f;
+        private static float originalSoundVolume = -1f;
         private static bool wasSwanLakeActive = false;
         
         public override void PostUpdateWorld()
@@ -53,15 +54,29 @@ namespace MagnumOpus.Common.Systems
             // Boost volume when Swan Lake fight starts
             if (swanLakeActive && !wasSwanLakeActive)
             {
-                // Store original volume and boost by 50%
+                // Store original volumes
                 originalMusicVolume = Main.musicVolume;
-                Main.musicVolume = System.Math.Min(1f, Main.musicVolume * 1.5f);
+                originalSoundVolume = Main.soundVolume;
+                
+                // Boost music by 80%
+                Main.musicVolume = System.Math.Min(1f, Main.musicVolume * 1.8f);
+                
+                // Reduce sound effects by 30% (keep 70%)
+                Main.soundVolume = Main.soundVolume * 0.7f;
             }
             // Restore volume when Swan Lake fight ends
-            else if (!swanLakeActive && wasSwanLakeActive && originalMusicVolume >= 0f)
+            else if (!swanLakeActive && wasSwanLakeActive)
             {
-                Main.musicVolume = originalMusicVolume;
-                originalMusicVolume = -1f;
+                if (originalMusicVolume >= 0f)
+                {
+                    Main.musicVolume = originalMusicVolume;
+                    originalMusicVolume = -1f;
+                }
+                if (originalSoundVolume >= 0f)
+                {
+                    Main.soundVolume = originalSoundVolume;
+                    originalSoundVolume = -1f;
+                }
             }
             
             wasSwanLakeActive = swanLakeActive;
@@ -69,11 +84,16 @@ namespace MagnumOpus.Common.Systems
         
         public override void OnWorldUnload()
         {
-            // Restore volume on world unload
+            // Restore volumes on world unload
             if (originalMusicVolume >= 0f)
             {
                 Main.musicVolume = originalMusicVolume;
                 originalMusicVolume = -1f;
+            }
+            if (originalSoundVolume >= 0f)
+            {
+                Main.soundVolume = originalSoundVolume;
+                originalSoundVolume = -1f;
             }
             wasSwanLakeActive = false;
         }

@@ -34,7 +34,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantOres
             HitSound = SoundID.Tink;
 
             MineResist = 4.5f;
-            MinPick = 350; // Requires Eroica's Pickaxe or better
+            MinPick = 450; // Requires Enigma's Pickaxe or better (Swan Lake is just before Fate tier)
         }
 
         public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b)

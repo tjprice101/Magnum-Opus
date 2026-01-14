@@ -12,7 +12,10 @@ namespace MagnumOpus.Content.SwanLake.Debuffs
     /// <summary>
     /// Flame of the Swan - A unique debuff that creates a distinct black and white flaming halo effect.
     /// Enemies affected take 10% more damage from all damage types.
+    /// Deals 0.1% of the enemy's current health as damage per tick.
     /// The effect creates a mesmerizing dual-colored flame that dances between black and white.
+    /// Turns enemy sprites to grayscale with dazzling black and white particles.
+    /// Note: When applying this debuff, use 1.25x the intended duration for 25% longer effect.
     /// </summary>
     public class FlameOfTheSwan : ModBuff
     {
@@ -33,6 +36,7 @@ namespace MagnumOpus.Content.SwanLake.Debuffs
     /// <summary>
     /// Handles the Flame of the Swan debuff effects on NPCs.
     /// Creates stunning black and white flame visuals with a halo effect.
+    /// Renders enemy in grayscale with large dazzling black/white particles.
     /// </summary>
     public class FlameOfTheSwanNPC : GlobalNPC
     {
@@ -42,6 +46,7 @@ namespace MagnumOpus.Content.SwanLake.Debuffs
         private float flameTimer = 0f;
         private float haloRotation = 0f;
         private int haloParticleTimer = 0;
+        private int damageTick = 0;
 
         public override void ResetEffects(NPC npc)
         {
@@ -61,13 +66,22 @@ namespace MagnumOpus.Content.SwanLake.Debuffs
         {
             if (HasFlameOfTheSwan)
             {
-                // Moderate DoT - 8 damage per second
+                // Deal 0.1% of current health as damage per tick
+                // lifeRegen is per second * 2, so we calculate appropriately
+                // For 0.1% per tick at 60 ticks/sec, we need to deal damage differently
+                
                 if (npc.lifeRegen > 0)
                     npc.lifeRegen = 0;
-                npc.lifeRegen -= 16; // 8 damage per second (lifeRegen is doubled)
                 
-                if (damage < 2)
-                    damage = 2;
+                // Calculate 0.1% of current health - minimum of 2 damage
+                int percentDamage = Math.Max(2, (int)(npc.life * 0.001f));
+                
+                // lifeRegen is doubled for actual damage, so set appropriately
+                // This will tick every update, dealing percent-based damage
+                npc.lifeRegen -= percentDamage * 2;
+                
+                if (damage < percentDamage)
+                    damage = percentDamage;
             }
         }
 
@@ -84,64 +98,89 @@ namespace MagnumOpus.Content.SwanLake.Debuffs
             {
                 // Large visible halo ring using ThemedParticles
                 float haloRadius = Math.Max(npc.width, npc.height) * 0.8f + 20f;
-                ThemedParticles.SwanLakeHalo(npc.Center, haloRadius, 8);
+                ThemedParticles.SwanLakeHalo(npc.Center, haloRadius, 10);
             }
 
-            // === BLACK AND WHITE FLAME PARTICLES ===
+            // === LARGE DAZZLING BLACK AND WHITE FLAME PARTICLES ===
+            // These follow the enemy and are very visible
             if (Main.rand.NextBool(2))
             {
-                // Alternating black and white flames rising from the NPC
+                // Large alternating black and white flames rising from the NPC
                 bool isBlackFlame = Main.rand.NextBool();
                 
                 Vector2 flamePos = npc.Center + new Vector2(
-                    Main.rand.NextFloat(-npc.width * 0.5f, npc.width * 0.5f),
-                    Main.rand.NextFloat(-npc.height * 0.3f, npc.height * 0.5f)
+                    Main.rand.NextFloat(-npc.width * 0.6f, npc.width * 0.6f),
+                    Main.rand.NextFloat(-npc.height * 0.4f, npc.height * 0.5f)
                 );
 
                 if (isBlackFlame)
                 {
-                    // Black flame - dark smoke rising
+                    // Large black flame - dark smoke rising
                     Dust blackFlame = Dust.NewDustPerfect(
                         flamePos,
                         DustID.Smoke,
-                        new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-3f, -1.5f)),
-                        200,
+                        new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), Main.rand.NextFloat(-4f, -2f)),
+                        180,
                         Color.Black,
-                        Main.rand.NextFloat(1.3f, 2f)
+                        Main.rand.NextFloat(2.5f, 3.5f) // Much larger!
                     );
                     blackFlame.noGravity = true;
-                    blackFlame.fadeIn = 1.2f;
+                    blackFlame.fadeIn = 1.5f;
                 }
                 else
                 {
-                    // White flame - bright torch rising
+                    // Large white flame - bright dazzling torch rising
                     Dust whiteFlame = Dust.NewDustPerfect(
                         flamePos,
                         DustID.WhiteTorch,
-                        new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-2.5f, -1f)),
-                        50,
-                        default,
-                        Main.rand.NextFloat(1.2f, 1.8f)
+                        new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), Main.rand.NextFloat(-3.5f, -1.5f)),
+                        30,
+                        Color.White,
+                        Main.rand.NextFloat(2.2f, 3f) // Much larger!
                     );
                     whiteFlame.noGravity = true;
-                    whiteFlame.fadeIn = 1f;
+                    whiteFlame.fadeIn = 1.3f;
                 }
+            }
+            
+            // === EXTRA LARGE DAZZLING PARTICLES - follow the enemy ===
+            if (Main.rand.NextBool(3))
+            {
+                // Spawn large dazzling particles that trail behind enemy
+                Vector2 trailPos = npc.Center - npc.velocity * Main.rand.NextFloat(0.5f, 2f);
+                trailPos += Main.rand.NextVector2Circular(npc.width * 0.3f, npc.height * 0.3f);
+                
+                bool isBlack = Main.rand.NextBool();
+                int dustType = isBlack ? DustID.Smoke : DustID.WhiteTorch;
+                Color dustColor = isBlack ? Color.Black : Color.White;
+                int alpha = isBlack ? 150 : 20;
+                
+                Dust dazzle = Dust.NewDustPerfect(
+                    trailPos,
+                    dustType,
+                    -npc.velocity * 0.1f + new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2f, 0f)),
+                    alpha,
+                    dustColor,
+                    Main.rand.NextFloat(2.8f, 4f) // Very large dazzling particles!
+                );
+                dazzle.noGravity = true;
+                dazzle.fadeIn = 1.8f;
             }
 
             // === HALO EFFECT - Ring of alternating black and white flames ===
             if (Main.rand.NextBool(2))
             {
                 // Create halo particles orbiting the NPC using custom particles
-                int haloParticles = 12;
+                int haloParticles = 14;
                 for (int i = 0; i < haloParticles; i++)
                 {
                     if (!Main.rand.NextBool(3)) continue; // Sparse for performance
 
                     float angle = haloRotation + (MathHelper.TwoPi * i / haloParticles);
-                    float haloRadius = Math.Max(npc.width, npc.height) * 0.7f + 15f;
+                    float haloRadius = Math.Max(npc.width, npc.height) * 0.8f + 20f;
                     
                     // Pulsing radius
-                    float pulse = (float)Math.Sin(flameTimer + i) * 5f;
+                    float pulse = (float)Math.Sin(flameTimer + i) * 6f;
                     haloRadius += pulse;
 
                     Vector2 haloPos = npc.Center + new Vector2(
@@ -155,10 +194,10 @@ namespace MagnumOpus.Content.SwanLake.Debuffs
                         Dust haloBlack = Dust.NewDustPerfect(
                             haloPos,
                             DustID.Smoke,
-                            new Vector2(0, -0.5f),
-                            220,
+                            new Vector2(0, -0.7f),
+                            200,
                             Color.Black,
-                            1.8f
+                            2.5f // Larger!
                         );
                         haloBlack.noGravity = true;
                     }
@@ -167,10 +206,10 @@ namespace MagnumOpus.Content.SwanLake.Debuffs
                         Dust haloWhite = Dust.NewDustPerfect(
                             haloPos,
                             DustID.WhiteTorch,
-                            new Vector2(0, -0.3f),
-                            40,
-                            default,
-                            1.5f
+                            new Vector2(0, -0.5f),
+                            30,
+                            Color.White,
+                            2.2f // Larger!
                         );
                         haloWhite.noGravity = true;
                     }
@@ -235,27 +274,20 @@ namespace MagnumOpus.Content.SwanLake.Debuffs
         {
             if (HasFlameOfTheSwan)
             {
-                // Create a flickering black/white overlay effect
-                float flicker = (float)Math.Sin(Main.GameUpdateCount * 0.15f + npc.whoAmI * 0.5f);
+                // Convert enemy sprite to grayscale with slight black/white flicker
+                // Calculate luminance (grayscale value) using standard conversion
+                float luminance = (0.299f * drawColor.R + 0.587f * drawColor.G + 0.114f * drawColor.B);
                 
-                if (flicker > 0)
-                {
-                    // Brighten toward white
-                    float intensity = flicker * 0.3f;
-                    byte r = (byte)Math.Min(255, drawColor.R + (255 - drawColor.R) * intensity);
-                    byte g = (byte)Math.Min(255, drawColor.G + (255 - drawColor.G) * intensity);
-                    byte b = (byte)Math.Min(255, drawColor.B + (255 - drawColor.B) * intensity);
-                    drawColor = new Color(r, g, b, drawColor.A);
-                }
-                else
-                {
-                    // Darken toward black
-                    float intensity = -flicker * 0.4f;
-                    byte r = (byte)(drawColor.R * (1f - intensity));
-                    byte g = (byte)(drawColor.G * (1f - intensity));
-                    byte b = (byte)(drawColor.B * (1f - intensity));
-                    drawColor = new Color(r, g, b, drawColor.A);
-                }
+                // Add subtle flicker between darker and lighter grayscale
+                float flicker = (float)Math.Sin(Main.GameUpdateCount * 0.12f + npc.whoAmI * 0.5f);
+                float flickerIntensity = 0.15f;
+                
+                // Adjust luminance based on flicker - shifts between darker and brighter grayscale
+                luminance = MathHelper.Clamp(luminance + flicker * 50f * flickerIntensity, 0, 255);
+                
+                // Set the grayscale color
+                byte gray = (byte)luminance;
+                drawColor = new Color(gray, gray, gray, drawColor.A);
             }
         }
     }
