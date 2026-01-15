@@ -127,6 +127,19 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             ThemedParticles.EroicaImpact(position, 1.5f);
             ThemedParticles.EroicaHaloBurst(position, 1.2f);
             
+            // 🎵 MUSIC NOTES - The symphony of summoning!
+            ThemedParticles.EroicaMusicNotes(position, 10, 50f);
+            ThemedParticles.EroicaAccidentals(position, 5, 30f);
+            
+            // Spiraling music notes rising upward - triumphant ascension
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 notePos = position + angle.ToRotationVector2() * 25f;
+                Color noteColor = Color.Lerp(eroicaScarlet, eroicaGold, (float)i / 6f);
+                ThemedParticles.MusicNotes(notePos, noteColor, 2, 15f);
+            }
+            
             // === VANILLA DUST WITH GRADIENT COLORS ===
             
             // Outer ring - gradient from black to crimson

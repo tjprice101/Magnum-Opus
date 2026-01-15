@@ -1,16 +1,17 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Microsoft.Xna.Framework;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
-using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.MoonlightSonata.HarmonicCores
 {
     /// <summary>
-    /// Harmonic Core of Moonlight Sonata - Equippable core that provides magic-focused bonuses.
-    /// Can be upgraded using Moonlight's Resonant Energy.
+    /// Harmonic Core of Moonlight Sonata - Tier 1
+    /// Unique Effect: Lunar Aura - soft purple glow damages nearby enemies
     /// </summary>
     public class HarmonicCoreOfMoonlightSonata : ModItem
     {
@@ -23,12 +24,10 @@ namespace MagnumOpus.Content.MoonlightSonata.HarmonicCores
         {
             Item.width = 32;
             Item.height = 32;
-            Item.scale = 1.25f; // Display 25% larger
+            Item.scale = 1.25f;
             Item.value = Item.sellPrice(gold: 15);
-            Item.rare = ItemRarityID.Expert; // Rainbow rarity
+            Item.rare = ItemRarityID.Expert;
             Item.maxStack = 1;
-            
-            // Not directly usable - must be placed in Harmonic Core slot
             Item.useStyle = ItemUseStyleID.None;
             Item.UseSound = null;
         }
@@ -46,63 +45,51 @@ namespace MagnumOpus.Content.MoonlightSonata.HarmonicCores
         {
             tooltips.Add(new TooltipLine(Mod, "HarmonicCoreType", "[Tier 1 Harmonic Core]")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(180, 150, 255)
+                OverrideColor = new Color(180, 150, 255)
             });
             
             tooltips.Add(new TooltipLine(Mod, "HarmonicCore", "Equip in the Harmonic Core UI (opens with inventory)")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(180, 150, 255)
+                OverrideColor = new Color(180, 150, 255)
             });
             
-            tooltips.Add(new TooltipLine(Mod, "ClassBonus", "All Classes: +4% Damage")
+            tooltips.Add(new TooltipLine(Mod, "Spacer1", " ") { OverrideColor = Color.Transparent });
+            
+            tooltips.Add(new TooltipLine(Mod, "DamageBonus", "+4% All Damage")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(120, 200, 120)
+                OverrideColor = new Color(120, 200, 120)
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Spacer1", " ") { OverrideColor = Microsoft.Xna.Framework.Color.Transparent });
+            tooltips.Add(new TooltipLine(Mod, "Spacer2", " ") { OverrideColor = Color.Transparent });
             
-            tooltips.Add(new TooltipLine(Mod, "ChromaticHeader", "◆ CHROMATIC (Offensive) - Right-click to toggle")
+            tooltips.Add(new TooltipLine(Mod, "UniqueHeader", "◆ Lunar Aura")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(255, 150, 150)
+                OverrideColor = new Color(180, 150, 255)
             });
-            tooltips.Add(new TooltipLine(Mod, "ChromaticBuff", "  Nocturne's Edge: +8% damage at night (+2% day)")
+            tooltips.Add(new TooltipLine(Mod, "UniqueEffect1", "  Emanates a soft lunar glow around you")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
+                OverrideColor = new Color(200, 180, 255)
             });
-            tooltips.Add(new TooltipLine(Mod, "ChromaticSet", "  Lunar Crescendo: Deal damage to build moon phases")
+            tooltips.Add(new TooltipLine(Mod, "UniqueEffect2", "  Enemies within the aura take periodic damage")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
-            });
-            tooltips.Add(new TooltipLine(Mod, "ChromaticSet2", "  Full moon releases a devastating piercing beam")
-            {
-                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
+                OverrideColor = new Color(200, 180, 255)
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Spacer2", " ") { OverrideColor = Microsoft.Xna.Framework.Color.Transparent });
+            tooltips.Add(new TooltipLine(Mod, "Spacer3", " ") { OverrideColor = Color.Transparent });
             
-            tooltips.Add(new TooltipLine(Mod, "DiatonicHeader", "◇ DIATONIC (Defensive) - Right-click to toggle")
+            tooltips.Add(new TooltipLine(Mod, "Flavor", "'The moon's gentle light, made manifest'")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(150, 150, 255)
-            });
-            tooltips.Add(new TooltipLine(Mod, "DiatonicBuff", "  Lunar Veil: +10 DEF at night (+5 day), +6% DR")
-            {
-                OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
-            });
-            tooltips.Add(new TooltipLine(Mod, "DiatonicSet", "  Eclipse Shroud: Every 12s gain 0.75s invincibility")
-            {
-                OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
+                OverrideColor = new Color(140, 120, 180)
             });
         }
         
         public override void PostUpdate()
         {
-            // Ethereal purple/silver glow when in world
             Lighting.AddLight(Item.Center, 0.4f, 0.2f, 0.6f);
             
-            // Moonlight halo effect for item in world
             if (Main.GameUpdateCount % 30 == 0)
             {
-                CustomParticles.MoonlightHalo(Item.Center, 0.35f);
+                CustomParticles.GenericFlare(Item.Center, new Color(180, 150, 255) * 0.5f, 0.3f, 25);
             }
             
             if (Main.rand.NextBool(25))

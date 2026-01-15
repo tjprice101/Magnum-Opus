@@ -230,6 +230,64 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                         Vector2 direction = (nearestEnemy.Center - player.Center).SafeNormalize(Vector2.UnitX);
                         Projectile.NewProjectile(player.GetSource_FromThis(), player.Center, direction * 20f,
                             ModContent.ProjectileType<FuneralPrayerRicochetBeam>(), 400, 10f, player.whoAmI);
+                        
+                        // === PRAYER ANSWERED - THE FIVE FLAMES UNITE! ===
+                        // This is THE moment - all 5 beams connected, time for spectacular VFX!
+                        
+                        // Massive prayer circle glyph formation
+                        CustomParticles.GlyphCircle(player.Center, UnifiedVFX.Eroica.Gold, 10, 80f, 0.15f);
+                        CustomParticles.GlyphCircle(player.Center, UnifiedVFX.Eroica.Scarlet, 5, 50f, -0.1f);
+                        
+                        // Divine golden flash - the prayer is heard!
+                        CustomParticles.GenericFlare(player.Center, Color.White, 1.5f, 25);
+                        CustomParticles.GenericFlare(player.Center, UnifiedVFX.Eroica.Gold, 1.2f, 30);
+                        
+                        // Five-pointed star of funeral flames converging
+                        for (int star = 0; star < 5; star++)
+                        {
+                            float starAngle = MathHelper.TwoPi * star / 5f - MathHelper.PiOver2;
+                            Vector2 starPoint = player.Center + starAngle.ToRotationVector2() * 100f;
+                            
+                            // Draw lines from each point to center (prayer beams converging)
+                            for (int point = 0; point < 8; point++)
+                            {
+                                float lerp = point / 8f;
+                                Vector2 linePos = Vector2.Lerp(starPoint, player.Center, lerp);
+                                Color lineColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, lerp);
+                                CustomParticles.GenericFlare(linePos, lineColor, 0.4f - lerp * 0.2f, 18);
+                            }
+                            
+                            // Mourning candle flame at each star point
+                            CustomParticles.GenericFlare(starPoint, UnifiedVFX.Eroica.Gold, 0.7f, 25);
+                            CustomParticles.HaloRing(starPoint, UnifiedVFX.Eroica.Scarlet * 0.7f, 0.3f, 15);
+                        }
+                        
+                        // Cascading halo rings expanding outward - divine ripples
+                        for (int wave = 0; wave < 6; wave++)
+                        {
+                            float delay = wave * 0.12f;
+                            Color waveColor = Color.Lerp(UnifiedVFX.Eroica.Gold, Color.White, wave / 6f) * (1f - wave * 0.1f);
+                            CustomParticles.HaloRing(player.Center, waveColor, 0.6f + wave * 0.2f, 20 + wave * 5);
+                        }
+                        
+                        // MUSIC NOTES CASCADE - A funeral hymn rises!
+                        ThemedParticles.MusicNoteBurst(player.Center, UnifiedVFX.Eroica.Gold, 12, 6f);
+                        ThemedParticles.EroicaMusicNotes(player.Center, 16, 70f);
+                        
+                        // Rising prayer smoke - souls ascending
+                        for (int smoke = 0; smoke < 12; smoke++)
+                        {
+                            float smokeAngle = MathHelper.TwoPi * smoke / 12f;
+                            Vector2 smokePos = player.Center + smokeAngle.ToRotationVector2() * 40f;
+                            Vector2 smokeVel = new Vector2(0, -3f) + Main.rand.NextVector2Circular(1f, 0.5f);
+                            var smokeParticle = new HeavySmokeParticle(smokePos, smokeVel, 
+                                Color.Lerp(UnifiedVFX.Eroica.Scarlet, new Color(30, 10, 10), 0.5f),
+                                Main.rand.Next(40, 60), 0.4f, 0.6f, 0.015f, false);
+                            MagnumParticleHandler.SpawnParticle(smokeParticle);
+                        }
+                        
+                        // Sakura petals spiral upward - heroic tribute
+                        ThemedParticles.SakuraPetals(player.Center, 20, 80f);
                     }
                 }
                 

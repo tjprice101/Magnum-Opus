@@ -3,6 +3,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.SwanLake.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.SwanLake.Tools
 {
@@ -93,7 +94,14 @@ namespace MagnumOpus.Content.SwanLake.Tools
             if (Main.rand.NextBool(6))
             {
                 Microsoft.Xna.Framework.Vector2 swingPos = new Microsoft.Xna.Framework.Vector2(hitbox.X + hitbox.Width / 2f, hitbox.Y + hitbox.Height / 2f);
-                global::MagnumOpus.Common.Systems.CustomParticles.SwanFeatherBurst(swingPos, 3, 0.25f);
+                CustomParticles.SwanFeatherBurst(swingPos, 3, 0.25f);
+            }
+
+            // Music notes in tool swing
+            if (Main.rand.NextBool(4))
+            {
+                Microsoft.Xna.Framework.Vector2 notePos = hitbox.Center.ToVector2();
+                ThemedParticles.SwanLakeMusicNotes(notePos, 2, 15f);
             }
         }
     }

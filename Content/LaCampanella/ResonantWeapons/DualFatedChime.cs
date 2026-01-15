@@ -173,7 +173,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // Screen shake on each swing
-            player.GetModPlayer<ScreenShakePlayer>()?.AddShake(2f, 5);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // player.GetModPlayer<ScreenShakePlayer>()?.AddShake(2f, 5);
             
             // Intense lighting flash
             Lighting.AddLight(player.Center + toMouse * 40f, 1.2f, 0.6f, 0.15f);
@@ -252,7 +253,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // Screen shake - DRAMATIC
-            player.GetModPlayer<ScreenShakePlayer>()?.AddShake(15f, 30);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // player.GetModPlayer<ScreenShakePlayer>()?.AddShake(15f, 30);
             
             // Intense light flash
             Lighting.AddLight(player.Center, 2.5f, 1.2f, 0.4f);
@@ -703,6 +705,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 chime.IncrementHitCounter(owner, target.Center);
             }
             
+            // === TRANSITION TO RETURN PHASE ON HIT ===
+            // After hitting an enemy, the blade should return to the player (Zenith behavior)
+            if (currentPhase != ZenithPhase.ReturningToPlayer)
+            {
+                currentPhase = ZenithPhase.ReturningToPlayer;
+            }
+            
             // === GUTURAL CHAINSAW BELL HIT SOUNDS ===
             SoundEngine.PlaySound(SoundID.Item35 with { Pitch = Main.rand.NextFloat(0.2f, 0.6f), Volume = 0.5f }, target.Center);
             SoundEngine.PlaySound(SoundID.Item34 with { Pitch = Main.rand.NextFloat(-0.1f, 0.3f), Volume = 0.3f }, target.Center);
@@ -715,6 +724,19 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             // === ENHANCED ZENITH-STYLE HIT EFFECTS! ===
             // Use the new comprehensive Zenith hit effect
             ThemedParticles.LaCampanellaZenithHit(target.Center, hitDirection, 1f);
+            
+            // === SIGNATURE FRACTAL FLARE BURST ===
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
+                float progress = (float)i / 6f;
+                Color fractalColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaGold, progress);
+                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.45f, 18);
+            }
+            
+            // Music notes on hit
+            ThemedParticles.LaCampanellaMusicNotes(target.Center, 3, 25f);
             
             // Additional radial spark burst
             for (int i = 0; i < 6; i++)
@@ -789,40 +811,46 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             // Main sprite position
             Vector2 mainPos = Projectile.Center - Main.screenPosition;
             
-            // === MULTI-LAYERED ADDITIVE GLOW - ZENITH STYLE ===
+            // === SPECTRAL BLADE RENDERING - SAME TEXTURE WITH BRIGHT GRADIENT OVERLAY ===
+            // This distinguishes spectral copies from the real blade through intense glowing overlays
+            
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            float pulse = 1f + (float)Math.Sin(spectralPulse) * 0.2f;
+            float pulse = 1f + (float)Math.Sin(spectralPulse) * 0.25f;
+            float spectralTime = Main.GameUpdateCount * 0.08f + Projectile.whoAmI * 0.5f;
             
-            // Outer fiery orange glow
-            Main.EntitySpriteDraw(texture, mainPos, null, ThemedParticles.CampanellaOrange * 0.55f, Projectile.rotation, origin,
-                Projectile.scale * 1.45f * pulse, SpriteEffects.None, 0);
+            // === BRIGHT GRADIENT OVERLAY - Makes spectral blades unmistakably different ===
+            // Outer blazing aura - very visible orange/gold gradient
+            float outerGradient = ((float)Math.Sin(spectralTime) + 1f) * 0.5f;
+            Color outerColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaGold, outerGradient);
+            Main.EntitySpriteDraw(texture, mainPos, null, outerColor * 0.7f, Projectile.rotation, origin,
+                Projectile.scale * 1.5f * pulse, SpriteEffects.None, 0);
             
-            // Mid golden glow
-            Main.EntitySpriteDraw(texture, mainPos, null, ThemedParticles.CampanellaGold * 0.45f, Projectile.rotation, origin,
-                Projectile.scale * 1.3f * pulse, SpriteEffects.None, 0);
+            // Mid layer - pulsing yellow/orange 
+            float midGradient = ((float)Math.Sin(spectralTime * 1.3f + 0.5f) + 1f) * 0.5f;
+            Color midColor = Color.Lerp(ThemedParticles.CampanellaYellow, ThemedParticles.CampanellaOrange, midGradient);
+            Main.EntitySpriteDraw(texture, mainPos, null, midColor * 0.6f, Projectile.rotation, origin,
+                Projectile.scale * 1.35f * pulse, SpriteEffects.None, 0);
             
-            // Yellow inner glow
-            Main.EntitySpriteDraw(texture, mainPos, null, ThemedParticles.CampanellaYellow * 0.35f, Projectile.rotation, origin,
-                Projectile.scale * 1.15f * pulse, SpriteEffects.None, 0);
+            // Inner bright core - white/gold cycling
+            float innerGradient = ((float)Math.Sin(spectralTime * 1.7f + 1f) + 1f) * 0.5f;
+            Color innerColor = Color.Lerp(Color.White, ThemedParticles.CampanellaGold, innerGradient);
+            Main.EntitySpriteDraw(texture, mainPos, null, innerColor * 0.5f, Projectile.rotation, origin,
+                Projectile.scale * 1.2f * pulse, SpriteEffects.None, 0);
             
-            // Black shadow/depth layer
-            Main.EntitySpriteDraw(texture, mainPos, null, ThemedParticles.CampanellaBlack * 0.25f, Projectile.rotation, origin,
-                Projectile.scale * 1.08f, SpriteEffects.None, 0);
-            
-            // White-hot core glow
-            Main.EntitySpriteDraw(texture, mainPos, null, Color.White * 0.2f, Projectile.rotation, origin,
-                Projectile.scale * 0.95f * pulse, SpriteEffects.None, 0);
+            // Hot white center glow
+            Main.EntitySpriteDraw(texture, mainPos, null, Color.White * 0.35f, Projectile.rotation, origin,
+                Projectile.scale * 1.05f * pulse, SpriteEffects.None, 0);
             
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            // Main sprite - the spectral blade itself with slight gold tint
-            Color mainColor = Color.Lerp(Color.White, ThemedParticles.CampanellaGold, 0.25f);
-            Main.EntitySpriteDraw(texture, mainPos, null, mainColor * trailOpacity, Projectile.rotation, origin,
+            // Base sprite with spectral tint - same texture but with golden glow tint
+            Color spectralTint = Color.Lerp(Color.White, ThemedParticles.CampanellaGold, 0.4f + outerGradient * 0.2f);
+            Main.EntitySpriteDraw(texture, mainPos, null, spectralTint * trailOpacity, Projectile.rotation, origin,
                 Projectile.scale, SpriteEffects.None, 0);
             
             return false;

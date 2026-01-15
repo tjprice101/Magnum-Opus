@@ -1,0 +1,52 @@
+# Soft Glow Particles (Most Versatile)
+
+## Understanding the Goal
+
+Calamity uses WHITE/GRAYSCALE particle textures that are then TINTED IN CODE to any color. This approach allows a single particle sprite to be reused across hundreds of effects by simply changing the Color parameter when drawing. The particles should be:
+
+- Pure white or grayscale (no color information)
+- Transparent backgrounds (PNG with alpha channel)
+- Small resolution (typically 8x8 to 64x64 pixels)
+- Clean, anti-aliased edges that blend well when scaled
+- Centered in the image for proper rotation
+- Varied shapes for different effect types
+
+---
+
+## MASTER PROMPT: Soft Glow Particles
+
+```
+white particle effect sprite sheet, 8 variations in 2x4 grid layout, pure white soft circular glow particles on transparent background, each particle is a different softness gradient from hard-edged circle to extremely soft gaussian blur falloff, smooth anti-aliased edges, radial gradient from bright white center fading to transparent edges, professional game asset quality, pixel-perfect clean design, suitable for 2D game particle systems, 32x32 pixel sprites upscaled 8x for detail, PNG with alpha transparency, no color only luminosity values, studio lighting reference for glow falloff, each particle variation shows different falloff curves: linear, quadratic, exponential, inverse square, soft gaussian, hard rim, medium blend, feathered edge, flat orthographic view, centered composition, isolated on pure black background for easy extraction, sprite sheet format --v 6.1 --ar 2:1 --style raw --s 50
+```
+
+---
+
+## Post-Processing Tips
+
+After generating with Midjourney:
+
+1. Remove Background: Use Photoshop/GIMP to ensure pure transparent background
+2. Convert to Grayscale: Remove any color cast, keep only luminosity
+3. Adjust Levels: Ensure full white (255) in brightest areas, pure transparent in darkest
+4. Downscale: Reduce to target resolution (8x8, 16x16, 32x32, 64x64)
+5. Split Sprites: Cut sprite sheet into individual files
+6. Test Tinting: Load in Terraria and test with spriteBatch.Draw() color parameter
+7. Optimize: Use PNG compression, ensure 32-bit RGBA format
+
+---
+
+## Implementation in Terraria
+
+```csharp
+// Example: Using white particle with color tinting
+Texture2D whiteParticle = ModContent.Request<Texture2D>("YourMod/Particles/SoftGlow").Value;
+
+// Tint to any color at draw time
+Color eroicaRed = new Color(255, 80, 60);
+Color moonlightPurple = new Color(180, 100, 255);
+
+spriteBatch.Draw(whiteParticle, position, null, eroicaRed * 0.8f, 
+    rotation, origin, scale, SpriteEffects.None, 0f);
+```
+
+This approach allows ONE particle texture to serve UNLIMITED color variations!

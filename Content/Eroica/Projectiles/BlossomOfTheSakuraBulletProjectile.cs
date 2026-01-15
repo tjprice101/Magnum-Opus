@@ -147,6 +147,19 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Eroica themed impact with prismatic gem burst
             ThemedParticles.EroicaImpact(Projectile.Center, 0.8f);
             
+            // === SIGNATURE FRACTAL FLARE BURST ===
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
+                float progress = (float)i / 6f;
+                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                CustomParticles.GenericFlare(Projectile.Center + flareOffset, fractalColor, 0.45f, 18);
+            }
+            
+            // Music notes on impact
+            ThemedParticles.EroicaMusicNotes(Projectile.Center, 3, 25f);
+            
             // Scarlet red explosion
             for (int i = 0; i < 25; i++)
             {

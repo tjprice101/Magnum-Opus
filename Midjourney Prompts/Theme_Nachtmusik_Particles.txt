@@ -1,0 +1,129 @@
+# Nachtmusik - Particles and Effects
+
+## Theme Overview
+
+Nachtmusik (Eine kleine Nachtmusik - A Little Night Music) theme represents the serene night sky, starlight, celestial beauty, and nocturnal elegance. Visual motifs include:
+- **Stars** - twinkling, various sizes, patterns
+- **Constellations** - connected star patterns
+- **Night sky elements** - meteors, comets, aurora
+- **Moonlight** - gentle lunar glow
+- **Stardust** - cosmic sparkle particles
+- **Night creatures** - subtle hints of owls, moths
+
+## Color Palette Reference
+```
+NachtDeepBlue    - (20, 30, 80)   - Deep night sky
+NachtMidnight    - (40, 50, 120)  - Midnight blue
+NachtStarlight   - (200, 210, 255) - Star white-blue
+NachtGold        - (255, 220, 150) - Warm star gold
+NachtSilver      - (220, 225, 240) - Cool moonlight
+NachtPurple      - (80, 60, 140)  - Twilight purple
+```
+
+---
+
+## PROMPT N-1: Star Particles (Twinkling)
+
+```
+white twinkling star particle sprite sheet, 24 variations in 6x4 grid, pure white and grayscale stars on transparent background, includes: tiny distant star point, small star simple, medium star bright, large star prominent, 4-point star classic, 5-point star standard, 6-point star elegant, 8-point star complex, star with glow halo soft, star twinkling animation frames bright dim cycle, star with rays extending, starburst intense, dim star faint, star cluster mini group, binary star pair, star fade in appearing, star fade out disappearing, star with subtle cross flare, asymmetric natural star, round star soft edges, sharp star crisp points, star with sparkle accents, star trail short motion, star pulsing size variation, each star suitable for night sky starfield effects, 16x16 to 32x32 pixel sprites upscaled, no color pure luminosity, centered, black background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+---
+
+## PROMPT N-2: Constellation Pattern Effects
+
+```
+white constellation pattern sprite sheet, 16 variations in 4x4 grid, pure white and grayscale connected star patterns on transparent background, includes: Ursa Major big dipper, Ursa Minor little dipper, Orion belt and sword, Cassiopeia W shape, Cygnus cross pattern, Lyra small compact, Corona circle crown, Aquila eagle spread, Scorpius curve tail, simple triangle three stars, simple square four stars, zigzag pattern five stars, arc curve pattern, cross pattern, diamond pattern, complex constellation twelve stars, each constellation bright nodes connected by faint elegant lines, stars vary in brightness for depth, suitable for celestial night magic effects, 64x64 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+## PROMPT N-3: Meteor and Shooting Star
+
+```
+white meteor shooting star sprite sheet, 12 variations in 4x3 grid, pure white and grayscale falling stars on transparent background, includes: simple shooting star with trail, meteor fireball bright head, meteor with debris trail, shooting star thin elegant, meteor fragmenting breaking apart, meteor shower multiple small, long streak meteor fast, short burst meteor quick, meteor entering atmosphere glow, meteor with sparkle trail, comet-like meteor with tail, meteor impact about to hit, each meteor diagonal orientation suggesting movement, bright leading edge fading trail, suitable for meteor shower celestial attack effects, 64x32 pixel sprites upscaled, no color pure luminosity, diagonal orientation, black background --v 6.1 --ar 2:1 --style raw --s 75
+```
+
+---
+
+## PROMPT N-4: Comet Effects
+
+```
+white comet sprite sheet, 8 variations in 4x2 grid, pure white and grayscale celestial comets on transparent background, includes: classic comet bright nucleus long tail, comet with double tail dust and ion, comet close perihelion bright, comet distant dim, comet tail curving, comet with debris field, comet nucleus detail icy rock, comet breaking apart fragmenting, each comet has bright dense head with flowing ethereal tail, sense of movement through space, suitable for celestial projectile powerful attack effects, 64x32 pixel sprites upscaled, no color pure white only, horizontal orientation tail trailing, black background --v 6.1 --ar 2:1 --style raw --s 100
+```
+
+---
+
+## PROMPT N-5: Aurora and Northern Lights
+
+```
+white aurora borealis sprite sheet, 8 variations in 4x2 grid, pure white and grayscale northern lights on transparent background, includes: aurora curtain vertical waves, aurora ribbon horizontal flowing, aurora spiral twisting, aurora arch overhead, aurora with ray pillars, aurora diffuse glow patch, aurora dancing motion implied, aurora intense bright peak, each aurora has flowing ethereal curtain quality, soft gradient edges, sense of movement and shimmer, suitable for celestial area buff zone effects, 64x64 pixel sprites upscaled, no color pure luminosity for colored tinting, centered, black background --v 6.1 --ar 2:1 --style raw --s 100
+```
+
+---
+
+## PROMPT N-6: Stardust Particles
+
+```
+white stardust sparkle sprite sheet, 20 variations in 5x4 grid, pure white and grayscale cosmic dust particles on transparent background, includes: single dust mote tiny, dust sparkle with cross flare, dust cluster small group, stardust trail flowing, dust cloud diffuse, dust swirl spiral, twinkling dust animated, dust settling falling, dust rising floating, cosmic dust band, nebular dust wisps, crystalline dust faceted, soft dust round, sharp dust points, dust with tiny stars embedded, magical dust glowing, scattered dust random, dense dust patch, dust ring orbital, dust stream flowing, each particle tiny magical sparkle, suitable for ambient celestial aura trail effects, 16x16 to 32x32 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 5:4 --style raw --s 50
+```
+
+---
+
+## PROMPT N-7: Moon and Lunar Elements
+
+```
+white moon lunar sprite sheet, 12 variations in 4x3 grid, pure white and grayscale moon imagery on transparent background, includes: crescent moon elegant thin, half moon clean, gibbous moon rounded, full moon bright, new moon subtle ring, moon with soft glow halo, moon behind wispy clouds, moonbeam ray of light, moon reflection shimmer, moon with crater detail, stylized moon face, moon fragment crescent broken, each moon serene beautiful quality, soft glow edges, suitable for lunar night healing buff effects, 32x32 pixel sprites upscaled, no color pure luminosity, centered, black background --v 6.1 --ar 4:3 --style raw --s 100
+```
+
+---
+
+## PROMPT N-8: Night Creature Silhouettes
+
+```
+white night creature silhouette sprite sheet, 12 variations in 4x3 grid, pure white and grayscale nocturnal creatures on transparent background, includes: owl silhouette perched, owl silhouette flying wings spread, moth silhouette delicate wings, bat silhouette flying, firefly glowing, night butterfly elegant, owl eyes only glowing pair, cat eyes in darkness, wolf silhouette howling, nightingale bird, cricket silhouette, star-moth mystical, each silhouette elegant simple recognizable, suitable for night summon familiar aesthetic effects, 32x32 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 4:3 --style raw --s 75
+```
+
+---
+
+## PROMPT N-9: Celestial Night Impact
+
+```
+white celestial night burst sprite sheet, 8 variations in 4x2 grid, pure white and grayscale night sky explosion on transparent background, includes: starburst radial with constellation forming, meteor shower impact spray, aurora wave burst, moonlight flash pulse, constellation appearing burst, comet impact explosion, stardust explosion scatter, night sky shatter revealing stars, each impact ethereal beautiful quality, stars and stardust radiating outward, suitable for night celestial weapon hit effects, 64x64 pixel sprites upscaled, no color pure luminosity, centered radial, black background --v 6.1 --ar 2:1 --style raw --s 75
+```
+
+---
+
+## PROMPT N-10: Night Sky Trail Effects
+
+```
+white night sky trail sprite sheet, 12 variations in 4x3 grid, pure white and grayscale celestial trails on transparent background, includes: trail of twinkling stars, stardust flowing trail, constellation forming trail stars connecting, meteor shower trail many small, aurora ribbon trail flowing, moonbeam trail soft, comet tail trail, night mist trail wispy, starlight scatter trail, trail ending in star burst, trail of fireflies glowing points, mixed celestial trail stars and dust, each trail suitable for night celestial projectile effects, elongated horizontal orientation, bright leading edge fading to stars, 64x16 pixel sprites upscaled, no color pure white only, black background --v 6.1 --ar 4:1 --style raw --s 75
+```
+
+---
+
+## Implementation Notes
+
+When tinting these particles in code, use the Nachtmusik gradient:
+```csharp
+// Nachtmusik gradient: Deep Blue → Midnight → Starlight
+Color GetNachtGradient(float progress)
+{
+    if (progress < 0.5f)
+        return Color.Lerp(NachtDeepBlue, NachtMidnight, progress * 2f);
+    else
+        return Color.Lerp(NachtMidnight, NachtStarlight, (progress - 0.5f) * 2f);
+}
+
+// For warm star accents:
+Color warmStar = Color.Lerp(NachtStarlight, NachtGold, 0.5f);
+
+// For twilight effects:
+Color twilight = Color.Lerp(NachtPurple, NachtMidnight, progress);
+```
+
+Combine multiple particle types for night sky effects:
+- Stars + stardust for ambient sparkle
+- Constellations + trails for projectiles
+- Meteors + comets for powerful attacks
+- Aurora + moonlight for area buffs

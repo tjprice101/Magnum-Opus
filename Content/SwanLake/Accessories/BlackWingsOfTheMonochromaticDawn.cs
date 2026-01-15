@@ -39,7 +39,7 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             Item.height = 32;
             Item.accessory = true;
             Item.value = Item.buyPrice(platinum: 3);
-            Item.rare = ModContent.RarityType<SwanRarity>();
+            Item.rare = ModContent.RarityType<SwanRainbowRarity>();
         }
 
         public override void UpdateAccessory(Player player, bool hideVisual)

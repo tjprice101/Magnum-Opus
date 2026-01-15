@@ -21,8 +21,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
     /// </summary>
     public class TheSwansLament : ModItem
     {
-        // The image file has an apostrophe in the name
-        public override string Texture => "MagnumOpus/Content/SwanLake/ResonantWeapons/TheSwan'sLament";
+        // Texture file renamed to avoid apostrophe for cross-platform compatibility
+        public override string Texture => "MagnumOpus/Content/SwanLake/ResonantWeapons/TheSwansLament";
 
         public override void SetStaticDefaults()
         {

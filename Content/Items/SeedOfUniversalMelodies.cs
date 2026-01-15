@@ -122,9 +122,9 @@ namespace MagnumOpus.Content.Items
         {
             // Add special tooltip explaining the upgrade system
             tooltips.Add(new TooltipLine(Mod, "SeedInfo1", "Contains the essence of all cosmic melodies"));
-            tooltips.Add(new TooltipLine(Mod, "SeedInfo2", "[c/FFD700:Right-click a Magnum Opus weapon to transform it]"));
-            tooltips.Add(new TooltipLine(Mod, "SeedInfo3", "[c/FF6600:Celestial weapons gain new attacks and enhanced power]"));
-            tooltips.Add(new TooltipLine(Mod, "SeedInfo4", "[c/FF0000:Each weapon can only be transformed once]"));
+            tooltips.Add(new TooltipLine(Mod, "Spacer", " "));
+            tooltips.Add(new TooltipLine(Mod, "SeedInfo5", "[c/AA88FF:Used to enhance Harmonic Cores (up to 5 times)]"));
+            tooltips.Add(new TooltipLine(Mod, "SeedInfo6", "[c/88FFAA:Right-click an equipped core in the Harmonic Core UI to enhance]"));
         }
     }
 }

@@ -1,0 +1,129 @@
+# Clair de Lune - Particles and Effects
+
+## Theme Overview
+
+Clair de Lune theme represents clockwork precision, mechanical elegance, moonlit machinery, and the passage of time. Visual motifs include:
+- **Gears and cogs** - interlocking mechanical parts
+- **Clockwork** - clock faces, hands, mechanisms
+- **Springs and coils** - mechanical springs, watch parts
+- **Pendulums** - swinging time elements
+- **Moon phases** - lunar cycle imagery
+- **Timepieces** - pocket watches, hourglasses
+- **Mechanical precision** - clean lines, brass aesthetics
+
+## Color Palette Reference
+```
+ClairNightMist    - (100, 120, 160) - Primary night sky
+ClairSoftBlue     - (140, 170, 220) - Moonlit glow
+ClairPearl        - (240, 240, 250) - Pearl white accent
+ClairBrass        - (180, 150, 80)  - Mechanical brass
+ClairSilver       - (200, 200, 210) - Steel silver
+```
+
+---
+
+## PROMPT CL-1: Gear and Cog Particles
+
+```
+white gear cog particle sprite sheet, 20 variations in 5x4 grid, pure white and grayscale mechanical gear designs on transparent background, includes: simple 8-tooth gear, complex 24-tooth gear, tiny watch gear delicate, large industrial cog, gear with missing teeth damaged, interlocking gear pair meshing, gear with decorative spokes, gear with hollow center, gear fragment broken, gear spinning motion blur, gear with rivets detailed, tapered gear cone shape, gear with inner mechanisms visible, worm gear helical, bevel gear angled, gear with moon phase cutout, gear dissolving into particles, gear emerging from mist, rack gear linear, planetary gear set nested, each gear precise mechanical quality, suitable for clockwork steampunk effects, 32x32 pixel sprites upscaled, no color pure luminosity, centered, black background --v 6.1 --ar 5:4 --style raw --s 75
+```
+
+---
+
+## PROMPT CL-2: Clock Face Elements
+
+```
+white clock face element sprite sheet, 16 variations in 4x4 grid, pure white and grayscale timepiece elements on transparent background, includes: full clock face with numerals, clock face roman numerals, clock hands hour minute pair, second hand thin elegant, clock face fragment quarter, ornate clock center spindle, grandfather clock pendulum, cuckoo clock bird silhouette, sundial face with gnomon shadow, clock striking position hands at 12, clock face melting surreal, shattered clock fragments, clock face with moon phase window, stopwatch face with subdials, alarm clock bells top, clock winding key ornate, each element suggests time and precision, suitable for time manipulation clockwork effects, 32x32 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+## PROMPT CL-3: Spring and Coil Particles
+
+```
+white spring coil particle sprite sheet, 12 variations in 4x3 grid, pure white and grayscale mechanical springs on transparent background, includes: compression spring tight coils, extension spring stretched, torsion spring twisted, clock mainspring spiral flat, watch hairspring delicate spiral, coil spring bouncing motion, spring releasing energy, broken spring snapped, spring fragment segment, double helix spring intertwined, conical spring tapered, spring with mounting ends, each spring has mechanical precision tension implied, metallic sheen suggested by gradients, suitable for mechanical energy release effects, 32x32 pixel sprites upscaled, no color pure luminosity, various orientations, black background --v 6.1 --ar 4:3 --style raw --s 50
+```
+
+---
+
+## PROMPT CL-4: Pendulum and Escapement
+
+```
+white pendulum escapement sprite sheet, 12 variations in 4x3 grid, pure white and grayscale swinging mechanisms on transparent background, includes: simple pendulum bob and rod, ornate decorative pendulum, pendulum at swing extremes left right center, pendulum with gear escapement attached, pendulum trail motion blur arc, metronome pendulum weighted, Foucault pendulum long elegant, pendulum breaking free, pendulum slowing stopping, hypnotic pendulum spiral path, double pendulum chaotic, pendulum with moonstone bob, each pendulum suggests rhythmic time passage, suitable for timing rhythm clockwork effects, 48x48 pixel sprites upscaled, no color pure white only, centered pivot point, black background --v 6.1 --ar 4:3 --style raw --s 75
+```
+
+---
+
+## PROMPT CL-5: Moon Phase Particles
+
+```
+white moon phase particle sprite sheet, 12 variations in 4x3 grid, pure white and grayscale lunar cycle imagery on transparent background, includes: new moon dark circle, waxing crescent, first quarter half, waxing gibbous, full moon bright, waning gibbous, third quarter half, waning crescent, moon with soft glow halo, moon behind clouds silhouette, moon with crater details, moon with face traditional, each moon phase clean astronomical accuracy, soft glow aura around edges, suitable for lunar celestial nighttime effects, 32x32 pixel sprites upscaled, no color pure luminosity, centered, black background --v 6.1 --ar 4:3 --style raw --s 100
+```
+
+---
+
+## PROMPT CL-6: Pocket Watch Effects
+
+```
+white pocket watch sprite sheet, 8 variations in 4x2 grid, pure white and grayscale ornate timepieces on transparent background, includes: closed pocket watch cover with engraving, open pocket watch showing face, pocket watch chain links, pocket watch opening animation frames, pocket watch spinning, pocket watch with lid half open, pocket watch crown and stem, pocket watch shattered broken, each watch ornate Victorian steampunk aesthetic, suitable for time-based ability item effects, 48x48 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 2:1 --style raw --s 75
+```
+
+---
+
+## PROMPT CL-7: Hourglass Particles
+
+```
+white hourglass timer sprite sheet, 12 variations in 4x3 grid, pure white and grayscale sand timer designs on transparent background, includes: hourglass full top empty bottom, hourglass half-half mid-flow, hourglass empty top full bottom finished, hourglass tilted diagonal, hourglass sand flowing stream visible, hourglass ornate frame decorated, hourglass simple minimal, hourglass shattering glass breaking, hourglass sand frozen mid-air, hourglass infinite loop sand rising, hourglass with mechanical frame, hourglass fragment broken, each hourglass suggests time passage mortality, suitable for time limit countdown effects, 48x48 pixel sprites upscaled, no color pure luminosity, vertical orientation, black background --v 6.1 --ar 4:3 --style raw --s 75
+```
+
+---
+
+## PROMPT CL-8: Mechanical Debris Particles
+
+```
+white mechanical debris sprite sheet, 16 variations in 4x4 grid, pure white and grayscale machine fragments on transparent background, includes: tiny screw, small bolt, nut hexagonal, gear tooth fragment, spring segment, clock hand broken, watch crystal glass shard, brass plate fragment, rivet popped, pin small cylindrical, washer ring, chain link single, wire coiled fragment, bearing ball, jewel bearing ruby hint, lever tiny, each piece small mechanical debris, suitable for clockwork destruction impact scatter effects, 16x16 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+---
+
+## PROMPT CL-9: Clockwork Impact Burst
+
+```
+white clockwork explosion burst sprite sheet, 8 variations in 4x2 grid, pure white and grayscale mechanical explosion on transparent background, includes: burst of gears radiating outward, clock face shattering impact, spring energy release burst, pendulum shockwave arc, gears and springs scattering, time fracture radial cracks, clockwork overload explosion, mechanical precision burst clean geometric, each impact combines mechanical debris with energy release, gears springs screws flying outward, suitable for clockwork weapon hit effects, 64x64 pixel sprites upscaled, no color pure luminosity, centered radial, black background --v 6.1 --ar 2:1 --style raw --s 75
+```
+
+---
+
+## PROMPT CL-10: Clockwork Trail Effects
+
+```
+white clockwork trail sprite sheet, 12 variations in 4x3 grid, pure white and grayscale mechanical projectile trails on transparent background, includes: trail of tiny gears spinning, trail of clock numerals fading, gear teeth pattern trail, spring coil trail bouncing, pendulum arc motion trail, pocket watch chain trail, clockwork debris trail, time ripple wave trail, moonlight shimmer trail, mechanical precision line trail, trail of watch jewels, trail ending in gear burst, each trail suitable for clockwork projectile weapon effects, elongated horizontal orientation, leading edge bright fading to particles, 64x16 pixel sprites upscaled, no color pure white only, black background --v 6.1 --ar 4:1 --style raw --s 75
+```
+
+---
+
+## Implementation Notes
+
+When tinting these particles in code, use the Clair de Lune gradient:
+```csharp
+// Clair de Lune gradient: Night Mist → Soft Blue → Pearl
+Color GetClairGradient(float progress)
+{
+    if (progress < 0.5f)
+        return Color.Lerp(ClairNightMist, ClairSoftBlue, progress * 2f);
+    else
+        return Color.Lerp(ClairSoftBlue, ClairPearl, (progress - 0.5f) * 2f);
+}
+
+// For mechanical brass accents:
+Color GetBrassAccent(float intensity)
+{
+    return Color.Lerp(ClairSilver, ClairBrass, intensity);
+}
+```
+
+Combine multiple particle types for clockwork effects:
+- Gears + springs for mechanical impacts
+- Clock faces + pendulums for time abilities
+- Moon phases + hourglasses for duration effects
+- Debris + bursts for destruction effects

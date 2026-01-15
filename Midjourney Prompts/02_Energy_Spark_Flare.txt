@@ -1,0 +1,26 @@
+# Energy Spark/Flare Particles
+
+## PROMPT: Energy Spark/Flare Particles
+
+```
+white energy spark particle sprite sheet, 12 variations in 3x4 grid, pure white and grayscale only, transparent background, includes: sharp 4-pointed stars, 6-pointed stars, 8-pointed lens flares, soft diamond sparkles, elongated streak sparks, round soft glows with bright cores, small pinpoint highlights, medium soft orbs, large diffuse glows, asymmetric organic sparks, electric arc fragments, plasma wisps, all with smooth anti-aliased edges, radial symmetry where appropriate, professional 2D game particle assets, suitable for magic effects fire sparks lightning electricity, each sprite isolated and centered, 32x32 pixel base resolution upscaled for detail, bright white cores with soft falloff to transparent, no color information pure luminosity only, clean vector-like quality with smooth gradients, game-ready sprite sheet format, black background for extraction --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+---
+
+## Variations to Try
+
+### 4-Point Star Focus
+```
+white 4-pointed star spark sprite sheet, 8 variations, pure white grayscale, varying sharpness from razor-thin to soft diffuse, bright center fading outward, suitable for magic sparkle effects, 32x32 pixels upscaled, transparent background, game particle asset --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+### Lens Flare Elements
+```
+white lens flare element sprite sheet, 12 variations, pure grayscale, includes: hexagonal bokeh, circular flares, stretched anamorphic flares, rainbow streak elements in white, suitable for impact effects and magical bursts, 64x64 pixels upscaled, transparent background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+### Electric Arc Fragments
+```
+white electric arc fragment sprite sheet, 16 variations, pure white lightning bolt segments, jagged forked paths, plasma wisps, crackling energy, suitable for chain lightning projectiles, 32x32 pixels upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+```

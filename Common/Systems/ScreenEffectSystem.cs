@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -11,6 +12,7 @@ namespace MagnumOpus.Common.Systems
     // ============================================================================
     // SCREEN EFFECT SYSTEM - Ported from InfernumMode patterns
     // Provides screen shake, flash, blur, and shockwave effects for dramatic moments.
+    // FATE THEME: Includes reality distortion effects exclusive to endgame Fate weapons.
     // ============================================================================
 
     /// <summary>
@@ -156,6 +158,345 @@ namespace MagnumOpus.Common.Systems
                     Lighting.AddLight(FlashPosition, layerOpacity, layerOpacity, layerOpacity);
                 }
             }
+        }
+    }
+    
+    // ============================================================================
+    // FATE REALITY DISTORTION SYSTEM - Endgame Exclusive Effects
+    // These effects break reality itself - chromatic aberration, screen slices,
+    // temporal echoes, and reality shattering. ONLY for Fate-themed weapons.
+    // ============================================================================
+    
+    /// <summary>
+    /// Fate-exclusive screen distortion effects that make reality bend and shatter.
+    /// These are endgame-tier visual effects unique to the Fate theme.
+    /// </summary>
+    public static class FateRealityDistortion
+    {
+        // ==================== CHROMATIC ABERRATION ====================
+        private static bool ChromaticActive;
+        private static float ChromaticIntensity;
+        private static int ChromaticLifetime;
+        private static int ChromaticTime;
+        private static Vector2 ChromaticCenter;
+        
+        // ==================== SCREEN SLICE ====================
+        private static bool SliceActive;
+        private static Vector2 SliceStart;
+        private static Vector2 SliceEnd;
+        private static float SliceIntensity;
+        private static int SliceLifetime;
+        private static int SliceTime;
+        private static Color SliceColor;
+        
+        // ==================== REALITY SHATTER ====================
+        private static bool ShatterActive;
+        private static Vector2 ShatterCenter;
+        private static float ShatterIntensity;
+        private static int ShatterLifetime;
+        private static int ShatterTime;
+        private static List<ShatterFragment> ShatterFragments = new List<ShatterFragment>();
+        
+        // ==================== COLOR INVERSION PULSE ====================
+        private static bool InversionActive;
+        private static int InversionTime;
+        private static int InversionLifetime;
+        
+        // Fate theme colors
+        public static readonly Color FateBlack = new Color(15, 5, 20);
+        public static readonly Color FateDarkPink = new Color(180, 50, 100);
+        public static readonly Color FateBrightRed = new Color(255, 60, 80);
+        public static readonly Color FatePurple = new Color(120, 30, 140);
+        public static readonly Color FateWhite = Color.White;
+        
+        private struct ShatterFragment
+        {
+            public Vector2 Position;
+            public Vector2 Offset;
+            public float Rotation;
+            public float Scale;
+        }
+        
+        /// <summary>
+        /// Triggers chromatic aberration (RGB color channel separation).
+        /// Creates a reality-breaking visual where red and blue channels offset.
+        /// </summary>
+        /// <param name="center">World position center of the effect</param>
+        /// <param name="intensity">Strength of the RGB separation (3-10 recommended)</param>
+        /// <param name="lifetime">Duration in frames</param>
+        public static void TriggerChromaticAberration(Vector2 center, float intensity, int lifetime)
+        {
+            ChromaticActive = true;
+            ChromaticCenter = center;
+            ChromaticIntensity = intensity;
+            ChromaticLifetime = lifetime;
+            ChromaticTime = 0;
+        }
+        
+        /// <summary>
+        /// Creates a visual "cut" across the screen as if reality itself is being sliced.
+        /// </summary>
+        /// <param name="start">Start position of the slice (world coordinates)</param>
+        /// <param name="end">End position of the slice (world coordinates)</param>
+        /// <param name="intensity">Width/brightness of the slice</param>
+        /// <param name="lifetime">Duration in frames</param>
+        public static void TriggerScreenSlice(Vector2 start, Vector2 end, float intensity, int lifetime)
+        {
+            SliceActive = true;
+            SliceStart = start;
+            SliceEnd = end;
+            SliceIntensity = intensity;
+            SliceLifetime = lifetime;
+            SliceTime = 0;
+            SliceColor = Color.Lerp(FateWhite, FateDarkPink, 0.3f);
+        }
+        
+        /// <summary>
+        /// Creates an effect where the screen appears to shatter into fragments briefly.
+        /// Ultimate visual for Fate boss deaths or ultimate attacks.
+        /// </summary>
+        /// <param name="center">Center of the shatter effect (world coordinates)</param>
+        /// <param name="fragmentCount">Number of shatter fragments (8-16 recommended)</param>
+        /// <param name="intensity">How far fragments displace</param>
+        /// <param name="lifetime">Duration in frames</param>
+        public static void TriggerRealityShatter(Vector2 center, int fragmentCount, float intensity, int lifetime)
+        {
+            ShatterActive = true;
+            ShatterCenter = center;
+            ShatterIntensity = intensity;
+            ShatterLifetime = lifetime;
+            ShatterTime = 0;
+            
+            // Generate random shatter fragments
+            ShatterFragments.Clear();
+            for (int i = 0; i < fragmentCount; i++)
+            {
+                ShatterFragments.Add(new ShatterFragment
+                {
+                    Position = center + Main.rand.NextVector2Circular(200f, 200f),
+                    Offset = Main.rand.NextVector2Unit() * Main.rand.NextFloat(5f, 15f) * intensity,
+                    Rotation = Main.rand.NextFloat(-0.1f, 0.1f) * intensity,
+                    Scale = 1f + Main.rand.NextFloat(-0.05f, 0.05f) * intensity
+                });
+            }
+        }
+        
+        /// <summary>
+        /// Brief color inversion flash that makes reality feel wrong.
+        /// </summary>
+        /// <param name="lifetime">Duration of the inversion pulse (5-15 frames recommended)</param>
+        public static void TriggerInversionPulse(int lifetime)
+        {
+            InversionActive = true;
+            InversionTime = 0;
+            InversionLifetime = lifetime;
+        }
+        
+        /// <summary>
+        /// Triggers a full Fate reality-break combo: chromatic + slice + shake.
+        /// Use for Fate Sever or other ultimate Fate attacks.
+        /// </summary>
+        public static void TriggerFullRealityBreak(Vector2 position, Vector2 sliceDirection, float scale = 1f)
+        {
+            // Chromatic aberration
+            TriggerChromaticAberration(position, 6f * scale, 25);
+            
+            // Screen slice along the attack direction
+            Vector2 perpendicular = sliceDirection.RotatedBy(MathHelper.PiOver2);
+            perpendicular.Normalize();
+            TriggerScreenSlice(
+                position - perpendicular * 400f * scale,
+                position + perpendicular * 400f * scale,
+                2f * scale,
+                18
+            );
+            
+            // Brief inversion pulse
+            TriggerInversionPulse(8);
+            
+            // Screen shake
+            MagnumScreenEffects.AddScreenShake(12f * scale);
+            
+            // Flash
+            MagnumScreenEffects.SetFlashEffect(position, 1.5f * scale, 20);
+        }
+        
+        /// <summary>
+        /// Ultimate reality shatter for boss deaths or climactic moments.
+        /// </summary>
+        public static void TriggerUltimateShatter(Vector2 position, float scale = 1f)
+        {
+            TriggerRealityShatter(position, 12, 1.5f * scale, 45);
+            TriggerChromaticAberration(position, 8f * scale, 40);
+            TriggerInversionPulse(12);
+            MagnumScreenEffects.AddScreenShake(25f * scale);
+            MagnumScreenEffects.SetFlashEffect(position, 2f * scale, 50);
+        }
+        
+        /// <summary>
+        /// Update all active Fate distortion effects. Called from ModSystem.
+        /// </summary>
+        public static void Update()
+        {
+            if (ChromaticActive)
+            {
+                ChromaticTime++;
+                if (ChromaticTime >= ChromaticLifetime)
+                    ChromaticActive = false;
+            }
+            
+            if (SliceActive)
+            {
+                SliceTime++;
+                if (SliceTime >= SliceLifetime)
+                    SliceActive = false;
+            }
+            
+            if (ShatterActive)
+            {
+                ShatterTime++;
+                if (ShatterTime >= ShatterLifetime)
+                {
+                    ShatterActive = false;
+                    ShatterFragments.Clear();
+                }
+            }
+            
+            if (InversionActive)
+            {
+                InversionTime++;
+                if (InversionTime >= InversionLifetime)
+                    InversionActive = false;
+            }
+        }
+        
+        /// <summary>
+        /// Gets the current chromatic aberration offset for rendering.
+        /// Returns the RGB offset vector based on current effect state.
+        /// </summary>
+        public static Vector2 GetChromaticOffset()
+        {
+            if (!ChromaticActive)
+                return Vector2.Zero;
+            
+            float progress = (float)ChromaticTime / ChromaticLifetime;
+            float easeOut = 1f - progress * progress; // Quadratic ease-out
+            return new Vector2(ChromaticIntensity * easeOut, 0f);
+        }
+        
+        /// <summary>
+        /// Check if any Fate distortion effect is active.
+        /// </summary>
+        public static bool AnyDistortionActive() => 
+            ChromaticActive || SliceActive || ShatterActive || InversionActive;
+        
+        /// <summary>
+        /// Gets the current inversion intensity (0-1).
+        /// </summary>
+        public static float GetInversionIntensity()
+        {
+            if (!InversionActive)
+                return 0f;
+            
+            float progress = (float)InversionTime / InversionLifetime;
+            // Pulse in and out
+            return (float)Math.Sin(progress * MathHelper.Pi) * 0.3f;
+        }
+        
+        /// <summary>
+        /// Draw Fate screen slice effect.
+        /// Call during PostDrawTiles or similar.
+        /// </summary>
+        public static void DrawSliceEffect(SpriteBatch spriteBatch)
+        {
+            if (!SliceActive)
+                return;
+            
+            float progress = (float)SliceTime / SliceLifetime;
+            float alpha = 1f - progress;
+            float width = SliceIntensity * (1f + progress * 0.5f);
+            
+            Vector2 screenStart = SliceStart - Main.screenPosition;
+            Vector2 screenEnd = SliceEnd - Main.screenPosition;
+            Vector2 direction = (screenEnd - screenStart).SafeNormalize(Vector2.UnitX);
+            float length = Vector2.Distance(screenStart, screenEnd);
+            float rotation = direction.ToRotation();
+            
+            // Draw the slice as overlapping lines with gradient
+            Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+            
+            // Outer glow (dark pink)
+            for (int i = 0; i < 3; i++)
+            {
+                float layerWidth = width * (3f - i);
+                float layerAlpha = alpha * (0.3f - i * 0.08f);
+                Color layerColor = Color.Lerp(FateDarkPink, FateBrightRed, (float)i / 3f) * layerAlpha;
+                
+                spriteBatch.Draw(
+                    pixel,
+                    screenStart,
+                    null,
+                    layerColor,
+                    rotation,
+                    new Vector2(0, 0.5f),
+                    new Vector2(length, layerWidth),
+                    SpriteEffects.None,
+                    0f
+                );
+            }
+            
+            // Inner core (white)
+            spriteBatch.Draw(
+                pixel,
+                screenStart,
+                null,
+                FateWhite * alpha * 0.8f,
+                rotation,
+                new Vector2(0, 0.5f),
+                new Vector2(length, width * 0.3f),
+                SpriteEffects.None,
+                0f
+            );
+            
+            // Add sparkling particles along the slice
+            if (SliceTime % 3 == 0 && SliceTime < SliceLifetime - 5)
+            {
+                float t = Main.rand.NextFloat();
+                Vector2 particlePos = Vector2.Lerp(SliceStart, SliceEnd, t);
+                Vector2 particleVel = direction.RotatedBy(Main.rand.NextFloat(-0.5f, 0.5f)) * Main.rand.NextFloat(2f, 5f);
+                Color particleColor = Color.Lerp(FateWhite, FateDarkPink, Main.rand.NextFloat());
+                
+                try
+                {
+                    var spark = new DirectionalSparkParticle(particlePos, particleVel, false, 20, 1.5f, particleColor);
+                    MagnumParticleHandler.SpawnParticle(spark);
+                }
+                catch { }
+            }
+        }
+        
+        /// <summary>
+        /// Get cosmic gradient color for Fate effects.
+        /// </summary>
+        public static Color GetFateGradient(float progress)
+        {
+            if (progress < 0.3f)
+                return Color.Lerp(FateBlack, FateDarkPink, progress / 0.3f);
+            else if (progress < 0.7f)
+                return Color.Lerp(FateDarkPink, FatePurple, (progress - 0.3f) / 0.4f);
+            else
+                return Color.Lerp(FatePurple, FateBrightRed, (progress - 0.7f) / 0.3f);
+        }
+    }
+    
+    /// <summary>
+    /// ModSystem to update Fate distortion effects each frame.
+    /// </summary>
+    public class FateDistortionUpdater : ModSystem
+    {
+        public override void PostUpdateEverything()
+        {
+            FateRealityDistortion.Update();
         }
     }
     

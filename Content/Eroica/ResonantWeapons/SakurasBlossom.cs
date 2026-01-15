@@ -30,8 +30,8 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             {
                 chargedConfig = new ChargedMeleeConfig
                 {
-                    PrimaryColor = UnifiedVFX.Eroica.Sakura,
-                    SecondaryColor = UnifiedVFX.Eroica.Gold,
+                    PrimaryColor = UnifiedVFX.Eroica.Gold, // Gold and red theme
+                    SecondaryColor = UnifiedVFX.Eroica.Scarlet,
                     ChargeTime = 50f,
                     SpawnThemeMusicNotes = (pos, count, radius) => ThemedParticles.EroicaMusicNotes(pos, count, radius),
                     SpawnThemeExplosion = (pos, scale) => UnifiedVFX.Eroica.Explosion(pos, scale),
@@ -189,21 +189,73 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
-            // Intense scarlet and black particles
+            // === BLOOMING SAKURA EFFECT ===
+            // The blade LITERALLY blooms with petals on every swing - a flower unfurling
+            
+            Vector2 hitboxCenter = hitbox.Center.ToVector2();
+            float swingProgress = player.itemAnimation / (float)player.itemAnimationMax;
+            float bloomIntensity = (float)Math.Sin(swingProgress * MathHelper.Pi); // Peak at mid-swing
+            
+            // === SAKURA PETAL BLOOM - Petals spiral outward from the blade ===
             if (Main.rand.NextBool(2))
             {
-                Dust flame = Dust.NewDustDirect(new Vector2(hitbox.X, hitbox.Y), hitbox.Width, hitbox.Height,
-                    DustID.RedTorch, player.velocity.X * 0.2f, player.velocity.Y * 0.2f, 150, default, 1.8f);
-                flame.noGravity = true;
-                flame.velocity *= 2f;
+                // Petals emerge from the blade edge like a flower opening
+                int petalCount = 2 + (int)(bloomIntensity * 3);
+                for (int i = 0; i < petalCount; i++)
+                {
+                    Vector2 petalPos = hitboxCenter + Main.rand.NextVector2Circular(hitbox.Width * 0.4f, hitbox.Height * 0.4f);
+                    float petalAngle = Main.rand.NextFloat(MathHelper.TwoPi);
+                    Vector2 petalVel = petalAngle.ToRotationVector2() * Main.rand.NextFloat(1.5f, 4f);
+                    petalVel.Y -= 1.5f; // Petals drift upward like they're caught in wind
+                    
+                    // Color gradient from deep pink to pale sakura
+                    float colorProgress = Main.rand.NextFloat();
+                    Color petalColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, new Color(255, 200, 220), colorProgress);
+                    
+                    var petal = new GenericGlowParticle(petalPos, petalVel, petalColor, 0.25f + bloomIntensity * 0.15f, 25, true);
+                    MagnumParticleHandler.SpawnParticle(petal);
+                }
             }
-
+            
+            // === GOLDEN POLLEN MOTES - Sparkling pollen released from the bloom ===
+            if (bloomIntensity > 0.3f && Main.rand.NextBool(3))
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    Vector2 pollenPos = hitboxCenter + Main.rand.NextVector2Circular(hitbox.Width * 0.5f, hitbox.Height * 0.5f);
+                    Vector2 pollenVel = Main.rand.NextVector2Circular(2f, 2f);
+                    pollenVel.Y -= 0.5f; // Pollen floats up
+                    
+                    Color pollenColor = Color.Lerp(UnifiedVFX.Eroica.Gold, UnifiedVFX.Eroica.Sakura, Main.rand.NextFloat(0.3f));
+                    var pollen = new GenericGlowParticle(pollenPos, pollenVel, pollenColor * 0.9f, 0.15f, 35, true);
+                    MagnumParticleHandler.SpawnParticle(pollen);
+                }
+            }
+            
+            // === BLOSSOM CORE GLOW - The heart of the flower pulses with each swing ===
+            if (Main.rand.NextBool(4))
+            {
+                float coreScale = 0.35f + bloomIntensity * 0.25f;
+                Color coreColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, bloomIntensity);
+                CustomParticles.GenericFlare(hitboxCenter, coreColor, coreScale, 12);
+            }
+            
+            // === MUSIC NOTES - The song of spring ===
+            if (Main.rand.NextBool(8))
+            {
+                Vector2 notePos = hitboxCenter + Main.rand.NextVector2Circular(20f, 20f);
+                Vector2 noteVel = new Vector2(player.direction * 2f, -1.5f);
+                ThemedParticles.EroicaMusicNotes(notePos, 1, 15f);
+            }
+            
+            // === SCARLET EMBER TRAIL - Fire of passion follows the blade ===
             if (Main.rand.NextBool(3))
             {
-                Dust smoke = Dust.NewDustDirect(new Vector2(hitbox.X, hitbox.Y), hitbox.Width, hitbox.Height,
-                    DustID.Smoke, 0f, 0f, 100, Color.Black, 1.3f);
-                smoke.noGravity = true;
-                smoke.velocity = Main.rand.NextVector2Circular(3f, 3f);
+                Vector2 emberPos = hitboxCenter + Main.rand.NextVector2Circular(hitbox.Width * 0.3f, hitbox.Height * 0.3f);
+                Vector2 emberVel = new Vector2(player.direction * Main.rand.NextFloat(2f, 4f), Main.rand.NextFloat(-1f, 1f));
+                Color emberColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Crimson, Main.rand.NextFloat());
+                var ember = new GenericGlowParticle(emberPos, emberVel, emberColor, 0.2f, 18, true);
+                MagnumParticleHandler.SpawnParticle(ember);
             }
         }
 

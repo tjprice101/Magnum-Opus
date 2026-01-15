@@ -4,6 +4,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Tools
 {
@@ -77,6 +78,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
                     DustID.Enchanted_Pink, 0f, 0f, 0, default, 0.5f);
                 sparkle.noGravity = true;
                 sparkle.velocity *= 0.4f;
+            }
+
+            // Music notes in tool swing
+            if (Main.rand.NextBool(4))
+            {
+                Microsoft.Xna.Framework.Vector2 notePos = hitbox.Center.ToVector2();
+                ThemedParticles.MoonlightMusicNotes(notePos, 2, 15f);
             }
         }
     }

@@ -1,0 +1,26 @@
+# Geometric Magic Symbols
+
+## PROMPT: Geometric Magic Symbols
+
+```
+white magic symbol particle sprite sheet, 20 variations in 5x4 grid, pure white geometric shapes on transparent background, includes: simple circles, double circles, triple concentric rings, pentagrams, hexagrams, octagons, runic circles, sacred geometry patterns, spiral symbols, crescent moons, star shapes of varying points 4 5 6 7 8, diamond rhombus shapes, cross patterns, celtic knot fragments, mandala segments, arcane sigils, alchemical symbols simplified, each symbol has clean sharp edges with subtle soft glow aura, professional vector quality, suitable for magic spell effects summoning circles buff indicators, 32x32 pixel base upscaled, no color pure white only, game-ready 2D sprite sheet, each symbol centered and isolated, varies line thickness thin medium bold, black background --v 6.1 --ar 5:4 --style raw --s 50
+```
+
+---
+
+## Variations
+
+### Summoning Circles
+```
+white summoning circle sprite sheet, 12 variations, pure grayscale, ornate magical circles with inner patterns, runic inscriptions around edges, suitable for spell casting area markers, 64x64 pixels upscaled, transparent background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+### Sacred Geometry
+```
+white sacred geometry sprite sheet, 16 variations, pure grayscale, flower of life, metatron's cube, sri yantra simplified, vesica piscis, seed of life, suitable for holy magic divine effects, 32x32 pixels upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+### Arcane Sigils
+```
+white arcane sigil sprite sheet, 20 variations, pure grayscale, mysterious magical symbols, alchemical notation, hermetic seals simplified, suitable for dark magic curse effects, 32x32 pixels upscaled, transparent background --v 6.1 --ar 5:4 --style raw --s 75
+```

@@ -1,10 +1,17 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Microsoft.Xna.Framework;
 using MagnumOpus.Content.Fate.ResonanceEnergies;
+using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.Fate.HarmonicCores
 {
+    /// <summary>
+    /// Harmonic Core of Fate - Tier 6 (Ultimate)
+    /// Unique Effect: Cosmic Destiny - hits leave cosmic marks that explode for massive bonus damage
+    /// </summary>
     public class HarmonicCoreOfFate : ModItem
     {
         public override void SetStaticDefaults()
@@ -16,7 +23,7 @@ namespace MagnumOpus.Content.Fate.HarmonicCores
         {
             Item.width = 32;
             Item.height = 32;
-            Item.scale = 1.25f; // Display 25% larger
+            Item.scale = 1.25f;
             Item.maxStack = 1;
             Item.value = Item.sellPrice(gold: 75);
             Item.rare = ItemRarityID.Red;
@@ -26,69 +33,60 @@ namespace MagnumOpus.Content.Fate.HarmonicCores
         {
             tooltips.Add(new TooltipLine(Mod, "HarmonicCoreType", "[Tier 6 Harmonic Core - Ultimate]")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(255, 100, 120)
+                OverrideColor = new Color(255, 100, 120)
             });
             
             tooltips.Add(new TooltipLine(Mod, "HarmonicCore", "Equip in the Harmonic Core UI (opens with inventory)")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(255, 100, 120)
+                OverrideColor = new Color(255, 100, 120)
             });
             
-            tooltips.Add(new TooltipLine(Mod, "ClassBonus", "All Classes: +15% Damage")
+            tooltips.Add(new TooltipLine(Mod, "Spacer1", " ") { OverrideColor = Color.Transparent });
+            
+            tooltips.Add(new TooltipLine(Mod, "DamageBonus", "+15% All Damage")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(120, 200, 120)
+                OverrideColor = new Color(120, 200, 120)
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Spacer1", " ") { OverrideColor = Microsoft.Xna.Framework.Color.Transparent });
+            tooltips.Add(new TooltipLine(Mod, "Spacer2", " ") { OverrideColor = Color.Transparent });
             
-            tooltips.Add(new TooltipLine(Mod, "ChromaticHeader", "◆ CHROMATIC (Offensive) - Right-click to toggle")
+            tooltips.Add(new TooltipLine(Mod, "UniqueHeader", "◆ Cosmic Destiny")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(255, 150, 150)
+                OverrideColor = new Color(255, 100, 120)
             });
-            tooltips.Add(new TooltipLine(Mod, "ChromaticBuff", "  Fate's Wrath: +14% damage, execute enemies <10% HP")
+            tooltips.Add(new TooltipLine(Mod, "UniqueEffect1", "  Every hit leaves a cosmic mark on enemies")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
+                OverrideColor = new Color(255, 150, 160)
             });
-            tooltips.Add(new TooltipLine(Mod, "ChromaticSet", "  Mark of Fate: First hit marks bosses")
+            tooltips.Add(new TooltipLine(Mod, "UniqueEffect2", "  After a brief delay, marks explode in cosmic flares")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
+                OverrideColor = new Color(255, 150, 160)
             });
-            tooltips.Add(new TooltipLine(Mod, "ChromaticSet2", "  Marked targets take +35% damage")
+            tooltips.Add(new TooltipLine(Mod, "UniqueEffect3", "  Cosmic flares deal 40% of the original hit as bonus damage")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(255, 200, 200)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Spacer2", " ") { OverrideColor = Microsoft.Xna.Framework.Color.Transparent });
-            
-            tooltips.Add(new TooltipLine(Mod, "DiatonicHeader", "◇ DIATONIC (Defensive) - Right-click to toggle")
-            {
-                OverrideColor = new Microsoft.Xna.Framework.Color(150, 150, 255)
-            });
-            tooltips.Add(new TooltipLine(Mod, "DiatonicBuff", "  Fate's Shield: +18 DEF, +16% DR")
-            {
-                OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
-            });
-            tooltips.Add(new TooltipLine(Mod, "DiatonicSet", "  Cheat death once per minute (set to 25% HP)")
-            {
-                OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
-            });
-            tooltips.Add(new TooltipLine(Mod, "DiatonicSet2", "  Destiny's Weave: Each save = permanent +4% DMG")
-            {
-                OverrideColor = new Microsoft.Xna.Framework.Color(200, 200, 255)
+                OverrideColor = new Color(255, 150, 160)
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Spacer3", " ") { OverrideColor = Microsoft.Xna.Framework.Color.Transparent });
+            tooltips.Add(new TooltipLine(Mod, "Spacer3", " ") { OverrideColor = Color.Transparent });
             
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'The strongest Harmonic Core, forged by destiny itself'")
             {
-                OverrideColor = new Microsoft.Xna.Framework.Color(180, 120, 140)
+                OverrideColor = new Color(180, 120, 140)
             });
         }
 
         public override void PostUpdate()
         {
-            // Powerful crimson/pink destiny glow
-            Lighting.AddLight(Item.Center, 0.7f, 0.3f, 0.5f);
+            // Powerful cosmic glow
+            float pulse = (float)System.Math.Sin(Main.GameUpdateCount * 0.08f) * 0.15f + 0.85f;
+            Lighting.AddLight(Item.Center, 0.7f * pulse, 0.3f * pulse, 0.5f * pulse);
+            
+            // Cosmic flare particles
+            if (Main.GameUpdateCount % 20 == 0)
+            {
+                CustomParticles.GenericFlare(Item.Center, new Color(255, 100, 120) * 0.6f, 0.45f, 25);
+                CustomParticles.GenericFlare(Item.Center, new Color(200, 80, 120) * 0.4f, 0.35f, 20);
+            }
             
             if (Main.rand.NextBool(12))
             {

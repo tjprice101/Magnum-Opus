@@ -50,40 +50,62 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
 
         public override void HoldItem(Player player)
         {
-            // === UnifiedVFX SWAN LAKE AMBIENT AURA ===
-            UnifiedVFX.SwanLake.Aura(player.Center, 30f, 0.28f);
+            // === UNIQUE: ETHEREAL WING SILHOUETTES ===
+            // The "Wingspan" manifests as ghostly wings behind the player
             
-            // === AMBIENT FRACTAL FLARES - dual-polarity with rainbow shimmer ===
-            if (Main.rand.NextBool(7))
+            float time = Main.GameUpdateCount * 0.03f;
+            float wingPulse = (float)Math.Sin(time * 2f) * 0.15f + 0.85f;
+            
+            // === IRIDESCENT WING FEATHERS ===
+            // Two wings made of particles spread behind player
+            for (int wing = 0; wing < 2; wing++)
             {
-                float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
-                float radius = Main.rand.NextFloat(30f, 60f);
-                Vector2 flarePos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
-                Color baseColor = Main.rand.NextBool() ? UnifiedVFX.SwanLake.Black : UnifiedVFX.SwanLake.White;
-                Color rainbow = UnifiedVFX.SwanLake.GetRainbow(Main.rand.NextFloat());
-                Color fractalColor = Color.Lerp(baseColor, rainbow, 0.35f);
-                CustomParticles.GenericFlare(flarePos, fractalColor, 0.32f, 20);
-                ThemedParticles.SwanLakeFractalTrail(flarePos, 0.25f);
+                float wingDirection = wing == 0 ? -1f : 1f; // Left and right wings
+                
+                // Each wing has 7 "feathers" spreading outward
+                for (int feather = 0; feather < 7; feather++)
+                {
+                    // Feathers spread in arc behind player
+                    float featherAngle = MathHelper.PiOver2 * wingDirection; // Pointing sideways
+                    featherAngle += (feather - 3) * 0.12f * wingDirection; // Spread
+                    featherAngle += MathHelper.Pi * 0.15f; // Slight backward tilt
+                    
+                    // Feather length increases toward wing tip
+                    float featherLength = 20f + feather * 8f;
+                    featherLength *= wingPulse; // Breathing effect
+                    
+                    Vector2 featherTip = player.Center + featherAngle.ToRotationVector2() * featherLength;
+                    featherTip.Y -= 5f; // Slightly above center
+                    
+                    // Rainbow color cycling per feather
+                    float hue = (feather / 7f + time * 0.5f) % 1f;
+                    Color featherColor = Main.hslToRgb(hue, 0.6f, 0.75f);
+                    Color baseColor = wing == 0 ? UnifiedVFX.SwanLake.White : UnifiedVFX.SwanLake.Black;
+                    featherColor = Color.Lerp(baseColor, featherColor, 0.4f);
+                    
+                    if (Main.rand.NextBool(4))
+                    {
+                        CustomParticles.GenericFlare(featherTip, featherColor, 0.2f + feather * 0.03f, 8);
+                    }
+                }
             }
             
-            // === Elegant black and white pulsing with prismatic sparkles (80% size) ===
-            
-            // Magic sparkle field aura - graceful enchantment glow
-            if (Main.rand.NextBool(10))
+            // === FALLING FEATHER DRIFT ===
+            if (Main.rand.NextBool(12))
             {
-                Vector2 offset = Main.rand.NextVector2Circular(24f, 24f);
-                Color fieldColor = Main.rand.NextBool() ? UnifiedVFX.SwanLake.White * 0.5f : UnifiedVFX.SwanLake.Silver * 0.4f;
-                CustomParticles.MagicSparkleFieldAura(player.Center + offset, fieldColor, 0.24f, 22);
-            }
-            
-            // Elegant floating feathers - dual-polarity
-            if (Main.rand.NextBool(10))
-            {
+                float side = Main.rand.NextBool() ? -40f : 40f;
+                Vector2 featherPos = player.Center + new Vector2(side, -20f);
                 Color featherColor = Main.rand.NextBool() ? UnifiedVFX.SwanLake.White : UnifiedVFX.SwanLake.Black;
-                CustomParticles.SwanFeatherDrift(player.Center + Main.rand.NextVector2Circular(22f, 22f), featherColor, 0.28f);
+                CustomParticles.SwanFeatherDrift(featherPos, featherColor, 0.32f);
             }
             
-            // Pulsing rainbow light - softer
+            // === MUSIC NOTES - the swan's song ===
+            if (Main.rand.NextBool(20))
+            {
+                ThemedParticles.SwanLakeMusicNotes(player.Center, 1, 25f);
+            }
+            
+            // Pulsing rainbow light
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.12f + 0.85f;
             Vector3 lightColor = UnifiedVFX.SwanLake.GetRainbow(Main.GameUpdateCount * 0.012f).ToVector3();
             Lighting.AddLight(player.Center, lightColor * pulse * 0.6f);
@@ -91,7 +113,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Fire 3 projectiles in a 60 degree cone
+            // Fire 3 projectiles in a 60 degree cone - like wing tips spreading
             Vector2 towardsMouse = velocity.SafeNormalize(Vector2.UnitX);
             float spreadAngle = MathHelper.ToRadians(60f);
             
@@ -103,21 +125,47 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
                 Projectile.NewProjectile(source, player.Center, projectileVelocity, type, damage, knockback, player.whoAmI, i);
             }
             
-            // === Elegant casting particles with sword arcs and prismatic effects ===
-            Vector2 castPos = player.Center + towardsMouse * 35f;
+            // === UNIQUE: WING UNFURL CAST EFFECT ===
+            // When casting, ghostly wings dramatically spread outward
+            Vector2 castPos = player.Center;
             
-            // Sword arc double helix - black and white intertwined slashes (80% size)
-            CustomParticles.SwordArcDoubleHelix(castPos, towardsMouse * 4f, Color.White, Color.Black, 0.4f);
+            // Two wings bursting outward on cast
+            for (int wing = 0; wing < 2; wing++)
+            {
+                float wingDirection = wing == 0 ? -1f : 1f;
+                
+                // Wing unfurl - feathers burst outward from center
+                for (int feather = 0; feather < 12; feather++)
+                {
+                    float unfurlAngle = MathHelper.PiOver2 * wingDirection;
+                    unfurlAngle += (feather - 6) * 0.08f * wingDirection;
+                    unfurlAngle += MathHelper.Pi * 0.1f; // Slightly back
+                    
+                    float featherSpeed = 3f + feather * 0.5f;
+                    Vector2 featherVel = unfurlAngle.ToRotationVector2() * featherSpeed;
+                    
+                    // Rainbow gradient per feather
+                    float hue = feather / 12f;
+                    Color featherColor = Main.hslToRgb(hue, 0.7f, 0.8f);
+                    Color baseColor = wing == 0 ? UnifiedVFX.SwanLake.White : UnifiedVFX.SwanLake.Black;
+                    featherColor = Color.Lerp(baseColor, featherColor, 0.5f);
+                    
+                    CustomParticles.GenericFlare(castPos, featherColor, 0.35f - feather * 0.02f, 18);
+                    
+                    // Feather drift particles
+                    if (feather % 3 == 0)
+                    {
+                        CustomParticles.SwanFeatherDrift(castPos + featherVel * 5f, baseColor, 0.35f);
+                    }
+                }
+            }
             
-            // Magic sparkle field burst - enchanted cast (80% size)
-            CustomParticles.MagicSparkleFieldBurst(castPos, CustomParticleSystem.SwanLakeColors.PureWhite, 4, 20f);
+            // Central prismatic burst
+            CustomParticles.PrismaticSparkleRainbow(castPos, 8);
             
-            // Prismatic rainbow sparkle burst (80% count)
-            CustomParticles.PrismaticSparkleRainbow(castPos, 6);
-            
-            // Themed effects - reduced by 20%
-            ThemedParticles.SwanLakeSparks(castPos, towardsMouse, 8, 6f);
-            ThemedParticles.SwanLakeBloomBurst(castPos, 0.56f);
+            // Sword arc double helix - black and white intertwined slashes
+            Vector2 arcPos = player.Center + towardsMouse * 35f;
+            CustomParticles.SwordArcDoubleHelix(arcPos, towardsMouse * 4f, Color.White, Color.Black, 0.4f);
             
             // Gradient halo rings - Black → White with rainbow shimmer (80% size)
             for (int ring = 0; ring < 4; ring++)

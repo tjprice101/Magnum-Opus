@@ -36,8 +36,8 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             {
                 chargedConfig = new ChargedMeleeConfig
                 {
-                    PrimaryColor = UnifiedVFX.Eroica.Scarlet,
-                    SecondaryColor = UnifiedVFX.Eroica.Gold,
+                    PrimaryColor = UnifiedVFX.Eroica.Gold, // Gold and red theme
+                    SecondaryColor = UnifiedVFX.Eroica.Scarlet,
                     ChargeTime = 55f,
                     SpawnThemeMusicNotes = (pos, count, radius) => ThemedParticles.EroicaMusicNotes(pos, count, radius),
                     SpawnThemeExplosion = (pos, scale) => UnifiedVFX.Eroica.Explosion(pos, scale),

@@ -1,0 +1,148 @@
+# Fate - Particles and Effects
+
+## Theme Overview
+
+Fate theme represents cosmic destiny, the endgame, reality-breaking power, and inevitable doom. Visual motifs include:
+- **Planets** - celestial bodies, orbiting spheres
+- **Stars** - burning suns, distant stars, supernovas
+- **Constellations** - connected star patterns, zodiac hints
+- **Galaxies** - spiral galaxies, cosmic clouds
+- **Cosmic effects** - reality tears, chromatic aberration
+- **Destiny symbols** - threads of fate, cosmic scales
+- **Black holes** - event horizons, singularities
+
+## Color Palette Reference
+```
+FateWhite     - (255, 255, 255) - Cosmic light (Primary)
+FateDarkPink  - (200, 80, 120)  - Destiny's edge
+FatePurple    - (140, 50, 160)  - Fate's weave
+FateCrimson   - (180, 30, 60)   - Inevitable doom (End)
+FateBlack     - (10, 5, 15)     - Void contrast
+```
+
+---
+
+## PROMPT F-1: Planet Particles
+
+```
+white planet particle sprite sheet, 16 variations in 4x4 grid, pure white and grayscale celestial planet designs on transparent background, includes: small rocky planet, gas giant with bands, ringed planet saturn-like, planet with visible atmosphere halo, crescent planet partially lit, planet with moon orbiting, ice planet crystalline surface, volcanic planet with cracks, ocean planet reflective, planet with ring debris, planet silhouette eclipse, planet with aurora effect, planet crumbling breaking apart, planet emerging from void, dwarf planet simple sphere, binary planet pair orbiting, each planet has cosmic scale implied, subtle glow aura around edges, suitable for cosmic fate destiny effects, 32x32 pixel sprites upscaled, no color pure white luminosity, centered, black background --v 6.1 --ar 1:1 --style raw --s 100
+```
+
+---
+
+## PROMPT F-2: Star and Sun Particles
+
+```
+white star particle sprite sheet, 20 variations in 5x4 grid, pure white and grayscale stellar bodies on transparent background, includes: simple 4-point star clean, 6-point star elegant, 8-point star complex, starburst with rays, twinkling star with sparkle, dying star collapsing, supernova explosion burst, red giant bloated star, white dwarf compact star, binary stars orbiting pair, star with corona flares, neutron star intense core, pulsing variable star, star behind cosmic dust, newborn star in nebula, falling shooting star trail, star cluster group, star with lens flare effect, star going nova expanding, subtle distant star point, each star radiates cosmic power, suitable for fate cosmic attacks, 32x32 pixel sprites upscaled, no color pure luminosity, centered, black background --v 6.1 --ar 5:4 --style raw --s 75
+```
+
+---
+
+## PROMPT F-3: Constellation Patterns
+
+```
+white constellation pattern sprite sheet, 12 variations in 4x3 grid, pure white and grayscale connected star patterns on transparent background, includes: simple three-star triangle constellation, five-star pentagon arrangement, archer bow constellation fragment, scales of justice constellation, crown constellation arc, serpent snake constellation curve, warrior sword constellation, cup vessel constellation, wing constellation pair, cross constellation simple, spiral constellation arrangement, abstract geometric constellation, each constellation has bright star nodes connected by faint lines, stars vary in brightness creating depth, suitable for fate destiny cosmic ability effects, 64x64 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 4:3 --style raw --s 75
+```
+
+---
+
+## PROMPT F-4: Galaxy Spiral Effects
+
+```
+white galaxy spiral sprite sheet, 8 variations in 4x2 grid, pure white and grayscale spiral galaxy effects on transparent background, includes: classic spiral galaxy two arms, barred spiral galaxy, tight spiral with bright core, loose spiral with scattered stars, edge-on galaxy disk view, galaxy collision merging pair, elliptical galaxy blob, irregular galaxy chaotic, each galaxy has luminous core fading to spiral arms, tiny star points throughout, cosmic dust lanes suggested, sense of immense scale and rotation, suitable for fate ultimate cosmic attacks reality effects, 64x64 pixel sprites upscaled, no color pure luminosity, centered rotation, black background --v 6.1 --ar 2:1 --style raw --s 100
+```
+
+---
+
+## PROMPT F-5: Cosmic Nebula Clouds
+
+```
+white cosmic nebula particle sprite sheet, 12 variations in 4x3 grid, pure white and grayscale space cloud effects on transparent background, includes: emission nebula glowing cloud, dark nebula silhouette, planetary nebula ring shell, supernova remnant expanding, star-forming nebula with bright cores, pillar nebula column shape, reflection nebula soft glow, nebula tendril wispy extension, nebula with embedded stars, chaotic turbulent nebula, calm diffuse nebula, nebula fragment breaking apart, each nebula has ethereal cosmic quality with varying opacity, star points embedded within, suitable for fate cosmic zone destiny aura effects, 64x64 pixel sprites upscaled, no color pure white only, soft organic edges, black background --v 6.1 --ar 4:3 --style raw --s 100
+```
+
+---
+
+## PROMPT F-6: Black Hole and Singularity
+
+```
+white black hole singularity sprite sheet, 8 variations in 4x2 grid, pure white and grayscale event horizon effects on transparent background, includes: black hole with accretion disk, gravitational lensing distortion ring, singularity point with warped space, black hole consuming star streamer, wormhole tunnel entrance, void sphere with light bending, mini black hole unstable, black hole with jets emanating, each black hole has dark center with bright ring of infalling material, sense of gravity and warping, extreme contrast between void and light, suitable for fate void gravity ultimate effects, 64x64 pixel sprites upscaled, no color pure luminosity for tinting, centered, black background --v 6.1 --ar 2:1 --style raw --s 100
+```
+
+---
+
+## PROMPT F-7: Reality Tear Effects
+
+```
+white reality tear crack sprite sheet, 12 variations in 4x3 grid, pure white and grayscale dimensional rift effects on transparent background, includes: vertical reality crack jagged, horizontal dimensional tear, branching crack like shattered glass, reality fissure with void beyond, space-time tear with warping, crack with light bleeding through, crack closing healing, crack opening widening, spiral tear rotating, reality shatter point with radiating cracks, dimensional wound glowing edges, subtle crack beginning to form, each crack suggests breaking of reality itself, sharp edges with glow at borders, void or light visible through, suitable for fate reality-breaking endgame effects, 64x32 pixel sprites upscaled, no color pure white only, horizontal orientation, black background --v 6.1 --ar 2:1 --style raw --s 75
+```
+
+---
+
+## PROMPT F-8: Fate Thread and Destiny Lines
+
+```
+white fate thread destiny line sprite sheet, 12 variations in 4x3 grid, pure white and grayscale threads of destiny on transparent background, includes: single fate thread flowing, intertwined destiny threads pair, thread being cut breaking, thread being woven weaving, tangled threads complex, thread emerging from void, thread connecting two points, thread with knot tied, frayed thread splitting, golden thread prominent suggested by brightness, thread spiral coiling, web of fate multiple crossing threads, each thread has flowing organic quality, suggests connection and inevitability, suitable for fate destiny binding ability effects, 64x32 pixel sprites upscaled, no color pure luminosity, various orientations, black background --v 6.1 --ar 2:1 --style raw --s 75
+```
+
+---
+
+## PROMPT F-9: Chromatic Aberration Particles
+
+```
+white chromatic distortion sprite sheet, 8 variations in 4x2 grid, pure white and grayscale reality distortion effects on transparent background, includes: RGB split lines horizontal, chromatic ring aberration, distortion wave ripple, prismatic edge fragment, reality static noise patch, dimensional flicker frame, color separation slash, temporal echo afterimage shape, each effect suggests reality instability and visual distortion, sharp clean edges, designed for RGB color channel separation effect in code, suitable for fate reality-breaking screen effects, 64x64 pixel sprites upscaled, grayscale with clear edge definition for color splitting, black background --v 6.1 --ar 2:1 --style raw --s 50
+```
+
+---
+
+## PROMPT F-10: Cosmic Impact Burst
+
+```
+white cosmic explosion impact sprite sheet, 8 variations in 4x2 grid, pure white and grayscale celestial explosion on transparent background, includes: supernova explosion radial, big bang origin burst, reality-shattering impact, cosmic shockwave ring, stellar collapse implosion then burst, dimension-breaking impact with cracks, galaxy-scale burst with spiral, universe-ending flash pure light, each impact has extreme cosmic scale suggested, multiple rings and shockwaves, star debris scattering, suitable for fate ultimate cosmic attack hit effects, 64x64 pixel sprites upscaled, no color pure luminosity, centered radial, black background --v 6.1 --ar 2:1 --style raw --s 100
+```
+
+---
+
+## PROMPT F-11: Fate Trail Effects
+
+```
+white fate cosmic trail sprite sheet, 12 variations in 4x3 grid, pure white and grayscale projectile trails on transparent background, includes: trail of tiny stars, trail with constellation forming, galaxy spiral trail, trail with reality tears, chromatic aberration trail, trail of planets orbiting path, cosmic dust cloud trail, fate thread weaving trail, trail dissolving into void, trail with supernova bursts, trail ending in singularity, trail with temporal echoes afterimages, each trail suitable for fate endgame projectile weapon effects, elongated horizontal orientation, intense leading edge fading to cosmic particles, 64x16 pixel sprites upscaled, no color pure white only, black background --v 6.1 --ar 4:1 --style raw --s 75
+```
+
+---
+
+## PROMPT F-12: Zodiac and Astrology Symbols
+
+```
+white zodiac astrology symbol sprite sheet, 16 variations in 4x4 grid, pure white and grayscale cosmic destiny symbols on transparent background, includes: Aries ram horns, Taurus bull, Gemini twins, Cancer crab, Leo lion, Virgo maiden, Libra scales, Scorpio scorpion, Sagittarius archer, Capricorn goat, Aquarius water bearer, Pisces fish, sun symbol, moon phases symbol, ascending node, descending node, each symbol clean stylized astronomical notation style, subtle glow aura, suitable for fate destiny zodiac fortune effects, 32x32 pixel sprites upscaled, no color pure luminosity, centered, black background --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+---
+
+## Implementation Notes
+
+When tinting these particles in code, use the Fate cosmic gradient:
+```csharp
+// Fate gradient: White → Dark Pink → Purple → Crimson
+Color GetFateGradient(float progress)
+{
+    if (progress < 0.33f)
+        return Color.Lerp(FateWhite, FateDarkPink, progress * 3f);
+    else if (progress < 0.66f)
+        return Color.Lerp(FateDarkPink, FatePurple, (progress - 0.33f) * 3f);
+    else
+        return Color.Lerp(FatePurple, FateCrimson, (progress - 0.66f) * 3f);
+}
+```
+
+**FATE SPECIAL REQUIREMENT - Screen Distortions:**
+Fate effects MUST include reality-distorting visuals:
+- Chromatic aberration (RGB separation)
+- Screen slice effects
+- Reality tear overlays
+- Temporal echo trails
+
+Combine multiple particle types for endgame spectacle:
+- Planets + galaxies for cosmic explosions
+- Constellations + fate threads for destiny abilities
+- Black holes + reality tears for void attacks
+- Stars + nebulae for area effects

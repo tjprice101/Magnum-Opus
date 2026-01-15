@@ -1,0 +1,26 @@
+# Smoke/Cloud/Vapor Particles
+
+## PROMPT: Smoke/Cloud/Vapor Particles
+
+```
+white smoke cloud particle sprite sheet, 16 variations in 4x4 grid layout, pure white and grayscale smoke puffs on transparent background, organic natural cloud shapes with wispy edges, includes: small tight smoke puffs, large billowing clouds, thin wispy tendrils, dense fog patches, dissipating vapor trails, cotton-like soft clouds, sharp edged stylized smoke, rounded cumulus shapes, stretched motion blur smoke, spiral smoke wisps, layered depth clouds, ethereal mist patches, each particle has soft semi-transparent edges that blend naturally, suitable for 2D game particle systems, 64x64 pixel sprites upscaled, professional game asset quality, varied opacity gradients within each sprite, no hard edges only soft blended boundaries, centered composition for rotation, black background for easy extraction, PNG alpha transparency ready --v 6.1 --ar 1:1 --style raw --s 100
+```
+
+---
+
+## Variations
+
+### Small Tight Puffs
+```
+white small smoke puff sprite sheet, 12 variations, pure grayscale, tight compact smoke clouds, suitable for gun muzzle flash smoke bullet impacts, 32x32 pixels upscaled, soft edges, transparent background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+### Wispy Tendrils
+```
+white wispy smoke tendril sprite sheet, 12 variations, pure grayscale, elongated curving smoke wisps, ethereal vapor trails, suitable for magic trails soul effects, 64x32 pixels upscaled, transparent background --v 6.1 --ar 2:1 --style raw --s 100
+```
+
+### Dense Fog Patches
+```
+white dense fog patch sprite sheet, 8 variations, pure grayscale, thick opaque fog clouds with soft edges, suitable for area denial obscuring effects, 64x64 pixels upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+```

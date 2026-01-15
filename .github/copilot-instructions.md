@@ -1,21 +1,300 @@
 # MagnumOpus Copilot Instructions
 
-## VFX Requirements - MANDATORY
+---
+
+## 🎵 THE HEART OF MAGNUM OPUS - DESIGN PHILOSOPHY
+
+> *"This mod is based around music. It's based around how it connects to your heart, and it's based around how it impacts the world."*
+
+### The Soul of This Modpack
+
+MagnumOpus is not just a content mod—it is **a symphony made playable**. Every weapon, every effect, every particle should make players *feel* the music. When a sword swings, players should see **trails of music notes dancing in the blade's wake**. When a gun fires, projectiles should leave **lingering musical echoes in the air** before fading like the final note of a crescendo.
+
+### Core Commandments
+
+1. **UNIQUENESS ABOVE ALL** - Each score (Moonlight Sonata, Eroica, La Campanella, etc.) must feel **vastly different** from one another. Never reuse effects across themes. Each weapon deserves its own identity.
+
+2. **PLAYER-DRIVEN AWE** - Effects should be **powerful, awe-inspiring, and make players feel like conductors of destruction**. Players should look at their weapons and think *"This is beautiful."*
+
+3. **MUSIC NOTES EVERYWHERE** - This is a music mod! Trails, impacts, auras—**weave music notes and musical symbols into everything**. A melee swing should scatter notes. A projectile should leave a melodic trail. An explosion should burst with symphonic energy.
+
+4. **DYNAMIC, LIVING COLORS** - No flat, static colors. Effects should **breathe, pulse, shimmer, and transition**. Use gradients that flow from one hue to another. Make colors feel alive.
+
+5. **EMBRACE THE SCORE'S SOUL** - Each theme has a story:
+   - **Moonlight Sonata** → The moon's ethereal glow, soft purple mist, silver light
+   - **Eroica** → Heroic triumph, fragile sakura petals, golden-tinged scarlet embers
+   - **La Campanella** → The flaming bell of music, infernal chimes, smoke and fire
+   - **Swan Lake** → Graceful elegance, feathers drifting, monochrome with prismatic edges
+   - **Fate** → Reality itself bending, cosmic darkness pierced by crimson destiny
+
+6. **CREATIVE FREEDOM** - If you want a sword that **slams into the ground and casts waves of symphonic energy**, DO IT. If you want a gun that **fires into the sky and rains musical notes and flame onto enemies**, BE MY GUEST. But above all—**BE UNIQUE**.
+
+### What This Means In Practice
+
+```csharp
+// ❌ WRONG - Boring, generic, forgettable
+public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+{
+    CustomParticles.GenericFlare(target.Center, Color.Red, 0.5f, 10);
+}
+
+// ✅ RIGHT - A symphony of destruction that tells a story
+public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+{
+    // Central impact - the crescendo
+    CustomParticles.GenericFlare(target.Center, EroicaGold, 0.9f, 25);
+    
+    // Sakura petals scatter like a hero's final stand
+    ThemedParticles.SakuraPetals(target.Center, 8, 50f);
+    
+    // Music notes spiral outward - the melody of victory
+    for (int i = 0; i < 6; i++)
+    {
+        float angle = MathHelper.TwoPi * i / 6f + Main.GameUpdateCount * 0.05f;
+        Vector2 notePos = target.Center + angle.ToRotationVector2() * 35f;
+        Color noteColor = Color.Lerp(EroicaScarlet, EroicaGold, (float)i / 6f);
+        ThemedParticles.MusicNote(notePos, angle.ToRotationVector2() * 2f, noteColor, 0.4f, 25);
+    }
+    
+    // Rising embers - the phoenix ascends
+    CustomParticles.ExplosionBurst(target.Center, EroicaCrimson, 12, 6f);
+    
+    // Golden halo - triumphant radiance
+    CustomParticles.HaloRing(target.Center, EroicaGold * 0.8f, 0.6f, 20);
+}
+```
+
+### The Ultimate Question
+
+Before implementing ANY effect, ask yourself:
+
+> *"Would a player see this and feel inspired? Would they feel the music?"*
+
+If the answer is no—**think harder, dig deeper, and create something magnificent.**
+
+---
+
+## CRITICAL: Asset File Handling - MANDATORY
+
+**Any file given (image, asset, texture, audio, etc.) should be moved to its correct location within the modpack:**
+
+| File Type | Target Location |
+|-----------|-----------------|
+| Particle textures (.png) | `Assets/Particles/` |
+| Music files (.ogg, .mp3) | `Assets/Music/` |
+| Item textures (.png) | Same folder as the item's .cs file |
+| Projectile textures (.png) | Same folder as the projectile's .cs file |
+| Boss spritesheets (.png) | `Content/[Theme]/Bosses/` (named exactly as the boss class) |
+| NPC textures (.png) | Same folder as the NPC's .cs file |
+| Buff icons (.png) | Same folder as the buff's .cs file |
+| Documentation (.txt, .md) | `Documentation/` or `Documentation/Guides/` |
+| AI prompts (.txt) | `Documentation/AI Prompts/` |
+| Midjourney prompts | `Midjourney Prompts/` |
+
+**Always verify the expected texture path in the code and place the file accordingly.**
+
+---
+
+## 📚 DESIGN DOCUMENTS FOR INSPIRATION
+
+The `Documentation/Design Documents for Inspiration/` folder contains comprehensive reference documents analyzing advanced techniques from Calamity Mod. **Always consult these when implementing complex systems:**
+
+| Document | Contents | When to Use |
+|----------|----------|-------------|
+| [Calamity_Inspired_VFX_Design.md](../Documentation/Design%20Documents%20for%20Inspiration/Calamity_Inspired_VFX_Design.md) | Laser effects, constellation rendering, melee smears, primitive trails, Profaned Guardian effects | Creating any VFX, trails, or visual systems |
+| [Devourer_of_Gods_Design.md](../Documentation/Design%20Documents%20for%20Inspiration/Devourer_of_Gods_Design.md) | Worm segment architecture, laser wall attacks, portal teleportation, phase transitions, Cosmic Guardians | Building multi-segment bosses, geometric attack patterns, phase-based difficulty |
+| [Yharon_Design.md](../Documentation/Design%20Documents%20for%20Inspiration/Yharon_Design.md) | Dual AI system, attack state machine, enrage/arena system, fire attacks (charges, fireballs, tornadoes) | Boss attack variety, enrage mechanics, telegraphed attacks |
+| [Exomech_Design.md](../Documentation/Design%20Documents%20for%20Inspiration/Exomech_Design.md) | Multi-boss coordination, SecondaryPhase states, berserk mode, arm weapon systems, HP linking | Multi-entity fights, coordinated bosses, complex phase management |
+| [Exo_Weapons_VFX_Design.md](../Documentation/Design%20Documents%20for%20Inspiration/Exo_Weapons_VFX_Design.md) | Ark of the Cosmos swing mechanics, Exoblade dash attacks, Photoviscerator metaballs, primitive trail shaders, CurveSegment animation | Advanced weapon VFX, combo systems, homing projectiles, particle layering |
+
+### How to Use These Documents
+
+1. **Before implementing a new boss**: Read Devourer_of_Gods_Design.md for segment architecture, Yharon_Design.md for attack patterns, and Exomech_Design.md for multi-boss coordination
+2. **Before creating weapon effects**: Read Exo_Weapons_VFX_Design.md for swing mechanics, trails, and particle layering techniques
+3. **Before adding any VFX**: Read Calamity_Inspired_VFX_Design.md for particle systems, shaders, and visual polish
+4. **When stuck on implementation**: These documents contain code examples and adaptation tips specifically for MagnumOpus
+
+### Key Concepts from These Documents
+
+- **Piecewise Animation (CurveSegment)**: Complex multi-phase animations for swings and dashes
+- **Primitive Trail Rendering**: Shader-based trails using PrimitiveRenderer
+- **Phase State Machines**: SecondaryPhase enum for boss behavior modes
+- **Multi-Layer Bloom**: Multiple bloom draws at different scales for depth
+- **Color Palette Cycling**: Time-based hue shifts for dynamic visuals (adapt Exo Palette to theme colors)
+- **Worm Segment Linking**: AI array communication between head/body/tail
+
+---
+
+## Custom Particle System Overview
+
+This mod uses a custom particle system located at `Common/Systems/Particles/`. 
+
+### Core Particle Textures (Assets/Particles/)
+
+| File | Purpose | Usage |
+|------|---------|-------|
+| `EnergyFlare.png` | Intense, bright burst | Impacts, explosions, boss attacks, dramatic moments |
+| `SoftGlow.png` | Subtle ambient glow | Trails, auras, ambient effects, soft lighting |
+| `MusicNote.png` | Musical note | Thematic musical effects - perfect for this music-themed mod! |
+
+**All textures are WHITE/GRAYSCALE and get tinted at runtime to any color.**
+
+### Theme Color Tinting Examples:
+- **Eroica theme**: Scarlet, Crimson, Gold
+- **Moonlight Sonata**: Deep Purple, Violet, Lavender, Silver
+- **Swan Lake**: Pure White, Icy Blue, Pale Cyan
+- **Dies Irae**: Blood Red, Dark Crimson, Ember
+- **Clair de Lune**: Soft Blue, Moonbeam, Pearl
+- **Enigma Variations**: Eerie Green, Deep Purple, Black
+- **Fate**: White, Dark Pink, Purple, Crimson
+
+---
+
+## Enigma Eyes & Arcane Glyphs - NEW PARTICLE ASSETS
+
+### EnigmaEye Textures (8 variants - Assets/Particles/EnigmaEye1-8.png)
+
+**Mysterious watching eyes for the Enigma theme.** These eyes represent the unknown observing, arcane awareness, and reality questioning itself.
+
+**CRITICAL: MEANINGFUL PLACEMENT ONLY**
+- ❌ **NEVER** scatter eyes randomly around effects
+- ✅ Place eyes at impact points, watching struck targets
+- ✅ Position eyes to look at specific entities (enemies, players)
+- ✅ Use for AOE centers where all eyes watch inward
+- ✅ Create formations where eyes orbit meaningfully
+
+```csharp
+// ❌ WRONG - Random scattered eyes
+for (int i = 0; i < 10; i++)
+    CustomParticles.EnigmaEyeGaze(pos + Main.rand.NextVector2Circular(50, 50), color);
+
+// ✅ CORRECT - Meaningful placement watching the target
+CustomParticles.EnigmaEyeImpact(impactPos, targetNPC.Center, color, 0.6f);
+
+// ✅ CORRECT - Formation watching a central point
+CustomParticles.EnigmaEyeFormation(explosionCenter, color, count: 4, radius: 50f);
+
+// ✅ CORRECT - Orbiting eyes always looking outward
+CustomParticles.EnigmaEyeOrbit(player.Center, color, count: 3, radius: 40f);
+```
+
+### Available EnigmaEye Methods:
+| Method | Purpose |
+|--------|---------|
+| `EnigmaEyeGaze(pos, color, scale, lookDirection?)` | Single eye at position, optionally facing direction |
+| `EnigmaEyeImpact(impactPos, targetPos, color, scale)` | Eye at impact watching the target |
+| `EnigmaEyeFormation(center, color, count, radius)` | Multiple eyes watching central point |
+| `EnigmaEyeTrail(pos, velocity, color, scale)` | Sparse eyes along projectile path |
+| `EnigmaEyeExplosion(pos, color, count, speed)` | Eyes burst outward, looking in movement direction |
+| `EnigmaEyeOrbit(center, color, count, radius)` | Rotating orbit watching outward |
+
+---
+
+### Glyph Textures (12 variants - Assets/Particles/Glyphs1-12.png)
+
+**Universal arcane symbols usable for ANY theme.** Glyphs represent arcane power, enchantments, debuff/buff stacking, magic circles, and mysterious runes.
+
+**USE GLYPHS FOR:**
+- Debuff stack visualization (more stacks = more glyphs)
+- Magic circle effects (rotating glyph formations)
+- Enchantment activation bursts
+- Impact markers for magical attacks
+- Ambient magical auras
+- Buff indicators
+
+```csharp
+// Show debuff stacks visually
+int stacks = target.GetModPlayer<DebuffPlayer>().ParadoxStacks;
+CustomParticles.GlyphStack(target.Center, EnigmaColors.Purple, stacks, baseScale: 0.3f);
+
+// Magic circle for channeling/summon
+CustomParticles.GlyphCircle(summonPos, color, count: 8, radius: 50f, rotationSpeed: 0.02f);
+
+// Impact with supporting glyphs
+CustomParticles.GlyphImpact(hitPos, primaryColor, secondaryColor, scale: 0.6f);
+
+// Ambient aura for magical entities
+CustomParticles.GlyphAura(entity.Center, color, radius: 40f, count: 2);
+```
+
+### Available Glyph Methods:
+| Method | Purpose |
+|--------|---------|
+| `Glyph(pos, color, scale, glyphIndex)` | Single arcane glyph (-1 for random) |
+| `GlyphStack(pos, color, stackCount, baseScale)` | Multi-layered stack visualization |
+| `GlyphCircle(pos, color, count, radius, rotationSpeed)` | Rotating magic circle |
+| `GlyphBurst(pos, color, count, speed)` | Exploding arcane symbols |
+| `GlyphTrail(pos, velocity, color, scale)` | Glyphs left behind projectiles |
+| `GlyphAura(center, color, radius, count)` | Floating ambient glyphs |
+| `GlyphImpact(pos, primary, secondary, scale)` | Impact with supporting glyphs |
+| `GlyphTower(pos, color, layers, baseScale)` | Vertical stacking for powerful effects |
+
+### Theme-Specific Glyph Usage:
+
+| Theme | Glyph Colors | Usage Style |
+|-------|--------------|-------------|
+| **Enigma Variations** | Purple → Green Flame | Heavy use, mysterious, questioning reality |
+| **Fate** | White → Crimson | Cosmic circles, destiny runes, reality marks |
+| **Moonlight Sonata** | Purple → Silver | Ethereal circles, lunar symbols |
+| **La Campanella** | Orange → Gold | Fire runes, bell patterns |
+| **Any Theme** | Theme gradient | Debuff stacking, enchantment effects |
+
+---
+
+## VFX Requirements - THE ART OF MUSICAL DESTRUCTION
+
+> *"Give the weapons the trails, the projectiles, the music notes, the particles, the lighting, the dynamicism, the shaders, the waving of the screen as it distorts—give them every ounce of creativity that you have."*
 
 ALL attacks, projectiles, boss abilities, weapon effects, and enemy spawns MUST use the custom particle system. Never use only vanilla Dust effects alone.
 
-### Core Principles: VIBRANCY, UNIQUENESS, and VARIATION
+### Core Principles: RADIANCE, UNIQUENESS, and MUSICAL SOUL
 
 **Every effect in MagnumOpus should be:**
-1. **VIBRANT** - Bold, saturated colors with strong visual impact. Effects should POP on screen.
-2. **UNIQUE** - Each weapon/ability should have distinct visual identity. No two weapons should look identical.
-3. **VARIED** - Even within a theme, use different particle combinations, patterns, and timings.
+1. **RADIANT** - Bold, saturated colors that **shine and glow**. Effects should illuminate the battlefield like a spotlight on a stage.
+2. **UNIQUE** - Each weapon/ability should have a distinct visual identity. No two weapons should look identical.
+3. **MUSICAL** - Incorporate **music notes, staff lines, treble clefs, and musical symbols** wherever thematically appropriate.
+4. **DYNAMIC** - Colors should **flow, pulse, breathe, and transition**. Never static, always alive.
+5. **AWE-INSPIRING** - Players should pause and think *"That was beautiful."*
+
+### The Music Note Mandate
+
+**This is a MUSIC MOD.** Music notes should appear:
+- In **melee swing trails** - notes dancing in the blade's wake
+- In **projectile trails** - lingering notes that fade like echoes
+- In **explosion bursts** - notes scattering like a chord struck
+- In **auras and ambient effects** - floating notes orbiting the player
+- In **impact effects** - the crescendo of contact
+
+```csharp
+// MELEE SWING - Leave music notes in the blade's trail
+public override void MeleeEffects(Player player, Rectangle hitbox)
+{
+    // Every swing should sing
+    if (Main.rand.NextBool(2))
+    {
+        Vector2 notePos = hitbox.Center.ToVector2() + Main.rand.NextVector2Circular(15f, 15f);
+        Vector2 noteVel = (player.direction * Vector2.UnitX).RotatedByRandom(0.5f) * 2f;
+        ThemedParticles.MusicNote(notePos, noteVel, themeColor, 0.35f, 30);
+    }
+}
+
+// PROJECTILE TRAIL - Echoes of melody left behind
+public override void AI()
+{
+    // Every 4 frames, leave a note in the air
+    if (Projectile.timeLeft % 4 == 0)
+    {
+        ThemedParticles.MusicNote(Projectile.Center, -Projectile.velocity * 0.1f, themeColor * 0.7f, 0.25f, 25);
+    }
+}
+```
 
 **AVOID:**
 - Generic, copy-pasted effects between weapons
 - Bland, single-color explosions without gradient fading
-- Reusing the exact same effect across different themes
-- Low-impact, barely-visible particles
+- Weapons that feel "silent" - no musical elements
+- Effects that don't match the theme's emotional tone
+- Low-impact, barely-visible particles that fail to inspire
 
 **EMBRACE:**
 - Creative combinations of existing particle systems
@@ -48,25 +327,74 @@ for (int i = 0; i < 6; i++)
 
 ---
 
-## CRITICAL: Theme Identity & Uniqueness - MANDATORY
+## CRITICAL: Theme Identity & Uniqueness - THE SOUL OF EACH SCORE
 
-**Each musical score/theme MUST have its own distinct visual identity.** Do NOT copy effects between themes. While all effects should be vibrant and explosive, each theme must feel completely different.
+> *"Each score like Moonlight Sonata, Eroica, etc. should all feel vastly unique from one another."*
+
+**Each musical score/theme MUST have its own distinct visual AND emotional identity.** Do NOT copy effects between themes. Each theme represents a different musical composition with its own story, feeling, and visual language.
 
 ### Why Theme Uniqueness Matters
-- Players should instantly recognize which theme's weapon they're using just from the visuals
-- Cross-theme copying creates bland, forgettable effects
-- Each score represents a different musical/emotional tone that must translate to visuals
+- Players should **instantly recognize** which theme's weapon they're using just from the visuals
+- Each score represents a **different emotional journey** that must translate to effects
+- Cross-theme copying creates bland, forgettable weapons that betray the music
 
-### Theme Visual Identities (FOLLOW STRICTLY)
+### Theme Visual & Emotional Identities (EMBRACE FULLY)
 
-| Theme | Core Feel | NEVER Copy From | Unique Elements |
-|-------|-----------|-----------------|-----------------|
-| **La Campanella** | Infernal bells, smoky darkness, burning orange | - | Heavy smoke, bell chimes, fire fractals |
-| **Eroica** | Heroic triumph, sakura petals, fierce gold | La Campanella | Sakura petals, rising embers, triumphant bursts |
-| **Swan Lake** | Elegant grace, monochromatic contrast, rainbow shimmer | Eroica | Feathers, black/white contrast, prismatic edges |
-| **Moonlight Sonata** | Mystical lunar, soft purple glow, silver mist | Swan Lake | Moon phases, gentle waves, ethereal mist |
-| **Enigma Variations** | Arcane mystery, swirling void, eerie green | Moonlight | Question marks, void swirls, mystery symbols |
-| **Fate** | Cosmic endgame, reality-breaking, chromatic | ALL others | Screen distortions, reality tears, temporal echoes |
+| Theme | Musical Soul | Visual Language | Emotional Core |
+|-------|--------------|-----------------|----------------|
+| **La Campanella** | The ringing bell, virtuosic fire | Heavy smoke, bell chimes, infernal orange flames | Passion, intensity, burning brilliance |
+| **Eroica** | The hero's symphony | Sakura petals, golden-tinged scarlet embers, rising triumph | Courage, sacrifice, triumphant glory |
+| **Swan Lake** | Grace dying beautifully | Feathers drifting, monochrome elegance, prismatic edges | Elegance, tragedy, ethereal beauty |
+| **Moonlight Sonata** | The moon's quiet sorrow | Soft purple mist, silver light, lunar halos | Melancholy, peace, mystical stillness |
+| **Enigma Variations** | The unknowable mystery | Swirling void, watching eyes, eerie green flames | Mystery, dread, arcane secrets |
+| **Fate** | Reality's final symphony | Screen distortions, cosmic darkness, chromatic aberration | Inevitability, cosmic power, endgame awe |
+
+### Embracing Each Score's Unique Elements
+
+**La Campanella** - *The Flaming Bell*
+```csharp
+// Every La Campanella weapon should feel like ringing bells of fire
+// - Heavy black smoke billowing
+// - Orange flames crackling and dancing
+// - Bell chime sounds on impacts
+// - The intensity of Liszt's virtuosic passion
+```
+
+**Eroica** - *The Hero's Journey*
+```csharp
+// Eroica weapons tell the story of heroic sacrifice
+// - Sakura petals scattering like a warrior's final stand
+// - Golden light breaking through scarlet flames
+// - Rising embers ascending toward the heavens
+// - The triumph and tragedy of Beethoven's symphony
+```
+
+**Swan Lake** - *Grace in Monochrome*
+```csharp
+// Swan Lake weapons are elegant even in destruction
+// - White and black feathers drifting gracefully
+// - Prismatic rainbow shimmer at the edges
+// - Clean, graceful arcs and flowing trails
+// - The dying beauty of Tchaikovsky's swans
+```
+
+**Moonlight Sonata** - *The Moon's Whisper*
+```csharp
+// Moonlight weapons are soft, mystical, lunar
+// - Soft purple mist rolling gently
+// - Silver light like moonbeams through clouds
+// - Gentle, flowing movements
+// - The quiet melancholy of Beethoven's adagio
+```
+
+**Fate** - *Reality Unraveled*
+```csharp
+// Fate weapons break reality itself - ENDGAME POWER
+// - Screen distortions and chromatic aberration
+// - Dark prismatic: black bleeding to pink to crimson
+// - Temporal echoes and afterimage trails
+// - The cosmic inevitability of destiny's finale
+```
 
 ### FORBIDDEN Cross-Theme Copying
 
@@ -135,6 +463,44 @@ Fate is the endgame theme and MUST include effects no other theme has:
 
 ---
 
+## 📝 TOOLTIP AND DESCRIPTION FORMATTING - MANDATORY
+
+### NO Capitalized Emphasis in Descriptions
+
+**Item tooltips and descriptions should follow vanilla Terraria's style** - informative, clean, and professional. Do NOT use capitalized words for emphasis.
+
+```csharp
+// ❌ WRONG - Capitalized emphasis looks unprofessional
+tooltips.Add(new TooltipLine(Mod, "Effect", "Every 5th strike unleashes FATE SEVER - a REALITY-CLEAVING slash"));
+tooltips.Add(new TooltipLine(Mod, "Effect", "Fires slow, MASSIVE reality-warping shots"));
+tooltips.Add(new TooltipLine(Mod, "Effect", "Enemies at 5 Paradox stacks EXPLODE"));
+
+// ✅ CORRECT - Clean, informative, vanilla-style descriptions
+tooltips.Add(new TooltipLine(Mod, "Effect", "Every 5th strike unleashes a reality-cleaving slash"));
+tooltips.Add(new TooltipLine(Mod, "Effect", "Fires slow, massive reality-warping shots"));
+tooltips.Add(new TooltipLine(Mod, "Effect", "Enemies at 5 Paradox stacks trigger an explosion"));
+```
+
+### Description Guidelines
+
+1. **Use sentence case** - Only capitalize the first word and proper nouns
+2. **Be concise** - Keep descriptions short and informative
+3. **No shouting** - Avoid ALL CAPS for emphasis
+4. **Match vanilla style** - Look at vanilla Terraria item descriptions for reference
+5. **Lore lines can be poetic** - The italic lore quote can be more creative
+
+```csharp
+// Good tooltip structure
+tooltips.Add(new TooltipLine(Mod, "Effect1", "Swings create temporal echoes that damage enemies"));
+tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 5th hit triggers a devastating slash"));
+tooltips.Add(new TooltipLine(Mod, "Lore", "'The blade that severs destiny itself'") 
+{ 
+    OverrideColor = ThemeColor 
+});
+```
+
+---
+
 ## Asset Requirements - PLACEHOLDERS
 
 **If any texture or buff icon doesn't have an image file, use a placeholder:**
@@ -150,6 +516,229 @@ public override string Texture => "Terraria/Images/Buff_" + BuffID.Confused;
 ```
 
 **Never leave a texture path pointing to a non-existent file.** Always fall back to a vanilla texture or existing mod asset.
+
+---
+
+## ⚠️ CRITICAL: NO VANILLA PROJECTILE SPRITES - MANDATORY
+
+> *"For EVERY weapon in this modpack—ALL OF THEM—do NOT use vanilla Terraria art for the projectiles. Make your OWN unique projectiles."*
+
+**This is a NON-NEGOTIABLE rule.** Every single projectile in MagnumOpus MUST have custom visual identity, NOT vanilla Terraria sprites.
+
+### The Problem with Vanilla Sprites
+```csharp
+// ❌ ABSOLUTELY FORBIDDEN - Using vanilla projectile texture
+public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.RocketI;
+public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.MoonlordArrow;
+public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.NebulaBlaze1;
+
+// ❌ ALSO FORBIDDEN - Just hiding bad projectiles
+Projectile.alpha = 255; // Making it invisible is NOT a solution!
+```
+
+### The Solution: Custom Projectile Visuals
+
+**Option 1: Create custom projectile textures**
+```csharp
+// ✅ CORRECT - Use a custom mod texture
+public override string Texture => "MagnumOpus/Content/Fate/Projectiles/DestinyBolt";
+public override string Texture => "MagnumOpus/Content/EnigmaVariations/Projectiles/ParadoxOrb";
+```
+
+**Option 2: Make projectiles visually invisible and rely ENTIRELY on particle effects**
+```csharp
+// ✅ CORRECT - Invisible projectile with HEAVY particle-based visuals
+public override string Texture => "MagnumOpus/Assets/Particles/Invisible"; // 1x1 transparent pixel
+
+public override void AI()
+{
+    // The projectile IS the particles - make them DENSE and beautiful
+    // This MUST be visually spectacular to compensate for no sprite
+    
+    // Core glow - the "body" of the projectile
+    CustomParticles.GenericFlare(Projectile.Center, primaryColor, 0.6f, 8);
+    
+    // Heavy trailing particles every frame
+    for (int i = 0; i < 3; i++)
+    {
+        var trail = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(2f, 2f),
+            GetThemeGradient(Main.rand.NextFloat()), 0.35f, 18, true);
+        MagnumParticleHandler.SpawnParticle(trail);
+    }
+    
+    // Music notes in trail
+    if (Main.rand.NextBool(3))
+        ThemedParticles.[Theme]MusicNotes(Projectile.Center, 2, 15f);
+    
+    // Glyph accents
+    if (Main.rand.NextBool(5))
+        CustomParticles.GlyphTrail(Projectile.Center, Projectile.velocity, themeColor, 0.3f);
+}
+```
+
+**Option 3: Custom PreDraw rendering (draw the projectile yourself)**
+```csharp
+// ✅ CORRECT - Custom-drawn projectile with full control
+public override bool PreDraw(ref Color lightColor)
+{
+    // Draw multiple layered glows as the "projectile"
+    SpriteBatch spriteBatch = Main.spriteBatch;
+    Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+    Vector2 drawPos = Projectile.Center - Main.screenPosition;
+    Vector2 origin = glowTex.Size() / 2f;
+    
+    // Outer glow layer
+    spriteBatch.Draw(glowTex, drawPos, null, primaryColor * 0.4f, 0f, origin, 1.2f, SpriteEffects.None, 0f);
+    // Middle glow layer
+    spriteBatch.Draw(glowTex, drawPos, null, secondaryColor * 0.6f, 0f, origin, 0.8f, SpriteEffects.None, 0f);
+    // Inner core
+    spriteBatch.Draw(glowTex, drawPos, null, Color.White * 0.8f, 0f, origin, 0.4f, SpriteEffects.None, 0f);
+    
+    return false; // Don't draw the default sprite
+}
+```
+
+### Projectile Folder Structure
+
+Each theme should have its own Projectiles folder:
+```
+Content/
+├── EnigmaVariations/
+│   └── Projectiles/
+│       ├── ParadoxOrb.cs
+│       ├── ParadoxOrb.png
+│       ├── RiddleBolt.cs
+│       └── RiddleBolt.png
+├── Fate/
+│   └── Projectiles/
+│       ├── DestinyBolt.cs
+│       ├── DestinyBolt.png
+│       └── CosmicShard.cs
+└── ...
+```
+
+### The Golden Rule
+
+**If a projectile exists, it MUST look unique to MagnumOpus.** Players should NEVER see a vanilla Terraria projectile coming from a MagnumOpus weapon.
+
+---
+
+## 🔥 GO ABSOLUTELY CRAZY WITH VISUAL EFFECTS - MANDATORY
+
+> *"These weapons should shine just as brightly and be given just as much visual love as the Swan Lake weapons. Go NUTS with visual effects and abilities."*
+
+### The Problem: Bland, Boring Weapons
+
+Some weapons currently have minimal visual effects - just a few particles here and there. This is **UNACCEPTABLE** for MagnumOpus. Every weapon should be a visual spectacle.
+
+### What "Going Crazy" Actually Means
+
+```csharp
+// ❌ WRONG - Minimal, boring, forgettable effects
+public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+{
+    CustomParticles.GenericFlare(target.Center, themeColor, 0.5f, 15);
+    CustomParticles.HaloRing(target.Center, themeColor, 0.3f, 12);
+}
+
+// ✅ RIGHT - A SYMPHONY OF DESTRUCTION
+public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+{
+    // === PHASE 1: THE IMPACT CORE ===
+    // Central white flash - the moment of contact
+    CustomParticles.GenericFlare(target.Center, Color.White, 1.2f, 25);
+    
+    // Theme-colored bloom
+    CustomParticles.GenericFlare(target.Center, primaryColor, 0.9f, 22);
+    CustomParticles.GenericFlare(target.Center, secondaryColor, 0.7f, 20);
+    
+    // === PHASE 2: THE EXPANDING SHOCKWAVE ===
+    // Multiple gradient halo rings
+    for (int ring = 0; ring < 5; ring++)
+    {
+        float progress = ring / 5f;
+        Color ringColor = Color.Lerp(primaryColor, secondaryColor, progress);
+        float scale = 0.3f + ring * 0.2f;
+        int lifetime = 14 + ring * 4;
+        CustomParticles.HaloRing(target.Center, ringColor, scale, lifetime);
+    }
+    
+    // === PHASE 3: THE GEOMETRIC FRACTAL BURST ===
+    // 8-point star pattern with gradient
+    for (int i = 0; i < 8; i++)
+    {
+        float angle = MathHelper.TwoPi * i / 8f;
+        float progress = (float)i / 8f;
+        Vector2 offset = angle.ToRotationVector2() * 35f;
+        Color fractalColor = Color.Lerp(primaryColor, secondaryColor, progress);
+        CustomParticles.GenericFlare(target.Center + offset, fractalColor, 0.55f, 18);
+    }
+    
+    // === PHASE 4: THE RADIAL PARTICLE SPRAY ===
+    // Sparks flying outward
+    for (int i = 0; i < 16; i++)
+    {
+        float angle = MathHelper.TwoPi * i / 16f + Main.rand.NextFloat(-0.2f, 0.2f);
+        Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(6f, 12f);
+        Color sparkColor = GetThemeGradient((float)i / 16f);
+        var spark = new GenericGlowParticle(target.Center, vel, sparkColor, 0.4f, 25, true);
+        MagnumParticleHandler.SpawnParticle(spark);
+    }
+    
+    // === PHASE 5: THE MUSICAL NOTES ===
+    // Because this is a MUSIC mod!
+    ThemedParticles.[Theme]MusicNoteBurst(target.Center, 10, 6f);
+    
+    // === PHASE 6: THE GLYPH MAGIC ===
+    // Arcane symbols for that extra mystical feel
+    CustomParticles.GlyphImpact(target.Center, primaryColor, secondaryColor, 0.6f);
+    CustomParticles.GlyphBurst(target.Center, secondaryColor, 6, 4f);
+    
+    // === PHASE 7: DYNAMIC LIGHTING ===
+    // Make the impact GLOW
+    Lighting.AddLight(target.Center, primaryColor.ToVector3() * 1.5f);
+}
+```
+
+### The Visual Effect Density Rule
+
+**Minimum requirements for EVERY weapon effect:**
+
+| Effect Type | Minimum Particle Count | Required Elements |
+|-------------|----------------------|-------------------|
+| **Weapon Swing** | 15+ particles per swing | Flares, gradient trail, music notes |
+| **Projectile Trail** | 5+ particles per frame | Glowing core, fading trail, theme particles |
+| **Impact/Hit** | 30+ particles | Flares, halos, fractal burst, sparks, glyphs, notes |
+| **Explosion** | 50+ particles | Multi-phase, layered rings, radial spray, smoke, glyphs |
+| **Ambient/Aura** | 8+ particles per second | Orbiting flares, floating notes, subtle glyphs |
+| **Death/Kill** | 80+ particles | Maximum spectacle, screen shake, all the above |
+
+### Layer Your Effects - The Onion Principle
+
+Every major effect should have multiple LAYERS:
+
+1. **Core Layer** - Bright white/primary flash at center
+2. **Secondary Layer** - Theme-colored bloom around core
+3. **Geometric Layer** - Fractal patterns, star bursts, symmetry
+4. **Particle Layer** - Sparks, embers, trailing particles
+5. **Halo Layer** - Expanding rings, shockwaves
+6. **Musical Layer** - Music notes, accidentals, staff lines
+7. **Arcane Layer** - Glyphs, runes, magic circles
+8. **Lighting Layer** - Dynamic lighting that pulses
+
+### The Swan Lake Standard
+
+Look at the Swan Lake weapons as the **QUALITY BAR**. Every theme's weapons should match this level of visual polish:
+
+- Dense, constant particle trails
+- Multiple layered effects on every action
+- Rainbow/gradient color transitions
+- Feathers/theme-specific particles everywhere
+- Ambient auras while holding
+- Dramatic explosions on impacts
+- Custom PreDraw with glow effects
+
+**If your weapon doesn't look as spectacular as Swan Lake weapons, it needs more work.**
 
 ---
 
@@ -342,20 +931,22 @@ ThemedParticles.EnigmaDarkGreen   // (30, 100, 50) - Dark green accent
 // Effects should feel unknowable and arcane
 ```
 
-### Fate (Cosmic Endgame) - NEW
-**Gradient: White → Dark Pink → Purple → Crimson**
-**Design: SHARP, PRECISE, FLASHY, CLEAN - Cosmic amorphous epic**
+### Fate (Cosmic Endgame) - DARK PRISMATIC THEME
+**Gradient: Black → Dark Pink → Bright Red (Dark Prismatic)**
+**Design: SHARP, PRECISE, FLASHY, CLEAN - Cosmic amorphous epic with dark base**
 **REQUIRES: Visual distortions, screen effects, reality-bending visuals**
+**PRIMARY: Black with dark pink highlights bleeding to bright red accents**
 ```csharp
-ThemedParticles.FateWhite         // (255, 255, 255) - Primary (start) - cosmic light
-ThemedParticles.FateDarkPink      // (200, 80, 120) - Secondary - destiny's edge
-ThemedParticles.FatePurple        // (140, 50, 160) - Mid - fate's weave
-ThemedParticles.FateCrimson       // (180, 30, 60) - Accent (end) - inevitable doom
-ThemedParticles.FateBlack         // (10, 5, 15) - Void contrast
-// Gradient: Multi-step cosmic gradient
-// Step 1: White → Dark Pink (progress 0-0.33)
-// Step 2: Dark Pink → Purple (progress 0.33-0.66)
-// Step 3: Purple → Crimson (progress 0.66-1.0)
+ThemedParticles.FateBlack         // (15, 5, 20) - PRIMARY (base) - void darkness
+ThemedParticles.FateDarkPink      // (180, 50, 100) - Secondary - destiny's edge
+ThemedParticles.FateBrightRed     // (255, 60, 80) - Accent (end) - bright crimson highlight
+ThemedParticles.FatePurple        // (120, 30, 140) - Mid accent - fate's weave
+ThemedParticles.FateWhite         // (255, 255, 255) - Highlight flashes only
+
+// Gradient: Dark Prismatic - BLACK is the primary color
+// Step 1: Black → Dark Pink (progress 0-0.4)
+// Step 2: Dark Pink → Bright Red (progress 0.4-0.8)
+// Step 3: Bright Red → White flash accents (progress 0.8-1.0)
 
 // MANDATORY VISUAL DISTORTIONS FOR FATE:
 // - Screen slice effects (reality cuts)
@@ -709,65 +1300,85 @@ Each theme has:
 
 ---
 
-## Boss Requirements
+## Boss Requirements - THE GRAND PERFORMANCE
 
-### Spawn
+Bosses are the **climax of each theme's symphony**. Every boss fight should feel like an orchestral performance building to a crescendo.
+
+### Spawn - The Overture
 - Boss summon items must spawn boss above ground accounting for NPC.height
 - Spawn position should use tile collision checks
+- **Dramatic entrance VFX** - The audience must know the conductor has arrived
 
-### Attack Windups
-- Progressive VFX that scales with charge progress
-- Screen shake building to attack
-- Sound cues
+### Attack Windups - Building Tension
+- **Progressive VFX that scales with charge progress** - The longer the buildup, the more spectacular the visual
+- Sound cues that match the theme's musical identity
+- **Pulsing, breathing effects** that create anticipation
 
-### Attack Firing
-- Full VFX burst on attack release
+### Attack Firing - The Crescendo
+- **Full VFX burst on attack release** - This is the moment players remember
 - Sky flash for major attacks (via LaCampanellaSkyEffect.TriggerFlash, etc.)
-- Screen shake on impact
+- **Screen shake ONLY for charged attacks and phase transitions** - Use sparingly for maximum impact
 
-### Enrage
-- Massive VFX explosion with multiple flares/halos
-- Color shift to more intense variants
-- Sky effect
+### Enrage - The Finale
+- **Massive VFX explosion** with multiple layered effects
+- Color shift to more intense theme variants
+- Sky effect that makes the whole world feel the boss's power
 
 ---
 
-## Projectile Requirements
+## Projectile Requirements - THE FLYING MELODY
+
+Every projectile is a note in the symphony of combat. Make each one sing.
 
 ### OnSpawn / First Frame
-- Spawn flare and halo at origin
+- **Spawn flare and halo at origin** - Announce the projectile's birth
+- Consider music note spawn effects
 
 ### AI (periodic)
-- Trail effects every 3-5 frames
-- Periodic flares for visibility
+- **Trail effects every 3-5 frames** - The melody lingers in the air
+- **Music notes in trails** where thematically appropriate
+- Periodic flares for visibility and radiance
 
 ### Kill / OnHit
-- Full impact VFX suite
+- **Full impact VFX suite** - The note's final chord
 - HaloBurst, GenericFlare, ExplosionBurst
+- **Theme-appropriate effects** - Not generic explosions
 
 ---
 
-## Weapon Requirements
+## Weapon Requirements - EVERY WEAPON SHOULD SING
 
-### Melee
-- Use MeleeSmearEffect for swing trails
-- Impact VFX on hit
+> *"If you want to make a sword that slams itself into the ground before casting out waves of symphonic energy, DO it! If you want to make a gun that fires a bullet into the air and it rains down musical notes and flaming projectiles onto the enemies, be my guest."*
 
-### Ranged
-- Muzzle flash on fire (GenericFlare, HaloRing)
-- Projectile uses standard projectile VFX
+### Melee - The Dancing Blade
+- **Swing trails with music notes** - Every swing leaves musical echoes in the blade's wake
+- Use MeleeSmearEffect for elegant, flowing trails
+- **Impact VFX that tells a story** - Not just an explosion, but a crescendo of the theme
+- Consider unique attack patterns: ground slams, charged releases, combo finishers
 
-### Magic
-- Cast VFX at player/weapon
-- Themed particles matching spell element
+### Ranged - The Singing Storm
+- **Muzzle flash that announces the shot** - GenericFlare, HaloRing, theme particles
+- **Projectile trails with musical elements** - Notes lingering in the air like echoes
+- On impact: **Themed explosions, not generic bursts**
+- Consider: Splitting projectiles, homing notes, rain-down effects, chain reactions
 
-### Summon
-- Spawn VFX for minion appearance
-- Ambient particles on minion
+### Magic - The Conductor's Art
+- **Cast VFX at player/weapon** - The magic circle, the gathering power
+- **Themed particles matching spell element** - Fire runes for La Campanella, lunar symbols for Moonlight
+- **Channeling effects that build anticipation** - Orbiting glyphs, intensifying glows
+- Consider: Area denial, mark-and-detonate, cosmic judgment
+
+### Summon - The Orchestra Manifested
+- **Spawn VFX for minion appearance** - A dramatic entrance worthy of a performer
+- **Ambient particles on minion** - Auras, orbiting notes, theme trails
+- **Attack effects that match the theme** - The minion is an extension of the music
+- Consider: Minion synergies, formation attacks, conductor-like player interaction
 
 ---
 
-## ADVANCED VFX COMBINATIONS - UNIQUE SIGNATURE EFFECTS
+## ADVANCED VFX COMBINATIONS - SIGNATURE EFFECTS
+
+> *"Give them every ounce of creativity that you have."*
 
 ### Ambient Fractal Orbit Pattern (HoldItem)
 Use for weapons held by the player to create a magical aura:
@@ -1050,25 +1661,56 @@ for (int i = 0; i < ProjectileID.Sets.TrailCacheLength[Projectile.type]; i++)
     float progress = (float)i / ProjectileID.Sets.TrailCacheLength[Projectile.type];
     float trailAlpha = 1f - progress;
     float trailScale = 1f - progress * 0.3f;
-    Color trailColor = Color.Lerp(primaryColor, secondaryColor, progress) * trailAlpha * 0.6f;
+    Color trailColor = Color.Lerp(primaryColor, secondaryColor) * trailAlpha * 0.6f;
     
     spriteBatch.Draw(texture, Projectile.oldPos[i] - Main.screenPosition, null, 
         trailColor, Projectile.oldRot[i], origin, scale * trailScale, SpriteEffects.None, 0f);
 }
 ```
 
-### Screen Shake Integration
+### Screen Shake Integration - CRITICAL RULES
+
+**⚠️ SCREEN SHAKE IS RESTRICTED - DO NOT USE LIBERALLY**
+
+Screen shake should ONLY be used for:
+- ✅ **Weapon charge-up completion** (releasing a charged attack)
+- ✅ **Boss phase transitions**
+- ✅ **Boss deaths / major enemy deaths**
+- ✅ **Ultimate abilities with long cooldowns**
+
+**DO NOT use screen shake for:**
+- ❌ Regular weapon swings
+- ❌ Normal projectile impacts
+- ❌ Standard attack hits
+- ❌ Ambient effects
+- ❌ Every explosion
+
 ```csharp
-// Small shake - weapon hits
-player.GetModPlayer<ScreenShakePlayer>()?.AddShake(2f, 4);
+// ❌ WRONG - Shaking on every hit
+public override void OnHitNPC(...) {
+    MagnumScreenEffects.AddScreenShake(5f); // NO!
+}
 
-// Medium shake - explosions
-player.GetModPlayer<ScreenShakePlayer>()?.AddShake(5f, 10);
+// ✅ CORRECT - Only shake on charged release or special trigger
+if (chargeComplete) {
+    MagnumScreenEffects.AddScreenShake(8f); // Yes, charged attack release
+}
 
-// Large shake - boss attacks, ultimates
-player.GetModPlayer<ScreenShakePlayer>()?.AddShake(12f, 25);
+// ✅ CORRECT - Boss phase transition
+if (phaseTransition) {
+    MagnumScreenEffects.AddScreenShake(15f); // Yes, dramatic moment
+}
+```
 
-// Dramatic shake - phase transitions
+When screen shake IS appropriate:
+```csharp
+// Charged weapon release
+player.GetModPlayer<ScreenShakePlayer>()?.AddShake(8f, 15);
+
+// Boss phase transition
+player.GetModPlayer<ScreenShakePlayer>()?.AddShake(15f, 30);
+
+// Boss death
 player.GetModPlayer<ScreenShakePlayer>()?.AddShake(20f, 40);
 ```
 

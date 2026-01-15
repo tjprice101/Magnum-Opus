@@ -78,6 +78,28 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             // === UnifiedVFX LA CAMPANELLA IMPACT ===
             UnifiedVFX.LaCampanella.Impact(targetPos, 1.3f);
             
+            // === UNIQUE: FANG BITE MARK PATTERN ===
+            // Two crescent "fangs" bite down at the target location
+            for (int fang = 0; fang < 2; fang++)
+            {
+                float fangSide = fang == 0 ? -1f : 1f;
+                float crescentStart = MathHelper.PiOver4 * fangSide;
+                
+                // Each fang is a crescent arc of particles
+                for (int tooth = 0; tooth < 8; tooth++)
+                {
+                    float toothAngle = crescentStart + (tooth / 7f - 0.5f) * MathHelper.PiOver2 * fangSide;
+                    float toothRadius = 35f - Math.Abs(tooth - 3.5f) * 4f; // Curved inward at tips
+                    Vector2 toothPos = targetPos + toothAngle.ToRotationVector2() * toothRadius;
+                    
+                    // Fang gradient: tip is white-hot, base is orange
+                    float toothProgress = Math.Abs(tooth - 3.5f) / 3.5f;
+                    Color toothColor = Color.Lerp(Color.White, UnifiedVFX.LaCampanella.Orange, toothProgress);
+                    
+                    CustomParticles.GenericFlare(toothPos, toothColor, 0.4f - toothProgress * 0.15f, 15);
+                }
+            }
+            
             // Black to orange gradient spiral burst
             for (int i = 0; i < 12; i++)
             {
@@ -106,7 +128,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // Screen shake
-            player.GetModPlayer<ScreenShakePlayer>()?.AddShake(4f, 8);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // player.GetModPlayer<ScreenShakePlayer>()?.AddShake(4f, 8);
             
             Lighting.AddLight(targetPos, 1.2f, 0.6f, 0.2f);
             
@@ -115,31 +138,79 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void HoldItem(Player player)
         {
-            // === UnifiedVFX LA CAMPANELLA AURA ===
-            UnifiedVFX.LaCampanella.Aura(player.Center, 30f, 0.3f);
+            // === UNIQUE: SERPENT FANG AURA ===
+            // The "Fang" emerges - serpentine fire that coils around the player
             
-            // === SIGNATURE HOLD AURA WITH BLACK TO ORANGE GRADIENT ===
-            ThemedParticles.LaCampanellaHoldAura(player.Center, 0.8f);
-            
-            // Black to orange gradient ambient particles
-            if (Main.rand.NextBool(7))
+            // === COILING SERPENT FLAMES ===
+            // Two "fangs" of fire orbit in opposite spirals
+            float time = Main.GameUpdateCount * 0.04f;
+            for (int fang = 0; fang < 2; fang++)
             {
-                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
-                float progress = Main.rand.NextFloat();
-                Color color = Color.Lerp(UnifiedVFX.LaCampanella.Black, UnifiedVFX.LaCampanella.Orange, progress);
+                float baseAngle = time + fang * MathHelper.Pi; // Opposite sides
+                float spiralRadius = 25f + (float)Math.Sin(time * 2f + fang * 1.5f) * 8f;
                 
-                var glow = new GenericGlowParticle(player.Center + offset, new Vector2(0, -1f), color,
-                    Main.rand.NextFloat(0.17f, 0.28f), Main.rand.Next(16, 26), true);
-                MagnumParticleHandler.SpawnParticle(glow);
+                // Create serpentine wave pattern
+                for (int segment = 0; segment < 5; segment++)
+                {
+                    float segmentAngle = baseAngle - segment * 0.3f;
+                    float segmentRadius = spiralRadius - segment * 3f;
+                    Vector2 segmentPos = player.Center + segmentAngle.ToRotationVector2() * segmentRadius;
+                    
+                    // Gradient from tip (bright orange) to tail (black)
+                    float segmentProgress = segment / 4f;
+                    Color fangColor = Color.Lerp(UnifiedVFX.LaCampanella.Orange, UnifiedVFX.LaCampanella.Black, segmentProgress);
+                    float segmentScale = 0.25f - segment * 0.04f;
+                    
+                    if (Main.rand.NextBool(3))
+                    {
+                        var segment_ = new GenericGlowParticle(segmentPos, Vector2.Zero, fangColor, segmentScale, 8, true);
+                        MagnumParticleHandler.SpawnParticle(segment_);
+                    }
+                }
             }
             
-            // Smoke wisps
-            if (Main.rand.NextBool(10))
+            // === INFINITY SYMBOL GLOW (for "Infinite" theme) ===
+            // When empowered, show ∞ symbol
+            if (player.HasBuff(ModContent.BuffType<InfiniteBellEmpoweredBuff>()))
+            {
+                // Draw infinity symbol with particles
+                for (int i = 0; i < 12; i++)
+                {
+                    float t = i / 12f * MathHelper.TwoPi;
+                    // Parametric infinity symbol: x = cos(t), y = sin(t)*cos(t)
+                    float x = (float)Math.Cos(t + time * 0.5f) * 20f;
+                    float y = (float)Math.Sin(t + time * 0.5f) * (float)Math.Cos(t + time * 0.5f) * 15f;
+                    Vector2 infinityPos = player.Center + new Vector2(x, y - 40f); // Above player
+                    
+                    Color infinityColor = Color.Lerp(UnifiedVFX.LaCampanella.Orange, Color.White, 0.5f);
+                    CustomParticles.GenericFlare(infinityPos, infinityColor * 0.7f, 0.18f, 5);
+                }
+            }
+            
+            // === VENOM DRIP EFFECT ===
+            // Occasional "venom" drips from the fang tips
+            if (Main.rand.NextBool(15))
+            {
+                Vector2 dripPos = player.Center + Main.rand.NextVector2CircularEdge(28f, 28f);
+                Vector2 dripVel = new Vector2(0, Main.rand.NextFloat(1.5f, 3f)); // Falls down
+                Color venomColor = Color.Lerp(UnifiedVFX.LaCampanella.Orange, new Color(255, 200, 50), Main.rand.NextFloat(0.5f));
+                var drip = new GenericGlowParticle(dripPos, dripVel, venomColor, 0.12f, 20, true);
+                MagnumParticleHandler.SpawnParticle(drip);
+            }
+            
+            // Smoke wisps (original)
+            if (Main.rand.NextBool(12))
             {
                 var smoke = new HeavySmokeParticle(player.Center + Main.rand.NextVector2Circular(20f, 20f),
                     new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -0.8f), UnifiedVFX.LaCampanella.Black,
                     Main.rand.Next(25, 40), Main.rand.NextFloat(0.14f, 0.22f), 0.32f, 0.016f, false);
                 MagnumParticleHandler.SpawnParticle(smoke);
+            }
+            
+            // === MUSIC NOTES ===
+            if (Main.rand.NextBool(20))
+            {
+                ThemedParticles.LaCampanellaMusicNotes(player.Center, 1, 25f);
             }
             
             // Gradient light
@@ -273,7 +344,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // Screen shake
-            Player.GetModPlayer<ScreenShakePlayer>()?.AddShake(12f, 25);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // Player.GetModPlayer<ScreenShakePlayer>()?.AddShake(12f, 25);
             
             Lighting.AddLight(Player.Center, 2f, 1f, 0.3f);
         }
@@ -406,8 +478,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 CustomParticles.HaloRing(Projectile.Center, ringColor, 0.4f + ring * 0.12f, 15 + ring * 4);
             }
             
-            Player owner = Main.player[Projectile.owner];
-            owner.GetModPlayer<ScreenShakePlayer>()?.AddShake(5f, 10);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // Player owner = Main.player[Projectile.owner];
+            // owner.GetModPlayer<ScreenShakePlayer>()?.AddShake(5f, 10);
             
             Lighting.AddLight(Projectile.Center, 1.5f, 0.75f, 0.25f);
         }
@@ -428,15 +501,18 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Vector2 hitDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
             ThemedParticles.LaCampanellaSparks(target.Center, hitDir, 5, 6f);
             
-            // Black to orange gradient burst
+            // === SIGNATURE FRACTAL FLARE BURST ===
             for (int i = 0; i < 6; i++)
             {
-                float progress = (float)i / 6f;
                 float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 flarePos = target.Center + angle.ToRotationVector2() * Main.rand.NextFloat(12f, 25f);
-                Color flareColor = Color.Lerp(campanellaBlack, campanellaOrange, progress);
-                CustomParticles.GenericFlare(flarePos, flareColor, 0.4f, 15);
+                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
+                float progress = (float)i / 6f;
+                Color fractalColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaGold, progress);
+                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.45f, 18);
             }
+            
+            // Music notes on hit
+            ThemedParticles.LaCampanellaMusicNotes(target.Center, 3, 25f);
             
             // Smoke puff
             for (int i = 0; i < 3; i++)
@@ -523,6 +599,19 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             // Register hit
             Player owner = Main.player[Projectile.owner];
             owner.GetModPlayer<InfiniteBellPlayer>().RegisterHit(target.Center);
+            
+            // === SIGNATURE FRACTAL FLARE BURST ===
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
+                float progress = (float)i / 6f;
+                Color fractalColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaGold, progress);
+                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.45f, 18);
+            }
+            
+            // Music notes on hit
+            ThemedParticles.LaCampanellaMusicNotes(target.Center, 4, 30f);
             
             // === MASSIVE EXPLOSION WITH LIGHTNING ===
             SpawnExplosionWithLightning(target.Center);
@@ -634,8 +723,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // Screen shake
-            Player owner = Main.player[Projectile.owner];
-            owner.GetModPlayer<ScreenShakePlayer>()?.AddShake(10f, 18);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // Player owner = Main.player[Projectile.owner];
+            // owner.GetModPlayer<ScreenShakePlayer>()?.AddShake(10f, 18);
             
             // Sky flash
             if (!Main.dedServ && SkyManager.Instance["MagnumOpus:LaCampanellaSky"] is LaCampanellaSkyEffect sky)

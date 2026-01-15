@@ -447,7 +447,7 @@ Buffs: {
 	}
 
 	MusicsDissonance: {
-		DisplayName: Musics Dissonance
+		DisplayName: Music's Dissonance
 		Description: Mods.MagnumOpus.Buffs.MusicsDissonance.Description
 	}
 
@@ -505,6 +505,51 @@ Buffs: {
 		DisplayName: Infinite Bell Empowered Buff
 		Description: Mods.MagnumOpus.Buffs.InfiniteBellEmpoweredBuff.Description
 	}
+
+	ParadoxBrand: {
+		DisplayName: Paradox Brand
+		Description: Mods.MagnumOpus.Buffs.ParadoxBrand.Description
+	}
+
+	CipherChoirBuff: {
+		DisplayName: Cipher Choir Buff
+		Description: Mods.MagnumOpus.Buffs.CipherChoirBuff.Description
+	}
+
+	EnigmaWispBuff: {
+		DisplayName: Enigma Wisp Buff
+		Description: Mods.MagnumOpus.Buffs.EnigmaWispBuff.Description
+	}
+
+	ParadoxFamiliarBuff: {
+		DisplayName: Paradox Familiar Buff
+		Description: Mods.MagnumOpus.Buffs.ParadoxFamiliarBuff.Description
+	}
+
+	DestinyCollapse: {
+		DisplayName: Destiny Collapse
+		Description: Mods.MagnumOpus.Buffs.DestinyCollapse.Description
+	}
+
+	CosmicFateWispBuff: {
+		DisplayName: Cosmic Fate Wisp Buff
+		Description: Mods.MagnumOpus.Buffs.CosmicFateWispBuff.Description
+	}
+
+	DestinyChoirBuff: {
+		DisplayName: Destiny Choir Buff
+		Description: Mods.MagnumOpus.Buffs.DestinyChoirBuff.Description
+	}
+
+	SingularityFamiliarBuff: {
+		DisplayName: Singularity Familiar Buff
+		Description: Mods.MagnumOpus.Buffs.SingularityFamiliarBuff.Description
+	}
+
+	UnsolvedPhantomBuff: {
+		DisplayName: Unsolved Phantom Buff
+		Description: Mods.MagnumOpus.Buffs.UnsolvedPhantomBuff.Description
+	}
 }
 
 Items: {
@@ -519,7 +564,7 @@ Items: {
 	}
 
 	RemnantOfEroicasTriumph: {
-		DisplayName: Remnant Of Eroicas Triumph
+		DisplayName: Remnant Of Eroica's Triumph
 		Tooltip: ""
 	}
 
@@ -539,7 +584,7 @@ Items: {
 	}
 
 	RemnantOfMoonlightsHarmony: {
-		DisplayName: Remnant Of Moonlights Harmony
+		DisplayName: Remnant Of Moonlight's Harmony
 		Tooltip: ""
 	}
 
@@ -554,17 +599,17 @@ Items: {
 	}
 
 	MoonlightsAxe: {
-		DisplayName: Moonlights Axe
+		DisplayName: Moonlight's Axe
 		Tooltip: ""
 	}
 
 	MoonlightsHammer: {
-		DisplayName: Moonlights Hammer
+		DisplayName: Moonlight's Hammer
 		Tooltip: ""
 	}
 
 	MoonlightsPickaxe: {
-		DisplayName: Moonlights Pickaxe
+		DisplayName: Moonlight's Pickaxe
 		Tooltip: ""
 	}
 
@@ -677,7 +722,7 @@ Items: {
 	}
 
 	SakurasBlossom: {
-		DisplayName: Sakuras Blossom
+		DisplayName: Sakura's Blossom
 		Tooltip: ""
 	}
 
@@ -784,17 +829,17 @@ Items: {
 	}
 
 	EroicasAxe: {
-		DisplayName: Eroicas Axe
+		DisplayName: Eroica's Axe
 		Tooltip: ""
 	}
 
 	EroicasHammer: {
-		DisplayName: Eroicas Hammer
+		DisplayName: Eroica's Hammer
 		Tooltip: ""
 	}
 
 	EroicasPickaxe: {
-		DisplayName: Eroicas Pickaxe
+		DisplayName: Eroica's Pickaxe
 		Tooltip: ""
 	}
 
@@ -912,7 +957,7 @@ Items: {
 	}
 
 	SakurasBurningWill: {
-		DisplayName: Sakuras Burning Will
+		DisplayName: Sakura's Burning Will
 		Tooltip: ""
 	}
 
@@ -922,7 +967,7 @@ Items: {
 	}
 
 	ShardOfTriumphsTempo: {
-		DisplayName: Shard Of Triumphs Tempo
+		DisplayName: Shard Of Triumph's Tempo
 		Tooltip: ""
 	}
 
@@ -1334,6 +1379,151 @@ Items: {
 		DisplayName: Infernal Bell Fragment
 		Tooltip: ""
 	}
+
+	Enigma1: {
+		DisplayName: Enigma1
+		Tooltip: ""
+	}
+
+	Enigma10: {
+		DisplayName: Enigma10
+		Tooltip: ""
+	}
+
+	Enigma11: {
+		DisplayName: Enigma11
+		Tooltip: ""
+	}
+
+	Enigma12: {
+		DisplayName: Enigma12
+		Tooltip: ""
+	}
+
+	Enigma2: {
+		DisplayName: Enigma2
+		Tooltip: ""
+	}
+
+	Enigma3: {
+		DisplayName: Enigma3
+		Tooltip: ""
+	}
+
+	Enigma4: {
+		DisplayName: Enigma4
+		Tooltip: ""
+	}
+
+	Enigma5: {
+		DisplayName: Enigma5
+		Tooltip: ""
+	}
+
+	Enigma6: {
+		DisplayName: Enigma6
+		Tooltip: ""
+	}
+
+	Enigma7: {
+		DisplayName: Enigma7
+		Tooltip: ""
+	}
+
+	Enigma8: {
+		DisplayName: Enigma8
+		Tooltip: ""
+	}
+
+	Enigma9: {
+		DisplayName: Enigma9
+		Tooltip: ""
+	}
+
+	Fate1: {
+		DisplayName: Fate1
+		Tooltip: ""
+	}
+
+	Fate10: {
+		DisplayName: Fate10
+		Tooltip: ""
+	}
+
+	Fate11: {
+		DisplayName: Fate11
+		Tooltip: ""
+	}
+
+	Fate12: {
+		DisplayName: Fate12
+		Tooltip: ""
+	}
+
+	Fate2: {
+		DisplayName: Fate2
+		Tooltip: ""
+	}
+
+	Fate3: {
+		DisplayName: Fate3
+		Tooltip: ""
+	}
+
+	Fate4: {
+		DisplayName: Fate4
+		Tooltip: ""
+	}
+
+	Fate5: {
+		DisplayName: Fate5
+		Tooltip: ""
+	}
+
+	Fate6: {
+		DisplayName: Fate6
+		Tooltip: ""
+	}
+
+	Fate7: {
+		DisplayName: Fate7
+		Tooltip: ""
+	}
+
+	Fate8: {
+		DisplayName: Fate8
+		Tooltip: ""
+	}
+
+	Fate9: {
+		DisplayName: Fate9
+		Tooltip: ""
+	}
+
+	Debug1Fractal: {
+		DisplayName: Debug1 Fractal
+		Tooltip: ""
+	}
+
+	RiddlemastersFlight: {
+		DisplayName: Riddlemasters Flight
+		Tooltip: ""
+	}
+
+	SymphonyOfTheUniverse: {
+		DisplayName: Symphony Of The Universe
+		Tooltip: ""
+	}
+
+	WingsOfTheBellbornDawn: {
+		DisplayName: Wings Of The Bellborn Dawn
+		Tooltip: ""
+	}
+
+	IridescentDawn: {
+		DisplayName: Iridescent Dawn
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -1356,7 +1546,7 @@ NPCs: {
 
 Projectiles: {
 	EnergyOfEroica.DisplayName: Energy Of Eroica
-	EroicasBeam.DisplayName: Eroicas Beam
+	EroicasBeam.DisplayName: Eroica's Beam
 	PinkFlamingBolt.DisplayName: Pink Flaming Bolt
 	MoonlightWaveProjectile.DisplayName: Moonlight Wave Projectile
 	EternalMoonWave.DisplayName: Eternal Moon Wave
@@ -1365,7 +1555,7 @@ Projectiles: {
 	EternalMoonBeam.DisplayName: Eternal Moon Beam
 	BlossomOfTheSakuraBulletProjectile.DisplayName: Blossom Of The Sakura Bullet Projectile
 	FuneralPrayerProjectile.DisplayName: Funeral Prayer Projectile
-	SakurasBlossomSpectral.DisplayName: Sakuras Blossom Spectral
+	SakurasBlossomSpectral.DisplayName: Sakura's Blossom Spectral
 	TriumphantFractalProjectile.DisplayName: Triumphant Fractal Projectile
 	FuneralPrayerBeam.DisplayName: Funeral Prayer Beam
 	GoliathOfMoonlight.DisplayName: Goliath of Moonlight
@@ -1501,7 +1691,7 @@ Projectiles: {
 	IridescentFlare.DisplayName: Iridescent Flare
 	IridescentWingspanProjectile.DisplayName: Iridescent Wingspan Projectile
 	PearlescentRocket.DisplayName: Pearlescent Rocket
-	SwansLamentBullet.DisplayName: Swans Lament Bullet
+	SwansLamentBullet.DisplayName: Swan's Lament Bullet
 	HealingSwanHalo.DisplayName: Healing Swan Halo
 	FeathersCallFlare.DisplayName: Feather's Call Flare
 	HealingFeatherPickup.DisplayName: Healing Feather Pickup
@@ -1557,6 +1747,84 @@ Projectiles: {
 	InfiniteBellExplosiveProjectile.DisplayName: Infinite Bell Explosive Projectile
 	InfiniteBellSpiralProjectile.DisplayName: Infinite Bell Spiral Projectile
 	SpectralBarrageBlade.DisplayName: Spectral Barrage Blade
+	CipherBeam.DisplayName: Cipher Beam
+	CipherCascade.DisplayName: Cipher Cascade
+	CipherChoir.DisplayName: Cipher Choir
+	CipherNote.DisplayName: Cipher Note
+	CipherRocket.DisplayName: Cipher Rocket
+	Enigma2Charge.DisplayName: Enigma2 Charge
+	EnigmaRift.DisplayName: Enigma Rift
+	EnigmaRiftArrow.DisplayName: Enigma Rift Arrow
+	EnigmaWisp.DisplayName: Enigma Wisp
+	MysteryMaelstrom.DisplayName: Mystery Maelstrom
+	ParadoxFamiliar.DisplayName: Paradox Familiar
+	ParadoxPulse.DisplayName: Paradox Pulse
+	ParadoxSeeker.DisplayName: Paradox Seeker
+	ParadoxZone.DisplayName: Paradox Zone
+	RiddleFragment.DisplayName: Riddle Fragment
+	CollapseBeam.DisplayName: Collapse Beam
+	CollapseOverloadBeam.DisplayName: Collapse Overload Beam
+	CosmicFateWisp.DisplayName: Cosmic Fate Wisp
+	CosmicPulseBullet.DisplayName: Cosmic Pulse Bullet
+	CosmicZone.DisplayName: Cosmic Zone
+	DestinyChoirSinger.DisplayName: Destiny Choir Singer
+	DestinyNote.DisplayName: Destiny Note
+	DestinyRift.DisplayName: Destiny Rift
+	Fate2EventHorizon.DisplayName: Fate2 Event Horizon
+	FateCataclysmRocket.DisplayName: Fate Cataclysm Rocket
+	FateFracture.DisplayName: Fate Fracture
+	FateMaelstrom.DisplayName: Fate Maelstrom
+	FateRiftArrow.DisplayName: Fate Rift Arrow
+	FateWispBeam.DisplayName: Fate Wisp Beam
+	GravityBolt.DisplayName: Gravity Bolt
+	RedshiftCascade.DisplayName: Redshift Cascade
+	SingularityFamiliar.DisplayName: Singularity Familiar
+	SingularityFragment.DisplayName: Singularity Fragment
+	AwarenessZone.DisplayName: Awareness Zone
+	ChargedParadoxThrust.DisplayName: Charged Paradox Thrust
+	ContradictionOrb.DisplayName: Contradiction Orb
+	DimensionalSlash.DisplayName: Dimensional Slash
+	HomingQuestionSeeker.DisplayName: Homing Question Seeker
+	MysteryZone.DisplayName: Mystery Zone
+	ObeliskParadoxBeam.DisplayName: Obelisk Paradox Beam
+	ParadoxAfterimage.DisplayName: Paradox Afterimage
+	ParadoxCollapseUltimate.DisplayName: Paradox Collapse Ultimate
+	ParadoxImpalerThrust.DisplayName: Paradox Impaler Thrust
+	ParadoxNovaExplosion.DisplayName: Paradox Nova Explosion
+	ParadoxPendulumHead.DisplayName: Paradox Pendulum Head
+	ParadoxPiercingArrow.DisplayName: Paradox Piercing Arrow
+	ParadoxRift.DisplayName: Paradox Rift
+	ParadoxSpiralProjectile.DisplayName: Paradox Spiral Projectile
+	PhantomBolt.DisplayName: Phantom Bolt
+	PhantomRift.DisplayName: Phantom Rift
+	QuantumSingularity.DisplayName: Quantum Singularity
+	QuestionBolt.DisplayName: Question Bolt
+	QuestionSeekerArrow.DisplayName: Question Seeker Arrow
+	RealitySnapBack.DisplayName: Reality Snap Back
+	RealityTear.DisplayName: Reality Tear
+	RealityTearLine.DisplayName: Reality Tear Line
+	RealityUnravelerBeam.DisplayName: Reality Unraveler Beam
+	Riddlebolt.DisplayName: Riddlebolt
+	RiddleCascadeOrb.DisplayName: Riddle Cascade Orb
+	SuperpositionRocket.DisplayName: Superposition Rocket
+	TemporalEchoAttack.DisplayName: Temporal Echo Attack
+	TimeCascadeExplosion.DisplayName: Time Cascade Explosion
+	UncertaintyFragment.DisplayName: Uncertainty Fragment
+	UnsolvedPhantomMinion.DisplayName: Unsolved Phantom Minion
+	VoidQuestionShot.DisplayName: Void Question Shot
+	VoidSingularity.DisplayName: Void Singularity
+	WatchingObelisk.DisplayName: Watching Obelisk
+	CosmicDecreeMarker.DisplayName: Cosmic Decree Marker
+	FateLineProjectile.DisplayName: Fate Line Projectile
+	FateSeverSlash.DisplayName: Fate Sever Slash
+	InevitabilityArrow.DisplayName: Inevitability Arrow
+	TimelineGhostArrow.DisplayName: Timeline Ghost Arrow
+	ParadoxPiercingBolt.DisplayName: Paradox Piercing Bolt
+	QuestionSeekerBolt.DisplayName: Question Seeker Bolt
+	InevitabilityBolt.DisplayName: Inevitability Bolt
+	TimelineGhostBolt.DisplayName: Timeline Ghost Bolt
+	Debug1FractalFlare.DisplayName: Debug1 Fractal Flare
+	SplittingValorOrb.DisplayName: Splitting Valor Orb
 }
 
 "Keybinds.Toggle Harmonic Core UI.DisplayName": Toggle  Harmonic  Core  U I

@@ -53,7 +53,7 @@ namespace MagnumOpus.Common.Systems
             // Main panel
             mainPanel = new UIPanel();
             mainPanel.Width.Set(340f, 0f);
-            mainPanel.Height.Set(200f, 0f);
+            mainPanel.Height.Set(240f, 0f); // Increased height for enhance buttons
             mainPanel.Left.Set(20f, 0f);
             mainPanel.Top.Set(260f, 0f);
             mainPanel.BackgroundColor = DarkPanelBg;
@@ -87,7 +87,7 @@ namespace MagnumOpus.Common.Systems
             {
                 coreSlots[i] = new CoreSlotPanel(i, this);
                 coreSlots[i].Width.Set(70f, 0f);
-                coreSlots[i].Height.Set(80f, 0f);
+                coreSlots[i].Height.Set(100f, 0f); // Increased height for enhance button
                 coreSlots[i].Left.Set(30f + i * 95f, 0f);
                 coreSlots[i].Top.Set(35f, 0f);
                 mainPanel.Append(coreSlots[i]);
@@ -95,7 +95,7 @@ namespace MagnumOpus.Common.Systems
             
             descriptionText = new UIText("", 0.55f, false);
             descriptionText.HAlign = 0.5f;
-            descriptionText.Top.Set(122f, 0f);
+            descriptionText.Top.Set(142f, 0f); // Adjusted for new slot height
             descriptionText.TextColor = new Color(180, 180, 200);
             mainPanel.Append(descriptionText);
             
@@ -130,12 +130,19 @@ namespace MagnumOpus.Common.Systems
                 descriptionText.SetText(hoveredDescription);
             else
                 descriptionText.SetText(player.GetEquippedCoreCount() == 0 ? 
-                    "Click to equip cores\nRight-click to toggle mode" : 
-                    "Right-click core to toggle\nChromatic ↔ Diatonic");
+                    "Click to equip cores" : 
+                    "");
             
-            int tier = player.GetHighestTier();
-            classBonusText.SetText(tier > 0 ? 
-                $"All Classes: +{HarmonicCoreModPlayer.TierDamageBonus[tier] * 100f:0}% Damage" : "");
+            // Calculate total damage bonus including enhancements
+            float totalBonus = 0f;
+            for (int i = 0; i < 3; i++)
+            {
+                totalBonus += player.GetEnhancedDamageBonus(i);
+            }
+            
+            int bonusPercent = (int)(totalBonus * 100f);
+            classBonusText.SetText(totalBonus > 0 ? 
+                $"All Classes: +{bonusPercent}%% Damage" : "");
         }
         
         public override void Draw(SpriteBatch spriteBatch)
@@ -235,7 +242,9 @@ namespace MagnumOpus.Common.Systems
     {
         private int slotIndex;
         private HarmonicCoreUIState parentUI;
-        private UIText modeLabel;
+        private UIText enhancementLabel;
+        private UIPanel enhanceButton;
+        private UIText enhanceButtonText;
         private float pulseTimer = 0f;
         
         public CoreSlotPanel(int index, HarmonicCoreUIState parent)
@@ -251,10 +260,59 @@ namespace MagnumOpus.Common.Systems
             slotLabel.TextColor = new Color(100, 100, 120);
             Append(slotLabel);
             
-            modeLabel = new UIText("", 0.45f);
-            modeLabel.HAlign = 0.5f;
-            modeLabel.Top.Set(62f, 0f);
-            Append(modeLabel);
+            // Enhancement level display
+            enhancementLabel = new UIText("", 0.45f);
+            enhancementLabel.HAlign = 0.5f;
+            enhancementLabel.Top.Set(58f, 0f);
+            enhancementLabel.TextColor = new Color(220, 180, 255);
+            Append(enhancementLabel);
+            
+            // Enhance Melody button
+            enhanceButton = new UIPanel();
+            enhanceButton.Width.Set(60f, 0f);
+            enhanceButton.Height.Set(16f, 0f);
+            enhanceButton.Left.Set(5f, 0f);
+            enhanceButton.Top.Set(76f, 0f);
+            enhanceButton.BackgroundColor = new Color(40, 30, 60, 220);
+            enhanceButton.BorderColor = new Color(120, 100, 180, 180);
+            enhanceButton.OnLeftClick += OnEnhanceClick;
+            enhanceButton.OnMouseOver += (evt, elem) => { enhanceButton.BackgroundColor = new Color(60, 45, 90, 240); };
+            enhanceButton.OnMouseOut += (evt, elem) => { enhanceButton.BackgroundColor = new Color(40, 30, 60, 220); };
+            Append(enhanceButton);
+            
+            enhanceButtonText = new UIText("Enhance", 0.35f);
+            enhanceButtonText.HAlign = 0.5f;
+            enhanceButtonText.VAlign = 0.5f;
+            enhanceButtonText.TextColor = new Color(200, 180, 255);
+            enhanceButton.Append(enhanceButtonText);
+        }
+        
+        private void OnEnhanceClick(UIMouseEvent evt, UIElement listeningElement)
+        {
+            if (Main.gameMenu || Main.LocalPlayer == null) return;
+            var player = Main.LocalPlayer.GetModPlayer<HarmonicCoreModPlayer>();
+            
+            if (player.TryEnhanceCore(slotIndex))
+            {
+                parentUI.RefreshDisplay();
+            }
+            else
+            {
+                // Check why it failed
+                if (player.EquippedCores[slotIndex] == null || player.EquippedCores[slotIndex].IsAir)
+                {
+                    Main.NewText("No core equipped in this slot!", new Color(255, 150, 150));
+                }
+                else if (player.EnhancementLevels[slotIndex] >= HarmonicCoreModPlayer.MaxEnhancementLevel)
+                {
+                    Main.NewText("This core is already at maximum enhancement (+5)!", new Color(255, 200, 100));
+                }
+                else
+                {
+                    Main.NewText("You need a Seed of Universal Melodies to enhance!", new Color(255, 150, 150));
+                }
+                SoundEngine.PlaySound(SoundID.MenuClose with { Volume = 0.5f });
+            }
         }
         
         public void RefreshSlot()
@@ -264,14 +322,48 @@ namespace MagnumOpus.Common.Systems
             
             if (!string.IsNullOrEmpty(coreName))
             {
-                bool isChromatic = player.CoreModes[slotIndex];
-                modeLabel.SetText(isChromatic ? "ATK" : "DEF");
-                modeLabel.TextColor = isChromatic ? new Color(255, 150, 150) : new Color(150, 150, 255);
-                BorderColor = isChromatic ? new Color(180, 80, 80, 180) : new Color(80, 80, 180, 180);
+                int enhLevel = player.GetEnhancementLevel(slotIndex);
+                if (enhLevel > 0)
+                {
+                    enhancementLabel.SetText($"+{enhLevel}");
+                    enhancementLabel.TextColor = Color.Lerp(new Color(180, 150, 220), new Color(255, 220, 100), enhLevel / 5f);
+                }
+                else
+                {
+                    enhancementLabel.SetText("");
+                }
+                
+                // Update button appearance based on enhancement state
+                if (enhLevel >= HarmonicCoreModPlayer.MaxEnhancementLevel)
+                {
+                    enhanceButtonText.SetText("MAX");
+                    enhanceButtonText.TextColor = new Color(255, 220, 100);
+                    enhanceButton.BackgroundColor = new Color(60, 50, 30, 220);
+                    enhanceButton.BorderColor = new Color(180, 150, 80, 180);
+                }
+                else
+                {
+                    enhanceButtonText.SetText("Enhance");
+                    enhanceButtonText.TextColor = new Color(200, 180, 255);
+                    enhanceButton.BackgroundColor = new Color(40, 30, 60, 220);
+                    enhanceButton.BorderColor = new Color(120, 100, 180, 180);
+                }
+                
+                // Core color border
+                if (HarmonicCoreModPlayer.CoreColors.ContainsKey(coreName))
+                {
+                    Color coreColor = HarmonicCoreModPlayer.CoreColors[coreName];
+                    BorderColor = coreColor * 0.6f;
+                    BorderColor.A = 180;
+                }
             }
             else
             {
-                modeLabel.SetText("");
+                enhancementLabel.SetText("");
+                enhanceButtonText.SetText("--");
+                enhanceButtonText.TextColor = new Color(100, 100, 120);
+                enhanceButton.BackgroundColor = new Color(20, 20, 25, 200);
+                enhanceButton.BorderColor = new Color(60, 60, 80, 150);
                 BorderColor = new Color(60, 60, 80, 150);
             }
         }
@@ -313,22 +405,37 @@ namespace MagnumOpus.Common.Systems
             if (Main.gameMenu || Main.LocalPlayer == null) return;
             var player = Main.LocalPlayer.GetModPlayer<HarmonicCoreModPlayer>();
             
+            // Right-click on equipped core to ENHANCE (not swap)
             if (player.EquippedCores[slotIndex] != null && !player.EquippedCores[slotIndex].IsAir)
             {
-                if (Main.mouseItem == null || Main.mouseItem.IsAir)
-                {
-                    player.ToggleCoreMode(slotIndex);
-                    string modeName = player.CoreModes[slotIndex] ? "Chromatic (Offensive)" : "Diatonic (Defensive)";
-                    Main.NewText($"{GetDisplayName(player.GetCoreName(slotIndex))}: {modeName}",
-                        player.CoreModes[slotIndex] ? new Color(255, 180, 180) : new Color(180, 180, 255));
-                    parentUI.RefreshDisplay();
-                }
-                else if (IsHarmonicCore(Main.mouseItem.type))
+                // If holding a core, swap it
+                if (Main.mouseItem != null && !Main.mouseItem.IsAir && IsHarmonicCore(Main.mouseItem.type))
                 {
                     Item old = player.EquippedCores[slotIndex].Clone();
                     player.EquipCore(slotIndex, Main.mouseItem);
                     Main.mouseItem = old;
                     parentUI.RefreshDisplay();
+                }
+                else
+                {
+                    // Empty hand - try to enhance the core!
+                    if (player.TryEnhanceCore(slotIndex))
+                    {
+                        parentUI.RefreshDisplay();
+                    }
+                    else
+                    {
+                        // Check why it failed and give feedback
+                        if (player.EnhancementLevels[slotIndex] >= HarmonicCoreModPlayer.MaxEnhancementLevel)
+                        {
+                            Main.NewText("This core is already at maximum enhancement (+5)!", new Color(255, 200, 100));
+                        }
+                        else
+                        {
+                            Main.NewText("You need a Seed of Universal Melodies to enhance!", new Color(255, 150, 150));
+                        }
+                        SoundEngine.PlaySound(SoundID.MenuClose with { Volume = 0.5f });
+                    }
                 }
             }
             else if (Main.mouseItem != null && !Main.mouseItem.IsAir && IsHarmonicCore(Main.mouseItem.type))
@@ -363,12 +470,32 @@ namespace MagnumOpus.Common.Systems
             
             if (!string.IsNullOrEmpty(coreName))
             {
-                bool isChromatic = player.CoreModes[slotIndex];
-                string buffName = isChromatic ? HarmonicCoreModPlayer.GetChromaticBuffName(coreName) : HarmonicCoreModPlayer.GetDiatonicBuffName(coreName);
-                string buffDesc = isChromatic ? HarmonicCoreModPlayer.GetChromaticBuffDesc(coreName) : HarmonicCoreModPlayer.GetDiatonicBuffDesc(coreName);
-                string modeText = isChromatic ? "[Chromatic - Offensive]" : "[Diatonic - Defensive]";
-                string setBonus = HarmonicCoreModPlayer.GetActiveSetBonusName(coreName, isChromatic);
-                parentUI.SetHoveredSlot(slotIndex, $"{GetDisplayName(coreName)}\n{modeText}\n{buffName}\n{buffDesc}\n{setBonus}");
+                int tier = player.GetCoreTier(slotIndex);
+                int enhLevel = player.GetEnhancementLevel(slotIndex);
+                float damageBonus = player.GetEnhancedDamageBonus(slotIndex) * 100f;
+                string effectName = HarmonicCoreModPlayer.GetCoreEffectName(coreName);
+                string effectDesc = HarmonicCoreModPlayer.GetCoreEffectDescWithEnhancement(coreName, enhLevel);
+                
+                string enhText = enhLevel > 0 ? $" +{enhLevel}" : "";
+                string tierText = $"[Tier {tier} Harmonic Core{enhText}]";
+                int dmgPercent = (int)damageBonus;
+                string damageText = $"+{dmgPercent}%% All Damage";
+                
+                // Build upgrade preview if not maxed
+                string upgradePreview = "";
+                if (enhLevel < HarmonicCoreModPlayer.MaxEnhancementLevel)
+                {
+                    int nextLevel = enhLevel + 1;
+                    float nextDamageBonus = player.GetEnhancedDamageBonus(slotIndex) / (1f + enhLevel * 0.2f) * (1f + nextLevel * 0.2f) * 100f;
+                    string nextEffectDesc = HarmonicCoreModPlayer.GetCoreEffectDescWithEnhancement(coreName, nextLevel);
+                    upgradePreview = $"\n\n[Right-click to enhance to +{nextLevel}]\n→ +{(int)nextDamageBonus}%% Damage\n→ {nextEffectDesc}";
+                }
+                else
+                {
+                    upgradePreview = "\n\n[MAX ENHANCEMENT]";
+                }
+                
+                parentUI.SetHoveredSlot(slotIndex, $"{GetDisplayName(coreName)}\n{tierText}\n{damageText}\n◆ {effectName}\n{effectDesc}{upgradePreview}");
             }
             else
                 parentUI.SetHoveredSlot(slotIndex, "Empty Slot\nLeft-click with core");

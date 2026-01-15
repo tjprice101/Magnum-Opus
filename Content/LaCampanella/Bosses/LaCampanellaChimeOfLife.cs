@@ -122,10 +122,13 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         private float[] vortexBeamAngles = new float[8];
         private float vortexRotationSpeed = 0f;
         
-        // Animation
+        // Animation - 6x6 sprite sheet (36 frames, read left to right, top to bottom)
         private int frameCounter = 0;
         private int currentFrame = 0;
-        private const int TotalFrames = 1; // Single frame sprite
+        private const int TotalFrames = 36; // 6x6 sprite sheet
+        private const int FrameColumns = 6;
+        private const int FrameRows = 6;
+        private const int FrameSpeed = 6; // Ticks per frame
         
         // Health bar registration
         private bool hasRegisteredHealthBar = false;
@@ -143,7 +146,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
         public override void SetStaticDefaults()
         {
-            Main.npcFrameCount[Type] = TotalFrames;
+            // Set to 1 since we handle 6x6 sprite sheet manually in PreDraw
+            // The actual 36 frames are managed by GetFrameSourceRect()
+            Main.npcFrameCount[Type] = 1;
             
             NPCID.Sets.MPAllowedEnemies[Type] = true;
             NPCID.Sets.BossBestiaryPriority.Add(Type);
@@ -177,6 +182,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             NPC.aiStyle = -1;
             NPC.scale = 1f;
             NPC.lavaImmune = true;
+            
+            // Fix visual offset to prevent ground clipping (4 blocks = 64 pixels)
+            // This pulls the sprite up to align with the hitbox properly
+            DrawOffsetY = -64f;
             
             // Music - uses Underworld boss theme as fallback until custom music is added
             // TODO: Add custom music at Assets/Music/LaCampanellaTheme.ogg
@@ -235,6 +244,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             auraPulse += 0.05f;
             bellRingTimer += 0.03f;
             distortionTimer += 0.02f;
+            
+            // Update sprite animation (6x6 sprite sheet)
+            UpdateAnimation();
             
             if (jumpCooldown > 0) jumpCooldown--;
             if (AttackCooldown > 0) AttackCooldown--;
@@ -735,7 +747,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
-                        Projectile.NewProjectile(NPC.GetSource_FromAI(), laserStart, dir * 16f,
+                        Projectile.NewProjectile(NPC.GetSource_FromAI(), laserStart, dir * 80f,
                             ModContent.ProjectileType<InfernalBellLaser>(), NPC.damage / 2, 3f, Main.myPlayer);
                     }
                 }
@@ -792,23 +804,39 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         {
             NPC.velocity.X *= 0.95f;
             
-            // Fire explosive bells
+            // Fire explosive bells with PREDICTIVE AIMING
             if (Timer % 12 == 0 && AttackPhase < 8)
             {
                 SoundEngine.PlaySound(SoundID.Item35 with { Pitch = -0.2f }, NPC.Center);
                 
                 Vector2 spawnPos = NPC.Center + new Vector2(Main.rand.NextFloat(-50, 50), -60);
-                Vector2 toPlayer = target.Center - spawnPos;
-                toPlayer.Normalize();
                 
-                // Add some randomness
-                float randomAngle = Main.rand.NextFloat(-0.3f, 0.3f);
-                Vector2 velocity = toPlayer.RotatedBy(randomAngle) * Main.rand.NextFloat(8f, 12f);
+                // PREDICTIVE TARGETING - aim where player will be based on their velocity
+                float projectileSpeed = Main.rand.NextFloat(10f, 14f);
+                float distanceToPlayer = Vector2.Distance(spawnPos, target.Center);
+                float travelTime = distanceToPlayer / projectileSpeed; // Approximate travel time
+                
+                // Predict player position
+                Vector2 predictedPos = target.Center + target.velocity * travelTime * 0.7f;
+                Vector2 toPlayer = (predictedPos - spawnPos).SafeNormalize(Vector2.UnitY);
+                
+                // Add some randomness but less than before for better accuracy
+                float randomAngle = Main.rand.NextFloat(-0.15f, 0.15f);
+                Vector2 velocity = toPlayer.RotatedBy(randomAngle) * projectileSpeed;
                 
                 if (Main.netMode != NetmodeID.MultiplayerClient)
                 {
                     Projectile.NewProjectile(NPC.GetSource_FromAI(), spawnPos, velocity,
                         ModContent.ProjectileType<ExplosiveBellProjectile>(), NPC.damage / 2, 4f, Main.myPlayer);
+                    
+                    // ADDITIONAL: Every 3rd bell fires a second one aimed directly at current position
+                    // This creates a spread that's harder to dodge
+                    if (AttackPhase % 3 == 0)
+                    {
+                        Vector2 directVel = (target.Center - spawnPos).SafeNormalize(Vector2.UnitY) * projectileSpeed * 0.9f;
+                        Projectile.NewProjectile(NPC.GetSource_FromAI(), spawnPos, directVel,
+                            ModContent.ProjectileType<ExplosiveBellProjectile>(), NPC.damage / 2, 4f, Main.myPlayer);
+                    }
                 }
                 
                 // ENHANCED spawn VFX
@@ -865,21 +893,56 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             {
                 SoundEngine.PlaySound(SoundID.Item74 with { Pitch = -0.5f, Volume = 1.2f }, NPC.Center);
                 
-                // Spawn fire waves in both directions
+                // Spawn fire waves from BOTH boss AND player position for better coverage
                 if (Main.netMode != NetmodeID.MultiplayerClient)
                 {
+                    // Waves from boss position
                     for (int dir = -1; dir <= 1; dir += 2)
                     {
                         Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Bottom, new Vector2(dir * 10f, 0),
                             ModContent.ProjectileType<InfernalFireWave>(), NPC.damage / 2, 5f, Main.myPlayer);
                     }
+                    
+                    // ADDITIONAL: Waves spawned at player's predicted ground position
+                    // Find ground below player
+                    Vector2 playerGroundPos = target.Bottom;
+                    for (int i = 0; i < 30; i++)
+                    {
+                        Vector2 checkPos = target.Bottom + new Vector2(0, i * 16);
+                        if (Collision.SolidCollision(checkPos, 16, 16))
+                        {
+                            playerGroundPos = checkPos;
+                            break;
+                        }
+                    }
+                    
+                    // Spawn waves at player's ground position
+                    for (int dir = -1; dir <= 1; dir += 2)
+                    {
+                        Projectile.NewProjectile(NPC.GetSource_FromAI(), playerGroundPos, new Vector2(dir * 10f, 0),
+                            ModContent.ProjectileType<InfernalFireWave>(), NPC.damage / 2, 5f, Main.myPlayer);
+                    }
+                    
+                    // Spawn rising fire pillars at player position to catch airborne players
+                    for (int i = -2; i <= 2; i++)
+                    {
+                        Vector2 pillarPos = playerGroundPos + new Vector2(i * 60, 0);
+                        Projectile.NewProjectile(NPC.GetSource_FromAI(), pillarPos, new Vector2(0, -12f),
+                            ModContent.ProjectileType<InfernalGroundFire>(), NPC.damage / 3, 2f, Main.myPlayer);
+                    }
                 }
                 
-                // FULL VFX on wave launch
+                // FULL VFX on wave launch - at both positions
                 ThemedParticles.LaCampanellaShockwave(NPC.Bottom, 2f);
                 ThemedParticles.LaCampanellaHaloBurst(NPC.Bottom, 1.2f);
                 CustomParticles.GenericFlare(NPC.Bottom, ThemedParticles.CampanellaYellow, 0.7f, 22);
                 CustomParticles.ExplosionBurst(NPC.Bottom, ThemedParticles.CampanellaOrange, 10, 6f);
+                
+                // VFX at player position too
+                ThemedParticles.LaCampanellaShockwave(target.Bottom, 1.5f);
+                ThemedParticles.LaCampanellaImpact(target.Bottom, 1.2f);
+                CustomParticles.GenericFlare(target.Bottom, ThemedParticles.CampanellaOrange, 0.6f, 18);
+                
                 screenShakeIntensity = 15f;
             }
             
@@ -964,7 +1027,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 // Massive laser beam
                 if (Main.netMode != NetmodeID.MultiplayerClient)
                 {
-                    Projectile.NewProjectile(NPC.GetSource_FromAI(), laserStart, toPlayer * 2f,
+                    Projectile.NewProjectile(NPC.GetSource_FromAI(), laserStart, toPlayer * 10f,
                         ModContent.ProjectileType<MassiveInfernalLaser>(), (int)(NPC.damage * 0.8f), 6f, Main.myPlayer);
                 }
                 
@@ -1040,17 +1103,36 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         
         private void BellStormFiring(Player target)
         {
-            // Spawn bells in circular patterns
+            // Spawn bells in circular patterns - ENHANCED with player targeting
             if (Timer % 8 == 0 && AttackPhase < 16)
             {
                 float angle = AttackPhase * (MathHelper.TwoPi / 8f) + Timer * 0.02f;
-                Vector2 spawnPos = NPC.Center + angle.ToRotationVector2() * 80f;
-                Vector2 velocity = (target.Center - spawnPos).SafeNormalize(Vector2.UnitY) * 10f;
+                
+                // ALTERNATE between spawning around boss and around player
+                bool spawnAroundPlayer = AttackPhase % 4 >= 2;
+                Vector2 center = spawnAroundPlayer ? target.Center : NPC.Center;
+                float radius = spawnAroundPlayer ? 150f : 80f;
+                
+                Vector2 spawnPos = center + angle.ToRotationVector2() * radius;
+                
+                // PREDICTIVE AIMING
+                float projectileSpeed = 12f;
+                float travelTime = Vector2.Distance(spawnPos, target.Center) / projectileSpeed;
+                Vector2 predictedPos = target.Center + target.velocity * travelTime * 0.6f;
+                Vector2 velocity = (predictedPos - spawnPos).SafeNormalize(Vector2.UnitY) * projectileSpeed;
                 
                 if (Main.netMode != NetmodeID.MultiplayerClient)
                 {
                     Projectile.NewProjectile(NPC.GetSource_FromAI(), spawnPos, velocity,
                         ModContent.ProjectileType<ExplosiveBellProjectile>(), NPC.damage / 3, 3f, Main.myPlayer);
+                    
+                    // ADDITIONAL: Every 4th spawn also creates upward-firing bells to catch jumpers
+                    if (AttackPhase % 4 == 0)
+                    {
+                        Vector2 upwardVel = new Vector2(Main.rand.NextFloat(-3f, 3f), -14f);
+                        Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center + new Vector2(0, -50), upwardVel,
+                            ModContent.ProjectileType<ExplosiveBellProjectile>(), NPC.damage / 3, 3f, Main.myPlayer);
+                    }
                 }
                 
                 SoundEngine.PlaySound(SoundID.Item35 with { Pitch = -0.1f, Volume = 0.5f }, spawnPos);
@@ -1063,10 +1145,11 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 AttackPhase++;
             }
             
-            // Central storm effect pulsing
+            // Central storm effect pulsing - at BOTH boss and player
             if (Timer % 10 == 0)
             {
                 CustomParticles.GenericFlare(NPC.Center, ThemedParticles.CampanellaYellow * 0.6f, 0.3f, 12);
+                CustomParticles.GenericFlare(target.Center, ThemedParticles.CampanellaOrange * 0.4f, 0.25f, 10);
             }
             
             NPC.velocity.X *= 0.95f;
@@ -1133,21 +1216,45 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             
             NPC.velocity.X *= 0.9f;
             
-            // Fire expanding sonic rings
+            // Fire sonic rings - ALTERNATING between boss-centered and player-targeted
             if (Timer % 20 == 0)
             {
                 SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.2f + Timer / 200f, Volume = 1f }, NPC.Center);
                 
-                // Create massive shockwave ring
+                // Create massive shockwave ring at boss
                 ThemedParticles.LaCampanellaShockwave(NPC.Center, 2.5f);
                 
-                // Spawn ring of projectiles expanding outward
                 int bellCount = isEnraged ? 16 : 12;
+                
+                // ALTERNATING PATTERN: Every other wave spawns at player instead
+                bool targetPlayer = ((int)(Timer / 20) % 2) == 1;
+                Vector2 ringCenter = targetPlayer ? target.Center : NPC.Center;
+                
+                if (targetPlayer)
+                {
+                    // Shockwave at player position
+                    ThemedParticles.LaCampanellaShockwave(target.Center, 2f);
+                    ThemedParticles.LaCampanellaImpact(target.Center, 1.5f);
+                }
+                
+                // Spawn ring of projectiles - INWARD toward player OR outward from player
                 for (int i = 0; i < bellCount; i++)
                 {
                     float angle = MathHelper.TwoPi * i / bellCount;
-                    Vector2 velocity = angle.ToRotationVector2() * 8f;
-                    Vector2 spawnPos = NPC.Center + velocity * 3f;
+                    
+                    Vector2 velocity, spawnPos;
+                    if (targetPlayer)
+                    {
+                        // Spawn around player, moving INWARD (harder to dodge)
+                        spawnPos = target.Center + angle.ToRotationVector2() * 200f;
+                        velocity = (target.Center - spawnPos).SafeNormalize(Vector2.UnitY) * 6f;
+                    }
+                    else
+                    {
+                        // Spawn from boss, moving outward
+                        velocity = angle.ToRotationVector2() * 8f;
+                        spawnPos = NPC.Center + velocity * 3f;
+                    }
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
@@ -1167,6 +1274,19 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 {
                     sky.TriggerFlash(0.4f, ThemedParticles.CampanellaOrange);
                 }
+            }
+            
+            // ADDITIONAL: Spawn homing bells periodically to catch airborne players
+            if (Timer % 30 == 15 && Main.netMode != NetmodeID.MultiplayerClient)
+            {
+                // Predictive targeting - aim where player will be
+                Vector2 predictedPos = target.Center + target.velocity * 20f;
+                Vector2 toPlayer = (predictedPos - NPC.Center).SafeNormalize(Vector2.UnitY);
+                
+                Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, toPlayer * 12f,
+                    ModContent.ProjectileType<ExplosiveBellProjectile>(), NPC.damage / 3, 2f, Main.myPlayer);
+                
+                CustomParticles.GenericFlare(NPC.Center, ThemedParticles.CampanellaYellow, 0.5f, 15);
             }
             
             // Continuous particle aura
@@ -1189,36 +1309,58 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         
         private void FlameGeyserWindup(Player target)
         {
-            const int WindupTime = 35;
+            const int WindupTime = 50;
             NPC.velocity.X *= 0.85f;
             
             if (Timer == 1)
             {
-                SoundEngine.PlaySound(SoundID.Item45 with { Pitch = -0.6f }, NPC.Center);
+                SoundEngine.PlaySound(SoundID.Item35 with { Pitch = -0.6f, Volume = 1.3f }, NPC.Center);
                 EroicaScreenShake.MediumShake(NPC.Center);
             }
             
-            // Ground rumbling effect - telegraph where geysers will appear
+            // Bell chime telegraph - show warning bells at upcoming explosion locations
             if (Timer > 15)
             {
                 float telegraphIntensity = (Timer - 15f) / (WindupTime - 15f);
                 
-                // Show warning particles at upcoming geyser locations
+                // Show warning bell particles at upcoming explosion locations
                 for (int i = -4; i <= 4; i++)
                 {
                     if (i == 0) continue;
-                    Vector2 geyserPos = target.Bottom + new Vector2(i * 120f, 0);
+                    Vector2 bellPos = target.Bottom + new Vector2(i * 90f, 0);
                     
-                    if (Main.rand.NextFloat() < telegraphIntensity * 0.4f)
+                    // Bell chime warning particles
+                    if (Main.rand.NextFloat() < telegraphIntensity * 0.6f)
                     {
-                        CustomParticles.GenericFlare(geyserPos, ThemedParticles.CampanellaYellow * telegraphIntensity * 0.5f, 0.2f * telegraphIntensity, 8);
+                        // Orange warning flares at bell positions
+                        float gradient = Math.Abs(i) / 4f;
+                        Color flareColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaYellow, gradient);
+                        CustomParticles.GenericFlare(bellPos, flareColor * telegraphIntensity * 0.7f, 0.25f * telegraphIntensity, 10);
                         
-                        // Rising warning embers
-                        var ember = new GenericGlowParticle(geyserPos + Main.rand.NextVector2Circular(20f, 10f), 
-                            new Vector2(0, -2f), ThemedParticles.CampanellaOrange, 0.25f * telegraphIntensity, 20, true);
-                        MagnumParticleHandler.SpawnParticle(ember);
+                        // Bell chime particles rising
+                        if (Timer % 8 == 0)
+                        {
+                            ThemedParticles.LaCampanellaBellChime(bellPos, 0.3f * telegraphIntensity);
+                        }
+                        
+                        // Rising golden warning particles
+                        var bellGlow = new GenericGlowParticle(bellPos + Main.rand.NextVector2Circular(15f, 8f), 
+                            new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1.5f), ThemedParticles.CampanellaGold, 0.2f * telegraphIntensity, 25, true);
+                        MagnumParticleHandler.SpawnParticle(bellGlow);
+                    }
+                    
+                    // Pulsing halo at each bell position
+                    if (Timer % 12 == 0 && Main.rand.NextFloat() < telegraphIntensity)
+                    {
+                        CustomParticles.HaloRing(bellPos, ThemedParticles.CampanellaOrange * telegraphIntensity * 0.4f, 0.15f * telegraphIntensity, 15);
                     }
                 }
+            }
+            
+            // Bell tolling sounds during telegraph
+            if (Timer % 15 == 0 && Timer > 15)
+            {
+                SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.3f + Timer / 100f, Volume = 0.5f + Timer / 100f }, NPC.Center);
             }
             
             screenShakeIntensity = Math.Max(screenShakeIntensity, Timer / WindupTime * 8f);
@@ -1233,73 +1375,122 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         
         private void FlameGeyserAttack(Player target)
         {
-            const int AttackDuration = 150;
-            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.45f, 0.1f);
+            const int AttackDuration = 180;
+            const int BellCount = 9; // -4 to +4 positions
+            const float BellSpacing = 90f; // 90 pixels apart
+            const int ExplosionDelay = 12; // Frames between each bell explosion
+            
+            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.55f, 0.1f);
             
             NPC.velocity.X *= 0.9f;
             
-            // Spawn geysers in sequence
-            if (Timer % 15 == 0 && AttackPhase < 10)
+            // Spawn bell explosions in sequence across the ground
+            if (Timer % ExplosionDelay == 0 && AttackPhase < BellCount)
             {
-                SoundEngine.PlaySound(SoundID.Item74 with { Pitch = 0.3f, Volume = 1.1f }, target.Center);
+                // Calculate bell position - spread from left to right centered on player
+                int bellIndex = (int)AttackPhase - (BellCount / 2); // -4 to +4
+                Vector2 bellPos = target.Bottom + new Vector2(bellIndex * BellSpacing, 0);
                 
-                // Alternate sides with some randomness
-                int geyserIndex = (int)AttackPhase - 5;
-                if (geyserIndex == 0) geyserIndex = Main.rand.NextBool() ? -1 : 1;
+                // BELL CHIME SOUND
+                SoundEngine.PlaySound(SoundID.Item35 with { Pitch = -0.3f + bellIndex * 0.08f, Volume = 1.4f }, bellPos);
                 
-                Vector2 geyserPos = target.Bottom + new Vector2(geyserIndex * 100f + Main.rand.NextFloat(-30f, 30f), 0);
+                // BELL CHIME PARTICLE EFFECT
+                ThemedParticles.LaCampanellaBellChime(bellPos, 1.5f);
                 
-                // Spawn upward fire projectiles
+                // MASSIVE GROUND EXPLOSION VFX - FULL SUITE
+                ThemedParticles.LaCampanellaImpact(bellPos, 2.5f);
+                ThemedParticles.LaCampanellaShockwave(bellPos, 2f);
+                ThemedParticles.LaCampanellaHaloBurst(bellPos, 2f);
+                
+                // Gradient flares - orange to yellow to gold
+                float gradientProgress = (float)Math.Abs(bellIndex) / (BellCount / 2f);
+                Color primaryGradient = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaYellow, gradientProgress);
+                Color secondaryGradient = Color.Lerp(ThemedParticles.CampanellaYellow, ThemedParticles.CampanellaGold, gradientProgress);
+                
+                CustomParticles.GenericFlare(bellPos, primaryGradient, 1.0f, 30);
+                CustomParticles.GenericFlare(bellPos, secondaryGradient, 0.8f, 25);
+                CustomParticles.GenericFlare(bellPos, Color.White, 0.6f, 20);
+                CustomParticles.HaloRing(bellPos, primaryGradient, 0.6f, 22);
+                CustomParticles.HaloRing(bellPos, Color.White * 0.8f, 0.4f, 18);
+                CustomParticles.ExplosionBurst(bellPos, primaryGradient, 16, 14f);
+                CustomParticles.ExplosionBurst(bellPos, secondaryGradient, 12, 10f);
+                
+                // FRACTAL FLARE BURST PATTERN at explosion point
+                for (int f = 0; f < 8; f++)
+                {
+                    float angle = MathHelper.TwoPi * f / 8f;
+                    Vector2 fractalOffset = angle.ToRotationVector2() * 35f;
+                    float fractalGradient = (float)f / 8f;
+                    Color fractalColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaGold, fractalGradient);
+                    CustomParticles.GenericFlare(bellPos + fractalOffset, fractalColor, 0.5f, 20);
+                }
+                
+                // SPAWN FLAME PILLAR - Multiple fire projectiles shooting straight UP
                 if (Main.netMode != NetmodeID.MultiplayerClient)
                 {
-                    int fireCount = isEnraged ? 5 : 3;
-                    for (int i = 0; i < fireCount; i++)
+                    int pillarCount = isEnraged ? 7 : 5;
+                    for (int p = 0; p < pillarCount; p++)
                     {
-                        float spread = (i - fireCount / 2) * 0.15f;
-                        Vector2 velocity = new Vector2(spread * 3f, -12f - i * 2f);
-                        Projectile.NewProjectile(NPC.GetSource_FromAI(), geyserPos, velocity,
+                        // Staggered timing and slight spread for pillar effect
+                        float horizontalSpread = (p - pillarCount / 2) * 0.08f;
+                        float verticalSpeed = -18f - p * 3f; // Faster projectiles go higher
+                        Vector2 pillarVelocity = new Vector2(horizontalSpread * 2f, verticalSpeed);
+                        
+                        Projectile.NewProjectile(NPC.GetSource_FromAI(), bellPos + new Vector2(0, -10), pillarVelocity,
                             ModContent.ProjectileType<InfernalGroundFire>(), NPC.damage / 3, 2f, Main.myPlayer);
                     }
                 }
                 
-                // MASSIVE explosion effect at geyser point - FULL VFX SUITE
-                ThemedParticles.LaCampanellaImpact(geyserPos, 2f);
-                ThemedParticles.LaCampanellaShockwave(geyserPos, 1.5f);
-                ThemedParticles.LaCampanellaHaloBurst(geyserPos, 1.5f);
-                CustomParticles.GenericFlare(geyserPos, ThemedParticles.CampanellaOrange, 0.8f, 25);
-                CustomParticles.GenericFlare(geyserPos, ThemedParticles.CampanellaYellow, 0.6f, 20);
-                CustomParticles.HaloRing(geyserPos, Color.White * 0.8f, 0.4f, 18);
-                CustomParticles.ExplosionBurst(geyserPos, ThemedParticles.CampanellaOrange, 14, 12f);
-                
-                // Fire pillar particles
-                for (int i = 0; i < 20; i++)
+                // RISING FIRE PARTICLES for pillar visual
+                for (int i = 0; i < 25; i++)
                 {
-                    Vector2 vel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-15f, -8f));
-                    var glow = new GenericGlowParticle(geyserPos + Main.rand.NextVector2Circular(30f, 10f), 
-                        vel, Main.rand.NextBool() ? ThemedParticles.CampanellaOrange : ThemedParticles.CampanellaYellow, 
-                        Main.rand.NextFloat(0.4f, 0.7f), Main.rand.Next(30, 50), true);
+                    Vector2 vel = new Vector2(Main.rand.NextFloat(-3f, 3f), Main.rand.NextFloat(-20f, -10f));
+                    float particleGradient = Main.rand.NextFloat();
+                    Color particleColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaYellow, particleGradient);
+                    var glow = new GenericGlowParticle(bellPos + Main.rand.NextVector2Circular(25f, 10f), 
+                        vel, particleColor, Main.rand.NextFloat(0.5f, 0.9f), Main.rand.Next(35, 55), true);
                     MagnumParticleHandler.SpawnParticle(glow);
                 }
                 
-                // Black smoke column
-                for (int i = 0; i < 8; i++)
+                // BLACK SMOKE COLUMN rising
+                for (int i = 0; i < 12; i++)
                 {
-                    var smoke = new HeavySmokeParticle(geyserPos + Main.rand.NextVector2Circular(25f, 5f), 
-                        new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-6f, -3f)), 
-                        ThemedParticles.CampanellaBlack, Main.rand.Next(50, 80), Main.rand.NextFloat(0.5f, 0.9f), 
-                        0.6f, 0.02f, false);
+                    var smoke = new HeavySmokeParticle(bellPos + Main.rand.NextVector2Circular(30f, 8f), 
+                        new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-8f, -4f)), 
+                        ThemedParticles.CampanellaBlack, Main.rand.Next(60, 100), Main.rand.NextFloat(0.6f, 1.1f), 
+                        0.7f, 0.02f, false);
                     MagnumParticleHandler.SpawnParticle(smoke);
                 }
                 
-                screenShakeIntensity = 10f;
+                // Upward sparks shooting with the pillar
+                for (int s = 0; s < 15; s++)
+                {
+                    float sparkAngle = Main.rand.NextFloat(-0.4f, 0.4f);
+                    Vector2 sparkVel = new Vector2(sparkAngle * 5f, Main.rand.NextFloat(-16f, -10f));
+                    var spark = new GlowSparkParticle(bellPos + Main.rand.NextVector2Circular(20f, 5f), sparkVel, true, 
+                        Main.rand.Next(25, 40), Main.rand.NextFloat(0.4f, 0.7f), 
+                        primaryGradient, new Vector2(0.4f, 1.8f), false, true);
+                    MagnumParticleHandler.SpawnParticle(spark);
+                }
+                
+                screenShakeIntensity = 12f;
                 AttackPhase++;
+                
+                // Sky flash on every other explosion
+                if (bellIndex % 2 == 0 && !Main.dedServ)
+                {
+                    if (SkyManager.Instance["MagnumOpus:LaCampanellaSky"] is LaCampanellaSkyEffect sky)
+                    {
+                        sky.TriggerFlash(0.4f, primaryGradient);
+                    }
+                }
             }
             
             if (Timer >= AttackDuration)
             {
                 State = ActionState.Walking;
                 Timer = 0;
-                AttackCooldown = 90;
+                AttackCooldown = 100;
             }
         }
         
@@ -1511,7 +1702,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
-                        Projectile.NewProjectile(NPC.GetSource_FromAI(), spawnPos, beamDir * 10f,
+                        Projectile.NewProjectile(NPC.GetSource_FromAI(), spawnPos, beamDir * 50f,
                             ModContent.ProjectileType<InfernalBellLaser>(), NPC.damage / 4, 2f, Main.myPlayer);
                     }
                     
@@ -2144,8 +2335,8 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             // Escalating effects
             float progress = (float)deathTimer / DeathAnimationDuration;
             
-            // Increasing shake - MORE INTENSE
-            screenShakeIntensity = 8f + progress * 30f;
+            // NO continuous screen shake during death - only shake on key explosive moments
+            // Let existing shake decay naturally via UpdateScreenShake()
             
             // Phase 1: Cracking and fire (0-140 ticks)
             if (deathTimer <= 140)
@@ -2186,6 +2377,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                             new Vector2(0.5f, 1.8f), false, true);
                         MagnumParticleHandler.SpawnParticle(geyser);
                     }
+                    
+                    // Phase 2 geyser eruption sounds
+                    SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with { Pitch = Main.rand.NextFloat(-0.2f, 0.3f), Volume = 0.4f }, NPC.Center);
                 }
             }
             
@@ -2211,6 +2405,16 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                         Vector2 lightningEnd = NPC.Center + Main.rand.NextVector2Circular(300f, 300f);
                         MagnumVFX.DrawLaCampanellaLightning(NPC.Center, lightningEnd, 10, 35f, 4, 0.5f);
                     }
+                    
+                    // Phase 3 electrical crackle sounds
+                    SoundEngine.PlaySound(SoundID.DD2_LightningBugZap with { Pitch = Main.rand.NextFloat(-0.3f, 0.5f), Volume = 0.5f + phase3Progress * 0.3f }, NPC.Center);
+                }
+                
+                // Escalating metallic bell stress sounds during crescendo
+                if (deathTimer % 15 == 0)
+                {
+                    SoundEngine.PlaySound(SoundID.Item35 with { Pitch = -0.8f + phase3Progress * 0.5f, Volume = 0.6f + phase3Progress * 0.4f }, NPC.Center);
+                    SoundEngine.PlaySound(SoundID.DD2_BetsyFireballImpact with { Pitch = -0.4f + phase3Progress * 0.3f, Volume = 0.3f + phase3Progress * 0.2f }, NPC.Center);
                 }
             }
             
@@ -2299,7 +2503,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     CustomParticles.HaloRing(NPC.Center, ringColor * (1f - ringProgress * 0.3f), 0.5f + ring * 0.25f, 25 + ring * 5);
                 }
                 
-                screenShakeIntensity = 60f;
+                screenShakeIntensity = 8f; // Single impactful shake on final explosion only
                 
                 if (!Main.dedServ && SkyManager.Instance["MagnumOpus:LaCampanellaSky"] is LaCampanellaSkyEffect sky)
                 {
@@ -2329,9 +2533,43 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             return true;
         }
 
+        /// <summary>
+        /// Gets the source rectangle for the current frame in the 6x6 sprite sheet.
+        /// Frames are read left to right, top to bottom.
+        /// </summary>
+        private Rectangle GetFrameSourceRect(Texture2D texture)
+        {
+            int frameWidth = texture.Width / FrameColumns;
+            int frameHeight = texture.Height / FrameRows;
+            
+            int column = currentFrame % FrameColumns;
+            int row = currentFrame / FrameColumns;
+            
+            return new Rectangle(column * frameWidth, row * frameHeight, frameWidth, frameHeight);
+        }
+        
+        /// <summary>
+        /// Updates the animation frame. Call this in AI().
+        /// </summary>
+        private void UpdateAnimation()
+        {
+            frameCounter++;
+            if (frameCounter >= FrameSpeed)
+            {
+                frameCounter = 0;
+                currentFrame++;
+                if (currentFrame >= TotalFrames)
+                {
+                    currentFrame = 0;
+                }
+            }
+        }
+
         public override void FindFrame(int frameHeight)
         {
-            NPC.frame.Y = currentFrame * frameHeight;
+            // For 6x6 sprite sheet, we handle frames manually via GetFrameSourceRect
+            // This method is kept for compatibility but the actual drawing uses GetFrameSourceRect
+            NPC.frame.Y = 0; // Not used with 6x6 sheet
         }
 
         public override void ModifyNPCLoot(NPCLoot npcLoot)
@@ -2375,7 +2613,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         {
             Texture2D texture = TextureAssets.Npc[Type].Value;
             Vector2 drawPos = NPC.Center - screenPos;
-            Vector2 origin = new Vector2(texture.Width / 2, texture.Height / 2);
+            
+            // Get the source rectangle for the current frame in the 6x6 sprite sheet
+            Rectangle sourceRect = GetFrameSourceRect(texture);
+            Vector2 origin = new Vector2(sourceRect.Width / 2f, sourceRect.Height / 2f);
             
             // Pulsing glow effect - ENHANCED
             float glowPulse = (float)Math.Sin(auraPulse * 2f) * 0.25f + 0.85f;
@@ -2390,7 +2631,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     Vector2 auraOffset = auraAngle.ToRotationVector2() * (18f + (float)Math.Sin(auraPulse * 5f + i) * 6f);
                     Color auraColor = ThemedParticles.CampanellaYellow * 0.25f * enragePulse;
                     
-                    spriteBatch.Draw(texture, drawPos + auraOffset, NPC.frame, auraColor, NPC.rotation, 
+                    spriteBatch.Draw(texture, drawPos + auraOffset, sourceRect, auraColor, NPC.rotation, 
                         origin, NPC.scale * 1.1f, NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
                 }
             }
@@ -2403,7 +2644,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 Vector2 offset = angle.ToRotationVector2() * pulseOffset;
                 Color glowColor = ThemedParticles.CampanellaOrange * 0.35f * glowPulse * enragePulse;
                 
-                spriteBatch.Draw(texture, drawPos + offset, NPC.frame, glowColor, NPC.rotation, 
+                spriteBatch.Draw(texture, drawPos + offset, sourceRect, glowColor, NPC.rotation, 
                     origin, NPC.scale, NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
             }
             
@@ -2414,18 +2655,18 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 Vector2 shadowOffset = shadowAngle.ToRotationVector2() * 5f;
                 Color shadowColor = ThemedParticles.CampanellaBlack * 0.4f;
                 
-                spriteBatch.Draw(texture, drawPos + shadowOffset, NPC.frame, shadowColor, NPC.rotation, 
+                spriteBatch.Draw(texture, drawPos + shadowOffset, sourceRect, shadowColor, NPC.rotation, 
                     origin, NPC.scale, NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
             }
             
             // Draw main sprite
             Color mainColor = Color.Lerp(drawColor, Color.White, 0.25f * enragePulse);
-            spriteBatch.Draw(texture, drawPos, NPC.frame, mainColor, NPC.rotation, 
+            spriteBatch.Draw(texture, drawPos, sourceRect, mainColor, NPC.rotation, 
                 origin, NPC.scale, NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
             
             // Draw inner glow highlight
             Color innerGlow = ThemedParticles.CampanellaYellow * 0.15f * glowPulse;
-            spriteBatch.Draw(texture, drawPos, NPC.frame, innerGlow, NPC.rotation, 
+            spriteBatch.Draw(texture, drawPos, sourceRect, innerGlow, NPC.rotation, 
                 origin, NPC.scale * 0.95f, NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
             
             return false;

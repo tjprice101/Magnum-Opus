@@ -1,27 +1,32 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Terraria.GameContent;
+using MagnumOpus.Common;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantOres
 {
+    /// <summary>
+    /// The ore item that places the La Campanella Resonance Ore tile.
+    /// </summary>
     public class LaCampanellaResonanceOre : ModItem
     {
+        // Fallback to vanilla ore texture if custom texture fails to load
+        public override string Texture => ModContent.HasAsset("MagnumOpus/Content/LaCampanella/ResonantOres/LaCampanellaResonanceOre") 
+            ? "MagnumOpus/Content/LaCampanella/ResonantOres/LaCampanellaResonanceOre" 
+            : "Terraria/Images/Item_" + ItemID.Hellstone;
+
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 100;
-            ItemID.Sets.SortingPriorityMaterials[Type] = 101; // High material sorting priority
         }
 
         public override void SetDefaults()
         {
-            Item.width = 16;
-            Item.height = 16;
+            Item.width = 12;
+            Item.height = 12;
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 50);
-            Item.rare = ItemRarityID.Red;
+            Item.rare = ModContent.RarityType<LaCampanellaRarity>();
             Item.useStyle = ItemUseStyleID.Swing;
             Item.useTurn = true;
             Item.useAnimation = 15;

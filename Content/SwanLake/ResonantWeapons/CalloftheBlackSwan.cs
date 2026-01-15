@@ -221,6 +221,58 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             }
         }
 
+        public override void MeleeEffects(Player player, Rectangle hitbox)
+        {
+            // === UNIQUE: BLACK SWAN FEATHER TRAIL ===
+            // The greatsword leaves a trail of black and white feathers in its wake
+            
+            Vector2 hitboxCenter = hitbox.Center.ToVector2();
+            float swingProgress = player.itemAnimation / (float)player.itemAnimationMax;
+            float trailIntensity = (float)Math.Sin(swingProgress * MathHelper.Pi);
+            
+            // === DUAL-POLARITY FEATHER WAKE ===
+            // Alternating black and white feathers scatter from the blade
+            if (Main.rand.NextBool(2))
+            {
+                int featherCount = 1 + (int)(trailIntensity * 2);
+                for (int i = 0; i < featherCount; i++)
+                {
+                    Vector2 featherPos = hitboxCenter + Main.rand.NextVector2Circular(hitbox.Width * 0.4f, hitbox.Height * 0.4f);
+                    Vector2 featherVel = new Vector2(player.direction * Main.rand.NextFloat(1f, 3f), Main.rand.NextFloat(-2f, 1f));
+                    
+                    // Alternate black and white
+                    Color featherColor = Main.rand.NextBool() ? UnifiedVFX.SwanLake.Black : UnifiedVFX.SwanLake.White;
+                    
+                    CustomParticles.SwanFeatherDrift(featherPos, featherColor, 0.35f);
+                }
+            }
+            
+            // === RAINBOW EDGE SHIMMER ===
+            // Prismatic sparkles along the blade edge
+            if (trailIntensity > 0.3f && Main.rand.NextBool(3))
+            {
+                Vector2 shimmerPos = hitboxCenter + Main.rand.NextVector2Circular(hitbox.Width * 0.3f, hitbox.Height * 0.3f);
+                float hue = Main.rand.NextFloat();
+                Color rainbowColor = Main.hslToRgb(hue, 0.8f, 0.75f);
+                CustomParticles.PrismaticSparkle(shimmerPos, rainbowColor, 0.25f);
+            }
+            
+            // === GRACEFUL GLOW TRAIL ===
+            // Elegant glow particles following the swing
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 glowPos = hitboxCenter + Main.rand.NextVector2Circular(15f, 15f);
+                Color glowColor = Color.Lerp(UnifiedVFX.SwanLake.White, UnifiedVFX.SwanLake.Silver, Main.rand.NextFloat());
+                CustomParticles.GenericFlare(glowPos, glowColor, 0.25f + trailIntensity * 0.15f, 10);
+            }
+            
+            // === MUSIC NOTES - The swan's song on every swing ===
+            if (Main.rand.NextBool(8))
+            {
+                ThemedParticles.SwanLakeMusicNotes(hitboxCenter, 1, 15f);
+            }
+        }
+
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(ModContent.BuffType<FlameOfTheSwan>(), 360); // 6 seconds

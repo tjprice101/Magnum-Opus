@@ -1,0 +1,42 @@
+# Musical Note Particles (Theme-Specific)
+
+## PROMPT: Musical Note Particles
+
+```
+white musical notation particle sprite sheet, 24 variations in 6x4 grid, pure white and grayscale musical symbols on transparent background, includes: quarter notes, eighth notes, sixteenth notes, half notes, whole notes, treble clef, bass clef, sharp symbols, flat symbols, natural symbols, rest symbols quarter eighth whole, beamed note pairs, beamed note triplets, musical staff fragments, crescendo decrescendo marks, fermata, accent marks, staccato dots, tied notes, chord clusters, arpeggiated notes, grace notes, each symbol clean sharp vector quality with subtle soft glow aura, professional typography reference, suitable for music-themed game effects, 32x32 pixel base upscaled, no color pure white only, centered composition, black background, PNG alpha ready --v 6.1 --ar 3:2 --style raw --s 50
+```
+
+---
+
+## Variations
+
+### Notes Only
+```
+white musical notes sprite sheet, 16 variations, pure grayscale, quarter eighth sixteenth half whole notes, beamed pairs triplets, various orientations and sizes, suitable for floating music particle effects, 32x32 pixels upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+### Clefs and Symbols
+```
+white musical clef symbol sprite sheet, 12 variations, pure grayscale, treble clef bass clef alto clef, sharp flat natural signs, time signatures 4/4 3/4 6/8, suitable for music magic visual accents, 32x32 pixels upscaled, transparent background --v 6.1 --ar 3:2 --style raw --s 50
+```
+
+### Dynamic Markings
+```
+white musical dynamics sprite sheet, 12 variations, pure grayscale, pp p mp mf f ff fff, crescendo hairpin, decrescendo hairpin, sforzando accent, suitable for music attack intensity indicators, 32x32 pixels upscaled, transparent background --v 6.1 --ar 3:2 --style raw --s 50
+```
+
+---
+
+## Piano Key Impact Effects
+
+```
+white piano key impact sprite sheet, 16 variations in 4x4 grid, pure white and grayscale keyboard-inspired effects on transparent background, includes: single key press ripple, octave span wave burst, chord cluster multi-key impact, ascending scale staircase trail, descending scale falling notes, glissando sliding blur trail, key hammer strike impact, string resonance vibration lines, damper pedal sustain glow, soft pedal muted halo, grand piano soundboard wave, upright piano vertical burst, ivory key smooth flash, ebony key sharp flash, broken chord scattered impact, rolled chord spiral effect, each effect captures piano playing dynamics, professional game VFX quality, 64x64 pixel sprites upscaled, suitable for piano-themed weapons music magic, no color pure luminosity for tinting, black background for extraction --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+## Musical Sound Wave Effects
+
+```
+white musical sound wave particle sprite sheet, 20 variations in 5x4 grid, pure white and grayscale audio visualization on transparent background, includes: sine wave smooth oscillation, aggressive sawtooth wave pattern, stacked harmonic overtone waves, musical staff with flowing notes, bass clef emanating sound rings, treble clef radiating energy, piano key ripple wave, violin bow stroke trail, crescendo building wave intensity, decrescendo fading wave, staccato sharp burst pulses, legato smooth connected waves, vibrato oscillating shimmer, musical rest pause void, chord stack vertical wave layers, arpeggio cascading wave steps, fermata sustained glow ring, tempo pulse beat markers, resonance sympathetic wave echo, dissonance chaotic wave interference, professional game VFX for music-themed abilities, 64x64 pixel sprites upscaled, no color pure white luminosity, black background --v 6.1 --ar 5:4 --style raw --s 75
+```

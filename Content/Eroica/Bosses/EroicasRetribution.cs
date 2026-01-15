@@ -42,7 +42,16 @@ namespace MagnumOpus.Content.Eroica.Bosses
             HandWindup,
             HandThrow,
             FistWindup,
-            FistAttack
+            FistAttack,
+            // NEW Calamity-inspired attacks
+            SakuraTempestWindup,
+            SakuraTempestFiring,
+            ValorLaserWallWindup,
+            ValorLaserWallFiring,
+            TeleportWindup,
+            TeleportDash,
+            SplittingProjectileWindup,
+            SplittingProjectileFiring
         }
 
         private ActionState State
@@ -78,6 +87,13 @@ namespace MagnumOpus.Content.Eroica.Bosses
         
         // Fluid movement
         private float hoverWaveOffset = 0f;
+        
+        // NEW: Calamity-inspired attack variables
+        private int sakuraTempestShotsFired = 0;
+        private const int SakuraTempestTotalShots = 5;
+        private float laserWallAngle = 0f;
+        private Vector2 teleportTargetPos = Vector2.Zero;
+        private int attackCycleCounter = 0; // Track attack cycle for variety
         
         // Animation - adjust based on your sprite sheet
         private int frameCounter = 0;
@@ -261,6 +277,31 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     break;
                 case ActionState.FistAttack:
                     FistAttack(target);
+                    break;
+                // NEW Calamity-inspired attack states
+                case ActionState.SakuraTempestWindup:
+                    SakuraTempestWindup(target);
+                    break;
+                case ActionState.SakuraTempestFiring:
+                    SakuraTempestFiring(target);
+                    break;
+                case ActionState.ValorLaserWallWindup:
+                    ValorLaserWallWindup(target);
+                    break;
+                case ActionState.ValorLaserWallFiring:
+                    ValorLaserWallFiring(target);
+                    break;
+                case ActionState.TeleportWindup:
+                    TeleportWindup(target);
+                    break;
+                case ActionState.TeleportDash:
+                    TeleportDash(target);
+                    break;
+                case ActionState.SplittingProjectileWindup:
+                    SplittingProjectileWindup(target);
+                    break;
+                case ActionState.SplittingProjectileFiring:
+                    SplittingProjectileFiring(target);
                     break;
             }
 
@@ -506,28 +547,88 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 }
             }
 
-            // Attack selection
+            // Attack selection - expanded with Calamity-inspired attacks
             int attackDelay = 90;
             
             if (Timer > attackDelay)
             {
                 Timer = 0;
                 chargeCount = 0;
+                attackCycleCounter++;
                 
-                // 40% charge attack, 30% hand throw, 30% fist attack
-                int attackChoice = Main.rand.Next(10);
-                if (attackChoice < 4) // 0-3 = 40%
+                // Health-based attack selection (Yharon-inspired) - reuse healthPercent from above
+                
+                // Low health (< 40%) - more aggressive, faster attacks
+                if (healthPercent < 0.4f)
                 {
-                    State = ActionState.ChargeWindup;
-                    chargeDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
+                    int attackChoice = Main.rand.Next(10);
+                    if (attackChoice < 2) // 20% - Triple charge
+                    {
+                        State = ActionState.ChargeWindup;
+                        chargeDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
+                    }
+                    else if (attackChoice < 4) // 20% - Teleport dash
+                    {
+                        State = ActionState.TeleportWindup;
+                    }
+                    else if (attackChoice < 6) // 20% - Sakura tempest
+                    {
+                        State = ActionState.SakuraTempestWindup;
+                        sakuraTempestShotsFired = 0;
+                    }
+                    else if (attackChoice < 8) // 20% - Laser wall
+                    {
+                        State = ActionState.ValorLaserWallWindup;
+                    }
+                    else // 20% - Splitting projectile
+                    {
+                        State = ActionState.SplittingProjectileWindup;
+                    }
                 }
-                else if (attackChoice < 7) // 4-6 = 30%
+                // Medium health (40-70%) - mix of old and new attacks
+                else if (healthPercent < 0.7f)
                 {
-                    State = ActionState.HandWindup;
+                    int attackChoice = Main.rand.Next(10);
+                    if (attackChoice < 3) // 30% - Charge attack
+                    {
+                        State = ActionState.ChargeWindup;
+                        chargeDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
+                    }
+                    else if (attackChoice < 5) // 20% - Hand throw
+                    {
+                        State = ActionState.HandWindup;
+                    }
+                    else if (attackChoice < 7) // 20% - Fist attack
+                    {
+                        State = ActionState.FistWindup;
+                    }
+                    else if (attackChoice < 9) // 20% - Sakura tempest
+                    {
+                        State = ActionState.SakuraTempestWindup;
+                        sakuraTempestShotsFired = 0;
+                    }
+                    else // 10% - Laser wall (rare at this phase)
+                    {
+                        State = ActionState.ValorLaserWallWindup;
+                    }
                 }
-                else // 7-9 = 30%
+                // High health (> 70%) - basic attacks only
+                else
                 {
-                    State = ActionState.FistWindup;
+                    int attackChoice = Main.rand.Next(10);
+                    if (attackChoice < 4) // 40% - Charge attack
+                    {
+                        State = ActionState.ChargeWindup;
+                        chargeDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
+                    }
+                    else if (attackChoice < 7) // 30% - Hand throw
+                    {
+                        State = ActionState.HandWindup;
+                    }
+                    else // 30% - Fist attack
+                    {
+                        State = ActionState.FistWindup;
+                    }
                 }
                 
                 NPC.netUpdate = true;
@@ -920,6 +1021,422 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         #endregion
 
+        #region NEW Calamity-Inspired Attacks
+
+        /// <summary>
+        /// Sakura Tempest - Circular projectile pattern (inspired by Yharon's Fire Circle)
+        /// Boss spins and releases waves of sakura-petal projectiles in a radial pattern
+        /// </summary>
+        private void SakuraTempestWindup(Player target)
+        {
+            const int WindupTime = 45;
+            
+            NPC.velocity *= 0.92f;
+            
+            if (Timer == 1)
+            {
+                SoundEngine.PlaySound(SoundID.Item15 with { Pitch = 0.3f, Volume = 0.7f }, NPC.Center);
+            }
+            
+            // Spinning rotation during windup
+            NPC.rotation = Timer * 0.15f;
+            
+            // Gathering sakura particles spiral inward
+            if (Timer % 3 == 0)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 8f + Timer * 0.1f;
+                    Vector2 offset = angle.ToRotationVector2() * (200f - Timer * 3f);
+                    
+                    // Pink sakura glow gathering
+                    Dust dust = Dust.NewDustPerfect(NPC.Center + offset, DustID.PinkTorch, -offset * 0.04f, 100, default, 1.5f);
+                    dust.noGravity = true;
+                }
+                
+                ThemedParticles.SakuraPetals(NPC.Center, 3, 100f);
+            }
+            
+            // Central pulsing flare
+            float progress = Timer / (float)WindupTime;
+            CustomParticles.GenericFlare(NPC.Center, Color.Lerp(ThemedParticles.EroicaSakura, ThemedParticles.EroicaGold, progress), 
+                0.4f + progress * 0.5f, 10);
+            
+            if (Timer >= WindupTime)
+            {
+                Timer = 0;
+                NPC.rotation = 0f;
+                State = ActionState.SakuraTempestFiring;
+                NPC.netUpdate = true;
+            }
+        }
+
+        private void SakuraTempestFiring(Player target)
+        {
+            const int FireInterval = 12; // Fire every 12 frames
+            const int ProjectilesPerWave = 12;
+            
+            // Slow spin while firing
+            NPC.rotation = Timer * 0.08f;
+            NPC.velocity *= 0.95f;
+            
+            if (Timer % FireInterval == 0 && Main.netMode != NetmodeID.MultiplayerClient)
+            {
+                sakuraTempestShotsFired++;
+                
+                // Circular burst of projectiles
+                float rotationOffset = Timer * 0.1f; // Spiral offset each wave
+                for (int i = 0; i < ProjectilesPerWave; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / ProjectilesPerWave + rotationOffset;
+                    Vector2 velocity = angle.ToRotationVector2() * 10f;
+                    
+                    Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, velocity,
+                        ModContent.ProjectileType<EnergyOfEroica>(), 85, 2f, Main.myPlayer);
+                }
+                
+                // VFX burst
+                SoundEngine.PlaySound(SoundID.Item117 with { Pitch = 0.2f, Volume = 0.6f }, NPC.Center);
+                ThemedParticles.EroicaHaloBurst(NPC.Center, 1f);
+                ThemedParticles.SakuraPetals(NPC.Center, 6, 50f);
+                
+                // Fractal flare burst
+                for (int i = 0; i < 8; i++)
+                {
+                    float flareAngle = MathHelper.TwoPi * i / 8f + rotationOffset;
+                    Vector2 flarePos = NPC.Center + flareAngle.ToRotationVector2() * 40f;
+                    Color flareColor = Color.Lerp(ThemedParticles.EroicaSakura, ThemedParticles.EroicaGold, (float)i / 8f);
+                    CustomParticles.GenericFlare(flarePos, flareColor, 0.5f, 15);
+                }
+            }
+            
+            if (sakuraTempestShotsFired >= SakuraTempestTotalShots)
+            {
+                Timer = 0;
+                NPC.rotation = 0f;
+                sakuraTempestShotsFired = 0;
+                State = ActionState.Phase2Hover;
+                NPC.netUpdate = true;
+            }
+        }
+
+        /// <summary>
+        /// Valor Laser Wall - Wall of projectiles (inspired by DoG's laser walls)
+        /// Creates a wall of projectiles that sweep across the arena
+        /// </summary>
+        private void ValorLaserWallWindup(Player target)
+        {
+            const int WindupTime = 60;
+            
+            NPC.velocity *= 0.9f;
+            
+            if (Timer == 1)
+            {
+                // Randomly choose wall direction (4 sides)
+                laserWallAngle = MathHelper.PiOver2 * Main.rand.Next(4);
+                SoundEngine.PlaySound(SoundID.Item73 with { Pitch = -0.2f, Volume = 0.8f }, NPC.Center);
+            }
+            
+            // Telegraph the wall direction
+            if (Timer >= 20)
+            {
+                float telegraphProgress = (Timer - 20f) / (WindupTime - 20f);
+                Vector2 wallDirection = laserWallAngle.ToRotationVector2();
+                Vector2 wallPerp = wallDirection.RotatedBy(MathHelper.PiOver2);
+                
+                // Show warning line on the side where wall will spawn
+                Vector2 wallCenter = target.Center + wallDirection * 800f;
+                
+                for (int i = -8; i <= 8; i++)
+                {
+                    Vector2 dustPos = wallCenter + wallPerp * (i * 70f);
+                    float alpha = telegraphProgress * (1f - Math.Abs(i) / 10f);
+                    
+                    int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
+                    Dust warning = Dust.NewDustPerfect(dustPos, dustType, Vector2.Zero, (int)(150 * (1f - alpha)), default, 1.5f + alpha);
+                    warning.noGravity = true;
+                }
+            }
+            
+            // Gathering energy at boss
+            if (Timer % 4 == 0)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    Vector2 offset = Main.rand.NextVector2Circular(100f, 100f);
+                    Dust gather = Dust.NewDustPerfect(NPC.Center + offset, DustID.GoldCoin, -offset * 0.05f, 100, default, 2f);
+                    gather.noGravity = true;
+                }
+            }
+            
+            if (Timer >= WindupTime)
+            {
+                Timer = 0;
+                State = ActionState.ValorLaserWallFiring;
+                NPC.netUpdate = true;
+            }
+        }
+
+        private void ValorLaserWallFiring(Player target)
+        {
+            if (Timer == 1 && Main.netMode != NetmodeID.MultiplayerClient)
+            {
+                // Create wall of projectiles
+                Vector2 wallDirection = laserWallAngle.ToRotationVector2();
+                Vector2 wallPerp = wallDirection.RotatedBy(MathHelper.PiOver2);
+                Vector2 wallCenter = target.Center + wallDirection * 900f;
+                Vector2 fireDirection = -wallDirection; // Fire toward player
+                
+                const int ProjectileCount = 15;
+                const float Spacing = 90f;
+                
+                for (int i = -ProjectileCount / 2; i <= ProjectileCount / 2; i++)
+                {
+                    Vector2 spawnPos = wallCenter + wallPerp * (i * Spacing);
+                    Vector2 velocity = fireDirection * 12f;
+                    
+                    // Slight spread for each projectile
+                    velocity = velocity.RotatedBy(i * 0.02f);
+                    
+                    Projectile.NewProjectile(NPC.GetSource_FromAI(), spawnPos, velocity,
+                        ModContent.ProjectileType<HandOfValor>(), 95, 3f, Main.myPlayer);
+                }
+                
+                SoundEngine.PlaySound(SoundID.Item122 with { Volume = 0.9f }, target.Center);
+                EroicaScreenShake.MediumShake(target.Center);
+                
+                // Visual burst at spawn line
+                UnifiedVFX.Eroica.Impact(wallCenter, 1.5f);
+                ThemedParticles.EroicaMusicNotes(NPC.Center, 10, 60f);
+            }
+            
+            NPC.velocity *= 0.95f;
+            
+            if (Timer >= 60)
+            {
+                Timer = 0;
+                State = ActionState.Phase2Hover;
+                NPC.netUpdate = true;
+            }
+        }
+
+        /// <summary>
+        /// Teleport Dash - Teleport behind player then charge (inspired by Yharon's teleport)
+        /// Creates a dramatic vanish -> appear -> charge sequence
+        /// </summary>
+        private void TeleportWindup(Player target)
+        {
+            const int WindupTime = 40;
+            const int TeleportFrame = 25;
+            
+            NPC.velocity *= 0.85f;
+            
+            if (Timer == 1)
+            {
+                SoundEngine.PlaySound(SoundID.Item15 with { Pitch = 0.5f, Volume = 0.6f }, NPC.Center);
+            }
+            
+            // Fade out effect
+            if (Timer < TeleportFrame)
+            {
+                float fadeProgress = Timer / (float)TeleportFrame;
+                NPC.alpha = (int)(fadeProgress * 255);
+                
+                // Dissolving particles
+                for (int i = 0; i < 3; i++)
+                {
+                    Vector2 offset = Main.rand.NextVector2Circular(NPC.width * 0.6f, NPC.height * 0.6f);
+                    int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
+                    Dust dissolve = Dust.NewDustPerfect(NPC.Center + offset, dustType, offset * 0.08f, 100, default, 1.8f);
+                    dissolve.noGravity = true;
+                }
+            }
+            
+            // Teleport moment
+            if (Timer == TeleportFrame)
+            {
+                // Departure VFX
+                UnifiedVFX.Generic.Teleport(NPC.Center, NPC.Center, ThemedParticles.EroicaCrimson, 1.2f);
+                SoundEngine.PlaySound(SoundID.Item8, NPC.Center);
+                
+                // Calculate teleport position - behind player with some randomness
+                float teleportAngle = (target.Center - NPC.Center).ToRotation() + MathHelper.Pi + Main.rand.NextFloat(-0.5f, 0.5f);
+                float teleportDistance = 350f;
+                teleportTargetPos = target.Center + teleportAngle.ToRotationVector2() * teleportDistance;
+                
+                // Move to new position
+                NPC.Center = teleportTargetPos;
+                
+                // Arrival VFX
+                UnifiedVFX.Generic.Teleport(NPC.Center, NPC.Center, ThemedParticles.EroicaGold, 1.2f);
+                SoundEngine.PlaySound(SoundID.Item8, NPC.Center);
+            }
+            
+            // Fade in
+            if (Timer > TeleportFrame && Timer < WindupTime)
+            {
+                float fadeProgress = (Timer - TeleportFrame) / (float)(WindupTime - TeleportFrame);
+                NPC.alpha = (int)((1f - fadeProgress) * 255);
+                
+                // Charge telegraph
+                chargeDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
+                
+                // Warning line
+                for (float dist = 0; dist < 400f; dist += 30f)
+                {
+                    Vector2 linePos = NPC.Center + chargeDirection * dist;
+                    int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
+                    Dust warning = Dust.NewDustPerfect(linePos, dustType, Vector2.Zero, 100, default, 1.5f);
+                    warning.noGravity = true;
+                }
+            }
+            
+            if (Timer >= WindupTime)
+            {
+                Timer = 0;
+                NPC.alpha = 0;
+                State = ActionState.TeleportDash;
+                chargeDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
+                NPC.velocity = chargeDirection * 60f; // Fast dash after teleport
+                
+                SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f }, NPC.Center);
+                EroicaScreenShake.MediumShake(NPC.Center);
+                
+                ThemedParticles.EroicaMusicNotes(NPC.Center, 8, 40f);
+                ThemedParticles.EroicaClef(NPC.Center, Main.rand.NextBool(), 1.5f);
+                
+                NPC.netUpdate = true;
+            }
+        }
+
+        private void TeleportDash(Player target)
+        {
+            const int DashTime = 12;
+            
+            // Trail particles
+            if (Timer % 2 == 0)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
+                    Vector2 offset = Main.rand.NextVector2Circular(NPC.width / 3f, NPC.height / 3f);
+                    Dust trail = Dust.NewDustPerfect(NPC.Center + offset, dustType, -NPC.velocity * 0.12f, 100, default, 2.2f);
+                    trail.noGravity = true;
+                }
+                
+                CustomParticles.EroicaFlare(NPC.Center, 0.7f);
+            }
+            
+            Lighting.AddLight(NPC.Center, 1.4f, 0.6f, 0.3f);
+            
+            if (Timer >= DashTime)
+            {
+                Timer = 0;
+                State = ActionState.Phase2Hover;
+                
+                // End burst
+                CustomParticles.EroicaImpactBurst(NPC.Center, 10);
+                
+                for (int i = 0; i < 20; i++)
+                {
+                    int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
+                    Dust explosion = Dust.NewDustDirect(NPC.Center, 1, 1, dustType, 0f, 0f, 100, default, 2.5f);
+                    explosion.noGravity = true;
+                    explosion.velocity = Main.rand.NextVector2Circular(10f, 10f);
+                }
+                
+                NPC.netUpdate = true;
+            }
+        }
+
+        /// <summary>
+        /// Splitting Projectile - Large projectile that splits (inspired by Yharon's splitting fireballs)
+        /// Fires a large slow projectile that splits into multiple smaller ones
+        /// </summary>
+        private void SplittingProjectileWindup(Player target)
+        {
+            const int WindupTime = 50;
+            
+            NPC.velocity *= 0.9f;
+            
+            if (Timer == 1)
+            {
+                SoundEngine.PlaySound(SoundID.Item15 with { Pitch = -0.3f, Volume = 0.7f }, NPC.Center);
+            }
+            
+            // Growing energy orb
+            float progress = Timer / (float)WindupTime;
+            float orbScale = 0.3f + progress * 0.7f;
+            
+            Color orbColor = Color.Lerp(ThemedParticles.EroicaScarlet, ThemedParticles.EroicaGold, progress);
+            CustomParticles.GenericFlare(NPC.Center, orbColor, orbScale, 8);
+            
+            // Gathering particles
+            if (Timer % 3 == 0)
+            {
+                for (int i = 0; i < 6; i++)
+                {
+                    Vector2 offset = Main.rand.NextVector2Circular(100f + (1f - progress) * 50f, 100f + (1f - progress) * 50f);
+                    int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
+                    Dust gather = Dust.NewDustPerfect(NPC.Center + offset, dustType, -offset * 0.06f, 100, default, 1.8f + progress);
+                    gather.noGravity = true;
+                }
+            }
+            
+            // Pulsing halo
+            if (Timer % 12 == 0)
+            {
+                CustomParticles.HaloRing(NPC.Center, orbColor * 0.6f, 0.3f + progress * 0.3f, 15);
+            }
+            
+            if (Timer >= WindupTime)
+            {
+                Timer = 0;
+                State = ActionState.SplittingProjectileFiring;
+                NPC.netUpdate = true;
+            }
+        }
+
+        private void SplittingProjectileFiring(Player target)
+        {
+            if (Timer == 1 && Main.netMode != NetmodeID.MultiplayerClient)
+            {
+                // Fire large splitting projectile
+                Vector2 toPlayer = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
+                Vector2 velocity = toPlayer * 8f; // Slow but menacing
+                
+                Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, velocity,
+                    ModContent.ProjectileType<SplittingValorOrb>(), 100, 4f, Main.myPlayer, target.whoAmI);
+                
+                SoundEngine.PlaySound(SoundID.Item117 with { Pitch = -0.2f, Volume = 1f }, NPC.Center);
+                EroicaScreenShake.SmallShake(NPC.Center);
+                
+                // Launch VFX
+                UnifiedVFX.Eroica.Impact(NPC.Center, 1.3f);
+                ThemedParticles.EroicaMusicNotes(NPC.Center, 8, 50f);
+                
+                // Fractal burst
+                for (int i = 0; i < 10; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 10f;
+                    Vector2 flarePos = NPC.Center + angle.ToRotationVector2() * 40f;
+                    Color flareColor = Color.Lerp(ThemedParticles.EroicaScarlet, ThemedParticles.EroicaGold, (float)i / 10f);
+                    CustomParticles.GenericFlare(flarePos, flareColor, 0.55f, 18);
+                }
+            }
+            
+            NPC.velocity *= 0.95f;
+            
+            if (Timer >= 45)
+            {
+                Timer = 0;
+                State = ActionState.Phase2Hover;
+                NPC.netUpdate = true;
+            }
+        }
+
+        #endregion
+
         #region Loot
 
         public override void ModifyNPCLoot(NPCLoot npcLoot)
@@ -1010,8 +1527,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                         0.4f + intensity * 0.4f, 25);
                 }
                 
-                if (Main.LocalPlayer.Distance(NPC.Center) < 1500f)
-                    MagnumScreenEffects.AddScreenShake(intensity * 3f);
+                // Light screen shake only on key moments (every 30 frames)
+                if (deathTimer % 30 == 0 && Main.LocalPlayer.Distance(NPC.Center) < 1500f)
+                    MagnumScreenEffects.AddScreenShake(2f + intensity * 2f);
                 
                 if (deathTimer % 20 == 0)
                     SoundEngine.PlaySound(SoundID.Item74, NPC.Center);
@@ -1031,8 +1549,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 // Music notes ascending
                 ThemedParticles.EroicaMusicNotes(NPC.Center, 4, 50f + flashProgress * 30f);
                 
-                if (Main.LocalPlayer.Distance(NPC.Center) < 2000f)
-                    MagnumScreenEffects.AddScreenShake(8f + flashProgress * 6f);
+                // Single shake at start of flash phase
+                if (deathTimer == 121 && Main.LocalPlayer.Distance(NPC.Center) < 2000f)
+                    MagnumScreenEffects.AddScreenShake(6f);
             }
             // Phase 3: CLIMAX - Full UnifiedVFX death explosion
             else if (deathTimer == 150)
@@ -1061,7 +1580,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 // Heroic music staff finale
                 ThemedParticles.EroicaMusicStaff(NPC.Center, 2f);
             }
-            // Phase 4: Fade out
+            // Phase 4: Fade out - no shake, just visual fade
             else if (deathTimer <= DeathAnimationDuration)
             {
                 float fadeProgress = (deathTimer - 150f) / 30f;

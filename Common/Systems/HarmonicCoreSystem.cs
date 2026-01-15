@@ -6,25 +6,27 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.GameContent;
-using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
-using Terraria.UI;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Common.Systems
 {
     /// <summary>
     /// NEW Harmonic Core system - unlocked by consuming Heart of Music after Moon Lord kill.
-    /// Features 3 slots with individual Chromatic (Offensive) / Diatonic (Defensive) toggles.
+    /// Features 3 slots with unique passive effects per core type.
+    /// No more Chromatic/Diatonic toggle - each core has one unique effect.
+    /// Enhancement system: Each core can be enhanced up to 5 times with Seed of Universal Melodies.
     /// </summary>
     public class HarmonicCoreModPlayer : ModPlayer
     {
         // 3 Core slots
         public Item[] EquippedCores = new Item[3];
         
-        // Per-slot mode: true = Chromatic (Offensive), false = Diatonic (Defensive)
-        public bool[] CoreModes = new bool[3] { true, true, true };
+        // Enhancement levels per slot (0-5)
+        public int[] EnhancementLevels = new int[3];
+        public const int MaxEnhancementLevel = 5;
         
         // Unlock states
         public bool HasKilledMoonLord = false;
@@ -52,76 +54,73 @@ namespace MagnumOpus.Common.Systems
             { "Fate", new Color(255, 100, 120) }
         };
         
-        // Class buff percentages per tier
+        // Flat damage bonuses per tier (stacks additively)
         public static readonly float[] TierDamageBonus = { 0f, 0.04f, 0.06f, 0.08f, 0.10f, 0.12f, 0.15f };
         
-        // Cooldown timers
-        private int bellTollCooldown = 0;
-        private int fateShieldCooldown = 0;
-        private const int FateShieldCooldownMax = 3600;
+        // ========== UNIQUE EFFECT TRACKERS ==========
         
-        // Set bonus trackers (per slot)
-        private int[] moonlightPhase = new int[3];
-        private int[] moonlightPhaseTimer = new int[3];
-        private float[] moonlightStoredDamage = new float[3];
-        private int[] eroicaComboCount = new int[3];
-        private int[] eroicaComboTimer = new int[3];
-        private int[] eroicaRallyTimer = new int[3];
-        private float[] swanDodgeChance = new float[3];
-        private int[] swanGracePeriod = new int[3];
-        private int[] campanellaResonance = new int[3];
-        private int[] campanellaEchoTimer = new int[3];
-        private int[] enigmaCurrentBonus = new int[3];
-        private int[] enigmaBonusTimer = new int[3];
-        private int[] fateMarkedNPC = new int[3] { -1, -1, -1 };
-        private int fateDeathsAvoided = 0;
+        // Moonlight Sonata - Lunar Aura
+        private int lunarAuraTimer = 0;
+        private const float LunarAuraRadius = 180f;
+        private const int LunarAuraDamage = 8;
         
-        // Track last hit target for Lunar Crescendo beam direction
-        private int lastHitNPC = -1;
+        // Eroica - Heroic Rally
+        private int heroicRallyHealRadius = 200;
+        private const int HeroicRallyHealAmount = 15;
+        
+        // Swan Lake - Feathered Grace
+        private float featherDodgeChance = 0.12f;
+        private int featherAttackTimer = 0;
+        private const int FeatherDamage = 45;
+        
+        // La Campanella - Bell's Resonance
+        private int bellEchoTimer = 0;
+        private int bellAuraTimer = 0;
+        private const float BellEchoDamagePercent = 0.25f;
+        private const int BellAuraDamage = 35;
+        
+        // Enigma - Mystery Shield + Prismatic Flares
+        private float reflectChance = 0.15f;
+        private int prismaticFlareTimer = 0;
+        private const int PrismaticFlareDamage = 65;
+        
+        // Fate - Cosmic Destiny
+        private List<CosmicMark> cosmicMarks = new List<CosmicMark>();
+        private const int CosmicMarkDelay = 30;
+        private const float CosmicMarkDamagePercent = 0.40f;
+        
+        private struct CosmicMark
+        {
+            public int NPCIndex;
+            public int Timer;
+            public int Damage;
+            public Vector2 Position;
+        }
         
         public override void Initialize()
         {
             EquippedCores = new Item[3];
-            CoreModes = new bool[3] { true, true, true };
-            for (int i = 0; i < 3; i++)
-                EquippedCores[i] = new Item();
-            HasKilledMoonLord = false;
-            HasUnlockedHarmonicSlots = false;
-            ResetTrackers();
-        }
-        
-        private void ResetTrackers()
-        {
+            EnhancementLevels = new int[3];
             for (int i = 0; i < 3; i++)
             {
-                moonlightPhase[i] = 0;
-                moonlightPhaseTimer[i] = 0;
-                moonlightStoredDamage[i] = 0f;
-                eroicaComboCount[i] = 0;
-                eroicaComboTimer[i] = 0;
-                eroicaRallyTimer[i] = 0;
-                swanDodgeChance[i] = 0f;
-                swanGracePeriod[i] = 0;
-                campanellaResonance[i] = 0;
-                campanellaEchoTimer[i] = 0;
-                enigmaCurrentBonus[i] = 0;
-                enigmaBonusTimer[i] = 0;
-                fateMarkedNPC[i] = -1;
+                EquippedCores[i] = new Item();
+                EnhancementLevels[i] = 0;
             }
-            fateDeathsAvoided = 0;
+            HasKilledMoonLord = false;
+            HasUnlockedHarmonicSlots = false;
+            cosmicMarks.Clear();
         }
         
         public override void SaveData(TagCompound tag)
         {
             tag["HasKilledMoonLord"] = HasKilledMoonLord;
             tag["HasUnlockedHarmonicSlots"] = HasUnlockedHarmonicSlots;
-            tag["FateDeathsAvoided"] = fateDeathsAvoided;
             
             for (int i = 0; i < 3; i++)
             {
-                tag[$"CoreMode_{i}"] = CoreModes[i];
                 if (EquippedCores[i] != null && !EquippedCores[i].IsAir)
                     tag[$"EquippedCore_{i}_Type"] = EquippedCores[i].type;
+                tag[$"EnhancementLevel_{i}"] = EnhancementLevels[i];
             }
         }
         
@@ -129,11 +128,9 @@ namespace MagnumOpus.Common.Systems
         {
             HasKilledMoonLord = tag.GetBool("HasKilledMoonLord");
             HasUnlockedHarmonicSlots = tag.GetBool("HasUnlockedHarmonicSlots");
-            fateDeathsAvoided = tag.GetInt("FateDeathsAvoided");
             
             for (int i = 0; i < 3; i++)
             {
-                CoreModes[i] = tag.ContainsKey($"CoreMode_{i}") ? tag.GetBool($"CoreMode_{i}") : true;
                 if (tag.ContainsKey($"EquippedCore_{i}_Type"))
                 {
                     int coreType = tag.GetInt($"EquippedCore_{i}_Type");
@@ -144,19 +141,8 @@ namespace MagnumOpus.Common.Systems
                 {
                     EquippedCores[i] = new Item();
                 }
-            }
-            
-            // Migration from old single-slot system
-            if (tag.ContainsKey("EquippedCoreType") && !tag.ContainsKey("EquippedCore_0_Type"))
-            {
-                int oldType = tag.GetInt("EquippedCoreType");
-                if (oldType > 0)
-                {
-                    EquippedCores[0] = new Item();
-                    EquippedCores[0].SetDefaults(oldType);
-                    CoreModes[0] = tag.GetBool("UsingOffensiveBuff");
-                    HasUnlockedHarmonicSlots = HasKilledMoonLord;
-                }
+                
+                EnhancementLevels[i] = tag.ContainsKey($"EnhancementLevel_{i}") ? tag.GetInt($"EnhancementLevel_{i}") : 0;
             }
         }
         
@@ -195,20 +181,30 @@ namespace MagnumOpus.Common.Systems
             return highest;
         }
         
-        public string GetRightmostCoreName()
+        public bool HasCore(string coreName)
         {
-            for (int i = 2; i >= 0; i--)
-            {
-                string name = GetCoreName(i);
-                if (!string.IsNullOrEmpty(name)) return name;
-            }
-            return "";
+            for (int i = 0; i < 3; i++)
+                if (GetCoreName(i) == coreName) return true;
+            return false;
         }
         
-        public Color GetRightmostCoreColor()
+        /// <summary>
+        /// Gets the slot index containing a specific core, or -1 if not found.
+        /// </summary>
+        public int GetCoreSlot(string coreName)
         {
-            string name = GetRightmostCoreName();
-            return CoreColors.ContainsKey(name) ? CoreColors[name] : Color.White;
+            for (int i = 0; i < 3; i++)
+                if (GetCoreName(i) == coreName) return i;
+            return -1;
+        }
+        
+        /// <summary>
+        /// Gets the enhancement multiplier for a specific core type.
+        /// </summary>
+        public float GetCoreEnhancementMultiplier(string coreName)
+        {
+            int slot = GetCoreSlot(coreName);
+            return slot >= 0 ? GetEnhancementMultiplier(slot) : 1f;
         }
         
         public int GetEquippedCoreCount()
@@ -224,6 +220,7 @@ namespace MagnumOpus.Common.Systems
         {
             if (slot < 0 || slot >= 3) return;
             EquippedCores[slot] = item.Clone();
+            EnhancementLevels[slot] = 0; // Reset enhancement when equipping new core
             SoundEngine.PlaySound(SoundID.Coins with { Volume = 0.8f, Pitch = 0.2f });
             SoundEngine.PlaySound(SoundID.Item4 with { Volume = 0.6f });
         }
@@ -232,102 +229,104 @@ namespace MagnumOpus.Common.Systems
         {
             if (slot < 0 || slot >= 3) return;
             EquippedCores[slot] = new Item();
+            EnhancementLevels[slot] = 0; // Reset enhancement when unequipping
             SoundEngine.PlaySound(SoundID.Grab);
         }
         
-        public void ToggleCoreMode(int slot)
+        /// <summary>
+        /// Attempts to enhance a core slot. Returns true if successful.
+        /// </summary>
+        public bool TryEnhanceCore(int slot)
         {
-            if (slot < 0 || slot >= 3) return;
-            CoreModes[slot] = !CoreModes[slot];
-            SoundEngine.PlaySound(SoundID.MenuTick);
-        }
-        
-        // ========== BUFF DESCRIPTION HELPERS ==========
-        public static string GetChromaticBuffName(string coreName)
-        {
-            return coreName switch
+            if (slot < 0 || slot >= 3) return false;
+            if (EquippedCores[slot] == null || EquippedCores[slot].IsAir) return false;
+            if (EnhancementLevels[slot] >= MaxEnhancementLevel) return false;
+            
+            // Check if player has Seed of Universal Melodies
+            int seedType = ModContent.ItemType<Content.Items.SeedOfUniversalMelodies>();
+            int seedIndex = -1;
+            
+            for (int i = 0; i < Player.inventory.Length; i++)
             {
-                "MoonlightSonata" => "Nocturne's Edge",
-                "Eroica" => "Heroic Fury",
-                "SwanLake" => "Dying Swan",
-                "LaCampanella" => "Bell's Toll",
-                "Enigma" => "Enigma's Chaos",
-                "Fate" => "Fate's Wrath",
-                _ => "Unknown"
-            };
-        }
-        
-        public static string GetDiatonicBuffName(string coreName)
-        {
-            return coreName switch
-            {
-                "MoonlightSonata" => "Lunar Veil",
-                "Eroica" => "Heroic Resolve",
-                "SwanLake" => "Swan's Grace",
-                "LaCampanella" => "Bell's Ward",
-                "Enigma" => "Enigma's Mystery",
-                "Fate" => "Fate's Shield",
-                _ => "Unknown"
-            };
-        }
-        
-        public static string GetChromaticBuffDesc(string coreName)
-        {
-            return coreName switch
-            {
-                "MoonlightSonata" => "+8% dmg at night\nLunar Crescendo beam",
-                "Eroica" => "+12% dmg low HP\nHeroic Shockwave",
-                "SwanLake" => "Lower HP = more dmg\nUp to +35% damage",
-                "LaCampanella" => "+8% dmg, crit echo\n12 stacks = triple",
-                "Enigma" => "Random buffs\nCycle every 10s",
-                "Fate" => "+14% dmg, execute\nMark bosses +35%",
-                _ => "No effect"
-            };
-        }
-        
-        public static string GetDiatonicBuffDesc(string coreName)
-        {
-            return coreName switch
-            {
-                "MoonlightSonata" => "+10 DEF night, +6% DR\nInvincibility/12s",
-                "Eroica" => "+12 DEF low HP, +8% DR\nRally Cry <30% HP",
-                "SwanLake" => "+10 DEF, +10% DR\n25% dodge moving",
-                "LaCampanella" => "+12 DEF, +12% DR\nBells + heal 6HP",
-                "Enigma" => "+15 DEF, +15% DR\nReflect projectiles",
-                "Fate" => "+18 DEF, +16% DR\nCheat death (1m)",
-                _ => "No effect"
-            };
-        }
-        
-        // Active set bonus effect names
-        public static string GetActiveSetBonusName(string coreName, bool isChromatic)
-        {
-            if (isChromatic)
-            {
-                return coreName switch
+                if (Player.inventory[i].type == seedType && Player.inventory[i].stack > 0)
                 {
-                    "MoonlightSonata" => "► Lunar Crescendo Beam",
-                    "Eroica" => "► Heroic Shockwave",
-                    "SwanLake" => "► Dying Swan Fury",
-                    "LaCampanella" => "► Resonant Echo",
-                    "Enigma" => "► Chaotic Variations",
-                    "Fate" => "► Mark of Fate",
-                    _ => ""
-                };
+                    seedIndex = i;
+                    break;
+                }
             }
-            else
+            
+            if (seedIndex == -1) return false;
+            
+            // Consume seed and enhance
+            Player.inventory[seedIndex].stack--;
+            if (Player.inventory[seedIndex].stack <= 0)
+                Player.inventory[seedIndex].TurnToAir();
+            
+            EnhancementLevels[slot]++;
+            
+            // VFX and sound
+            SoundEngine.PlaySound(SoundID.Item4 with { Volume = 0.8f, Pitch = 0.5f + EnhancementLevels[slot] * 0.1f });
+            SoundEngine.PlaySound(SoundID.Item29 with { Volume = 0.6f });
+            
+            // Enhancement VFX
+            for (int i = 0; i < 12; i++)
             {
-                return coreName switch
-                {
-                    "MoonlightSonata" => "► Eclipse Shroud",
-                    "Eroica" => "► Rally Cry",
-                    "SwanLake" => "► Swan's Grace",
-                    "LaCampanella" => "► Sanctuary Bells",
-                    "Enigma" => "► Mystery Shield",
-                    "Fate" => "► Destiny's Weave",
-                    _ => ""
-                };
+                float angle = MathHelper.TwoPi * i / 12f;
+                float hue = (float)i / 12f;
+                Color sparkColor = Main.hslToRgb(hue, 1f, 0.8f);
+                Vector2 pos = Player.Center + angle.ToRotationVector2() * 40f;
+                CustomParticles.GenericFlare(pos, sparkColor, 0.5f, 20);
             }
+            CustomParticles.HaloRing(Player.Center, Color.White, 0.6f, 25);
+            
+            string coreName = GetCoreName(slot);
+            Main.NewText($"{GetDisplayName(coreName)} enhanced to +{EnhancementLevels[slot]}!", new Color(220, 180, 255));
+            
+            return true;
+        }
+        
+        /// <summary>
+        /// Gets the enhancement level for a slot.
+        /// </summary>
+        public int GetEnhancementLevel(int slot)
+        {
+            if (slot < 0 || slot >= 3) return 0;
+            return EnhancementLevels[slot];
+        }
+        
+        /// <summary>
+        /// Gets the total enhancement multiplier for a slot (1.0 = base, up to 2.0 at +5)
+        /// </summary>
+        public float GetEnhancementMultiplier(int slot)
+        {
+            return 1f + GetEnhancementLevel(slot) * 0.2f; // +20% per level, up to 2x at +5
+        }
+        
+        /// <summary>
+        /// Gets the damage bonus multiplier including enhancement.
+        /// </summary>
+        public float GetEnhancedDamageBonus(int slot)
+        {
+            int tier = GetCoreTier(slot);
+            if (tier <= 0 || tier > 6) return 0f;
+            float baseBonus = TierDamageBonus[tier];
+            return baseBonus * GetEnhancementMultiplier(slot);
+        }
+        
+        private string GetDisplayName(string coreName) => coreName switch
+        {
+            "MoonlightSonata" => "Moonlight Sonata", "SwanLake" => "Swan Lake",
+            "LaCampanella" => "La Campanella", _ => coreName
+        };
+        
+        public Color GetRightmostCoreColor()
+        {
+            for (int i = 2; i >= 0; i--)
+            {
+                string name = GetCoreName(i);
+                if (CoreColors.ContainsKey(name)) return CoreColors[name];
+            }
+            return Color.White;
         }
         
         // ========== STAT APPLICATION ==========
@@ -335,261 +334,672 @@ namespace MagnumOpus.Common.Systems
         {
             if (!HasUnlockedHarmonicSlots || GetEquippedCoreCount() == 0) return;
             
-            // Class bonus from highest tier
-            int tier = GetHighestTier();
-            if (tier > 0 && tier <= 6)
-                damage += TierDamageBonus[tier];
-            
-            // Offensive bonuses from Chromatic cores
+            // Flat damage bonus from each equipped core's tier, scaled by enhancement
             for (int slot = 0; slot < 3; slot++)
             {
-                string coreName = GetCoreName(slot);
-                if (string.IsNullOrEmpty(coreName) || !CoreModes[slot]) continue;
-                
-                bool isNight = !Main.dayTime;
-                bool isLowHP = Player.statLife < Player.statLifeMax2 * 0.5f;
-                float mult = 0.7f; // Reduced for stacking
-                
-                float bonus = coreName switch
+                int tier = GetCoreTier(slot);
+                if (tier > 0 && tier <= 6)
                 {
-                    "MoonlightSonata" => (isNight ? 0.08f : 0.02f) * mult,
-                    "Eroica" => (isLowHP ? 0.12f : 0.04f) * mult,
-                    "SwanLake" => 0.09f * mult,
-                    "LaCampanella" => 0.08f * mult,
-                    "Enigma" => (0.06f + Main.rand.NextFloat(0.06f)) * mult,
-                    "Fate" => 0.14f * mult,
-                    _ => 0f
-                };
-                damage += bonus;
-            }
-        }
-        
-        public override void UpdateEquips()
-        {
-            if (!HasUnlockedHarmonicSlots) return;
-            
-            if (bellTollCooldown > 0) bellTollCooldown--;
-            if (fateShieldCooldown > 0) fateShieldCooldown--;
-            
-            for (int slot = 0; slot < 3; slot++)
-            {
-                string coreName = GetCoreName(slot);
-                if (string.IsNullOrEmpty(coreName)) continue;
-                
-                if (!CoreModes[slot]) // Diatonic (Defensive)
-                    ApplyDiatonicBuffs(slot, coreName);
-                else
-                    ApplyChromaticPassives(slot, coreName);
-                
-                UpdateSetBonus(slot, coreName);
-            }
-        }
-        
-        private void ApplyDiatonicBuffs(int slot, string coreName)
-        {
-            bool isNight = !Main.dayTime;
-            bool isLowHP = Player.statLife < Player.statLifeMax2 * 0.5f;
-            float mult = 0.65f;
-            
-            switch (coreName)
-            {
-                case "MoonlightSonata":
-                    Player.statDefense += (int)((isNight ? 10 : 5) * mult);
-                    Player.endurance += 0.06f * mult;
-                    break;
-                case "Eroica":
-                    Player.statDefense += (int)((isLowHP ? 12 : 6) * mult);
-                    Player.endurance += 0.08f * mult;
-                    break;
-                case "SwanLake":
-                    Player.statDefense += (int)(10 * mult);
-                    Player.endurance += 0.10f * mult;
-                    Player.moveSpeed += 0.12f * mult;
-                    break;
-                case "LaCampanella":
-                    Player.statDefense += (int)(12 * mult);
-                    Player.endurance += 0.12f * mult;
-                    break;
-                case "Enigma":
-                    Player.statDefense += (int)(15 * mult);
-                    Player.endurance += 0.15f * mult;
-                    break;
-                case "Fate":
-                    Player.statDefense += (int)(18 * mult);
-                    Player.endurance += 0.16f * mult;
-                    break;
-            }
-        }
-        
-        private void ApplyChromaticPassives(int slot, string coreName)
-        {
-            if (coreName == "SwanLake")
-            {
-                float hpPercent = (float)Player.statLife / Player.statLifeMax2;
-                Player.GetDamage(DamageClass.Generic) += (1f - hpPercent) * 0.21f;
-            }
-        }
-        
-        private void UpdateSetBonus(int slot, string coreName)
-        {
-            switch (coreName)
-            {
-                case "MoonlightSonata": UpdateMoonlightBonus(slot); break;
-                case "Eroica": UpdateEroicaBonus(slot); break;
-                case "SwanLake": UpdateSwanLakeBonus(slot); break;
-                case "LaCampanella": UpdateCampanellaBonus(slot); break;
-                case "Enigma": UpdateEnigmaBonus(slot); break;
-                case "Fate": UpdateFateBonus(slot); break;
-            }
-        }
-        
-        private void UpdateMoonlightBonus(int slot)
-        {
-            moonlightPhaseTimer[slot]++;
-            if (CoreModes[slot])
-            {
-                if (moonlightPhaseTimer[slot] > 150 && moonlightPhase[slot] > 0)
-                {
-                    moonlightPhase[slot]--;
-                    moonlightPhaseTimer[slot] = 0;
-                }
-            }
-            else
-            {
-                // Diatonic: Lunar Veil - brief invincibility every 12 seconds (Paladin's Shield effect instead of Shadow Dodge)
-                if (moonlightPhaseTimer[slot] >= 720)
-                {
-                    moonlightPhaseTimer[slot] = 0;
-                    // Grant brief invincibility frames instead of ShadowDodge (which causes invisibility)
-                    Player.immune = true;
-                    Player.immuneTime = 45;
-                    Player.immuneNoBlink = true; // Don't blink during immunity
-                    SoundEngine.PlaySound(SoundID.Item72 with { Volume = 0.4f }, Player.Center);
-                    
-                    // Visual effect
-                    for (int i = 0; i < 15; i++)
-                    {
-                        Dust dust = Dust.NewDustDirect(Player.position, Player.width, Player.height, 
-                            DustID.PurpleTorch, Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-2f, 2f), 100, default, 1.2f);
-                        dust.noGravity = true;
-                    }
+                    float enhancedBonus = GetEnhancedDamageBonus(slot);
+                    damage += enhancedBonus;
                 }
             }
         }
         
-        private void UpdateEroicaBonus(int slot)
-        {
-            if (CoreModes[slot])
-            {
-                if (eroicaComboTimer[slot] > 0) eroicaComboTimer[slot]--;
-                if (eroicaComboTimer[slot] <= 0 && eroicaComboCount[slot] > 0)
-                {
-                    eroicaComboCount[slot]--;
-                    eroicaComboTimer[slot] = 25;
-                }
-            }
-            else if (eroicaRallyTimer[slot] > 0)
-            {
-                eroicaRallyTimer[slot]--;
-                Player.GetDamage(DamageClass.Generic) += 0.18f;
-                Player.GetAttackSpeed(DamageClass.Generic) += 0.22f;
-                Player.moveSpeed += 0.22f;
-                Player.statDefense += 15;
-            }
-        }
-        
-        private void UpdateSwanLakeBonus(int slot)
-        {
-            if (CoreModes[slot])
-            {
-                float hpPercent = (float)Player.statLife / Player.statLifeMax2;
-                Player.GetCritChance(DamageClass.Generic) += (int)((1f - hpPercent) * 22f);
-            }
-            else
-            {
-                bool isMoving = Math.Abs(Player.velocity.X) > 1f || Math.Abs(Player.velocity.Y) > 1f;
-                if (isMoving)
-                {
-                    swanDodgeChance[slot] = Math.Min(0.25f, swanDodgeChance[slot] + 0.0015f);
-                    swanGracePeriod[slot] = 0;
-                }
-                else
-                {
-                    swanDodgeChance[slot] = Math.Max(0f, swanDodgeChance[slot] - 0.004f);
-                    swanGracePeriod[slot]++;
-                    if (swanGracePeriod[slot] >= 45 && swanGracePeriod[slot] % 25 == 0)
-                    {
-                        Player.statLife = Math.Min(Player.statLife + 2, Player.statLifeMax2);
-                        Player.HealEffect(2, true);
-                    }
-                }
-            }
-        }
-        
-        private void UpdateCampanellaBonus(int slot)
-        {
-            if (CoreModes[slot])
-            {
-                if (campanellaEchoTimer[slot] > 0) campanellaEchoTimer[slot]--;
-                else if (campanellaResonance[slot] > 0 && Main.GameUpdateCount % 80 == 0)
-                    campanellaResonance[slot]--;
-            }
-        }
-        
-        private void UpdateEnigmaBonus(int slot)
-        {
-            enigmaBonusTimer[slot]++;
-            if (CoreModes[slot] && enigmaBonusTimer[slot] >= 600)
-            {
-                enigmaBonusTimer[slot] = 0;
-                enigmaCurrentBonus[slot] = Main.rand.Next(6);
-                SoundEngine.PlaySound(SoundID.Item4 with { Volume = 0.5f }, Player.Center);
-            }
-            
-            if (CoreModes[slot])
-            {
-                switch (enigmaCurrentBonus[slot])
-                {
-                    case 0: Player.GetDamage(DamageClass.Generic) += 0.14f; break;
-                    case 1: Player.GetAttackSpeed(DamageClass.Generic) += 0.18f; break;
-                    case 2: Player.GetArmorPenetration(DamageClass.Generic) += 14; break;
-                    case 3: Player.GetCritChance(DamageClass.Generic) += 10; break;
-                    case 5: Player.manaRegen += 35; Player.statManaMax2 += 35; break;
-                }
-            }
-        }
-        
-        private void UpdateFateBonus(int slot)
-        {
-            if (CoreModes[slot] && fateMarkedNPC[slot] >= 0)
-            {
-                NPC marked = Main.npc[fateMarkedNPC[slot]];
-                if (!marked.active || marked.life <= 0)
-                    fateMarkedNPC[slot] = -1;
-            }
-            else if (!CoreModes[slot] && fateDeathsAvoided > 0)
-            {
-                float bonus = Math.Min(fateDeathsAvoided * 0.04f, 0.40f);
-                Player.GetDamage(DamageClass.Generic) += bonus;
-                Player.statDefense += fateDeathsAvoided * 2;
-            }
-        }
-        
+        // ========== UNIQUE EFFECTS UPDATE ==========
         public override void PostUpdate()
         {
-            if (!HasUnlockedHarmonicSlots) return;
+            if (!HasUnlockedHarmonicSlots || GetEquippedCoreCount() == 0) return;
             
-            // La Campanella healing
-            for (int slot = 0; slot < 3; slot++)
+            // Update timers
+            lunarAuraTimer++;
+            featherAttackTimer++;
+            prismaticFlareTimer++;
+            bellAuraTimer++;
+            
+            // Process each core's unique effect
+            if (HasCore("MoonlightSonata")) UpdateLunarAura();
+            if (HasCore("SwanLake")) UpdateFeatheredGrace();
+            if (HasCore("LaCampanella")) UpdateBellsResonance();
+            if (HasCore("Enigma")) UpdateEnigmaticPresence();
+            if (HasCore("Fate")) UpdateCosmicMarks();
+        }
+        
+        // === MOONLIGHT SONATA: Lunar Aura ===
+        // Soft purple glow, enemies in range take minor DoT
+        private void UpdateLunarAura()
+        {
+            float enhMult = GetCoreEnhancementMultiplier("MoonlightSonata");
+            int enhancedDamage = (int)(LunarAuraDamage * enhMult);
+            
+            // Visual aura particles
+            if (lunarAuraTimer % 8 == 0)
             {
-                if (GetCoreName(slot) == "LaCampanella" && !CoreModes[slot] && Main.GameUpdateCount % 150 == 0)
+                float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                float radius = Main.rand.NextFloat(30f, LunarAuraRadius);
+                Vector2 pos = Player.Center + angle.ToRotationVector2() * radius;
+                
+                Color auraColor = Color.Lerp(new Color(150, 120, 255), new Color(100, 80, 200), Main.rand.NextFloat());
+                CustomParticles.GenericFlare(pos, auraColor * 0.6f, 0.25f * enhMult, 20);
+                
+                Lighting.AddLight(pos, auraColor.ToVector3() * 0.3f);
+            }
+            
+            // Damage enemies in range every 30 frames
+            if (lunarAuraTimer % 30 == 0)
+            {
+                foreach (NPC npc in Main.ActiveNPCs)
                 {
-                    Player.statLife = Math.Min(Player.statLife + 6, Player.statLifeMax2);
-                    Player.HealEffect(6, true);
+                    if (!npc.friendly && npc.Distance(Player.Center) <= LunarAuraRadius)
+                    {
+                        npc.SimpleStrikeNPC(enhancedDamage, 0, false, 0f, null, false, 0f, true);
+                        
+                        // Small hit visual
+                        CustomParticles.GenericFlare(npc.Center, new Color(180, 150, 255) * 0.7f, 0.3f, 12);
+                    }
                 }
             }
             
-            // Cosmetic effects removed per user request
+            // Central player glow
+            Lighting.AddLight(Player.Center, 0.4f * enhMult, 0.3f * enhMult, 0.6f * enhMult);
+        }
+        
+        // === SWAN LAKE: Feathered Grace ===
+        // Passive dodge chance + feathers that orbit and damage enemies
+        private void UpdateFeatheredGrace()
+        {
+            float enhMult = GetCoreEnhancementMultiplier("SwanLake");
+            int enhancedFeatherDamage = (int)(FeatherDamage * enhMult);
+            
+            // Orbiting feather particles
+            if (featherAttackTimer % 15 == 0)
+            {
+                float baseAngle = Main.GameUpdateCount * 0.03f;
+                for (int i = 0; i < 3; i++)
+                {
+                    float angle = baseAngle + MathHelper.TwoPi * i / 3f;
+                    float radius = 50f + (float)Math.Sin(Main.GameUpdateCount * 0.05f + i) * 10f;
+                    Vector2 featherPos = Player.Center + angle.ToRotationVector2() * radius;
+                    
+                    // Prismatic feather color
+                    float hue = (Main.GameUpdateCount * 0.01f + i * 0.33f) % 1f;
+                    Color featherColor = Main.hslToRgb(hue, 0.6f, 0.9f);
+                    
+                    CustomParticles.GenericFlare(featherPos, featherColor, 0.35f * enhMult, 15);
+                    CustomParticles.GenericFlare(featherPos, Color.White * 0.5f, 0.2f * enhMult, 12);
+                }
+            }
+            
+            // Feathers damage nearby enemies every 45 frames
+            if (featherAttackTimer % 45 == 0)
+            {
+                foreach (NPC npc in Main.ActiveNPCs)
+                {
+                    if (!npc.friendly && npc.Distance(Player.Center) <= 80f)
+                    {
+                        npc.SimpleStrikeNPC(enhancedFeatherDamage, 0, false, 0f, null, false, 0f, true);
+                        
+                        // Feather burst on hit
+                        for (int i = 0; i < 5; i++)
+                        {
+                            float hue = Main.rand.NextFloat();
+                            Color burstColor = Main.hslToRgb(hue, 0.7f, 0.85f);
+                            Vector2 vel = Main.rand.NextVector2Circular(4f, 4f);
+                            CustomParticles.GenericFlare(npc.Center + vel * 5f, burstColor, 0.4f, 18);
+                        }
+                        
+                        SoundEngine.PlaySound(SoundID.Item24 with { Volume = 0.4f, Pitch = 0.5f }, npc.Center);
+                    }
+                }
+            }
+            
+            Lighting.AddLight(Player.Center, 0.5f, 0.55f, 0.6f);
+        }
+        
+        // === LA CAMPANELLA: Bell's Resonance ===
+        // Orbiting infernal flames with smoke that damage enemies
+        private void UpdateBellsResonance()
+        {
+            float enhMult = GetCoreEnhancementMultiplier("LaCampanella");
+            int enhancedDamage = (int)(BellAuraDamage * enhMult);
+            
+            // Infernal theme colors - black to orange gradient
+            Color bellBlack = new Color(20, 15, 20);
+            Color bellOrange = new Color(255, 100, 0);
+            Color bellYellow = new Color(255, 200, 50);
+            Color bellGold = new Color(218, 165, 32);
+            
+            // === ORBITING INFERNAL FLAMES ===
+            // 4 flame bells orbiting the player
+            float baseAngle = Main.GameUpdateCount * 0.025f;
+            for (int i = 0; i < 4; i++)
+            {
+                float angle = baseAngle + MathHelper.TwoPi * i / 4f;
+                float radius = 55f + (float)Math.Sin(Main.GameUpdateCount * 0.04f + i * 0.8f) * 12f;
+                Vector2 flamePos = Player.Center + angle.ToRotationVector2() * radius;
+                
+                // Gradient color based on position in orbit
+                float progress = (float)i / 4f + (Main.GameUpdateCount * 0.015f) % 1f;
+                Color flameColor = Color.Lerp(bellBlack, bellOrange, (float)Math.Sin(progress * MathHelper.TwoPi) * 0.5f + 0.5f);
+                
+                // Core flame flare
+                CustomParticles.GenericFlare(flamePos, flameColor, 0.45f * enhMult, 10);
+                
+                // Bright center
+                CustomParticles.GenericFlare(flamePos, bellYellow * 0.7f, 0.25f * enhMult, 8);
+                
+                // Trailing smoke particles
+                if (bellAuraTimer % 6 == 0)
+                {
+                    Vector2 smokeVel = -angle.ToRotationVector2() * 0.8f + new Vector2(0, -0.5f);
+                    var smoke = new HeavySmokeParticle(
+                        flamePos, 
+                        smokeVel + Main.rand.NextVector2Circular(0.5f, 0.5f), 
+                        Color.Lerp(bellBlack, new Color(40, 35, 40), Main.rand.NextFloat()),
+                        Main.rand.Next(22, 35), 
+                        0.25f * enhMult, 
+                        0.45f * enhMult, 
+                        0.015f, 
+                        false
+                    );
+                    MagnumParticleHandler.SpawnParticle(smoke);
+                }
+                
+                // Occasional sparks
+                if (Main.rand.NextBool(12))
+                {
+                    Vector2 sparkVel = angle.ToRotationVector2().RotatedByRandom(0.6f) * Main.rand.NextFloat(2f, 4f);
+                    var spark = new GlowSparkParticle(flamePos, sparkVel, Color.Lerp(bellOrange, bellYellow, Main.rand.NextFloat()), 0.3f, 18);
+                    MagnumParticleHandler.SpawnParticle(spark);
+                }
+                
+                Lighting.AddLight(flamePos, bellOrange.ToVector3() * 0.5f * enhMult);
+            }
+            
+            // === CENTRAL EMBER GLOW ===
+            if (bellAuraTimer % 12 == 0)
+            {
+                float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                float dist = Main.rand.NextFloat(15f, 30f);
+                Vector2 emberPos = Player.Center + angle.ToRotationVector2() * dist;
+                
+                // Rising ember
+                Vector2 emberVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(1f, 2f));
+                Color emberColor = Color.Lerp(bellOrange, bellGold, Main.rand.NextFloat());
+                var ember = new GenericGlowParticle(emberPos, emberVel, emberColor, 0.2f * enhMult, 25, true);
+                MagnumParticleHandler.SpawnParticle(ember);
+            }
+            
+            // === DAMAGE ENEMIES IN RANGE ===
+            if (bellAuraTimer % 40 == 0)
+            {
+                foreach (NPC npc in Main.ActiveNPCs)
+                {
+                    if (!npc.friendly && npc.Distance(Player.Center) <= 90f)
+                    {
+                        npc.SimpleStrikeNPC(enhancedDamage, 0, false, 0f, null, false, 0f, true);
+                        
+                        // Bell chime impact burst
+                        // Central flash
+                        CustomParticles.GenericFlare(npc.Center, bellYellow, 0.7f * enhMult, 15);
+                        CustomParticles.GenericFlare(npc.Center, bellOrange, 0.5f * enhMult, 12);
+                        
+                        // Halo ring
+                        CustomParticles.HaloRing(npc.Center, bellGold * 0.8f, 0.4f * enhMult, 14);
+                        
+                        // Smoke burst
+                        for (int s = 0; s < 4; s++)
+                        {
+                            Vector2 smokeVel = Main.rand.NextVector2Circular(2f, 2f);
+                            var smokeParticle = new HeavySmokeParticle(
+                                npc.Center, smokeVel, bellBlack, 
+                                Main.rand.Next(18, 28), 0.3f, 0.5f, 0.02f, false
+                            );
+                            MagnumParticleHandler.SpawnParticle(smokeParticle);
+                        }
+                        
+                        // Sparks burst
+                        for (int sp = 0; sp < 6; sp++)
+                        {
+                            float sparkAngle = MathHelper.TwoPi * sp / 6f;
+                            Vector2 sparkVel = sparkAngle.ToRotationVector2() * Main.rand.NextFloat(4f, 7f);
+                            Color sparkColor = Color.Lerp(bellOrange, bellYellow, (float)sp / 6f);
+                            var spark = new GenericGlowParticle(npc.Center, sparkVel, sparkColor, 0.35f, 18, true);
+                            MagnumParticleHandler.SpawnParticle(spark);
+                        }
+                        
+                        SoundEngine.PlaySound(SoundID.Item35 with { Volume = 0.5f, Pitch = 0.3f }, npc.Center);
+                    }
+                }
+            }
+            
+            // Central player glow
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.15f + 0.85f;
+            Lighting.AddLight(Player.Center, 0.6f * pulse * enhMult, 0.35f * pulse * enhMult, 0.1f * pulse * enhMult);
+        }
+        
+        // === ENIGMA: Enigmatic Presence ===
+        // Watching eyes and arcane glyphs that seek and damage enemies
+        private void UpdateEnigmaticPresence()
+        {
+            float enhMult = GetCoreEnhancementMultiplier("Enigma");
+            
+            // Enigma theme colors
+            Color enigmaBlack = new Color(15, 10, 20);
+            Color enigmaPurple = new Color(140, 60, 200);
+            Color enigmaDeepPurple = new Color(80, 20, 120);
+            Color enigmaGreenFlame = new Color(50, 220, 100);
+            
+            // === ORBITING ARCANE GLYPHS ===
+            // 3 mysterious glyphs rotating around the player
+            float glyphAngle = Main.GameUpdateCount * 0.02f;
+            for (int i = 0; i < 3; i++)
+            {
+                float angle = glyphAngle + MathHelper.TwoPi * i / 3f;
+                float radius = 45f + (float)Math.Sin(Main.GameUpdateCount * 0.05f + i * 1.2f) * 10f;
+                Vector2 glyphPos = Player.Center + angle.ToRotationVector2() * radius;
+                
+                // Gradient from purple to green
+                float progress = ((float)i / 3f + Main.GameUpdateCount * 0.01f) % 1f;
+                Color glyphColor = Color.Lerp(enigmaPurple, enigmaGreenFlame, (float)Math.Abs(Math.Sin(progress * MathHelper.Pi)));
+                
+                // Glyph flare with mysterious glow
+                CustomParticles.GenericFlare(glyphPos, glyphColor, 0.4f * enhMult, 8);
+                CustomParticles.GenericFlare(glyphPos, enigmaDeepPurple * 0.5f, 0.6f * enhMult, 10);
+                
+                Lighting.AddLight(glyphPos, glyphColor.ToVector3() * 0.4f * enhMult);
+            }
+            
+            // === WATCHING EYE SPAWNS ===
+            // Occasional watching eyes appear and look toward enemies
+            if (prismaticFlareTimer % 25 == 0)
+            {
+                float eyeAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                float eyeRadius = Main.rand.NextFloat(25f, 50f);
+                Vector2 eyePos = Player.Center + eyeAngle.ToRotationVector2() * eyeRadius;
+                
+                // Eye color shifting purple -> green
+                Color eyeColor = Color.Lerp(enigmaPurple, enigmaGreenFlame, Main.rand.NextFloat(0.3f, 0.7f));
+                
+                // Spawn eye particle
+                CustomParticles.GenericFlare(eyePos, eyeColor, 0.35f * enhMult, 22);
+                CustomParticles.GenericFlare(eyePos, Color.White * 0.6f, 0.15f * enhMult, 15);
+            }
+            
+            // === VOID MIST AMBIENT ===
+            if (prismaticFlareTimer % 15 == 0)
+            {
+                Vector2 mistPos = Player.Center + Main.rand.NextVector2Circular(35f, 35f);
+                Color mistColor = Color.Lerp(enigmaBlack, enigmaDeepPurple, Main.rand.NextFloat(0.3f, 0.6f));
+                
+                var mist = new HeavySmokeParticle(
+                    mistPos,
+                    Main.rand.NextVector2Circular(0.4f, 0.4f) + new Vector2(0, -0.3f),
+                    mistColor,
+                    Main.rand.Next(25, 40),
+                    0.25f * enhMult,
+                    0.4f * enhMult,
+                    0.012f,
+                    false
+                );
+                MagnumParticleHandler.SpawnParticle(mist);
+            }
+            
+            // === PERIODIC ENIGMA STRIKE ===
+            // Every 60 frames, launch an enigmatic bolt
+            if (prismaticFlareTimer % 60 == 0)
+            {
+                NPC target = null;
+                float nearestDist = 400f;
+                
+                foreach (NPC npc in Main.ActiveNPCs)
+                {
+                    if (!npc.friendly)
+                    {
+                        float dist = npc.Distance(Player.Center);
+                        if (dist < nearestDist)
+                        {
+                            nearestDist = dist;
+                            target = npc;
+                        }
+                    }
+                }
+                
+                if (target != null)
+                {
+                    LaunchEnigmaBolt(target, enhMult);
+                }
+            }
+            
+            // Mysterious pulsing glow
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.2f + 0.8f;
+            Lighting.AddLight(Player.Center, 0.25f * pulse * enhMult, 0.15f * pulse * enhMult, 0.35f * pulse * enhMult);
+        }
+        
+        private void LaunchEnigmaBolt(NPC target, float enhMult = 1f)
+        {
+            int enhancedDamage = (int)(PrismaticFlareDamage * enhMult);
+            
+            // Enigma theme colors
+            Color enigmaBlack = new Color(15, 10, 20);
+            Color enigmaPurple = new Color(140, 60, 200);
+            Color enigmaDeepPurple = new Color(80, 20, 120);
+            Color enigmaGreenFlame = new Color(50, 220, 100);
+            
+            Vector2 start = Player.Center;
+            Vector2 end = target.Center;
+            Vector2 direction = (end - start).SafeNormalize(Vector2.UnitY);
+            float distance = Vector2.Distance(start, end);
+            
+            // === ENIGMATIC BEAM TRAIL ===
+            // Draw mysterious bolt with purple->green gradient
+            int segments = (int)(distance / 18f);
+            for (int i = 0; i <= segments; i++)
+            {
+                float progress = (float)i / segments;
+                Vector2 pos = Vector2.Lerp(start, end, progress);
+                
+                // Add wave pattern to beam
+                float waveOffset = (float)Math.Sin(progress * MathHelper.Pi * 4f + Main.GameUpdateCount * 0.2f) * 8f;
+                Vector2 perpendicular = direction.RotatedBy(MathHelper.PiOver2);
+                pos += perpendicular * waveOffset;
+                
+                // Gradient from purple to green flame
+                Color beamColor = Color.Lerp(enigmaPurple, enigmaGreenFlame, progress);
+                
+                // Core beam
+                CustomParticles.GenericFlare(pos, beamColor, (0.5f - progress * 0.15f) * enhMult, 12);
+                
+                // Dark underlayer
+                if (i % 2 == 0)
+                    CustomParticles.GenericFlare(pos, enigmaDeepPurple * 0.6f, 0.35f * enhMult, 15);
+                
+                Lighting.AddLight(pos, beamColor.ToVector3() * 0.3f);
+            }
+            
+            // === IMPACT - WATCHING EYE BURST ===
+            target.SimpleStrikeNPC(enhancedDamage, 0, true, 0f, null, false, 0f, true);
+            
+            // Central flash - green flame core
+            CustomParticles.GenericFlare(target.Center, enigmaGreenFlame, 0.8f * enhMult, 18);
+            CustomParticles.GenericFlare(target.Center, Color.White * 0.7f, 0.4f * enhMult, 12);
+            
+            // Halo rings with gradient
+            for (int ring = 0; ring < 3; ring++)
+            {
+                float ringProgress = ring / 3f;
+                Color ringColor = Color.Lerp(enigmaGreenFlame, enigmaPurple, ringProgress);
+                CustomParticles.HaloRing(target.Center, ringColor * 0.8f, (0.35f + ring * 0.15f) * enhMult, 14 + ring * 3);
+            }
+            
+            // 6-point burst with glyph-like positions
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 offset = angle.ToRotationVector2() * 28f;
+                float progress = (float)i / 6f;
+                Color burstColor = Color.Lerp(enigmaPurple, enigmaGreenFlame, progress);
+                CustomParticles.GenericFlare(target.Center + offset, burstColor, 0.5f * enhMult, 18);
+            }
+            
+            // Void mist burst
+            for (int s = 0; s < 5; s++)
+            {
+                Vector2 mistVel = Main.rand.NextVector2Circular(2.5f, 2.5f);
+                Color mistColor = Color.Lerp(enigmaBlack, enigmaDeepPurple, Main.rand.NextFloat(0.3f, 0.6f));
+                var mist = new HeavySmokeParticle(
+                    target.Center, mistVel, mistColor,
+                    Main.rand.Next(18, 28), 0.3f * enhMult, 0.5f * enhMult, 0.018f, false
+                );
+                MagnumParticleHandler.SpawnParticle(mist);
+            }
+            
+            // Sparks in green/purple
+            for (int sp = 0; sp < 8; sp++)
+            {
+                float sparkAngle = MathHelper.TwoPi * sp / 8f + Main.rand.NextFloat(-0.2f, 0.2f);
+                Vector2 sparkVel = sparkAngle.ToRotationVector2() * Main.rand.NextFloat(5f, 9f);
+                Color sparkColor = sp % 2 == 0 ? enigmaGreenFlame : enigmaPurple;
+                var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.35f, 20, true);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+            
+            SoundEngine.PlaySound(SoundID.Item125 with { Volume = 0.55f, Pitch = -0.2f }, target.Center);
+            Lighting.AddLight(target.Center, enigmaGreenFlame.ToVector3() * 0.8f);
+        }
+        
+        // === FATE: Cosmic Destiny ===
+        // Process delayed cosmic marks that deal massive damage
+        // Features dark prismatic visuals: black → dark pink → bright red
+        private void UpdateCosmicMarks()
+        {
+            float enhMult = GetCoreEnhancementMultiplier("Fate");
+            
+            // Fate theme colors - DARK PRISMATIC (black base with pink/red accents)
+            Color fateBlack = new Color(15, 5, 20);
+            Color fateDarkPink = new Color(180, 50, 100);
+            Color fateBrightRed = new Color(255, 60, 80);
+            Color fatePurple = new Color(120, 30, 140);
+            
+            // === AMBIENT COSMIC AURA ===
+            // Orbiting cosmic fragments around player
+            float orbitAngle = Main.GameUpdateCount * 0.018f;
+            for (int i = 0; i < 4; i++)
+            {
+                float angle = orbitAngle + MathHelper.TwoPi * i / 4f;
+                float radius = 50f + (float)Math.Sin(Main.GameUpdateCount * 0.04f + i * 0.9f) * 15f;
+                Vector2 cosmicPos = Player.Center + angle.ToRotationVector2() * radius;
+                
+                // Dark prismatic gradient
+                float progress = ((float)i / 4f + Main.GameUpdateCount * 0.012f) % 1f;
+                Color cosmicColor;
+                if (progress < 0.33f)
+                    cosmicColor = Color.Lerp(fateBlack, fateDarkPink, progress * 3f);
+                else if (progress < 0.66f)
+                    cosmicColor = Color.Lerp(fateDarkPink, fateBrightRed, (progress - 0.33f) * 3f);
+                else
+                    cosmicColor = Color.Lerp(fateBrightRed, fatePurple, (progress - 0.66f) * 3f);
+                
+                // Core cosmic fragment
+                CustomParticles.GenericFlare(cosmicPos, cosmicColor, 0.4f * enhMult, 8);
+                // White highlight
+                CustomParticles.GenericFlare(cosmicPos, Color.White * 0.4f, 0.2f * enhMult, 6);
+                
+                Lighting.AddLight(cosmicPos, cosmicColor.ToVector3() * 0.4f * enhMult);
+            }
+            
+            // === COSMIC VOID PARTICLES ===
+            if (Main.GameUpdateCount % 10 == 0)
+            {
+                Vector2 voidPos = Player.Center + Main.rand.NextVector2Circular(40f, 40f);
+                Color voidColor = Color.Lerp(fateBlack, fatePurple, Main.rand.NextFloat(0.3f, 0.5f));
+                
+                var voidMist = new HeavySmokeParticle(
+                    voidPos,
+                    Main.rand.NextVector2Circular(0.5f, 0.5f),
+                    voidColor,
+                    Main.rand.Next(20, 35),
+                    0.22f * enhMult,
+                    0.38f * enhMult,
+                    0.014f,
+                    false
+                );
+                MagnumParticleHandler.SpawnParticle(voidMist);
+            }
+            
+            // === PROCESS COSMIC MARKS ===
+            for (int i = cosmicMarks.Count - 1; i >= 0; i--)
+            {
+                var mark = cosmicMarks[i];
+                mark.Timer--;
+                cosmicMarks[i] = mark;
+                
+                // Get NPC position if still alive
+                Vector2 markPos = mark.Position;
+                if (mark.NPCIndex >= 0 && mark.NPCIndex < Main.maxNPCs && Main.npc[mark.NPCIndex].active)
+                    markPos = Main.npc[mark.NPCIndex].Center;
+                
+                // === MARK VISUALIZATION - grows as timer counts down ===
+                float markProgress = 1f - (float)mark.Timer / CosmicMarkDelay;
+                
+                // Pulsing ring around marked target
+                if (mark.Timer % 6 == 0)
+                {
+                    float pulseScale = 0.2f + markProgress * 0.4f;
+                    Color pulseColor = Color.Lerp(fateDarkPink, fateBrightRed, markProgress) * (0.5f + markProgress * 0.5f);
+                    CustomParticles.HaloRing(markPos, pulseColor, pulseScale, 8);
+                }
+                
+                // Converging particles as countdown progresses
+                if (mark.Timer % 4 == 0 && markProgress > 0.3f)
+                {
+                    float convergeAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                    float convergeRadius = 40f * (1f - markProgress) + 5f;
+                    Vector2 particlePos = markPos + convergeAngle.ToRotationVector2() * convergeRadius;
+                    Vector2 particleVel = (markPos - particlePos).SafeNormalize(Vector2.Zero) * 3f;
+                    
+                    Color particleColor = Color.Lerp(fatePurple, fateBrightRed, markProgress);
+                    var converge = new GenericGlowParticle(particlePos, particleVel, particleColor, 0.25f, 10, true);
+                    MagnumParticleHandler.SpawnParticle(converge);
+                }
+                
+                // Warning flare at 10 frames
+                if (mark.Timer == 10)
+                {
+                    CustomParticles.GenericFlare(markPos, fateBrightRed * 0.8f, 0.6f, 10);
+                    CustomParticles.HaloRing(markPos, Color.White * 0.6f, 0.3f, 8);
+                }
+                
+                // Trigger cosmic strike
+                if (mark.Timer <= 0)
+                {
+                    TriggerCosmicStrike(mark);
+                    cosmicMarks.RemoveAt(i);
+                }
+            }
+            
+            // Central player glow - dark prismatic pulse
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.07f) * 0.2f + 0.8f;
+            Lighting.AddLight(Player.Center, 0.5f * pulse * enhMult, 0.15f * pulse * enhMult, 0.35f * pulse * enhMult);
+        }
+        
+        private void TriggerCosmicStrike(CosmicMark mark)
+        {
+            Vector2 pos = mark.Position;
+            
+            // Fate theme colors - DARK PRISMATIC
+            Color fateBlack = new Color(15, 5, 20);
+            Color fateDarkPink = new Color(180, 50, 100);
+            Color fateBrightRed = new Color(255, 60, 80);
+            Color fatePurple = new Color(120, 30, 140);
+            
+            // Check if NPC is still there
+            if (mark.NPCIndex >= 0 && mark.NPCIndex < Main.maxNPCs)
+            {
+                NPC npc = Main.npc[mark.NPCIndex];
+                if (npc.active && !npc.friendly)
+                {
+                    pos = npc.Center;
+                    npc.SimpleStrikeNPC(mark.Damage, 0, true, 0f, null, false, 0f, true);
+                }
+            }
+            
+            // === COSMIC STRIKE VFX - DARK PRISMATIC EXPLOSION ===
+            SoundEngine.PlaySound(SoundID.Item125 with { Volume = 0.75f, Pitch = -0.1f }, pos);
+            
+            // === PHASE 1: VOID CORE ===
+            // Central dark core with white flash
+            CustomParticles.GenericFlare(pos, Color.White, 1.4f, 18);
+            CustomParticles.GenericFlare(pos, fateBrightRed, 1.0f, 20);
+            CustomParticles.GenericFlare(pos, fateDarkPink, 0.75f, 22);
+            CustomParticles.GenericFlare(pos, fateBlack, 0.5f, 25);
+            
+            // === PHASE 2: LAYERED HALO RINGS ===
+            // Dark prismatic gradient rings expanding outward
+            for (int ring = 0; ring < 5; ring++)
+            {
+                float ringProgress = ring / 5f;
+                Color ringColor;
+                if (ringProgress < 0.4f)
+                    ringColor = Color.Lerp(Color.White, fateDarkPink, ringProgress * 2.5f);
+                else if (ringProgress < 0.7f)
+                    ringColor = Color.Lerp(fateDarkPink, fateBrightRed, (ringProgress - 0.4f) * 3.3f);
+                else
+                    ringColor = Color.Lerp(fateBrightRed, fatePurple, (ringProgress - 0.7f) * 3.3f);
+                
+                CustomParticles.HaloRing(pos, ringColor * 0.85f, 0.25f + ring * 0.18f, 12 + ring * 4);
+            }
+            
+            // === PHASE 3: COSMIC STAR BURST ===
+            // 8-point cosmic star with gradient
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                float burstProgress = (float)i / 8f;
+                
+                // Outer burst
+                Vector2 outerOffset = angle.ToRotationVector2() * 40f;
+                Color outerColor = Color.Lerp(fateDarkPink, fateBrightRed, burstProgress);
+                CustomParticles.GenericFlare(pos + outerOffset, outerColor, 0.55f, 18);
+                
+                // Inner secondary burst (offset by 22.5 degrees)
+                float innerAngle = angle + MathHelper.Pi / 8f;
+                Vector2 innerOffset = innerAngle.ToRotationVector2() * 25f;
+                Color innerColor = Color.Lerp(fatePurple, fateDarkPink, burstProgress);
+                CustomParticles.GenericFlare(pos + innerOffset, innerColor, 0.4f, 16);
+            }
+            
+            // === PHASE 4: RADIAL SPARK STORM ===
+            // Dark prismatic sparks bursting outward
+            for (int i = 0; i < 14; i++)
+            {
+                float sparkAngle = MathHelper.TwoPi * i / 14f + Main.rand.NextFloat(-0.15f, 0.15f);
+                float speed = Main.rand.NextFloat(6f, 12f);
+                Vector2 sparkVel = sparkAngle.ToRotationVector2() * speed;
+                
+                // Gradient across the burst
+                float sparkProgress = (float)i / 14f;
+                Color sparkColor;
+                if (sparkProgress < 0.33f)
+                    sparkColor = Color.Lerp(Color.White, fateDarkPink, Main.rand.NextFloat(0.5f, 1f));
+                else if (sparkProgress < 0.66f)
+                    sparkColor = Color.Lerp(fateDarkPink, fateBrightRed, Main.rand.NextFloat(0.5f, 1f));
+                else
+                    sparkColor = Color.Lerp(fateBrightRed, fatePurple, Main.rand.NextFloat(0.5f, 1f));
+                
+                var spark = new GenericGlowParticle(pos, sparkVel, sparkColor, 0.42f, 24, true);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+            
+            // === PHASE 5: VOID MIST BURST ===
+            // Dark smoke/mist expanding
+            for (int m = 0; m < 6; m++)
+            {
+                Vector2 mistVel = Main.rand.NextVector2Circular(3.5f, 3.5f);
+                Color mistColor = Color.Lerp(fateBlack, fatePurple, Main.rand.NextFloat(0.2f, 0.5f));
+                var mist = new HeavySmokeParticle(
+                    pos, mistVel, mistColor,
+                    Main.rand.Next(22, 35), 0.35f, 0.55f, 0.02f, false
+                );
+                MagnumParticleHandler.SpawnParticle(mist);
+            }
+            
+            // === PHASE 6: AFTERGLOW TRAILS ===
+            // Brief echo trails radiating outward
+            for (int e = 0; e < 6; e++)
+            {
+                float echoAngle = MathHelper.TwoPi * e / 6f;
+                for (int seg = 1; seg <= 3; seg++)
+                {
+                    Vector2 echoPos = pos + echoAngle.ToRotationVector2() * (15f * seg);
+                    float echoAlpha = 1f - seg * 0.25f;
+                    Color echoColor = Color.Lerp(fateBrightRed, fateDarkPink, seg / 3f) * echoAlpha;
+                    CustomParticles.GenericFlare(echoPos, echoColor, 0.3f, 12 - seg * 2);
+                }
+            }
+            
+            // Dramatic lighting
+            Lighting.AddLight(pos, 1.2f, 0.35f, 0.5f);
         }
         
         // ========== ON-HIT EFFECTS ==========
@@ -605,392 +1015,262 @@ namespace MagnumOpus.Common.Systems
         
         private void HandleOnHit(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (!HasUnlockedHarmonicSlots) return;
+            if (!HasUnlockedHarmonicSlots || GetEquippedCoreCount() == 0) return;
             
-            // Track last hit target for beam direction
-            lastHitNPC = target.whoAmI;
-            
-            for (int slot = 0; slot < 3; slot++)
+            // La Campanella: Bell's Resonance - echo damage on hit
+            if (HasCore("LaCampanella"))
             {
-                string coreName = GetCoreName(slot);
-                if (string.IsNullOrEmpty(coreName) || !CoreModes[slot]) continue;
+                float enhMult = GetCoreEnhancementMultiplier("LaCampanella");
+                float enhancedPercent = BellEchoDamagePercent * enhMult;
+                int echoDamage = (int)(damageDone * enhancedPercent);
                 
-                switch (coreName)
-                {
-                    case "MoonlightSonata":
-                        moonlightStoredDamage[slot] += damageDone;
-                        moonlightPhaseTimer[slot] = 0;
-                        if (moonlightStoredDamage[slot] >= 600 && moonlightPhase[slot] < 4)
-                        {
-                            moonlightPhase[slot]++;
-                            moonlightStoredDamage[slot] = 0;
-                            SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.1f * moonlightPhase[slot], Volume = 0.5f }, Player.Center);
-                        }
-                        if (moonlightPhase[slot] >= 4)
-                        {
-                            ReleaseLunarCrescendo();
-                            moonlightPhase[slot] = 0;
-                            moonlightStoredDamage[slot] = 0;
-                        }
-                        if (Main.rand.NextBool(5)) target.AddBuff(BuffID.Slow, 90);
-                        break;
-                        
-                    case "Eroica":
-                        eroicaComboCount[slot]++;
-                        eroicaComboTimer[slot] = 90;
-                        if (eroicaComboCount[slot] >= 20)
-                        {
-                            ReleaseHeroicShockwave();
-                            eroicaComboCount[slot] = 0;
-                        }
-                        break;
-                        
-                    case "LaCampanella":
-                        campanellaResonance[slot] = Math.Min(12, campanellaResonance[slot] + 1);
-                        campanellaEchoTimer[slot] = 180;
-                        if (campanellaResonance[slot] >= 12 && hit.Crit)
-                        {
-                            ReleaseResonantEcho(target, damageDone);
-                            campanellaResonance[slot] = 0;
-                        }
-                        else if (hit.Crit && bellTollCooldown <= 0)
-                        {
-                            bellTollCooldown = 30;
-                            SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.5f }, target.Center);
-                            target.SimpleStrikeNPC(damageDone / 4, 0, false, 0f, null, false, 0f, true);
-                        }
-                        break;
-                        
-                    case "Enigma":
-                        if (Main.rand.NextBool(6))
-                        {
-                            int[] debuffs = { BuffID.OnFire, BuffID.Frostburn, BuffID.Venom, BuffID.Confused };
-                            target.AddBuff(debuffs[Main.rand.Next(4)], 120);
-                        }
-                        break;
-                        
-                    case "Fate":
-                        if (fateMarkedNPC[slot] < 0 && target.boss)
-                        {
-                            fateMarkedNPC[slot] = target.whoAmI;
-                            SoundEngine.PlaySound(SoundID.Item119, target.Center);
-                        }
-                        if (target.life < target.lifeMax * 0.1f && Main.rand.NextBool(4))
-                        {
-                            target.SimpleStrikeNPC(target.life + 100, 0, true, 0f, null, false, 0f, true);
-                            SoundEngine.PlaySound(SoundID.NPCDeath6 with { Pitch = -0.3f }, target.Center);
-                        }
-                        break;
-                }
-            }
-        }
-        
-        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
-        {
-            if (!HasUnlockedHarmonicSlots) return;
-            for (int slot = 0; slot < 3; slot++)
-            {
-                if (GetCoreName(slot) == "Fate" && CoreModes[slot] && target.whoAmI == fateMarkedNPC[slot])
-                    modifiers.SourceDamage += 0.35f;
-            }
-        }
-        
-        private void ReleaseLunarCrescendo()
-        {
-            // Dramatic sound
-            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.2f, Volume = 1.2f }, Player.Center);
-            SoundEngine.PlaySound(SoundID.Item68 with { Pitch = 0.3f, Volume = 0.8f }, Player.Center);
-            
-            // Damage all nearby enemies
-            for (int i = 0; i < Main.maxNPCs; i++)
-            {
-                NPC npc = Main.npc[i];
-                if (npc.active && !npc.friendly && npc.Distance(Player.Center) < 700f)
-                {
-                    int damage = (int)(Player.GetTotalDamage(DamageClass.Generic).ApplyTo(150));
-                    npc.SimpleStrikeNPC(damage, 0, true, 0f, null, false, 0f, true);
-                }
-            }
-            
-            // DRAMATIC VISUAL: Expanding moon ring
-            for (int ring = 0; ring < 3; ring++)
-            {
-                float ringOffset = ring * 8f;
-                for (int i = 0; i < 60; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 60f;
-                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * (8f + ringOffset);
-                    Color dustColor = ring == 1 ? new Color(200, 150, 255) : default;
-                    Dust dust = Dust.NewDustPerfect(Player.Center, DustID.PurpleTorch, vel, 0, dustColor, 2.5f - ring * 0.4f);
-                    dust.noGravity = true;
-                    dust.fadeIn = 1.5f;
-                }
-            }
-            
-            // Beam of moonlight toward last hit target
-            Vector2 beamTarget = Player.Center + new Vector2(0, -300f); // Default up
-            if (lastHitNPC >= 0 && lastHitNPC < Main.maxNPCs && Main.npc[lastHitNPC].active)
-            {
-                beamTarget = Main.npc[lastHitNPC].Center;
-            }
-            
-            Vector2 beamDir = Vector2.Normalize(beamTarget - Player.Center);
-            for (int i = 0; i < 80; i++)
-            {
-                float dist = Main.rand.NextFloat(50f, 500f);
-                Vector2 beamPos = Player.Center + beamDir * dist + Main.rand.NextVector2Circular(30f, 30f);
-                Dust beam = Dust.NewDustPerfect(beamPos, DustID.PurpleTorch, beamDir * 3f, 0, new Color(180, 120, 255), 2f);
-                beam.noGravity = true;
-                beam.fadeIn = 1.8f;
-            }
-            
-            // Crescent moon particles
-            for (int i = 0; i < 25; i++)
-            {
-                Vector2 moonPos = Player.Center + Main.rand.NextVector2Circular(200f, 200f);
-                Dust moon = Dust.NewDustPerfect(moonPos, DustID.IceTorch, Main.rand.NextVector2Circular(2f, 2f), 100, new Color(220, 200, 255), 1.8f);
-                moon.noGravity = true;
-            }
-            
-            // Screen flash effect via lighting
-            for (int x = -15; x <= 15; x++)
-            {
-                for (int y = -15; y <= 15; y++)
-                {
-                    Vector2 lightPos = Player.Center + new Vector2(x * 32, y * 32);
-                    float dist = Vector2.Distance(lightPos, Player.Center) / 500f;
-                    float intensity = Math.Max(0, 1f - dist) * 1.5f;
-                    Lighting.AddLight(lightPos, 0.6f * intensity, 0.4f * intensity, 1f * intensity);
-                }
-            }
-        }
-        
-        private void ReleaseHeroicShockwave()
-        {
-            SoundEngine.PlaySound(SoundID.Item62 with { Pitch = -0.3f }, Player.Center);
-            for (int i = 0; i < Main.maxNPCs; i++)
-            {
-                NPC npc = Main.npc[i];
-                if (npc.active && !npc.friendly && npc.Distance(Player.Center) < 500f)
-                {
-                    int damage = (int)(Player.GetTotalDamage(DamageClass.Generic).ApplyTo(250));
-                    npc.SimpleStrikeNPC(damage, Player.direction, true, 8f, null, false, 0f, true);
-                }
-            }
-            for (int i = 0; i < 35; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 35f;
-                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 5f;
-                Dust dust = Dust.NewDustPerfect(Player.Center, DustID.PinkTorch, vel, 100, default, 1.8f);
-                dust.noGravity = true;
-            }
-        }
-        
-        private void ReleaseResonantEcho(NPC target, int baseDamage)
-        {
-            SoundEngine.PlaySound(SoundID.Item35 with { Pitch = -0.2f, Volume = 1.3f }, target.Center);
-            for (int echo = 0; echo < 3; echo++)
-                target.SimpleStrikeNPC(baseDamage / (echo + 1), 0, true, 0f, null, false, 0f, true);
-            for (int i = 0; i < Main.maxNPCs; i++)
-            {
-                NPC npc = Main.npc[i];
-                if (npc.active && !npc.friendly && npc != target && npc.Distance(target.Center) < 250f)
-                    npc.SimpleStrikeNPC(baseDamage / 2, 0, false, 0f, null, false, 0f, true);
-            }
-        }
-        
-        // ========== DEFENSIVE ON-HIT ==========
-        public override void OnHitByNPC(NPC npc, Player.HurtInfo hurtInfo) => HandleDefensiveHit(hurtInfo.Damage);
-        public override void OnHitByProjectile(Projectile proj, Player.HurtInfo hurtInfo) => HandleDefensiveHit(hurtInfo.Damage);
-        
-        private void HandleDefensiveHit(int damage)
-        {
-            if (!HasUnlockedHarmonicSlots) return;
-            
-            for (int slot = 0; slot < 3; slot++)
-            {
-                string coreName = GetCoreName(slot);
-                if (string.IsNullOrEmpty(coreName) || CoreModes[slot]) continue;
+                // La Campanella theme colors
+                Color bellBlack = new Color(20, 15, 20);
+                Color bellOrange = new Color(255, 100, 0);
+                Color bellYellow = new Color(255, 200, 50);
+                Color bellGold = new Color(218, 165, 32);
                 
-                if (coreName == "Eroica" && Player.statLife < Player.statLifeMax2 * 0.3f && eroicaRallyTimer[slot] <= 0)
+                // Delayed echo strike
+                if (bellEchoTimer <= 0)
                 {
-                    eroicaRallyTimer[slot] = 240;
-                    SoundEngine.PlaySound(SoundID.Roar with { Pitch = 0.3f, Volume = 0.4f }, Player.Center);
-                    Main.NewText("Rally Cry activated!", 255, 150, 200);
-                }
-                
-                if (coreName == "LaCampanella")
-                {
-                    SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.2f, Volume = 0.6f }, Player.Center);
-                    for (int i = 0; i < Main.maxNPCs; i++)
+                    bellEchoTimer = 20;
+                    
+                    // Apply echo damage
+                    target.SimpleStrikeNPC(echoDamage, 0, false, 0f, null, false, 0f, true);
+                    
+                    // === BELL CHIME IMPACT VFX ===
+                    // Central flash - fiery core
+                    CustomParticles.GenericFlare(target.Center, Color.White * 0.9f, 0.8f * enhMult, 15);
+                    CustomParticles.GenericFlare(target.Center, bellYellow, 0.65f * enhMult, 18);
+                    CustomParticles.GenericFlare(target.Center, bellOrange, 0.5f * enhMult, 20);
+                    
+                    // Multiple halo rings with gradient
+                    for (int ring = 0; ring < 3; ring++)
                     {
-                        NPC npc = Main.npc[i];
-                        if (npc.active && !npc.friendly && npc.Distance(Player.Center) < 180f)
-                            npc.SimpleStrikeNPC((int)(damage * 1.5f), 0, false, 0f, null, false, 0f, true);
+                        float ringProgress = ring / 3f;
+                        Color ringColor = Color.Lerp(bellYellow, bellOrange, ringProgress);
+                        CustomParticles.HaloRing(target.Center, ringColor * 0.8f, (0.3f + ring * 0.15f) * enhMult, 12 + ring * 3);
                     }
+                    
+                    // 6-point bell chime burst
+                    for (int i = 0; i < 6; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / 6f;
+                        Vector2 offset = angle.ToRotationVector2() * 25f;
+                        float progress = (float)i / 6f;
+                        Color burstColor = Color.Lerp(bellOrange, bellGold, progress);
+                        CustomParticles.GenericFlare(target.Center + offset, burstColor, 0.45f * enhMult, 16);
+                    }
+                    
+                    // Smoke wisps
+                    for (int s = 0; s < 3; s++)
+                    {
+                        Vector2 smokeVel = Main.rand.NextVector2Circular(1.5f, 1.5f) + new Vector2(0, -0.5f);
+                        var smoke = new HeavySmokeParticle(
+                            target.Center, smokeVel, bellBlack,
+                            Main.rand.Next(18, 28), 0.25f * enhMult, 0.4f * enhMult, 0.018f, false
+                        );
+                        MagnumParticleHandler.SpawnParticle(smoke);
+                    }
+                    
+                    // Sparks burst
+                    for (int sp = 0; sp < 8; sp++)
+                    {
+                        float sparkAngle = MathHelper.TwoPi * sp / 8f + Main.rand.NextFloat(-0.2f, 0.2f);
+                        Vector2 sparkVel = sparkAngle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
+                        Color sparkColor = Color.Lerp(bellOrange, bellYellow, (float)sp / 8f);
+                        var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.32f, 20, true);
+                        MagnumParticleHandler.SpawnParticle(spark);
+                    }
+                    
+                    // Bell chime sound
+                    SoundEngine.PlaySound(SoundID.Item35 with { Volume = 0.5f, Pitch = 0.3f }, target.Center);
+                    Lighting.AddLight(target.Center, bellOrange.ToVector3() * 0.7f);
+                }
+            }
+            
+            // Fate: Cosmic Destiny - queue cosmic mark
+            if (HasCore("Fate"))
+            {
+                float enhMult = GetCoreEnhancementMultiplier("Fate");
+                float enhancedPercent = CosmicMarkDamagePercent * enhMult;
+                int cosmicDamage = (int)(damageDone * enhancedPercent);
+                
+                // Fate theme colors
+                Color fateDarkPink = new Color(180, 50, 100);
+                Color fateBrightRed = new Color(255, 60, 80);
+                Color fatePurple = new Color(120, 30, 140);
+                
+                cosmicMarks.Add(new CosmicMark
+                {
+                    NPCIndex = target.whoAmI,
+                    Timer = CosmicMarkDelay,
+                    Damage = cosmicDamage,
+                    Position = target.Center
+                });
+                
+                // === MARK APPLIED VISUAL ===
+                // Quick flash to show mark applied
+                CustomParticles.GenericFlare(target.Center, fateBrightRed * 0.6f, 0.4f * enhMult, 12);
+                
+                // Mini halo
+                CustomParticles.HaloRing(target.Center, fateDarkPink * 0.5f, 0.2f * enhMult, 10);
+                
+                // 4-point mark indicator
+                for (int i = 0; i < 4; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 4f + Main.rand.NextFloat(-0.1f, 0.1f);
+                    Vector2 offset = angle.ToRotationVector2() * 18f;
+                    Color markColor = Color.Lerp(fatePurple, fateDarkPink, (float)i / 4f) * 0.6f;
+                    CustomParticles.GenericFlare(target.Center + offset, markColor, 0.25f * enhMult, 15);
                 }
                 
-                if (coreName == "Enigma" && Main.rand.NextBool(6))
+                Lighting.AddLight(target.Center, fateDarkPink.ToVector3() * 0.3f);
+            }
+            
+            bellEchoTimer--;
+        }
+        
+        // ========== ON-KILL EFFECTS ==========
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (!HasUnlockedHarmonicSlots || GetEquippedCoreCount() == 0) return;
+            
+            // Eroica: Heroic Rally - killing enemies heals nearby
+            if (HasCore("Eroica") && target.life <= 0)
+            {
+                float enhMult = GetCoreEnhancementMultiplier("Eroica");
+                int enhancedHeal = (int)(HeroicRallyHealAmount * enhMult);
+                
+                // Heal player
+                Player.statLife = Math.Min(Player.statLife + enhancedHeal, Player.statLifeMax2);
+                Player.HealEffect(enhancedHeal, true);
+                
+                // Healing burst VFX
+                CustomParticles.GenericFlare(target.Center, new Color(255, 150, 200), 0.7f * enhMult, 20);
+                CustomParticles.HaloRing(target.Center, new Color(255, 180, 200) * 0.6f, 0.5f * enhMult, 18);
+                
+                // Healing particles toward player
+                for (int i = 0; i < 6; i++)
                 {
-                    for (int i = 0; i < Main.maxProjectiles; i++)
-                    {
-                        Projectile proj = Main.projectile[i];
-                        if (proj.active && proj.hostile && proj.Distance(Player.Center) < 130f)
-                        {
-                            proj.velocity *= -1.4f;
-                            proj.hostile = false;
-                            proj.friendly = true;
-                            break;
-                        }
-                    }
+                    Vector2 vel = (Player.Center - target.Center).SafeNormalize(Vector2.Zero) * 8f;
+                    vel = vel.RotatedByRandom(0.5f);
+                    var healParticle = new GenericGlowParticle(target.Center, vel, new Color(255, 180, 200), 0.35f, 25, true);
+                    MagnumParticleHandler.SpawnParticle(healParticle);
                 }
+                
+                SoundEngine.PlaySound(SoundID.Item4 with { Volume = 0.4f, Pitch = 0.3f }, target.Center);
             }
         }
         
+        // ========== DEFENSIVE EFFECTS ==========
         public override bool FreeDodge(Player.HurtInfo info)
         {
             if (!HasUnlockedHarmonicSlots) return false;
             
-            for (int slot = 0; slot < 3; slot++)
+            // Swan Lake: Feathered Grace - dodge chance (scaled by enhancement)
+            if (HasCore("SwanLake"))
             {
-                string coreName = GetCoreName(slot);
-                if (string.IsNullOrEmpty(coreName) || CoreModes[slot]) continue;
+                float enhMult = GetCoreEnhancementMultiplier("SwanLake");
+                float enhancedDodge = featherDodgeChance * enhMult;
                 
-                if (coreName == "SwanLake" && swanDodgeChance[slot] > 0 && Main.rand.NextFloat() < swanDodgeChance[slot])
+                if (Main.rand.NextFloat() < enhancedDodge)
                 {
-                    SoundEngine.PlaySound(SoundID.Item24 with { Pitch = 0.5f, Volume = 0.4f }, Player.Center);
-                    return true;
-                }
-                
-                if (coreName == "Fate" && fateShieldCooldown <= 0 && Player.statLife - info.Damage <= 0)
-                {
-                    fateShieldCooldown = FateShieldCooldownMax;
-                    fateDeathsAvoided++;
-                    Player.statLife = Player.statLifeMax2 / 4;
-                    SoundEngine.PlaySound(SoundID.Item119, Player.Center);
-                    Main.NewText($"Fate's Shield activates! (Destiny's Weave: {fateDeathsAvoided} stacks)", 200, 100, 255);
+                    // Dodge VFX - feather burst
+                    for (int i = 0; i < 8; i++)
+                    {
+                        float hue = Main.rand.NextFloat();
+                        Color featherColor = Main.hslToRgb(hue, 0.7f, 0.85f);
+                        Vector2 vel = Main.rand.NextVector2Circular(5f, 5f);
+                        CustomParticles.GenericFlare(Player.Center + vel * 3f, featherColor, 0.5f * enhMult, 20);
+                    }
+                    
+                    SoundEngine.PlaySound(SoundID.Item24 with { Volume = 0.5f, Pitch = 0.3f }, Player.Center);
                     return true;
                 }
             }
+            
+            // Enigma: Mystery Shield - reflect chance (scaled by enhancement)
+            if (HasCore("Enigma"))
+            {
+                float enhMult = GetCoreEnhancementMultiplier("Enigma");
+                float enhancedReflect = reflectChance * enhMult;
+                
+                if (Main.rand.NextFloat() < enhancedReflect)
+                {
+                    // Reflect VFX
+                    for (int i = 0; i < 6; i++)
+                    {
+                        float hue = (float)i / 6f;
+                        Color shieldColor = Main.hslToRgb(hue, 1f, 0.7f);
+                        float angle = MathHelper.TwoPi * i / 6f;
+                        Vector2 offset = angle.ToRotationVector2() * 30f * enhMult;
+                        CustomParticles.GenericFlare(Player.Center + offset, shieldColor, 0.6f * enhMult, 18);
+                    }
+                    
+                    CustomParticles.HaloRing(Player.Center, new Color(150, 255, 200), 0.6f * enhMult, 15);
+                    SoundEngine.PlaySound(SoundID.Item150 with { Volume = 0.5f }, Player.Center);
+                    return true;
+                }
+            }
+            
             return false;
         }
         
-        public override void Kill(double damage, int hitDirection, bool pvp, PlayerDeathReason damageSource)
+        // ========== BUFF DESCRIPTION HELPERS (for UI) ==========
+        public static string GetCoreEffectName(string coreName)
         {
-            for (int slot = 0; slot < 3; slot++)
+            return coreName switch
             {
-                if (GetCoreName(slot) == "Fate" && !CoreModes[slot] && fateDeathsAvoided > 0)
-                {
-                    Main.NewText($"Destiny's Weave broken... ({fateDeathsAvoided} stacks lost)", 100, 50, 150);
-                    fateDeathsAvoided = 0;
-                    break;
-                }
-            }
-        }
-    }
-    
-    /// <summary>
-    /// Draws a vibrant glowing outline around the player based on their rightmost equipped Harmonic Core.
-    /// </summary>
-    public class HarmonicCoreOutlineLayer : PlayerDrawLayer
-    {
-        public override Position GetDefaultPosition() => new BeforeParent(PlayerDrawLayers.Skin);
-        
-        public override bool GetDefaultVisibility(PlayerDrawSet drawInfo)
-        {
-            // Cosmetic outline disabled per user request
-            return false;
+                "MoonlightSonata" => "Lunar Aura",
+                "Eroica" => "Heroic Rally",
+                "SwanLake" => "Feathered Grace",
+                "LaCampanella" => "Bell's Resonance",
+                "Enigma" => "Prismatic Flares",
+                "Fate" => "Cosmic Destiny",
+                _ => "Unknown"
+            };
         }
         
-        protected override void Draw(ref PlayerDrawSet drawInfo)
+        public static string GetCoreEffectDesc(string coreName)
         {
-            var player = drawInfo.drawPlayer;
-            var modPlayer = player.GetModPlayer<HarmonicCoreModPlayer>();
+            return GetCoreEffectDescWithEnhancement(coreName, 0);
+        }
+        
+        /// <summary>
+        /// Gets the effect description with values scaled by enhancement level.
+        /// </summary>
+        public static string GetCoreEffectDescWithEnhancement(string coreName, int enhancementLevel)
+        {
+            float mult = 1f + enhancementLevel * 0.2f; // +20% per level
             
-            string coreName = modPlayer.GetRightmostCoreName();
-            if (string.IsNullOrEmpty(coreName)) return;
-            
-            Color coreColor = modPlayer.GetRightmostCoreColor();
-            
-            // Get player texture
-            Texture2D playerTexture = TextureAssets.Players[player.skinVariant, 0].Value;
-            
-            // Vibrant pulsing outline
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.3f + 0.7f;
-            float outerPulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f + 1f) * 0.2f + 0.8f;
-            
-            // Create vibrant glow color (more saturated and bright)
-            Color glowColor = new Color(
-                (int)Math.Min(255, coreColor.R * 1.5f),
-                (int)Math.Min(255, coreColor.G * 1.5f),
-                (int)Math.Min(255, coreColor.B * 1.5f),
-                0) * pulse * 0.8f;
-            
-            Color outerGlow = new Color(
-                (int)Math.Min(255, coreColor.R * 1.8f),
-                (int)Math.Min(255, coreColor.G * 1.8f),
-                (int)Math.Min(255, coreColor.B * 1.8f),
-                0) * outerPulse * 0.4f;
-            
-            Vector2 drawPos = drawInfo.Position - Main.screenPosition + drawInfo.drawPlayer.Size / 2f;
-            drawPos = new Vector2((int)drawPos.X, (int)drawPos.Y);
-            
-            // Draw multiple outline layers for vibrant effect
-            float[] offsets = { 4f, 6f, 8f };
-            Color[] colors = { glowColor, glowColor * 0.6f, outerGlow };
-            
-            for (int layer = 0; layer < 3; layer++)
+            return coreName switch
             {
-                float offset = offsets[layer];
-                Color layerColor = colors[layer];
-                
-                // 8-directional outline
-                Vector2[] directions = {
-                    new Vector2(-1, 0), new Vector2(1, 0),
-                    new Vector2(0, -1), new Vector2(0, 1),
-                    new Vector2(-0.7f, -0.7f), new Vector2(0.7f, -0.7f),
-                    new Vector2(-0.7f, 0.7f), new Vector2(0.7f, 0.7f)
-                };
-                
-                foreach (var dir in directions)
-                {
-                    Vector2 offsetPos = drawPos + dir * offset;
-                    
-                    DrawData outlineData = new DrawData(
-                        playerTexture,
-                        offsetPos,
-                        drawInfo.drawPlayer.bodyFrame,
-                        layerColor,
-                        drawInfo.drawPlayer.bodyRotation,
-                        drawInfo.bodyVect,
-                        1f,
-                        drawInfo.playerEffect,
-                        0);
-                    
-                    drawInfo.DrawDataCache.Add(outlineData);
-                }
-            }
-            
-            // Add sparkle particles around player occasionally
-            if (Main.rand.NextBool(8))
+                "MoonlightSonata" => $"Lunar aura deals {(int)(8 * mult)} damage to nearby enemies",
+                "Eroica" => $"Killing enemies heals {(int)(15 * mult)} HP",
+                "SwanLake" => $"{(int)(12 * mult)}% dodge + orbiting feathers deal {(int)(45 * mult)} damage",
+                "LaCampanella" => $"Hits trigger bell echoes for {(int)(25 * mult)}% bonus damage",
+                "Enigma" => $"{(int)(15 * mult)}% damage reflect + prismatic flares deal {(int)(65 * mult)} damage",
+                "Fate" => $"Cosmic marks explode for {(int)(40 * mult)}% bonus damage",
+                _ => "No effect"
+            };
+        }
+        
+        /// <summary>
+        /// Gets the base effect values for a core type (used for calculations).
+        /// </summary>
+        public static (int damage, float percent, int healing) GetBaseEffectValues(string coreName)
+        {
+            return coreName switch
             {
-                Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(24f, 32f);
-                int dustType = coreName switch
-                {
-                    "MoonlightSonata" => DustID.PurpleTorch,
-                    "Eroica" => DustID.PinkTorch,
-                    "SwanLake" => DustID.IceTorch,
-                    "LaCampanella" => DustID.GoldFlame,
-                    "Enigma" => DustID.RainbowMk2,
-                    "Fate" => DustID.CrimsonTorch,
-                    _ => DustID.SparksMech
-                };
-                
-                Dust sparkle = Dust.NewDustPerfect(sparklePos, dustType, 
-                    new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.5f, -0.3f)), 
-                    100, default, 1.3f);
-                sparkle.noGravity = true;
-            }
+                "MoonlightSonata" => (8, 0f, 0),
+                "Eroica" => (0, 0f, 15),
+                "SwanLake" => (45, 0.12f, 0),
+                "LaCampanella" => (0, 0.25f, 0),
+                "Enigma" => (65, 0.15f, 0),
+                "Fate" => (0, 0.40f, 0),
+                _ => (0, 0f, 0)
+            };
         }
     }
 }

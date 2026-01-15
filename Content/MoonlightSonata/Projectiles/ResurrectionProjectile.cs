@@ -7,6 +7,7 @@ using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 {
@@ -53,6 +54,37 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             // Use new themed particle trail
             ThemedParticles.MoonlightTrail(Projectile.Center, Projectile.velocity);
             
+            // === CALAMITY-INSPIRED GRADIENT GLOW PARTICLES ===
+            if (Projectile.timeLeft % 2 == 0)
+            {
+                float trailProgress = (float)(300 - Projectile.timeLeft) / 300f;
+                Color trailColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, trailProgress);
+                
+                var glow = new GenericGlowParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(3f, 3f),
+                    -Projectile.velocity * 0.12f + Main.rand.NextVector2Circular(0.8f, 0.8f),
+                    trailColor,
+                    0.35f * pulseScale,
+                    16,
+                    true
+                );
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            // === ORBITING RESURRECTION STARS ===
+            if (Projectile.timeLeft % 5 == 0)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    float angle = pulseTimer * 0.6f + MathHelper.TwoPi * i / 3f;
+                    float radius = 6f + (float)Math.Sin(pulseTimer + i) * 2f;
+                    Vector2 starPos = Projectile.Center + angle.ToRotationVector2() * radius;
+                    float progress = (float)i / 3f;
+                    Color starColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, progress);
+                    CustomParticles.GenericFlare(starPos, starColor, 0.18f, 8);
+                }
+            }
+            
             // Main purple core trail
             for (int i = 0; i < 2; i++)
             {
@@ -71,14 +103,64 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                 white.noGravity = true;
             }
             
-            // Lighting
-            Lighting.AddLight(Projectile.Center, 0.6f, 0.3f, 0.8f);
+            // === MUSIC NOTES IN TRAIL ===
+            if (Main.rand.NextBool(8))
+            {
+                Vector2 noteVel = -Projectile.velocity.SafeNormalize(Vector2.Zero) * 1.2f;
+                noteVel = noteVel.RotatedByRandom(0.3f);
+                Color noteColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.28f, 22);
+            }
+            
+            // Lighting with pulsing intensity
+            float lightPulse = 0.6f + (float)Math.Sin(pulseTimer * 0.5f) * 0.15f;
+            Lighting.AddLight(Projectile.Center, 0.6f * lightPulse, 0.3f * lightPulse, 0.8f * lightPulse);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             // Apply Musical Dissonance debuff
             target.AddBuff(ModContent.BuffType<Debuffs.MusicsDissonance>(), 300); // 5 seconds
+            
+            // === PHASE 1: CENTRAL FLASH ===
+            CustomParticles.GenericFlare(target.Center, Color.White, 0.85f, 20);
+            CustomParticles.GenericFlare(target.Center, UnifiedVFX.MoonlightSonata.LightBlue, 0.7f, 18);
+            
+            // === PHASE 2: THEMED IMPACT ===
+            UnifiedVFX.MoonlightSonata.Impact(target.Center, 1.0f);
+            
+            // === PHASE 3: SIGNATURE FRACTAL FLARE BURST ===
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 flareOffset = angle.ToRotationVector2() * 35f;
+                float progress = (float)i / 8f;
+                Color fractalColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
+                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.5f, 20);
+            }
+            
+            // === PHASE 4: GRADIENT HALO RINGS ===
+            for (int ring = 0; ring < 4; ring++)
+            {
+                float ringProgress = (float)ring / 4f;
+                Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.Silver, ringProgress);
+                CustomParticles.HaloRing(target.Center, ringColor, 0.3f + ring * 0.12f, 16 + ring * 4);
+            }
+            
+            // === PHASE 5: SPARK SPRAY ===
+            for (int i = 0; i < 12; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 12f + Main.rand.NextFloat(-0.2f, 0.2f);
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 10f);
+                float progress = (float)i / 12f;
+                Color sparkColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, progress);
+                
+                var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.35f, 20, true);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+            
+            // === PHASE 6: MUSIC NOTES ===
+            ThemedParticles.MoonlightMusicNotes(target.Center, 5, 30f);
             
             // Create the radial explosion effect (dark purple to white gradient)
             CreateRadialExplosion(target.Center);
@@ -104,15 +186,25 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                     float pitch = -0.3f + (ricochetCount * 0.1f);
                     SoundEngine.PlaySound(SoundID.Item10 with { Volume = 0.5f, Pitch = pitch }, Projectile.Center);
                     
-                    // Ricochet visual - Moonlight-themed fractal lightning to new target
-                    MagnumVFX.DrawMoonlightLightning(Projectile.Center, newTarget.Center, 8, 25f, 2, 0.3f);
+                    // === RICOCHET LIGHTNING CHAIN ===
+                    MagnumVFX.DrawMoonlightLightning(Projectile.Center, newTarget.Center, 10, 30f, 3, 0.4f);
+                    
+                    // Mini fractal burst at ricochet point
+                    for (int i = 0; i < 4; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / 4f;
+                        Vector2 flareOffset = angle.ToRotationVector2() * 20f;
+                        float progress = (float)i / 4f;
+                        Color fractalColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
+                        CustomParticles.GenericFlare(Projectile.Center + flareOffset, fractalColor, 0.35f, 14);
+                    }
                     
                     // Enhanced sparkle burst with new particles
                     ThemedParticles.MoonlightSparks(Projectile.Center, (newTarget.Center - Projectile.Center).SafeNormalize(Vector2.UnitX), 8, 6f);
                     ThemedParticles.MoonlightSparkles(Projectile.Center, 6, 20f);
                     
                     // Musical burst for the ricochet
-                    MagnumVFX.CreateMusicalBurst(Projectile.Center, new Color(150, 80, 200), Color.White, 1);
+                    ThemedParticles.MoonlightMusicNotes(Projectile.Center, 3, 18f);
                 }
             }
         }
@@ -244,14 +336,46 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // Final burst effect
-            for (int i = 0; i < 15; i++)
+            // === CALAMITY-INSPIRED DEATH EXPLOSION ===
+            // Phase 1: Central flash
+            CustomParticles.GenericFlare(Projectile.Center, Color.White, 0.75f, 20);
+            CustomParticles.GenericFlare(Projectile.Center, UnifiedVFX.MoonlightSonata.LightBlue, 0.6f, 18);
+            
+            // Phase 2: Themed impact
+            ThemedParticles.MoonlightBloomBurst(Projectile.Center, 0.7f);
+            
+            // Phase 3: Fractal burst
+            for (int i = 0; i < 6; i++)
             {
-                Vector2 velocity = Main.rand.NextVector2Circular(4f, 4f);
-                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.SilverCoin;
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, dustType, velocity, 100, default, 1.3f);
-                dust.noGravity = true;
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 flareOffset = angle.ToRotationVector2() * 28f;
+                float progress = (float)i / 6f;
+                Color fractalColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
+                CustomParticles.GenericFlare(Projectile.Center + flareOffset, fractalColor, 0.4f, 16);
             }
+            
+            // Phase 4: Gradient halo rings
+            for (int ring = 0; ring < 3; ring++)
+            {
+                float ringProgress = (float)ring / 3f;
+                Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, ringProgress);
+                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.28f + ring * 0.1f, 14 + ring * 4);
+            }
+            
+            // Phase 5: Spark spray
+            for (int i = 0; i < 10; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 10f + Main.rand.NextFloat(-0.2f, 0.2f);
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
+                float progress = (float)i / 10f;
+                Color sparkColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.Silver, progress);
+                
+                var spark = new GenericGlowParticle(Projectile.Center, sparkVel, sparkColor, 0.32f, 18, true);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+            
+            // Phase 6: Musical finale
+            ThemedParticles.MoonlightMusicNotes(Projectile.Center, 4, 30f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -263,35 +387,58 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             // Switch to additive blending for glow
             MagnumVFX.BeginAdditiveBlend(spriteBatch);
             
-            // Draw enhanced glowing trail with moonlight gradient
+            // === CALAMITY-INSPIRED MULTI-LAYER TRAIL ===
+            // Layer 1: Outer dark purple glow
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 
                 float progress = (float)i / Projectile.oldPos.Length;
-                // Gradient from bright purple to dark purple with white center
-                Color trailColor = Color.Lerp(new Color(200, 150, 255), new Color(80, 40, 120), progress);
-                trailColor *= (1f - progress) * 0.9f;
-                float scale = Projectile.scale * (1f - progress * 0.4f);
+                Color outerColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.MediumPurple, progress) * (1f - progress) * 0.35f;
+                float scale = Projectile.scale * (1.6f - progress * 0.5f);
                 
                 Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                spriteBatch.Draw(texture, drawPos, null, outerColor, Projectile.oldRot[i], origin, scale, SpriteEffects.None, 0);
+            }
+            
+            // Layer 2: Mid gradient trail
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 
-                // Outer glow trail
-                spriteBatch.Draw(texture, drawPos, null, trailColor * 0.5f, Projectile.oldRot[i], origin, scale * 1.5f, SpriteEffects.None, 0);
-                // Core trail
-                spriteBatch.Draw(texture, drawPos, null, trailColor, Projectile.oldRot[i], origin, scale, SpriteEffects.None, 0);
+                float progress = (float)i / Projectile.oldPos.Length;
+                Color midColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress) * (1f - progress) * 0.55f;
+                float scale = Projectile.scale * (1.2f - progress * 0.4f);
+                
+                Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                spriteBatch.Draw(texture, drawPos, null, midColor, Projectile.oldRot[i], origin, scale, SpriteEffects.None, 0);
+            }
+            
+            // Layer 3: Core light blue trail
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                
+                float progress = (float)i / Projectile.oldPos.Length;
+                Color coreColor = Color.Lerp(UnifiedVFX.MoonlightSonata.LightBlue, UnifiedVFX.MoonlightSonata.Silver, progress) * (1f - progress) * 0.75f;
+                float scale = Projectile.scale * (1f - progress * 0.35f);
+                
+                Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                spriteBatch.Draw(texture, drawPos, null, coreColor, Projectile.oldRot[i], origin, scale, SpriteEffects.None, 0);
             }
             
             // Draw main projectile with pulsing glow
             float pulse = MagnumVFX.GetPulse(0.15f, 0.8f, 1.2f);
             Vector2 mainPos = Projectile.Center - Main.screenPosition;
             
-            // Outer glow
-            spriteBatch.Draw(texture, mainPos, null, new Color(150, 80, 200) * 0.4f, Projectile.rotation, origin, Projectile.scale * 2f * pulse, SpriteEffects.None, 0);
-            // Mid glow
-            spriteBatch.Draw(texture, mainPos, null, new Color(200, 150, 255) * 0.6f, Projectile.rotation, origin, Projectile.scale * 1.4f * pulse, SpriteEffects.None, 0);
+            // Outer dark purple glow
+            spriteBatch.Draw(texture, mainPos, null, UnifiedVFX.MoonlightSonata.DarkPurple * 0.35f, Projectile.rotation, origin, Projectile.scale * 2.2f * pulse, SpriteEffects.None, 0);
+            // Mid purple layer
+            spriteBatch.Draw(texture, mainPos, null, UnifiedVFX.MoonlightSonata.MediumPurple * 0.5f, Projectile.rotation, origin, Projectile.scale * 1.6f * pulse, SpriteEffects.None, 0);
+            // Light blue layer
+            spriteBatch.Draw(texture, mainPos, null, UnifiedVFX.MoonlightSonata.LightBlue * 0.65f, Projectile.rotation, origin, Projectile.scale * 1.2f * pulse, SpriteEffects.None, 0);
             // White core
-            spriteBatch.Draw(texture, mainPos, null, Color.White * 0.8f, Projectile.rotation, origin, Projectile.scale * 0.8f, SpriteEffects.None, 0);
+            spriteBatch.Draw(texture, mainPos, null, Color.White * 0.85f, Projectile.rotation, origin, Projectile.scale * 0.7f, SpriteEffects.None, 0);
             
             MagnumVFX.EndAdditiveBlend(spriteBatch);
             

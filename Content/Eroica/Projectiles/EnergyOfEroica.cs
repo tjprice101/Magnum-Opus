@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -36,8 +37,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void AI()
         {
-            // Pink lighting
-            Lighting.AddLight(Projectile.Center, 0.9f, 0.4f, 0.6f);
+            // Pink lighting with pulsing intensity
+            float pulse = 0.8f + (float)Math.Sin(Projectile.timeLeft * 0.15f) * 0.2f;
+            Lighting.AddLight(Projectile.Center, 0.9f * pulse, 0.4f * pulse, 0.6f * pulse);
 
             // Find target player
             Player target = Main.player[(int)Projectile.ai[0]];
@@ -70,9 +72,50 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Rotation based on velocity
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
 
+            // === CALAMITY-INSPIRED GRADIENT GLOW PARTICLES ===
+            if (Projectile.timeLeft % 2 == 0)
+            {
+                float trailProgress = (float)(150 - Projectile.timeLeft) / 150f;
+                Color trailColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, trailProgress);
+                
+                var glow = new GenericGlowParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(4f, 4f),
+                    -Projectile.velocity * 0.12f + Main.rand.NextVector2Circular(1f, 1f),
+                    trailColor,
+                    0.35f * pulse,
+                    18,
+                    true
+                );
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            // === ORBITING STAR POINTS ===
+            if (Projectile.timeLeft % 5 == 0)
+            {
+                float orbitAngle = Projectile.timeLeft * 0.15f;
+                for (int i = 0; i < 3; i++)
+                {
+                    float angle = orbitAngle + MathHelper.TwoPi * i / 3f;
+                    float radius = 10f + (float)Math.Sin(Projectile.timeLeft * 0.1f + i) * 4f;
+                    Vector2 starPos = Projectile.Center + angle.ToRotationVector2() * radius;
+                    float progress = (float)i / 3f;
+                    Color starColor = Color.Lerp(UnifiedVFX.Eroica.Crimson, UnifiedVFX.Eroica.Gold, progress);
+                    CustomParticles.GenericFlare(starPos, starColor, 0.22f, 10);
+                }
+            }
+
             // Enhanced particle trail using ThemedParticles (sakura petals for Eroica homing energy)
-            ThemedParticles.SakuraPetals(Projectile.Center, 3, 15f);
+            ThemedParticles.SakuraPetals(Projectile.Center, 2, 12f);
             ThemedParticles.EroicaTrail(Projectile.Center, Projectile.velocity);
+            
+            // === MUSIC NOTES IN TRAIL ===
+            if (Main.rand.NextBool(8))
+            {
+                Vector2 noteVel = -Projectile.velocity.SafeNormalize(Vector2.Zero) * 1.5f;
+                noteVel = noteVel.RotatedByRandom(0.4f);
+                Color noteColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.28f, 22);
+            }
             
             // Shimmer effect (reduced - ThemedParticles handles additional visuals)
             if (Main.rand.NextBool(8))
@@ -85,9 +128,47 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // Enhanced burst with ThemedParticles
-            ThemedParticles.EroicaImpact(Projectile.Center, 1f);
-            ThemedParticles.SakuraPetals(Projectile.Center, 10, 30f);
+            // === CALAMITY-INSPIRED DEATH EXPLOSION ===
+            // Phase 1: Central flash
+            CustomParticles.GenericFlare(Projectile.Center, Color.White, 0.8f, 20);
+            CustomParticles.GenericFlare(Projectile.Center, UnifiedVFX.Eroica.Gold, 0.65f, 18);
+            
+            // Phase 2: Themed impact
+            UnifiedVFX.Eroica.Impact(Projectile.Center, 0.9f);
+            ThemedParticles.SakuraPetals(Projectile.Center, 10, 35f);
+            
+            // Phase 3: Fractal burst
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
+                float progress = (float)i / 8f;
+                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                CustomParticles.GenericFlare(Projectile.Center + flareOffset, fractalColor, 0.5f, 18);
+            }
+            
+            // Phase 4: Gradient halo rings
+            for (int ring = 0; ring < 4; ring++)
+            {
+                float ringProgress = (float)ring / 4f;
+                Color ringColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, ringProgress);
+                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.3f + ring * 0.12f, 14 + ring * 4);
+            }
+            
+            // Phase 5: Spark spray
+            for (int i = 0; i < 12; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 12f + Main.rand.NextFloat(-0.2f, 0.2f);
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 9f);
+                float progress = (float)i / 12f;
+                Color sparkColor = Color.Lerp(UnifiedVFX.Eroica.Crimson, UnifiedVFX.Eroica.Gold, progress);
+                
+                var spark = new GenericGlowParticle(Projectile.Center, sparkVel, sparkColor, 0.35f, 20, true);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+            
+            // Phase 6: Musical finale
+            ThemedParticles.EroicaMusicNotes(Projectile.Center, 6, 35f);
 
             // Sound effect
             Terraria.Audio.SoundEngine.PlaySound(SoundID.Item110, Projectile.position);
@@ -95,17 +176,56 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Draw trail
+            SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[Type].Value;
             Vector2 drawOrigin = new Vector2(texture.Width * 0.5f, texture.Height * 0.5f);
-
+            
+            // Switch to additive blending
+            MagnumVFX.BeginAdditiveBlend(spriteBatch);
+            
+            // === CALAMITY-INSPIRED MULTI-LAYER TRAIL ===
+            // Layer 1: Outer scarlet glow
             for (int k = 0; k < Projectile.oldPos.Length; k++)
             {
+                if (Projectile.oldPos[k] == Vector2.Zero) continue;
+                float progress = (float)k / Projectile.oldPos.Length;
+                Color outerColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Crimson, progress) * (1f - progress) * 0.35f;
+                float scale = Projectile.scale * (1.4f - progress * 0.4f);
                 Vector2 drawPos = Projectile.oldPos[k] - Main.screenPosition + drawOrigin + new Vector2(0f, Projectile.gfxOffY);
-                Color trailColor = new Color(255, 150, 200, 100) * ((float)(Projectile.oldPos.Length - k) / Projectile.oldPos.Length);
-                float scale = Projectile.scale * (1f - k * 0.1f);
-                Main.EntitySpriteDraw(texture, drawPos, null, trailColor, Projectile.oldRot[k], drawOrigin, scale, SpriteEffects.None, 0);
+                Main.EntitySpriteDraw(texture, drawPos, null, outerColor, Projectile.oldRot[k], drawOrigin, scale, SpriteEffects.None, 0);
             }
+            
+            // Layer 2: Mid sakura glow
+            for (int k = 0; k < Projectile.oldPos.Length; k++)
+            {
+                if (Projectile.oldPos[k] == Vector2.Zero) continue;
+                float progress = (float)k / Projectile.oldPos.Length;
+                Color midColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, progress) * (1f - progress) * 0.5f;
+                float scale = Projectile.scale * (1.15f - progress * 0.3f);
+                Vector2 drawPos = Projectile.oldPos[k] - Main.screenPosition + drawOrigin + new Vector2(0f, Projectile.gfxOffY);
+                Main.EntitySpriteDraw(texture, drawPos, null, midColor, Projectile.oldRot[k], drawOrigin, scale, SpriteEffects.None, 0);
+            }
+            
+            // Layer 3: Core gold
+            for (int k = 0; k < Projectile.oldPos.Length; k++)
+            {
+                if (Projectile.oldPos[k] == Vector2.Zero) continue;
+                float progress = (float)k / Projectile.oldPos.Length;
+                Color coreColor = Color.Lerp(UnifiedVFX.Eroica.Gold, Color.White, progress * 0.3f) * (1f - progress) * 0.65f;
+                float scale = Projectile.scale * (1f - progress * 0.25f);
+                Vector2 drawPos = Projectile.oldPos[k] - Main.screenPosition + drawOrigin + new Vector2(0f, Projectile.gfxOffY);
+                Main.EntitySpriteDraw(texture, drawPos, null, coreColor, Projectile.oldRot[k], drawOrigin, scale, SpriteEffects.None, 0);
+            }
+            
+            // Main projectile glow layers
+            float pulse = MagnumVFX.GetPulse(0.15f, 0.85f, 1.15f);
+            Vector2 mainPos = Projectile.Center - Main.screenPosition + new Vector2(0f, Projectile.gfxOffY);
+            
+            Main.EntitySpriteDraw(texture, mainPos, null, UnifiedVFX.Eroica.Scarlet * 0.35f, Projectile.rotation, drawOrigin, Projectile.scale * 1.5f * pulse, SpriteEffects.None, 0);
+            Main.EntitySpriteDraw(texture, mainPos, null, UnifiedVFX.Eroica.Sakura * 0.5f, Projectile.rotation, drawOrigin, Projectile.scale * 1.25f * pulse, SpriteEffects.None, 0);
+            Main.EntitySpriteDraw(texture, mainPos, null, UnifiedVFX.Eroica.Gold * 0.6f, Projectile.rotation, drawOrigin, Projectile.scale * 1.1f * pulse, SpriteEffects.None, 0);
+            
+            MagnumVFX.EndAdditiveBlend(spriteBatch);
 
             return true;
         }

@@ -1,0 +1,184 @@
+# Sword Smear / Swing Trail Particle Prompts
+# For MagnumOpus Melee Weapon Visual Effects (Terraria tModLoader)
+# These create FLAT HORIZONTAL gradient band textures for primitive trail rendering
+
+## CRITICAL UNDERSTANDING:
+# - The TEXTURE is a FLAT HORIZONTAL BAND - completely straight, NO curve
+# - The curve/arc you see in-game comes from CODE rendering, NOT the texture
+# - Think of it like a gradient rectangle that gets bent by the game engine
+# - The texture is essentially: bright edge → gradient fade → transparent edge
+# - All textures should be WHITE/GRAYSCALE on pure black background
+# - Resolution: 512x128 or 1024x256 pixels (4:1 aspect ratio)
+
+## WHAT WE WANT:
+# A horizontal rectangular strip of light that is:
+# - COMPLETELY STRAIGHT (no bend, no curve, no arc)
+# - Bright/opaque on one edge (left or top)
+# - Fading to transparent on the opposite edge (right or bottom)
+# - Like a gradient rectangle, a band of light, a glowing stripe
+
+## WHAT WE DON'T WANT:
+# - Crescent shapes
+# - Curved/bent arcs
+# - Moon shapes
+# - Circular segments
+# - Any kind of curve in the texture itself
+
+---
+
+## HOW TO USE IMAGE REFERENCE IN MIDJOURNEY:
+# 
+# Use your straight smear reference image at the START of the prompt
+# Add --sref [URL] for style matching
+# The key is emphasizing STRAIGHT, HORIZONTAL, RECTANGULAR, BAND, STRIPE
+
+---
+
+## UNIVERSAL SUFFIX (append to all prompts):
+# --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+
+---
+
+## BASIC GRADIENT BAND (Most Important - Start Here)
+
+Prompt 1 - Simple Gradient Band:
+```
+[YOUR_REFERENCE_URL] flat horizontal gradient band, straight rectangular stripe of light, bright white on left edge fading smoothly to transparent black on right edge, completely straight edges no curve no bend, simple luminous rectangle, soft glow, pure white and grayscale on solid black background, 2D game texture, pixel art style --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+Prompt 2 - Glowing Horizontal Stripe:
+```
+[YOUR_REFERENCE_URL] straight horizontal glowing stripe, flat rectangular light band, intense brightness concentrated at top edge with smooth vertical gradient fading downward to transparent, perfectly straight horizontal lines, no curve, soft ethereal glow, white and gray on black background, 2D sprite texture --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+Prompt 3 - Motion Blur Rectangle:
+```
+[YOUR_REFERENCE_URL] horizontal motion blur texture, flat rectangular gradient, straight horizontal band of blurred light, sharp bright edge on one side dissolving into transparent on other side, completely flat shape like stretched light, no arc no curve, grayscale on black, game asset sprite --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+---
+
+## SOFT ETHEREAL BANDS
+
+Prompt 4 - Soft Glow Band:
+```
+[YOUR_REFERENCE_URL] soft glowing horizontal band, straight flat rectangle of ethereal light, diffuse brightness concentrated in center fading to transparent edges top and bottom, completely horizontal orientation, no bend, gentle luminescence, white to transparent gradient, black background, 2D texture --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+Prompt 5 - Wispy Horizontal Band:
+```
+[YOUR_REFERENCE_URL] wispy horizontal light band, flat straight stripe with soft smoke-like edges, bright core running horizontally with delicate wisps at boundaries, rectangular shape, no curve, ethereal translucent quality, grayscale on black background, pixel art game texture --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+Prompt 6 - Feathered Edge Band:
+```
+[YOUR_REFERENCE_URL] horizontal light stripe with feathered edges, flat straight rectangular band, bright center with soft diffuse falloff to transparent edges, completely horizontal no curve, delicate downy texture at boundaries, white and gray on black, 2D sprite --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+---
+
+## INTENSE ENERGY BANDS
+
+Prompt 7 - Sharp Core Band:
+```
+[YOUR_REFERENCE_URL] horizontal light band with sharp bright core, flat straight stripe, intense white line running through center with soft glow surrounding, perfectly horizontal rectangle shape, no bend no arc, gradient fade to transparent edges, grayscale on black background, game texture --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+Prompt 8 - Electric Stripe:
+```
+[YOUR_REFERENCE_URL] flat horizontal electric energy stripe, straight rectangular band of crackling light, bright jagged texture along the band with soft outer glow, completely horizontal shape no curve, energy dispersing at edges, white on black background, 2D pixel art style --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+Prompt 9 - Flame Ribbon Band:
+```
+[YOUR_REFERENCE_URL] horizontal flame texture band, flat straight rectangular stripe of fire light, organic flame licks along the straight edges, bright core with ember particles, no curve in overall shape, gradient to transparent, white and gray on black, game sprite texture --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+---
+
+## MULTI-LAYER BANDS
+
+Prompt 10 - Double Line Band:
+```
+[YOUR_REFERENCE_URL] horizontal double-line light band, two parallel bright stripes running straight across, soft glow filling between and around them, flat rectangular shape no curve, gradient fade to transparent outer edges, white and grayscale on black background, 2D game texture --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+Prompt 11 - Layered Glow Band:
+```
+[YOUR_REFERENCE_URL] layered horizontal light band, multiple soft glowing layers stacked in straight horizontal stripe, brightest at center fading outward, completely flat rectangular shape, no arc no bend, translucent luminescent quality, grayscale on black, pixel art sprite --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+Prompt 12 - Ripple Lines Band:
+```
+[YOUR_REFERENCE_URL] horizontal band with parallel ripple lines, straight flat stripe with subtle line texture running across, bright overall with darker ripple accents, perfectly horizontal rectangle, no curve, gradient edges to transparent, white on black background, 2D texture asset --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+---
+
+## CRYSTALLINE/MAGICAL BANDS
+
+Prompt 13 - Crystal Light Band:
+```
+[YOUR_REFERENCE_URL] crystalline horizontal light band, flat straight stripe with faceted angular brightness, geometric shard texture within rectangular shape, soft glow at edges, no curve completely horizontal, grayscale on black background, 2D game sprite texture --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+Prompt 14 - Starlight Band:
+```
+[YOUR_REFERENCE_URL] horizontal starlight band texture, flat straight rectangular stripe with scattered tiny star sparkles, cosmic dust quality within the band, gradient fade to transparent edges, no arc no curve, white and gray on black, pixel art game asset --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+Prompt 15 - Prismatic Band:
+```
+[YOUR_REFERENCE_URL] prismatic horizontal light band, flat straight rectangular stripe with subtle rainbow iridescence within white glow, soft luminescent quality, no bend no curve, gradient to transparent edges top and bottom, grayscale base on black background, 2D sprite --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+---
+
+## ALTERNATIVE PHRASING (If above still create curves):
+
+# Try these keywords combinations if Midjourney keeps making curves:
+# - "straight line gradient" instead of "streak"
+# - "rectangular light strip" instead of "smear"
+# - "horizontal bar of light" instead of "trail"
+# - "flat band no bend" 
+# - "ruler-straight stripe"
+# - Explicitly say "NOT curved, NOT arc, NOT crescent"
+
+Prompt 16 - Ultra Explicit Straight:
+```
+[YOUR_REFERENCE_URL] ruler-straight horizontal gradient bar, flat rectangle of light, NOT curved NOT arc NOT crescent, simple straight horizontal stripe, bright left edge gradient to transparent right edge, perfectly straight top and bottom edges like a rectangle, white on black, 2D texture --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+Prompt 17 - Stretched Light Rectangle:
+```
+[YOUR_REFERENCE_URL] stretched rectangle of glowing light, long horizontal shape with straight edges, gradient from opaque white to transparent, like a wide flat brush stroke, no curve no bend, simple luminous band, grayscale on pure black background, game sprite --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+---
+
+## NEGATIVE PROMPT APPROACH:
+
+# If you have access to --no parameter, try adding:
+# --no curve arc crescent moon bend curved circular
+
+Prompt 18 - With Negative Prompts:
+```
+[YOUR_REFERENCE_URL] flat horizontal gradient band, straight rectangular stripe of soft glowing light, bright white edge fading to transparent, perfectly straight edges, luminous rectangle shape, white and grayscale on black background, 2D game texture asset --ar 4:1 --v 7.0 --no curve arc crescent moon bend curved circular --sref [YOUR_REFERENCE_URL] --sw 300
+```
+
+---
+
+## NOTES FOR USAGE IN TERRARIA:
+# 
+# Once you have the flat horizontal gradient texture:
+# 1. The primitive trail system in code takes this straight texture
+# 2. It wraps/bends it along the sword's rotation path around the player
+# 3. This creates the curved arc you see in-game (like the Calamity example)
+# 
+# The texture itself should always be STRAIGHT - the code does the curving!
+# 
+# If Midjourney keeps making curves, try:
+# - Lowering --sw (style weight) to 200-300
+# - Adding negative prompts: --no curve arc crescent moon bend
+# - Using "rectangular" and "straight" multiple times in prompt
+# - Describing it as a "gradient bar" or "light rectangle" instead of smear/streak

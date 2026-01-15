@@ -17,9 +17,15 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
     /// <summary>
     /// Blossom of the Sakura - Assault rifle with explosive ammunition.
     /// Rainbow rarity, higher tier than Moonlight weapons.
+    /// UNIQUE VFX: Heat buildup system - gun visually heats up with sustained fire!
     /// </summary>
     public class BlossomOfTheSakura : ModItem
     {
+        // Heat buildup system for unique VFX
+        private int heatLevel = 0;
+        private int heatDecayCooldown = 0;
+        private const int MaxHeat = 40;
+        
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 1;
@@ -53,39 +59,102 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void HoldItem(Player player)
         {
-            // === UnifiedVFX EROICA AURA ===
-            UnifiedVFX.Eroica.Aura(player.Center, 30f, 0.25f);
+            // === UNIQUE: HEAT BUILDUP VISUALIZATION ===
+            // This assault rifle HEATS UP with sustained fire - show it!
             
-            // === AMBIENT FRACTAL FLARES - Gun barrel geometric glow ===
-            if (Main.rand.NextBool(7))
+            // Heat decay when not firing
+            if (heatDecayCooldown > 0)
+                heatDecayCooldown--;
+            else if (heatLevel > 0)
+                heatLevel--;
+            
+            float heatProgress = (float)heatLevel / MaxHeat; // 0 to 1
+            Vector2 gunBarrel = player.Center + new Vector2(40f * player.direction, -2f);
+            Vector2 gunBody = player.Center + new Vector2(20f * player.direction, -2f);
+            
+            // === HEAT SHIMMER EFFECT ===
+            // Rising heat waves when gun is hot
+            if (heatProgress > 0.2f && Main.rand.NextBool((int)(8 - heatProgress * 5)))
             {
-                Vector2 gunOffset = new Vector2(35f * player.direction, -5f);
-                for (int i = 0; i < 4; i++)
+                float shimmerIntensity = (heatProgress - 0.2f) / 0.8f;
+                Vector2 shimmerPos = gunBody + new Vector2(Main.rand.NextFloat(-15f, 25f) * player.direction, 0f);
+                Vector2 shimmerVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(1f, 2.5f));
+                Color shimmerColor = Color.Lerp(UnifiedVFX.Eroica.Sakura * 0.3f, UnifiedVFX.Eroica.Gold * 0.5f, shimmerIntensity);
+                var shimmer = new GenericGlowParticle(shimmerPos, shimmerVel, shimmerColor, 0.15f + shimmerIntensity * 0.1f, 20, true);
+                MagnumParticleHandler.SpawnParticle(shimmer);
+            }
+            
+            // === BARREL GLOW ===
+            // Gun barrel glows from pink to gold to white-hot
+            if (heatProgress > 0.1f)
+            {
+                Color barrelColor;
+                if (heatProgress < 0.4f)
+                    barrelColor = Color.Lerp(UnifiedVFX.Eroica.Sakura * 0.5f, UnifiedVFX.Eroica.Crimson, (heatProgress - 0.1f) / 0.3f);
+                else if (heatProgress < 0.7f)
+                    barrelColor = Color.Lerp(UnifiedVFX.Eroica.Crimson, UnifiedVFX.Eroica.Gold, (heatProgress - 0.4f) / 0.3f);
+                else
+                    barrelColor = Color.Lerp(UnifiedVFX.Eroica.Gold, Color.White, (heatProgress - 0.7f) / 0.3f);
+                
+                float glowScale = 0.2f + heatProgress * 0.4f;
+                CustomParticles.GenericFlare(gunBarrel, barrelColor, glowScale, 3);
+                
+                // Secondary glow along barrel
+                if (heatProgress > 0.5f)
                 {
-                    float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
-                    float radius = Main.rand.NextFloat(15f, 32f);
-                    Vector2 flarePos = player.Center + gunOffset + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
-                    float progress = (float)i / 4f;
-                    Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Crimson, progress);
-                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.28f, 15);
+                    Vector2 midBarrel = Vector2.Lerp(gunBody, gunBarrel, 0.5f);
+                    CustomParticles.GenericFlare(midBarrel, barrelColor * 0.7f, glowScale * 0.6f, 3);
                 }
             }
             
-            // Sakura petal particles while holding
-            if (Main.rand.NextBool(5))
-                ThemedParticles.SakuraPetals(player.Center, 1, 30f);
-            
-            // Custom particle sakura glow with prismatic accents
-            if (Main.rand.NextBool(6))
+            // === EMBER SPARKS ===
+            // Hot sparks fly off when overheated
+            if (heatProgress > 0.6f && Main.rand.NextBool((int)(10 - heatProgress * 6)))
             {
-                CustomParticles.GenericFlare(player.Center + Main.rand.NextVector2Circular(18f, 18f), UnifiedVFX.Eroica.Sakura, 0.22f, 14);
-                CustomParticles.PrismaticSparkle(player.Center + Main.rand.NextVector2Circular(25f, 25f), UnifiedVFX.Eroica.Sakura, 0.2f);
+                Vector2 sparkPos = gunBarrel + Main.rand.NextVector2Circular(5f, 5f);
+                Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-3f, -1f));
+                Color sparkColor = Color.Lerp(UnifiedVFX.Eroica.Gold, Color.White, Main.rand.NextFloat(0.3f));
+                var spark = new GenericGlowParticle(sparkPos, sparkVel, sparkColor, 0.12f, 15, true);
+                MagnumParticleHandler.SpawnParticle(spark);
             }
             
-            // Subtle heroic glow with pulse and gradient
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.07f) * 0.08f + 0.92f;
-            Color lightColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, pulse * 0.5f);
-            Lighting.AddLight(player.Center, lightColor.ToVector3() * 0.4f * pulse);
+            // === SMOKE WISPS ===
+            // Thin smoke when very hot
+            if (heatProgress > 0.7f && Main.rand.NextBool(12))
+            {
+                Vector2 smokePos = gunBarrel + new Vector2(Main.rand.NextFloat(-5f, 5f), -5f);
+                var smoke = new HeavySmokeParticle(smokePos, new Vector2(0, -0.8f), 
+                    Color.Gray * 0.4f, Main.rand.Next(20, 35), 0.15f, 0.3f, 0.01f, false);
+                MagnumParticleHandler.SpawnParticle(smoke);
+            }
+            
+            // === SAKURA PETALS - burning away in the heat ===
+            if (Main.rand.NextBool(8))
+            {
+                Vector2 petalPos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
+                ThemedParticles.SakuraPetals(petalPos, 1, 20f);
+                
+                // At high heat, petals catch fire
+                if (heatProgress > 0.5f && Main.rand.NextBool(3))
+                {
+                    var firePetal = new GenericGlowParticle(petalPos, Vector2.Zero, UnifiedVFX.Eroica.Crimson * 0.5f, 0.15f, 12, true);
+                    MagnumParticleHandler.SpawnParticle(firePetal);
+                }
+            }
+            
+            // === MUSIC NOTES - The rhythm of battle ===
+            if (heatProgress > 0.3f && Main.rand.NextBool(20))
+            {
+                ThemedParticles.EroicaMusicNotes(gunBarrel, 1, 15f);
+            }
+            
+            // Dynamic lighting based on heat
+            float baseLightIntensity = 0.25f;
+            float heatLightBonus = heatProgress * 0.5f;
+            Vector3 lightVec = Color.Lerp(UnifiedVFX.Eroica.Sakura, 
+                heatProgress > 0.5f ? UnifiedVFX.Eroica.Gold : UnifiedVFX.Eroica.Crimson, 
+                heatProgress).ToVector3();
+            Lighting.AddLight(gunBarrel, lightVec * (baseLightIntensity + heatLightBonus));
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
@@ -123,6 +192,11 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            // === HEAT BUILDUP ===
+            heatLevel = Math.Min(heatLevel + 2, MaxHeat);
+            heatDecayCooldown = 20; // Delay decay while firing
+            float heatProgress = (float)heatLevel / MaxHeat;
+            
             // Always use our custom projectile (ignore ammo type)
             type = ModContent.ProjectileType<BlossomOfTheSakuraBulletProjectile>();
 
@@ -131,24 +205,55 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
             Projectile.NewProjectile(source, position, perturbedVelocity, type, damage, knockback, player.whoAmI);
 
-            // === UnifiedVFX EROICA MUZZLE FLASH ===
+            // === HEAT-REACTIVE MUZZLE FLASH ===
             Vector2 muzzlePos = position + velocity.SafeNormalize(Vector2.Zero) * 25f;
-            UnifiedVFX.Eroica.SwingAura(muzzlePos, velocity.SafeNormalize(Vector2.UnitX), 0.6f);
             
-            // === FRACTAL MUZZLE FLASH - geometric burst pattern with gradient ===
-            for (int i = 0; i < 5; i++)
+            // Color shifts with heat: Pink → Crimson → Gold → White-hot
+            Color muzzleColor;
+            if (heatProgress < 0.3f)
+                muzzleColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Crimson, heatProgress / 0.3f);
+            else if (heatProgress < 0.6f)
+                muzzleColor = Color.Lerp(UnifiedVFX.Eroica.Crimson, UnifiedVFX.Eroica.Gold, (heatProgress - 0.3f) / 0.3f);
+            else
+                muzzleColor = Color.Lerp(UnifiedVFX.Eroica.Gold, Color.White, (heatProgress - 0.6f) / 0.4f);
+            
+            // Scale and intensity increase with heat
+            float flashScale = 0.5f + heatProgress * 0.4f;
+            int flashCount = 5 + (int)(heatProgress * 4);
+            
+            // Geometric muzzle flash that grows with heat
+            for (int i = 0; i < flashCount; i++)
             {
-                float angle = MathHelper.TwoPi * i / 5f + velocity.ToRotation();
-                Vector2 flareOffset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 14f;
-                float progress = (float)i / 5f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, progress);
-                CustomParticles.GenericFlare(muzzlePos + flareOffset, fractalColor, 0.4f, 14);
+                float angle = MathHelper.TwoPi * i / flashCount + velocity.ToRotation();
+                float radius = 12f + heatProgress * 8f;
+                Vector2 flareOffset = angle.ToRotationVector2() * radius;
+                float progress = (float)i / flashCount;
+                Color fractalColor = Color.Lerp(muzzleColor, UnifiedVFX.Eroica.Sakura, progress * 0.5f);
+                CustomParticles.GenericFlare(muzzlePos + flareOffset, fractalColor, flashScale * 0.7f, 12);
             }
-            CustomParticles.HaloRing(muzzlePos, UnifiedVFX.Eroica.Sakura * 0.8f, 0.28f, 12);
             
-            // Sakura petals burst
-            if (Main.rand.NextBool(3))
-                ThemedParticles.SakuraPetals(muzzlePos, 2, 20f);
+            // Central flash
+            CustomParticles.GenericFlare(muzzlePos, muzzleColor, flashScale, 10);
+            CustomParticles.HaloRing(muzzlePos, muzzleColor * 0.8f, 0.2f + heatProgress * 0.2f, 10);
+            
+            // === OVERHEATED BONUS EFFECTS ===
+            if (heatProgress > 0.7f)
+            {
+                // Extra flame burst when overheated
+                CustomParticles.ExplosionBurst(muzzlePos, UnifiedVFX.Eroica.Gold, 4, 3f);
+                
+                // Smoke from overheated barrel
+                if (Main.rand.NextBool(3))
+                {
+                    var smoke = new HeavySmokeParticle(muzzlePos, velocity.SafeNormalize(Vector2.Zero) * 2f, 
+                        Color.Gray * 0.5f, Main.rand.Next(15, 25), 0.2f, 0.4f, 0.015f, false);
+                    MagnumParticleHandler.SpawnParticle(smoke);
+                }
+            }
+            
+            // Sakura petals burst (less when overheated - they're burning!)
+            if (Main.rand.NextBool(heatProgress > 0.5f ? 5 : 3))
+                ThemedParticles.SakuraPetals(muzzlePos, 2, 18f);
             
             // Music notes more frequently
             if (Main.rand.NextBool(4))

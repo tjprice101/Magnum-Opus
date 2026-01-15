@@ -139,6 +139,19 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             CustomParticleSystem.SpawnParticle(softFlare);
             CustomParticles.SwanLakeFlare(Projectile.Center, 0.5f); // Iridescent shimmer
             
+            // === SIGNATURE FRACTAL FLARE BURST ===
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
+                float progress = (float)i / 6f;
+                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.45f, 18);
+            }
+            
+            // Music notes on hit
+            ThemedParticles.EroicaMusicNotes(target.Center, 4, 30f);
+            
             // Massive scarlet explosion with white sparkles
             for (int i = 0; i < 40; i++)
             {

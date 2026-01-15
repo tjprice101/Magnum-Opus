@@ -42,6 +42,7 @@ namespace MagnumOpus.Common.Systems
         
         public override void Unload()
         {
+            On_Main.DrawInterface -= DrawBossHealthBars;
             trackedBosses?.Clear();
             trackedBosses = null;
             borderSparkles?.Clear();
@@ -151,21 +152,20 @@ namespace MagnumOpus.Common.Systems
             trackedBosses.Remove(npcIndex);
         }
         
-        private void DrawBossHealthBars(On_Main.orig_DrawInterface orig, Main self, GameTime gameTime)
+        /// <summary>
+        /// Alternative drawing method using ModSystem's PostDrawInterface.
+        /// This serves as a backup if the On_Main hook doesn't work.
+        /// </summary>
+        public override void PostDrawInterface(SpriteBatch spriteBatch)
         {
-            orig(self, gameTime);
+            if (trackedBosses == null || trackedBosses.Count == 0) return;
             
-            if (trackedBosses.Count == 0) return;
-            
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            
-            // Begin drawing
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-            
+            // Draw all tracked boss health bars
             int barIndex = 0;
             foreach (var kvp in trackedBosses)
             {
+                if (kvp.Key < 0 || kvp.Key >= Main.maxNPCs) continue;
+                
                 NPC npc = Main.npc[kvp.Key];
                 if (!npc.active) continue;
                 
@@ -173,8 +173,42 @@ namespace MagnumOpus.Common.Systems
                 DrawSingleBossBar(spriteBatch, npc, data, barIndex);
                 barIndex++;
             }
+        }
+        
+        private void DrawBossHealthBars(On_Main.orig_DrawInterface orig, Main self, GameTime gameTime)
+        {
+            orig(self, gameTime);
             
-            spriteBatch.End();
+            if (trackedBosses == null || trackedBosses.Count == 0) return;
+            
+            SpriteBatch spriteBatch = Main.spriteBatch;
+            
+            try
+            {
+                // Begin drawing with safe state handling
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+                
+                int barIndex = 0;
+                foreach (var kvp in trackedBosses)
+                {
+                    if (kvp.Key < 0 || kvp.Key >= Main.maxNPCs) continue;
+                    
+                    NPC npc = Main.npc[kvp.Key];
+                    if (!npc.active) continue;
+                    
+                    var data = kvp.Value;
+                    DrawSingleBossBar(spriteBatch, npc, data, barIndex);
+                    barIndex++;
+                }
+                
+                spriteBatch.End();
+            }
+            catch (System.Exception)
+            {
+                // If spritebatch was already active, try ending it first and redrawing
+                try { spriteBatch.End(); } catch { }
+            }
         }
         
         private void DrawSingleBossBar(SpriteBatch spriteBatch, NPC npc, BossHealthBarData data, int barIndex)

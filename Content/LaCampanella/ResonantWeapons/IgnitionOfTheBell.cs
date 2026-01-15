@@ -136,7 +136,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // Screen shake
-            player.GetModPlayer<ScreenShakePlayer>()?.AddShake(3f, 5);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // player.GetModPlayer<ScreenShakePlayer>()?.AddShake(3f, 5);
             
             Lighting.AddLight(thrustPos, 0.9f, 0.45f, 0.12f);
             
@@ -200,7 +201,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // Screen shake on hit
-            player.GetModPlayer<ScreenShakePlayer>()?.AddShake(2f, 4);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // player.GetModPlayer<ScreenShakePlayer>()?.AddShake(2f, 4);
             
             Lighting.AddLight(target.Center, 0.8f, 0.4f, 0.1f);
         }
@@ -405,17 +407,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             CustomParticles.HaloRing(target.Center, ThemedParticles.CampanellaOrange, 0.45f, 16);
             CustomParticles.HaloRing(target.Center, ThemedParticles.CampanellaGold, 0.3f, 12);
             
-            // Radial flare burst around impact
+            // === SIGNATURE FRACTAL FLARE BURST ===
             for (int i = 0; i < 6; i++)
             {
-                Vector2 flarePos = target.Center + (MathHelper.TwoPi * i / 6).ToRotationVector2() * 18f;
-                Color flareColor = Main.rand.Next(3) switch
-                {
-                    0 => ThemedParticles.CampanellaYellow,
-                    1 => ThemedParticles.CampanellaOrange,
-                    _ => ThemedParticles.CampanellaGold
-                };
-                CustomParticles.GenericFlare(flarePos + Main.rand.NextVector2Circular(5f, 5f), flareColor, 0.45f, 15);
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
+                float progress = (float)i / 6f;
+                Color fractalColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaGold, progress);
+                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.45f, 18);
             }
             
             // Fire glow burst
@@ -430,7 +429,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // Screen shake
-            owner.GetModPlayer<ScreenShakePlayer>()?.AddShake(3f, 6);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // owner.GetModPlayer<ScreenShakePlayer>()?.AddShake(3f, 6);
             
             Lighting.AddLight(target.Center, 1.1f, 0.55f, 0.15f);
         }
@@ -727,7 +727,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             SoundEngine.PlaySound(SoundID.DD2_BetsyFireballImpact with { Pitch = 0.2f, Volume = 0.35f }, target.Center);
             
             // Screen shake
-            Player.GetModPlayer<ScreenShakePlayer>()?.AddShake(8f, 15);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // Player.GetModPlayer<ScreenShakePlayer>()?.AddShake(8f, 15);
         }
 
         public override void PostUpdate()

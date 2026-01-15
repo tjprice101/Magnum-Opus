@@ -13,6 +13,9 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
 {
     public class MoonlightWaveProjectile : ModProjectile
     {
+        // Use invisible texture - the projectile is rendered entirely through particle effects
+        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.None;
+        
         public override void SetStaticDefaults()
         {
             Main.projFrames[Projectile.type] = 1;
@@ -89,6 +92,19 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
             // Prismatic sparkle impact - cleaner gem-like effect
             CustomParticles.PrismaticSparkleBurst(target.Center, CustomParticleSystem.MoonlightColors.Violet, 5);
             
+            // === SIGNATURE FRACTAL FLARE BURST ===
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
+                float progress = (float)i / 6f;
+                Color fractalColor = Color.Lerp(new Color(75, 0, 130), new Color(135, 206, 250), progress);
+                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.45f, 18);
+            }
+            
+            // Music notes on hit
+            ThemedParticles.MoonlightMusicNotes(target.Center, 3, 25f);
+            
             // Burst of particles on hit - reduced count
             for (int i = 0; i < 10; i++)
             {
@@ -101,66 +117,59 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
-            Vector2 origin = texture.Size() / 2f;
             
             // Switch to additive blending for glow effect
             MagnumVFX.BeginAdditiveBlend(spriteBatch);
             
-            // Draw prismatic gem trail using oldPos
-            MagnumVFX.DrawPrismaticGemTrail(spriteBatch, Projectile.oldPos, false, 0.4f, Projectile.timeLeft);
+            // Draw glowing trail using soft glow texture instead of projectile texture
+            Texture2D glowTex = Terraria.GameContent.TextureAssets.Extra[98].Value;
+            Vector2 glowOrigin = glowTex.Size() / 2f;
             
-            // Draw sweeping arc trail
+            // Draw sweeping arc trail with glowing orbs
             for (int i = 0; i < Projectile.oldPos.Length - 1; i++)
             {
-                if (Projectile.oldPos[i] == Vector2.Zero || Projectile.oldPos[i + 1] == Vector2.Zero) 
+                if (Projectile.oldPos[i] == Vector2.Zero) 
                     continue;
                 
                 float progress = (float)i / Projectile.oldPos.Length;
                 float alpha = (1f - progress) * 0.8f;
-                float trailScale = Projectile.scale * (1f - progress * 0.5f);
+                float trailScale = (1f - progress * 0.5f) * 0.6f;
                 
                 Vector2 drawPos = Projectile.oldPos[i] - Main.screenPosition + Projectile.Size / 2f;
                 
-                // Purple core trail
+                // Purple core trail orb
                 Color trailColor = new Color(180, 80, 255) * alpha;
-                spriteBatch.Draw(texture, drawPos, null, trailColor, 
-                    Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
+                spriteBatch.Draw(glowTex, drawPos, null, trailColor, 
+                    0f, glowOrigin, trailScale, SpriteEffects.None, 0f);
                 
                 // Light blue outer glow
                 Color glowColor = new Color(150, 200, 255) * alpha * 0.5f;
-                spriteBatch.Draw(texture, drawPos, null, glowColor, 
-                    Projectile.oldRot[i], origin, trailScale * 1.3f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(glowTex, drawPos, null, glowColor, 
+                    0f, glowOrigin, trailScale * 1.5f, SpriteEffects.None, 0f);
                 
                 // White highlight on recent trail
                 if (i < 5)
                 {
                     Color whiteGlow = Color.White * alpha * 0.4f;
-                    spriteBatch.Draw(texture, drawPos, null, whiteGlow, 
-                        Projectile.oldRot[i], origin, trailScale * 0.7f, SpriteEffects.None, 0f);
+                    spriteBatch.Draw(glowTex, drawPos, null, whiteGlow, 
+                        0f, glowOrigin, trailScale * 0.5f, SpriteEffects.None, 0f);
                 }
             }
             
-            // Draw main prismatic gem at projectile center
+            // Draw main glow at projectile center (replaces the gem)
             float fadeAlpha = 1f - (Projectile.alpha / 255f);
-            MagnumVFX.DrawMoonlightPrismaticGem(spriteBatch, Projectile.Center, 0.8f * Projectile.scale, fadeAlpha, Projectile.timeLeft);
+            Vector2 mainPos = Projectile.Center - Main.screenPosition;
+            
+            // Multi-layer glow at center
+            spriteBatch.Draw(glowTex, mainPos, null, new Color(75, 0, 130) * fadeAlpha * 0.5f, 
+                0f, glowOrigin, Projectile.scale * 1.2f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(glowTex, mainPos, null, new Color(180, 100, 255) * fadeAlpha * 0.7f, 
+                0f, glowOrigin, Projectile.scale * 0.8f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(glowTex, mainPos, null, Color.White * fadeAlpha * 0.5f, 
+                0f, glowOrigin, Projectile.scale * 0.4f, SpriteEffects.None, 0f);
             
             // Reset to normal blending
             MagnumVFX.EndAdditiveBlend(spriteBatch);
-            
-            // Draw main projectile texture
-            Color drawColor = new Color(180, 100, 255) * fadeAlpha;
-            Vector2 mainPos = Projectile.Center - Main.screenPosition;
-            
-            // Glow layers
-            for (int i = 0; i < 3; i++)
-            {
-                float layerScale = Projectile.scale * (1f + i * 0.15f);
-                float layerAlpha = fadeAlpha * (1f - i * 0.25f);
-                Color layerColor = drawColor * layerAlpha;
-                Main.EntitySpriteDraw(texture, mainPos, null, layerColor, 
-                    Projectile.rotation, origin, layerScale, SpriteEffects.None, 0);
-            }
 
             return false;
         }
@@ -175,6 +184,19 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
             
             // Themed particle impact
             ThemedParticles.MoonlightImpact(Projectile.Center, 0.9f);
+            
+            // === SIGNATURE FRACTAL FLARE BURST ===
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
+                float progress = (float)i / 6f;
+                Color fractalColor = Color.Lerp(new Color(75, 0, 130), new Color(135, 206, 250), progress);
+                CustomParticles.GenericFlare(Projectile.Center + flareOffset, fractalColor, 0.45f, 18);
+            }
+            
+            // Music notes on death
+            ThemedParticles.MoonlightMusicNotes(Projectile.Center, 4, 30f);
             
             // Final sparkle burst - reduced
             for (int i = 0; i < 8; i++)

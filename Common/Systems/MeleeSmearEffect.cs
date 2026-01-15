@@ -11,6 +11,10 @@ using MagnumOpus.Content.Eroica.ResonantWeapons;
 using MagnumOpus.Content.MoonlightSonata.ResonantWeapons;
 using MagnumOpus.Content.MoonlightSonata.Weapons;
 using MagnumOpus.Content.SwanLake.ResonantWeapons;
+using MagnumOpus.Content.Fate.ResonantWeapons;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Common.Systems
 {
@@ -140,9 +144,82 @@ namespace MagnumOpus.Common.Systems
             {
                 return new Color(220, 220, 230); // Pearlescent white
             }
+            
+            // Fate weapons - DARK PRISMATIC (Black → Dark Pink → Bright Red)
+            if (itemType == ModContent.ItemType<Fate1>() ||
+                itemType == ModContent.ItemType<Fate5>() ||
+                itemType == ModContent.ItemType<Fate9>())
+            {
+                return new Color(180, 50, 100); // Dark Pink - primary Fate color
+            }
+            
+            // La Campanella weapons - INFERNAL (Black → Orange)
+            if (itemType == ModContent.ItemType<DualFatedChime>() ||
+                itemType == ModContent.ItemType<IgnitionOfTheBell>())
+            {
+                return new Color(255, 100, 0); // Infernal orange
+            }
+            
+            // Enigma Variations weapons - ARCANE (Black → Purple → Green)
+            if (itemType == ModContent.ItemType<Enigma1>() ||
+                itemType == ModContent.ItemType<Enigma5>() ||
+                itemType == ModContent.ItemType<Enigma9>())
+            {
+                return new Color(140, 60, 200); // Arcane purple
+            }
 
             // Default glow - white/silver
             return new Color(200, 220, 255);
+        }
+
+        /// <summary>
+        /// Get weapon theme type for special effects
+        /// </summary>
+        public WeaponTheme GetWeaponTheme(int itemType)
+        {
+            // Fate weapons - need chromatic aberration
+            if (itemType == ModContent.ItemType<Fate1>() ||
+                itemType == ModContent.ItemType<Fate5>() ||
+                itemType == ModContent.ItemType<Fate9>())
+                return WeaponTheme.Fate;
+                
+            // La Campanella weapons - need heavy smoke
+            if (itemType == ModContent.ItemType<DualFatedChime>() ||
+                itemType == ModContent.ItemType<IgnitionOfTheBell>())
+                return WeaponTheme.LaCampanella;
+                
+            // Enigma weapons - need void/glyph effects
+            if (itemType == ModContent.ItemType<Enigma1>() ||
+                itemType == ModContent.ItemType<Enigma5>() ||
+                itemType == ModContent.ItemType<Enigma9>())
+                return WeaponTheme.Enigma;
+                
+            // Swan Lake - feather effects
+            if (itemType == ModContent.ItemType<CalloftheBlackSwan>())
+                return WeaponTheme.SwanLake;
+                
+            // Eroica - sakura effects
+            if (itemType == ModContent.ItemType<SakurasBlossom>() ||
+                itemType == ModContent.ItemType<CelestialValor>())
+                return WeaponTheme.Eroica;
+                
+            // Moonlight - lunar effects
+            if (itemType == ModContent.ItemType<IncisorOfMoonlight>() ||
+                itemType == ModContent.ItemType<EternalMoon>())
+                return WeaponTheme.MoonlightSonata;
+                
+            return WeaponTheme.Default;
+        }
+        
+        public enum WeaponTheme
+        {
+            Default,
+            Fate,
+            LaCampanella,
+            Enigma,
+            SwanLake,
+            Eroica,
+            MoonlightSonata
         }
 
         /// <summary>
@@ -184,6 +261,9 @@ namespace MagnumOpus.Common.Systems
             // Get weapon texture
             Texture2D texture = TextureAssets.Item[heldItem.type].Value;
             if (texture == null) return;
+            
+            // Get weapon theme for special effects
+            var weaponTheme = smearPlayer.GetWeaponTheme(heldItem.type);
 
             // Draw smear afterimages (oldest first, so newest is on top)
             // This creates a layered, fluid glow trail effect
@@ -298,6 +378,91 @@ namespace MagnumOpus.Common.Systems
                     );
                     drawInfo.DrawDataCache.Add(highlight);
                 }
+                
+                // === THEME-SPECIFIC EFFECTS ===
+                
+                // FATE: Chromatic Aberration - RGB channel separation for reality-bending
+                if (weaponTheme == MeleeSmearPlayer.WeaponTheme.Fate && progress > 0.3f)
+                {
+                    float aberrationStrength = baseAlpha * 0.35f;
+                    
+                    // Red channel - offset left
+                    Color redChannel = new Color(255, 0, 0, 0) * aberrationStrength;
+                    Terraria.DataStructures.DrawData redAberration = new Terraria.DataStructures.DrawData(
+                        texture, drawPos + new Vector2(-3, -1), null, redChannel,
+                        finalRotation, origin, scale * 1.02f, effects, 0);
+                    drawInfo.DrawDataCache.Add(redAberration);
+                    
+                    // Blue channel - offset right
+                    Color blueChannel = new Color(0, 0, 255, 0) * aberrationStrength;
+                    Terraria.DataStructures.DrawData blueAberration = new Terraria.DataStructures.DrawData(
+                        texture, drawPos + new Vector2(3, 1), null, blueChannel,
+                        finalRotation, origin, scale * 1.02f, effects, 0);
+                    drawInfo.DrawDataCache.Add(blueAberration);
+                    
+                    // Spawn temporal echo particles
+                    if (Main.rand.NextBool(4) && i == smearFrames.Count - 1)
+                    {
+                        Vector2 echoPos = player.MountedCenter + (frame.Rotation + MathHelper.PiOver4 * frame.Direction).ToRotationVector2() * 50f;
+                        CustomParticles.GenericFlare(echoPos, new Color(180, 50, 100) * 0.6f, 0.35f, 12);
+                    }
+                }
+                
+                // LA CAMPANELLA: Heavy smoke trail for infernal atmosphere
+                if (weaponTheme == MeleeSmearPlayer.WeaponTheme.LaCampanella && Main.rand.NextBool(3) && i == smearFrames.Count - 1)
+                {
+                    Vector2 smokePos = player.MountedCenter + (frame.Rotation + MathHelper.PiOver4 * frame.Direction).ToRotationVector2() * 45f;
+                    Vector2 smokeVel = (frame.Rotation + MathHelper.PiOver2 * frame.Direction).ToRotationVector2() * 2f;
+                    var smoke = new HeavySmokeParticle(smokePos, smokeVel, Color.Black, Main.rand.Next(20, 35), 0.4f, 0.7f, 0.015f, false);
+                    MagnumParticleHandler.SpawnParticle(smoke);
+                    
+                    // Orange glow particles
+                    if (Main.rand.NextBool(2))
+                    {
+                        CustomParticles.GenericFlare(smokePos, new Color(255, 100, 0) * 0.7f, 0.4f, 14);
+                    }
+                }
+                
+                // ENIGMA: Void/glyph effects for arcane mystery
+                if (weaponTheme == MeleeSmearPlayer.WeaponTheme.Enigma && Main.rand.NextBool(5) && i == smearFrames.Count - 1)
+                {
+                    Vector2 glyphPos = player.MountedCenter + (frame.Rotation + MathHelper.PiOver4 * frame.Direction).ToRotationVector2() * 40f;
+                    CustomParticles.Glyph(glyphPos, new Color(140, 60, 200) * 0.6f, 0.3f, -1);
+                    
+                    // Green flame accents
+                    if (Main.rand.NextBool(2))
+                    {
+                        CustomParticles.GenericFlare(glyphPos + Main.rand.NextVector2Circular(10f, 10f), 
+                            new Color(50, 220, 100) * 0.5f, 0.3f, 12);
+                    }
+                }
+                
+                // SWAN LAKE: Feather drift for graceful elegance
+                if (weaponTheme == MeleeSmearPlayer.WeaponTheme.SwanLake && Main.rand.NextBool(4) && i == smearFrames.Count - 1)
+                {
+                    Vector2 featherPos = player.MountedCenter + (frame.Rotation + MathHelper.PiOver4 * frame.Direction).ToRotationVector2() * 50f;
+                    ThemedParticles.SwanFeatherDrift(featherPos, Main.rand.NextBool() ? Color.White : new Color(20, 20, 30), 0.35f);
+                }
+                
+                // EROICA: Sakura petals for heroic theme
+                if (weaponTheme == MeleeSmearPlayer.WeaponTheme.Eroica && Main.rand.NextBool(4) && i == smearFrames.Count - 1)
+                {
+                    Vector2 petalPos = player.MountedCenter + (frame.Rotation + MathHelper.PiOver4 * frame.Direction).ToRotationVector2() * 45f;
+                    ThemedParticles.SakuraPetals(petalPos, 1, 20f);
+                }
+                
+                // MOONLIGHT SONATA: Prismatic lunar sparkles
+                if (weaponTheme == MeleeSmearPlayer.WeaponTheme.MoonlightSonata && Main.rand.NextBool(3) && i == smearFrames.Count - 1)
+                {
+                    Vector2 sparklePos = player.MountedCenter + (frame.Rotation + MathHelper.PiOver4 * frame.Direction).ToRotationVector2() * 50f;
+                    CustomParticles.GenericFlare(sparklePos, new Color(180, 120, 255) * 0.6f, 0.35f, 14);
+                    
+                    // Silver halo accent
+                    if (Main.rand.NextBool(3))
+                    {
+                        CustomParticles.HaloRing(sparklePos, new Color(220, 220, 240) * 0.4f, 0.25f, 10);
+                    }
+                }
             }
         }
     }
@@ -339,24 +504,47 @@ namespace MagnumOpus.Common.Systems
 
         private Color GetWeaponThemeColor(int itemType)
         {
-            // Eroica weapons
+            // Eroica weapons - sakura/gold
             if (itemType == ModContent.ItemType<SakurasBlossom>() ||
                 itemType == ModContent.ItemType<CelestialValor>())
             {
                 return new Color(255, 180, 100);
             }
             
-            // Moonlight weapons
+            // Moonlight weapons - purple/silver
             if (itemType == ModContent.ItemType<IncisorOfMoonlight>() ||
                 itemType == ModContent.ItemType<EternalMoon>())
             {
                 return new Color(200, 150, 255);
             }
             
-            // Swan Lake weapons
+            // Swan Lake weapons - pearlescent white
             if (itemType == ModContent.ItemType<CalloftheBlackSwan>())
             {
-                return new Color(220, 220, 235); // Pearlescent white
+                return new Color(220, 220, 235);
+            }
+            
+            // Fate weapons - dark pink/crimson
+            if (itemType == ModContent.ItemType<Fate1>() ||
+                itemType == ModContent.ItemType<Fate5>() ||
+                itemType == ModContent.ItemType<Fate9>())
+            {
+                return new Color(180, 50, 100);
+            }
+            
+            // La Campanella weapons - infernal orange
+            if (itemType == ModContent.ItemType<DualFatedChime>() ||
+                itemType == ModContent.ItemType<IgnitionOfTheBell>())
+            {
+                return new Color(255, 100, 0);
+            }
+            
+            // Enigma weapons - arcane purple
+            if (itemType == ModContent.ItemType<Enigma1>() ||
+                itemType == ModContent.ItemType<Enigma5>() ||
+                itemType == ModContent.ItemType<Enigma9>())
+            {
+                return new Color(140, 60, 200);
             }
 
             return Color.White;

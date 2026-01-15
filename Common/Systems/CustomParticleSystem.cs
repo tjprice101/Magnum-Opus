@@ -9,7 +9,7 @@ using ReLogic.Content;
 namespace MagnumOpus.Common.Systems
 {
     /// <summary>
-    /// Enhanced custom particle system for MagnumOpus with 74 particle textures:
+    /// Enhanced custom particle system for MagnumOpus with 94 particle textures:
     /// - 7 EnergyFlare variants (intense bursts, explosions)
     /// - 4 SoftGlow variants (trails, auras, ambient)
     /// - 6 MusicNote variants (thematic musical effects)
@@ -19,6 +19,8 @@ namespace MagnumOpus.Common.Systems
     /// - 15 PrismaticSparkle variants (gem effects, treasure highlights, magic sparkles)
     /// - 9 SwordArc variants (arcing projectile slashes, energy wave attacks)
     /// - 10 SwanFeather variants (Swan Lake exclusive - elegant floating feathers)
+    /// - 8 EnigmaEye variants (Enigma theme - mysterious watching eyes, meaningful placement at impacts/targets)
+    /// - 12 Glyph variants (universal arcane symbols - usable for all themes, debuff stacking, magic circles)
     /// All textures are white/grayscale and tinted at runtime.
     /// </summary>
     public class CustomParticleSystem : ModSystem
@@ -41,6 +43,10 @@ namespace MagnumOpus.Common.Systems
         public static Asset<Texture2D>[] SwordArcs { get; private set; } = new Asset<Texture2D>[9];
         // SwanFeather textures (10 variants) - Swan Lake exclusive feather effects
         public static Asset<Texture2D>[] SwanFeathers { get; private set; } = new Asset<Texture2D>[10];
+        // EnigmaEye textures (8 variants) - Enigma theme mysterious watching eyes
+        public static Asset<Texture2D>[] EnigmaEyes { get; private set; } = new Asset<Texture2D>[8];
+        // Glyph textures (12 variants) - Universal arcane symbols for all themes
+        public static Asset<Texture2D>[] Glyphs { get; private set; } = new Asset<Texture2D>[12];
         
         // Optimized particle pools - increased for particle-heavy boss fights
         private static List<CustomParticle> activeParticles = new List<CustomParticle>(1000);
@@ -92,6 +98,14 @@ namespace MagnumOpus.Common.Systems
                 for (int i = 0; i < 10; i++)
                     SwanFeathers[i] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles/SwanFeather{i + 1}", AssetRequestMode.ImmediateLoad);
                 
+                // Load EnigmaEye variants (8 total) - Mysterious watching eyes for Enigma theme
+                for (int i = 0; i < 8; i++)
+                    EnigmaEyes[i] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles/EnigmaEye{i + 1}", AssetRequestMode.ImmediateLoad);
+                
+                // Load Glyph variants (12 total) - Universal arcane symbols for all themes
+                for (int i = 0; i < 12; i++)
+                    Glyphs[i] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles/Glyphs{i + 1}", AssetRequestMode.ImmediateLoad);
+                
                 TexturesLoaded = true;
             }
             catch { TexturesLoaded = false; }
@@ -140,6 +154,10 @@ namespace MagnumOpus.Common.Systems
         public static Asset<Texture2D> RandomPrismaticSparkle() => PrismaticSparkles[Main.rand.Next(15)];
         public static Asset<Texture2D> RandomSwordArc() => SwordArcs[Main.rand.Next(9)];
         public static Asset<Texture2D> RandomSwanFeather() => SwanFeathers[Main.rand.Next(10)];
+        public static Asset<Texture2D> RandomEnigmaEye() => EnigmaEyes[Main.rand.Next(8)];
+        public static Asset<Texture2D> RandomGlyph() => Glyphs[Main.rand.Next(12)];
+        public static Asset<Texture2D> GetGlyph(int index) => Glyphs[Math.Clamp(index, 0, 11)];
+        public static Asset<Texture2D> GetEnigmaEye(int index) => EnigmaEyes[Math.Clamp(index, 0, 7)];
         
         public static void DrawAllParticles(SpriteBatch spriteBatch)
         {
@@ -1324,6 +1342,244 @@ namespace MagnumOpus.Common.Systems
                     0.05f, true, false)
                     .WithGravity(-0.02f).WithDrag(0.97f);
                 CustomParticleSystem.SpawnParticle(p);
+            }
+        }
+        
+        // ================== ENIGMA EYE EFFECTS (MYSTERIOUS WATCHING EYES) ==================
+        // IMPORTANT: Eyes should have MEANINGFUL placements - at impact points, watching targets,
+        // near enemies, NOT scattered randomly. They represent the unknown observing.
+        
+        /// <summary>Single mysterious eye - appears at impact point watching the struck target</summary>
+        public static void EnigmaEyeGaze(Vector2 pos, Color color, float scale = 0.5f, Vector2? lookDirection = null)
+        {
+            if (!CustomParticleSystem.TexturesLoaded) return;
+            var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.RandomEnigmaEye(), pos, Vector2.Zero,
+                color, scale, 45 + Main.rand.Next(20), 0f, true, true);
+            // If look direction provided, rotate to face that direction
+            if (lookDirection.HasValue && lookDirection.Value != Vector2.Zero)
+                p.Rotation = lookDirection.Value.ToRotation();
+            CustomParticleSystem.SpawnParticle(p);
+        }
+        
+        /// <summary>Eye appears at impact watching the target - MEANINGFUL placement</summary>
+        public static void EnigmaEyeImpact(Vector2 impactPos, Vector2 targetPos, Color color, float scale = 0.6f)
+        {
+            if (!CustomParticleSystem.TexturesLoaded) return;
+            Vector2 lookDir = targetPos - impactPos;
+            var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.RandomEnigmaEye(), impactPos, Vector2.Zero,
+                color, scale, 50 + Main.rand.Next(25), 0f, true, true);
+            p.Rotation = lookDir != Vector2.Zero ? lookDir.ToRotation() : Main.rand.NextFloat(MathHelper.TwoPi);
+            CustomParticleSystem.SpawnParticle(p);
+            // Secondary flare behind the eye
+            GenericFlare(impactPos, color * 0.5f, scale * 0.4f, 30);
+        }
+        
+        /// <summary>Multiple eyes in formation watching a central point - for AOE effects</summary>
+        public static void EnigmaEyeFormation(Vector2 centerPos, Color color, int count = 3, float radius = 50f)
+        {
+            if (!CustomParticleSystem.TexturesLoaded) return;
+            for (int i = 0; i < count; i++)
+            {
+                float angle = MathHelper.TwoPi * i / count + Main.rand.NextFloat(-0.1f, 0.1f);
+                var offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+                var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.GetEnigmaEye(i % 8), centerPos + offset, Vector2.Zero,
+                    color * Main.rand.NextFloat(0.8f, 1f), 0.4f + Main.rand.NextFloat(0.2f), 55 + Main.rand.Next(20), 0f, true, true);
+                // Eyes look toward center
+                p.Rotation = (-offset).ToRotation();
+                CustomParticleSystem.SpawnParticle(p);
+            }
+        }
+        
+        /// <summary>Eye trail - eyes appear along path, each watching the next point</summary>
+        public static void EnigmaEyeTrail(Vector2 pos, Vector2 velocity, Color color, float scale = 0.3f)
+        {
+            if (!CustomParticleSystem.TexturesLoaded || !Main.rand.NextBool(5)) return;
+            var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.RandomEnigmaEye(), pos, Vector2.Zero,
+                color * 0.8f, scale, 40 + Main.rand.Next(20), 0f, true, true);
+            p.Rotation = velocity.ToRotation();
+            CustomParticleSystem.SpawnParticle(p);
+        }
+        
+        /// <summary>Eye burst that all look outward - explosion of awareness</summary>
+        public static void EnigmaEyeExplosion(Vector2 pos, Color color, int count = 6, float speed = 3f)
+        {
+            if (!CustomParticleSystem.TexturesLoaded) return;
+            // Central intense flare
+            GenericFlare(pos, color, 0.8f, 30);
+            for (int i = 0; i < count; i++)
+            {
+                float angle = MathHelper.TwoPi * i / count + Main.rand.NextFloat(-0.15f, 0.15f);
+                var vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * (speed + Main.rand.NextFloat(speed * 0.3f));
+                var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.RandomEnigmaEye(), pos, vel,
+                    color * Main.rand.NextFloat(0.8f, 1f), 0.35f + Main.rand.NextFloat(0.2f), 40 + Main.rand.Next(20), 0f, true, true)
+                    .WithDrag(0.94f);
+                p.Rotation = angle; // Eyes look in direction they're moving
+                CustomParticleSystem.SpawnParticle(p);
+            }
+        }
+        
+        /// <summary>Orbiting eyes - eyes slowly orbit around an entity, always watching outward</summary>
+        public static void EnigmaEyeOrbit(Vector2 center, Color color, int count = 4, float radius = 45f)
+        {
+            if (!CustomParticleSystem.TexturesLoaded) return;
+            float baseAngle = (float)(Main.GameUpdateCount % 360) * 0.02f;
+            for (int i = 0; i < count; i++)
+            {
+                float angle = baseAngle + MathHelper.TwoPi * i / count;
+                var offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+                var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.GetEnigmaEye(i % 8), center + offset, Vector2.Zero,
+                    color * Main.rand.NextFloat(0.7f, 1f), 0.3f + Main.rand.NextFloat(0.15f), 8, 0f, true, false);
+                p.Rotation = angle; // Looking outward
+                CustomParticleSystem.SpawnParticle(p);
+            }
+        }
+        
+        // ================== GLYPH EFFECTS (UNIVERSAL ARCANE SYMBOLS) ==================
+        // Glyphs can be used for ANY theme. They represent arcane power, debuff stacking,
+        // magic circles, enchantments, and mysterious runes.
+        
+        /// <summary>Single arcane glyph - generic magical symbol</summary>
+        public static void Glyph(Vector2 pos, Color color, float scale = 0.5f, int glyphIndex = -1)
+        {
+            if (!CustomParticleSystem.TexturesLoaded) return;
+            var tex = glyphIndex >= 0 ? CustomParticleSystem.GetGlyph(glyphIndex) : CustomParticleSystem.RandomGlyph();
+            var p = CustomParticleSystem.GetParticle().Setup(tex, pos, Vector2.Zero,
+                color, scale, 40 + Main.rand.Next(20), Main.rand.NextFloat(-0.01f, 0.01f), true, true);
+            CustomParticleSystem.SpawnParticle(p);
+        }
+        
+        /// <summary>Glyph stack indicator - shows debuff/buff stacks with layered glyphs</summary>
+        public static void GlyphStack(Vector2 pos, Color color, int stackCount, float baseScale = 0.3f)
+        {
+            if (!CustomParticleSystem.TexturesLoaded) return;
+            int displayCount = Math.Min(stackCount, 5); // Max 5 visible glyphs
+            for (int i = 0; i < displayCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / displayCount;
+                float radius = 15f + displayCount * 3f;
+                var offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+                float individualScale = baseScale + (stackCount * 0.02f); // Bigger with more stacks
+                var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.GetGlyph(i % 12), pos + offset, Vector2.Zero,
+                    color * (0.7f + i * 0.06f), individualScale, 35 + i * 5, 0.02f + i * 0.005f, true, true);
+                CustomParticleSystem.SpawnParticle(p);
+            }
+            // Central glow intensifies with stacks
+            GenericGlow(pos, color, 0.3f + stackCount * 0.05f, 30);
+        }
+        
+        /// <summary>Magic circle - rotating glyphs forming a protective/offensive circle</summary>
+        public static void GlyphCircle(Vector2 pos, Color color, int count = 6, float radius = 40f, float rotationSpeed = 0.03f)
+        {
+            if (!CustomParticleSystem.TexturesLoaded) return;
+            float baseAngle = (float)(Main.GameUpdateCount % 360) * rotationSpeed;
+            for (int i = 0; i < count; i++)
+            {
+                float angle = baseAngle + MathHelper.TwoPi * i / count;
+                var offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+                var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.GetGlyph(i % 12), pos + offset, Vector2.Zero,
+                    color * Main.rand.NextFloat(0.8f, 1f), 0.35f + Main.rand.NextFloat(0.1f), 12, 0f, true, false);
+                p.Rotation = angle + MathHelper.PiOver2;
+                CustomParticleSystem.SpawnParticle(p);
+            }
+            // Central connecting halo
+            HaloRing(pos, color * 0.4f, radius / 80f, 15);
+        }
+        
+        /// <summary>Glyph burst - exploding arcane symbols</summary>
+        public static void GlyphBurst(Vector2 pos, Color color, int count = 8, float speed = 3f)
+        {
+            if (!CustomParticleSystem.TexturesLoaded) return;
+            // Central flare
+            GenericFlare(pos, color, 0.7f, 25);
+            for (int i = 0; i < count; i++)
+            {
+                float angle = MathHelper.TwoPi * i / count + Main.rand.NextFloat(-0.2f, 0.2f);
+                var vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * (speed + Main.rand.NextFloat(speed * 0.4f));
+                var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.RandomGlyph(), pos, vel,
+                    color * Main.rand.NextFloat(0.75f, 1f), 0.3f + Main.rand.NextFloat(0.2f), 35 + Main.rand.Next(15),
+                    Main.rand.NextFloat(-0.05f, 0.05f), true, true).WithDrag(0.92f);
+                CustomParticleSystem.SpawnParticle(p);
+            }
+        }
+        
+        /// <summary>Glyph trail - glyphs left behind as projectile travels</summary>
+        public static void GlyphTrail(Vector2 pos, Vector2 velocity, Color color, float scale = 0.25f)
+        {
+            if (!CustomParticleSystem.TexturesLoaded || !Main.rand.NextBool(4)) return;
+            var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.RandomGlyph(), pos, -velocity * 0.05f,
+                color * 0.7f, scale, 30 + Main.rand.Next(15), Main.rand.NextFloat(-0.03f, 0.03f), true, true)
+                .WithDrag(0.96f);
+            CustomParticleSystem.SpawnParticle(p);
+        }
+        
+        /// <summary>Glyph aura - floating glyphs around an entity for ambient magic</summary>
+        public static void GlyphAura(Vector2 center, Color color, float radius = 35f, int count = 2)
+        {
+            if (!CustomParticleSystem.TexturesLoaded || !Main.rand.NextBool(4)) return;
+            for (int i = 0; i < count; i++)
+            {
+                var offset = Main.rand.NextVector2Circular(radius, radius);
+                var vel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.5f, -0.2f));
+                var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.RandomGlyph(), center + offset, vel,
+                    color * Main.rand.NextFloat(0.4f, 0.7f), 0.15f + Main.rand.NextFloat(0.1f), 50 + Main.rand.Next(30),
+                    Main.rand.NextFloat(-0.02f, 0.02f), true, true).WithDrag(0.98f).WithGravity(-0.005f);
+                CustomParticleSystem.SpawnParticle(p);
+            }
+        }
+        
+        /// <summary>Glyph impact - meaningful glyph at point of impact</summary>
+        public static void GlyphImpact(Vector2 pos, Color primary, Color secondary, float scale = 0.6f)
+        {
+            if (!CustomParticleSystem.TexturesLoaded) return;
+            // Main glyph
+            var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.RandomGlyph(), pos, Vector2.Zero,
+                primary, scale, 40, 0.01f, true, true).WithGradient(secondary);
+            CustomParticleSystem.SpawnParticle(p);
+            // Smaller supporting glyphs
+            for (int i = 0; i < 3; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 3f + Main.rand.NextFloat(-0.2f, 0.2f);
+                var offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 25f;
+                var small = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.RandomGlyph(), pos + offset, -offset * 0.02f,
+                    secondary * 0.7f, scale * 0.5f, 30, Main.rand.NextFloat(-0.03f, 0.03f), true, true);
+                CustomParticleSystem.SpawnParticle(small);
+            }
+            // Background halo
+            HaloRing(pos, primary * 0.5f, scale * 0.6f, 25);
+        }
+        
+        /// <summary>Multi-layered glyph tower - stacking visual for powerful effects</summary>
+        public static void GlyphTower(Vector2 pos, Color color, int layers = 4, float baseScale = 0.4f)
+        {
+            if (!CustomParticleSystem.TexturesLoaded) return;
+            for (int i = 0; i < layers; i++)
+            {
+                float yOffset = -i * 12f;
+                float layerScale = baseScale * (1f - i * 0.15f);
+                float alpha = 1f - i * 0.2f;
+                var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.GetGlyph(i % 12), 
+                    pos + new Vector2(0, yOffset), new Vector2(0, -0.3f),
+                    color * alpha, layerScale, 40 + i * 8, 0.01f + i * 0.005f, true, true)
+                    .WithGravity(-0.01f);
+                CustomParticleSystem.SpawnParticle(p);
+            }
+        }
+        
+        // ================== ENIGMA THEME COLORS ==================
+        public static class EnigmaColors
+        {
+            public static Color Black => new Color(15, 10, 20);
+            public static Color DeepPurple => new Color(80, 20, 120);
+            public static Color Purple => new Color(140, 60, 200);
+            public static Color GreenFlame => new Color(50, 220, 100);
+            public static Color DarkGreen => new Color(30, 100, 50);
+            public static Color Random() => Main.rand.Next(5) switch { 0 => Black, 1 => DeepPurple, 2 => Purple, 3 => GreenFlame, _ => DarkGreen };
+            public static Color Gradient(float t)
+            {
+                // Black → Purple → Green flame transition
+                if (t < 0.5f)
+                    return Color.Lerp(DeepPurple, Purple, t * 2f);
+                return Color.Lerp(Purple, GreenFlame, (t - 0.5f) * 2f);
             }
         }
     }

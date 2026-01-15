@@ -1,0 +1,158 @@
+# Dies Irae - Particles and Effects
+
+## Theme Overview
+
+Dies Irae (Day of Wrath) theme represents divine judgment, infernal punishment, hellfire, and apocalyptic doom. Visual motifs include:
+- **Chains** - binding, dragging, imprisoning
+- **Hellfire** - unholy flames, brimstone
+- **Brimstone** - sulfurous rocks, ash
+- **Skulls** - death, mortality, judgment
+- **Cracks and fissures** - hell opening
+- **Demonic symbols** - inverted crosses, pentagrams
+- **Smoke and ash** - aftermath of destruction
+
+## Color Palette Reference
+```
+DiresBlack       - (15, 10, 10)   - Charred black
+DiresDeepRed     - (120, 20, 20)  - Blood red
+DiresHellfire    - (255, 80, 20)  - Hellfire orange
+DiresEmber       - (255, 150, 50) - Burning ember
+DiresBrimstone   - (180, 160, 60) - Sulfur yellow
+DiresAsh         - (80, 70, 65)   - Ash gray
+DiresViolet      - (100, 30, 80)  - Unholy violet
+```
+
+---
+
+## PROMPT DI-1: Chain Particles
+
+```
+white chain link particle sprite sheet, 20 variations in 5x4 grid, pure white and grayscale iron chains on transparent background, includes: single chain link oval, single chain link round, chain segment three links, chain segment five links, chain coiled loose, chain pulled taut straight, chain broken snapped apart, chain link opening breaking, heavy thick chain industrial, delicate thin chain, ornate decorated chain, rusted damaged chain implied by texture, chain with hook end, chain with shackle end, chain loop closed circle, chain dragging trailing, chain emerging from void, chain wrapping binding, chain cross pattern, chain pile heap, each chain heavy metallic quality, suitable for binding imprisonment judgment effects, 32x32 to 64x32 pixel sprites upscaled, no color pure white only, various orientations, black background --v 6.1 --ar 5:4 --style raw --s 75
+```
+
+---
+
+## PROMPT DI-2: Shackle and Manacle Effects
+
+```
+white shackle manacle sprite sheet, 12 variations in 4x3 grid, pure white and grayscale restraints on transparent background, includes: wrist shackle open, wrist shackle closed locked, ankle shackle heavy, shackle with chain attached, shackle breaking open, shackle fragment broken, double shackle pair connected, collar shackle neck restraint, shackle locking animation frames, shackle with keyhole, ornate punishment shackle decorated, simple utilitarian shackle, each shackle heavy oppressive quality, suitable for binding debuff imprisonment effects, 48x48 pixel sprites upscaled, no color pure luminosity, centered, black background --v 6.1 --ar 4:3 --style raw --s 75
+```
+
+---
+
+## PROMPT DI-3: Hellfire Flame Particles
+
+```
+white hellfire flame particle sprite sheet, 20 variations in 5x4 grid, pure white and grayscale infernal fire on transparent background, includes: single hellfire wisp aggressive, hellfire blaze intense, hellfire tongue licking upward, hellfire crackling chaotic, hellfire with ember spray, hellfire consuming hungry, hellfire wall barrier, hellfire pillar column, hellfire explosion burst, hellfire flickering animated, hellfire with smoke above, hellfire burning low, hellfire burning intense, hellfire spiral twisted, hellfire with face suggested demonic, hellfire from ground crack, hellfire around object outline, hellfire dissipating dying, hellfire igniting starting, twin hellfire flames dancing, each flame has unnatural aggressive malevolent quality unlike natural fire, suitable for infernal damage burn effects, 32x32 to 64x64 pixel sprites upscaled, no color pure luminosity for fire tinting, centered, black background --v 6.1 --ar 5:4 --style raw --s 75
+```
+
+---
+
+## PROMPT DI-4: Brimstone and Sulfur
+
+```
+white brimstone sulfur particle sprite sheet, 16 variations in 4x4 grid, pure white and grayscale volcanic rock particles on transparent background, includes: brimstone chunk rough rock, brimstone shard pointed, brimstone pebble small, brimstone boulder large, sulfur crystal cluster, sulfur dust cloud, molten brimstone dripping, brimstone floating with heat, brimstone exploding shatter, brimstone trail scattered, volcanic rock porous, obsidian shard sharp black glass, ash-covered stone, smoldering brimstone ember glow, brimstone debris rain, brimstone crack fissure, each piece volcanic hellish origin, suitable for earth fire infernal attack effects, 32x32 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+## PROMPT DI-5: Skull and Bone Particles
+
+```
+white skull bone particle sprite sheet, 16 variations in 4x4 grid, pure white and grayscale death symbols on transparent background, includes: human skull front view, skull side profile, skull with jaw open screaming, skull fragment forehead piece, skull with horns demonic, skull engulfed in flames outline, skull dissolving to ash, skull emerging from darkness, tiny skull mini, large skull dramatic, bone fragment femur piece, bone splinter sharp, ribcage fragment, vertebra single bone, bone cross crossed bones, skull and crossbones classic, each skull mortality judgment quality, suitable for death curse judgment effects, 32x32 pixel sprites upscaled, no color pure luminosity, centered, black background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+## PROMPT DI-6: Hell Crack and Fissure
+
+```
+white hell crack fissure sprite sheet, 12 variations in 4x3 grid, pure white and grayscale ground cracks on transparent background, includes: simple straight crack, branching crack veins, wide fissure gap, narrow crack thin, crack with hellfire showing through glow, crack opening widening, crack closing healing, crack pattern radial from point, crack with brimstone chunks, crack zigzag pattern, deep chasm crack dark, surface crack shallow, each crack suggests hell opening beneath, fiery glow from within, suitable for ground crack doom summon effects, 64x32 pixel sprites upscaled, no color pure white only, horizontal orientation, black background --v 6.1 --ar 2:1 --style raw --s 75
+```
+
+---
+
+## PROMPT DI-7: Demonic Symbol Effects
+
+```
+white demonic symbol sprite sheet, 16 variations in 4x4 grid, pure white and grayscale unholy symbols on transparent background, includes: inverted pentagram, inverted cross, sigil of summoning circular, demonic rune angular, seal of binding ornate, mark of damnation branded, curse symbol glyph, unholy triangle, baphomet head silhouette, demon eye symbol, hell gate symbol archway, chain of binding symbol, fire symbol stylized, judgment scales symbol, serpent coil symbol, horn symbol curved, each symbol dark forbidden quality, suitable for curse hex summoning effects, 32x32 pixel sprites upscaled, no color pure luminosity, centered, black background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+## PROMPT DI-8: Smoke and Ash Particles
+
+```
+white smoke ash particle sprite sheet, 16 variations in 4x4 grid, pure white and grayscale combustion particles on transparent background, includes: thick black smoke billow, thin smoke wisp, smoke rising column, smoke spreading dispersing, ash particle small speck, ash cluster group, ash falling rain, ash swirl wind, ember in smoke glowing point, smoke with sparks mixed, soot cloud dense, smoke ring circular, smoke with heat distortion implied, ash drift floating, smoke dissipating fading, volcanic ash heavy, each particle aftermath of destruction quality, suitable for smoke screen aftermath fire effects, 32x32 to 64x64 pixel sprites upscaled, no color pure luminosity for dark tinting, centered, black background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+## PROMPT DI-9: Infernal Impact Burst
+
+```
+white infernal explosion burst sprite sheet, 8 variations in 4x2 grid, pure white and grayscale hellish explosion on transparent background, includes: hellfire explosion radial, chain burst breaking outward, brimstone shatter scatter, skull emergence from flames, hell crack opening burst, demonic symbol flash appearing, combined infernal explosion fire chains skulls, judgment impact divine wrath, each impact apocalyptic destructive quality, hellfire and chains and brimstone radiating outward, suitable for infernal weapon hit judgment strike effects, 64x64 pixel sprites upscaled, no color pure luminosity, centered radial, black background --v 6.1 --ar 2:1 --style raw --s 75
+```
+
+---
+
+## PROMPT DI-10: Chain Binding Effects
+
+```
+white chain binding effect sprite sheet, 8 variations in 4x2 grid, pure white and grayscale binding chains on transparent background, includes: chains wrapping around target circular, chains dragging downward to hell, chains emerging from ground reaching, chains constricting tightening, chains with shackles at ends, chains forming cage prison, chains breaking freedom, chains with hellfire between links, each binding effect imprisonment punishment quality, multiple chains overlapping, suitable for binding debuff crowd control judgment effects, 64x64 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 2:1 --style raw --s 75
+```
+
+---
+
+## PROMPT DI-11: Infernal Trail Effects
+
+```
+white infernal trail sprite sheet, 12 variations in 4x3 grid, pure white and grayscale hellish projectile trails on transparent background, includes: trail of hellfire burning, trail of dragging chains, trail of brimstone debris, trail of skulls floating, trail of ash and smoke, trail of demonic symbols, trail with ground cracks following, trail of embers glowing, combined infernal trail fire chains, trail ending in explosion, trail of judgment flames, trail dissolving to ash, each trail suitable for infernal projectile weapon effects, elongated horizontal orientation, intense fiery leading edge fading to smoke and ash, 64x16 pixel sprites upscaled, no color pure luminosity, black background --v 6.1 --ar 4:1 --style raw --s 75
+```
+
+---
+
+## PROMPT DI-12: Judgment and Divine Wrath
+
+```
+white divine judgment symbol sprite sheet, 12 variations in 4x3 grid, pure white and grayscale apocalyptic imagery on transparent background, includes: scales of justice balanced, scales of justice tipped guilty, divine light beam from above, eye of judgment all-seeing, trumpet of doom herald, seal being broken, scroll of judgment unrolling, hand of judgment pointing down, crown of thorns, wings of judgment angel silhouette, sword of judgment flaming, hour of reckoning clock at midnight, each symbol divine apocalyptic judgment quality, suitable for ultimate judgment finisher effects, 48x48 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 4:3 --style raw --s 100
+```
+
+---
+
+## Implementation Notes
+
+When tinting these particles in code, use the Dies Irae gradient:
+```csharp
+// Dies Irae gradient: Black → Deep Red → Hellfire → Ember
+Color GetDiresGradient(float progress)
+{
+    if (progress < 0.33f)
+        return Color.Lerp(DiresBlack, DiresDeepRed, progress * 3f);
+    else if (progress < 0.66f)
+        return Color.Lerp(DiresDeepRed, DiresHellfire, (progress - 0.33f) * 3f);
+    else
+        return Color.Lerp(DiresHellfire, DiresEmber, (progress - 0.66f) * 3f);
+}
+
+// For brimstone/sulfur accents:
+Color brimstoneColor = Color.Lerp(DiresBrimstone, DiresHellfire, intensity);
+
+// For ash and smoke (inverted - dark particles):
+Color ashColor = Color.Lerp(DiresAsh, DiresBlack, progress);
+
+// For unholy violet accents:
+Color unholyColor = Color.Lerp(DiresViolet, DiresDeepRed, progress);
+```
+
+**Dies Irae Special Techniques:**
+- Use dark smoke tinting (ash gray to black) unlike other themes
+- Chains should have metallic sheen via lighting
+- Combine fire + chains for signature infernal look
+- Skulls add death/judgment flavor sparingly
+
+Combine multiple particle types for infernal effects:
+- Chains + hellfire for binding damage
+- Skulls + brimstone for death curse
+- Cracks + fire for ground eruption
+- Smoke + ash for aftermath effects

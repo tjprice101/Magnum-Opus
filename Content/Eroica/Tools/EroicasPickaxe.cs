@@ -4,6 +4,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Tools
 {
@@ -80,6 +81,13 @@ namespace MagnumOpus.Content.Eroica.Tools
                     DustID.Torch, 0f, 0f, 0, default, 0.8f);
                 sparkle.noGravity = true;
                 sparkle.velocity *= 0.5f;
+            }
+
+            // Music notes in tool swing
+            if (Main.rand.NextBool(4))
+            {
+                Microsoft.Xna.Framework.Vector2 notePos = hitbox.Center.ToVector2();
+                ThemedParticles.EroicaMusicNotes(notePos, 2, 15f);
             }
         }
     }

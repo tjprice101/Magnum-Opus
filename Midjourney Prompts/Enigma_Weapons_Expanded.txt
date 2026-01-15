@@ -1,0 +1,195 @@
+# Enigma Variations - Expanded Weapon Design Prompts
+
+## Theme Reference
+```
+EnigmaBlack       - (15, 10, 20)   - Primary void darkness
+EnigmaDeepPurple  - (80, 20, 120)  - Arcane mystery
+EnigmaPurple      - (140, 60, 200) - Secondary glow
+EnigmaGreenFlame  - (50, 220, 100) - Eerie accent flame
+EnigmaDarkGreen   - (30, 100, 50)  - Dark accent
+```
+
+## Design Philosophy
+Every Enigma weapon embodies **THE UNKNOWABLE** - questions without answers, paradoxes that exist despite logic, and mysteries that watch back. Music motifs appear as riddles and puzzles etched into the designs.
+
+---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# MELEE WEAPONS - EXPANDED
+# ═══════════════════════════════════════════════════════════════════════════
+
+## PROMPT EM-1: The Paradox Terminus (Great Sword)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of a massive great sword themed around Enigma Variations paradox and finality, the blade is forged from crystallized questions that were never answered, crafted from deep purple metallic edge with void black core that seems infinitely deep and eerie green energy crackling along the cutting edge, created by the last question ever asked in the style of Terraria, rotated 45 degrees clockwise with blade toward top-right, the blade surface shows REFLECTIONS OF EVENTS THAT DIDN'T HAPPEN, watching eyes embedded along the flat of the blade each staring in different directions, question marks form naturally in the metal grain pattern, the pommel is a three-dimensional paradox symbol that hurts to look at, arcane glyphs run along the blade spelling a riddle with no answer, green flame wisps bleed from microscopic cracks in reality along the edge, the fuller (blood groove) contains trapped mystery mist, musical notes appear as parry notches along the spine, the guard is shaped like two question marks facing each other, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+## PROMPT EM-2: The Sphinx's Claws (Dual Daggers)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of ornate dual daggers themed around Enigma Variations riddles and deadly mystery, twin blades that ask a question with every cut, crafted from void black obsidian blades with deep purple hilts wrapped in green flame etchings, created by the Sphinx's own talons in the style of Terraria, rotated 45 degrees clockwise displayed as crossed pair, each blade is inscribed with HALF of an impossible riddle that only makes sense together, watching eyes serve as the pommels - one open one closed suggesting wakefulness and dreams, question mark shaped blade profiles when viewed from above, the edges phase between solid and intangible, arcane glyphs spiral around the handles, green energy connects the two daggers with a ghostly chain of question marks, one dagger reflects everything the other shows nothing, the mystery of their creation visible in the metal's swirling patterns, musical sharp symbols form the crossguards, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+## PROMPT EM-3: The Unanswered (War Hammer)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of a devastating war hammer themed around Enigma Variations crushing mystery, the hammer head IS a giant question mark made solid and weaponized, crafted from deep purple stone that predates the universe bound with void black metal bands and eerie green rune-chains, created by striking at the heart of mystery in the style of Terraria, rotated 45 degrees clockwise, the flat striking face is covered in ancient riddle inscriptions that rearrange with each hit, watching eyes peer from the depths of the stone like fossils of curiosity, the back pick is shaped like an exclamation point creating a question/answer duality, arcane glyphs orbit the hammer head in slow rotation, green flame erupts from impact point when striking, the handle is wrapped in leather made from bound mysteries, musical bass clef symbols reinforce the striking surfaces, paradox geometry visible in the hammer's shadow which doesn't match its shape, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+## PROMPT EM-4: The Labyrinth's Edge (Curved Sword/Khopesh)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of an ancient curved khopesh sword themed around Enigma Variations maze and mystery, the blade curves in IMPOSSIBLE directions suggesting paths that lead nowhere, crafted from deep purple bronze with void black handle and eerie green hieroglyphic engravings, created by the Minotaur's eternal riddle in the style of Terraria, rotated 45 degrees clockwise, the blade surface contains an etched labyrinth pattern that has no entrance or exit, watching eyes embedded at curve transitions watching for those who dare follow the path, question marks hidden in the maze pattern visible only at certain angles, the grip is wrapped in bandages that bind something INSIDE the handle, arcane maze symbols glow with green fire when danger approaches, musical notation runs along the spine playing a melody that guides through the impossible maze, reality bends around the curved sections more than geometry allows, the blade's edge exists in two positions simultaneously, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+## PROMPT EM-5: Schrödinger's Blade (Quantum Rapier)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of an elegant quantum rapier themed around Enigma Variations uncertainty and observation, the blade simultaneously EXISTS and DOESN'T EXIST until observed, crafted from probability metal that shimmers between deep purple and void black with eerie green quantum uncertainty particles, created by observing the unobservable in the style of Terraria, rotated 45 degrees clockwise, the blade appears BLURRED as if existing in multiple positions at once, a ghostly second blade image offset slightly suggesting quantum superposition, the guard is shaped like a schrodinger's cat silhouette neither alive nor dead, watching eyes that CHANGE the blade's state when they blink, question marks form the blade's wavefunction visible as trailing equations, arcane probability symbols scatter from the tip, green flame represents the moment of observation collapsing reality, the pommel contains a box that should NEVER be opened, musical notes play different melodies depending on who's listening, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# RANGED WEAPONS - EXPANDED
+# ═══════════════════════════════════════════════════════════════════════════
+
+## PROMPT ER-1: The Riddle Arbiter (Heavy Crossbow)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of an ornate heavy crossbow themed around Enigma Variations judgment and mystery, every bolt asks a question that MUST be answered with death, crafted from deep purple lacquered wood with void black metal mechanisms and eerie green magical strings, created by a judge of impossible trials in the style of Terraria, rotated 45 degrees clockwise, the limbs are carved with scales of justice holding question marks instead of weights, watching eyes embedded in the stock that track targets independently, the bolt channel shows a loaded bolt made of crystallized enigma, question marks form the sight alignment notches, arcane judgment glyphs circle the trigger mechanism, green flame energy builds in the string when drawn, the stock has text reading "ANSWER OR PERISH" in forgotten language, musical notes tune the string tension creating harmonic resonance, the crossbow seems to JUDGE the wielder as much as targets, paradox symbols on the windlass suggest impossible draw weight, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+## PROMPT ER-2: The Void Theorist's Repeater (Arcane Pistol)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of an ornate arcane pistol themed around Enigma Variations theory and cosmic mystery, fires bullets of PURE QUESTION into reality's fabric, crafted from deep purple enchanted metal with void black grip wrapped in eerie green circuitry patterns, created by a mad theorist trying to shoot answers from the void in the style of Terraria, rotated 45 degrees clockwise with barrel toward top-right, the barrel is shaped like a rolled scroll of impossible equations, a watching eye serves as the rear sight always calculating trajectories, the cylinder contains chambers for different TYPES of questions each glowing different intensities of green, question marks engraved spiral around the barrel, arcane theoretical symbols hover above the weapon suggesting loaded potential, the hammer is shaped like an exclamation point about to strike, green mist leaks from the barrel hinting at the void ammunition within, musical notation on the grip plays when fired as if announcing the question, the trigger guard forms an incomplete equation waiting to be solved, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+## PROMPT ER-3: Oracle's Compound Bow (Prophecy Bow)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of a modern compound bow themed around Enigma Variations prophecy and seeing the unseen, draws back the string of fate to launch arrows of destiny, crafted from deep purple carbon fiber with void black cams and pulleys glowing with eerie green oracle energy, created by one who saw too much in the style of Terraria, rotated 45 degrees clockwise, the cam wheels contain watching eyes that ROTATE showing different possible futures, the arrow rest holds a nocked arrow made of crystallized foresight, question mark cables connect the cams suggesting the uncertainty of prophecy, arcane vision symbols appear where you look through the sight window, green energy ribbons trail from drawn arrows showing where they WILL go, the grip whispers prophecies that might be lies, musical notation vibrates on the string creating future-harmonics when drawn, the limbs show cracks into other timelines, peep sight is an actual EYE that sees through obstacles, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+## PROMPT ER-4: The Unsolvable Equation (Magic Cannon)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of a devastating magic cannon themed around Enigma Variations mathematics and impossible solutions, fires concentrated bursts of PROBLEMS THAT CANNOT BE SOLVED, crafted from deep purple enchanted brass covered in equation engravings with void black iron frame and eerie green magical core visible through ports, created by mathematicians driven mad in the style of Terraria, rotated 45 degrees clockwise, the barrel is covered in spiraling equations that all equal IMPOSSIBLE values, watching eyes serve as range-finding optics calculating impossible distances, the bore shows swirling green mathematical chaos, question marks replace equals signs throughout the engravings, arcane numerical symbols hover and rotate around the barrel, the stock is reinforced with paradox-metal to contain the recoil of firing logical impossibilities, musical notation integrated suggests the rhythm of unsolvable theorems, the trigger mechanism requires solving an equation that changes each time, infinity symbols form the iron sights, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# MAGIC WEAPONS - EXPANDED  
+# ═══════════════════════════════════════════════════════════════════════════
+
+## PROMPT EG-1: The Eternal Query (Mystery Wand)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of an elegant mystery wand themed around Enigma Variations questions and arcane power, channels the power of every question never answered, crafted from deep purple crystal that grew in the shape of a question mark with void black handle and eerie green core that pulses with curiosity, created by the first question ever asked in the style of Terraria, rotated 45 degrees clockwise, the wand IS a three-dimensional question mark with the dot being a watching eye that follows targets, question marks cascade down the shaft like dripping magic, arcane glyphs orbit the wand head in perpetual rotation, green flame emanates from the tip when casting, the handle contains bound scrolls of unanswered riddles, musical notes scatter when magic is channeled, the eye at the tip shows different visions to different viewers, mystery mist pools in the question mark's curve, the wand asks a question before granting any spell, paradox symbols integrate with the crystal structure, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+## PROMPT EG-2: The Paradox Codex (Floating Tome)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of a floating grimoire themed around Enigma Variations paradox and forbidden knowledge, the book reads ITSELF and writes new impossibilities, crafted from deep purple leather bound with void black chains and clasps with eerie green text that rearranges constantly, created by writing down every paradox in existence in the style of Terraria, rotated 45 degrees clockwise, the book floats OPEN with pages turning by themselves revealing text that contradicts the previous page, watching eyes peek from between pages as if the book IS the reader, question marks serve as bookmarks throughout, the text visible includes equations that prove 1=2 and similar impossibilities, arcane paradox symbols orbit the floating tome, green flame words lift from the pages and become spells, the spine shows an Escher-like impossible structure, musical notation appears as margin notes suggesting reading rhythm, the cover depicts a snake eating its own tail, the book exists BEFORE it was written, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+## PROMPT EG-3: The Maze Master's Focus (Labyrinth Orb)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of a magical focus orb themed around Enigma Variations labyrinth and confusion, contains an entire impossible maze within its crystal depths, crafted from deep purple crystal sphere with void black metal cradle and eerie green labyrinth visible within, created by trapping a maze that has no solution in the style of Terraria, displayed in ornate stand, the interior shows a three-dimensional labyrinth with paths that loop impossibly, watching eyes wander the internal maze never finding exits, question marks mark dead ends that aren't really dead ends, arcane directional glyphs point in all directions simultaneously, green mist fills the maze corridors suggesting danger within, a tiny figure can be seen eternally walking the maze if you look closely, the exterior surface has maze patterns that CONTINUE into the interior seamlessly, musical notation guides those who listen through the impossible paths, the sphere shows different maze configurations depending on viewing angle, the cradle is shaped like hands that can't decide which way to point, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+## PROMPT EG-4: The Observer's Prism (All-Seeing Focus)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of a crystalline prism focus themed around Enigma Variations observation and forbidden sight, sees EVERYTHING including things that shouldn't be seen, crafted from deep purple prismatic crystal with void black metal casing and eerie green light refracting from every facet, created by capturing the gaze of something that watches everything in the style of Terraria, triangular prism shape on ornate stand, every facet contains a different watching eye looking in different directions, the light that passes through comes out as QUESTIONS rather than colors, question marks are visible in the refraction patterns, arcane sight-glyphs are etched into each face, green flame represents knowledge too terrible to comprehend, looking through the prism shows hidden things that weren't meant to be found, musical notes refract alongside light creating visual harmonics, the stand has closed eyes that REFUSE to look at what the prism shows, observers feel observed when holding it, paradox symbols show how the prism sees itself seeing, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SUMMONER WEAPONS - EXPANDED
+# ═══════════════════════════════════════════════════════════════════════════
+
+## PROMPT ES-1: The Riddle Keeper's Rod (Mystery Summoner Staff)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of an ornate summoner staff themed around Enigma Variations riddle-keeping and bound mysteries, summons entities made of QUESTIONS that need answering, crafted from deep purple ironwood carved with impossible riddles with void black metal rings and eerie green gem that contains trapped enigmas, created by a keeper of mysteries no one should solve in the style of Terraria, rotated 45 degrees clockwise, the staff head contains a large watching eye that directs the summoned beings, chains of question marks dangle from the headpiece suggesting bound mysteries, arcane summoning circles hover around the staff head in standby, green flame wisps represent proto-summons waiting to manifest, the shaft is wrapped in scrolls containing riddles for each potential summon, musical notation spirals around suggesting the song to call forth mysteries, the gem shows different creatures depending on what riddle is spoken, the bottom of the staff ends in a question mark point for grounding into reality, paradox symbols show where summoned beings COME from, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+## PROMPT ES-2: The Collective Unconscious Whip (Dream Summoner)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of a dreamlike whip themed around Enigma Variations collective mystery and subconscious summoning, calls forth nightmares made of everyone's unanswered questions, crafted from deep purple ethereal material that isn't quite solid with void black handle wrapped in eerie green sleep-patterns, created from solidified dreams of mystery in the style of Terraria, rotated 45 degrees clockwise showing coiled form, the whip is made of connected QUESTION MARKS forming a chain, watching eyes appear and disappear along its length as if dreaming, the tip ends in a void-black tassel that pulls things from sleep, arcane dream-glyphs float along the whip's curve, green mist trails suggest the border between wake and dream, the handle contains an eye CLOSED in perpetual sleep, musical lullaby notation plays when cracked calling dreamborn allies, the whip exists partly in the dream world at all times, figures can be glimpsed in the ethereal material - sleeping minds connected, paradox of something not-solid being solid weapon, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+## PROMPT ES-3: The Watcher's Beacon (Eye Summoner Lantern)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of a mystical lantern themed around Enigma Variations watching and vigilance, summons eyes to observe and strike, crafted from deep purple glass panels in void black iron frame with eerie green flame that IS a watching eye, created by trapping the gaze of an eternal watcher in the style of Terraria, lantern hangs from ornate chain, the flame INSIDE is shaped like a massive watching eye that never blinks, smaller eyes orbit the lantern drawn to its light, the glass panels show different scenes of things being watched, question marks form in the smoke rising from the flame, arcane surveillance glyphs cover the iron frame, the light cast shows hidden things in shadows, the handle is shaped like an eyelid that can close to contain the power, musical notes suggest the rhythm of observation - watching waiting watching, summoned eye-beings emerge from the flame, the lantern sees FOR the wielder in all directions, paradox of light that creates shadows rather than dispelling them, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ACCESSORY/SPECIAL ITEMS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## PROMPT EA-1: The Enigma's Mantle (Mystery Cloak)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of a mysterious hooded cloak themed around Enigma Variations concealment and mystery, wearing it makes the wearer a QUESTION to reality itself, crafted from deep purple shadow-silk that flows like questions with void black hood lined with eerie green runes, created by becoming the mystery rather than solving it in the style of Terraria, displayed as if worn by invisible figure, the fabric shows DIFFERENT PATTERNS depending on viewing angle, watching eyes peek from within the hood's darkness, question marks form in the flowing fabric ripples, the interior of the hood shows only void and a single watching eye, arcane concealment glyphs embroider the hem, green flame flickers where the cloak touches ground, the silhouette makes observers forget what they saw, musical notes muffle sound around the wearer, the cloak occasionally shows glimpses of ANSWERS inside that vanish when focused upon, hood casts shadow that reveals secrets in others, paradox of being seen but not perceived, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+## PROMPT EA-2: The Question's Answer (Paradox Amulet)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of an ancient amulet themed around Enigma Variations the impossible answer, contains the solution to an unsolvable riddle that CHANGES reality when learned, crafted from deep purple crystal shaped like a question mark with void black chain and eerie green core that pulses with contained knowledge, created by solving the unsolvable then trapping the answer in the style of Terraria, ornate pendant displayed on chain, the question mark shape contains an ANSWER inside visible as swirling green text that rearranges constantly, a watching eye forms the dot of the question mark, smaller question marks orbit the main pendant drawn to the answer within, arcane truth-glyphs seal the answer inside, green energy leaks from cracks where the answer tries to escape, the chain links are shaped like alternating ? and ! marks, musical resolution notes suggest the satisfaction of answered mystery, the pendant feels heavier with the weight of forbidden knowledge, looking too long at the center reveals answers that can't be unlearned, paradox of containing an answer to an answerless question, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+## PROMPT EA-3: The Third Eye Crown (Mystery Circlet)
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of an ornate crown circlet themed around Enigma Variations sight and forbidden perception, grants vision of questions hiding in reality, crafted from deep purple metal shaped in impossible geometric patterns with void black gemstones and a central eerie green third eye that OPENS when worn, created by those who saw too deeply in the style of Terraria, crown displayed as if floating, the central third eye dominates the design - large and ornate with spiral iris, smaller watching eyes embedded as gemstones around the band, question marks form the crown's points and decorative elements, the metal shows reflections of things the WEARER has questioned, arcane sight-runes circle the band, green flame aura suggests the burning of revelations, the crown adjusts to fit ANY head suggesting universal mystery, musical notation of a seeing-song inscribed inside the band, reality appears cracked to those wearing it revealing questions beneath, the third eye sees through all deception and into all mystery, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# IMPLEMENTATION NOTES
+# ═══════════════════════════════════════════════════════════════════════════
+
+## Prompt Modifiers
+- `--s 750` - Standard stylization for consistent Enigma aesthetic
+- `--v 7.0` - Midjourney v7 for best detail rendering
+- Add `--ar 1:1` for square sprites if needed
+- Add `--quality 2` for higher resolution final renders
+
+## Color Application
+When tinting/coloring generated white sprites:
+```csharp
+// Base metal coloring
+Color enigmaMetalPurple = new Color(100, 40, 140);
+Color enigmaAccentVoid = new Color(15, 10, 20);
+Color enigmaEnergyGreen = new Color(50, 220, 100);
+
+// Gradient application
+Color GetEnigmaGradient(float t) 
+{
+    if (t < 0.5f)
+        return Color.Lerp(enigmaAccentVoid, enigmaMetalPurple, t * 2f);
+    return Color.Lerp(enigmaMetalPurple, enigmaEnergyGreen, (t - 0.5f) * 2f);
+}
+```
+
+## VFX Pairing
+Each weapon should have corresponding VFX:
+- Question mark particles on swing/fire
+- Watching eye particles on impact
+- Green flame trails on projectiles
+- Arcane glyph bursts on critical effects
+- Mystery mist ambient on hold
+

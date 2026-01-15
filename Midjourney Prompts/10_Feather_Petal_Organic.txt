@@ -1,0 +1,39 @@
+# Feather/Petal/Organic Particles
+
+## PROMPT: Organic Particles
+
+```
+white organic particle sprite sheet, 16 variations in 4x4 grid, pure white and grayscale natural shapes on transparent background, includes: simple feather shapes, detailed feather with barbs, cherry blossom petals 5-petal, rose petals curved, maple leaf shapes, simple leaves, floating seeds, dandelion fluff, snowflake crystals, water droplets, flower buds, grass blade fragments, vine tendrils, organic curved wisps, butterfly wing fragments, scale/shell fragments, each shape has natural organic curves and soft edges, suitable for nature magic effects elemental particles, 32x32 pixel sprites upscaled, professional game asset quality, no color pure white luminosity only, varied orientations for natural scatter, black background for extraction, PNG alpha transparency --v 6.1 --ar 1:1 --style raw --s 100
+```
+
+---
+
+## Swan Feather Projectile Trails
+
+```
+white feather projectile trail sprite sheet, 16 variations in 4x4 grid, pure white and grayscale elegant feather effects on transparent background, includes: single floating feather drift, spinning feather spiral descent, feather burst scatter explosion, feather trail ribbon stream, paired swan feathers intertwined, feather quill writing trail, downy soft feather cloud, sharp flight feather projectile, feather dissipating into particles, crystallized ice feather shard, feather with sparkle accents, feather transforming to energy, barb separation scatter effect, rachis spine energy beam, feather vane cutting edge blade, calamus base impact burst, each feather has elegant flowing curves with soft edges, professional game VFX quality, 64x64 pixel sprites upscaled, suitable for swan-themed magic feather projectiles, no color pure white luminosity, black background --v 6.1 --ar 1:1 --style raw --s 100
+```
+
+---
+
+## Variations
+
+### Cherry Blossom Petals
+```
+white cherry blossom petal sprite sheet, 12 variations, pure grayscale, delicate 5-petal sakura flower petals, various curl and fold states, suitable for spring magic Japanese themes, 32x32 pixels upscaled, transparent background --v 6.1 --ar 3:2 --style raw --s 100
+```
+
+### Rose Petals
+```
+white rose petal sprite sheet, 12 variations, pure grayscale, curved romantic rose petals, various sizes and orientations, suitable for love magic elegant themes, 32x32 pixels upscaled, transparent background --v 6.1 --ar 3:2 --style raw --s 100
+```
+
+### Elegant Feathers
+```
+white elegant feather sprite sheet, 12 variations, pure grayscale, swan feathers peacock plumes, detailed barb structure, suitable for angelic avian themes, 64x32 elongated pixels upscaled, transparent background --v 6.1 --ar 2:1 --style raw --s 100
+```
+
+### Leaves and Vines
+```
+white leaf vine sprite sheet, 16 variations, pure grayscale, maple oak ivy leaves, curling vine tendrils, suitable for nature druid magic, 32x32 pixels upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+```

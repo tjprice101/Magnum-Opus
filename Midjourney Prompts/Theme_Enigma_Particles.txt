@@ -1,0 +1,123 @@
+# Enigma Variations - Particles and Effects
+
+## Theme Overview
+
+Enigma Variations theme represents mystery, the unknown, arcane puzzles, and unanswered questions. Visual motifs include:
+- **Question marks** - floating, rotating, dissolving
+- **Mystery symbols** - riddles, puzzles, unknown glyphs
+- **Void swirls** - dark spiraling vortexes
+- **Arcane glyphs** - indecipherable ancient writing
+- **Eye symbols** - all-seeing eyes, mysterious gazes
+- **Puzzle pieces** - fragmenting, assembling
+- **Paradox effects** - impossible geometry, recursive patterns
+
+## Color Palette Reference
+```
+EnigmaBlack       - (15, 10, 20)   - Primary void darkness
+EnigmaDeepPurple  - (80, 20, 120)  - Arcane mystery
+EnigmaPurple      - (140, 60, 200) - Secondary glow
+EnigmaGreenFlame  - (50, 220, 100) - Eerie accent flame
+EnigmaDarkGreen   - (30, 100, 50)  - Dark green accent
+```
+
+---
+
+## PROMPT E-1: Question Mark Particles
+
+```
+white question mark particle sprite sheet, 16 variations in 4x4 grid, pure white and grayscale mysterious question marks on transparent background, includes: simple clean question mark, stylized ornate question mark with serifs, question mark dissolving into particles at bottom, question mark made of swirling smoke, inverted question mark, question mark with glowing dot, double question mark intertwined, question mark emerging from void, question mark shattering into fragments, question mark with eye as the dot, question mark with spiral tail, question mark dripping like liquid, ghostly transparent question mark, bold thick question mark, thin elegant calligraphic question mark, question mark with arcane symbols integrated, each symbol clean with soft glow aura, professional game particle asset, 32x32 pixel base upscaled, no color pure white luminosity, centered composition, black background for extraction --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+## PROMPT E-2: Mystery Eye Symbols
+
+```
+white mysterious eye symbol sprite sheet, 12 variations in 4x3 grid, pure white and grayscale arcane eye designs on transparent background, includes: single all-seeing eye simple, eye within triangle pyramid, eye with radiating rays, closed eye with lashes, eye made of swirling void, eye with spiral iris, multiple overlapping eyes, eye dissolving into mist, eye with question mark pupil, third eye forehead symbol, crying eye with tear drops, eye emerging from darkness, each eye has mystical otherworldly quality, subtle glow around edges, suitable for mystery magic divination effects, 32x32 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 4:3 --style raw --s 75
+```
+
+---
+
+## PROMPT E-3: Void Swirl Vortex Effects
+
+```
+white void swirl vortex sprite sheet, 12 variations in 4x3 grid, pure white and grayscale spiraling void effects on transparent background, includes: tight spiral inward, loose spiral outward, double helix spiral, fragmenting spiral dissolving, spiral with particle trail, clockwise and counter-clockwise variations, spiral emerging from point, spiral collapsing to point, spiral with eye at center, chaotic turbulent spiral, geometric angular spiral, organic flowing spiral, each vortex suggests pulling or mysterious energy, darker center fading to edges or vice versa, suitable for portal mystery teleport effects, 64x64 pixel sprites upscaled, no color pure luminosity, centered rotation point, black background --v 6.1 --ar 4:3 --style raw --s 100
+```
+
+---
+
+## PROMPT E-4: Arcane Unknown Glyphs
+
+```
+white arcane glyph symbol sprite sheet, 20 variations in 5x4 grid, pure white and grayscale mysterious ancient symbols on transparent background, includes: unreadable alien script characters, impossible geometric symbols, recursive self-referencing glyphs, symbols that seem to shift when viewed, paradox notation marks, riddle pictograms, cipher wheel fragments, encoded mystery letters, ancient forgotten language characters, symbols combining question marks with runes, glyphs with void centers, symbols that appear incomplete yet whole, each glyph indecipherable yet meaningful looking, subtle glow aura, suitable for mystery magic unknown power effects, 32x32 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 5:4 --style raw --s 75
+```
+
+---
+
+## PROMPT E-5: Puzzle Fragment Particles
+
+```
+white puzzle piece particle sprite sheet, 16 variations in 4x4 grid, pure white and grayscale jigsaw and puzzle elements on transparent background, includes: single jigsaw piece classic shape, interlocking puzzle pair, puzzle piece dissolving, puzzle piece assembling from fragments, corner puzzle piece, edge puzzle piece, center puzzle piece, puzzle piece with question mark on face, shattered puzzle fragments scattering, puzzle piece rotating in space, puzzle piece made of smaller pieces recursive, puzzle piece with void hole, puzzle piece emerging from mist, puzzle piece with glyph engraved, abstract geometric puzzle shape, puzzle piece trail effect, suitable for mystery solving riddle theme effects, 32x32 pixel sprites upscaled, no color pure luminosity, centered, black background --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+---
+
+## PROMPT E-6: Paradox Geometry Effects
+
+```
+white paradox geometry sprite sheet, 12 variations in 4x3 grid, pure white and grayscale impossible shapes on transparent background, includes: Penrose triangle impossible, Penrose stairs fragment, Escher-inspired impossible cube, mobius strip segment, Klein bottle cross-section, infinite recursion pattern, shape that is simultaneously concave and convex, impossible fork optical illusion, never-ending staircase segment, self-intersecting impossible ring, geometry that defies perspective, fractal recursive impossible shape, each shape creates visual confusion suggesting reality-bending power, clean sharp edges with subtle depth shading, suitable for paradox reality-warping effects, 64x64 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 4:3 --style raw --s 100
+```
+
+---
+
+## PROMPT E-7: Enigma Flame Effects (Green Accents)
+
+```
+white eerie flame particle sprite sheet, 12 variations in 4x3 grid, pure white and grayscale ghostly fire on transparent background, includes: single wisp flame gentle, aggressive flickering flame, flame with question mark shape, flame emerging from eye, flame dissolving upward into void, cold-looking flame without heat implied, flame with spiral core, twin dancing flames, flame consuming itself recursive, flame made of tiny symbols, flame with face-like suggestion, flame that appears frozen mid-flicker, each flame has otherworldly unnatural quality suggesting mystery rather than heat, soft edges that fade to transparent, suitable for enigma mystery ghost fire effects, 32x32 pixel sprites upscaled, no color pure luminosity for green tinting, centered, black background --v 6.1 --ar 4:3 --style raw --s 75
+```
+
+---
+
+## PROMPT E-8: Enigma Impact Burst
+
+```
+white enigma impact burst sprite sheet, 8 variations in 4x2 grid, pure white and grayscale mysterious explosion effects on transparent background, includes: burst of question marks radiating outward, shockwave ring with glyphs embedded, void implosion then explosion, burst that reveals eye symbol at center, shatter effect with puzzle pieces, spiral burst with paradox geometry, burst with multiple layers of mystery symbols, reality-crack burst with void showing through, each impact suggests unveiling of hidden truth or deepening mystery, suitable for enigma weapon hit effects ability impacts, 64x64 pixel sprites upscaled, no color pure white only, centered radial composition, black background --v 6.1 --ar 2:1 --style raw --s 75
+```
+
+---
+
+## PROMPT E-9: Mystery Mist and Fog
+
+```
+white mystery mist particle sprite sheet, 12 variations in 4x3 grid, pure white and grayscale ethereal fog on transparent background, includes: soft billowing mystery cloud, mist with faint symbols visible within, fog that suggests hidden shapes, mist tendril reaching outward, fog patch with eye peering through, mist dissolving to reveal nothing, swirling fog with void center, layered mist with depth, fog that seems to watch the viewer, mist forming question mark shape, fog with glowing points like distant stars or eyes, creeping ground fog with mystery, each mist has unsettling otherworldly quality, very soft edges blending naturally, suitable for enigma area mystery zone effects, 64x64 pixel sprites upscaled, no color pure luminosity, centered, black background --v 6.1 --ar 4:3 --style raw --s 100
+```
+
+---
+
+## PROMPT E-10: Enigma Trail Effects
+
+```
+white enigma trail effect sprite sheet, 12 variations in 4x3 grid, pure white and grayscale projectile trails on transparent background, includes: trail of floating question marks, trail dissolving into void particles, trail with embedded mystery glyphs, spiral trail suggesting confusion, trail that loops back on itself paradox, trail of watching eyes, trail fragmenting into puzzle pieces, trail with recursive smaller trails, trail that phases in and out, double helix mystery trail, trail ending in question mark, trail with impossible geometry segments, each trail suitable for enigma projectile weapon effects, elongated horizontal orientation, leading edge bright fading to transparent, 64x16 pixel sprites upscaled, no color pure white only, black background --v 6.1 --ar 4:1 --style raw --s 75
+```
+
+---
+
+## Implementation Notes
+
+When tinting these particles in code, use the Enigma color gradient:
+```csharp
+// Enigma gradient: Black → Purple → Green
+Color GetEnigmaGradient(float progress)
+{
+    if (progress < 0.5f)
+        return Color.Lerp(EnigmaBlack, EnigmaPurple, progress * 2f);
+    else
+        return Color.Lerp(EnigmaPurple, EnigmaGreenFlame, (progress - 0.5f) * 2f);
+}
+```
+
+Combine multiple particle types for complex effects:
+- Question marks + void swirls for Paradox attacks
+- Eyes + mist for mystery zone effects
+- Glyphs + green flames for arcane damage
+- Puzzle pieces + impacts for revelation effects

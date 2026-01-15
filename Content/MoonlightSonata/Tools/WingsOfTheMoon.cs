@@ -7,6 +7,7 @@ using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using ReLogic.Content;
+using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Tools
@@ -30,7 +31,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
             Item.height = 32;
             Item.accessory = true;
             Item.value = Item.buyPrice(platinum: 1);
-            Item.rare = ItemRarityID.Expert;
+            Item.rare = ModContent.RarityType<MoonlightSonataRainbowRarity>();
         }
 
         public override void VerticalWingSpeeds(Player player, ref float ascentWhenFalling, ref float ascentWhenRising,
@@ -98,8 +99,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
             if (dodgeCooldown > 0)
                 dodgeCooldown--;
             
-            // Handle dodge input - right click
-            if (Main.mouseRight && Main.mouseRightRelease && dodgeCooldown <= 0 && !isDodging)
+            // Handle dodge input - right click (only when no UI is open)
+            bool canDodge = !Main.playerInventory && !Main.ingameOptionsWindow && !Main.inFancyUI && 
+                           !Main.mapFullscreen && !Main.editChest && !Main.editSign;
+            if (canDodge && Main.mouseRight && Main.mouseRightRelease && dodgeCooldown <= 0 && !isDodging)
             {
                 PerformDodge();
             }

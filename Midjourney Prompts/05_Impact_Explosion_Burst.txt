@@ -1,0 +1,26 @@
+# Impact/Explosion Burst Particles
+
+## PROMPT: Impact/Explosion Burst Particles
+
+```
+white explosion burst particle sprite sheet, 12 variations in 4x3 grid, pure white and grayscale impact effects on transparent background, includes: radial starburst explosions, circular shockwave rings, expanding impact circles, debris scatter patterns, directional cone blasts, omnidirectional burst rays, soft bloom explosions, hard-edged flash bursts, layered ring explosions, asymmetric organic explosions, speed line impacts, energy nova effects, each with bright white center fading outward, clean anti-aliased edges suitable for scaling, professional game particle assets, motion-implying design with radial symmetry, 64x64 pixel base resolution upscaled, suitable for hit effects explosions spell impacts, no color pure luminosity, centered composition, black background for extraction, PNG alpha ready --v 6.1 --ar 4:3 --style raw --s 75
+```
+
+---
+
+## Variations
+
+### Radial Starburst
+```
+white radial starburst explosion sprite sheet, 8 variations, pure grayscale, rays emanating from center, varying ray counts 8 12 16 24, suitable for super attack impacts, 64x64 pixels upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+### Debris Scatter
+```
+white debris scatter pattern sprite sheet, 12 variations, pure grayscale, particles flying outward from center, various scatter densities, suitable for shatter break effects, 64x64 pixels upscaled, transparent background --v 6.1 --ar 3:2 --style raw --s 50
+```
+
+### Energy Nova
+```
+white energy nova sprite sheet, 8 variations, pure grayscale, smooth expanding spherical burst, soft bloom with bright core, suitable for magic explosion finale, 64x64 pixels upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 100
+```

@@ -1,0 +1,133 @@
+# Ode to Joy - Particles and Effects
+
+## Theme Overview
+
+Ode to Joy theme represents botanical beauty, growth, flourishing life, and the triumph of nature. Visual motifs include:
+- **Rose petals** - falling, swirling, blooming
+- **Vines and tendrils** - growing, reaching, wrapping
+- **Flowers** - blooming roses, various blossoms
+- **Thorns** - sharp defensive elements
+- **Leaves** - flowing, drifting
+- **Seeds and pollen** - floating, spreading
+- **Garden elements** - botanical beauty
+
+## Color Palette Reference
+```
+OdeRoseRed      - (200, 50, 80)   - Deep rose primary
+OdePetalPink    - (255, 150, 180) - Soft petal pink
+OdeVineGreen    - (60, 140, 60)   - Healthy vine green
+OdeLeafGreen    - (100, 180, 80)  - Bright leaf green
+OdeGold         - (220, 180, 60)  - Pollen gold
+OdeWhite        - (255, 250, 245) - Pure white bloom
+```
+
+---
+
+## PROMPT OJ-1: Rose Petal Particles
+
+```
+white rose petal particle sprite sheet, 20 variations in 5x4 grid, pure white and grayscale flower petals on transparent background, includes: single rose petal flat front view, rose petal curved side view, rose petal curling edges, rose petal falling tumbling, rose petal spinning rotation, rose petal wilting drooping, rose petal fresh crisp, cluster of petals three together, petal fragment torn, petal with dew drop, petal unfurling opening, petal closing curling, petals scattered random group, petal trail falling motion, windswept petal diagonal, petal landing settling, large bloom petal, small bud petal, petal with subtle vein texture, petal dissolving into particles, each petal delicate organic curves, suitable for romantic botanical effects, 32x32 pixel sprites upscaled, no color pure luminosity, centered, black background --v 6.1 --ar 5:4 --style raw --s 75
+```
+
+---
+
+## PROMPT OJ-2: Blooming Rose Effects
+
+```
+white blooming rose sprite sheet, 12 variations in 4x3 grid, pure white and grayscale rose flower stages on transparent background, includes: tight rose bud closed, bud beginning to open, rose half bloomed, rose fully bloomed overhead view, rose bloomed side profile, rose with leaves attached, rose wilting drooping, rose petals falling off, rose silhouette elegant, double bloom rose ornate, wild rose simple five petal, climbing rose with stem, each rose beautiful botanical accuracy, suitable for bloom explosion healing growth effects, 48x48 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 4:3 --style raw --s 100
+```
+
+---
+
+## PROMPT OJ-3: Vine and Tendril Particles
+
+```
+white vine tendril sprite sheet, 16 variations in 4x4 grid, pure white and grayscale climbing vines on transparent background, includes: simple vine straight, vine with curl spiral tip, vine reaching upward, vine wrapping around invisible pole, vine tendril delicate thin, thick woody vine established, vine with small leaves attached, vine growing animation implied, vine fragmenting breaking, forked vine branching, tangled vines knotted, vine loop coil, vine bridge connecting two points, hanging vine drooping, vine with thorns visible, vine emerging from ground, each vine organic flowing curves, suitable for binding growth nature effects, 64x32 pixel sprites upscaled, no color pure luminosity, various orientations, black background --v 6.1 --ar 2:1 --style raw --s 75
+```
+
+---
+
+## PROMPT OJ-4: Thorn Particles
+
+```
+white thorn spike particle sprite sheet, 16 variations in 4x4 grid, pure white and grayscale sharp thorns on transparent background, includes: single thorn spike sharp, thorn on stem segment, cluster of thorns menacing, thorn curved hook shape, thorn straight needle, broken thorn snapped, thorn emerging growing, large thorn dramatic, tiny thorn delicate, thorn with base rose stem attachment, thorn pattern row along vine, thorn defensive spray radial, thorn projectile flying, thorn embedded in surface, ornate decorative thorn, thorn glowing enchanted hint, each thorn sharp dangerous quality, suitable for damage defense nature attack effects, 32x32 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+---
+
+## PROMPT OJ-5: Leaf Particles
+
+```
+white leaf particle sprite sheet, 20 variations in 5x4 grid, pure white and grayscale botanical leaves on transparent background, includes: rose leaf serrated edge, simple oval leaf, pointed leaf elegant, compound leaf multiple leaflets, leaf with visible veins, leaf curling autumn, leaf flat front view, leaf edge side view, falling leaf tumbling, leaf spinning descent, cluster of leaves bunch, small new leaf sprout, large mature leaf, torn leaf damaged, leaf dissolving particles, leaf with dew drops, skeletal leaf vein only, leaf attached to stem, windswept leaf diagonal, leaf trail falling motion, each leaf organic natural curves, suitable for nature botanical scatter effects, 32x32 pixel sprites upscaled, no color pure luminosity, centered, black background --v 6.1 --ar 5:4 --style raw --s 75
+```
+
+---
+
+## PROMPT OJ-6: Seed and Pollen Particles
+
+```
+white seed pollen particle sprite sheet, 16 variations in 4x4 grid, pure white and grayscale botanical reproductive elements on transparent background, includes: rose hip seed pod, single seed small, dandelion seed puff floating, pollen grain tiny sphere, pollen cloud diffuse cluster, seed dispersing wind, seed with wing samara, spore cloud puffy, pollen burst releasing, seed pod opening, scattered seeds random, glowing pollen magical, seed sprouting tiny root, pollen trail floating, seed spinning falling, flower bud about to open, each element suggests life spreading growing, suitable for healing spread growth effects, 16x16 to 32x32 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+---
+
+## PROMPT OJ-7: Flower Variety Particles
+
+```
+white flower variety sprite sheet, 16 variations in 4x4 grid, pure white and grayscale various blossoms on transparent background, includes: daisy simple rays, lily elegant curved, tulip cup shaped, cherry blossom five petal, sunflower large disc, iris complex petals, lotus water flower, morning glory trumpet, forget-me-not tiny cluster, violet simple, peony full fluffy, carnation ruffled, orchid exotic shape, lavender spike cluster, wildflower simple, blossom side profile, each flower clean botanical style, suitable for varied nature magic healing effects, 32x32 pixel sprites upscaled, no color pure luminosity, centered, black background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+## PROMPT OJ-8: Garden Debris Particles
+
+```
+white garden debris sprite sheet, 16 variations in 4x4 grid, pure white and grayscale botanical fragments on transparent background, includes: petal fragment small, leaf shred tiny, thorn broken, stem segment short, bark chip, root tendril tiny, seed husk, pollen speck, flower stamen, pistil fragment, dried flower piece, wilted petal, grass blade, moss clump tiny, lichen bit, wood splinter, each piece small botanical debris, suitable for nature impact scatter ground cover effects, 16x16 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+---
+
+## PROMPT OJ-9: Botanical Impact Burst
+
+```
+white botanical explosion burst sprite sheet, 8 variations in 4x2 grid, pure white and grayscale flower explosion on transparent background, includes: rose petals exploding outward radial, bloom burst flower opening explosively, vine burst tendrils shooting out, thorn spray defensive burst, pollen explosion cloud, seed scatter burst, leaf whirlwind circular, complete garden burst petals leaves vines thorns combined, each impact combines botanical elements beautifully, petals and leaves spiraling outward, suitable for nature weapon hit healing burst effects, 64x64 pixel sprites upscaled, no color pure luminosity, centered radial, black background --v 6.1 --ar 2:1 --style raw --s 75
+```
+
+---
+
+## PROMPT OJ-10: Botanical Trail Effects
+
+```
+white botanical trail sprite sheet, 12 variations in 4x3 grid, pure white and grayscale nature projectile trails on transparent background, includes: trail of falling petals, growing vine trail behind, leaf scatter trail, thorn trail scratching, pollen dust trail floating, seed dispersal trail, flower blooming trail opening flowers, rose trail petals falling, mixed botanical trail variety, spiral vine trail, trail ending in bloom explosion, wilting trail dying flowers, each trail suitable for nature projectile weapon effects, elongated horizontal orientation, leading edge bright fading to scattered petals, 64x16 pixel sprites upscaled, no color pure white only, black background --v 6.1 --ar 4:1 --style raw --s 75
+```
+
+---
+
+## Implementation Notes
+
+When tinting these particles in code, use the Ode to Joy gradient:
+```csharp
+// Ode to Joy gradient: Rose Red → Petal Pink → White (for petals)
+Color GetPetalGradient(float progress)
+{
+    if (progress < 0.5f)
+        return Color.Lerp(OdeRoseRed, OdePetalPink, progress * 2f);
+    else
+        return Color.Lerp(OdePetalPink, OdeWhite, (progress - 0.5f) * 2f);
+}
+
+// For vines and leaves:
+Color GetVineGradient(float progress)
+{
+    return Color.Lerp(OdeVineGreen, OdeLeafGreen, progress);
+}
+
+// For pollen accents:
+Color pollenColor = Color.Lerp(OdeGold, OdeWhite, 0.3f);
+```
+
+Combine multiple particle types for botanical effects:
+- Petals + leaves for romantic scatter
+- Vines + thorns for attack/defense
+- Pollen + seeds for healing spread
+- Full bloom + burst for ultimate effects

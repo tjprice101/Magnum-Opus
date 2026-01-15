@@ -14,6 +14,7 @@ using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Content.MoonlightSonata.Accessories;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons
 {
@@ -62,6 +63,39 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
                     modPlayer.resurrectionPlayedReadySound = false;
                 }
                 
+                // === CALAMITY-INSPIRED RELOAD CHARGING VISUAL ===
+                float reloadProgress = (float)modPlayer.resurrectionReloadTimer / MoonlightAccessoryPlayer.ResurrectionReloadTime;
+                
+                // Pulsing charge indicator around the gun
+                if (modPlayer.resurrectionReloadTimer % 8 == 0)
+                {
+                    Vector2 gunPos = player.Center + new Vector2(35 * player.direction, -5);
+                    
+                    // Orbiting charge particles that get faster as reload progresses
+                    float orbitAngle = Main.GameUpdateCount * (0.1f + reloadProgress * 0.15f);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        float angle = orbitAngle + MathHelper.TwoPi * i / 3f;
+                        float radius = 15f + reloadProgress * 8f;
+                        Vector2 orbitPos = gunPos + angle.ToRotationVector2() * radius;
+                        Color chargeColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, reloadProgress);
+                        CustomParticles.GenericFlare(orbitPos, chargeColor * (0.4f + reloadProgress * 0.5f), 0.2f + reloadProgress * 0.15f, 12);
+                    }
+                }
+                
+                // Charging dust particles flowing toward gun
+                if (Main.rand.NextBool(4))
+                {
+                    Vector2 gunPos = player.Center + new Vector2(35 * player.direction, -5);
+                    Vector2 dustStart = gunPos + Main.rand.NextVector2Circular(40f, 40f);
+                    Vector2 dustVel = (gunPos - dustStart).SafeNormalize(Vector2.Zero) * 2f;
+                    
+                    var chargeDust = new GenericGlowParticle(dustStart, dustVel, 
+                        Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, reloadProgress),
+                        0.18f + reloadProgress * 0.12f, 18, true);
+                    MagnumParticleHandler.SpawnParticle(chargeDust);
+                }
+                
                 // Reload complete
                 if (modPlayer.resurrectionReloadTimer >= MoonlightAccessoryPlayer.ResurrectionReloadTime)
                 {
@@ -75,20 +109,54 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
                         SoundEngine.PlaySound(SoundID.Item37 with { Volume = 0.6f, Pitch = 0.8f }, player.Center);
                         modPlayer.resurrectionPlayedReadySound = true;
                         
-                        // Visual indicator when ready
+                        Vector2 gunPos = player.Center + new Vector2(35 * player.direction, -5);
+                        
+                        // === READY FLASH - Calamity-inspired burst ===
+                        // Central flash
+                        CustomParticles.GenericFlare(gunPos, Color.White, 0.7f, 20);
+                        CustomParticles.GenericFlare(gunPos, UnifiedVFX.MoonlightSonata.LightBlue, 0.6f, 18);
+                        
+                        // Fractal burst
+                        for (int i = 0; i < 6; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / 6f;
+                            Vector2 flareOffset = angle.ToRotationVector2() * 20f;
+                            float progress = (float)i / 6f;
+                            Color fractalColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.Silver, progress);
+                            CustomParticles.GenericFlare(gunPos + flareOffset, fractalColor, 0.35f, 15);
+                        }
+                        
+                        // Halo ring
+                        CustomParticles.HaloRing(gunPos, UnifiedVFX.MoonlightSonata.LightBlue, 0.4f, 18);
+                        
+                        // Music notes to indicate ready
+                        ThemedParticles.MoonlightMusicNotes(gunPos, 4, 25f);
+                        
+                        // Dust burst
                         for (int i = 0; i < 12; i++)
                         {
                             Vector2 dustVel = Main.rand.NextVector2Circular(3f, 3f);
                             int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.SilverCoin;
-                            Dust dust = Dust.NewDustPerfect(player.Center + new Vector2(30 * player.direction, -5), dustType, dustVel, 100, default, 1.2f);
+                            Dust dust = Dust.NewDustPerfect(gunPos, dustType, dustVel, 100, default, 1.2f);
                             dust.noGravity = true;
                         }
                     }
                 }
             }
+            else
+            {
+                // === READY STATE - Subtle ambient glow ===
+                if (Main.rand.NextBool(8))
+                {
+                    Vector2 gunPos = player.Center + new Vector2(35 * player.direction, -5);
+                    CustomParticles.GenericFlare(gunPos + Main.rand.NextVector2Circular(10f, 10f), 
+                        UnifiedVFX.MoonlightSonata.Silver * 0.6f, 0.2f, 15);
+                }
+            }
             
-            // Ambient glow effect when held
-            Lighting.AddLight(player.Center, 0.3f, 0.15f, 0.45f);
+            // Ambient glow effect when held - pulsing
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 0.9f;
+            Lighting.AddLight(player.Center, 0.35f * pulse, 0.18f * pulse, 0.5f * pulse);
             
             // Ethereal particles while holding
             if (Main.rand.NextBool(6))
@@ -151,12 +219,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // GRADIENT COLORS: Dark Purple → Violet → Light Blue
-            Color darkPurple = new Color(75, 0, 130);
-            Color violet = new Color(138, 43, 226);
-            Color lightBlue = new Color(135, 206, 250);
-            Color silver = new Color(220, 220, 235);
-            
             // Fire our custom projectile instead of the ammo type
             Projectile.NewProjectile(source, position, velocity, ModContent.ProjectileType<ResurrectionProjectile>(), damage, knockback, player.whoAmI);
             
@@ -164,64 +226,78 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
             SoundEngine.PlaySound(SoundID.Item40 with { Volume = 1.2f, Pitch = -0.5f }, position);
             SoundEngine.PlaySound(SoundID.Item122 with { Volume = 0.7f, Pitch = -0.3f }, position);
             
-            Vector2 muzzlePos = position + velocity.SafeNormalize(Vector2.Zero) * 40f;
+            Vector2 muzzlePos = position + velocity.SafeNormalize(Vector2.Zero) * 45f;
+            Vector2 direction = velocity.SafeNormalize(Vector2.UnitX);
             
-            // === CUSTOM PARTICLES WITH GRADIENT ===
-            // Fractal geometric burst
-            for (int i = 0; i < 8; i++)
+            // === CALAMITY-INSPIRED DEVASTATING MUZZLE FLASH ===
+            
+            // Phase 1: Central white explosion
+            CustomParticles.GenericFlare(muzzlePos, Color.White, 1.2f, 22);
+            CustomParticles.GenericFlare(muzzlePos, UnifiedVFX.MoonlightSonata.Silver, 0.9f, 20);
+            
+            // Phase 2: UnifiedVFX explosion (without screen shake)
+            ThemedParticles.MoonlightShockwave(muzzlePos, 1.0f);
+            
+            // Phase 3: Spiral galaxy fractal burst
+            for (int arm = 0; arm < 6; arm++)
             {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 offset = angle.ToRotationVector2() * 30f;
-                float progress = (float)i / 8f;
-                Color fractalColor = Color.Lerp(darkPurple, lightBlue, progress);
-                CustomParticles.GenericFlare(muzzlePos + offset, fractalColor, 0.5f, 18);
+                float armAngle = MathHelper.TwoPi * arm / 6f;
+                for (int point = 0; point < 4; point++)
+                {
+                    float spiralAngle = armAngle + point * 0.35f;
+                    float spiralRadius = 12f + point * 14f;
+                    Vector2 spiralPos = muzzlePos + spiralAngle.ToRotationVector2() * spiralRadius;
+                    float progress = (arm * 4 + point) / 24f;
+                    Color galaxyColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
+                    CustomParticles.GenericFlare(spiralPos, galaxyColor, 0.45f + point * 0.08f, 16 + point * 2);
+                }
             }
             
-            // Gradient halo rings
-            for (int ring = 0; ring < 4; ring++)
+            // Phase 4: Layered halo cascade
+            for (int ring = 0; ring < 5; ring++)
             {
-                float progress = (float)ring / 4f;
-                Color ringColor = Color.Lerp(darkPurple, lightBlue, progress);
-                CustomParticles.HaloRing(muzzlePos, ringColor, 0.4f + ring * 0.15f, 15 + ring * 4);
+                float ringProgress = (float)ring / 5f;
+                Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.Silver, ringProgress);
+                CustomParticles.HaloRing(muzzlePos, ringColor, 0.35f + ring * 0.15f, 14 + ring * 4);
             }
             
-            // Explosion burst with gradient
-            for (int i = 0; i < 16; i++)
+            // Phase 5: Directional muzzle flash particles
+            for (int i = 0; i < 18; i++)
             {
-                float progress = (float)i / 16f;
-                Color burstColor = Color.Lerp(violet, lightBlue, progress);
-                CustomParticles.GenericGlow(muzzlePos, burstColor, 0.35f, 20);
+                Vector2 flashVel = direction.RotatedByRandom(0.5f) * Main.rand.NextFloat(6f, 14f);
+                float progress = (float)i / 18f;
+                Color flashColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
+                
+                var flash = new GenericGlowParticle(muzzlePos, flashVel, flashColor, 0.4f, 20, true);
+                MagnumParticleHandler.SpawnParticle(flash);
             }
             
-            // Central white flash
-            CustomParticles.GenericFlare(muzzlePos, silver, 0.8f, 15);
-            ThemedParticles.MoonlightHaloBurst(muzzlePos, 1.0f);
+            // Phase 6: Music notes burst - the lunar sonata fires
+            ThemedParticles.MoonlightMusicNotes(muzzlePos, 10, 50f);
             
-            // Muzzle flash effect with gradient dust
-            for (int i = 0; i < 25; i++)
+            // Phase 7: Music notes trail along shot direction
+            for (int i = 0; i < 5; i++)
             {
-                Vector2 dustVel = velocity.SafeNormalize(Vector2.Zero).RotatedByRandom(0.4f) * Main.rand.NextFloat(3f, 8f);
-                float progress = (float)i / 25f;
-                Color dustColor = Color.Lerp(darkPurple, lightBlue, progress);
-                int dustType = progress < 0.5f ? DustID.PurpleTorch : DustID.IceTorch;
-                Dust dust = Dust.NewDustPerfect(muzzlePos, dustType, dustVel, 100, dustColor, 1.8f);
-                dust.noGravity = true;
+                Vector2 noteOffset = direction * (25f + i * 18f);
+                float noteProgress = (float)i / 5f;
+                Color noteColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, noteProgress);
+                ThemedParticles.MusicNote(muzzlePos + noteOffset, direction * 1.5f, noteColor, 0.3f, 22);
             }
             
-            // White sparkles at barrel with gradient
+            // Phase 8: Lightning fractals shooting from muzzle
+            for (int i = 0; i < 3; i++)
+            {
+                float lightningAngle = direction.ToRotation() + MathHelper.ToRadians((i - 1) * 25f);
+                Vector2 lightningEnd = muzzlePos + lightningAngle.ToRotationVector2() * 70f;
+                MagnumVFX.DrawMoonlightLightning(muzzlePos, lightningEnd, 8, 22f, 2, 0.45f);
+            }
+            
+            // Phase 9: Recoil dust behind player
+            Vector2 recoilPos = player.Center - direction * 20f;
             for (int i = 0; i < 10; i++)
             {
-                float progress = (float)i / 10f;
-                Color sparkColor = Color.Lerp(lightBlue, silver, progress);
-                CustomParticles.GenericGlow(muzzlePos, sparkColor, 0.3f, 12);
-            }
-            
-            // Recoil dust behind player
-            for (int i = 0; i < 8; i++)
-            {
-                Vector2 recoilVel = -velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(2f, 5f);
-                recoilVel += Main.rand.NextVector2Circular(2f, 2f);
-                Dust recoil = Dust.NewDustPerfect(player.Center, DustID.Smoke, recoilVel, 150, default, 1.5f);
+                Vector2 recoilVel = -direction * Main.rand.NextFloat(3f, 6f) + Main.rand.NextVector2Circular(2f, 2f);
+                Dust recoil = Dust.NewDustPerfect(recoilPos, DustID.Smoke, recoilVel, 150, default, 1.5f);
                 recoil.noGravity = true;
             }
             
@@ -231,7 +307,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
             modPlayer.resurrectionReloadTimer = 0;
             modPlayer.resurrectionPlayedReadySound = false;
             
-            return false; // We handled the projectile spawning
+            return false;
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

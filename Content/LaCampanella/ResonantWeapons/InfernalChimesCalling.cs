@@ -77,6 +77,25 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Color campanellaOrange = ThemedParticles.CampanellaOrange;
             Color campanellaYellow = ThemedParticles.CampanellaYellow;
             Color campanellaGold = ThemedParticles.CampanellaGold;
+            Color campanellaBlack = ThemedParticles.CampanellaBlack;
+            
+            // === HEAVY SMOKE BURST - Infernal summoning smoke ===
+            for (int s = 0; s < 12; s++)
+            {
+                float angle = MathHelper.TwoPi * s / 12f;
+                Vector2 smokeVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
+                var smoke = new HeavySmokeParticle(
+                    spawnPos + Main.rand.NextVector2Circular(15f, 15f),
+                    smokeVel,
+                    campanellaBlack,
+                    Main.rand.Next(40, 70),
+                    Main.rand.NextFloat(0.4f, 0.7f),
+                    Main.rand.NextFloat(0.6f, 0.9f),
+                    0.015f,
+                    false
+                );
+                MagnumParticleHandler.SpawnParticle(smoke);
+            }
             
             // === RADIAL FLARE BURST with GRADIENT ===
             for (int f = 0; f < 10; f++)
@@ -119,7 +138,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // Screen shake
-            player.GetModPlayer<ScreenShakePlayer>()?.AddShake(4f, 8);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // player.GetModPlayer<ScreenShakePlayer>()?.AddShake(4f, 8);
             
             Lighting.AddLight(spawnPos, 1f, 0.5f, 0.15f);
             
@@ -497,8 +517,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 8, 45f);
             
             // Screen shake
-            Player owner = Main.player[Projectile.owner];
-            owner.GetModPlayer<ScreenShakePlayer>()?.AddShake(6f, 12);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // Player owner = Main.player[Projectile.owner];
+            // owner.GetModPlayer<ScreenShakePlayer>()?.AddShake(6f, 12);
             
             // Damage and debuff nearby enemies
             float shockwaveRadius = 200f;

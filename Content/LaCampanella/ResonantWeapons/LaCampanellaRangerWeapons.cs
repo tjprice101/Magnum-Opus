@@ -138,10 +138,11 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // Screen shake on rapid fire
-            if (fireRateBonus > 0.3f)
-            {
-                player.GetModPlayer<ScreenShakePlayer>()?.AddShake(0.5f + fireRateBonus * 2f, 2);
-            }
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // if (fireRateBonus > 0.3f)
+            // {
+            //     player.GetModPlayer<ScreenShakePlayer>()?.AddShake(0.5f + fireRateBonus * 2f, 2);
+            // }
             
             Lighting.AddLight(muzzlePos, 0.6f, 0.3f, 0.08f);
             
@@ -207,7 +208,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 CustomParticles.GenericFlare(muzzlePos + offset, fractalColor, 0.45f, 18);
             }
             
-            player.GetModPlayer<ScreenShakePlayer>()?.AddShake(5f, 10);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // player.GetModPlayer<ScreenShakePlayer>()?.AddShake(5f, 10);
         }
 
         public override void HoldItem(Player player)
@@ -320,6 +322,16 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
+            
+            // === SIGNATURE FRACTAL FLARE BURST ===
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
+                float progress = (float)i / 6f;
+                Color fractalColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaGold, progress);
+                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.45f, 18);
+            }
             
             // === BLACK SMOKE SPARKLE MAGIC - SIGNATURE HIT EFFECT! ===
             Vector2 hitDir = Projectile.velocity.SafeNormalize(Vector2.UnitX);
@@ -558,10 +570,11 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // Screen shake
-            if (Main.rand.NextBool(3))
-            {
-                player.GetModPlayer<ScreenShakePlayer>()?.AddShake(1f, 3);
-            }
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // if (Main.rand.NextBool(3))
+            // {
+            //     player.GetModPlayer<ScreenShakePlayer>()?.AddShake(1f, 3);
+            // }
             
             // Bellfire Barrage on every 3rd shot (was 5th)
             if (shotCounter >= 3)
@@ -661,7 +674,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // Screen shake - DRAMATIC
-            player.GetModPlayer<ScreenShakePlayer>()?.AddShake(8f, 15);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // player.GetModPlayer<ScreenShakePlayer>()?.AddShake(8f, 15);
             
             Lighting.AddLight(position, 1.5f, 0.75f, 0.25f);
         }
@@ -1006,7 +1020,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void SetDefaults()
         {
-            Item.damage = 380; // Slightly lower base damage since we fire 5 rockets
+            Item.damage = 494; // Base damage increased 30% for smaller explosions
             Item.DamageType = DamageClass.Ranged;
             Item.width = 70;
             Item.height = 30;
@@ -1117,7 +1131,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // Screen shake - heavier for volley
-            player.GetModPlayer<ScreenShakePlayer>()?.AddShake(7f, 15);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // player.GetModPlayer<ScreenShakePlayer>()?.AddShake(7f, 15);
             
             Lighting.AddLight(muzzlePos, 1.2f, 0.6f, 0.2f);
             
@@ -1243,7 +1258,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // Screen shake
-            owner.GetModPlayer<ScreenShakePlayer>()?.AddShake(15f, 30);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // owner.GetModPlayer<ScreenShakePlayer>()?.AddShake(15f, 30);
         }
 
         public override void HoldItem(Player player)
@@ -1375,7 +1391,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // Screen shake
-            owner.GetModPlayer<ScreenShakePlayer>()?.AddShake(8f, 15);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // owner.GetModPlayer<ScreenShakePlayer>()?.AddShake(8f, 15);
         }
         
         private void TriggerBellfireCrescendo(Vector2 position, int ownerId)
@@ -1418,7 +1435,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // Screen shake
-            owner.GetModPlayer<ScreenShakePlayer>()?.AddShake(12f, 25);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // owner.GetModPlayer<ScreenShakePlayer>()?.AddShake(12f, 25);
         }
     }
 
@@ -1627,7 +1645,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // AOE damage and stun
-            float explosionRadius = 150f;
+            float explosionRadius = 105f; // 30% smaller explosions for more focused damage
             foreach (NPC npc in Main.npc)
             {
                 if (!npc.active || npc.friendly || !npc.CanBeChasedBy()) continue;
@@ -1645,8 +1663,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             ownerWeapon?.OnRocketExplode(Projectile.Center);
             
             // Screen shake
-            Player owner = Main.player[Projectile.owner];
-            owner.GetModPlayer<ScreenShakePlayer>()?.AddShake(8f, 15);
+            // REMOVED: Screen shake disabled for La Campanella weapons
+            // Player owner = Main.player[Projectile.owner];
+            // owner.GetModPlayer<ScreenShakePlayer>()?.AddShake(8f, 15);
             
             Lighting.AddLight(Projectile.Center, 1.8f, 0.9f, 0.3f);
 

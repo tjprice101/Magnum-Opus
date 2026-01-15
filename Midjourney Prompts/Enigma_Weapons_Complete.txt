@@ -1,0 +1,293 @@
+# ENIGMA VARIATIONS UNIQUE WEAPON PROMPTS
+
+## Design Philosophy
+
+Enigma Variations (Elgar) features a celestial-mystery aesthetic born from music itself:
+- **Base Materials**: White celestial metal and black void metal in elegant contrast
+- **Accent Material**: Silver ornate trim like royal clockwork mechanisms
+- **Energy Effects**: Dual purple and green arcane flames dancing together, radiating powerful aura
+- **Mystery Elements**: Watching eyes embedded throughout, floating mysteries and stars, question mark motifs, arcane glyphs
+- **Musical Elements**: Music notes physically surrounding and orbiting the weapon, treble clefs, staff lines woven into the design
+- **Atmosphere**: Insanely unique, epic and elegant, celestial mystery created by music itself
+- **Design Style**: Royal mechanism aesthetic, ornate silver detailing, full weapon visibility
+
+These prompts feature insanely unique celestial weapons that embody mystery and music, surrounded by watching eyes, floating stars, and dual-colored arcane flames.
+
+---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# MELEE WEAPONS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## PROMPT EV-1: Möbius Edge (Impossible Geometry Blade)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial twisted blade themed around Enigma Variations mystery and music in the style of Terraria, made of white and black metal with silver ornate accents like a royal mechanism, the blade curves in an elegant impossible Möbius twist radiating a powerful aura, music notes physically surround and orbit the weapon, ignited in purple and green arcane flames dancing along the edge, mysteries float around it including watching eyes that track the viewer and floating stars, question mark engravings trace the fuller, detailed silver filigree decorates the crossguard with eye and riddle motifs, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-2: The Riddler's Scissors (Twin Sphinx Blades)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial twin scissor blades themed around Enigma Variations riddles and music in the style of Terraria, made of contrasting white and black metal with silver ornate accents like royal mechanisms, elegant sphinx head motifs with knowing expressions on the handles, a large watching eye serves as the pivot joint radiating powerful mysterious aura, music notes physically surround and orbit the weapon, ignited in purple and green arcane flames emanating from the blades, mysteries float around including stars and arcane riddle glyphs, each blade inscribed with half of an unanswerable question, detailed silver filigree and treble clef engravings, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-3: Escherbane (Reality-Folding Glaive)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial polearm glaive themed around Enigma Variations geometric mystery and music in the style of Terraria, made of white and black metal with silver ornate accents like a royal mechanism, the curved blade features impossible-angle Escher-inspired engravings radiating a powerful reality-bending aura, music notes physically surround and orbit the weapon, ignited in purple and green arcane flames trailing from the blade edge, mysteries float around including watching eyes peering from the shaft and floating stars, question mark patterns and paradox glyphs decorate the guard, detailed silver geometric tessellation filigree, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-4: Ouroboros Coil (Serpent Whip-Flail)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial serpent whip weapon themed around Enigma Variations eternal cycles and music in the style of Terraria, made of white and black scaled metal links with silver ornate vertebrae accents like a royal mechanism, unfurling in a graceful S-curve with elegant serpent head featuring knowing watchful eyes, radiating a powerful cyclical aura, music notes physically surround and orbit the coiled form, ignited in purple and green arcane flames emanating from the serpent mouth, mysteries float around including multiple watching eyes along each segment and floating stars, question marks form at segment connections, detailed silver trim on each link, the tail curves back in ouroboros fashion, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-5: The Last Question (Cosmic Greathammer)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial greathammer themed around Enigma Variations existential mystery and music in the style of Terraria, made of white and black dense metal with silver ornate accents like a royal mechanism, the massive hammerhead forms an elegant three-dimensional question mark shape radiating a powerful cosmic aura, music notes physically surround and orbit the weapon, ignited in purple and green arcane flames emanating from a large central watching eye in the hammer face, mysteries float around including stars and unanswerable riddle glyphs, question marks orbit the head in concentric rings, the handle inscribed with elegant arcane script, detailed silver filigree wraps the long grip, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-6: Paradox Gauntlets (Schrödinger's Fists)
+
+```
+Concept art for a side-view idle pixel art sprite of insanely unique celestial dual combat gauntlets themed around Enigma Variations quantum mystery and music in the style of Terraria, made of white and black metal with silver ornate knuckle accents like royal mechanisms, displayed side by side showing both gauntlets radiating powerful quantum aura, music notes physically surround and orbit both fists, ignited in purple and green arcane flames trailing from the fingertips, mysteries float around including watching eyes embedded in each knuckle plate and floating stars, question mark engravings trace the finger joints, subtle ghost afterimages suggesting paradox states, detailed silver trim on wrist guards, treble clef and mystery designs on the back of each hand, epic elegant design created by music itself, full-view with clean readable silhouettes --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-7: The Penrose Cleaver (Impossible Triangle Axe)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial battleaxe themed around Enigma Variations geometric impossibility and music in the style of Terraria, made of white and black metal with silver ornate accents like a royal mechanism, the massive axe head features Penrose triangle inspired impossible geometry radiating a powerful reality-defying aura, music notes physically surround and orbit the weapon, ignited in purple and green arcane flames tracing the impossible edges, mysteries float around including a large watching eye in the blade center that sees through dimensions and floating stars, question marks emerge from blade corners, detailed silver trim along the cutting edge, the long handle wrapped with ornate silver caps featuring watching eyes, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-8: Oracle's Cello Blade (Divination Greatsword)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial cello-inspired greatsword themed around Enigma Variations musical prophecy in the style of Terraria, made of white and black resonant metal with silver ornate accents like a royal instrument-mechanism hybrid, the blade shaped like an elongated cello body with graceful f-hole designs containing watching eyes that see possible futures, four glowing strings stretch along the blade radiating a powerful prophetic aura, music notes physically surround and orbit the weapon, ignited in purple and green arcane flames emanating from the strings, mysteries float around including floating stars and oracle glyphs, question marks near the fingerboard as prophecy notation, detailed silver tuning pegs at the elegant pommel, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# RANGED WEAPONS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## PROMPT EV-9: The Uncertainty Arbalist (Quantum Ballista Crossbow)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial heavy crossbow themed around Enigma Variations quantum uncertainty and music in the style of Terraria, made of white and black crystalline metal with silver ornate mechanisms like royal clockwork, a watching eye serves as the ornate scope lens radiating powerful probabilistic aura, the bolt has ghost afterimages suggesting multiple possible trajectories, music notes physically surround and orbit the weapon, ignited in purple and green arcane flames emanating from the bolt tip, mysteries float around including floating stars and probability glyphs, question mark engravings decorate the stock, the string glows with dual-colored mystery energy, detailed silver filigree traces the rail, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-10: The Riddlegun (Sphinx Gatling Cannon)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial rotating multi-barrel cannon themed around Enigma Variations ancient riddles and music in the style of Terraria, made of white and black ancient metal with silver ornate accents like a royal mechanism, six rotating barrels featuring elegant sphinx head motifs with knowing expressions, watching eyes embedded at barrel junctions radiating powerful riddle aura, music notes physically surround and orbit the weapon, ignited in purple and green arcane flames leaking from barrel mouths like escaping secrets, mysteries float around including floating stars and hieroglyphic riddle symbols, question mark ammunition visible in the feed mechanism, detailed silver sphinx wings form the grip guards, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-11: Déjà Vu Launcher (Paradox Rocket Artillery)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial shoulder-mounted rocket launcher themed around Enigma Variations temporal paradox and music in the style of Terraria, made of white and black time-worn metal with silver ornate accents like a royal mechanism, watching eyes embedded along the barrel radiating powerful temporal aura, ghost afterimages of the rocket visible suggesting déjà vu echoes, music notes physically surround and orbit the weapon, ignited in purple and green arcane flames trailing from the exhaust, mysteries float around including floating stars and hourglass symbols, question mark engravings spiral around the barrel, detailed silver trim lines the shoulder rest with paradox notation, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-12: The Null Hypothesis (Void Sniper Rifle)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial precision sniper rifle themed around Enigma Variations scientific mystery and music in the style of Terraria, made of white and black theoretical metal with silver ornate scope housing like a royal mechanism, a large watching eye serves as the main scope lens seeing through all deception radiating powerful analytical aura, music notes physically surround and orbit the weapon, ignited in purple and green arcane flames emanating from the muzzle, mysteries float around including floating stars and mathematical paradox symbols, question mark crosshairs visible through the scope, the trigger guard forms an elegant question mark shape, detailed silver statistical notation engraved along the stock, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-13: Echo Paradox Bow (Recursive Memory Longbow)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial ethereal longbow themed around Enigma Variations memory echoes and music in the style of Terraria, made of white and black memory-wood with silver ornate limb tips like a royal mechanism, ghost echo images of arrows visible along the drawn string, watching eyes peer from the wood grain remembering all they have seen radiating powerful nostalgic aura, music notes physically surround and orbit the elegant curve, ignited in purple and green arcane flames trailing from the bowstring, mysteries float around including floating stars and mnemonic symbols, question mark engravings trace the bow limbs, the arrow rest glows with dual-colored memory energy, detailed silver wrapped grip, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# MAGIC WEAPONS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## PROMPT EV-14: The Unwritten Grimoire (Blank Page Tome)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial floating tome themed around Enigma Variations forbidden knowledge and music in the style of Terraria, made of white and black eldritch leather with silver ornate corner brackets like royal bookbinding, the book floats open showing pages with fading arcane text, multiple watching eyes peer from between the pages radiating powerful knowledge-seeking aura, music notes and treble clefs physically surround and orbit the book, ignited in purple and green arcane flames emanating from the spine, mysteries float around including floating stars and question mark watermarks on pages, the cover features an ornate watching eye motif that follows the reader, detailed silver clasps and bookmark crystal, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-15: Mandelbrot Focus (Fractal Infinity Staff)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial mage staff themed around Enigma Variations fractal infinity and music in the style of Terraria, made of white and black mathematical metal with silver ornate spiral trim like a royal mechanism, the staff head features elegant Mandelbrot-inspired infinite spiral patterns, multiple watching eyes embedded at key fractal points radiating powerful recursive aura, music notes physically surround and orbit the fractal head, ignited in purple and green arcane flames emanating from the crystal core, mysteries float around including floating stars and geometric infinity symbols, question marks trace the spiral grooves, recursive patterns visible within like endless questions, detailed silver bands decorate the grip, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-16: The Paradox Pendulum (Grandfather Clock Scythe)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial grandfather clock scythe themed around Enigma Variations time and mortality and music in the style of Terraria, made of white and black ancient mahogany metal hybrid with silver ornate clock face like a royal timepiece mechanism, the scythe blade doubles as an elegant pendulum, multiple watching eyes replace clock numerals tracking time itself radiating powerful temporal aura, music notes and clock symbols physically surround and orbit the weapon, ignited in purple and green arcane flames trailing from the pendulum arc, mysteries float around including floating stars and question marks replacing roman numerals, elegant silver clock hands point in multiple impossible directions, detailed silver trim on the gothic shaft, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-17: Panopticon Orb (All-Seeing Surveillance Focus)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial observation orb in decorative stand themed around Enigma Variations all-seeing awareness and music in the style of Terraria, made of translucent white and black crystal with silver ornate clawed stand like a royal mechanism, the orb contains a large watching eye as the focal point tracking all who approach radiating powerful omniscient aura, smaller watching eyes visible within crystal depths, music notes physically surround and orbit the floating orb, ignited in purple and green arcane flames emanating from the eye pupil, mysteries float around including floating stars and question mark reflections on the surface, detailed silver arcane surveillance glyphs etched into the elegant base, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-18: The Zeno Staff (Infinite Division Wand)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial elegant wand themed around Enigma Variations infinite division paradox and music in the style of Terraria, made of white and black paradox-wood with silver ornate segment markers like a royal measuring mechanism, the wand features elegant segmented design with decreasing intervals approaching infinity, multiple watching eyes mark the half-points observing reality's divisions radiating powerful mathematical aura, music notes and infinity symbols physically surround and orbit the tapering form, ignited in purple and green arcane flames emanating from the crystal tip, mysteries float around including floating stars and question mark engravings at each division point, detailed silver bands separate each segment, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SUMMONER WEAPONS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## PROMPT EV-19: The Doppelgänger's Mirror (Dark Reflection Staff)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial hand mirror staff themed around Enigma Variations dark reflections and music in the style of Terraria, made of white and black reflective metal with silver ornate frame like a royal vanity mechanism, the mirror shows a mysterious alternate reflection with a watching eye that tracks the viewer radiating powerful doppelganger aura, music notes and mirror symbols physically surround and orbit the staff, ignited in purple and green arcane flames emanating from the ornate frame edge, mysteries float around including floating stars and question mark reflections shimmering on glass surface, detailed silver filigree decorates the border with paradox glyphs in mirror depth, the handle extends as elegant staff grip, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-20: Prometheus Unbound (Chained Question Lantern)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial ancient lantern with chains themed around Enigma Variations forbidden knowledge and music in the style of Terraria, made of white and black Olympian bronze with silver ornate glass panels like a royal prison mechanism, a large watching eye visible in the flame serving as mystical core observing all it illuminates radiating powerful forbidden aura, elegant chains with question mark links hang from the handle, music notes and fire symbols physically surround and orbit the lantern, ignited in purple and green arcane flames escaping through glass panels like secrets seeking freedom, mysteries float around including floating stars and knowledge glyphs, detailed silver trim decorates corners, the chains glow with dual-colored enigma energy, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-21: The Tulpa Brush (Thought-Form Calligraphy Staff)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial calligraphy brush staff themed around Enigma Variations manifest thoughts and music in the style of Terraria, made of white and black dream-bamboo with silver ornate bands like a royal writing mechanism, the brush tip drips with glowing dual-colored ink forming question marks, a watching eye embedded in the ferrule observing what is written radiating powerful creative aura, music notes and calligraphy strokes physically surround and orbit the brush, ignited in purple and green arcane flames trailing from ink drips like manifesting ideas, mysteries float around including floating stars and thought-form glyphs shimmering along bamboo shaft, the bristles shimmer with mysterious creative energy, detailed silver reservoir section, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-22: The Egregore Conductor (Collective Mind Baton)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial conductor's baton themed around Enigma Variations collective consciousness and music in the style of Terraria, made of white and black psychic metal with silver ornate tip like a royal conducting mechanism, the baton tip glows with connected hive-mind energy, multiple watching eyes embedded along the shaft connected by glowing threads all tracking the same point radiating powerful unified aura, music notes staff lines and neural pathway patterns physically surround and orbit the elegant form, ignited in purple and green arcane flames trailing from conducting motions, mysteries float around including floating stars and question mark engravings on the grip, the tip leaves a trail of linked consciousness, detailed silver wrapped handle with mystery sigils, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SPECIAL/EXOTIC WEAPONS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## PROMPT EV-23: The Liar's Die (Loaded Truth Dice)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial oversized six-sided die themed around Enigma Variations probability and fate and music in the style of Terraria, made of white and black probability ivory with silver ornate corner caps like a royal gambling mechanism, each pip is a watching eye that tracks observers with knowing intensity radiating powerful fate-manipulation aura, music notes and luck symbols physically surround and orbit the floating die, ignited in purple and green arcane flames trailing from the corners like escaping destiny, mysteries float around including floating stars and question marks appearing as ghost numbers on some faces, some pips glow brighter suggesting loaded probability, detailed silver edges with fate notation, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-24: The Hypnic Jerk (Sleep-Falling Meteor)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial dreamstone meteor fragment themed around Enigma Variations dreams and falling and music in the style of Terraria, made of white and black dream-ore with silver ornate crater edges like a royal cosmic mechanism, the meteor appears suspended mid-fall with motion trail above, a large watching eye visible in the largest crater observing the waking world radiating powerful somnolent aura, music notes and dream symbols physically surround and orbit the floating stone, ignited in purple and green arcane flames trailing upward as if eternally falling, mysteries float around including floating stars and question mark impact craters dotting the surface, detailed silver dust particles scatter like dream fragments, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT EV-25: The Ship of Theseus (Identity Paradox Blade)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique celestial ancient xiphos sword themed around Enigma Variations identity paradox and music in the style of Terraria, made of white and black ancient bronze segments with silver ornate replacement boundaries like a royal philosophical mechanism, ghost afterimages of previous blade versions visible behind, a large watching eye embedded in the pommel questioning its own existence radiating powerful existential aura, music notes and paradox symbols physically surround and orbit the layered blade, ignited in purple and green arcane flames emanating from the transition points between old and new, mysteries float around including floating stars and question marks marking the seams, visible segments show different materials unified by mystery, detailed silver filigree traces replacement boundaries, epic elegant design created by music itself, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ENIGMA VARIATIONS PROMPT MODIFIERS
+# ═══════════════════════════════════════════════════════════════════════════
+
+Add these phrases to any prompt for variations:
+
+## Core Style Modifiers (ESSENTIAL)
+- `insanely unique celestial weapon themed around music` - core identity
+- `made of white and black metal with silver ornate accents` - dual metal base
+- `like a royal mechanism` - elegant mechanical aesthetic
+- `radiating a powerful aura` - magical presence
+- `created by music itself` - musical origin theme
+- `epic elegant design` - overall quality direction
+
+## Material Modifiers (WHITE & BLACK METAL)
+- `made of white and black metal with silver ornate accents` - standard material
+- `contrasting white celestial and black void metal` - dramatic contrast
+- `silver ornate trim like royal clockwork` - mechanical elegance
+- `detailed silver filigree decorations` - ornate detailing
+- `elegant silver mechanism components` - mechanical beauty
+
+## Dual Flame Modifiers (PURPLE AND GREEN)
+- `ignited in purple and green arcane flames` - signature dual flames
+- `purple and green flames dancing along the edge` - animated flames
+- `dual-colored arcane fire trailing from the weapon` - motion flames
+- `purple and green flame wisps emanating from edges` - subtle flames
+- `ignited in both purple and green mystical fire` - emphasis on both colors
+
+## Musical Element Modifiers (SIGNATURE)
+- `music notes physically surround and orbit the weapon` - core musical
+- `music notes and treble clefs float around the weapon` - detailed musical
+- `staff lines and melodic symbols orbiting` - notation elements
+- `created by music itself` - origin theme
+- `harmonic patterns visible in the aura` - sound visualization
+
+## Mystery & Eye Modifiers (WATCHING EYES + STARS)
+- `mysteries float around including watching eyes and stars` - combined mysteries
+- `watching eyes embedded throughout tracking the viewer` - eye focus
+- `floating stars and mysteries drift around` - celestial mysteries
+- `question mark motifs and arcane glyphs` - riddle elements
+- `mysteries, eyes and other stars float around it` - full mystery combo
+- `radiating powerful mysterious aura` - atmospheric mystery
+
+## Aura & Power Modifiers
+- `radiating a powerful aura` - standard power presence
+- `radiating powerful [type] aura` - specific aura (temporal, cosmic, prophetic, etc.)
+- `glowing with inner mysterious energy` - internal power
+- `pulsing with enigmatic power` - dynamic energy
+
+## Design Quality Modifiers
+- `full-view with clean readable silhouette` - visibility
+- `epic elegant design` - quality direction
+- `detailed ornate design` - complexity
+- `insanely unique` - creativity emphasis
+- `in the style of Terraria` - game aesthetic
+- `--ar 16:9 --v 7.0` - standard parameters

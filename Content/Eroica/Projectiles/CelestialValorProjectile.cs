@@ -115,6 +115,19 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Custom particle impact burst (uses new particle system)
             CustomParticles.EroicaImpactBurst(target.Center, 12);
             
+            // === SIGNATURE FRACTAL FLARE BURST ===
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
+                float progress = (float)i / 6f;
+                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.45f, 18);
+            }
+            
+            // Music notes on hit
+            ThemedParticles.EroicaMusicNotes(target.Center, 4, 30f);
+            
             // Deal 5% bonus explosion damage to nearby enemies
             int explosionDamage = (int)(damageDone * 0.05f);
             float explosionRadius = 100f;

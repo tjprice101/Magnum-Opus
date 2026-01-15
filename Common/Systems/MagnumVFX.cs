@@ -450,6 +450,85 @@ namespace MagnumOpus.Common.Systems
             }
         }
         
+        // ================== ENIGMA VARIATIONS LIGHTNING (Black/Purple/Green Arcane) ==================
+        
+        /// <summary>
+        /// Enigma Variations-themed fractal lightning with mysterious arcane appearance.
+        /// Dark void core with purple energy and eerie green flame accents.
+        /// Use for: Enigma weapons, paradox effects, mystery-themed abilities
+        /// </summary>
+        public static void DrawEnigmaLightning(Vector2 start, Vector2 end, 
+            int segments = 11, float spread = 28f, int branches = 4, float branchLength = 0.5f)
+        {
+            List<Vector2> mainPath = GenerateLightningPath(start, end, segments, spread);
+            
+            // Outer void black shadow
+            DrawLightningPathDustCustom(mainPath, new Color(15, 10, 20), DustID.Smoke, 2.8f);
+            // Mid deep purple arcane
+            DrawLightningPathDustCustom(mainPath, new Color(140, 60, 200), DustID.PurpleTorch, 2.0f);
+            // Inner eerie green flame
+            DrawLightningPathDustCustom(mainPath, new Color(50, 220, 100), DustID.GreenTorch, 1.2f);
+            // Core bright green-white
+            DrawLightningPathDustCustom(mainPath, new Color(150, 255, 180), DustID.Enchanted_Gold, 0.7f);
+            
+            // Mystical branches - alternating purple and green
+            for (int i = 0; i < branches; i++)
+            {
+                if (mainPath.Count < 4) continue;
+                int branchPoint = Main.rand.Next(2, mainPath.Count - 2);
+                Vector2 branchStart = mainPath[branchPoint];
+                Vector2 direction = (mainPath[branchPoint + 1] - mainPath[branchPoint - 1]).SafeNormalize(Vector2.UnitX);
+                direction = direction.RotatedBy(Main.rand.NextFloat(-1.0f, 1.0f));
+                float length = Vector2.Distance(start, end) * branchLength * Main.rand.NextFloat(0.4f, 0.9f);
+                Vector2 branchEnd = branchStart + direction * length;
+                
+                List<Vector2> branchPath = GenerateLightningPath(branchStart, branchEnd, segments / 2, spread * 0.6f);
+                
+                // Alternate between purple and green branches
+                if (i % 2 == 0)
+                {
+                    DrawLightningPathDustCustom(branchPath, new Color(120, 40, 180), DustID.PurpleTorch, 1.2f);
+                }
+                else
+                {
+                    DrawLightningPathDustCustom(branchPath, new Color(40, 180, 80), DustID.GreenTorch, 1.2f);
+                }
+            }
+            
+            // Arcane particles and mystery sparkles
+            foreach (Vector2 point in mainPath)
+            {
+                if (Main.rand.NextBool(2))
+                {
+                    // Swirling purple particles
+                    Dust arcane = Dust.NewDustPerfect(point + Main.rand.NextVector2Circular(8f, 8f), DustID.PurpleTorch,
+                        Main.rand.NextVector2Circular(2f, 2f).RotatedBy(Main.GameUpdateCount * 0.1f), 0, new Color(140, 60, 200), 1.2f);
+                    arcane.noGravity = true;
+                    arcane.fadeIn = 1.1f;
+                }
+                if (Main.rand.NextBool(3))
+                {
+                    // Eerie green flame wisps
+                    Dust greenFlame = Dust.NewDustPerfect(point + Main.rand.NextVector2Circular(6f, 6f), DustID.CursedTorch,
+                        Main.rand.NextVector2Circular(1.5f, 1.5f) + new Vector2(0, -1f), 0, new Color(50, 220, 100), 1.0f);
+                    greenFlame.noGravity = true;
+                }
+                if (Main.rand.NextBool(4))
+                {
+                    // Void smoke
+                    Dust smoke = Dust.NewDustPerfect(point + Main.rand.NextVector2Circular(5f, 5f), DustID.Smoke,
+                        new Vector2(0, -0.5f), 200, new Color(15, 10, 20), 1.4f);
+                    smoke.noGravity = true;
+                }
+            }
+            
+            // Purple-green lighting
+            foreach (Vector2 point in mainPath)
+            {
+                Lighting.AddLight(point, 0.4f, 0.5f, 0.35f);
+            }
+        }
+        
         // ================== HELPER: Custom dust lightning path ==================
         
         private static void DrawLightningPathDustCustom(List<Vector2> path, Color color, int dustType, float scale)

@@ -111,8 +111,10 @@ namespace MagnumOpus.Content.Eroica.Tools
             if (dodgeCooldown > 0)
                 dodgeCooldown--;
             
-            // Handle dodge input - right click
-            if (Main.mouseRight && Main.mouseRightRelease && dodgeCooldown <= 0 && !isDodging)
+            // Handle dodge input - right click (only when no UI is open)
+            bool canDodge = !Main.playerInventory && !Main.ingameOptionsWindow && !Main.inFancyUI && 
+                           !Main.mapFullscreen && !Main.editChest && !Main.editSign;
+            if (canDodge && Main.mouseRight && Main.mouseRightRelease && dodgeCooldown <= 0 && !isDodging)
             {
                 PerformDodge();
             }

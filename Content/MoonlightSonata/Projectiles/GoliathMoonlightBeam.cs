@@ -114,6 +114,19 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                 owner.HealEffect(healAmount, true);
             }
             
+            // === SIGNATURE FRACTAL FLARE BURST ===
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
+                float progress = (float)i / 6f;
+                Color fractalColor = Color.Lerp(new Color(75, 0, 130), new Color(135, 206, 250), progress);
+                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.45f, 18);
+            }
+            
+            // Music notes on hit
+            ThemedParticles.MoonlightMusicNotes(target.Center, 4, 30f);
+            
             // EXPLOSION EFFECTS!
             CreateHitExplosion(target.Center);
             

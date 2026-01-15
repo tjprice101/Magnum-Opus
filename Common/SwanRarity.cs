@@ -49,4 +49,42 @@ namespace MagnumOpus.Common
             }
         }
     }
+
+    /// <summary>
+    /// Rainbow rarity for special Swan Lake items like wings.
+    /// Cycles through all colors of the rainbow for a magical effect.
+    /// </summary>
+    public class SwanRainbowRarity : ModRarity
+    {
+        public override Color RarityColor
+        {
+            get
+            {
+                float time = (float)Main.timeForVisualEffects * 0.02f;
+                float hue = (time % 6f) / 6f;
+                return HueToRGB(hue);
+            }
+        }
+
+        private static Color HueToRGB(float hue)
+        {
+            hue = hue - (float)Math.Floor(hue);
+            float r, g, b;
+            float h = hue * 6f;
+            int i = (int)Math.Floor(h);
+            float f = h - i;
+            
+            switch (i % 6)
+            {
+                case 0: r = 1; g = f; b = 0; break;
+                case 1: r = 1 - f; g = 1; b = 0; break;
+                case 2: r = 0; g = 1; b = f; break;
+                case 3: r = 0; g = 1 - f; b = 1; break;
+                case 4: r = f; g = 0; b = 1; break;
+                default: r = 1; g = 0; b = 1 - f; break;
+            }
+            
+            return new Color((int)(r * 255), (int)(g * 255), (int)(b * 255));
+        }
+    }
 }

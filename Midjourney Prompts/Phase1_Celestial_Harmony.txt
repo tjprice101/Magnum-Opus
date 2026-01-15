@@ -1,0 +1,187 @@
+# PHASE 1: CELESTIAL HARMONY - Pristine Cosmic White Metal Transformations
+
+## Overview
+
+These prompts are designed to take ANY existing weapon or accessory image and transform it into a **PRISTINE COSMICALLY NEON WHITE METAL VARIANT** of itself. The transformation preserves the original item's silhouette and recognizable design while completely reimagining it as:
+
+- **Pristine Neon White Metal** - Luminous, divine white metal with cosmic energy bleeding through
+- **Amorphous Cosmic Energy** - Reality-bending entropic glow radiating from within
+- **Theme Effects Preserved** - Original theme's fire/petals/feathers/etc. transformed into cosmic versions
+- **Divine Musical Resonance** - Visible harmonic waves and musical notation in the energy aura
+- **High Resolution** - 256x256 pixel art minimum, optimized for detailed Terraria sprites
+
+These prompts work with image-to-image (img2img) workflows in Midjourney v7.0+
+
+---
+
+# UNIVERSAL CELESTIAL WHITE METAL TEMPLATE
+
+## Base Template (Use with any weapon image)
+
+```
+Transform this weapon into a PRISTINE COSMICALLY ENHANCED WHITE METAL VARIANT, the original weapon silhouette and design clearly recognizable but now forged from LUMINOUS NEON WHITE METAL that glows from within, the metal surface pristine and divine with subtle chromatic iridescent shimmer bleeding at the edges, entropic amorphous cosmic energy radiating outward from the weapon's core in soft waves, the original weapon's theme effects (flames particles petals etc) now transformed into COSMIC WHITE AND PALE IRIDESCENT versions of themselves, reality-bending distortion halos emanating gently around the form, divine harmonic resonance visible as ethereal musical wave patterns orbiting the silhouette, star-like micro-particles and cosmic dust swirling in slow motion around the pristine white surface, the metal appears crystalline yet solid with internal luminescence, musical notation glowing faintly within the cosmic aura, godlike divine craftsmanship with immaculate finish, high detail 256x256 pixel art sprite, Terraria pixel art style, transparent background --s 750 --v 7.0 --iw 2.0
+```
+
+---
+
+# THEME-SPECIFIC CELESTIAL TRANSFORMATION PROMPTS
+
+## LA CAMPANELLA - Pristine White Metal Infernal Bell Transformation
+
+```
+Transform this weapon into a PRISTINE NEON WHITE METAL La Campanella cosmic variant, the original weapon silhouette clearly recognizable but now forged from LUMINOUS WHITE DIVINE METAL with an immaculate pristine finish, the infernal flames transformed into COSMIC WHITE-GOLD PLASMA FIRE with pale orange cores bleeding into brilliant white edges, ornate bell motifs now crystalline white metal ringing with visible DIVINE SOUND WAVE HALOS in concentric circles, chains reimagined as solidified white starlight with subtle golden chromatic shimmer, ember particles become miniature white stars and cosmic sparks swirling around the form, entropic amorphous white-gold energy bleeding outward from every edge like divine heat, the weapon pulses with celestial warmth from an inner stellar core, reality-bending heat distortion waves visible around the pristine white surface, musical bell-chime notation glowing brilliantly within the cosmic flame aura, divine craftsmanship with perfect immaculate white metal finish, high detail 256x256 pixel art sprite, Terraria pixel art style, transparent background --s 750 --v 7.0 --iw 2.0
+```
+
+## EROICA - Pristine White Metal Heroic Triumph Transformation
+
+```
+Transform this weapon into a PRISTINE NEON WHITE METAL Eroica cosmic variant, the original weapon silhouette clearly recognizable but now forged from LUMINOUS WHITE HEROIC METAL radiating divine triumphant glory, sakura petals transformed into CRYSTALLINE WHITE-PINK LIGHT FRAGMENTS that shimmer with pale rose and gold edges as they drift around the form, the pristine white metal surface glows with subtle golden undertones bleeding outward at the edges, entropic amorphous white-gold cosmic energy halos surrounding the silhouette like a hero's radiance, reality-bending light creating an aura of courage and victory, the weapon appears forged from solidified starlight and crystallized triumph, chromatic edges shifting between pristine white with pale rose-gold iridescence, cosmic sakura particles swirling in ascending spirals, divine harmonic resonance visible as triumphant crescendo waves rising from the weapon, the immaculate white surface pulses with inner heroic fire, divine craftsmanship befitting a legendary hero, high detail 256x256 pixel art sprite, Terraria pixel art style, transparent background --s 750 --v 7.0 --iw 2.0
+```
+
+## SWAN LAKE - Pristine White Metal Graceful Elegance Transformation
+
+```
+Transform this weapon into a PRISTINE NEON WHITE METAL Swan Lake cosmic variant, the original weapon silhouette clearly recognizable but now forged from LUMINOUS PEARLESCENT WHITE METAL shimmering with divine grace, the pristine white surface radiates with subtle PRISMATIC RAINBOW IRIDESCENCE at the edges like light through a prism, elegant feather motifs now appear as COSMIC WHITE FEATHER WISPS flowing gracefully from every edge trailing pale rainbow shimmer, black accent areas transformed into deep cosmic void with embedded stars creating beautiful contrast, entropic amorphous pearlescent energy bleeding outward in gentle waves, reality-bending light refraction creating ethereal swan-like beauty, the weapon appears carved from frozen moonlight and crystallized starlight given physical form, the immaculate white surface dances with internal light, divine harmonic resonance visible as graceful ballet-wave patterns orbiting the form, rainbow prismatic sparkles drift like feathers around the pristine metal, divine craftsmanship of otherworldly elegance, high detail 256x256 pixel art sprite, Terraria pixel art style, transparent background --s 750 --v 7.0 --iw 2.0
+```
+
+## MOONLIGHT SONATA - Pristine White Metal Lunar Mystical Transformation
+
+```
+Transform this weapon into a PRISTINE NEON WHITE METAL Moonlight Sonata cosmic variant, the original weapon silhouette clearly recognizable but now forged from LUMINOUS LUNAR WHITE METAL glowing with divine mysticism, the pristine white surface has ethereal PALE VIOLET AND SILVER undertones bleeding softly at the edges, entropic amorphous white-violet cosmic energy wisps surrounding the silhouette like gentle moonlight, crescent moon motifs now appear as COSMIC WHITE LUNAR CRESCENTS orbiting the form with pale blue halos, reality-bending moonlight distortion waves emanating from the immaculate surface, the weapon appears forged from crystallized moonbeams and frozen starlight given solid form, chromatic edges shifting between pristine white with subtle purple-silver iridescence, cosmic dust particles like tiny moons orbiting slowly, divine harmonic resonance visible as gentle nocturne piano-wave patterns, silver mist and stellar fog bleeding softly from every edge, the white metal glows with internal lunar radiance, divine craftsmanship of ethereal nocturnal beauty, high detail 256x256 pixel art sprite, Terraria pixel art style, transparent background --s 750 --v 7.0 --iw 2.0
+```
+
+## ENIGMA VARIATIONS - Pristine White Metal Mysterious Arcane Transformation
+
+```
+Transform this weapon into a PRISTINE NEON WHITE METAL Enigma Variations cosmic variant, the original weapon silhouette clearly recognizable but now forged from LUMINOUS ENIGMATIC WHITE METAL that pulses with unfathomable mystery, the pristine white surface bleeds with subtle PALE PURPLE AND EERIE PALE GREEN cosmic energy at the edges, entropic amorphous white-void energy swirling with faint question-mark patterns visible within, WATCHING EYES appear subtly as pale cosmic reflections within the white metal surface, the weapon appears forged from crystallized paradox and solidified riddles given pristine form, chromatic edges shifting between pristine white with violet and pale green iridescence, arcane glyphs and symbols GLOW FAINTLY in pale green within the cosmic aura flickering in and out, reality-bending distortion around the immaculate surface that questions its own existence, divine harmonic resonance visible as discordant yet hauntingly beautiful waves, the white metal seems to hide cosmic secrets within its luminous core, divine craftsmanship of unknowable origin, high detail 256x256 pixel art sprite, Terraria pixel art style, transparent background --s 750 --v 7.0 --iw 2.0
+```
+
+## FATE - Pristine White Metal Reality-Shattering Transformation (ENDGAME ULTIMATE)
+
+```
+Transform this weapon into a PRISTINE NEON WHITE METAL Fate cosmic variant ULTIMATE ENDGAME POWER, the original weapon silhouette recognizable but now forged from LUMINOUS REALITY-BREAKING WHITE METAL that SHATTERS SPACE around it, the pristine white surface is so divine it creates CHROMATIC ABERRATION and RGB color separation bleeding at every edge with pale pink purple and crimson fractals, entropic amorphous white cosmic energy creating VISIBLE CRACKS IN REALITY around the weapon, the immaculate white metal appears forged from the FABRIC OF DESTINY ITSELF given physical form, reality-bending distortion so intense the space around the weapon fragments and splits, TEMPORAL ECHO AFTERIMAGES of the weapon visible in pale ghostly white, cosmic fate-thread patterns weave through the aura connecting past present and future, the weapon EXISTS at multiple points in time simultaneously creating layered transparent copies, divine harmonic resonance visible as destiny-weave patterns spiraling outward, starfire and void energy compete at the boundaries of the pristine white surface, the weapon is TOO POWERFUL for normal reality to contain, divine craftsmanship of endgame cosmic proportions, high detail 256x256 pixel art sprite, Terraria pixel art style, transparent background --s 750 --v 7.0 --iw 2.0
+```
+
+## DIES IRAE - Pristine White Metal Divine Wrath Transformation
+
+```
+Transform this weapon into a PRISTINE NEON WHITE METAL Dies Irae cosmic variant, the original weapon silhouette clearly recognizable but now forged from LUMINOUS WRATHFUL WHITE METAL burning with divine judgment, the pristine white surface has BLOOD RED AND CRIMSON cosmic energy bleeding through cracks in the perfection like divine fury escaping, entropic amorphous WHITE-CRIMSON energy erupting outward like volcanic plasma from a holy source, the immaculate white metal appears forged from the RIGHTEOUS FURY of a judging god, chromatic edges shifting between pristine white with crimson and ember-orange bleeding at fracture points, reality-bending heat distortion creating an aura of divine wrath, ash particles become WHITE-HOT COSMIC EMBERS and miniature meteors swirling around the form, divine harmonic resonance visible as THUNDEROUS DOOM-CHORD WAVES radiating outward, the white surface is cracked with inner celestial hellfire bleeding through like judgment incarnate, the weapon channels holy destruction, divine craftsmanship of apocalyptic proportions, high detail 256x256 pixel art sprite, Terraria pixel art style, transparent background --s 750 --v 7.0 --iw 2.0
+```
+
+## CLAIR DE LUNE - Pristine White Metal Celestial Serenity Transformation
+
+```
+Transform this weapon into a PRISTINE NEON WHITE METAL Clair de Lune cosmic variant, the original weapon silhouette clearly recognizable but now forged from LUMINOUS SERENE WHITE METAL glowing with divine celestial peace, the pristine white surface has SOFT PALE BLUE AND PEARL undertones bleeding gently at the edges like tranquil moonlight, entropic amorphous WHITE-SILVER cosmic energy flowing outward in gentle peaceful streams, the immaculate white metal appears forged from CRYSTALLIZED DREAMS and solidified starlight whispers given form, chromatic edges shifting between pristine white with pale blue and pearl iridescence, cosmic dust particles drift slowly like sleeping stars in gentle orbit, divine harmonic resonance visible as GENTLE LULLABY WAVES softly radiating outward, reality-bending light creates a PEACEFUL AURA that calms even as the weapon pulses with immense power, soft celestial mist trails from the pristine surface, the white metal radiates divine tranquility and serene strength, divine craftsmanship of peaceful celestial beauty, high detail 256x256 pixel art sprite, Terraria pixel art style, transparent background --s 750 --v 7.0 --iw 2.0
+```
+
+## ODE TO JOY - Pristine White Metal Triumphant Celebration Transformation
+
+```
+Transform this weapon into a PRISTINE NEON WHITE METAL Ode to Joy cosmic variant, the original weapon silhouette clearly recognizable but now forged from LUMINOUS JUBILANT WHITE METAL radiating pure divine celebration, the pristine white surface has BRIGHT GOLD AND ROYAL PURPLE cosmic energy bleeding joyously at the edges, entropic amorphous WHITE-GOLD energy BURSTING OUTWARD like divine fireworks and celebration confetti, the immaculate white metal appears forged from CRYSTALLIZED HAPPINESS and solidified triumph given physical form, chromatic edges shifting between pristine white with gold and purple celebratory iridescence, COSMIC CONFETTI and star-burst particles spiral around the form in festive patterns, divine harmonic resonance visible as TRIUMPHANT CRESCENDO WAVES rising ever upward, reality-bending light creates a VICTORIOUS AURA that celebrates existence itself, the white metal seems to SING with joy and accomplishment, brilliant star-like sparkles dance around the pristine surface, divine craftsmanship that embodies pure euphoria, high detail 256x256 pixel art sprite, Terraria pixel art style, transparent background --s 750 --v 7.0 --iw 2.0
+```
+
+## NACHTMUSIK - Pristine White Metal Night Symphony Transformation
+
+```
+Transform this weapon into a PRISTINE NEON WHITE METAL Nachtmusik cosmic variant, the original weapon silhouette clearly recognizable but now forged from LUMINOUS NOCTURNAL WHITE METAL shimmering with divine night elegance, the pristine white surface has DEEP MIDNIGHT BLUE AND STARLIGHT SILVER undertones bleeding at the edges like a perfect night sky, entropic amorphous WHITE-SILVER cosmic energy flows with EMBEDDED STARS visible within the aura, the immaculate white metal appears forged from THE NIGHT SKY ITSELF given pristine physical form, chromatic edges shifting between pristine white with midnight blue and silver iridescence, cosmic particles form subtle CONSTELLATION PATTERNS around the weapon, divine harmonic resonance visible as ELEGANT SERENADE WAVES dancing in nocturnal beauty, reality-bending darkness at the edges creates a beautiful contrast with the luminous white core, the white metal carries the serene beauty of a perfect starlit night, silver starlight particles orbit slowly around the form, divine craftsmanship of refined nocturnal majesty, high detail 256x256 pixel art sprite, Terraria pixel art style, transparent background --s 750 --v 7.0 --iw 2.0
+```
+
+---
+
+# ACCESSORY TRANSFORMATION PROMPTS
+
+## Universal Accessory Pristine White Metal Transformation
+
+```
+Transform this accessory into a PRISTINE NEON WHITE METAL cosmic variant, the original accessory silhouette clearly recognizable but now forged from LUMINOUS DIVINE WHITE METAL radiating harmonic power, the pristine white surface has the accessory's original theme colors bleeding softly as chromatic cosmic gradients at the edges, entropic amorphous white cosmic energy wisps surrounding the form in gentle halos, reality-bending light distortion creating mystical divine aura, the immaculate white metal appears forged from solidified starlight and crystallized music given physical form, prismatic edges with subtle iridescent shimmer, cosmic dust particles orbit slowly around the pristine surface, divine harmonic resonance visible as ethereal sound wave halos, musical notation glows faintly within the cosmic aura, the accessory pulses with internal celestial radiance, divine craftsmanship of ethereal beauty, high detail 256x256 pixel art sprite, Terraria pixel art style, transparent background --s 750 --v 7.0 --iw 2.0
+```
+
+---
+
+# USAGE NOTES
+
+1. **Image Weight (--iw)**: Set to 2.0 to preserve original weapon silhouette while allowing pristine white metal transformation
+2. **Stylize (--s)**: Set to 750 for optimal balance between prompt adherence and artistic interpretation
+3. **Resolution**: All prompts optimized for 256x256 pixel art minimum - for higher resolution add `--ar 1:1 --quality 2` or specify `512x512 pixel art sprite`
+4. **Version**: Midjourney v7.0 required for best white metal luminosity results
+5. **Process**: Upload original weapon image → use /imagine with prompt → add image URL at start of prompt
+6. **White Metal Priority**: The pristine neon white metal is the PRIMARY visual - theme colors should bleed subtly at edges only
+7. **Iteration**: May need 2-3 generations to achieve optimal pristine white metal balance with theme effects
+8. **Theme Preservation**: Original weapon's fire/petals/feathers/effects become COSMIC WHITE VERSIONS with theme color hints
+
+---
+
+# ENIGMA VARIATIONS - BASE WEAPON DESIGN PROMPTS
+
+> **Note**: These are prompts for generating the ORIGINAL base Enigma weapons, NOT cosmic transformations. Use the Enigma Variations transformation prompt above to convert these base designs into pristine white metal cosmic variants.
+
+## Theme Identity
+**Primary Colors**: Deep purple, void black, eerie green flame
+**Motifs**: Watching eyes, question marks, arcane glyphs, paradox symbols, reality distortions
+**Aesthetic**: Mysterious, unknowable, reality-questioning, eldritch yet beautiful
+**Resolution**: 256x256 pixel art minimum
+
+---
+
+## MELEE WEAPONS
+
+### Enigma Melee 1: The Paradox Mirror Glaive
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of an enormous mirror glaive polearm themed around Enigma Variations mystery and paradox, the blade IS a fractured mirror reflecting impossible scenes that contradict each other, crafted from deep purple obsidian metal with eerie green flame engravings and void black handle, created by mystery itself in the style of Terraria, rotated 45 degrees clockwise with blade toward top-right, watching eyes embedded in the mirror fragments that track the viewer, question mark shapes formed by the blade's edge silhouette, arcane glyphs orbiting the weapon in slow rotation, the reflection shows what ISN'T there, green flame wisps bleeding from mirror cracks, reality appears to warp around the blade edges, visible paradox symbols etched into the shaft, the weapon seems to exist in two states simultaneously, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+### Enigma Melee 2: The Riddle Spinner's Chakram
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of massive dual spinning chakram rings themed around Enigma Variations, each ring is covered in rotating arcane glyphs that shift and change when observed, crafted from void black metal with deep purple inner rings and eerie green cutting edges, created by riddles given form in the style of Terraria, the rings appear to spin in OPPOSITE directions simultaneously which should be impossible, multiple watching eyes arranged around the inner ring staring outward, question marks trailing behind as motion blur, each ring contains a central eye that blinks between frames, green flame trails create spiraling patterns, reality distortion ripples emanate from the spinning motion, the glyphs on each ring tell a story that contradicts the other ring, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+---
+
+## RANGER WEAPONS
+
+### Enigma Ranger 1: The Uncertainty Principle Bow
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of an impossible geometry bow themed around Enigma Variations quantum mystery, the bow limbs twist through dimensions that shouldn't exist, crafted from deep purple crystalline material with void black string and eerie green energy nodes, created by uncertainty itself in the style of Terraria, rotated 45 degrees clockwise, the bowstring exists in multiple positions simultaneously creating blur effect, watching eyes embedded at key structural points along the limbs, question mark shapes form where the limbs should connect but don't quite meet, arcane glyphs float where arrows would be nocked, green flame wisps trail from the string even when still, the bow appears slightly different depending on where you focus, Escher-like impossible architecture in the grip design, reality warps around the drawn string area, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+### Enigma Ranger 2: The Sphinx's Riddle Launcher
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of an ornate sphinx-themed grenade launcher themed around Enigma Variations, the barrel emerges from a sphinx head with knowing expression, crafted from deep purple stone with void black metal mechanisms and eerie green ammunition glow, created by ancient riddles in the style of Terraria, rotated 45 degrees clockwise, the sphinx's eyes are watching eyes that follow the viewer, question mark patterns carved into the stone surface, arcane glyphs circle the barrel that pulse when firing, the ammunition chamber shows glimpses of impossible green flames within, hieroglyphic riddles that have never been solved line the weapon body, reality distortion emanates from the sphinx mouth, the expression seems to shift between knowing and questioning, each surface detail contains a hidden question, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+---
+
+## SUMMONER WEAPONS
+
+### Enigma Summoner 1: The Oracle's Paradox Staff
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of an ethereal oracle staff themed around Enigma Variations prophecy and contradiction, topped with a massive all-seeing eye that shows visions of contradicting futures, crafted from deep purple twisted wood that grows in impossible spiral patterns with void black runes and eerie green veins, created by prophecies that contradict themselves in the style of Terraria, rotated 45 degrees clockwise, the central eye is THE watching eye - enormous and impossibly detailed with purple iris and green flame pupil, smaller eyes cascade down the shaft each seeing different timelines, question marks manifest as floating spirits around the staff head, arcane glyphs orbit the eye in concentric circles, reality fractures visible in the eye's reflections, the wood grain forms question mark patterns naturally, green mist seeps from the eye as if crying mystery itself, the staff exists between moments in time, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+### Enigma Summoner 2: The Enigmatic Marionette Cross
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of a marionette control cross transformed into summoner staff themed around Enigma Variations, the cross holds strings that connect to nothing yet something responds, crafted from void black lacquered wood with deep purple metal fittings and eerie green ghost strings, created by the mystery of consciousness in the style of Terraria, rotated 45 degrees clockwise, watching eyes embedded at each crossbar end looking in different directions, the strings fade into reality distortion where they should end, question mark shapes dangle from phantom strings as ornaments, arcane glyphs float where marionettes WOULD be if you could see them, green flame wisps follow the strings upward into the cross, the cross appears to control entities that exist just outside perception, shadows of puppets visible only in peripheral vision, paradox symbols on the handle suggest the puppeteer is also a puppet, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+---
+
+## MAGIC WEAPONS
+
+### Enigma Magic 1: The Unsolvable Equation Tome
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of an ancient mathematical tome themed around Enigma Variations unsolvable mysteries, the book is open to pages showing equations that ALMOST make sense but contradict themselves, crafted from deep purple leather with void black pages and eerie green mathematical symbols, created by problems with no solutions in the style of Terraria, rotated 45 degrees clockwise, watching eyes peer from between the pages as if the book is alive and reading you back, the visible equations contain question marks as variables, arcane mathematical glyphs hover above the pages mid-calculation, green flame equations float and rearrange themselves perpetually, the spine is decorated with paradox symbols, reality distortion warps around the unsolved sections, page edges show infinite pages somehow, the numbers transform into eyes when observed directly, some symbols exist that have no meaning yet clearly mean something, high detail pixel art, transparent background --s 750 --v 7.0
+```
+
+### Enigma Magic 2: The Void Question Scepter
+
+```
+Concept art for a side-view idle 256x256 pixel art sprite of an ornate scepter themed around Enigma Variations existential mystery, the scepter head IS a three-dimensional question mark made of crystallized void and frozen questions, crafted from deep purple metal with void black grip and eerie green energy core within the question mark's dot, created by the first question ever asked in the style of Terraria, rotated 45 degrees clockwise, the question mark head contains a watching eye in its curve that stares through dimensions, smaller question marks orbit the main head like electrons, arcane glyphs spiral up the shaft spelling questions in forgotten languages, green flame bleeds from the dot at the question mark's base, the void within the crystal shows glimpses of unanswered mysteries, reality bends toward the scepter as if the universe itself wants answers, the handle has ridges that form Braille-like patterns spelling more questions, paradox energy creates afterimages of the scepter in other positions, high detail pixel art, transparent background --s 750 --v 7.0
+```
+

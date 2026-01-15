@@ -649,7 +649,7 @@ namespace MagnumOpus.Common.Systems
             int tileType = ModContent.TileType<MoonlitResonanceOreTile>();
             
             // Spawn MASSIVE amounts of veins throughout the world - blow up the underground!
-            int veinsToSpawn = Main.rand.Next(200, 301); // 200-300 veins! (was 15-25)
+            int veinsToSpawn = Main.rand.Next(192, 289); // 192-288 veins (reduced ~4%)
             int successfulVeins = 0;
 
             for (int attempt = 0; attempt < veinsToSpawn * 20 && successfulVeins < veinsToSpawn; attempt++)
@@ -661,8 +661,8 @@ namespace MagnumOpus.Common.Systems
                 // Check if the area is valid (solid tile)
                 if (Main.tile[x, y].HasTile && Main.tileSolid[Main.tile[x, y].TileType])
                 {
-                    // HUGE vein sizes of 25-60 tiles (was 10-25)
-                    int veinSize = Main.rand.Next(25, 61);
+                    // Large vein sizes of 24-58 tiles (reduced ~4%)
+                    int veinSize = Main.rand.Next(24, 59);
                     
                     if (SpawnOreVein(x, y, tileType, veinSize))
                     {
@@ -677,7 +677,7 @@ namespace MagnumOpus.Common.Systems
             int tileType = ModContent.TileType<EroicaResonanceOreTile>();
             
             // Spawn MASSIVE amounts of veins in the underground/cavern - blow it up!
-            int veinsToSpawn = Main.rand.Next(180, 261); // 180-260 veins! (was 12-21)
+            int veinsToSpawn = Main.rand.Next(173, 250); // 173-249 veins (reduced ~4%)
             int successfulVeins = 0;
 
             for (int attempt = 0; attempt < veinsToSpawn * 20 && successfulVeins < veinsToSpawn; attempt++)
@@ -692,8 +692,8 @@ namespace MagnumOpus.Common.Systems
                 // Check if the area is valid (solid tile)
                 if (Main.tile[x, y].HasTile && Main.tileSolid[Main.tile[x, y].TileType])
                 {
-                    // HUGE vein sizes of 20-50 tiles (was 8-20)
-                    int veinSize = Main.rand.Next(20, 51);
+                    // Large vein sizes of 19-48 tiles (reduced ~4%)
+                    int veinSize = Main.rand.Next(19, 49);
                     
                     if (SpawnOreVein(x, y, tileType, veinSize))
                     {
@@ -703,76 +703,41 @@ namespace MagnumOpus.Common.Systems
             }
         }
 
+        /// <summary>
+        /// Spawns a connected ore vein using vanilla's OreRunner algorithm.
+        /// This creates proper clumped ore deposits like Calamity mod does.
+        /// </summary>
+        /// <param name="x">Center X position</param>
+        /// <param name="y">Center Y position</param>
+        /// <param name="tileType">The ore tile type to place</param>
+        /// <param name="veinSize">Approximate number of tiles in the vein (used as strength)</param>
+        /// <returns>True if ore was placed</returns>
         private static bool SpawnOreVein(int x, int y, int tileType, int veinSize)
         {
-            int placed = 0;
-            int centerX = x;
-            int centerY = y;
-
-            for (int i = 0; i < veinSize * 5 && placed < veinSize; i++)
-            {
-                // Tight clump pattern
-                int offsetX = Main.rand.Next(-3, 4); // Tighter spread for better clumping
-                int offsetY = Main.rand.Next(-3, 4);
-                int targetX = centerX + offsetX;
-                int targetY = centerY + offsetY;
-
-                if (targetX < 10 || targetX > Main.maxTilesX - 10 || 
-                    targetY < 10 || targetY > Main.maxTilesY - 10)
-                    continue;
-
-                Tile tile = Main.tile[targetX, targetY];
-                
-                // Replace many more tile types for better ore placement
-                if (tile.HasTile && (
-                    tile.TileType == TileID.Stone || 
-                    tile.TileType == TileID.Dirt || 
-                    tile.TileType == TileID.Ebonstone ||
-                    tile.TileType == TileID.Crimstone ||
-                    tile.TileType == TileID.Pearlstone ||
-                    tile.TileType == TileID.Mud ||
-                    tile.TileType == TileID.ClayBlock ||
-                    tile.TileType == TileID.Granite ||
-                    tile.TileType == TileID.Marble ||
-                    tile.TileType == TileID.Sandstone ||
-                    tile.TileType == TileID.HardenedSand ||
-                    tile.TileType == TileID.IceBlock ||
-                    tile.TileType == TileID.SnowBlock ||
-                    tile.TileType == TileID.Silt ||
-                    tile.TileType == TileID.Slush))
-                {
-                    tile.TileType = (ushort)tileType;
-                    placed++;
-
-                    // Move center occasionally for organic spread
-                    if (Main.rand.NextBool(3)) // 33% chance for tighter clumps
-                    {
-                        centerX = targetX;
-                        centerY = targetY;
-                    }
-
-                    if (Main.netMode == NetmodeID.Server)
-                    {
-                        NetMessage.SendTileSquare(-1, targetX, targetY, 1);
-                    }
-                }
-            }
-
-            return placed > 0;
+            // Use vanilla's OreRunner for proper connected ore veins
+            // Strength controls how many tiles are placed (roughly)
+            // Steps controls how far the vein "crawls" - more steps = longer veins
+            double strength = veinSize * 0.4; // Scale down for OreRunner's algorithm
+            int steps = Main.rand.Next(3, 8); // Random crawl length for organic shapes
+            
+            // OreRunner creates proper connected ore deposits
+            WorldGen.OreRunner(x, y, strength, steps, (ushort)tileType);
+            
+            return true; // OreRunner always places something if position is valid
         }
 
         private static void SpawnSwanLakeResonanceOre()
         {
             int tileType = ModContent.TileType<SwanLakeResonanceOreTile>();
             
-            // Spawn circular bubble formations in the sky (reduced amount)
-            int bubblesToSpawn = Main.rand.Next(100, 141); // 100-140 bubble formations (was 150-200)
+            // Spawn bubble formations on/near sky islands and floating islands
+            int bubblesToSpawn = Main.rand.Next(120, 161); // 120-160 bubble formations
             int successfulBubbles = 0;
             int spawnX = Main.spawnTileX;
 
-            for (int attempt = 0; attempt < bubblesToSpawn * 20 && successfulBubbles < bubblesToSpawn; attempt++)
+            for (int attempt = 0; attempt < bubblesToSpawn * 30 && successfulBubbles < bubblesToSpawn; attempt++)
             {
-                // Sky island level minimum (around 350-400 tiles above surface)
+                // Sky island level (around 350-400 tiles above surface)
                 int x = Main.rand.Next(50, Main.maxTilesX - 50);
                 
                 // Skip spawn if within 150 blocks of spawn point
@@ -780,48 +745,77 @@ namespace MagnumOpus.Common.Systems
                     continue;
                 
                 // Sky island level: between space layer and sky islands (200-400 tiles from surface)
-                int minY = (int)(Main.worldSurface - 400);
-                int maxY = (int)(Main.worldSurface - 200);
+                int minY = Math.Max(50, (int)(Main.worldSurface - 450));
+                int maxY = (int)(Main.worldSurface - 150);
+                if (minY >= maxY) minY = maxY - 100;
+                
                 int y = Main.rand.Next(minY, maxY);
-
-                // Create tighter circular bubble clumps
-                int bubbleSize = Main.rand.Next(10, 18); // 10-17 tiles in circular pattern
-                int placed = 0;
-
-                // Create a tight circular pattern
-                for (int i = 0; i < bubbleSize * 2; i++)
+                
+                // Find a solid tile in this area - look for sky islands
+                bool foundSolid = false;
+                int searchRadius = 40;
+                int solidX = x, solidY = y;
+                
+                for (int searchAttempt = 0; searchAttempt < 50 && !foundSolid; searchAttempt++)
                 {
-                    double angle = Main.rand.NextDouble() * Math.PI * 2;
-                    int radius = Main.rand.Next(2, 5); // Tighter radius (was 3-8)
-                    int targetX = x + (int)(Math.Cos(angle) * radius);
-                    int targetY = y + (int)(Math.Sin(angle) * radius);
-
-                    if (targetX < 10 || targetX > Main.maxTilesX - 10 ||
-                        targetY < 10 || targetY > Main.maxTilesY - 10)
+                    int testX = x + Main.rand.Next(-searchRadius, searchRadius + 1);
+                    int testY = y + Main.rand.Next(-searchRadius, searchRadius + 1);
+                    
+                    if (testX < 0 || testX >= Main.maxTilesX || testY < 0 || testY >= Main.maxTilesY)
                         continue;
-
-                    Tile tile = Main.tile[targetX, targetY];
-
-                    // Place in air or replace existing sky tiles
-                    if (!tile.HasTile || tile.TileType == TileID.Cloud || tile.TileType == TileID.RainCloud || 
-                        tile.TileType == TileID.SnowCloud || Main.tileSolid[tile.TileType])
+                    
+                    Tile tile = Main.tile[testX, testY];
+                    if (tile.HasTile && Main.tileSolid[tile.TileType])
                     {
-                        tile.HasTile = true;
-                        tile.TileType = (ushort)tileType;
-                        placed++;
-
-                        if (Main.netMode == NetmodeID.Server)
+                        // Found a sky island block!
+                        foundSolid = true;
+                        solidX = testX;
+                        solidY = testY;
+                    }
+                }
+                
+                if (foundSolid)
+                {
+                    // Use OreRunner on the found solid location
+                    int bubbleSize = Main.rand.Next(12, 22); // Larger bubbles for visibility
+                    WorldGen.OreRunner(solidX, solidY, bubbleSize * 0.4, Main.rand.Next(3, 6), (ushort)tileType);
+                    successfulBubbles++;
+                }
+            }
+            
+            // Also spawn some floating ore clusters manually if we didn't get enough
+            // These create small floating ore platforms in the sky
+            if (successfulBubbles < 30)
+            {
+                int extraClusters = 50 - successfulBubbles;
+                for (int i = 0; i < extraClusters; i++)
+                {
+                    int x = Main.rand.Next(100, Main.maxTilesX - 100);
+                    if (Math.Abs(x - spawnX) < 150) continue;
+                    
+                    int y = Main.rand.Next(Math.Max(50, (int)(Main.worldSurface - 400)), (int)(Main.worldSurface - 100));
+                    
+                    // Create a small floating ore cluster manually
+                    int clusterSize = Main.rand.Next(3, 6);
+                    for (int cx = 0; cx < clusterSize; cx++)
+                    {
+                        for (int cy = 0; cy < clusterSize; cy++)
                         {
-                            NetMessage.SendTileSquare(-1, targetX, targetY, 1);
+                            int px = x + cx - clusterSize / 2;
+                            int py = y + cy - clusterSize / 2;
+                            
+                            if (px > 0 && px < Main.maxTilesX && py > 0 && py < Main.maxTilesY)
+                            {
+                                // Only place if empty or replace dirt/stone
+                                Tile tile = Main.tile[px, py];
+                                if (!tile.HasTile || tile.TileType == TileID.Dirt || tile.TileType == TileID.Stone)
+                                {
+                                    WorldGen.PlaceTile(px, py, tileType, forced: true);
+                                }
+                            }
                         }
                     }
-
-                    if (placed >= bubbleSize)
-                        break;
                 }
-
-                if (placed > 0)
-                    successfulBubbles++;
             }
         }
 
@@ -878,8 +872,8 @@ namespace MagnumOpus.Common.Systems
         {
             int tileType = ModContent.TileType<EnigmaResonanceOreTile>();
             
-            // Spawn small pod clusters in deep jungle
-            int podsToSpawn = Main.rand.Next(140, 201); // 140-200 pod clusters (was 200-280)
+            // Spawn small pod clusters in deep jungle (INCREASED for better availability)
+            int podsToSpawn = Main.rand.Next(200, 281); // 200-280 pod clusters (increased for plentiful spawns)
             int successfulPods = 0;
 
             for (int attempt = 0; attempt < podsToSpawn * 20 && successfulPods < podsToSpawn; attempt++)
@@ -910,43 +904,13 @@ namespace MagnumOpus.Common.Systems
                 // Need significant jungle presence
                 if (jungleCount > 80 && Main.tile[x, y].HasTile && Main.tileSolid[Main.tile[x, y].TileType])
                 {
-                    // Create small, tight pod veins (10-16 tiles each)
+                    // Use OreRunner for proper connected pod veins (smaller strength for tighter pods)
                     int podSize = Main.rand.Next(10, 17);
-                    int placed = 0;
-                    int centerX = x;
-                    int centerY = y;
-
-                    for (int i = 0; i < podSize * 4 && placed < podSize; i++)
+                    
+                    if (SpawnOreVein(x, y, tileType, podSize))
                     {
-                        // Very tight clustering for pod effect
-                        int offsetX = Main.rand.Next(-2, 3); // Tighter (was -3 to 4)
-                        int offsetY = Main.rand.Next(-2, 3);
-                        int targetX = centerX + offsetX;
-                        int targetY = centerY + offsetY;
-
-                        if (targetX < 10 || targetX > Main.maxTilesX - 10 ||
-                            targetY < 10 || targetY > Main.maxTilesY - 10)
-                            continue;
-
-                        Tile tile = Main.tile[targetX, targetY];
-
-                        if (tile.HasTile && (tile.TileType == TileID.Mud ||
-                            tile.TileType == TileID.JungleGrass ||
-                            tile.TileType == TileID.Stone ||
-                            tile.TileType == TileID.Chlorophyte))
-                        {
-                            tile.TileType = (ushort)tileType;
-                            placed++;
-
-                            if (Main.netMode == NetmodeID.Server)
-                            {
-                                NetMessage.SendTileSquare(-1, targetX, targetY, 1);
-                            }
-                        }
-                    }
-
-                    if (placed > 0)
                         successfulPods++;
+                    }
                 }
             }
         }

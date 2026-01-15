@@ -11,7 +11,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantOres
 {
     public class EnigmaResonanceOreTile : ModTile
     {
-        // Uses vanilla Emerald Gemstone Block texture
+        // Fallback to vanilla ore texture if custom texture fails to load
+        public override string Texture => ModContent.HasAsset("MagnumOpus/Content/EnigmaVariations/ResonantOres/EnigmaResonanceOreTile") 
+            ? "MagnumOpus/Content/EnigmaVariations/ResonantOres/EnigmaResonanceOreTile" 
+            : "Terraria/Images/Tiles_" + TileID.Chlorophyte;
 
         public override void SetStaticDefaults()
         {
@@ -47,7 +50,32 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantOres
 
         public override void NumDust(int i, int j, bool fail, ref int num)
         {
-            num = fail ? 1 : 3;
+            num = fail ? 2 : 5;
+        }
+
+        public override void RandomUpdate(int i, int j)
+        {
+            // Mysterious green flame particles (Enigma theme)
+            if (Main.rand.NextBool(15))
+            {
+                Dust dust = Dust.NewDustDirect(new Vector2(i * 16, j * 16), 16, 16, DustID.GreenTorch, 0f, -2f, 150, default, 1.2f);
+                dust.noGravity = true;
+                dust.velocity *= 0.8f;
+            }
+
+            if (Main.rand.NextBool(20))
+            {
+                Dust purple = Dust.NewDustDirect(new Vector2(i * 16, j * 16), 16, 16, DustID.PurpleTorch, 0f, -1f, 0, default, 1f);
+                purple.noGravity = true;
+                purple.velocity *= 0.5f;
+            }
+            
+            // Eerie void wisps
+            if (Main.rand.NextBool(30))
+            {
+                Dust wisp = Dust.NewDustDirect(new Vector2(i * 16, j * 16), 16, 16, DustID.Shadowflame, Main.rand.NextFloat(-1f, 1f), -0.5f, 0, default, 0.8f);
+                wisp.noGravity = true;
+            }
         }
 
         public override bool CreateDust(int i, int j, ref int type)

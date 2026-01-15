@@ -897,6 +897,21 @@ namespace MagnumOpus.Common.Systems
         #region Generic Musical Effects
         
         /// <summary>
+        /// Creates a single music note particle with precise control.
+        /// Use for trails, periodic effects, or when you need exact note placement.
+        /// </summary>
+        /// <param name="position">Spawn position</param>
+        /// <param name="velocity">Note velocity</param>
+        /// <param name="color">Note color</param>
+        /// <param name="scale">Note scale (0.2-0.8 recommended)</param>
+        /// <param name="lifetime">Particle lifetime in frames</param>
+        public static void MusicNote(Vector2 position, Vector2 velocity, Color color, float scale = 0.4f, int lifetime = 45)
+        {
+            var note = new MusicNoteParticle(position, velocity, color, scale, lifetime);
+            MagnumParticleHandler.SpawnParticle(note);
+        }
+        
+        /// <summary>
         /// Creates generic music notes with custom color.
         /// Use for items that don't fit Moonlight/Eroica theming.
         /// </summary>
@@ -1258,6 +1273,18 @@ namespace MagnumOpus.Common.Systems
         public static void SwanFeatherBurst(Vector2 position, int count = 8, float spreadRadius = 40f)
         {
             CustomParticles.SwanFeatherBurst(position, count, spreadRadius / 100f);
+        }
+        
+        /// <summary>
+        /// Creates a single drifting swan feather with graceful movement.
+        /// Use for trails, ambient effects, or single feather accents.
+        /// </summary>
+        /// <param name="position">Spawn position</param>
+        /// <param name="color">Feather color (typically white or black)</param>
+        /// <param name="scale">Feather scale (0.25-0.5 recommended)</param>
+        public static void SwanFeatherDrift(Vector2 position, Color color, float scale = 0.35f)
+        {
+            CustomParticles.SwanFeatherDrift(position, color, scale);
         }
         
         /// <summary>
@@ -2466,6 +2493,417 @@ namespace MagnumOpus.Common.Systems
             if (Main.rand.NextBool(15))
             {
                 LaCampanellaMusicNotes(center + new Vector2(Main.rand.NextFloat(-15f, 15f), 10f), 1, 12f);
+            }
+        }
+        
+        #endregion
+        
+        #region Enigma Variations Theme
+        // =============================
+        // ENIGMA VARIATIONS THEME
+        // Theme: Mystery, the unknowable, arcane secrets, questioning reality
+        // Colors: Black → Deep Purple → Eerie Green Flame
+        // Soul: "The unknowable mystery"
+        // =============================
+        
+        // Enigma color palette
+        public static readonly Color EnigmaBlack = new Color(15, 10, 20);
+        public static readonly Color EnigmaDeepPurple = new Color(80, 20, 120);
+        public static readonly Color EnigmaPurple = new Color(140, 60, 200);
+        public static readonly Color EnigmaGreenFlame = new Color(50, 220, 100);
+        public static readonly Color EnigmaDarkGreen = new Color(30, 100, 50);
+        
+        /// <summary>
+        /// Gets a color along the Enigma gradient: Black → Purple → Green.
+        /// </summary>
+        public static Color GetEnigmaGradient(float progress)
+        {
+            if (progress < 0.5f)
+                return Color.Lerp(EnigmaBlack, EnigmaPurple, progress * 2f);
+            else
+                return Color.Lerp(EnigmaPurple, EnigmaGreenFlame, (progress - 0.5f) * 2f);
+        }
+        
+        /// <summary>
+        /// Creates Enigma music notes - mysterious, eerie notes with arcane colors.
+        /// Notes drift with an otherworldly feel - questioning, unknowable.
+        /// </summary>
+        public static void EnigmaMusicNotes(Vector2 position, int count = 5, float spreadRadius = 30f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(spreadRadius, spreadRadius);
+                // Swirling, unpredictable velocity - the mystery swirls
+                float swirl = Main.GameUpdateCount * 0.05f + i;
+                Vector2 velocity = new Vector2((float)Math.Cos(swirl), (float)Math.Sin(swirl)) * Main.rand.NextFloat(1f, 2f);
+                velocity += new Vector2(0, Main.rand.NextFloat(-1f, 0.5f)); // Slight upward bias
+                
+                // Enigma gradient colors - black to purple to green
+                float progress = Main.rand.NextFloat();
+                Color color = GetEnigmaGradient(progress);
+                
+                float scale = Main.rand.NextFloat(0.35f, 0.7f);
+                int lifetime = Main.rand.Next(45, 80);
+                
+                var note = new MusicNoteParticle(position + offset, velocity, color, scale, lifetime);
+                MagnumParticleHandler.SpawnParticle(note);
+            }
+        }
+        
+        /// <summary>
+        /// Enigma music note burst - radial explosion of mysterious notes.
+        /// Perfect for impacts, reveals, and reality-tear moments.
+        /// </summary>
+        public static void EnigmaMusicNoteBurst(Vector2 position, int count = 8, float speed = 4f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float angle = MathHelper.TwoPi * i / count;
+                Vector2 velocity = angle.ToRotationVector2() * speed * Main.rand.NextFloat(0.7f, 1.3f);
+                
+                float progress = (float)i / count;
+                Color noteColor = GetEnigmaGradient(progress);
+                
+                var note = new MusicNoteParticle(position, velocity, noteColor, 
+                    Main.rand.NextFloat(0.45f, 0.75f), Main.rand.Next(40, 65));
+                MagnumParticleHandler.SpawnParticle(note);
+            }
+        }
+        
+        /// <summary>
+        /// Enigma impact effect - the moment mystery strikes.
+        /// Combines eyes watching, glyphs marking, and music resonating.
+        /// </summary>
+        public static void EnigmaImpact(Vector2 position, float intensity = 1f)
+        {
+            // Central flare in green flame
+            CustomParticles.GenericFlare(position, EnigmaGreenFlame, 0.8f * intensity, 22);
+            CustomParticles.GenericFlare(position, EnigmaPurple, 0.6f * intensity, 18);
+            
+            // Halo rings with gradient
+            for (int ring = 0; ring < 3; ring++)
+            {
+                float progress = (float)ring / 3f;
+                Color ringColor = GetEnigmaGradient(progress);
+                CustomParticles.HaloRing(position, ringColor, (0.4f + ring * 0.2f) * intensity, 15 + ring * 5);
+            }
+            
+            // Fractal burst pattern
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 offset = angle.ToRotationVector2() * 30f * intensity;
+                float progress = (float)i / 6f;
+                Color flareColor = GetEnigmaGradient(progress);
+                CustomParticles.GenericFlare(position + offset, flareColor, 0.4f * intensity, 15);
+            }
+            
+            // Enigma eye watching the impact
+            CustomParticles.EnigmaEyeGaze(position + new Vector2(0, -40f) * intensity, EnigmaGreenFlame, 0.5f * intensity);
+            
+            // Music notes - the mystery sings
+            EnigmaMusicNotes(position, (int)(6 * intensity), 35f * intensity);
+            
+            // Glyphs mark the arcane point
+            CustomParticles.GlyphBurst(position, EnigmaPurple, (int)(4 * intensity), 3f * intensity);
+        }
+        
+        /// <summary>
+        /// Enigma shockwave - reality ripples outward.
+        /// </summary>
+        public static void EnigmaShockwave(Vector2 position, float scale = 1f)
+        {
+            CustomParticles.HaloRing(position, EnigmaPurple, 0.6f * scale, 25);
+            CustomParticles.HaloRing(position, EnigmaGreenFlame * 0.7f, 0.4f * scale, 20);
+            
+            // Distorted sparkles at the edge
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f + Main.rand.NextFloat(-0.2f, 0.2f);
+                Vector2 sparkPos = position + angle.ToRotationVector2() * 50f * scale;
+                CustomParticles.GenericGlow(sparkPos, EnigmaGreenFlame, 0.25f * scale, 18);
+            }
+        }
+        
+        /// <summary>
+        /// Enigma aura - mysterious ambient particles for held items and minions.
+        /// </summary>
+        public static void EnigmaAura(Vector2 center, float radius = 35f, float intensity = 1f)
+        {
+            // Swirling void motes
+            if (Main.rand.NextBool(4))
+            {
+                float angle = Main.GameUpdateCount * 0.02f + Main.rand.NextFloat() * MathHelper.TwoPi;
+                Vector2 motePos = center + angle.ToRotationVector2() * radius * Main.rand.NextFloat(0.6f, 1f);
+                Color moteColor = GetEnigmaGradient(Main.rand.NextFloat());
+                CustomParticles.GenericGlow(motePos, moteColor * 0.6f, 0.2f * intensity, 25);
+            }
+            
+            // Occasional eye glimpse
+            if (Main.rand.NextBool(25))
+            {
+                Vector2 eyePos = center + Main.rand.NextVector2Circular(radius * 0.8f, radius * 0.8f);
+                CustomParticles.EnigmaEyeGaze(eyePos, EnigmaGreenFlame * 0.7f, 0.25f * intensity);
+            }
+            
+            // Orbiting glyph
+            if (Main.rand.NextBool(20))
+            {
+                float glyphAngle = Main.GameUpdateCount * 0.015f;
+                Vector2 glyphPos = center + glyphAngle.ToRotationVector2() * radius;
+                CustomParticles.Glyph(glyphPos, EnigmaPurple * 0.5f, 0.2f * intensity);
+            }
+            
+            // Rare music note
+            if (Main.rand.NextBool(30))
+            {
+                EnigmaMusicNotes(center + Main.rand.NextVector2Circular(radius * 0.5f, radius * 0.5f), 1, 10f);
+            }
+        }
+        
+        /// <summary>
+        /// Enigma trail - for projectiles and moving effects.
+        /// </summary>
+        public static void EnigmaTrail(Vector2 position, Vector2 velocity, float scale = 1f)
+        {
+            // Void glow trail
+            Color trailColor = GetEnigmaGradient(Main.rand.NextFloat());
+            CustomParticles.GenericGlow(position, trailColor, 0.3f * scale, 15);
+            
+            // Occasional eye watching from trail
+            if (Main.rand.NextBool(8))
+            {
+                CustomParticles.EnigmaEyeTrail(position, velocity, EnigmaGreenFlame * 0.7f, 0.2f * scale);
+            }
+            
+            // Sparse glyphs left behind
+            if (Main.rand.NextBool(6))
+            {
+                CustomParticles.GlyphTrail(position, velocity, EnigmaPurple * 0.6f, 0.2f * scale);
+            }
+        }
+        
+        /// <summary>
+        /// Enigma halo burst - bright mysterious explosion.
+        /// </summary>
+        public static void EnigmaHaloBurst(Vector2 position, float scale = 1f)
+        {
+            CustomParticles.GenericFlare(position, EnigmaGreenFlame, 0.9f * scale, 20);
+            CustomParticles.GenericFlare(position, Color.White, 0.6f * scale, 15);
+            CustomParticles.HaloRing(position, EnigmaPurple, 0.7f * scale, 22);
+            CustomParticles.HaloRing(position, EnigmaGreenFlame, 0.5f * scale, 18);
+            
+            // Exploding eyes watching outward
+            CustomParticles.EnigmaEyeExplosion(position, EnigmaGreenFlame, 4, 4f * scale);
+            
+            // Music note cascade
+            EnigmaMusicNoteBurst(position, 6, 5f * scale);
+        }
+        
+        #endregion
+        
+        #region Fate Theme
+        // =============================
+        // FATE THEME
+        // Theme: Reality's final symphony, cosmic inevitability, endgame awe
+        // Colors: DARK PRISMATIC - Black → Dark Pink → Bright Red
+        // Soul: "Reality itself bending" - cosmic darkness pierced by destiny
+        // ENDGAME CONTENT - Must be the MOST spectacular effects!
+        // =============================
+        
+        // Fate color palette - DARK PRISMATIC (black is primary!)
+        public static readonly Color FateBlack = new Color(15, 5, 20);
+        public static readonly Color FateDarkPink = new Color(180, 50, 100);
+        public static readonly Color FateBrightRed = new Color(255, 60, 80);
+        public static readonly Color FatePurple = new Color(120, 30, 140);
+        public static readonly Color FateWhite = new Color(255, 255, 255);
+        
+        /// <summary>
+        /// Gets a color along the Fate dark prismatic gradient: Black → Pink → Red.
+        /// </summary>
+        public static Color GetFateGradient(float progress)
+        {
+            if (progress < 0.4f)
+                return Color.Lerp(FateBlack, FateDarkPink, progress / 0.4f);
+            else if (progress < 0.8f)
+                return Color.Lerp(FateDarkPink, FateBrightRed, (progress - 0.4f) / 0.4f);
+            else
+                return Color.Lerp(FateBrightRed, FateWhite, (progress - 0.8f) / 0.2f);
+        }
+        
+        /// <summary>
+        /// Creates Fate music notes - cosmic, reality-bending notes with dark prismatic colors.
+        /// Notes drift with an otherworldly, inevitable feel - the symphony of destiny.
+        /// </summary>
+        public static void FateMusicNotes(Vector2 position, int count = 5, float spreadRadius = 30f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(spreadRadius, spreadRadius);
+                // Cosmic, slow drift - inevitable like fate
+                Vector2 velocity = Main.rand.NextVector2Circular(1.5f, 1.5f) + new Vector2(0, Main.rand.NextFloat(-1f, 0.5f));
+                
+                // Fate gradient colors - dark prismatic
+                float progress = Main.rand.NextFloat();
+                Color color = GetFateGradient(progress);
+                
+                float scale = Main.rand.NextFloat(0.4f, 0.75f);
+                int lifetime = Main.rand.Next(50, 85);
+                
+                var note = new MusicNoteParticle(position + offset, velocity, color, scale, lifetime);
+                MagnumParticleHandler.SpawnParticle(note);
+            }
+        }
+        
+        /// <summary>
+        /// Fate music note burst - radial explosion of cosmic notes.
+        /// Perfect for impacts, reality tears, and ultimate attacks.
+        /// </summary>
+        public static void FateMusicNoteBurst(Vector2 position, int count = 10, float speed = 5f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float angle = MathHelper.TwoPi * i / count;
+                Vector2 velocity = angle.ToRotationVector2() * speed * Main.rand.NextFloat(0.8f, 1.2f);
+                
+                float progress = (float)i / count;
+                Color noteColor = GetFateGradient(progress);
+                
+                var note = new MusicNoteParticle(position, velocity, noteColor, 
+                    Main.rand.NextFloat(0.5f, 0.85f), Main.rand.Next(45, 70));
+                MagnumParticleHandler.SpawnParticle(note);
+            }
+        }
+        
+        /// <summary>
+        /// Fate impact effect - reality-shattering impact with cosmic distortion.
+        /// </summary>
+        public static void FateImpact(Vector2 position, float intensity = 1f)
+        {
+            // Central flash - bright red breaking through
+            CustomParticles.GenericFlare(position, FateBrightRed, 0.9f * intensity, 22);
+            CustomParticles.GenericFlare(position, FateDarkPink, 0.7f * intensity, 18);
+            CustomParticles.GenericFlare(position, FateBlack, 0.5f * intensity, 15);
+            
+            // Chromatic aberration - RGB separation
+            CustomParticles.GenericFlare(position + new Vector2(-3, 0), Color.Red * 0.5f, 0.6f * intensity, 12);
+            CustomParticles.GenericFlare(position + new Vector2(3, 0), Color.Blue * 0.5f, 0.6f * intensity, 12);
+            
+            // Halo rings with dark prismatic gradient
+            for (int ring = 0; ring < 4; ring++)
+            {
+                float progress = (float)ring / 4f;
+                Color ringColor = GetFateGradient(progress);
+                CustomParticles.HaloRing(position, ringColor, (0.4f + ring * 0.2f) * intensity, 16 + ring * 5);
+            }
+            
+            // Fractal burst pattern
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 offset = angle.ToRotationVector2() * 35f * intensity;
+                float progress = (float)i / 8f;
+                Color flareColor = GetFateGradient(progress);
+                CustomParticles.GenericFlare(position + offset, flareColor, 0.45f * intensity, 16);
+            }
+            
+            // Glyphs mark the cosmic point
+            CustomParticles.GlyphBurst(position, FateDarkPink, (int)(5 * intensity), 4f * intensity);
+            
+            // Music notes - the final symphony
+            FateMusicNotes(position, (int)(8 * intensity), 40f * intensity);
+        }
+        
+        /// <summary>
+        /// Fate shockwave - reality ripples outward from cosmic impact.
+        /// </summary>
+        public static void FateShockwave(Vector2 position, float scale = 1f)
+        {
+            CustomParticles.HaloRing(position, FateBrightRed, 0.7f * scale, 28);
+            CustomParticles.HaloRing(position, FateDarkPink * 0.8f, 0.5f * scale, 22);
+            CustomParticles.HaloRing(position, FateBlack * 0.6f, 0.3f * scale, 18);
+            
+            // Dark prismatic sparkles at the edge
+            for (int i = 0; i < 10; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 10f;
+                Vector2 sparkPos = position + angle.ToRotationVector2() * 55f * scale;
+                Color sparkColor = GetFateGradient((float)i / 10f);
+                CustomParticles.GenericGlow(sparkPos, sparkColor, 0.3f * scale, 20);
+            }
+        }
+        
+        /// <summary>
+        /// Fate halo burst - cosmic explosion of destiny.
+        /// </summary>
+        public static void FateHaloBurst(Vector2 position, float scale = 1f)
+        {
+            CustomParticles.GenericFlare(position, FateBrightRed, 1.0f * scale, 22);
+            CustomParticles.GenericFlare(position, FateWhite, 0.7f * scale, 16);
+            CustomParticles.HaloRing(position, FateDarkPink, 0.8f * scale, 25);
+            CustomParticles.HaloRing(position, FateBrightRed, 0.6f * scale, 20);
+            
+            // Chromatic aberration burst
+            for (int i = 0; i < 3; i++)
+            {
+                Vector2 offset = new Vector2(i == 0 ? -4 : (i == 1 ? 0 : 4), 0);
+                Color chromaColor = i == 0 ? Color.Red : (i == 1 ? Color.Green : Color.Blue);
+                CustomParticles.HaloRing(position + offset, chromaColor * 0.4f, 0.4f * scale, 15);
+            }
+            
+            // Music note explosion
+            FateMusicNoteBurst(position, 8, 6f * scale);
+        }
+        
+        /// <summary>
+        /// Fate aura - cosmic ambient particles for endgame weapons.
+        /// </summary>
+        public static void FateAura(Vector2 center, float radius = 35f, float intensity = 1f)
+        {
+            // Swirling cosmic motes
+            if (Main.rand.NextBool(3))
+            {
+                float angle = Main.GameUpdateCount * 0.025f + Main.rand.NextFloat() * MathHelper.TwoPi;
+                Vector2 motePos = center + angle.ToRotationVector2() * radius * Main.rand.NextFloat(0.5f, 1f);
+                Color moteColor = GetFateGradient(Main.rand.NextFloat());
+                CustomParticles.GenericGlow(motePos, moteColor * 0.7f, 0.25f * intensity, 22);
+            }
+            
+            // Occasional glyph orbit
+            if (Main.rand.NextBool(15))
+            {
+                float glyphAngle = Main.GameUpdateCount * 0.02f;
+                Vector2 glyphPos = center + glyphAngle.ToRotationVector2() * radius;
+                CustomParticles.Glyph(glyphPos, FateDarkPink * 0.6f, 0.2f * intensity);
+            }
+            
+            // Rare music note
+            if (Main.rand.NextBool(20))
+            {
+                FateMusicNotes(center + Main.rand.NextVector2Circular(radius * 0.4f, radius * 0.4f), 1, 12f);
+            }
+        }
+        
+        /// <summary>
+        /// Fate trail - for projectiles with cosmic afterglow.
+        /// </summary>
+        public static void FateTrail(Vector2 position, Vector2 velocity, float scale = 1f)
+        {
+            // Dark prismatic glow trail
+            Color trailColor = GetFateGradient(Main.rand.NextFloat());
+            CustomParticles.GenericGlow(position, trailColor, 0.35f * scale, 16);
+            
+            // Occasional chromatic shimmer
+            if (Main.rand.NextBool(4))
+            {
+                CustomParticles.GenericFlare(position + new Vector2(-2, 0), Color.Red * 0.4f, 0.2f * scale, 10);
+                CustomParticles.GenericFlare(position + new Vector2(2, 0), Color.Blue * 0.4f, 0.2f * scale, 10);
+            }
+            
+            // Sparse glyph trail
+            if (Main.rand.NextBool(8))
+            {
+                CustomParticles.GlyphTrail(position, velocity, FatePurple * 0.5f, 0.2f * scale);
             }
         }
         

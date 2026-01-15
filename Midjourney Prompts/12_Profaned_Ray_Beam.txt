@@ -1,0 +1,215 @@
+# Profaned Ray / Holy Fire Beam Particle Prompts
+# Inspired by Calamity Mod's Profaned Guardians
+# Three-part beam system: Start (origin), Mid (body), End (terminus)
+
+## IMPORTANT NOTES:
+# - All textures should be WHITE or GRAYSCALE on transparent/black background
+# - They will be tinted to orange/gold/holy fire colors at runtime
+# - Start = where beam originates (mouth/weapon)
+# - Mid = repeating body section (tiles seamlessly)
+# - End = terminus point (where beam stops)
+# - Mid section should tile horizontally seamlessly
+
+---
+
+## UNIVERSAL SUFFIX (append to all prompts):
+# , white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --s 250 --style raw
+
+---
+
+## ========================================
+## PROFANED RAY - STYLE A (Lava Flow)
+## ========================================
+
+### START (Origin Point) - 1:1 ratio
+Prompt A1 - Lava Ray Start:
+holy fire beam origin point, intense bright core erupting outward, lava-like energy gathering, molten light source, radiant energy burst expanding rightward, circular glow transitioning to beam shape, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 1:1 --s 250 --style raw
+
+### MID (Repeating Body) - 4:1 ratio, seamless tile
+Prompt A2 - Lava Ray Mid:
+seamless tileable holy fire beam body, flowing lava energy stream, molten light current, undulating heat waves, organic flowing fire texture, horizontal energy flow, edges fade to transparent, seamless horizontal tile, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 4:1 --s 250 --style raw
+
+### END (Terminus) - 1:1 ratio
+Prompt A3 - Lava Ray End:
+holy fire beam terminus, energy dissipating into particles, lava droplets scattering, molten light fading, beam tapering to point with dispersing embers, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 1:1 --s 250 --style raw
+
+---
+
+## ========================================
+## PROFANED RAY - STYLE B (Crystal Holy)
+## ========================================
+
+### START (Origin Point)
+Prompt B1 - Crystal Ray Start:
+crystalline holy beam origin, faceted light source, geometric energy gathering point, prismatic core radiating outward, sacred geometry burst, angular light formation expanding rightward, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 1:1 --s 250 --style raw
+
+### MID (Repeating Body)
+Prompt B2 - Crystal Ray Mid:
+seamless tileable crystalline beam body, faceted light stream, geometric energy flow, angular shard patterns, prismatic refraction lines, hard edges with soft glow, seamless horizontal tile, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 4:1 --s 250 --style raw
+
+### END (Terminus)
+Prompt B3 - Crystal Ray End:
+crystalline beam terminus, shattering into geometric fragments, prismatic shards dispersing, faceted light dissipating, angular energy breaking apart, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 1:1 --s 250 --style raw
+
+---
+
+## ========================================
+## PROFANED RAY - STYLE C (Solar Flare)
+## ========================================
+
+### START (Origin Point)
+Prompt C1 - Solar Ray Start:
+solar flare beam origin, sun corona burst, intense plasma eruption, solar wind gathering, radiant heat source with prominences, stellar energy expanding rightward, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 1:1 --s 250 --style raw
+
+### MID (Repeating Body)
+Prompt C2 - Solar Ray Mid:
+seamless tileable solar beam body, plasma stream with magnetic field lines, coronal mass ejection flow, swirling solar wind, prominence tendrils, seamless horizontal tile, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 4:1 --s 250 --style raw
+
+### END (Terminus)
+Prompt C3 - Solar Ray End:
+solar beam terminus, plasma dissipating into space, coronal particles scattering, solar wind fading, stellar energy dispersing into void, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 1:1 --s 250 --style raw
+
+---
+
+## ========================================
+## PROFANED RAY - STYLE D (Divine Light)
+## ========================================
+
+### START (Origin Point)
+Prompt D1 - Divine Ray Start:
+divine holy light origin, heavenly radiance source, sacred beam emanation point, angelic glow core, blessed energy gathering with halo effect, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 1:1 --s 250 --style raw
+
+### MID (Repeating Body)
+Prompt D2 - Divine Ray Mid:
+seamless tileable divine light beam, heavenly energy stream, soft sacred glow, gentle undulating radiance, blessed light flow, ethereal luminescence, seamless horizontal tile, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 4:1 --s 250 --style raw
+
+### END (Terminus)
+Prompt D3 - Divine Ray End:
+divine light terminus, holy energy ascending, blessed particles rising upward, sacred light fading into heaven, ethereal dissipation with upward drift, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 1:1 --s 250 --style raw
+
+---
+
+## ========================================
+## PROFANED RAY - STYLE E (Volcanic)
+## ========================================
+
+### START (Origin Point)
+Prompt E1 - Volcanic Ray Start:
+volcanic beam origin, magma chamber eruption, pyroclastic burst, molten rock core, volcanic vent spewing rightward, lava fountain source, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 1:1 --s 250 --style raw
+
+### MID (Repeating Body)
+Prompt E2 - Volcanic Ray Mid:
+seamless tileable volcanic beam body, flowing magma stream, molten rock current with cooling crust patterns, lava tube interior, pyroclastic flow, seamless horizontal tile, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 4:1 --s 250 --style raw
+
+### END (Terminus)
+Prompt E3 - Volcanic Ray End:
+volcanic beam terminus, lava cooling and solidifying, obsidian fragments forming, magma dripping and fading, volcanic rock crystallizing, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 1:1 --s 250 --style raw
+
+---
+
+## ========================================
+## PROFANED RAY - STYLE F (Electric Holy)
+## ========================================
+
+### START (Origin Point)
+Prompt F1 - Electric Holy Start:
+electric holy beam origin, lightning ball core, plasma sphere crackling, divine thunder source, voltage gathering point with arc discharges, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 1:1 --s 250 --style raw
+
+### MID (Repeating Body)
+Prompt F2 - Electric Holy Mid:
+seamless tileable electric beam body, branching lightning stream, plasma channel with side arcs, continuous electrical discharge, voltage flow, seamless horizontal tile, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 4:1 --s 250 --style raw
+
+### END (Terminus)
+Prompt F3 - Electric Holy End:
+electric beam terminus, lightning dissipating into sparks, plasma scattering, voltage grounding out, electrical energy dispersing into air, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 1:1 --s 250 --style raw
+
+---
+
+## ========================================
+## PROFANED RAY - STYLE G (Organic Fire)
+## ========================================
+
+### START (Origin Point)
+Prompt G1 - Organic Fire Start:
+organic fire beam origin, living flame source, biological fire eruption, organic ember core, natural combustion point with flame tendrils, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 1:1 --s 250 --style raw
+
+### MID (Repeating Body)
+Prompt G2 - Organic Fire Mid:
+seamless tileable organic fire stream, living flames flowing, natural fire current, biological combustion, flame tendrils intertwining, organic heat flow, seamless horizontal tile, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 4:1 --s 250 --style raw
+
+### END (Terminus)
+Prompt G3 - Organic Fire End:
+organic fire terminus, living flames dying, embers floating away, natural combustion ending, biological fire extinguishing, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 1:1 --s 250 --style raw
+
+---
+
+## ========================================
+## PROFANED RAY - STYLE H (Noise/Distortion)
+## ========================================
+
+### START (Origin Point)
+Prompt H1 - Distortion Ray Start:
+heat distortion beam origin, reality warping source, visual aberration core, atmospheric refraction point, mirage emanation expanding, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 1:1 --s 250 --style raw
+
+### MID (Repeating Body)
+Prompt H2 - Distortion Ray Mid:
+seamless tileable heat distortion stream, atmospheric refraction waves, mirage pattern, visual noise texture, perlin noise heat haze, seamless horizontal tile, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 4:1 --s 250 --style raw
+
+### END (Terminus)
+Prompt H3 - Distortion Ray End:
+heat distortion terminus, mirage fading, atmospheric stabilizing, reality reasserting, visual aberration dissipating, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --ar 1:1 --s 250 --style raw
+
+---
+
+## FILE NAMING CONVENTION:
+# ProfanedRay_Lava_Start.png
+# ProfanedRay_Lava_Mid.png (seamless tile)
+# ProfanedRay_Lava_End.png
+# ProfanedRay_Crystal_Start.png
+# ProfanedRay_Crystal_Mid.png
+# ProfanedRay_Crystal_End.png
+# ProfanedRay_Solar_Start.png
+# ProfanedRay_Solar_Mid.png
+# ProfanedRay_Solar_End.png
+# ProfanedRay_Divine_Start.png
+# ProfanedRay_Divine_Mid.png
+# ProfanedRay_Divine_End.png
+# ProfanedRay_Volcanic_Start.png
+# ProfanedRay_Volcanic_Mid.png
+# ProfanedRay_Volcanic_End.png
+# ProfanedRay_Electric_Start.png
+# ProfanedRay_Electric_Mid.png
+# ProfanedRay_Electric_End.png
+# ProfanedRay_Organic_Start.png
+# ProfanedRay_Organic_Mid.png
+# ProfanedRay_Organic_End.png
+# ProfanedRay_Distortion_Start.png
+# ProfanedRay_Distortion_Mid.png
+# ProfanedRay_Distortion_End.png
+
+---
+
+## RECOMMENDED RESOLUTIONS:
+# Start: 128x128 or 256x256 (square for origin burst)
+# Mid: 512x128 or 1024x256 (wide for tiling beam body)
+# End: 128x128 or 256x256 (square for terminus)
+
+---
+
+## USAGE IN CODE:
+# These are used with PrimitiveTrailCopy or custom beam drawing
+# The Start texture is drawn at the laser origin (scaled to width)
+# The Mid texture tiles along the beam length
+# The End texture is drawn at the laser terminus
+
+## SHADER INTEGRATION:
+# Apply with GuardiansLaserVertexShader or similar
+# Use LavaNoise texture for secondary sampling
+# Color gradients: Orange (255,100,0) to Gold (255,220,150)
+# Edge fade controlled by shader parameters
+
+## EXAMPLE PROFANED COLOR PALETTE:
+# Core: (255, 240, 200) - Bright holy white
+# Inner: (255, 200, 120) - Holy gold
+# Mid: (255, 150, 80) - Holy orange
+# Edge: (200, 80, 30) - Dark fire edge

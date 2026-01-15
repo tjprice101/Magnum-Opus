@@ -1,0 +1,208 @@
+# TERRARIA BLOCK/TILE SPRITESHEET GENERATOR
+# Calamity-Style Tile Texture Prompts for Midjourney
+
+================================================================================
+## TECHNICAL SPECIFICATIONS - READ FIRST!
+================================================================================
+
+Terraria tile spritesheets follow a VERY SPECIFIC format that tModLoader requires.
+Understanding this format is CRITICAL for your sprites to work in-game.
+
+### STANDARD TILE SPRITESHEET DIMENSIONS:
+- **Basic Single-Variant**: 288 x 270 pixels (18 columns × 15 rows of 16x16 tiles + 2px padding)
+- **Multi-Variant (2x2)**: 576 x 540 pixels (for 4 texture variations)
+- **Multi-Variant (3x3)**: 864 x 810 pixels (for 9 texture variations)
+- **Multi-Variant (4x4)**: 1152 x 1080 pixels (for 16 texture variations)
+
+### THE TILE FRAME GRID:
+Each 16x16 tile has 2 pixels of padding, making each cell 18x18.
+The spritesheet contains ALL possible tile connection states:
+- 4 corner tiles (top-left, top-right, bottom-left, bottom-right)
+- 4 edge tiles (top, bottom, left, right)
+- 4 inner corner tiles
+- 1 center tile (fully surrounded)
+- 6 connector/transition tiles
+- Multiple single/isolated tiles
+
+### CALAMITY'S COMMON SPRITESHEET SIZES:
+| Size | Dimensions | Purpose |
+|------|------------|---------|
+| 234 x 90 | Single variant ore/stone | Simple blocks |
+| 324 x 90 | 2 horizontal variants | Varied bricks |
+| 450 x 198 | 2x2 variants | Complex natural tiles |
+| 576 x 270 | Large variant set | Detailed blocks |
+| 216 x 72 | Compact single | Glass-like tiles |
+
+================================================================================
+## PROMPT STRUCTURE BREAKDOWN
+================================================================================
+
+**CORE PROMPT FORMULA:**
+```
+[MATERIAL TYPE] [BLOCK DESCRIPTION], terraria tile spritesheet, 16x16 pixel grid, 
+[COLOR PALETTE], [SURFACE TEXTURE], [LIGHTING/SHADING], [SPECIAL EFFECTS],
+pixel art, game asset, seamless tiling edges, connection variants,
+top-down lighting, --ar [ASPECT RATIO] --v 6.1 --style raw
+```
+
+### CRITICAL KEYWORDS FOR TERRARIA STYLE:
+- "terraria style pixel art"
+- "16x16 pixel tile"
+- "game sprite asset"
+- "retro 2D game aesthetic"
+- "hand-pixeled texture"
+- "limited color palette"
+- "chunky pixels"
+- "no anti-aliasing"
+- "hard pixel edges"
+- "dithering shading"
+
+================================================================================
+## MASTER TEMPLATE (COPY & MODIFY)
+================================================================================
+
+### SIMPLE ORE/STONE BLOCK (234 x 90):
+```
+[MATERIAL_NAME] ore block tileset, terraria modded content style, 16x16 pixel sprites arranged in spritesheet grid, [PRIMARY_COLOR] crystalline ore deposits embedded in [SECONDARY_COLOR] stone matrix, faceted crystal formations catching light, subtle inner glow, rocky natural texture with [TERTIARY_COLOR] mineral veins, pixel art game asset, retro 2D aesthetic, limited color palette of [COLOR_COUNT] colors, hard pixel edges with dithering for shading, top-down consistent lighting from upper-left, seamless tiling connection system with corners edges and centers, no anti-aliasing, chunky deliberate pixels --ar 13:5 --v 6.1 --style raw
+```
+
+### DECORATIVE BRICK BLOCK (324 x 90):
+```
+[MATERIAL_NAME] brick wall tileset, terraria modded dungeon aesthetic, 16x16 pixel tile spritesheet, [PRIMARY_COLOR] brick blocks with [SECONDARY_COLOR] mortar lines, weathered ancient stone texture, subtle surface cracks and chips, mysterious [ACCENT_COLOR] runic glow between bricks, pixel art game asset, 2D retro game style, limited palette, dithered shading, hard pixel edges, connection variants for corners edges and full tiles, top-down lighting --ar 18:5 --v 6.1 --style raw
+```
+
+### ORGANIC/NATURAL BLOCK (450 x 198):
+```
+[MATERIAL_NAME] natural terrain tileset, terraria biome tile style, 16x16 pixel spritesheet with multiple variants, [PRIMARY_COLOR] organic [MATERIAL_TYPE] texture, [SECONDARY_COLOR] highlights and [TERTIARY_COLOR] shadows, natural irregular surface with [DETAIL_ELEMENT], pixel art game asset, retro 2D platformer aesthetic, limited color palette, chunky pixel texture, dithering gradients, seamless tiling with full connection variant set, top-left lighting source --ar 25:11 --v 6.1 --style raw
+```
+
+### GLOWING/MAGICAL BLOCK (324 x 90):
+```
+[MATERIAL_NAME] magical block tileset, terraria endgame content style, 16x16 pixel sprites, [PRIMARY_COLOR] base material with [GLOW_COLOR] magical energy veins, pulsing ethereal glow emanating from within, [ACCENT_COLOR] arcane runes subtly visible, mysterious otherworldly texture, pixel art game asset, limited palette with glow colors, hard pixels with dithered glow gradients, retro 2D style, tile connection spritesheet format --ar 18:5 --v 6.1 --style raw
+```
+
+================================================================================
+## PLACEHOLDERS REFERENCE
+================================================================================
+
+Replace these with your specific values:
+
+### [MATERIAL_NAME] Examples:
+- Resonant Crystal, Void Stone, Astral Ore, Brimstone Slag
+- Harmonic Quartz, Enigma Shard, Fate Fragment, Celestial Rock
+- Moonlit Crystal, Infernal Ember, Swan Feather Stone
+
+### [PRIMARY_COLOR] Examples:
+- deep purple, midnight black, crimson red, golden yellow
+- ethereal blue, emerald green, obsidian black, ivory white
+- iridescent rainbow, cosmic violet, fiery orange
+
+### [SECONDARY_COLOR] Examples:
+- silver highlights, dark shadows, glowing edges
+- pale accents, muted undertones, bright veins
+
+### [SURFACE_TEXTURE] Examples:
+- rough crystalline facets, smooth polished surface
+- cracked weathered stone, organic flowing patterns
+- geometric angular faces, natural irregular bumps
+
+### [SPECIAL_EFFECTS] Examples:
+- subtle inner glow, energy veins pulsing
+- particle shimmer, dimensional cracks
+- ethereal mist overlay, prismatic reflections
+
+### [DETAIL_ELEMENT] Examples:
+- tiny embedded crystals, fossilized patterns
+- moss growth patches, mineral deposits
+- runic engravings, energy conduits
+
+================================================================================
+## THEME-SPECIFIC PROMPTS
+================================================================================
+
+### MOONLIGHT SONATA THEME BLOCK:
+```
+Moonlit Resonance ore block tileset, terraria modded content style, 16x16 pixel sprites arranged in spritesheet grid, deep purple crystalline ore deposits with soft violet inner glow embedded in midnight blue stone matrix, silver moonbeam reflections on faceted crystal surfaces, ethereal lunar energy veins, dreamlike mystical atmosphere, pixel art game asset, retro 2D aesthetic, limited color palette of purples blues and silvers, hard pixel edges with dithering for soft glow effects, top-down consistent lighting from upper-left, seamless tiling connection system with corners edges and centers, no anti-aliasing, chunky deliberate pixels --ar 13:5 --v 6.1 --style raw
+```
+
+### LA CAMPANELLA THEME BLOCK:
+```
+Infernal Bell ore block tileset, terraria modded hellfire content style, 16x16 pixel sprites arranged in spritesheet grid, deep obsidian black volcanic rock with brilliant orange flame veins, golden bell-like crystalline formations, smoldering ember particles trapped in stone, billowing smoke texture wisps, pixel art game asset, retro 2D aesthetic, limited color palette of blacks oranges and golds, hard pixel edges with dithering for flame glow effects, top-down consistent lighting, seamless tiling connection variants --ar 13:5 --v 6.1 --style raw
+```
+
+### EROICA THEME BLOCK:
+```
+Heroic Resonance ore block tileset, terraria modded epic content style, 16x16 pixel sprites arranged in spritesheet grid, deep scarlet red crystalline ore with golden triumphant accents, sakura pink petal-like inclusions, heroic warm glow emanating from noble stone, crimson and gold gradient veins, pixel art game asset, retro 2D aesthetic, limited color palette of reds golds and pinks, hard pixel edges with dithering for warm lighting, top-down consistent lighting, seamless tiling connection system --ar 13:5 --v 6.1 --style raw
+```
+
+### SWAN LAKE THEME BLOCK:
+```
+Prismatic Swan ore block tileset, terraria modded ethereal content style, 16x16 pixel sprites arranged in spritesheet grid, pure white crystalline formations with iridescent rainbow shimmer edges, black obsidian contrast veins, elegant feather-like crystal patterns, graceful monochromatic base with prismatic accents, pixel art game asset, retro 2D aesthetic, limited palette of whites blacks and rainbow highlights, hard pixel edges with dithering for shimmer effects, top-down lighting, seamless tiling variants --ar 13:5 --v 6.1 --style raw
+```
+
+### ENIGMA VARIATIONS THEME BLOCK:
+```
+Enigma Mystery ore block tileset, terraria modded arcane content style, 16x16 pixel sprites arranged in spritesheet grid, deep void black stone with swirling purple mystery patterns, eerie green flame veins pulsing with unknown energy, question mark-like crystalline formations, unsettling otherworldly texture, pixel art game asset, retro 2D aesthetic, limited palette of blacks purples and green flames, hard pixel edges with dithering for ethereal glow, top-down lighting, seamless tiling connection system --ar 13:5 --v 6.1 --style raw
+```
+
+### FATE THEME BLOCK:
+```
+Cosmic Fate ore block tileset, terraria modded endgame content style, 16x16 pixel sprites arranged in spritesheet grid, void black cosmic stone with dark pink destiny energy veins, bright crimson fate fragments embedded, reality-warping dimensional cracks with purple cosmic glow, chromatic aberration edge effects, ultimate power aesthetic, pixel art game asset, limited palette of blacks pinks purples and crimsons, hard pixel edges with dithering for cosmic distortion effects, top-down lighting, seamless tiling variants --ar 13:5 --v 6.1 --style raw
+```
+
+================================================================================
+## ADVANCED MULTI-VARIANT PROMPT
+================================================================================
+
+For tiles that need multiple visual variants (like Calamity's 234 x 90 sheets with multiple subsheets):
+
+```
+[MATERIAL_NAME] ore block tileset with 4 seamless variants, terraria modded content style, 16x16 pixel sprites arranged in 4-panel spritesheet grid side by side, each variant showing slightly different [PRIMARY_COLOR] crystal formation patterns while maintaining consistent [SECONDARY_COLOR] stone matrix, subtle variation in crystal density and vein patterns across variants, unified color palette across all variants, pixel art game asset, retro 2D aesthetic, hard pixel edges with dithering, top-down lighting consistent across all panels, seamless tiling connection system in each variant --ar 52:5 --v 6.1 --style raw
+```
+
+================================================================================
+## GLOWMASK OVERLAY PROMPT
+================================================================================
+
+Calamity uses separate "Glow" textures that overlay on top of blocks for emissive effects.
+Generate these SEPARATELY from the main texture:
+
+```
+[MATERIAL_NAME] ore block GLOWMASK overlay, terraria modded content, 16x16 pixel sprites, ONLY the glowing elements on transparent black background, [GLOW_COLOR] bright luminous crystal veins and energy spots, NO stone texture only pure glow elements, additive blend ready, pixel art game asset, clean isolated glow shapes, hard pixel edges --ar 13:5 --v 6.1 --style raw
+```
+
+================================================================================
+## ASPECT RATIO REFERENCE
+================================================================================
+
+| Sheet Size | Aspect Ratio | Use |
+|------------|--------------|-----|
+| 234 x 90 | --ar 13:5 | Standard ore |
+| 288 x 270 | --ar 16:15 | Full tile sheet |
+| 324 x 90 | --ar 18:5 | 2-variant brick |
+| 450 x 198 | --ar 25:11 | 2x2 natural |
+| 576 x 270 | --ar 32:15 | Large variant |
+| 216 x 72 | --ar 3:1 | Compact glass |
+
+================================================================================
+## POST-PROCESSING NOTES
+================================================================================
+
+After generating in Midjourney, you will need to:
+
+1. **Resize** to exact pixel dimensions (234x90, etc.) using NEAREST NEIGHBOR interpolation
+2. **Clean up** any anti-aliased edges - Terraria requires hard pixels
+3. **Verify color count** - Keep palette limited (8-16 colors typically)
+4. **Check tiling** - Ensure edge tiles connect seamlessly
+5. **Create glowmask** version if needed (separate PNG with only glowing parts)
+6. **Test in-game** - Place tiles and verify all connection states look correct
+
+================================================================================
+## NEGATIVE PROMPTS (ADD TO ALL)
+================================================================================
+
+```
+--no smooth gradients, anti-aliasing, blur, soft edges, realistic lighting, photorealistic, 3D render, high resolution detail, watermark, signature, text, ui elements, frame border, multiple separate images
+```
+
+================================================================================

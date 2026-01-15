@@ -98,6 +98,10 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                     CustomParticles.GenericGlow(position, burstColor, 0.4f, 20);
                 }
                 
+                // 🎵 MUSIC NOTES - The heroic fanfare!
+                ThemedParticles.EroicaMusicNotes(position, 6, 35f);
+                ThemedParticles.SakuraPetals(position, 4, 30f);
+                
                 // Central white flash and themed effects
                 CustomParticles.GenericFlare(position, Color.White, 0.8f, 12);
                 ThemedParticles.EroicaHaloBurst(position, 0.8f);
@@ -131,49 +135,81 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void HoldItem(Player player)
         {
-            // === UnifiedVFX EROICA AMBIENT AURA ===
-            UnifiedVFX.Eroica.Aura(player.Center, 32f, 0.28f);
+            // === UNIQUE: CHARGING SHOT COUNTER VISUALIZATION ===
+            // This weapon's identity is the 10th shot special - SHOW IT VISUALLY!
             
-            // Ambient fractal orbit pattern with gradient
-            if (Main.rand.NextBool(5))
+            float chargeProgress = shotCounter / 9f; // 0 to 1 as we approach shot 10
+            Vector2 gunTip = player.Center + new Vector2(45f * player.direction, -3f);
+            
+            // === CHARGE ORB FORMATION ===
+            // 9 orbiting points appear one by one as shots are fired
+            if (shotCounter > 0)
             {
-                float baseAngle = Main.GameUpdateCount * 0.025f;
-                for (int i = 0; i < 5; i++)
+                float orbitRadius = 18f + chargeProgress * 8f;
+                float rotationSpeed = Main.GameUpdateCount * 0.04f;
+                
+                for (int i = 0; i < shotCounter; i++)
                 {
-                    float angle = baseAngle + MathHelper.TwoPi * i / 5f;
-                    float radius = 30f + (float)Math.Sin(Main.GameUpdateCount * 0.05f + i * 0.7f) * 10f;
-                    Vector2 flarePos = player.Center + angle.ToRotationVector2() * radius;
-                    float progress = (float)i / 5f;
-                    Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
-                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.32f, 16);
+                    float angle = rotationSpeed + MathHelper.TwoPi * i / 9f;
+                    Vector2 orbPos = gunTip + angle.ToRotationVector2() * orbitRadius;
+                    
+                    // Color transitions from scarlet (1st shot) to gold (9th shot)
+                    float colorProgress = i / 8f;
+                    Color orbColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, colorProgress);
+                    
+                    // Each orb pulses and grows slightly as charge builds
+                    float orbPulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f + i * 0.5f) * 0.1f + 1f;
+                    float orbScale = 0.2f + chargeProgress * 0.15f;
+                    CustomParticles.GenericFlare(orbPos, orbColor, orbScale * orbPulse, 4);
+                }
+                
+                // === CENTRAL CHARGE CORE ===
+                // The core grows brighter as we approach the 10th shot
+                if (chargeProgress > 0.3f)
+                {
+                    float coreIntensity = (chargeProgress - 0.3f) / 0.7f;
+                    Color coreColor = Color.Lerp(UnifiedVFX.Eroica.Crimson, Color.White, coreIntensity * 0.5f);
+                    CustomParticles.GenericFlare(gunTip, coreColor, 0.25f + coreIntensity * 0.3f, 3);
+                    
+                    // Mini lightning arcs between orbs when charge is high
+                    if (chargeProgress > 0.6f && Main.rand.NextBool(8))
+                    {
+                        CustomParticles.HaloRing(gunTip, UnifiedVFX.Eroica.Gold * 0.6f, 0.15f + coreIntensity * 0.1f, 8);
+                    }
+                }
+                
+                // === CONVERGENCE WARNING ===
+                // At 8-9 shots, particles start converging toward gun tip
+                if (shotCounter >= 7)
+                {
+                    float urgency = (shotCounter - 6) / 3f;
+                    if (Main.rand.NextBool((int)(6 - urgency * 4)))
+                    {
+                        Vector2 spawnPos = gunTip + Main.rand.NextVector2CircularEdge(35f, 35f);
+                        Vector2 convergeVel = (gunTip - spawnPos).SafeNormalize(Vector2.Zero) * (2f + urgency * 2f);
+                        Color convergeColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, urgency);
+                        var convergeParticle = new GenericGlowParticle(spawnPos, convergeVel, convergeColor, 0.2f, 12, true);
+                        MagnumParticleHandler.SpawnParticle(convergeParticle);
+                    }
                 }
             }
             
-            // Gradient particles while holding
-            if (Main.rand.NextBool(3))
+            // === AMBIENT SAKURA PETALS - gentle when uncharged, intense when charged ===
+            if (Main.rand.NextBool((int)(12 - chargeProgress * 6)))
             {
-                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
-                float progress = Main.rand.NextFloat();
-                Color particleColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
-                CustomParticles.GenericGlow(player.Center + offset, particleColor, 0.28f, 15);
+                ThemedParticles.SakuraPetals(player.Center + Main.rand.NextVector2Circular(20f, 20f), 1, 15f);
             }
             
-            // Sakura petals
-            if (Main.rand.NextBool(8))
+            // === MUSIC NOTE - The building crescendo ===
+            if (chargeProgress > 0.5f && Main.rand.NextBool(15))
             {
-                ThemedParticles.SakuraPetals(player.Center + Main.rand.NextVector2Circular(25f, 25f), 2, 20f);
+                ThemedParticles.EroicaMusicNotes(gunTip, 1, 20f);
             }
             
-            // Custom particle lightning energy
-            if (Main.rand.NextBool(6))
-            {
-                CustomParticles.EroicaTrailFlare(player.Center + Main.rand.NextVector2Circular(18f, 18f), player.velocity);
-            }
-            
-            // Lightning-style energy aura while holding
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.9f;
-            Vector3 lightColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, 0.5f).ToVector3();
-            Lighting.AddLight(player.Center, lightColor * pulse * 0.5f);
+            // Dynamic lighting based on charge
+            float lightIntensity = 0.3f + chargeProgress * 0.4f;
+            Color lightColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, chargeProgress);
+            Lighting.AddLight(gunTip, lightColor.ToVector3() * lightIntensity);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
@@ -191,8 +227,8 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            // Outer black/shadow aura - darkness before lightning
-            spriteBatch.Draw(texture, position, null, new Color(40, 20, 60) * 0.4f * flicker, rotation, origin, scale * pulse * 1.4f, SpriteEffects.None, 0f);
+            // Outer black/shadow aura - darkness before lightning (Eroica black/crimson)
+            spriteBatch.Draw(texture, position, null, new Color(30, 20, 25) * 0.4f * flicker, rotation, origin, scale * pulse * 1.4f, SpriteEffects.None, 0f);
             
             // Middle crimson/scarlet glow - sakura blood
             spriteBatch.Draw(texture, position, null, new Color(200, 50, 50) * 0.35f * flicker, rotation, origin, scale * pulse * 1.2f, SpriteEffects.None, 0f);

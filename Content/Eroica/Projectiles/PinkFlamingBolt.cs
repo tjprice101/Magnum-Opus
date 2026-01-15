@@ -5,6 +5,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -43,61 +44,109 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             pulseTimer += 0.15f;
             float pulse = 1f + (float)System.Math.Sin(pulseTimer) * 0.2f;
             
-            // Pink flame lighting
-            Lighting.AddLight(Projectile.Center, 1f * pulse, 0.3f * pulse, 0.5f * pulse);
+            // Enhanced Eroica lighting with sakura pink
+            Vector3 sakuraLight = UnifiedVFX.Eroica.Sakura.ToVector3() * pulse * 1.2f;
+            Lighting.AddLight(Projectile.Center, sakuraLight);
 
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
 
-            // Core pink flame particles with pulsing
+            // === Core flare every frame ===
+            CustomParticles.GenericFlare(Projectile.Center, UnifiedVFX.Eroica.Sakura * pulse, 0.4f, 6);
+            
+            // === Dense gradient glow particle trail ===
             for (int i = 0; i < 3; i++)
             {
-                Dust dust = Dust.NewDustDirect(Projectile.Center - new Vector2(4, 4), 8, 8, 
-                    DustID.PinkTorch, 0f, 0f, 100, default, 2.2f * pulse);
-                dust.noGravity = true;
-                dust.velocity = -Projectile.velocity * 0.2f + Main.rand.NextVector2Circular(0.5f, 0.5f);
+                float gradientProgress = Main.rand.NextFloat();
+                Color particleColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Crimson, gradientProgress);
+                Vector2 randomOffset = Main.rand.NextVector2Circular(6f, 6f);
+                Vector2 vel = -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(1.5f, 1.5f);
+                
+                var glow = new GenericGlowParticle(Projectile.Center + randomOffset, vel, particleColor, 
+                    0.28f + Main.rand.NextFloat(0.1f), 16, true);
+                MagnumParticleHandler.SpawnParticle(glow);
             }
-
-            // Pink flame trail particles
-            for (int i = 0; i < 2; i++)
+            
+            // === Orbiting sakura sparkles - 3-point formation ===
+            if (pulseTimer % 0.6f < 0.15f)
             {
-                Dust trail = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
-                    DustID.PinkTorch, 0f, 0f, 100, default, 1.5f);
-                trail.noGravity = true;
-                trail.velocity = -Projectile.velocity * 0.4f + Main.rand.NextVector2Circular(1f, 1f);
+                for (int i = 0; i < 3; i++)
+                {
+                    float orbitAngle = MathHelper.TwoPi * i / 3f + pulseTimer * 2f;
+                    float orbitRadius = 18f + pulse * 5f;
+                    Vector2 orbitPos = Projectile.Center + orbitAngle.ToRotationVector2() * orbitRadius;
+                    Color orbitColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, (float)i / 3f);
+                    CustomParticles.GenericFlare(orbitPos, orbitColor, 0.25f, 8);
+                }
             }
-
-            // Bright sparkle core
-            if (Main.rand.NextBool(2))
+            
+            // === Sakura petals in trail ===
+            if (Main.rand.NextBool(4))
             {
-                Dust sparkle = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.GoldFlame, 0f, 0f, 0, default, 1.8f);
-                sparkle.noGravity = true;
-                sparkle.velocity = Main.rand.NextVector2Circular(2f, 2f);
+                ThemedParticles.SakuraPetals(Projectile.Center, 1, 20f);
             }
-
-            // Fire accent particles
-            if (Main.rand.NextBool(2))
+            
+            // === Music notes occasionally ===
+            if (Main.rand.NextBool(8))
             {
-                Dust fire = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.Torch, 0f, 0f, 100, new Color(255, 100, 150), 1.5f);
-                fire.noGravity = true;
-                fire.velocity = -Projectile.velocity * 0.15f;
+                float noteProgress = Main.rand.NextFloat();
+                Color noteColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, noteProgress);
+                Vector2 noteVel = -Projectile.velocity * 0.08f + Main.rand.NextVector2Circular(1f, 1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.28f, 22);
             }
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Eroica-themed explosion burst
-            MagnumVFX.CreateEroicaBurst(Projectile.Center, 2);
+            // === PHASE 1: Central flash - the final chord ===
+            CustomParticles.GenericFlare(Projectile.Center, Color.White, 1.0f, 15);
+            CustomParticles.GenericFlare(Projectile.Center, UnifiedVFX.Eroica.Sakura, 0.75f, 18);
             
-            // Sakura-themed fractal spark burst (pink cherry blossom effect)
-            MagnumVFX.CreateSakuraSparkBurst(Projectile.Center, 8, 70f);
-
-            // Burst of pink flames on impact
-            for (int i = 0; i < 25; i++)
+            // === PHASE 2: UnifiedVFX themed impact ===
+            UnifiedVFX.Eroica.Impact(Projectile.Center, 1.0f);
+            
+            // === PHASE 3: 6-point fractal burst with sakura gradient ===
+            for (int i = 0; i < 6; i++)
             {
-                Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
-                    DustID.PinkTorch, 0f, 0f, 100, default, 2f);
-                dust.noGravity = true;
-                dust.velocity = Main.rand.NextVector2Circular(6f, 6f);
+                float angle = MathHelper.TwoPi * i / 6f;
+                float gradientProgress = (float)i / 6f;
+                
+                Vector2 flareOffset = angle.ToRotationVector2() * 35f;
+                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Crimson, gradientProgress);
+                CustomParticles.GenericFlare(Projectile.Center + flareOffset, fractalColor, 0.45f, 15);
+            }
+            
+            // === PHASE 4: Cascading halo rings ===
+            for (int ring = 0; ring < 3; ring++)
+            {
+                float ringProgress = ring / 3f;
+                Color ringColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, ringProgress);
+                CustomParticles.HaloRing(Projectile.Center, ringColor * (1f - ringProgress * 0.2f), 
+                    0.35f + ring * 0.15f, 12 + ring * 4);
+            }
+            
+            // === PHASE 5: Radial spark spray ===
+            for (int i = 0; i < 10; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 10f + Main.rand.NextFloat(-0.15f, 0.15f);
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 10f);
+                float gradientProgress = Main.rand.NextFloat();
+                Color sparkColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, gradientProgress);
+                
+                var spark = new GenericGlowParticle(Projectile.Center, sparkVel, sparkColor, 0.3f, 18, true);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+            
+            // === PHASE 6: Sakura petal burst ===
+            ThemedParticles.SakuraPetals(Projectile.Center, 5, 45f);
+            
+            // === PHASE 7: Music note finale ===
+            for (int i = 0; i < 4; i++)
+            {
+                float noteAngle = MathHelper.TwoPi * i / 4f;
+                Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * 20f;
+                Vector2 noteVel = noteAngle.ToRotationVector2() * 2f;
+                Color noteColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, (float)i / 4f);
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.3f, 25);
             }
 
             // Sound effect
@@ -108,19 +157,20 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Vector2 glowOrigin = glowTex.Size() / 2f;
             
             // Switch to additive blending for glow
             MagnumVFX.BeginAdditiveBlend(spriteBatch);
             
-            // Draw glowing trail
+            // === Multi-layer glowing trail with Eroica gradient ===
             for (int i = 0; i < Projectile.oldPos.Length - 1; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero || Projectile.oldPos[i + 1] == Vector2.Zero) continue;
                 
                 float progress = (float)i / Projectile.oldPos.Length;
-                Color trailColor = Color.Lerp(new Color(255, 150, 200), new Color(200, 50, 100), progress);
-                trailColor *= (1f - progress);
-                float width = MathHelper.Lerp(10f, 2f, progress);
+                float alpha = 1f - progress;
+                float width = MathHelper.Lerp(12f, 3f, progress);
                 
                 Vector2 start = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
                 Vector2 end = Projectile.oldPos[i + 1] + Projectile.Size / 2f - Main.screenPosition;
@@ -128,30 +178,48 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 float length = direction.Length();
                 float rotation = direction.ToRotation();
                 
-                // Outer glow
-                spriteBatch.Draw(pixel, start, new Rectangle(0, 0, 1, 1), trailColor * 0.5f,
-                    rotation, new Vector2(0, 0.5f), new Vector2(length, width * 2f), SpriteEffects.None, 0f);
-                // Core
-                spriteBatch.Draw(pixel, start, new Rectangle(0, 0, 1, 1), trailColor,
-                    rotation, new Vector2(0, 0.5f), new Vector2(length, width), SpriteEffects.None, 0f);
-                // White center
-                spriteBatch.Draw(pixel, start, new Rectangle(0, 0, 1, 1), Color.White * (1f - progress) * 0.7f,
-                    rotation, new Vector2(0, 0.5f), new Vector2(length, width * 0.3f), SpriteEffects.None, 0f);
+                // Layer 1: Outer crimson glow
+                Color outerColor = UnifiedVFX.Eroica.Crimson * alpha * 0.4f;
+                spriteBatch.Draw(pixel, start, new Rectangle(0, 0, 1, 1), outerColor,
+                    rotation, new Vector2(0, 0.5f), new Vector2(length, width * 2.5f), SpriteEffects.None, 0f);
+                
+                // Layer 2: Mid sakura glow
+                Color midColor = UnifiedVFX.Eroica.Sakura * alpha * 0.6f;
+                spriteBatch.Draw(pixel, start, new Rectangle(0, 0, 1, 1), midColor,
+                    rotation, new Vector2(0, 0.5f), new Vector2(length, width * 1.5f), SpriteEffects.None, 0f);
+                
+                // Layer 3: Core gold/white
+                Color coreColor = Color.Lerp(UnifiedVFX.Eroica.Gold, Color.White, 0.5f) * alpha * 0.7f;
+                spriteBatch.Draw(pixel, start, new Rectangle(0, 0, 1, 1), coreColor,
+                    rotation, new Vector2(0, 0.5f), new Vector2(length, width * 0.5f), SpriteEffects.None, 0f);
+                
+                // Glow orbs at trail points every 3rd position
+                if (i % 3 == 0)
+                {
+                    Color glowColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Crimson, progress) * alpha * 0.5f;
+                    spriteBatch.Draw(glowTex, start, null, glowColor, 0f, glowOrigin, width * 0.15f, SpriteEffects.None, 0f);
+                }
             }
             
-            // Draw main projectile glow
+            // === Enhanced main projectile glow ===
             float pulse = MagnumVFX.GetPulse(0.15f, 0.9f, 1.1f);
             Vector2 mainPos = Projectile.Center - Main.screenPosition;
             
-            // Outer glow
-            spriteBatch.Draw(pixel, mainPos, new Rectangle(0, 0, 1, 1), new Color(255, 100, 150) * 0.5f,
-                0f, new Vector2(0.5f, 0.5f), 20f * pulse, SpriteEffects.None, 0f);
-            // Core
-            spriteBatch.Draw(pixel, mainPos, new Rectangle(0, 0, 1, 1), new Color(255, 180, 200) * 0.7f,
-                0f, new Vector2(0.5f, 0.5f), 10f * pulse, SpriteEffects.None, 0f);
-            // White center
-            spriteBatch.Draw(pixel, mainPos, new Rectangle(0, 0, 1, 1), Color.White * 0.9f,
-                0f, new Vector2(0.5f, 0.5f), 4f * pulse, SpriteEffects.None, 0f);
+            // Outer crimson bloom
+            spriteBatch.Draw(glowTex, mainPos, null, UnifiedVFX.Eroica.Crimson * 0.35f,
+                0f, glowOrigin, 2.2f * pulse, SpriteEffects.None, 0f);
+            
+            // Mid sakura bloom
+            spriteBatch.Draw(glowTex, mainPos, null, UnifiedVFX.Eroica.Sakura * 0.5f,
+                0f, glowOrigin, 1.4f * pulse, SpriteEffects.None, 0f);
+            
+            // Inner gold bloom
+            spriteBatch.Draw(glowTex, mainPos, null, UnifiedVFX.Eroica.Gold * 0.6f,
+                0f, glowOrigin, 0.9f * pulse, SpriteEffects.None, 0f);
+            
+            // White hot core
+            spriteBatch.Draw(glowTex, mainPos, null, Color.White * 0.8f,
+                0f, glowOrigin, 0.5f * pulse, SpriteEffects.None, 0f);
             
             MagnumVFX.EndAdditiveBlend(spriteBatch);
             

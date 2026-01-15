@@ -6,6 +6,7 @@ using Terraria.ModLoader;
 using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 using System;
 
 namespace MagnumOpus.Content.MoonlightSonata.Projectiles
@@ -89,14 +90,44 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             // Enhanced sparkle trail using ThemedParticles
             ThemedParticles.MoonlightTrail(Projectile.Center, Projectile.velocity);
             
-            // Custom particle trail effect
-            CustomParticles.MoonlightTrail(Projectile.Center, Projectile.velocity, 0.2f);
+            // === CALAMITY-INSPIRED SPINNING STAR TRAIL ===
+            // Multi-layer glow particles with gradient
+            for (int i = 0; i < 2; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(10f, 10f);
+                float progress = Main.rand.NextFloat();
+                Color trailColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
+                
+                var glow = new GenericGlowParticle(Projectile.Center + offset, -Projectile.velocity * 0.12f,
+                    trailColor, 0.25f + progress * 0.15f, 16, true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
             
-            // Ambient prismatic sparkle dust - floating gem particles
-            if (Main.rand.NextBool(5))
+            // Orbiting star points that spin with the projectile
+            if (Main.rand.NextBool(2))
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    float starAngle = SpinRotation + MathHelper.TwoPi * i / 4f;
+                    Vector2 starPoint = Projectile.Center + starAngle.ToRotationVector2() * 14f;
+                    float starProgress = (float)i / 4f;
+                    Color starColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, starProgress);
+                    CustomParticles.GenericFlare(starPoint, starColor, 0.2f, 10);
+                }
+            }
+            
+            // Music notes shedding from the spinning star
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(Projectile.Center, -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f), noteColor, 0.22f, 28);
+            }
+            
+            // Prismatic sparkle dust - floating gem particles
+            if (Main.rand.NextBool(4))
             {
                 Vector2 offset = Main.rand.NextVector2Circular(12f, 12f);
-                CustomParticles.PrismaticSparkleAmbient(Projectile.Center + offset, CustomParticleSystem.MoonlightColors.Lavender, 8f, 2);
+                CustomParticles.PrismaticSparkle(Projectile.Center + offset, UnifiedVFX.MoonlightSonata.Silver, 0.18f);
             }
         }
 
@@ -181,44 +212,90 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
         {
             target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 300); // 5 seconds
             
-            // Magic sparkle field aura burst on hit - enchantment impact
-            CustomParticles.MagicSparkleFieldBurst(target.Center, CustomParticleSystem.MoonlightColors.Violet, 4, 20f);
+            // === CALAMITY-INSPIRED IMPACT ===
+            // Central flash
+            CustomParticles.GenericFlare(target.Center, Color.White, 0.7f, 20);
+            CustomParticles.GenericFlare(target.Center, UnifiedVFX.MoonlightSonata.LightBlue, 0.55f, 18);
             
-            // Prismatic impact sparkles
-            CustomParticles.PrismaticSparkleBurst(target.Center, new Color(220, 140, 255), 5);
+            // UnifiedVFX impact
+            UnifiedVFX.MoonlightSonata.Impact(target.Center, 0.7f);
             
-            // Hit burst particles - purple/pink explosion (reduced)
+            // Fractal flare burst - 8-point star matching the spinning star theme
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 flareOffset = angle.ToRotationVector2() * 32f;
+                float progress = (float)i / 8f;
+                Color fractalColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
+                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.5f, 18);
+            }
+            
+            // Gradient halo rings
+            for (int ring = 0; ring < 4; ring++)
+            {
+                float ringProgress = (float)ring / 4f;
+                Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.Silver, ringProgress);
+                CustomParticles.HaloRing(target.Center, ringColor, 0.3f + ring * 0.12f, 14 + ring * 4);
+            }
+            
+            // Spark spray
             for (int i = 0; i < 10; i++)
             {
-                int dustType = Main.rand.NextBool() ? DustID.PurpleCrystalShard : DustID.Enchanted_Pink;
-                Dust dust = Dust.NewDustDirect(target.Center, 1, 1, dustType,
-                    Main.rand.NextFloat(-5f, 5f), Main.rand.NextFloat(-5f, 5f), 100, default, 1.2f);
-                dust.noGravity = true;
+                float angle = MathHelper.TwoPi * i / 10f + Main.rand.NextFloat(-0.25f, 0.25f);
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 10f);
+                float progress = (float)i / 10f;
+                Color sparkColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, progress);
+                
+                var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.35f, 20, true);
+                MagnumParticleHandler.SpawnParticle(spark);
             }
+            
+            // Music notes on hit
+            ThemedParticles.MoonlightMusicNotes(target.Center, 5, 30f);
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Sword arc vortex on death - spinning star explosion
-            CustomParticles.SwordArcVortex(Projectile.Center, CustomParticleSystem.MoonlightColors.Violet, 3, 0.35f);
-            
-            // Rising magic sparkle field - ethereal dissipation
-            CustomParticles.MagicSparkleFieldRising(Projectile.Center, CustomParticleSystem.MoonlightColors.Silver, 5);
+            // === CALAMITY-INSPIRED DEATH EXPLOSION ===
+            // Central flash
+            CustomParticles.GenericFlare(Projectile.Center, Color.White * 0.9f, 0.65f, 20);
+            CustomParticles.GenericFlare(Projectile.Center, UnifiedVFX.MoonlightSonata.LightBlue, 0.55f, 18);
             
             // Themed bloom burst
-            ThemedParticles.MoonlightBloomBurst(Projectile.Center, 0.6f);
+            ThemedParticles.MoonlightBloomBurst(Projectile.Center, 0.7f);
             
-            // Death burst - magical star explosion (reduced)
-            for (int i = 0; i < 16; i++)
+            // Fractal burst
+            for (int i = 0; i < 6; i++)
             {
-                float angle = MathHelper.TwoPi * i / 16f;
-                Vector2 velocity = angle.ToRotationVector2() * Main.rand.NextFloat(2.5f, 5f);
-                
-                int dustType = Main.rand.NextBool() ? DustID.PurpleCrystalShard : DustID.PinkFairy;
-                Dust dust = Dust.NewDustDirect(Projectile.Center, 1, 1, dustType,
-                    velocity.X, velocity.Y, 100, default, 1.1f);
-                dust.noGravity = true;
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 flareOffset = angle.ToRotationVector2() * 25f;
+                float progress = (float)i / 6f;
+                Color fractalColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
+                CustomParticles.GenericFlare(Projectile.Center + flareOffset, fractalColor, 0.4f, 16);
             }
+            
+            // Gradient halo rings
+            for (int ring = 0; ring < 3; ring++)
+            {
+                float ringProgress = (float)ring / 3f;
+                Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, ringProgress);
+                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.25f + ring * 0.1f, 12 + ring * 3);
+            }
+            
+            // Death spark spray
+            for (int i = 0; i < 12; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 12f;
+                Vector2 velocity = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
+                float progress = (float)i / 12f;
+                Color deathColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, progress);
+                
+                var deathSpark = new GenericGlowParticle(Projectile.Center, velocity, deathColor, 0.3f, 18, true);
+                MagnumParticleHandler.SpawnParticle(deathSpark);
+            }
+            
+            // Music notes burst
+            ThemedParticles.MoonlightMusicNotes(Projectile.Center, 4, 25f);
         }
     }
 }
