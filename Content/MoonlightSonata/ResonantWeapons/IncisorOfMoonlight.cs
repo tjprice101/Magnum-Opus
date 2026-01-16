@@ -21,26 +21,6 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
     /// </summary>
     public class IncisorOfMoonlight : ModItem
     {
-        // Charged melee attack config
-        private ChargedMeleeConfig chargedConfig;
-        
-        private ChargedMeleeConfig GetChargedConfig()
-        {
-            if (chargedConfig == null)
-            {
-                chargedConfig = new ChargedMeleeConfig
-                {
-                    PrimaryColor = UnifiedVFX.MoonlightSonata.DarkPurple,
-                    SecondaryColor = UnifiedVFX.MoonlightSonata.LightBlue,
-                    ChargeTime = 50f,
-                    SpawnThemeMusicNotes = (pos, count, radius) => ThemedParticles.MoonlightMusicNotes(pos, count, radius),
-                    SpawnThemeExplosion = (pos, scale) => UnifiedVFX.MoonlightSonata.Explosion(pos, scale),
-                    DrawThemeLightning = (start, end) => MagnumVFX.DrawMoonlightLightning(start, end, 14, 25f, 4, 0.5f)
-                };
-            }
-            return chargedConfig;
-        }
-        
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 1;
@@ -185,21 +165,6 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
 
         public override void HoldItem(Player player)
         {
-            // === CHARGED MELEE ATTACK SYSTEM ===
-            var chargedPlayer = player.GetModPlayer<ChargedMeleePlayer>();
-            
-            // Start charging on right-click
-            if (Main.mouseRight && !chargedPlayer.IsCharging && !chargedPlayer.IsReleasing)
-            {
-                chargedPlayer.TryStartCharging(Item, GetChargedConfig());
-            }
-            
-            // Update charging state
-            if (chargedPlayer.IsCharging || chargedPlayer.IsReleasing)
-            {
-                chargedPlayer.UpdateCharging(Main.mouseRight);
-            }
-            
             // === UnifiedVFX MOONLIGHT SONATA AURA ===
             UnifiedVFX.MoonlightSonata.Aura(player.Center, 32f, 0.28f);
             

@@ -8,6 +8,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.LaCampanella.Debuffs
 {
@@ -103,16 +104,29 @@ namespace MagnumOpus.Content.LaCampanella.Debuffs
                 SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.3f + currentStacks * 0.08f, Volume = 0.4f }, npc.Center);
             }
             
-            // Orange-black flame burst
+            // BLACK → ORANGE gradient flame burst
             float intensity = currentStacks / (float)ResonantToll.MaxStacks;
             for (int i = 0; i < 3 + currentStacks; i++)
             {
                 Vector2 velocity = Main.rand.NextVector2Circular(3f, 3f);
-                Color flameColor = Main.rand.NextBool() ? new Color(255, 100, 0) : new Color(30, 20, 15);
+                float progress = (float)i / (3 + currentStacks);
+                Color flameColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, progress);
                 
                 Dust flame = Dust.NewDustPerfect(npc.Center + Main.rand.NextVector2Circular(npc.width * 0.3f, npc.height * 0.3f),
                     DustID.Torch, velocity, 100, flameColor, 1.5f + intensity);
                 flame.noGravity = true;
+            }
+            
+            // === GLYPH STACK INDICATOR ===
+            if (CustomParticleSystem.TexturesLoaded && currentStacks >= 3)
+            {
+                for (int i = 0; i < currentStacks / 3; i++)
+                {
+                    float glyphAngle = Main.GameUpdateCount * 0.04f + MathHelper.TwoPi * i / (currentStacks / 3f);
+                    Vector2 glyphPos = npc.Center + glyphAngle.ToRotationVector2() * 25f;
+                    Color glyphColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, (float)i / Math.Max(1, currentStacks / 3)) * 0.6f;
+                    CustomParticles.Glyph(glyphPos, glyphColor, 0.22f, -1);
+                }
             }
             
             // Music note particle
@@ -143,17 +157,37 @@ namespace MagnumOpus.Content.LaCampanella.Debuffs
 
         private void SpawnBellFlameExplosion(NPC npc)
         {
-            // Large bell-flame burst
+            // Large bell-flame burst with BLACK → ORANGE gradient
             for (int i = 0; i < 30; i++)
             {
                 float angle = MathHelper.TwoPi * i / 30f;
                 Vector2 velocity = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
                 
-                Color color = i % 3 == 0 ? new Color(255, 100, 0) : 
-                              i % 3 == 1 ? new Color(255, 180, 50) : new Color(40, 30, 20);
+                float progress = (float)i / 30f;
+                Color color = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, progress);
                 
                 Dust flame = Dust.NewDustPerfect(npc.Center, DustID.Torch, velocity, 80, color, 2.5f);
                 flame.noGravity = true;
+            }
+            
+            // === GLYPH EXPLOSION - MAX STACK TRIGGER ===
+            if (CustomParticleSystem.TexturesLoaded)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    float glyphAngle = MathHelper.TwoPi * i / 8f;
+                    Vector2 glyphPos = npc.Center + glyphAngle.ToRotationVector2() * 45f;
+                    Color glyphColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, (float)i / 8f) * 0.7f;
+                    CustomParticles.Glyph(glyphPos, glyphColor, 0.35f, -1);
+                }
+                
+                // Black → Orange gradient halo rings
+                for (int ring = 0; ring < 4; ring++)
+                {
+                    float ringProgress = (float)ring / 4f;
+                    Color ringColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, ringProgress);
+                    CustomParticles.HaloRing(npc.Center, ringColor, 0.5f + ring * 0.2f, 20 + ring * 4);
+                }
             }
             
             // Shockwave ring effect
@@ -202,10 +236,13 @@ namespace MagnumOpus.Content.LaCampanella.Debuffs
             Vector2 direction = (end - start).SafeNormalize(Vector2.UnitX);
             float distance = Vector2.Distance(start, end);
             
-            for (float d = 0; d < distance; d += 15f)
+            int steps = (int)(distance / 15f);
+            for (int i = 0; i < steps; i++)
             {
+                float d = i * 15f;
                 Vector2 pos = start + direction * d;
-                Color color = Main.rand.NextBool() ? new Color(255, 120, 30) : new Color(255, 200, 80);
+                float progress = d / distance;
+                Color color = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, progress);
                 
                 Dust line = Dust.NewDustPerfect(pos, DustID.Torch, Main.rand.NextVector2Circular(0.5f, 0.5f), 100, color, 1.2f);
                 line.noGravity = true;
@@ -292,7 +329,9 @@ namespace MagnumOpus.Content.LaCampanella.Debuffs
                 float angle = MathHelper.TwoPi * i / particleCount;
                 Vector2 velocity = angle.ToRotationVector2() * (2f + Stacks * 0.3f);
                 
-                Color color = Main.rand.NextBool() ? new Color(255, 100, 0) : new Color(255, 180, 50);
+                // BLACK → ORANGE gradient
+                float progress = (float)i / particleCount;
+                Color color = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, progress);
                 Dust chime = Dust.NewDustPerfect(npc.Center, DustID.Torch, velocity, 80, color, 1.5f);
                 chime.noGravity = true;
             }
@@ -326,10 +365,9 @@ namespace MagnumOpus.Content.LaCampanella.Debuffs
                 Vector2 offset = Main.rand.NextVector2Circular(npc.width * 0.5f, npc.height * 0.5f);
                 Vector2 velocity = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-2f, -0.5f));
                 
-                // Alternating black and orange flames
-                bool isOrange = Main.rand.NextBool();
-                Color color = isOrange ? new Color(255, 100 + Main.rand.Next(80), 0) : new Color(30, 20, 15);
-                int dustType = isOrange ? DustID.Torch : DustID.Smoke;
+                // BLACK → ORANGE gradient based on intensity
+                Color color = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, intensity + Main.rand.NextFloat(0.2f));
+                int dustType = Main.rand.NextBool() ? DustID.Torch : DustID.Smoke;
                 
                 Dust flame = Dust.NewDustPerfect(npc.Center + offset, dustType, velocity, 100, color, 1.5f + intensity);
                 flame.noGravity = true;
@@ -347,12 +385,13 @@ namespace MagnumOpus.Content.LaCampanella.Debuffs
 
         private void SpawnStackIndicator(NPC npc)
         {
-            // Small orbiting flame particles showing stack count
+            // Small orbiting flame particles showing stack count with BLACK → ORANGE gradient
             float orbitAngle = flameAnimTimer + Main.rand.NextFloat(MathHelper.TwoPi);
             float orbitRadius = npc.width * 0.4f + 10f;
             Vector2 orbitPos = npc.Center + orbitAngle.ToRotationVector2() * orbitRadius;
             
-            Color color = Color.Lerp(new Color(255, 100, 0), new Color(255, 220, 100), Main.rand.NextFloat());
+            float stackProgress = Stacks / (float)ResonantToll.MaxStacks;
+            Color color = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, stackProgress + Main.rand.NextFloat(0.2f));
             Dust indicator = Dust.NewDustPerfect(orbitPos, DustID.Torch, Vector2.Zero, 100, color, 1.2f);
             indicator.noGravity = true;
             indicator.velocity = (npc.Center - orbitPos).SafeNormalize(Vector2.Zero) * 0.5f;

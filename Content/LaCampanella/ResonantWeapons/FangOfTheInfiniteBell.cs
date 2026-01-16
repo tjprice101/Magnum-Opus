@@ -240,9 +240,23 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
+            // === ORBITING GLYPHS AROUND WEAPON ===
+            if (CustomParticleSystem.TexturesLoaded)
+            {
+                Texture2D glyphTex = CustomParticleSystem.RandomGlyph().Value;
+                for (int i = 0; i < 5; i++)
+                {
+                    float glyphAngle = Main.GameUpdateCount * 0.05f + MathHelper.TwoPi * i / 5f;
+                    Vector2 glyphPos = position + glyphAngle.ToRotationVector2() * 20f;
+                    Color glyphColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, (float)i / 5f) * 0.6f;
+                    spriteBatch.Draw(glyphTex, glyphPos, null, glyphColor, glyphAngle * 2f, glyphTex.Size() / 2f, 0.18f * pulse, SpriteEffects.None, 0f);
+                }
+            }
+            
             // Black to orange gradient glow
             spriteBatch.Draw(texture, position, null, ThemedParticles.CampanellaOrange * 0.5f, rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, position, null, ThemedParticles.CampanellaBlack * 0.3f, rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, position, null, Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, 0.4f) * 0.35f, rotation, origin, scale * pulse * 1.2f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, position, null, ThemedParticles.CampanellaBlack * 0.3f, rotation, origin, scale * pulse * 1.1f, SpriteEffects.None, 0f);
             
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
@@ -501,14 +515,26 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Vector2 hitDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
             ThemedParticles.LaCampanellaSparks(target.Center, hitDir, 5, 6f);
             
-            // === SIGNATURE FRACTAL FLARE BURST ===
+            // === SIGNATURE FRACTAL FLARE BURST - BLACK → ORANGE ===
             for (int i = 0; i < 6; i++)
             {
                 float angle = MathHelper.TwoPi * i / 6f;
                 Vector2 flareOffset = angle.ToRotationVector2() * 30f;
                 float progress = (float)i / 6f;
-                Color fractalColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaGold, progress);
+                Color fractalColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, progress);
                 CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.45f, 18);
+            }
+            
+            // === GLYPH IMPACT - SPIRAL PROJECTILE ===
+            if (CustomParticleSystem.TexturesLoaded)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    float glyphAngle = MathHelper.TwoPi * i / 4f + Main.GameUpdateCount * 0.05f;
+                    Vector2 glyphPos = target.Center + glyphAngle.ToRotationVector2() * 28f;
+                    Color glyphColor = Color.Lerp(campanellaBlack, campanellaOrange, (float)i / 4f) * 0.65f;
+                    CustomParticles.Glyph(glyphPos, glyphColor, 0.25f, -1);
+                }
             }
             
             // Music notes on hit
@@ -600,14 +626,26 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Player owner = Main.player[Projectile.owner];
             owner.GetModPlayer<InfiniteBellPlayer>().RegisterHit(target.Center);
             
-            // === SIGNATURE FRACTAL FLARE BURST ===
+            // === SIGNATURE FRACTAL FLARE BURST - BLACK → ORANGE ===
             for (int i = 0; i < 6; i++)
             {
                 float angle = MathHelper.TwoPi * i / 6f;
                 Vector2 flareOffset = angle.ToRotationVector2() * 30f;
                 float progress = (float)i / 6f;
-                Color fractalColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaGold, progress);
+                Color fractalColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, progress);
                 CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.45f, 18);
+            }
+            
+            // === GLYPH IMPACT - ARCANE EXPLOSIVE ===
+            if (CustomParticleSystem.TexturesLoaded)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    float glyphAngle = MathHelper.TwoPi * i / 4f + Main.GameUpdateCount * 0.04f;
+                    Vector2 glyphPos = target.Center + glyphAngle.ToRotationVector2() * 30f;
+                    Color glyphColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, (float)i / 4f) * 0.6f;
+                    CustomParticles.Glyph(glyphPos, glyphColor, 0.26f, -1);
+                }
             }
             
             // Music notes on hit

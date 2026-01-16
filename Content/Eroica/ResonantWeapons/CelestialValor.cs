@@ -27,26 +27,6 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
         private int swingCounter = 0;
         private float visualTimer = 0f;
         
-        // Charged melee attack config
-        private ChargedMeleeConfig chargedConfig;
-        
-        private ChargedMeleeConfig GetChargedConfig()
-        {
-            if (chargedConfig == null)
-            {
-                chargedConfig = new ChargedMeleeConfig
-                {
-                    PrimaryColor = UnifiedVFX.Eroica.Gold, // Gold and red theme
-                    SecondaryColor = UnifiedVFX.Eroica.Scarlet,
-                    ChargeTime = 55f,
-                    SpawnThemeMusicNotes = (pos, count, radius) => ThemedParticles.EroicaMusicNotes(pos, count, radius),
-                    SpawnThemeExplosion = (pos, scale) => UnifiedVFX.Eroica.Explosion(pos, scale),
-                    DrawThemeLightning = (start, end) => MagnumVFX.DrawEroicaLightning(start, end, 10, 35f, 3, 0.35f)
-                };
-            }
-            return chargedConfig;
-        }
-        
         // 6x6 sprite sheet animation
         private const int FrameColumns = 6;
         private const int FrameRows = 6;
@@ -155,21 +135,6 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
         {
             // Increment visual timer for pulsing effects
             visualTimer += 1f;
-            
-            // === CHARGED MELEE ATTACK SYSTEM ===
-            var chargedPlayer = player.GetModPlayer<ChargedMeleePlayer>();
-            
-            // Start charging on right-click
-            if (Main.mouseRight && !chargedPlayer.IsCharging && !chargedPlayer.IsReleasing)
-            {
-                chargedPlayer.TryStartCharging(Item, GetChargedConfig());
-            }
-            
-            // Update charging state
-            if (chargedPlayer.IsCharging || chargedPlayer.IsReleasing)
-            {
-                chargedPlayer.UpdateCharging(Main.mouseRight);
-            }
             
             // === UnifiedVFX EROICA AMBIENT AURA ===
             UnifiedVFX.Eroica.Aura(player.Center, 40f, 0.35f);

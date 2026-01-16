@@ -7,6 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.DataStructures;
 using Terraria.Audio;
+using Terraria.GameContent;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
@@ -15,139 +16,99 @@ using MagnumOpus.Content.Fate.Debuffs;
 namespace MagnumOpus.Content.Fate.ResonantWeapons
 {
     /// <summary>
-    /// Fate Wisp Conductor - Summons orbiting cosmic wisps
+    /// STAFF OF DESTINED CHAMPIONS - Summon Weapon #1
+    /// 
+    /// UNIQUE ABILITY: "AVATAR OF FATE"
+    /// Summons a large, impressive fate avatar that fights alongside you.
+    /// The avatar has 3 attack modes that cycle:
+    /// 1. COSMIC SWORD STRIKES - Wide sweeping attacks with kaleidoscopic trails
+    /// 2. DESTINY ORBS - Fires seeking orbs that explode on contact
+    /// 3. REALITY RIFT - Opens portals that damage enemies passing through
+    /// 
+    /// PASSIVE: The avatar creates constant lens flare effects and leaves
+    /// chromatic afterimages when moving. Multiple avatars synchronize attacks.
     /// </summary>
     public class Fate10 : ModItem
     {
-        // Dark Prismatic color palette
-        private static readonly Color FateBlack = new Color(15, 5, 20);
-        private static readonly Color FateDarkPink = new Color(180, 50, 100);
-        private static readonly Color FateBrightRed = new Color(255, 60, 80);
-        private static readonly Color FatePurple = new Color(120, 30, 140);
-        private static readonly Color FateWhite = new Color(255, 255, 255);
-        
-        public override string Texture => "Terraria/Images/Item_" + ItemID.StardustDragonStaff;
+        public override string Texture => "Terraria/Images/Item_" + ItemID.StaffoftheFrostHydra;
         
         public override void SetDefaults()
         {
-            Item.damage = 195;
+            Item.damage = 155;
             Item.DamageType = DamageClass.Summon;
-            Item.mana = 15;
-            Item.width = 44;
-            Item.height = 44;
-            Item.useTime = 30;
-            Item.useAnimation = 30;
+            Item.mana = 20;
+            Item.width = 40;
+            Item.height = 40;
+            Item.useTime = 36;
+            Item.useAnimation = 36;
             Item.useStyle = ItemUseStyleID.Swing;
-            Item.knockBack = 3f;
-            Item.value = Item.sellPrice(gold: 25);
+            Item.knockBack = 4f;
+            Item.value = Item.sellPrice(gold: 30);
             Item.rare = ModContent.RarityType<FateRarity>();
-            Item.UseSound = SoundID.Item117;
+            Item.UseSound = SoundID.Item44;
             Item.noMelee = true;
-            Item.shoot = ModContent.ProjectileType<CosmicFateWisp>();
-            Item.buffType = ModContent.BuffType<CosmicFateWispBuff>();
+            Item.shoot = ModContent.ProjectileType<FateAvatarMinion>();
+            Item.buffType = ModContent.BuffType<FateAvatarBuff>();
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "FateEffect", "Summons a Cosmic Wisp that orbits around you"));
-            tooltips.Add(new TooltipLine(Mod, "FateEffect2", "The wisp fires reality-piercing beams at enemies"));
-            tooltips.Add(new TooltipLine(Mod, "FateLore", "'A fragment of a star's dying breath'") 
-            { 
-                OverrideColor = FateDarkPink 
-            });
+            tooltips.Add(new TooltipLine(Mod, "FateEffect", "Summons an Avatar of Fate to fight for you"));
+            tooltips.Add(new TooltipLine(Mod, "FateEffect2", "The avatar cycles through sword strikes, orbs, and reality rifts"));
+            tooltips.Add(new TooltipLine(Mod, "FateEffect3", "Multiple avatars coordinate their attacks"));
+            tooltips.Add(new TooltipLine(Mod, "FateLore", "'Champions of destiny, bound to your will'") { OverrideColor = FateLensFlare.FateDarkPink });
         }
         
         public override void HoldItem(Player player)
         {
-            // === UNIQUE: CONDUCTOR'S BATON AURA ===
-            // The staff glows with conductor's energy, commanding the wisps
+            Vector2 staffPos = player.Center + new Vector2(player.direction * 25f, -10f);
             
-            Vector2 staffTip = player.Center + new Vector2(player.direction * 28f, -10f);
-            float conductTime = Main.GameUpdateCount * 0.03f;
-            
-            // === CONDUCTOR'S BATON GLOW ===
-            // The tip of the staff has a pulsing conductor's light
-            float pulse = (float)Math.Sin(conductTime * 3f) * 0.2f + 0.8f;
-            if (Main.rand.NextBool(5))
+            // Destiny energy swirling around staff
+            if (Main.rand.NextBool(6))
             {
-                CustomParticles.GenericFlare(staffTip, FateBrightRed * pulse, 0.25f, 8);
-                CustomParticles.GenericFlare(staffTip, FateDarkPink * (1f - pulse * 0.3f), 0.18f, 6);
+                float angle = Main.rand.NextFloat(MathHelper.TwoPi);
+                Vector2 particlePos = staffPos + angle.ToRotationVector2() * Main.rand.NextFloat(15f, 30f);
+                Color particleColor = FateLensFlare.GetFateGradient(Main.rand.NextFloat()) * 0.4f;
+                
+                var swirl = new GenericGlowParticle(particlePos, (staffPos - particlePos).SafeNormalize(Vector2.Zero) * 1.5f,
+                    particleColor, 0.12f, 18, true);
+                MagnumParticleHandler.SpawnParticle(swirl);
             }
             
-            // === MUSICAL STAFF LINES ===
-            // Faint horizontal lines like a musical staff
-            if (Main.GameUpdateCount % 20 == 0)
-            {
-                for (int line = 0; line < 5; line++)
-                {
-                    float yOffset = -15f + line * 8f;
-                    Vector2 linePos = staffTip + new Vector2(Main.rand.NextFloat(-15f, 15f), yOffset);
-                    Color lineColor = Color.Lerp(FatePurple, FateDarkPink, line / 4f) * 0.4f;
-                    CustomParticles.GenericFlare(linePos, lineColor, 0.1f, 10);
-                }
-            }
-            
-            // === CONNECTION TO ACTIVE WISPS ===
-            // Draw faint energy to player's summoned wisps
-            if (Main.rand.NextBool(12))
-            {
-                // Particles drift outward toward where wisps would be
-                float angle = conductTime + Main.rand.NextFloat(-0.3f, 0.3f);
-                Vector2 driftVel = angle.ToRotationVector2() * 2f;
-                var drift = new GenericGlowParticle(staffTip, driftVel, FateDarkPink * 0.5f, 0.1f, 18, true);
-                MagnumParticleHandler.SpawnParticle(drift);
-            }
-            
-            // === MUSIC NOTES - The conductor's melody ===
-            if (Main.rand.NextBool(20))
-            {
-                ThemedParticles.FateMusicNotes(staffTip, 1, 18f);
-            }
-            
-            // Conductor's light
-            Lighting.AddLight(staffTip, FateDarkPink.ToVector3() * 0.35f * pulse);
+            Lighting.AddLight(staffPos, FateLensFlare.FatePurple.ToVector3() * 0.25f);
         }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             player.AddBuff(Item.buffType, 2);
             
-            int wispCount = player.ownedProjectileCounts[ModContent.ProjectileType<CosmicFateWisp>()];
-            Projectile.NewProjectile(source, player.Center, Vector2.Zero, type, damage, knockback, player.whoAmI, wispCount);
+            // Spawn avatar at cursor position
+            Vector2 spawnPos = Main.MouseWorld;
+            Projectile.NewProjectileDirect(source, spawnPos, Vector2.Zero, type, damage, knockback, player.whoAmI);
             
-            // Dark prismatic summon VFX with chromatic aberration
-            CustomParticles.GenericFlare(player.Center, FateBlack, 0.8f, 18);
-            CustomParticles.GenericFlare(player.Center, FateBrightRed, 0.7f, 16);
-            CustomParticles.HaloRing(player.Center, FateDarkPink, 0.55f, 14);
+            // Summon VFX
+            FateLensFlareDrawLayer.AddFlare(spawnPos, 1f, 0.8f, 25);
+            FateLensFlare.KaleidoscopeBurst(spawnPos, 0.9f, 8);
             
-            // Chromatic summon flash
-            CustomParticles.GenericFlare(player.Center + new Vector2(-4, 0), Color.Red * 0.4f, 0.35f, 12);
-            CustomParticles.GenericFlare(player.Center + new Vector2(4, 0), Color.Cyan * 0.4f, 0.35f, 12);
-            
-            // Summon glyph circle - cosmic wisp conjuration enhanced
-            CustomParticles.GlyphCircle(player.Center, FateBrightRed, 8, 50f, 0.04f);
-            CustomParticles.GlyphTower(player.Center, FatePurple, 3, 0.4f);
-            
-            for (int i = 0; i < 8; i++)
+            // Portal opening effect
+            for (int i = 0; i < 20; i++)
             {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 offset = angle.ToRotationVector2() * 30f;
-                float progress = (float)i / 8f;
-                Color burstColor = Color.Lerp(FateBlack, FateBrightRed, progress);
-                CustomParticles.GenericFlare(player.Center + offset, burstColor, 0.4f, 14);
+                float angle = MathHelper.TwoPi * i / 20f;
+                Color portalColor = FateLensFlare.GetFateGradient((float)i / 20f);
+                Vector2 offset = angle.ToRotationVector2() * 50f;
+                CustomParticles.GenericFlare(spawnPos + offset, portalColor * 0.6f, 0.3f, 18);
             }
             
-            // CONDUCTOR SUMMONING - Cosmic symphony begins! Music notes burst forth!
-            ThemedParticles.FateMusicNoteBurst(player.Center, 12, 6f);
-            ThemedParticles.FateMusicNotes(player.Center, 10, 50f);
+            CustomParticles.HaloRing(spawnPos, FateLensFlare.FateDarkPink, 0.7f, 20);
+            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f }, spawnPos);
             
             return false;
         }
     }
     
-    public class CosmicFateWispBuff : ModBuff
+    public class FateAvatarBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.Confused;
+        public override string Texture => "Terraria/Images/Buff_" + BuffID.StardustGuardianMinion;
         
         public override void SetStaticDefaults()
         {
@@ -157,7 +118,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         
         public override void Update(Player player, ref int buffIndex)
         {
-            if (player.ownedProjectileCounts[ModContent.ProjectileType<CosmicFateWisp>()] > 0)
+            if (player.ownedProjectileCounts[ModContent.ProjectileType<FateAvatarMinion>()] > 0)
             {
                 player.buffTime[buffIndex] = 18000;
             }
@@ -169,157 +130,218 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         }
     }
     
-    public class CosmicFateWisp : ModProjectile
+    public class FateAvatarMinion : ModProjectile
     {
-        // Dark Prismatic color palette
-        private static readonly Color FateBlack = new Color(15, 5, 20);
-        private static readonly Color FateDarkPink = new Color(180, 50, 100);
-        private static readonly Color FateBrightRed = new Color(255, 60, 80);
-        private static readonly Color FatePurple = new Color(120, 30, 140);
-        private static readonly Color FateWhite = new Color(255, 255, 255);
-        
-        private int OrbitIndex => (int)Projectile.ai[0];
-        private int AttackCooldown = 0;
-        
         public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
         
-        private Color GetFateGradient(float progress)
-        {
-            if (progress < 0.4f)
-                return Color.Lerp(FateBlack, FateDarkPink, progress / 0.4f);
-            else if (progress < 0.8f)
-                return Color.Lerp(FateDarkPink, FateBrightRed, (progress - 0.4f) / 0.4f);
-            else
-                return Color.Lerp(FateBrightRed, FateWhite, (progress - 0.8f) / 0.2f);
-        }
+        private enum AttackMode { SwordStrikes, DestinyOrbs, RealityRift }
+        private AttackMode currentMode = AttackMode.SwordStrikes;
+        
+        private int attackTimer = 0;
+        private const int ModeChangeDuration = 300; // 5 seconds per mode
+        private int modeTimer = 0;
+        
+        private NPC targetNPC;
+        private Vector2 idleOffset;
         
         public override void SetStaticDefaults()
         {
+            ProjectileID.Sets.MinionSacrificable[Projectile.type] = true;
+            ProjectileID.Sets.MinionTargettingFeature[Projectile.type] = true;
             Main.projPet[Projectile.type] = true;
         }
         
         public override void SetDefaults()
         {
-            Projectile.width = 30;
-            Projectile.height = 30;
+            Projectile.width = 50;
+            Projectile.height = 50;
             Projectile.friendly = true;
             Projectile.minion = true;
             Projectile.DamageType = DamageClass.Summon;
+            Projectile.minionSlots = 2f;
             Projectile.penetrate = -1;
             Projectile.timeLeft = 2;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
-            Projectile.minionSlots = 1f;
+            
+            idleOffset = new Vector2(Main.rand.NextFloat(-60f, 60f), Main.rand.NextFloat(-80f, -40f));
         }
         
-        public override bool PreDraw(ref Color lightColor)
-        {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f + OrbitIndex * 0.7f) * 0.15f + 1f;
-            
-            // Outer glow
-            spriteBatch.Draw(texture, drawPos, null, FateDarkPink * 0.35f, 0f, origin, 0.9f * pulse, SpriteEffects.None, 0f);
-            // Middle layer
-            spriteBatch.Draw(texture, drawPos, null, FateBrightRed * 0.5f, 0f, origin, 0.6f * pulse, SpriteEffects.None, 0f);
-            // Inner core
-            spriteBatch.Draw(texture, drawPos, null, FateWhite * 0.75f, 0f, origin, 0.35f * pulse, SpriteEffects.None, 0f);
-            
-            return false;
-        }
+        public override bool? CanCutTiles() => false;
+        public override bool MinionContactDamage() => false;
         
         public override void AI()
         {
             Player owner = Main.player[Projectile.owner];
             
-            if (owner.dead || !owner.active)
+            // Check if should stay alive
+            if (!owner.active || owner.dead)
             {
-                owner.ClearBuff(ModContent.BuffType<CosmicFateWispBuff>());
+                owner.ClearBuff(ModContent.BuffType<FateAvatarBuff>());
+                Projectile.Kill();
                 return;
             }
             
-            if (owner.HasBuff(ModContent.BuffType<CosmicFateWispBuff>()))
-            {
+            if (owner.HasBuff(ModContent.BuffType<FateAvatarBuff>()))
                 Projectile.timeLeft = 2;
-            }
             
-            // Orbit around player
-            float orbitSpeed = 0.04f;
-            float orbitRadius = 80f + OrbitIndex * 25f;
-            float angle = Main.GameUpdateCount * orbitSpeed + MathHelper.TwoPi * OrbitIndex / 5f;
-            float verticalOffset = (float)Math.Sin(Main.GameUpdateCount * 0.06f + OrbitIndex) * 15f;
+            // Find target
+            targetNPC = FindTarget(1000f);
             
-            Vector2 targetPos = owner.Center + new Vector2((float)Math.Cos(angle) * orbitRadius, verticalOffset);
-            Projectile.Center = Vector2.Lerp(Projectile.Center, targetPos, 0.1f);
+            // Movement
+            UpdateMovement(owner);
             
-            Projectile.rotation = angle + MathHelper.PiOver2;
-            
-            // Dark prismatic visual trail
-            if (Main.GameUpdateCount % 3 == 0)
+            // Mode cycling
+            modeTimer++;
+            if (modeTimer >= ModeChangeDuration)
             {
-                float trailProgress = ((int)Main.GameUpdateCount * 0.02f) % 1f;
-                Color trailColor = GetFateGradient(trailProgress);
-                CustomParticles.GenericFlare(Projectile.Center, trailColor * 0.55f, 0.24f, 14);
+                modeTimer = 0;
+                currentMode = (AttackMode)(((int)currentMode + 1) % 3);
+                
+                // Mode change VFX
+                FateLensFlareDrawLayer.AddFlare(Projectile.Center, 0.6f, 0.5f, 15);
+                FateLensFlare.KaleidoscopeBurst(Projectile.Center, 0.5f, 6);
             }
             
-            // Chromatic aberration orbit effect
-            if (Main.GameUpdateCount % 5 == 0)
+            // Attack
+            attackTimer++;
+            if (targetNPC != null)
             {
-                CustomParticles.GenericFlare(Projectile.Center + new Vector2(-2, 0), Color.Red * 0.25f, 0.1f, 6);
-                CustomParticles.GenericFlare(Projectile.Center + new Vector2(2, 0), Color.Cyan * 0.25f, 0.1f, 6);
+                ExecuteAttack();
             }
             
-            // Orbiting particles around wisp with dark prismatic gradient
-            if (Main.GameUpdateCount % 5 == 0)
-            {
-                for (int i = 0; i < 3; i++)
-                {
-                    float particleAngle = Main.GameUpdateCount * 0.18f + i * MathHelper.Pi;
-                    Vector2 particlePos = Projectile.Center + particleAngle.ToRotationVector2() * 14f;
-                    Color particleColor = GetFateGradient((float)i / 3f);
-                    CustomParticles.GenericFlare(particlePos, particleColor * 0.45f, 0.12f, 9);
-                }
-            }
-            
-            // Cosmic glyph aura around the wisp - enhanced
-            if (Main.GameUpdateCount % 20 == 0)
-            {
-                CustomParticles.GlyphAura(Projectile.Center, FateBrightRed * 0.55f, 24f, 2);
-            }
-            
-            // Central void glow
-            if (Main.GameUpdateCount % 8 == 0)
-            {
-                CustomParticles.GenericFlare(Projectile.Center, FateBlack, 0.25f, 10);
-            }
-            
-            // Attack logic
-            AttackCooldown--;
-            if (AttackCooldown <= 0)
-            {
-                NPC target = FindTarget();
-                if (target != null)
-                {
-                    FireBeam(target);
-                    AttackCooldown = 45;
-                }
-            }
-            
-            Lighting.AddLight(Projectile.Center, FateDarkPink.ToVector3() * 0.4f);
+            // === AVATAR VISUALS ===
+            DrawAvatarEffect();
         }
         
-        private NPC FindTarget()
+        private void UpdateMovement(Player owner)
         {
-            float maxRange = 500f;
-            NPC closest = null;
-            float closestDist = maxRange;
+            Vector2 targetPos;
             
-            foreach (NPC npc in Main.ActiveNPCs)
+            if (targetNPC != null)
             {
-                if (npc.friendly || npc.dontTakeDamage) continue;
+                // Move toward target but maintain distance
+                float idealDist = 150f;
+                Vector2 toTarget = (targetNPC.Center - Projectile.Center);
+                float dist = toTarget.Length();
                 
+                if (dist > idealDist + 50f)
+                    targetPos = targetNPC.Center - toTarget.SafeNormalize(Vector2.Zero) * idealDist;
+                else if (dist < idealDist - 50f)
+                    targetPos = Projectile.Center - toTarget.SafeNormalize(Vector2.Zero) * 50f;
+                else
+                    targetPos = Projectile.Center;
+            }
+            else
+            {
+                // Idle: float near player
+                float bob = (float)Math.Sin(Main.GameUpdateCount * 0.03f + Projectile.whoAmI) * 10f;
+                targetPos = owner.Center + idleOffset + new Vector2(0, bob);
+            }
+            
+            // Smooth movement
+            Vector2 toTarget2 = targetPos - Projectile.Center;
+            float speed = Math.Min(toTarget2.Length() * 0.1f, 15f);
+            Projectile.velocity = toTarget2.SafeNormalize(Vector2.Zero) * speed;
+            
+            // Chromatic afterimages while moving fast
+            if (Projectile.velocity.Length() > 5f)
+            {
+                Color trailColor = FateLensFlare.GetFateGradient(Main.rand.NextFloat()) * 0.3f;
+                CustomParticles.GenericFlare(Projectile.Center - Projectile.velocity * 0.5f, trailColor, 0.2f, 10);
+            }
+        }
+        
+        private void ExecuteAttack()
+        {
+            switch (currentMode)
+            {
+                case AttackMode.SwordStrikes:
+                    if (attackTimer >= 30)
+                    {
+                        attackTimer = 0;
+                        SpawnSwordStrike();
+                    }
+                    break;
+                    
+                case AttackMode.DestinyOrbs:
+                    if (attackTimer >= 45)
+                    {
+                        attackTimer = 0;
+                        SpawnDestinyOrb();
+                    }
+                    break;
+                    
+                case AttackMode.RealityRift:
+                    if (attackTimer >= 90)
+                    {
+                        attackTimer = 0;
+                        SpawnRealityRift();
+                    }
+                    break;
+            }
+        }
+        
+        private void SpawnSwordStrike()
+        {
+            if (targetNPC == null) return;
+            
+            Vector2 toTarget = (targetNPC.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
+            
+            Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, toTarget * 20f,
+                ModContent.ProjectileType<AvatarSwordSlash>(), Projectile.damage, Projectile.knockBack, Projectile.owner);
+            
+            // Sword swing VFX
+            FateLensFlareDrawLayer.AddFlare(Projectile.Center, 0.4f, 0.4f, 10);
+            SoundEngine.PlaySound(SoundID.Item1 with { Pitch = 0.3f }, Projectile.Center);
+        }
+        
+        private void SpawnDestinyOrb()
+        {
+            if (targetNPC == null) return;
+            
+            Vector2 toTarget = (targetNPC.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
+            
+            Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, toTarget * 12f,
+                ModContent.ProjectileType<AvatarDestinyOrb>(), Projectile.damage, Projectile.knockBack / 2f, Projectile.owner);
+            
+            // Orb spawn VFX
+            CustomParticles.GenericFlare(Projectile.Center, FateLensFlare.FateDarkPink, 0.5f, 12);
+            CustomParticles.HaloRing(Projectile.Center, FateLensFlare.FatePurple, 0.3f, 10);
+            SoundEngine.PlaySound(SoundID.Item8, Projectile.Center);
+        }
+        
+        private void SpawnRealityRift()
+        {
+            if (targetNPC == null) return;
+            
+            // Spawn rift at target location
+            Projectile.NewProjectile(Projectile.GetSource_FromThis(), targetNPC.Center, Vector2.Zero,
+                ModContent.ProjectileType<AvatarRealityRift>(), Projectile.damage * 2, 0f, Projectile.owner);
+            
+            // Rift creation VFX
+            FateLensFlareDrawLayer.AddFlare(targetNPC.Center, 0.8f, 0.6f, 18);
+            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.3f, Volume = 0.6f }, targetNPC.Center);
+        }
+        
+        private NPC FindTarget(float maxDist)
+        {
+            // Check player's target first
+            Player owner = Main.player[Projectile.owner];
+            if (owner.HasMinionAttackTargetNPC)
+            {
+                NPC playerTarget = Main.npc[owner.MinionAttackTargetNPC];
+                if (playerTarget.active && !playerTarget.friendly && Vector2.Distance(Projectile.Center, playerTarget.Center) < maxDist)
+                    return playerTarget;
+            }
+            
+            // Find closest enemy
+            NPC closest = null;
+            float closestDist = maxDist;
+            
+            foreach (NPC npc in Main.npc)
+            {
+                if (!npc.active || npc.friendly || npc.CountsAsACritter) continue;
                 float dist = Vector2.Distance(Projectile.Center, npc.Center);
                 if (dist < closestDist)
                 {
@@ -327,55 +349,82 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
                     closest = npc;
                 }
             }
-            
             return closest;
         }
         
-        private void FireBeam(NPC target)
+        private void DrawAvatarEffect()
         {
-            Vector2 direction = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-            Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, direction * 18f,
-                ModContent.ProjectileType<FateWispBeam>(), Projectile.damage, Projectile.knockBack, Projectile.owner);
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.15f + 0.85f;
             
-            // Dark prismatic fire VFX
-            CustomParticles.GenericFlare(Projectile.Center, FateBlack, 0.55f, 14);
-            CustomParticles.GenericFlare(Projectile.Center, FateBrightRed * 0.85f, 0.5f, 13);
-            CustomParticles.HaloRing(Projectile.Center, FateDarkPink * 0.55f, 0.28f, 10);
+            // Central avatar glow
+            CustomParticles.GenericFlare(Projectile.Center, FateLensFlare.GetFateGradient((Main.GameUpdateCount * 0.01f) % 1f) * 0.5f, 0.4f * pulse, 8);
             
-            // Destiny glyph on wisp attack - enhanced
-            CustomParticles.Glyph(Projectile.Center, FateBrightRed, 0.4f, -1);
+            // Orbiting kaleidoscope particles
+            int orbitCount = 6;
+            for (int i = 0; i < orbitCount; i++)
+            {
+                float orbitAngle = Main.GameUpdateCount * 0.04f + MathHelper.TwoPi * i / orbitCount;
+                float orbitRadius = 35f + (float)Math.Sin(Main.GameUpdateCount * 0.08f + i) * 8f;
+                Vector2 orbitPos = Projectile.Center + orbitAngle.ToRotationVector2() * orbitRadius;
+                Color orbitColor = FateLensFlare.GetFateGradient((float)i / orbitCount);
+                CustomParticles.GenericFlare(orbitPos, orbitColor * 0.4f, 0.15f, 6);
+            }
             
-            // Chromatic fire flash
-            CustomParticles.GenericFlare(Projectile.Center + new Vector2(-3, 0), Color.Red * 0.3f, 0.2f, 8);
-            CustomParticles.GenericFlare(Projectile.Center + new Vector2(3, 0), Color.Cyan * 0.3f, 0.2f, 8);
+            // Mode indicator color
+            Color modeColor = currentMode switch
+            {
+                AttackMode.SwordStrikes => FateLensFlare.FateBrightRed,
+                AttackMode.DestinyOrbs => FateLensFlare.FateDarkPink,
+                AttackMode.RealityRift => FateLensFlare.FatePurple,
+                _ => FateLensFlare.FateWhite
+            };
             
-            // Conductor directs with cosmic music notes!
-            ThemedParticles.FateMusicNotes(Projectile.Center, 5, 30f);
+            // Mode ring
+            int ringPoints = 12;
+            for (int i = 0; i < ringPoints; i++)
+            {
+                float ringAngle = MathHelper.TwoPi * i / ringPoints - Main.GameUpdateCount * 0.02f;
+                Vector2 ringPos = Projectile.Center + ringAngle.ToRotationVector2() * 45f;
+                CustomParticles.GenericFlare(ringPos, modeColor * 0.25f, 0.08f, 5);
+            }
             
-            SoundEngine.PlaySound(SoundID.Item75 with { Volume = 0.5f, Pitch = 0.3f }, Projectile.Center);
+            // Periodic lens flare
+            if (Main.GameUpdateCount % 15 == 0)
+                FateLensFlareDrawLayer.AddFlare(Projectile.Center, 0.35f * pulse, 0.35f, 10);
+            
+            Lighting.AddLight(Projectile.Center, modeColor.ToVector3() * 0.4f * pulse);
+        }
+        
+        public override bool PreDraw(ref Color lightColor)
+        {
+            SpriteBatch sb = Main.spriteBatch;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            
+            Color avatarColor = FateLensFlare.GetFateGradient((Main.GameUpdateCount * 0.01f) % 1f);
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.9f;
+            
+            // Outer ethereal glow
+            sb.Draw(glow, Projectile.Center - Main.screenPosition, null, avatarColor * 0.3f,
+                Main.GameUpdateCount * 0.02f, glow.Size() / 2f, 1.5f * pulse, SpriteEffects.None, 0f);
+            
+            // Inner core
+            sb.Draw(glow, Projectile.Center - Main.screenPosition, null, FateLensFlare.FateWhite * 0.4f,
+                0f, glow.Size() / 2f, 0.5f * pulse, SpriteEffects.None, 0f);
+            
+            return false;
+        }
+        
+        public override void OnKill(int timeLeft)
+        {
+            FateLensFlareDrawLayer.AddFlare(Projectile.Center, 0.8f, 0.6f, 20);
+            FateLensFlare.KaleidoscopeBurst(Projectile.Center, 0.6f, 6);
+            CustomParticles.ExplosionBurst(Projectile.Center, FateLensFlare.FateDarkPink, 15, 5f);
         }
     }
     
-    public class FateWispBeam : ModProjectile
+    public class AvatarSwordSlash : ModProjectile
     {
-        // Dark Prismatic color palette
-        private static readonly Color FateBlack = new Color(15, 5, 20);
-        private static readonly Color FateDarkPink = new Color(180, 50, 100);
-        private static readonly Color FateBrightRed = new Color(255, 60, 80);
-        private static readonly Color FatePurple = new Color(120, 30, 140);
-        private static readonly Color FateWhite = new Color(255, 255, 255);
-        
         public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
-        
-        private Color GetFateGradient(float progress)
-        {
-            if (progress < 0.4f)
-                return Color.Lerp(FateBlack, FateDarkPink, progress / 0.4f);
-            else if (progress < 0.8f)
-                return Color.Lerp(FateDarkPink, FateBrightRed, (progress - 0.4f) / 0.4f);
-            else
-                return Color.Lerp(FateBrightRed, FateWhite, (progress - 0.8f) / 0.2f);
-        }
         
         public override void SetStaticDefaults()
         {
@@ -385,132 +434,245 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         
         public override void SetDefaults()
         {
-            Projectile.width = 6;
-            Projectile.height = 6;
+            Projectile.width = 40;
+            Projectile.height = 40;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Summon;
-            Projectile.penetrate = 1;
-            Projectile.timeLeft = 90;
-            Projectile.tileCollide = true;
-            Projectile.extraUpdates = 3;
-        }
-        
-        public override bool PreDraw(ref Color lightColor)
-        {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
-            Vector2 origin = texture.Size() / 2f;
-            
-            // Draw chromatic aberration trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                float trailAlpha = (1f - progress) * 0.5f;
-                float trailScale = 0.35f - progress * 0.25f;
-                Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                
-                // RGB separation for chromatic effect
-                spriteBatch.Draw(texture, drawPos + new Vector2(-1.5f, 0), null, Color.Red * trailAlpha * 0.4f, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
-                spriteBatch.Draw(texture, drawPos + new Vector2(1.5f, 0), null, Color.Cyan * trailAlpha * 0.4f, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
-                
-                Color trailColor = GetFateGradient(progress);
-                spriteBatch.Draw(texture, drawPos, null, trailColor * trailAlpha, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
-            }
-            
-            // Draw layered glow core
-            Vector2 corePos = Projectile.Center - Main.screenPosition;
-            spriteBatch.Draw(texture, corePos, null, FateDarkPink * 0.4f, Projectile.rotation, origin, 0.45f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, corePos, null, FateBrightRed * 0.55f, Projectile.rotation, origin, 0.3f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, corePos, null, FateWhite * 0.75f, Projectile.rotation, origin, 0.18f, SpriteEffects.None, 0f);
-            
-            return false;
+            Projectile.penetrate = 3;
+            Projectile.timeLeft = 40;
+            Projectile.tileCollide = false;
         }
         
         public override void AI()
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
             
-            // Dark prismatic reality-tearing trail
-            if (Main.rand.NextBool(2))
+            // Kaleidoscopic slash trail
+            Color slashColor = FateLensFlare.GetFateGradient((Main.GameUpdateCount * 0.03f) % 1f);
+            
+            var trail = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.15f,
+                slashColor * 0.5f, 0.3f, 12, true);
+            MagnumParticleHandler.SpawnParticle(trail);
+            
+            // Wide arc particles
+            Vector2 perp = Projectile.velocity.SafeNormalize(Vector2.Zero).RotatedBy(MathHelper.PiOver2);
+            for (int side = -1; side <= 1; side += 2)
             {
-                float progress = Main.rand.NextFloat();
-                Color trailColor = GetFateGradient(progress);
-                CustomParticles.GenericFlare(Projectile.Center, trailColor * 0.55f, 0.15f, 10);
+                Vector2 arcPos = Projectile.Center + perp * side * 25f;
+                Color arcColor = FateLensFlare.GetFateGradient(Main.rand.NextFloat()) * 0.4f;
+                CustomParticles.GenericFlare(arcPos, arcColor, 0.15f, 8);
             }
             
-            // Chromatic trail
-            if (Main.rand.NextBool(4))
+            Lighting.AddLight(Projectile.Center, slashColor.ToVector3() * 0.4f);
+        }
+        
+        public override bool PreDraw(ref Color lightColor)
+        {
+            SpriteBatch sb = Main.spriteBatch;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            
+            // Trail
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
-                CustomParticles.GenericFlare(Projectile.Center + new Vector2(-2, 0), Color.Red * 0.25f, 0.08f, 5);
-                CustomParticles.GenericFlare(Projectile.Center + new Vector2(2, 0), Color.Cyan * 0.25f, 0.08f, 5);
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                float progress = (float)i / Projectile.oldPos.Length;
+                Color trailColor = FateLensFlare.GetFateGradient(progress) * (1f - progress) * 0.4f;
+                
+                sb.Draw(glow, Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition, null,
+                    trailColor, Projectile.oldRot[i], glow.Size() / 2f, new Vector2(1f - progress * 0.5f, 0.3f), SpriteEffects.None, 0f);
             }
             
-            Lighting.AddLight(Projectile.Center, FateDarkPink.ToVector3() * 0.25f);
+            // Main slash
+            Color slashColor = FateLensFlare.GetFateGradient((Main.GameUpdateCount * 0.03f) % 1f);
+            sb.Draw(glow, Projectile.Center - Main.screenPosition, null, slashColor * 0.6f,
+                Projectile.rotation, glow.Size() / 2f, new Vector2(1.2f, 0.4f), SpriteEffects.None, 0f);
+            
+            return false;
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 300);
-            target.GetGlobalNPC<DestinyCollapseNPC>().AddStack(target, 1);
+            target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 120);
+            CustomParticles.GenericFlare(target.Center, FateLensFlare.FateBrightRed, 0.4f, 12);
+        }
+    }
+    
+    public class AvatarDestinyOrb : ModProjectile
+    {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
+        private const float HomingStrength = 0.05f;
+        
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
+        
+        public override void SetDefaults()
+        {
+            Projectile.width = 18;
+            Projectile.height = 18;
+            Projectile.friendly = true;
+            Projectile.DamageType = DamageClass.Summon;
+            Projectile.penetrate = 1;
+            Projectile.timeLeft = 180;
+            Projectile.tileCollide = true;
+        }
+        
+        public override void AI()
+        {
+            Projectile.rotation += 0.1f;
             
-            // === UNIFIED VFX HIT EFFECT - FATE THEME ===
-            UnifiedVFX.Fate.HitEffect(target.Center, 0.9f);
+            // Mild homing
+            NPC target = FindTarget(500f);
+            if (target != null)
+            {
+                Vector2 toTarget = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * 14f, HomingStrength);
+            }
             
-            // Dark prismatic hit
-            CustomParticles.GenericFlare(target.Center, FateBlack, 0.4f, 12);
-            CustomParticles.GenericFlare(target.Center, FateBrightRed * 0.7f, 0.35f, 11);
-            
-            // Destiny glyph on beam impact
+            // Trail
+            Color orbColor = FateLensFlare.GetFateGradient((Main.GameUpdateCount * 0.02f) % 1f);
             if (Main.rand.NextBool(2))
             {
-                CustomParticles.Glyph(target.Center, FateDarkPink, 0.3f, -1);
+                var trail = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f,
+                    orbColor * 0.4f, 0.15f, 12, true);
+                MagnumParticleHandler.SpawnParticle(trail);
             }
-            CustomParticles.GlyphImpact(target.Center, FateBlack, FateBrightRed, 0.5f);
             
-            // === CHROMATIC ABERRATION ===
-            CustomParticles.GenericFlare(target.Center + new Vector2(-3, 0), FateBrightRed * 0.4f, 0.3f, 12);
-            CustomParticles.GenericFlare(target.Center + new Vector2(3, 0), FatePurple * 0.4f, 0.3f, 12);
-            
-            // === GLYPH FORMATIONS ===
-            CustomParticles.GlyphCircle(target.Center, FateDarkPink, 5, 40f, 0.08f);
-            
-            // === TEMPORAL ECHO AFTERIMAGES ===
-            for (int echo = 0; echo < 4; echo++)
+            Lighting.AddLight(Projectile.Center, orbColor.ToVector3() * 0.3f);
+        }
+        
+        private NPC FindTarget(float maxDist)
+        {
+            NPC closest = null;
+            float closestDist = maxDist;
+            foreach (NPC npc in Main.npc)
             {
-                Vector2 echoPos = target.Center + new Vector2(0, -echo * 10f);
-                float echoAlpha = 1f - echo * 0.2f;
-                CustomParticles.GenericFlare(echoPos, GetFateGradient((float)echo / 4f) * echoAlpha * 0.5f, 0.4f, 15);
+                if (!npc.active || npc.friendly || npc.CountsAsACritter) continue;
+                float dist = Vector2.Distance(Projectile.Center, npc.Center);
+                if (dist < closestDist)
+                {
+                    closestDist = dist;
+                    closest = npc;
+                }
+            }
+            return closest;
+        }
+        
+        public override bool PreDraw(ref Color lightColor)
+        {
+            SpriteBatch sb = Main.spriteBatch;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            
+            // Trail
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                float progress = (float)i / Projectile.oldPos.Length;
+                Color trailColor = FateLensFlare.GetFateGradient(progress) * (1f - progress) * 0.3f;
+                sb.Draw(glow, Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition, null,
+                    trailColor, 0f, glow.Size() / 2f, 0.25f * (1f - progress * 0.5f), SpriteEffects.None, 0f);
             }
             
-            // === COSMIC MUSIC NOTES ===
-            ThemedParticles.FateMusicNoteBurst(target.Center, 10, 6f);
-            ThemedParticles.FateMusicNotes(target.Center, 4, 30f);
+            // Main orb
+            Color orbColor = FateLensFlare.GetFateGradient((Main.GameUpdateCount * 0.02f) % 1f);
+            sb.Draw(glow, Projectile.Center - Main.screenPosition, null, orbColor * 0.5f,
+                Projectile.rotation, glow.Size() / 2f, 0.35f, SpriteEffects.None, 0f);
+            sb.Draw(glow, Projectile.Center - Main.screenPosition, null, Color.White * 0.3f,
+                0f, glow.Size() / 2f, 0.15f, SpriteEffects.None, 0f);
             
-            // Cosmic Revisit - wisp beam echoes
-            int revisitDamage = (int)(damageDone * 0.20f);
-            target.GetGlobalNPC<DestinyCollapseNPC>().QueueCosmicRevisit(target, revisitDamage, 25, Projectile.Center, 0.7f);
-            
-            Lighting.AddLight(target.Center, FateBrightRed.ToVector3() * 0.9f);
+            return false;
+        }
+        
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 120);
         }
         
         public override void OnKill(int timeLeft)
         {
-            // Dark prismatic death burst
-            CustomParticles.GenericFlare(Projectile.Center, FateBlack, 0.3f, 12);
+            FateLensFlare.KaleidoscopeBurst(Projectile.Center, 0.4f, 4);
+            CustomParticles.ExplosionBurst(Projectile.Center, FateLensFlare.FateDarkPink, 8, 4f);
+        }
+    }
+    
+    public class AvatarRealityRift : ModProjectile
+    {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
+        private const int RiftDuration = 120;
+        
+        public override void SetDefaults()
+        {
+            Projectile.width = 80;
+            Projectile.height = 80;
+            Projectile.friendly = true;
+            Projectile.DamageType = DamageClass.Summon;
+            Projectile.penetrate = -1;
+            Projectile.timeLeft = RiftDuration;
+            Projectile.tileCollide = false;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 30;
+        }
+        
+        public override void AI()
+        {
+            float progress = 1f - (float)Projectile.timeLeft / RiftDuration;
+            float openProgress = Math.Min(progress * 5f, 1f);
+            float closeProgress = Math.Max((progress - 0.8f) * 5f, 0f);
+            float intensity = openProgress * (1f - closeProgress);
             
-            for (int i = 0; i < 5; i++)
+            // Swirling rift visuals
+            FateLensFlare.KaleidoscopeBurst(Projectile.Center, intensity * 0.4f, (int)(6 * intensity) + 1);
+            
+            // Edge particles
+            int edgeCount = (int)(16 * intensity);
+            for (int i = 0; i < edgeCount; i++)
             {
-                float angle = MathHelper.TwoPi * i / 5f;
-                Vector2 vel = angle.ToRotationVector2() * 2.5f;
-                Color burstColor = GetFateGradient((float)i / 5f);
-                var glow = new GenericGlowParticle(Projectile.Center, vel, burstColor, 0.24f, 12, true);
-                MagnumParticleHandler.SpawnParticle(glow);
+                float angle = Main.GameUpdateCount * 0.1f + MathHelper.TwoPi * i / edgeCount;
+                float radius = 40f * intensity;
+                Vector2 edgePos = Projectile.Center + angle.ToRotationVector2() * radius;
+                Color edgeColor = FateLensFlare.GetFateGradient((float)i / edgeCount);
+                CustomParticles.GenericFlare(edgePos, edgeColor * 0.4f, 0.12f, 6);
             }
             
-            // Chromatic flash
-            CustomParticles.GenericFlare(Projectile.Center + new Vector2(-2, 0), Color.Red * 0.22f, 0.1f, 7);
-            CustomParticles.GenericFlare(Projectile.Center + new Vector2(2, 0), Color.Cyan * 0.22f, 0.1f, 7);
+            // Heat distortion
+            FateLensFlare.DrawHeatWaveDistortion(Projectile.Center, 60f * intensity, 0.4f * intensity);
+            
+            // Lens flare
+            if (Main.GameUpdateCount % 8 == 0)
+                FateLensFlareDrawLayer.AddFlare(Projectile.Center, 0.4f * intensity, 0.4f, 10);
+            
+            Lighting.AddLight(Projectile.Center, FateLensFlare.FatePurple.ToVector3() * intensity * 0.5f);
+        }
+        
+        public override bool PreDraw(ref Color lightColor)
+        {
+            SpriteBatch sb = Main.spriteBatch;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            
+            float progress = 1f - (float)Projectile.timeLeft / RiftDuration;
+            float openProgress = Math.Min(progress * 5f, 1f);
+            float closeProgress = Math.Max((progress - 0.8f) * 5f, 0f);
+            float intensity = openProgress * (1f - closeProgress);
+            
+            // Outer rift glow
+            sb.Draw(glow, Projectile.Center - Main.screenPosition, null, FateLensFlare.FatePurple * 0.3f * intensity,
+                Main.GameUpdateCount * 0.03f, glow.Size() / 2f, 1.2f * intensity, SpriteEffects.None, 0f);
+            
+            // Inner void
+            sb.Draw(glow, Projectile.Center - Main.screenPosition, null, FateLensFlare.FateBlack * 0.5f * intensity,
+                -Main.GameUpdateCount * 0.05f, glow.Size() / 2f, 0.6f * intensity, SpriteEffects.None, 0f);
+            
+            return false;
+        }
+        
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 180);
+            CustomParticles.GenericFlare(target.Center, FateLensFlare.FateBrightRed, 0.4f, 12);
         }
     }
 }

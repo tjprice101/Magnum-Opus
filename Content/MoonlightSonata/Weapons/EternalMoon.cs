@@ -24,26 +24,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
     public class EternalMoon : ModItem
     {
         private int swingCounter = 0;
-        
-        // Charged melee attack config
-        private ChargedMeleeConfig chargedConfig;
-        
-        private ChargedMeleeConfig GetChargedConfig()
-        {
-            if (chargedConfig == null)
-            {
-                chargedConfig = new ChargedMeleeConfig
-                {
-                    PrimaryColor = UnifiedVFX.MoonlightSonata.DarkPurple,
-                    SecondaryColor = UnifiedVFX.MoonlightSonata.Silver,
-                    ChargeTime = 55f,
-                    SpawnThemeMusicNotes = (pos, count, radius) => ThemedParticles.MoonlightMusicNotes(pos, count, radius),
-                    SpawnThemeExplosion = (pos, scale) => UnifiedVFX.MoonlightSonata.Explosion(pos, scale),
-                    DrawThemeLightning = (start, end) => MagnumVFX.DrawMoonlightLightning(start, end, 14, 25f, 4, 0.5f)
-                };
-            }
-            return chargedConfig;
-        }
 
         public override void SetDefaults()
         {
@@ -66,21 +46,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
 
         public override void HoldItem(Player player)
         {
-            // === CHARGED MELEE ATTACK SYSTEM ===
-            var chargedPlayer = player.GetModPlayer<ChargedMeleePlayer>();
-            
-            // Start charging on right-click
-            if (Main.mouseRight && !chargedPlayer.IsCharging && !chargedPlayer.IsReleasing)
-            {
-                chargedPlayer.TryStartCharging(Item, GetChargedConfig());
-            }
-            
-            // Update charging state
-            if (chargedPlayer.IsCharging || chargedPlayer.IsReleasing)
-            {
-                chargedPlayer.UpdateCharging(Main.mouseRight);
-            }
-            
             // === AMBIENT FRACTAL FLARES - Lunar geometric pattern ===
             if (Main.rand.NextBool(6))
             {

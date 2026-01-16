@@ -310,18 +310,22 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Draw as flame column
+            // Draw as flame column using particles only - no rectangles
             float fade = Projectile.timeLeft > 30 ? 1f : Projectile.timeLeft / 30f;
             
-            for (int i = 0; i < 3; i++)
+            // The visual is entirely particle-based in AI, so just draw a small core glow
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Vector2 origin = glowTex.Size() / 2f;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            
+            // Draw layered glows for fire effect
+            for (int layer = 0; layer < 4; layer++)
             {
-                float yOffset = i * -10f;
-                float scale = (1f - i * 0.2f) * fade;
-                Color color = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaYellow, i * 0.3f) * scale;
+                float layerProgress = layer / 4f;
+                float scale = (0.6f - layer * 0.1f) * fade;
+                Color color = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaYellow, layerProgress) * (0.4f - layer * 0.08f);
                 
-                Vector2 drawPos = Projectile.Center + new Vector2(0, yOffset) - Main.screenPosition;
-                Rectangle rect = new Rectangle((int)drawPos.X - 8, (int)drawPos.Y - 15, 16, 30);
-                Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, rect, color * 0.5f);
+                Main.spriteBatch.Draw(glowTex, drawPos + new Vector2(0, -layer * 8f), null, color, 0f, origin, scale, SpriteEffects.None, 0f);
             }
             
             return false;
@@ -434,26 +438,31 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Draw as large flame column
+            // Draw as large flame column using glow textures
             float baseHeight = 80f * Projectile.scale;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Vector2 origin = glowTex.Size() / 2f;
             
             for (int layer = 0; layer < 5; layer++)
             {
                 float layerProgress = layer / 5f;
                 float layerHeight = baseHeight * (1f - layerProgress * 0.5f);
-                float layerWidth = 40f * (1f - layerProgress * 0.3f) * Projectile.scale;
+                float scale = (1.2f - layer * 0.15f) * Projectile.scale;
                 
                 Color color = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaYellow, layerProgress);
-                if (layer == 0) color = ThemedParticles.CampanellaBlack * 0.8f;
+                if (layer == 0) color = ThemedParticles.CampanellaBlack * 0.6f;
                 
                 // Wave motion
                 float waveOffset = (float)Math.Sin(Projectile.ai[0] * 0.2f + layer * 0.5f) * 5f;
                 
-                Vector2 drawPos = Projectile.Bottom + new Vector2(waveOffset, -layerHeight / 2) - Main.screenPosition;
-                Rectangle rect = new Rectangle((int)(drawPos.X - layerWidth / 2), (int)(drawPos.Y - layerHeight / 2), 
-                    (int)layerWidth, (int)layerHeight);
-                
-                Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, rect, color * (0.6f - layer * 0.08f));
+                // Draw multiple vertical glows to create flame column effect
+                for (int y = 0; y < 4; y++)
+                {
+                    float yProgress = y / 4f;
+                    Vector2 drawPos = Projectile.Bottom + new Vector2(waveOffset, -layerHeight * yProgress) - Main.screenPosition;
+                    float yScale = scale * (1f - yProgress * 0.3f);
+                    Main.spriteBatch.Draw(glowTex, drawPos, null, color * (0.5f - layer * 0.06f), 0f, origin, yScale, SpriteEffects.None, 0f);
+                }
             }
             
             return false;
@@ -574,40 +583,43 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         {
             if (currentLength <= 0) return false;
             
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Vector2 origin = glowTex.Size() / 2f;
             Vector2 direction = Projectile.velocity.SafeNormalize(Vector2.UnitX);
             float rotation = direction.ToRotation();
             
-            // Draw beam layers
-            for (int layer = 4; layer >= 0; layer--)
+            // Draw beam as chain of glow sprites
+            int segments = (int)(currentLength / 30f);
+            for (int seg = 0; seg <= segments; seg++)
             {
-                float layerWidth = beamWidth * (1f + layer * 0.3f);
-                float opacity = 0.15f + (4 - layer) * 0.15f;
+                float segProgress = (float)seg / segments;
+                Vector2 segPos = Projectile.Center + direction * (segProgress * currentLength) - Main.screenPosition;
                 
-                Color color;
-                switch (layer)
+                // Draw beam layers
+                for (int layer = 4; layer >= 0; layer--)
                 {
-                    case 4: color = ThemedParticles.CampanellaBlack * 0.6f; break;
-                    case 3: color = ThemedParticles.CampanellaRed * 0.7f; break;
-                    case 2: color = ThemedParticles.CampanellaOrange * 0.8f; break;
-                    case 1: color = ThemedParticles.CampanellaYellow * 0.9f; break;
-                    default: color = Color.White; break;
+                    float layerScale = (beamWidth / 32f) * (1f + layer * 0.2f);
+                    float opacity = 0.15f + (4 - layer) * 0.12f;
+                    
+                    Color color;
+                    switch (layer)
+                    {
+                        case 4: color = ThemedParticles.CampanellaBlack * 0.5f; break;
+                        case 3: color = ThemedParticles.CampanellaRed * 0.6f; break;
+                        case 2: color = ThemedParticles.CampanellaOrange * 0.7f; break;
+                        case 1: color = ThemedParticles.CampanellaYellow * 0.8f; break;
+                        default: color = Color.White * 0.9f; break;
+                    }
+                    
+                    Main.spriteBatch.Draw(glowTex, segPos, null, color * opacity, rotation, origin, layerScale, SpriteEffects.None, 0f);
                 }
-                
-                // Draw beam as stretched rectangle
-                Vector2 scale = new Vector2(currentLength / pixel.Width, layerWidth / pixel.Height);
-                Vector2 origin = new Vector2(0, pixel.Height / 2);
-                
-                Main.spriteBatch.Draw(pixel, Projectile.Center - Main.screenPosition, null, 
-                    color * opacity, rotation, origin, scale, SpriteEffects.None, 0f);
             }
             
-            // Draw end explosion
+            // Draw end explosion glow
             Vector2 endPos = Projectile.Center + direction * currentLength - Main.screenPosition;
-            float endSize = beamWidth * 1.5f;
-            Rectangle endRect = new Rectangle((int)(endPos.X - endSize / 2), (int)(endPos.Y - endSize / 2), 
-                (int)endSize, (int)endSize);
-            Main.spriteBatch.Draw(pixel, endRect, ThemedParticles.CampanellaYellow * 0.8f);
+            float endScale = beamWidth / 20f;
+            Main.spriteBatch.Draw(glowTex, endPos, null, ThemedParticles.CampanellaYellow * 0.7f, 0f, origin, endScale * 1.5f, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(glowTex, endPos, null, Color.White * 0.5f, 0f, origin, endScale, SpriteEffects.None, 0f);
             
             return false;
         }

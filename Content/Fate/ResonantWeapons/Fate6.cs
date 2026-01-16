@@ -7,6 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.DataStructures;
 using Terraria.Audio;
+using Terraria.GameContent;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
@@ -15,379 +16,303 @@ using MagnumOpus.Content.Fate.Debuffs;
 namespace MagnumOpus.Content.Fate.ResonantWeapons
 {
     /// <summary>
-    /// Fate Rocket Cataclysm - Launcher with reality-shattering explosions
+    /// CANNON OF INEVITABILITY - Ranged Gun #1
+    /// 
+    /// UNIQUE ABILITY: "TIMELINE CONVERGENCE SHOT"
+    /// Every shot exists across 5 parallel timelines simultaneously.
+    /// All 5 bullets converge on the same target point for devastating damage.
+    /// Each timeline bullet has a different chromatic hue creating a kaleidoscopic spread.
+    /// 
+    /// PASSIVE: Bullets leave "fate trails" - persistent light beams that damage
+    /// enemies who cross them. Massive lens flare on every shot.
     /// </summary>
     public class Fate6 : ModItem
     {
-        // Dark Prismatic color palette
-        private static readonly Color FateBlack = new Color(15, 5, 20);
-        private static readonly Color FateDarkPink = new Color(180, 50, 100);
-        private static readonly Color FateBrightRed = new Color(255, 60, 80);
-        private static readonly Color FatePurple = new Color(120, 30, 140);
-        private static readonly Color FateWhite = new Color(255, 255, 255);
-        
-        public override string Texture => "Terraria/Images/Item_" + ItemID.Celeb2;
+        public override string Texture => "Terraria/Images/Item_" + ItemID.SDMG;
         
         public override void SetDefaults()
         {
-            Item.damage = 580;
+            Item.damage = 340;
             Item.DamageType = DamageClass.Ranged;
-            Item.width = 70;
-            Item.height = 35;
-            Item.useTime = 40;
-            Item.useAnimation = 40;
+            Item.width = 60;
+            Item.height = 30;
+            Item.useTime = 25;
+            Item.useAnimation = 25;
             Item.useStyle = ItemUseStyleID.Shoot;
-            Item.knockBack = 10f;
-            Item.value = Item.sellPrice(gold: 30);
+            Item.knockBack = 6f;
+            Item.value = Item.sellPrice(gold: 28);
             Item.rare = ModContent.RarityType<FateRarity>();
-            Item.UseSound = SoundID.Item11;
+            Item.UseSound = SoundID.Item40;
             Item.autoReuse = true;
-            Item.shoot = ProjectileID.RocketI;
-            Item.shootSpeed = 12f;
-            Item.useAmmo = AmmoID.Rocket;
+            Item.shoot = ProjectileID.Bullet;
+            Item.shootSpeed = 18f;
+            Item.useAmmo = AmmoID.Bullet;
             Item.noMelee = true;
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "FateEffect", "Launches rockets that create Cataclysmic Collapses"));
-            tooltips.Add(new TooltipLine(Mod, "FateEffect2", "Explosions shatter reality and spread Destiny Collapse"));
-            tooltips.Add(new TooltipLine(Mod, "FateLore", "'The universe trembles at its firing'") 
-            { 
-                OverrideColor = FateDarkPink 
-            });
+            tooltips.Add(new TooltipLine(Mod, "FateEffect", "Each shot exists across 5 parallel timelines"));
+            tooltips.Add(new TooltipLine(Mod, "FateEffect2", "All timeline bullets converge on your target"));
+            tooltips.Add(new TooltipLine(Mod, "FateEffect3", "Bullets leave persistent fate trails that damage enemies"));
+            tooltips.Add(new TooltipLine(Mod, "FateLore", "'Escape is not within the realm of possibility'") { OverrideColor = FateLensFlare.FateBrightRed });
         }
         
-        public override Vector2? HoldoutOffset() => new Vector2(-15f, 0f);
+        public override Vector2? HoldoutOffset() => new Vector2(-8f, 0f);
+        
+        public override void HoldItem(Player player)
+        {
+            Vector2 muzzle = player.Center + new Vector2(player.direction * 45f, -2f);
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.07f) * 0.25f + 0.75f;
+            
+            // Timeline shimmer - 5 ghostly gun images
+            if (Main.rand.NextBool(6))
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    float timelineOffset = (i - 2f) * 4f;
+                    Vector2 ghostPos = muzzle + new Vector2(0, timelineOffset);
+                    Color ghostColor = FateLensFlare.GetFateGradient((float)i / 5f) * 0.3f;
+                    CustomParticles.GenericFlare(ghostPos, ghostColor, 0.15f, 8);
+                }
+            }
+            
+            // Chromatic barrel glow
+            FateLensFlare.ChromaticShift(muzzle, 25f, 0.4f);
+            
+            // Ambient lens flare at barrel
+            if (Main.GameUpdateCount % 25 == 0)
+                FateLensFlareDrawLayer.AddFlare(muzzle, 0.3f * pulse, 0.4f, 15);
+            
+            Lighting.AddLight(muzzle, FateLensFlare.FateDarkPink.ToVector3() * 0.4f * pulse);
+        }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            Projectile.NewProjectile(source, position, velocity, ModContent.ProjectileType<FateCataclysmRocket>(), damage, knockback, player.whoAmI);
+            Vector2 muzzle = position + velocity.SafeNormalize(Vector2.Zero) * 40f;
             
-            // Dark prismatic massive muzzle flash with chromatic aberration
-            Vector2 muzzlePos = position + velocity.SafeNormalize(Vector2.Zero) * 45f;
-            CustomParticles.GenericFlare(muzzlePos, FateBlack, 1.0f, 18);
-            CustomParticles.GenericFlare(muzzlePos, FateBrightRed, 0.85f, 16);
-            CustomParticles.HaloRing(muzzlePos, FateDarkPink, 0.6f, 14);
-            
-            // Massive chromatic aberration burst
-            for (int i = 0; i < 8; i++)
+            // === TIMELINE CONVERGENCE - 5 bullets from different timelines ===
+            for (int timeline = 0; timeline < 5; timeline++)
             {
-                float angle = velocity.ToRotation() + MathHelper.PiOver2 * (i - 3.5f) * 0.35f;
-                Vector2 sparkVel = angle.ToRotationVector2() * 7f;
-                float progress = (float)i / 8f;
+                // Each timeline bullet starts from slightly different position
+                float timelineOffset = MathHelper.ToRadians(-8f + timeline * 4f);
+                Vector2 timelineVel = velocity.RotatedBy(timelineOffset);
                 
-                // RGB separation
-                var glowR = new GenericGlowParticle(muzzlePos + new Vector2(-4, 0), sparkVel, Color.Red * 0.45f, 0.38f, 14, true);
-                var glowG = new GenericGlowParticle(muzzlePos, sparkVel, FateDarkPink, 0.4f, 14, true);
-                var glowB = new GenericGlowParticle(muzzlePos + new Vector2(4, 0), sparkVel, Color.Cyan * 0.45f, 0.38f, 14, true);
-                MagnumParticleHandler.SpawnParticle(glowR);
-                MagnumParticleHandler.SpawnParticle(glowG);
-                MagnumParticleHandler.SpawnParticle(glowB);
+                // All converge toward mouse position
+                Vector2 convergencePoint = Main.MouseWorld;
+                Vector2 toConvergence = (convergencePoint - muzzle).SafeNormalize(Vector2.Zero);
+                
+                // Blend between spread and convergence
+                Vector2 finalVel = Vector2.Lerp(timelineVel, toConvergence * velocity.Length(), 0.3f);
+                
+                Projectile.NewProjectile(source, muzzle, finalVel,
+                    ModContent.ProjectileType<TimelineBullet>(), damage, knockback, player.whoAmI, timeline);
             }
             
-            // Cosmic glyph tower on rocket launch - reality-breaking launch sigil
-            CustomParticles.GlyphTower(muzzlePos, FateBrightRed, 4, 0.5f);
-            CustomParticles.GlyphCircle(muzzlePos, FateDarkPink, 6, 40f, 0.04f);
+            // === MASSIVE MUZZLE FLASH ===
+            FateLensFlareDrawLayer.AddFlare(muzzle, 1.2f, 1f, 30);
+            FateLensFlare.KaleidoscopeBurst(muzzle, 0.8f, 5);
             
-            // Rocket launch with cosmic music notes!
-            ThemedParticles.FateMusicNotes(muzzlePos, 8, 45f);
+            // Chromatic muzzle flash
+            CustomParticles.GenericFlare(muzzle, FateLensFlare.FateWhite, 0.9f, 18);
+            CustomParticles.GenericFlare(muzzle, FateLensFlare.FateBrightRed, 0.7f, 15);
+            CustomParticles.HaloRing(muzzle, FateLensFlare.FateDarkPink, 0.5f, 14);
+            
+            // RGB separation muzzle
+            CustomParticles.GenericFlare(muzzle + new Vector2(-5, 0), Color.Red * 0.5f, 0.4f, 12);
+            CustomParticles.GenericFlare(muzzle + new Vector2(5, 0), FateLensFlare.FateCyan * 0.5f, 0.4f, 12);
             
             return false;
         }
     }
     
-    public class FateCataclysmRocket : ModProjectile
+    public class TimelineBullet : ModProjectile
     {
-        // Dark Prismatic color palette
-        private static readonly Color FateBlack = new Color(15, 5, 20);
-        private static readonly Color FateDarkPink = new Color(180, 50, 100);
-        private static readonly Color FateBrightRed = new Color(255, 60, 80);
-        private static readonly Color FatePurple = new Color(120, 30, 140);
-        private static readonly Color FateWhite = new Color(255, 255, 255);
-        
         public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
         
-        private Color GetFateGradient(float progress)
-        {
-            if (progress < 0.4f)
-                return Color.Lerp(FateBlack, FateDarkPink, progress / 0.4f);
-            else if (progress < 0.8f)
-                return Color.Lerp(FateDarkPink, FateBrightRed, (progress - 0.4f) / 0.4f);
-            else
-                return Color.Lerp(FateBrightRed, FateWhite, (progress - 0.8f) / 0.2f);
-        }
+        private int TimelineIndex => (int)Projectile.ai[0];
+        private List<Vector2> trailPositions = new List<Vector2>();
         
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 14;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 15;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
-        }
-        
-        public override bool PreDraw(ref Color lightColor)
-        {
-            // Custom cosmic rocket rendering - dark prismatic with chromatic aberration
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = glowTex.Size() / 2f;
-            float rotation = Projectile.rotation;
-            
-            // Intense chromatic aberration trail
-            for (int i = Projectile.oldPos.Length - 1; i >= 0; i--)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float trailProgress = (float)i / Projectile.oldPos.Length;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                float trailScale = (1f - trailProgress * 0.4f) * 1.1f;
-                
-                // RGB separation for chromatic aberration
-                float separation = 4f * (1f - trailProgress);
-                spriteBatch.Draw(glowTex, trailPos + new Vector2(-separation, 0), null, Color.Red * (1f - trailProgress) * 0.4f, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
-                spriteBatch.Draw(glowTex, trailPos, null, GetFateGradient(trailProgress) * (1f - trailProgress) * 0.6f, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
-                spriteBatch.Draw(glowTex, trailPos + new Vector2(separation, 0), null, Color.Cyan * (1f - trailProgress) * 0.4f, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
-            }
-            
-            // Outer void darkness
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.18f) * 0.2f + 1f;
-            spriteBatch.Draw(glowTex, drawPos, null, FateBlack * 0.7f, rotation, origin, 2.2f * pulse, SpriteEffects.None, 0f);
-            
-            // Dark pink mid layer
-            spriteBatch.Draw(glowTex, drawPos, null, FateDarkPink * 0.8f, rotation, origin, 1.5f, SpriteEffects.None, 0f);
-            
-            // Bright red inner
-            spriteBatch.Draw(glowTex, drawPos, null, FateBrightRed * 0.9f, rotation, origin, 0.9f, SpriteEffects.None, 0f);
-            
-            // White core
-            spriteBatch.Draw(glowTex, drawPos, null, FateWhite, rotation, origin, 0.4f, SpriteEffects.None, 0f);
-            
-            return false;
         }
         
         public override void SetDefaults()
         {
-            Projectile.width = 24;
-            Projectile.height = 24;
+            Projectile.width = 16;
+            Projectile.height = 16;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Ranged;
-            Projectile.penetrate = 1;
-            Projectile.timeLeft = 300;
+            Projectile.penetrate = 2;
+            Projectile.timeLeft = 180;
             Projectile.tileCollide = true;
+            Projectile.extraUpdates = 2;
         }
         
         public override void AI()
         {
-            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
+            Projectile.rotation = Projectile.velocity.ToRotation();
             
-            // Dark prismatic void smoke trail
+            // Store positions for fate trail
+            if (Main.GameUpdateCount % 5 == 0)
+            {
+                trailPositions.Add(Projectile.Center);
+                if (trailPositions.Count > 30)
+                    trailPositions.RemoveAt(0);
+            }
+            
+            // Each timeline has distinct color
+            float colorOffset = TimelineIndex / 5f;
+            Color bulletColor = FateLensFlare.GetFateGradient((colorOffset + Main.GameUpdateCount * 0.01f) % 1f);
+            
+            // Chromatic trail particles
             if (Main.rand.NextBool(2))
             {
-                var smoke = new HeavySmokeParticle(
-                    Projectile.Center + Main.rand.NextVector2Circular(5f, 5f),
-                    -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f),
-                    FateBlack, Main.rand.Next(35, 55), 0.45f, 0.55f, 0.018f, false);
-                MagnumParticleHandler.SpawnParticle(smoke);
+                var trail = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f,
+                    bulletColor * 0.7f, 0.2f, 12, true);
+                MagnumParticleHandler.SpawnParticle(trail);
+                
+                // RGB split
+                CustomParticles.GenericFlare(Projectile.Center + new Vector2(-2, 0), Color.Red * 0.3f, 0.1f, 6);
+                CustomParticles.GenericFlare(Projectile.Center + new Vector2(2, 0), FateLensFlare.FateCyan * 0.3f, 0.1f, 6);
             }
             
-            // Dark prismatic glow trail
-            if (Main.rand.NextBool(2))
+            // Periodic mini lens flare
+            if (Main.GameUpdateCount % 10 == TimelineIndex * 2)
+                FateLensFlareDrawLayer.AddFlare(Projectile.Center, 0.25f, 0.3f, 8);
+            
+            Lighting.AddLight(Projectile.Center, bulletColor.ToVector3() * 0.4f);
+        }
+        
+        public override bool PreDraw(ref Color lightColor)
+        {
+            SpriteBatch sb = Main.spriteBatch;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            
+            float colorOffset = TimelineIndex / 5f;
+            Color bulletColor = FateLensFlare.GetFateGradient((colorOffset + Main.GameUpdateCount * 0.01f) % 1f);
+            
+            // Draw trail
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
-                float progress = Main.rand.NextFloat();
-                Color trailColor = GetFateGradient(progress);
-                var glow = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.12f, trailColor * 0.75f, 0.4f, 18, true);
-                MagnumParticleHandler.SpawnParticle(glow);
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                
+                float trailProgress = (float)i / Projectile.oldPos.Length;
+                float trailAlpha = 1f - trailProgress;
+                Color trailColor = FateLensFlare.GetFateGradient((colorOffset + trailProgress) % 1f) * trailAlpha * 0.4f;
+                
+                sb.Draw(glow, Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition, null, trailColor,
+                    Projectile.oldRot[i], glow.Size() / 2f, new Vector2(0.6f - trailProgress * 0.3f, 0.2f), SpriteEffects.None, 0f);
             }
             
-            // Reality-tearing chromatic aberration trail
-            if (Main.rand.NextBool(2))
-            {
-                Vector2 trailPos = Projectile.Center - Projectile.velocity * 0.15f;
-                CustomParticles.GenericFlare(trailPos + new Vector2(-3, 0), Color.Red * 0.4f, 0.18f, 10);
-                CustomParticles.GenericFlare(trailPos + new Vector2(3, 0), Color.Cyan * 0.4f, 0.18f, 10);
-            }
+            // Main bullet
+            sb.Draw(glow, Projectile.Center - Main.screenPosition, null, bulletColor * 0.7f,
+                Projectile.rotation, glow.Size() / 2f, new Vector2(0.8f, 0.35f), SpriteEffects.None, 0f);
+            sb.Draw(glow, Projectile.Center - Main.screenPosition, null, Color.White * 0.5f,
+                Projectile.rotation, glow.Size() / 2f, new Vector2(0.5f, 0.15f), SpriteEffects.None, 0f);
             
-            // Temporal afterimage echoes
-            if (Main.GameUpdateCount % 3 == 0)
-            {
-                float echoProgress = (Main.GameUpdateCount % 12) / 12f;
-                Color echoColor = GetFateGradient(echoProgress) * 0.35f;
-                CustomParticles.GenericFlare(Projectile.Center - Projectile.velocity * 0.3f, echoColor, 0.25f, 8);
-            }
-            
-            if (Projectile.timeLeft % 4 == 0)
-            {
-                CustomParticles.GenericFlare(Projectile.Center, FateBrightRed * 0.8f, 0.45f, 12);
-            }
-            
-            // Destiny glyph trail on rocket
-            if (Main.rand.NextBool(5))
-            {
-                CustomParticles.GlyphTrail(Projectile.Center, Projectile.velocity, FateDarkPink * 0.75f, 0.38f);
-            }
-            
-            Lighting.AddLight(Projectile.Center, FateBrightRed.ToVector3() * 0.55f);
+            return false;
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 300);
-            target.GetGlobalNPC<DestinyCollapseNPC>().AddStack(target, 4);
+            target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 240);
             
-            // === UNIFIED VFX HIT EFFECT - FATE THEME (heavy for rocket) ===
-            UnifiedVFX.Fate.HitEffect(target.Center, 1.5f);
-            
-            // Dark prismatic impact flash
-            CustomParticles.GenericFlare(target.Center, FateBlack, 0.6f, 14);
-            CustomParticles.GenericFlare(target.Center, FateBrightRed, 0.5f, 12);
-            CustomParticles.GlyphImpact(target.Center, FateBlack, FateBrightRed, 0.55f);
-            
-            // === CHROMATIC ABERRATION ===
-            CustomParticles.GenericFlare(target.Center + new Vector2(-3, 0), FateBrightRed * 0.4f, 0.3f, 12);
-            CustomParticles.GenericFlare(target.Center + new Vector2(3, 0), FatePurple * 0.4f, 0.3f, 12);
-            
-            // === GLYPH FORMATIONS ===
-            CustomParticles.GlyphCircle(target.Center, FateDarkPink, 5, 40f, 0.08f);
-            
-            // === TEMPORAL ECHO AFTERIMAGES ===
-            for (int echo = 0; echo < 4; echo++)
-            {
-                Vector2 echoPos = target.Center + new Vector2(0, -echo * 10f);
-                float echoAlpha = 1f - echo * 0.2f;
-                CustomParticles.GenericFlare(echoPos, GetFateGradient((float)echo / 4f) * echoAlpha * 0.5f, 0.4f, 15);
-            }
-            
-            // === COSMIC MUSIC NOTES ===
-            ThemedParticles.FateMusicNoteBurst(target.Center, 10, 6f);
-            ThemedParticles.FateMusicNotes(target.Center, 4, 30f);
-            
-            // Cosmic Revisit - powerful rocket revisit
-            int revisitDamage = (int)(damageDone * 0.35f);
-            target.GetGlobalNPC<DestinyCollapseNPC>().QueueCosmicRevisit(target, revisitDamage, 20, Projectile.Center, 1.0f);
-            
-            Lighting.AddLight(target.Center, FateBrightRed.ToVector3() * 0.9f);
+            FateLensFlareDrawLayer.AddFlare(target.Center, 0.6f, 0.5f, 18);
+            FateLensFlare.KaleidoscopeBurst(target.Center, 0.5f, 4);
         }
         
         public override void OnKill(int timeLeft)
         {
-            TriggerCataclysmicCollapse(Projectile.Center);
+            // Spawn fate trail (persistent damage line)
+            if (trailPositions.Count >= 2)
+            {
+                Player owner = Main.player[Projectile.owner];
+                Projectile.NewProjectile(Projectile.GetSource_Death(), Projectile.Center, Vector2.Zero,
+                    ModContent.ProjectileType<FateTrailLine>(), Projectile.damage / 3, 0f, Projectile.owner,
+                    trailPositions[0].X, trailPositions[0].Y);
+            }
+            
+            FateLensFlare.KaleidoscopeBurst(Projectile.Center, 0.4f, 3);
+        }
+    }
+    
+    public class FateTrailLine : ModProjectile
+    {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
+        private const int TrailDuration = 60;
+        private Vector2 StartPoint => new Vector2(Projectile.ai[0], Projectile.ai[1]);
+        
+        public override void SetDefaults()
+        {
+            Projectile.width = 10;
+            Projectile.height = 10;
+            Projectile.friendly = true;
+            Projectile.DamageType = DamageClass.Ranged;
+            Projectile.penetrate = -1;
+            Projectile.timeLeft = TrailDuration;
+            Projectile.tileCollide = false;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 20;
         }
         
-        private void TriggerCataclysmicCollapse(Vector2 position)
+        public override void AI()
         {
-            SoundEngine.PlaySound(SoundID.Item14 with { Pitch = -0.5f, Volume = 1.4f }, position);
-            SoundEngine.PlaySound(SoundID.Item162 with { Pitch = 0.3f, Volume = 1.1f }, position);
+            float progress = 1f - (float)Projectile.timeLeft / TrailDuration;
+            float intensity = (float)Math.Sin(progress * MathHelper.Pi);
             
-            float explosionRadius = 280f;
+            Vector2 lineDir = (Projectile.Center - StartPoint).SafeNormalize(Vector2.UnitX);
+            float lineLength = Vector2.Distance(StartPoint, Projectile.Center);
             
-            // PHASE 1: Central void flash - dark prismatic core
-            CustomParticles.GenericFlare(position, FateBlack, 2.5f, 35);
-            CustomParticles.GenericFlare(position, FateBrightRed, 2.0f, 30);
-            CustomParticles.GenericFlare(position, FateWhite, 1.5f, 25);
-            
-            // PHASE 2: Multi-layered reality shatter halo rings
-            for (int ring = 0; ring < 12; ring++)
+            // Trail line particles
+            if (Main.rand.NextBool(2))
             {
-                float ringProgress = ring / 12f;
-                Color ringColor = GetFateGradient(ringProgress);
-                float scale = 0.35f + ring * 0.38f;
-                int lifetime = 22 + ring * 5;
-                CustomParticles.HaloRing(position, ringColor, scale, lifetime);
+                float along = Main.rand.NextFloat();
+                Vector2 particlePos = Vector2.Lerp(StartPoint, Projectile.Center, along);
+                Color trailColor = FateLensFlare.GetFateGradient(along) * intensity * 0.5f;
+                CustomParticles.GenericFlare(particlePos, trailColor, 0.15f, 8);
             }
             
-            // PHASE 3: MASSIVE chromatic aberration reality shatter burst - 6 layers
-            for (int layer = 0; layer < 6; layer++)
-            {
-                int points = 10 + layer * 5;
-                float radius = 40f + layer * 50f;
-                
-                for (int i = 0; i < points; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / points + layer * 0.18f;
-                    Vector2 offset = angle.ToRotationVector2() * radius;
-                    float gradientProgress = ((float)i / points + layer * 0.15f) % 1f;
-                    Color burstColor = GetFateGradient(gradientProgress);
-                    float flareScale = 0.9f - layer * 0.1f;
-                    
-                    // Core particle
-                    CustomParticles.GenericFlare(position + offset, burstColor, flareScale, 28);
-                    
-                    // Chromatic aberration on each point
-                    if (i % 2 == 0)
-                    {
-                        CustomParticles.GenericFlare(position + offset + new Vector2(-5, 0), Color.Red * 0.5f, flareScale * 0.7f, 22);
-                        CustomParticles.GenericFlare(position + offset + new Vector2(5, 0), Color.Cyan * 0.5f, flareScale * 0.7f, 22);
-                    }
-                }
-            }
+            Lighting.AddLight(Vector2.Lerp(StartPoint, Projectile.Center, 0.5f), FateLensFlare.FateDarkPink.ToVector3() * intensity * 0.3f);
+        }
+        
+        public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
+        {
+            // Line collision
+            float point = 0f;
+            return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), StartPoint, Projectile.Center, 15f, ref point);
+        }
+        
+        public override bool PreDraw(ref Color lightColor)
+        {
+            SpriteBatch sb = Main.spriteBatch;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
             
-            // PHASE 4: MASSIVE chromatic aberration shockwave ring
-            for (int i = 0; i < 32; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 32f;
-                Vector2 baseOffset = angle.ToRotationVector2() * 90f;
-                
-                // RGB separation creating chromatic shockwave
-                CustomParticles.GenericFlare(position + baseOffset + new Vector2(-6, 0), Color.Red * 0.55f, 0.55f, 22);
-                CustomParticles.GenericFlare(position + baseOffset, FateBlack * 0.7f, 0.55f, 22);
-                CustomParticles.GenericFlare(position + baseOffset + new Vector2(6, 0), Color.Cyan * 0.55f, 0.55f, 22);
-            }
+            float progress = 1f - (float)Projectile.timeLeft / TrailDuration;
+            float intensity = (float)Math.Sin(progress * MathHelper.Pi);
             
-            // PHASE 5: Radial particle explosion with dark prismatic gradient
-            for (int i = 0; i < 60; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 60f;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(14f, 26f);
-                Color burstColor = GetFateGradient((float)i / 60f);
-                
-                var glow = new GenericGlowParticle(position, vel, burstColor, 
-                    Main.rand.NextFloat(0.55f, 1.0f), Main.rand.Next(45, 70), true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
+            Vector2 lineDir = (Projectile.Center - StartPoint).SafeNormalize(Vector2.UnitX);
+            float lineLength = Vector2.Distance(StartPoint, Projectile.Center);
+            Vector2 midpoint = (StartPoint + Projectile.Center) / 2f;
             
-            // PHASE 6: Heavy void smoke cloud - dark emphasis
-            for (int i = 0; i < 35; i++)
-            {
-                Vector2 smokePos = position + Main.rand.NextVector2Circular(60f, 60f);
-                Vector2 smokeVel = Main.rand.NextVector2Circular(7f, 7f) + new Vector2(0, -2.5f);
-                var smoke = new HeavySmokeParticle(smokePos, smokeVel, FateBlack, 
-                    Main.rand.Next(80, 130), Main.rand.NextFloat(1.0f, 1.6f), 0.65f, 0.01f, false);
-                MagnumParticleHandler.SpawnParticle(smoke);
-            }
+            // Draw line as stretched glow
+            float rotation = lineDir.ToRotation();
+            float scaleX = lineLength / glow.Width;
             
-            // PHASE 7: COSMIC glyph reality shatter - ultimate destiny explosion
-            CustomParticles.GlyphCircle(position, FateBrightRed, 16, 120f, 0.05f);
-            CustomParticles.GlyphBurst(position, FateDarkPink, 20, 10f);
-            CustomParticles.GlyphTower(position, FatePurple, 8, 0.7f);
+            sb.Draw(glow, midpoint - Main.screenPosition, null, FateLensFlare.FateDarkPink * 0.4f * intensity,
+                rotation, glow.Size() / 2f, new Vector2(scaleX, 0.08f), SpriteEffects.None, 0f);
+            sb.Draw(glow, midpoint - Main.screenPosition, null, FateLensFlare.FateBrightRed * 0.3f * intensity,
+                rotation, glow.Size() / 2f, new Vector2(scaleX, 0.04f), SpriteEffects.None, 0f);
             
-            // Extra glyph ring at outer edge
-            CustomParticles.GlyphCircle(position, FateWhite * 0.8f, 10, 180f, -0.03f);
-            
-            // CATACLYSMIC COLLAPSE - Maximum cosmic music note explosion!
-            ThemedParticles.FateMusicNoteBurst(position, 18, 10f);
-            ThemedParticles.FateMusicNotes(position, 14, 70f);
-            
-            // Damage and debuff enemies with enhanced stacking
-            foreach (NPC npc in Main.ActiveNPCs)
-            {
-                if (!npc.friendly)
-                {
-                    float dist = Vector2.Distance(npc.Center, position);
-                    if (dist <= explosionRadius)
-                    {
-                        float falloff = 1f - (dist / explosionRadius) * 0.25f;
-                        int damage = (int)(Projectile.damage * 2.5f * falloff);
-                        npc.SimpleStrikeNPC(damage, 0, true, 14f);
-                        
-                        int stacks = dist < explosionRadius * 0.25f ? 6 : (dist < explosionRadius * 0.5f ? 4 : 3);
-                        npc.AddBuff(ModContent.BuffType<DestinyCollapse>(), 300);
-                        npc.GetGlobalNPC<DestinyCollapseNPC>().AddStack(npc, stacks);
-                        
-                        // Hit flash on each enemy
-                        CustomParticles.GenericFlare(npc.Center, FateBrightRed, 0.55f, 16);
-                        CustomParticles.GlyphImpact(npc.Center, FateDarkPink, FateBrightRed, 0.45f);
-                    }
-                }
-            }
+            return false;
+        }
+        
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 120);
         }
     }
 }

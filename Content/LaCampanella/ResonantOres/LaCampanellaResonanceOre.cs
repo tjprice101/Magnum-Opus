@@ -10,10 +10,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantOres
     /// </summary>
     public class LaCampanellaResonanceOre : ModItem
     {
-        // Fallback to vanilla ore texture if custom texture fails to load
-        public override string Texture => ModContent.HasAsset("MagnumOpus/Content/LaCampanella/ResonantOres/LaCampanellaResonanceOre") 
-            ? "MagnumOpus/Content/LaCampanella/ResonantOres/LaCampanellaResonanceOre" 
-            : "Terraria/Images/Item_" + ItemID.Hellstone;
+        // Uses LaCampanellaResonanceOre.png
 
         public override void SetStaticDefaults()
         {

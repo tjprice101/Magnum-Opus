@@ -258,6 +258,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             else
                 target.AddBuff(BuffID.Frostburn, 180);
             
+            // === CONTRADICTION REALITY WARP ===
+            FateRealityDistortion.TriggerChromaticAberration(target.Center, 3.5f, 12);
+            
             // === NEW UNIFIED VFX HIT EFFECT ===
             UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 1.2f);
             
@@ -297,6 +300,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
+            // === CONTRADICTION COLLAPSE REALITY WARP ===
+            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 4f, 15);
+            
             Color myColor = IsFire ? FireColor : IceColor;
             
             // Elemental explosion
@@ -310,6 +316,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             }
             
             CustomParticles.HaloRing(Projectile.Center, EnigmaPurple, 0.5f, 15);
+            
+            // === WATCHING EYE at death - the contradiction resolves ===
+            CustomParticles.EnigmaEyeGaze(Projectile.Center, EnigmaGreen * 0.7f, 0.4f, Projectile.velocity.SafeNormalize(Vector2.UnitX));
             
             // Elemental sparkle burst
             for (int i = 0; i < 4; i++)
@@ -414,6 +423,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             // Reality damage - bypass some defense
             target.AddBuff(BuffID.BrokenArmor, 300);
             
+            // === REALITY TEAR WARP (STRONGER) ===
+            FateRealityDistortion.TriggerChromaticAberration(target.Center, 5f, 18);
+            FateRealityDistortion.TriggerInversionPulse(6);
+            
             // === NEW UNIFIED VFX EXPLOSION ===
             UnifiedVFX.EnigmaVariations.Explosion(target.Center, 1.5f);
             
@@ -447,6 +460,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
+            // === REALITY TEAR COLLAPSE ===
+            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 5f, 18);
+            FateRealityDistortion.TriggerInversionPulse(6);
+            
             // Reality snap-back
             for (int ring = 0; ring < 4; ring++)
             {
@@ -466,6 +483,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             ThemedParticles.EnigmaMusicNotes(Projectile.Center, 4, 35f);
+            
+            // === WATCHING EYES scatter - reality snaps back ===
+            CustomParticles.EnigmaEyeExplosion(Projectile.Center, EnigmaPurple, 5, 3f);
             
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.3f, Volume = 0.7f }, Projectile.Center);
         }

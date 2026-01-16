@@ -1,5 +1,9 @@
 # MagnumOpus Copilot Instructions
 
+> **⚡ QUICK START**: For a condensed version of these instructions, see **[COPILOT_QUICK_REFERENCE.md](COPILOT_QUICK_REFERENCE.md)**.
+> 
+> This full document contains detailed examples and explanations. The quick reference is recommended for faster lookups.
+
 ---
 
 ## 🎵 THE HEART OF MAGNUM OPUS - DESIGN PHILOSOPHY

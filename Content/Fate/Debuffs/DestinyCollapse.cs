@@ -414,6 +414,18 @@ namespace MagnumOpus.Content.Fate.Debuffs
                     var glow = new GenericGlowParticle(particlePos, velocity, spiralColor, 0.4f, 20, true);
                     MagnumParticleHandler.SpawnParticle(glow);
                 }
+                
+                // === DARK COSMIC SMOKE - amorphous singularity energy ===
+                float smokeAngle = Main.rand.NextFloat(MathHelper.TwoPi);
+                float smokeRadius = Main.rand.NextFloat(30f, 80f) * (1f - chargeProgress * 0.5f);
+                Vector2 smokePos = center + smokeAngle.ToRotationVector2() * smokeRadius;
+                Vector2 smokeVel = (center - smokePos).SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(1f, 2f);
+                var smoke = new HeavySmokeParticle(
+                    smokePos,
+                    smokeVel,
+                    Color.Lerp(FateBlack, FatePurple, Main.rand.NextFloat(0.4f)),
+                    Main.rand.Next(35, 55), 0.4f * (0.5f + chargeProgress), 0.55f, 0.02f, false);
+                MagnumParticleHandler.SpawnParticle(smoke);
             }
             
             // Central buildup
@@ -500,6 +512,23 @@ namespace MagnumOpus.Content.Fate.Debuffs
                     Main.rand.NextFloat(0.5f, 0.9f), Main.rand.Next(35, 55), true);
                 MagnumParticleHandler.SpawnParticle(glow);
             }
+            
+            // === MASSIVE COSMIC SMOKE BURST - supernova aftermath ===
+            for (int i = 0; i < 16; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 16f;
+                Vector2 smokeVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f) + new Vector2(0, -1f);
+                var smoke = new HeavySmokeParticle(
+                    center + Main.rand.NextVector2Circular(20f, 20f),
+                    smokeVel,
+                    Color.Lerp(FateBlack, FatePurple, Main.rand.NextFloat(0.5f)),
+                    Main.rand.Next(50, 80), 0.6f, 0.8f, 0.012f, false);
+                MagnumParticleHandler.SpawnParticle(smoke);
+            }
+            
+            // Glyph explosion - cosmic runes scatter
+            CustomParticles.GlyphBurst(center, FateDarkPink, 12, 8f);
+            CustomParticles.GlyphCircle(center, FateBrightRed, 10, 80f, 0.06f);
             
             // Chromatic aberration burst (reality tear effect)
             for (int i = 0; i < 12; i++)

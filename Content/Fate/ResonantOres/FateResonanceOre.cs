@@ -10,10 +10,7 @@ namespace MagnumOpus.Content.Fate.ResonantOres
     /// </summary>
     public class FateResonanceOre : ModItem
     {
-        // Fallback to vanilla ore texture if custom texture fails to load
-        public override string Texture => ModContent.HasAsset("MagnumOpus/Content/Fate/ResonantOres/FateResonanceOre") 
-            ? "MagnumOpus/Content/Fate/ResonantOres/FateResonanceOre" 
-            : "Terraria/Images/Item_" + ItemID.CrimtaneOre;
+        // Uses FateResonanceOre.png
 
         public override void SetStaticDefaults()
         {

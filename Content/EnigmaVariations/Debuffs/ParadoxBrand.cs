@@ -199,6 +199,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Debuffs
                 MagnumParticleHandler.SpawnParticle(smoke);
             }
             
+            // === WATCHING EYES - The paradox observes its destruction ===
+            CustomParticles.EnigmaEyeExplosion(npc.Center, EnigmaPurple, 6, 4f);
+            CustomParticles.EnigmaEyeFormation(npc.Center, EnigmaGreen, 4, 60f);
+            
             // Spread to nearby enemies
             float spreadRadius = 200f;
             foreach (NPC other in Main.npc)

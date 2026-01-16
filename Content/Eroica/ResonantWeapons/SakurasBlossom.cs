@@ -21,26 +21,6 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
     /// </summary>
     public class SakurasBlossom : ModItem
     {
-        // Charged melee attack config
-        private ChargedMeleeConfig chargedConfig;
-        
-        private ChargedMeleeConfig GetChargedConfig()
-        {
-            if (chargedConfig == null)
-            {
-                chargedConfig = new ChargedMeleeConfig
-                {
-                    PrimaryColor = UnifiedVFX.Eroica.Gold, // Gold and red theme
-                    SecondaryColor = UnifiedVFX.Eroica.Scarlet,
-                    ChargeTime = 50f,
-                    SpawnThemeMusicNotes = (pos, count, radius) => ThemedParticles.EroicaMusicNotes(pos, count, radius),
-                    SpawnThemeExplosion = (pos, scale) => UnifiedVFX.Eroica.Explosion(pos, scale),
-                    DrawThemeLightning = (start, end) => MagnumVFX.DrawSakuraLightning(start, end, 10, 30f, 4, 0.4f)
-                };
-            }
-            return chargedConfig;
-        }
-        
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 1;
@@ -68,21 +48,6 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void HoldItem(Player player)
         {
-            // === CHARGED MELEE ATTACK SYSTEM ===
-            var chargedPlayer = player.GetModPlayer<ChargedMeleePlayer>();
-            
-            // Start charging on right-click
-            if (Main.mouseRight && !chargedPlayer.IsCharging && !chargedPlayer.IsReleasing)
-            {
-                chargedPlayer.TryStartCharging(Item, GetChargedConfig());
-            }
-            
-            // Update charging state
-            if (chargedPlayer.IsCharging || chargedPlayer.IsReleasing)
-            {
-                chargedPlayer.UpdateCharging(Main.mouseRight);
-            }
-            
             // === UnifiedVFX EROICA AMBIENT AURA ===
             UnifiedVFX.Eroica.Aura(player.Center, 32f, 0.3f);
             

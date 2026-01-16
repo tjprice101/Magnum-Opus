@@ -329,7 +329,7 @@ namespace MagnumOpus.Content.SwanLake.Items
             
             // Black/white lightning with massive AOE
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 0.8f }, Player.Center);
-            EroicaScreenShake.SmallShake(Player.Center);
+            // Screen shake removed from weapons - reserved for bosses only
 
             // Find enemies for tracking - hit up to 8 enemies!
             List<NPC> targets = FindNearbyEnemies(800f, 8);
@@ -714,8 +714,7 @@ namespace MagnumOpus.Content.SwanLake.Items
 
             SoundEngine.PlaySound(SoundID.Item10 with { Pitch = 0.5f, Volume = 0.5f }, Projectile.Center);
             
-            // Screen shake on impact
-            EroicaScreenShake.SmallShake(Projectile.Center);
+            // Screen shake removed from weapons - reserved for bosses only
         }
 
         public override bool PreDraw(ref Color lightColor)

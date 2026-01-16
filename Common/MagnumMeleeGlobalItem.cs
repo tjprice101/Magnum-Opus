@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
@@ -10,11 +11,9 @@ using MagnumOpus.Common.Systems.Particles;
 namespace MagnumOpus.Common
 {
     /// <summary>
-    /// GlobalItem that applies the unique MagnumOpus swing pattern to all mod melee weapons.
-    /// Pattern: Swing Down → Swing Up → 360° Spin with Particle Burst
-    /// 
-    /// This automatically detects the weapon's theme (based on rarity or namespace) and applies
-    /// the appropriate themed swing config.
+    /// GlobalItem that applies the MagnumOpus full rotation swing to all mod melee weapons.
+    /// Every swing is a full 360° rotation with a large themed particle trail.
+    /// The weapon sprite itself rotates around the player.
     /// </summary>
     public class MagnumMeleeGlobalItem : GlobalItem
     {
@@ -41,6 +40,23 @@ namespace MagnumOpus.Common
             
             // Skip tools
             if (item.pick > 0 || item.axe > 0 || item.hammer > 0)
+                return false;
+            
+            // Skip projectile-based melee weapons (they use held projectiles for animations)
+            // These weapons have their own custom swing systems
+            if (item.noMelee)
+                return false;
+            
+            return true;
+        }
+        
+        /// <summary>
+        /// AppliesToEntity - ensures the GlobalItem only applies to relevant items.
+        /// </summary>
+        public override bool AppliesToEntity(Item entity, bool lateInstantiation)
+        {
+            // Only apply to potential melee swing weapons
+            if (entity.ModItem == null || entity.ModItem.Mod.Name != "MagnumOpus")
                 return false;
             
             return true;
@@ -101,57 +117,6 @@ namespace MagnumOpus.Common
             return MagnumSwingConfigs.SwanLake;
         }
         
-        public override bool? UseItem(Item item, Player player)
-        {
-            if (!ShouldUseMagnumSwing(item))
-                return base.UseItem(item, player);
-            
-            var meleePlayer = player.GetModPlayer<MagnumMeleePlayer>();
-            
-            // If we're at the start of a swing (player.itemAnimation just started)
-            if (player.itemAnimation == player.itemAnimationMax - 1)
-            {
-                // Start the MagnumOpus swing pattern
-                MagnumSwingConfig config = GetSwingConfig(item);
-                meleePlayer.StartSwing(item, config, player.itemAnimationMax);
-            }
-            
-            return base.UseItem(item, player);
-        }
-        
-        public override void UseItemFrame(Item item, Player player)
-        {
-            if (!ShouldUseMagnumSwing(item))
-            {
-                base.UseItemFrame(item, player);
-                return;
-            }
-            
-            var meleePlayer = player.GetModPlayer<MagnumMeleePlayer>();
-            
-            // Update the swing visual effects
-            if (meleePlayer.IsSwinging)
-            {
-                meleePlayer.UpdateSwing();
-                
-                // Modify player arm rotation based on our swing angle
-                float swingAngle = meleePlayer.GetCurrentSwingAngle();
-                
-                // Convert swing angle to arm composite rotation
-                // This creates the custom swing animation
-                float armAngle = swingAngle;
-                if (player.direction == -1)
-                {
-                    armAngle = MathHelper.Pi - armAngle;
-                }
-                
-                // Apply custom rotation to player composite arms
-                player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, armAngle - MathHelper.PiOver2);
-            }
-            
-            base.UseItemFrame(item, player);
-        }
-        
         public override void HoldItem(Item item, Player player)
         {
             if (!ShouldUseMagnumSwing(item))
@@ -161,25 +126,90 @@ namespace MagnumOpus.Common
             }
             
             var meleePlayer = player.GetModPlayer<MagnumMeleePlayer>();
+            MagnumSwingConfig config = GetSwingConfig(item);
             
-            // Continue updating swing if in progress
-            if (meleePlayer.IsSwinging && player.itemAnimation > 0)
-            {
-                meleePlayer.UpdateSwing();
-            }
-            
-            // Add subtle ambient particles while holding to indicate combo state
-            if (meleePlayer.GetSwingDirection() > 0 && Main.rand.NextBool(30))
-            {
-                // Show visual feedback that we're in a combo
-                MagnumSwingConfig config = GetSwingConfig(item);
-                Color comboColor = Color.Lerp(config.PrimaryColor, config.SecondaryColor, Main.rand.NextFloat());
-                
-                Vector2 particlePos = player.Center + Main.rand.NextVector2Circular(20f, 30f);
-                CustomParticles.GenericFlare(particlePos, comboColor * 0.5f, 0.2f, 12);
-            }
+            // Tell the ModPlayer which config to use for this weapon
+            meleePlayer.SetHeldWeaponConfig(item, config);
             
             base.HoldItem(item, player);
+        }
+        
+        /// <summary>
+        /// Override the weapon's rotation during swing to make it do a full 360° rotation.
+        /// This is called every frame when the player is using the item.
+        /// </summary>
+        public override void UseStyle(Item item, Player player, Rectangle heldItemFrame)
+        {
+            if (!ShouldUseMagnumSwing(item))
+            {
+                base.UseStyle(item, player, heldItemFrame);
+                return;
+            }
+            
+            var meleePlayer = player.GetModPlayer<MagnumMeleePlayer>();
+            
+            if (meleePlayer.IsSwinging)
+            {
+                // Get the current swing angle from our system
+                float swingAngle = meleePlayer.GetCurrentSwingAngle();
+                
+                // Set the item's rotation to match our swing angle
+                // Add Pi/4 (45 degrees) offset because sword sprites are usually diagonal
+                player.itemRotation = swingAngle + MathHelper.PiOver4 * player.direction;
+                
+                // Flip the sprite based on the current angle to look correct during full rotation
+                // When the weapon is on the left side of the player, flip it
+                float normalizedAngle = MathHelper.WrapAngle(swingAngle);
+                bool shouldFlip = normalizedAngle > MathHelper.PiOver2 || normalizedAngle < -MathHelper.PiOver2;
+                
+                // Adjust item location to orbit around the player
+                float weaponLength = Math.Max(item.width, item.height) * 0.6f;
+                Vector2 offset = swingAngle.ToRotationVector2() * weaponLength;
+                
+                // Position the item relative to the player's hand position
+                player.itemLocation = player.Center + offset;
+                
+                // Set the arm to follow the weapon
+                float armRotation = swingAngle - MathHelper.PiOver2;
+                player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, armRotation);
+            }
+            
+            base.UseStyle(item, player, heldItemFrame);
+        }
+        
+        /// <summary>
+        /// Modify the hitbox to follow the weapon's rotation around the player.
+        /// </summary>
+        public override void UseItemHitbox(Item item, Player player, ref Rectangle hitbox, ref bool noHitbox)
+        {
+            if (!ShouldUseMagnumSwing(item))
+            {
+                base.UseItemHitbox(item, player, ref hitbox, ref noHitbox);
+                return;
+            }
+            
+            var meleePlayer = player.GetModPlayer<MagnumMeleePlayer>();
+            
+            if (meleePlayer.IsSwinging)
+            {
+                // Get the current swing angle
+                float swingAngle = meleePlayer.GetCurrentSwingAngle();
+                
+                // Calculate hitbox position based on swing angle
+                float weaponLength = Math.Max(item.width, item.height) * 1.2f;
+                Vector2 tipPos = player.Center + swingAngle.ToRotationVector2() * weaponLength;
+                
+                // Create a hitbox around the weapon tip area
+                int hitboxSize = (int)(Math.Max(item.width, item.height) * 0.8f);
+                hitbox = new Rectangle(
+                    (int)(tipPos.X - hitboxSize / 2),
+                    (int)(tipPos.Y - hitboxSize / 2),
+                    hitboxSize,
+                    hitboxSize
+                );
+            }
+            
+            base.UseItemHitbox(item, player, ref hitbox, ref noHitbox);
         }
         
         public override void ModifyTooltips(Item item, List<TooltipLine> tooltips)
@@ -195,7 +225,7 @@ namespace MagnumOpus.Common
             if (insertIndex > 0)
             {
                 var config = GetSwingConfig(item);
-                var swingTip = new TooltipLine(Mod, "MagnumSwing", "Unique 3-swing combo: Down → Up → 360° Burst")
+                var swingTip = new TooltipLine(Mod, "MagnumSwing", "Full rotation swing with particle trail")
                 {
                     OverrideColor = Color.Lerp(Color.White, config.PrimaryColor, 0.5f)
                 };

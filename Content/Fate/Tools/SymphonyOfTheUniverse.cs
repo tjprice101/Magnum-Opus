@@ -89,6 +89,17 @@ namespace MagnumOpus.Content.Fate.Tools
                         ThemedParticles.FateDarkPink, 0.3f, -1);
                 }
                 
+                // === DARK COSMIC SMOKE - amorphous reality distortion ===
+                if (Main.rand.NextBool(3))
+                {
+                    var smoke = new HeavySmokeParticle(
+                        player.Center + Main.rand.NextVector2Circular(25f, 20f),
+                        new Vector2(player.velocity.X * -0.1f, Main.rand.NextFloat(-0.5f, 0.5f)),
+                        Color.Lerp(ThemedParticles.FateBlack, ThemedParticles.FatePurple, Main.rand.NextFloat(0.4f)),
+                        Main.rand.Next(35, 55), 0.35f, 0.5f, 0.02f, false);
+                    MagnumParticleHandler.SpawnParticle(smoke);
+                }
+                
                 // Temporal afterimage echoes
                 if (Main.rand.NextBool(8))
                 {
@@ -164,6 +175,17 @@ namespace MagnumOpus.Content.Fate.Tools
                 
                 // Cosmic reality-bending trail
                 ThemedParticles.FateTrail(Player.Center, Player.velocity);
+                
+                // === DARK COSMIC SMOKE - dodge reality tear ===
+                for (int s = 0; s < 2; s++)
+                {
+                    var smoke = new HeavySmokeParticle(
+                        Player.Center + Main.rand.NextVector2Circular(15f, 15f),
+                        -Player.velocity * 0.15f + Main.rand.NextVector2Circular(2f, 2f),
+                        Color.Lerp(ThemedParticles.FateBlack, ThemedParticles.FateDarkPink, Main.rand.NextFloat(0.35f)),
+                        Main.rand.Next(30, 50), 0.4f, 0.55f, 0.02f, false);
+                    MagnumParticleHandler.SpawnParticle(smoke);
+                }
                 
                 // Dark prismatic dust with chromatic separation
                 for (int i = 0; i < 3; i++)

@@ -30,8 +30,15 @@ namespace MagnumOpus.Common.Systems.Particles
 
         /// <summary>
         /// Maximum number of particles that can exist at once.
+        /// Increased from 500 to 3000 to support dense visual effects during boss fights.
         /// </summary>
-        public const int MaxParticles = 500;
+        public const int MaxParticles = 3000;
+        
+        /// <summary>
+        /// Distance threshold for culling particles outside the visible screen area.
+        /// Particles beyond this distance from the screen center won't render but still update.
+        /// </summary>
+        private const float CullDistance = 2500f;
 
         internal static void Load()
         {
@@ -190,6 +197,7 @@ namespace MagnumOpus.Common.Systems.Particles
 
         /// <summary>
         /// Draws all active particles with proper batching for performance.
+        /// Particles outside the visible screen area are culled for optimization.
         /// </summary>
         public static void DrawAllParticles(SpriteBatch sb)
         {
@@ -203,10 +211,19 @@ namespace MagnumOpus.Common.Systems.Particles
             Main.instance.GraphicsDevice.RasterizerState.ScissorTestEnable = true;
             Main.instance.GraphicsDevice.ScissorRectangle = new Rectangle(0, 0, Main.screenWidth, Main.screenHeight);
 
-            // Batch particles by blend mode
+            // Calculate screen bounds for culling
+            Vector2 screenCenter = Main.screenPosition + new Vector2(Main.screenWidth, Main.screenHeight) * 0.5f;
+            float cullDistSq = CullDistance * CullDistance;
+
+            // Batch particles by blend mode, culling off-screen particles
             foreach (Particle particle in particles)
             {
                 if (particle == null)
+                    continue;
+                
+                // Cull particles far outside the screen for performance
+                float distSq = Vector2.DistanceSquared(particle.Position, screenCenter);
+                if (distSq > cullDistSq && !particle.Important)
                     continue;
 
                 if (particle.UseAdditiveBlend)

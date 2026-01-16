@@ -24,26 +24,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
     /// </summary>
     public class IgnitionOfTheBell : ModItem
     {
-        // Charged melee attack config
-        private ChargedMeleeConfig chargedConfig;
-        
-        private ChargedMeleeConfig GetChargedConfig()
-        {
-            if (chargedConfig == null)
-            {
-                chargedConfig = new ChargedMeleeConfig
-                {
-                    PrimaryColor = UnifiedVFX.LaCampanella.Black,
-                    SecondaryColor = UnifiedVFX.LaCampanella.Orange,
-                    ChargeTime = 50f,
-                    SpawnThemeMusicNotes = (pos, count, radius) => ThemedParticles.LaCampanellaMusicNotes(pos, count, radius),
-                    SpawnThemeExplosion = (pos, scale) => UnifiedVFX.LaCampanella.Explosion(pos, scale),
-                    DrawThemeLightning = (start, end) => MagnumVFX.DrawLaCampanellaLightning(start, end, 10, 35f, 4, 0.45f)
-                };
-            }
-            return chargedConfig;
-        }
-        
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 1;
@@ -191,13 +171,27 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             
             // Halo rings on hit
             CustomParticles.HaloRing(target.Center, ThemedParticles.CampanellaOrange, 0.45f, 15);
-            CustomParticles.HaloRing(target.Center, ThemedParticles.CampanellaYellow, 0.3f, 12);
+            CustomParticles.HaloRing(target.Center, Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, 0.5f), 0.35f, 13);
+            CustomParticles.HaloRing(target.Center, ThemedParticles.CampanellaBlack, 0.25f, 10);
             
-            // Flares around impact
+            // Flares around impact with BLACK → ORANGE gradient
             for (int i = 0; i < 4; i++)
             {
-                Color flareColor = Main.rand.NextBool() ? ThemedParticles.CampanellaOrange : ThemedParticles.CampanellaGold;
+                float progress = (float)i / 4f;
+                Color flareColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, progress);
                 CustomParticles.GenericFlare(target.Center + Main.rand.NextVector2Circular(20f, 20f), flareColor, 0.35f, 12);
+            }
+            
+            // === GLYPH IMPACT - ARCANE RESONANCE ===
+            if (CustomParticleSystem.TexturesLoaded)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    float glyphAngle = MathHelper.TwoPi * i / 4f + Main.GameUpdateCount * 0.05f;
+                    Vector2 glyphPos = target.Center + glyphAngle.ToRotationVector2() * 28f;
+                    Color glyphColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, (float)i / 4f) * 0.65f;
+                    CustomParticles.Glyph(glyphPos, glyphColor, 0.24f, -1);
+                }
             }
             
             // Screen shake on hit
@@ -209,21 +203,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void HoldItem(Player player)
         {
-            // === CHARGED MELEE ATTACK SYSTEM ===
-            var chargedPlayer = player.GetModPlayer<ChargedMeleePlayer>();
-            
-            // Start charging on right-click
-            if (Main.mouseRight && !chargedPlayer.IsCharging && !chargedPlayer.IsReleasing)
-            {
-                chargedPlayer.TryStartCharging(Item, GetChargedConfig());
-            }
-            
-            // Update charging state
-            if (chargedPlayer.IsCharging || chargedPlayer.IsReleasing)
-            {
-                chargedPlayer.UpdateCharging(Main.mouseRight);
-            }
-            
             // === UnifiedVFX LA CAMPANELLA AURA ===
             UnifiedVFX.LaCampanella.Aura(player.Center, 30f, 0.3f);
             
@@ -254,7 +233,22 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            spriteBatch.Draw(texture, position, null, new Color(255, 100, 0) * 0.4f, rotation, origin, scale * pulse * 1.25f, SpriteEffects.None, 0f);
+            // === ORBITING GLYPHS AROUND WEAPON ===
+            if (CustomParticleSystem.TexturesLoaded)
+            {
+                Texture2D glyphTex = CustomParticleSystem.RandomGlyph().Value;
+                for (int i = 0; i < 4; i++)
+                {
+                    float glyphAngle = Main.GameUpdateCount * 0.04f + MathHelper.TwoPi * i / 4f;
+                    Vector2 glyphPos = position + glyphAngle.ToRotationVector2() * 18f;
+                    Color glyphColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, (float)i / 4f) * 0.6f;
+                    spriteBatch.Draw(glyphTex, glyphPos, null, glyphColor, glyphAngle * 2f, glyphTex.Size() / 2f, 0.18f * pulse, SpriteEffects.None, 0f);
+                }
+            }
+            
+            // Black → Orange gradient glow layers
+            spriteBatch.Draw(texture, position, null, ThemedParticles.CampanellaOrange * 0.4f, rotation, origin, scale * pulse * 1.25f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, position, null, Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, 0.4f) * 0.3f, rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
             
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
@@ -402,19 +396,31 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             ThemedParticles.LaCampanellaBloomBurst(target.Center, 0.8f);
             ThemedParticles.LaCampanellaMusicNotes(target.Center, 6, 30f);
             
-            // Triple cascading halo rings on hit
-            CustomParticles.HaloRing(target.Center, ThemedParticles.CampanellaYellow, 0.6f, 20);
-            CustomParticles.HaloRing(target.Center, ThemedParticles.CampanellaOrange, 0.45f, 16);
-            CustomParticles.HaloRing(target.Center, ThemedParticles.CampanellaGold, 0.3f, 12);
+            // Triple cascading halo rings on hit with BLACK → ORANGE
+            CustomParticles.HaloRing(target.Center, ThemedParticles.CampanellaOrange, 0.6f, 20);
+            CustomParticles.HaloRing(target.Center, Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, 0.6f), 0.45f, 16);
+            CustomParticles.HaloRing(target.Center, ThemedParticles.CampanellaBlack, 0.3f, 12);
             
-            // === SIGNATURE FRACTAL FLARE BURST ===
+            // === SIGNATURE FRACTAL FLARE BURST - BLACK → ORANGE ===
             for (int i = 0; i < 6; i++)
             {
                 float angle = MathHelper.TwoPi * i / 6f;
                 Vector2 flareOffset = angle.ToRotationVector2() * 30f;
                 float progress = (float)i / 6f;
-                Color fractalColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaGold, progress);
+                Color fractalColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, progress);
                 CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.45f, 18);
+            }
+            
+            // === GLYPH IMPACT - ARCANE THRUST ===
+            if (CustomParticleSystem.TexturesLoaded)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    float glyphAngle = MathHelper.TwoPi * i / 5f + Main.GameUpdateCount * 0.04f;
+                    Vector2 glyphPos = target.Center + glyphAngle.ToRotationVector2() * 32f;
+                    Color glyphColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, (float)i / 5f) * 0.6f;
+                    CustomParticles.Glyph(glyphPos, glyphColor, 0.26f, -1);
+                }
             }
             
             // Fire glow burst

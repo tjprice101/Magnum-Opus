@@ -27,26 +27,6 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
         private static Dictionary<int, int> flareHitCounts = new Dictionary<int, int>();
         private static Dictionary<int, bool> empoweredState = new Dictionary<int, bool>();
         private static Dictionary<int, int> empowermentTimer = new Dictionary<int, int>();
-        
-        // Charged melee attack config
-        private ChargedMeleeConfig chargedConfig;
-        
-        private ChargedMeleeConfig GetChargedConfig()
-        {
-            if (chargedConfig == null)
-            {
-                chargedConfig = new ChargedMeleeConfig
-                {
-                    PrimaryColor = UnifiedVFX.SwanLake.Black,
-                    SecondaryColor = UnifiedVFX.SwanLake.White,
-                    ChargeTime = 55f,
-                    SpawnThemeMusicNotes = (pos, count, radius) => ThemedParticles.SwanLakeMusicNotes(pos, count, radius),
-                    SpawnThemeExplosion = (pos, scale) => ThemedParticles.SwanLakeRainbowExplosion(pos, scale),
-                    DrawThemeLightning = (start, end) => MagnumVFX.DrawSwanLakeLightning(start, end, 12, 30f, 5, 0.5f)
-                };
-            }
-            return chargedConfig;
-        }
 
         public static void RegisterFlareHit(int playerIndex)
         {
@@ -116,21 +96,6 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
 
         public override void HoldItem(Player player)
         {
-            // === CHARGED MELEE ATTACK SYSTEM ===
-            var chargedPlayer = player.GetModPlayer<ChargedMeleePlayer>();
-            
-            // Start charging on right-click (only when not empowered, as empowered has its own use)
-            if (Main.mouseRight && !chargedPlayer.IsCharging && !chargedPlayer.IsReleasing && !IsEmpowered(player.whoAmI))
-            {
-                chargedPlayer.TryStartCharging(Item, GetChargedConfig());
-            }
-            
-            // Update charging state
-            if (chargedPlayer.IsCharging || chargedPlayer.IsReleasing)
-            {
-                chargedPlayer.UpdateCharging(Main.mouseRight);
-            }
-            
             // Update empowerment timer
             if (empowermentTimer.ContainsKey(player.whoAmI) && empowermentTimer[player.whoAmI] > 0)
             {
@@ -184,92 +149,66 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             }
             else
             {
-                // === UnifiedVFX SWAN LAKE AMBIENT AURA ===
-                UnifiedVFX.SwanLake.Aura(player.Center, 30f, 0.25f);
-                
-                // === AMBIENT FRACTAL FLARES - signature Swan Lake look ===
-                if (Main.rand.NextBool(7))
+                // === SUBTLE AMBIENT EFFECTS - Reduced for elegance ===
+                // Only occasional fractal flares
+                if (Main.rand.NextBool(25))
                 {
                     float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
                     float radius = Main.rand.NextFloat(30f, 60f);
                     Vector2 flarePos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
-                    // Dual-polarity gradient: Black → White with rainbow shimmer
                     Color baseColor = Main.rand.NextBool() ? UnifiedVFX.SwanLake.Black : UnifiedVFX.SwanLake.White;
                     Color rainbow = UnifiedVFX.SwanLake.GetRainbow(Main.rand.NextFloat());
                     Color fractalColor = Color.Lerp(baseColor, rainbow, 0.35f);
-                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.32f, 20);
-                    ThemedParticles.SwanLakeFractalTrail(flarePos, 0.25f);
+                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.28f, 18);
                 }
                 
-                // Elegant ambient glow with prismatic sparkles
-                if (Main.rand.NextBool(8))
-                {
-                    CustomParticles.PrismaticSparkleAmbient(player.Center, UnifiedVFX.SwanLake.White, 25f, 2);
-                }
-                
-                // Gentle floating feathers - dual-polarity
-                if (Main.rand.NextBool(10))
+                // Rare floating feathers - much less frequent
+                if (Main.rand.NextBool(40))
                 {
                     Color featherColor = Main.rand.NextBool() ? UnifiedVFX.SwanLake.White : UnifiedVFX.SwanLake.Black;
-                    CustomParticles.SwanFeatherDrift(player.Center + Main.rand.NextVector2Circular(22f, 22f), featherColor, 0.3f);
+                    CustomParticles.SwanFeatherDrift(player.Center + Main.rand.NextVector2Circular(22f, 22f), featherColor, 0.25f);
                 }
                 
-                // Rainbow shimmer light cycling
+                // Subtle light
                 float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.1f + 0.9f;
                 Vector3 lightColor = UnifiedVFX.SwanLake.GetRainbow(Main.GameUpdateCount * 0.01f).ToVector3();
-                Lighting.AddLight(player.Center, lightColor * pulse * 0.4f);
+                Lighting.AddLight(player.Center, lightColor * pulse * 0.25f);
             }
         }
 
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
-            // === UNIQUE: BLACK SWAN FEATHER TRAIL ===
-            // The greatsword leaves a trail of black and white feathers in its wake
+            // === REDUCED: BLACK SWAN FEATHER TRAIL ===
+            // The greatsword leaves a subtle trail of black and white feathers
             
             Vector2 hitboxCenter = hitbox.Center.ToVector2();
             float swingProgress = player.itemAnimation / (float)player.itemAnimationMax;
             float trailIntensity = (float)Math.Sin(swingProgress * MathHelper.Pi);
             
-            // === DUAL-POLARITY FEATHER WAKE ===
-            // Alternating black and white feathers scatter from the blade
-            if (Main.rand.NextBool(2))
+            // === VERY SUBTLE DUAL-POLARITY FEATHER WAKE ===
+            // Rare feather spawns - accent only, not primary effect
+            if (Main.rand.NextBool(15))
             {
-                int featherCount = 1 + (int)(trailIntensity * 2);
-                for (int i = 0; i < featherCount; i++)
-                {
-                    Vector2 featherPos = hitboxCenter + Main.rand.NextVector2Circular(hitbox.Width * 0.4f, hitbox.Height * 0.4f);
-                    Vector2 featherVel = new Vector2(player.direction * Main.rand.NextFloat(1f, 3f), Main.rand.NextFloat(-2f, 1f));
-                    
-                    // Alternate black and white
-                    Color featherColor = Main.rand.NextBool() ? UnifiedVFX.SwanLake.Black : UnifiedVFX.SwanLake.White;
-                    
-                    CustomParticles.SwanFeatherDrift(featherPos, featherColor, 0.35f);
-                }
+                Vector2 featherPos = hitboxCenter + Main.rand.NextVector2Circular(hitbox.Width * 0.3f, hitbox.Height * 0.3f);
+                Color featherColor = Main.rand.NextBool() ? UnifiedVFX.SwanLake.Black : UnifiedVFX.SwanLake.White;
+                CustomParticles.SwanFeatherDrift(featherPos, featherColor, 0.25f);
             }
             
-            // === RAINBOW EDGE SHIMMER ===
-            // Prismatic sparkles along the blade edge
-            if (trailIntensity > 0.3f && Main.rand.NextBool(3))
+            // === SUBTLE RAINBOW EDGE SHIMMER ===
+            if (trailIntensity > 0.4f && Main.rand.NextBool(8))
             {
-                Vector2 shimmerPos = hitboxCenter + Main.rand.NextVector2Circular(hitbox.Width * 0.3f, hitbox.Height * 0.3f);
+                Vector2 shimmerPos = hitboxCenter + Main.rand.NextVector2Circular(hitbox.Width * 0.25f, hitbox.Height * 0.25f);
                 float hue = Main.rand.NextFloat();
                 Color rainbowColor = Main.hslToRgb(hue, 0.8f, 0.75f);
-                CustomParticles.PrismaticSparkle(shimmerPos, rainbowColor, 0.25f);
+                CustomParticles.PrismaticSparkle(shimmerPos, rainbowColor, 0.2f);
             }
             
-            // === GRACEFUL GLOW TRAIL ===
-            // Elegant glow particles following the swing
-            if (Main.rand.NextBool(3))
+            // === SUBTLE GLOW TRAIL ===
+            if (Main.rand.NextBool(10))
             {
-                Vector2 glowPos = hitboxCenter + Main.rand.NextVector2Circular(15f, 15f);
+                Vector2 glowPos = hitboxCenter + Main.rand.NextVector2Circular(12f, 12f);
                 Color glowColor = Color.Lerp(UnifiedVFX.SwanLake.White, UnifiedVFX.SwanLake.Silver, Main.rand.NextFloat());
-                CustomParticles.GenericFlare(glowPos, glowColor, 0.25f + trailIntensity * 0.15f, 10);
-            }
-            
-            // === MUSIC NOTES - The swan's song on every swing ===
-            if (Main.rand.NextBool(8))
-            {
-                ThemedParticles.SwanLakeMusicNotes(hitboxCenter, 1, 15f);
+                CustomParticles.GenericFlare(glowPos, glowColor, 0.15f + trailIntensity * 0.1f, 8);
             }
         }
 

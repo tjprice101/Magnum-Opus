@@ -99,7 +99,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         private float walkDirection = 1f;
         private float walkSpeed = 3.5f; // Faster walking
         private int jumpCooldown = 0;
+        private const int BaseJumpCooldown = 90; // Reduced from 180 to 90 (1.5 seconds)
         private int attacksSinceLastJump = 0;
+        private int timeSinceLastJump = 0; // NEW: Force jump every few seconds
         
         // Visual effects - ENHANCED
         private float auraPulse = 0f;
@@ -250,6 +252,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             
             if (jumpCooldown > 0) jumpCooldown--;
             if (AttackCooldown > 0) AttackCooldown--;
+            timeSinceLastJump++; // Track time since last jump
             
             // Check for enrage (below 30% health)
             float healthPercent = (float)NPC.life / NPC.lifeMax;
@@ -460,19 +463,29 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 }
             }
             
-            // Jump if player is significantly above or far away
+            // Jump if player is significantly above or far away - ENHANCED JUMPING
             float verticalDiff = target.Center.Y - NPC.Center.Y;
             float horizontalDiff = Math.Abs(target.Center.X - NPC.Center.X);
             
             if (jumpCooldown <= 0 && isGrounded)
             {
-                bool shouldJump = verticalDiff < -200 || horizontalDiff > 600 || attacksSinceLastJump >= 3;
+                // More aggressive jump conditions:
+                // - Player above by 150+ pixels (was 200)
+                // - Player far away by 400+ pixels (was 600)
+                // - After 2 attacks without jumping (was 3)
+                // - Force jump every 3-4 seconds regardless
+                bool shouldJump = verticalDiff < -150 || horizontalDiff > 400 || attacksSinceLastJump >= 2 || timeSinceLastJump >= 180;
+                
+                // Random chance to jump for unpredictability
+                if (!shouldJump && isGrounded && Main.rand.NextBool(120))
+                    shouldJump = true;
                 
                 if (shouldJump)
                 {
                     State = ActionState.JumpWindup;
                     Timer = 0;
                     attacksSinceLastJump = 0;
+                    timeSinceLastJump = 0;
                     return;
                 }
             }
@@ -610,7 +623,8 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 
                 State = ActionState.Jumping;
                 Timer = 0;
-                jumpCooldown = 180;
+                jumpCooldown = BaseJumpCooldown; // Use the constant (90 frames = 1.5 seconds)
+                timeSinceLastJump = 0;
             }
         }
         
@@ -672,7 +686,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             {
                 State = ActionState.Walking;
                 Timer = 0;
-                AttackCooldown = 60;
+                AttackCooldown = 45; // Reduced from 60
             }
         }
         
@@ -850,7 +864,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             {
                 State = ActionState.Walking;
                 Timer = 0;
-                AttackCooldown = 80;
+                AttackCooldown = 55; // Reduced from 80
             }
         }
         
@@ -952,7 +966,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             {
                 State = ActionState.Walking;
                 Timer = 0;
-                AttackCooldown = 100;
+                AttackCooldown = 70; // Reduced from 100
             }
         }
         
@@ -1064,7 +1078,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             {
                 State = ActionState.Walking;
                 Timer = 0;
-                AttackCooldown = 150;
+                AttackCooldown = 100; // Reduced from 150
             }
         }
         
@@ -1158,7 +1172,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             {
                 State = ActionState.Walking;
                 Timer = 0;
-                AttackCooldown = 120;
+                AttackCooldown = 85; // Reduced from 120
             }
         }
         

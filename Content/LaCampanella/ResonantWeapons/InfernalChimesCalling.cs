@@ -73,7 +73,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             ThemedParticles.LaCampanellaHaloBurst(spawnPos, 0.8f);
             ThemedParticles.LaCampanellaPrismaticBurst(spawnPos, 8, 0.8f);
             
-            // === GRADIENT COLOR DEFINITIONS ===
+            // === GRADIENT COLOR DEFINITIONS - BLACK → ORANGE ===
             Color campanellaOrange = ThemedParticles.CampanellaOrange;
             Color campanellaYellow = ThemedParticles.CampanellaYellow;
             Color campanellaGold = ThemedParticles.CampanellaGold;
@@ -97,31 +97,42 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 MagnumParticleHandler.SpawnParticle(smoke);
             }
             
-            // === RADIAL FLARE BURST with GRADIENT ===
+            // === RADIAL FLARE BURST with BLACK → ORANGE GRADIENT ===
             for (int f = 0; f < 10; f++)
             {
                 Vector2 flarePos = spawnPos + (MathHelper.TwoPi * f / 10).ToRotationVector2() * Main.rand.NextFloat(25f, 45f);
                 float progress = (float)f / 10f;
-                Color flareColor = Color.Lerp(Color.Lerp(campanellaOrange, campanellaYellow, progress * 2f), 
-                    campanellaGold, Math.Max(0, progress * 2f - 1f));
+                Color flareColor = Color.Lerp(campanellaBlack, campanellaOrange, progress);
                 CustomParticles.GenericFlare(flarePos, flareColor, 0.5f, 15);
             }
             
-            // Expanding halo rings with GRADIENT
+            // === GLYPH BURST - SUMMONING CIRCLE ===
+            if (CustomParticleSystem.TexturesLoaded)
+            {
+                for (int i = 0; i < 6; i++)
+                {
+                    float glyphAngle = MathHelper.TwoPi * i / 6f + Main.GameUpdateCount * 0.04f;
+                    Vector2 glyphPos = spawnPos + glyphAngle.ToRotationVector2() * 35f;
+                    Color glyphColor = Color.Lerp(campanellaBlack, campanellaOrange, (float)i / 6f) * 0.7f;
+                    CustomParticles.Glyph(glyphPos, glyphColor, 0.28f, -1);
+                }
+            }
+            
+            // Expanding halo rings with BLACK → ORANGE GRADIENT
             for (int i = 0; i < 4; i++)
             {
                 float progress = (float)i / 4f;
-                Color ringColor = Color.Lerp(campanellaOrange, campanellaGold, progress);
+                Color ringColor = Color.Lerp(campanellaBlack, campanellaOrange, progress);
                 CustomParticles.HaloRing(spawnPos, ringColor, 0.35f + i * 0.12f, 14 + i * 3);
             }
             
-            // Fractal geometric burst - signature pattern
+            // Fractal geometric burst - signature pattern with BLACK → ORANGE
             for (int i = 0; i < 6; i++)
             {
                 float angle = MathHelper.TwoPi * i / 6f;
                 Vector2 flarePos = spawnPos + angle.ToRotationVector2() * 40f;
                 float progress = (float)i / 6f;
-                Color fractalColor = Color.Lerp(campanellaOrange, campanellaGold, progress);
+                Color fractalColor = Color.Lerp(campanellaBlack, campanellaOrange, progress);
                 CustomParticles.GenericFlare(flarePos, fractalColor, 0.45f, 16);
             }
             
@@ -605,18 +616,32 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             
             float pulse = (float)Math.Sin(floatTimer * 2f) * 0.12f + 1f;
             
-            // === ADDITIVE GLOW LAYERS ===
+            // === ADDITIVE GLOW LAYERS WITH GLYPHS ===
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // === ORBITING GLYPHS AROUND MINION ===
+            if (CustomParticleSystem.TexturesLoaded)
+            {
+                Texture2D glyphTex = CustomParticleSystem.RandomGlyph().Value;
+                for (int i = 0; i < 4; i++)
+                {
+                    float glyphAngle = floatTimer * 2f + MathHelper.TwoPi * i / 4f;
+                    float glyphRadius = 25f + (float)Math.Sin(floatTimer + i) * 5f;
+                    Vector2 glyphPos = drawPos + glyphAngle.ToRotationVector2() * glyphRadius;
+                    Color glyphColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, (float)i / 4f) * 0.55f;
+                    Main.EntitySpriteDraw(glyphTex, glyphPos, null, glyphColor, glyphAngle * 1.5f, glyphTex.Size() / 2f, 0.16f * pulse, SpriteEffects.None, 0);
+                }
+            }
             
             // Outer orange flame glow
             Main.EntitySpriteDraw(texture, drawPos, null, ThemedParticles.CampanellaOrange * 0.4f, Projectile.rotation, origin,
                 Projectile.scale * pulse * 1.4f, SpriteEffects.None, 0);
             
-            // Middle yellow glow
-            Main.EntitySpriteDraw(texture, drawPos, null, ThemedParticles.CampanellaYellow * 0.3f, Projectile.rotation, origin,
-                Projectile.scale * pulse * 1.2f, SpriteEffects.None, 0);
+            // Middle black-to-orange gradient glow
+            Main.EntitySpriteDraw(texture, drawPos, null, Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, 0.5f) * 0.35f, Projectile.rotation, origin,
+                Projectile.scale * pulse * 1.25f, SpriteEffects.None, 0);
             
             // Inner black depth
             Main.EntitySpriteDraw(texture, drawPos, null, ThemedParticles.CampanellaBlack * 0.25f, Projectile.rotation, origin,

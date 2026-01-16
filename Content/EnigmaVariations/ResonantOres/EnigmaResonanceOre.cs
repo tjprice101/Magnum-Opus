@@ -10,10 +10,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantOres
     /// </summary>
     public class EnigmaResonanceOre : ModItem
     {
-        // Fallback to vanilla ore texture if custom texture fails to load
-        public override string Texture => ModContent.HasAsset("MagnumOpus/Content/EnigmaVariations/ResonantOres/EnigmaResonanceOre") 
-            ? "MagnumOpus/Content/EnigmaVariations/ResonantOres/EnigmaResonanceOre" 
-            : "Terraria/Images/Item_" + ItemID.ChlorophyteOre;
+        // Uses EnigmaResonanceOre.png
 
         public override void SetStaticDefaults()
         {

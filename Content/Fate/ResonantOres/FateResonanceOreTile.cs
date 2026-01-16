@@ -6,15 +6,13 @@ using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.GameContent;
+using MagnumOpus.Content.Fate.ResonanceEnergies;
 
 namespace MagnumOpus.Content.Fate.ResonantOres
 {
     public class FateResonanceOreTile : ModTile
     {
-        // Fallback to vanilla ore texture if custom texture fails to load
-        public override string Texture => ModContent.HasAsset("MagnumOpus/Content/Fate/ResonantOres/FateResonanceOreTile") 
-            ? "MagnumOpus/Content/Fate/ResonantOres/FateResonanceOreTile" 
-            : "Terraria/Images/Tiles_" + TileID.Crimtane;
+        // Uses FateResonanceOreTile.png - single 16x16 texture rendered for all ore blocks
 
         public override void SetStaticDefaults()
         {
@@ -82,6 +80,33 @@ namespace MagnumOpus.Content.Fate.ResonantOres
         {
             type = DustID.PinkTorch;
             return true;
+        }
+
+        public override bool CanDrop(int i, int j)
+        {
+            return true;
+        }
+
+        public override IEnumerable<Item> GetItemDrops(int i, int j)
+        {
+            yield return new Item(ModContent.ItemType<FateResonanceOre>());
+        }
+
+        public override bool PreDraw(int i, int j, SpriteBatch spriteBatch)
+        {
+            // Draw the single 16x16 texture for every ore block, ignoring frame variations
+            Texture2D texture = TextureAssets.Tile[Type].Value;
+            Vector2 zero = Main.drawToScreen ? Vector2.Zero : new Vector2(Main.offScreenRange);
+            Vector2 position = new Vector2(i * 16, j * 16) - Main.screenPosition + zero;
+            
+            // Get lighting at this tile position
+            Color lightColor = Lighting.GetColor(i, j);
+            
+            // Draw the entire texture as a single 16x16 tile
+            Rectangle sourceRect = new Rectangle(0, 0, texture.Width, texture.Height);
+            spriteBatch.Draw(texture, position, sourceRect, lightColor, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+            
+            return false; // Skip default drawing
         }
     }
 }

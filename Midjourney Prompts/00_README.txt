@@ -1,5 +1,9 @@
 # MagnumOpus Midjourney Prompts Library
 
+> **⚡ CONSOLIDATED VERSION**: All prompts are now available in a single organized file: **[MASTER_PROMPTS.md](MASTER_PROMPTS.md)**
+> 
+> The individual files below are kept for legacy reference but the master file is the recommended source.
+
 This folder contains organized Midjourney prompts for generating pixel art assets for the MagnumOpus Terraria mod.
 
 ## Folder Structure

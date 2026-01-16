@@ -268,6 +268,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             var brandNPC = target.GetGlobalNPC<ParadoxBrandNPC>();
             brandNPC.AddParadoxStack(target, 3);
             
+            // === ULTIMATE BLADE REALITY WARP ===
+            FateRealityDistortion.TriggerChromaticAberration(target.Center, 4f, 15);
+            
             // === NEW UNIFIED VFX EXPLOSION ===
             UnifiedVFX.EnigmaVariations.Explosion(target.Center, 1.5f);
             
@@ -340,19 +343,54 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = glowTex.Size() / 2f;
             
             float lifeProgress = 1f - (Projectile.timeLeft / 50f);
             float intensity = (float)Math.Sin(lifeProgress * MathHelper.Pi);
-            
-            // Draw dimensional slash glow - stretched along slash angle
             float stretchScale = 1.5f;
-            spriteBatch.Draw(glowTex, drawPos, null, EnigmaBlack * intensity * 0.9f, slashAngle, origin, new Vector2(stretchScale * 1.4f, 0.6f) * intensity, SpriteEffects.None, 0f);
-            spriteBatch.Draw(glowTex, drawPos, null, EnigmaDeepPurple * 0.7f * intensity, slashAngle, origin, new Vector2(stretchScale * 1.1f, 0.45f) * intensity, SpriteEffects.None, 0f);
-            spriteBatch.Draw(glowTex, drawPos, null, EnigmaPurple * 0.8f * intensity, slashAngle, origin, new Vector2(stretchScale * 0.8f, 0.3f) * intensity, SpriteEffects.None, 0f);
-            spriteBatch.Draw(glowTex, drawPos, null, EnigmaGreenFlame * 0.6f * intensity, slashAngle, origin, new Vector2(stretchScale * 0.5f, 0.18f) * intensity, SpriteEffects.None, 0f);
+            
+            // Switch to additive blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            Texture2D flareTex = CustomParticleSystem.EnergyFlares[0].Value;
+            Texture2D glyphTex = CustomParticleSystem.Glyphs[(int)(Main.GameUpdateCount / 10) % 12].Value;
+            Texture2D sparkleTex = CustomParticleSystem.PrismaticSparkles[(int)(Main.GameUpdateCount / 8) % 8].Value;
+            Vector2 flareOrigin = flareTex.Size() / 2f;
+            
+            // Draw stretched slash using EnergyFlare - layered for depth
+            spriteBatch.Draw(flareTex, drawPos, null, EnigmaDeepPurple * intensity * 0.85f, slashAngle, flareOrigin, new Vector2(stretchScale * 1.3f, 0.5f) * intensity, SpriteEffects.None, 0f);
+            spriteBatch.Draw(flareTex, drawPos, null, EnigmaPurple * intensity * 0.75f, slashAngle, flareOrigin, new Vector2(stretchScale * 1.0f, 0.35f) * intensity, SpriteEffects.None, 0f);
+            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreenFlame * intensity * 0.65f, slashAngle, flareOrigin, new Vector2(stretchScale * 0.7f, 0.22f) * intensity, SpriteEffects.None, 0f);
+            spriteBatch.Draw(flareTex, drawPos, null, Color.White * intensity * 0.4f, slashAngle, flareOrigin, new Vector2(stretchScale * 0.4f, 0.12f) * intensity, SpriteEffects.None, 0f);
+            
+            // Draw glyphs along the slash line
+            Vector2 slashDir = slashAngle.ToRotationVector2();
+            for (int i = -2; i <= 2; i++)
+            {
+                if (i == 0) continue; // Skip center
+                float offset = i * 25f * intensity;
+                Vector2 glyphPos = drawPos + slashDir * offset;
+                Color glyphColor = Color.Lerp(EnigmaDeepPurple, EnigmaGreenFlame, (i + 2) / 4f) * intensity * 0.6f;
+                float glyphRot = slashAngle + Main.GameUpdateCount * 0.08f * (i % 2 == 0 ? 1 : -1);
+                spriteBatch.Draw(glyphTex, glyphPos, null, glyphColor, glyphRot, glyphTex.Size() / 2f, 0.18f * intensity, SpriteEffects.None, 0f);
+            }
+            
+            // Draw sparkles perpendicular to slash
+            Vector2 perpDir = slashDir.RotatedBy(MathHelper.PiOver2);
+            for (int i = 0; i < 4; i++)
+            {
+                float perpOffset = ((i % 2 == 0) ? 1 : -1) * (12f + i * 5f) * intensity;
+                Vector2 sparkPos = drawPos + perpDir * perpOffset;
+                Color sparkColor = Color.Lerp(EnigmaPurple, EnigmaGreenFlame, (float)i / 4f) * intensity * 0.5f;
+                spriteBatch.Draw(sparkleTex, sparkPos, null, sparkColor, Main.GameUpdateCount * 0.1f, sparkleTex.Size() / 2f, 0.1f * intensity, SpriteEffects.None, 0f);
+            }
+            
+            // Restore normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -453,6 +491,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             var brandNPC = target.GetGlobalNPC<ParadoxBrandNPC>();
             brandNPC.AddParadoxStack(target, 2);
             
+            // === DIMENSIONAL SLICE REALITY WARP ===
+            FateRealityDistortion.TriggerChromaticAberration(target.Center, 4.5f, 15);
+            FateRealityDistortion.TriggerInversionPulse(6);
+            
             // === NEW UNIFIED VFX HIT EFFECT ===
             UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 1.2f);
             
@@ -490,6 +532,13 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
+            // === DIMENSIONAL TEAR CLOSING REALITY WARP ===
+            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 5f, 18);
+            FateRealityDistortion.TriggerInversionPulse(6);
+            
+            // Eyes watching the dimensional tear close
+            CustomParticles.EnigmaEyeExplosion(Projectile.Center, EnigmaPurple, 4, 3f);
+            
             // Dimensional tear closes
             for (int i = 0; i < 10; i++)
             {
@@ -567,12 +616,62 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f + 1f;
             
-            // Draw massive paradox collapse glow
-            spriteBatch.Draw(glowTex, drawPos, null, EnigmaBlack * intensity * 0.95f, 0f, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(glowTex, drawPos, null, EnigmaDeepPurple * 0.7f * intensity, 0f, origin, scale * pulse * 0.95f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(glowTex, drawPos, null, EnigmaPurple * 0.8f * intensity, 0f, origin, scale * pulse * 0.6f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(glowTex, drawPos, null, EnigmaGreenFlame * 0.65f * intensity, 0f, origin, scale * pulse * 0.35f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(glowTex, drawPos, null, Color.White * 0.5f * intensity, 0f, origin, scale * pulse * 0.15f, SpriteEffects.None, 0f);
+            // Switch to additive blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            Texture2D eyeTex = CustomParticleSystem.EnigmaEyes[(int)(lifeProgress * 7) % 8].Value;
+            Texture2D glyphTex = CustomParticleSystem.Glyphs[(int)(Main.GameUpdateCount / 6) % 12].Value;
+            Texture2D sparkleTex = CustomParticleSystem.PrismaticSparkles[(int)(Main.GameUpdateCount / 5) % 8].Value;
+            Texture2D flareTex = CustomParticleSystem.EnergyFlares[0].Value;
+            
+            // Draw massive glyph ring - expanding outward
+            int glyphCount = 16;
+            float ringRadius = scale * 35f * pulse;
+            for (int i = 0; i < glyphCount; i++)
+            {
+                float angle = Main.GameUpdateCount * 0.03f + MathHelper.TwoPi * i / glyphCount;
+                Vector2 glyphPos = drawPos + angle.ToRotationVector2() * ringRadius;
+                Color glyphColor = Color.Lerp(EnigmaDeepPurple, EnigmaGreenFlame, (float)i / glyphCount) * intensity * 0.7f;
+                float glyphScale = 0.25f * (scale / 5f) * pulse;
+                spriteBatch.Draw(glyphTex, glyphPos, null, glyphColor, angle * 2f + Main.GameUpdateCount * 0.05f, glyphTex.Size() / 2f, glyphScale, SpriteEffects.None, 0f);
+            }
+            
+            // Draw inner sparkle ring
+            for (int i = 0; i < 10; i++)
+            {
+                float angle = -Main.GameUpdateCount * 0.05f + MathHelper.TwoPi * i / 10f;
+                float sparkRadius = ringRadius * 0.5f;
+                Vector2 sparkPos = drawPos + angle.ToRotationVector2() * sparkRadius;
+                Color sparkColor = Color.Lerp(EnigmaPurple, EnigmaGreenFlame, (float)i / 10f) * intensity * 0.6f;
+                spriteBatch.Draw(sparkleTex, sparkPos, null, sparkColor, angle * 1.5f, sparkleTex.Size() / 2f, 0.15f * (scale / 5f) * pulse, SpriteEffects.None, 0f);
+            }
+            
+            // Draw watching eyes at cardinal directions during buildup/explosion
+            if (lifeProgress < 0.7f)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    float angle = MathHelper.PiOver2 * i + Main.GameUpdateCount * 0.02f;
+                    Vector2 eyePos = drawPos + angle.ToRotationVector2() * ringRadius * 0.7f;
+                    float eyeScale = 0.35f * intensity * (scale / 5f);
+                    float eyeRot = (drawPos - eyePos).ToRotation() + MathHelper.PiOver2; // Looking inward
+                    Color eyeColor = Color.Lerp(EnigmaPurple, EnigmaGreenFlame, (float)i / 4f) * intensity * 0.8f;
+                    spriteBatch.Draw(eyeTex, eyePos, null, eyeColor, eyeRot, eyeTex.Size() / 2f, eyeScale, SpriteEffects.None, 0f);
+                }
+            }
+            
+            // Central flare core - massive and pulsing
+            spriteBatch.Draw(flareTex, drawPos, null, EnigmaDeepPurple * intensity * 0.85f, Main.GameUpdateCount * 0.04f, flareTex.Size() / 2f, 0.5f * scale * pulse * 0.3f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(flareTex, drawPos, null, EnigmaPurple * intensity * 0.7f, -Main.GameUpdateCount * 0.05f, flareTex.Size() / 2f, 0.35f * scale * pulse * 0.3f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreenFlame * intensity * 0.6f, Main.GameUpdateCount * 0.06f, flareTex.Size() / 2f, 0.2f * scale * pulse * 0.3f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(flareTex, drawPos, null, Color.White * intensity * 0.5f, 0f, flareTex.Size() / 2f, 0.1f * scale * pulse * 0.3f, SpriteEffects.None, 0f);
+            
+            // Restore normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -768,6 +867,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             var brandNPC = target.GetGlobalNPC<ParadoxBrandNPC>();
             brandNPC.AddParadoxStack(target, 5);
             
+            // === ULTIMATE PARADOX COLLAPSE REALITY WARP ===
+            FateRealityDistortion.TriggerChromaticAberration(target.Center, 6f, 20);
+            FateRealityDistortion.TriggerInversionPulse(8);
+            
             // === NEW UNIFIED VFX EXPLOSION ===
             UnifiedVFX.EnigmaVariations.Explosion(target.Center, 2f);
             
@@ -818,6 +921,19 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
+            // === ULTIMATE PARADOX COLLAPSE REALITY WARP - MAXIMUM DISTORTION ===
+            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 8f, 25);
+            FateRealityDistortion.TriggerInversionPulse(10);
+            FateRealityDistortion.TriggerScreenSlice(Projectile.Center - new Vector2(200, 200), Projectile.Center + new Vector2(200, 200), 5f, 20);
+            
+            // === THE ALL-SEEING FINALE - MAXIMUM EYE SPECTACLE ===
+            // Central eye formation watching the collapse
+            CustomParticles.EnigmaEyeFormation(Projectile.Center, EnigmaGreen, count: 6, radius: 80f);
+            // Eyes exploding outward in grand finale
+            CustomParticles.EnigmaEyeExplosion(Projectile.Center, EnigmaPurple, 8, 6f);
+            // Secondary ring of eyes
+            CustomParticles.EnigmaEyeExplosion(Projectile.Center, EnigmaGreen, 6, 4f);
+            
             // Final collapse burst
             for (int layer = 0; layer < 4; layer++)
             {

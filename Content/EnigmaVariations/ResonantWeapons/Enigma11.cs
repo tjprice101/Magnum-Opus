@@ -440,20 +440,60 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = glowTex.Size() / 2f;
             
             float lifeProgress = 1f - (Projectile.timeLeft / 25f);
             float intensity = 1f - lifeProgress;
             float scale = IsEnhanced ? 1.5f : 1f;
             float pulse = lifeProgress < 0.4f ? (1f - lifeProgress / 0.4f) : lifeProgress;
             
-            // Draw snap-back implosion/explosion glow
-            spriteBatch.Draw(glowTex, drawPos, null, EnigmaBlack * intensity * 0.85f, 0f, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(glowTex, drawPos, null, EnigmaDeepPurple * 0.65f * intensity, 0f, origin, scale * pulse * 0.9f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(glowTex, drawPos, null, EnigmaPurple * 0.75f * intensity, 0f, origin, scale * pulse * 0.55f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(glowTex, drawPos, null, EnigmaGreenFlame * 0.55f * intensity, 0f, origin, scale * pulse * 0.28f, SpriteEffects.None, 0f);
+            // Switch to additive blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            Texture2D eyeTex = CustomParticleSystem.EnigmaEyes[(int)(lifeProgress * 7) % 8].Value;
+            Texture2D glyphTex = CustomParticleSystem.Glyphs[(int)(Main.GameUpdateCount / 8) % 12].Value;
+            Texture2D sparkleTex = CustomParticleSystem.PrismaticSparkles[(int)(Main.GameUpdateCount / 6) % 8].Value;
+            Texture2D flareTex = CustomParticleSystem.EnergyFlares[0].Value;
+            
+            // Draw imploding/exploding glyph ring
+            int glyphCount = lifeProgress < 0.4f ? 8 : 12;
+            float ringRadius = lifeProgress < 0.4f ? (40f * (1f - lifeProgress / 0.4f)) : (15f + lifeProgress * 60f);
+            for (int i = 0; i < glyphCount; i++)
+            {
+                float angle = Main.GameUpdateCount * (lifeProgress < 0.4f ? 0.15f : -0.08f) + MathHelper.TwoPi * i / glyphCount;
+                Vector2 glyphPos = drawPos + angle.ToRotationVector2() * ringRadius * scale;
+                Color glyphColor = Color.Lerp(EnigmaDeepPurple, EnigmaGreenFlame, (float)i / glyphCount) * intensity * 0.7f;
+                float glyphScale = 0.2f * scale * pulse;
+                spriteBatch.Draw(glyphTex, glyphPos, null, glyphColor, angle * 2f + lifeProgress * 5f, glyphTex.Size() / 2f, glyphScale, SpriteEffects.None, 0f);
+            }
+            
+            // Draw orbiting sparkles
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = -Main.GameUpdateCount * 0.12f + MathHelper.TwoPi * i / 6f;
+                float sparkRadius = ringRadius * 0.6f;
+                Vector2 sparkPos = drawPos + angle.ToRotationVector2() * sparkRadius * scale;
+                Color sparkColor = Color.Lerp(EnigmaPurple, EnigmaGreenFlame, (float)i / 6f) * intensity * 0.6f;
+                spriteBatch.Draw(sparkleTex, sparkPos, null, sparkColor, angle * 1.5f, sparkleTex.Size() / 2f, 0.12f * scale * pulse, SpriteEffects.None, 0f);
+            }
+            
+            // Draw central watching eye during implosion phase
+            if (lifeProgress < 0.5f)
+            {
+                float eyeScale = 0.4f * scale * intensity * (lifeProgress < 0.4f ? 1f : (1f - (lifeProgress - 0.4f) * 10f));
+                spriteBatch.Draw(eyeTex, drawPos, null, EnigmaPurple * intensity * 0.9f, 0f, eyeTex.Size() / 2f, eyeScale, SpriteEffects.None, 0f);
+            }
+            
+            // Inner flare core
+            spriteBatch.Draw(flareTex, drawPos, null, EnigmaDeepPurple * intensity * 0.8f, Main.GameUpdateCount * 0.05f, flareTex.Size() / 2f, 0.35f * scale * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreenFlame * intensity * 0.6f, -Main.GameUpdateCount * 0.07f, flareTex.Size() / 2f, 0.18f * scale * pulse, SpriteEffects.None, 0f);
+            
+            // Restore normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -541,6 +581,13 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             var brandNPC = target.GetGlobalNPC<ParadoxBrandNPC>();
             brandNPC.AddParadoxStack(target, IsEnhanced ? 3 : 2);
             
+            // === REALITY UNRAVELING DISTORTION ===
+            float distortionIntensity = IsEnhanced ? 5f : 3.5f;
+            int distortionLifetime = IsEnhanced ? 18 : 12;
+            FateRealityDistortion.TriggerChromaticAberration(target.Center, distortionIntensity, distortionLifetime);
+            if (IsEnhanced)
+                FateRealityDistortion.TriggerInversionPulse(6);
+            
             // === NEW UNIFIED VFX HIT EFFECT ===
             UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 1.2f);
             
@@ -572,6 +619,13 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             float scale = IsEnhanced ? 1.5f : 1f;
             
+            // === BEAM COLLAPSE REALITY WARP ===
+            float collapseIntensity = IsEnhanced ? 5f : 3.5f;
+            int collapseLifetime = IsEnhanced ? 18 : 12;
+            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, collapseIntensity, collapseLifetime);
+            if (IsEnhanced)
+                FateRealityDistortion.TriggerInversionPulse(6);
+            
             // Final burst
             for (int i = 0; i < (IsEnhanced ? 10 : 6); i++)
             {
@@ -587,6 +641,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             if (IsEnhanced)
             {
                 CustomParticles.GlyphBurst(Projectile.Center, EnigmaGreen, count: 6, speed: 3f);
+                
+                // === WATCHING EYES - enhanced beam releases many eyes ===
+                CustomParticles.EnigmaEyeExplosion(Projectile.Center, EnigmaPurple, 6, 4f);
+            }
+            else
+            {
+                // === WATCHING EYE at beam end ===
+                CustomParticles.EnigmaEyeGaze(Projectile.Center, EnigmaGreen * 0.7f, 0.4f, Projectile.velocity.SafeNormalize(Vector2.UnitX));
             }
         }
     }

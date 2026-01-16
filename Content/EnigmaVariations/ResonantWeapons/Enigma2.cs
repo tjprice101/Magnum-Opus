@@ -337,6 +337,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             // Chain lightning to other recently hit enemies
             DrawChainLightning(target);
             
+            // === REALITY WARP DISTORTION ===
+            FateRealityDistortion.TriggerChromaticAberration(target.Center, 3f, 10);
+            
             // === NEW UNIFIED VFX HIT EFFECT ===
             UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 1.2f);
             
@@ -499,6 +502,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
+            // === REALITY WARP ON DEATH ===
+            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 3.5f, 12);
+            
             for (int i = 0; i < 8; i++)
             {
                 float angle = MathHelper.TwoPi * i / 8f;
@@ -508,6 +514,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             }
             
             CustomParticles.HaloRing(Projectile.Center, EnigmaPurple * 0.7f, 0.38f, 15);
+            
+            // === WATCHING EYES burst outward ===
+            CustomParticles.EnigmaEyeExplosion(Projectile.Center, EnigmaGreen, 4, 3f);
         }
     }
     
@@ -699,6 +708,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             var brandNPC = target.GetGlobalNPC<ParadoxBrandNPC>();
             brandNPC.AddParadoxStack(target, 2);
             
+            // === REALITY WARP DISTORTION ===
+            FateRealityDistortion.TriggerChromaticAberration(target.Center, 3f, 10);
+            
             // === NEW UNIFIED VFX HIT EFFECT ===
             UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 1.2f);
             
@@ -765,6 +777,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
+            // === REALITY WARP ON DEATH ===
+            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 3f, 12);
+            
             for (int i = 0; i < 6; i++)
             {
                 float angle = MathHelper.TwoPi * i / 6f;
@@ -1044,6 +1059,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
+            // === PARADOX BOLT REALITY WARP ===
+            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 4.5f, 15);
+            FateRealityDistortion.TriggerInversionPulse(6);
+            
             // Massive death burst
             CustomParticles.GenericFlare(Projectile.Center, Color.White, 0.9f, 25);
             

@@ -1095,10 +1095,10 @@ Items: {
 		Tooltip:
 			'''
 			Greatsword that fires 3 black/white flares per swing
-			SPECIAL: Land all 3 flares to become EMPOWERED
-			Empowered swing fires 8 projectiles at DOUBLE damage!
+			Landing all 3 flares empowers the next swing
+			Empowered swing fires 8 projectiles at 200% damage
 			Applies Flame of the Swan on hit
-			'Odile's seduction made manifest - irresistible and devastating'
+			'Odile's seduction made manifest'
 			'''
 	}
 
@@ -1106,9 +1106,8 @@ Items: {
 		DisplayName: Call of the Pearlescent Lake
 		Tooltip:
 			'''
-			Assault rifle that fires black/white flaming rockets
-			Creates pearlescent rainbow explosions on impact
-			Converts bullets into devastating tracking rockets
+			Fires tracking black/white rockets that create rainbow explosions
+			Converts bullets into homing projectiles
 			Applies Flame of the Swan
 			'The lake speaks in tongues of fire and light'
 			'''
@@ -1119,8 +1118,7 @@ Items: {
 		Tooltip:
 			'''
 			Magic pistol with tracking black/white shots
-			SPECIAL: Hit the same enemy 3 times for TRIPLE EXPLOSION
-			Each explosion deals massive bonus damage
+			Hitting the same enemy 3 times triggers a triple explosion
 			'The final melody plays in colors beyond mortal sight'
 			'''
 	}
@@ -1164,9 +1162,9 @@ Items: {
 		Tooltip:
 			'''
 			Transforms you into a fragment of the Swan's essence
-			Drains all mana upon use - become one with the melody
-			LEFT CLICK: Rain pearlescent, black, and white flares with tracking explosions
-			RIGHT CLICK: Unleash black and white lightning with massive AOE
+			Drains all mana on use for full transformation
+			Left-click: Rain pearlescent flares with tracking explosions
+			Right-click: Unleash black and white lightning
 			Grants infinite flight while transformed
 			'The Swan's power courses through your veins...'
 			'''
@@ -1281,13 +1279,9 @@ Items: {
 		DisplayName: Dual-Fated Chime
 		Tooltip:
 			'''
-			'Two bells, one destiny - creation and destruction in perfect harmony'
-			A Zenith-forged blade that rings with every swing
-			Each strike summons 2-4 SPECTRAL BELL ECHOES that blaze with sacred fire
-			All attacks brand enemies with the mark of Resonant Toll
-			INFERNO WALTZ: Build fury through combat until the bells overflow
-			               Unleash a spinning dance of devastating flame
-			               The waltz grants 15 seconds of blazing swiftness
+			Zenith-style blade that summons 2-4 spectral bell echoes per swing
+			All attacks apply Resonant Toll debuff
+			Right-click: Inferno Waltz - spinning flame attack (requires full charge)
 			'When the dual chimes toll, even gods take notice'
 			'''
 	}
@@ -1296,11 +1290,9 @@ Items: {
 		DisplayName: Fang of the Infinite Bell
 		Tooltip:
 			'''
-			'The bell that never stops ringing, whose toll echoes through eternity'
-			Channel the CAMPANELLA CONFLAGRATION at your cursor
-			A vortex of blazing music draws enemies into its infernal embrace
-			Those caught within are branded with Resonant Toll endlessly
-			Every 1.5 seconds, the bell's voice erupts in devastating bursts
+			Channels a fire vortex at your cursor that pulls in enemies
+			Caught enemies are continuously branded with Resonant Toll
+			Periodic eruptions deal burst damage every 1.5 seconds
 			'Listen to the infinite bell - it speaks only of destruction'
 			'''
 	}
@@ -1309,11 +1301,9 @@ Items: {
 		DisplayName: Grandiose Chime
 		Tooltip:
 			'''
-			'Each shot is a note in the grandest symphony ever composed'
-			A rifle that fires beams of pure musical energy
-			Piercing bell-flame projectiles strike through three foes at once
-			Every impact brands the enemy with Resonant Toll
-			BELLFIRE BARRAGE: Every 5th shot scatters seven burning notes
+			Fires piercing bell-flame beams that hit up to 3 enemies
+			Applies Resonant Toll on impact
+			Every 5th shot scatters 7 burning note projectiles
 			'The Grandiose Chime plays a melody of precision and fire'
 			'''
 	}
@@ -1322,12 +1312,9 @@ Items: {
 		DisplayName: Ignition of the Bell
 		Tooltip:
 			'''
-			'Where this spear thrusts, the bell's flame follows'
-			A spear that ignites with every strike
-			Each thrust releases three streams of BLAZING MUSICAL WAVES
-			All attacks sear the mark of Resonant Toll into flesh
-			CHIME CYCLONE: Strike true three times to unleash judgment
-			               The bell screams, and a flaming cyclone is born
+			Each thrust releases 3 streams of blazing musical waves
+			Applies Resonant Toll on all hits
+			Every 3rd hit unleashes a flaming cyclone
 			'The bell's ignition cannot be contained - it yearns to burn'
 			'''
 	}
@@ -1336,11 +1323,9 @@ Items: {
 		DisplayName: Infernal Chime's Calling
 		Tooltip:
 			'''
-			'Answer the call, and let the choir sing through fire'
-			Summon the CAMPANELLA CHOIR - minions of blazing harmony
-			Bell-flame spirits sing in unison, their voices become destruction
-			Each note brands enemies with the weight of Resonant Toll
-			MUSICAL SHOCKWAVE: Every 5 harmonized strikes trigger devastation
+			Summons bell-flame spirit minions that attack in harmony
+			Minion attacks apply Resonant Toll
+			Every 5 harmonized strikes trigger a shockwave
 			'When the infernal choir calls, none can silence their song'
 			'''
 	}
@@ -1349,12 +1334,9 @@ Items: {
 		DisplayName: Piercing Bell's Resonance
 		Tooltip:
 			'''
-			'The bell's resonance finds every weakness, pierces every defense'
-			Rapid-fire bullets that ring with each impact
-			Hits cascade blazing explosions to nearby enemies
-			All struck are marked by Resonant Toll
-			SCORCHING STACCATO: Sustained fire accelerates to impossible speeds
-			                    Fire rate increases up to +40% while shooting
+			Rapid-fire bullets that trigger cascading explosions on hit
+			Fire rate increases up to 40% while continuously shooting
+			Applies Resonant Toll on all hits
 			'The resonance grows louder with each shot fired'
 			'''
 	}
@@ -1363,14 +1345,9 @@ Items: {
 		DisplayName: Symphonic Bellfire Annihilator
 		Tooltip:
 			'''
-			'The Final Movement - An Explosive Symphony of Annihilation'
-			Launches bell-shaped rockets that detonate in MUSICAL SHOCKWAVES
-			Each explosion spawns 8 wall-piercing harmonic pulses
-			Enemies caught in the blast receive double Resonant Toll
-			GRAND CRESCENDO: Three rapid explosions trigger the finale
-			                 36 flame waves sweep the battlefield
-			                 5 seconds of blazing swiftness follows
-			                 All nearby enemy projectiles are annihilated
+			Launches bell-shaped rockets that spawn 8 wall-piercing pulses on explosion
+			Double Resonant Toll stacks on blast victims
+			Three rapid explosions trigger 36 flame waves and 5s of blazing swiftness
 			'When the symphony reaches its crescendo, only silence remains'
 			'''
 	}

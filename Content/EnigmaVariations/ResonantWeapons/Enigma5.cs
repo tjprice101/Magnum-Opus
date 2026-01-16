@@ -284,36 +284,49 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override bool PreDraw(ref Color lightColor)
         {
-            // Custom-drawn paradox impaler - no vanilla sprite
+            // Custom-drawn paradox impaler with enigma eyes and glyphs
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = glowTex.Size() / 2f;
-            float rotation = Projectile.rotation;
             
-            // Draw trail afterimages
+            // Switch to additive blending for vibrant effects
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            Texture2D glyphTex = CustomParticleSystem.RandomGlyph().Value;
+            Texture2D sparkleTex = CustomParticleSystem.RandomPrismaticSparkle().Value;
+            Texture2D flareTex = CustomParticleSystem.EnergyFlares[0].Value;
+            
+            // Draw glyph trail at old positions
             for (int i = Projectile.oldPos.Length - 1; i >= 0; i--)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 float trailProgress = (float)i / Projectile.oldPos.Length;
-                Color trailColor = GetEnigmaGradient(trailProgress) * (1f - trailProgress) * 0.6f;
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                float trailScale = (1f - trailProgress * 0.5f) * 0.8f;
-                spriteBatch.Draw(glowTex, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
+                Color trailColor = Color.Lerp(EnigmaPurple, EnigmaGreen, trailProgress) * (1f - trailProgress) * 0.6f;
+                float trailRot = Projectile.oldRot[i] + i * 0.3f;
+                spriteBatch.Draw(glyphTex, trailPos, null, trailColor, trailRot, glyphTex.Size() / 2f, 0.18f * (1f - trailProgress * 0.5f), SpriteEffects.None, 0f);
             }
             
-            // Outer glow - purple haze
-            spriteBatch.Draw(glowTex, drawPos, null, EnigmaPurple * 0.5f, rotation, origin, 1.4f, SpriteEffects.None, 0f);
+            // Draw orbiting sparkles around thrust
+            for (int i = 0; i < 5; i++)
+            {
+                float angle = Main.GameUpdateCount * 0.1f + MathHelper.TwoPi * i / 5f;
+                float radius = 18f + (float)Math.Sin(Main.GameUpdateCount * 0.08f + i) * 6f;
+                Vector2 sparkPos = drawPos + angle.ToRotationVector2() * radius;
+                Color sparkColor = Color.Lerp(EnigmaPurple, EnigmaGreen, (float)i / 5f) * 0.7f;
+                spriteBatch.Draw(sparkleTex, sparkPos, null, sparkColor, angle * 2f, sparkleTex.Size() / 2f, 0.15f, SpriteEffects.None, 0f);
+            }
             
-            // Middle glow - gradient
+            // Draw central flare core with rotation
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.15f + 0.85f;
-            spriteBatch.Draw(glowTex, drawPos, null, GetEnigmaGradient(0.5f) * 0.7f * pulse, rotation, origin, 1.0f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(flareTex, drawPos, null, EnigmaPurple * 0.8f, Main.GameUpdateCount * 0.04f, flareTex.Size() / 2f, 0.45f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreen * 0.7f, -Main.GameUpdateCount * 0.05f, flareTex.Size() / 2f, 0.25f * pulse, SpriteEffects.None, 0f);
             
-            // Inner core - bright
-            spriteBatch.Draw(glowTex, drawPos, null, EnigmaGreen * 0.9f, rotation, origin, 0.6f, SpriteEffects.None, 0f);
-            
-            // Central white flash
-            spriteBatch.Draw(glowTex, drawPos, null, Color.White * 0.8f, rotation, origin, 0.3f, SpriteEffects.None, 0f);
+            // Restore normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false; // Don't draw default sprite
         }
@@ -376,6 +389,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             {
                 TriggerParadoxExplosion(target, brandNPC);
             }
+            
+            // === REALITY WARP DISTORTION ===
+            FateRealityDistortion.TriggerChromaticAberration(target.Center, 3f, 10);
             
             // === NEW UNIFIED VFX HIT EFFECT ===
             UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 1.2f);
@@ -526,22 +542,44 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override bool PreDraw(ref Color lightColor)
         {
-            // Custom ghost afterimage rendering
+            // Custom ghost afterimage with watching eye
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = glowTex.Size() / 2f;
             float opacity = 1f - Projectile.alpha / 255f;
             
-            // Ghost outer glow
+            // Switch to additive blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Select eye based on afterimage index for variety
+            Texture2D eyeTex = CustomParticleSystem.EnigmaEyes[AfterimageIndex % 8].Value;
+            Texture2D sparkleTex = CustomParticleSystem.RandomPrismaticSparkle().Value;
+            Texture2D flareTex = CustomParticleSystem.EnergyFlares[0].Value;
+            
+            // Draw small orbiting sparkles around the ghost
+            for (int i = 0; i < 3; i++)
+            {
+                float angle = Main.GameUpdateCount * 0.12f + MathHelper.TwoPi * i / 3f + AfterimageIndex * 0.5f;
+                float radius = 12f * Projectile.scale;
+                Vector2 sparkPos = drawPos + angle.ToRotationVector2() * radius;
+                Color sparkColor = GetEnigmaGradient((float)i / 3f) * opacity * 0.6f;
+                spriteBatch.Draw(sparkleTex, sparkPos, null, sparkColor, angle * 1.5f, sparkleTex.Size() / 2f, 0.12f * Projectile.scale, SpriteEffects.None, 0f);
+            }
+            
+            // Draw faint outer glow
             Color ghostColor = GetEnigmaGradient((float)AfterimageIndex / 3f) * opacity * 0.5f;
-            spriteBatch.Draw(glowTex, drawPos, null, ghostColor, Projectile.rotation, origin, Projectile.scale * 1.2f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(flareTex, drawPos, null, ghostColor, Main.GameUpdateCount * 0.02f, flareTex.Size() / 2f, 0.35f * Projectile.scale, SpriteEffects.None, 0f);
             
-            // Inner glow
-            spriteBatch.Draw(glowTex, drawPos, null, EnigmaPurple * opacity * 0.6f, Projectile.rotation, origin, Projectile.scale * 0.7f, SpriteEffects.None, 0f);
+            // Draw central watching eye - pointing toward projectile velocity
+            float eyeRotation = Projectile.velocity.ToRotation();
+            Color eyeColor = Color.Lerp(EnigmaPurple, EnigmaGreen, (float)AfterimageIndex / 3f) * opacity * 0.8f;
+            spriteBatch.Draw(eyeTex, drawPos, null, eyeColor, eyeRotation, eyeTex.Size() / 2f, 0.22f * Projectile.scale, SpriteEffects.None, 0f);
             
-            // Core
-            spriteBatch.Draw(glowTex, drawPos, null, Color.White * opacity * 0.4f, Projectile.rotation, origin, Projectile.scale * 0.35f, SpriteEffects.None, 0f);
+            // Restore normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -589,6 +627,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 240);
             target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 1);
+            
+            // === REALITY WARP DISTORTION ===
+            FateRealityDistortion.TriggerChromaticAberration(target.Center, 2.5f, 8);
             
             // === NEW UNIFIED VFX HIT EFFECT ===
             UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 1.2f);
@@ -648,36 +689,65 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override bool PreDraw(ref Color lightColor)
         {
-            // Massive charged thrust rendering
+            // Massive charged thrust with orbiting glyphs and eyes
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = glowTex.Size() / 2f;
-            float rotation = Projectile.rotation;
             
-            // Draw intense trail
+            // Switch to additive blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            Texture2D eyeTex = CustomParticleSystem.RandomEnigmaEye().Value;
+            Texture2D glyphTex = CustomParticleSystem.RandomGlyph().Value;
+            Texture2D sparkleTex = CustomParticleSystem.RandomPrismaticSparkle().Value;
+            Texture2D flareTex = CustomParticleSystem.EnergyFlares[0].Value;
+            
+            // Draw intense glyph trail at old positions
             for (int i = Projectile.oldPos.Length - 1; i >= 0; i--)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 float trailProgress = (float)i / Projectile.oldPos.Length;
-                Color trailColor = GetEnigmaGradient(trailProgress) * (1f - trailProgress) * 0.7f;
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                float trailScale = (1f - trailProgress * 0.4f) * 1.2f;
-                spriteBatch.Draw(glowTex, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
+                Color trailColor = Color.Lerp(EnigmaPurple, EnigmaGreen, trailProgress) * (1f - trailProgress) * 0.7f;
+                Texture2D trailGlyph = CustomParticleSystem.GetGlyph(i % 12).Value;
+                spriteBatch.Draw(trailGlyph, trailPos, null, trailColor, Projectile.oldRot[i] + i * 0.4f, trailGlyph.Size() / 2f, 0.25f * (1f - trailProgress * 0.4f), SpriteEffects.None, 0f);
             }
             
-            // Outer massive glow
+            // Draw orbiting glyphs - larger formation for charged attack
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = Main.GameUpdateCount * 0.06f + MathHelper.TwoPi * i / 8f;
+                float radius = 35f + (float)Math.Sin(Main.GameUpdateCount * 0.08f + i) * 10f;
+                Vector2 glyphPos = drawPos + angle.ToRotationVector2() * radius;
+                Color glyphColor = Color.Lerp(EnigmaBlack, Color.Lerp(EnigmaPurple, EnigmaGreen, (float)i / 8f), 0.7f) * 0.75f;
+                Texture2D orbitGlyph = CustomParticleSystem.GetGlyph(i % 12).Value;
+                spriteBatch.Draw(orbitGlyph, glyphPos, null, glyphColor, angle * 2.5f, orbitGlyph.Size() / 2f, 0.22f, SpriteEffects.None, 0f);
+            }
+            
+            // Draw orbiting sparkles in inner ring
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = Main.GameUpdateCount * 0.1f + MathHelper.TwoPi * i / 6f;
+                float radius = 20f;
+                Vector2 sparkPos = drawPos + angle.ToRotationVector2() * radius;
+                Color sparkColor = Color.Lerp(EnigmaPurple, EnigmaGreen, (float)i / 6f) * 0.65f;
+                spriteBatch.Draw(sparkleTex, sparkPos, null, sparkColor, angle * 1.8f, sparkleTex.Size() / 2f, 0.18f, SpriteEffects.None, 0f);
+            }
+            
+            // Draw central watching eye
+            float eyeRotation = Projectile.velocity.ToRotation();
+            spriteBatch.Draw(eyeTex, drawPos, null, EnigmaGreen * 0.85f, eyeRotation, eyeTex.Size() / 2f, 0.35f, SpriteEffects.None, 0f);
+            
+            // Draw pulsing flare core behind eye
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.2f) * 0.2f + 1f;
-            spriteBatch.Draw(glowTex, drawPos, null, EnigmaPurple * 0.4f, rotation, origin, 2.2f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(flareTex, drawPos, null, EnigmaPurple * 0.7f, Main.GameUpdateCount * 0.03f, flareTex.Size() / 2f, 0.55f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreen * 0.5f, -Main.GameUpdateCount * 0.04f, flareTex.Size() / 2f, 0.35f * pulse, SpriteEffects.None, 0f);
             
-            // Middle glow - bright green
-            spriteBatch.Draw(glowTex, drawPos, null, EnigmaGreen * 0.7f, rotation, origin, 1.5f, SpriteEffects.None, 0f);
-            
-            // Inner core - intense
-            spriteBatch.Draw(glowTex, drawPos, null, GetEnigmaGradient(0.7f) * 0.9f, rotation, origin, 0.9f, SpriteEffects.None, 0f);
-            
-            // Central white flash
-            spriteBatch.Draw(glowTex, drawPos, null, Color.White, rotation, origin, 0.45f, SpriteEffects.None, 0f);
+            // Restore normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -755,6 +825,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             brandNPC.AddParadoxStack(target, 3); // Heavy stacking from charged attack
             
             hitEnemies.Add(target.whoAmI);
+            
+            // === CHARGED THRUST REALITY WARP (STRONGER) ===
+            FateRealityDistortion.TriggerChromaticAberration(target.Center, 5f, 18);
+            FateRealityDistortion.TriggerInversionPulse(6);
             
             // === NEW UNIFIED VFX EXPLOSION (CHARGED ATTACK) ===
             UnifiedVFX.EnigmaVariations.Explosion(target.Center, 1.5f);
@@ -849,6 +923,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
+            // === CHARGED THRUST DEATH REALITY WARP ===
+            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 5f, 18);
+            FateRealityDistortion.TriggerInversionPulse(6);
+            
             // End burst
             CustomParticles.GenericFlare(Projectile.Center, Color.White, 1.0f, 25);
             

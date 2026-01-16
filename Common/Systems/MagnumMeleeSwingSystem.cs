@@ -8,15 +8,12 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Content.LaCampanella.Debuffs;
 
 namespace MagnumOpus.Common.Systems
 {
     /// <summary>
-    /// Configuration for MagnumOpus's unique melee swing pattern.
-    /// Swing 1: Downward slash
-    /// Swing 2: Upward slash  
-    /// Swing 3: 360° spin with particle burst
+    /// Configuration for MagnumOpus's full rotation melee swing.
+    /// Every swing is a full 360° rotation with a large particle trail.
     /// </summary>
     public class MagnumSwingConfig
     {
@@ -24,38 +21,26 @@ namespace MagnumOpus.Common.Systems
         public Color PrimaryColor { get; set; } = Color.White;
         public Color SecondaryColor { get; set; } = Color.Gray;
         
-        // Particle burst settings for the 360 spin
-        public int BurstParticleCount { get; set; } = 12;
-        public float BurstRadius { get; set; } = 60f;
-        public float BurstScale { get; set; } = 0.5f;
+        // Trail settings
+        public float TrailScale { get; set; } = 1.5f;
+        public int TrailDensity { get; set; } = 3; // Particles per frame
         
         // Optional custom effects
         public Action<Vector2, int, float> SpawnThemeMusicNotes { get; set; }
-        public Action<Vector2, float> SpawnThemeImpact { get; set; }
-        public Action<Vector2, float> SpawnThemeBurst { get; set; }
+        
+        // Custom trail effect (for theme-specific visuals like nebular clouds)
+        public Action<Vector2, float, float> SpawnCustomTrailEffect { get; set; }
         
         // Sound effects
         public SoundStyle? SwingSound { get; set; }
-        public SoundStyle? BurstSound { get; set; }
-        
-        // Trail settings
-        public bool EnableTrail { get; set; } = true;
-        public float TrailScale { get; set; } = 1f;
     }
     
     /// <summary>
     /// Tracks the current swing state for the player.
-    /// Handles the Down → Up → 360 Burst combo pattern.
+    /// Every swing is a full 360° rotation with large particle trail.
     /// </summary>
     public class MagnumMeleePlayer : ModPlayer
     {
-        // Current swing in the combo (0 = down, 1 = up, 2 = 360 spin)
-        public int CurrentSwingIndex { get; private set; } = 0;
-        
-        // Timer for combo reset
-        private int comboResetTimer = 0;
-        private const int ComboResetTime = 45; // Frames before combo resets (0.75 seconds)
-        
         // Track if we're mid-swing
         public bool IsSwinging { get; private set; } = false;
         private float swingProgress = 0f;
@@ -65,21 +50,21 @@ namespace MagnumOpus.Common.Systems
         private MagnumSwingConfig currentConfig;
         private Item swingingWeapon;
         
-        // Track last held item type to reset combo when switching weapons
+        // Track last held item type
         private int lastHeldItemType = -1;
+        
+        // Track itemAnimation to detect new swing cycles
+        private int lastItemAnimation = 0;
+        private bool wasSwingingLastFrame = false;
         
         // Swing angle tracking for rotation
         private float startAngle;
         private float endAngle;
         private float currentAngle;
         
-        // For 360 burst tracking
-        private bool hasFiredBurst = false;
-        
-        /// <summary>
-        /// Gets the current swing direction: 0 = down, 1 = up, 2 = spin
-        /// </summary>
-        public int GetSwingDirection() => CurrentSwingIndex;
+        // Cached config for current held weapon
+        private MagnumSwingConfig cachedHeldConfig = null;
+        private int cachedHeldItemType = -1;
         
         /// <summary>
         /// Gets the current swing angle for custom drawing
@@ -92,47 +77,25 @@ namespace MagnumOpus.Common.Systems
         public float GetSwingProgress() => swingProgress;
         
         /// <summary>
-        /// Call this when starting a swing. Returns the swing type (0=down, 1=up, 2=spin)
+        /// Starts a full 360° rotation swing
         /// </summary>
-        public int StartSwing(Item weapon, MagnumSwingConfig config, int useAnimationFrames)
+        public void StartSwing(Item weapon, MagnumSwingConfig config, int useAnimationFrames)
         {
-            if (weapon == null || config == null) return 0;
+            if (weapon == null || config == null) return;
             
-            // Reset combo if switching weapons
-            if (weapon.type != lastHeldItemType)
-            {
-                CurrentSwingIndex = 0;
-                lastHeldItemType = weapon.type;
-            }
-            
+            lastHeldItemType = weapon.type;
             currentConfig = config;
             swingingWeapon = weapon;
             IsSwinging = true;
             swingProgress = 0f;
             swingDuration = useAnimationFrames;
-            hasFiredBurst = false;
             
-            // Calculate swing angles based on direction player is facing
+            // Calculate full 360° rotation based on direction player is facing
             int dir = Player.direction;
-            float baseAngle = dir == 1 ? 0f : MathHelper.Pi;
             
-            switch (CurrentSwingIndex)
-            {
-                case 0: // Downward slash
-                    startAngle = baseAngle - MathHelper.PiOver2 * 0.8f * dir;
-                    endAngle = baseAngle + MathHelper.PiOver2 * 1.2f * dir;
-                    break;
-                    
-                case 1: // Upward slash
-                    startAngle = baseAngle + MathHelper.PiOver2 * 1.2f * dir;
-                    endAngle = baseAngle - MathHelper.PiOver2 * 0.8f * dir;
-                    break;
-                    
-                case 2: // 360 spin
-                    startAngle = baseAngle - MathHelper.PiOver4 * dir;
-                    endAngle = startAngle + MathHelper.TwoPi * dir;
-                    break;
-            }
+            // Start from above-forward, rotate full circle
+            startAngle = -MathHelper.PiOver2; // Start pointing up
+            endAngle = startAngle + MathHelper.TwoPi * dir; // Full rotation
             
             currentAngle = startAngle;
             
@@ -141,11 +104,6 @@ namespace MagnumOpus.Common.Systems
             {
                 SoundEngine.PlaySound(config.SwingSound.Value, Player.Center);
             }
-            
-            // Reset combo timer
-            comboResetTimer = ComboResetTime + useAnimationFrames;
-            
-            return CurrentSwingIndex;
         }
         
         /// <summary>
@@ -163,18 +121,8 @@ namespace MagnumOpus.Common.Systems
             // Calculate current angle
             currentAngle = MathHelper.Lerp(startAngle, endAngle, easedProgress);
             
-            // Spawn trail particles
-            if (currentConfig.EnableTrail)
-            {
-                SpawnSwingTrail(easedProgress);
-            }
-            
-            // For 360 spin, spawn burst at midpoint
-            if (CurrentSwingIndex == 2 && !hasFiredBurst && swingProgress >= 0.5f)
-            {
-                SpawnParticleBurst();
-                hasFiredBurst = true;
-            }
+            // Spawn large trail particles
+            SpawnSwingTrail(easedProgress);
             
             // End swing
             if (swingProgress >= 1f)
@@ -193,159 +141,158 @@ namespace MagnumOpus.Common.Systems
         
         private void SpawnSwingTrail(float progress)
         {
-            if (currentConfig == null) return;
+            if (currentConfig == null || swingingWeapon == null) return;
             
-            // Calculate weapon tip position
-            float weaponLength = (swingingWeapon?.width ?? 50) * 0.8f;
+            // Calculate weapon tip position - use a larger radius for visual impact
+            float weaponLength = Math.Max(swingingWeapon.width, swingingWeapon.height) * 1.2f;
             Vector2 tipPos = Player.Center + currentAngle.ToRotationVector2() * weaponLength;
             
             // Gradient color based on progress
             Color trailColor = Color.Lerp(currentConfig.PrimaryColor, currentConfig.SecondaryColor, progress);
             
-            // Spawn trail flare
-            CustomParticles.GenericFlare(tipPos, trailColor, 0.3f * currentConfig.TrailScale, 12);
+            // === LARGE PARTICLE TRAIL ===
+            float scale = currentConfig.TrailScale;
             
-            // Spawn occasional glow particles
-            if (Main.rand.NextBool(3))
+            // Main bright flare at weapon tip
+            CustomParticles.GenericFlare(tipPos, trailColor, 0.6f * scale, 15);
+            CustomParticles.GenericFlare(tipPos, Color.White * 0.8f, 0.35f * scale, 10);
+            
+            // Multiple trailing glow particles
+            for (int i = 0; i < currentConfig.TrailDensity; i++)
             {
-                Vector2 velocity = currentAngle.ToRotationVector2().RotatedBy(MathHelper.PiOver2) * 2f;
-                var glow = new GenericGlowParticle(tipPos, velocity + Main.rand.NextVector2Circular(1f, 1f),
-                    trailColor, 0.25f * currentConfig.TrailScale, 15, true);
+                // Velocity perpendicular to swing direction (trailing behind)
+                Vector2 trailVel = -currentAngle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
+                trailVel += Main.rand.NextVector2Circular(1.5f, 1.5f);
+                
+                // Gradient across particles
+                float particleProgress = (progress + i * 0.1f) % 1f;
+                Color particleColor = Color.Lerp(currentConfig.PrimaryColor, currentConfig.SecondaryColor, particleProgress);
+                
+                var glow = new GenericGlowParticle(
+                    tipPos + Main.rand.NextVector2Circular(5f, 5f), 
+                    trailVel,
+                    particleColor, 
+                    0.4f * scale, 
+                    20, 
+                    true
+                );
                 MagnumParticleHandler.SpawnParticle(glow);
             }
             
-            // Spawn music notes occasionally
-            if (Main.rand.NextBool(8) && currentConfig.SpawnThemeMusicNotes != null)
+            // Sparks flying off
+            if (Main.rand.NextBool(2))
             {
-                currentConfig.SpawnThemeMusicNotes(tipPos, 1, 20f);
-            }
-            
-            // For spin attack, more intense trail
-            if (CurrentSwingIndex == 2)
-            {
-                // Extra particles for the spin
-                if (Main.rand.NextBool(2))
-                {
-                    float angle = currentAngle + Main.rand.NextFloat(-0.3f, 0.3f);
-                    Vector2 sparkPos = Player.Center + angle.ToRotationVector2() * weaponLength * Main.rand.NextFloat(0.5f, 1f);
-                    Color sparkColor = Color.Lerp(currentConfig.PrimaryColor, currentConfig.SecondaryColor, Main.rand.NextFloat());
-                    
-                    var spark = new GlowSparkParticle(sparkPos, 
-                        angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f),
-                        sparkColor, 0.3f * currentConfig.TrailScale, 18);
-                    MagnumParticleHandler.SpawnParticle(spark);
-                }
-            }
-        }
-        
-        private void SpawnParticleBurst()
-        {
-            if (currentConfig == null) return;
-            
-            // === 360 PARTICLE BURST ===
-            int count = currentConfig.BurstParticleCount;
-            float radius = currentConfig.BurstRadius;
-            float scale = currentConfig.BurstScale;
-            
-            // Central flash
-            CustomParticles.GenericFlare(Player.Center, Color.White, 0.8f * scale, 20);
-            
-            // Radial flare burst with gradient
-            for (int i = 0; i < count; i++)
-            {
-                float angle = MathHelper.TwoPi * i / count;
-                Vector2 offset = angle.ToRotationVector2() * radius;
-                Vector2 velocity = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
+                Vector2 sparkVel = currentAngle.ToRotationVector2().RotatedBy(MathHelper.PiOver2 * Player.direction) * Main.rand.NextFloat(3f, 7f);
+                sparkVel += Main.rand.NextVector2Circular(2f, 2f);
                 
-                // Gradient color
-                float progress = (float)i / count;
-                Color burstColor = Color.Lerp(currentConfig.PrimaryColor, currentConfig.SecondaryColor, progress);
-                
-                // Flare at burst position
-                CustomParticles.GenericFlare(Player.Center + offset * 0.5f, burstColor, 0.5f * scale, 18);
-                
-                // Outward spark
-                var spark = new GlowSparkParticle(Player.Center + offset * 0.3f, velocity, burstColor, 0.4f * scale, 22);
+                Color sparkColor = Color.Lerp(currentConfig.PrimaryColor, currentConfig.SecondaryColor, Main.rand.NextFloat());
+                var spark = new GlowSparkParticle(tipPos, sparkVel, sparkColor, 0.35f * scale, 18);
                 MagnumParticleHandler.SpawnParticle(spark);
             }
             
-            // Inner ring of secondary flares
-            for (int i = 0; i < count / 2; i++)
+            // Music notes occasionally
+            if (Main.rand.NextBool(6) && currentConfig.SpawnThemeMusicNotes != null)
             {
-                float angle = MathHelper.TwoPi * i / (count / 2) + MathHelper.Pi / count;
-                Vector2 offset = angle.ToRotationVector2() * radius * 0.5f;
-                
-                float progress = (float)i / (count / 2);
-                Color innerColor = Color.Lerp(currentConfig.SecondaryColor, currentConfig.PrimaryColor, progress);
-                
-                CustomParticles.GenericFlare(Player.Center + offset, innerColor, 0.35f * scale, 15);
+                currentConfig.SpawnThemeMusicNotes(tipPos, 1, 25f);
             }
             
-            // Halo ring
-            CustomParticles.HaloRing(Player.Center, currentConfig.PrimaryColor, 0.6f * scale, 25);
-            CustomParticles.HaloRing(Player.Center, currentConfig.SecondaryColor, 0.4f * scale, 20);
-            
-            // Theme-specific burst
-            currentConfig.SpawnThemeBurst?.Invoke(Player.Center, scale);
-            
-            // Music notes burst
-            if (currentConfig.SpawnThemeMusicNotes != null)
+            // Halo ring periodically for extra flair
+            if (Main.rand.NextBool(8))
             {
-                currentConfig.SpawnThemeMusicNotes(Player.Center, 6, radius);
+                CustomParticles.HaloRing(tipPos, trailColor * 0.6f, 0.25f * scale, 12);
             }
             
-            // Burst sound
-            if (currentConfig.BurstSound.HasValue)
+            // Custom theme-specific trail effect (e.g., Fate nebular clouds)
+            if (currentConfig.SpawnCustomTrailEffect != null)
             {
-                SoundEngine.PlaySound(currentConfig.BurstSound.Value, Player.Center);
-            }
-            else
-            {
-                // Default burst sound
-                SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.2f, Volume = 0.5f }, Player.Center);
+                currentConfig.SpawnCustomTrailEffect(tipPos, progress, scale);
             }
             
-            // Subtle screen shake
-            Player.GetModPlayer<ScreenShakePlayer>()?.AddShake(3f, 8);
-            
-            // Light burst
-            Lighting.AddLight(Player.Center, currentConfig.PrimaryColor.ToVector3() * 1.5f);
+            // Dynamic lighting
+            Lighting.AddLight(tipPos, trailColor.ToVector3() * 0.8f);
         }
         
         private void EndSwing()
         {
             IsSwinging = false;
             swingProgress = 0f;
-            
-            // Advance to next swing in combo
-            CurrentSwingIndex = (CurrentSwingIndex + 1) % 3;
-            
-            // Reset combo timer
-            comboResetTimer = ComboResetTime;
+        }
+        
+        /// <summary>
+        /// Sets the cached config for the current held weapon.
+        /// Call this from the GlobalItem when a qualifying weapon is held.
+        /// </summary>
+        public void SetHeldWeaponConfig(Item item, MagnumSwingConfig config)
+        {
+            if (item == null || config == null) return;
+            cachedHeldItemType = item.type;
+            cachedHeldConfig = config;
         }
         
         public override void PreUpdate()
         {
-            // Decay combo timer
-            if (comboResetTimer > 0 && !IsSwinging)
+            Item heldItem = Player.HeldItem;
+            
+            // Check if we have a valid config for this weapon
+            bool hasValidConfig = heldItem != null && 
+                                  cachedHeldConfig != null &&
+                                  heldItem.type == cachedHeldItemType;
+            
+            // Detect if player is currently in a swing animation
+            bool isCurrentlySwinging = Player.itemAnimation > 0 && hasValidConfig;
+            
+            // Detect the START of a new swing cycle
+            // Case 1: We weren't swinging last frame but now we are (first click)
+            // Case 2: itemAnimation jumped back up (held click started new swing)
+            // Case 3: itemAnimation reset while we were swinging (continuous hold)
+            bool newSwingStarted = false;
+            
+            if (isCurrentlySwinging)
             {
-                comboResetTimer--;
-                
-                if (comboResetTimer <= 0)
+                if (!wasSwingingLastFrame)
                 {
-                    // Reset combo
-                    CurrentSwingIndex = 0;
+                    // Just started swinging
+                    newSwingStarted = true;
+                }
+                else if (Player.itemAnimation > lastItemAnimation)
+                {
+                    // itemAnimation increased - new swing cycle while holding
+                    newSwingStarted = true;
+                }
+                else if (lastItemAnimation <= 2 && Player.itemAnimation > 2)
+                {
+                    // Was about to end, but jumped back up (continuous swing)
+                    newSwingStarted = true;
                 }
             }
+            
+            if (newSwingStarted && cachedHeldConfig != null)
+            {
+                // Start the new swing
+                StartSwing(heldItem, cachedHeldConfig, Player.itemAnimationMax);
+            }
+            
+            // Update swing if in progress
+            if (IsSwinging && isCurrentlySwinging)
+            {
+                UpdateSwing();
+            }
+            else if (IsSwinging && !isCurrentlySwinging)
+            {
+                // Swing ended naturally (itemAnimation reached 0)
+                EndSwing();
+            }
+            
+            // Track for next frame
+            lastItemAnimation = Player.itemAnimation;
+            wasSwingingLastFrame = isCurrentlySwinging;
         }
         
         /// <summary>
-        /// Call this to manually reset the combo (e.g., when switching weapons)
+        /// Call this to manually reset the swing state
         /// </summary>
-        public void ResetCombo()
+        public void ResetSwing()
         {
-            CurrentSwingIndex = 0;
-            comboResetTimer = 0;
             IsSwinging = false;
             swingProgress = 0f;
             currentConfig = null;
@@ -362,93 +309,145 @@ namespace MagnumOpus.Common.Systems
         {
             PrimaryColor = UnifiedVFX.SwanLake.White,
             SecondaryColor = UnifiedVFX.SwanLake.Black,
-            BurstParticleCount = 14,
-            BurstRadius = 65f,
-            BurstScale = 0.55f,
+            TrailScale = 1.6f,
+            TrailDensity = 4,
             SpawnThemeMusicNotes = (pos, count, radius) => ThemedParticles.SwanLakeMusicNotes(pos, count, radius),
-            SpawnThemeBurst = (pos, scale) => ThemedParticles.SwanLakeRainbowExplosion(pos, scale),
-            SwingSound = SoundID.Item1 with { Pitch = 0.1f },
-            BurstSound = SoundID.Item29 with { Pitch = 0.3f, Volume = 0.6f }
+            SwingSound = SoundID.Item1 with { Pitch = 0.1f }
         };
         
         public static MagnumSwingConfig LaCampanella => new MagnumSwingConfig
         {
             PrimaryColor = UnifiedVFX.LaCampanella.Orange,
             SecondaryColor = UnifiedVFX.LaCampanella.Black,
-            BurstParticleCount = 12,
-            BurstRadius = 60f,
-            BurstScale = 0.5f,
+            TrailScale = 1.5f,
+            TrailDensity = 3,
             SpawnThemeMusicNotes = (pos, count, radius) => ThemedParticles.LaCampanellaMusicNotes(pos, count, radius),
-            SpawnThemeBurst = (pos, scale) => UnifiedVFX.LaCampanella.Explosion(pos, scale),
-            SwingSound = SoundID.Item1 with { Pitch = -0.1f },
-            BurstSound = SoundID.DD2_BetsyFireballImpact with { Volume = 0.5f }
+            SwingSound = SoundID.Item1 with { Pitch = -0.1f }
         };
         
         public static MagnumSwingConfig Eroica => new MagnumSwingConfig
         {
             PrimaryColor = UnifiedVFX.Eroica.Scarlet,
             SecondaryColor = UnifiedVFX.Eroica.Gold,
-            BurstParticleCount = 12,
-            BurstRadius = 60f,
-            BurstScale = 0.5f,
+            TrailScale = 1.5f,
+            TrailDensity = 3,
             SpawnThemeMusicNotes = (pos, count, radius) => ThemedParticles.EroicaMusicNotes(pos, count, radius),
-            SpawnThemeBurst = (pos, scale) => UnifiedVFX.Eroica.Explosion(pos, scale),
-            SwingSound = SoundID.Item1,
-            BurstSound = SoundID.Item45 with { Volume = 0.5f }
+            SwingSound = SoundID.Item1
         };
         
         public static MagnumSwingConfig MoonlightSonata => new MagnumSwingConfig
         {
             PrimaryColor = UnifiedVFX.MoonlightSonata.DarkPurple,
             SecondaryColor = UnifiedVFX.MoonlightSonata.LightBlue,
-            BurstParticleCount = 10,
-            BurstRadius = 55f,
-            BurstScale = 0.45f,
+            TrailScale = 1.4f,
+            TrailDensity = 3,
             SpawnThemeMusicNotes = (pos, count, radius) => ThemedParticles.MoonlightMusicNotes(pos, count, radius),
-            SpawnThemeBurst = (pos, scale) => UnifiedVFX.MoonlightSonata.Explosion(pos, scale),
-            SwingSound = SoundID.Item1 with { Pitch = 0.2f },
-            BurstSound = SoundID.Item29 with { Pitch = 0.5f, Volume = 0.4f }
+            SwingSound = SoundID.Item1 with { Pitch = 0.2f }
         };
         
         public static MagnumSwingConfig EnigmaVariations => new MagnumSwingConfig
         {
             PrimaryColor = UnifiedVFX.EnigmaVariations.Purple,
             SecondaryColor = UnifiedVFX.EnigmaVariations.GreenFlame,
-            BurstParticleCount = 12,
-            BurstRadius = 60f,
-            BurstScale = 0.5f,
+            TrailScale = 1.5f,
+            TrailDensity = 3,
             SpawnThemeMusicNotes = (pos, count, radius) => ThemedParticles.EnigmaMusicNotes(pos, count, radius),
-            SpawnThemeBurst = (pos, scale) => UnifiedVFX.EnigmaVariations.Explosion(pos, scale),
-            SwingSound = SoundID.Item1 with { Pitch = -0.2f },
-            BurstSound = SoundID.Item104 with { Volume = 0.5f }
+            SwingSound = SoundID.Item1 with { Pitch = -0.2f }
         };
+        
+        // Dark colors for Fate nebular clouds
+        private static readonly Color FateDarkBlack = new Color(15, 5, 20);
+        private static readonly Color FateDarkPink = new Color(120, 30, 80);
         
         public static MagnumSwingConfig Fate => new MagnumSwingConfig
         {
-            PrimaryColor = UnifiedVFX.Fate.White,
-            SecondaryColor = UnifiedVFX.Fate.Crimson,
-            BurstParticleCount = 16,
-            BurstRadius = 70f,
-            BurstScale = 0.6f,
+            PrimaryColor = FateDarkPink,
+            SecondaryColor = FateDarkBlack,
+            TrailScale = 1.8f,
+            TrailDensity = 5,
             SpawnThemeMusicNotes = (pos, count, radius) => ThemedParticles.FateMusicNotes(pos, count, radius),
-            SpawnThemeBurst = (pos, scale) => UnifiedVFX.Fate.Explosion(pos, scale),
             SwingSound = SoundID.Item1 with { Pitch = -0.3f },
-            BurstSound = SoundID.Item122 with { Volume = 0.6f }
+            SpawnCustomTrailEffect = SpawnFateNebularClouds
         };
+        
+        /// <summary>
+        /// Spawns dark black and dark pink nebular clouds around Fate weapon swings
+        /// </summary>
+        private static void SpawnFateNebularClouds(Vector2 position, float progress, float scale)
+        {
+            // Spawn heavy dark smoke particles as nebular clouds
+            // Dark black clouds
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 cloudVel = Main.rand.NextVector2Circular(3f, 3f);
+                cloudVel.Y -= 1f; // Slight upward drift
+                
+                var blackCloud = new HeavySmokeParticle(
+                    position + Main.rand.NextVector2Circular(15f, 15f),
+                    cloudVel,
+                    FateDarkBlack,
+                    Main.rand.Next(35, 55),
+                    0.5f * scale,
+                    0.9f * scale,
+                    0.015f,
+                    true
+                );
+                MagnumParticleHandler.SpawnParticle(blackCloud);
+            }
+            
+            // Dark pink clouds
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 cloudVel = Main.rand.NextVector2Circular(2.5f, 2.5f);
+                cloudVel.Y -= 0.8f;
+                
+                var pinkCloud = new HeavySmokeParticle(
+                    position + Main.rand.NextVector2Circular(12f, 12f),
+                    cloudVel,
+                    FateDarkPink,
+                    Main.rand.Next(30, 50),
+                    0.4f * scale,
+                    0.8f * scale,
+                    0.018f,
+                    true
+                );
+                MagnumParticleHandler.SpawnParticle(pinkCloud);
+            }
+            
+            // Occasional brighter pink accent
+            if (Main.rand.NextBool(4))
+            {
+                Color brightPink = new Color(180, 50, 100);
+                var glow = new GenericGlowParticle(
+                    position + Main.rand.NextVector2Circular(8f, 8f),
+                    Main.rand.NextVector2Circular(2f, 2f),
+                    brightPink * 0.7f,
+                    0.3f * scale,
+                    25,
+                    true
+                );
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            // Dark ambient glow
+            if (Main.rand.NextBool(3))
+            {
+                Color mixedColor = Color.Lerp(FateDarkBlack, FateDarkPink, progress);
+                CustomParticles.GenericFlare(position, mixedColor * 0.5f, 0.4f * scale, 18);
+            }
+        }
         
         /// <summary>
         /// Creates a custom swing config with specified colors
         /// </summary>
         public static MagnumSwingConfig Custom(Color primary, Color secondary, 
-            Action<Vector2, int, float> musicNotes = null, 
-            Action<Vector2, float> burst = null)
+            Action<Vector2, int, float> musicNotes = null)
         {
             return new MagnumSwingConfig
             {
                 PrimaryColor = primary,
                 SecondaryColor = secondary,
-                SpawnThemeMusicNotes = musicNotes,
-                SpawnThemeBurst = burst
+                SpawnThemeMusicNotes = musicNotes
             };
         }
     }

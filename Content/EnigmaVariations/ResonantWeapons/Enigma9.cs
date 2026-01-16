@@ -219,6 +219,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             var brandNPC = target.GetGlobalNPC<ParadoxBrandNPC>();
             brandNPC.AddParadoxStack(target, 2);
             
+            // === TEMPORAL REALITY WARP ===
+            FateRealityDistortion.TriggerChromaticAberration(target.Center, 3.5f, 12);
+            
             // Spawn a temporal echo
             if (echoCount < MaxEchoes && positionHistory.Count > 10)
             {
@@ -343,6 +346,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
+            // === TEMPORAL COLLAPSE REALITY WARP ===
+            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 4f, 15);
+            
             // Death burst
             for (int i = 0; i < 8; i++)
             {
@@ -354,6 +360,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             }
             
             CustomParticles.HaloRing(Projectile.Center, EnigmaPurple, 0.5f, 15);
+            
+            // === WATCHING EYE at temporal collapse ===
+            CustomParticles.EnigmaEyeGaze(Projectile.Center, EnigmaGreen * 0.6f, 0.4f, Projectile.velocity.SafeNormalize(Vector2.UnitX));
         }
     }
     
@@ -439,6 +448,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 240);
             target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 1);
             
+            // === TEMPORAL ECHO REALITY WARP ===
+            FateRealityDistortion.TriggerChromaticAberration(target.Center, 2.5f, 8);
+            
             // === NEW UNIFIED VFX HIT EFFECT ===
             UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 1.2f);
             
@@ -463,6 +475,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
+            // === TEMPORAL DEATH REALITY WARP ===
+            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 3f, 10);
+            
             Color echoColor = GetEnigmaGradient((float)echoNumber / 5f);
             for (int i = 0; i < 4; i++)
             {
@@ -557,6 +572,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
             var brandNPC = target.GetGlobalNPC<ParadoxBrandNPC>();
             brandNPC.AddParadoxStack(target, 4);
+            
+            // === TIME CASCADE REALITY WARP ===
+            FateRealityDistortion.TriggerChromaticAberration(target.Center, 5f, 18);
+            FateRealityDistortion.TriggerInversionPulse(6);
             
             // === NEW UNIFIED VFX EXPLOSION ===
             UnifiedVFX.EnigmaVariations.Explosion(target.Center, 1.5f);
