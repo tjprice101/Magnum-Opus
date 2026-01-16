@@ -116,6 +116,7 @@ for (int i = 0; i < count; i++)
 - ❌ Use ALL CAPS in tooltips
 - ❌ Add screen shake on normal hits (only charged attacks, boss phases)
 - ❌ Create sparse, minimal effects
+- ❌ **NEVER create rotating concentric ring/disc projectiles** (astrological rings, magic circles, spinning nested rings) - THIS IS ABSOLUTELY FORBIDDEN
 
 ---
 

@@ -550,6 +550,16 @@ Buffs: {
 		DisplayName: Unsolved Phantom Buff
 		Description: Mods.MagnumOpus.Buffs.UnsolvedPhantomBuff.Description
 	}
+
+	FateAvatarBuff: {
+		DisplayName: Fate Avatar Buff
+		Description: Mods.MagnumOpus.Buffs.FateAvatarBuff.Description
+	}
+
+	FateMarked: {
+		DisplayName: Fate Marked
+		Description: Mods.MagnumOpus.Buffs.FateMarked.Description
+	}
 }
 
 Items: {
@@ -1501,6 +1511,16 @@ Items: {
 		DisplayName: Iridescent Dawn
 		Tooltip: ""
 	}
+
+	Debug2Ray: {
+		DisplayName: Debug2 Ray
+		Tooltip: ""
+	}
+
+	EnigmaTreasureBag: {
+		DisplayName: Enigma Treasure Bag
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -1519,6 +1539,9 @@ NPCs: {
 	FlamesOfValor.DisplayName: Flames Of Valor
 	SwanLakeTheMonochromaticFractal.DisplayName: Swan Lake The Monochromatic Fractal
 	LaCampanellaChimeOfLife.DisplayName: La Campanella Chime Of Life
+	EnigmaMiniSpider.DisplayName: Enigma Mini Spider
+	EnigmaTheHollowMystery.DisplayName: Enigma The Hollow Mystery
+	MysterysEnd.DisplayName: Mysterys End
 }
 
 Projectiles: {
@@ -1802,6 +1825,37 @@ Projectiles: {
 	TimelineGhostBolt.DisplayName: Timeline Ghost Bolt
 	Debug1FractalFlare.DisplayName: Debug1 Fractal Flare
 	SplittingValorOrb.DisplayName: Splitting Valor Orb
+	Debug2RayBeam.DisplayName: Debug2 Ray Beam
+	EnigmaGlyphProjectile.DisplayName: Enigma Glyph Projectile
+	EnigmaHomingEye.DisplayName: Enigma Homing Eye
+	EnigmaShockwave.DisplayName: Enigma Shockwave
+	EnigmaVoidWeb.DisplayName: Enigma Void Web
+	EnigmaWebShot.DisplayName: Enigma Web Shot
+	MysterysEndProjectile.DisplayName: Mysterys End Projectile
+	FateAstrologicalRing.DisplayName: Fate Astrological Ring
+	AvatarDestinyOrb.DisplayName: Avatar Destiny Orb
+	AvatarRealityRift.DisplayName: Avatar Reality Rift
+	AvatarSwordSlash.DisplayName: Avatar Sword Slash
+	CosmicCrescentArc.DisplayName: Cosmic Crescent Arc
+	CosmicExecutionerSlash.DisplayName: Cosmic Executioner Slash
+	DestinyArrow.DisplayName: Destiny Arrow
+	DestinyEcho.DisplayName: Destiny Echo
+	EventHorizonBeam.DisplayName: Event Horizon Beam
+	FateAvatarMinion.DisplayName: Fate Avatar Minion
+	FateFractureLine.DisplayName: Fate Fracture Line
+	FateOrbSeeker.DisplayName: Fate Orb Seeker
+	FateShockwave.DisplayName: Fate Shockwave
+	FateTrailLine.DisplayName: Fate Trail Line
+	KaleidoscopicPortal.DisplayName: Kaleidoscopic Portal
+	MicroSingularity.DisplayName: Micro Singularity
+	PhantomTimelineBlade.DisplayName: Phantom Timeline Blade
+	PhaseArrow.DisplayName: Phase Arrow
+	RealityRift.DisplayName: Reality Rift
+	SingularitySpearProj.DisplayName: Singularity Spear Proj
+	StarJudgment.DisplayName: Star Judgment
+	TemporalEchoSlash.DisplayName: Temporal Echo Slash
+	TimelineArrowRain.DisplayName: Timeline Arrow Rain
+	TimelineBullet.DisplayName: Timeline Bullet
 }
 
 "Keybinds.Toggle Harmonic Core UI.DisplayName": Toggle  Harmonic  Core  U I

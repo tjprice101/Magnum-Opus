@@ -78,6 +78,53 @@ If the answer is no—**think harder, dig deeper, and create something magnifice
 
 ---
 
+## ⛔ ABSOLUTELY FORBIDDEN PROJECTILE TYPES - NEVER CREATE
+
+> **THIS IS A HARD RULE. DO NOT VIOLATE UNDER ANY CIRCUMSTANCES.**
+
+### BANNED: Rotating Concentric Ring/Disc Projectiles
+
+**NEVER, EVER create projectiles that look like:**
+- Large rotating concentric circles/rings around the player
+- "Astrological ring" style effects with multiple nested rings
+- Flat disc projectiles that spin with concentric patterns
+- Any projectile with multiple rings that rotate and pulse
+- "Magic circle" style flat disc attack patterns
+
+**Why this is banned:**
+- These effects are visually obnoxious and clash with the mod's aesthetic
+- They obscure gameplay and obstruct the player's view
+- They look generic and don't fit the musical theme of MagnumOpus
+- The creator specifically hates this visual style
+
+**If you see this pattern in existing code - DELETE IT IMMEDIATELY.**
+
+```csharp
+// ❌ ABSOLUTELY FORBIDDEN - NEVER CREATE ANYTHING LIKE THIS
+public class FateAstrologicalRing : ModProjectile  // BANNED
+{
+    // Drawing concentric rings around player - FORBIDDEN
+    private void DrawAstrologicalRing() { }
+    private void DrawFullRing() { }
+    private void DrawRingArc() { }
+    // Multiple nested rotating circles - BANNED
+    for (int ring = 0; ring < InnerRings; ring++) { }
+}
+
+// ❌ ANY variation of rotating disc/ring patterns - BANNED
+public void DrawConcentricRings() { }  // NO
+public void SpawnAstrologicalCircle() { }  // NO
+public void CreateMagicCircle() { }  // NO
+```
+
+**Instead, create effects that:**
+- ✅ Flow naturally with movement (trails, waves, arcs)
+- ✅ Emanate outward and dissipate (explosions, bursts, sparks)
+- ✅ Include musical elements (notes, glyphs, themed particles)
+- ✅ Don't create large stationary visual obstructions
+
+---
+
 ## CRITICAL: Asset File Handling - MANDATORY
 
 **Any file given (image, asset, texture, audio, etc.) should be moved to its correct location within the modpack:**
