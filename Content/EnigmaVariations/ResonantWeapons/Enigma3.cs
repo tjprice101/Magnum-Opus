@@ -460,15 +460,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             
             // Massive glyph burst
             CustomParticles.GlyphBurst(Projectile.Center, EnigmaGreen, count: 16, speed: 8f);
-            
-            // Multiple halo rings
-            for (int ring = 0; ring < 8; ring++)
-            {
-                float ringProgress = ring / 8f;
-                Color ringColor = GetEnigmaGradient(ringProgress);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.4f * currentScale + ring * 0.25f, 20 + ring * 4);
-            }
-            
             // Massive fractal explosion
             for (int layer = 0; layer < 4; layer++)
             {

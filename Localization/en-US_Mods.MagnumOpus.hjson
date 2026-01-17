@@ -560,6 +560,26 @@ Buffs: {
 		DisplayName: Fate Marked
 		Description: Mods.MagnumOpus.Buffs.FateMarked.Description
 	}
+
+	CapricornBuff: {
+		DisplayName: Capricorn Buff
+		Description: Mods.MagnumOpus.Buffs.CapricornBuff.Description
+	}
+
+	CapricornMinionBuff: {
+		DisplayName: Capricorn Minion Buff
+		Description: Mods.MagnumOpus.Buffs.CapricornMinionBuff.Description
+	}
+
+	HydraConstellationBuff: {
+		DisplayName: Hydra Constellation Buff
+		Description: Mods.MagnumOpus.Buffs.HydraConstellationBuff.Description
+	}
+
+	CosmicDeityBuff: {
+		Description: Mods.MagnumOpus.Buffs.CosmicDeityBuff.Description
+		DisplayName: Cosmic Deity Buff
+	}
 }
 
 Items: {
@@ -1521,6 +1541,56 @@ Items: {
 		DisplayName: Enigma Treasure Bag
 		Tooltip: ""
 	}
+
+	Fate1Sword: {
+		DisplayName: Fate1 Sword
+		Tooltip: ""
+	}
+
+	Fate1Magic: {
+		DisplayName: Fate1 Magic
+		Tooltip: ""
+	}
+
+	Fate1Ranged: {
+		DisplayName: Fate1 Ranged
+		Tooltip: ""
+	}
+
+	Fate1Summon: {
+		DisplayName: Fate1 Summon
+		Tooltip: ""
+	}
+
+	Fate2Magic: {
+		DisplayName: Fate2 Magic
+		Tooltip: ""
+	}
+
+	Fate2Ranged: {
+		DisplayName: Fate2 Ranged
+		Tooltip: ""
+	}
+
+	Fate2Sword: {
+		DisplayName: Fate2 Sword
+		Tooltip: ""
+	}
+
+	Fate3Sword: {
+		DisplayName: Fate3 Sword
+		Tooltip: ""
+	}
+
+	Fate4Sword: {
+		DisplayName: Fate4 Sword
+		Tooltip: ""
+	}
+
+	Fate5Sword: {
+		DisplayName: Fate5 Sword
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -1832,7 +1902,6 @@ Projectiles: {
 	EnigmaVoidWeb.DisplayName: Enigma Void Web
 	EnigmaWebShot.DisplayName: Enigma Web Shot
 	MysterysEndProjectile.DisplayName: Mysterys End Projectile
-	FateAstrologicalRing.DisplayName: Fate Astrological Ring
 	AvatarDestinyOrb.DisplayName: Avatar Destiny Orb
 	AvatarRealityRift.DisplayName: Avatar Reality Rift
 	AvatarSwordSlash.DisplayName: Avatar Sword Slash
@@ -1856,6 +1925,67 @@ Projectiles: {
 	TemporalEchoSlash.DisplayName: Temporal Echo Slash
 	TimelineArrowRain.DisplayName: Timeline Arrow Rain
 	TimelineBullet.DisplayName: Timeline Bullet
+	DestinyBullet.DisplayName: Destiny Bullet
+	PhaseBullet.DisplayName: Phase Bullet
+	TimelineBulletRain.DisplayName: Timeline Bullet Rain
+	CapricornMinion.DisplayName: Capricorn Minion
+	GeminiTwinProjectile.DisplayName: Gemini Twin Projectile
+	LibraBalanceArrow.DisplayName: Libra Balance Arrow
+	SagittariusArrow.DisplayName: Sagittarius Arrow
+	SagittariusBeam.DisplayName: Sagittarius Beam
+	ScorpioStinger.DisplayName: Scorpio Stinger
+	TaurusChargeSlash.DisplayName: Taurus Charge Slash
+	VirgoJudgmentShot.DisplayName: Virgo Judgment Shot
+	AriesConstellationSlash.DisplayName: Aries Constellation Slash
+	CancerCosmicWave.DisplayName: Cancer Cosmic Wave
+	GeminiCosmicSpear.DisplayName: Gemini Cosmic Spear
+	LeoCosmicRoar.DisplayName: Leo Cosmic Roar
+	LibraJudgmentZone.DisplayName: Libra Judgment Zone
+	SagittariusArrowBeam.DisplayName: Sagittarius Arrow Beam
+	SagittariusMeteorArrow.DisplayName: Sagittarius Meteor Arrow
+	ScorpioTailStrike.DisplayName: Scorpio Tail Strike
+	ScorpioVenomBolt.DisplayName: Scorpio Venom Bolt
+	TaurusCosmicSlash.DisplayName: Taurus Cosmic Slash
+	VirgoCosmicBullet.DisplayName: Virgo Cosmic Bullet
+	VirgoHarvestRay.DisplayName: Virgo Harvest Ray
+	GalacticCosmicProjectile.DisplayName: Galactic Cosmic Projectile
+	StarSpiralExplosion.DisplayName: Star Spiral Explosion
+	ConstellationBurst.DisplayName: Constellation Burst
+	CosmicStarProjectile.DisplayName: Cosmic Star Projectile
+	AstrographConstellation.DisplayName: Astrograph Constellation
+	AquilaDiveStrike.DisplayName: Aquila Dive Strike
+	AquilaTalonProjectile.DisplayName: Aquila Talon Projectile
+	ChainingStarProjectile.DisplayName: Chaining Star Projectile
+	DragonBreathFireball.DisplayName: Dragon Breath Fireball
+	DragonBreathHeldSword.DisplayName: Dragon Breath Held Sword
+	HarmonicWaveProjectile.DisplayName: Harmonic Wave Projectile
+	HarmonyBurst.DisplayName: Harmony Burst
+	HydraHeadMinion.DisplayName: Hydra Head Minion
+	HydraVenomBolt.DisplayName: Hydra Venom Bolt
+	LionRoarShockwave.DisplayName: Lion Roar Shockwave
+	PhoenixExplosion.DisplayName: Phoenix Explosion
+	PhoenixFeatherProjectile.DisplayName: Phoenix Feather Projectile
+	SagittariusHeldBow.DisplayName: Sagittarius Held Bow
+	ScorpionStingerLine.DisplayName: Scorpion Stinger Line
+	ScorpionStingerProjectile.DisplayName: Scorpion Stinger Projectile
+	ZodiacExplosion.DisplayName: Zodiac Explosion
+	SpiralingSpectralBlade.DisplayName: Spiraling Spectral Blade
+	SpectralSwordBeam.DisplayName: Spectral Sword Beam
+	SpectralSlashingBlade.DisplayName: Spectral Slashing Blade
+	PrismaticBeam.DisplayName: Prismatic Beam
+	OrbitingSpectralBlade.DisplayName: Orbiting Spectral Blade
+	GlassDistortionEffect.DisplayName: Glass Distortion Effect
+	FateRapidBullet.DisplayName: Fate Rapid Bullet
+	DeityCosmicBeam.DisplayName: Deity Cosmic Beam
+	CosmicSeekerBall.DisplayName: Cosmic Seeker Ball
+	CosmicRocket.DisplayName: Cosmic Rocket
+	CosmicMusicNoteProjectile.DisplayName: Cosmic Music Note Projectile
+	CosmicEnergyBall.DisplayName: Cosmic Energy Ball
+	CosmicElectricityStaff.DisplayName: Cosmic Electricity Staff
+	CosmicDeityMinion.DisplayName: Cosmic Deity Minion
+	CosmicBeamHeldSword.DisplayName: Cosmic Beam Held Sword
+	AcceleratingCosmicRound.DisplayName: Accelerating Cosmic Round
+	CosmicStarCircleEffect.DisplayName: Cosmic Star Circle Effect
 }
 
 "Keybinds.Toggle Harmonic Core UI.DisplayName": Toggle  Harmonic  Core  U I

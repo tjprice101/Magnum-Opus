@@ -453,18 +453,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                     CustomParticles.GenericFlare(tearPos - perpendicular * sideOffset, EnigmaPurple * 0.75f, 0.4f, 22);
                 }
             }
-            
-            // === PHASE 6: LAYERED HALOS AT ENDPOINTS ===
-            for (int ring = 0; ring < 6; ring++)
-            {
-                float ringProgress = ring / 6f;
-                Color ringColor = GetEnigmaGradient(ringProgress);
-                float scale = 0.35f + ring * 0.15f;
-                int lifetime = 20 + ring * 4;
-                CustomParticles.HaloRing(tearStart, ringColor, scale, lifetime);
-                CustomParticles.HaloRing(tearEnd, ringColor, scale, lifetime);
-            }
-            
             // === PHASE 7: GLYPH BURST FROM CENTER ===
             Vector2 tearCenter = Vector2.Lerp(tearStart, tearEnd, 0.5f);
             CustomParticles.GlyphBurst(tearCenter, EnigmaPurple, count: 16, speed: 8f);

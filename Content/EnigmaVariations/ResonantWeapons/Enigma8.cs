@@ -469,14 +469,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                     CustomParticles.GenericFlare(position + offset, novaColor, 0.6f - layer * 0.1f, 20);
                 }
             }
-            
-            // Multiple halo rings
-            for (int ring = 0; ring < 5; ring++)
-            {
-                Color ringColor = GetEnigmaGradient(ring / 5f);
-                CustomParticles.HaloRing(position, ringColor, 0.8f - ring * 0.1f, 18 + ring * 3);
-            }
-            
             // Sparkles radiating from destruction
             for (int expIdx = 0; expIdx < 6; expIdx++)
             {
@@ -871,13 +863,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             CustomParticles.EnigmaEyeExplosion(Projectile.Center, EnigmaPurple, 4, 3f);
             
             // Implosion then explosion
-            for (int ring = 0; ring < 5; ring++)
-            {
-                Color ringColor = GetEnigmaGradient(ring / 5f);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.6f - ring * 0.08f, 15 + ring * 3);
-            }
-            
-            // Sparkle explosion burst
+// Sparkle explosion burst
             for (int killIdx = 0; killIdx < 5; killIdx++)
             {
                 float killAngle = MathHelper.TwoPi * killIdx / 5f;

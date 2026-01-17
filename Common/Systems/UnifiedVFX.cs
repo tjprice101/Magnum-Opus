@@ -983,13 +983,8 @@ namespace MagnumOpus.Common.Systems
                     CustomParticles.GenericFlare(position + new Vector2(separation, separation * 0.2f), new Color(80, 80, 255) * 0.5f, 0.5f * scale, 14);
                 }
                 
-                // === PHASE 3: COSMIC GRADIENT PULSE RINGS ===
-                for (int ring = 0; ring < 6; ring++)
-                {
-                    float progress = (float)ring / 6f;
-                    Color ringColor = GetCosmicGradient(progress);
-                    SpawnPulseRing(position, ringColor, ring * 0.1f * scale, (2.5f + ring * 0.5f) * scale, 30 + ring * 6);
-                }
+                // === PHASE 3: SINGLE HALO - NOT RING SPAM ===
+                CustomParticles.HaloRing(position, FateDarkPink * 0.5f, 0.5f * scale, 20);
                 
                 SpawnStrongBloom(position, FateDarkPink * 0.7f, 2.5f * scale, 30);
                 
@@ -1042,13 +1037,8 @@ namespace MagnumOpus.Common.Systems
                     CustomParticles.GenericFlare(position + new Vector2(separation, 0), new Color(80, 80, 255) * alpha, (0.7f - layer * 0.1f) * scale, 18);
                 }
                 
-                // === CASCADING COSMIC GRADIENT RINGS ===
-                for (int ring = 0; ring < 10; ring++)
-                {
-                    float progress = (float)ring / 10f;
-                    Color ringColor = GetCosmicGradient(progress);
-                    SpawnPulseRing(position, ringColor, 0f, (3f + ring * 0.7f) * scale, 35 + ring * 8);
-                }
+                // === SINGLE HALO - NOT RING SPAM ===
+                CustomParticles.HaloRing(position, FateDarkPink * 0.6f, 0.6f * scale, 22);
                 
                 SpawnStrongBloom(position, FateWhite, 4f * scale, 35);
                 
@@ -1200,13 +1190,8 @@ namespace MagnumOpus.Common.Systems
                     CustomParticles.GenericFlare(position + new Vector2(separation, separation * 0.2f), new Color(80, 80, 255) * alpha, layerScale, 25);
                 }
                 
-                // === PHASE 3: CASCADING COSMIC GRADIENT RINGS ===
-                for (int wave = 0; wave < 12; wave++)
-                {
-                    float progress = wave / 12f;
-                    Color waveColor = GetCosmicGradient(progress);
-                    SpawnPulseRing(position, waveColor, 0f, (4f + wave * 1.2f) * scale, 45 + wave * 10);
-                }
+                // === PHASE 3: SINGLE HALO - NOT RING SPAM ===
+                CustomParticles.HaloRing(position, FateDarkPink * 0.6f, 0.8f * scale, 25);
                 
                 // === PHASE 4: DOUBLE SPIRAL GALAXY ===
                 for (int arm = 0; arm < 10; arm++)
@@ -1316,11 +1301,8 @@ namespace MagnumOpus.Common.Systems
                     CustomParticles.GenericFlare(position + offset + new Vector2(2, 0), FatePurple * 0.25f, 0.2f * scale, 8);
                 }
                 
-                // === COSMIC HALOS ===
-                for (int i = 0; i < 5; i++)
-                {
-                    CustomParticles.HaloRing(position, GetCosmicGradient(i / 5f), (0.35f + i * 0.14f) * scale, 14 + i * 4);
-                }
+                // === SINGLE COSMIC HALO - NO CONCENTRIC RINGS ===
+                CustomParticles.HaloRing(position, FateDarkPink, 0.5f * scale, 18);
                 
                 // === DESTINY GLYPHS ===
                 CustomParticles.GlyphImpact(position, FateDarkPink, FateBrightRed, 0.5f * scale);

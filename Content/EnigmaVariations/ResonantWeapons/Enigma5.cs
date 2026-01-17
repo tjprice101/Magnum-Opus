@@ -191,13 +191,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 
                 // Charged attack VFX
                 CustomParticles.GenericFlare(player.Center, Color.White, 1.0f, 22);
-                
-                for (int ring = 0; ring < 5; ring++)
-                {
-                    CustomParticles.HaloRing(player.Center, GetEnigmaGradient(ring / 5f), 0.4f + ring * 0.2f, 16 + ring * 3);
-                }
-                
-                CustomParticles.GlyphBurst(player.Center, EnigmaGreen, count: 10, speed: 6f);
+CustomParticles.GlyphBurst(player.Center, EnigmaGreen, count: 10, speed: 6f);
                 
                 // Sparkle explosion burst
                 for (int i = 0; i < 8; i++)
@@ -444,13 +438,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             
             // Central flash
             CustomParticles.GenericFlare(target.Center, Color.White, 1.3f, 26);
-            
-            // Halo rings
-            for (int ring = 0; ring < 6; ring++)
-            {
-                CustomParticles.HaloRing(target.Center, GetEnigmaGradient(ring / 6f), 0.4f + ring * 0.22f, 17 + ring * 4);
-            }
-            
             // Fractal burst
             for (int layer = 0; layer < 3; layer++)
             {
@@ -868,13 +855,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 Vector2 offset = angle.ToRotationVector2() * 40f;
                 CustomParticles.GenericFlare(target.Center + offset, GetEnigmaGradient((float)i / 12f), 0.55f, 20);
             }
-            
-            for (int ring = 0; ring < 4; ring++)
-            {
-                CustomParticles.HaloRing(target.Center, GetEnigmaGradient(ring / 4f), 0.45f + ring * 0.18f, 16 + ring * 4);
-            }
-            
-            // Radiant crown above target
+// Radiant crown above target
             for (int i = 0; i < 6; i++)
             {
                 float crownAngle = MathHelper.Pi + MathHelper.Pi * i / 6f - MathHelper.PiOver2;
@@ -937,13 +918,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 var glow = new GenericGlowParticle(Projectile.Center, vel, GetEnigmaGradient((float)i / 15f), 0.45f, 22, true);
                 MagnumParticleHandler.SpawnParticle(glow);
             }
-            
-            for (int ring = 0; ring < 5; ring++)
-            {
-                CustomParticles.HaloRing(Projectile.Center, GetEnigmaGradient(ring / 5f), 0.45f + ring * 0.2f, 18 + ring * 4);
-            }
-            
-            // Sparkle constellation finale
+// Sparkle constellation finale
             for (int layer = 0; layer < 2; layer++)
             {
                 int points = 6;

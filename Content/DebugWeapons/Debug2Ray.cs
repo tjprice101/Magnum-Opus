@@ -8,7 +8,6 @@ using Terraria.ModLoader;
 using Terraria.GameContent;
 using Terraria.DataStructures;
 using Terraria.Audio;
-using ReLogic.Content;
 
 namespace MagnumOpus.Content.DebugWeapons
 {
@@ -74,35 +73,25 @@ namespace MagnumOpus.Content.DebugWeapons
     }
 
     /// <summary>
-    /// Beam projectile using three-part texture system.
+    /// Beam projectile using procedural drawing with layered glows.
     /// Features sinusoidal wavering and red-gold color cycling.
-    /// Inspired by Calamity's ProvidenceHolyRay.
+    /// Inspired by Calamity's ProvidenceHolyRay - proper thick beam rendering.
     /// </summary>
     public class Debug2RayBeam : ModProjectile
     {
-        // Texture paths for the three-part beam system
-        private const string TextureStart = "MagnumOpus/Content/DebugWeapons/Debug2RayStart";
-        private const string TextureMid = "MagnumOpus/Content/DebugWeapons/Debug2RayMid";
-        private const string TextureEnd = "MagnumOpus/Content/DebugWeapons/Debug2RayEnd";
-
-        // Use a simple texture for the main projectile (won't be drawn normally)
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.RainbowRodBullet;
+        // Use soft glow texture for drawing
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
 
         // Beam parameters
         private const float MaxBeamLength = 1200f;
-        private const float BeamWidth = 40f;
+        private const float BeamWidth = 50f;
         private const int MaxLifetime = 45;
         
         // Wave parameters for sinusoidal effect
-        private const float WaveAmplitude = 8f;      // How much the beam wavers side-to-side
-        private const float WaveFrequency = 0.15f;   // How fast the waves occur along length
-        private const float WaveSpeed = 0.3f;        // How fast the waves animate
+        private const float WaveAmplitude = 12f;     // How much the beam wavers side-to-side
+        private const float WaveFrequency = 0.12f;   // How fast the waves occur along length
+        private const float WaveSpeed = 0.25f;       // How fast the waves animate
         private const float ColorCycleSpeed = 0.08f; // Speed of red/gold color cycling
-        
-        // Cached textures
-        private static Asset<Texture2D> startTex;
-        private static Asset<Texture2D> midTex;
-        private static Asset<Texture2D> endTex;
 
         public override void SetStaticDefaults()
         {
@@ -275,11 +264,6 @@ namespace MagnumOpus.Content.DebugWeapons
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Load textures if needed
-            startTex ??= ModContent.Request<Texture2D>(TextureStart);
-            midTex ??= ModContent.Request<Texture2D>(TextureMid);
-            endTex ??= ModContent.Request<Texture2D>(TextureEnd);
-
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             // Switch to additive blending for glow effect
@@ -288,7 +272,7 @@ namespace MagnumOpus.Content.DebugWeapons
                 SamplerState.LinearClamp, DepthStencilState.None, 
                 RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            DrawWaveBeam(spriteBatch);
+            DrawProceduralBeam(spriteBatch);
 
             // Return to normal blending
             spriteBatch.End();
@@ -299,11 +283,11 @@ namespace MagnumOpus.Content.DebugWeapons
             return false; // Don't draw default sprite
         }
 
-        private void DrawWaveBeam(SpriteBatch spriteBatch)
+        private void DrawProceduralBeam(SpriteBatch spriteBatch)
         {
-            Texture2D startTexture = startTex.Value;
-            Texture2D midTexture = midTex.Value;
-            Texture2D endTexture = endTex.Value;
+            // Use pixel texture for beam body and glow texture for effects
+            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D glow = TextureAssets.Extra[98].Value;
 
             float beamLength = Projectile.ai[1];
             float rotation = Projectile.ai[0];
@@ -318,9 +302,62 @@ namespace MagnumOpus.Content.DebugWeapons
             
             // Scale with pulse
             float currentWidth = BeamWidth * Projectile.scale;
-            float widthScale = currentWidth / midTexture.Height;
 
-            // === DRAW START PIECE ===
+            // === DRAW BEAM AS LAYERED SEGMENTS ===
+            int segmentCount = (int)(beamLength / 8f); // More segments for smoother curve
+            
+            for (int i = 0; i < segmentCount; i++)
+            {
+                float t = (float)i / segmentCount;
+                float nextT = (float)(i + 1) / segmentCount;
+                
+                float dist = t * beamLength;
+                float nextDist = nextT * beamLength;
+                
+                // Calculate wave offset at this segment
+                float waveOffset = GetWaveOffset(dist);
+                float nextWaveOffset = GetWaveOffset(nextDist);
+                
+                // Position with wave applied
+                Vector2 segmentPos = Projectile.Center + direction * dist + perpendicular * waveOffset;
+                Vector2 nextPos = Projectile.Center + direction * nextDist + perpendicular * nextWaveOffset;
+                Vector2 drawPos = segmentPos - Main.screenPosition;
+                
+                // Calculate segment direction for proper rotation
+                Vector2 segmentDir = (nextPos - segmentPos).SafeNormalize(direction);
+                float segmentRotation = segmentDir.ToRotation();
+                float segmentLength = Vector2.Distance(segmentPos, nextPos);
+                
+                // Color cycling along beam length
+                float colorPhase = (Main.GameUpdateCount * ColorCycleSpeed + t * 2f) % 1f;
+                Color segmentColor = GetBeamColor(colorPhase) * fadeAlpha;
+                
+                // === LAYER 1: Outer glow (largest, most transparent) ===
+                spriteBatch.Draw(pixel, drawPos, new Rectangle(0, 0, 1, 1), 
+                    segmentColor * 0.15f, segmentRotation, 
+                    new Vector2(0, 0.5f), new Vector2(segmentLength + 4f, currentWidth * 2.5f), 
+                    SpriteEffects.None, 0f);
+                
+                // === LAYER 2: Mid glow ===
+                spriteBatch.Draw(pixel, drawPos, new Rectangle(0, 0, 1, 1), 
+                    segmentColor * 0.35f, segmentRotation, 
+                    new Vector2(0, 0.5f), new Vector2(segmentLength + 2f, currentWidth * 1.6f), 
+                    SpriteEffects.None, 0f);
+                
+                // === LAYER 3: Core beam (brightest) ===
+                spriteBatch.Draw(pixel, drawPos, new Rectangle(0, 0, 1, 1), 
+                    segmentColor * 0.7f, segmentRotation, 
+                    new Vector2(0, 0.5f), new Vector2(segmentLength, currentWidth), 
+                    SpriteEffects.None, 0f);
+                
+                // === LAYER 4: White hot center ===
+                spriteBatch.Draw(pixel, drawPos, new Rectangle(0, 0, 1, 1), 
+                    Color.White * fadeAlpha * 0.5f, segmentRotation, 
+                    new Vector2(0, 0.5f), new Vector2(segmentLength, currentWidth * 0.4f), 
+                    SpriteEffects.None, 0f);
+            }
+
+            // === DRAW START GLOW (bright origin point) ===
             {
                 float startWave = GetWaveOffset(0);
                 Vector2 startPos = Projectile.Center + perpendicular * startWave - Main.screenPosition;
@@ -328,58 +365,16 @@ namespace MagnumOpus.Content.DebugWeapons
                 float colorPhase = (Main.GameUpdateCount * ColorCycleSpeed) % 1f;
                 Color startColor = GetBeamColor(colorPhase) * fadeAlpha;
                 
-                Vector2 startOrigin = new Vector2(0, startTexture.Height / 2f);
-                float startScale = widthScale * 1.2f;
-                
-                // Draw multiple layers for glow
-                spriteBatch.Draw(startTexture, startPos, null, startColor * 0.3f, rotation, 
-                    startOrigin, startScale * 1.5f, SpriteEffects.None, 0f);
-                spriteBatch.Draw(startTexture, startPos, null, startColor * 0.6f, rotation, 
-                    startOrigin, startScale * 1.1f, SpriteEffects.None, 0f);
-                spriteBatch.Draw(startTexture, startPos, null, Color.White * fadeAlpha * 0.4f, rotation, 
-                    startOrigin, startScale * 0.8f, SpriteEffects.None, 0f);
+                // Multiple glow layers at start
+                spriteBatch.Draw(glow, startPos, null, startColor * 0.3f, 0f, 
+                    glow.Size() / 2f, 1.0f * Projectile.scale, SpriteEffects.None, 0f);
+                spriteBatch.Draw(glow, startPos, null, startColor * 0.5f, 0f, 
+                    glow.Size() / 2f, 0.6f * Projectile.scale, SpriteEffects.None, 0f);
+                spriteBatch.Draw(glow, startPos, null, Color.White * fadeAlpha * 0.6f, 0f, 
+                    glow.Size() / 2f, 0.3f * Projectile.scale, SpriteEffects.None, 0f);
             }
 
-            // === DRAW MID SEGMENTS WITH SINUSOIDAL WAVE ===
-            float segmentLength = midTexture.Width * widthScale;
-            int segmentCount = (int)Math.Ceiling(beamLength / segmentLength);
-            
-            for (int i = 0; i < segmentCount; i++)
-            {
-                float segmentStart = i * segmentLength;
-                float segmentEnd = Math.Min((i + 1) * segmentLength, beamLength);
-                float segmentMid = (segmentStart + segmentEnd) / 2f;
-                
-                // Calculate wave offset at this segment
-                float waveOffset = GetWaveOffset(segmentMid);
-                
-                // Position with wave applied
-                Vector2 segmentPos = Projectile.Center + direction * segmentStart + perpendicular * waveOffset;
-                Vector2 drawPos = segmentPos - Main.screenPosition;
-                
-                // Color cycling along beam length
-                float t = segmentMid / beamLength;
-                float colorPhase = (Main.GameUpdateCount * ColorCycleSpeed + t * 2f) % 1f;
-                Color segmentColor = GetBeamColor(colorPhase) * fadeAlpha;
-                
-                // Calculate rotation adjustment for wave tangent
-                float waveSlope = (float)Math.Cos(segmentMid * WaveFrequency + Projectile.localAI[1]) * WaveAmplitude * WaveFrequency;
-                float adjustedRotation = rotation + (float)Math.Atan(waveSlope);
-                
-                Vector2 midOrigin = new Vector2(0, midTexture.Height / 2f);
-                
-                // Draw with multiple glow layers
-                spriteBatch.Draw(midTexture, drawPos, null, segmentColor * 0.25f, adjustedRotation, 
-                    midOrigin, new Vector2(widthScale, widthScale * 1.6f), SpriteEffects.None, 0f);
-                spriteBatch.Draw(midTexture, drawPos, null, segmentColor * 0.5f, adjustedRotation, 
-                    midOrigin, new Vector2(widthScale, widthScale * 1.2f), SpriteEffects.None, 0f);
-                spriteBatch.Draw(midTexture, drawPos, null, segmentColor * 0.8f, adjustedRotation, 
-                    midOrigin, widthScale, SpriteEffects.None, 0f);
-                spriteBatch.Draw(midTexture, drawPos, null, Color.White * fadeAlpha * 0.3f, adjustedRotation, 
-                    midOrigin, new Vector2(widthScale, widthScale * 0.5f), SpriteEffects.None, 0f);
-            }
-
-            // === DRAW END PIECE ===
+            // === DRAW END GLOW ===
             {
                 float endWave = GetWaveOffset(beamLength);
                 Vector2 endPos = Projectile.Center + direction * beamLength + perpendicular * endWave - Main.screenPosition;
@@ -387,60 +382,28 @@ namespace MagnumOpus.Content.DebugWeapons
                 float colorPhase = (Main.GameUpdateCount * ColorCycleSpeed + 1f) % 1f;
                 Color endColor = GetBeamColor(colorPhase) * fadeAlpha;
                 
-                Vector2 endOrigin = new Vector2(endTexture.Width, endTexture.Height / 2f);
-                float endScale = widthScale * 1.2f;
-                
-                // Draw with glow layers
-                spriteBatch.Draw(endTexture, endPos, null, endColor * 0.3f, rotation, 
-                    endOrigin, endScale * 1.5f, SpriteEffects.None, 0f);
-                spriteBatch.Draw(endTexture, endPos, null, endColor * 0.6f, rotation, 
-                    endOrigin, endScale * 1.1f, SpriteEffects.None, 0f);
-                spriteBatch.Draw(endTexture, endPos, null, Color.White * fadeAlpha * 0.4f, rotation, 
-                    endOrigin, endScale * 0.8f, SpriteEffects.None, 0f);
+                // Glow at end point
+                spriteBatch.Draw(glow, endPos, null, endColor * 0.4f, 0f, 
+                    glow.Size() / 2f, 0.7f * Projectile.scale, SpriteEffects.None, 0f);
+                spriteBatch.Draw(glow, endPos, null, Color.White * fadeAlpha * 0.5f, 0f, 
+                    glow.Size() / 2f, 0.35f * Projectile.scale, SpriteEffects.None, 0f);
             }
-
-            // === ADDITIONAL SINUSOIDAL COLOR OVERLAY ===
-            // Draw a second pass with offset color for extra visual richness
-            DrawColorOverlay(spriteBatch, beamLength, rotation, direction, perpendicular, fadeAlpha, widthScale);
-        }
-
-        /// <summary>
-        /// Draws an additional color overlay with shifted phase for richer visuals.
-        /// </summary>
-        private void DrawColorOverlay(SpriteBatch spriteBatch, float beamLength, float rotation, 
-            Vector2 direction, Vector2 perpendicular, float fadeAlpha, float widthScale)
-        {
-            Texture2D midTexture = midTex.Value;
-            float segmentLength = midTexture.Width * widthScale;
-            int segmentCount = (int)Math.Ceiling(beamLength / segmentLength);
             
-            // Offset phase for secondary color layer
-            float phaseOffset = MathHelper.Pi;
-            
-            for (int i = 0; i < segmentCount; i++)
+            // === SPARKLE NODES ALONG BEAM ===
+            int nodeCount = 6;
+            for (int i = 1; i < nodeCount; i++)
             {
-                float segmentStart = i * segmentLength;
-                float segmentEnd = Math.Min((i + 1) * segmentLength, beamLength);
-                float segmentMid = (segmentStart + segmentEnd) / 2f;
+                float t = (float)i / nodeCount;
+                float dist = t * beamLength;
+                float waveOffset = GetWaveOffset(dist);
+                Vector2 nodePos = Projectile.Center + direction * dist + perpendicular * waveOffset - Main.screenPosition;
                 
-                // Offset wave for overlay
-                float waveOffset = GetWaveOffset(segmentMid + 50f);
+                float colorPhase = (Main.GameUpdateCount * ColorCycleSpeed + t * 3f) % 1f;
+                Color nodeColor = GetBeamColor(colorPhase) * fadeAlpha;
                 
-                Vector2 segmentPos = Projectile.Center + direction * segmentStart + perpendicular * waveOffset * 0.5f;
-                Vector2 drawPos = segmentPos - Main.screenPosition;
-                
-                // Offset color phase
-                float t = segmentMid / beamLength;
-                float colorPhase = (Main.GameUpdateCount * ColorCycleSpeed + t * 2f + 0.5f) % 1f;
-                Color overlayColor = GetBeamColor(colorPhase) * fadeAlpha * 0.3f;
-                
-                float waveSlope = (float)Math.Cos((segmentMid + 50f) * WaveFrequency + Projectile.localAI[1]) * WaveAmplitude * WaveFrequency * 0.5f;
-                float adjustedRotation = rotation + (float)Math.Atan(waveSlope);
-                
-                Vector2 midOrigin = new Vector2(0, midTexture.Height / 2f);
-                
-                spriteBatch.Draw(midTexture, drawPos, null, overlayColor, adjustedRotation, 
-                    midOrigin, new Vector2(widthScale, widthScale * 0.8f), SpriteEffects.None, 0f);
+                float nodeScale = 0.25f + (float)Math.Sin(Main.GameUpdateCount * 0.15f + t * MathHelper.TwoPi) * 0.1f;
+                spriteBatch.Draw(glow, nodePos, null, nodeColor * 0.6f, 0f, 
+                    glow.Size() / 2f, nodeScale * Projectile.scale, SpriteEffects.None, 0f);
             }
         }
 

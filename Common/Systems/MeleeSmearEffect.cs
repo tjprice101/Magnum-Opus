@@ -11,7 +11,6 @@ using MagnumOpus.Content.Eroica.ResonantWeapons;
 using MagnumOpus.Content.MoonlightSonata.ResonantWeapons;
 using MagnumOpus.Content.MoonlightSonata.Weapons;
 using MagnumOpus.Content.SwanLake.ResonantWeapons;
-using MagnumOpus.Content.Fate.ResonantWeapons;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons;
 using MagnumOpus.Common.Systems.Particles;
@@ -145,14 +144,6 @@ namespace MagnumOpus.Common.Systems
                 return new Color(220, 220, 230); // Pearlescent white
             }
             
-            // Fate weapons - DARK PRISMATIC (Black → Dark Pink → Bright Red)
-            if (itemType == ModContent.ItemType<Fate1>() ||
-                itemType == ModContent.ItemType<Fate5>() ||
-                itemType == ModContent.ItemType<Fate9>())
-            {
-                return new Color(180, 50, 100); // Dark Pink - primary Fate color
-            }
-            
             // La Campanella weapons - INFERNAL (Black → Orange)
             if (itemType == ModContent.ItemType<DualFatedChime>() ||
                 itemType == ModContent.ItemType<IgnitionOfTheBell>())
@@ -177,12 +168,6 @@ namespace MagnumOpus.Common.Systems
         /// </summary>
         public WeaponTheme GetWeaponTheme(int itemType)
         {
-            // Fate weapons - need chromatic aberration
-            if (itemType == ModContent.ItemType<Fate1>() ||
-                itemType == ModContent.ItemType<Fate5>() ||
-                itemType == ModContent.ItemType<Fate9>())
-                return WeaponTheme.Fate;
-                
             // La Campanella weapons - need heavy smoke
             if (itemType == ModContent.ItemType<DualFatedChime>() ||
                 itemType == ModContent.ItemType<IgnitionOfTheBell>())
@@ -522,14 +507,6 @@ namespace MagnumOpus.Common.Systems
             if (itemType == ModContent.ItemType<CalloftheBlackSwan>())
             {
                 return new Color(220, 220, 235);
-            }
-            
-            // Fate weapons - dark pink/crimson
-            if (itemType == ModContent.ItemType<Fate1>() ||
-                itemType == ModContent.ItemType<Fate5>() ||
-                itemType == ModContent.ItemType<Fate9>())
-            {
-                return new Color(180, 50, 100);
             }
             
             // La Campanella weapons - infernal orange

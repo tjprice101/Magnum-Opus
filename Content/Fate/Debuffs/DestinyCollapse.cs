@@ -260,15 +260,8 @@ namespace MagnumOpus.Content.Fate.Debuffs
             // Bright red tertiary
             CustomParticles.GenericFlare(center, FateBrightRed, revisit.Scale * 0.9f, 15);
             
-            // === PHASE 3: COSMIC HALO RINGS ===
-            for (int ring = 0; ring < 4; ring++)
-            {
-                float ringProgress = ring / 4f;
-                Color ringColor = GetCosmicGradient(ringProgress);
-                float ringScale = 0.25f + ring * 0.15f;
-                int ringLife = 12 + ring * 3;
-                CustomParticles.HaloRing(center, ringColor * 0.9f, ringScale * revisit.Scale, ringLife);
-            }
+            // === PHASE 3: COSMIC HALO ===
+            CustomParticles.HaloRing(center, FateBrightRed * 0.9f, 0.5f * revisit.Scale, 18);
             
             // === PHASE 4: CHROMATIC BURST PATTERN ===
             // 6-point star burst with RGB separation
@@ -454,11 +447,11 @@ namespace MagnumOpus.Content.Fate.Debuffs
                 }
             }
             
-            // Screen shake buildup
-            if (Main.LocalPlayer.Distance(center) < 600f)
-            {
-                MagnumScreenEffects.AddScreenShake(chargeProgress * 3f);
-            }
+            // Screen shake buildup (removed - weapon effects shouldn't shake screen)
+            // if (Main.LocalPlayer.Distance(center) < 600f)
+            // {
+            //     MagnumScreenEffects.AddScreenShake(chargeProgress * 3f);
+            // }
         }
         
         private void TriggerSupernova(NPC npc)
@@ -473,15 +466,8 @@ namespace MagnumOpus.Content.Fate.Debuffs
             // Central flash
             CustomParticles.GenericFlare(center, FateWhite, 2f, 30);
             
-            // Multiple expanding rings with cosmic gradient
-            for (int ring = 0; ring < 8; ring++)
-            {
-                float ringProgress = ring / 8f;
-                Color ringColor = GetCosmicGradient(ringProgress);
-                float scale = 0.4f + ring * 0.25f;
-                int lifetime = 15 + ring * 4;
-                CustomParticles.HaloRing(center, ringColor, scale, lifetime);
-            }
+            // Single expanding shockwave
+            CustomParticles.HaloRing(center, FateBrightRed, 0.8f, 25);
             
             // Fractal burst pattern - signature MagnumOpus look
             for (int layer = 0; layer < 3; layer++)
@@ -579,11 +565,11 @@ namespace MagnumOpus.Content.Fate.Debuffs
                 }
             }
             
-            // Screen shake
-            if (Main.LocalPlayer.Distance(center) < 1000f)
-            {
-                MagnumScreenEffects.AddScreenShake(15f);
-            }
+            // Screen shake (removed - weapon effects shouldn't shake screen)
+            // if (Main.LocalPlayer.Distance(center) < 1000f)
+            // {
+            //     MagnumScreenEffects.AddScreenShake(15f);
+            // }
         }
         
         private void DrawCosmicLightning(Vector2 start, Vector2 end)

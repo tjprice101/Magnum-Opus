@@ -465,13 +465,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             FateRealityDistortion.TriggerInversionPulse(6);
             
             // Reality snap-back
-            for (int ring = 0; ring < 4; ring++)
-            {
-                Color ringColor = GetEnigmaGradient(ring / 4f);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.6f - ring * 0.1f, 15 + ring * 3);
-            }
-            
-            // Glyph explosion
+// Glyph explosion
             CustomParticles.GlyphBurst(Projectile.Center, EnigmaPurple, count: 8, speed: 4f);
             
             // Sparkle scatter burst

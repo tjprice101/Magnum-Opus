@@ -97,13 +97,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 // Enhanced muzzle flash for paradox arrow
                 CustomParticles.GenericFlare(muzzlePos, Color.White, 0.8f, 18);
                 CustomParticles.GenericFlare(muzzlePos, EnigmaGreen, 0.65f, 16);
-                
-                for (int ring = 0; ring < 3; ring++)
-                {
-                    CustomParticles.HaloRing(muzzlePos, GetEnigmaGradient(ring / 3f), 0.35f + ring * 0.15f, 14 + ring * 3);
-                }
-                
-                CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
+CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
                 SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 0.6f }, muzzlePos);
             }
             else
@@ -1040,13 +1034,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             
             // Glyph circle
             CustomParticles.GlyphCircle(target.Center, EnigmaPurple, count: 6, radius: 45f, rotationSpeed: 0.06f);
-            
-            // Halo rings
-            for (int ring = 0; ring < 3; ring++)
-            {
-                CustomParticles.HaloRing(target.Center, GetEnigmaGradient(ring / 3f), 0.4f + ring * 0.15f, 16 + ring * 3);
-            }
-            
             // Glyph stack
             int stacks = brandNPC.paradoxStacks;
             if (stacks > 0)
@@ -1073,13 +1060,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 var glow = new GenericGlowParticle(Projectile.Center, vel, GetEnigmaGradient((float)i / 12f), 0.45f, 22, true);
                 MagnumParticleHandler.SpawnParticle(glow);
             }
-            
-            for (int ring = 0; ring < 4; ring++)
-            {
-                CustomParticles.HaloRing(Projectile.Center, GetEnigmaGradient(ring / 4f), 0.4f + ring * 0.2f, 18 + ring * 4);
-            }
-            
-            // Final sparkle nova on projectile death
+// Final sparkle nova on projectile death
             for (int i = 0; i < 10; i++)
             {
                 float novaAngle = MathHelper.TwoPi * i / 10f;

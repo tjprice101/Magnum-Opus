@@ -319,14 +319,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                     CustomParticles.GenericFlare(center + offset, cascadeColor, 0.7f - layer * 0.1f, 22);
                 }
             }
-            
-            // Multiple halo rings
-            for (int ring = 0; ring < 6; ring++)
-            {
-                Color ringColor = GetEnigmaGradient(ring / 6f);
-                CustomParticles.HaloRing(center, ringColor, 0.9f - ring * 0.1f, 20 + ring * 4);
-            }
-            
             // Sparkle formation around the cascade
             for (int cascadeIdx = 0; cascadeIdx < 8; cascadeIdx++)
             {

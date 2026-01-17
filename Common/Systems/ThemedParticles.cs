@@ -2789,13 +2789,8 @@ namespace MagnumOpus.Common.Systems
             CustomParticles.GenericFlare(position + new Vector2(-3, 0), Color.Red * 0.5f, 0.6f * intensity, 12);
             CustomParticles.GenericFlare(position + new Vector2(3, 0), Color.Blue * 0.5f, 0.6f * intensity, 12);
             
-            // Halo rings with dark prismatic gradient
-            for (int ring = 0; ring < 4; ring++)
-            {
-                float progress = (float)ring / 4f;
-                Color ringColor = GetFateGradient(progress);
-                CustomParticles.HaloRing(position, ringColor, (0.4f + ring * 0.2f) * intensity, 16 + ring * 5);
-            }
+            // Single halo ring - NO CONCENTRIC RINGS
+            CustomParticles.HaloRing(position, FateDarkPink, 0.5f * intensity, 20);
             
             // Fractal burst pattern
             for (int i = 0; i < 8; i++)
@@ -2819,9 +2814,8 @@ namespace MagnumOpus.Common.Systems
         /// </summary>
         public static void FateShockwave(Vector2 position, float scale = 1f)
         {
-            CustomParticles.HaloRing(position, FateBrightRed, 0.7f * scale, 28);
-            CustomParticles.HaloRing(position, FateDarkPink * 0.8f, 0.5f * scale, 22);
-            CustomParticles.HaloRing(position, FateBlack * 0.6f, 0.3f * scale, 18);
+            // Single halo ring - NO CONCENTRIC RINGS
+            CustomParticles.HaloRing(position, FateDarkPink, 0.6f * scale, 25);
             
             // Dark prismatic sparkles at the edge
             for (int i = 0; i < 10; i++)
@@ -2840,16 +2834,13 @@ namespace MagnumOpus.Common.Systems
         {
             CustomParticles.GenericFlare(position, FateBrightRed, 1.0f * scale, 22);
             CustomParticles.GenericFlare(position, FateWhite, 0.7f * scale, 16);
-            CustomParticles.HaloRing(position, FateDarkPink, 0.8f * scale, 25);
-            CustomParticles.HaloRing(position, FateBrightRed, 0.6f * scale, 20);
             
-            // Chromatic aberration burst
-            for (int i = 0; i < 3; i++)
-            {
-                Vector2 offset = new Vector2(i == 0 ? -4 : (i == 1 ? 0 : 4), 0);
-                Color chromaColor = i == 0 ? Color.Red : (i == 1 ? Color.Green : Color.Blue);
-                CustomParticles.HaloRing(position + offset, chromaColor * 0.4f, 0.4f * scale, 15);
-            }
+            // Single halo ring - NO CONCENTRIC RINGS
+            CustomParticles.HaloRing(position, FateDarkPink, 0.6f * scale, 22);
+            
+            // Chromatic aberration as flares only - NOT rings
+            CustomParticles.GenericFlare(position + new Vector2(-4, 0), Color.Red * 0.4f, 0.35f * scale, 15);
+            CustomParticles.GenericFlare(position + new Vector2(4, 0), Color.Blue * 0.4f, 0.35f * scale, 15);
             
             // Music note explosion
             FateMusicNoteBurst(position, 8, 6f * scale);

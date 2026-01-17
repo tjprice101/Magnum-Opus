@@ -156,13 +156,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                     Vector2 offset = angle.ToRotationVector2() * 30f;
                     CustomParticles.GenericFlare(muzzlePos + offset, GetEnigmaGradient((float)i / 8f), 0.5f, 16);
                 }
-                
-                for (int ring = 0; ring < 3; ring++)
-                {
-                    CustomParticles.HaloRing(muzzlePos, GetEnigmaGradient(ring / 3f), 0.35f + ring * 0.15f, 14 + ring * 3);
-                }
-                
-                CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
+CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
                 
                 // Sparkle targeting beam at muzzle
                 for (int spark = 0; spark < 3; spark++)
@@ -322,12 +316,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             // Trailing warp effect
             if (Projectile.timeLeft % 5 == 0)
             {
-                for (int ring = 0; ring < 2; ring++)
-                {
-                    CustomParticles.HaloRing(Projectile.Center, GetEnigmaGradient(ring * 0.5f + lifeProgress) * 0.5f, 
-                        0.25f + ring * 0.15f, 12 + ring * 3);
-                }
-            }
+}
             
             // Sparkles embedded in the void sphere
             if (Projectile.timeLeft % 15 == 0)
@@ -409,13 +398,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 Vector2 offset = angle.ToRotationVector2() * 40f;
                 CustomParticles.GenericFlare(Projectile.Center + offset, GetEnigmaGradient((float)i / 12f), 0.6f, 20);
             }
-            
-            for (int ring = 0; ring < 4; ring++)
-            {
-                CustomParticles.HaloRing(Projectile.Center, GetEnigmaGradient(ring / 4f), 0.45f + ring * 0.2f, 16 + ring * 4);
-            }
-            
-            // Sparkle burst explosion
+// Sparkle burst explosion
             for (int i = 0; i < 8; i++)
             {
                 float angle = MathHelper.TwoPi * i / 8f;
@@ -699,13 +682,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                         0.75f - layer * 0.1f, 26);
                 }
             }
-            
-            // Many halo rings
-            for (int ring = 0; ring < 8; ring++)
-            {
-                CustomParticles.HaloRing(Projectile.Center, GetEnigmaGradient(ring / 8f), 0.4f + ring * 0.22f, 18 + ring * 5);
-            }
-            
             // Explosion particle burst
             CustomParticles.ExplosionBurst(Projectile.Center, EnigmaPurple, 25, 12f);
             CustomParticles.ExplosionBurst(Projectile.Center, EnigmaGreen, 18, 10f);

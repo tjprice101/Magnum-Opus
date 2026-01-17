@@ -407,14 +407,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                     MagnumParticleHandler.SpawnParticle(glow);
                 }
             }
-            
-            // Multiple halo rings
-            for (int ring = 0; ring < 4; ring++)
-            {
-                Color ringColor = GetEnigmaGradient(ring / 4f);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.6f - ring * 0.1f, 18 + ring * 3);
-            }
-            
             // Dazzling sparkle cascade on death
             for (int cascade = 0; cascade < 12; cascade++)
             {
@@ -804,13 +796,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             FateRealityDistortion.TriggerInversionPulse(6);
             
             // Collapse VFX
-            for (int ring = 0; ring < 4; ring++)
-            {
-                Color ringColor = GetEnigmaGradient(ring / 4f);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.5f - ring * 0.08f, 15 + ring * 3);
-            }
-            
-            // Sparkle explosion burst
+// Sparkle explosion burst
             for (int collapseIdx = 0; collapseIdx < 4; collapseIdx++)
             {
                 float collapseAngle = MathHelper.TwoPi * collapseIdx / 4f;

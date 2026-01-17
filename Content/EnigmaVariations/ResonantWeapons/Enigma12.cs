@@ -208,14 +208,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                     CustomParticles.GenericFlare(player.Center + offset, burstColor, 0.7f - layer * 0.08f, 25);
                 }
             }
-            
-            // Multiple halo rings expanding
-            for (int ring = 0; ring < 8; ring++)
-            {
-                Color ringColor = GetEnigmaGradient(ring / 8f);
-                CustomParticles.HaloRing(player.Center, ringColor, 1f - ring * 0.1f, 22 + ring * 4);
-            }
-            
             // === MUSIC NOTES - THE PARADOX SYMPHONY ===
             // This is the ULTIMATE moment - fill the screen with music!
             ThemedParticles.EnigmaMusicNoteBurst(player.Center, 16, 8f);
@@ -947,14 +939,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                     MagnumParticleHandler.SpawnParticle(glow);
                 }
             }
-            
-            // Final halo rings
-            for (int ring = 0; ring < 6; ring++)
-            {
-                Color ringColor = GetEnigmaGradient(ring / 6f);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.9f - ring * 0.12f, 20 + ring * 5);
-            }
-            
             // Massive dazzling sparkle cascade - the grand finale
             for (int cascade = 0; cascade < 16; cascade++)
             {

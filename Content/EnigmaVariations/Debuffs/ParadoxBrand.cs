@@ -158,13 +158,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Debuffs
             npc.velocity *= 0.1f;
             
             // Massive VFX explosion
-            // Shockwave
-            for (int ring = 0; ring < 5; ring++)
-            {
-                float progress = (float)ring / 5f;
-                Color ringColor = Color.Lerp(EnigmaPurple, EnigmaGreen, progress);
-                CustomParticles.HaloRing(npc.Center, ringColor, 0.5f + ring * 0.2f, 20 + ring * 4);
-            }
+            // Single expanding shockwave
+            CustomParticles.HaloRing(npc.Center, EnigmaPurple, 0.8f, 25);
             
             // Radial explosion
             for (int i = 0; i < 30; i++)
