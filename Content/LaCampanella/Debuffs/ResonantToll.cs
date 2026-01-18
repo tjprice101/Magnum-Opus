@@ -197,14 +197,7 @@ namespace MagnumOpus.Content.LaCampanella.Debuffs
                 ThemedParticles.LaCampanellaImpact(npc.Center, 2f);
             }
             
-            // Screen shake for nearby players
-            foreach (Player player in Main.player)
-            {
-                if (player.active && Vector2.Distance(player.Center, npc.Center) < 800f)
-                {
-                    player.GetModPlayer<ScreenShakePlayer>()?.AddShake(8f, 15);
-                }
-            }
+            // Screen shake removed - weapon debuff effects should not cause screen shake
             
             // Lighting burst
             Lighting.AddLight(npc.Center, 2f, 1.2f, 0.4f);

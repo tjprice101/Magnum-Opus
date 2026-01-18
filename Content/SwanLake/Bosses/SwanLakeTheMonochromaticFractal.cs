@@ -1952,11 +1952,7 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                 
                 backgroundDarknessAlpha = 1f;
                 
-                // Building screen shake - less frequent
-                if (deathTimer % 10 == 0)
-                {
-                    EroicaScreenShake.SmallShake(NPC.Center);
-                }
+                // Screen shake removed during death animation buildup
                 
                 // Rainbow elements - REDUCED frequency (every 6 frames instead of 2)
                 if (deathTimer % 6 == 0)
@@ -1989,11 +1985,7 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             {
                 float phase2Progress = (deathTimer - 150f) / 150f;
                 
-                // Screen shake - less frequent
-                if (deathTimer % 8 == 0)
-                {
-                    EroicaScreenShake.MediumShake(NPC.Center);
-                }
+                // Screen shake removed during death animation
                 
                 // Expanding glow - REDUCED (every 6 frames, fewer particles)
                 if (deathTimer % 6 == 0)
@@ -2052,11 +2044,7 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             {
                 float phase3Progress = (deathTimer - 300f) / 150f;
                 
-                // Screen shake - reduced
-                if (deathTimer % 4 == 0)
-                {
-                    EroicaScreenShake.MediumShake(NPC.Center);
-                }
+                // Screen shake removed during death animation
                 
                 // Lightning - SIGNIFICANTLY REDUCED
                 if (deathTimer % 6 == 0)
@@ -2117,11 +2105,7 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             {
                 float phase4Progress = (deathTimer - 450f) / 120f;
                 
-                // Screen shake - less constant
-                if (deathTimer % 3 == 0)
-                {
-                    EroicaScreenShake.LargeShake(NPC.Center);
-                }
+                // Screen shake removed during death animation
                 
                 // Lightning - DRASTICALLY REDUCED
                 if (deathTimer % 4 == 0)
@@ -2237,11 +2221,7 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                     }
                 }
                 
-                // Shake fading - less frequent
-                if (deathTimer % 4 == 0)
-                {
-                    EroicaScreenShake.SmallShake(NPC.Center);
-                }
+                // Screen shake removed during death fade-out
                 
                 // Feathers - less frequent
                 if (deathTimer % 10 == 0)

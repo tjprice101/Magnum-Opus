@@ -185,6 +185,16 @@ Mods: {
 					'''
 			}
 
+			RemnantOfMysteries: {
+				DisplayName: Remnant of Mysteries
+				Tooltip:
+					'''
+					Dropped by Mystery's End in the Jungle
+					A fragment of arcane power saturated with unanswered questions
+					Used to craft powerful Enigma equipment
+					'''
+			}
+
 			ResonantCoreOfEnigma: {
 				DisplayName: Resonant Core of Enigma
 				Tooltip:
@@ -508,7 +518,22 @@ Buffs: {
 
 	ParadoxBrand: {
 		DisplayName: Paradox Brand
-		Description: Mods.MagnumOpus.Buffs.ParadoxBrand.Description
+		Description: Reality collapses around you - taking damage over time
+	}
+
+	EchoMark: {
+		DisplayName: Echo Mark
+		Description: Voices of the fugue echo within - at 3 stacks triggers Harmonic Convergence
+	}
+
+	WatchedDebuff: {
+		DisplayName: Watched
+		Description: The mystery has seen you - taking 15% increased damage
+	}
+
+	MysteryVaporDebuff: {
+		DisplayName: Mystery Vapor
+		Description: Shrouded in enigmatic mist - dealing 15% reduced damage
 	}
 
 	CipherChoirBuff: {
@@ -1387,63 +1412,43 @@ Items: {
 		Tooltip: ""
 	}
 
-	Enigma1: {
-		DisplayName: Enigma1
+	VariationsOfTheVoid: {
+		DisplayName: Variations of the Void
 		Tooltip: ""
 	}
 
-	Enigma10: {
-		DisplayName: Enigma10
+	TheUnresolvedCadence: {
+		DisplayName: The Unresolved Cadence
 		Tooltip: ""
 	}
 
-	Enigma11: {
-		DisplayName: Enigma11
+	DissonanceOfSecrets: {
+		DisplayName: Dissonance of Secrets
 		Tooltip: ""
 	}
 
-	Enigma12: {
-		DisplayName: Enigma12
+	CipherNocturne: {
+		DisplayName: Cipher Nocturne
 		Tooltip: ""
 	}
 
-	Enigma2: {
-		DisplayName: Enigma2
+	FugueOfTheUnknown: {
+		DisplayName: Fugue of the Unknown
 		Tooltip: ""
 	}
 
-	Enigma3: {
-		DisplayName: Enigma3
+	TheWatchingRefrain: {
+		DisplayName: The Watching Refrain
 		Tooltip: ""
 	}
 
-	Enigma4: {
-		DisplayName: Enigma4
+	TheSilentMeasure: {
+		DisplayName: The Silent Measure
 		Tooltip: ""
 	}
 
-	Enigma5: {
-		DisplayName: Enigma5
-		Tooltip: ""
-	}
-
-	Enigma6: {
-		DisplayName: Enigma6
-		Tooltip: ""
-	}
-
-	Enigma7: {
-		DisplayName: Enigma7
-		Tooltip: ""
-	}
-
-	Enigma8: {
-		DisplayName: Enigma8
-		Tooltip: ""
-	}
-
-	Enigma9: {
-		DisplayName: Enigma9
+	TacetsEnigma: {
+		DisplayName: Tacet's Enigma
 		Tooltip: ""
 	}
 
@@ -1515,6 +1520,33 @@ Items: {
 	RiddlemastersFlight: {
 		DisplayName: Riddlemasters Flight
 		Tooltip: ""
+	}
+
+	EnigmasPickaxe: {
+		DisplayName: Enigma's Pickaxe
+		Tooltip:
+			'''
+			Watching eyes follow the pickaxe as you mine
+			'The earth holds many secrets... each swing reveals another'
+			'''
+	}
+
+	EnigmasAxe: {
+		DisplayName: Enigma's Axe
+		Tooltip:
+			'''
+			Arcane glyphs swirl around each strike
+			'Trees fall to riddles they cannot solve'
+			'''
+	}
+
+	EnigmasHammer: {
+		DisplayName: Enigma's Hammer
+		Tooltip:
+			'''
+			Powerful impacts leave lingering mysteries
+			'Some walls were never meant to stand'
+			'''
 	}
 
 	SymphonyOfTheUniverse: {
@@ -1591,6 +1623,70 @@ Items: {
 		DisplayName: Fate5 Sword
 		Tooltip: ""
 	}
+
+	IgnitionOfMystery: {
+		DisplayName: Ignition of Mystery
+		Tooltip:
+			'''
+			Mysteries Unveiled:
+			Melee attacks build mystery stacks (max 10)
+			Each stack grants +2% melee speed (up to +20%)
+			At max stacks, unleash a devastating eye burst
+			Marked enemies take 15% increased damage for 5 seconds
+			'The unknown fears those who seek it'
+			'''
+	}
+
+	PendantOfAThousandPuzzles: {
+		DisplayName: Pendant of a Thousand Puzzles
+		Tooltip:
+			'''
+			Arcane Enigma:
+			Magic attacks have 15% chance to spawn puzzle fragments
+			Collect 5 fragments to activate Puzzle Mastery (8 seconds):
+			  +30% magic damage, -20% mana cost
+			  Magic projectiles leave glowing glyph trails
+			'A thousand answers to questions never asked'
+			'''
+	}
+
+	AlchemicalParadox: {
+		DisplayName: Alchemical Paradox
+		Tooltip:
+			'''
+			Paradox Shots:
+			Every 4th ranged attack becomes a Paradox Bolt
+			Paradox Bolts split into 2-3 projectiles on hit
+			Applies Paradox debuff (damage over time)
+			Afflicted enemies explode on death
+			+8% ranged critical strike chance
+			'In contradiction, truth unravels'
+			'''
+	}
+
+	RiddlemastersCauldron: {
+		DisplayName: Riddlemaster's Cauldron
+		Tooltip:
+			'''
+			Cauldron's Brew:
+			Minions release Mystery Vapors every 3 seconds
+			Vapors confuse enemies and reduce their damage by 15%
+			Every 5 seconds, a random minion gains Riddle's Blessing
+			Blessed minions attack twice as fast for 3 seconds
+			+1 max minion slot
+			'The answer was always in the question'
+			'''
+	}
+
+	RemnantOfMysteries: {
+		DisplayName: Remnant of Mysteries
+		Tooltip:
+			'''
+			'Fragments of questions that will never be answered'
+			Raw essence from the enigmatic variations
+			Used in crafting Enigma equipment
+			'''
+	}
 }
 
 NPCs: {
@@ -1611,7 +1707,8 @@ NPCs: {
 	LaCampanellaChimeOfLife.DisplayName: La Campanella Chime Of Life
 	EnigmaMiniSpider.DisplayName: Enigma Mini Spider
 	EnigmaTheHollowMystery.DisplayName: Enigma The Hollow Mystery
-	MysterysEnd.DisplayName: Mysterys End
+	MysterysEnd.DisplayName: Mystery's End
+	CrawlerOfTheBell.DisplayName: Crawler of the Bell
 }
 
 Projectiles: {
@@ -1881,6 +1978,10 @@ Projectiles: {
 	TimeCascadeExplosion.DisplayName: Time Cascade Explosion
 	UncertaintyFragment.DisplayName: Uncertainty Fragment
 	UnsolvedPhantomMinion.DisplayName: Unsolved Phantom Minion
+	VoidConvergenceBeam.DisplayName: Void Convergence Beam
+	VoidConvergencePoint.DisplayName: Void Convergence Point
+	VoidSeekerGlyph.DisplayName: Void Seeker Glyph
+	VoidSeekerEye.DisplayName: Void Seeker Eye
 	VoidQuestionShot.DisplayName: Void Question Shot
 	VoidSingularity.DisplayName: Void Singularity
 	WatchingObelisk.DisplayName: Watching Obelisk
@@ -1902,6 +2003,17 @@ Projectiles: {
 	EnigmaVoidWeb.DisplayName: Enigma Void Web
 	EnigmaWebShot.DisplayName: Enigma Web Shot
 	MysterysEndProjectile.DisplayName: Mysterys End Projectile
+	ParadoxGazeEye.DisplayName: Paradox Gaze Eye
+	CascadingGlyph.DisplayName: Cascading Glyph
+	WatchingEyeProjectile.DisplayName: Watching Eye Projectile
+	MysteryVortexZone.DisplayName: Mystery Vortex Zone
+	RevelationEyeProjectile.DisplayName: Revelation Eye Projectile
+	BellTollFlame.DisplayName: Bell Toll Flame
+	InfernalCrawlTrail.DisplayName: Infernal Crawl Trail
+	SmokeCloudProjectile.DisplayName: Smoke Cloud
+	SmokeFireball.DisplayName: Smoke Fireball
+	ChimePillar.DisplayName: Chime Pillar
+	CrescendoFireball.DisplayName: Crescendo Fireball
 	AvatarDestinyOrb.DisplayName: Avatar Destiny Orb
 	AvatarRealityRift.DisplayName: Avatar Reality Rift
 	AvatarSwordSlash.DisplayName: Avatar Sword Slash
@@ -1986,6 +2098,7 @@ Projectiles: {
 	CosmicBeamHeldSword.DisplayName: Cosmic Beam Held Sword
 	AcceleratingCosmicRound.DisplayName: Accelerating Cosmic Round
 	CosmicStarCircleEffect.DisplayName: Cosmic Star Circle Effect
+	FugueVoiceProjectile.DisplayName: Fugue Voice Projectile
 }
 
 "Keybinds.Toggle Harmonic Core UI.DisplayName": Toggle  Harmonic  Core  U I

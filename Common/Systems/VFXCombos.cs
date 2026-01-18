@@ -250,7 +250,7 @@ namespace MagnumOpus.Common.Systems
             }
             catch { }
 
-            MagnumScreenEffects.AddScreenShake(12f * scale);
+            MagnumScreenEffects.AddScreenShake(5f * scale);
             MagnumScreenEffects.SetFlashEffect(position, 1.5f * scale, 25);
         }
 

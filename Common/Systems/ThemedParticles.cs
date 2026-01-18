@@ -2627,11 +2627,12 @@ namespace MagnumOpus.Common.Systems
         
         /// <summary>
         /// Enigma aura - mysterious ambient particles for held items and minions.
+        /// Performance optimized - uses frame-based spawning instead of random every frame.
         /// </summary>
         public static void EnigmaAura(Vector2 center, float radius = 35f, float intensity = 1f)
         {
-            // Swirling void motes
-            if (Main.rand.NextBool(4))
+            // Swirling void motes - every 15 frames instead of random every frame
+            if (Main.GameUpdateCount % 15 == 0)
             {
                 float angle = Main.GameUpdateCount * 0.02f + Main.rand.NextFloat() * MathHelper.TwoPi;
                 Vector2 motePos = center + angle.ToRotationVector2() * radius * Main.rand.NextFloat(0.6f, 1f);
@@ -2639,23 +2640,23 @@ namespace MagnumOpus.Common.Systems
                 CustomParticles.GenericGlow(motePos, moteColor * 0.6f, 0.2f * intensity, 25);
             }
             
-            // Occasional eye glimpse
-            if (Main.rand.NextBool(25))
+            // Occasional eye glimpse - every 90 frames
+            if (Main.GameUpdateCount % 90 == 0)
             {
                 Vector2 eyePos = center + Main.rand.NextVector2Circular(radius * 0.8f, radius * 0.8f);
                 CustomParticles.EnigmaEyeGaze(eyePos, EnigmaGreenFlame * 0.7f, 0.25f * intensity);
             }
             
-            // Orbiting glyph
-            if (Main.rand.NextBool(20))
+            // Orbiting glyph - every 60 frames
+            if (Main.GameUpdateCount % 60 == 0)
             {
                 float glyphAngle = Main.GameUpdateCount * 0.015f;
                 Vector2 glyphPos = center + glyphAngle.ToRotationVector2() * radius;
                 CustomParticles.Glyph(glyphPos, EnigmaPurple * 0.5f, 0.2f * intensity);
             }
             
-            // Rare music note
-            if (Main.rand.NextBool(30))
+            // Rare music note - every 120 frames
+            if (Main.GameUpdateCount % 120 == 0)
             {
                 EnigmaMusicNotes(center + Main.rand.NextVector2Circular(radius * 0.5f, radius * 0.5f), 1, 10f);
             }

@@ -252,13 +252,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             float lightPulse = (float)Math.Sin(Projectile.ai[0] * 0.2f) * 0.1f + 1.1f;
             Lighting.AddLight(Projectile.Center, UnifiedVFX.Eroica.Gold.ToVector3() * lightPulse);
             
-            // Screen shake while near player
-            Player nearestPlayer = Main.player[Player.FindClosest(Projectile.Center, 1, 1)];
-            float distToPlayer = Vector2.Distance(Projectile.Center, nearestPlayer.Center);
-            if (distToPlayer < 300f)
-            {
-                EroicaScreenShake.SmallShake(Projectile.Center);
-            }
+            // Screen shake removed - weapons should not cause screen shake
         }
 
         public override void OnKill(int timeLeft)
@@ -362,7 +356,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             CustomParticles.HaloRing(target.Center, UnifiedVFX.Eroica.Gold, 0.4f, 15);
             CustomParticles.HaloRing(target.Center, UnifiedVFX.Eroica.Crimson, 0.3f, 12);
             
-            EroicaScreenShake.SmallShake(target.Center);
+            // Screen shake removed - weapons should not cause screen shake
         }
 
         public override bool PreDraw(ref Color lightColor)

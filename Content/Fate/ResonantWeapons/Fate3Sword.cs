@@ -25,7 +25,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         
         public override void SetDefaults()
         {
-            Item.damage = 580;
+            Item.damage = 680;
             Item.DamageType = DamageClass.Melee;
             Item.width = 54;
             Item.height = 54;

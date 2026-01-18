@@ -1,0 +1,206 @@
+================================================================================
+MAGNUM OPUS - CUSTOM ASSETS NEEDED FOR BUFFS, DEBUFFS, AND SUMMONS
+================================================================================
+Last Updated: January 18, 2026
+
+All buff/debuff icons must be 32x32 pixels PNG files.
+Place the .png file in the same folder as the .cs file with the exact same name.
+
+================================================================================
+SECTION 1: DEBUFFS NEEDING CUSTOM ICONS
+================================================================================
+
+Theme: LA CAMPANELLA
+--------------------
+[  ] ResonantToll.png
+     Location: Content/LaCampanella/Debuffs/
+     Description: Stacking fire damage debuff from bell weapons
+     Current: NO TEXTURE SET (will crash!)
+     Suggested Art: Burning bell, flame tolling, infernal brand mark
+
+Theme: ENIGMA VARIATIONS  
+-------------------------
+[  ] ParadoxBrand.png
+     Location: Content/EnigmaVariations/Debuffs/
+     Description: Reality collapse damage over time
+     Current: Placeholder (Confused buff)
+     Suggested Art: Swirling paradox symbol, purple/green void brand
+
+[  ] WatchedDebuff.png
+     Location: Content/EnigmaVariations/Debuffs/
+     Description: 15% increased damage taken - the mystery watches
+     Current: Placeholder (BrokenArmor buff)
+     Suggested Art: Mysterious watching eye, eerie green gaze
+
+[  ] MysteryVaporDebuff.png
+     Location: Content/EnigmaVariations/Debuffs/
+     Description: 15% reduced damage dealt - shrouded in mist
+     Current: Placeholder (Weak buff)
+     Suggested Art: Purple/green vapor swirls, obscuring mist
+
+Theme: FATE
+-----------
+[  ] DestinyCollapse.png
+     Location: Content/Fate/Debuffs/
+     Description: Cosmic fate debuff
+     Current: Placeholder (Obstructed buff)
+     Suggested Art: Cosmic collapse, star implosion, fate symbol crumbling
+
+================================================================================
+SECTION 2: PLAYER BUFFS NEEDING CUSTOM ICONS
+================================================================================
+
+Theme: SWAN LAKE
+----------------
+[  ] FeathersCallBuff.png
+     Location: Content/SwanLake/Items/
+     Description: "You are one with the Swan's Melody..."
+     Current: Placeholder (Shimmer buff)
+     Suggested Art: Graceful swan feather, iridescent glow
+
+Theme: LA CAMPANELLA
+--------------------
+[  ] BellfireCrescendoBuff.png
+     Location: Content/LaCampanella/ResonantWeapons/
+     Description: Movement speed buff from bellfire weapons
+     Current: NO TEXTURE SET (will crash!)
+     Suggested Art: Blazing musical crescendo, fire notes
+
+[  ] GrandCrescendoBuff.png
+     Location: Content/LaCampanella/ResonantWeapons/
+     Description: +50% movement speed, +4 max run speed
+     Current: NO TEXTURE SET (will crash!)
+     Suggested Art: Grand explosive crescendo, ultimate bell power
+
+[  ] InfernoWaltzBuff.png
+     Location: Content/LaCampanella/ResonantWeapons/
+     Description: +30% movement speed - dancing through flames
+     Current: NO TEXTURE SET (will crash!)
+     Suggested Art: Dancing flames in waltz pattern, fire dance
+
+[  ] InfiniteBellDamageBuff.png
+     Location: Content/LaCampanella/ResonantWeapons/
+     Description: Damage boost from Infinite Bell weapon
+     Current: Placeholder (WeaponImbueConfetti)
+     Suggested Art: Bell radiating power, damage aura
+
+[  ] InfiniteBellEmpoweredBuff.png
+     Location: Content/LaCampanella/ResonantWeapons/
+     Description: Empowered state from Infinite Bell
+     Current: Placeholder (WeaponImbueIchor)
+     Suggested Art: Empowered bell glowing intensely
+
+================================================================================
+SECTION 3: SUMMON/MINION BUFFS NEEDING CUSTOM ICONS
+================================================================================
+
+Theme: SWAN LAKE
+----------------
+[  ] IridescentFlockBuff.png
+     Location: Content/SwanLake/ResonantWeapons/
+     Description: Iridescent swan flock minion buff
+     Current: Placeholder (StardustDragonMinion)
+     Suggested Art: Flock of rainbow-shimmer swans, iridescent feathers
+
+Theme: LA CAMPANELLA
+--------------------
+[  ] CampanellaChoirBuff.png
+     Location: Content/LaCampanella/ResonantWeapons/
+     Description: "The choir sings with infernal passion"
+     Current: NO TEXTURE SET (will crash!)
+     Suggested Art: Choir of flame bells, infernal singing minions
+
+Theme: ENIGMA VARIATIONS
+------------------------
+[  ] UnsolvedPhantomBuff.png
+     Location: Content/EnigmaVariations/ResonantWeapons/
+     Description: Phantom minion from Enigma4 bow
+     Current: Placeholder (StardustMinionBleed)
+     Suggested Art: Mysterious phantom, question mark shroud
+
+Theme: FATE
+-----------
+[  ] CosmicDeityBuff.png
+     Location: Content/Fate/Projectiles/
+     Description: Cosmic deity summon from fate gun
+     Current: Placeholder (TwinEyesMinion)
+     Suggested Art: Cosmic deity icon, celestial god figure, star-wreathed
+
+Theme: EROICA
+-------------
+[  ] TriumphantColossusBuff.png
+     Location: Content/Eroica/Pets/
+     Description: Pet buff for Triumphant Colossus
+     Current: Placeholder (Companion Cube buff)
+     Suggested Art: Heroic colossus silhouette, triumphant figure
+
+================================================================================
+SECTION 4: ALREADY HAS CUSTOM ICON (COMPLETE)
+================================================================================
+
+Theme: MOONLIGHT SONATA
+-----------------------
+[X] GoliathOfMoonlightBuff.png - DONE
+[X] MusicsDissonance.png - DONE
+
+Theme: SWAN LAKE
+----------------
+[X] FlameOfTheSwan.png - DONE
+
+Theme: EROICA
+-------------
+[X] SakuraOfFateBuff.png - DONE
+
+================================================================================
+SECTION 5: ORPHANED/DEPRECATED (TO BE REMOVED)
+================================================================================
+
+Theme: MOONLIGHT SONATA
+-----------------------
+[DELETE] RazerOfMoonlightsShadow.cs
+[DELETE] RazerOfMoonlightsShadow.png
+[DELETE] RazerOfMoonlightsShadowBuff.cs
+[DELETE] RazerOfMoonlightsShadowBuff.png
+         Reason: Not used by any weapon, orphaned minion code
+         Note: Goliath is completely independent - safe to delete
+
+================================================================================
+SUMMARY
+================================================================================
+
+DEBUFFS NEEDING ICONS:     5
+PLAYER BUFFS NEEDING:      6
+SUMMON BUFFS NEEDING:      5
+------------------------
+TOTAL ASSETS NEEDED:      16
+
+ALREADY COMPLETE:          4
+TO BE DELETED:             4 files (1 orphaned minion system)
+
+================================================================================
+PRIORITY ORDER (Suggested)
+================================================================================
+
+HIGH PRIORITY (Will crash without texture):
+1. ResonantToll.png
+2. CampanellaChoirBuff.png
+3. BellfireCrescendoBuff.png
+4. GrandCrescendoBuff.png
+5. InfernoWaltzBuff.png
+
+MEDIUM PRIORITY (Has placeholder but looks wrong):
+6. ParadoxBrand.png
+7. WatchedDebuff.png
+8. MysteryVaporDebuff.png
+9. DestinyCollapse.png
+10. UnsolvedPhantomBuff.png
+11. CosmicDeityBuff.png
+
+LOWER PRIORITY (Has okay placeholder):
+12. FeathersCallBuff.png
+13. IridescentFlockBuff.png
+14. InfiniteBellDamageBuff.png
+15. InfiniteBellEmpoweredBuff.png
+16. TriumphantColossusBuff.png
+
+================================================================================

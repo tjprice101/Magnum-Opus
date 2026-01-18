@@ -15,11 +15,11 @@ using MagnumOpus.Content.EnigmaVariations.Debuffs;
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
 {
     /// <summary>
-    /// Reality Unraveler - Magic beam weapon that "unravels" reality where it touches
+    /// CIPHER NOCTURNE - Magic beam weapon that "unravels" reality where it touches
     /// Creates visual distortion effects and increasing damage over beam duration
     /// When beam ends, all damage areas "snap back" with a burst
     /// </summary>
-    public class Enigma11 : ModItem
+    public class CipherNocturne : ModItem
     {
         private static readonly Color EnigmaBlack = new Color(15, 10, 20);
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
@@ -33,11 +33,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
         }
         
-        public override string Texture => "Terraria/Images/Item_" + ItemID.LastPrism;
-        
         public override void SetDefaults()
         {
-            Item.damage = 240;
+            Item.damage = 290;
             Item.DamageType = DamageClass.Magic;
             Item.mana = 6;
             Item.width = 28;
@@ -54,6 +52,19 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Item.shootSpeed = 1f;
             Item.noMelee = true;
             Item.channel = true;
+            Item.staff[Item.type] = true; // Makes it point forward like a staff
+        }
+        
+        public override void HoldItem(Player player)
+        {
+            // Rotate the weapon toward the cursor while holding
+            if (Main.myPlayer == player.whoAmI)
+            {
+                Vector2 toCursor = Main.MouseWorld - player.Center;
+                player.itemRotation = toCursor.ToRotation();
+                if (player.direction == -1)
+                    player.itemRotation += MathHelper.Pi;
+            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -219,81 +230,70 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             Vector2 direction = (end - start).SafeNormalize(Vector2.Zero);
             float length = Vector2.Distance(start, end);
-            int segments = (int)(length / 12f);
+            // OPTIMIZED: Reduced segment count from length/12 to length/40 (roughly 3x fewer segments)
+            int segments = (int)(length / 40f);
             
-            for (int i = 0; i < segments; i++)
+            // Only process segments every 4 frames instead of 2
+            if (Main.GameUpdateCount % 4 == 0)
             {
-                float t = (float)i / segments;
-                Vector2 basePos = Vector2.Lerp(start, end, t);
-                
-                // Reality distortion - offset positions randomly and progressively
-                float distortionAmount = 8f * beamIntensity * (float)Math.Sin(Main.GameUpdateCount * 0.2f + t * 10f);
-                Vector2 perpendicular = direction.RotatedBy(MathHelper.PiOver2);
-                Vector2 distortedPos = basePos + perpendicular * distortionAmount;
-                
-                // Gradient color along beam
-                Color beamColor = GetEnigmaGradient(t) * beamIntensity;
-                
-                // Main beam particles
-                if (Main.GameUpdateCount % 2 == 0)
+                for (int i = 0; i < segments; i++)
                 {
-                    CustomParticles.GenericFlare(distortedPos, beamColor, 0.3f + beamIntensity * 0.3f, 10);
-                }
-                
-                // Distortion particles around beam
-                if (Main.rand.NextBool(4))
-                {
-                    Vector2 distortOffset = Main.rand.NextVector2Circular(15f * beamIntensity, 15f * beamIntensity);
-                    Color distortColor = GetEnigmaGradient(Main.rand.NextFloat()) * 0.4f;
-                    var glow = new GenericGlowParticle(distortedPos + distortOffset, -distortOffset * 0.1f, 
-                        distortColor, 0.2f, 15, true);
-                    MagnumParticleHandler.SpawnParticle(glow);
-                }
-                
-                // Glyphs scattered along beam
-                if (i % 8 == 0 && Main.GameUpdateCount % 6 == 0)
-                {
-                    CustomParticles.Glyph(distortedPos, EnigmaPurple * beamIntensity, 0.2f, -1);
+                    float t = (float)i / segments;
+                    Vector2 basePos = Vector2.Lerp(start, end, t);
+                    
+                    // Reality distortion - offset positions randomly and progressively
+                    float distortionAmount = 8f * beamIntensity * (float)Math.Sin(Main.GameUpdateCount * 0.2f + t * 10f);
+                    Vector2 perpendicular = direction.RotatedBy(MathHelper.PiOver2);
+                    Vector2 distortedPos = basePos + perpendicular * distortionAmount;
+                    
+                    // Gradient color along beam
+                    Color beamColor = GetEnigmaGradient(t) * beamIntensity;
+                    
+                    // Main beam particles - now spawns for all segments but less frequently
+                    CustomParticles.GenericFlare(distortedPos, beamColor, 0.35f + beamIntensity * 0.3f, 12);
+                    
+                    // Glyphs scattered along beam - every 3rd segment instead of every 8th
+                    if (i % 3 == 0)
+                    {
+                        CustomParticles.Glyph(distortedPos, EnigmaPurple * beamIntensity, 0.22f, -1);
+                    }
                 }
             }
             
-            // End point unraveling effect
-            if (Main.GameUpdateCount % 2 == 0)
+            // End point unraveling effect - reduced from 6 to 4 particles, every 6 frames
+            if (Main.GameUpdateCount % 6 == 0)
             {
-                // Jagged distortion pattern at beam end
-                for (int i = 0; i < 6; i++)
+                for (int i = 0; i < 4; i++)
                 {
-                    float angle = MathHelper.TwoPi * i / 6f + Main.GameUpdateCount * 0.15f;
+                    float angle = MathHelper.TwoPi * i / 4f + Main.GameUpdateCount * 0.15f;
                     float radius = 20f + (float)Math.Sin(Main.GameUpdateCount * 0.2f + i) * 15f;
                     Vector2 endOffset = angle.ToRotationVector2() * radius * beamIntensity;
                     
-                    Color endColor = GetEnigmaGradient((float)i / 6f) * beamIntensity;
-                    CustomParticles.GenericFlare(end + endOffset, endColor, 0.35f, 12);
+                    Color endColor = GetEnigmaGradient((float)i / 4f) * beamIntensity;
+                    CustomParticles.GenericFlare(end + endOffset, endColor, 0.4f, 14);
                 }
             }
             
-            // Dazzling sparkles along the beam's path
-            if (Main.GameUpdateCount % 20 == 0)
+            // Dazzling sparkles along the beam's path - kept but less frequent
+            if (Main.GameUpdateCount % 30 == 0)
             {
                 Vector2 sparklePos = Vector2.Lerp(start, end, Main.rand.NextFloat(0.3f, 0.8f));
                 sparklePos += Main.rand.NextVector2Circular(20f, 20f);
                 Color sparkleColor = GetEnigmaGradient(Main.rand.NextFloat()) * beamIntensity;
-                CustomParticles.GenericFlare(sparklePos, sparkleColor, 0.5f, 18);
-                CustomParticles.HaloRing(sparklePos, EnigmaGreen * beamIntensity * 0.5f, 0.2f, 12);
+                CustomParticles.GenericFlare(sparklePos, sparkleColor, 0.55f, 20);
             }
             
-            // Beam origin VFX
-            if (Main.GameUpdateCount % 4 == 0)
+            // Beam origin VFX - reduced frequency
+            if (Main.GameUpdateCount % 8 == 0)
             {
-                CustomParticles.GenericFlare(start, EnigmaGreen * beamIntensity, 0.5f, 12);
-                CustomParticles.HaloRing(start, EnigmaPurple * beamIntensity * 0.5f, 0.25f, 8);
+                CustomParticles.GenericFlare(start, EnigmaGreen * beamIntensity, 0.55f, 14);
             }
             
-            // Beam end VFX
-            if (Main.GameUpdateCount % 3 == 0)
+            // Beam end VFX - reduced frequency
+            if (Main.GameUpdateCount % 8 == 0)
             {
-                CustomParticles.GenericFlare(end, EnigmaGreen * beamIntensity, 0.6f, 15);
-                CustomParticles.HaloRing(end, EnigmaPurple * beamIntensity, 0.3f, 10);
+                CustomParticles.GenericFlare(end, EnigmaGreen * beamIntensity, 0.65f, 16);
+                CustomParticles.HaloRing(end, EnigmaPurple * beamIntensity, 0.35f, 12);
             }
             
             Lighting.AddLight(end, GetEnigmaGradient(0.7f).ToVector3() * beamIntensity * 0.8f);
@@ -518,58 +518,59 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             float intensity = 1f - lifeProgress;
             float scale = IsEnhanced ? 1.5f : 1f;
             
+            // OPTIMIZED: Changed from % 2 to % 4 for less frequent particle spawns
             // Implosion then explosion effect
             float effectProgress;
             if (lifeProgress < 0.4f)
             {
-                // Implosion phase
+                // Implosion phase - reduced from 8 to 5 particles
                 effectProgress = lifeProgress / 0.4f;
                 float implodeRadius = ExplosionRadius * (1f - effectProgress) * scale;
                 
-                if (Main.GameUpdateCount % 2 == 0)
+                if (Main.GameUpdateCount % 4 == 0)
                 {
-                    for (int i = 0; i < 8; i++)
+                    for (int i = 0; i < 5; i++)
                     {
-                        float angle = MathHelper.TwoPi * i / 8f + Main.GameUpdateCount * 0.2f;
+                        float angle = MathHelper.TwoPi * i / 5f + Main.GameUpdateCount * 0.2f;
                         Vector2 particlePos = Projectile.Center + angle.ToRotationVector2() * implodeRadius;
                         Vector2 vel = (Projectile.Center - particlePos).SafeNormalize(Vector2.Zero) * 6f;
                         
-                        Color particleColor = GetEnigmaGradient((float)i / 8f) * intensity;
-                        var glow = new GenericGlowParticle(particlePos, vel, particleColor, 0.35f * scale, 12, true);
+                        Color particleColor = GetEnigmaGradient((float)i / 5f) * intensity;
+                        var glow = new GenericGlowParticle(particlePos, vel, particleColor, 0.4f * scale, 14, true);
                         MagnumParticleHandler.SpawnParticle(glow);
                     }
                 }
             }
             else
             {
-                // Explosion phase
+                // Explosion phase - reduced from 12 to 6 particles
                 effectProgress = (lifeProgress - 0.4f) / 0.6f;
                 float explodeRadius = ExplosionRadius * effectProgress * scale;
                 
-                if (Main.GameUpdateCount % 2 == 0)
+                if (Main.GameUpdateCount % 4 == 0)
                 {
-                    for (int i = 0; i < 12; i++)
+                    for (int i = 0; i < 6; i++)
                     {
-                        float angle = MathHelper.TwoPi * i / 12f;
+                        float angle = MathHelper.TwoPi * i / 6f;
                         Vector2 particlePos = Projectile.Center + angle.ToRotationVector2() * explodeRadius;
                         
-                        Color particleColor = GetEnigmaGradient((float)i / 12f) * intensity;
-                        CustomParticles.GenericFlare(particlePos, particleColor, 0.4f * scale * intensity, 10);
+                        Color particleColor = GetEnigmaGradient((float)i / 6f) * intensity;
+                        CustomParticles.GenericFlare(particlePos, particleColor, 0.45f * scale * intensity, 12);
                     }
                 }
             }
             
-            // Central pulse
-            if (Main.GameUpdateCount % 3 == 0)
+            // Central pulse - reduced frequency
+            if (Main.GameUpdateCount % 6 == 0)
             {
-                CustomParticles.GenericFlare(Projectile.Center, EnigmaGreen * intensity, 0.6f * scale * intensity, 10);
+                CustomParticles.GenericFlare(Projectile.Center, EnigmaGreen * intensity, 0.65f * scale * intensity, 12);
             }
             
             // Mystical flare at center during snap
             if (Projectile.timeLeft == 15)
             {
-                CustomParticles.GenericFlare(Projectile.Center, EnigmaPurple, 0.7f * scale, 18);
-                CustomParticles.HaloRing(Projectile.Center, EnigmaGreen, 0.4f * scale, 15);
+                CustomParticles.GenericFlare(Projectile.Center, EnigmaPurple, 0.75f * scale, 20);
+                CustomParticles.HaloRing(Projectile.Center, EnigmaGreen, 0.45f * scale, 16);
             }
             
             Lighting.AddLight(Projectile.Center, GetEnigmaGradient(0.5f).ToVector3() * intensity * scale);
@@ -588,28 +589,19 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             if (IsEnhanced)
                 FateRealityDistortion.TriggerInversionPulse(6);
             
-            // === NEW UNIFIED VFX HIT EFFECT ===
-            UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 1.2f);
+            // === OPTIMIZED HIT EFFECT - Reduced particle counts ===
+            UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 1.0f);
             
             // === WATCHING EYE AT IMPACT ===
-            CustomParticles.EnigmaEyeImpact(target.Center, target.Center, EnigmaGreen, 0.5f);
+            CustomParticles.EnigmaEyeImpact(target.Center, target.Center, EnigmaGreen, 0.45f);
             
-            // === MUSIC NOTES BURST ===
-            ThemedParticles.EnigmaMusicNoteBurst(target.Center, 10, 6f);
-            ThemedParticles.EnigmaMusicNotes(target.Center, 5, 35f);
+            // === MUSIC NOTES - Reduced from 10+5 to 4 total ===
+            ThemedParticles.EnigmaMusicNoteBurst(target.Center, 4, 5f);
             
-            CustomParticles.GenericFlare(target.Center, EnigmaGreen, 0.6f, 15);
-            // Sparkle burst at impact
-            for (int s = 0; s < 5; s++)
-            {
-                float sAngle = MathHelper.TwoPi * s / 5f;
-                Vector2 sVel = sAngle.ToRotationVector2() * 2f;
-                var sGlow = new GenericGlowParticle(target.Center - new Vector2(0, 25f), sVel, EnigmaPurple * 0.8f, 0.35f, 18, true);
-                MagnumParticleHandler.SpawnParticle(sGlow);
-            }
+            CustomParticles.GenericFlare(target.Center, EnigmaGreen, 0.55f, 14);
             
-            // === GLYPH CIRCLE FORMATION ===
-            CustomParticles.GlyphCircle(target.Center, EnigmaPurple, count: 6, radius: 45f, rotationSpeed: 0.06f);
+            // === GLYPH CIRCLE - Reduced count ===
+            CustomParticles.GlyphCircle(target.Center, EnigmaPurple, count: 4, radius: 40f, rotationSpeed: 0.06f);
             
             // === DYNAMIC LIGHTING ===
             Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.8f);

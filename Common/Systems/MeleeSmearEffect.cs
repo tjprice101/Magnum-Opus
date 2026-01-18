@@ -152,9 +152,8 @@ namespace MagnumOpus.Common.Systems
             }
             
             // Enigma Variations weapons - ARCANE (Black → Purple → Green)
-            if (itemType == ModContent.ItemType<Enigma1>() ||
-                itemType == ModContent.ItemType<Enigma5>() ||
-                itemType == ModContent.ItemType<Enigma9>())
+            if (itemType == ModContent.ItemType<VariationsOfTheVoid>() ||
+                itemType == ModContent.ItemType<TheUnresolvedCadence>())
             {
                 return new Color(140, 60, 200); // Arcane purple
             }
@@ -174,9 +173,8 @@ namespace MagnumOpus.Common.Systems
                 return WeaponTheme.LaCampanella;
                 
             // Enigma weapons - need void/glyph effects
-            if (itemType == ModContent.ItemType<Enigma1>() ||
-                itemType == ModContent.ItemType<Enigma5>() ||
-                itemType == ModContent.ItemType<Enigma9>())
+            if (itemType == ModContent.ItemType<VariationsOfTheVoid>() ||
+                itemType == ModContent.ItemType<TheUnresolvedCadence>())
                 return WeaponTheme.Enigma;
                 
             // Swan Lake - feather effects
@@ -517,9 +515,8 @@ namespace MagnumOpus.Common.Systems
             }
             
             // Enigma weapons - arcane purple
-            if (itemType == ModContent.ItemType<Enigma1>() ||
-                itemType == ModContent.ItemType<Enigma5>() ||
-                itemType == ModContent.ItemType<Enigma9>())
+            if (itemType == ModContent.ItemType<VariationsOfTheVoid>() ||
+                itemType == ModContent.ItemType<TheUnresolvedCadence>())
             {
                 return new Color(140, 60, 200);
             }

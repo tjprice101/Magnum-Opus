@@ -103,7 +103,7 @@ namespace MagnumOpus.Common.Systems
                 ThemedParticles.LaCampanellaShockwave(position, scale);
                 ExplosionUtility.CreateFireExplosion(position, Orange, Black, scale);
                 
-                MagnumScreenEffects.AddScreenShake(10f * scale);
+                MagnumScreenEffects.AddScreenShake(5f * scale);
                 MagnumScreenEffects.SetFlashEffect(position, 1.5f * scale, 25);
             }
 
@@ -185,7 +185,7 @@ namespace MagnumOpus.Common.Systems
                 // Flare shine
                 SpawnFlareShine(position, Orange, Gold, 0f, new Vector2(12f * scale), 60);
                 
-                MagnumScreenEffects.AddScreenShake(25f * scale);
+                MagnumScreenEffects.AddScreenShake(8f * scale);
                 MagnumScreenEffects.SetFlashEffect(position, 2.5f * scale, 50);
             }
 
@@ -296,7 +296,7 @@ namespace MagnumOpus.Common.Systems
                     SpawnPulseRing(position, ringColor, 0f, (3f + i) * scale, 40 + i * 8);
                 }
                 
-                MagnumScreenEffects.AddScreenShake(15f * scale);
+                MagnumScreenEffects.AddScreenShake(6f * scale);
                 MagnumScreenEffects.SetFlashEffect(position, 2f * scale, 35);
             }
 
@@ -321,7 +321,7 @@ namespace MagnumOpus.Common.Systems
                 
                 SpawnFlareShine(position, Gold, Crimson, 0f, new Vector2(10f * scale), 55);
                 
-                MagnumScreenEffects.AddScreenShake(20f * scale);
+                MagnumScreenEffects.AddScreenShake(8f * scale);
                 MagnumScreenEffects.SetFlashEffect(position, 2f * scale, 45);
             }
 
@@ -425,7 +425,7 @@ namespace MagnumOpus.Common.Systems
                 
                 SpawnFlareShine(position, Silver, DarkPurple, 0f, new Vector2(8f * scale), 50);
                 
-                MagnumScreenEffects.AddScreenShake(18f * scale);
+                MagnumScreenEffects.AddScreenShake(8f * scale);
                 MagnumScreenEffects.SetFlashEffect(position, 1.8f * scale, 40);
             }
 
@@ -547,7 +547,7 @@ namespace MagnumOpus.Common.Systems
                 
                 SpawnFlareShine(position, White, GetRainbow(), 0f, new Vector2(12f * scale), 60);
                 
-                MagnumScreenEffects.AddScreenShake(22f * scale);
+                MagnumScreenEffects.AddScreenShake(8f * scale);
                 MagnumScreenEffects.SetFlashEffect(position, 2.2f * scale, 50);
             }
 

@@ -15,8 +15,8 @@ using MagnumOpus.Content.EnigmaVariations.Debuffs;
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
 {
     /// <summary>
-    /// RIDDLE CASCADE - Enigma Magic Staff
-    /// ====================================
+    /// DISSONANCE OF SECRETS - Enigma Magic Staff
+    /// ===========================================
     /// UNIQUE MECHANICS:
     /// - Fire a slow-moving MYSTERY ORB that grows as it travels
     /// - Orb periodically releases smaller homing projectiles
@@ -26,13 +26,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
     /// - Explosion applies heavy Paradox Brand stacks to all nearby enemies
     /// - Can have multiple orbs active at once for overlapping auras
     /// </summary>
-    public class Enigma3 : ModItem
+    public class DissonanceOfSecrets : ModItem
     {
         private static readonly Color EnigmaBlack = new Color(15, 10, 20);
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
-        
-        public override string Texture => "Terraria/Images/Item_" + ItemID.RazorbladeTyphoon;
         
         private Color GetEnigmaGradient(float progress)
         {
@@ -47,11 +45,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Item.damage = 480;
             Item.DamageType = DamageClass.Magic;
             Item.mana = 18;
-            Item.width = 50;
-            Item.height = 50;
+            Item.width = 28;
+            Item.height = 32;
             Item.useTime = 35;
             Item.useAnimation = 35;
-            Item.useStyle = ItemUseStyleID.Shoot;
+            Item.useStyle = ItemUseStyleID.Shoot; // Normal book-style shooting
             Item.knockBack = 3f;
             Item.value = Item.sellPrice(gold: 18);
             Item.rare = ModContent.RarityType<EnigmaRarity>();
@@ -60,7 +58,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Item.shoot = ModContent.ProjectileType<RiddleCascadeOrb>();
             Item.shootSpeed = 6f;
             Item.noMelee = true;
-            Item.staff[Item.type] = true;
+            Item.scale = 0.765f; // 25% smaller total
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -249,9 +247,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 ReleaseRiddlebolt();
             }
             
-            // ORBITING SPARKLE CONSTELLATION - magical orb aura
-            int sparkleCount = 3 + (int)(growthProgress * 3);
-            if (Main.GameUpdateCount % 8 == 0)
+            // OPTIMIZED: ORBITING SPARKLE CONSTELLATION - reduced frequency from 8 to 15 frames, fewer particles
+            int sparkleCount = 2 + (int)(growthProgress * 2);
+            if (Main.GameUpdateCount % 15 == 0)
             {
                 float baseAngle = Main.GameUpdateCount * 0.03f;
                 for (int i = 0; i < sparkleCount; i++)
@@ -259,52 +257,40 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                     float angle = baseAngle + MathHelper.TwoPi * i / sparkleCount;
                     float radius = 45f * currentScale;
                     Vector2 sparklePos = Projectile.Center + angle.ToRotationVector2() * radius;
-                    CustomParticles.GenericFlare(sparklePos, GetEnigmaGradient(growthProgress), 0.35f * currentScale, 14);
-                    // Occasional trailing particle
-                    if (i % 2 == 0)
-                    {
-                        var trail = new GenericGlowParticle(sparklePos, angle.ToRotationVector2() * 0.8f,
-                            GetEnigmaGradient((float)i / sparkleCount) * 0.5f, 0.2f * currentScale, 12, true);
-                        MagnumParticleHandler.SpawnParticle(trail);
-                    }
+                    CustomParticles.GenericFlare(sparklePos, GetEnigmaGradient(growthProgress), 0.4f * currentScale, 16);
                 }
             }
             
-            // Rotating glyph circle around orb
-            if (Main.GameUpdateCount % 12 == 0)
+            // OPTIMIZED: Rotating glyph circle - reduced frequency from 12 to 25 frames, fewer glyphs
+            if (Main.GameUpdateCount % 25 == 0)
             {
-                int glyphCount = 4 + (int)(growthProgress * 4);
+                int glyphCount = 3 + (int)(growthProgress * 2);
                 CustomParticles.GlyphCircle(Projectile.Center, EnigmaPurple, count: glyphCount, 
                     radius: 35f * currentScale, rotationSpeed: 0.04f);
             }
             
-            // Core pulsing
-            if (Main.GameUpdateCount % 5 == 0)
+            // OPTIMIZED: Core pulsing - reduced from 5 to 12 frames
+            if (Main.GameUpdateCount % 12 == 0)
             {
-                float pulse = 0.5f + (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.15f;
+                float pulse = 0.55f + (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.15f;
                 CustomParticles.GenericFlare(Projectile.Center, GetEnigmaGradient(growthProgress), 
-                    pulse * currentScale * 0.5f, 12);
+                    pulse * currentScale * 0.55f, 14);
             }
             
-            // Swirling particles being drawn inward
-            if (Main.rand.NextBool(3))
+            // OPTIMIZED: Swirling particles - reduced from NextBool(3) to every 12 frames
+            if (Main.GameUpdateCount % 12 == 0)
             {
                 float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
                 float radius = 60f * currentScale + Main.rand.NextFloat(30f);
                 Vector2 particlePos = Projectile.Center + angle.ToRotationVector2() * radius;
                 Vector2 vel = (Projectile.Center - particlePos).SafeNormalize(Vector2.Zero) * 3f;
                 
-                var glow = new GenericGlowParticle(particlePos, vel, GetEnigmaGradient(Main.rand.NextFloat()) * 0.6f, 
-                    0.25f * currentScale, 20, true);
+                var glow = new GenericGlowParticle(particlePos, vel, GetEnigmaGradient(Main.rand.NextFloat()) * 0.65f, 
+                    0.28f * currentScale, 22, true);
                 MagnumParticleHandler.SpawnParticle(glow);
             }
             
-            // Ambient trail
-            if (Main.rand.NextBool(2))
-            {
-                CustomParticles.GenericFlare(Projectile.Center + Main.rand.NextVector2Circular(20f * currentScale, 20f * currentScale),
-                    GetEnigmaGradient(Main.rand.NextFloat()) * 0.7f, 0.3f * currentScale, 14);
-            }
+            // OPTIMIZED: Ambient trail - removed (was every frame with NextBool(2))
             
             Lighting.AddLight(Projectile.Center, EnigmaPurple.ToVector3() * 0.6f * currentScale);
         }
@@ -440,7 +426,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.2f, Volume = 1.1f }, Projectile.Center);
             SoundEngine.PlaySound(SoundID.Item14 with { Pitch = -0.4f, Volume = 0.9f }, Projectile.Center);
             
-            float explosionRadius = 250f * currentScale;
+            float explosionRadius = 170f * currentScale; // Reduced by 20% (was 212f)
             
             // Central white flash
             CustomParticles.GenericFlare(Projectile.Center, Color.White, 1.5f * currentScale, 30);
@@ -646,8 +632,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredVel, HomingStrength);
             }
             
-            // Trail
-            if (Main.rand.NextBool(2))
+            // Trail - every 5 frames instead of 50% every frame
+            if (Projectile.timeLeft % 5 == 0)
             {
                 float progress = Main.rand.NextFloat();
                 Color trailColor = GetEnigmaGradient(progress);

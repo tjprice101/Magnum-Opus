@@ -315,7 +315,7 @@ namespace MagnumOpus.Common.Systems
             TriggerInversionPulse(8);
             
             // Screen shake
-            MagnumScreenEffects.AddScreenShake(12f * scale);
+            MagnumScreenEffects.AddScreenShake(5f * scale);
             
             // Flash
             MagnumScreenEffects.SetFlashEffect(position, 1.5f * scale, 20);
@@ -329,7 +329,7 @@ namespace MagnumOpus.Common.Systems
             TriggerRealityShatter(position, 12, 1.5f * scale, 45);
             TriggerChromaticAberration(position, 8f * scale, 40);
             TriggerInversionPulse(12);
-            MagnumScreenEffects.AddScreenShake(25f * scale);
+            MagnumScreenEffects.AddScreenShake(8f * scale);
             MagnumScreenEffects.SetFlashEffect(position, 2f * scale, 50);
         }
         
@@ -708,7 +708,7 @@ namespace MagnumOpus.Common.Systems
             }
             catch { }
             
-            MagnumScreenEffects.AddScreenShake(12f * scale);
+            MagnumScreenEffects.AddScreenShake(5f * scale);
             MagnumScreenEffects.SetFlashEffect(position, 1.5f * scale, 30);
         }
         
@@ -794,7 +794,7 @@ namespace MagnumOpus.Common.Systems
             catch { }
             
             // Maximum visual impact
-            MagnumScreenEffects.AddScreenShake(20f * scale);
+            MagnumScreenEffects.AddScreenShake(6f * scale);
             MagnumScreenEffects.SetFlashEffect(position, 2f * scale, 45);
             ShockwaveUtility.CreateShockwave(position, 3, 10, 100f * scale, primaryColor);
         }

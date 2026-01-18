@@ -43,6 +43,25 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
         public override bool CanRightClick() => true;
         
+        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        {
+            // Draw with enhanced color to counteract any desaturation
+            Texture2D texture = Terraria.GameContent.TextureAssets.Item[Item.type].Value;
+            
+            // Draw a subtle orange glow behind the bag
+            Color glowColor = new Color(255, 120, 40, 0) * 0.4f;
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 offset = new Vector2(2f, 0f).RotatedBy(MathHelper.PiOver2 * i);
+                spriteBatch.Draw(texture, position + offset, frame, glowColor, 0f, origin, scale, SpriteEffects.None, 0f);
+            }
+            
+            // Draw with full brightness white tint to make colors pop
+            spriteBatch.Draw(texture, position, frame, Color.White, 0f, origin, scale, SpriteEffects.None, 0f);
+            
+            return false; // Don't draw default
+        }
+        
         public override void RightClick(Player player)
         {
             // Play bell opening sound

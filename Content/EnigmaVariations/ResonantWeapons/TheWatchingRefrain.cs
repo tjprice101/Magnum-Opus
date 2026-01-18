@@ -15,8 +15,8 @@ using MagnumOpus.Content.EnigmaVariations.Debuffs;
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
 {
     /// <summary>
-    /// UNSOLVED PHANTOM - Enigma Summon Weapon
-    /// ========================================
+    /// THE WATCHING REFRAIN - Enigma Summon Weapon
+    /// ============================================
     /// UNIQUE MECHANICS:
     /// - Summon a minion made of shifting eyes and glyphs
     /// - Minion phases in and out of visibility (semi-intangible feel)
@@ -26,13 +26,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
     /// - Attacks chain to nearby enemies with eerie lightning
     /// - Special: At 3+ minions, they create a collective glyph formation
     /// </summary>
-    public class Enigma4 : ModItem
+    public class TheWatchingRefrain : ModItem
     {
         private static readonly Color EnigmaBlack = new Color(15, 10, 20);
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
-        
-        public override string Texture => "Terraria/Images/Item_" + ItemID.RavenStaff;
         
         private Color GetEnigmaGradient(float progress)
         {
@@ -410,10 +408,10 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
         
         private void DrawMinionVisuals()
         {
-            // Orbiting sparkle wisps around minion
-            if (Main.GameUpdateCount % 8 == 0)
+            // OPTIMIZED: Orbiting sparkle wisps - reduced from 8 to 20 frames, fewer particles
+            if (Main.GameUpdateCount % 20 == 0)
             {
-                int wispCount = 3;
+                int wispCount = 2;
                 float baseAngle = Main.GameUpdateCount * 0.04f;
                 
                 for (int i = 0; i < wispCount; i++)
@@ -422,33 +420,30 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
                     float radius = 35f;
                     Vector2 wispPos = Projectile.Center + angle.ToRotationVector2() * radius;
                     
-                    CustomParticles.GenericFlare(wispPos, GetEnigmaGradient((float)i / wispCount) * visibility, 0.3f * visibility, 12);
-                    var wisp = new GenericGlowParticle(wispPos, angle.ToRotationVector2() * 0.5f,
-                        EnigmaPurple * visibility * 0.5f, 0.2f, 10, true);
-                    MagnumParticleHandler.SpawnParticle(wisp);
+                    CustomParticles.GenericFlare(wispPos, GetEnigmaGradient((float)i / wispCount) * visibility, 0.35f * visibility, 14);
                 }
             }
             
-            // Rotating glyph aura
-            if (Main.GameUpdateCount % 12 == 0)
+            // OPTIMIZED: Rotating glyph aura - reduced from 12 to 30 frames, fewer glyphs
+            if (Main.GameUpdateCount % 30 == 0)
             {
-                CustomParticles.GlyphCircle(Projectile.Center, EnigmaPurple * visibility * 0.6f, count: 4, 
+                CustomParticles.GlyphCircle(Projectile.Center, EnigmaPurple * visibility * 0.65f, count: 2, 
                     radius: 30f, rotationSpeed: 0.03f);
             }
             
-            // Core glow
-            if (Main.rand.NextBool(4))
+            // OPTIMIZED: Core glow - reduced from NextBool(4) to every 15 frames
+            if (Main.GameUpdateCount % 15 == 0)
             {
-                CustomParticles.GenericFlare(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f), 
-                    GetEnigmaGradient(Main.rand.NextFloat()) * visibility * 0.7f, 0.25f, 10);
+                CustomParticles.GenericFlare(Projectile.Center + Main.rand.NextVector2Circular(12f, 12f), 
+                    GetEnigmaGradient(Main.rand.NextFloat()) * visibility * 0.75f, 0.3f, 12);
             }
             
-            // Phase effect particles
-            if (visibility < 0.6f && Main.rand.NextBool(3))
+            // OPTIMIZED: Phase effect particles - reduced from NextBool(3) to every 20 frames when phased
+            if (visibility < 0.6f && Main.GameUpdateCount % 20 == 0)
             {
-                Vector2 particlePos = Projectile.Center + Main.rand.NextVector2Circular(25f, 25f);
-                var glow = new GenericGlowParticle(particlePos, Main.rand.NextVector2Circular(2f, 2f),
-                    EnigmaBlack * 0.5f, 0.2f, 15, true);
+                Vector2 particlePos = Projectile.Center + Main.rand.NextVector2Circular(20f, 20f);
+                var glow = new GenericGlowParticle(particlePos, Main.rand.NextVector2Circular(1.5f, 1.5f),
+                    EnigmaBlack * 0.55f, 0.22f, 16, true);
                 MagnumParticleHandler.SpawnParticle(glow);
             }
             
@@ -463,29 +458,20 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
             // === REALITY WARP DISTORTION ===
             FateRealityDistortion.TriggerChromaticAberration(target.Center, 3f, 10);
             
-            // === NEW UNIFIED VFX HIT EFFECT ===
-            UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 1.2f);
+            // === OPTIMIZED UNIFIED VFX HIT EFFECT ===
+            UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 1.0f);
             
             // === WATCHING EYE AT IMPACT ===
-            CustomParticles.EnigmaEyeImpact(target.Center, target.Center, EnigmaGreen, 0.5f);
+            CustomParticles.EnigmaEyeImpact(target.Center, target.Center, EnigmaGreen, 0.45f);
             
-            // === MUSIC NOTES BURST ===
-            ThemedParticles.EnigmaMusicNoteBurst(target.Center, 10, 6f);
-            ThemedParticles.EnigmaMusicNotes(target.Center, 5, 35f);
+            // === MUSIC NOTES BURST - Reduced from 10+5 to 4 total ===
+            ThemedParticles.EnigmaMusicNoteBurst(target.Center, 4, 5f);
             
             CustomParticles.GenericFlare(target.Center, EnigmaGreen * visibility, 0.5f, 16);
+            CustomParticles.HaloRing(target.Center, EnigmaPurple * 0.7f, 0.38f, 14);
             
-            // Sparkle burst indicator on hit
-            for (int i = 0; i < 5; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 5f;
-                Vector2 burstPos = target.Center - new Vector2(0, 25f) + angle.ToRotationVector2() * 18f;
-                CustomParticles.GenericFlare(burstPos, GetEnigmaGradient((float)i / 5f), 0.38f, 14);
-            }
-            CustomParticles.HaloRing(target.Center, EnigmaPurple * 0.7f, 0.35f, 12);
-            
-            // === GLYPH CIRCLE FORMATION ===
-            CustomParticles.GlyphCircle(target.Center, EnigmaPurple, count: 6, radius: 45f, rotationSpeed: 0.06f);
+            // === GLYPH CIRCLE FORMATION - Reduced ===
+            CustomParticles.GlyphCircle(target.Center, EnigmaPurple, count: 3, radius: 40f, rotationSpeed: 0.06f);
             
             // === DYNAMIC LIGHTING ===
             Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.8f);
@@ -597,8 +583,8 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
         {
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
             
-            // Trail
-            if (Main.rand.NextBool(2))
+            // Trail - every 4 frames instead of 50% every frame
+            if (Projectile.timeLeft % 4 == 0)
             {
                 float progress = Main.rand.NextFloat();
                 Color trailColor = GetEnigmaGradient(progress);
@@ -995,8 +981,8 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
                     radius: ZoneRadius * 0.5f, rotationSpeed: -0.04f);
             }
             
-            // Swirling particles throughout zone
-            if (Main.rand.NextBool(2))
+            // Swirling particles throughout zone - every 6 frames
+            if (Main.GameUpdateCount % 6 == 0)
             {
                 float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
                 float radius = Main.rand.NextFloat(20f, ZoneRadius);

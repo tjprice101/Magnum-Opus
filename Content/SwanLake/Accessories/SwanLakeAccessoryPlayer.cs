@@ -613,8 +613,7 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 CustomParticles.HaloRing(target.Center, Color.White, 0.8f, 20);
                 CustomParticles.HaloRing(target.Center, Color.Black, 0.6f, 18);
                 
-                // Screen shake for impact
-                EroicaScreenShake.SmallShake(target.Center);
+                // Screen shake removed - weapons/accessories should not cause screen shake
             }
             
             // Legacy critical hit effect (kept for additional visual feedback)

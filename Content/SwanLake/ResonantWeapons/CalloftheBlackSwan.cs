@@ -513,7 +513,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             
             if (closestNPC != null)
             {
-                Vector2 targetDir = (closestNPC.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                // Use varied target point so projectiles don't all converge on the same spot
+                Vector2 targetPoint = TargetingUtilities.GetVariedTargetPoint(closestNPC, Projectile.whoAmI);
+                Vector2 targetDir = (targetPoint - Projectile.Center).SafeNormalize(Vector2.Zero);
                 Projectile.velocity = Vector2.Lerp(Projectile.velocity, targetDir * Projectile.velocity.Length(), homingStrength);
             }
 

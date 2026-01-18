@@ -57,13 +57,15 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
         {
             player.GetModPlayer<RiddlemastersFlightPlayer>().hasWingsEquipped = true;
             
-            // Mysterious enigma particles when flying
+            // Mysterious enigma particles when flying - performance optimized
             if (!hideVisual && player.velocity.Y != 0)
             {
-                ThemedParticles.EnigmaAura(player.Center, 35f);
+                // EnigmaAura only every 20 frames
+                if (Main.GameUpdateCount % 20 == 0)
+                    ThemedParticles.EnigmaAura(player.Center, 35f);
                 
-                // Eerie green flame wisps
-                if (Main.rand.NextBool(5))
+                // Eerie green flame wisps - every 20 frames
+                if (Main.GameUpdateCount % 20 == 0)
                 {
                     Color greenFlame = ThemedParticles.EnigmaGreenFlame;
                     var glow = new GenericGlowParticle(
@@ -73,15 +75,15 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
                     MagnumParticleHandler.SpawnParticle(glow);
                 }
                 
-                // Occasional glyph
-                if (Main.rand.NextBool(15))
+                // Occasional glyph - every 50 frames
+                if (Main.GameUpdateCount % 50 == 0)
                 {
                     CustomParticles.Glyph(player.Center + Main.rand.NextVector2Circular(30f, 25f), 
                         ThemedParticles.EnigmaPurple, 0.25f, -1);
                 }
                 
-                // Rare watching eye
-                if (Main.rand.NextBool(40))
+                // Rare watching eye - every 120 frames
+                if (Main.GameUpdateCount % 120 == 0)
                 {
                     Vector2 eyePos = player.Center + Main.rand.NextVector2Circular(25f, 20f);
                     CustomParticles.EnigmaEyeGaze(eyePos, ThemedParticles.EnigmaGreenFlame * 0.7f, 0.3f, null);

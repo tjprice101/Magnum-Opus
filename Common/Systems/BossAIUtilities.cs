@@ -497,6 +497,102 @@ namespace MagnumOpus.Common.Systems
         }
     }
     
+    // ============================================================================
+    // TARGETING UTILITIES - For homing projectiles and minions
+    // ============================================================================
+    
+    /// <summary>
+    /// Utility class for proper hitbox-based targeting instead of center-only targeting.
+    /// This ensures projectiles can hit any pixel on an enemy's hitbox, not just the center.
+    /// </summary>
+    public static class TargetingUtilities
+    {
+        /// <summary>
+        /// Gets a random point within an NPC's hitbox for targeting.
+        /// This allows homing projectiles to hit anywhere on the enemy, not just the center.
+        /// </summary>
+        /// <param name="npc">The target NPC</param>
+        /// <returns>A random point within the NPC's hitbox</returns>
+        public static Vector2 GetRandomHitboxPoint(NPC npc)
+        {
+            return new Vector2(
+                npc.position.X + Main.rand.NextFloat(npc.width),
+                npc.position.Y + Main.rand.NextFloat(npc.height)
+            );
+        }
+        
+        /// <summary>
+        /// Gets a weighted random point within an NPC's hitbox, biased toward the center.
+        /// Use this for a balance between random targeting and center targeting.
+        /// </summary>
+        /// <param name="npc">The target NPC</param>
+        /// <param name="centerBias">0 = fully random, 1 = center only. Default 0.3f</param>
+        /// <returns>A point within the NPC's hitbox</returns>
+        public static Vector2 GetBiasedHitboxPoint(NPC npc, float centerBias = 0.3f)
+        {
+            Vector2 randomPoint = GetRandomHitboxPoint(npc);
+            return Vector2.Lerp(randomPoint, npc.Center, centerBias);
+        }
+        
+        /// <summary>
+        /// Gets the closest point on an NPC's hitbox to a given position.
+        /// Useful for projectiles that should target the nearest edge of an enemy.
+        /// </summary>
+        /// <param name="npc">The target NPC</param>
+        /// <param name="fromPosition">The position to measure from (e.g., projectile center)</param>
+        /// <returns>The closest point on the NPC's hitbox edge</returns>
+        public static Vector2 GetClosestHitboxPoint(NPC npc, Vector2 fromPosition)
+        {
+            Rectangle hitbox = npc.Hitbox;
+            float closestX = MathHelper.Clamp(fromPosition.X, hitbox.Left, hitbox.Right);
+            float closestY = MathHelper.Clamp(fromPosition.Y, hitbox.Top, hitbox.Bottom);
+            return new Vector2(closestX, closestY);
+        }
+        
+        /// <summary>
+        /// Gets a target point for homing that varies based on projectile lifetime.
+        /// This prevents all projectiles from converging on the same point.
+        /// </summary>
+        /// <param name="npc">The target NPC</param>
+        /// <param name="projectileIndex">Unique index for this projectile (use Projectile.whoAmI)</param>
+        /// <returns>A consistent but varied target point</returns>
+        public static Vector2 GetVariedTargetPoint(NPC npc, int projectileIndex)
+        {
+            // Use projectile index to create consistent but different offsets for each projectile
+            float offsetX = (float)Math.Sin(projectileIndex * 0.7f) * npc.width * 0.4f;
+            float offsetY = (float)Math.Cos(projectileIndex * 0.5f) * npc.height * 0.4f;
+            return npc.Center + new Vector2(offsetX, offsetY);
+        }
+        
+        /// <summary>
+        /// Checks if a projectile can hit an NPC's hitbox (not just center).
+        /// Use this for line-of-sight checks that respect the full hitbox.
+        /// </summary>
+        /// <param name="fromPosition">Starting position</param>
+        /// <param name="npc">Target NPC</param>
+        /// <returns>True if any part of the hitbox is visible</returns>
+        public static bool CanHitHitbox(Vector2 fromPosition, NPC npc)
+        {
+            // Check multiple points on the hitbox for line of sight
+            Vector2[] checkPoints = new Vector2[]
+            {
+                npc.Center,
+                new Vector2(npc.position.X, npc.position.Y),                          // Top-left
+                new Vector2(npc.position.X + npc.width, npc.position.Y),              // Top-right
+                new Vector2(npc.position.X, npc.position.Y + npc.height),             // Bottom-left
+                new Vector2(npc.position.X + npc.width, npc.position.Y + npc.height), // Bottom-right
+            };
+            
+            foreach (var point in checkPoints)
+            {
+                if (Collision.CanHitLine(fromPosition, 1, 1, point, 1, 1))
+                    return true;
+            }
+            
+            return false;
+        }
+    }
+    
     /// <summary>
     /// Extension methods for float (angles).
     /// </summary>

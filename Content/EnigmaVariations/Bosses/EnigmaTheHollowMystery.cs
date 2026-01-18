@@ -448,11 +448,12 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         private void IdleBehavior(Player target)
         {
-            // Brief idle before selecting next action
+            // Brief idle before selecting next action - AGGRESSIVE, minimal wait
             if (isGrounded)
                 NPC.velocity.X *= 0.9f;
             
-            if (Timer >= 30)
+            // Enraged = immediate action, Normal = quick transition
+            if (Timer >= (isEnraged ? 10 : 20))
             {
                 SelectNextAction(target);
             }
@@ -465,23 +466,26 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             
             if (isGrounded)
             {
-                NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, direction * crawlSpeed, 0.12f);
+                // Faster crawl speed for more aggression
+                float currentCrawlSpeed = isEnraged ? crawlSpeed * 1.3f : crawlSpeed;
+                NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, direction * currentCrawlSpeed, 0.15f);
             }
             
             // Check for jump opportunity
             float heightDiff = target.Center.Y - NPC.Center.Y;
             float distanceX = Math.Abs(target.Center.X - NPC.Center.X);
             
-            // Jump if player is above or far away
-            if (jumpCooldown <= 0 && isGrounded && (heightDiff < -150 || distanceX > 500))
+            // Jump if player is above or far away - more aggressive thresholds
+            if (jumpCooldown <= 0 && isGrounded && (heightDiff < -100 || distanceX > 400))
             {
                 State = ActionState.JumpWindup;
                 Timer = 0;
                 return;
             }
             
-            // Select attack after moving for a bit
-            if (Timer >= 90 && AttackCooldown <= 0)
+            // Select attack much sooner - AGGRESSIVE boss
+            int attackWindow = isEnraged ? 40 : 60;
+            if (Timer >= attackWindow && AttackCooldown <= 0)
             {
                 SelectNextAction(target);
             }
@@ -573,22 +577,30 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         {
             NPC.velocity.X *= 0.9f;
             
-            // Charge telegraph
-            if (Timer % 4 == 0)
+            // Update charge target to track player - BETTER TRACKING
+            chargeTarget = target.Center;
+            
+            // Charge telegraph - FASTER
+            if (Timer % 3 == 0)
             {
                 Vector2 telegraphDir = (chargeTarget - NPC.Center).SafeNormalize(Vector2.UnitX);
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < 4; i++)
                 {
-                    Vector2 pos = NPC.Center + telegraphDir * (i * 40);
-                    CustomParticles.GenericFlare(pos, EnigmaGreen * 0.6f, 0.3f, 12);
+                    Vector2 pos = NPC.Center + telegraphDir * (i * 35);
+                    CustomParticles.GenericFlare(pos, EnigmaGreen * 0.7f, 0.35f, 12);
                 }
+                // Add eye telegraph
+                CustomParticles.EnigmaEyeGaze(NPC.Center + telegraphDir * 60f, EnigmaGreen, 0.5f, telegraphDir);
             }
             
-            if (Timer >= 35)
+            // SHORTER windup
+            if (Timer >= 20)
             {
-                // Execute charge
+                // Execute charge - update target one more time
+                chargeTarget = target.Center;
                 Vector2 chargeDir = (chargeTarget - NPC.Center).SafeNormalize(Vector2.UnitX);
-                NPC.velocity = chargeDir * chargeSpeed;
+                float currentChargeSpeed = isEnraged ? chargeSpeed * 1.4f : chargeSpeed;
+                NPC.velocity = chargeDir * currentChargeSpeed;
                 
                 SoundEngine.PlaySound(SoundID.Roar with { Pitch = 0.5f, Volume = 0.8f }, NPC.Center);
                 State = ActionState.Charging;
@@ -598,20 +610,29 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         private void ChargingBehavior(Player target)
         {
-            // Charge trail
+            // Charge trail - MORE particles
             if (Timer % 2 == 0)
             {
-                CustomParticles.GenericFlare(NPC.Center, EnigmaPurple, 0.5f, 15);
-                CustomParticles.GenericGlow(NPC.Center, EnigmaGreen, 0.4f, 20);
+                CustomParticles.GenericFlare(NPC.Center, EnigmaPurple, 0.6f, 15);
+                CustomParticles.GenericGlow(NPC.Center, EnigmaGreen, 0.5f, 20);
+                CustomParticles.EnigmaEyeGaze(NPC.Center + Main.rand.NextVector2Circular(30, 30), 
+                    EnigmaPurple * 0.7f, 0.3f, NPC.velocity.SafeNormalize(Vector2.UnitX));
             }
             
-            // Stop on collision or timeout
-            if (Timer >= 40 || NPC.velocity.Length() < 5f)
+            // Light course correction during charge - BETTER TRACKING
+            if (Timer % 8 == 0 && isEnraged)
+            {
+                Vector2 toTarget = (target.Center - NPC.Center).SafeNormalize(NPC.velocity.SafeNormalize(Vector2.UnitX));
+                NPC.velocity = Vector2.Lerp(NPC.velocity.SafeNormalize(Vector2.UnitX), toTarget, 0.15f) * NPC.velocity.Length();
+            }
+            
+            // LONGER charge duration
+            if (Timer >= 55 || NPC.velocity.Length() < 4f)
             {
                 NPC.velocity *= 0.3f;
                 State = ActionState.Crawling;
                 Timer = 0;
-                AttackCooldown = 45;
+                AttackCooldown = isEnraged ? 20 : 30;
             }
         }
         
@@ -623,11 +644,12 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         {
             attacksSinceLastJump++;
             
-            // Force jump every few attacks
-            if (attacksSinceLastJump >= 3 && jumpCooldown <= 0 && isGrounded)
+            // Force jump more frequently for mobility - AGGRESSIVE
+            if (attacksSinceLastJump >= 2 && jumpCooldown <= 0 && isGrounded)
             {
                 State = ActionState.JumpWindup;
                 Timer = 0;
+                attacksSinceLastJump = 0;
                 return;
             }
             
@@ -637,34 +659,60 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             
             List<ActionState> availableAttacks = new List<ActionState>();
             
-            // Close range attacks
-            if (distance < 300)
+            // Close range attacks - PRIORITIZE these when close
+            if (distance < 350)
             {
                 availableAttacks.Add(ActionState.PounceWindup);
+                availableAttacks.Add(ActionState.PounceWindup); // Double weight for pounce
                 availableAttacks.Add(ActionState.RealityQuakeWindup);
                 availableAttacks.Add(ActionState.GlyphEruptionWindup);
+                availableAttacks.Add(ActionState.ChargeWindup); // Can charge at close range too
+                chargeTarget = target.Center;
             }
             
-            // Medium range
-            if (distance >= 200 && distance < 600)
+            // Medium range - AGGRESSIVE mix of approaches
+            if (distance >= 150 && distance < 600)
             {
                 availableAttacks.Add(ActionState.WebShotWindup);
                 availableAttacks.Add(ActionState.EyeBarrageWindup);
                 availableAttacks.Add(ActionState.ChargeWindup);
+                availableAttacks.Add(ActionState.ChargeWindup); // Double weight for charge
                 chargeTarget = target.Center;
             }
             
-            // Long range
+            // Long range - CLOSE THE GAP AGGRESSIVELY
             if (distance >= 400)
             {
                 availableAttacks.Add(ActionState.VoidWebWindup);
                 availableAttacks.Add(ActionState.SwarmWindup);
+                availableAttacks.Add(ActionState.ChargeWindup); // Always include charge at range
+                availableAttacks.Add(ActionState.ChargeWindup);
+                chargeTarget = target.Center;
             }
             
-            // Enrage adds vortex attack
-            if (isEnraged && Main.rand.NextBool(3))
+            // Enrage dramatically increases vortex frequency
+            if (isEnraged)
             {
                 availableAttacks.Add(ActionState.VortexWindup);
+                if (Main.rand.NextBool(2))
+                    availableAttacks.Add(ActionState.VortexWindup); // More vortex when enraged
+            }
+            
+            // LOW HEALTH PHASE (below 50%) - DESPERATE AGGRESSION
+            if (healthPercent < 0.5f)
+            {
+                // Add more charge and pounce attacks
+                availableAttacks.Add(ActionState.PounceWindup);
+                availableAttacks.Add(ActionState.ChargeWindup);
+                chargeTarget = target.Center;
+            }
+            
+            // CRITICAL PHASE (below 25%) - MAXIMUM AGGRESSION
+            if (healthPercent < 0.25f)
+            {
+                availableAttacks.Add(ActionState.VortexWindup);
+                availableAttacks.Add(ActionState.RealityQuakeWindup);
+                availableAttacks.Add(ActionState.GlyphEruptionWindup);
             }
             
             // Default if no attacks available
@@ -672,6 +720,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             {
                 availableAttacks.Add(ActionState.WebShotWindup);
                 availableAttacks.Add(ActionState.EyeBarrageWindup);
+                availableAttacks.Add(ActionState.ChargeWindup);
+                chargeTarget = target.Center;
             }
             
             // Pick random attack, avoiding repeats
@@ -686,7 +736,17 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             lastAttackType = (int)selectedAttack;
             State = selectedAttack;
             Timer = 0;
-            AttackCooldown = isEnraged ? 30 : 60;
+            
+            // REDUCED COOLDOWNS for aggressive pacing
+            // Enraged: 15 ticks (0.25 seconds)
+            // Critical (below 25%): 10 ticks
+            // Normal: 35 ticks (0.58 seconds)
+            if (healthPercent < 0.25f)
+                AttackCooldown = 10;
+            else if (isEnraged)
+                AttackCooldown = 15;
+            else
+                AttackCooldown = 35;
         }
         
         #endregion
@@ -698,12 +758,13 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         {
             NPC.velocity.X *= 0.9f;
             
-            if (Timer % 8 == 0)
+            if (Timer % 5 == 0)
             {
-                CustomParticles.GenericFlare(NPC.Center, EnigmaPurple, 0.4f + Timer * 0.01f, 15);
+                CustomParticles.GenericFlare(NPC.Center, EnigmaPurple, 0.4f + Timer * 0.015f, 15);
             }
             
-            if (Timer >= 30)
+            // FASTER windup
+            if (Timer >= 18)
             {
                 State = ActionState.WebShot;
                 Timer = 0;
@@ -713,8 +774,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         private void WebShotAttack(Player target)
         {
-            int shotsPerBurst = isEnraged ? 5 : 3;
-            int shotDelay = isEnraged ? 8 : 12;
+            // MORE shots, FASTER rate
+            int shotsPerBurst = isEnraged ? 7 : 5;
+            int shotDelay = isEnraged ? 5 : 8;
             
             if (Timer % shotDelay == 0 && AttackPhase < shotsPerBurst)
             {
@@ -749,14 +811,15 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             pounceTarget = target.Center;
             pounceCount = 0;
             
-            // Telegraph
-            if (Timer % 6 == 0)
+            // Telegraph - FASTER
+            if (Timer % 4 == 0)
             {
                 Vector2 telegraphPos = NPC.Center + (pounceTarget - NPC.Center).SafeNormalize(Vector2.Zero) * 50f;
                 CustomParticles.EnigmaEyeGaze(telegraphPos, EnigmaGreen, 0.4f, (pounceTarget - NPC.Center).SafeNormalize(Vector2.UnitX));
             }
             
-            if (Timer >= 25)
+            // SHORTER windup
+            if (Timer >= 15)
             {
                 State = ActionState.Pouncing;
                 Timer = 0;
@@ -765,19 +828,20 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         private void PounceAttack(Player target)
         {
-            int maxPounces = isEnraged ? 4 : 3;
+            // MORE pounces, FASTER speed
+            int maxPounces = isEnraged ? 5 : 4;
             
             if (Timer == 1 && pounceCount < maxPounces)
             {
-                // Execute pounce
+                // Execute pounce - MORE AGGRESSIVE
                 Vector2 toPounce = (target.Center - NPC.Center);
-                float pounceSpeed = isEnraged ? 22f : 18f;
+                float pounceSpeed = isEnraged ? 28f : 22f;
                 
-                // Arc trajectory
-                NPC.velocity.X = toPounce.X * 0.04f;
-                NPC.velocity.Y = -12f;
+                // Arc trajectory - better tracking
+                NPC.velocity.X = toPounce.X * 0.06f;
+                NPC.velocity.Y = -14f;
                 NPC.velocity = NPC.velocity.SafeNormalize(Vector2.UnitX) * pounceSpeed;
-                NPC.velocity.Y = Math.Min(NPC.velocity.Y, -8f);
+                NPC.velocity.Y = Math.Min(NPC.velocity.Y, -10f);
                 
                 SoundEngine.PlaySound(SoundID.Item24 with { Pitch = 0.2f }, NPC.Center);
                 pounceCount++;
@@ -815,19 +879,20 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             }
         }
         
-        // Attack 3: Glyph Eruption - Ground AOE
+        // Attack 3: Glyph Eruption - Ground AOE - MORE DANGEROUS
         private void GlyphEruptionWindup(Player target)
         {
             NPC.velocity.X *= 0.9f;
             
-            // Ground glyph telegraph
-            if (Timer % 10 == 0)
+            // Ground glyph telegraph - FASTER
+            if (Timer % 6 == 0)
             {
-                float radius = 150f + Timer * 2f;
-                CustomParticles.GlyphCircle(NPC.Bottom, EnigmaPurple * 0.6f, 6, radius, 0.05f);
+                float radius = 150f + Timer * 3f;
+                CustomParticles.GlyphCircle(NPC.Bottom, EnigmaPurple * 0.6f, 6, radius, 0.07f);
             }
             
-            if (Timer >= 50)
+            // SHORTER windup
+            if (Timer >= 30)
             {
                 State = ActionState.GlyphEruption;
                 Timer = 0;
@@ -838,20 +903,25 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         {
             if (Timer == 1)
             {
-                // Ground eruption
+                // Ground eruption - MORE WAVES, MORE PROJECTILES
                 EroicaScreenShake.MediumShake(NPC.Center);
                 
-                int waves = isEnraged ? 4 : 3;
+                int waves = isEnraged ? 6 : 4;
                 for (int wave = 0; wave < waves; wave++)
                 {
-                    float radius = 100f + wave * 80f;
-                    int projectiles = 8 + wave * 2;
+                    float radius = 80f + wave * 70f;
+                    int projectiles = 10 + wave * 3;
                     
                     for (int i = 0; i < projectiles; i++)
                     {
                         float angle = MathHelper.TwoPi * i / projectiles;
                         Vector2 pos = NPC.Bottom + angle.ToRotationVector2() * radius;
-                        Vector2 vel = new Vector2(0, -8f - wave * 2f);
+                        // Faster projectiles, some aimed at player
+                        Vector2 vel = new Vector2(0, -10f - wave * 2.5f);
+                        if (wave % 2 == 1) // Every other wave aims at player
+                        {
+                            vel = (target.Center - pos).SafeNormalize(Vector2.UnitY * -1) * (8f + wave * 2f);
+                        }
                         
                         if (Main.netMode != NetmodeID.MultiplayerClient)
                         {
@@ -862,12 +932,13 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 }
                 
                 // VFX
-                UnifiedVFX.EnigmaVariations.Explosion(NPC.Bottom, 1.5f);
-                CustomParticles.GlyphBurst(NPC.Bottom, EnigmaGreen, 15, 8f);
+                UnifiedVFX.EnigmaVariations.Explosion(NPC.Bottom, 1.8f);
+                CustomParticles.GlyphBurst(NPC.Bottom, EnigmaGreen, 20, 10f);
                 SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.2f }, NPC.Center);
             }
             
-            if (Timer >= 30)
+            // SHORTER recovery
+            if (Timer >= 20)
             {
                 State = ActionState.Crawling;
                 Timer = 0;
@@ -1179,7 +1250,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 
                 if (deathTimer % 10 == 0)
                 {
-                    EroicaScreenShake.SmallShake(NPC.Center);
+                    // Screen shake removed during death animation
                     UnifiedVFX.EnigmaVariations.Impact(NPC.Center + Main.rand.NextVector2Circular(50, 30), 0.5f + intensity * 0.5f);
                 }
                 
@@ -1195,7 +1266,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 
                 if (deathTimer % 8 == 0)
                 {
-                    EroicaScreenShake.MediumShake(NPC.Center);
+                    // Screen shake removed during death animation - only chromatic effect
                     FateRealityDistortion.TriggerChromaticAberration(NPC.Center, 4f + intensity * 6f, 15);
                 }
                 
@@ -1212,8 +1283,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             {
                 Main.NewText("The Hollow Mystery fades into the unknown...", EnigmaGreen);
                 
-                // Massive final explosion
-                EroicaScreenShake.LargeShake(NPC.Center);
+                // Massive final explosion - single shake at climax moment only
                 UnifiedVFX.EnigmaVariations.DeathExplosion(NPC.Center, 3f);
                 
                 // Eye explosion
@@ -1252,20 +1322,19 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             // Harmonic Core (always drops)
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<HarmonicCoreOfEnigma>(), 1, 1, 1));
             
-            // Weapons (one of each type)
+            // Weapons - first drop guaranteed (various types)
             npcLoot.Add(ItemDropRule.OneFromOptions(1,
-                ModContent.ItemType<Enigma1>(),
-                ModContent.ItemType<Enigma2>(),
-                ModContent.ItemType<Enigma3>(),
-                ModContent.ItemType<Enigma4>(),
-                ModContent.ItemType<Enigma5>()));
+                ModContent.ItemType<VariationsOfTheVoid>(),      // Melee Sword
+                ModContent.ItemType<TheUnresolvedCadence>(),     // Melee Broadsword
+                ModContent.ItemType<DissonanceOfSecrets>(),      // Magic Staff
+                ModContent.ItemType<CipherNocturne>(),           // Magic Beam
+                ModContent.ItemType<FugueOfTheUnknown>()));      // Magic Tome
             
+            // Second weapon drop 50% chance (remaining types)
             npcLoot.Add(ItemDropRule.OneFromOptions(2,
-                ModContent.ItemType<Enigma6>(),
-                ModContent.ItemType<Enigma7>(),
-                ModContent.ItemType<Enigma8>(),
-                ModContent.ItemType<Enigma9>(),
-                ModContent.ItemType<Enigma10>()));
+                ModContent.ItemType<TheWatchingRefrain>(),       // Summon
+                ModContent.ItemType<TheSilentMeasure>(),         // Ranged Gun
+                ModContent.ItemType<TacetsEnigma>()));
             
             // Treasure bag in expert
             npcLoot.Add(ItemDropRule.BossBag(ModContent.ItemType<EnigmaTreasureBag>()));
