@@ -45,10 +45,12 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         private float sizeMultiplier = 1f;
         private bool hasSetSize = false;
         
-        // Animation - NOT a spritesheet, single full model texture
+        // Animation - 6x6 spritesheet (36 frames total)
         private int frameCounter = 0;
         private int currentFrame = 0;
-        private const int TotalFrames = 1; // Single image, no animation frames
+        private const int FrameColumns = 6;
+        private const int FrameRows = 6;
+        private const int TotalFrames = 36; // 6x6 spritesheet
         private const int FrameSpeed = 6;
         
         // Visual effects
@@ -86,7 +88,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
 
         public override void SetStaticDefaults()
         {
-            Main.npcFrameCount[Type] = 1; // Single full-model image, no sprite sheet
+            Main.npcFrameCount[Type] = TotalFrames; // 6x6 spritesheet = 36 frames
             
             NPCID.Sets.TrailCacheLength[Type] = 5;
             NPCID.Sets.TrailingMode[Type] = 0;
@@ -113,6 +115,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
             NPC.aiStyle = -1; // Custom AI
             NPC.lavaImmune = false;
             NPC.npcSlots = 5f; // Mini-boss slot count
+            NPC.noGravity = true; // Flying creature
+            NPC.noTileCollide = true; // Can pass through tiles while flying
         }
 
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
@@ -170,17 +174,16 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
             NPC.TargetClosest(true);
             Player target = Main.player[NPC.target];
             
-            // Despawn if no valid target
+            // Despawn if no valid target - fly away
             if (!target.active || target.dead)
             {
-                NPC.velocity.Y += 0.1f;
+                NPC.velocity.Y -= 0.5f; // Fly upward
+                NPC.velocity.X *= 0.98f;
                 if (NPC.timeLeft > 60)
                     NPC.timeLeft = 60;
                 return;
             }
             
-            // Ground check
-            bool grounded = CheckGrounded();
             float distanceToTarget = Vector2.Distance(NPC.Center, target.Center);
             
             // Select attack when ready
@@ -194,13 +197,13 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
             switch (State)
             {
                 case AIState.Idle:
-                    IdleBehavior(target, grounded);
+                    IdleBehavior(target, false);
                     break;
                 case AIState.Walking:
-                    WalkingBehavior(target, grounded);
+                    WalkingBehavior(target, false);
                     break;
                 case AIState.Jumping:
-                    JumpingBehavior(target, grounded);
+                    JumpingBehavior(target, false);
                     break;
                 case AIState.ParadoxGaze:
                     HandleParadoxGaze(target);
@@ -556,55 +559,54 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         private void IdleBehavior(Player target, bool grounded)
         {
-            NPC.velocity.X *= 0.9f;
+            // Flying creature - hover and bob gently
+            NPC.velocity *= 0.95f;
             
-            // Start moving after brief idle
+            // Gentle floating motion
+            float floatSpeed = 0.5f;
+            NPC.velocity.Y += (float)Math.Sin(Timer * 0.05f) * floatSpeed * 0.1f;
+            
+            // Start chasing after brief idle
             if (Timer >= 45)
             {
-                float distanceToTarget = Vector2.Distance(NPC.Center, target.Center);
-                
-                if (distanceToTarget > 400f && grounded && Main.rand.NextBool(3))
-                {
-                    // Jump to close distance
-                    State = AIState.Jumping;
-                    Timer = 0;
-                }
-                else
-                {
-                    // Walk towards target
-                    State = AIState.Walking;
-                    Timer = 0;
-                }
+                State = AIState.Walking; // Walking = flying/chasing
+                Timer = 0;
             }
         }
         
         private void WalkingBehavior(Player target, bool grounded)
         {
-            float direction = Math.Sign(target.Center.X - NPC.Center.X);
-            float walkSpeed = 3.5f * sizeMultiplier;
+            // Flying behavior - chase target smoothly
+            Vector2 toTarget = target.Center - NPC.Center;
+            float distance = toTarget.Length();
             
-            if (grounded)
+            // Desired position is near the target but with some offset
+            Vector2 targetPos = target.Center + new Vector2(0, -100f); // Hover above player
+            Vector2 toTargetPos = targetPos - NPC.Center;
+            
+            float flySpeed = 5f * sizeMultiplier;
+            float acceleration = 0.15f;
+            
+            // Accelerate toward target
+            if (toTargetPos.Length() > 50f)
             {
-                NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, direction * walkSpeed, 0.1f);
+                Vector2 direction = toTargetPos.SafeNormalize(Vector2.Zero);
+                NPC.velocity += direction * acceleration;
                 
-                // Jump over obstacles
-                if (Math.Abs(NPC.velocity.X) < 0.5f && Timer > 30)
-                {
-                    State = AIState.Jumping;
-                    Timer = 0;
-                    return;
-                }
+                // Cap speed
+                if (NPC.velocity.Length() > flySpeed)
+                    NPC.velocity = NPC.velocity.SafeNormalize(Vector2.Zero) * flySpeed;
             }
-            
-            // Occasional jump
-            if (Timer > 120 && grounded && Main.rand.NextBool(60))
+            else
             {
-                State = AIState.Jumping;
-                Timer = 0;
-                return;
+                // Near target, slow down
+                NPC.velocity *= 0.95f;
             }
             
-            // Return to idle after walking for a while
+            // Add gentle bobbing
+            NPC.velocity.Y += (float)Math.Sin(Timer * 0.08f) * 0.1f;
+            
+            // Return to idle after a while
             if (Timer > 180)
             {
                 State = AIState.Idle;
@@ -614,43 +616,27 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         private void JumpingBehavior(Player target, bool grounded)
         {
-            if (Timer == 1 && grounded)
+            // For flying creature, this is a dash attack
+            if (Timer == 1)
             {
-                // Execute jump
-                Vector2 toTarget = target.Center - NPC.Center;
-                float jumpPower = 10f + Math.Abs(toTarget.Y) * 0.01f;
-                jumpPower = MathHelper.Clamp(jumpPower, 8f, 16f);
+                // Dash toward target
+                Vector2 toTarget = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
+                float dashSpeed = 12f * sizeMultiplier;
                 
-                NPC.velocity.Y = -jumpPower;
-                NPC.velocity.X = MathHelper.Clamp(toTarget.X * 0.02f, -6f, 6f);
+                NPC.velocity = toTarget * dashSpeed;
                 
-                // Jump particles
-                CustomParticles.GenericFlare(NPC.Bottom, EnigmaPurple * 0.6f, 0.3f * sizeMultiplier, 15);
+                // Dash particles
+                CustomParticles.GenericFlare(NPC.Center, EnigmaPurple * 0.8f, 0.4f * sizeMultiplier, 18);
                 SoundEngine.PlaySound(SoundID.Item24 with { Pitch = 0.2f, Volume = 0.5f }, NPC.Center);
             }
             
-            // Air control
-            if (!grounded)
-            {
-                float direction = Math.Sign(target.Center.X - NPC.Center.X);
-                NPC.velocity.X += direction * 0.1f;
-                NPC.velocity.X = MathHelper.Clamp(NPC.velocity.X, -8f, 8f);
-            }
+            // Slow down during dash
+            NPC.velocity *= 0.97f;
             
-            // Land
-            if (grounded && Timer > 15)
+            // End dash
+            if (Timer > 45 || NPC.velocity.Length() < 2f)
             {
-                // Landing impact
-                CustomParticles.GenericFlare(NPC.Bottom, EnigmaPurple, 0.25f * sizeMultiplier, 12);
-                
                 State = AIState.Walking;
-                Timer = 0;
-            }
-            
-            // Timeout
-            if (Timer > 120)
-            {
-                State = AIState.Idle;
                 Timer = 0;
             }
         }
@@ -722,8 +708,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
             frameCounter++;
             
             int speed = FrameSpeed;
-            if (State == AIState.Walking)
-                speed = 4; // Faster animation when moving
+            if (State == AIState.Walking || State == AIState.Idle)
+                speed = 5; // Normal animation
             else if (State == AIState.ParadoxGaze || State == AIState.WatchingVolley || 
                      State == AIState.GlyphCascade || State == AIState.MysteryVortex ||
                      State == AIState.EnigmaRevelation)
@@ -737,21 +723,26 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
                     currentFrame = 0;
             }
             
-            // For single-image texture (no spritesheet), just use frame 0
-            // The texture is NOT a spritesheet - it's a single full model image
-            NPC.frame.Y = 0;
+            // 6x6 spritesheet - calculate frame Y position
+            // Note: We handle the actual frame rectangle in PreDraw
+            NPC.frame.Y = currentFrame * frameHeight;
         }
 
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
             Texture2D texture = TextureAssets.Npc[Type].Value;
             
-            // This enemy uses a SINGLE image texture (not a spritesheet)
-            // Draw the full texture as the frame
-            Rectangle frame = new Rectangle(0, 0, texture.Width, texture.Height);
+            // 6x6 spritesheet - calculate frame from current animation frame
+            int frameWidth = texture.Width / FrameColumns;
+            int frameHeight = texture.Height / FrameRows;
+            
+            int frameX = currentFrame % FrameColumns;
+            int frameY = currentFrame / FrameColumns;
+            
+            Rectangle frame = new Rectangle(frameX * frameWidth, frameY * frameHeight, frameWidth, frameHeight);
             
             Vector2 drawPos = NPC.Center - screenPos;
-            Vector2 origin = new Vector2(texture.Width / 2f, texture.Height / 2f);
+            Vector2 origin = new Vector2(frameWidth / 2f, frameHeight / 2f);
             SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             
             // Glow underlay

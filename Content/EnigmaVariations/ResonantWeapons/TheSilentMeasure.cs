@@ -66,7 +66,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             tooltips.Add(new TooltipLine(Mod, "EnigmaEffect1", "Bullets split into 3 homing seekers on first hit"));
             tooltips.Add(new TooltipLine(Mod, "EnigmaEffect2", "Hit enemies are connected by chain lightning"));
             tooltips.Add(new TooltipLine(Mod, "EnigmaEffect3", "Every 5th bullet is a paradox bolt that pierces infinitely"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaLore", "'Each shot poses a question that tears at the fabric of reality'") 
+            tooltips.Add(new TooltipLine(Mod, "EnigmaLore", "'Each shot poses a question that unravels certainty itself'") 
             { 
                 OverrideColor = EnigmaPurple 
             });
@@ -93,7 +93,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             if (isParadoxArrow)
             {
                 // Enhanced muzzle flash for paradox arrow
-                CustomParticles.GenericFlare(muzzlePos, Color.White, 0.8f, 18);
+                CustomParticles.GenericFlare(muzzlePos, EnigmaGreen, 0.8f, 18);
                 CustomParticles.GenericFlare(muzzlePos, EnigmaGreen, 0.65f, 16);
 CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
                 SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 0.6f }, muzzlePos);
@@ -199,7 +199,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             float pulse = 0.9f + MathF.Sin(Main.GameUpdateCount * 0.2f) * 0.15f;
             spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreen * 0.9f, 0f, flareOrigin, 0.5f * pulse, SpriteEffects.None, 0f);
             spriteBatch.Draw(flareTex, drawPos, null, EnigmaPurple * 0.7f, 0f, flareOrigin, 0.35f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(flareTex, drawPos, null, Color.White * 0.8f, 0f, flareOrigin, 0.2f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreen * 0.8f, 0f, flareOrigin, 0.2f * pulse, SpriteEffects.None, 0f);
             
             // === RADIAL SPARKLE BURST around core ===
             for (int i = 0; i < 4; i++)
@@ -363,7 +363,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             SoundEngine.PlaySound(SoundID.Item8 with { Pitch = 0.5f, Volume = 0.7f }, Projectile.Center);
             
             // Split VFX
-            CustomParticles.GenericFlare(Projectile.Center, Color.White, 0.8f, 20);
+            CustomParticles.GenericFlare(Projectile.Center, EnigmaGreen, 0.8f, 20);
             CustomParticles.HaloRing(Projectile.Center, EnigmaPurple, 0.45f, 16);
             CustomParticles.GlyphBurst(Projectile.Center, EnigmaGreen, 6, 4f);
             
@@ -568,7 +568,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             float pulse = 0.85f + MathF.Sin(Main.GameUpdateCount * 0.18f) * 0.15f;
             spriteBatch.Draw(flareTex, drawPos, null, EnigmaPurple * 0.85f, 0f, flareOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
             spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreen * 0.7f, 0f, flareOrigin, 0.28f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(flareTex, drawPos, null, Color.White * 0.75f, 0f, flareOrigin, 0.15f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreen * 0.75f, 0f, flareOrigin, 0.15f * pulse, SpriteEffects.None, 0f);
             
             // Restore normal blending
             spriteBatch.End();
@@ -854,7 +854,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             float pulse = 0.95f + MathF.Sin(Main.GameUpdateCount * 0.22f) * 0.2f;
             spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreen * 1.0f, 0f, flareOrigin, 0.65f * pulse, SpriteEffects.None, 0f);
             spriteBatch.Draw(flareTex, drawPos, null, EnigmaPurple * 0.8f, 0f, flareOrigin, 0.45f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(flareTex, drawPos, null, Color.White * 0.9f, 0f, flareOrigin, 0.25f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreen * 0.9f, 0f, flareOrigin, 0.25f * pulse, SpriteEffects.None, 0f);
             
             // === RADIAL SPARKLE BURST - 6 point star ===
             for (int i = 0; i < 6; i++)
@@ -999,7 +999,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             }
             
             // Impact VFX
-            CustomParticles.GenericFlare(target.Center, Color.White, 0.85f, 22);
+            CustomParticles.GenericFlare(target.Center, EnigmaGreen, 0.85f, 22);
             
             for (int i = 0; i < 12; i++)
             {
@@ -1040,7 +1040,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             FateRealityDistortion.TriggerInversionPulse(6);
             
             // Massive death burst
-            CustomParticles.GenericFlare(Projectile.Center, Color.White, 0.9f, 25);
+            CustomParticles.GenericFlare(Projectile.Center, EnigmaGreen, 0.9f, 25);
             
             for (int i = 0; i < 12; i++)
             {

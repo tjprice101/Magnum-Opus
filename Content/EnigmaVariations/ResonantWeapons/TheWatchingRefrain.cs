@@ -80,7 +80,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Projectile.NewProjectile(source, spawnPos, Vector2.Zero, type, damage, knockback, player.whoAmI);
             
             // Spawn VFX
-            CustomParticles.GenericFlare(spawnPos, Color.White, 0.9f, 22);
+            CustomParticles.GenericFlare(spawnPos, EnigmaGreen, 0.9f, 22);
 CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotationSpeed: 0.06f);
             
             // Ethereal sparkle spiral - phantom manifests from light

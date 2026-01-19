@@ -33,8 +33,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         {
             Item.maxStack = Item.CommonMaxStack;
             Item.consumable = true;
-            Item.width = 32;
-            Item.height = 32;
+            Item.width = 24;  // Reduced from 32 for smaller minimap icon
+            Item.height = 24; // Reduced from 32 for smaller minimap icon
             Item.rare = ItemRarityID.Expert;
             Item.expert = true;
         }

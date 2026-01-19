@@ -73,7 +73,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "EnigmaEffect", "[Ultimate Enigma Weapon]") { OverrideColor = EnigmaGreen });
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect2", "Creates dimensional slashes that persist and tear reality"));
+            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect2", "Creates dimensional slashes that persist and warp space"));
             tooltips.Add(new TooltipLine(Mod, "EnigmaEffect3", "Every swing stacks Inevitability on all enemies on screen"));
             tooltips.Add(new TooltipLine(Mod, "EnigmaEffect4", $"Current stacks: {inevitabilityStacks}/{MaxInevitabilityStacks}"));
             tooltips.Add(new TooltipLine(Mod, "EnigmaEffect5", "At max stacks triggers Paradox Collapse with massive devastation"));
@@ -313,25 +313,16 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             
             Texture2D glyphTex = CustomParticleSystem.Glyphs[(int)(Main.GameUpdateCount / 10) % 12].Value;
             Texture2D sparkleTex = CustomParticleSystem.PrismaticSparkles[(int)(Main.GameUpdateCount / 8) % 8].Value;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
             
-            // Draw a compact slash glow instead of stretched beam - just a soft slash mark
-            float slashSize = 0.45f * intensity;
-            spriteBatch.Draw(softGlow, drawPos, null, EnigmaDeepPurple * intensity * 0.7f, slashAngle, softGlow.Size() / 2f, slashSize * 1.3f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(softGlow, drawPos, null, EnigmaPurple * intensity * 0.6f, slashAngle, softGlow.Size() / 2f, slashSize * 1.0f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(softGlow, drawPos, null, EnigmaGreenFlame * intensity * 0.5f, slashAngle, softGlow.Size() / 2f, slashSize * 0.7f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(softGlow, drawPos, null, Color.White * intensity * 0.4f, slashAngle, softGlow.Size() / 2f, slashSize * 0.4f, SpriteEffects.None, 0f);
-            
-            // Draw glyphs along the slash line
+            // Draw glyphs along the slash line - no rectangle beam, just glyphs and sparkles
             Vector2 slashDir = slashAngle.ToRotationVector2();
             for (int i = -2; i <= 2; i++)
             {
-                if (i == 0) continue; // Skip center
                 float offset = i * 25f * intensity;
                 Vector2 glyphPos = drawPos + slashDir * offset;
                 Color glyphColor = Color.Lerp(EnigmaDeepPurple, EnigmaGreenFlame, (i + 2) / 4f) * intensity * 0.6f;
                 float glyphRot = slashAngle + Main.GameUpdateCount * 0.08f * (i % 2 == 0 ? 1 : -1);
-                spriteBatch.Draw(glyphTex, glyphPos, null, glyphColor, glyphRot, glyphTex.Size() / 2f, 0.18f * intensity, SpriteEffects.None, 0f);
+                spriteBatch.Draw(glyphTex, glyphPos, null, glyphColor, glyphRot, glyphTex.Size() / 2f, 0.2f * intensity, SpriteEffects.None, 0f);
             }
             
             // Draw sparkles perpendicular to slash
@@ -341,7 +332,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 float perpOffset = ((i % 2 == 0) ? 1 : -1) * (12f + i * 5f) * intensity;
                 Vector2 sparkPos = drawPos + perpDir * perpOffset;
                 Color sparkColor = Color.Lerp(EnigmaPurple, EnigmaGreenFlame, (float)i / 4f) * intensity * 0.5f;
-                spriteBatch.Draw(sparkleTex, sparkPos, null, sparkColor, Main.GameUpdateCount * 0.1f, sparkleTex.Size() / 2f, 0.1f * intensity, SpriteEffects.None, 0f);
+                spriteBatch.Draw(sparkleTex, sparkPos, null, sparkColor, Main.GameUpdateCount * 0.1f, sparkleTex.Size() / 2f, 0.12f * intensity, SpriteEffects.None, 0f);
             }
             
             // Restore normal blending
@@ -608,7 +599,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             spriteBatch.Draw(flareTex, drawPos, null, EnigmaDeepPurple * intensity * 0.85f, Main.GameUpdateCount * 0.04f, flareTex.Size() / 2f, 0.5f * scale * pulse * 0.3f, SpriteEffects.None, 0f);
             spriteBatch.Draw(flareTex, drawPos, null, EnigmaPurple * intensity * 0.7f, -Main.GameUpdateCount * 0.05f, flareTex.Size() / 2f, 0.35f * scale * pulse * 0.3f, SpriteEffects.None, 0f);
             spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreenFlame * intensity * 0.6f, Main.GameUpdateCount * 0.06f, flareTex.Size() / 2f, 0.2f * scale * pulse * 0.3f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(flareTex, drawPos, null, Color.White * intensity * 0.5f, 0f, flareTex.Size() / 2f, 0.1f * scale * pulse * 0.3f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreen * intensity * 0.5f, 0f, flareTex.Size() / 2f, 0.1f * scale * pulse * 0.3f, SpriteEffects.None, 0f);
             
             // Restore normal blending
             spriteBatch.End();

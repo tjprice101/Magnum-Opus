@@ -101,6 +101,30 @@ If the answer is no—**think harder, dig deeper, and create something magnifice
 
 **If you see this projectile texture style in existing code - DELETE IT IMMEDIATELY.**
 
+### BANNED: GlowingHalo3.png Texture (Concentric Rings) - FILE DELETED
+
+**The texture `Assets/Particles/GlowingHalo3.png` HAS BEEN PERMANENTLY DELETED from the mod.**
+
+This texture created concentric expanding ring effects and is forbidden. NEVER:
+- Recreate or add back this texture file
+- Use `CustomParticleSystem.GlowingHalos[2]` (the index is now invalid)
+- Create ANY concentric ring particle textures
+
+**The `RandomHalo()` function excludes index 2 from selection. Only use indices 0, 1, 3, 4, 5.**
+
+```csharp
+// ❌ BANNED - GlowingHalo3 has been DELETED
+CustomParticleSystem.GlowingHalos[2]  // WILL CAUSE ERRORS - file deleted
+
+// ✅ ALLOWED - Use these halo indices instead
+CustomParticleSystem.GlowingHalos[0]  // OK
+CustomParticleSystem.GlowingHalos[1]  // OK  
+CustomParticleSystem.GlowingHalos[3]  // OK (GlowingHalo4.png)
+CustomParticleSystem.GlowingHalos[4]  // OK
+CustomParticleSystem.GlowingHalos[5]  // OK
+CustomParticleSystem.RandomHalo()     // OK - excludes index 2
+```
+
 ```csharp
 // ❌ ABSOLUTELY FORBIDDEN - NEVER CREATE ANYTHING LIKE THIS
 public class FateAstrologicalRing : ModProjectile  // BANNED
@@ -177,6 +201,78 @@ The `Documentation/Design Documents for Inspiration/` folder contains comprehens
 - **Multi-Layer Bloom**: Multiple bloom draws at different scales for depth
 - **Color Palette Cycling**: Time-based hue shifts for dynamic visuals (adapt Exo Palette to theme colors)
 - **Worm Segment Linking**: AI array communication between head/body/tail
+
+---
+
+## 🎨 ADVANCED VFX REFERENCE - FARGOS SOULS DLC ANALYSIS
+
+The `Documentation/Custom Shaders and Shading/` folder contains **comprehensive VFX documentation extracted from FargosSoulsDLC** - one of the most visually impressive Terraria mods. **ALWAYS consult these documents when implementing any visual effects, shaders, particles, or rendering systems.**
+
+| Document | Contents | When to Use |
+|----------|----------|-------------|
+| [00_FargosSoulsDLC_VFX_Overview.md](../Documentation/Custom%20Shaders%20and%20Shading/00_FargosSoulsDLC_VFX_Overview.md) | Master overview, architecture diagram, quick reference patterns | **START HERE** - Understanding the overall VFX pipeline |
+| [01_Primitive_Trail_Rendering.md](../Documentation/Custom%20Shaders%20and%20Shading/01_Primitive_Trail_Rendering.md) | `IPixelatedPrimitiveRenderer`, `PrimitiveSettings`, width/color functions | Laser beams, weapon trails, projectile trails |
+| [02_Bloom_And_Glow_Effects.md](../Documentation/Custom%20Shaders%20and%20Shading/02_Bloom_And_Glow_Effects.md) | Multi-layer bloom stacking, shine flares, the `with { A = 0 }` pattern | Any glowing effect, impacts, explosions |
+| [03_HLSL_Shader_Reference.md](../Documentation/Custom%20Shaders%20and%20Shading/03_HLSL_Shader_Reference.md) | 40+ shader files with full code: `QuadraticBump`, `PaletteLerp`, pixelation | Custom shaders, advanced rendering |
+| [04_ExoMechs_VFX_Analysis.md](../Documentation/Custom%20Shaders%20and%20Shading/04_ExoMechs_VFX_Analysis.md) | Ares (katanas, tesla, portals), Apollo (plasma), Artemis (lasers), Hades (worm, super laser) | Boss VFX, complex attack visuals |
+| [05_Particle_Systems.md](../Documentation/Custom%20Shaders%20and%20Shading/05_Particle_Systems.md) | `BloomPixelParticle`, `GlowySquareParticle`, `StrongBloom`, metaballs, FastParticle | All particle implementations |
+| [06_Old_Duke_VFX_Analysis.md](../Documentation/Custom%20Shaders%20and%20Shading/06_Old_Duke_VFX_Analysis.md) | Fire particles, bile metaballs, nuclear hurricane, environmental effects | Fire/flame effects, screen filters, environmental VFX |
+| [07_Texture_Registries.md](../Documentation/Custom%20Shaders%20and%20Shading/07_Texture_Registries.md) | `MiscTexturesRegistry`, `NoiseTexturesRegistry`, all texture documentation | Texture management, noise textures for shaders |
+| [08_Color_And_Gradient_Techniques.md](../Documentation/Custom%20Shaders%20and%20Shading/08_Color_And_Gradient_Techniques.md) | `Color.Lerp` patterns, HLSL gradients, HSL manipulation, theme palettes | Color systems, gradients, palette management |
+
+### MANDATORY: Read Before Implementing VFX
+
+**Before implementing ANY of the following, READ the corresponding documents:**
+
+| Task | Required Reading |
+|------|------------------|
+| Any glowing/bloom effect | [02_Bloom_And_Glow_Effects.md](../Documentation/Custom%20Shaders%20and%20Shading/02_Bloom_And_Glow_Effects.md) |
+| Trail/beam rendering | [01_Primitive_Trail_Rendering.md](../Documentation/Custom%20Shaders%20and%20Shading/01_Primitive_Trail_Rendering.md) |
+| Custom particle types | [05_Particle_Systems.md](../Documentation/Custom%20Shaders%20and%20Shading/05_Particle_Systems.md) |
+| Boss attack visuals | [04_ExoMechs_VFX_Analysis.md](../Documentation/Custom%20Shaders%20and%20Shading/04_ExoMechs_VFX_Analysis.md) |
+| Fire/flame effects | [06_Old_Duke_VFX_Analysis.md](../Documentation/Custom%20Shaders%20and%20Shading/06_Old_Duke_VFX_Analysis.md) |
+| Color gradients/palettes | [08_Color_And_Gradient_Techniques.md](../Documentation/Custom%20Shaders%20and%20Shading/08_Color_And_Gradient_Techniques.md) |
+| HLSL shaders | [03_HLSL_Shader_Reference.md](../Documentation/Custom%20Shaders%20and%20Shading/03_HLSL_Shader_Reference.md) |
+
+### Critical Patterns from FargosSoulsDLC
+
+These patterns should be used throughout MagnumOpus:
+
+```csharp
+// ✅ CORRECT: Remove alpha for additive blending
+Color glowColor = baseColor with { A = 0 };
+Main.spriteBatch.Draw(bloom, pos, null, glowColor * 0.5f, ...);
+
+// ✅ CORRECT: Multi-layer bloom stack
+for (int i = 0; i < 4; i++)
+{
+    float scale = 1f + i * 0.3f;
+    float opacity = 0.5f / (i + 1);
+    Main.spriteBatch.Draw(bloom, pos, null, color with { A = 0 } * opacity, 
+        0f, bloom.Size() * 0.5f, scale, 0, 0f);
+}
+
+// ✅ CORRECT: Palette gradient lerping
+public static Color GetThemeColor(Color[] palette, float progress)
+{
+    float scaledProgress = progress * (palette.Length - 1);
+    int startIndex = (int)scaledProgress;
+    int endIndex = Math.Min(startIndex + 1, palette.Length - 1);
+    return Color.Lerp(palette[startIndex], palette[endIndex], scaledProgress - startIndex);
+}
+```
+
+### HLSL QuadraticBump - The Universal Edge Fade
+
+```hlsl
+// Used in nearly every FargosSoulsDLC shader
+float QuadraticBump(float x)
+{
+    return x * (4 - x * 4);
+}
+// Input 0.0 → 0.0, Input 0.5 → 1.0 (peak), Input 1.0 → 0.0
+// Perfect for edge-to-center intensity in trails and beams
+```
 
 ---
 

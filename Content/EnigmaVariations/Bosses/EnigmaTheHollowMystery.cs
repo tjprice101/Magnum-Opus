@@ -115,12 +115,12 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         private float eyeGlowIntensity = 0f;
         private bool hasActivatedSky = false;
         
-        // Animation - 6x6 sprite sheet (36 frames)
+        // Animation - Single PNG (no spritesheet)
         private int frameCounter = 0;
         private int currentFrame = 0;
-        private const int TotalFrames = 36;
-        private const int FrameColumns = 6;
-        private const int FrameRows = 6;
+        private const int TotalFrames = 1;
+        private const int FrameColumns = 1;
+        private const int FrameRows = 1;
         private const int FrameSpeed = 5;
         
         // Health bar registration
@@ -177,8 +177,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             NPC.aiStyle = -1;
             NPC.scale = 1.1f;
             
-            // Slight visual offset
-            DrawOffsetY = -20f;
+            // Visual offset - raised significantly to prevent sinking into ground
+            DrawOffsetY = -130f;
             
             Music = MusicID.Boss3; // Fallback until custom music
         }
@@ -1157,17 +1157,43 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         {
             NPC.velocity.X *= 0.85f;
             
-            // Vortex building
+            // Vortex building - KEEP SPINNING throughout windup
             float chargeProgress = Timer / 50f;
-            if (Timer % 5 == 0)
+            
+            // Continuous spinning vortex effect
+            if (Timer % 3 == 0)
             {
-                float radius = 100f - chargeProgress * 50f;
+                float innerRadius = 60f - chargeProgress * 20f;
+                float outerRadius = 100f - chargeProgress * 30f;
+                
+                // Inner ring - spins faster
+                for (int i = 0; i < 6; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 6f + Timer * 0.15f;
+                    Vector2 pos = NPC.Center + angle.ToRotationVector2() * innerRadius;
+                    Color innerColor = Color.Lerp(EnigmaPurple, EnigmaGreen, chargeProgress);
+                    CustomParticles.GenericFlare(pos, innerColor, 0.35f + chargeProgress * 0.2f, 12);
+                }
+                
+                // Outer ring - spins opposite direction
                 for (int i = 0; i < 4; i++)
                 {
-                    float angle = MathHelper.TwoPi * i / 4f + Timer * 0.1f;
-                    Vector2 pos = NPC.Center + angle.ToRotationVector2() * radius;
+                    float angle = MathHelper.TwoPi * i / 4f - Timer * 0.1f;
+                    Vector2 pos = NPC.Center + angle.ToRotationVector2() * outerRadius;
                     CustomParticles.GenericFlare(pos, EnigmaPurple, 0.4f, 15);
                 }
+            }
+            
+            // Glyph circle spins during charge
+            if (Timer % 10 == 0)
+            {
+                CustomParticles.GlyphCircle(NPC.Center, EnigmaPurple * (0.5f + chargeProgress * 0.5f), 4, 80f - chargeProgress * 30f, 0.1f + chargeProgress * 0.1f);
+            }
+            
+            // Central pulsing core
+            if (Timer % 6 == 0)
+            {
+                CustomParticles.GenericFlare(NPC.Center, EnigmaGreen * chargeProgress, 0.5f + chargeProgress * 0.3f, 15);
             }
             
             if (Timer >= 50)
@@ -1186,14 +1212,41 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             Vector2 pullDir = (NPC.Center - target.Center).SafeNormalize(Vector2.Zero);
             target.velocity += pullDir * pullStrength;
             
-            // Vortex visuals
-            if (Timer % 3 == 0)
+            // Vortex visuals - CONTINUOUS SPINNING throughout attack
+            // Multi-layer spinning vortex
+            if (Timer % 2 == 0)
             {
-                float vortexAngle = Timer * 0.15f;
-                float vortexRadius = 150f - (Timer % 60) * 2f;
-                Vector2 vortexPos = NPC.Center + vortexAngle.ToRotationVector2() * vortexRadius;
-                Color vortexColor = Color.Lerp(EnigmaPurple, EnigmaGreen, (Timer % 30) / 30f);
-                CustomParticles.GenericGlow(vortexPos, vortexColor, 0.4f, 20);
+                // Inner layer - fast spin
+                for (int i = 0; i < 4; i++)
+                {
+                    float innerAngle = Timer * 0.2f + MathHelper.TwoPi * i / 4f;
+                    float innerRadius = 40f + (float)Math.Sin(Timer * 0.1f) * 10f;
+                    Vector2 innerPos = NPC.Center + innerAngle.ToRotationVector2() * innerRadius;
+                    Color innerColor = Color.Lerp(EnigmaGreen, EnigmaPurple, (float)i / 4f);
+                    CustomParticles.GenericFlare(innerPos, innerColor, 0.4f, 10);
+                }
+                
+                // Middle layer - medium spin opposite direction
+                for (int i = 0; i < 6; i++)
+                {
+                    float midAngle = -Timer * 0.12f + MathHelper.TwoPi * i / 6f;
+                    float midRadius = 80f + (float)Math.Sin(Timer * 0.08f + i) * 15f;
+                    Vector2 midPos = NPC.Center + midAngle.ToRotationVector2() * midRadius;
+                    Color midColor = Color.Lerp(EnigmaPurple, EnigmaGreen, (Timer % 30) / 30f);
+                    CustomParticles.GenericGlow(midPos, midColor, 0.35f, 15);
+                }
+                
+                // Outer layer - slow spin
+                float outerAngle = Timer * 0.08f;
+                float outerRadius = 120f - (Timer % 60) * 1.5f;
+                Vector2 outerPos = NPC.Center + outerAngle.ToRotationVector2() * outerRadius;
+                CustomParticles.GenericGlow(outerPos, EnigmaPurple * 0.7f, 0.3f, 20);
+            }
+            
+            // Glyph circle continuously spinning
+            if (Timer % 8 == 0)
+            {
+                CustomParticles.GlyphCircle(NPC.Center, EnigmaPurple, 6, 100f - (Timer % 40), 0.12f);
             }
             
             // Shoot during vortex
@@ -1348,15 +1401,11 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         {
             Texture2D texture = TextureAssets.Npc[Type].Value;
             
-            // Calculate frame from 6x6 sheet
-            int frameWidth = texture.Width / FrameColumns;
-            int frameHeight = texture.Height / FrameRows;
-            int frameX = currentFrame % FrameColumns;
-            int frameY = currentFrame / FrameColumns;
-            Rectangle sourceRect = new Rectangle(frameX * frameWidth, frameY * frameHeight, frameWidth, frameHeight);
+            // Single PNG - use full texture
+            Rectangle sourceRect = new Rectangle(0, 0, texture.Width, texture.Height);
             
             Vector2 drawPos = NPC.Center - screenPos;
-            Vector2 origin = new Vector2(frameWidth / 2, frameHeight / 2);
+            Vector2 origin = new Vector2(texture.Width / 2, texture.Height / 2);
             SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             
             // Glow effect

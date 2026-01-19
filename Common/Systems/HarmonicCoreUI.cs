@@ -14,6 +14,7 @@ namespace MagnumOpus.Common.Systems
 {
     /// <summary>
     /// Harmonic Core UI with 3 slots, pearlescent shimmer border, matte black background.
+    /// Includes stats subsection showing equipped core details.
     /// </summary>
     public class HarmonicCoreUIState : UIState
     {
@@ -23,6 +24,12 @@ namespace MagnumOpus.Common.Systems
         private UIText titleText;
         private UIText descriptionText;
         private UIText classBonusText;
+        
+        // Stats subsection elements
+        private UIPanel statsPanel;
+        private UIText statsHeaderText;
+        private UIText[] statsCoreLines = new UIText[3]; // One line per equipped core
+        private UIText statsTotalLine;
         
         private bool isCollapsed = false;
         private float shimmerTimer = 0f;
@@ -50,10 +57,10 @@ namespace MagnumOpus.Common.Systems
             expandIcon.TextColor = new Color(220, 220, 240);
             collapsedPanel.Append(expandIcon);
             
-            // Main panel
+            // Main panel - increased height for stats subsection
             mainPanel = new UIPanel();
-            mainPanel.Width.Set(340f, 0f);
-            mainPanel.Height.Set(240f, 0f); // Increased height for enhance buttons
+            mainPanel.Width.Set(360f, 0f);
+            mainPanel.Height.Set(460f, 0f); // Increased height for stats subsection
             mainPanel.Left.Set(20f, 0f);
             mainPanel.Top.Set(260f, 0f);
             mainPanel.BackgroundColor = DarkPanelBg;
@@ -93,17 +100,53 @@ namespace MagnumOpus.Common.Systems
                 mainPanel.Append(coreSlots[i]);
             }
             
-            descriptionText = new UIText("", 0.55f, false);
+            descriptionText = new UIText("", 0.48f, false);
             descriptionText.HAlign = 0.5f;
-            descriptionText.Top.Set(142f, 0f); // Adjusted for new slot height
+            descriptionText.Top.Set(145f, 0f); // Adjusted for new slot height
             descriptionText.TextColor = new Color(180, 180, 200);
+            descriptionText.Width.Set(320f, 0f);
             mainPanel.Append(descriptionText);
             
-            classBonusText = new UIText("", 0.6f);
+            classBonusText = new UIText("", 0.52f);
             classBonusText.HAlign = 0.5f;
-            classBonusText.Top.Set(175f, 0f);
+            classBonusText.Top.Set(180f, 0f);
             classBonusText.TextColor = new Color(120, 200, 120);
             mainPanel.Append(classBonusText);
+            
+            // === STATS SUBSECTION ===
+            // Separator line (visual divider)
+            var separator = new UIPanel();
+            separator.Width.Set(300f, 0f);
+            separator.Height.Set(2f, 0f);
+            separator.HAlign = 0.5f;
+            separator.Top.Set(210f, 0f);
+            separator.BackgroundColor = new Color(80, 80, 100, 100);
+            separator.BorderColor = Color.Transparent;
+            mainPanel.Append(separator);
+            
+            // Stats header
+            statsHeaderText = new UIText("◆ Equipped Core Stats ◆", 0.55f);
+            statsHeaderText.HAlign = 0.5f;
+            statsHeaderText.Top.Set(222f, 0f);
+            statsHeaderText.TextColor = new Color(200, 200, 220);
+            mainPanel.Append(statsHeaderText);
+            
+            // Individual core stat lines
+            for (int i = 0; i < 3; i++)
+            {
+                statsCoreLines[i] = new UIText("", 0.40f, false);
+                statsCoreLines[i].Left.Set(15f, 0f);
+                statsCoreLines[i].Top.Set(245f + i * 55f, 0f); // Better spacing
+                statsCoreLines[i].TextColor = new Color(180, 180, 200);
+                mainPanel.Append(statsCoreLines[i]);
+            }
+            
+            // Total stats line
+            statsTotalLine = new UIText("", 0.5f);
+            statsTotalLine.HAlign = 0.5f;
+            statsTotalLine.Top.Set(420f, 0f); // Moved down to account for increased spacing
+            statsTotalLine.TextColor = new Color(255, 220, 100);
+            mainPanel.Append(statsTotalLine);
             
             UpdatePanelVisibility();
         }
@@ -143,6 +186,47 @@ namespace MagnumOpus.Common.Systems
             int bonusPercent = (int)(totalBonus * 100f);
             classBonusText.SetText(totalBonus > 0 ? 
                 $"All Classes: +{bonusPercent}%% Damage" : "");
+            
+            // === UPDATE STATS SUBSECTION ===
+            var coreStats = player.GetEquippedCoreStats();
+            
+            // Update individual core stat lines
+            for (int i = 0; i < 3; i++)
+            {
+                if (i < coreStats.Count)
+                {
+                    var stats = coreStats[i];
+                    string enhText = stats.EnhancementLevel > 0 ? $" +{stats.EnhancementLevel}" : "";
+                    int dmgPercent = (int)(stats.DamageBonus * 100f);
+                    
+                    // Format: "◇ Name [T1] +Enh — +5% Dmg"
+                    // Second line: "  Effect: description"
+                    string line1 = $"◇ {stats.DisplayName} [T{stats.Tier}]{enhText}";
+                    string line2 = $"   → +{dmgPercent}% Damage";
+                    string line3 = $"   {stats.EffectName}";
+                    
+                    statsCoreLines[i].SetText($"{line1}\n{line2}\n{line3}");
+                    statsCoreLines[i].TextColor = stats.ThemeColor * 0.9f;
+                }
+                else
+                {
+                    statsCoreLines[i].SetText("");
+                }
+            }
+            
+            // Update total line
+            if (coreStats.Count > 0)
+            {
+                float totalDmg = player.GetTotalDamageBonus();
+                int totalDmgPercent = (int)(totalDmg * 100f);
+                statsTotalLine.SetText($"◆ Total: +{totalDmgPercent}%% All Damage ◆");
+                statsHeaderText.TextColor = new Color(200, 200, 220);
+            }
+            else
+            {
+                statsTotalLine.SetText("");
+                statsHeaderText.TextColor = new Color(100, 100, 120);
+            }
         }
         
         public override void Draw(SpriteBatch spriteBatch)
@@ -155,8 +239,9 @@ namespace MagnumOpus.Common.Systems
             
             base.Draw(spriteBatch);
             
-            if (hoveredSlot >= 0 && !string.IsNullOrEmpty(hoveredDescription))
-                DrawHoverTooltip(spriteBatch);
+            // Tooltip disabled - info now shows in-panel via descriptionText
+            // if (hoveredSlot >= 0 && !string.IsNullOrEmpty(hoveredDescription))
+            //     DrawHoverTooltip(spriteBatch);
         }
         
         private void DrawShimmerBorder(SpriteBatch spriteBatch, CalculatedStyle dims)

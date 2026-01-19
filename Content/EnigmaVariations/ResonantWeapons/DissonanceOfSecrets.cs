@@ -91,7 +91,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 CustomParticles.GenericFlare(castPos + offset, GetEnigmaGradient((float)i / 8f), 0.5f, 18);
             }
             
-            CustomParticles.GenericFlare(castPos, Color.White, 0.75f, 20);
+            CustomParticles.GenericFlare(castPos, EnigmaGreen, 0.75f, 20);
             CustomParticles.HaloRing(castPos, EnigmaPurple, 0.45f, 16);
             
             // Spiraling sparkle burst on cast - riddles take flight
@@ -428,8 +428,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             
             float explosionRadius = 170f * currentScale; // Reduced by 20% (was 212f)
             
-            // Central white flash
-            CustomParticles.GenericFlare(Projectile.Center, Color.White, 1.5f * currentScale, 30);
+            // Central themed flash
+            CustomParticles.GenericFlare(Projectile.Center, EnigmaGreen, 1.5f * currentScale, 30);
             
             // Multiple glyph circles at different radii - signature cascade effect
             for (int circle = 0; circle < 4; circle++)

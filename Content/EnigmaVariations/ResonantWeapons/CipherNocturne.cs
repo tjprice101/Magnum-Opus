@@ -15,7 +15,7 @@ using MagnumOpus.Content.EnigmaVariations.Debuffs;
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
 {
     /// <summary>
-    /// CIPHER NOCTURNE - Magic beam weapon that "unravels" reality where it touches
+    /// CIPHER NOCTURNE - Magic beam weapon that channels mysterious arcane energy
     /// Creates visual distortion effects and increasing damage over beam duration
     /// When beam ends, all damage areas "snap back" with a burst
     /// </summary>
@@ -69,8 +69,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect", "Hold to channel a beam that unravels reality"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect2", "Reality distorts and warps around the beam"));
+            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect", "Hold to channel a mysterious beam of arcane energy"));
+            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect2", "The beam warps and distorts the space around it"));
             tooltips.Add(new TooltipLine(Mod, "EnigmaEffect3", "Damage increases the longer beam is held on target"));
             tooltips.Add(new TooltipLine(Mod, "EnigmaEffect4", "Releasing the beam causes all affected areas to snap back"));
             tooltips.Add(new TooltipLine(Mod, "EnigmaLore", "'Pull at a thread of existence, and watch it come undone.'") 
@@ -87,7 +87,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             {
                 Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
                 
-                // Music notes on beam start - reality begins to unravel to a haunting tune
+                // Music notes on beam start - a haunting tune of mystery
                 ThemedParticles.EnigmaMusicNotes(position, 6, 35f);
             }
             return false;
@@ -168,18 +168,20 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             // Position at player
             Projectile.Center = owner.Center;
             
-            // Aim towards cursor
+            // Aim towards cursor - beam stretches TO cursor position, not past it
             Vector2 toMouse = (Main.MouseWorld - owner.Center).SafeNormalize(Vector2.UnitX);
+            float distanceToCursor = Vector2.Distance(Main.MouseWorld, owner.Center);
             Projectile.velocity = toMouse;
             Projectile.rotation = toMouse.ToRotation();
             
-            // Raycast for beam length
-            currentBeamLength = MaxBeamLength;
+            // Beam length is the distance to cursor (capped at MaxBeamLength)
+            // This makes the beam stretch exactly to where cursor is
+            currentBeamLength = Math.Min(distanceToCursor, MaxBeamLength);
             Vector2 beamStart = owner.Center;
-            Vector2 beamEnd = beamStart + toMouse * MaxBeamLength;
+            Vector2 beamEnd = beamStart + toMouse * currentBeamLength;
             
-            // Check for tiles
-            for (int i = 0; i < (int)(MaxBeamLength / 16f); i++)
+            // Check for tiles - stop beam if it hits a tile before reaching cursor
+            for (int i = 0; i < (int)(currentBeamLength / 16f); i++)
             {
                 Vector2 checkPos = beamStart + toMouse * (i * 16f);
                 Point tilePos = checkPos.ToTileCoordinates();

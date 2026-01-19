@@ -2099,6 +2099,10 @@ Projectiles: {
 	AcceleratingCosmicRound.DisplayName: Accelerating Cosmic Round
 	CosmicStarCircleEffect.DisplayName: Cosmic Star Circle Effect
 	FugueVoiceProjectile.DisplayName: Fugue Voice Projectile
+	TacetEnigmaShot.DisplayName: Tacet Enigma Shot
+	TacetParadoxBolt.DisplayName: Tacet Paradox Bolt
+	VoidConvergenceBeamSet.DisplayName: Void Convergence Beam Set
+	VoidResonanceExplosion.DisplayName: Void Resonance Explosion
 }
 
 "Keybinds.Toggle Harmonic Core UI.DisplayName": Toggle  Harmonic  Core  U I

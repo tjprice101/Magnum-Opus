@@ -11,6 +11,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonanceEnergies;
 using MagnumOpus.Content.LaCampanella.HarmonicCores;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.LaCampanella.Enemies
 {
@@ -98,9 +99,9 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 
         public override void SetDefaults()
         {
-            // MINI-BOSS STATS
-            NPC.width = 180;
-            NPC.height = 120;
+            // MINI-BOSS STATS - Reduced size by 50%
+            NPC.width = 90;  // Was 180
+            NPC.height = 60; // Was 120
             NPC.damage = 150;
             NPC.defense = 70;
             NPC.lifeMax = 55000;
@@ -110,6 +111,7 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
             NPC.value = Item.buyPrice(gold: 35);
             NPC.aiStyle = -1;
             NPC.npcSlots = 5f;
+            NPC.scale = 0.5f; // 50% scale
 
             NPC.noGravity = false;
             NPC.noTileCollide = false;
@@ -117,7 +119,10 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 
             NPC.boss = false; // Mini-boss, not full boss
             
-            DrawOffsetY = -10f;
+            // DrawOffsetY positions the sprite relative to the hitbox
+            // Positive values move sprite UP (useful when sprite's visual bottom is lower than hitbox bottom)
+            // The sprite is 6x6 frames at scale 0.5, so we need to ensure sprite bottom aligns with hitbox bottom
+            DrawOffsetY = 0f; // Reset - sprite bottom should match hitbox bottom
         }
 
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
@@ -315,26 +320,40 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
         {
             NPC.velocity.X *= 0.9f;
 
-            // Expanding fire rings like sound waves from a bell
+            // Fire a spread of flames aimed at the player in waves
             if (StateTimer < 90f)
             {
-                // Every 15 frames, spawn a ring of flames
-                if (StateTimer % 15 == 0 && Main.netMode != NetmodeID.MultiplayerClient)
+                // Every 18 frames, fire a burst of flames toward the player
+                if (StateTimer % 18 == 0 && Main.netMode != NetmodeID.MultiplayerClient)
                 {
-                    int ringCount = 12;
-                    float ringSpeed = 6f + StateTimer * 0.05f;
+                    Vector2 toPlayer = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
+                    float baseAngle = toPlayer.ToRotation();
+                    float spreadAngle = MathHelper.ToRadians(45f); // 45 degree spread
+                    int flameCount = 5; // 5 flames per burst
+                    float flameSpeed = 8f + StateTimer * 0.03f;
                     
-                    for (int i = 0; i < ringCount; i++)
+                    for (int i = 0; i < flameCount; i++)
                     {
-                        float angle = MathHelper.TwoPi * i / ringCount;
-                        Vector2 velocity = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * ringSpeed;
+                        // Fan spread aimed at player
+                        float angleOffset = MathHelper.Lerp(-spreadAngle, spreadAngle, (float)i / (flameCount - 1));
+                        Vector2 velocity = (baseAngle + angleOffset).ToRotationVector2() * flameSpeed;
                         
                         Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, velocity,
                             ModContent.ProjectileType<BellTollFlame>(), NPC.damage / 3, 1f, Main.myPlayer);
                     }
 
-                    // Bell toll VFX
-                    ThemedParticles.LaCampanellaHaloBurst(NPC.Center, 1.2f);
+                    // Bell toll VFX - impact at spawn point
+                    ThemedParticles.LaCampanellaImpact(NPC.Center, 0.8f);
+                    
+                    // Fire embers burst outward
+                    for (int i = 0; i < 8; i++)
+                    {
+                        float emberAngle = baseAngle + MathHelper.Lerp(-MathHelper.PiOver4, MathHelper.PiOver4, Main.rand.NextFloat());
+                        Vector2 emberVel = emberAngle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
+                        var ember = new GenericGlowParticle(NPC.Center, emberVel, CampanellaOrange, 0.35f, 20, true);
+                        MagnumParticleHandler.SpawnParticle(ember);
+                    }
+                    
                     SoundEngine.PlaySound(SoundID.Item35 with { Pitch = -0.5f + StateTimer * 0.005f }, NPC.Center);
                 }
             }
@@ -638,8 +657,10 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
             int frameY = currentFrame / FrameColumns;
             Rectangle sourceRect = new Rectangle(frameX * frameWidth, frameY * frameHeight, frameWidth, frameHeight);
             
-            Vector2 drawPos = NPC.Center - screenPos;
-            Vector2 origin = new Vector2(frameWidth / 2, frameHeight / 2);
+            // For ground-based crawlers, the sprite's bottom should align with the hitbox bottom
+            // Use NPC.Bottom for positioning and set origin at bottom-center of frame
+            Vector2 drawPos = NPC.Bottom - screenPos;
+            Vector2 origin = new Vector2(frameWidth / 2, frameHeight); // Bottom-center origin
             SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 
             // Fiery glow underlay

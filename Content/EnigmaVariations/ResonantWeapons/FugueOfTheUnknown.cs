@@ -216,7 +216,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             if (voices.Count == 0) return;
             
             // Release VFX at player
-            CustomParticles.GenericFlare(player.Center, Color.White, 0.9f, 25);
+            CustomParticles.GenericFlare(player.Center, EnigmaGreen, 0.9f, 25);
             CustomParticles.GlyphCircle(player.Center, EnigmaPurple, voices.Count + 3, 50f, 0.08f);
             
             // Massive music note cascade - the fugue releases!
@@ -378,7 +378,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Color coreColor = GetEnigmaGradient(voiceHue);
             spriteBatch.Draw(flareTex, drawPos, null, coreColor * 0.9f, 0f, flareTex.Size() / 2f, 0.5f * pulse, SpriteEffects.None, 0f);
             spriteBatch.Draw(flareTex, drawPos, null, EnigmaPurple * 0.7f, 0f, flareTex.Size() / 2f, 0.35f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(flareTex, drawPos, null, Color.White * 0.6f, 0f, flareTex.Size() / 2f, 0.2f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreen * 0.6f, 0f, flareTex.Size() / 2f, 0.2f * pulse, SpriteEffects.None, 0f);
             
             // Musical note orbiting (because MUSIC MOD!)
             float noteAngle = -Main.GameUpdateCount * 0.06f + VoiceIndex * 1.2f;
@@ -564,7 +564,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             
             // === HARMONIC CONVERGENCE VFX ===
             // Central explosion
-            CustomParticles.GenericFlare(centralTarget.Center, Color.White, 1.2f, 30);
+            CustomParticles.GenericFlare(centralTarget.Center, EnigmaGreen, 1.2f, 30);
             CustomParticles.GenericFlare(centralTarget.Center, EnigmaGreen, 1.0f, 28);
             
             // Massive glyph circle

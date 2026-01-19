@@ -18,15 +18,20 @@ namespace MagnumOpus.Common.Systems
     /// Features 3 slots with unique passive effects per core type.
     /// No more Chromatic/Diatonic toggle - each core has one unique effect.
     /// Enhancement system: Each core can be enhanced up to 5 times with Seed of Universal Melodies.
+    /// Enhancement levels are tracked PER CORE TYPE - removing and re-equipping retains the upgrade!
     /// </summary>
     public class HarmonicCoreModPlayer : ModPlayer
     {
         // 3 Core slots
         public Item[] EquippedCores = new Item[3];
         
-        // Enhancement levels per slot (0-5)
+        // Legacy enhancement levels per slot (0-5) - kept for compatibility but now derived from CoreEnhancementLevels
         public int[] EnhancementLevels = new int[3];
         public const int MaxEnhancementLevel = 5;
+        
+        // NEW: Persistent enhancement levels tracked by core item TYPE (item.type -> enhancement level)
+        // This allows enhancement to persist when cores are unequipped and re-equipped!
+        public Dictionary<int, int> CoreEnhancementLevels = new Dictionary<int, int>();
         
         // Unlock states
         public bool HasKilledMoonLord = false;
@@ -101,6 +106,7 @@ namespace MagnumOpus.Common.Systems
         {
             EquippedCores = new Item[3];
             EnhancementLevels = new int[3];
+            CoreEnhancementLevels = new Dictionary<int, int>();
             for (int i = 0; i < 3; i++)
             {
                 EquippedCores[i] = new Item();
@@ -116,12 +122,26 @@ namespace MagnumOpus.Common.Systems
             tag["HasKilledMoonLord"] = HasKilledMoonLord;
             tag["HasUnlockedHarmonicSlots"] = HasUnlockedHarmonicSlots;
             
+            // Save equipped cores
             for (int i = 0; i < 3; i++)
             {
                 if (EquippedCores[i] != null && !EquippedCores[i].IsAir)
                     tag[$"EquippedCore_{i}_Type"] = EquippedCores[i].type;
-                tag[$"EnhancementLevel_{i}"] = EnhancementLevels[i];
             }
+            
+            // Save ALL core enhancement levels by item type (persists even when unequipped)
+            List<int> coreTypes = new List<int>();
+            List<int> enhancementValues = new List<int>();
+            foreach (var kvp in CoreEnhancementLevels)
+            {
+                if (kvp.Value > 0) // Only save non-zero enhancements
+                {
+                    coreTypes.Add(kvp.Key);
+                    enhancementValues.Add(kvp.Value);
+                }
+            }
+            tag["CoreEnhancementTypes"] = coreTypes;
+            tag["CoreEnhancementValues"] = enhancementValues;
         }
         
         public override void LoadData(TagCompound tag)
@@ -129,6 +149,19 @@ namespace MagnumOpus.Common.Systems
             HasKilledMoonLord = tag.GetBool("HasKilledMoonLord");
             HasUnlockedHarmonicSlots = tag.GetBool("HasUnlockedHarmonicSlots");
             
+            // Load persistent core enhancements first
+            CoreEnhancementLevels.Clear();
+            if (tag.ContainsKey("CoreEnhancementTypes") && tag.ContainsKey("CoreEnhancementValues"))
+            {
+                var types = tag.GetList<int>("CoreEnhancementTypes");
+                var values = tag.GetList<int>("CoreEnhancementValues");
+                for (int i = 0; i < Math.Min(types.Count, values.Count); i++)
+                {
+                    CoreEnhancementLevels[types[i]] = values[i];
+                }
+            }
+            
+            // Load equipped cores and sync enhancement levels
             for (int i = 0; i < 3; i++)
             {
                 if (tag.ContainsKey($"EquippedCore_{i}_Type"))
@@ -136,13 +169,15 @@ namespace MagnumOpus.Common.Systems
                     int coreType = tag.GetInt($"EquippedCore_{i}_Type");
                     EquippedCores[i] = new Item();
                     EquippedCores[i].SetDefaults(coreType);
+                    
+                    // Sync slot-based enhancement from persistent dictionary
+                    EnhancementLevels[i] = CoreEnhancementLevels.TryGetValue(coreType, out int level) ? level : 0;
                 }
                 else
                 {
                     EquippedCores[i] = new Item();
+                    EnhancementLevels[i] = 0;
                 }
-                
-                EnhancementLevels[i] = tag.ContainsKey($"EnhancementLevel_{i}") ? tag.GetInt($"EnhancementLevel_{i}") : 0;
             }
         }
         
@@ -220,21 +255,37 @@ namespace MagnumOpus.Common.Systems
         {
             if (slot < 0 || slot >= 3) return;
             EquippedCores[slot] = item.Clone();
-            EnhancementLevels[slot] = 0; // Reset enhancement when equipping new core
+            
+            // RESTORE enhancement level from persistent dictionary (keeps upgrades when re-equipping)
+            int coreType = item.type;
+            EnhancementLevels[slot] = CoreEnhancementLevels.TryGetValue(coreType, out int level) ? level : 0;
+            
             SoundEngine.PlaySound(SoundID.Coins with { Volume = 0.8f, Pitch = 0.2f });
             SoundEngine.PlaySound(SoundID.Item4 with { Volume = 0.6f });
+            
+            // Show restoration message if core was previously enhanced
+            if (EnhancementLevels[slot] > 0)
+            {
+                string coreName = GetCoreName(slot);
+                Main.NewText($"{GetDisplayName(coreName)} restored at +{EnhancementLevels[slot]}!", new Color(180, 220, 255));
+            }
         }
         
         public void UnequipCore(int slot)
         {
             if (slot < 0 || slot >= 3) return;
+            
+            // Enhancement level is already saved in CoreEnhancementLevels dictionary
+            // No need to do anything special - just clear the slot
+            
             EquippedCores[slot] = new Item();
-            EnhancementLevels[slot] = 0; // Reset enhancement when unequipping
+            EnhancementLevels[slot] = 0; // Slot is empty, but persistent data remains in dictionary
             SoundEngine.PlaySound(SoundID.Grab);
         }
         
         /// <summary>
         /// Attempts to enhance a core slot. Returns true if successful.
+        /// Enhancement is stored persistently by core TYPE, not slot.
         /// </summary>
         public bool TryEnhanceCore(int slot)
         {
@@ -263,6 +314,10 @@ namespace MagnumOpus.Common.Systems
                 Player.inventory[seedIndex].TurnToAir();
             
             EnhancementLevels[slot]++;
+            
+            // SAVE enhancement to persistent dictionary by core TYPE
+            int coreType = EquippedCores[slot].type;
+            CoreEnhancementLevels[coreType] = EnhancementLevels[slot];
             
             // VFX and sound
             SoundEngine.PlaySound(SoundID.Item4 with { Volume = 0.8f, Pitch = 0.5f + EnhancementLevels[slot] * 0.1f });
@@ -367,22 +422,21 @@ namespace MagnumOpus.Common.Systems
         
         // === MOONLIGHT SONATA: Lunar Aura ===
         // Soft purple glow, enemies in range take minor DoT
+        // COSMETIC: Subtle, non-distracting ambient effect
         private void UpdateLunarAura()
         {
             float enhMult = GetCoreEnhancementMultiplier("MoonlightSonata");
             int enhancedDamage = (int)(LunarAuraDamage * enhMult);
             
-            // Visual aura particles
-            if (lunarAuraTimer % 8 == 0)
+            // SUBTLE visual aura particles - much less frequent
+            if (lunarAuraTimer % 20 == 0)
             {
                 float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
-                float radius = Main.rand.NextFloat(30f, LunarAuraRadius);
+                float radius = Main.rand.NextFloat(30f, LunarAuraRadius * 0.7f);
                 Vector2 pos = Player.Center + angle.ToRotationVector2() * radius;
                 
                 Color auraColor = Color.Lerp(new Color(150, 120, 255), new Color(100, 80, 200), Main.rand.NextFloat());
-                CustomParticles.GenericFlare(pos, auraColor * 0.6f, 0.25f * enhMult, 20);
-                
-                Lighting.AddLight(pos, auraColor.ToVector3() * 0.3f);
+                CustomParticles.GenericFlare(pos, auraColor * 0.3f, 0.15f, 15); // Smaller, more transparent
             }
             
             // Damage enemies in range every 30 frames
@@ -395,38 +449,38 @@ namespace MagnumOpus.Common.Systems
                         npc.SimpleStrikeNPC(enhancedDamage, 0, false, 0f, null, false, 0f, true);
                         
                         // Small hit visual
-                        CustomParticles.GenericFlare(npc.Center, new Color(180, 150, 255) * 0.7f, 0.3f, 12);
+                        CustomParticles.GenericFlare(npc.Center, new Color(180, 150, 255) * 0.6f, 0.25f, 10);
                     }
                 }
             }
             
-            // Central player glow
-            Lighting.AddLight(Player.Center, 0.4f * enhMult, 0.3f * enhMult, 0.6f * enhMult);
+            // SUBTLE central player glow
+            Lighting.AddLight(Player.Center, 0.2f * enhMult, 0.15f * enhMult, 0.3f * enhMult);
         }
         
         // === SWAN LAKE: Feathered Grace ===
         // Passive dodge chance + feathers that orbit and damage enemies
+        // COSMETIC: Elegant but subtle orbiting effect
         private void UpdateFeatheredGrace()
         {
             float enhMult = GetCoreEnhancementMultiplier("SwanLake");
             int enhancedFeatherDamage = (int)(FeatherDamage * enhMult);
             
-            // Orbiting feather particles
-            if (featherAttackTimer % 15 == 0)
+            // SUBTLE orbiting feather particles - less frequent, smaller
+            if (featherAttackTimer % 30 == 0)
             {
                 float baseAngle = Main.GameUpdateCount * 0.03f;
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < 2; i++) // Reduced from 3 to 2
                 {
-                    float angle = baseAngle + MathHelper.TwoPi * i / 3f;
-                    float radius = 50f + (float)Math.Sin(Main.GameUpdateCount * 0.05f + i) * 10f;
+                    float angle = baseAngle + MathHelper.TwoPi * i / 2f;
+                    float radius = 45f + (float)Math.Sin(Main.GameUpdateCount * 0.05f + i) * 8f;
                     Vector2 featherPos = Player.Center + angle.ToRotationVector2() * radius;
                     
-                    // Prismatic feather color
-                    float hue = (Main.GameUpdateCount * 0.01f + i * 0.33f) % 1f;
-                    Color featherColor = Main.hslToRgb(hue, 0.6f, 0.9f);
+                    // Subtle white with slight rainbow shimmer
+                    float hue = (Main.GameUpdateCount * 0.01f + i * 0.5f) % 1f;
+                    Color featherColor = Color.Lerp(Color.White * 0.7f, Main.hslToRgb(hue, 0.4f, 0.9f), 0.3f);
                     
-                    CustomParticles.GenericFlare(featherPos, featherColor, 0.35f * enhMult, 15);
-                    CustomParticles.GenericFlare(featherPos, Color.White * 0.5f, 0.2f * enhMult, 12);
+                    CustomParticles.GenericFlare(featherPos, featherColor * 0.5f, 0.2f, 12);
                 }
             }
             
@@ -439,25 +493,27 @@ namespace MagnumOpus.Common.Systems
                     {
                         npc.SimpleStrikeNPC(enhancedFeatherDamage, 0, false, 0f, null, false, 0f, true);
                         
-                        // Feather burst on hit
-                        for (int i = 0; i < 5; i++)
+                        // Subtle feather burst on hit
+                        for (int i = 0; i < 3; i++)
                         {
                             float hue = Main.rand.NextFloat();
-                            Color burstColor = Main.hslToRgb(hue, 0.7f, 0.85f);
-                            Vector2 vel = Main.rand.NextVector2Circular(4f, 4f);
-                            CustomParticles.GenericFlare(npc.Center + vel * 5f, burstColor, 0.4f, 18);
+                            Color burstColor = Main.hslToRgb(hue, 0.5f, 0.85f);
+                            Vector2 vel = Main.rand.NextVector2Circular(3f, 3f);
+                            CustomParticles.GenericFlare(npc.Center + vel * 4f, burstColor * 0.6f, 0.3f, 15);
                         }
                         
-                        SoundEngine.PlaySound(SoundID.Item24 with { Volume = 0.4f, Pitch = 0.5f }, npc.Center);
+                        SoundEngine.PlaySound(SoundID.Item24 with { Volume = 0.3f, Pitch = 0.5f }, npc.Center);
                     }
                 }
             }
             
-            Lighting.AddLight(Player.Center, 0.5f, 0.55f, 0.6f);
+            // Very subtle glow
+            Lighting.AddLight(Player.Center, 0.25f, 0.28f, 0.3f);
         }
         
         // === LA CAMPANELLA: Bell's Resonance ===
         // Orbiting infernal flames with smoke that damage enemies
+        // COSMETIC: Subtle warm glow, particles only on damage dealt
         private void UpdateBellsResonance()
         {
             float enhMult = GetCoreEnhancementMultiplier("LaCampanella");
@@ -469,65 +525,20 @@ namespace MagnumOpus.Common.Systems
             Color bellYellow = new Color(255, 200, 50);
             Color bellGold = new Color(218, 165, 32);
             
-            // === ORBITING INFERNAL FLAMES ===
-            // 4 flame bells orbiting the player
-            float baseAngle = Main.GameUpdateCount * 0.025f;
-            for (int i = 0; i < 4; i++)
+            // === SUBTLE ORBITING FLAMES - just 2 small points ===
+            if (bellAuraTimer % 15 == 0)
             {
-                float angle = baseAngle + MathHelper.TwoPi * i / 4f;
-                float radius = 55f + (float)Math.Sin(Main.GameUpdateCount * 0.04f + i * 0.8f) * 12f;
-                Vector2 flamePos = Player.Center + angle.ToRotationVector2() * radius;
-                
-                // Gradient color based on position in orbit
-                float progress = (float)i / 4f + (Main.GameUpdateCount * 0.015f) % 1f;
-                Color flameColor = Color.Lerp(bellBlack, bellOrange, (float)Math.Sin(progress * MathHelper.TwoPi) * 0.5f + 0.5f);
-                
-                // Core flame flare
-                CustomParticles.GenericFlare(flamePos, flameColor, 0.45f * enhMult, 10);
-                
-                // Bright center
-                CustomParticles.GenericFlare(flamePos, bellYellow * 0.7f, 0.25f * enhMult, 8);
-                
-                // Trailing smoke particles
-                if (bellAuraTimer % 6 == 0)
+                float baseAngle = Main.GameUpdateCount * 0.025f;
+                for (int i = 0; i < 2; i++)
                 {
-                    Vector2 smokeVel = -angle.ToRotationVector2() * 0.8f + new Vector2(0, -0.5f);
-                    var smoke = new HeavySmokeParticle(
-                        flamePos, 
-                        smokeVel + Main.rand.NextVector2Circular(0.5f, 0.5f), 
-                        Color.Lerp(bellBlack, new Color(40, 35, 40), Main.rand.NextFloat()),
-                        Main.rand.Next(22, 35), 
-                        0.25f * enhMult, 
-                        0.45f * enhMult, 
-                        0.015f, 
-                        false
-                    );
-                    MagnumParticleHandler.SpawnParticle(smoke);
+                    float angle = baseAngle + MathHelper.Pi * i;
+                    float radius = 45f + (float)Math.Sin(Main.GameUpdateCount * 0.04f + i * 0.8f) * 8f;
+                    Vector2 flamePos = Player.Center + angle.ToRotationVector2() * radius;
+                    
+                    // Subtle flame flare
+                    Color flameColor = Color.Lerp(bellOrange, bellYellow, 0.3f);
+                    CustomParticles.GenericFlare(flamePos, flameColor * 0.4f, 0.2f, 10);
                 }
-                
-                // Occasional sparks
-                if (Main.rand.NextBool(12))
-                {
-                    Vector2 sparkVel = angle.ToRotationVector2().RotatedByRandom(0.6f) * Main.rand.NextFloat(2f, 4f);
-                    var spark = new GlowSparkParticle(flamePos, sparkVel, Color.Lerp(bellOrange, bellYellow, Main.rand.NextFloat()), 0.3f, 18);
-                    MagnumParticleHandler.SpawnParticle(spark);
-                }
-                
-                Lighting.AddLight(flamePos, bellOrange.ToVector3() * 0.5f * enhMult);
-            }
-            
-            // === CENTRAL EMBER GLOW ===
-            if (bellAuraTimer % 12 == 0)
-            {
-                float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
-                float dist = Main.rand.NextFloat(15f, 30f);
-                Vector2 emberPos = Player.Center + angle.ToRotationVector2() * dist;
-                
-                // Rising ember
-                Vector2 emberVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(1f, 2f));
-                Color emberColor = Color.Lerp(bellOrange, bellGold, Main.rand.NextFloat());
-                var ember = new GenericGlowParticle(emberPos, emberVel, emberColor, 0.2f * enhMult, 25, true);
-                MagnumParticleHandler.SpawnParticle(ember);
             }
             
             // === DAMAGE ENEMIES IN RANGE ===
@@ -539,47 +550,30 @@ namespace MagnumOpus.Common.Systems
                     {
                         npc.SimpleStrikeNPC(enhancedDamage, 0, false, 0f, null, false, 0f, true);
                         
-                        // Bell chime impact burst
-                        // Central flash
-                        CustomParticles.GenericFlare(npc.Center, bellYellow, 0.7f * enhMult, 15);
-                        CustomParticles.GenericFlare(npc.Center, bellOrange, 0.5f * enhMult, 12);
+                        // Impact effects - keep these visible for feedback
+                        CustomParticles.GenericFlare(npc.Center, bellYellow, 0.5f * enhMult, 12);
+                        CustomParticles.GenericFlare(npc.Center, bellOrange, 0.4f * enhMult, 10);
+                        CustomParticles.HaloRing(npc.Center, bellGold * 0.6f, 0.3f * enhMult, 12);
                         
-                        // Halo ring
-                        CustomParticles.HaloRing(npc.Center, bellGold * 0.8f, 0.4f * enhMult, 14);
+                        // Small smoke puff
+                        var smoke = new HeavySmokeParticle(
+                            npc.Center, Main.rand.NextVector2Circular(1f, 1f), bellBlack,
+                            Main.rand.Next(15, 22), 0.2f, 0.35f, 0.02f, false
+                        );
+                        MagnumParticleHandler.SpawnParticle(smoke);
                         
-                        // Smoke burst
-                        for (int s = 0; s < 4; s++)
-                        {
-                            Vector2 smokeVel = Main.rand.NextVector2Circular(2f, 2f);
-                            var smokeParticle = new HeavySmokeParticle(
-                                npc.Center, smokeVel, bellBlack, 
-                                Main.rand.Next(18, 28), 0.3f, 0.5f, 0.02f, false
-                            );
-                            MagnumParticleHandler.SpawnParticle(smokeParticle);
-                        }
-                        
-                        // Sparks burst
-                        for (int sp = 0; sp < 6; sp++)
-                        {
-                            float sparkAngle = MathHelper.TwoPi * sp / 6f;
-                            Vector2 sparkVel = sparkAngle.ToRotationVector2() * Main.rand.NextFloat(4f, 7f);
-                            Color sparkColor = Color.Lerp(bellOrange, bellYellow, (float)sp / 6f);
-                            var spark = new GenericGlowParticle(npc.Center, sparkVel, sparkColor, 0.35f, 18, true);
-                            MagnumParticleHandler.SpawnParticle(spark);
-                        }
-                        
-                        SoundEngine.PlaySound(SoundID.Item35 with { Volume = 0.5f, Pitch = 0.3f }, npc.Center);
+                        SoundEngine.PlaySound(SoundID.Item35 with { Volume = 0.4f, Pitch = 0.3f }, npc.Center);
                     }
                 }
             }
             
-            // Central player glow
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.15f + 0.85f;
-            Lighting.AddLight(Player.Center, 0.6f * pulse * enhMult, 0.35f * pulse * enhMult, 0.1f * pulse * enhMult);
+            // Subtle warm player glow
+            Lighting.AddLight(Player.Center, 0.35f * enhMult, 0.2f * enhMult, 0.08f * enhMult);
         }
         
         // === ENIGMA: Enigmatic Presence ===
         // Watching eyes and arcane glyphs that seek and damage enemies
+        // COSMETIC: Subtle mysterious aura, save flashy effects for attacks
         private void UpdateEnigmaticPresence()
         {
             float enhMult = GetCoreEnhancementMultiplier("Enigma");
@@ -590,63 +584,19 @@ namespace MagnumOpus.Common.Systems
             Color enigmaDeepPurple = new Color(80, 20, 120);
             Color enigmaGreenFlame = new Color(50, 220, 100);
             
-            // === ORBITING ARCANE GLYPHS ===
-            // 3 mysterious glyphs rotating around the player
-            float glyphAngle = Main.GameUpdateCount * 0.02f;
-            for (int i = 0; i < 3; i++)
+            // === SUBTLE ORBITING GLYPH - just 1, rarely ===
+            if (prismaticFlareTimer % 35 == 0)
             {
-                float angle = glyphAngle + MathHelper.TwoPi * i / 3f;
-                float radius = 45f + (float)Math.Sin(Main.GameUpdateCount * 0.05f + i * 1.2f) * 10f;
-                Vector2 glyphPos = Player.Center + angle.ToRotationVector2() * radius;
+                float glyphAngle = Main.GameUpdateCount * 0.02f;
+                float radius = 40f + (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 8f;
+                Vector2 glyphPos = Player.Center + glyphAngle.ToRotationVector2() * radius;
                 
-                // Gradient from purple to green
-                float progress = ((float)i / 3f + Main.GameUpdateCount * 0.01f) % 1f;
-                Color glyphColor = Color.Lerp(enigmaPurple, enigmaGreenFlame, (float)Math.Abs(Math.Sin(progress * MathHelper.Pi)));
-                
-                // Glyph flare with mysterious glow
-                CustomParticles.GenericFlare(glyphPos, glyphColor, 0.4f * enhMult, 8);
-                CustomParticles.GenericFlare(glyphPos, enigmaDeepPurple * 0.5f, 0.6f * enhMult, 10);
-                
-                Lighting.AddLight(glyphPos, glyphColor.ToVector3() * 0.4f * enhMult);
-            }
-            
-            // === WATCHING EYE SPAWNS ===
-            // Occasional watching eyes appear and look toward enemies
-            if (prismaticFlareTimer % 25 == 0)
-            {
-                float eyeAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
-                float eyeRadius = Main.rand.NextFloat(25f, 50f);
-                Vector2 eyePos = Player.Center + eyeAngle.ToRotationVector2() * eyeRadius;
-                
-                // Eye color shifting purple -> green
-                Color eyeColor = Color.Lerp(enigmaPurple, enigmaGreenFlame, Main.rand.NextFloat(0.3f, 0.7f));
-                
-                // Spawn eye particle
-                CustomParticles.GenericFlare(eyePos, eyeColor, 0.35f * enhMult, 22);
-                CustomParticles.GenericFlare(eyePos, Color.White * 0.6f, 0.15f * enhMult, 15);
-            }
-            
-            // === VOID MIST AMBIENT ===
-            if (prismaticFlareTimer % 15 == 0)
-            {
-                Vector2 mistPos = Player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                Color mistColor = Color.Lerp(enigmaBlack, enigmaDeepPurple, Main.rand.NextFloat(0.3f, 0.6f));
-                
-                var mist = new HeavySmokeParticle(
-                    mistPos,
-                    Main.rand.NextVector2Circular(0.4f, 0.4f) + new Vector2(0, -0.3f),
-                    mistColor,
-                    Main.rand.Next(25, 40),
-                    0.25f * enhMult,
-                    0.4f * enhMult,
-                    0.012f,
-                    false
-                );
-                MagnumParticleHandler.SpawnParticle(mist);
+                Color glyphColor = Color.Lerp(enigmaPurple, enigmaGreenFlame, 0.3f);
+                CustomParticles.GenericFlare(glyphPos, glyphColor * 0.4f, 0.25f, 12);
             }
             
             // === PERIODIC ENIGMA STRIKE ===
-            // Every 60 frames, launch an enigmatic bolt
+            // Every 60 frames, launch an enigmatic bolt (the main effect)
             if (prismaticFlareTimer % 60 == 0)
             {
                 NPC target = null;
@@ -671,9 +621,8 @@ namespace MagnumOpus.Common.Systems
                 }
             }
             
-            // Mysterious pulsing glow
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.2f + 0.8f;
-            Lighting.AddLight(Player.Center, 0.25f * pulse * enhMult, 0.15f * pulse * enhMult, 0.35f * pulse * enhMult);
+            // Subtle mysterious glow
+            Lighting.AddLight(Player.Center, 0.15f * enhMult, 0.1f * enhMult, 0.22f * enhMult);
         }
         
         private void LaunchEnigmaBolt(NPC target, float enhMult = 1f)
@@ -771,6 +720,7 @@ namespace MagnumOpus.Common.Systems
         // === FATE: Cosmic Destiny ===
         // Process delayed cosmic marks that deal massive damage
         // Features dark prismatic visuals: black → dark pink → bright red
+        // COSMETIC: Subtle ambient effect, visible feedback only on marks/strikes
         private void UpdateCosmicMarks()
         {
             float enhMult = GetCoreEnhancementMultiplier("Fate");
@@ -781,50 +731,19 @@ namespace MagnumOpus.Common.Systems
             Color fateBrightRed = new Color(255, 60, 80);
             Color fatePurple = new Color(120, 30, 140);
             
-            // === AMBIENT COSMIC AURA ===
-            // Orbiting cosmic fragments around player
-            float orbitAngle = Main.GameUpdateCount * 0.018f;
-            for (int i = 0; i < 4; i++)
+            // === SUBTLE AMBIENT COSMIC AURA - less frequent ===
+            if (Main.GameUpdateCount % 20 == 0)
             {
-                float angle = orbitAngle + MathHelper.TwoPi * i / 4f;
-                float radius = 50f + (float)Math.Sin(Main.GameUpdateCount * 0.04f + i * 0.9f) * 15f;
-                Vector2 cosmicPos = Player.Center + angle.ToRotationVector2() * radius;
-                
-                // Dark prismatic gradient
-                float progress = ((float)i / 4f + Main.GameUpdateCount * 0.012f) % 1f;
-                Color cosmicColor;
-                if (progress < 0.33f)
-                    cosmicColor = Color.Lerp(fateBlack, fateDarkPink, progress * 3f);
-                else if (progress < 0.66f)
-                    cosmicColor = Color.Lerp(fateDarkPink, fateBrightRed, (progress - 0.33f) * 3f);
-                else
-                    cosmicColor = Color.Lerp(fateBrightRed, fatePurple, (progress - 0.66f) * 3f);
-                
-                // Core cosmic fragment
-                CustomParticles.GenericFlare(cosmicPos, cosmicColor, 0.4f * enhMult, 8);
-                // White highlight
-                CustomParticles.GenericFlare(cosmicPos, Color.White * 0.4f, 0.2f * enhMult, 6);
-                
-                Lighting.AddLight(cosmicPos, cosmicColor.ToVector3() * 0.4f * enhMult);
-            }
-            
-            // === COSMIC VOID PARTICLES ===
-            if (Main.GameUpdateCount % 10 == 0)
-            {
-                Vector2 voidPos = Player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                Color voidColor = Color.Lerp(fateBlack, fatePurple, Main.rand.NextFloat(0.3f, 0.5f));
-                
-                var voidMist = new HeavySmokeParticle(
-                    voidPos,
-                    Main.rand.NextVector2Circular(0.5f, 0.5f),
-                    voidColor,
-                    Main.rand.Next(20, 35),
-                    0.22f * enhMult,
-                    0.38f * enhMult,
-                    0.014f,
-                    false
-                );
-                MagnumParticleHandler.SpawnParticle(voidMist);
+                float orbitAngle = Main.GameUpdateCount * 0.018f;
+                for (int i = 0; i < 2; i++)
+                {
+                    float angle = orbitAngle + MathHelper.Pi * i;
+                    float radius = 45f + (float)Math.Sin(Main.GameUpdateCount * 0.04f + i * 0.9f) * 10f;
+                    Vector2 cosmicPos = Player.Center + angle.ToRotationVector2() * radius;
+                    
+                    Color cosmicColor = Color.Lerp(fateDarkPink, fateBrightRed, (float)i / 2f);
+                    CustomParticles.GenericFlare(cosmicPos, cosmicColor * 0.4f, 0.2f, 10);
+                }
             }
             
             // === PROCESS COSMIC MARKS ===
@@ -878,9 +797,8 @@ namespace MagnumOpus.Common.Systems
                 }
             }
             
-            // Central player glow - dark prismatic pulse
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.07f) * 0.2f + 0.8f;
-            Lighting.AddLight(Player.Center, 0.5f * pulse * enhMult, 0.15f * pulse * enhMult, 0.35f * pulse * enhMult);
+            // Subtle dark prismatic player glow
+            Lighting.AddLight(Player.Center, 0.28f * enhMult, 0.1f * enhMult, 0.2f * enhMult);
         }
         
         private void TriggerCosmicStrike(CosmicMark mark)
@@ -1239,6 +1157,7 @@ namespace MagnumOpus.Common.Systems
         
         /// <summary>
         /// Gets the effect description with values scaled by enhancement level.
+        /// Matches item tooltips for consistency.
         /// </summary>
         public static string GetCoreEffectDescWithEnhancement(string coreName, int enhancementLevel)
         {
@@ -1246,11 +1165,11 @@ namespace MagnumOpus.Common.Systems
             
             return coreName switch
             {
-                "MoonlightSonata" => $"Lunar aura deals {(int)(8 * mult)} damage to nearby enemies",
-                "Eroica" => $"Killing enemies heals {(int)(15 * mult)} HP",
-                "SwanLake" => $"{(int)(12 * mult)}% dodge + orbiting feathers deal {(int)(45 * mult)} damage",
-                "LaCampanella" => $"Hits trigger bell echoes for {(int)(25 * mult)}% bonus damage",
-                "Enigma" => $"{(int)(15 * mult)}% damage reflect + prismatic flares deal {(int)(65 * mult)} damage",
+                "MoonlightSonata" => $"Damages nearby enemies for {(int)(8 * mult)}/hit",
+                "Eroica" => $"Restores {(int)(15 * mult)} HP per enemy slain",
+                "SwanLake" => $"{(int)(12 * mult)}% dodge, feathers deal {(int)(45 * mult)} damage",
+                "LaCampanella" => $"Bell echoes deal {(int)(25 * mult)}% bonus damage",
+                "Enigma" => $"{(int)(15 * mult)}% deflect, flares deal {(int)(65 * mult)} damage",
                 "Fate" => $"Cosmic marks explode for {(int)(40 * mult)}% bonus damage",
                 _ => "No effect"
             };
@@ -1271,6 +1190,76 @@ namespace MagnumOpus.Common.Systems
                 "Fate" => (0, 0.40f, 0),
                 _ => (0, 0f, 0)
             };
+        }
+        
+        /// <summary>
+        /// Comprehensive stats object for UI display.
+        /// </summary>
+        public class CoreStats
+        {
+            public string Name { get; set; }
+            public string DisplayName { get; set; }
+            public int Tier { get; set; }
+            public int EnhancementLevel { get; set; }
+            public float DamageBonus { get; set; }
+            public string EffectName { get; set; }
+            public string EffectDescription { get; set; }
+            public Color ThemeColor { get; set; }
+        }
+        
+        /// <summary>
+        /// Gets comprehensive stats for all equipped cores for UI display.
+        /// </summary>
+        public List<CoreStats> GetEquippedCoreStats()
+        {
+            var stats = new List<CoreStats>();
+            
+            for (int slot = 0; slot < 3; slot++)
+            {
+                if (EquippedCores[slot] == null || EquippedCores[slot].IsAir)
+                    continue;
+                
+                string coreName = GetCoreName(slot);
+                if (string.IsNullOrEmpty(coreName))
+                    continue;
+                
+                int tier = GetCoreTier(slot);
+                int enhancement = GetEnhancementLevel(slot);
+                float dmgBonus = GetEnhancedDamageBonus(slot);
+                
+                stats.Add(new CoreStats
+                {
+                    Name = coreName,
+                    DisplayName = coreName switch
+                    {
+                        "MoonlightSonata" => "Moonlight Sonata",
+                        "SwanLake" => "Swan Lake",
+                        "LaCampanella" => "La Campanella",
+                        _ => coreName
+                    },
+                    Tier = tier,
+                    EnhancementLevel = enhancement,
+                    DamageBonus = dmgBonus,
+                    EffectName = GetCoreEffectName(coreName),
+                    EffectDescription = GetCoreEffectDescWithEnhancement(coreName, enhancement),
+                    ThemeColor = CoreColors.TryGetValue(coreName, out var color) ? color : Color.White
+                });
+            }
+            
+            return stats;
+        }
+        
+        /// <summary>
+        /// Gets the total damage bonus from all equipped cores.
+        /// </summary>
+        public float GetTotalDamageBonus()
+        {
+            float total = 0f;
+            for (int slot = 0; slot < 3; slot++)
+            {
+                total += GetEnhancedDamageBonus(slot);
+            }
+            return total;
         }
     }
 }
