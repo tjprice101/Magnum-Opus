@@ -2214,6 +2214,146 @@ private void Attack_SakuraStorm(Player target)
 
 ---
 
+## 📚 BOSS VFX OPTIMIZER SYSTEM - PERFORMANCE & WARNINGS
+
+> **For detailed boss breakdowns, see: [Curated_Boss_Effects_and_How_To.md](../Documentation/Curated_Boss_Effects_and_How_To.md)**
+
+### BossVFXOptimizer Overview
+
+**File:** `Common/Systems/BossVFXOptimizer.cs`
+
+This system provides:
+1. **Performance optimization** - Frame-skip and quality scaling
+2. **Warning indicators** - Standardized attack telegraphs
+3. **Attack release VFX** - Consistent visual impact
+
+### Warning Type Enum
+
+```csharp
+public enum WarningType
+{
+    Safe,      // Cyan - "Stand here to be safe"
+    Caution,   // Yellow - "This area will be dangerous soon"
+    Danger,    // Red - "Projectiles incoming on this path"
+    Imminent   // White - "Attack is about to hit NOW"
+}
+```
+
+### Essential Warning Methods
+
+| Method | Usage | Example |
+|--------|-------|---------|
+| `WarningLine(start, direction, length, markers, type)` | Show projectile trajectory | Dash attacks, beams |
+| `SafeZoneRing(center, radius, markers)` | Show where player SHOULD stand | Radial bursts with gaps |
+| `DangerZoneRing(center, radius, markers)` | Show where player should NOT be | AOE attacks |
+| `ConvergingWarning(center, radius, progress, color, count)` | Charge-up particle ring | Attack windup |
+| `SafeArcIndicator(center, safeAngle, arcWidth, radius, markers)` | Show gap in radial attack | Hero's Judgment style |
+| `GroundImpactWarning(point, radius, progress)` | Landing zone for dives | Slam/dive attacks |
+| `LaserBeamWarning(start, angle, length, intensity)` | Beam trajectory | Laser attacks |
+| `ElectricalBuildupWarning(center, color, radius, progress)` | Shock attack charging | Electrical attacks |
+
+### Standard Attack Telegraph Pattern
+
+```csharp
+// Phase 0: Telegraph (ALWAYS include warning indicators)
+if (SubPhase == 0)
+{
+    float progress = Timer / (float)chargeTime;
+    
+    // 1. Converging particles show charge
+    BossVFXOptimizer.ConvergingWarning(NPC.Center, 150f, progress, ThemeColor, 8);
+    
+    // 2. Safe zone shows escape route
+    BossVFXOptimizer.SafeZoneRing(target.Center, 100f, 12);
+    
+    // 3. Warning lines show projectile directions
+    for (int i = 0; i < 8; i++)
+    {
+        float angle = MathHelper.TwoPi * i / 8f;
+        BossVFXOptimizer.WarningLine(NPC.Center, angle.ToRotationVector2(), 300f, 10, WarningType.Danger);
+    }
+    
+    if (Timer >= chargeTime) { Timer = 0; SubPhase = 1; }
+}
+
+// Phase 1: Execute (use AttackReleaseBurst for consistent VFX)
+if (SubPhase == 1 && Timer == 1)
+{
+    BossVFXOptimizer.AttackReleaseBurst(NPC.Center, PrimaryColor, SecondaryColor, 1.2f);
+    // Spawn projectiles...
+}
+```
+
+### Optimized Particle Methods
+
+```csharp
+// Use these instead of raw CustomParticles calls for automatic optimization:
+BossVFXOptimizer.OptimizedFlare(pos, color, scale, lifetime, frameInterval);
+BossVFXOptimizer.OptimizedHalo(pos, color, scale, lifetime, frameInterval);
+BossVFXOptimizer.OptimizedBurst(pos, color, count, speed);
+BossVFXOptimizer.OptimizedRadialFlares(center, color, count, radius, scale, lifetime);
+BossVFXOptimizer.OptimizedCascadingHalos(center, startColor, endColor, count, scale, lifetime);
+BossVFXOptimizer.OptimizedThemedParticles(center, "sakura", count, radius);
+```
+
+---
+
+## 🎭 BOSS QUICK REFERENCE - ALL 4 BOSSES
+
+### Eroica, God of Valor
+**File:** `Content/Eroica/Bosses/EroicasRetribution.cs`
+| Property | Value |
+|----------|-------|
+| HP | 450,000 |
+| Theme | Heroic triumph, scarlet → gold |
+| Key Color | `new Color(255, 200, 80)` EroicaGold |
+| Signature Attack | HeroesJudgment (radial burst with safe arc) |
+| Themed VFX | SakuraPetals |
+
+### La Campanella, Chime of Life
+**File:** `Content/LaCampanella/Bosses/LaCampanellaChimeOfLife.cs`
+| Property | Value |
+|----------|-------|
+| HP | 400,000 |
+| Theme | Infernal bell, black smoke → orange fire |
+| Key Color | `new Color(255, 140, 40)` CampanellaOrange |
+| Signature Attack | InfernalJudgment + BellLaserGrid |
+| Themed VFX | HeavySmokeParticle, bell chimes |
+
+### Swan Lake, The Monochromatic Fractal
+**File:** `Content/SwanLake/Bosses/SwanLakeTheMonochromaticFractal.cs`
+| Property | Value |
+|----------|-------|
+| HP | 950,000 |
+| Theme | Ballet elegance, monochrome + rainbow |
+| Key Color | White/Black contrast with `Main.hslToRgb()` rainbow |
+| Signature Attack | SwanSerenade + MonochromaticApocalypse |
+| Themed VFX | SwanFeatherDrift, PrismaticSparkle |
+
+### Enigma, The Hollow Mystery
+**File:** `Content/EnigmaVariations/Bosses/EnigmaTheHollowMystery.cs`
+| Property | Value |
+|----------|-------|
+| HP | 380,000 |
+| Theme | Void mystery, purple → green |
+| Key Color | `new Color(140, 60, 200)` EnigmaPurple |
+| Signature Attack | ParadoxJudgment + VoidLaserWeb |
+| Themed VFX | EnigmaEyeGaze, GlyphBurst |
+
+### Boss Difficulty Tier System (All Bosses)
+
+```csharp
+// Standard 3-tier system based on HP percentage
+float hpPercent = (float)NPC.life / NPC.lifeMax;
+int difficultyTier = hpPercent > 0.7f ? 0 : (hpPercent > 0.4f ? 1 : 2);
+
+// Tier 0 (100-70% HP): Core attacks only
+// Tier 1 (70-40% HP): +Phase 2 attacks, faster, more projectiles
+// Tier 2 (40-0% HP): +Phase 3 attacks, ultimate abilities, maximum aggression
+```
+
+---
+
 ## ⭐ BOSS PROJECTILE VFX SCALE GUIDELINES - PLAYER-SIZED ⭐
 
 > **CRITICAL: Boss projectile VFX must be PLAYER-SIZED, not screen-filling monstrosities.**

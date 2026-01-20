@@ -90,7 +90,14 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             // New Spectacle Attacks
             ParadoxJudgment,    // Hero's Judgment style with void energies
             VoidLaserWeb,       // Crossing laser beams in spider web pattern
-            EntropicSurge       // Electrical pulses of void energy
+            EntropicSurge,      // Electrical pulses of void energy
+            
+            // Unique Sigil/Formation Attacks
+            SigilSnare,         // Glyphs spawn around player, converge inward trapping them
+            VoidBeamPincer,     // Orbs spawn on player's sides with swirl animation, shoot beams
+            WatchingGaze,       // Eyes spawn in formation, track player, then fire projectiles
+            MysteryMaze,        // Create a maze of glyph walls player must navigate
+            ParadoxMirror       // Clone illusions spawn with glyphs, only one is real danger
         }
         
         private BossPhase State
@@ -160,8 +167,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
 
         public override void SetDefaults()
         {
-            NPC.width = 180;
-            NPC.height = 120;
+            NPC.width = 540;  // 3x bigger (was 180)
+            NPC.height = 360; // 3x bigger (was 120)
             NPC.damage = BaseDamage;
             NPC.defense = 65;
             NPC.lifeMax = 380000;
@@ -174,7 +181,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             NPC.boss = true;
             NPC.npcSlots = 15f;
             NPC.aiStyle = -1;
-            NPC.scale = 1f;
+            NPC.scale = 3f; // 3x bigger (was 1f)
             
             if (!Main.dedServ)
                 Music = MusicLoader.GetMusicSlot(Mod, "Assets/Music/EnigmaVariations");
@@ -467,6 +474,11 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 pool.Add(AttackPattern.ParadoxWeb); // Bullet-hell web pattern
                 pool.Add(AttackPattern.ParadoxJudgment); // Hero's Judgment style
                 pool.Add(AttackPattern.VoidLaserWeb); // Crossing laser beams
+                
+                // New unique attacks (Phase 2)
+                pool.Add(AttackPattern.SigilSnare); // Glyphs converge on player
+                pool.Add(AttackPattern.VoidBeamPincer); // Orbs on sides shoot beams
+                pool.Add(AttackPattern.WatchingGaze); // Eyes track then fire
             }
             
             if (difficultyTier >= 2)
@@ -475,6 +487,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 pool.Add(AttackPattern.EyeOfTheVoid);
                 pool.Add(AttackPattern.RealityZones); // Environment trap
                 pool.Add(AttackPattern.EntropicSurge); // Electrical pulses
+                
+                // New unique attacks (Phase 3)
+                pool.Add(AttackPattern.MysteryMaze); // Glyph maze walls
+                pool.Add(AttackPattern.ParadoxMirror); // Clone illusions
                 
                 if (consecutiveAttacks >= 5 && Main.rand.NextBool(3))
                 {
@@ -543,6 +559,23 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     break;
                 case AttackPattern.EntropicSurge:
                     Attack_EntropicSurge(target);
+                    break;
+                    
+                // New unique attacks
+                case AttackPattern.SigilSnare:
+                    Attack_SigilSnare(target);
+                    break;
+                case AttackPattern.VoidBeamPincer:
+                    Attack_VoidBeamPincer(target);
+                    break;
+                case AttackPattern.WatchingGaze:
+                    Attack_WatchingGaze(target);
+                    break;
+                case AttackPattern.MysteryMaze:
+                    Attack_MysteryMaze(target);
+                    break;
+                case AttackPattern.ParadoxMirror:
+                    Attack_ParadoxMirror(target);
                     break;
             }
         }
@@ -2053,6 +2086,769 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             else
             {
                 if (Timer >= 24) // Shorter recovery (was 36)
+                {
+                    EndAttack();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// SIGIL SNARE - Glyphs spawn in a ring around the player, then converge inward
+        /// The player must escape before the glyphs close in and fire projectiles
+        /// </summary>
+        private void Attack_SigilSnare(Player target)
+        {
+            int chargeTime = 55 - difficultyTier * 8;
+            int convergeTime = 40 - difficultyTier * 5;
+            int glyphCount = 8 + difficultyTier * 2;
+            float initialRadius = 280f - difficultyTier * 20f;
+            float finalRadius = 50f;
+            
+            NPC.velocity *= 0.92f;
+            
+            if (SubPhase == 0)
+            {
+                // Phase 0: Spawn glyphs in ring around player (telegraph)
+                float progress = Timer / (float)chargeTime;
+                
+                if (Timer == 1)
+                {
+                    SoundEngine.PlaySound(SoundID.Item123 with { Pitch = 0.3f }, target.Center);
+                    Main.NewText("The sigils converge...", EnigmaPurple);
+                }
+                
+                // Spawn and intensify glyphs
+                if (Timer % 4 == 0)
+                {
+                    for (int i = 0; i < glyphCount; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / glyphCount + Timer * 0.01f;
+                        Vector2 glyphPos = target.Center + angle.ToRotationVector2() * initialRadius;
+                        Color glyphColor = Color.Lerp(EnigmaPurple, EnigmaGreen, (float)i / glyphCount) * (0.3f + progress * 0.5f);
+                        CustomParticles.Glyph(glyphPos, glyphColor, 0.4f + progress * 0.2f, -1);
+                        
+                        // Eyes watching the player from glyph positions
+                        if (Timer % 12 == 0)
+                        {
+                            CustomParticles.EnigmaEyeGaze(glyphPos + Main.rand.NextVector2Circular(15f, 15f), 
+                                EnigmaGreen * 0.6f, 0.3f, target.Center);
+                        }
+                    }
+                }
+                
+                // Warning particles converging slowly
+                if (Timer % 6 == 0)
+                {
+                    BossVFXOptimizer.DangerZoneRing(target.Center, initialRadius * (1f - progress * 0.3f), glyphCount);
+                    BossVFXOptimizer.SafeZoneRing(target.Center, finalRadius, 6);
+                }
+                
+                if (Timer >= chargeTime)
+                {
+                    Timer = 0;
+                    SubPhase = 1;
+                }
+            }
+            else if (SubPhase == 1)
+            {
+                // Phase 1: Glyphs converge toward center (danger!)
+                float progress = Timer / (float)convergeTime;
+                float currentRadius = MathHelper.Lerp(initialRadius, finalRadius, progress);
+                
+                // Draw converging glyphs
+                if (Timer % 3 == 0)
+                {
+                    for (int i = 0; i < glyphCount; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / glyphCount + Timer * 0.015f;
+                        Vector2 glyphPos = target.Center + angle.ToRotationVector2() * currentRadius;
+                        Color glyphColor = Color.Lerp(EnigmaPurple, EnigmaGreen, progress);
+                        CustomParticles.Glyph(glyphPos, glyphColor, 0.5f, -1);
+                        
+                        // Trailing particles as they move
+                        CustomParticles.GenericFlare(glyphPos, EnigmaPurple * 0.5f, 0.25f, 8);
+                    }
+                    
+                    // Shrinking danger ring
+                    BossVFXOptimizer.DangerZoneRing(target.Center, currentRadius, glyphCount);
+                }
+                
+                MagnumScreenEffects.AddScreenShake(2f + progress * 4f);
+                
+                if (Timer >= convergeTime)
+                {
+                    Timer = 0;
+                    SubPhase = 2;
+                }
+            }
+            else if (SubPhase == 2)
+            {
+                // Phase 2: Glyphs fire projectiles inward at player's last position
+                if (Timer == 1)
+                {
+                    MagnumScreenEffects.AddScreenShake(12f);
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.4f, Volume = 1.3f }, target.Center);
+                    
+                    // Big VFX burst
+                    BossVFXOptimizer.AttackReleaseBurst(target.Center, EnigmaPurple, EnigmaGreen, 1.2f);
+                    
+                    // Spawn projectiles from glyph positions
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        for (int i = 0; i < glyphCount; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / glyphCount;
+                            Vector2 spawnPos = target.Center + angle.ToRotationVector2() * finalRadius;
+                            Vector2 toCenter = (target.Center - spawnPos).SafeNormalize(Vector2.Zero);
+                            
+                            // Fire toward center with varying speeds
+                            float speed = 14f + difficultyTier * 3f + Main.rand.NextFloat(-2f, 2f);
+                            BossProjectileHelper.SpawnAcceleratingBolt(spawnPos, toCenter * speed, 80 + difficultyTier * 5, EnigmaPurple, 12f);
+                            
+                            // Secondary homing projectile
+                            if (i % 2 == 0)
+                            {
+                                BossProjectileHelper.SpawnHostileOrb(spawnPos, toCenter * (speed * 0.7f), 75, EnigmaGreen, 0.03f);
+                            }
+                        }
+                    }
+                    
+                    // Cascading glyph burst
+                    CustomParticles.GlyphBurst(target.Center, EnigmaPurple, 12, 8f);
+                    CustomParticles.GlyphBurst(target.Center, EnigmaGreen, 8, 5f);
+                    
+                    // Eyes scatter
+                    for (int i = 0; i < 6; i++)
+                    {
+                        Vector2 eyePos = target.Center + Main.rand.NextVector2Circular(60f, 60f);
+                        CustomParticles.EnigmaEyeGaze(eyePos, EnigmaGreen, 0.4f, eyePos + Main.rand.NextVector2Unit() * 100f);
+                    }
+                }
+                
+                if (Timer >= 35)
+                {
+                    EndAttack();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// VOID BEAM PINCER - Orbs spawn on either side of player with swirl animation,
+        /// then shoot beams that the player must dodge
+        /// </summary>
+        private void Attack_VoidBeamPincer(Player target)
+        {
+            int orbSpawnTime = 45 - difficultyTier * 6;
+            int chargeTime = 35 - difficultyTier * 5;
+            int beamDuration = 50 + difficultyTier * 10;
+            int orbCount = 2 + (difficultyTier >= 2 ? 1 : 0); // 2 or 3 orbs at higher difficulty
+            float orbDistance = 350f - difficultyTier * 30f;
+            
+            NPC.velocity *= 0.9f;
+            
+            if (SubPhase == 0)
+            {
+                // Phase 0: Orbs spawn with swirl animation on player's sides
+                float spawnProgress = Timer / (float)orbSpawnTime;
+                
+                if (Timer == 1)
+                {
+                    SoundEngine.PlaySound(SoundID.Item117 with { Pitch = -0.3f }, target.Center);
+                }
+                
+                // Swirling spawn animation for each orb
+                for (int orb = 0; orb < orbCount; orb++)
+                {
+                    float orbAngle;
+                    if (orbCount == 2)
+                    {
+                        // Two orbs: left and right
+                        orbAngle = orb == 0 ? MathHelper.PiOver2 : -MathHelper.PiOver2;
+                    }
+                    else
+                    {
+                        // Three orbs: left, right, and above
+                        orbAngle = orb == 0 ? MathHelper.PiOver2 : (orb == 1 ? -MathHelper.PiOver2 : MathHelper.Pi);
+                    }
+                    
+                    // Swirl-in animation - particles spiral inward to form orb
+                    if (Timer % 3 == 0)
+                    {
+                        Vector2 orbTargetPos = target.Center + new Vector2((float)Math.Cos(orbAngle), (float)Math.Sin(orbAngle)) * orbDistance;
+                        float swirlRadius = 60f * (1f - spawnProgress);
+                        
+                        for (int p = 0; p < 4; p++)
+                        {
+                            float swirlAngle = Timer * 0.15f + MathHelper.TwoPi * p / 4f + orb * MathHelper.PiOver2;
+                            Vector2 particlePos = orbTargetPos + swirlAngle.ToRotationVector2() * swirlRadius;
+                            Vector2 toCenter = (orbTargetPos - particlePos).SafeNormalize(Vector2.Zero) * 3f;
+                            
+                            Color swirlColor = Color.Lerp(EnigmaPurple, EnigmaGreen, (float)p / 4f) * (0.4f + spawnProgress * 0.4f);
+                            CustomParticles.GenericFlare(particlePos, swirlColor, 0.3f + spawnProgress * 0.2f, 10);
+                            
+                            // Glyphs forming at orb center
+                            if (p == 0 && spawnProgress > 0.5f)
+                            {
+                                CustomParticles.Glyph(orbTargetPos + Main.rand.NextVector2Circular(15f, 15f), EnigmaPurple, 0.35f, -1);
+                            }
+                        }
+                        
+                        // Growing core at orb position
+                        CustomParticles.GenericFlare(orbTargetPos, EnigmaGreen * spawnProgress, 0.2f + spawnProgress * 0.4f, 5);
+                    }
+                    
+                    // Warning line showing beam direction
+                    if (Timer > orbSpawnTime * 0.6f && Timer % 4 == 0)
+                    {
+                        Vector2 orbTargetPos = target.Center + new Vector2((float)Math.Cos(orbAngle), (float)Math.Sin(orbAngle)) * orbDistance;
+                        BossVFXOptimizer.LaserBeamWarning(orbTargetPos, (target.Center - orbTargetPos).ToRotation(), orbDistance * 2f, spawnProgress);
+                    }
+                }
+                
+                if (Timer >= orbSpawnTime)
+                {
+                    Timer = 0;
+                    SubPhase = 1;
+                }
+            }
+            else if (SubPhase == 1)
+            {
+                // Phase 1: Orbs charge up (player has time to move)
+                float chargeProgress = Timer / (float)chargeTime;
+                
+                if (Timer == 1)
+                {
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.2f }, target.Center);
+                }
+                
+                // Intensifying charge VFX at each orb
+                for (int orb = 0; orb < orbCount; orb++)
+                {
+                    float orbAngle;
+                    if (orbCount == 2)
+                    {
+                        orbAngle = orb == 0 ? MathHelper.PiOver2 : -MathHelper.PiOver2;
+                    }
+                    else
+                    {
+                        orbAngle = orb == 0 ? MathHelper.PiOver2 : (orb == 1 ? -MathHelper.PiOver2 : MathHelper.Pi);
+                    }
+                    
+                    Vector2 orbPos = target.Center + new Vector2((float)Math.Cos(orbAngle), (float)Math.Sin(orbAngle)) * orbDistance;
+                    
+                    if (Timer % 3 == 0)
+                    {
+                        // Converging charge particles
+                        BossVFXOptimizer.ConvergingWarning(orbPos, 40f, chargeProgress, EnigmaPurple, 6);
+                        
+                        // Growing orb glow
+                        CustomParticles.GenericFlare(orbPos, EnigmaPurple, 0.4f + chargeProgress * 0.4f, 8);
+                        CustomParticles.GenericFlare(orbPos, EnigmaGreen, 0.25f + chargeProgress * 0.3f, 6);
+                        
+                        // Warning beam line intensifying
+                        BossVFXOptimizer.LaserBeamWarning(orbPos, (target.Center - orbPos).ToRotation(), orbDistance * 2f, chargeProgress);
+                    }
+                    
+                    // Eyes gathering around orbs
+                    if (Timer % 8 == 0)
+                    {
+                        CustomParticles.EnigmaEyeGaze(orbPos + Main.rand.NextVector2Circular(25f, 25f), EnigmaGreen * 0.7f, 0.3f, target.Center);
+                    }
+                }
+                
+                MagnumScreenEffects.AddScreenShake(chargeProgress * 3f);
+                
+                if (Timer >= chargeTime)
+                {
+                    Timer = 0;
+                    SubPhase = 2;
+                }
+            }
+            else if (SubPhase == 2)
+            {
+                // Phase 2: Beams fire! Player must not be in the beam path
+                if (Timer == 1)
+                {
+                    MagnumScreenEffects.AddScreenShake(15f);
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 1.5f }, target.Center);
+                    
+                    // Spawn beam projectiles from each orb
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        for (int orb = 0; orb < orbCount; orb++)
+                        {
+                            float orbAngle;
+                            if (orbCount == 2)
+                            {
+                                orbAngle = orb == 0 ? MathHelper.PiOver2 : -MathHelper.PiOver2;
+                            }
+                            else
+                            {
+                                orbAngle = orb == 0 ? MathHelper.PiOver2 : (orb == 1 ? -MathHelper.PiOver2 : MathHelper.Pi);
+                            }
+                            
+                            Vector2 orbPos = target.Center + new Vector2((float)Math.Cos(orbAngle), (float)Math.Sin(orbAngle)) * orbDistance;
+                            Vector2 beamDir = (target.Center - orbPos).SafeNormalize(Vector2.Zero);
+                            
+                            // Spawn the beam projectile
+                            int beamType = ModContent.ProjectileType<EnigmaVoidBeam>();
+                            Projectile.NewProjectile(NPC.GetSource_FromAI(), orbPos, Vector2.Zero, beamType,
+                                85 + difficultyTier * 8, 0f, Main.myPlayer, beamDir.ToRotation(), beamDuration);
+                        }
+                    }
+                    
+                    // VFX burst at each orb
+                    for (int orb = 0; orb < orbCount; orb++)
+                    {
+                        float orbAngle;
+                        if (orbCount == 2)
+                        {
+                            orbAngle = orb == 0 ? MathHelper.PiOver2 : -MathHelper.PiOver2;
+                        }
+                        else
+                        {
+                            orbAngle = orb == 0 ? MathHelper.PiOver2 : (orb == 1 ? -MathHelper.PiOver2 : MathHelper.Pi);
+                        }
+                        
+                        Vector2 orbPos = target.Center + new Vector2((float)Math.Cos(orbAngle), (float)Math.Sin(orbAngle)) * orbDistance;
+                        BossVFXOptimizer.AttackReleaseBurst(orbPos, EnigmaPurple, EnigmaGreen, 1.0f);
+                        CustomParticles.GlyphBurst(orbPos, EnigmaGreen, 6, 4f);
+                    }
+                }
+                
+                // Beam active VFX
+                if (Timer % 4 == 0 && Timer < beamDuration)
+                {
+                    for (int orb = 0; orb < orbCount; orb++)
+                    {
+                        float orbAngle;
+                        if (orbCount == 2)
+                        {
+                            orbAngle = orb == 0 ? MathHelper.PiOver2 : -MathHelper.PiOver2;
+                        }
+                        else
+                        {
+                            orbAngle = orb == 0 ? MathHelper.PiOver2 : (orb == 1 ? -MathHelper.PiOver2 : MathHelper.Pi);
+                        }
+                        
+                        Vector2 orbPos = target.Center + new Vector2((float)Math.Cos(orbAngle), (float)Math.Sin(orbAngle)) * orbDistance;
+                        CustomParticles.GenericFlare(orbPos, EnigmaGreen, 0.5f, 5);
+                    }
+                }
+                
+                if (Timer >= beamDuration + 20)
+                {
+                    EndAttack();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// WATCHING GAZE - Eyes spawn in formation around player, track for a moment, then fire
+        /// </summary>
+        private void Attack_WatchingGaze(Player target)
+        {
+            int eyeCount = 6 + difficultyTier * 2;
+            int spawnTime = 30 - difficultyTier * 4;
+            int trackTime = 50 - difficultyTier * 8;
+            int waves = 2 + difficultyTier;
+            float eyeRadius = 250f - difficultyTier * 20f;
+            
+            NPC.velocity *= 0.9f;
+            
+            if (SubPhase < waves)
+            {
+                if (Timer == 1)
+                {
+                    SoundEngine.PlaySound(SoundID.Item103 with { Pitch = -0.3f }, NPC.Center);
+                    if (SubPhase == 0)
+                    {
+                        Main.NewText("The void watches...", EnigmaGreen);
+                    }
+                }
+                
+                if (Timer <= spawnTime)
+                {
+                    // Eyes spawn one by one with dramatic effect
+                    float spawnProgress = Timer / (float)spawnTime;
+                    int eyesToShow = (int)(eyeCount * spawnProgress);
+                    
+                    if (Timer % 4 == 0)
+                    {
+                        for (int i = 0; i < eyesToShow; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / eyeCount + SubPhase * MathHelper.PiOver4;
+                            Vector2 eyePos = target.Center + angle.ToRotationVector2() * eyeRadius;
+                            
+                            // Eye spawn VFX
+                            CustomParticles.EnigmaEyeGaze(eyePos, EnigmaPurple, 0.45f, target.Center);
+                            
+                            // Purple void swirl around new eyes
+                            if (i == eyesToShow - 1)
+                            {
+                                for (int s = 0; s < 4; s++)
+                                {
+                                    float swirlAngle = Timer * 0.2f + MathHelper.TwoPi * s / 4f;
+                                    Vector2 swirlPos = eyePos + swirlAngle.ToRotationVector2() * 20f;
+                                    CustomParticles.GenericFlare(swirlPos, EnigmaPurple * 0.6f, 0.2f, 8);
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (Timer <= spawnTime + trackTime)
+                {
+                    // Eyes track player - draw them looking at player
+                    float trackProgress = (Timer - spawnTime) / (float)trackTime;
+                    
+                    if (Timer % 3 == 0)
+                    {
+                        for (int i = 0; i < eyeCount; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / eyeCount + SubPhase * MathHelper.PiOver4;
+                            Vector2 eyePos = target.Center + angle.ToRotationVector2() * eyeRadius;
+                            
+                            // Eyes intensify as they prepare to fire
+                            CustomParticles.EnigmaEyeGaze(eyePos, Color.Lerp(EnigmaPurple, EnigmaGreen, trackProgress), 
+                                0.4f + trackProgress * 0.15f, target.Center);
+                            
+                            // Warning line from eye to player
+                            if (trackProgress > 0.5f)
+                            {
+                                BossVFXOptimizer.WarningLine(eyePos, (target.Center - eyePos).SafeNormalize(Vector2.Zero), 
+                                    eyeRadius, 6, WarningType.Danger);
+                            }
+                        }
+                    }
+                    
+                    // Tension building
+                    if (trackProgress > 0.7f)
+                    {
+                        MagnumScreenEffects.AddScreenShake(trackProgress * 2f);
+                    }
+                }
+                else if (Timer == spawnTime + trackTime + 1)
+                {
+                    // FIRE!
+                    MagnumScreenEffects.AddScreenShake(10f);
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 1.2f }, target.Center);
+                    
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        for (int i = 0; i < eyeCount; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / eyeCount + SubPhase * MathHelper.PiOver4;
+                            Vector2 eyePos = target.Center + angle.ToRotationVector2() * eyeRadius;
+                            Vector2 toTarget = (target.Center - eyePos).SafeNormalize(Vector2.Zero);
+                            
+                            float speed = 16f + difficultyTier * 3f;
+                            
+                            // Mix projectile types
+                            if (i % 3 == 0)
+                                BossProjectileHelper.SpawnAcceleratingBolt(eyePos, toTarget * speed * 0.7f, 75 + difficultyTier * 5, EnigmaGreen, 18f);
+                            else
+                                BossProjectileHelper.SpawnHostileOrb(eyePos, toTarget * speed, 75 + difficultyTier * 5, EnigmaPurple, 0.02f);
+                            
+                            // Eye death burst
+                            CustomParticles.EnigmaEyeGaze(eyePos, EnigmaGreen, 0.5f, toTarget);
+                            CustomParticles.GenericFlare(eyePos, EnigmaPurple, 0.4f, 12);
+                        }
+                    }
+                    
+                    // Central burst
+                    CustomParticles.GlyphBurst(target.Center, EnigmaPurple, 8, 5f);
+                    BossVFXOptimizer.OptimizedCascadingHalos(target.Center, EnigmaPurple, EnigmaGreen, 4, 0.3f, 12);
+                }
+                
+                if (Timer >= spawnTime + trackTime + 25)
+                {
+                    Timer = 0;
+                    SubPhase++;
+                }
+            }
+            else
+            {
+                if (Timer >= 30)
+                {
+                    EndAttack();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// MYSTERY MAZE - Creates a maze of glyph walls that the player must navigate
+        /// Walls deal damage on contact
+        /// </summary>
+        private void Attack_MysteryMaze(Player target)
+        {
+            int wallCount = 4 + difficultyTier;
+            int buildTime = 50 - difficultyTier * 8;
+            int activeDuration = 180 + difficultyTier * 30;
+            float mazeRadius = 400f;
+            
+            NPC.velocity *= 0.85f;
+            
+            if (SubPhase == 0)
+            {
+                // Phase 0: Build maze walls around player
+                float buildProgress = Timer / (float)buildTime;
+                
+                if (Timer == 1)
+                {
+                    SoundEngine.PlaySound(SoundID.Item123 with { Pitch = 0.1f }, target.Center);
+                    Main.NewText("Navigate the mystery...", EnigmaPurple);
+                }
+                
+                // Spawn wall projectiles progressively
+                if (Timer % (buildTime / wallCount) == 0 && Timer > 0)
+                {
+                    int wallIndex = Timer / (buildTime / wallCount) - 1;
+                    if (wallIndex < wallCount && Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        // Create different wall configurations
+                        float baseAngle = MathHelper.TwoPi * wallIndex / wallCount;
+                        float offset = Main.rand.NextFloat(-0.2f, 0.2f);
+                        
+                        // Spawn a glyph wall segment
+                        Vector2 wallStart = target.Center + (baseAngle + offset).ToRotationVector2() * (mazeRadius * 0.4f);
+                        Vector2 wallEnd = target.Center + (baseAngle + offset).ToRotationVector2() * mazeRadius;
+                        
+                        int wallType = ModContent.ProjectileType<EnigmaMazeWall>();
+                        Projectile.NewProjectile(NPC.GetSource_FromAI(), wallStart, Vector2.Zero, wallType,
+                            70 + difficultyTier * 5, 0f, Main.myPlayer, (wallEnd - wallStart).ToRotation(), activeDuration + buildTime - Timer);
+                        
+                        // Spawn VFX for wall creation
+                        for (float t = 0; t <= 1f; t += 0.15f)
+                        {
+                            Vector2 pos = Vector2.Lerp(wallStart, wallEnd, t);
+                            CustomParticles.Glyph(pos, EnigmaPurple, 0.4f, -1);
+                            CustomParticles.GenericFlare(pos, EnigmaGreen * 0.5f, 0.25f, 10);
+                        }
+                        
+                        SoundEngine.PlaySound(SoundID.Item100 with { Pitch = 0.2f + wallIndex * 0.1f, Volume = 0.6f }, wallStart);
+                    }
+                }
+                
+                // Ambient maze particles
+                if (Timer % 5 == 0)
+                {
+                    BossVFXOptimizer.DangerZoneRing(target.Center, mazeRadius, 12);
+                }
+                
+                if (Timer >= buildTime)
+                {
+                    Timer = 0;
+                    SubPhase = 1;
+                }
+            }
+            else if (SubPhase == 1)
+            {
+                // Phase 1: Maze is active - spawn additional hazards inside
+                if (Timer == 1)
+                {
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f }, target.Center);
+                }
+                
+                // Spawn wandering eye projectiles inside maze
+                if (Timer % (45 - difficultyTier * 10) == 0 && Main.netMode != NetmodeID.MultiplayerClient)
+                {
+                    Vector2 spawnPos = target.Center + Main.rand.NextVector2Circular(mazeRadius * 0.6f, mazeRadius * 0.6f);
+                    Vector2 vel = Main.rand.NextVector2Unit() * (8f + difficultyTier * 2f);
+                    BossProjectileHelper.SpawnHostileOrb(spawnPos, vel, 70, EnigmaGreen, 0.015f);
+                    
+                    CustomParticles.EnigmaEyeGaze(spawnPos, EnigmaPurple, 0.35f, target.Center);
+                }
+                
+                // Ambient glyph effects
+                if (Timer % 8 == 0)
+                {
+                    for (int i = 0; i < 3; i++)
+                    {
+                        Vector2 glyphPos = target.Center + Main.rand.NextVector2Circular(mazeRadius * 0.8f, mazeRadius * 0.8f);
+                        CustomParticles.Glyph(glyphPos, EnigmaPurple * 0.4f, 0.25f, -1);
+                    }
+                }
+                
+                if (Timer >= activeDuration)
+                {
+                    EndAttack();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// PARADOX MIRROR - Boss creates clone illusions with glyph circles
+        /// Only one position is the "real" danger zone
+        /// </summary>
+        private void Attack_ParadoxMirror(Player target)
+        {
+            int cloneCount = 3 + difficultyTier;
+            int setupTime = 40 - difficultyTier * 5;
+            int fakeoutTime = 60 - difficultyTier * 10;
+            int attackTime = 30;
+            float cloneRadius = 350f;
+            
+            NPC.velocity *= 0.85f;
+            
+            if (SubPhase == 0)
+            {
+                // Phase 0: Boss teleports to center, clones appear around player
+                float setupProgress = Timer / (float)setupTime;
+                
+                if (Timer == 1)
+                {
+                    SoundEngine.PlaySound(SoundID.Item117 with { Pitch = -0.2f }, target.Center);
+                    Main.NewText("Which is real...?", EnigmaGreen);
+                    
+                    // Fade out for teleport
+                    NPC.alpha = 200;
+                }
+                
+                // Spawn clone illusions
+                if (Timer % 5 == 0)
+                {
+                    for (int i = 0; i < cloneCount; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / cloneCount;
+                        Vector2 clonePos = target.Center + angle.ToRotationVector2() * cloneRadius;
+                        
+                        // Swirl-in animation for each clone
+                        float swirlRadius = 40f * (1f - setupProgress);
+                        for (int s = 0; s < 3; s++)
+                        {
+                            float swirlAngle = Timer * 0.15f + MathHelper.TwoPi * s / 3f;
+                            Vector2 swirlPos = clonePos + swirlAngle.ToRotationVector2() * swirlRadius;
+                            CustomParticles.GenericFlare(swirlPos, EnigmaPurple * (0.4f + setupProgress * 0.3f), 0.25f, 8);
+                        }
+                        
+                        // Growing clone silhouette
+                        CustomParticles.GenericFlare(clonePos, EnigmaGreen * setupProgress, 0.3f + setupProgress * 0.3f, 6);
+                        
+                        // Glyph circles forming around each clone
+                        if (setupProgress > 0.5f)
+                        {
+                            CustomParticles.Glyph(clonePos + Main.rand.NextVector2Circular(25f, 25f), EnigmaPurple, 0.3f, -1);
+                        }
+                    }
+                }
+                
+                // Boss appears to be at all positions
+                NPC.alpha = (int)(255 * (1f - setupProgress * 0.5f));
+                
+                if (Timer >= setupTime)
+                {
+                    Timer = 0;
+                    SubPhase = 1;
+                    NPC.alpha = 150; // Semi-transparent during fakeout
+                }
+            }
+            else if (SubPhase == 1)
+            {
+                // Phase 1: All clones "charge" - one is real (chosen randomly)
+                int realClone = (int)(NPC.whoAmI % cloneCount); // Deterministic based on NPC ID
+                float fakeoutProgress = Timer / (float)fakeoutTime;
+                
+                if (Timer % 4 == 0)
+                {
+                    for (int i = 0; i < cloneCount; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / cloneCount;
+                        Vector2 clonePos = target.Center + angle.ToRotationVector2() * cloneRadius;
+                        
+                        // All clones show charging VFX
+                        BossVFXOptimizer.ConvergingWarning(clonePos, 50f, fakeoutProgress, EnigmaPurple, 6);
+                        
+                        // Glyph circles around all clones
+                        int glyphCount = 6 + difficultyTier;
+                        for (int g = 0; g < glyphCount; g++)
+                        {
+                            float glyphAngle = MathHelper.TwoPi * g / glyphCount + Timer * 0.02f;
+                            Vector2 glyphPos = clonePos + glyphAngle.ToRotationVector2() * (40f - fakeoutProgress * 15f);
+                            CustomParticles.Glyph(glyphPos, EnigmaPurple * (0.3f + fakeoutProgress * 0.3f), 0.3f, -1);
+                        }
+                        
+                        // Eyes at each clone watching player
+                        if (Timer % 12 == 0)
+                        {
+                            CustomParticles.EnigmaEyeGaze(clonePos + Main.rand.NextVector2Circular(20f, 20f), 
+                                EnigmaGreen * 0.6f, 0.35f, target.Center);
+                        }
+                        
+                        // The "real" clone gets slightly more intense near the end
+                        if (i == realClone && fakeoutProgress > 0.7f)
+                        {
+                            CustomParticles.GenericFlare(clonePos, EnigmaGreen * 0.5f, 0.35f, 5);
+                        }
+                    }
+                }
+                
+                MagnumScreenEffects.AddScreenShake(fakeoutProgress * 2f);
+                
+                if (Timer >= fakeoutTime)
+                {
+                    Timer = 0;
+                    SubPhase = 2;
+                }
+            }
+            else if (SubPhase == 2)
+            {
+                // Phase 2: Real clone attacks, fakes dissipate
+                int realClone = (int)(NPC.whoAmI % cloneCount);
+                
+                if (Timer == 1)
+                {
+                    MagnumScreenEffects.AddScreenShake(12f);
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.4f, Volume = 1.3f }, target.Center);
+                    NPC.alpha = 0; // Boss fully visible again
+                    
+                    // Fake clones dissipate with particles
+                    for (int i = 0; i < cloneCount; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / cloneCount;
+                        Vector2 clonePos = target.Center + angle.ToRotationVector2() * cloneRadius;
+                        
+                        if (i != realClone)
+                        {
+                            // Fake clone dissipation
+                            CustomParticles.GenericFlare(clonePos, EnigmaPurple * 0.5f, 0.4f, 15);
+                            CustomParticles.GlyphBurst(clonePos, EnigmaPurple, 4, 3f);
+                        }
+                        else
+                        {
+                            // Real clone attack burst
+                            BossVFXOptimizer.AttackReleaseBurst(clonePos, EnigmaPurple, EnigmaGreen, 1.3f);
+                            
+                            // Fire projectiles from real clone position toward player
+                            if (Main.netMode != NetmodeID.MultiplayerClient)
+                            {
+                                int projCount = 10 + difficultyTier * 3;
+                                for (int p = 0; p < projCount; p++)
+                                {
+                                    float projAngle = MathHelper.TwoPi * p / projCount;
+                                    Vector2 vel = projAngle.ToRotationVector2() * (12f + difficultyTier * 2f);
+                                    
+                                    // Mix types
+                                    if (p % 3 == 0)
+                                        BossProjectileHelper.SpawnAcceleratingBolt(clonePos, vel * 0.7f, 80 + difficultyTier * 5, EnigmaGreen, 14f);
+                                    else
+                                        BossProjectileHelper.SpawnHostileOrb(clonePos, vel, 80 + difficultyTier * 5, EnigmaPurple, 0.02f);
+                                }
+                            }
+                            
+                            // Glyph cascade
+                            CustomParticles.GlyphBurst(clonePos, EnigmaGreen, 12, 6f);
+                            
+                            // Eyes scatter
+                            for (int e = 0; e < 5; e++)
+                            {
+                                Vector2 eyePos = clonePos + Main.rand.NextVector2Circular(40f, 40f);
+                                CustomParticles.EnigmaEyeGaze(eyePos, EnigmaGreen, 0.45f, eyePos + Main.rand.NextVector2Unit() * 80f);
+                            }
+                        }
+                    }
+                }
+                
+                if (Timer >= attackTime)
                 {
                     EndAttack();
                 }
