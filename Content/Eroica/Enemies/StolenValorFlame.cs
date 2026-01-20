@@ -13,8 +13,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
     /// </summary>
     public class StolenValorFlame : ModProjectile
     {
-        // Use a vanilla texture since we're dust-only (won't actually be drawn)
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Bullet;
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
 
         public override void SetStaticDefaults()
         {

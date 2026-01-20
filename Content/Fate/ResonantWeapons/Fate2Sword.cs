@@ -8,6 +8,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Fate.Debuffs;
 using MagnumOpus.Content.Fate.Projectiles;
@@ -66,6 +67,42 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             SoundEngine.PlaySound(SoundID.Item117 with { Pitch = 0.3f, Volume = 0.9f }, player.Center);
             
             return false;
+        }
+        
+        public override void HoldItem(Player player)
+        {
+            // === CELESTIAL COSMIC HOLD EFFECT ===
+            // Orbiting energy spheres
+            if (Main.rand.NextBool(10))
+            {
+                float angle = Main.GameUpdateCount * 0.035f;
+                for (int i = 0; i < 2; i++)
+                {
+                    float orbitAngle = angle + MathHelper.Pi * i;
+                    Vector2 orbitPos = player.Center + orbitAngle.ToRotationVector2() * 40f;
+                    var orb = new GenericGlowParticle(orbitPos, Vector2.Zero, FateCosmicVFX.GetCosmicGradient((float)i / 2f), 0.3f, 12, true);
+                    MagnumParticleHandler.SpawnParticle(orb);
+                }
+            }
+            
+            // Star particle aura
+            if (Main.rand.NextBool(7))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(38f, 38f);
+                var star = new GenericGlowParticle(player.Center + offset, Main.rand.NextVector2Circular(0.4f, 0.4f), 
+                    FateCosmicVFX.FateWhite, 0.2f, 16, true);
+                MagnumParticleHandler.SpawnParticle(star);
+            }
+            
+            // Occasional glyph
+            if (Main.rand.NextBool(15))
+            {
+                CustomParticles.Glyph(player.Center + Main.rand.NextVector2Circular(30f, 30f), FateCosmicVFX.FatePurple, 0.3f, -1);
+            }
+            
+            // Ambient light
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.055f) * 0.12f + 0.88f;
+            Lighting.AddLight(player.Center, FateCosmicVFX.FateDarkPink.ToVector3() * pulse * 0.35f);
         }
         
         public override void MeleeEffects(Player player, Rectangle hitbox)

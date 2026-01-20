@@ -687,7 +687,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class BehemothFlameRain : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Flames;
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
 
         public override void SetDefaults()
         {
@@ -750,7 +750,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class BehemothShockwave : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Flames;
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
 
         public override void SetDefaults()
         {
@@ -788,7 +788,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class BehemothBreathFlame : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Flames;
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
 
         public override void SetDefaults()
         {
@@ -824,7 +824,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class BehemothFirePillar : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.InfernoFriendlyBlast;
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
 
         public override void SetDefaults()
         {
@@ -879,7 +879,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class BehemothEruptionWave : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Flames;
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
 
         public override void SetDefaults()
         {
@@ -921,7 +921,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class BehemothDebris : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Boulder;
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
 
         public override void SetDefaults()
         {

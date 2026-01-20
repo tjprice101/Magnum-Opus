@@ -5,6 +5,8 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -133,32 +135,19 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             SoundEngine.PlaySound(SoundID.Item14, Projectile.position);
 
-            // Delicate sakura petal burst - soft pink with SoftGlows[1] (soft bloom)
-            CustomParticles.SwanLakeHalo(Projectile.Center, 0.5f); // Pearlescent base
-            var softPink = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.SoftGlows[1], Projectile.Center, Vector2.Zero,
-                new Color(255, 180, 200), 0.9f, 30, 0f, true, false);
-            CustomParticleSystem.SpawnParticle(softPink);
-            var warmGlow = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.SoftGlows[1], Projectile.Center, Vector2.Zero,
-                new Color(255, 220, 180), 0.6f, 25, 0f, true, false);
-            CustomParticleSystem.SpawnParticle(warmGlow);
-            CustomParticles.ExplosionBurst(Projectile.Center, new Color(255, 140, 170), 8, 4f);
-            CustomParticles.MusicalImpact(Projectile.Center, new Color(255, 160, 180), new Color(255, 200, 210), 0.6f);
+            // === ENHANCED SAKURA EXPLOSION WITH MULTI-LAYER BLOOM ===
+            // Central flash with proper bloom stacking
+            EnhancedParticles.BloomFlare(Projectile.Center, Color.White, 0.7f, 25, 4, 1.1f);
+            EnhancedParticles.BloomFlare(Projectile.Center, ThemedParticles.EroicaSakura, 0.6f, 22, 3, 0.9f);
             
-            // Eroica themed impact with prismatic gem burst
-            ThemedParticles.EroicaImpact(Projectile.Center, 0.8f);
+            // Enhanced Eroica themed impact with full bloom
+            UnifiedVFXBloom.Eroica.ImpactEnhanced(Projectile.Center, 0.9f);
             
-            // === SIGNATURE FRACTAL FLARE BURST ===
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
-                float progress = (float)i / 6f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
-                CustomParticles.GenericFlare(Projectile.Center + flareOffset, fractalColor, 0.45f, 18);
-            }
+            // Enhanced sakura petal burst with bloom
+            EnhancedThemedParticles.SakuraPetalsEnhanced(Projectile.Center, 10, 40f);
             
-            // Music notes on impact
-            ThemedParticles.EroicaMusicNotes(Projectile.Center, 3, 25f);
+            // Enhanced music notes with bloom
+            EnhancedThemedParticles.EroicaMusicNotesEnhanced(Projectile.Center, 4, 28f);
             
             // Scarlet red explosion
             for (int i = 0; i < 25; i++)

@@ -10,6 +10,7 @@ using Terraria.Audio;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
@@ -72,27 +73,72 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             });
         }
         
+        public override void HoldItem(Player player)
+        {
+            // === MYSTERY ORB PREVIEW - ENIGMA HOLD EFFECT ===
+            // Orbiting mini-orbs representing the cascade to come
+            if (Main.rand.NextBool(8))
+            {
+                float angle = Main.GameUpdateCount * 0.03f;
+                for (int i = 0; i < 2; i++)
+                {
+                    float orbAngle = angle + MathHelper.Pi * i;
+                    Vector2 orbPos = player.Center + orbAngle.ToRotationVector2() * 40f;
+                    var orb = new GenericGlowParticle(orbPos, Vector2.Zero, GetEnigmaGradient((float)i / 2f), 0.25f, 15, true);
+                    MagnumParticleHandler.SpawnParticle(orb);
+                }
+            }
+            
+            // Watching eyes peek from the void
+            if (Main.rand.NextBool(20))
+            {
+                float eyeAngle = Main.rand.NextFloat(MathHelper.TwoPi);
+                Vector2 eyePos = player.Center + eyeAngle.ToRotationVector2() * Main.rand.NextFloat(30f, 50f);
+                CustomParticles.EnigmaEyeGaze(eyePos, EnigmaGreen * 0.6f, 0.2f, (-eyeAngle).ToRotationVector2());
+            }
+            
+            // Subtle glyph orbit
+            if (Main.rand.NextBool(15))
+            {
+                CustomParticles.Glyph(player.Center + Main.rand.NextVector2Circular(35f, 35f), EnigmaPurple * 0.5f, 0.25f);
+            }
+            
+            // Void particles drawn inward
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 voidPos = player.Center + Main.rand.NextVector2Circular(50f, 50f);
+                Vector2 voidVel = (player.Center - voidPos).SafeNormalize(Vector2.Zero) * 1.5f;
+                var voidParticle = new GenericGlowParticle(voidPos, voidVel, EnigmaBlack, 0.2f, 18, true);
+                MagnumParticleHandler.SpawnParticle(voidParticle);
+            }
+            
+            // Pulsing arcane light
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.15f + 0.85f;
+            Lighting.AddLight(player.Center, EnigmaPurple.ToVector3() * pulse * 0.35f);
+        }
+        
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             // Spawn orb
             Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
             
-            // Cast VFX
+            // Cast VFX - ENHANCED WITH MULTI-LAYER BLOOM
             Vector2 castPos = position + velocity.SafeNormalize(Vector2.Zero) * 30f;
             
             // Glyph circle at cast point
             CustomParticles.GlyphCircle(castPos, EnigmaPurple, count: 6, radius: 35f, rotationSpeed: 0.08f);
             
-            // Fractal burst
+            // Fractal burst with enhanced bloom
             for (int i = 0; i < 8; i++)
             {
                 float angle = MathHelper.TwoPi * i / 8f;
                 Vector2 offset = angle.ToRotationVector2() * 30f;
-                CustomParticles.GenericFlare(castPos + offset, GetEnigmaGradient((float)i / 8f), 0.5f, 18);
+                EnhancedParticles.BloomFlare(castPos + offset, GetEnigmaGradient((float)i / 8f), 0.5f, 18, 3, 0.85f);
             }
             
-            CustomParticles.GenericFlare(castPos, EnigmaGreen, 0.75f, 20);
-            CustomParticles.HaloRing(castPos, EnigmaPurple, 0.45f, 16);
+            // Central enhanced bloom flare
+            EnhancedParticles.BloomFlare(castPos, EnigmaGreen, 0.75f, 20, 4, 1.0f);
+            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(castPos, 0.6f);
             
             // Spiraling sparkle burst on cast - riddles take flight
             for (int i = 0; i < 8; i++)
@@ -381,22 +427,21 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             // === REALITY WARP DISTORTION ===
             FateRealityDistortion.TriggerChromaticAberration(target.Center, 3f, 10);
             
-            // === NEW UNIFIED VFX HIT EFFECT ===
-            UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 0.9f * currentScale);
+            // === ENHANCED UNIFIED VFX HIT EFFECT WITH BLOOM ===
+            UnifiedVFXBloom.EnigmaVariations.ImpactEnhanced(target.Center, 0.9f * currentScale);
             
             // === WATCHING EYE AT IMPACT ===
             CustomParticles.EnigmaEyeImpact(target.Center, target.Center, EnigmaGreen, 0.5f);
             
-            // === MUSIC NOTES BURST ===
-            ThemedParticles.EnigmaMusicNoteBurst(target.Center, 10, 6f);
-            ThemedParticles.EnigmaMusicNotes(target.Center, 5, 35f);
+            // === ENHANCED MUSIC NOTES BURST ===
+            EnhancedThemedParticles.EnigmaMusicNotesEnhanced(target.Center, 8, 6f);
             
-            // Radiant sparkle crown above target
+            // Radiant sparkle crown above target with bloom
             for (int crown = 0; crown < 5; crown++)
             {
                 float crownAngle = MathHelper.TwoPi * crown / 5f - MathHelper.PiOver2;
                 Vector2 crownPos = target.Center - new Vector2(0, 30f) + crownAngle.ToRotationVector2() * 18f;
-                CustomParticles.GenericFlare(crownPos, GetEnigmaGradient((float)crown / 5f), 0.4f, 16);
+                EnhancedParticles.BloomFlare(crownPos, GetEnigmaGradient((float)crown / 5f), 0.4f, 16, 2, 0.8f);
             }
             
             // === GLYPH CIRCLE FORMATION ===
@@ -428,8 +473,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             
             float explosionRadius = 170f * currentScale; // Reduced by 20% (was 212f)
             
-            // Central themed flash
-            CustomParticles.GenericFlare(Projectile.Center, EnigmaGreen, 1.5f * currentScale, 30);
+            // Central themed flash with enhanced bloom
+            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaGreen, 1.5f * currentScale, 30, 4, 1.3f);
+            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(Projectile.Center, 1.5f * currentScale);
             
             // Multiple glyph circles at different radii - signature cascade effect
             for (int circle = 0; circle < 4; circle++)
@@ -674,25 +720,24 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             // === REALITY WARP DISTORTION ===
             FateRealityDistortion.TriggerChromaticAberration(target.Center, 2.5f, 8);
             
-            // === NEW UNIFIED VFX HIT EFFECT ===
-            UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 1.2f);
+            // === ENHANCED UNIFIED VFX HIT EFFECT WITH BLOOM ===
+            UnifiedVFXBloom.EnigmaVariations.ImpactEnhanced(target.Center, 1.2f);
             
             // === WATCHING EYE AT IMPACT ===
             CustomParticles.EnigmaEyeImpact(target.Center, target.Center, EnigmaGreen, 0.5f);
             
-            // === MUSIC NOTES BURST ===
-            ThemedParticles.EnigmaMusicNoteBurst(target.Center, 10, 6f);
-            ThemedParticles.EnigmaMusicNotes(target.Center, 5, 35f);
+            // === ENHANCED MUSIC NOTES BURST ===
+            EnhancedThemedParticles.EnigmaMusicNotesEnhanced(target.Center, 8, 6f);
             
-            // Impact
+            // Impact with enhanced bloom
             for (int i = 0; i < 6; i++)
             {
                 float angle = MathHelper.TwoPi * i / 6f;
                 Vector2 offset = angle.ToRotationVector2() * 20f;
-                CustomParticles.GenericFlare(target.Center + offset, GetEnigmaGradient((float)i / 6f), 0.35f, 14);
+                EnhancedParticles.BloomFlare(target.Center + offset, GetEnigmaGradient((float)i / 6f), 0.35f, 14, 2, 0.8f);
             }
             
-            CustomParticles.HaloRing(target.Center, EnigmaPurple * 0.7f, 0.32f, 14);
+            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(target.Center, 0.5f);
             CustomParticles.GlyphImpact(target.Center, EnigmaPurple, EnigmaGreen, 0.4f);
             
             // === GLYPH CIRCLE FORMATION ===
@@ -707,12 +752,20 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             // === REALITY WARP ON DEATH ===
             FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 3f, 12);
             
+            // === ENHANCED BLOOM BURST ===
+            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(Projectile.Center, 0.5f);
+            
             for (int i = 0; i < 5; i++)
             {
                 float angle = MathHelper.TwoPi * i / 5f;
                 Vector2 vel = angle.ToRotationVector2() * 3f;
-                var glow = new GenericGlowParticle(Projectile.Center, vel, GetEnigmaGradient((float)i / 5f), 0.25f, 12, true);
-                MagnumParticleHandler.SpawnParticle(glow);
+                
+                // Use EnhancedParticlePool for bloom
+                var particle = EnhancedParticlePool.GetParticle()
+                    .Setup(Projectile.Center, vel, GetEnigmaGradient((float)i / 5f), 0.25f, 12)
+                    .WithBloom(2, 0.7f)
+                    .WithDrag(0.96f);
+                EnhancedParticlePool.SpawnParticle(particle);
             }
             
             // === WATCHING EYE at death point ===

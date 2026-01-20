@@ -8,6 +8,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 {
@@ -122,45 +123,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             // Apply Musical Dissonance debuff
             target.AddBuff(ModContent.BuffType<Debuffs.MusicsDissonance>(), 300); // 5 seconds
             
-            // === PHASE 1: CENTRAL FLASH ===
-            CustomParticles.GenericFlare(target.Center, Color.White, 0.85f, 20);
-            CustomParticles.GenericFlare(target.Center, UnifiedVFX.MoonlightSonata.LightBlue, 0.7f, 18);
+            // === ENHANCED IMPACT WITH MULTI-LAYER BLOOM ===
+            // Central flash with proper bloom stacking
+            EnhancedParticles.BloomFlare(target.Center, Color.White, 0.85f, 20, 4, 1.2f);
+            EnhancedParticles.BloomFlare(target.Center, ThemedParticles.MoonlightLightBlue, 0.7f, 18, 3, 1.0f);
             
-            // === PHASE 2: THEMED IMPACT ===
-            UnifiedVFX.MoonlightSonata.Impact(target.Center, 1.0f);
-            
-            // === PHASE 3: SIGNATURE FRACTAL FLARE BURST ===
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 flareOffset = angle.ToRotationVector2() * 35f;
-                float progress = (float)i / 8f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
-                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.5f, 20);
-            }
-            
-            // === PHASE 4: GRADIENT HALO RINGS ===
-            for (int ring = 0; ring < 4; ring++)
-            {
-                float ringProgress = (float)ring / 4f;
-                Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.Silver, ringProgress);
-                CustomParticles.HaloRing(target.Center, ringColor, 0.3f + ring * 0.12f, 16 + ring * 4);
-            }
-            
-            // === PHASE 5: SPARK SPRAY ===
-            for (int i = 0; i < 12; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 12f + Main.rand.NextFloat(-0.2f, 0.2f);
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 10f);
-                float progress = (float)i / 12f;
-                Color sparkColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, progress);
-                
-                var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.35f, 20, true);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            // === PHASE 6: MUSIC NOTES ===
-            ThemedParticles.MoonlightMusicNotes(target.Center, 5, 30f);
+            // Enhanced themed impact with full bloom
+            UnifiedVFXBloom.MoonlightSonata.ImpactEnhanced(target.Center, 1.1f);
             
             // Create the radial explosion effect (dark purple to white gradient)
             CreateRadialExplosion(target.Center);

@@ -8,7 +8,9 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Fate.Debuffs;
 
 namespace MagnumOpus.Content.Fate.Projectiles
@@ -20,7 +22,8 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class SpectralSwordBeam : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.TerraBeam;
+        // Custom texture - no vanilla textures allowed
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
 
         public override void SetStaticDefaults()
         {
@@ -100,6 +103,11 @@ namespace MagnumOpus.Content.Fate.Projectiles
         {
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 300);
 
+            // === ENHANCED COSMIC LIGHTNING WITH MULTI-LAYER BLOOM ===
+            // Central flash with proper bloom stacking
+            EnhancedParticles.BloomFlare(target.Center, FateCosmicVFX.FateWhite, 0.9f, 22, 4, 1.3f);
+            EnhancedParticles.BloomFlare(target.Center, FateCosmicVFX.FateDarkPink, 0.7f, 20, 3, 1.1f);
+
             // Cosmic lightning strikes 3 times in quick succession
             for (int strike = 0; strike < 3; strike++)
             {
@@ -107,12 +115,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 FateCosmicVFX.SpawnCosmicLightningStrike(target.Center + strikeOffset, 0.8f);
             }
 
-            // Impact burst
-            FateCosmicVFX.SpawnCosmicExplosion(target.Center, 0.6f);
+            // Enhanced impact burst with full bloom
+            UnifiedVFXBloom.Fate.ImpactEnhanced(target.Center, 0.8f);
         }
 
         public override void OnKill(int timeLeft)
         {
+            // === ENHANCED DEATH BURST WITH BLOOM ===
+            EnhancedThemedParticles.FateBloomBurstEnhanced(Projectile.Center, 0.8f);
             FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 6, 4f, 0.3f);
             FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 8, 25f, 0.25f);
             SoundEngine.PlaySound(SoundID.Item10, Projectile.Center);
@@ -290,14 +300,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
             Vector2 origin = tex.Size() / 2f;
 
-            // Trail
+            // Trail - scaled for player-sized projectile
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 float progress = (float)i / Projectile.oldPos.Length;
                 Color trailColor = FateCosmicVFX.GetCosmicGradient(progress) * (1f - progress) * 0.5f;
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, (1f - progress) * 1.5f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, (1f - progress) * 0.5f, SpriteEffects.None, 0f);
             }
 
             spriteBatch.End();
@@ -307,9 +317,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.15f;
             
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.CosmicBlack * 0.6f, Projectile.rotation, origin, 2f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * 0.8f, Projectile.rotation, origin, 1.5f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateWhite * 0.7f, Projectile.rotation, origin, 0.8f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.CosmicBlack * 0.6f, Projectile.rotation, origin, 0.6f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * 0.8f, Projectile.rotation, origin, 0.45f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateWhite * 0.7f, Projectile.rotation, origin, 0.25f * pulse, SpriteEffects.None, 0f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,

@@ -18,8 +18,8 @@ namespace MagnumOpus.Content.Eroica.Accessories
     /// </summary>
     public class PyreSlashWave : ModProjectile
     {
-        // Use a vanilla texture for the glow effect
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.SolarWhipSwordExplosion;
+        // Custom texture - no vanilla textures allowed
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
         
         private float currentRadius = 0f;
         private const float MaxRadius = 250f;

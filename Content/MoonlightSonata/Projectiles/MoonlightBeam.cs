@@ -6,6 +6,7 @@ using Terraria.ModLoader;
 using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 {
@@ -50,13 +51,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             
             if (bounceCount >= MaxBounces)
             {
-                // === CALAMITY-INSPIRED FINALE EXPLOSION ===
-                // Central flash
-                CustomParticles.GenericFlare(Projectile.Center, Color.White, 0.9f, 22);
-                CustomParticles.GenericFlare(Projectile.Center, UnifiedVFX.MoonlightSonata.LightBlue, 0.7f, 20);
+                // === ENHANCED FINALE EXPLOSION WITH MULTI-LAYER BLOOM ===
+                // Central flash with proper bloom stacking
+                EnhancedParticles.BloomFlare(Projectile.Center, Color.White, 0.9f, 22, 4, 1.2f);
+                EnhancedParticles.BloomFlare(Projectile.Center, ThemedParticles.MoonlightLightBlue, 0.7f, 20, 3, 1.0f);
                 
-                // UnifiedVFX explosion
-                ThemedParticles.MoonlightShockwave(Projectile.Center, 1.0f);
+                // Enhanced themed explosion with bloom
+                EnhancedThemedParticles.MoonlightBloomBurstEnhanced(Projectile.Center, 1.2f);
                 
                 // Fractal burst
                 for (int i = 0; i < 8; i++)
@@ -229,12 +230,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
         {
             target.AddBuff(ModContent.BuffType<Debuffs.MusicsDissonance>(), 180);
             
-            // === PHASE 1: CENTRAL FLASH ===
-            CustomParticles.GenericFlare(target.Center, Color.White, 0.75f, 18);
-            CustomParticles.GenericFlare(target.Center, UnifiedVFX.MoonlightSonata.LightBlue, 0.6f, 16);
+            // === PHASE 1: CENTRAL FLASH WITH MULTI-LAYER BLOOM ===
+            EnhancedParticles.BloomFlare(target.Center, Color.White, 0.75f, 18, 4, 1.1f);
+            EnhancedParticles.BloomFlare(target.Center, ThemedParticles.MoonlightLightBlue, 0.6f, 16, 3, 0.9f);
             
-            // === PHASE 2: THEMED IMPACT ===
-            UnifiedVFX.MoonlightSonata.Impact(target.Center, 0.85f);
+            // === PHASE 2: ENHANCED THEMED IMPACT ===
+            UnifiedVFXBloom.MoonlightSonata.ImpactEnhanced(target.Center, 0.85f);
             
             // === PHASE 3: SIGNATURE FRACTAL FLARE BURST ===
             for (int i = 0; i < 6; i++)
@@ -273,13 +274,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // === CALAMITY-INSPIRED DEATH EXPLOSION ===
-            // Phase 1: Central flash
-            CustomParticles.GenericFlare(Projectile.Center, Color.White, 0.7f, 20);
-            CustomParticles.GenericFlare(Projectile.Center, UnifiedVFX.MoonlightSonata.LightBlue, 0.55f, 18);
+            // === ENHANCED DEATH EXPLOSION WITH MULTI-LAYER BLOOM ===
+            // Phase 1: Central flash with bloom stacking
+            EnhancedParticles.BloomFlare(Projectile.Center, Color.White, 0.7f, 20, 4, 1.0f);
+            EnhancedParticles.BloomFlare(Projectile.Center, ThemedParticles.MoonlightLightBlue, 0.55f, 18, 3, 0.85f);
             
-            // Phase 2: Themed bloom
-            ThemedParticles.MoonlightBloomBurst(Projectile.Center, 0.8f);
+            // Phase 2: Enhanced themed bloom burst
+            EnhancedThemedParticles.MoonlightBloomBurstEnhanced(Projectile.Center, 0.9f);
             
             // Phase 3: Fractal burst
             for (int i = 0; i < 6; i++)

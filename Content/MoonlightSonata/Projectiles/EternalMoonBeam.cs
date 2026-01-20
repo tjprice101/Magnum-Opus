@@ -7,6 +7,7 @@ using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using System;
 
 namespace MagnumOpus.Content.MoonlightSonata.Projectiles
@@ -90,17 +91,21 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             // Enhanced sparkle trail using ThemedParticles
             ThemedParticles.MoonlightTrail(Projectile.Center, Projectile.velocity);
             
-            // === CALAMITY-INSPIRED SPINNING STAR TRAIL ===
-            // Multi-layer glow particles with gradient
+            // === ENHANCED SPINNING STAR TRAIL WITH MULTI-LAYER BLOOM ===
+            // Multi-layer glow particles with gradient using enhanced system
             for (int i = 0; i < 2; i++)
             {
                 Vector2 offset = Main.rand.NextVector2Circular(10f, 10f);
                 float progress = Main.rand.NextFloat();
-                Color trailColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
+                Color trailColor = Color.Lerp(ThemedParticles.MoonlightDarkPurple, ThemedParticles.MoonlightLightBlue, progress);
                 
-                var glow = new GenericGlowParticle(Projectile.Center + offset, -Projectile.velocity * 0.12f,
-                    trailColor, 0.25f + progress * 0.15f, 16, true);
-                MagnumParticleHandler.SpawnParticle(glow);
+                // Use enhanced particle with bloom
+                var glow = EnhancedParticlePool.GetParticle()
+                    .Setup(CustomParticleSystem.RandomGlow(), Projectile.Center + offset, -Projectile.velocity * 0.12f,
+                        trailColor, 0.25f + progress * 0.15f, 16)
+                    .WithBloom(2, 0.7f)
+                    .WithDrag(0.96f);
+                EnhancedParticlePool.SpawnParticle(glow);
             }
             
             // Orbiting star points that spin with the projectile
@@ -116,11 +121,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                 }
             }
             
-            // Music notes shedding from the spinning star
+            // Enhanced music notes with bloom effect
             if (Main.rand.NextBool(6))
             {
-                Color noteColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, Main.rand.NextFloat());
-                ThemedParticles.MusicNote(Projectile.Center, -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f), noteColor, 0.22f, 28);
+                EnhancedThemedParticles.MoonlightMusicNotesEnhanced(Projectile.Center, 1, 12f);
             }
             
             // Prismatic sparkle dust - floating gem particles

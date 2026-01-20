@@ -82,6 +82,41 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             return false;
         }
         
+        public override void HoldItem(Player player)
+        {
+            // === CELESTIAL COSMIC HOLD EFFECT ===
+            // Orbiting glyphs around the player
+            if (Main.rand.NextBool(8))
+            {
+                float angle = Main.GameUpdateCount * 0.04f;
+                for (int i = 0; i < 3; i++)
+                {
+                    float glyphAngle = angle + MathHelper.TwoPi * i / 3f;
+                    Vector2 glyphPos = player.Center + glyphAngle.ToRotationVector2() * 45f;
+                    CustomParticles.Glyph(glyphPos, FateCosmicVFX.FateDarkPink, 0.35f, -1);
+                }
+            }
+            
+            // Star sparkles ambient aura
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(35f, 35f);
+                var star = new GenericGlowParticle(player.Center + offset, Main.rand.NextVector2Circular(0.5f, 0.5f), 
+                    FateCosmicVFX.FateWhite, 0.22f, 18, true);
+                MagnumParticleHandler.SpawnParticle(star);
+            }
+            
+            // Cosmic cloud wisps while moving
+            if (player.velocity.Length() > 2f && Main.rand.NextBool(4))
+            {
+                FateCosmicVFX.SpawnCosmicCloudTrail(player.Center - player.velocity * 0.5f, player.velocity, 0.4f);
+            }
+            
+            // Pulsing cosmic light
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.15f + 0.85f;
+            Lighting.AddLight(player.Center, FateCosmicVFX.FateBrightRed.ToVector3() * pulse * 0.4f);
+        }
+        
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
             Vector2 swingPos = hitbox.Center.ToVector2();

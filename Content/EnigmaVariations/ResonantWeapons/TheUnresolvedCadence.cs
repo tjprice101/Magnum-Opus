@@ -83,6 +83,67 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             });
         }
         
+        public override void HoldItem(Player player)
+        {
+            // === ULTIMATE ENIGMA WEAPON - UNRESOLVED CADENCE HOLD EFFECT ===
+            // Inevitability stack visualization - orbiting glyphs equal to stack count
+            if (inevitabilityStacks > 0)
+            {
+                float baseAngle = Main.GameUpdateCount * 0.03f;
+                int visibleStacks = Math.Min(inevitabilityStacks, 10);
+                for (int i = 0; i < visibleStacks; i++)
+                {
+                    if (Main.rand.NextBool(12))
+                    {
+                        float stackAngle = baseAngle + MathHelper.TwoPi * i / visibleStacks;
+                        float stackRadius = 40f + (float)Math.Sin(Main.GameUpdateCount * 0.05f + i) * 8f;
+                        Vector2 stackPos = player.Center + stackAngle.ToRotationVector2() * stackRadius;
+                        Color stackColor = Color.Lerp(EnigmaPurple, EnigmaGreen, (float)i / visibleStacks);
+                        CustomParticles.Glyph(stackPos, stackColor, 0.3f + i * 0.02f);
+                    }
+                }
+                
+                // Near max stacks - reality warping intensifies!
+                if (inevitabilityStacks >= 7)
+                {
+                    if (Main.rand.NextBool(4))
+                    {
+                        Vector2 warpPos = player.Center + Main.rand.NextVector2Circular(60f, 60f);
+                        CustomParticles.GenericFlare(warpPos, EnigmaGreen, 0.35f, 15);
+                    }
+                    // Watching eyes everywhere
+                    if (Main.rand.NextBool(12))
+                    {
+                        float eyeAngle = Main.rand.NextFloat(MathHelper.TwoPi);
+                        Vector2 eyePos = player.Center + eyeAngle.ToRotationVector2() * Main.rand.NextFloat(50f, 80f);
+                        CustomParticles.EnigmaEyeGaze(eyePos, EnigmaGreen, 0.25f, (-eyeAngle).ToRotationVector2());
+                    }
+                }
+            }
+            
+            // Dimensional rift particles
+            if (Main.rand.NextBool(8))
+            {
+                Vector2 riftPos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
+                var rift = new GenericGlowParticle(riftPos, Main.rand.NextVector2Circular(1f, 1f), 
+                    GetEnigmaGradient(Main.rand.NextFloat()), 0.22f, 18, true);
+                MagnumParticleHandler.SpawnParticle(rift);
+            }
+            
+            // The blade's dimensional aura
+            if (Main.rand.NextBool(15))
+            {
+                Vector2 bladePos = player.Center + new Vector2(player.direction * 35f, -10f);
+                CustomParticles.GenericFlare(bladePos, EnigmaDeepPurple, 0.3f, 12);
+            }
+            
+            // Intense light based on inevitability stacks
+            float intensity = 0.3f + (inevitabilityStacks * 0.05f);
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.15f + 0.85f;
+            Color lightColor = Color.Lerp(EnigmaPurple, EnigmaGreen, inevitabilityStacks / 10f);
+            Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse * intensity);
+        }
+        
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             // Create dimensional slash

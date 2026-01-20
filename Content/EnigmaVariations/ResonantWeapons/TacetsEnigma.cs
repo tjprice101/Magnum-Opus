@@ -85,9 +85,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             // === AMBIENT ENIGMA AURA ===
             if (Main.GameUpdateCount % 5 == 0)
             {
-                // Get weapon position - toward cursor
-                Vector2 weaponPos = player.Center + (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX) * 30f;
-                
+                // Get weapon position - closer to player back
+                Vector2 weaponPos = player.Center + (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX) * 12f;
                 // Enigma particles around weapon
                 Vector2 particleVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1f, -0.5f));
                 Color particleColor = Color.Lerp(EnigmaGreen, EnigmaPurple, Main.rand.NextFloat());
@@ -112,8 +111,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             if (player.direction == -1)
                 player.itemRotation += MathHelper.Pi;
                 
-            // Position the item at an offset from player center
-            player.itemLocation = player.Center + toMouse.SafeNormalize(Vector2.UnitX) * 10f;
+            // Position the item at an offset from player center (closer to back)
+            player.itemLocation = player.Center + toMouse.SafeNormalize(Vector2.UnitX) * 4f;
         }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)

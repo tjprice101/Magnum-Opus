@@ -4,6 +4,7 @@ using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.MoonlightSonata.Enemies
 {
@@ -172,15 +173,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 
         public override void OnKill(int timeLeft)
         {
-            // Fade-out particles - purple and light blue
-            for (int i = 0; i < 10; i++)
-            {
-                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
-                Dust fade = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, dustType, 0f, 0f, 100, default, 0.8f);
-                fade.noGravity = true;
-                fade.velocity = Main.rand.NextVector2Circular(2f, 2f);
-                fade.fadeIn = 0.3f;
-            }
+            // Enhanced fade-out with bloom - purple and light blue
+            EnhancedThemedParticles.MoonlightBloomBurstEnhanced(Projectile.Center, 0.5f);
+            EnhancedParticles.BloomFlare(Projectile.Center, new Color(80, 40, 140), 0.35f, 15, 2, 0.6f);
+            EnhancedParticles.BloomFlare(Projectile.Center, new Color(140, 200, 255), 0.3f, 12, 2, 0.5f);
         }
     }
 }

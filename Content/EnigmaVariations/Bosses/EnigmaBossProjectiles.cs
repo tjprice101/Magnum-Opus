@@ -7,6 +7,7 @@ using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
 
 namespace MagnumOpus.Content.EnigmaVariations.Bosses
@@ -23,27 +24,42 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override void SetDefaults()
         {
-            Projectile.width = 20;
-            Projectile.height = 20;
+            Projectile.width = 8;
+            Projectile.height = 8;
             Projectile.hostile = true;
             Projectile.friendly = false;
             Projectile.tileCollide = true;
-            Projectile.timeLeft = 180;
+            Projectile.timeLeft = 150;
             Projectile.alpha = 0;
             Projectile.penetrate = 1;
+            Projectile.extraUpdates = 1; // Faster movement
+            Projectile.scale = 0.5f;
         }
         
         public override void AI()
         {
-            // Trail particles
+            // Shimmer pulse for dynamic lighting
+            float shimmerPulse = (float)Math.Sin(Projectile.timeLeft * 0.15f) * 0.3f + 0.7f;
+            
+            // Trail particles with variety
             if (Main.rand.NextBool(2))
             {
                 Color trailColor = Main.rand.NextBool() ? EnigmaPurple : EnigmaGreen;
-                CustomParticles.GenericGlow(Projectile.Center, trailColor * 0.6f, 0.3f, 15);
+                CustomParticles.GenericGlow(Projectile.Center, trailColor * 0.6f, 0.25f * shimmerPulse, 12);
+            }
+            
+            // Periodic sparkles for shimmer effect
+            if (Main.rand.NextBool(5))
+            {
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), 
+                    -Projectile.velocity * 0.1f, EnigmaGreen, 0.3f, 15);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
             Projectile.rotation = Projectile.velocity.ToRotation();
-            Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.4f);
+            
+            // Dynamic pulsing light
+            Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.5f * shimmerPulse);
         }
         
         public override void OnHitPlayer(Player target, Player.HurtInfo info)
@@ -53,8 +69,11 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override void OnKill(int timeLeft)
         {
-            UnifiedVFX.EnigmaVariations.Impact(Projectile.Center, 0.5f);
-            SoundEngine.PlaySound(SoundID.Item10 with { Pitch = 0.3f, Volume = 0.5f }, Projectile.Center);
+            // Compact impact - readable
+            UnifiedVFXBloom.EnigmaVariations.ImpactEnhanced(Projectile.Center, 0.25f);
+            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaGreen, 0.2f, 10, 2, 0.5f);
+            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaPurple, 0.15f, 8, 2, 0.4f);
+            SoundEngine.PlaySound(SoundID.Item10 with { Pitch = 0.3f, Volume = 0.4f }, Projectile.Center);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -83,28 +102,40 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override void SetDefaults()
         {
-            Projectile.width = 30;
-            Projectile.height = 30;
+            Projectile.width = 10;
+            Projectile.height = 10;
             Projectile.hostile = true;
             Projectile.friendly = false;
             Projectile.tileCollide = false;
-            Projectile.timeLeft = 120;
+            Projectile.timeLeft = 100;
             Projectile.penetrate = -1;
+            Projectile.scale = 0.5f;
         }
         
         public override void AI()
         {
-            Projectile.velocity.Y += 0.15f; // Slight gravity
-            Projectile.rotation += 0.1f;
+            Projectile.velocity.Y += 0.18f; // Slightly faster gravity
+            Projectile.rotation += 0.12f;
             
-            // Glyph particles
+            // Dynamic shimmer pulse
+            float shimmerPulse = (float)Math.Sin(Projectile.timeLeft * 0.2f) * 0.25f + 0.75f;
+            
+            // Glyph particles with variety
             if (Main.rand.NextBool(3))
             {
-                CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(10, 10), EnigmaPurple * 0.7f, 0.3f);
+                CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(8, 8), 
+                    EnigmaPurple * 0.7f * shimmerPulse, 0.25f);
             }
             
-            Projectile.alpha = (int)(255 * (1f - Projectile.timeLeft / 120f));
-            Lighting.AddLight(Projectile.Center, EnigmaPurple.ToVector3() * 0.3f);
+            // Eye sparkle effect
+            if (Main.rand.NextBool(8))
+            {
+                CustomParticles.EnigmaEyeGaze(Projectile.Center + Main.rand.NextVector2Circular(12f, 12f),
+                    EnigmaGreen * 0.6f, 0.2f, Projectile.velocity);
+            }
+            
+            Projectile.alpha = (int)(255 * (1f - Projectile.timeLeft / 100f));
+            Lighting.AddLight(Projectile.Center, EnigmaPurple.ToVector3() * 0.4f * shimmerPulse);
         }
         
         public override void OnHitPlayer(Player target, Player.HurtInfo info)
@@ -138,35 +169,48 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override void SetDefaults()
         {
-            Projectile.width = 24;
-            Projectile.height = 24;
+            Projectile.width = 8;
+            Projectile.height = 8;
             Projectile.hostile = true;
             Projectile.friendly = false;
             Projectile.tileCollide = false;
-            Projectile.timeLeft = 300;
+            Projectile.timeLeft = 240;
             Projectile.penetrate = 1;
+            Projectile.scale = 0.55f;
         }
         
         public override void AI()
         {
-            // Homing
+            // Dynamic shimmer pulse
+            float shimmerPulse = (float)Math.Sin(Projectile.timeLeft * 0.12f) * 0.2f + 0.8f;
+            
+            // Homing with faster speed
             Player target = Main.player[TargetWhoAmI];
             if (target.active && !target.dead)
             {
                 Vector2 toTarget = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                float homingStrength = 0.08f;
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * 12f, homingStrength);
+                float homingStrength = 0.06f;
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * 14f, homingStrength);
             }
             
             Projectile.rotation = Projectile.velocity.ToRotation();
             
-            // Trail
-            if (Main.rand.NextBool(3))
+            // Rich trail with variety
+            if (Main.rand.NextBool(2))
             {
-                CustomParticles.GenericGlow(Projectile.Center, EnigmaGreen * 0.5f, 0.2f, 15);
+                Color trailColor = Color.Lerp(EnigmaGreen, new Color(100, 255, 150), Main.rand.NextFloat()) * 0.5f;
+                CustomParticles.GenericGlow(Projectile.Center, trailColor, 0.18f * shimmerPulse, 12);
             }
             
-            Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.4f);
+            // Occasional eye sparkle
+            if (Main.rand.NextBool(6))
+            {
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    -Projectile.velocity * 0.05f, EnigmaGreen, 0.25f, 12);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.5f * shimmerPulse);
         }
         
         public override void OnHitPlayer(Player target, Player.HurtInfo info)
@@ -176,8 +220,11 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override void OnKill(int timeLeft)
         {
-            CustomParticles.EnigmaEyeGaze(Projectile.Center, EnigmaGreen, 0.4f, Projectile.rotation.ToRotationVector2());
-            SoundEngine.PlaySound(SoundID.Item8 with { Pitch = -0.2f, Volume = 0.5f }, Projectile.Center);
+            // Compact eye death
+            CustomParticles.EnigmaEyeGaze(Projectile.Center, EnigmaGreen, 0.22f, Projectile.rotation.ToRotationVector2());
+            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaGreen, 0.18f, 8, 2, 0.5f);
+            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(Projectile.Center, 0.2f);
+            SoundEngine.PlaySound(SoundID.Item8 with { Pitch = -0.2f, Volume = 0.4f }, Projectile.Center);
         }
     }
     
@@ -255,8 +302,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override void SetDefaults()
         {
-            Projectile.width = 60;
-            Projectile.height = 80;
+            Projectile.width = 30;
+            Projectile.height = 40;
             Projectile.hostile = true;
             Projectile.friendly = false;
             Projectile.tileCollide = false;
@@ -309,12 +356,12 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
-            // Shockwave effect
+            // Shockwave effect - scaled for player-sized projectile
             float progress = 1f - Projectile.timeLeft / (90f - DelayFrames);
             float alpha = 1f - progress;
             
-            Main.spriteBatch.Draw(glow, pos, null, EnigmaPurple * alpha, 0f, glow.Size() / 2, new Vector2(1.5f, 2f), SpriteEffects.None, 0f);
-            Main.spriteBatch.Draw(glow, pos, null, EnigmaGreen * alpha * 0.6f, 0f, glow.Size() / 2, new Vector2(1f, 1.5f), SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(glow, pos, null, EnigmaPurple * alpha, 0f, glow.Size() / 2, new Vector2(0.5f, 0.6f), SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(glow, pos, null, EnigmaGreen * alpha * 0.6f, 0f, glow.Size() / 2, new Vector2(0.35f, 0.45f), SpriteEffects.None, 0f);
             
             return false;
         }
@@ -378,7 +425,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override void OnKill()
         {
-            UnifiedVFX.EnigmaVariations.Impact(NPC.Center, 0.4f);
+            // Enhanced death with multi-layer bloom
+            UnifiedVFXBloom.EnigmaVariations.ImpactEnhanced(NPC.Center, 0.4f);
+            EnhancedParticles.BloomFlare(NPC.Center, EnigmaPurple, 0.35f, 15, 3, 0.7f);
         }
         
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)

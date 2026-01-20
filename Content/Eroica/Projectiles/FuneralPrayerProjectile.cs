@@ -5,6 +5,8 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -132,21 +134,19 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // Enhanced explosion using ThemedParticles
-            ThemedParticles.EroicaImpact(Projectile.Center, 2f);
+            // === ENHANCED FUNERAL PYRE EXPLOSION WITH MULTI-LAYER BLOOM ===
+            // Central flash with proper bloom stacking
+            EnhancedParticles.BloomFlare(Projectile.Center, Color.White, 0.8f, 25, 4, 1.2f);
+            EnhancedParticles.BloomFlare(Projectile.Center, ThemedParticles.EroicaCrimson, 0.7f, 22, 3, 1.0f);
+            
+            // Enhanced Eroica impact with full bloom
+            UnifiedVFXBloom.Eroica.ExplosionEnhanced(Projectile.Center, 1.5f);
             
             // Unique funeral pyre burst - dark crimson with scattered embers
             CustomParticles.ExplosionBurst(Projectile.Center, new Color(120, 20, 20), 16, 7f);
-            CustomParticles.EroicaFlare(Projectile.Center, 0.8f);
-            CustomParticles.GenericGlow(Projectile.Center, new Color(255, 80, 40), 1.2f, 35);
-            // Scattered ember flares using EnergyFlares[3] (sharp burst)
-            for (int i = 0; i < 3; i++)
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
-                var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[3], Projectile.Center + offset, Vector2.Zero,
-                    new Color(255, 60 + i * 30, 20), 0.4f, 20, 0.01f, true, true);
-                CustomParticleSystem.SpawnParticle(p);
-            }
+            
+            // Enhanced music notes finale
+            EnhancedThemedParticles.EroicaMusicNotesEnhanced(Projectile.Center, 6, 40f);
             
             // Large fiery explosion (reduced count)
             for (int i = 0; i < 20; i++)

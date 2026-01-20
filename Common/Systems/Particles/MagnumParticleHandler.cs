@@ -35,6 +35,11 @@ namespace MagnumOpus.Common.Systems.Particles
         public const int MaxParticles = 3000;
         
         /// <summary>
+        /// Gets the current number of active particles. Used by BossVFXOptimizer for quality scaling.
+        /// </summary>
+        public static int ActiveParticleCount => particles?.Count ?? 0;
+        
+        /// <summary>
         /// Distance threshold for culling particles outside the visible screen area.
         /// Particles beyond this distance from the screen center won't render but still update.
         /// </summary>
@@ -297,8 +302,16 @@ namespace MagnumOpus.Common.Systems.Particles
             else if (particleTextures.TryGetValue(particle.Type, out Texture2D texture))
             {
                 Rectangle frame = texture.Frame(1, particle.FrameVariants, 0, particle.Variant);
-                sb.Draw(texture, particle.Position - Main.screenPosition, frame,
-                    particle.Color, particle.Rotation, frame.Size() * 0.5f, particle.Scale, SpriteEffects.None, 0f);
+                Vector2 origin = frame.Size() * 0.5f;
+                Vector2 drawPos = particle.Position - Main.screenPosition;
+                
+                // FARGOS PATTERN: For additive blending, use { A = 0 } to remove alpha channel
+                // This creates proper glow effects without darkening
+                Color drawColor = particle.UseAdditiveBlend 
+                    ? particle.Color with { A = 0 }  // Key Fargos pattern!
+                    : particle.Color;
+                
+                sb.Draw(texture, drawPos, frame, drawColor, particle.Rotation, origin, particle.Scale, SpriteEffects.None, 0f);
             }
         }
 

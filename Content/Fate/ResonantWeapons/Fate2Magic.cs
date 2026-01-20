@@ -8,6 +8,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Fate.Debuffs;
 using MagnumOpus.Content.Fate.Projectiles;
@@ -50,6 +51,41 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             {
                 OverrideColor = FateCosmicVFX.FateBrightRed
             });
+        }
+        
+        public override void HoldItem(Player player)
+        {
+            // === SPECTRAL BLADE STORM HOLD EFFECT ===
+            // Ghostly blade echoes orbiting
+            if (Main.rand.NextBool(8))
+            {
+                float angle = Main.GameUpdateCount * 0.05f + Main.rand.NextFloat(MathHelper.TwoPi);
+                Vector2 bladePos = player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(40f, 60f);
+                Color bladeColor = Color.Lerp(FateCosmicVFX.FateDarkPink, FateCosmicVFX.FateWhite, Main.rand.NextFloat());
+                var blade = new GenericGlowParticle(bladePos, angle.ToRotationVector2() * 0.8f, bladeColor * 0.6f, 0.22f, 16, true);
+                MagnumParticleHandler.SpawnParticle(blade);
+            }
+            
+            // Glyphs in storm pattern
+            if (Main.rand.NextBool(12))
+            {
+                float stormAngle = Main.GameUpdateCount * 0.07f;
+                float stormRadius = 35f + (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 15f;
+                CustomParticles.Glyph(player.Center + stormAngle.ToRotationVector2() * stormRadius, 
+                    FateCosmicVFX.FatePurple, 0.3f, -1);
+            }
+            
+            // Star sparkles in tempest
+            if (Main.rand.NextBool(6))
+            {
+                var star = new GenericGlowParticle(player.Center + Main.rand.NextVector2Circular(45f, 45f),
+                    Main.rand.NextVector2Circular(1f, 1f), FateCosmicVFX.FateWhite, 0.17f, 15, true);
+                MagnumParticleHandler.SpawnParticle(star);
+            }
+            
+            // Storm energy light
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.15f + 0.85f;
+            Lighting.AddLight(player.Center, FateCosmicVFX.FateDarkPink.ToVector3() * pulse * 0.4f);
         }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)

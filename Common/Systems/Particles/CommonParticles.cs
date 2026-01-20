@@ -132,8 +132,25 @@ namespace MagnumOpus.Common.Systems.Particles
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
             Texture2D tex = ParticleTextureHelper.GetTexture(Texture);
-            spriteBatch.Draw(tex, Position - Main.screenPosition, null, Color * (Fade ? opacity : 1f), 
-                0, tex.Size() / 2f, Scale, SpriteEffects.None, 0);
+            Vector2 drawPos = Position - Main.screenPosition;
+            Vector2 origin = tex.Size() / 2f;
+            
+            // FARGOS PATTERN: Multi-layer bloom stacking with { A = 0 }
+            // Draw 4 layers from largest (faint) to smallest (bright)
+            float[] scales = { 2.0f, 1.4f, 0.9f, 0.4f };
+            float[] opacities = { 0.3f, 0.5f, 0.7f, 0.85f };
+            float baseAlpha = Fade ? opacity : 1f;
+            
+            // CRITICAL: Remove alpha channel for proper additive blending
+            Color bloomColor = Color with { A = 0 };
+            
+            for (int i = 0; i < 4; i++)
+            {
+                float layerScale = Scale * scales[i];
+                float layerAlpha = baseAlpha * opacities[i];
+                spriteBatch.Draw(tex, drawPos, null, bloomColor * layerAlpha, 
+                    0, origin, layerScale, SpriteEffects.None, 0);
+            }
         }
     }
 
@@ -171,8 +188,22 @@ namespace MagnumOpus.Common.Systems.Particles
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
             Texture2D tex = ParticleTextureHelper.GetTexture(Texture);
-            spriteBatch.Draw(tex, Position - Main.screenPosition, null, Color * opacity, 
-                Rotation, tex.Size() / 2f, Scale, SpriteEffects.None, 0);
+            Vector2 drawPos = Position - Main.screenPosition;
+            Vector2 origin = tex.Size() / 2f;
+            
+            // FARGOS PATTERN: Multi-layer bloom for ring with { A = 0 }
+            // Ring uses fewer layers for performance but still gets the bloom look
+            Color bloomColor = Color with { A = 0 };
+            
+            // Outer glow layer
+            spriteBatch.Draw(tex, drawPos, null, bloomColor * (opacity * 0.4f), 
+                Rotation, origin, Scale * 1.3f, SpriteEffects.None, 0);
+            // Main ring layer
+            spriteBatch.Draw(tex, drawPos, null, bloomColor * (opacity * 0.7f), 
+                Rotation, origin, Scale, SpriteEffects.None, 0);
+            // Inner bright layer
+            spriteBatch.Draw(tex, drawPos, null, bloomColor * (opacity * 0.9f), 
+                Rotation, origin, Scale * 0.7f, SpriteEffects.None, 0);
         }
     }
 
@@ -230,12 +261,25 @@ namespace MagnumOpus.Common.Systems.Particles
             Texture2D bloomTexture = ParticleTextureHelper.GetTexture("BloomCircle");
             
             float properBloomSize = (float)starTexture.Height / (float)bloomTexture.Height;
+            Vector2 drawPos = Position - Main.screenPosition;
+            
+            // FARGOS PATTERN: Remove alpha channel for proper additive blending
+            Color bloomDrawColor = Bloom with { A = 0 };
+            Color sparkleDrawColor = Color with { A = 0 };
 
-            // Draw bloom behind
-            spriteBatch.Draw(bloomTexture, Position - Main.screenPosition, null, Bloom * opacity * 0.5f, 
+            // Draw multi-layer bloom behind (Fargos style)
+            // Layer 1: Outer soft glow
+            spriteBatch.Draw(bloomTexture, drawPos, null, bloomDrawColor * opacity * 0.25f, 
+                0, bloomTexture.Size() / 2f, Scale * BloomScale * properBloomSize * 1.5f, SpriteEffects.None, 0);
+            // Layer 2: Main bloom
+            spriteBatch.Draw(bloomTexture, drawPos, null, bloomDrawColor * opacity * 0.5f, 
                 0, bloomTexture.Size() / 2f, Scale * BloomScale * properBloomSize, SpriteEffects.None, 0);
+            // Layer 3: Inner bright bloom
+            spriteBatch.Draw(bloomTexture, drawPos, null, bloomDrawColor * opacity * 0.7f, 
+                0, bloomTexture.Size() / 2f, Scale * BloomScale * properBloomSize * 0.6f, SpriteEffects.None, 0);
+            
             // Draw sparkle
-            spriteBatch.Draw(starTexture, Position - Main.screenPosition, null, Color * opacity, 
+            spriteBatch.Draw(starTexture, drawPos, null, sparkleDrawColor * opacity, 
                 Rotation, starTexture.Size() / 2f, Scale, SpriteEffects.None, 0);
         }
     }
@@ -350,8 +394,24 @@ namespace MagnumOpus.Common.Systems.Particles
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
             Texture2D tex = ParticleTextureHelper.GetTexture(Texture);
-            spriteBatch.Draw(tex, Position - Main.screenPosition, null, Color * opacity, 
-                Rotation, tex.Size() / 2f, Scale, SpriteEffects.None, 0);
+            Vector2 drawPos = Position - Main.screenPosition;
+            Vector2 origin = tex.Size() / 2f;
+            
+            // FARGOS PATTERN: Multi-layer bloom with { A = 0 }
+            Color bloomColor = Color with { A = 0 };
+            
+            // Layer 1: Outer soft glow
+            spriteBatch.Draw(tex, drawPos, null, bloomColor * (opacity * 0.3f), 
+                Rotation, origin, Scale * 1.6f, SpriteEffects.None, 0);
+            // Layer 2: Mid glow
+            spriteBatch.Draw(tex, drawPos, null, bloomColor * (opacity * 0.5f), 
+                Rotation, origin, Scale * 1.2f, SpriteEffects.None, 0);
+            // Layer 3: Main glow
+            spriteBatch.Draw(tex, drawPos, null, bloomColor * (opacity * 0.75f), 
+                Rotation, origin, Scale, SpriteEffects.None, 0);
+            // Layer 4: Inner bright core
+            spriteBatch.Draw(tex, drawPos, null, bloomColor * (opacity * 0.9f), 
+                Rotation, origin, Scale * 0.5f, SpriteEffects.None, 0);
         }
     }
 

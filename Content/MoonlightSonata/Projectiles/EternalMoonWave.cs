@@ -6,6 +6,7 @@ using Terraria.ModLoader;
 using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 {
@@ -41,23 +42,27 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
             
-            // === CALAMITY-INSPIRED MULTI-LAYER TRAIL ===
+            // === ENHANCED MULTI-LAYER TRAIL WITH BLOOM ===
             // Enhanced trail using ThemedParticles
             ThemedParticles.MoonlightTrail(Projectile.Center, Projectile.velocity);
             
             // Musical note trail - floating notes shed from the wave
             ThemedParticles.MoonlightMusicTrail(Projectile.Center, Projectile.velocity);
             
-            // Core glowing particles with gradient
+            // Core glowing particles with gradient using enhanced system
             for (int i = 0; i < 2; i++)
             {
                 Vector2 offset = Main.rand.NextVector2Circular(14f, 14f);
                 float progress = Main.rand.NextFloat();
-                Color trailColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
+                Color trailColor = Color.Lerp(ThemedParticles.MoonlightDarkPurple, ThemedParticles.MoonlightLightBlue, progress);
                 
-                var glow = new GenericGlowParticle(Projectile.Center + offset, -Projectile.velocity * 0.15f,
-                    trailColor, 0.28f + progress * 0.12f, 16, true);
-                MagnumParticleHandler.SpawnParticle(glow);
+                // Enhanced particle with bloom stacking
+                var glow = EnhancedParticlePool.GetParticle()
+                    .Setup(CustomParticleSystem.RandomGlow(), Projectile.Center + offset, -Projectile.velocity * 0.15f,
+                        trailColor, 0.28f + progress * 0.12f, 16)
+                    .WithBloom(3, 0.8f)
+                    .WithDrag(0.95f);
+                EnhancedParticlePool.SpawnParticle(glow);
             }
             
             // Vivid flare accents
@@ -102,55 +107,25 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             // Apply Musical Dissonance debuff
             target.AddBuff(ModContent.BuffType<Debuffs.MusicsDissonance>(), 180);
             
-            // === CALAMITY-INSPIRED IMPACT ===
-            // Central flash
-            CustomParticles.GenericFlare(target.Center, Color.White * 0.9f, 0.6f, 18);
-            CustomParticles.GenericFlare(target.Center, UnifiedVFX.MoonlightSonata.LightBlue, 0.5f, 16);
+            // === ENHANCED IMPACT WITH MULTI-LAYER BLOOM ===
+            // Central flash with proper bloom stacking
+            EnhancedParticles.BloomFlare(target.Center, Color.White * 0.9f, 0.6f, 18, 4, 1.0f);
+            EnhancedParticles.BloomFlare(target.Center, ThemedParticles.MoonlightLightBlue, 0.5f, 16, 3, 0.85f);
             
-            // Fractal flare burst - 6-point star
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 flareOffset = angle.ToRotationVector2() * 28f;
-                float progress = (float)i / 6f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
-                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.42f, 16);
-            }
-            
-            // Gradient halo rings
-            for (int ring = 0; ring < 3; ring++)
-            {
-                float ringProgress = (float)ring / 3f;
-                Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, ringProgress);
-                CustomParticles.HaloRing(target.Center, ringColor, 0.25f + ring * 0.1f, 12 + ring * 3);
-            }
-            
-            // Spark spray
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f + Main.rand.NextFloat(-0.2f, 0.2f);
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
-                float progress = (float)i / 8f;
-                Color sparkColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, progress);
-                
-                var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.3f, 18, true);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            // Music notes on hit
-            ThemedParticles.MoonlightMusicNotes(target.Center, 4, 28f);
+            // Enhanced themed impact with full bloom
+            UnifiedVFXBloom.MoonlightSonata.ImpactEnhanced(target.Center, 0.8f);
         }
 
         public override void OnKill(int timeLeft)
         {
-            // === DEATH BURST ===
-            CustomParticles.GenericFlare(Projectile.Center, UnifiedVFX.MoonlightSonata.LightPurple, 0.55f, 18);
+            // === ENHANCED DEATH BURST WITH BLOOM ===
+            EnhancedParticles.BloomFlare(Projectile.Center, ThemedParticles.MoonlightLightPurple, 0.55f, 18, 3, 0.9f);
             
-            // Bloom burst
-            ThemedParticles.MoonlightBloomBurst(Projectile.Center, 0.7f);
+            // Enhanced bloom burst
+            EnhancedThemedParticles.MoonlightBloomBurstEnhanced(Projectile.Center, 0.8f);
             
-            // Musical death burst
-            ThemedParticles.MoonlightMusicalImpact(Projectile.Center, 0.55f, false);
+            // Enhanced musical death burst with bloom
+            EnhancedThemedParticles.MoonlightMusicNotesEnhanced(Projectile.Center, 5, 30f);
             
             // Dissipation particles
             for (int i = 0; i < 10; i++)

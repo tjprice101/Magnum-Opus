@@ -4,6 +4,8 @@ using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Enemies
 {
@@ -77,16 +79,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 
         public override void OnKill(int timeLeft)
         {
-            // Explosion particles - purple and light blue
-            for (int i = 0; i < 12; i++)
-            {
-                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
-                Dust explosion = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, dustType, 0f, 0f, 100, default, 1.4f);
-                explosion.noGravity = true;
-                explosion.velocity = Main.rand.NextVector2Circular(5f, 5f);
-            }
-
-            // Snow burst
+            // Enhanced explosion with multi-layer bloom - purple and light blue
+            UnifiedVFXBloom.MoonlightSonata.ImpactEnhanced(Projectile.Center, 0.8f);
+            EnhancedParticles.BloomFlare(Projectile.Center, new Color(80, 40, 140), 0.5f, 18, 3, 0.8f);
+            EnhancedParticles.BloomFlare(Projectile.Center, new Color(140, 200, 255), 0.4f, 15, 3, 0.7f);
+            
+            // Snow burst with dust
             for (int i = 0; i < 8; i++)
             {
                 Dust snow = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Snow, 0f, 0f, 100, default, 1.2f);

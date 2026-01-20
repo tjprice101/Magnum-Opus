@@ -12,6 +12,7 @@ using MagnumOpus.Content.LaCampanella.ResonanceEnergies;
 using MagnumOpus.Content.LaCampanella.HarmonicCores;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.LaCampanella.Enemies
 {
@@ -718,7 +719,9 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 
         public override void OnKill(int timeLeft)
         {
-            CustomParticles.GenericFlare(Projectile.Center, CampanellaOrange, 0.4f, 15);
+            // Enhanced with multi-layer bloom
+            EnhancedParticles.BloomFlare(Projectile.Center, CampanellaOrange, 0.4f, 15, 3, 0.7f);
+            EnhancedThemedParticles.LaCampanellaBloomBurstEnhanced(Projectile.Center, 0.3f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -869,7 +872,8 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 
         public override void OnKill(int timeLeft)
         {
-            CustomParticles.GenericFlare(Projectile.Center, CampanellaOrange, 0.3f, 12);
+            // Enhanced with multi-layer bloom
+            EnhancedParticles.BloomFlare(Projectile.Center, CampanellaOrange, 0.3f, 12, 2, 0.6f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -998,8 +1002,10 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 
         public override void OnKill(int timeLeft)
         {
-            CustomParticles.GenericFlare(Projectile.Center, CampanellaOrange, 0.5f, 18);
-            CustomParticles.GenericFlare(Projectile.Center, CampanellaYellow, 0.3f, 15);
+            // Enhanced with multi-layer bloom
+            EnhancedParticles.BloomFlare(Projectile.Center, CampanellaOrange, 0.5f, 18, 3, 0.8f);
+            EnhancedParticles.BloomFlare(Projectile.Center, CampanellaYellow, 0.3f, 15, 2, 0.7f);
+            UnifiedVFXBloom.LaCampanella.ImpactEnhanced(Projectile.Center, 0.6f);
             SoundEngine.PlaySound(SoundID.Item14 with { Volume = 0.5f }, Projectile.Center);
 
             for (int i = 0; i < 10; i++)

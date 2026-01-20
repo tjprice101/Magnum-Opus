@@ -742,7 +742,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class StolenValorMinionShot : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Fireball;
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
 
         public override void SetDefaults()
         {
@@ -783,7 +783,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class StolenValorChargeWave : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Flames;
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
 
         public override void SetDefaults()
         {
@@ -820,7 +820,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class StolenValorOrbitalShot : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Fireball;
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
 
         public override void SetDefaults()
         {
@@ -861,7 +861,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class StolenValorCageOrb : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.InfernoFriendlyBlast;
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
 
         public override void SetDefaults()
         {
@@ -917,7 +917,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class StolenValorTriumphWave : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Flames;
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
 
         public override void SetDefaults()
         {

@@ -163,15 +163,11 @@ Mods: {
 				DisplayName: Harmonic Core of La Campanella
 				Tooltip:
 					'''
-					[Tier 4 Harmonic Core] - Equip in Harmonic Core UI
-					All Classes: +10% Damage
-					◆ CHROMATIC MODE (Offensive):
-					   Bell's Toll: +8% damage, crits trigger echo damage
-					   Bell Resonance: 12 hit stacks, then crit = TRIPLE damage + AOE blast
-					◇ DIATONIC MODE (Defensive):
-					   Bell's Ward: +12 DEF, +12% damage reduction
-					   Sanctuary Bells: Taking damage reflects to nearby enemies, heals 6 HP/2.5s
-					'The bells ring with devastating precision'
+					'The Maestro's heart - where virtuosity becomes power'
+					A Tier 4 Harmonic Core forged from the eternal flames of Liszt's passion
+					Equip in the Harmonic Core slot to conduct the infernal symphony
+					Toggle between Chromatic (offensive) and Diatonic (defensive) modes
+					'The bells toll in harmony - and the world trembles'
 					'''
 			}
 
@@ -608,81 +604,6 @@ Buffs: {
 }
 
 Items: {
-	MoonlightsResonantEnergy: {
-		DisplayName: Moonlight's Resonant Energy
-		Tooltip: ""
-	}
-
-	EroicasResonantEnergy: {
-		DisplayName: Eroica's Resonant Energy
-		Tooltip: ""
-	}
-
-	RemnantOfEroicasTriumph: {
-		DisplayName: Remnant Of Eroica's Triumph
-		Tooltip: ""
-	}
-
-	ResonantCoreOfEroica: {
-		DisplayName: Resonant Core Of Eroica
-		Tooltip: ""
-	}
-
-	MoonlightAnvil: {
-		DisplayName: Moonlight Anvil
-		Tooltip: ""
-	}
-
-	MoonlightFurnace: {
-		DisplayName: Moonlight Furnace
-		Tooltip: ""
-	}
-
-	RemnantOfMoonlightsHarmony: {
-		DisplayName: Remnant Of Moonlight's Harmony
-		Tooltip: ""
-	}
-
-	ResonantCoreOfMoonlightSonata: {
-		DisplayName: Resonant Core Of Moonlight Sonata
-		Tooltip: ""
-	}
-
-	IncisorOfMoonlight: {
-		DisplayName: Incisor Of Moonlight
-		Tooltip: ""
-	}
-
-	MoonlightsAxe: {
-		DisplayName: Moonlight's Axe
-		Tooltip: ""
-	}
-
-	MoonlightsHammer: {
-		DisplayName: Moonlight's Hammer
-		Tooltip: ""
-	}
-
-	MoonlightsPickaxe: {
-		DisplayName: Moonlight's Pickaxe
-		Tooltip: ""
-	}
-
-	EroicaResonanceOre: {
-		DisplayName: Eroica Resonance Ore
-		Tooltip: ""
-	}
-
-	ResonanceAwakener: {
-		DisplayName: Resonance Awakener
-		Tooltip: ""
-	}
-
-	MoonlitResonanceOre: {
-		DisplayName: Moonlit Resonance Ore
-		Tooltip: ""
-	}
-
 	SwanLakeResonanceOre: {
 		DisplayName: Swan Lake Resonance Ore
 		Tooltip:
@@ -760,11 +681,6 @@ Items: {
 			'''
 	}
 
-	BlossomOfTheSakura: {
-		DisplayName: Blossom Of The Sakura
-		Tooltip: ""
-	}
-
 	FuneralPrayer: {
 		DisplayName: Funeral Prayer
 		Tooltip:
@@ -774,11 +690,6 @@ Items: {
 			When all beams strike, unleashes a devastating ricochet beam
 			Low mana cost for its power
 			'''
-	}
-
-	SakurasBlossom: {
-		DisplayName: Sakura's Blossom
-		Tooltip: ""
 	}
 
 	FinalityOfTheSakura: {
@@ -883,69 +794,6 @@ Items: {
 			'''
 	}
 
-	EroicasAxe: {
-		DisplayName: Eroica's Axe
-		Tooltip: ""
-	}
-
-	EroicasHammer: {
-		DisplayName: Eroica's Hammer
-		Tooltip: ""
-	}
-
-	EroicasPickaxe: {
-		DisplayName: Eroica's Pickaxe
-		Tooltip: ""
-	}
-
-	HarmonicCoreOfEnigma: {
-		DisplayName: Harmonic Core Of Enigma
-		Tooltip: ""
-	}
-
-	ResonantCoreOfEnigma: {
-		DisplayName: Resonant Core Of Enigma
-		Tooltip: ""
-	}
-
-	EnigmaResonantEnergy: {
-		DisplayName: Enigma Resonant Energy
-		Tooltip: ""
-	}
-
-	HarmonicCoreOfEroica: {
-		DisplayName: Harmonic Core Of Eroica
-		Tooltip: ""
-	}
-
-	HarmonicCoreOfFate: {
-		DisplayName: Harmonic Core Of Fate
-		Tooltip: ""
-	}
-
-	ResonantCoreOfFate: {
-		DisplayName: Resonant Core Of Fate
-		Tooltip: ""
-	}
-
-	FateResonantEnergy: {
-		DisplayName: Fate Resonant Energy
-		Tooltip: ""
-	}
-
-	HarmonicCoreOfLaCampanella: {
-		DisplayName: Harmonic Core of La Campanella
-		Tooltip:
-			'''
-			[Tier 4 Harmonic Core] - Equip in Harmonic Core UI
-			'The Maestro's heart - where virtuosity becomes power'
-			All Classes: +10% Damage
-			◆ CHROMATIC: +8% damage, crits trigger bell echoes, 12-stack crit = TRIPLE + AOE
-			◇ DIATONIC: +12 DEF, +12% DR, reflects damage as fire, heals 6 HP/2.5s
-			'The bells toll in harmony - and the world trembles'
-			'''
-	}
-
 	ResonantCoreOfLaCampanella: {
 		DisplayName: Resonant Core of La Campanella
 		Tooltip:
@@ -966,11 +814,6 @@ Items: {
 			'''
 	}
 
-	HarmonicCoreOfMoonlightSonata: {
-		DisplayName: Harmonic Core Of Moonlight Sonata
-		Tooltip: ""
-	}
-
 	HarmonicCoreOfSwanLake: {
 		DisplayName: Harmonic Core of Swan Lake
 		Tooltip:
@@ -989,61 +832,6 @@ Items: {
 			A key component for Swan Lake crafting
 			'Each facet reflects a different dancer'
 			'''
-	}
-
-	WingsOfTheMoon: {
-		DisplayName: Wings Of The Moon
-		Tooltip: ""
-	}
-
-	ResurrectionOfTheMoon: {
-		Tooltip: ""
-		DisplayName: Resurrection Of The Moon
-	}
-
-	FuneralMarchInsignia: {
-		DisplayName: Funeral March Insignia
-		Tooltip: ""
-	}
-
-	PyreOfTheFallenHero: {
-		DisplayName: Pyre Of The Fallen Hero
-		Tooltip: ""
-	}
-
-	SakurasBurningWill: {
-		DisplayName: Sakura's Burning Will
-		Tooltip: ""
-	}
-
-	SymphonyOfScarletFlames: {
-		DisplayName: Symphony Of Scarlet Flames
-		Tooltip: ""
-	}
-
-	ShardOfTriumphsTempo: {
-		DisplayName: Shard Of Triumph's Tempo
-		Tooltip: ""
-	}
-
-	BellOfEroica: {
-		DisplayName: Bell Of Eroica
-		Tooltip: ""
-	}
-
-	HeartOfMusic: {
-		DisplayName: Heart Of Music
-		Tooltip: ""
-	}
-
-	EroicaTreasureBag: {
-		DisplayName: Eroica Treasure Bag
-		Tooltip: ""
-	}
-
-	ReincarnatedValor: {
-		DisplayName: Reincarnated Valor
-		Tooltip: ""
 	}
 
 	RemnantOfSwansHarmony: {
@@ -1223,21 +1011,6 @@ Items: {
 			Grants infinite flight while transformed
 			'The Swan's power courses through your veins...'
 			'''
-	}
-
-	ScoreOfSwanLake: {
-		Tooltip: ""
-		DisplayName: Score Of Swan Lake
-	}
-
-	SwanLakeTreasureBag: {
-		Tooltip: ""
-		DisplayName: Swan Lake Treasure Bag
-	}
-
-	SeedOfUniversalMelodies: {
-		DisplayName: Seed Of Universal Melodies
-		Tooltip: ""
 	}
 
 	CampanellasPyreMedallion: {
@@ -1687,6 +1460,221 @@ Items: {
 			Used in crafting Enigma equipment
 			'''
 	}
+
+	HarmonicCoreOfEnigma: {
+		DisplayName: Harmonic Core Of Enigma
+		Tooltip: ""
+	}
+
+	ResonantCoreOfEnigma: {
+		DisplayName: Resonant Core Of Enigma
+		Tooltip: ""
+	}
+
+	EnigmaResonantEnergy: {
+		DisplayName: Enigma Resonant Energy
+		Tooltip: ""
+	}
+
+	FuneralMarchInsignia: {
+		DisplayName: Funeral March Insignia
+		Tooltip: ""
+	}
+
+	PyreOfTheFallenHero: {
+		DisplayName: Pyre Of The Fallen Hero
+		Tooltip: ""
+	}
+
+	SakurasBurningWill: {
+		DisplayName: Sakuras Burning Will
+		Tooltip: ""
+	}
+
+	SymphonyOfScarletFlames: {
+		DisplayName: Symphony Of Scarlet Flames
+		Tooltip: ""
+	}
+
+	EroicaTreasureBag: {
+		DisplayName: Eroica Treasure Bag
+		Tooltip: ""
+	}
+
+	ShardOfTriumphsTempo: {
+		DisplayName: Shard Of Triumphs Tempo
+		Tooltip: ""
+	}
+
+	HarmonicCoreOfEroica: {
+		DisplayName: Harmonic Core Of Eroica
+		Tooltip: ""
+	}
+
+	BellOfEroica: {
+		DisplayName: Bell Of Eroica
+		Tooltip: ""
+	}
+
+	EroicasResonantEnergy: {
+		DisplayName: Eroicas Resonant Energy
+		Tooltip: ""
+	}
+
+	RemnantOfEroicasTriumph: {
+		DisplayName: Remnant Of Eroicas Triumph
+		Tooltip: ""
+	}
+
+	ResonantCoreOfEroica: {
+		DisplayName: Resonant Core Of Eroica
+		Tooltip: ""
+	}
+
+	EroicaResonanceOre: {
+		DisplayName: Eroica Resonance Ore
+		Tooltip: ""
+	}
+
+	BlossomOfTheSakura: {
+		DisplayName: Blossom Of The Sakura
+		Tooltip: ""
+	}
+
+	SakurasBlossom: {
+		DisplayName: Sakuras Blossom
+		Tooltip: ""
+	}
+
+	EroicasAxe: {
+		DisplayName: Eroicas Axe
+		Tooltip: ""
+	}
+
+	EroicasHammer: {
+		DisplayName: Eroicas Hammer
+		Tooltip: ""
+	}
+
+	EroicasPickaxe: {
+		DisplayName: Eroicas Pickaxe
+		Tooltip: ""
+	}
+
+	ReincarnatedValor: {
+		DisplayName: Reincarnated Valor
+		Tooltip: ""
+	}
+
+	HarmonicCoreOfFate: {
+		DisplayName: Harmonic Core Of Fate
+		Tooltip: ""
+	}
+
+	ResonantCoreOfFate: {
+		DisplayName: Resonant Core Of Fate
+		Tooltip: ""
+	}
+
+	FateResonantEnergy: {
+		DisplayName: Fate Resonant Energy
+		Tooltip: ""
+	}
+
+	HeartOfMusic: {
+		DisplayName: Heart Of Music
+		Tooltip: ""
+	}
+
+	ResonanceAwakener: {
+		DisplayName: Resonance Awakener
+		Tooltip: ""
+	}
+
+	SeedOfUniversalMelodies: {
+		DisplayName: Seed Of Universal Melodies
+		Tooltip: ""
+	}
+
+	HarmonicCoreOfLaCampanella: {
+		DisplayName: Harmonic Core Of La Campanella
+		Tooltip: ""
+	}
+
+	MoonlightAnvil: {
+		DisplayName: Moonlight Anvil
+		Tooltip: ""
+	}
+
+	MoonlightFurnace: {
+		DisplayName: Moonlight Furnace
+		Tooltip: ""
+	}
+
+	HarmonicCoreOfMoonlightSonata: {
+		DisplayName: Harmonic Core Of Moonlight Sonata
+		Tooltip: ""
+	}
+
+	MoonlightsResonantEnergy: {
+		DisplayName: Moonlights Resonant Energy
+		Tooltip: ""
+	}
+
+	RemnantOfMoonlightsHarmony: {
+		DisplayName: Remnant Of Moonlights Harmony
+		Tooltip: ""
+	}
+
+	ResonantCoreOfMoonlightSonata: {
+		DisplayName: Resonant Core Of Moonlight Sonata
+		Tooltip: ""
+	}
+
+	MoonlitResonanceOre: {
+		DisplayName: Moonlit Resonance Ore
+		Tooltip: ""
+	}
+
+	IncisorOfMoonlight: {
+		DisplayName: Incisor Of Moonlight
+		Tooltip: ""
+	}
+
+	MoonlightsAxe: {
+		DisplayName: Moonlights Axe
+		Tooltip: ""
+	}
+
+	MoonlightsHammer: {
+		DisplayName: Moonlights Hammer
+		Tooltip: ""
+	}
+
+	MoonlightsPickaxe: {
+		DisplayName: Moonlights Pickaxe
+		Tooltip: ""
+	}
+
+	WingsOfTheMoon: {
+		DisplayName: Wings Of The Moon
+		Tooltip: ""
+	}
+
+	ResurrectionOfTheMoon: {
+		DisplayName: Resurrection Of The Moon
+		Tooltip: ""
+	}
+
+	SwanLakeTreasureBag: {
+		DisplayName: Swan Lake Treasure Bag
+		Tooltip: ""
+	}
+
+	ScoreOfSwanLake: {
+		DisplayName: Score Of Swan Lake
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -2103,6 +2091,12 @@ Projectiles: {
 	TacetParadoxBolt.DisplayName: Tacet Paradox Bolt
 	VoidConvergenceBeamSet.DisplayName: Void Convergence Beam Set
 	VoidResonanceExplosion.DisplayName: Void Resonance Explosion
+	WaveProjectile.DisplayName: Wave Projectile
+	HostileOrbProjectile.DisplayName: Hostile Orb Projectile
+	ExplosiveOrbProjectile.DisplayName: Explosive Orb Projectile
+	DelayedDetonationProjectile.DisplayName: Delayed Detonation Projectile
+	BoomerangProjectile.DisplayName: Boomerang Projectile
+	AcceleratingBoltProjectile.DisplayName: Accelerating Bolt Projectile
 }
 
 "Keybinds.Toggle Harmonic Core UI.DisplayName": Toggle  Harmonic  Core  U I

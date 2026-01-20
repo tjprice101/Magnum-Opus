@@ -29,6 +29,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
     public class TheWatchingRefrain : ModItem
     {
         private static readonly Color EnigmaBlack = new Color(15, 10, 20);
+        private static readonly Color EnigmaDeepPurple = new Color(80, 20, 120);
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         
@@ -68,6 +69,57 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             { 
                 OverrideColor = EnigmaPurple 
             });
+        }
+        
+        public override void HoldItem(Player player)
+        {
+            // === WATCHING REFRAIN HOLD EFFECT - Phantom preview and eye formation ===
+            // Count active phantoms for formation effects
+            int phantomCount = player.ownedProjectileCounts[ModContent.ProjectileType<UnsolvedPhantomMinion>()];
+            
+            // Eyes watching in formation around player
+            if (Main.rand.NextBool(15))
+            {
+                int eyeCount = Math.Min(phantomCount + 1, 4);
+                for (int i = 0; i < eyeCount; i++)
+                {
+                    if (Main.rand.NextBool(3))
+                    {
+                        float eyeAngle = Main.GameUpdateCount * 0.02f + MathHelper.TwoPi * i / eyeCount;
+                        Vector2 eyePos = player.Center + eyeAngle.ToRotationVector2() * (35f + phantomCount * 5f);
+                        Vector2 lookDir = (-eyeAngle).ToRotationVector2();
+                        CustomParticles.EnigmaEyeGaze(eyePos, EnigmaGreen * 0.6f, 0.2f, lookDir);
+                    }
+                }
+            }
+            
+            // Phantom preview - spectral wisps near summon location
+            if (Main.rand.NextBool(10))
+            {
+                Vector2 previewPos = player.Center + new Vector2(Main.rand.NextFloat(-40f, 40f), -40f);
+                var wisp = new GenericGlowParticle(previewPos, new Vector2(0, -0.5f), 
+                    GetEnigmaGradient(Main.rand.NextFloat()) * 0.5f, 0.2f, 20, true);
+                MagnumParticleHandler.SpawnParticle(wisp);
+            }
+            
+            // Glyphs if multiple phantoms (formation bonus preview)
+            if (phantomCount >= 2 && Main.rand.NextBool(12))
+            {
+                float formationAngle = Main.GameUpdateCount * 0.025f;
+                CustomParticles.Glyph(player.Center + formationAngle.ToRotationVector2() * 50f, EnigmaPurple, 0.28f);
+            }
+            
+            // Paradox rift preview particles
+            if (Main.rand.NextBool(18))
+            {
+                Vector2 riftPos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                CustomParticles.GenericFlare(riftPos, EnigmaDeepPurple, 0.2f, 14);
+            }
+            
+            // Ambient phantom light - intensity scales with phantom count
+            float intensity = 0.25f + (phantomCount * 0.08f);
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.12f + 0.88f;
+            Lighting.AddLight(player.Center, EnigmaPurple.ToVector3() * pulse * intensity);
         }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)

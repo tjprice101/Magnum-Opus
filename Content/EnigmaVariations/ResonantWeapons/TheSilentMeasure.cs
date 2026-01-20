@@ -10,6 +10,7 @@ using Terraria.Audio;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
@@ -72,6 +73,50 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             });
         }
         
+        public override void HoldItem(Player player)
+        {
+            // === SILENT MEASURE HOLD EFFECT - Targeting mystique ===
+            // Shot counter indicator particles
+            if (shotCounter > 0 && Main.rand.NextBool(10))
+            {
+                for (int i = 0; i < shotCounter; i++)
+                {
+                    float dotAngle = -MathHelper.PiOver2 + MathHelper.PiOver4 * (i - 2);
+                    Vector2 dotPos = player.Center + new Vector2(player.direction * 25f, -15f) + dotAngle.ToRotationVector2() * 12f;
+                    CustomParticles.GenericFlare(dotPos, EnigmaGreen * (0.5f + i * 0.1f), 0.15f, 10);
+                }
+            }
+            
+            // Paradox energy buildup as shot counter increases
+            if (shotCounter >= 3 && Main.rand.NextBool(5))
+            {
+                Vector2 barrelPos = player.Center + new Vector2(player.direction * 30f, -5f);
+                Color chargeColor = Color.Lerp(EnigmaPurple, EnigmaGreen, (shotCounter - 3) / 2f);
+                var charge = new GlowSparkParticle(barrelPos + Main.rand.NextVector2Circular(8f, 8f), 
+                    Main.rand.NextVector2Circular(1f, 1f), chargeColor, 0.18f, 12);
+                MagnumParticleHandler.SpawnParticle(charge);
+            }
+            
+            // Watching eyes scan for targets
+            if (Main.rand.NextBool(25))
+            {
+                Vector2 eyePos = player.Center + Main.rand.NextVector2Circular(45f, 45f);
+                Vector2 lookDir = (Main.MouseWorld - eyePos).SafeNormalize(Vector2.UnitX);
+                CustomParticles.EnigmaEyeGaze(eyePos, EnigmaPurple * 0.5f, 0.18f, lookDir);
+            }
+            
+            // Subtle glyphs near weapon
+            if (Main.rand.NextBool(18))
+            {
+                Vector2 glyphPos = player.Center + new Vector2(player.direction * 20f, 0) + Main.rand.NextVector2Circular(15f, 15f);
+                CustomParticles.Glyph(glyphPos, EnigmaPurple * 0.4f, 0.2f);
+            }
+            
+            // Ambient enigma light
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.07f) * 0.12f + 0.88f;
+            Lighting.AddLight(player.Center, EnigmaPurple.ToVector3() * pulse * 0.3f);
+        }
+        
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             shotCounter++;
@@ -92,9 +137,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             
             if (isParadoxArrow)
             {
-                // Enhanced muzzle flash for paradox arrow
-                CustomParticles.GenericFlare(muzzlePos, EnigmaGreen, 0.8f, 18);
-                CustomParticles.GenericFlare(muzzlePos, EnigmaGreen, 0.65f, 16);
+                // Enhanced muzzle flash for paradox arrow with multi-layer bloom
+                EnhancedParticles.BloomFlare(muzzlePos, EnigmaGreen, 0.8f, 18, 4, 1.1f);
+                EnhancedParticles.BloomFlare(muzzlePos, EnigmaGreen, 0.65f, 16, 3, 0.9f);
 CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
                 SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 0.6f }, muzzlePos);
             }
@@ -111,8 +156,8 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
                     MagnumParticleHandler.SpawnParticle(glow);
                 }
                 
-                CustomParticles.GenericFlare(muzzlePos, EnigmaPurple, 0.55f, 15);
-                CustomParticles.HaloRing(muzzlePos, EnigmaGreen * 0.65f, 0.28f, 13);
+                EnhancedParticles.BloomFlare(muzzlePos, EnigmaPurple, 0.55f, 15, 3, 0.85f);
+                EnhancedThemedParticles.EnigmaBloomBurstEnhanced(muzzlePos, 0.4f);
                 
                 // Music notes at muzzle - each shot is a note in the mystery
                 ThemedParticles.EnigmaMusicNotes(muzzlePos, 4, 25f);
@@ -322,8 +367,8 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             // === REALITY WARP DISTORTION ===
             FateRealityDistortion.TriggerChromaticAberration(target.Center, 3f, 10);
             
-            // === OPTIMIZED UNIFIED VFX HIT EFFECT ===
-            UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 1.0f);
+            // === ENHANCED UNIFIED VFX HIT EFFECT WITH BLOOM ===
+            UnifiedVFXBloom.EnigmaVariations.ImpactEnhanced(target.Center, 1.0f);
             
             // Impact VFX - "?" shaped explosion
             CreateQuestionMarkExplosion(target.Center);
@@ -331,18 +376,21 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             // === WATCHING EYE AT IMPACT ===
             CustomParticles.EnigmaEyeImpact(target.Center, target.Center, EnigmaGreen, 0.45f);
             
-            // === MUSIC NOTES BURST - Reduced from 10+5 to 4 total ===
-            ThemedParticles.EnigmaMusicNoteBurst(target.Center, 4, 5f);
+            // === ENHANCED MUSIC NOTES BURST ===
+            EnhancedThemedParticles.EnigmaMusicNotesEnhanced(target.Center, 4, 5f);
             
-            // Ascending sparkle plume at impact point
+            // Ascending sparkle plume at impact point with bloom
             for (int i = 0; i < 4; i++)
             {
                 Vector2 riseVel = new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), -3f - i * 0.8f);
-                var plume = new GenericGlowParticle(target.Center - new Vector2(0, 20f), riseVel,
-                    GetEnigmaGradient((float)i / 4f), 0.35f + i * 0.05f, 22, true);
-                MagnumParticleHandler.SpawnParticle(plume);
+                
+                var particle = EnhancedParticlePool.GetParticle()
+                    .Setup(target.Center - new Vector2(0, 20f), riseVel, GetEnigmaGradient((float)i / 4f), 0.35f + i * 0.05f, 22)
+                    .WithBloom(2, 0.8f)
+                    .WithDrag(0.96f);
+                EnhancedParticlePool.SpawnParticle(particle);
             }
-            CustomParticles.HaloRing(target.Center, EnigmaGreen * 0.8f, 0.4f, 15);
+            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(target.Center, 0.5f);
             
             // === GLYPH CIRCLE FORMATION ===
             CustomParticles.GlyphCircle(target.Center, EnigmaPurple, count: 6, radius: 45f, rotationSpeed: 0.06f);

@@ -8,6 +8,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Fate.Debuffs;
 using MagnumOpus.Content.Fate.Projectiles;
@@ -58,6 +59,46 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         public override bool CanUseItem(Player player)
         {
             return player.ownedProjectileCounts[ModContent.ProjectileType<CosmicElectricityStaff>()] < 1;
+        }
+        
+        public override void HoldItem(Player player)
+        {
+            // === COSMIC LIGHTNING STAFF HOLD EFFECT ===
+            // Electric arcs around player
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 arcStart = player.Center + Main.rand.NextVector2Circular(35f, 35f);
+                Vector2 arcEnd = player.Center + Main.rand.NextVector2Circular(35f, 35f);
+                Color arcColor = Main.rand.NextBool() ? FateCosmicVFX.FateCyan : FateCosmicVFX.FateBrightRed;
+                
+                // Small electric sparks along arc
+                for (int i = 0; i < 3; i++)
+                {
+                    Vector2 sparkPos = Vector2.Lerp(arcStart, arcEnd, (float)i / 3f);
+                    var spark = new GlowSparkParticle(sparkPos, Main.rand.NextVector2Circular(1f, 1f), arcColor, 0.15f, 8);
+                    MagnumParticleHandler.SpawnParticle(spark);
+                }
+            }
+            
+            // Zodiac glyphs floating
+            if (Main.rand.NextBool(10))
+            {
+                float angle = Main.GameUpdateCount * 0.03f + Main.rand.NextFloat(MathHelper.TwoPi);
+                Vector2 glyphPos = player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(35f, 55f);
+                CustomParticles.Glyph(glyphPos, FateCosmicVFX.FateDarkPink, 0.35f, -1);
+            }
+            
+            // Star particles (zodiac stars)
+            if (Main.rand.NextBool(7))
+            {
+                var star = new GenericGlowParticle(player.Center + Main.rand.NextVector2Circular(40f, 40f),
+                    Main.rand.NextVector2Circular(0.3f, 0.3f), FateCosmicVFX.FateWhite, 0.2f, 18, true);
+                MagnumParticleHandler.SpawnParticle(star);
+            }
+            
+            // Electric cosmic glow
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.09f) * 0.18f + 0.82f;
+            Lighting.AddLight(player.Center, FateCosmicVFX.FateCyan.ToVector3() * pulse * 0.45f);
         }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)

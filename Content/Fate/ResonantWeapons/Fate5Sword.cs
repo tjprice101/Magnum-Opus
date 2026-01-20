@@ -8,6 +8,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Fate.Debuffs;
 using MagnumOpus.Content.Fate.Projectiles;
@@ -80,6 +81,37 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             SoundEngine.PlaySound(SoundID.Item26 with { Pitch = 0.5f, Volume = 0.7f }, player.Center);
             
             return false;
+        }
+        
+        public override void HoldItem(Player player)
+        {
+            // === COSMIC SYMPHONY HOLD EFFECT ===
+            // Floating music notes orbit
+            if (Main.rand.NextBool(6))
+            {
+                float angle = Main.GameUpdateCount * 0.025f + Main.rand.NextFloat(MathHelper.Pi);
+                Vector2 notePos = player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(30f, 50f);
+                FateCosmicVFX.SpawnCosmicMusicNotes(notePos, 1, 8f, 0.22f);
+            }
+            
+            // Glyphs in rhythm pattern
+            if (Main.rand.NextBool(12))
+            {
+                float rhythmOffset = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 25f;
+                CustomParticles.Glyph(player.Center + new Vector2(rhythmOffset, -20f), FateCosmicVFX.FateDarkPink, 0.3f, -1);
+            }
+            
+            // Star sparkle accompaniment
+            if (Main.rand.NextBool(7))
+            {
+                var star = new GenericGlowParticle(player.Center + Main.rand.NextVector2Circular(35f, 35f),
+                    Main.rand.NextVector2Circular(0.6f, 0.6f), FateCosmicVFX.FateWhite, 0.18f, 18, true);
+                MagnumParticleHandler.SpawnParticle(star);
+            }
+            
+            // Harmonic light pulse (synced to musical rhythm)
+            float rhythmPulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.2f + 0.8f;
+            Lighting.AddLight(player.Center, FateCosmicVFX.FateNebulaPurple.ToVector3() * rhythmPulse * 0.4f);
         }
         
         public override void MeleeEffects(Player player, Rectangle hitbox)

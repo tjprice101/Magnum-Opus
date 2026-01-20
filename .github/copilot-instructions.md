@@ -6,6 +6,114 @@
 
 ---
 
+## ⛔⛔⛔ CRITICAL: PROJECTILE VFX - READ THIS FIRST ⛔⛔⛔
+
+> **THIS IS THE #1 RULE. VIOLATING THIS WILL RESULT IN DELETION OF YOUR WORK.**
+
+### NEVER CREATE BORING HALO-ONLY PROJECTILES
+
+**ABSOLUTELY FORBIDDEN - Boss projectiles that only use:**
+- Just `HaloRing` effects
+- Just `GenericFlare` with no other particles
+- Just `GenericGlow` particles with no variety
+- Any projectile that looks like "colored blob with trail"
+
+**EVERY boss projectile MUST have:**
+
+1. **UNIQUE VISUAL IDENTITY** - Each projectile type must look distinctly different
+2. **MULTIPLE PARTICLE TYPES** - Combine flares, sparkles, dust, glyphs, glows
+3. **DUST PARTICLES** - Use vanilla `Dust` types (DustID.Torch, DustID.MagicMirror, DustID.PurpleTorch, DustID.Electric, DustID.Frost, etc.)
+4. **SPARKLE PARTICLES** - Use `SparkleParticle` for magical shine
+5. **LAYERED BLOOM** - Multiple bloom layers at different scales
+6. **THEME-SPECIFIC EFFECTS** - Glyphs, music notes, sakura petals, feathers, etc.
+
+```csharp
+// ❌ ABSOLUTELY FORBIDDEN - Boring halo-only projectile
+public override void OnKill(int timeLeft)
+{
+    CustomParticles.GenericFlare(Projectile.Center, PrimaryColor, 0.5f, 15);
+    CustomParticles.HaloRing(Projectile.Center, PrimaryColor, 0.3f, 12);
+}
+
+// ✅ REQUIRED - Rich, layered, unique VFX
+public override void OnKill(int timeLeft)
+{
+    // Central flash cascade
+    EnhancedParticles.BloomFlare(Projectile.Center, Color.White, 0.7f, 18, 4, 1f);
+    EnhancedParticles.BloomFlare(Projectile.Center, PrimaryColor, 0.55f, 22, 3, 0.8f);
+    
+    // Sparkle burst
+    for (int i = 0; i < 10; i++)
+    {
+        float angle = MathHelper.TwoPi * i / 10f;
+        Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
+        var sparkle = new SparkleParticle(Projectile.Center, burstVel, AccentColor, 0.4f, 25);
+        MagnumParticleHandler.SpawnParticle(sparkle);
+        
+        // VANILLA DUST - Required for visual richness
+        Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.MagicMirror, burstVel * 1.2f, 0, PrimaryColor, 1.1f);
+        dust.noGravity = true;
+    }
+    
+    // Glow particles
+    for (int i = 0; i < 6; i++)
+    {
+        var glow = new GenericGlowParticle(Projectile.Center, Main.rand.NextVector2Circular(5f, 5f),
+            SecondaryColor * 0.8f, 0.3f, 22, true);
+        MagnumParticleHandler.SpawnParticle(glow);
+    }
+}
+```
+
+### PROJECTILE AI MUST INCLUDE:
+- Orbiting visual elements (spark points, runes, glyphs)
+- Trail particles with variety (not just one type)
+- Dust particles for visual density
+- Sparkle accents
+- Dynamic lighting that pulses
+
+```csharp
+// ❌ FORBIDDEN - Lazy trail
+if (Main.rand.NextBool(3))
+{
+    var trail = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f, PrimaryColor * 0.6f, 0.25f, 15, true);
+    MagnumParticleHandler.SpawnParticle(trail);
+}
+
+// ✅ REQUIRED - Rich, layered trail
+// Orbiting spark points
+if (Projectile.timeLeft % 6 == 0)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        float sparkAngle = orbitAngle + MathHelper.TwoPi * i / 3f;
+        Vector2 sparkPos = Projectile.Center + sparkAngle.ToRotationVector2() * 18f;
+        EnhancedParticles.BloomFlare(sparkPos, AccentColor, 0.2f, 8, 2, 0.6f);
+    }
+}
+
+// Sparkle dust trail
+if (Main.rand.NextBool(2))
+{
+    var sparkle = new SparkleParticle(Projectile.Center + dustOffset, velocity, SecondaryColor, 0.35f, 20);
+    MagnumParticleHandler.SpawnParticle(sparkle);
+    
+    // Dust for density
+    Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.MagicMirror, velocity * 0.5f, 0, PrimaryColor, 0.8f);
+    dust.noGravity = true;
+}
+
+// Gradient glow particles
+if (Main.rand.NextBool(3))
+{
+    Color trailColor = Color.Lerp(PrimaryColor, AccentColor, Main.rand.NextFloat());
+    var trail = new GenericGlowParticle(Projectile.Center, trailVel, trailColor * 0.7f, 0.28f, 18, true);
+    MagnumParticleHandler.SpawnParticle(trail);
+}
+```
+
+---
+
 ## 🎵 THE HEART OF MAGNUM OPUS - DESIGN PHILOSOPHY
 
 > *"This mod is based around music. It's based around how it connects to your heart, and it's based around how it impacts the world."*
@@ -220,12 +328,28 @@ The `Documentation/Custom Shaders and Shading/` folder contains **comprehensive 
 | [07_Texture_Registries.md](../Documentation/Custom%20Shaders%20and%20Shading/07_Texture_Registries.md) | `MiscTexturesRegistry`, `NoiseTexturesRegistry`, all texture documentation | Texture management, noise textures for shaders |
 | [08_Color_And_Gradient_Techniques.md](../Documentation/Custom%20Shaders%20and%20Shading/08_Color_And_Gradient_Techniques.md) | `Color.Lerp` patterns, HLSL gradients, HSL manipulation, theme palettes | Color systems, gradients, palette management |
 
+### 🚀 MAGNUMOPUS ENHANCED VFX SYSTEM (IMPLEMENTATION)
+
+The above FargosSoulsDLC patterns have been **IMPLEMENTED** into MagnumOpus's VFX system. **Use this guide for practical implementation:**
+
+| Document | Contents | When to Use |
+|----------|----------|-------------|
+| [Enhanced_VFX_System.md](../Documentation/Guides/Enhanced_VFX_System.md) | MagnumOpus implementation of FargosSoulsDLC patterns: `{ A = 0 }` alpha removal, multi-layer bloom, theme palettes, EnhancedParticle, UnifiedVFXBloom API | **ALWAYS** - When creating any VFX, particles, bloom effects, or themed visuals in MagnumOpus |
+
+**Key files in `Common/Systems/VFX/`:**
+- `VFXUtilities.cs` - `WithoutAlpha()` extension, math utilities
+- `BloomRenderer.cs` - `DrawMultiLayerBloom()` for easy bloom stacking  
+- `MagnumThemePalettes.cs` - All theme color arrays for gradient lerping
+- `EnhancedParticle.cs` - Particle class with built-in bloom support
+- `UnifiedVFXBloom.cs` - High-level API: `UnifiedVFXBloom.[Theme].BloomImpact()`
+
 ### MANDATORY: Read Before Implementing VFX
 
 **Before implementing ANY of the following, READ the corresponding documents:**
 
 | Task | Required Reading |
 |------|------------------|
+| **Any VFX in MagnumOpus** | [Enhanced_VFX_System.md](../Documentation/Guides/Enhanced_VFX_System.md) - **START HERE** for MagnumOpus-specific implementation |
 | Any glowing/bloom effect | [02_Bloom_And_Glow_Effects.md](../Documentation/Custom%20Shaders%20and%20Shading/02_Bloom_And_Glow_Effects.md) |
 | Trail/beam rendering | [01_Primitive_Trail_Rendering.md](../Documentation/Custom%20Shaders%20and%20Shading/01_Primitive_Trail_Rendering.md) |
 | Custom particle types | [05_Particle_Systems.md](../Documentation/Custom%20Shaders%20and%20Shading/05_Particle_Systems.md) |
@@ -1766,6 +1890,403 @@ Bosses are the **climax of each theme's symphony**. Every boss fight should feel
 - **Massive VFX explosion** with multiple layered effects
 - Color shift to more intense theme variants
 - Sky effect that makes the whole world feel the boss's power
+
+---
+
+## ⭐ BOSS ATTACK DESIGN PATTERNS - THE GOLD STANDARD ⭐
+
+> **THIS IS HOW BOSS ATTACKS SHOULD LOOK AND PLAY.**
+> Reference: `Content/Eroica/Bosses/EroicasRetribution.cs` - Attack_HeroesJudgment
+
+### Exemplary Attack Pattern: Hero's Judgment
+
+This attack is the **gold standard** for boss attack design. It has:
+
+1. **CHARGE PHASE** - Visual buildup with converging particles
+2. **SAFE ZONE INDICATORS** - Player knows WHERE to dodge
+3. **MULTI-WAVE RELEASE** - Not just one burst, but escalating waves
+4. **SAFE ARC EXEMPTION** - A gap in the projectiles for skilled players to exploit
+
+```csharp
+// ✅ GOLD STANDARD - Hero's Judgment Attack Pattern
+private void Attack_HeroesJudgment(Player target)
+{
+    int chargeTime = 90 - difficultyTier * 10;
+    int waveCount = 2 + difficultyTier;
+    
+    // === PHASE 0: CHARGE WITH CONVERGING PARTICLES ===
+    if (SubPhase == 0)
+    {
+        NPC.velocity *= 0.95f; // Slow down during charge
+        
+        if (Timer == 1)
+        {
+            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.5f }, NPC.Center);
+            Main.NewText("Witness the Hero's Judgment!", EroicaGold);
+        }
+        
+        float progress = Timer / (float)chargeTime;
+        
+        // CONVERGING PARTICLE RING - shrinks as charge builds
+        if (Timer % 4 == 0)
+        {
+            int particleCount = (int)(6 + progress * 10);
+            for (int i = 0; i < particleCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / particleCount + Timer * 0.05f;
+                float radius = 200f * (1f - progress * 0.5f); // Shrinks toward boss
+                Vector2 pos = NPC.Center + angle.ToRotationVector2() * radius;
+                Color color = Color.Lerp(EroicaGold, Color.White, progress);
+                CustomParticles.GenericFlare(pos, color, 0.3f + progress * 0.3f, 12);
+            }
+        }
+        
+        // SAFE ZONE INDICATOR - cyan flares show player where to stand
+        if (Timer > chargeTime / 2)
+        {
+            float safeRadius = 100f;
+            for (int i = 0; i < 12; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 12f + Timer * 0.03f;
+                Vector2 safePos = target.Center + angle.ToRotationVector2() * safeRadius;
+                CustomParticles.GenericFlare(safePos, Color.Cyan * 0.6f, 0.25f, 5);
+            }
+        }
+        
+        // Screen shake builds near end of charge
+        if (Timer > chargeTime * 0.7f)
+        {
+            MagnumScreenEffects.AddScreenShake(progress * 5f);
+        }
+        
+        if (Timer >= chargeTime)
+        {
+            Timer = 0;
+            SubPhase = 1;
+        }
+    }
+    // === PHASES 1-N: MULTI-WAVE RADIAL BURST WITH SAFE ARC ===
+    else if (SubPhase <= waveCount)
+    {
+        if (Timer == 1)
+        {
+            MagnumScreenEffects.AddScreenShake(15f);
+            SoundEngine.PlaySound(SoundID.Item122 with { Volume = 1.5f }, NPC.Center);
+            
+            CustomParticles.GenericFlare(NPC.Center, Color.White, 1.5f, 25);
+            
+            if (Main.netMode != NetmodeID.MultiplayerClient)
+            {
+                int projectileCount = 32 + difficultyTier * 8;
+                float safeAngle = (target.Center - NPC.Center).ToRotation();
+                float safeArc = MathHelper.ToRadians(30f); // 30 degree gap toward player
+                
+                for (int i = 0; i < projectileCount; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / projectileCount;
+                    
+                    // SAFE ARC EXEMPTION - skip projectiles aimed at player
+                    float angleDiff = MathHelper.WrapAngle(angle - safeAngle);
+                    if (Math.Abs(angleDiff) < safeArc) continue;
+                    
+                    float speed = 12f + difficultyTier * 2f + SubPhase;
+                    Vector2 vel = angle.ToRotationVector2() * speed;
+                    BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel, 80, EroicaGold, 8f);
+                }
+            }
+            
+            // Cascading halo rings for dramatic release
+            for (int i = 0; i < 8; i++)
+            {
+                CustomParticles.HaloRing(NPC.Center, Color.Lerp(EroicaScarlet, EroicaGold, i / 8f), 
+                    0.4f + i * 0.15f, 18 + i * 3);
+            }
+        }
+        
+        if (Timer >= 45) // Pause between waves
+        {
+            Timer = 0;
+            SubPhase++;
+        }
+    }
+    else
+    {
+        if (Timer >= 40)
+        {
+            EndAttack();
+        }
+    }
+}
+```
+
+### Key Design Principles from Hero's Judgment
+
+| Element | Implementation | Why It Works |
+|---------|---------------|--------------|
+| **Charge Buildup** | Particles converge from 200px radius down to boss | Player sees danger building |
+| **Safe Zone Indicators** | Cyan flares around player show "safe spot" | Teaches mechanics visually |
+| **Safe Arc Exemption** | 30° gap in projectile spread toward player | Rewards positioning, prevents unavoidable damage |
+| **Multi-Wave Escalation** | 2+ waves, each wave faster | Tension increases, not front-loaded |
+| **Cascading Halos** | 8 staggered halo rings on release | Visual "explosion" sells the impact |
+| **Screen Shake Timing** | Only at 70%+ charge and on release | Builds anticipation, not annoying |
+
+### MANDATORY: Boss Attack Checklist
+
+**Before implementing ANY boss attack, verify:**
+
+- [ ] **Charge/Windup Phase** - Visual buildup that players can read
+- [ ] **Safe Zone Indicators** - Players KNOW where safety is
+- [ ] **Difficulty Scaling** - Uses `difficultyTier` and `GetAggressionSpeedMult()`
+- [ ] **Projectile Variety** - Uses different `BossProjectileHelper` types
+- [ ] **Cascading VFX** - Multiple halo rings, gradient colors
+- [ ] **Sound Design** - Distinct audio cues for charge and release
+- [ ] **Recovery Time** - Player has windows to attack
+
+### Additional Attack Patterns for Reference
+
+#### Golden Rain (Area Denial from Above)
+```csharp
+// Boss hovers above player, rains projectiles with warning flares
+private void Attack_GoldenRain(Player target)
+{
+    int duration = (int)((120 + difficultyTier * 40) * GetAggressionRateMult());
+    int fireInterval = Math.Max(3, (int)((12 - difficultyTier * 2) * GetAggressionRateMult()));
+    
+    // Boss hovers above target
+    Vector2 hoverPos = target.Center + new Vector2(0, -400f);
+    Vector2 toHover = hoverPos - NPC.Center;
+    if (toHover.Length() > 50f)
+    {
+        toHover.Normalize();
+        NPC.velocity = Vector2.Lerp(NPC.velocity, toHover * 10f * GetAggressionSpeedMult(), 0.05f);
+    }
+    
+    // WARNING FLARES - show where projectiles will spawn
+    if (Timer % 20 == 0)
+    {
+        for (int i = 0; i < 3 + difficultyTier; i++)
+        {
+            float xOffset = Main.rand.NextFloat(-300f, 300f);
+            Vector2 warningPos = target.Center + new Vector2(xOffset, -500f);
+            CustomParticles.GenericFlare(warningPos, EroicaGold * 0.5f, 0.3f, 15);
+        }
+    }
+    
+    // Fire projectiles with variety
+    if (Timer % fireInterval == 0 && Timer > 30 && Main.netMode != NetmodeID.MultiplayerClient)
+    {
+        int count = 2 + difficultyTier;
+        for (int i = 0; i < count; i++)
+        {
+            float xOffset = Main.rand.NextFloat(-350f, 350f);
+            Vector2 spawnPos = target.Center + new Vector2(xOffset, -550f);
+            float ySpeed = 12f + difficultyTier * 3f + aggressionLevel * 4f;
+            Vector2 vel = new Vector2(Main.rand.NextFloat(-2f, 2f), ySpeed);
+            
+            // PROJECTILE VARIETY - mix accelerating bolts and tracking orbs
+            if (i % 2 == 0)
+                BossProjectileHelper.SpawnAcceleratingBolt(spawnPos, vel * 0.6f, 75, EroicaGold, 20f);
+            else
+                BossProjectileHelper.SpawnHostileOrb(spawnPos, vel, 75, EroicaScarlet, 0.01f);
+            
+            CustomParticles.GenericFlare(spawnPos, EroicaGold, 0.4f, 10);
+        }
+    }
+    
+    if (Timer >= duration) EndAttack();
+}
+```
+
+#### Valor Cross (8-Arm Star Pattern)
+```csharp
+// Projects 8-arm star pattern with layered projectiles per arm
+private void Attack_ValorCross(Player target)
+{
+    int patterns = 2 + difficultyTier;
+    int patternDelay = 50 - difficultyTier * 8;
+    
+    NPC.velocity *= 0.92f;
+    
+    if (SubPhase < patterns)
+    {
+        // TELEGRAPH: Show arm directions with expanding lines
+        if (Timer < 25 && Timer % 3 == 0)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.PiOver4 * i + SubPhase * MathHelper.PiOver4 * 0.5f;
+                Vector2 lineEnd = NPC.Center + angle.ToRotationVector2() * (80f + Timer * 4f);
+                CustomParticles.GenericFlare(lineEnd, EroicaScarlet * 0.5f, 0.2f, 4);
+            }
+        }
+        
+        // FIRE: 8 arms with multiple projectiles per arm
+        if (Timer == 25 && Main.netMode != NetmodeID.MultiplayerClient)
+        {
+            float baseSpeed = 13f + difficultyTier * 3f;
+            int projectilesPerArm = 4 + difficultyTier;
+            
+            for (int arm = 0; arm < 8; arm++)
+            {
+                float armAngle = MathHelper.PiOver4 * arm + SubPhase * MathHelper.PiOver4 * 0.5f;
+                
+                for (int p = 0; p < projectilesPerArm; p++)
+                {
+                    float speed = baseSpeed + p * 2f;
+                    Vector2 vel = armAngle.ToRotationVector2() * speed;
+                    Color color = arm % 2 == 0 ? EroicaGold : EroicaScarlet;
+                    
+                    // VARIATION: Outer projectiles have homing, inner are straight
+                    float homing = p >= projectilesPerArm - 1 ? 0.02f : 0f;
+                    BossProjectileHelper.SpawnHostileOrb(NPC.Center, vel, 70, color, homing);
+                }
+            }
+            
+            // VFX burst on fire
+            CustomParticles.GenericFlare(NPC.Center, Color.White, 0.9f, 18);
+            for (int i = 0; i < 6; i++)
+                CustomParticles.HaloRing(NPC.Center, Color.Lerp(EroicaScarlet, EroicaGold, i / 6f), 0.3f + i * 0.1f, 15 + i * 2);
+        }
+        
+        if (Timer >= patternDelay) { Timer = 0; SubPhase++; }
+    }
+    else if (Timer >= 30) EndAttack();
+}
+```
+
+#### Sakura Storm (Orbiting Boss + Spiral Projectiles)
+```csharp
+// Boss orbits player while firing spiral arms of projectiles
+private void Attack_SakuraStorm(Player target)
+{
+    int duration = (int)((100 + difficultyTier * 30) * GetAggressionRateMult());
+    int arms = 3 + difficultyTier;
+    
+    // ORBITAL MOVEMENT - boss circles around target
+    float spinSpeed = (0.02f + difficultyTier * 0.005f) * GetAggressionSpeedMult();
+    float radius = 350f - aggressionLevel * 50f; // Get closer as aggression builds
+    float angle = Timer * spinSpeed;
+    Vector2 idealPos = target.Center + angle.ToRotationVector2() * radius;
+    Vector2 toIdeal = idealPos - NPC.Center;
+    NPC.velocity = Vector2.Lerp(NPC.velocity, toIdeal.SafeNormalize(Vector2.Zero) * 12f, 0.08f);
+    
+    // SPIRAL FIRE - rotating arms
+    int fireInterval = Math.Max(2, (int)((6 - difficultyTier) * GetAggressionRateMult()));
+    if (Timer % fireInterval == 0 && Main.netMode != NetmodeID.MultiplayerClient)
+    {
+        float spiralAngle = Timer * 0.15f;
+        
+        for (int arm = 0; arm < arms; arm++)
+        {
+            float armAngle = spiralAngle + MathHelper.TwoPi * arm / arms;
+            float speed = 12f + difficultyTier * 3f;
+            Vector2 vel = armAngle.ToRotationVector2() * speed;
+            
+            // PROJECTILE VARIETY - alternate wave and tracking orbs
+            if (arm % 2 == 0)
+                BossProjectileHelper.SpawnWaveProjectile(NPC.Center, vel, 65, SakuraPink, 3f);
+            else
+                BossProjectileHelper.SpawnHostileOrb(NPC.Center, vel * 0.9f, 65, EroicaGold, 0.015f);
+        }
+        
+        CustomParticles.GenericFlare(NPC.Center, SakuraPink, 0.35f, 10);
+    }
+    
+    // AMBIENT: Sakura petals constantly
+    if (Timer % 8 == 0) ThemedParticles.SakuraPetals(NPC.Center, 3, 40f);
+    
+    if (Timer >= duration) EndAttack();
+}
+```
+
+### Attack Pattern Categories (Mix These!)
+
+| Category | Examples | Key Features |
+|----------|----------|--------------|
+| **Radial Bursts** | Hero's Judgment, Valor Cross | Safe arc, multi-wave, cascading halos |
+| **Area Denial** | Golden Rain | Warning flares, hover positioning |
+| **Orbital** | Sakura Storm | Boss circles player, spiral projectiles |
+| **Dash** | Triumphant Charge | Multiple dashes, projectiles on movement |
+| **Dive** | Phoenix Dive | Aerial dive, ground impact effects |
+| **Ultimate** | Ultimate Valor | Multi-phase, all-out spectacle |
+
+**Every boss should have at least one attack from each category!**
+
+---
+
+## ⭐ BOSS PROJECTILE VFX SCALE GUIDELINES - PLAYER-SIZED ⭐
+
+> **CRITICAL: Boss projectile VFX must be PLAYER-SIZED, not screen-filling monstrosities.**
+
+### VFX Scale Reference (PreDraw Bloom Layers)
+
+**For PLAYER-SIZED projectiles (~8x8 to 24x24 hitbox):**
+
+| Layer | Scale | Purpose |
+|-------|-------|---------|
+| Outer Glow | `0.5f - 0.6f` | Soft ambient bloom |
+| Middle Energy | `0.35f - 0.45f` | Main visible body |
+| Core Flare | `0.25f - 0.3f` | Bright center |
+| White-hot Center | `0.12f - 0.15f` | Intense core point |
+
+**For orbit/spark effects:**
+
+| Element | Radius | Scale |
+|---------|--------|-------|
+| Orbiting Sparks | `10f - 14f` | `0.1f - 0.15f` |
+| Trail Particles | N/A | `0.18f - 0.25f` |
+
+```csharp
+// ✅ CORRECT - Player-sized projectile VFX scales
+public override bool PreDraw(ref Color lightColor)
+{
+    // Outer ethereal layer - SMALL
+    Main.spriteBatch.Draw(glowTex, pos, null, outerGlow * 0.25f, 0f, origin, 0.5f * pulse, SpriteEffects.None, 0f);
+    // Middle energy layer
+    Main.spriteBatch.Draw(tex, pos, null, midGlow * 0.4f, rot, origin, 0.35f * pulse, SpriteEffects.None, 0f);
+    // Core flare layer
+    Main.spriteBatch.Draw(tex, pos, null, coreGlow * 0.55f, rot, origin, 0.25f * pulse, SpriteEffects.None, 0f);
+    // White-hot center
+    Main.spriteBatch.Draw(tex, pos, null, innerGlow * 0.75f, rot, origin, 0.12f * pulse, SpriteEffects.None, 0f);
+    
+    // Orbiting sparks - small radius, tiny scale
+    for (int i = 0; i < 3; i++)
+    {
+        float sparkAngle = orbitAngle + MathHelper.TwoPi * i / 3f;
+        Vector2 sparkPos = Projectile.Center + sparkAngle.ToRotationVector2() * 10f - Main.screenPosition;
+        Main.spriteBatch.Draw(tex, sparkPos, null, sparkColor * 0.7f, 0f, origin, 0.1f * pulse, SpriteEffects.None, 0f);
+    }
+    
+    return false;
+}
+
+// ❌ FORBIDDEN - Oversized "wall of glow" projectiles
+Main.spriteBatch.Draw(glowTex, pos, null, color, 0f, origin, 2.0f, ...);  // TOO BIG
+Main.spriteBatch.Draw(tex, pos, null, color, 0f, origin, 1.6f, ...);     // TOO BIG
+```
+
+### Reference: AggressiveBossProjectiles.cs Projectile Types
+
+**These are the gold-standard boss projectile implementations:**
+
+| Projectile Type | Use Case | Unique Visual Identity |
+|----------------|----------|----------------------|
+| `HostileOrbProjectile` | Tracking orbs | Pulsing core, 3 orbiting spark points, magic sparkle dust trail |
+| `AcceleratingBoltProjectile` | Fast strikes | Velocity-based stretch, 4-point rotating sparks, accelerating speed |
+| `ExplosiveOrbProjectile` | Delayed explosions | Warning glow buildup, dramatic 8-flare explosion |
+| `WaveProjectile` | Sinusoidal movement | Undulating motion, wave-pattern trail, dual-tone colors |
+| `DelayedDetonationProjectile` | Area denial | Countdown glow, rune accents, warning pulsation |
+| `BoomerangProjectile` | Returning attacks | Figure-8 spin, prismatic trail, return-phase color shift |
+
+**Use `BossProjectileHelper` to spawn these:**
+```csharp
+BossProjectileHelper.SpawnHostileOrb(pos, vel, damage, color, homingStrength);
+BossProjectileHelper.SpawnAcceleratingBolt(pos, vel, damage, color, acceleration);
+BossProjectileHelper.SpawnExplosiveOrb(pos, vel, damage, color, explosionRadius);
+BossProjectileHelper.SpawnWaveProjectile(pos, vel, damage, color, waveAmplitude);
+BossProjectileHelper.SpawnDelayedDetonation(pos, damage, color, delay);
+BossProjectileHelper.SpawnBoomerang(pos, vel, damage, color, returnSpeed);
+```
 
 ---
 

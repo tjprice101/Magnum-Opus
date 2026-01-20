@@ -1,0 +1,357 @@
+using Microsoft.Xna.Framework;
+using System;
+using Terraria;
+using MagnumOpus.Common.Systems.Particles;
+
+namespace MagnumOpus.Common.Systems
+{
+    /// <summary>
+    /// Optimized VFX system for boss fights - reduces particle counts while maintaining visual impact.
+    /// Also provides standardized warning indicators for attacks.
+    /// 
+    /// DESIGN PHILOSOPHY:
+    /// - Use fewer, larger particles instead of many small ones
+    /// - Skip particles based on frame counts to reduce load
+    /// - Warning indicators are bright and distinct (cyan/yellow/red)
+    /// - Scale effects based on game quality settings
+    /// </summary>
+    public static class BossVFXOptimizer
+    {
+        // Frame skip multiplier - higher = fewer particles (1 = all particles, 2 = half, 3 = third)
+        private static int FrameSkipMult => Main.gameMenu ? 1 : (Main.FrameSkipMode == 0 ? 1 : 2);
+        
+        // Quality reduction based on particle count in world
+        private static float QualityMult => Math.Max(0.4f, 1f - MagnumParticleHandler.ActiveParticleCount * 0.001f);
+        
+        #region Core Particle Methods (Optimized)
+        
+        /// <summary>
+        /// Optimized flare - only spawns every N frames based on load
+        /// </summary>
+        public static void OptimizedFlare(Vector2 position, Color color, float scale, int lifetime, int frameInterval = 2)
+        {
+            if (Main.GameUpdateCount % (frameInterval * FrameSkipMult) != 0) return;
+            CustomParticles.GenericFlare(position, color, scale * QualityMult, lifetime);
+        }
+        
+        /// <summary>
+        /// Optimized halo ring - only spawns every N frames
+        /// </summary>
+        public static void OptimizedHalo(Vector2 position, Color color, float scale, int lifetime, int frameInterval = 3)
+        {
+            if (Main.GameUpdateCount % (frameInterval * FrameSkipMult) != 0) return;
+            CustomParticles.HaloRing(position, color, scale * QualityMult, lifetime);
+        }
+        
+        /// <summary>
+        /// Optimized explosion burst - reduces particle count under load
+        /// </summary>
+        public static void OptimizedBurst(Vector2 position, Color color, int baseCount, float speed)
+        {
+            int actualCount = Math.Max(4, (int)(baseCount * QualityMult));
+            CustomParticles.ExplosionBurst(position, color, actualCount, speed);
+        }
+        
+        /// <summary>
+        /// Optimized radial flares - spawns a ring of flares with reduced count under load
+        /// </summary>
+        public static void OptimizedRadialFlares(Vector2 center, Color color, int baseCount, float radius, float scale, int lifetime)
+        {
+            int actualCount = Math.Max(4, (int)(baseCount * QualityMult));
+            for (int i = 0; i < actualCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / actualCount;
+                Vector2 pos = center + angle.ToRotationVector2() * radius;
+                CustomParticles.GenericFlare(pos, color, scale, lifetime);
+            }
+        }
+        
+        /// <summary>
+        /// Optimized cascading halos - reduces ring count under load
+        /// </summary>
+        public static void OptimizedCascadingHalos(Vector2 center, Color startColor, Color endColor, int baseCount, float baseScale, int baseLifetime)
+        {
+            int actualCount = Math.Max(3, (int)(baseCount * QualityMult));
+            for (int i = 0; i < actualCount; i++)
+            {
+                float progress = i / (float)actualCount;
+                Color ringColor = Color.Lerp(startColor, endColor, progress);
+                CustomParticles.HaloRing(center, ringColor, baseScale + i * 0.1f, baseLifetime + i * 2);
+            }
+        }
+        
+        /// <summary>
+        /// Optimized themed particles (sakura, feathers, etc) - reduced counts
+        /// </summary>
+        public static void OptimizedThemedParticles(Vector2 center, string theme, int baseCount, float radius)
+        {
+            int actualCount = Math.Max(2, (int)(baseCount * QualityMult * 0.6f)); // More aggressive reduction for themed
+            
+            switch (theme.ToLower())
+            {
+                case "sakura":
+                case "eroica":
+                    ThemedParticles.SakuraPetals(center, actualCount, radius);
+                    break;
+                case "feather":
+                case "swan":
+                    CustomParticles.SwanFeatherExplosion(center, actualCount, radius * 0.01f);
+                    break;
+                default:
+                    // Generic burst
+                    OptimizedBurst(center, Color.White, actualCount, radius * 0.1f);
+                    break;
+            }
+        }
+        
+        #endregion
+        
+        #region Attack Warning System
+        
+        /// <summary>
+        /// Draws a bright warning indicator at a position - ALWAYS rendered (no optimization)
+        /// Used to telegraph where danger is coming
+        /// </summary>
+        public static void WarningFlare(Vector2 position, float intensity = 1f, WarningType type = WarningType.Danger)
+        {
+            Color warningColor = type switch
+            {
+                WarningType.Safe => Color.Cyan,
+                WarningType.Caution => Color.Yellow,
+                WarningType.Danger => Color.Red,
+                WarningType.Imminent => Color.White,
+                _ => Color.Yellow
+            };
+            
+            // Pulsing effect
+            float pulse = 0.7f + (float)Math.Sin(Main.GameUpdateCount * 0.2f) * 0.3f;
+            CustomParticles.GenericFlare(position, warningColor * intensity * pulse, 0.35f * intensity, 6);
+        }
+        
+        /// <summary>
+        /// Draws a line of warning indicators showing projectile trajectory
+        /// </summary>
+        public static void WarningLine(Vector2 start, Vector2 direction, float length, int markerCount = 10, WarningType type = WarningType.Danger)
+        {
+            Color warningColor = type switch
+            {
+                WarningType.Safe => Color.Cyan,
+                WarningType.Caution => Color.Yellow,
+                WarningType.Danger => Color.Red,
+                WarningType.Imminent => Color.White,
+                _ => Color.Yellow
+            };
+            
+            direction = direction.SafeNormalize(Vector2.UnitX);
+            float pulse = 0.6f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.4f;
+            
+            for (int i = 0; i < markerCount; i++)
+            {
+                float progress = i / (float)markerCount;
+                Vector2 pos = start + direction * length * progress;
+                float alpha = 1f - progress * 0.5f; // Fade toward end
+                CustomParticles.GenericFlare(pos, warningColor * alpha * pulse, 0.18f + progress * 0.1f, 4);
+            }
+        }
+        
+        /// <summary>
+        /// Draws a circular safe zone indicator around a position
+        /// </summary>
+        public static void SafeZoneRing(Vector2 center, float radius, int markerCount = 12)
+        {
+            float pulse = 0.7f + (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.3f;
+            
+            for (int i = 0; i < markerCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / markerCount + Main.GameUpdateCount * 0.02f;
+                Vector2 pos = center + angle.ToRotationVector2() * radius;
+                CustomParticles.GenericFlare(pos, Color.Cyan * pulse, 0.28f, 5);
+            }
+        }
+        
+        /// <summary>
+        /// Draws a danger zone indicator (area to avoid)
+        /// </summary>
+        public static void DangerZoneRing(Vector2 center, float radius, int markerCount = 16)
+        {
+            float pulse = 0.6f + (float)Math.Sin(Main.GameUpdateCount * 0.25f) * 0.4f;
+            
+            for (int i = 0; i < markerCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / markerCount + Main.GameUpdateCount * 0.03f;
+                Vector2 pos = center + angle.ToRotationVector2() * radius;
+                CustomParticles.GenericFlare(pos, Color.Red * pulse * 0.8f, 0.22f, 4);
+            }
+        }
+        
+        /// <summary>
+        /// Draws converging warning particles toward a point (attack charging up)
+        /// </summary>
+        public static void ConvergingWarning(Vector2 center, float maxRadius, float progress, Color primaryColor, int particleCount = 8)
+        {
+            if (Main.GameUpdateCount % 4 != 0) return; // Only every 4 frames
+            
+            float currentRadius = maxRadius * (1f - progress * 0.6f);
+            int actualCount = Math.Max(4, (int)(particleCount * QualityMult));
+            
+            for (int i = 0; i < actualCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / actualCount + Main.GameUpdateCount * 0.04f;
+                Vector2 pos = center + angle.ToRotationVector2() * currentRadius;
+                Color color = Color.Lerp(primaryColor, Color.White, progress * 0.5f);
+                CustomParticles.GenericFlare(pos, color, 0.25f + progress * 0.25f, 10);
+            }
+        }
+        
+        /// <summary>
+        /// Shows an arc of safe area indicators (where projectiles WON'T go)
+        /// </summary>
+        public static void SafeArcIndicator(Vector2 center, float safeAngle, float arcWidth, float radius, int markerCount = 8)
+        {
+            float halfArc = arcWidth / 2f;
+            float pulse = 0.75f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.25f;
+            
+            for (int i = 0; i < markerCount; i++)
+            {
+                float progress = (i / (float)(markerCount - 1)) - 0.5f; // -0.5 to 0.5
+                float angle = safeAngle + progress * arcWidth;
+                Vector2 pos = center + angle.ToRotationVector2() * radius;
+                CustomParticles.GenericFlare(pos, Color.Cyan * pulse, 0.3f, 6);
+            }
+        }
+        
+        /// <summary>
+        /// Draws impact warning at ground level (for attacks from above)
+        /// </summary>
+        public static void GroundImpactWarning(Vector2 impactPoint, float radius, float progress)
+        {
+            float pulse = 0.5f + progress * 0.5f;
+            int markerCount = Math.Max(6, (int)(12 * QualityMult));
+            
+            // Expanding danger ring
+            for (int i = 0; i < markerCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / markerCount;
+                Vector2 pos = impactPoint + angle.ToRotationVector2() * radius * progress;
+                CustomParticles.GenericFlare(pos, Color.Red * pulse, 0.25f, 4);
+            }
+            
+            // Central X marker
+            if (Main.GameUpdateCount % 3 == 0)
+            {
+                CustomParticles.GenericFlare(impactPoint, Color.Yellow * pulse, 0.4f * progress, 5);
+            }
+        }
+        
+        /// <summary>
+        /// Draws laser beam warning (line where laser will fire)
+        /// </summary>
+        public static void LaserBeamWarning(Vector2 start, float angle, float length, float intensity = 1f)
+        {
+            float pulse = 0.4f + (float)Math.Sin(Main.GameUpdateCount * 0.3f) * 0.3f;
+            Vector2 dir = angle.ToRotationVector2();
+            
+            int markerCount = Math.Max(8, (int)(20 * QualityMult));
+            for (int i = 0; i < markerCount; i++)
+            {
+                float progress = i / (float)markerCount;
+                Vector2 pos = start + dir * length * progress;
+                Color warningColor = Color.Lerp(Color.Red, Color.Yellow, progress) * pulse * intensity;
+                CustomParticles.GenericFlare(pos, warningColor, 0.15f, 3);
+            }
+        }
+        
+        /// <summary>
+        /// Draws electrical buildup warning (for shock attacks)
+        /// </summary>
+        /// <param name="center">Center of the buildup effect</param>
+        /// <param name="primaryColor">Main color of the electrical sparks</param>
+        /// <param name="radius">Radius of the effect area</param>
+        /// <param name="progress">Charge progress from 0-1</param>
+        public static void ElectricalBuildupWarning(Vector2 center, Color primaryColor, float radius, float progress)
+        {
+            if (Main.GameUpdateCount % 5 != 0) return;
+            
+            int arcCount = 3 + (int)(progress * 5);
+            for (int i = 0; i < arcCount; i++)
+            {
+                float angle = Main.rand.NextFloat(MathHelper.TwoPi);
+                float dist = radius * 0.5f + Main.rand.NextFloat(radius * 0.5f) * (1f - progress);
+                Vector2 arcStart = center + angle.ToRotationVector2() * dist;
+                Vector2 arcEnd = center + Main.rand.NextVector2Circular(30f * progress, 30f * progress);
+                
+                // Small electrical spark
+                Color sparkColor = Color.Lerp(primaryColor, Color.White, 0.5f);
+                for (int j = 0; j < 4; j++)
+                {
+                    Vector2 sparkPos = Vector2.Lerp(arcStart, arcEnd, j / 4f) + Main.rand.NextVector2Circular(10f, 10f);
+                    CustomParticles.GenericFlare(sparkPos, sparkColor * (0.5f + progress * 0.5f), 0.2f, 6);
+                }
+            }
+        }
+        
+        #endregion
+        
+        #region Boss-Specific Optimized Effects
+        
+        /// <summary>
+        /// Optimized attack release burst - used when boss fires an attack
+        /// </summary>
+        public static void AttackReleaseBurst(Vector2 center, Color primaryColor, Color secondaryColor, float scale = 1f)
+        {
+            // Central white flash (always show)
+            CustomParticles.GenericFlare(center, Color.White, 1.2f * scale, 20);
+            CustomParticles.GenericFlare(center, primaryColor, 0.9f * scale, 18);
+            
+            // Optimized radial flares
+            OptimizedRadialFlares(center, secondaryColor, 6, 40f * scale, 0.4f, 12);
+            
+            // Optimized halo cascade
+            OptimizedCascadingHalos(center, primaryColor, secondaryColor, 5, 0.3f * scale, 14);
+        }
+        
+        /// <summary>
+        /// Optimized projectile trail - called every frame, handles own throttling
+        /// </summary>
+        public static void ProjectileTrail(Vector2 position, Vector2 velocity, Color color)
+        {
+            if (Main.GameUpdateCount % 3 != 0) return;
+            
+            Vector2 trailPos = position - velocity * 0.2f + Main.rand.NextVector2Circular(5f, 5f);
+            CustomParticles.GenericFlare(trailPos, color * 0.7f, 0.25f * QualityMult, 8);
+        }
+        
+        /// <summary>
+        /// Optimized death explosion - full spectacle but optimized particle counts
+        /// </summary>
+        public static void DeathExplosion(Vector2 center, Color primaryColor, Color secondaryColor, float scale = 1f)
+        {
+            // Core flash (always full)
+            CustomParticles.GenericFlare(center, Color.White, 2f * scale, 30);
+            CustomParticles.GenericFlare(center, primaryColor, 1.5f * scale, 28);
+            
+            // Optimized burst
+            OptimizedBurst(center, primaryColor, 20, 12f);
+            OptimizedBurst(center, secondaryColor, 15, 8f);
+            
+            // Optimized cascading halos
+            OptimizedCascadingHalos(center, primaryColor, secondaryColor, 8, 0.4f * scale, 18);
+            
+            // Optimized radial pattern
+            OptimizedRadialFlares(center, secondaryColor, 8, 60f * scale, 0.5f, 15);
+        }
+        
+        #endregion
+    }
+    
+    /// <summary>
+    /// Warning type enum for visual distinction
+    /// </summary>
+    public enum WarningType
+    {
+        Safe,       // Cyan - this area is safe
+        Caution,    // Yellow - be careful
+        Danger,     // Red - avoid this area
+        Imminent    // White - attack incoming NOW
+    }
+}

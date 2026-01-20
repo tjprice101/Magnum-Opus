@@ -785,7 +785,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
     /// </summary>
     public class CenturionFireTrail : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Flames;
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
 
         public override void SetDefaults()
         {
@@ -822,7 +822,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
     /// </summary>
     public class CenturionInfernoOrb : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Fireball;
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
 
         public override void SetDefaults()
         {
@@ -873,7 +873,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
     /// </summary>
     public class CenturionCrimsonMeteor : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Meteor1;
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
 
         public override void SetDefaults()
         {
@@ -930,7 +930,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
     /// </summary>
     public class CenturionGoldenSword : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.EnchantedBeam;
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
 
         public override void SetDefaults()
         {
@@ -980,7 +980,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
     /// </summary>
     public class CenturionNovaWave : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Flames;
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
 
         public override void SetDefaults()
         {

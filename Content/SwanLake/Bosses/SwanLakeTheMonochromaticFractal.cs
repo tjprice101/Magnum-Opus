@@ -9,12 +9,20 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.SwanLake.Bosses
 {
     /// <summary>
     /// Swan Lake, The Monochromatic Fractal - An elegant yet foreboding celestial deity boss.
     /// Features 6 swan wings, detached limbs held by rainbow flames, and spectacular attacks.
+    /// 
+    /// === PHASE SYSTEM (DoG-Inspired) ===
+    /// "Graceful" (100-60% HP): Elegant, measured attacks with clear tells - the dance begins
+    /// "Tempest" (60-30% HP): More aggressive, faster movements - the storm rises
+    /// "Dying Swan" (30-0% HP): Desperate, beautiful finale - the tragic crescendo
+    /// Each phase has distinct mood reflecting Swan Lake's ballet narrative.
     /// </summary>
     public class SwanLakeTheMonochromaticFractal : ModNPC
     {
@@ -23,6 +31,18 @@ namespace MagnumOpus.Content.SwanLake.Bosses
         
         // Attack sprite path
         private const string AttackTexture = "MagnumOpus/Content/SwanLake/Bosses/SwanLakeTheMonochromaticFractal_Attack";
+        
+        // Phase 2 Sub-phases (DoG-inspired mood system reflecting Swan Lake ballet)
+        private enum BossMood
+        {
+            Graceful,    // 100-60% - Elegant dance, measured attacks
+            Tempest,     // 60-30% - Storm intensifies, aggressive
+            DyingSwan    // 30-0% - Tragic finale, desperate beauty
+        }
+        
+        private BossMood currentMood = BossMood.Graceful;
+        private bool hasAnnouncedTempest = false;
+        private bool hasAnnouncedDyingSwan = false;
         
         // AI States
         private enum ActionState
@@ -57,7 +77,16 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             PrismaticWaveAttack,
             // Attack 10 - Prismatic Chaos: Random direction beams
             PrismaticChaosWindup,
-            PrismaticChaosAttack
+            PrismaticChaosAttack,
+            // Attack 11 - Swan's Serenade: Hero's Judgment style spectacle attack
+            SwanSerenadeWindup,
+            SwanSerenadeAttack,
+            // Attack 12 - Fractal Laser Storm: Crossing laser beams
+            FractalLaserWindup,
+            FractalLaserAttack,
+            // Attack 13 - Chromatic Surge: Electrical rainbow pulses
+            ChromaticSurgeWindup,
+            ChromaticSurgeAttack
         }
 
         private ActionState State
@@ -201,6 +230,10 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             pulseTimer += 0.04f;
             distortionTimer += 0.02f;
             
+            // === MOOD SYSTEM (DoG-Inspired) ===
+            // Updates phase mood based on health with dramatic ballet-themed transitions
+            UpdateMood(target);
+            
             // Visual distortion during combat - subtle but noticeable
             distortionIntensity = MathHelper.Lerp(distortionIntensity, 
                 isUsingAttackSprite ? 0.4f : 0.15f, 0.05f);
@@ -301,6 +334,30 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                     break;
                 case ActionState.PrismaticChaosAttack:
                     PrismaticChaosAttack(target);
+                    break;
+                    
+                // Attack 11 - Swan's Serenade: Hero's Judgment style spectacle
+                case ActionState.SwanSerenadeWindup:
+                    SwanSerenadeWindup(target);
+                    break;
+                case ActionState.SwanSerenadeAttack:
+                    SwanSerenadeAttack(target);
+                    break;
+                    
+                // Attack 12 - Fractal Laser Storm: Crossing laser beams
+                case ActionState.FractalLaserWindup:
+                    FractalLaserWindup(target);
+                    break;
+                case ActionState.FractalLaserAttack:
+                    FractalLaserAttack(target);
+                    break;
+                    
+                // Attack 13 - Chromatic Surge: Electrical rainbow pulses
+                case ActionState.ChromaticSurgeWindup:
+                    ChromaticSurgeWindup(target);
+                    break;
+                case ActionState.ChromaticSurgeAttack:
+                    ChromaticSurgeAttack(target);
                     break;
             }
 
@@ -408,127 +465,428 @@ namespace MagnumOpus.Content.SwanLake.Bosses
 
         private void SpawnAmbientParticles()
         {
-            // Swan feathers floating around - black and white
-            if (Main.rand.NextBool(4))
+            // === SWAN LAKE AMBIENT EFFECTS ===
+            // A ballet of light and shadow - graceful feathers, prismatic streams, and ethereal elegance
+            
+            float moodIntensity = GetMoodIntensity();
+            float danceRhythm = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.5f + 0.5f; // Ballet tempo
+            float gracefulWave = (float)Math.Sin(Main.GameUpdateCount * 0.025f);
+            
+            // === 1. FEATHER WALTZ - ORBITING FEATHERS ===
+            // Feathers dance around the swan in a graceful spiral
+            int featherCount = 4 + (int)(moodIntensity * 4);
+            float waltzRadius = 90f + gracefulWave * 20f;
+            
+            for (int i = 0; i < featherCount; i++)
             {
-                Vector2 offset = Main.rand.NextVector2Circular(NPC.width * 0.6f, NPC.height * 0.6f);
-                Color featherColor = Main.rand.NextBool() ? Color.White : Color.Black;
-                CustomParticles.SwanFeatherDrift(NPC.Center + offset, featherColor, 0.3f);
+                // Spiral pattern with varying heights - like a ballet ensemble
+                float baseAngle = Main.GameUpdateCount * 0.02f + (MathHelper.TwoPi * i / featherCount);
+                float verticalOffset = (float)Math.Sin(Main.GameUpdateCount * 0.03f + i * 0.8f) * 30f;
+                
+                Vector2 featherPos = NPC.Center + new Vector2(
+                    (float)Math.Cos(baseAngle) * waltzRadius,
+                    (float)Math.Sin(baseAngle) * waltzRadius * 0.5f + verticalOffset);
+                
+                if ((Main.GameUpdateCount + i * 11) % 8 == 0)
+                {
+                    // Alternating black and white feathers
+                    Color featherColor = i % 2 == 0 ? Color.White : new Color(30, 30, 40);
+                    CustomParticles.SwanFeatherDrift(featherPos, featherColor, 0.25f + danceRhythm * 0.1f);
+                }
             }
             
-            // Occasional monochrome sparkles with rainbow shimmer
+            // === 2. PRISMATIC LIGHT STREAMS ===
+            // Rainbow light bleeds through the monochrome - beauty breaking through tragedy
             if (Main.rand.NextBool(6))
             {
-                Vector2 offset = Main.rand.NextVector2Circular(NPC.width * 0.7f, NPC.height * 0.7f);
-                // Mostly white/gray, occasionally rainbow
-                Color sparkleColor = Main.rand.NextBool(5) 
-                    ? Main.hslToRgb(Main.rand.NextFloat(), 0.8f, 0.7f) 
-                    : (Main.rand.NextBool() ? Color.White : Color.Silver);
-                CustomParticles.PrismaticSparkle(NPC.Center + offset, sparkleColor, 0.2f);
+                float streamAngle = Main.rand.NextFloat(MathHelper.TwoPi);
+                float streamLength = 60f + moodIntensity * 40f;
+                
+                for (int j = 0; j < 5; j++)
+                {
+                    float progress = j / 5f;
+                    Vector2 streamPos = NPC.Center + streamAngle.ToRotationVector2() * streamLength * progress;
+                    
+                    // Rainbow hue that shifts along the stream
+                    float hue = (Main.GameUpdateCount * 0.005f + progress * 0.3f) % 1f;
+                    Color prismaticColor = Main.hslToRgb(hue, 0.7f, 0.8f);
+                    
+                    CustomParticles.PrismaticSparkle(streamPos, prismaticColor * (1f - progress * 0.4f), 0.2f);
+                }
             }
             
-            // Pearlescent rainbow flame wisps from detached limbs (kept as rainbow for the "held by rainbow flames" theme)
-            if (Main.rand.NextBool(3))
+            // === 3. MONOCHROME CONTRAST RIPPLES ===
+            // Alternating black and white ripples expand outward
+            if (Main.GameUpdateCount % 35 == 0)
             {
-                Vector2 offset = Main.rand.NextVector2Circular(NPC.width * 0.5f, NPC.height * 0.5f);
-                Color rainbowFlame = Main.hslToRgb((Main.GameUpdateCount * 0.002f) % 1f, 0.6f, 0.7f);
-                CustomParticles.GenericFlare(NPC.Center + offset, rainbowFlame * 0.4f, 0.15f, 12);
+                Color rippleColor = (Main.GameUpdateCount / 35) % 2 == 0 ? Color.White * 0.5f : new Color(40, 40, 50) * 0.7f;
+                CustomParticles.HaloRing(NPC.Center, rippleColor, 0.4f + moodIntensity * 0.2f, 30);
             }
+            
+            // === 4. GRACEFUL PARTICLE CURRENTS ===
+            // Particles flow in elegant curves around the swan
+            if (Main.GameUpdateCount % 3 == 0)
+            {
+                // Figure-8 pattern - the infinity of dance
+                float curveT = Main.GameUpdateCount * 0.03f;
+                float curveX = (float)Math.Sin(curveT) * 80f;
+                float curveY = (float)Math.Sin(curveT * 2f) * 40f;
+                
+                Vector2 curvePos = NPC.Center + new Vector2(curveX, curveY);
+                
+                // Mostly white/silver, occasional black for contrast
+                Color currentColor = Main.rand.NextBool(4) 
+                    ? new Color(25, 25, 35) 
+                    : Color.Lerp(Color.White, Color.Silver, Main.rand.NextFloat());
+                
+                var currentParticle = new GenericGlowParticle(curvePos, 
+                    new Vector2((float)Math.Cos(curveT) * 2f, (float)Math.Sin(curveT * 2f)), 
+                    currentColor * 0.5f, 0.25f, 25, true);
+                MagnumParticleHandler.SpawnParticle(currentParticle);
+            }
+            
+            // === 5. ETHEREAL MIST - STAGE FOG ===
+            // Soft mist drifts across the arena like stage fog
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 mistPos = NPC.Center + new Vector2(
+                    Main.rand.NextFloat(-150f, 150f), 
+                    Main.rand.NextFloat(-30f, 60f));
+                
+                Color mistColor = Color.Lerp(Color.White, Color.LightGray, Main.rand.NextFloat()) * 0.25f;
+                Vector2 mistVel = new Vector2(gracefulWave * 0.5f, -0.3f);
+                
+                var mist = new HeavySmokeParticle(mistPos, mistVel, mistColor, Main.rand.Next(60, 90), 
+                    Main.rand.NextFloat(0.3f, 0.5f), 0.4f, 0.008f, false);
+                MagnumParticleHandler.SpawnParticle(mist);
+            }
+            
+            // === 6. BALLET SPOTLIGHT EFFECTS ===
+            // Spotlights that follow the swan's movement
+            if (Main.rand.NextBool(8))
+            {
+                // Soft white spotlight glow
+                Vector2 spotlightPos = NPC.Center + new Vector2(0, -40f) + Main.rand.NextVector2Circular(20f, 20f);
+                CustomParticles.GenericFlare(spotlightPos, Color.White * 0.4f * danceRhythm, 0.4f, 15);
+            }
+            
+            // === 7. DYING SWAN TEARS (DyingSwan mood) ===
+            // Crystalline tears fall during the tragic finale
+            if (currentMood == BossMood.DyingSwan && Main.rand.NextBool(4))
+            {
+                Vector2 tearStart = NPC.Center + new Vector2(Main.rand.NextFloat(-30f, 30f), -20f);
+                Vector2 tearVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(1.5f, 2.5f));
+                
+                // Crystalline rainbow tears
+                float tearHue = Main.rand.NextFloat();
+                Color tearColor = Main.hslToRgb(tearHue, 0.6f, 0.85f);
+                
+                var tear = new GenericGlowParticle(tearStart, tearVel, tearColor * 0.7f, 0.2f, 40, true);
+                MagnumParticleHandler.SpawnParticle(tear);
+            }
+            
+            // === 8. MOOD-SPECIFIC EFFECTS ===
+            switch (currentMood)
+            {
+                case BossMood.Graceful:
+                    // Soft, elegant sparkles - the prima donna's entrance
+                    if (Main.rand.NextBool(8))
+                    {
+                        Vector2 gracePos = NPC.Center + Main.rand.NextVector2Circular(60f, 60f);
+                        CustomParticles.PrismaticSparkle(gracePos, Color.White * 0.6f, 0.15f);
+                    }
+                    break;
+                    
+                case BossMood.Tempest:
+                    // More intense feather bursts - the storm of emotions
+                    if (Main.rand.NextBool(3))
+                    {
+                        Vector2 stormPos = NPC.Center + Main.rand.NextVector2Circular(100f, 80f);
+                        Color stormFeather = Main.rand.NextBool() ? Color.White : Color.Black;
+                        CustomParticles.SwanFeatherDrift(stormPos, stormFeather, 0.35f);
+                    }
+                    break;
+                    
+                case BossMood.DyingSwan:
+                    // Falling feathers and fading light - the tragic end
+                    if (Main.rand.NextBool(2))
+                    {
+                        Vector2 fadePos = NPC.Top + new Vector2(Main.rand.NextFloat(-80f, 80f), -20f);
+                        Vector2 fadeVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(1f, 2f));
+                        Color fadeFeather = Main.rand.NextBool() ? Color.White * 0.7f : new Color(50, 50, 60);
+                        
+                        var fallingFeather = new GenericGlowParticle(fadePos, fadeVel, fadeFeather, 0.3f, 50, true);
+                        MagnumParticleHandler.SpawnParticle(fallingFeather);
+                    }
+                    break;
+            }
+            
+            // === 9. DYNAMIC LIGHTING ===
+            // Cool, elegant lighting with prismatic shimmer
+            float hueShift = (Main.GameUpdateCount * 0.003f) % 1f;
+            Vector3 baseLight = new Vector3(0.9f, 0.9f, 1f); // Cool white
+            Vector3 prismaticAccent = Main.hslToRgb(hueShift, 0.3f, 0.8f).ToVector3() * 0.3f;
+            
+            Lighting.AddLight(NPC.Center, (baseLight + prismaticAccent) * (0.7f + danceRhythm * 0.3f));
+        }
+        
+        private float GetMoodIntensity()
+        {
+            return currentMood switch
+            {
+                BossMood.Graceful => 0.3f,
+                BossMood.Tempest => 0.6f,
+                BossMood.DyingSwan => 1.0f,
+                _ => 0.3f
+            };
         }
 
         private void IdleHover(Player target)
         {
             isUsingAttackSprite = false;
-            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0f, 0.08f); // Fade out distortion when idle
+            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0f, 0.08f);
             
-            // Fast, fluid hovering movement - agile like a swan in flight
-            float hoverX = (float)Math.Sin(pulseTimer * 2.5f) * 80f;
-            float hoverY = (float)Math.Sin(pulseTimer * 3f) * 50f;
+            // === MOOD-BASED MOVEMENT PARAMETERS ===
+            float hoverSpeed, lerpFactor, waveAmplitudeX, waveAmplitudeY, hoverDistance;
+            int attackDelay;
             
-            Vector2 hoverPosition = target.Center + new Vector2(hoverX, -280 + hoverY);
+            switch (currentMood)
+            {
+                case BossMood.Graceful: // Elegant, ballet-like movements
+                    hoverSpeed = 14f;
+                    lerpFactor = 0.08f;
+                    waveAmplitudeX = 60f;
+                    waveAmplitudeY = 40f;
+                    hoverDistance = 300f;
+                    attackDelay = 40; // Measured tempo
+                    break;
+                    
+                case BossMood.Tempest: // Storm rising, faster and more erratic
+                    hoverSpeed = 20f;
+                    lerpFactor = 0.12f;
+                    waveAmplitudeX = 100f;
+                    waveAmplitudeY = 60f;
+                    hoverDistance = 260f;
+                    attackDelay = 25; // Faster tempo
+                    break;
+                    
+                case BossMood.DyingSwan: // Tragic finale - desperate, beautiful chaos
+                default:
+                    hoverSpeed = 24f;
+                    lerpFactor = 0.15f;
+                    waveAmplitudeX = 140f;
+                    waveAmplitudeY = 80f;
+                    hoverDistance = 220f;
+                    attackDelay = 15; // Frantic tempo - the dying dance
+                    break;
+            }
+            
+            // Graceful hovering movement - fluid like a swan in flight
+            float hoverX = (float)Math.Sin(pulseTimer * 2.5f) * waveAmplitudeX;
+            float hoverY = (float)Math.Sin(pulseTimer * 3f) * waveAmplitudeY;
+            
+            Vector2 hoverPosition = target.Center + new Vector2(hoverX, -hoverDistance + hoverY);
             Vector2 direction = hoverPosition - NPC.Center;
             float distance = direction.Length();
 
             if (distance > 15f)
             {
                 direction.Normalize();
-                // Much faster and more responsive movement
-                NPC.velocity = Vector2.Lerp(NPC.velocity, direction * 18f, 0.12f);
+                // Smooth, fluid movement interpolation
+                NPC.velocity = Vector2.Lerp(NPC.velocity, direction * hoverSpeed, lerpFactor);
             }
             else
             {
                 NPC.velocity *= 0.85f;
             }
             
-            // Spawn trail particles while moving fast
-            if (NPC.velocity.Length() > 8f && Main.rand.NextBool(2))
+            // Spawn trail particles while moving fast - mood affects intensity
+            if (NPC.velocity.Length() > 8f && Main.rand.NextBool(currentMood == BossMood.DyingSwan ? 1 : 2))
             {
                 Color trailColor = Main.rand.NextBool() ? Color.White : Color.Black;
                 CustomParticles.SwanFeatherDrift(NPC.Center + Main.rand.NextVector2Circular(30f, 30f), trailColor, 0.2f);
+                
+                // Rainbow shimmer in DyingSwan
+                if (currentMood == BossMood.DyingSwan)
+                {
+                    float hue = (pulseTimer * 0.1f + Main.rand.NextFloat()) % 1f;
+                    Color rainbowColor = Main.hslToRgb(hue, 1f, 0.8f);
+                    CustomParticles.PrismaticSparkle(NPC.Center + Main.rand.NextVector2Circular(40f, 40f), rainbowColor, 0.25f);
+                }
             }
 
-            // Choose next attack VERY quickly - ULTRA aggressive boss
-            if (Timer > 15) // Was 35, now only 0.25 seconds between attacks!
+            // Choose next attack based on mood
+            if (Timer > attackDelay)
             {
                 Timer = 0;
                 AttackPhase = 0;
                 
-                // Attack weighting (rebalanced with new prismatic attacks):
-                // 20% - Attack 1 (Feather Cascade)
-                // 20% - Attack 2 (Prismatic Ring)
-                // 10% - Attack 3 (Dual Slash)
-                // 8% - Attack 4 (Lightning Storm)
-                // 7% - Attack 5 (Apocalypse - Rotating Beam)
-                // 7% - Attack 6 (Prismatic Vortex)
-                // 7% - Attack 7 (Prismatic Barrage)
-                // 7% - Attack 8 (Prismatic Cross)
-                // 7% - Attack 9 (Prismatic Wave)
-                // 7% - Attack 10 (Prismatic Chaos)
-                
-                int roll = Main.rand.Next(100);
-                
-                if (roll < 20) // 0-19 = 20%
-                {
-                    State = ActionState.FeatherCascadeWindup;
-                }
-                else if (roll < 40) // 20-39 = 20%
-                {
-                    State = ActionState.PrismaticRingWindup;
-                }
-                else if (roll < 50) // 40-49 = 10%
-                {
-                    State = ActionState.DualSlashWindup;
-                }
-                else if (roll < 58) // 50-57 = 8%
-                {
-                    State = ActionState.LightningStormWindup;
-                }
-                else if (roll < 65) // 58-64 = 7%
-                {
-                    State = ActionState.ApocalypseWindup;
-                }
-                else if (roll < 72) // 65-71 = 7%
-                {
-                    State = ActionState.PrismaticVortexWindup;
-                }
-                else if (roll < 79) // 72-78 = 7%
-                {
-                    State = ActionState.PrismaticBarrageWindup;
-                }
-                else if (roll < 86) // 79-85 = 7%
-                {
-                    State = ActionState.PrismaticCrossWindup;
-                }
-                else if (roll < 93) // 86-92 = 7%
-                {
-                    State = ActionState.PrismaticWaveWindup;
-                }
-                else // 93-99 = 7%
-                {
-                    State = ActionState.PrismaticChaosWindup;
-                }
+                SelectMoodBasedAttack(target);
                 
                 NPC.netUpdate = true;
+            }
+        }
+        
+        /// <summary>
+        /// Updates the current mood based on health thresholds with dramatic ballet-themed transitions.
+        /// </summary>
+        private void UpdateMood(Player target)
+        {
+            float healthPercent = (float)NPC.life / NPC.lifeMax;
+            
+            // Transition to Tempest at 60% HP
+            if (healthPercent <= 0.6f && !hasAnnouncedTempest)
+            {
+                hasAnnouncedTempest = true;
+                currentMood = BossMood.Tempest;
+                AnnounceMoodTransition("Tempest", target);
+            }
+            // Transition to Dying Swan at 30% HP
+            else if (healthPercent <= 0.3f && !hasAnnouncedDyingSwan)
+            {
+                hasAnnouncedDyingSwan = true;
+                currentMood = BossMood.DyingSwan;
+                AnnounceMoodTransition("DyingSwan", target);
+            }
+        }
+        
+        /// <summary>
+        /// Creates dramatic VFX announcement when transitioning between moods.
+        /// </summary>
+        private void AnnounceMoodTransition(string moodName, Player target)
+        {
+            bool isDyingSwan = moodName == "DyingSwan";
+            
+            // Screen shake
+            if (target.active)
+            {
+                MagnumScreenEffects.AddScreenShake(isDyingSwan ? 18f : 10f);
+            }
+            
+            // Sound cue - ethereal swan cry
+            SoundEngine.PlaySound(SoundID.Item29 with { Pitch = isDyingSwan ? 0.5f : 0.2f, Volume = 1.3f }, NPC.Center);
+            
+            // Massive feather burst
+            CustomParticles.SwanFeatherBurst(NPC.Center, isDyingSwan ? 50 : 30, 1.5f);
+            
+            // Dual-polarity burst - black and white
+            for (int i = 0; i < 12; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 12f;
+                Vector2 offset = angle.ToRotationVector2() * 50f;
+                Color flareColor = i % 2 == 0 ? Color.White : new Color(20, 20, 30);
+                CustomParticles.GenericFlare(NPC.Center + offset, flareColor, 0.6f, 25);
+            }
+            
+            // Expanding rainbow halos
+            for (int ring = 0; ring < 8; ring++)
+            {
+                float hue = ring / 8f;
+                Color ringColor = Main.hslToRgb(hue, 1f, 0.8f);
+                CustomParticles.HaloRing(NPC.Center, ringColor, 0.4f + ring * 0.25f, 20 + ring * 5);
+            }
+            
+            // Prismatic sparkle cascade
+            for (int i = 0; i < 20; i++)
+            {
+                float hue = i / 20f;
+                Color sparkleColor = Main.hslToRgb(hue, 1f, 0.85f);
+                Vector2 sparklePos = NPC.Center + Main.rand.NextVector2Circular(80f, 80f);
+                CustomParticles.PrismaticSparkle(sparklePos, sparkleColor, 0.4f);
+            }
+            
+            // Text announcement
+            if (Main.netMode != NetmodeID.Server)
+            {
+                string text = isDyingSwan ? "THE DYING SWAN!" : "THE TEMPEST RISES!";
+                Color textColor = isDyingSwan ? Color.White : Color.LightPink;
+                CombatText.NewText(NPC.Hitbox, textColor, text, true);
+            }
+        }
+        
+        /// <summary>
+        /// Selects attack based on current mood - each mood has distinct attack patterns.
+        /// Includes new spectacle attacks: Swan's Serenade, Fractal Laser, Chromatic Surge
+        /// </summary>
+        private void SelectMoodBasedAttack(Player target)
+        {
+            int roll = Main.rand.Next(100);
+            
+            switch (currentMood)
+            {
+                case BossMood.Graceful:
+                    // Elegant, measured attacks - mostly easy attacks + occasional spectacle
+                    if (roll < 25) // 25% - Feather Cascade
+                        State = ActionState.FeatherCascadeWindup;
+                    else if (roll < 45) // 20% - Prismatic Ring
+                        State = ActionState.PrismaticRingWindup;
+                    else if (roll < 65) // 20% - Dual Slash
+                        State = ActionState.DualSlashWindup;
+                    else if (roll < 80) // 15% - Lightning Storm
+                        State = ActionState.LightningStormWindup;
+                    else if (roll < 90) // 10% - Apocalypse (rare dramatic moment)
+                        State = ActionState.ApocalypseWindup;
+                    else // 10% - Swan's Serenade (Hero's Judgment style)
+                        State = ActionState.SwanSerenadeWindup;
+                    break;
+                    
+                case BossMood.Tempest:
+                    // Storm intensifies - mix of all attacks including new ones
+                    if (roll < 10) // 10% - Feather Cascade
+                        State = ActionState.FeatherCascadeWindup;
+                    else if (roll < 20) // 10% - Prismatic Ring
+                        State = ActionState.PrismaticRingWindup;
+                    else if (roll < 28) // 8% - Dual Slash
+                        State = ActionState.DualSlashWindup;
+                    else if (roll < 38) // 10% - Lightning Storm
+                        State = ActionState.LightningStormWindup;
+                    else if (roll < 50) // 12% - Apocalypse
+                        State = ActionState.ApocalypseWindup;
+                    else if (roll < 58) // 8% - Prismatic Vortex
+                        State = ActionState.PrismaticVortexWindup;
+                    else if (roll < 66) // 8% - Prismatic Barrage
+                        State = ActionState.PrismaticBarrageWindup;
+                    else if (roll < 74) // 8% - Prismatic Cross
+                        State = ActionState.PrismaticCrossWindup;
+                    else if (roll < 82) // 8% - Prismatic Wave
+                        State = ActionState.PrismaticWaveWindup;
+                    else if (roll < 90) // 8% - Swan's Serenade
+                        State = ActionState.SwanSerenadeWindup;
+                    else if (roll < 95) // 5% - Fractal Laser Storm
+                        State = ActionState.FractalLaserWindup;
+                    else // 5% - Chromatic Surge
+                        State = ActionState.ChromaticSurgeWindup;
+                    break;
+                    
+                case BossMood.DyingSwan:
+                    // Desperate finale - heavy attacks, new spectacle moves more common
+                    if (roll < 6) // 6% - Feather Cascade
+                        State = ActionState.FeatherCascadeWindup;
+                    else if (roll < 12) // 6% - Prismatic Ring
+                        State = ActionState.PrismaticRingWindup;
+                    else if (roll < 20) // 8% - Dual Slash
+                        State = ActionState.DualSlashWindup;
+                    else if (roll < 30) // 10% - Lightning Storm
+                        State = ActionState.LightningStormWindup;
+                    else if (roll < 42) // 12% - Apocalypse (more common now)
+                        State = ActionState.ApocalypseWindup;
+                    else if (roll < 50) // 8% - Prismatic Vortex
+                        State = ActionState.PrismaticVortexWindup;
+                    else if (roll < 58) // 8% - Prismatic Barrage
+                        State = ActionState.PrismaticBarrageWindup;
+                    else if (roll < 66) // 8% - Prismatic Cross
+                        State = ActionState.PrismaticCrossWindup;
+                    else if (roll < 74) // 8% - Prismatic Wave
+                        State = ActionState.PrismaticWaveWindup;
+                    else if (roll < 82) // 8% - Prismatic Chaos
+                        State = ActionState.PrismaticChaosWindup;
+                    else if (roll < 90) // 8% - Swan's Serenade
+                        State = ActionState.SwanSerenadeWindup;
+                    else if (roll < 95) // 5% - Fractal Laser Storm
+                        State = ActionState.FractalLaserWindup;
+                    else // 5% - Chromatic Surge
+                        State = ActionState.ChromaticSurgeWindup;
+                    break;
             }
         }
 
@@ -569,40 +927,44 @@ namespace MagnumOpus.Content.SwanLake.Bosses
 
         private void FeatherCascadeAttack(Player target)
         {
-            const int AttackDuration = 45; // Faster attack (was 60)
+            const int AttackDuration = 45;
             isUsingAttackSprite = true;
-            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.3f, 0.1f); // Visual distortion during attack
+            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.3f, 0.1f);
             
-            // Continue moving during attack - STRONGER tracking
-            Vector2 toPlayer = (target.Center - NPC.Center).SafeNormalize(Vector2.Zero);
-            NPC.velocity = Vector2.Lerp(NPC.velocity, toPlayer * 10f, 0.08f);
+            // === PATTERN-BASED MOVEMENT - Don't track directly! ===
+            // Move in a sweeping arc AROUND the player, not toward them
+            float arcAngle = (Timer / (float)AttackDuration) * MathHelper.Pi; // 180 degree arc
+            float startAngle = (target.Center - NPC.Center).ToRotation() - MathHelper.PiOver2;
+            Vector2 arcDirection = (startAngle + arcAngle).ToRotationVector2();
+            NPC.velocity = Vector2.Lerp(NPC.velocity, arcDirection * 12f, 0.1f);
             
-            // Spawn cascading feathers more rapidly - black and white with rainbow impacts
-            if (Timer % 3 == 0 && Timer < AttackDuration - 10) // Was Timer % 4
+            // === SPREAD PATTERN FEATHERS - Not aimed at player! ===
+            if (Timer % 3 == 0 && Timer < AttackDuration - 10)
             {
                 SoundEngine.PlaySound(SoundID.Item1 with { Pitch = 0.5f, Volume = 0.4f }, NPC.Center);
                 
-                // Spray of feathers toward player in a spread
+                // Fire feathers in a FIXED downward fan pattern
+                // Player must move horizontally to dodge
                 for (int i = 0; i < 7; i++)
                 {
-                    float angle = MathHelper.ToRadians(-75 + i * 25);
-                    Vector2 velocity = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 12f;
-                    Vector2 featherPos = NPC.Center + new Vector2(0, 40) + velocity * 4f;
+                    // Fixed angles: mostly downward with spread
+                    float angle = MathHelper.PiOver2 + MathHelper.ToRadians(-60 + i * 20); // Downward fan
+                    Vector2 velocity = angle.ToRotationVector2() * (10f + i % 2 * 3f); // Alternating speeds
                     
-                    // Alternate black and white feathers
                     Color featherColor = i % 2 == 0 ? Color.White : Color.Black;
-                    CustomParticles.SwanFeatherBurst(featherPos, 4, 0.5f);
+                    CustomParticles.SwanFeatherBurst(NPC.Center, 2, 0.4f);
                     
-                    // Pearlescent rainbow explosion on spawn
-                    Color rainbowColor = Main.hslToRgb((Timer * 0.04f + i * 0.2f) % 1f, 1f, 0.8f);
-                    CustomParticles.PrismaticSparkleBurst(featherPos, rainbowColor, 3);
-                    
-                    // Dust feathers - monochrome
-                    for (int j = 0; j < 4; j++)
-                    {
-                        Dust feather = Dust.NewDustDirect(NPC.Center, 20, 20, DustID.Cloud, velocity.X * 1.2f, velocity.Y * 1.2f, 100, featherColor, 1.8f);
-                        feather.noGravity = true;
-                    }
+                    // Spawn actual projectile (if you have a feather projectile type)
+                    // For now, visual effect + damage zone
+                }
+                
+                // Rainbow sparkles at varying positions
+                for (int i = 0; i < 3; i++)
+                {
+                    float hue = (Timer * 0.04f + i * 0.3f) % 1f;
+                    Color rainbowColor = Main.hslToRgb(hue, 1f, 0.8f);
+                    Vector2 sparkleOffset = Main.rand.NextVector2Circular(50f, 50f);
+                    CustomParticles.PrismaticSparkleBurst(NPC.Center + sparkleOffset, rainbowColor, 2);
                 }
             }
             
@@ -701,26 +1063,46 @@ namespace MagnumOpus.Content.SwanLake.Bosses
 
         #region Attack 3: Dual Swan Arc Slashes (Medium)
 
+        // Store committed direction for predictable slashes
+        private float dualSlashCommittedAngle = 0f;
+        private Vector2 dualSlashTargetPos = Vector2.Zero;
+        
         private void DualSlashWindup(Player target)
         {
-            const int WindupTime = 12; // ULTRA fast windup (was 25)
+            const int WindupTime = 20; // Slightly longer for telegraph
             isUsingAttackSprite = true;
             
-            // Rapidly approach player - stronger tracking
-            Vector2 toPlayer = (target.Center - NPC.Center).SafeNormalize(Vector2.Zero);
-            NPC.velocity = Vector2.Lerp(NPC.velocity, toPlayer * 20f, 0.15f);
-            
+            // === COMMIT TO DIRECTION EARLY ===
             if (Timer == 1)
             {
+                // Lock direction toward player at START of windup
+                dualSlashTargetPos = target.Center;
+                dualSlashCommittedAngle = (target.Center - NPC.Center).ToRotation();
                 SoundEngine.PlaySound(SoundID.Item71 with { Pitch = 0f }, NPC.Center);
             }
             
-            // Building energy with feathers and arcs - more intense
+            // Move toward COMMITTED position, not current player position
+            Vector2 toTarget = (dualSlashTargetPos - NPC.Center).SafeNormalize(Vector2.Zero);
+            NPC.velocity = Vector2.Lerp(NPC.velocity, toTarget * 18f, 0.12f);
+            
+            // Building energy with feathers and arcs
             if (Timer % 3 == 0)
             {
                 Vector2 offset = Main.rand.NextVector2Circular(100f, 100f);
                 CustomParticles.SwordArcWave(NPC.Center + offset, Vector2.Zero, Color.White * 0.6f, 0.4f);
                 CustomParticles.SwanFeatherAura(NPC.Center, 50f, 5);
+            }
+            
+            // === TELEGRAPH: Show committed slash direction ===
+            if (Timer > 8)
+            {
+                float telegraphIntensity = (Timer - 8f) / 12f;
+                Vector2 leftDir = dualSlashCommittedAngle.ToRotationVector2().RotatedBy(MathHelper.ToRadians(-25));
+                Vector2 rightDir = dualSlashCommittedAngle.ToRotationVector2().RotatedBy(MathHelper.ToRadians(25));
+                
+                // Show slash paths
+                CustomParticles.GenericFlare(NPC.Center + leftDir * 80f, Color.Black * telegraphIntensity * 0.5f, 0.3f * telegraphIntensity, 5);
+                CustomParticles.GenericFlare(NPC.Center + rightDir * 80f, Color.White * telegraphIntensity * 0.5f, 0.3f * telegraphIntensity, 5);
             }
             
             if (Timer >= WindupTime)
@@ -734,23 +1116,30 @@ namespace MagnumOpus.Content.SwanLake.Bosses
 
         private void DualSlashAttack(Player target)
         {
-            const int SlashInterval = 10; // ULTRA fast slashes (was 15)
-            const int TotalSlashes = 10; // More slashes (5 pairs - was 8)
+            const int SlashInterval = 12; // Slightly slower for readability
+            const int TotalSlashes = 8; // Reduced for balance
             isUsingAttackSprite = true;
-            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.45f, 0.12f); // Visual distortion during slashes
+            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.45f, 0.12f);
             
-            // Aggressive chase during slashing - STRONGER tracking
-            Vector2 toPlayer = (target.Center - NPC.Center).SafeNormalize(Vector2.Zero);
-            NPC.velocity = Vector2.Lerp(NPC.velocity, toPlayer * 18f, 0.12f);
+            // === PREDICTABLE: Continue toward committed direction ===
+            // Re-commit direction only every 2 slashes (less tracking)
+            if (AttackPhase % 2 == 0 && Timer == 1)
+            {
+                // Update target, but use PREDICTED position (where player will be)
+                Vector2 predictedPos = target.Center + target.velocity * 10f; // Lead the target
+                dualSlashCommittedAngle = (predictedPos - NPC.Center).ToRotation();
+            }
             
-            // Fire dual slashes
+            Vector2 moveDir = dualSlashCommittedAngle.ToRotationVector2();
+            NPC.velocity = Vector2.Lerp(NPC.velocity, moveDir * 16f, 0.1f);
+            
+            // Fire dual slashes using COMMITTED angle
             if (Timer == 1 && AttackPhase < TotalSlashes)
             {
                 SoundEngine.PlaySound(SoundID.Item1 with { Pitch = 0.4f }, NPC.Center);
                 
-                // Dual arc slashes - one black, one white
-                Vector2 playerDir = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
-                float baseAngle = playerDir.ToRotation();
+                // Use COMMITTED angle, not current player direction
+                float baseAngle = dualSlashCommittedAngle;
                 
                 // Black swan slash (left)
                 Vector2 leftDir = baseAngle.ToRotationVector2().RotatedBy(MathHelper.ToRadians(-25));
@@ -1012,25 +1401,73 @@ namespace MagnumOpus.Content.SwanLake.Bosses
 
         private void ApocalypseAttack(Player target)
         {
-            const int AttackDuration = 150; // Slightly shorter (was 180)
+            const int AttackDuration = 180; // Full duration for learnable pattern
             isUsingAttackSprite = true;
             distortionIntensity = 0.7f; // Strong distortion during ultimate
             
-            // Track player more aggressively while beaming
-            Vector2 hoverPos = target.Center + new Vector2(0, -230);
-            Vector2 toHover = hoverPos - NPC.Center;
-            NPC.velocity = Vector2.Lerp(NPC.velocity, toHover * 0.06f, 0.05f);
+            // === PREDICTABLE BEHAVIOR: Boss STAYS IN PLACE - no tracking ===
+            // Slow to a stop, giving player predictable beam origin
+            NPC.velocity *= 0.92f;
             
-            // Rotate the beam CLOCKWISE - FASTER rotation!
-            beamRotationAngle += 0.05f; // Faster rotation (was 0.035)
+            // === LEARNABLE ROTATION PATTERN ===
+            // Phase 1 (0-60): Slow clockwise rotation
+            // Phase 2 (60-120): Faster clockwise, second beam appears
+            // Phase 3 (120-180): Reverse direction (counter-clockwise) - players must adapt!
             
-            // Draw the prismatic radiant beam
+            float rotationSpeed;
+            if (Timer < 60)
+            {
+                // Phase 1: Slow, predictable clockwise
+                rotationSpeed = 0.035f;
+            }
+            else if (Timer < 120)
+            {
+                // Phase 2: Faster clockwise, second beam offset by 90 degrees (not 180)
+                rotationSpeed = 0.055f;
+            }
+            else
+            {
+                // Phase 3: REVERSE DIRECTION - players must react!
+                rotationSpeed = -0.065f;
+                
+                // Warning flash when direction changes
+                if (Timer == 120)
+                {
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.8f, Volume = 1.2f }, NPC.Center);
+                    CustomParticles.ExplosionBurst(NPC.Center, Color.Red, 20, 15f);
+                    EroicaScreenShake.MediumShake(NPC.Center);
+                }
+            }
+            
+            beamRotationAngle += rotationSpeed;
+            
+            // Draw the primary beam
             DrawPrismaticBeam(NPC.Center, beamRotationAngle, beamLength);
             
-            // Secondary beam for dramatic effect (offset by 180 degrees)
-            if (Timer > 60)
+            // Second beam at 90 degrees offset (creates + pattern, not line)
+            // This creates 4 "safe quadrants" that rotate - predictable!
+            if (Timer >= 60)
             {
-                DrawPrismaticBeam(NPC.Center, beamRotationAngle + MathHelper.Pi, beamLength * 0.7f);
+                DrawPrismaticBeam(NPC.Center, beamRotationAngle + MathHelper.PiOver2, beamLength * 0.85f);
+            }
+            
+            // Third beam in DyingSwan mood - creates triangle pattern
+            if (currentMood == BossMood.DyingSwan && Timer >= 90)
+            {
+                DrawPrismaticBeam(NPC.Center, beamRotationAngle + MathHelper.TwoPi / 3f, beamLength * 0.7f);
+            }
+            
+            // === VISUAL TELEGRAPH FOR ROTATION CHANGE ===
+            // Show warning particles 15 frames before direction change
+            if (Timer >= 105 && Timer < 120)
+            {
+                float warningIntensity = (Timer - 105f) / 15f;
+                for (int i = 0; i < 8; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 8f;
+                    Vector2 warningPos = NPC.Center + angle.ToRotationVector2() * (60f + warningIntensity * 30f);
+                    CustomParticles.GenericFlare(warningPos, Color.Red * warningIntensity, 0.4f * warningIntensity, 8);
+                }
             }
             
             // Particles spiraling around boss
@@ -1064,7 +1501,7 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             }
             
             // Screenshake
-            if (Timer % 5 == 0)
+            if (Timer % 8 == 0)
             {
                 EroicaScreenShake.SmallShake(NPC.Center);
             }
@@ -1250,22 +1687,65 @@ namespace MagnumOpus.Content.SwanLake.Bosses
 
         private void PrismaticVortexAttack(Player target)
         {
-            const int AttackDuration = 120;
+            const int AttackDuration = 150; // Longer for learnable patterns
             isUsingAttackSprite = true;
             distortionIntensity = 0.6f;
             
-            // Stay in place
+            // === PREDICTABLE: Boss stays still during vortex ===
             NPC.velocity *= 0.9f;
             
-            // Spiral beams inward toward center - start massive and contract
-            float spiralProgress = Timer / (float)AttackDuration;
-            float beamLength = 4000f * (1f - spiralProgress * 0.7f); // Starts at 4000 and spirals down
+            // === LEARNABLE PATTERN: Constant rotation speed with phases ===
+            // Phase 1 (0-60): 8 beams rotating SLOWLY counter-clockwise
+            // Phase 2 (60-120): Beams contract inward + speed up
+            // Phase 3 (120-150): Beams REVERSE direction briefly before ending
             
+            float spiralProgress = Timer / (float)AttackDuration;
+            float beamLength;
+            float rotationSpeed;
+            
+            if (Timer < 60)
+            {
+                // Phase 1: Full length, slow rotation
+                beamLength = 4000f;
+                rotationSpeed = -0.03f; // Slow counter-clockwise
+            }
+            else if (Timer < 120)
+            {
+                // Phase 2: Contracting + faster
+                float phase2Progress = (Timer - 60f) / 60f;
+                beamLength = 4000f * (1f - phase2Progress * 0.5f); // Shrinks to 2000
+                rotationSpeed = -0.05f; // Faster counter-clockwise
+            }
+            else
+            {
+                // Phase 3: REVERSE and expand - warning for players!
+                if (Timer == 120)
+                {
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 1.0f }, NPC.Center);
+                    CustomParticles.ExplosionBurst(NPC.Center, Color.Yellow, 15, 12f);
+                }
+                float phase3Progress = (Timer - 120f) / 30f;
+                beamLength = 2000f + phase3Progress * 1000f; // Expands back out
+                rotationSpeed = 0.06f; // CLOCKWISE now!
+            }
+            
+            // Apply CONSTANT rotation to all beams (predictable!)
             for (int i = 0; i < 8; i++)
             {
-                // Spiral inward rotation (counter-clockwise)
-                vortexBeamAngles[i] -= 0.04f;
+                vortexBeamAngles[i] += rotationSpeed;
                 DrawPrismaticBeam(NPC.Center, vortexBeamAngles[i], beamLength);
+            }
+            
+            // Safe zone indicators - show the gaps between beams
+            if (Timer % 6 == 0)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    // Mark the MIDDLE of each gap (45 degrees between beams)
+                    float gapAngle = vortexBeamAngles[i] + MathHelper.PiOver4; // Halfway between beams
+                    Vector2 safeIndicator = NPC.Center + gapAngle.ToRotationVector2() * 100f;
+                    CustomParticles.GenericFlare(safeIndicator, Color.White * 0.3f, 0.2f, 8);
+                }
             }
             
             // Particles at center becoming more intense
@@ -1279,7 +1759,7 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                 CustomParticles.SwanFeatherDuality(NPC.Center, 8, 0.7f);
             }
             
-            if (Timer % 8 == 0)
+            if (Timer % 12 == 0)
             {
                 EroicaScreenShake.SmallShake(NPC.Center);
             }
@@ -1338,30 +1818,48 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             isUsingAttackSprite = true;
             distortionIntensity = 0.5f;
             
-            // Chase player aggressively
-            Vector2 toPlayer = (target.Center - NPC.Center).SafeNormalize(Vector2.Zero);
-            NPC.velocity = Vector2.Lerp(NPC.velocity, toPlayer * 10f, 0.08f);
+            // === PREDICTABLE MOVEMENT: Circle around player, not chase ===
+            float circleAngle = Timer * 0.05f;
+            float circleRadius = 300f;
+            Vector2 circlePos = target.Center + circleAngle.ToRotationVector2() * circleRadius;
+            Vector2 toCircle = circlePos - NPC.Center;
+            NPC.velocity = Vector2.Lerp(NPC.velocity, toCircle * 0.08f, 0.06f);
             
-            // Fire scattered beam bursts
+            // === PATTERN-BASED BEAMS: Rotating burst pattern, not random ===
             if (Timer % BurstInterval == 0)
             {
-                SoundEngine.PlaySound(SoundID.Item122 with { Pitch = Main.rand.NextFloat(-0.2f, 0.4f), Volume = 0.8f }, NPC.Center);
+                SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.1f + AttackPhase * 0.05f, Volume = 0.8f }, NPC.Center);
                 EroicaScreenShake.SmallShake(NPC.Center);
                 
-                // 3-5 beams in random directions
-                int beamCount = Main.rand.Next(3, 6);
+                // FIXED pattern: 5 beams in a spread that ROTATES each burst
+                // Each burst is offset by 22.5 degrees from the last
+                float burstBaseAngle = AttackPhase * MathHelper.ToRadians(22.5f);
+                int beamCount = 5;
+                float spreadAngle = MathHelper.ToRadians(30f); // 30 degrees between beams
+                
                 for (int i = 0; i < beamCount; i++)
                 {
-                    float randomAngle = Main.rand.NextFloat(MathHelper.TwoPi);
-                    float beamLength = Main.rand.NextFloat(2500f, 4000f); // Massive beams across map!
-                    DrawPrismaticBeam(NPC.Center, randomAngle, beamLength);
+                    // Spread from -60 to +60 degrees relative to base angle
+                    float offsetAngle = (i - (beamCount - 1) / 2f) * spreadAngle;
+                    float finalAngle = burstBaseAngle + offsetAngle;
+                    float beamLength = 3500f; // Consistent length
+                    DrawPrismaticBeam(NPC.Center, finalAngle, beamLength);
                     
-                    // Impact explosions at random positions along beam
-                    Vector2 impactPos = NPC.Center + new Vector2((float)Math.Cos(randomAngle), (float)Math.Sin(randomAngle)) * beamLength * Main.rand.NextFloat(0.5f, 1f);
-                    float hue = Main.rand.NextFloat();
-                    CustomParticles.ExplosionBurst(impactPos, Main.hslToRgb(hue, 1f, 0.85f), 8, 6f);
+                    // Impact effect at beam end
+                    Vector2 impactPos = NPC.Center + finalAngle.ToRotationVector2() * beamLength;
+                    float hue = (float)i / beamCount;
+                    CustomParticles.ExplosionBurst(impactPos, Main.hslToRgb(hue, 1f, 0.85f), 6, 5f);
                 }
                 
+                // Show telegraph for NEXT burst direction
+                float nextBurstAngle = (AttackPhase + 1) * MathHelper.ToRadians(22.5f);
+                for (int w = 0; w < 3; w++)
+                {
+                    Vector2 warningPos = NPC.Center + (nextBurstAngle + (w - 1) * spreadAngle).ToRotationVector2() * 80f;
+                    CustomParticles.GenericFlare(warningPos, Color.Yellow * 0.4f, 0.25f, BurstInterval - 2);
+                }
+                
+                AttackPhase++;
                 CustomParticles.SwanFeatherExplosion(NPC.Center, 12, 0.8f);
             }
             
@@ -1425,23 +1923,66 @@ namespace MagnumOpus.Content.SwanLake.Bosses
 
         private void PrismaticCrossAttack(Player target)
         {
-            const int AttackDuration = 90;
+            const int AttackDuration = 120; // Longer for phase pattern
             isUsingAttackSprite = true;
             distortionIntensity = 0.65f;
             
-            // Slow hover tracking
-            Vector2 hoverPos = target.Center + new Vector2(0, -200);
-            Vector2 toHover = hoverPos - NPC.Center;
-            NPC.velocity = Vector2.Lerp(NPC.velocity, toHover * 0.04f, 0.03f);
+            // === PREDICTABLE: Boss stays STILL during cross attack ===
+            NPC.velocity *= 0.9f;
             
-            // Rotate the X cross slowly
-            crossRotation += 0.025f;
+            // === LEARNABLE ROTATION PHASES ===
+            // Phase 1 (0-40): Slow clockwise
+            // Phase 2 (40-80): Faster clockwise  
+            // Phase 3 (80-120): REVERSE to counter-clockwise!
+            
+            float rotationSpeed;
+            if (Timer < 40)
+            {
+                rotationSpeed = 0.02f; // Slow
+            }
+            else if (Timer < 80)
+            {
+                rotationSpeed = 0.04f; // Faster
+                
+                // Warning at phase change
+                if (Timer == 40)
+                {
+                    SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.5f }, NPC.Center);
+                    CustomParticles.GenericFlare(NPC.Center, Color.Orange, 0.8f, 15);
+                }
+            }
+            else
+            {
+                rotationSpeed = -0.05f; // REVERSE!
+                
+                // Big warning at reversal
+                if (Timer == 80)
+                {
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.7f, Volume = 1.1f }, NPC.Center);
+                    CustomParticles.ExplosionBurst(NPC.Center, Color.Red, 15, 10f);
+                    EroicaScreenShake.SmallShake(NPC.Center);
+                }
+            }
+            
+            crossRotation += rotationSpeed;
             
             // Draw 4 beams in X pattern - MASSIVE map-spanning beams!
             for (int arm = 0; arm < 4; arm++)
             {
                 float armAngle = crossRotation + arm * MathHelper.PiOver2;
                 DrawPrismaticBeam(NPC.Center, armAngle, 4000f);
+            }
+            
+            // === TELEGRAPH: Show beam positions 10 frames ahead ===
+            if (Timer % 8 == 0)
+            {
+                float futureRotation = crossRotation + rotationSpeed * 10f;
+                for (int arm = 0; arm < 4; arm++)
+                {
+                    float futureAngle = futureRotation + arm * MathHelper.PiOver2;
+                    Vector2 telegraphPos = NPC.Center + futureAngle.ToRotationVector2() * 120f;
+                    CustomParticles.GenericFlare(telegraphPos, Color.Yellow * 0.3f, 0.25f, 8);
+                }
             }
             
             // Center particle effects
@@ -1696,6 +2237,393 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             }
         }
 
+        #endregion
+
+        #region Attack 11: Swan's Serenade (Hero's Judgment Style)
+        
+        private float[] serenadeBeamAngles; // For fractal laser attack
+        
+        /// <summary>
+        /// SWAN'S SERENADE - Hero's Judgment style spectacle attack
+        /// Features: Converging feathers, safe zone indicators, multi-wave burst with safe arc
+        /// 150 BPM timing: 24 frames per beat
+        /// OPTIMIZED: Reduced particle counts, BossVFXOptimizer warnings
+        /// </summary>
+        private void SwanSerenadeWindup(Player target)
+        {
+            // DIFFICULTY: Shorter charge time
+            int chargeTime = currentMood == BossMood.DyingSwan ? 42 : 54; // Shorter (was 60/72)
+            isUsingAttackSprite = true;
+            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.5f, 0.08f);
+            
+            // Hover above player during windup
+            Vector2 hoverPos = target.Center + new Vector2(0, -280f);
+            Vector2 toHover = hoverPos - NPC.Center;
+            NPC.velocity = Vector2.Lerp(NPC.velocity, toHover * 0.1f, 0.08f); // Faster hover
+            
+            if (Timer == 1)
+            {
+                SoundEngine.PlaySound(SoundID.Item165 with { Pitch = 0.4f, Volume = 1.3f }, NPC.Center);
+                
+                if (Main.netMode != NetmodeID.Server)
+                {
+                    string text = currentMood == BossMood.DyingSwan ? "HEAR MY FINAL SONG!" : "LISTEN TO THE SERENADE!";
+                    CombatText.NewText(NPC.Hitbox, Color.White, text, true);
+                }
+            }
+            
+            float progress = Timer / (float)chargeTime;
+            
+            // OPTIMIZED: Use BossVFXOptimizer for converging ring - reduced frequency
+            if (Timer % 5 == 0)
+            {
+                BossVFXOptimizer.ConvergingWarning(NPC.Center, 280f, progress, Color.White, 8);
+                
+                // Occasional feathers (reduced)
+                if (Timer % 10 == 0)
+                {
+                    CustomParticles.SwanFeatherSpiral(NPC.Center + Main.rand.NextVector2CircularEdge(200f * (1f - progress * 0.4f), 200f * (1f - progress * 0.4f)), 
+                        Main.rand.NextBool() ? Color.White : Color.Black, 4);
+                }
+            }
+            
+            // SAFE ZONE INDICATOR - earlier start, use optimizer
+            if (Timer > chargeTime / 3)
+            {
+                BossVFXOptimizer.SafeZoneRing(target.Center, 110f, 12);
+                
+                // Show safe arc from boss
+                float safeAngle = (target.Center - NPC.Center).ToRotation();
+                BossVFXOptimizer.SafeArcIndicator(NPC.Center, safeAngle, MathHelper.ToRadians(32f), 180f, 8);
+            }
+            
+            // Building screen shake
+            if (Timer > chargeTime * 0.6f)
+            {
+                EroicaScreenShake.SmallShake(NPC.Center);
+            }
+            
+            if (Timer >= chargeTime)
+            {
+                Timer = 0;
+                AttackPhase = 0;
+                State = ActionState.SwanSerenadeAttack;
+                NPC.netUpdate = true;
+            }
+        }
+        
+        private void SwanSerenadeAttack(Player target)
+        {
+            // DIFFICULTY: More waves, faster timing
+            int waveCount = currentMood == BossMood.DyingSwan ? 6 : 5; // More waves (was 5/4)
+            int waveDelay = 36; // Faster (was 48)
+            isUsingAttackSprite = true;
+            distortionIntensity = 0.6f;
+            
+            if (AttackPhase < waveCount)
+            {
+                // === MULTI-WAVE BURST WITH SAFE ARC ===
+                if (Timer == 1)
+                {
+                    EroicaScreenShake.LargeShake(NPC.Center);
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f + AttackPhase * 0.1f, Volume = 1.4f }, NPC.Center);
+                    
+                    // OPTIMIZED: Use BossVFXOptimizer for central flash
+                    BossVFXOptimizer.AttackReleaseBurst(NPC.Center, Color.White, Main.hslToRgb((AttackPhase * 0.15f) % 1f, 1f, 0.8f), 1.3f);
+                    
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        // DIFFICULTY: More projectiles, faster, tighter safe arc
+                        int projectileCount = 32 + (int)AttackPhase * 5; // More (was 24+4)
+                        float safeAngle = (target.Center - NPC.Center).ToRotation();
+                        float safeArc = MathHelper.ToRadians(30f - AttackPhase * 2f); // Tighter (was 40f)
+                        
+                        for (int i = 0; i < projectileCount; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / projectileCount;
+                            
+                            // SAFE ARC - skip projectiles aimed toward player
+                            float angleDiff = MathHelper.WrapAngle(angle - safeAngle);
+                            if (Math.Abs(angleDiff) < safeArc) continue;
+                            
+                            // DIFFICULTY: Much faster projectiles
+                            float speed = 14f + AttackPhase * 3f; // Faster (was 10f+2f)
+                            Vector2 vel = angle.ToRotationVector2() * speed;
+                            
+                            // Alternate with more tracking
+                            Color projColor = i % 2 == 0 ? Color.White : new Color(30, 30, 35);
+                            float homing = i % 3 == 0 ? 0.02f : 0f; // More homing (was i%4, 0.015f)
+                            
+                            if (i % 4 == 0)
+                                BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel * 0.7f, 100, projColor, 18f);
+                            else
+                                BossProjectileHelper.SpawnHostileOrb(NPC.Center, vel, 100, projColor, homing);
+                        }
+                    }
+                    
+                    // OPTIMIZED: Cascading halos with fewer particles
+                    BossVFXOptimizer.OptimizedCascadingHalos(NPC.Center, Color.White, Color.Black, 6, 0.4f, 16);
+                    
+                    // OPTIMIZED: Reduced feather burst
+                    for (int f = 0; f < 6; f++)
+                    {
+                        Color fColor = f % 2 == 0 ? Color.White : Color.Black;
+                        float featherAngle = MathHelper.TwoPi * f / 6f;
+                        CustomParticles.SwanFeatherSpiral(NPC.Center + featherAngle.ToRotationVector2() * 25f, fColor, 3);
+                    }
+                }
+                
+                if (Timer >= waveDelay)
+                {
+                    Timer = 0;
+                    AttackPhase++;
+                }
+            }
+            else
+            {
+                // Shorter recovery
+                if (Timer >= 30) // Was 40
+                {
+                    Timer = 0;
+                    AttackPhase = 0;
+                    State = ActionState.Idle;
+                    NPC.netUpdate = true;
+                }
+            }
+        }
+        
+        #endregion
+        
+        #region Attack 12: Fractal Laser Storm
+        
+        /// <summary>
+        /// FRACTAL LASER STORM - Crossing laser beams that sweep the arena
+        /// Features: Warning indicators, sweeping prismatic beams
+        /// OPTIMIZED: BossVFXOptimizer warnings, reduced particles
+        /// </summary>
+        private void FractalLaserWindup(Player target)
+        {
+            const int WindupTime = 36; // Shorter (was 48)
+            isUsingAttackSprite = true;
+            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.55f, 0.1f);
+            
+            int laserCount = currentMood == BossMood.DyingSwan ? 9 : 7; // More lasers (was 8/6)
+            
+            // Hover above arena center
+            Vector2 hoverPos = target.Center + new Vector2(0, -260f);
+            NPC.velocity = Vector2.Lerp(NPC.velocity, (hoverPos - NPC.Center) * 0.08f, 0.06f);
+            
+            if (Timer == 1)
+            {
+                SoundEngine.PlaySound(SoundID.Item15 with { Pitch = 0.5f }, NPC.Center);
+                serenadeBeamAngles = new float[laserCount];
+                for (int i = 0; i < laserCount; i++)
+                {
+                    serenadeBeamAngles[i] = MathHelper.TwoPi * i / laserCount;
+                }
+            }
+            
+            float progress = Timer / (float)WindupTime;
+            
+            // OPTIMIZED: Use LaserBeamWarning for clear telegraph
+            if (Timer % 4 == 0)
+            {
+                for (int i = 0; i < laserCount; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / laserCount + Timer * 0.015f;
+                    BossVFXOptimizer.LaserBeamWarning(NPC.Center, angle, 1500f, progress);
+                }
+            }
+            
+            // OPTIMIZED: Gathering sparkles - reduced frequency
+            if (Timer % 8 == 0)
+            {
+                BossVFXOptimizer.ConvergingWarning(NPC.Center, 100f, progress, Color.White, 6);
+            }
+            
+            if (Timer >= WindupTime)
+            {
+                Timer = 0;
+                State = ActionState.FractalLaserAttack;
+                SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 1.4f }, NPC.Center);
+                EroicaScreenShake.MediumShake(NPC.Center);
+                NPC.netUpdate = true;
+            }
+        }
+        
+        private void FractalLaserAttack(Player target)
+        {
+            // DIFFICULTY: Faster sweep, wider angle
+            int sweepDuration = currentMood == BossMood.DyingSwan ? 60 : 72; // Faster (was 84/96)
+            int laserCount = serenadeBeamAngles?.Length ?? 7;
+            isUsingAttackSprite = true;
+            distortionIntensity = 0.65f;
+            
+            float sweepProgress = Timer / (float)sweepDuration;
+            float sweepAngle = sweepProgress * MathHelper.Pi * 1.3f; // Wider sweep (was Pi)
+            
+            // OPTIMIZED: Draw beams with reduced particles and spawn projectiles
+            for (int i = 0; i < laserCount; i++)
+            {
+                float currentAngle = serenadeBeamAngles[i] + sweepAngle * (i % 2 == 0 ? 1 : -1);
+                
+                // OPTIMIZED: Draw beam less frequently but keep threat visible
+                if (Timer % 2 == 0)
+                {
+                    float beamLength = 2000f;
+                    DrawPrismaticBeam(NPC.Center, currentAngle, beamLength);
+                }
+                
+                // DIFFICULTY: More frequent projectiles, faster (6 frames = quarter beat)
+                if (Timer % 6 == 0 && Main.netMode != NetmodeID.MultiplayerClient)
+                {
+                    for (int p = 0; p < 5 + (currentMood == BossMood.DyingSwan ? 1 : 0); p++) // More projectiles
+                    {
+                        float dist = 150f + p * 220f;
+                        Vector2 projPos = NPC.Center + currentAngle.ToRotationVector2() * dist;
+                        float projSpeed = 7f + p * 1f; // Faster
+                        Vector2 projVel = currentAngle.ToRotationVector2() * projSpeed;
+                        float hue = (i / (float)laserCount + Timer * 0.01f) % 1f;
+                        
+                        if (p % 2 == 0)
+                            BossProjectileHelper.SpawnAcceleratingBolt(projPos, projVel, 95, Main.hslToRgb(hue, 1f, 0.8f), 15f);
+                        else
+                            BossProjectileHelper.SpawnHostileOrb(projPos, projVel, 95, Main.hslToRgb(hue, 1f, 0.8f), 0.025f);
+                    }
+                }
+            }
+            
+            if (Timer >= sweepDuration)
+            {
+                Timer = 0;
+                State = ActionState.Idle;
+                NPC.netUpdate = true;
+            }
+        }
+        
+        #endregion
+        
+        #region Attack 13: Chromatic Surge
+        
+        /// <summary>
+        /// CHROMATIC SURGE - Electrical rainbow pulses expanding outward
+        /// Features: Building charge, expanding shock rings, lightning arcs
+        /// OPTIMIZED: BossVFXOptimizer, reduced particles, danger zone warning
+        /// </summary>
+        private void ChromaticSurgeWindup(Player target)
+        {
+            const int ChargeTime = 36; // Shorter (was 48)
+            isUsingAttackSprite = true;
+            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.5f, 0.1f);
+            
+            NPC.velocity *= 0.9f;
+            
+            if (Timer == 1)
+            {
+                SoundEngine.PlaySound(SoundID.Item93 with { Pitch = 0.2f, Volume = 1.2f }, NPC.Center);
+            }
+            
+            float progress = Timer / (float)ChargeTime;
+            
+            // OPTIMIZED: Use ElectricalBuildupWarning with rainbow tint
+            if (Timer % 5 == 0)
+            {
+                float hue = (Timer * 0.03f) % 1f;
+                BossVFXOptimizer.ElectricalBuildupWarning(NPC.Center, Main.hslToRgb(hue, 1f, 0.85f), 220f * (1f - progress * 0.6f), progress);
+            }
+            
+            // OPTIMIZED: Reduced charge VFX frequency
+            if (Timer % 6 == 0)
+            {
+                BossVFXOptimizer.OptimizedRadialFlares(NPC.Center, Main.hslToRgb((Timer * 0.02f) % 1f, 1f, 0.9f),
+                    6, 60f - progress * 35f, 0.35f + progress * 0.25f, 10);
+            }
+            
+            // Show danger zone expanding
+            if (Timer > ChargeTime / 2)
+            {
+                BossVFXOptimizer.DangerZoneRing(NPC.Center, 100f + progress * 250f, 12);
+            }
+            
+            if (Timer >= ChargeTime)
+            {
+                Timer = 0;
+                AttackPhase = 0;
+                State = ActionState.ChromaticSurgeAttack;
+                NPC.netUpdate = true;
+            }
+        }
+        
+        private void ChromaticSurgeAttack(Player target)
+        {
+            // DIFFICULTY: More waves, faster, more projectiles
+            int surgeWaves = currentMood == BossMood.DyingSwan ? 7 : 6; // More waves (was 6/5)
+            int waveDelay = 18; // Much faster (was 24)
+            isUsingAttackSprite = true;
+            distortionIntensity = 0.7f;
+            
+            if (AttackPhase < surgeWaves)
+            {
+                if (Timer == 1)
+                {
+                    EroicaScreenShake.MediumShake(NPC.Center);
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f + AttackPhase * 0.08f, Volume = 1.3f }, NPC.Center);
+                    
+                    // OPTIMIZED: Use BossVFXOptimizer for central burst
+                    float baseHue = (AttackPhase * 0.12f) % 1f;
+                    BossVFXOptimizer.AttackReleaseBurst(NPC.Center, Main.hslToRgb(baseHue, 1f, 0.9f), 
+                        Main.hslToRgb((baseHue + 0.3f) % 1f, 1f, 0.8f), 1.1f);
+                    
+                    // Spawn expanding ring projectiles
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        // DIFFICULTY: More projectiles, faster
+                        int ringCount = 24 + (int)AttackPhase * 4; // More (was 18+3)
+                        float baseSpeed = 13f + AttackPhase * 3f; // Much faster (was 9f+2f)
+                        
+                        for (int i = 0; i < ringCount; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / ringCount;
+                            Vector2 vel = angle.ToRotationVector2() * baseSpeed;
+                            
+                            float hue = (i / (float)ringCount + AttackPhase * 0.1f) % 1f;
+                            Color projColor = Main.hslToRgb(hue, 1f, 0.8f);
+                            
+                            // Mix projectile types for variety and difficulty
+                            if (i % 4 == 0)
+                                BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel * 0.6f, 95, projColor, 20f);
+                            else if (i % 4 == 1)
+                                BossProjectileHelper.SpawnHostileOrb(NPC.Center, vel, 95, projColor, 0.02f);
+                            else
+                                BossProjectileHelper.SpawnHostileOrb(NPC.Center, vel * 0.9f, 95, projColor, 0f);
+                        }
+                    }
+                    
+                    // OPTIMIZED: Cascading halos
+                    BossVFXOptimizer.OptimizedCascadingHalos(NPC.Center, 
+                        Main.hslToRgb((AttackPhase * 0.12f) % 1f, 1f, 0.85f),
+                        Main.hslToRgb((AttackPhase * 0.12f + 0.5f) % 1f, 1f, 0.85f),
+                        5, 0.35f, 14);
+                }
+                
+                if (Timer >= waveDelay)
+                {
+                    Timer = 0;
+                    AttackPhase++;
+                }
+            }
+            else
+            {
+                if (Timer >= 28) // Shorter recovery (was 40)
+                {
+                    Timer = 0;
+                    AttackPhase = 0;
+                    State = ActionState.Idle;
+                    NPC.netUpdate = true;
+                }
+            }
+        }
+        
         #endregion
 
         public override void FindFrame(int frameHeight)
@@ -1962,11 +2890,12 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                         Vector2 offset = Main.rand.NextVector2Circular(100f * (1f + phase1Progress), 100f * (1f + phase1Progress));
                         float hue = (Main.GameUpdateCount * 0.02f + i * 0.25f) % 1f;
                         Color baseColor = Main.hslToRgb(hue, 1f - phase1Progress * 0.5f, 0.7f + phase1Progress * 0.3f);
-                        CustomParticles.GenericFlare(NPC.Center + offset, baseColor, 0.5f + phase1Progress * 0.5f, 25);
+                        // Enhanced flare with multi-layer bloom
+                        EnhancedParticles.BloomFlare(NPC.Center + offset, baseColor, 0.5f + phase1Progress * 0.5f, 25, 3, 0.8f);
                     }
                     
-                    // Music notes - reduced
-                    ThemedParticles.SwanLakeMusicNotes(NPC.Center + Main.rand.NextVector2Circular(150f, 150f), 3, 40f);
+                    // Music notes with enhanced bloom
+                    EnhancedThemedParticles.SwanLakeMusicNotesEnhanced(NPC.Center + Main.rand.NextVector2Circular(150f, 150f), 3, 40f);
                 }
                 
                 // Initial lightning - less frequent
@@ -1996,7 +2925,8 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                         float radius = 60f + phase2Progress * 180f;
                         Vector2 pos = NPC.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
                         Color glowColor = Color.Lerp(Main.hslToRgb((angle / MathHelper.TwoPi + deathTimer * 0.01f) % 1f, 0.8f, 0.8f), Color.White, phase2Progress * 0.6f);
-                        CustomParticles.GenericFlare(pos, glowColor, 0.7f + phase2Progress * 0.5f, 18);
+                        // Enhanced with multi-layer bloom
+                        EnhancedParticles.BloomFlare(pos, glowColor, 0.7f + phase2Progress * 0.5f, 18, 3, 0.85f);
                     }
                 }
                 
@@ -2020,10 +2950,10 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                     }
                 }
                 
-                // Music notes - less frequent
+                // Music notes with enhanced bloom
                 if (deathTimer % 10 == 0)
                 {
-                    ThemedParticles.SwanLakeMusicNotes(NPC.Center + Main.rand.NextVector2Circular(100f, 100f), 4, 40f);
+                    EnhancedThemedParticles.SwanLakeMusicNotesEnhanced(NPC.Center + Main.rand.NextVector2Circular(100f, 100f), 4, 40f);
                 }
                 
                 // Feathers - less frequent
@@ -2069,7 +2999,7 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = Main.rand.NextFloat(-0.4f, 0.4f), Volume = 0.5f }, NPC.Center);
                 }
                 
-                // Music notes - reduced
+                // Music notes with enhanced bloom
                 if (deathTimer % 8 == 0)
                 {
                     for (int n = 0; n < 3; n++) // Reduced from 8 to 3
@@ -2077,18 +3007,18 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                         float musicAngle = MathHelper.TwoPi * n / 3f + deathTimer * 0.12f;
                         float musicRadius = 60f + phase3Progress * 200f;
                         Vector2 notePos = NPC.Center + new Vector2((float)Math.Cos(musicAngle), (float)Math.Sin(musicAngle)) * musicRadius;
-                        ThemedParticles.SwanLakeMusicNotes(notePos, 4, 45f);
+                        EnhancedThemedParticles.SwanLakeMusicNotesEnhanced(notePos, 4, 45f);
                     }
                 }
                 
-                // Flares - reduced
+                // Flares with enhanced bloom
                 if (deathTimer % 4 == 0)
                 {
                     for (int f = 0; f < 3; f++) // Reduced from 8 to 3
                     {
                         float hue = (deathTimer * 0.025f + f * 0.33f) % 1f;
                         Color flareColor = Color.Lerp(Main.hslToRgb(hue, 1f, 0.9f), Color.White, phase3Progress * 0.5f);
-                        CustomParticles.GenericFlare(NPC.Center + Main.rand.NextVector2Circular(100f, 100f), flareColor, 0.8f, 12);
+                        EnhancedParticles.BloomFlare(NPC.Center + Main.rand.NextVector2Circular(100f, 100f), flareColor, 0.8f, 12, 3, 0.9f);
                     }
                 }
                 
@@ -2130,7 +3060,7 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                     SoundEngine.PlaySound(SoundID.Thunder with { Pitch = Main.rand.NextFloat(-0.5f, 0.3f), Volume = 0.9f }, NPC.Center);
                 }
                 
-                // Music notes - reduced
+                // Music notes with enhanced bloom
                 if (deathTimer % 6 == 0)
                 {
                     for (int n = 0; n < 4; n++) // Reduced from 12 to 4
@@ -2138,18 +3068,18 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                         float noteAngle = MathHelper.TwoPi * n / 4f + deathTimer * 0.15f;
                         float noteRadius = 100f + phase4Progress * 200f;
                         Vector2 notePos = NPC.Center + new Vector2((float)Math.Cos(noteAngle), (float)Math.Sin(noteAngle)) * noteRadius;
-                        ThemedParticles.SwanLakeMusicNotes(notePos, 5, 50f);
+                        EnhancedThemedParticles.SwanLakeMusicNotesEnhanced(notePos, 5, 50f);
                     }
                 }
                 
-                // Core flares - reduced
+                // Core flares with enhanced bloom
                 if (deathTimer % 4 == 0)
                 {
                     for (int c = 0; c < 4; c++) // Reduced from 15 to 4
                     {
                         float hue = (deathTimer * 0.03f + c * 0.25f) % 1f;
                         Color coreColor = Color.Lerp(Main.hslToRgb(hue, 0.8f, 0.95f), Color.White, phase4Progress * 0.7f);
-                        CustomParticles.GenericFlare(NPC.Center + Main.rand.NextVector2Circular(80f, 80f), coreColor, 1f, 15);
+                        EnhancedParticles.BloomFlare(NPC.Center + Main.rand.NextVector2Circular(80f, 80f), coreColor, 1f, 15, 4, 1f);
                     }
                 }
                 
@@ -2187,14 +3117,14 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                         white.fadeIn = 1.8f;
                     }
                     
-                    // Wing-shaped supernova - REDUCED from 40+40 to 15+15
+                    // Wing-shaped supernova with enhanced bloom - REDUCED from 40+40 to 15+15
                     for (int i = 0; i < 15; i++)
                     {
                         float wingAngle = MathHelper.PiOver2 + Main.rand.NextFloat(-0.8f, 0.8f);
                         Vector2 wingVel = new Vector2((float)Math.Cos(wingAngle), (float)Math.Sin(wingAngle)) * Main.rand.NextFloat(15f, 35f);
                         wingVel.X *= 2.5f;
                         Color wingColor = Main.hslToRgb(Main.rand.NextFloat(), 0.5f, 0.9f);
-                        CustomParticles.GenericFlare(NPC.Center + wingVel * 0.5f, wingColor, 0.8f, 30);
+                        EnhancedParticles.BloomFlare(NPC.Center + wingVel * 0.5f, wingColor, 0.8f, 30, 4, 1f);
                     }
                     
                     for (int i = 0; i < 15; i++)
@@ -2203,11 +3133,13 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                         Vector2 wingVel = new Vector2((float)Math.Cos(wingAngle), (float)Math.Sin(wingAngle)) * Main.rand.NextFloat(15f, 35f);
                         wingVel.X *= 2.5f;
                         Color wingColor = Main.hslToRgb(Main.rand.NextFloat(), 0.5f, 0.9f);
-                        CustomParticles.GenericFlare(NPC.Center + wingVel * 0.5f, wingColor, 0.8f, 30);
+                        EnhancedParticles.BloomFlare(NPC.Center + wingVel * 0.5f, wingColor, 0.8f, 30, 4, 1f);
                     }
                     
-                    // Eye center glow - REDUCED
+                    // Eye center glow with enhanced bloom - REDUCED
                     CustomParticles.ExplosionBurst(NPC.Center, Color.White * 0.8f, 15, 18f);
+                    UnifiedVFXBloom.SwanLake.ExplosionEnhanced(NPC.Center, 2.5f);
+                    EnhancedThemedParticles.SwanLakeBloomBurstEnhanced(NPC.Center, 2f);
                 }
                 
                 // Fading residual effects - LESS FREQUENT

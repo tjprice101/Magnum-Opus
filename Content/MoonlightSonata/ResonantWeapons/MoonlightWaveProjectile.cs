@@ -13,8 +13,8 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
 {
     public class MoonlightWaveProjectile : ModProjectile
     {
-        // Use invisible texture - the projectile is rendered entirely through particle effects
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.None;
+        // Custom invisible texture - particle-based projectile
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
         
         public override void SetStaticDefaults()
         {

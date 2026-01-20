@@ -14,7 +14,7 @@ namespace MagnumOpus.Content.Eroica.Minions
     /// </summary>
     public class SakuraFlameProjectile : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Flames;
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
         
         private float fadeProgress = 0f;
         

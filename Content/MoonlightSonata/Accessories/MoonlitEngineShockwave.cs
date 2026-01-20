@@ -14,7 +14,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
     /// </summary>
     public class MoonlitEngineShockwave : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.SolarWhipSwordExplosion;
+        // Custom texture - no vanilla textures allowed
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
         
         private float shockwaveRadius = 0f;
         private const float MaxRadius = 200f;

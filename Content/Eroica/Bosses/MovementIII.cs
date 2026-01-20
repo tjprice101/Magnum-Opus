@@ -8,6 +8,8 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Eroica.Bosses
 {
@@ -236,20 +238,21 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         public override void OnKill()
         {
-            // Fire burst
-            for (int i = 0; i < 30; i++)
+            // Enhanced death burst with multi-layer bloom - fire theme
+            UnifiedVFXBloom.Eroica.ImpactEnhanced(NPC.Center, 1.5f);
+            EnhancedThemedParticles.EroicaBloomBurstEnhanced(NPC.Center, 1.2f);
+            
+            // Radial bloom flares with fire gradient
+            for (int i = 0; i < 8; i++)
             {
-                Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.PinkTorch, 0f, 0f, 100, default, 2f);
-                dust.noGravity = true;
-                dust.velocity = Main.rand.NextVector2Circular(8f, 8f);
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 offset = angle.ToRotationVector2() * 35f;
+                Color flareColor = Color.Lerp(new Color(255, 100, 150), new Color(255, 200, 100), (float)i / 8f);
+                EnhancedParticles.BloomFlare(NPC.Center + offset, flareColor, 0.45f, 18, 3, 0.85f);
             }
-
-            for (int i = 0; i < 15; i++)
-            {
-                Dust flame = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Torch, 0f, 0f, 100, new Color(255, 100, 150), 1.8f);
-                flame.noGravity = true;
-                flame.velocity = Main.rand.NextVector2Circular(6f, 6f);
-            }
+            
+            // Music notes with bloom
+            EnhancedThemedParticles.EroicaMusicNotesEnhanced(NPC.Center, 4, 40f);
 
             if (Main.netMode != NetmodeID.MultiplayerClient)
             {

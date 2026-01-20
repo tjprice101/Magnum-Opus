@@ -11,6 +11,7 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.Utilities;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
 using MagnumOpus.Content.EnigmaVariations.ResonanceEnergies;
 using MagnumOpus.Content.EnigmaVariations.ResonantOres;
@@ -804,8 +805,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override void OnKill(int timeLeft)
         {
-            CustomParticles.GenericFlare(Projectile.Center, EnigmaGreen, 0.4f, 15);
-            CustomParticles.GenericFlare(Projectile.Center, EnigmaPurple, 0.3f, 12);
+            // Enhanced with multi-layer bloom
+            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaGreen, 0.4f, 15, 3, 0.7f);
+            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaPurple, 0.3f, 12, 2, 0.6f);
+            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(Projectile.Center, 0.4f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -882,8 +885,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override void OnKill(int timeLeft)
         {
+            // Enhanced with bloom
             CustomParticles.EnigmaEyeGaze(Projectile.Center, EnigmaGreen, 0.5f);
-            CustomParticles.GenericFlare(Projectile.Center, EnigmaPurple, 0.4f, 15);
+            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaPurple, 0.4f, 15, 3, 0.7f);
+            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(Projectile.Center, 0.35f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -952,8 +957,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override void OnKill(int timeLeft)
         {
+            // Enhanced with bloom
             CustomParticles.GlyphBurst(Projectile.Center, EnigmaGreen, 4, 3f);
-            CustomParticles.GenericFlare(Projectile.Center, EnigmaPurple, 0.4f, 15);
+            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaPurple, 0.4f, 15, 3, 0.7f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -1017,8 +1023,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override void OnKill(int timeLeft)
         {
+            // Enhanced with bloom
             CustomParticles.EnigmaEyeExplosion(Projectile.Center, EnigmaGreen, 3, 3f);
-            CustomParticles.GenericFlare(Projectile.Center, EnigmaPurple, 0.5f, 18);
+            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaPurple, 0.5f, 18, 3, 0.8f);
+            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(Projectile.Center, 0.5f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -1157,17 +1165,21 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override void OnKill(int timeLeft)
         {
-            // Big eye explosion
+            // Big eye explosion with enhanced bloom
             CustomParticles.EnigmaEyeExplosion(Projectile.Center, EnigmaGreen, 5, 5f);
             CustomParticles.GlyphBurst(Projectile.Center, EnigmaPurple, 4, 4f);
-            CustomParticles.GenericFlare(Projectile.Center, Color.White, 0.6f, 20);
+            EnhancedParticles.BloomFlare(Projectile.Center, Color.White, 0.6f, 20, 4, 1f);
+            UnifiedVFXBloom.EnigmaVariations.ImpactEnhanced(Projectile.Center, 1f);
             
             for (int i = 0; i < 8; i++)
             {
                 float angle = MathHelper.TwoPi * i / 8f;
                 Color burstColor = Color.Lerp(EnigmaPurple, EnigmaGreen, (float)i / 8f);
-                CustomParticles.GenericFlare(Projectile.Center + angle.ToRotationVector2() * 20f, burstColor, 0.35f, 15);
+                EnhancedParticles.BloomFlare(Projectile.Center + angle.ToRotationVector2() * 20f, burstColor, 0.35f, 15, 3, 0.75f);
             }
+            
+            // Music notes cascade
+            EnhancedThemedParticles.EnigmaMusicNotesEnhanced(Projectile.Center, 5, 40f);
         }
         
         public override bool PreDraw(ref Color lightColor)

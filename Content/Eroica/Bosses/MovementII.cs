@@ -7,6 +7,8 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Eroica.Bosses
 {
@@ -244,11 +246,17 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         public override void OnKill()
         {
-            for (int i = 0; i < 30; i++)
+            // Enhanced death burst with multi-layer bloom
+            UnifiedVFXBloom.Eroica.ImpactEnhanced(NPC.Center, 1.5f);
+            EnhancedThemedParticles.EroicaBloomBurstEnhanced(NPC.Center, 1.2f);
+            
+            // Radial bloom flares
+            for (int i = 0; i < 6; i++)
             {
-                Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.PinkTorch, 0f, 0f, 100, default, 2f);
-                dust.noGravity = true;
-                dust.velocity = Main.rand.NextVector2Circular(8f, 8f);
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 offset = angle.ToRotationVector2() * 30f;
+                Color flareColor = Color.Lerp(new Color(255, 120, 180), new Color(255, 215, 0), (float)i / 6f);
+                EnhancedParticles.BloomFlare(NPC.Center + offset, flareColor, 0.4f, 18, 3, 0.8f);
             }
 
             if (Main.netMode != NetmodeID.MultiplayerClient)

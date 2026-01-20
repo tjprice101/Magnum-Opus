@@ -3,195 +3,179 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
-using Terraria.Audio;
-using Terraria.GameContent;
 using Terraria.GameContent.Bestiary;
 using Terraria.GameContent.ItemDropRules;
-using Terraria.Graphics.Effects;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
+using Terraria.Audio;
 using MagnumOpus.Content.LaCampanella.ResonanceEnergies;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons;
-using MagnumOpus.Content.LaCampanella.Accessories;
 using MagnumOpus.Content.LaCampanella.HarmonicCores;
+using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.LaCampanella.Bosses
 {
     /// <summary>
-    /// La Campanella, Chime of Life - A colossal infernal bell deity boss.
-    /// Features gravity-based movement with slow walking and occasional powerful jumps.
-    /// ENHANCED with spectacular particle effects, lightning, beams, and cinematic combat.
-    /// Attacks: Massive infernal lasers, explosive bell projectiles, fire waves, 
-    ///          infernal vortex, sonic resonance, flame geysers, bell lightning storm.
-    /// Aesthetic: Black and orange heat distortion, cinematic infernal atmosphere.
-    /// A significant step up from Eroica in difficulty and spectacle.
+    /// LA CAMPANELLA, CHIME OF LIFE - POST-MOON LORD BOSS
+    /// 
+    /// Design Philosophy (Vanilla-Inspired):
+    /// - A massive infernal bell that combines ground-based pressure with aerial denial
+    /// - Inspired by: Golem's predictable slam patterns, Wall of Flesh's advancing pressure,
+    ///   Queen Bee's charge patterns, Moon Lord's celestial telegraphs
+    /// 
+    /// Key Vanilla Principles Applied:
+    /// - Clear audio/visual cues before each attack (bell tolls, fire gathering)
+    /// - Ground shockwaves have visible travel time
+    /// - Fire walls telegraph their direction clearly
+    /// - Attack windows between slams for damage dealing
+    /// - Slam patterns are learnable and dodgeable
+    /// 
+    /// Combat Identity:
+    /// - Ground-based pressure boss with arena control
+    /// - Fire rain creates vertical danger
+    /// - Slams create horizontal shockwaves
+    /// - Player must balance vertical and horizontal dodging
     /// </summary>
     public class LaCampanellaChimeOfLife : ModNPC
     {
         public override string Texture => "MagnumOpus/Content/LaCampanella/Bosses/LaCampanellaChimeOfLife";
         
-        // AI States - Expanded with new spectacular attacks
-        private enum ActionState
+        #region Theme Colors
+        private static readonly Color CampanellaOrange = new Color(255, 140, 40);
+        private static readonly Color CampanellaGold = new Color(255, 200, 80);
+        private static readonly Color CampanellaBlack = new Color(30, 20, 25);
+        private static readonly Color CampanellaCrimson = new Color(200, 50, 30);
+        private static readonly Color CampanellaWhite = new Color(255, 240, 220);
+        #endregion
+        
+        #region Constants
+        private const float BaseSpeed = 5f;
+        private const int BaseDamage = 110;
+        private const float ChaseRange = 800f;
+        private const int AttackWindowFrames = 75;
+        #endregion
+        
+        #region AI State
+        private enum BossPhase
         {
-            Spawn,
-            Walking,
-            JumpWindup,
-            Jumping,
-            Landing,
-            // Basic Attacks
-            LaserWindup,
-            LaserFiring,
-            BellBarrageWindup,
-            BellBarrage,
-            InfernalWaveWindup,
-            InfernalWave,
-            MassiveLaserWindup,
-            MassiveLaser,
-            BellStormWindup,
-            BellStorm,
-            // NEW Advanced Attacks
-            InfernalVortexWindup,
-            InfernalVortex,
-            SonicResonanceWindup,
-            SonicResonance,
-            FlameGeyserWindup,
-            FlameGeyser,
-            BellLightningWindup,
-            BellLightning,
-            ChimeCascadeWindup,
-            ChimeCascade,
-            InfernalBeamWindup,
-            InfernalBeam,
-            TollOfDoomWindup,
-            TollOfDoom,
-            // Death
+            Spawning,
+            Grounded,
+            Attack,
+            Slam,
+            Recovery,
+            Enraged,
             Dying
         }
-
-        private ActionState State
+        
+        private enum AttackPattern
         {
-            get => (ActionState)NPC.ai[0];
+            // Core Attacks (Always available)
+            BellSlam,
+            TollWave,
+            EmberShower,
+            
+            // Phase 2 (Below 65% HP)
+            FireWallSweep,
+            ChimeRings,
+            InfernoCircle,
+            RhythmicToll,           // Calamity-style bullet hell phase
+            InfernalJudgment,       // NEW: Hero's Judgment style spectacle attack
+            BellLaserGrid,          // NEW: Crossing laser beams
+            
+            // Phase 3 (Below 35% HP)
+            TripleSlam,
+            InfernalTorrent,
+            InfernoCage,            // Environment trap attack
+            ResonantShock,          // NEW: Electrical pulse wave
+            GrandFinale
+        }
+        
+        private BossPhase State
+        {
+            get => (BossPhase)NPC.ai[0];
             set => NPC.ai[0] = (float)value;
         }
-
-        private float Timer
+        
+        private int Timer
         {
-            get => NPC.ai[1];
+            get => (int)NPC.ai[1];
             set => NPC.ai[1] = value;
         }
-
-        private float AttackPhase
+        
+        private AttackPattern CurrentAttack
         {
-            get => NPC.ai[2];
-            set => NPC.ai[2] = value;
+            get => (AttackPattern)NPC.ai[2];
+            set => NPC.ai[2] = (float)value;
         }
-
-        private float AttackCooldown
+        
+        private int SubPhase
         {
-            get => NPC.ai[3];
+            get => (int)NPC.ai[3];
             set => NPC.ai[3] = value;
         }
-
-        // Movement
-        private bool isGrounded = false;
-        private float walkDirection = 1f;
-        private float walkSpeed = 3.5f; // Faster walking
-        private int jumpCooldown = 0;
-        private const int BaseJumpCooldown = 90; // Reduced from 180 to 90 (1.5 seconds)
-        private int attacksSinceLastJump = 0;
-        private int timeSinceLastJump = 0; // NEW: Force jump every few seconds
+        #endregion
         
-        // Visual effects - ENHANCED
-        private float auraPulse = 0f;
-        private float screenShakeIntensity = 0f;
-        private bool hasActivatedSky = false;
-        private float bellRingTimer = 0f;
-        private float distortionIntensity = 0f; // NEW: Heat distortion effect
-        private float distortionTimer = 0f;
-        private float backgroundDarknessAlpha = 0f;
+        #region Instance Variables
+        private int difficultyTier = 0;
+        private int attackCooldown = 0;
+        private AttackPattern lastAttack = AttackPattern.BellSlam;
+        private int consecutiveAttacks = 0;
         
-        // NEW: Beam attack tracking
-        private float beamRotationAngle = 0f;
-        private float beamLength = 0f;
+        private int slamCount = 0;
+        private Vector2 slamTarget;
+        private bool isAirborne = false;
         
-        // NEW: Lightning storm tracking
-        private Vector2[] telegraphedLightningPositions = new Vector2[10];
-        private int lightningStrikeIndex = 0;
+        private int enrageTimer = 0;
+        private bool isEnraged = false;
         
-        // NEW: Vortex attack tracking
-        private float[] vortexBeamAngles = new float[8];
-        private float vortexRotationSpeed = 0f;
+        private float groundLevel = 0f;
+        private bool onGround = false;
         
-        // Animation - 6x6 sprite sheet (36 frames, read left to right, top to bottom)
         private int frameCounter = 0;
         private int currentFrame = 0;
-        private const int TotalFrames = 36; // 6x6 sprite sheet
-        private const int FrameColumns = 6;
-        private const int FrameRows = 6;
-        private const int FrameSpeed = 6; // Ticks per frame
+        private const int TotalFrames = 36;
         
-        // Health bar registration
         private bool hasRegisteredHealthBar = false;
-        
-        // Death animation
         private int deathTimer = 0;
-        private const int DeathAnimationDuration = 420; // 7 seconds epic death
-        private float deathFlashIntensity = 0f;
-        
-        // Attack tracking - ENHANCED
-        private int consecutiveAttacks = 0;
-        private int lastAttackType = -1;
-        private bool isEnraged = false; // Enrage at low health
-        private int enrageTimer = 0;
+        #endregion
 
         public override void SetStaticDefaults()
         {
-            // Set to 1 since we handle 6x6 sprite sheet manually in PreDraw
-            // The actual 36 frames are managed by GetFrameSourceRect()
-            Main.npcFrameCount[Type] = 1;
-            
+            Main.npcFrameCount[Type] = TotalFrames;
             NPCID.Sets.MPAllowedEnemies[Type] = true;
             NPCID.Sets.BossBestiaryPriority.Add(Type);
-            NPCID.Sets.TrailCacheLength[Type] = 8;
+            NPCID.Sets.TrailCacheLength[Type] = 10;
             NPCID.Sets.TrailingMode[Type] = 1;
             NPCID.Sets.MustAlwaysDraw[Type] = true;
             
-            // Debuff immunities
             NPCID.Sets.SpecificDebuffImmunity[Type][BuffID.Poisoned] = true;
             NPCID.Sets.SpecificDebuffImmunity[Type][BuffID.Confused] = true;
             NPCID.Sets.SpecificDebuffImmunity[Type][BuffID.OnFire] = true;
             NPCID.Sets.SpecificDebuffImmunity[Type][BuffID.OnFire3] = true;
-            NPCID.Sets.SpecificDebuffImmunity[Type][BuffID.Frostburn] = true;
         }
 
         public override void SetDefaults()
         {
-            NPC.width = 180;
-            NPC.height = 240;
-            NPC.damage = 130; // Tier 2 - between Eroica (90) and Swan Lake (170)
-            NPC.defense = 70; // Tier 2 - between Eroica (80) and Swan Lake (110)
-            NPC.lifeMax = 650000; // 650k HP - Tier 2 (Eroica ~400k, Swan Lake ~950k)
-            NPC.HitSound = SoundID.NPCHit4 with { Pitch = -0.3f };
+            NPC.width = 200;
+            NPC.height = 300;
+            NPC.damage = BaseDamage;
+            NPC.defense = 75;
+            NPC.lifeMax = 400000;
+            NPC.HitSound = SoundID.NPCHit4;
             NPC.DeathSound = SoundID.NPCDeath14;
             NPC.knockBackResist = 0f;
-            NPC.noGravity = false; // Has gravity!
-            NPC.noTileCollide = false; // Collides with tiles!
-            NPC.value = Item.buyPrice(gold: 30);
+            NPC.noGravity = true;
+            NPC.noTileCollide = true;
+            NPC.value = Item.buyPrice(gold: 18);
             NPC.boss = true;
-            NPC.npcSlots = 16f;
+            NPC.npcSlots = 15f;
             NPC.aiStyle = -1;
             NPC.scale = 1f;
-            NPC.lavaImmune = true;
             
-            // Fix visual offset to prevent ground clipping (4 blocks = 64 pixels)
-            // This pulls the sprite up to align with the hitbox properly
-            DrawOffsetY = -64f;
-            
-            // Music - uses Underworld boss theme as fallback until custom music is added
-            // TODO: Add custom music at Assets/Music/LaCampanellaTheme.ogg
-            Music = MusicID.Boss2; // Wall of Flesh theme fits the infernal atmosphere
+            if (!Main.dedServ)
+                Music = MusicLoader.GetMusicSlot(Mod, "Assets/Music/TheChimeOfLife");
         }
 
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
@@ -199,2332 +183,1841 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             bestiaryEntry.Info.AddRange(new IBestiaryInfoElement[]
             {
                 BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Biomes.TheUnderworld,
-                new FlavorTextBestiaryInfoElement("La Campanella, Chime of Life - " +
-                    "An ancient infernal bell deity awakened from the depths. " +
-                    "Its tolling brings both creation and destruction, " +
-                    "wreathed in black flames and scorching orange fire.")
+                new FlavorTextBestiaryInfoElement("La Campanella, the Chime of Life - an ancient bell forged in infernal fires, its toll heralds destruction.")
             });
         }
 
         public override void AI()
         {
-            // Register with custom health bar system
             if (!hasRegisteredHealthBar)
             {
                 BossHealthBarUI.RegisterBoss(NPC, BossColorTheme.LaCampanella);
                 hasRegisteredHealthBar = true;
             }
             
-            // Activate sky effect
-            if (!hasActivatedSky && !Main.dedServ)
+            if (State == BossPhase.Dying)
             {
-                SkyManager.Instance.Activate("MagnumOpus:LaCampanellaSky");
-                hasActivatedSky = true;
+                UpdateDeathAnimation();
+                return;
             }
             
             NPC.TargetClosest(true);
             Player target = Main.player[NPC.target];
-
-            // Death animation
-            if (State == ActionState.Dying)
-            {
-                UpdateDeathAnimation(target);
-                return;
-            }
-
-            // Despawn check
+            
             if (!target.active || target.dead)
             {
-                NPC.velocity.Y += 0.5f;
+                NPC.velocity.Y += 0.3f;
                 NPC.EncourageDespawn(60);
-                DeactivateSky();
                 return;
             }
-
-            // Update timers
-            Timer++;
-            auraPulse += 0.05f;
-            bellRingTimer += 0.03f;
-            distortionTimer += 0.02f;
             
-            // Update sprite animation (6x6 sprite sheet)
-            UpdateAnimation();
+            UpdateDifficultyTier();
+            UpdateGroundCheck();
+            if (attackCooldown > 0) attackCooldown--;
+            CheckEnrage(target);
             
-            if (jumpCooldown > 0) jumpCooldown--;
-            if (AttackCooldown > 0) AttackCooldown--;
-            timeSinceLastJump++; // Track time since last jump
-            
-            // Check for enrage (below 30% health)
-            float healthPercent = (float)NPC.life / NPC.lifeMax;
-            if (healthPercent < 0.3f && !isEnraged)
-            {
-                TriggerEnrage();
-            }
-            
-            // Update enrage effects
-            if (isEnraged)
-            {
-                enrageTimer++;
-                distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.5f, 0.05f);
-            }
-            else
-            {
-                distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.15f, 0.03f);
-            }
-            
-            // Ground detection
-            CheckGrounded();
-            
-            // Apply gravity (only when not in special states)
-            if (State != ActionState.Jumping && State != ActionState.JumpWindup)
-            {
-                if (!isGrounded)
-                {
-                    NPC.velocity.Y += 0.4f; // Gravity
-                    if (NPC.velocity.Y > 15f)
-                        NPC.velocity.Y = 15f;
-                }
-            }
-            
-            // Ambient effects - ENHANCED
-            SpawnAmbientParticles();
-            UpdateScreenShake();
-            
-            // Lighting - orange/black infernal glow - ENHANCED
-            float lightPulse = 0.7f + (float)Math.Sin(auraPulse) * 0.3f;
-            float enrageBoost = isEnraged ? 1.4f : 1f;
-            Lighting.AddLight(NPC.Center, 1.2f * lightPulse * enrageBoost, 0.5f * lightPulse * enrageBoost, 0.1f * lightPulse);
-
-            // State machine
             switch (State)
             {
-                case ActionState.Spawn:
-                    SpawnSequence(target);
+                case BossPhase.Spawning:
+                    AI_Spawning(target);
                     break;
-                case ActionState.Walking:
-                    WalkingBehavior(target);
+                case BossPhase.Grounded:
+                    AI_Grounded(target);
                     break;
-                case ActionState.JumpWindup:
-                    JumpWindup(target);
+                case BossPhase.Attack:
+                    AI_Attack(target);
                     break;
-                case ActionState.Jumping:
-                    JumpingBehavior(target);
+                case BossPhase.Slam:
+                    AI_Slam(target);
                     break;
-                case ActionState.Landing:
-                    LandingBehavior(target);
+                case BossPhase.Recovery:
+                    AI_Recovery(target);
                     break;
-                    
-                // Attacks
-                case ActionState.LaserWindup:
-                    LaserWindup(target);
-                    break;
-                case ActionState.LaserFiring:
-                    LaserFiring(target);
-                    break;
-                case ActionState.BellBarrageWindup:
-                    BellBarrageWindup(target);
-                    break;
-                case ActionState.BellBarrage:
-                    BellBarrageFiring(target);
-                    break;
-                case ActionState.InfernalWaveWindup:
-                    InfernalWaveWindup(target);
-                    break;
-                case ActionState.InfernalWave:
-                    InfernalWaveFiring(target);
-                    break;
-                case ActionState.MassiveLaserWindup:
-                    MassiveLaserWindup(target);
-                    break;
-                case ActionState.MassiveLaser:
-                    MassiveLaserFiring(target);
-                    break;
-                case ActionState.BellStormWindup:
-                    BellStormWindup(target);
-                    break;
-                case ActionState.BellStorm:
-                    BellStormFiring(target);
-                    break;
-                    
-                // NEW Advanced Attacks
-                case ActionState.InfernalVortexWindup:
-                    InfernalVortexWindup(target);
-                    break;
-                case ActionState.InfernalVortex:
-                    InfernalVortexAttack(target);
-                    break;
-                case ActionState.SonicResonanceWindup:
-                    SonicResonanceWindup(target);
-                    break;
-                case ActionState.SonicResonance:
-                    SonicResonanceAttack(target);
-                    break;
-                case ActionState.FlameGeyserWindup:
-                    FlameGeyserWindup(target);
-                    break;
-                case ActionState.FlameGeyser:
-                    FlameGeyserAttack(target);
-                    break;
-                case ActionState.BellLightningWindup:
-                    BellLightningWindup(target);
-                    break;
-                case ActionState.BellLightning:
-                    BellLightningAttack(target);
-                    break;
-                case ActionState.ChimeCascadeWindup:
-                    ChimeCascadeWindup(target);
-                    break;
-                case ActionState.ChimeCascade:
-                    ChimeCascadeAttack(target);
-                    break;
-                case ActionState.InfernalBeamWindup:
-                    InfernalBeamWindup(target);
-                    break;
-                case ActionState.InfernalBeam:
-                    InfernalBeamAttack(target);
-                    break;
-                case ActionState.TollOfDoomWindup:
-                    TollOfDoomWindup(target);
-                    break;
-                case ActionState.TollOfDoom:
-                    TollOfDoomAttack(target);
+                case BossPhase.Enraged:
+                    AI_Enraged(target);
                     break;
             }
-
-            // Face the player
-            if (State == ActionState.Walking || State == ActionState.Spawn)
-            {
-                NPC.spriteDirection = NPC.direction = (target.Center.X > NPC.Center.X) ? 1 : -1;
-            }
+            
+            Timer++;
+            UpdateAnimation();
+            SpawnAmbientParticles();
+            
+            float lightIntensity = isEnraged ? 1.5f : 1.0f;
+            Lighting.AddLight(NPC.Center, CampanellaOrange.ToVector3() * lightIntensity);
         }
         
-        private void CheckGrounded()
-        {
-            // Check if standing on solid ground
-            Vector2 bottomLeft = new Vector2(NPC.position.X + 10, NPC.position.Y + NPC.height + 4);
-            Vector2 bottomRight = new Vector2(NPC.position.X + NPC.width - 10, NPC.position.Y + NPC.height + 4);
-            
-            Point tileLeft = bottomLeft.ToTileCoordinates();
-            Point tileRight = bottomRight.ToTileCoordinates();
-            
-            bool leftSolid = WorldGen.SolidTile(tileLeft.X, tileLeft.Y);
-            bool rightSolid = WorldGen.SolidTile(tileRight.X, tileRight.Y);
-            
-            isGrounded = (leftSolid || rightSolid) && NPC.velocity.Y >= 0;
-        }
+        #region Ground & Phase Management
         
-        private void SpawnSequence(Player target)
+        private void UpdateGroundCheck()
         {
-            if (Timer == 1)
-            {
-                // Dramatic spawn announcement
-                Main.NewText("The earth trembles as an ancient bell awakens...", 255, 100, 0);
-                SoundEngine.PlaySound(SoundID.Item14 with { Pitch = -0.5f, Volume = 1.5f }, NPC.Center);
-                
-                // Massive shockwave
-                ThemedParticles.LaCampanellaShockwave(NPC.Center, 3f);
-                screenShakeIntensity = 15f;
-            }
+            Vector2 bottomCenter = NPC.Bottom;
+            int tileX = (int)(bottomCenter.X / 16);
+            int tileY = (int)(bottomCenter.Y / 16);
             
-            // Rising dramatic particles
-            if (Timer % 5 == 0)
-            {
-                ThemedParticles.LaCampanellaBloomBurst(NPC.Center + Main.rand.NextVector2Circular(100, 100), 1.5f);
-            }
+            onGround = false;
+            groundLevel = 0f;
             
-            NPC.velocity.X = 0;
-            
-            if (Timer >= 120)
+            // Check below for ground
+            for (int y = tileY; y < tileY + 10; y++)
             {
-                Main.NewText("La Campanella, Chime of Life has awoken!", 255, 150, 0);
-                State = ActionState.Walking;
-                Timer = 0;
-            }
-        }
-        
-        private void WalkingBehavior(Player target)
-        {
-            // Slow walking towards player
-            float direction = Math.Sign(target.Center.X - NPC.Center.X);
-            walkDirection = direction;
-            
-            if (isGrounded)
-            {
-                NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, direction * walkSpeed, 0.08f);
-                
-                // Walking dust
-                if (Timer % 10 == 0)
+                Tile tile = Framing.GetTileSafely(tileX, y);
+                if (tile.HasTile && Main.tileSolid[tile.TileType])
                 {
-                    for (int i = 0; i < 3; i++)
+                    groundLevel = y * 16f;
+                    onGround = NPC.Bottom.Y >= groundLevel - 25f;
+                    break;
+                }
+            }
+            
+            // CRITICAL: Prevent boss from going INTO the ground
+            // If the boss center is inside a solid tile, push it up
+            int centerTileY = (int)(NPC.Center.Y / 16);
+            Tile centerTile = Framing.GetTileSafely(tileX, centerTileY);
+            if (centerTile.HasTile && Main.tileSolid[centerTile.TileType])
+            {
+                // Boss is clipping into ground - push up to surface
+                for (int y = centerTileY; y >= centerTileY - 20; y--)
+                {
+                    Tile checkTile = Framing.GetTileSafely(tileX, y);
+                    if (!checkTile.HasTile || !Main.tileSolid[checkTile.TileType])
                     {
-                        Vector2 dustPos = NPC.Bottom + new Vector2(Main.rand.NextFloat(-40, 40), 0);
-                        ThemedParticles.LaCampanellaSparks(dustPos, new Vector2(0, -1), 2, 2f);
+                        // Found air - place boss bottom at this tile's bottom
+                        NPC.position.Y = (y + 1) * 16f - NPC.height;
+                        NPC.velocity.Y = 0;
+                        groundLevel = (y + 1) * 16f;
+                        onGround = true;
+                        break;
                     }
                 }
             }
             
-            // Jump if player is significantly above or far away - ENHANCED JUMPING
-            float verticalDiff = target.Center.Y - NPC.Center.Y;
-            float horizontalDiff = Math.Abs(target.Center.X - NPC.Center.X);
-            
-            if (jumpCooldown <= 0 && isGrounded)
+            // Also check if boss bottom is inside ground and push up
+            if (groundLevel > 0 && NPC.Bottom.Y > groundLevel + 5f)
             {
-                // More aggressive jump conditions:
-                // - Player above by 150+ pixels (was 200)
-                // - Player far away by 400+ pixels (was 600)
-                // - After 2 attacks without jumping (was 3)
-                // - Force jump every 3-4 seconds regardless
-                bool shouldJump = verticalDiff < -150 || horizontalDiff > 400 || attacksSinceLastJump >= 2 || timeSinceLastJump >= 180;
-                
-                // Random chance to jump for unpredictability
-                if (!shouldJump && isGrounded && Main.rand.NextBool(120))
-                    shouldJump = true;
-                
-                if (shouldJump)
-                {
-                    State = ActionState.JumpWindup;
-                    Timer = 0;
-                    attacksSinceLastJump = 0;
-                    timeSinceLastJump = 0;
-                    return;
-                }
-            }
-            
-            // Attack selection
-            if (AttackCooldown <= 0 && Timer >= 90)
-            {
-                SelectAttack(target);
+                NPC.position.Y = groundLevel - NPC.height;
+                NPC.velocity.Y = 0;
+                onGround = true;
             }
         }
         
-        private void SelectAttack(Player target)
+        private void UpdateDifficultyTier()
         {
-            float healthPercent = (float)NPC.life / NPC.lifeMax;
-            int attackType;
-            int maxAttacks;
+            float hpPercent = (float)NPC.life / NPC.lifeMax;
+            int newTier = hpPercent > 0.65f ? 0 : (hpPercent > 0.35f ? 1 : 2);
             
-            // More aggressive at lower health with access to more powerful attacks
-            if (healthPercent < 0.2f || isEnraged)
+            if (newTier != difficultyTier)
             {
-                // Critical health - FULL attack arsenal, most powerful attacks
-                maxAttacks = 12;
-                attackType = Main.rand.Next(maxAttacks);
-                if (attackType == lastAttackType) attackType = (attackType + 1) % maxAttacks;
+                difficultyTier = newTier;
+                AnnounceDifficultyChange();
             }
-            else if (healthPercent < 0.4f)
+        }
+        
+        private void AnnounceDifficultyChange()
+        {
+            if (State == BossPhase.Spawning) return;
+            
+            MagnumScreenEffects.AddScreenShake(difficultyTier == 2 ? 20f : 14f);
+            SoundEngine.PlaySound(SoundID.DD2_BetsyFireballShot with { Pitch = -0.5f + difficultyTier * 0.2f, Volume = 1.5f }, NPC.Center);
+            
+            CustomParticles.GenericFlare(NPC.Center, Color.White, 1.3f, 25);
+            for (int i = 0; i < 12 + difficultyTier * 4; i++)
             {
-                // Low health - powerful attacks unlocked
-                maxAttacks = 10;
-                attackType = Main.rand.Next(maxAttacks);
-                if (attackType == lastAttackType) attackType = (attackType + 1) % maxAttacks;
+                float angle = MathHelper.TwoPi * i / (12 + difficultyTier * 4);
+                Color flareColor = Color.Lerp(CampanellaOrange, CampanellaCrimson, difficultyTier / 2f);
+                CustomParticles.GenericFlare(NPC.Center + angle.ToRotationVector2() * 80f, flareColor, 0.6f, 18);
             }
-            else if (healthPercent < 0.65f)
+            
+            for (int r = 0; r < 8; r++)
             {
-                // Medium health - mixed attacks
-                maxAttacks = 8;
-                attackType = Main.rand.Next(maxAttacks);
-                if (attackType == lastAttackType) attackType = (attackType + 1) % maxAttacks;
+                CustomParticles.HaloRing(NPC.Center, Color.Lerp(CampanellaGold, CampanellaCrimson, r / 8f), 0.3f + r * 0.15f, 18 + r * 3);
+            }
+            
+            for (int i = 0; i < 15; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(8f, 6f);
+                var smoke = new HeavySmokeParticle(NPC.Center + Main.rand.NextVector2Circular(60f, 60f), vel, CampanellaBlack, Main.rand.Next(40, 60), 0.5f, 1.0f, 0.015f, false);
+                MagnumParticleHandler.SpawnParticle(smoke);
+            }
+            
+            string message = difficultyTier == 2 ? "PRESTO INFERNALE!" : "VIVACE!";
+            Color textColor = difficultyTier == 2 ? CampanellaCrimson : CampanellaOrange;
+            CombatText.NewText(NPC.Hitbox, textColor, message, true);
+        }
+        
+        private void CheckEnrage(Player target)
+        {
+            float distance = Vector2.Distance(NPC.Center, target.Center);
+            
+            if (distance > ChaseRange * 1.5f)
+            {
+                enrageTimer++;
+                if (enrageTimer > 120 && !isEnraged)
+                {
+                    isEnraged = true;
+                    State = BossPhase.Enraged;
+                    Timer = 0;
+                    
+                    Main.NewText("La Campanella's fury ignites!", CampanellaCrimson);
+                    SoundEngine.PlaySound(SoundID.Roar with { Pitch = -0.3f, Volume = 1.5f }, NPC.Center);
+                }
             }
             else
             {
-                // High health - basic attacks
-                maxAttacks = 5;
-                attackType = Main.rand.Next(maxAttacks);
-                if (attackType == lastAttackType) attackType = (attackType + 1) % maxAttacks;
-            }
-            
-            lastAttackType = attackType;
-            attacksSinceLastJump++;
-            consecutiveAttacks++;
-            
-            switch (attackType)
-            {
-                case 0:
-                    State = ActionState.LaserWindup;
-                    break;
-                case 1:
-                    State = ActionState.BellBarrageWindup;
-                    break;
-                case 2:
-                    State = ActionState.InfernalWaveWindup;
-                    break;
-                case 3:
-                    State = ActionState.MassiveLaserWindup;
-                    break;
-                case 4:
-                    State = ActionState.BellStormWindup;
-                    break;
-                // Medium health unlocks
-                case 5:
-                    State = ActionState.SonicResonanceWindup;
-                    break;
-                case 6:
-                    State = ActionState.FlameGeyserWindup;
-                    break;
-                case 7:
-                    State = ActionState.ChimeCascadeWindup;
-                    break;
-                // Low health unlocks
-                case 8:
-                    State = ActionState.BellLightningWindup;
-                    break;
-                case 9:
-                    State = ActionState.InfernalVortexWindup;
-                    break;
-                // Critical health unlocks
-                case 10:
-                    State = ActionState.InfernalBeamWindup;
-                    break;
-                case 11:
-                    State = ActionState.TollOfDoomWindup;
-                    break;
-            }
-            
-            Timer = 0;
-            AttackPhase = 0;
-        }
-        
-        private void JumpWindup(Player target)
-        {
-            NPC.velocity.X *= 0.9f;
-            
-            // Crouch animation / charging particles
-            if (Timer % 5 == 0)
-            {
-                Vector2 dustPos = NPC.Bottom + new Vector2(Main.rand.NextFloat(-60, 60), -10);
-                ThemedParticles.LaCampanellaSparkles(dustPos, 3, 20f);
-            }
-            
-            screenShakeIntensity = Math.Max(screenShakeIntensity, Timer / 30f * 3f);
-            
-            if (Timer >= 45)
-            {
-                // Launch!
-                float horizontalDir = Math.Sign(target.Center.X - NPC.Center.X);
-                float verticalPower = -18f;
-                float horizontalPower = horizontalDir * 12f;
-                
-                // Adjust jump based on player position
-                if (target.Center.Y < NPC.Center.Y - 300)
-                    verticalPower = -22f;
-                
-                NPC.velocity = new Vector2(horizontalPower, verticalPower);
-                
-                // Jump effects
-                SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.2f }, NPC.Center);
-                ThemedParticles.LaCampanellaShockwave(NPC.Bottom, 2f);
-                screenShakeIntensity = 12f;
-                
-                // Spawn dust burst
-                for (int i = 0; i < 20; i++)
+                enrageTimer = Math.Max(0, enrageTimer - 3);
+                if (isEnraged && enrageTimer == 0)
                 {
-                    ThemedParticles.LaCampanellaSparks(NPC.Bottom, new Vector2(Main.rand.NextFloat(-1, 1), -1), 3, 8f);
-                }
-                
-                State = ActionState.Jumping;
-                Timer = 0;
-                jumpCooldown = BaseJumpCooldown; // Use the constant (90 frames = 1.5 seconds)
-                timeSinceLastJump = 0;
-            }
-        }
-        
-        private void JumpingBehavior(Player target)
-        {
-            // Air control
-            float direction = Math.Sign(target.Center.X - NPC.Center.X);
-            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, direction * 8f, 0.02f);
-            
-            // Falling particles
-            if (Timer % 3 == 0)
-            {
-                ThemedParticles.LaCampanellaTrail(NPC.Center, NPC.velocity);
-            }
-            
-            // Check for landing
-            if (isGrounded && NPC.velocity.Y >= 0 && Timer > 10)
-            {
-                State = ActionState.Landing;
-                Timer = 0;
-            }
-        }
-        
-        private void LandingBehavior(Player target)
-        {
-            if (Timer == 1)
-            {
-                // Landing impact!
-                SoundEngine.PlaySound(SoundID.Item14 with { Pitch = -0.4f, Volume = 1.3f }, NPC.Center);
-                screenShakeIntensity = 20f;
-                
-                // Massive shockwave
-                ThemedParticles.LaCampanellaShockwave(NPC.Bottom, 2.5f);
-                ThemedParticles.LaCampanellaImpact(NPC.Bottom, 2f);
-                
-                // Spawn ground fire
-                if (Main.netMode != NetmodeID.MultiplayerClient)
-                {
-                    for (int i = -3; i <= 3; i++)
+                    isEnraged = false;
+                    if (State == BossPhase.Enraged)
                     {
-                        Vector2 firePos = NPC.Bottom + new Vector2(i * 80, -20);
-                        Projectile.NewProjectile(NPC.GetSource_FromAI(), firePos, new Vector2(i * 2, -8),
-                            ModContent.ProjectileType<InfernalGroundFire>(), NPC.damage / 2, 2f, Main.myPlayer);
+                        State = BossPhase.Grounded;
+                        Timer = 0;
                     }
                 }
-                
-                // Dust burst
-                for (int i = 0; i < 30; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 30f;
-                    Vector2 dir = angle.ToRotationVector2();
-                    ThemedParticles.LaCampanellaSparks(NPC.Bottom, dir, 3, 10f);
-                }
-            }
-            
-            NPC.velocity.X *= 0.85f;
-            
-            if (Timer >= 30)
-            {
-                State = ActionState.Walking;
-                Timer = 0;
-                AttackCooldown = 45; // Reduced from 60
-            }
-        }
-        
-        #region Attack Implementations
-        
-        private void LaserWindup(Player target)
-        {
-            NPC.velocity.X *= 0.9f;
-            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.35f, 0.08f);
-            
-            // Charging effect - FULL VFX SUITE
-            if (Timer % 2 == 0)
-            {
-                Vector2 chargePos = NPC.Center + new Vector2(0, -30);
-                ThemedParticles.LaCampanellaSparkles(chargePos, 6, 50f);
-                
-                // Converging particles - MORE INTENSE
-                for (int i = 0; i < 5; i++)
-                {
-                    float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                    Vector2 offset = angle.ToRotationVector2() * 100f;
-                    var glow = new GenericGlowParticle(chargePos + offset, -offset * 0.04f, 
-                        Main.rand.NextBool() ? ThemedParticles.CampanellaOrange : ThemedParticles.CampanellaYellow, 
-                        0.5f, 25, true);
-                    MagnumParticleHandler.SpawnParticle(glow);
-                }
-                
-                // Central flare buildup
-                float chargeProgress = Timer / 50f;
-                CustomParticles.GenericFlare(chargePos, ThemedParticles.CampanellaYellow, 0.2f + chargeProgress * 0.5f, 18);
-                CustomParticles.GenericFlare(chargePos, ThemedParticles.CampanellaOrange, 0.15f + chargeProgress * 0.4f, 15);
-            }
-            
-            // Pulsing halo effect during charge
-            if (Timer % 10 == 0)
-            {
-                Vector2 chargePos = NPC.Center + new Vector2(0, -30);
-                float chargeProgress = Timer / 50f;
-                CustomParticles.HaloRing(chargePos, ThemedParticles.CampanellaOrange * (0.5f + chargeProgress * 0.5f), 0.3f + chargeProgress * 0.3f, 20);
-            }
-            
-            screenShakeIntensity = Math.Max(screenShakeIntensity, Timer / 60f * 6f);
-            
-            if (Timer >= 50) // Slightly faster
-            {
-                State = ActionState.LaserFiring;
-                Timer = 0;
-                AttackPhase = 0;
-            }
-        }
-        
-        private void LaserFiring(Player target)
-        {
-            NPC.velocity.X *= 0.95f;
-            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.4f, 0.1f);
-            
-            // Fire lasers in bursts - MORE LASERS
-            if (Timer % 12 == 0 && AttackPhase < 6)
-            {
-                SoundEngine.PlaySound(SoundID.Item33 with { Pitch = -0.3f }, NPC.Center);
-                
-                Vector2 laserStart = NPC.Center + new Vector2(0, -30);
-                Vector2 toPlayer = target.Center - laserStart;
-                toPlayer.Normalize();
-                
-                // Wider spread pattern
-                int laserCount = isEnraged ? 5 : 3;
-                float spreadAngle = isEnraged ? 0.12f : 0.15f;
-                for (int i = -laserCount / 2; i <= laserCount / 2; i++)
-                {
-                    Vector2 dir = toPlayer.RotatedBy(i * spreadAngle);
-                    
-                    if (Main.netMode != NetmodeID.MultiplayerClient)
-                    {
-                        Projectile.NewProjectile(NPC.GetSource_FromAI(), laserStart, dir * 80f,
-                            ModContent.ProjectileType<InfernalBellLaser>(), NPC.damage / 2, 3f, Main.myPlayer);
-                    }
-                }
-                
-                // Muzzle flash - FULL VFX SUITE
-                ThemedParticles.LaCampanellaBloomBurst(laserStart, 2f);
-                ThemedParticles.LaCampanellaBellChime(laserStart, 0.8f);
-                ThemedParticles.LaCampanellaHaloBurst(laserStart, 1f);
-                CustomParticles.GenericFlare(laserStart, ThemedParticles.CampanellaYellow, 0.7f, 22);
-                CustomParticles.GenericFlare(laserStart, ThemedParticles.CampanellaOrange, 0.5f, 18);
-                CustomParticles.HaloRing(laserStart, ThemedParticles.CampanellaOrange, 0.4f, 18);
-                screenShakeIntensity = 10f;
-                
-                AttackPhase++;
-            }
-            
-            if (Timer >= 85)
-            {
-                State = ActionState.Walking;
-                Timer = 0;
-                AttackCooldown = 70;
-            }
-        }
-        
-        private void BellBarrageWindup(Player target)
-        {
-            NPC.velocity.X *= 0.9f;
-            
-            // Bell ringing buildup - ENHANCED with halos and flares
-            bellRingTimer += 0.05f;
-            if (Timer % 10 == 0)
-            {
-                SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.3f + Timer / 100f, Volume = 0.6f }, NPC.Center);
-                ThemedParticles.LaCampanellaShockwave(NPC.Center, 0.5f + Timer / 120f);
-                CustomParticles.HaloRing(NPC.Center, ThemedParticles.CampanellaGold * 0.7f, 0.3f + Timer / 150f, 20);
-            }
-            
-            // Continuous flare during charge
-            if (Timer % 4 == 0)
-            {
-                float chargeProgress = Timer / 50f;
-                CustomParticles.GenericFlare(NPC.Center + new Vector2(0, -40), ThemedParticles.CampanellaOrange, 0.2f + chargeProgress * 0.3f, 15);
-            }
-            
-            if (Timer >= 50)
-            {
-                State = ActionState.BellBarrage;
-                Timer = 0;
-                AttackPhase = 0;
-            }
-        }
-        
-        private void BellBarrageFiring(Player target)
-        {
-            NPC.velocity.X *= 0.95f;
-            
-            // Fire explosive bells with PREDICTIVE AIMING
-            if (Timer % 12 == 0 && AttackPhase < 8)
-            {
-                SoundEngine.PlaySound(SoundID.Item35 with { Pitch = -0.2f }, NPC.Center);
-                
-                Vector2 spawnPos = NPC.Center + new Vector2(Main.rand.NextFloat(-50, 50), -60);
-                
-                // PREDICTIVE TARGETING - aim where player will be based on their velocity
-                float projectileSpeed = Main.rand.NextFloat(10f, 14f);
-                float distanceToPlayer = Vector2.Distance(spawnPos, target.Center);
-                float travelTime = distanceToPlayer / projectileSpeed; // Approximate travel time
-                
-                // Predict player position
-                Vector2 predictedPos = target.Center + target.velocity * travelTime * 0.7f;
-                Vector2 toPlayer = (predictedPos - spawnPos).SafeNormalize(Vector2.UnitY);
-                
-                // Add some randomness but less than before for better accuracy
-                float randomAngle = Main.rand.NextFloat(-0.15f, 0.15f);
-                Vector2 velocity = toPlayer.RotatedBy(randomAngle) * projectileSpeed;
-                
-                if (Main.netMode != NetmodeID.MultiplayerClient)
-                {
-                    Projectile.NewProjectile(NPC.GetSource_FromAI(), spawnPos, velocity,
-                        ModContent.ProjectileType<ExplosiveBellProjectile>(), NPC.damage / 2, 4f, Main.myPlayer);
-                    
-                    // ADDITIONAL: Every 3rd bell fires a second one aimed directly at current position
-                    // This creates a spread that's harder to dodge
-                    if (AttackPhase % 3 == 0)
-                    {
-                        Vector2 directVel = (target.Center - spawnPos).SafeNormalize(Vector2.UnitY) * projectileSpeed * 0.9f;
-                        Projectile.NewProjectile(NPC.GetSource_FromAI(), spawnPos, directVel,
-                            ModContent.ProjectileType<ExplosiveBellProjectile>(), NPC.damage / 2, 4f, Main.myPlayer);
-                    }
-                }
-                
-                // ENHANCED spawn VFX
-                ThemedParticles.LaCampanellaSparkles(spawnPos, 5, 25f);
-                CustomParticles.GenericFlare(spawnPos, ThemedParticles.CampanellaOrange, 0.4f, 15);
-                CustomParticles.HaloRing(spawnPos, ThemedParticles.CampanellaGold * 0.6f, 0.25f, 12);
-                AttackPhase++;
-            }
-            
-            if (Timer >= 120)
-            {
-                State = ActionState.Walking;
-                Timer = 0;
-                AttackCooldown = 55; // Reduced from 80
-            }
-        }
-        
-        private void InfernalWaveWindup(Player target)
-        {
-            NPC.velocity.X *= 0.85f;
-            
-            // Ground charging effect - ENHANCED
-            if (Timer % 4 == 0)
-            {
-                Vector2 groundPos = NPC.Bottom + new Vector2(Main.rand.NextFloat(-100, 100), 0);
-                ThemedParticles.LaCampanellaSparks(groundPos, new Vector2(0, -1), 4, 5f);
-                
-                // Ground flares
-                if (Main.rand.NextBool(2))
-                {
-                    CustomParticles.GenericFlare(groundPos + new Vector2(0, -5), ThemedParticles.CampanellaOrange, 0.25f, 12);
-                }
-            }
-            
-            // Pulsing halo at feet
-            if (Timer % 12 == 0)
-            {
-                float chargeProgress = Timer / 40f;
-                CustomParticles.HaloRing(NPC.Bottom, ThemedParticles.CampanellaOrange * (0.4f + chargeProgress * 0.4f), 0.3f + chargeProgress * 0.2f, 18);
-            }
-            
-            screenShakeIntensity = Math.Max(screenShakeIntensity, Timer / 40f * 6f);
-            
-            if (Timer >= 40)
-            {
-                State = ActionState.InfernalWave;
-                Timer = 0;
-            }
-        }
-        
-        private void InfernalWaveFiring(Player target)
-        {
-            if (Timer == 1)
-            {
-                SoundEngine.PlaySound(SoundID.Item74 with { Pitch = -0.5f, Volume = 1.2f }, NPC.Center);
-                
-                // Spawn fire waves from BOTH boss AND player position for better coverage
-                if (Main.netMode != NetmodeID.MultiplayerClient)
-                {
-                    // Waves from boss position
-                    for (int dir = -1; dir <= 1; dir += 2)
-                    {
-                        Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Bottom, new Vector2(dir * 10f, 0),
-                            ModContent.ProjectileType<InfernalFireWave>(), NPC.damage / 2, 5f, Main.myPlayer);
-                    }
-                    
-                    // ADDITIONAL: Waves spawned at player's predicted ground position
-                    // Find ground below player
-                    Vector2 playerGroundPos = target.Bottom;
-                    for (int i = 0; i < 30; i++)
-                    {
-                        Vector2 checkPos = target.Bottom + new Vector2(0, i * 16);
-                        if (Collision.SolidCollision(checkPos, 16, 16))
-                        {
-                            playerGroundPos = checkPos;
-                            break;
-                        }
-                    }
-                    
-                    // Spawn waves at player's ground position
-                    for (int dir = -1; dir <= 1; dir += 2)
-                    {
-                        Projectile.NewProjectile(NPC.GetSource_FromAI(), playerGroundPos, new Vector2(dir * 10f, 0),
-                            ModContent.ProjectileType<InfernalFireWave>(), NPC.damage / 2, 5f, Main.myPlayer);
-                    }
-                    
-                    // Spawn rising fire pillars at player position to catch airborne players
-                    for (int i = -2; i <= 2; i++)
-                    {
-                        Vector2 pillarPos = playerGroundPos + new Vector2(i * 60, 0);
-                        Projectile.NewProjectile(NPC.GetSource_FromAI(), pillarPos, new Vector2(0, -12f),
-                            ModContent.ProjectileType<InfernalGroundFire>(), NPC.damage / 3, 2f, Main.myPlayer);
-                    }
-                }
-                
-                // FULL VFX on wave launch - at both positions
-                ThemedParticles.LaCampanellaShockwave(NPC.Bottom, 2f);
-                ThemedParticles.LaCampanellaHaloBurst(NPC.Bottom, 1.2f);
-                CustomParticles.GenericFlare(NPC.Bottom, ThemedParticles.CampanellaYellow, 0.7f, 22);
-                CustomParticles.ExplosionBurst(NPC.Bottom, ThemedParticles.CampanellaOrange, 10, 6f);
-                
-                // VFX at player position too
-                ThemedParticles.LaCampanellaShockwave(target.Bottom, 1.5f);
-                ThemedParticles.LaCampanellaImpact(target.Bottom, 1.2f);
-                CustomParticles.GenericFlare(target.Bottom, ThemedParticles.CampanellaOrange, 0.6f, 18);
-                
-                screenShakeIntensity = 15f;
-            }
-            
-            NPC.velocity.X *= 0.9f;
-            
-            if (Timer >= 60)
-            {
-                State = ActionState.Walking;
-                Timer = 0;
-                AttackCooldown = 70; // Reduced from 100
-            }
-        }
-        
-        private void MassiveLaserWindup(Player target)
-        {
-            NPC.velocity.X *= 0.8f;
-            
-            // Dramatic buildup - ENHANCED
-            if (Timer % 2 == 0)
-            {
-                // Converging energy from all directions
-                for (int i = 0; i < 5; i++)
-                {
-                    float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                    Vector2 offset = angle.ToRotationVector2() * Main.rand.NextFloat(100f, 200f);
-                    Vector2 targetPos = NPC.Center + new Vector2(0, -40);
-                    
-                    var glow = new GenericGlowParticle(targetPos + offset, -offset * 0.04f, 
-                        Main.rand.NextBool() ? ThemedParticles.CampanellaOrange : ThemedParticles.CampanellaYellow, 
-                        0.5f, 30, true);
-                    MagnumParticleHandler.SpawnParticle(glow);
-                }
-                
-                // Core flare buildup
-                float chargeProgress = Timer / 90f;
-                Vector2 corePos = NPC.Center + new Vector2(0, -40);
-                CustomParticles.GenericFlare(corePos, ThemedParticles.CampanellaYellow, 0.3f + chargeProgress * 0.5f, 20);
-            }
-            
-            // Pulsing halos during massive laser charge
-            if (Timer % 15 == 0)
-            {
-                Vector2 corePos = NPC.Center + new Vector2(0, -40);
-                float chargeProgress = Timer / 90f;
-                CustomParticles.HaloRing(corePos, ThemedParticles.CampanellaOrange, 0.35f + chargeProgress * 0.3f, 22);
-                ThemedParticles.LaCampanellaBellChime(corePos, 0.5f + chargeProgress * 0.5f);
-            }
-            
-            if (Timer % 20 == 0)
-            {
-                SoundEngine.PlaySound(SoundID.Item29 with { Pitch = -0.5f + Timer / 200f }, NPC.Center);
-            }
-            
-            screenShakeIntensity = Math.Max(screenShakeIntensity, Timer / 80f * 10f);
-            
-            // Flash sky effect
-            if (!Main.dedServ && Timer >= 60)
-            {
-                if (SkyManager.Instance["MagnumOpus:LaCampanellaSky"] is LaCampanellaSkyEffect sky)
-                {
-                    sky.TriggerFlash(0.3f);
-                }
-            }
-            
-            if (Timer >= 90)
-            {
-                State = ActionState.MassiveLaser;
-                Timer = 0;
-            }
-        }
-        
-        private void MassiveLaserFiring(Player target)
-        {
-            if (Timer == 1)
-            {
-                SoundEngine.PlaySound(SoundID.Zombie104 with { Pitch = -0.3f, Volume = 1.5f }, NPC.Center);
-                
-                Vector2 laserStart = NPC.Center + new Vector2(0, -40);
-                Vector2 toPlayer = target.Center - laserStart;
-                toPlayer.Normalize();
-                
-                // Massive laser beam
-                if (Main.netMode != NetmodeID.MultiplayerClient)
-                {
-                    Projectile.NewProjectile(NPC.GetSource_FromAI(), laserStart, toPlayer * 10f,
-                        ModContent.ProjectileType<MassiveInfernalLaser>(), (int)(NPC.damage * 0.8f), 6f, Main.myPlayer);
-                }
-                
-                // EPIC muzzle flash - FULL VFX SUITE
-                ThemedParticles.LaCampanellaImpact(laserStart, 3f);
-                ThemedParticles.LaCampanellaHaloBurst(laserStart, 2f);
-                CustomParticles.GenericFlare(laserStart, ThemedParticles.CampanellaYellow, 1.0f, 30);
-                CustomParticles.GenericFlare(laserStart, Color.White, 0.8f, 25);
-                CustomParticles.HaloRing(laserStart, ThemedParticles.CampanellaOrange, 0.7f, 25);
-                CustomParticles.HaloRing(laserStart, ThemedParticles.CampanellaYellow, 0.5f, 20);
-                CustomParticles.ExplosionBurst(laserStart, ThemedParticles.CampanellaOrange, 16, 10f);
-                screenShakeIntensity = 25f;
-                
-                // Flash sky
-                if (!Main.dedServ)
-                {
-                    if (SkyManager.Instance["MagnumOpus:LaCampanellaSky"] is LaCampanellaSkyEffect sky)
-                    {
-                        sky.TriggerFlash(0.8f, Color.Orange);
-                    }
-                }
-            }
-            
-            // Continuous flares while laser active
-            if (Timer % 5 == 0)
-            {
-                Vector2 laserStart = NPC.Center + new Vector2(0, -40);
-                CustomParticles.GenericFlare(laserStart + Main.rand.NextVector2Circular(20f, 20f), ThemedParticles.CampanellaOrange, 0.4f, 15);
-            }
-            
-            NPC.velocity.X *= 0.95f;
-            
-            if (Timer >= 90)
-            {
-                State = ActionState.Walking;
-                Timer = 0;
-                AttackCooldown = 100; // Reduced from 150
-            }
-        }
-        
-        private void BellStormWindup(Player target)
-        {
-            NPC.velocity.X *= 0.85f;
-            
-            // Bells orbiting around boss - ENHANCED
-            if (Timer % 8 == 0)
-            {
-                float angle = Timer * 0.15f;
-                Vector2 orbitPos = NPC.Center + angle.ToRotationVector2() * 120f;
-                ThemedParticles.LaCampanellaBloomBurst(orbitPos, 0.8f);
-                CustomParticles.GenericFlare(orbitPos, ThemedParticles.CampanellaGold, 0.4f, 15);
-                CustomParticles.HaloRing(orbitPos, ThemedParticles.CampanellaOrange * 0.6f, 0.25f, 12);
-                
-                SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.5f, Volume = 0.4f }, orbitPos);
-            }
-            
-            // Central buildup flares
-            if (Timer % 6 == 0)
-            {
-                float chargeProgress = Timer / 70f;
-                CustomParticles.GenericFlare(NPC.Center, ThemedParticles.CampanellaOrange, 0.2f + chargeProgress * 0.3f, 18);
-            }
-            
-            screenShakeIntensity = Math.Max(screenShakeIntensity, Timer / 70f * 8f);
-            
-            if (Timer >= 70)
-            {
-                State = ActionState.BellStorm;
-                Timer = 0;
-                AttackPhase = 0;
-            }
-        }
-        
-        private void BellStormFiring(Player target)
-        {
-            // Spawn bells in circular patterns - ENHANCED with player targeting
-            if (Timer % 8 == 0 && AttackPhase < 16)
-            {
-                float angle = AttackPhase * (MathHelper.TwoPi / 8f) + Timer * 0.02f;
-                
-                // ALTERNATE between spawning around boss and around player
-                bool spawnAroundPlayer = AttackPhase % 4 >= 2;
-                Vector2 center = spawnAroundPlayer ? target.Center : NPC.Center;
-                float radius = spawnAroundPlayer ? 150f : 80f;
-                
-                Vector2 spawnPos = center + angle.ToRotationVector2() * radius;
-                
-                // PREDICTIVE AIMING
-                float projectileSpeed = 12f;
-                float travelTime = Vector2.Distance(spawnPos, target.Center) / projectileSpeed;
-                Vector2 predictedPos = target.Center + target.velocity * travelTime * 0.6f;
-                Vector2 velocity = (predictedPos - spawnPos).SafeNormalize(Vector2.UnitY) * projectileSpeed;
-                
-                if (Main.netMode != NetmodeID.MultiplayerClient)
-                {
-                    Projectile.NewProjectile(NPC.GetSource_FromAI(), spawnPos, velocity,
-                        ModContent.ProjectileType<ExplosiveBellProjectile>(), NPC.damage / 3, 3f, Main.myPlayer);
-                    
-                    // ADDITIONAL: Every 4th spawn also creates upward-firing bells to catch jumpers
-                    if (AttackPhase % 4 == 0)
-                    {
-                        Vector2 upwardVel = new Vector2(Main.rand.NextFloat(-3f, 3f), -14f);
-                        Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center + new Vector2(0, -50), upwardVel,
-                            ModContent.ProjectileType<ExplosiveBellProjectile>(), NPC.damage / 3, 3f, Main.myPlayer);
-                    }
-                }
-                
-                SoundEngine.PlaySound(SoundID.Item35 with { Pitch = -0.1f, Volume = 0.5f }, spawnPos);
-                ThemedParticles.LaCampanellaSparkles(spawnPos, 4, 20f);
-                
-                // Bell spawn VFX - flare and halo per bell
-                CustomParticles.GenericFlare(spawnPos, ThemedParticles.CampanellaGold, 0.5f, 18);
-                CustomParticles.HaloRing(spawnPos, ThemedParticles.CampanellaOrange, 0.3f, 15);
-                
-                AttackPhase++;
-            }
-            
-            // Central storm effect pulsing - at BOTH boss and player
-            if (Timer % 10 == 0)
-            {
-                CustomParticles.GenericFlare(NPC.Center, ThemedParticles.CampanellaYellow * 0.6f, 0.3f, 12);
-                CustomParticles.GenericFlare(target.Center, ThemedParticles.CampanellaOrange * 0.4f, 0.25f, 10);
-            }
-            
-            NPC.velocity.X *= 0.95f;
-            
-            if (Timer >= 150)
-            {
-                State = ActionState.Walking;
-                Timer = 0;
-                AttackCooldown = 85; // Reduced from 120
             }
         }
         
         #endregion
         
-        #region NEW Advanced Attacks
+        #region AI States
         
-        // =====================================================
-        // ATTACK: SONIC RESONANCE - Expanding sound wave rings
-        // =====================================================
-        
-        private void SonicResonanceWindup(Player target)
+        private void AI_Spawning(Player target)
         {
-            const int WindupTime = 40;
-            NPC.velocity.X *= 0.85f;
-            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.4f, 0.08f);
-            
             if (Timer == 1)
             {
-                SoundEngine.PlaySound(SoundID.Item35 with { Pitch = -0.8f, Volume = 1.3f }, NPC.Center);
+                SoundEngine.PlaySound(SoundID.DD2_BetsyFireballShot with { Pitch = -0.6f, Volume = 1.3f }, NPC.Center);
+                CustomParticles.GenericFlare(NPC.Center, CampanellaOrange, 1.0f, 20);
             }
             
-            // Building resonance - converging sound waves
-            if (Timer % 3 == 0)
+            NPC.velocity.Y += 0.35f;
+            if (NPC.velocity.Y > 12f) NPC.velocity.Y = 12f;
+            
+            if (Timer % 4 == 0)
             {
-                float chargeProgress = Timer / (float)WindupTime;
+                Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(50f, 50f);
+                CustomParticles.GenericFlare(pos, CampanellaOrange, 0.4f, 12);
+            }
+            
+            if (onGround || Timer > 150)
+            {
+                NPC.velocity = Vector2.Zero;
+                
+                MagnumScreenEffects.AddScreenShake(18f);
+                SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with { Pitch = -0.4f, Volume = 1.5f }, NPC.Center);
+                
                 for (int i = 0; i < 8; i++)
                 {
-                    float angle = MathHelper.TwoPi * i / 8f + Timer * 0.1f;
-                    float radius = 150f * (1f - chargeProgress * 0.6f);
-                    Vector2 ringPos = NPC.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
-                    
-                    ThemedParticles.LaCampanellaSparkles(ringPos, 3, 15f);
-                    CustomParticles.GenericFlare(ringPos, ThemedParticles.CampanellaOrange * 0.7f, 0.3f * chargeProgress, 12);
+                    CustomParticles.HaloRing(NPC.Bottom, Color.Lerp(CampanellaOrange, CampanellaCrimson, i / 8f), 0.25f + i * 0.1f, 15 + i * 2);
                 }
                 
-                // Core vibration effect
-                ThemedParticles.LaCampanellaBellChime(NPC.Center, 0.4f * chargeProgress);
-            }
-            
-            screenShakeIntensity = Math.Max(screenShakeIntensity, Timer / WindupTime * 6f);
-            
-            if (Timer >= WindupTime)
-            {
-                State = ActionState.SonicResonance;
-                Timer = 0;
-                AttackPhase = 0;
-            }
-        }
-        
-        private void SonicResonanceAttack(Player target)
-        {
-            const int AttackDuration = 120;
-            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.5f, 0.1f);
-            
-            NPC.velocity.X *= 0.9f;
-            
-            // Fire sonic rings - ALTERNATING between boss-centered and player-targeted
-            if (Timer % 20 == 0)
-            {
-                SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.2f + Timer / 200f, Volume = 1f }, NPC.Center);
-                
-                // Create massive shockwave ring at boss
-                ThemedParticles.LaCampanellaShockwave(NPC.Center, 2.5f);
-                
-                int bellCount = isEnraged ? 16 : 12;
-                
-                // ALTERNATING PATTERN: Every other wave spawns at player instead
-                bool targetPlayer = ((int)(Timer / 20) % 2) == 1;
-                Vector2 ringCenter = targetPlayer ? target.Center : NPC.Center;
-                
-                if (targetPlayer)
-                {
-                    // Shockwave at player position
-                    ThemedParticles.LaCampanellaShockwave(target.Center, 2f);
-                    ThemedParticles.LaCampanellaImpact(target.Center, 1.5f);
-                }
-                
-                // Spawn ring of projectiles - INWARD toward player OR outward from player
-                for (int i = 0; i < bellCount; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / bellCount;
-                    
-                    Vector2 velocity, spawnPos;
-                    if (targetPlayer)
-                    {
-                        // Spawn around player, moving INWARD (harder to dodge)
-                        spawnPos = target.Center + angle.ToRotationVector2() * 200f;
-                        velocity = (target.Center - spawnPos).SafeNormalize(Vector2.UnitY) * 6f;
-                    }
-                    else
-                    {
-                        // Spawn from boss, moving outward
-                        velocity = angle.ToRotationVector2() * 8f;
-                        spawnPos = NPC.Center + velocity * 3f;
-                    }
-                    
-                    if (Main.netMode != NetmodeID.MultiplayerClient)
-                    {
-                        Projectile.NewProjectile(NPC.GetSource_FromAI(), spawnPos, velocity,
-                            ModContent.ProjectileType<ExplosiveBellProjectile>(), NPC.damage / 3, 2f, Main.myPlayer);
-                    }
-                    
-                    // Visual ring burst
-                    CustomParticles.GenericFlare(spawnPos, ThemedParticles.CampanellaOrange, 0.5f, 15);
-                    ThemedParticles.LaCampanellaSparks(spawnPos, velocity, 4, 6f);
-                }
-                
-                screenShakeIntensity = 12f;
-                
-                // Sky flash
-                if (!Main.dedServ && SkyManager.Instance["MagnumOpus:LaCampanellaSky"] is LaCampanellaSkyEffect sky)
-                {
-                    sky.TriggerFlash(0.4f, ThemedParticles.CampanellaOrange);
-                }
-            }
-            
-            // ADDITIONAL: Spawn homing bells periodically to catch airborne players
-            if (Timer % 30 == 15 && Main.netMode != NetmodeID.MultiplayerClient)
-            {
-                // Predictive targeting - aim where player will be
-                Vector2 predictedPos = target.Center + target.velocity * 20f;
-                Vector2 toPlayer = (predictedPos - NPC.Center).SafeNormalize(Vector2.UnitY);
-                
-                Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, toPlayer * 12f,
-                    ModContent.ProjectileType<ExplosiveBellProjectile>(), NPC.damage / 3, 2f, Main.myPlayer);
-                
-                CustomParticles.GenericFlare(NPC.Center, ThemedParticles.CampanellaYellow, 0.5f, 15);
-            }
-            
-            // Continuous particle aura
-            if (Timer % 3 == 0)
-            {
-                ThemedParticles.LaCampanellaAura(NPC.Center, 80f);
-            }
-            
-            if (Timer >= AttackDuration)
-            {
-                State = ActionState.Walking;
-                Timer = 0;
-                AttackCooldown = 80;
-            }
-        }
-        
-        // =====================================================
-        // ATTACK: FLAME GEYSER - Erupting fire columns from ground
-        // =====================================================
-        
-        private void FlameGeyserWindup(Player target)
-        {
-            const int WindupTime = 50;
-            NPC.velocity.X *= 0.85f;
-            
-            if (Timer == 1)
-            {
-                SoundEngine.PlaySound(SoundID.Item35 with { Pitch = -0.6f, Volume = 1.3f }, NPC.Center);
-                EroicaScreenShake.MediumShake(NPC.Center);
-            }
-            
-            // Bell chime telegraph - show warning bells at upcoming explosion locations
-            if (Timer > 15)
-            {
-                float telegraphIntensity = (Timer - 15f) / (WindupTime - 15f);
-                
-                // Show warning bell particles at upcoming explosion locations
-                for (int i = -4; i <= 4; i++)
-                {
-                    if (i == 0) continue;
-                    Vector2 bellPos = target.Bottom + new Vector2(i * 90f, 0);
-                    
-                    // Bell chime warning particles
-                    if (Main.rand.NextFloat() < telegraphIntensity * 0.6f)
-                    {
-                        // Orange warning flares at bell positions
-                        float gradient = Math.Abs(i) / 4f;
-                        Color flareColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaYellow, gradient);
-                        CustomParticles.GenericFlare(bellPos, flareColor * telegraphIntensity * 0.7f, 0.25f * telegraphIntensity, 10);
-                        
-                        // Bell chime particles rising
-                        if (Timer % 8 == 0)
-                        {
-                            ThemedParticles.LaCampanellaBellChime(bellPos, 0.3f * telegraphIntensity);
-                        }
-                        
-                        // Rising golden warning particles
-                        var bellGlow = new GenericGlowParticle(bellPos + Main.rand.NextVector2Circular(15f, 8f), 
-                            new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1.5f), ThemedParticles.CampanellaGold, 0.2f * telegraphIntensity, 25, true);
-                        MagnumParticleHandler.SpawnParticle(bellGlow);
-                    }
-                    
-                    // Pulsing halo at each bell position
-                    if (Timer % 12 == 0 && Main.rand.NextFloat() < telegraphIntensity)
-                    {
-                        CustomParticles.HaloRing(bellPos, ThemedParticles.CampanellaOrange * telegraphIntensity * 0.4f, 0.15f * telegraphIntensity, 15);
-                    }
-                }
-            }
-            
-            // Bell tolling sounds during telegraph
-            if (Timer % 15 == 0 && Timer > 15)
-            {
-                SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.3f + Timer / 100f, Volume = 0.5f + Timer / 100f }, NPC.Center);
-            }
-            
-            screenShakeIntensity = Math.Max(screenShakeIntensity, Timer / WindupTime * 8f);
-            
-            if (Timer >= WindupTime)
-            {
-                State = ActionState.FlameGeyser;
-                Timer = 0;
-                AttackPhase = 0;
-            }
-        }
-        
-        private void FlameGeyserAttack(Player target)
-        {
-            const int AttackDuration = 180;
-            const int BellCount = 9; // -4 to +4 positions
-            const float BellSpacing = 90f; // 90 pixels apart
-            const int ExplosionDelay = 12; // Frames between each bell explosion
-            
-            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.55f, 0.1f);
-            
-            NPC.velocity.X *= 0.9f;
-            
-            // Spawn bell explosions in sequence across the ground
-            if (Timer % ExplosionDelay == 0 && AttackPhase < BellCount)
-            {
-                // Calculate bell position - spread from left to right centered on player
-                int bellIndex = (int)AttackPhase - (BellCount / 2); // -4 to +4
-                Vector2 bellPos = target.Bottom + new Vector2(bellIndex * BellSpacing, 0);
-                
-                // BELL CHIME SOUND
-                SoundEngine.PlaySound(SoundID.Item35 with { Pitch = -0.3f + bellIndex * 0.08f, Volume = 1.4f }, bellPos);
-                
-                // BELL CHIME PARTICLE EFFECT
-                ThemedParticles.LaCampanellaBellChime(bellPos, 1.5f);
-                
-                // MASSIVE GROUND EXPLOSION VFX - FULL SUITE
-                ThemedParticles.LaCampanellaImpact(bellPos, 2.5f);
-                ThemedParticles.LaCampanellaShockwave(bellPos, 2f);
-                ThemedParticles.LaCampanellaHaloBurst(bellPos, 2f);
-                
-                // Gradient flares - orange to yellow to gold
-                float gradientProgress = (float)Math.Abs(bellIndex) / (BellCount / 2f);
-                Color primaryGradient = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaYellow, gradientProgress);
-                Color secondaryGradient = Color.Lerp(ThemedParticles.CampanellaYellow, ThemedParticles.CampanellaGold, gradientProgress);
-                
-                CustomParticles.GenericFlare(bellPos, primaryGradient, 1.0f, 30);
-                CustomParticles.GenericFlare(bellPos, secondaryGradient, 0.8f, 25);
-                CustomParticles.GenericFlare(bellPos, Color.White, 0.6f, 20);
-                CustomParticles.HaloRing(bellPos, primaryGradient, 0.6f, 22);
-                CustomParticles.HaloRing(bellPos, Color.White * 0.8f, 0.4f, 18);
-                CustomParticles.ExplosionBurst(bellPos, primaryGradient, 16, 14f);
-                CustomParticles.ExplosionBurst(bellPos, secondaryGradient, 12, 10f);
-                
-                // FRACTAL FLARE BURST PATTERN at explosion point
-                for (int f = 0; f < 8; f++)
-                {
-                    float angle = MathHelper.TwoPi * f / 8f;
-                    Vector2 fractalOffset = angle.ToRotationVector2() * 35f;
-                    float fractalGradient = (float)f / 8f;
-                    Color fractalColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaGold, fractalGradient);
-                    CustomParticles.GenericFlare(bellPos + fractalOffset, fractalColor, 0.5f, 20);
-                }
-                
-                // SPAWN FLAME PILLAR - Multiple fire projectiles shooting straight UP
-                if (Main.netMode != NetmodeID.MultiplayerClient)
-                {
-                    int pillarCount = isEnraged ? 7 : 5;
-                    for (int p = 0; p < pillarCount; p++)
-                    {
-                        // Staggered timing and slight spread for pillar effect
-                        float horizontalSpread = (p - pillarCount / 2) * 0.08f;
-                        float verticalSpeed = -18f - p * 3f; // Faster projectiles go higher
-                        Vector2 pillarVelocity = new Vector2(horizontalSpread * 2f, verticalSpeed);
-                        
-                        Projectile.NewProjectile(NPC.GetSource_FromAI(), bellPos + new Vector2(0, -10), pillarVelocity,
-                            ModContent.ProjectileType<InfernalGroundFire>(), NPC.damage / 3, 2f, Main.myPlayer);
-                    }
-                }
-                
-                // RISING FIRE PARTICLES for pillar visual
-                for (int i = 0; i < 25; i++)
-                {
-                    Vector2 vel = new Vector2(Main.rand.NextFloat(-3f, 3f), Main.rand.NextFloat(-20f, -10f));
-                    float particleGradient = Main.rand.NextFloat();
-                    Color particleColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaYellow, particleGradient);
-                    var glow = new GenericGlowParticle(bellPos + Main.rand.NextVector2Circular(25f, 10f), 
-                        vel, particleColor, Main.rand.NextFloat(0.5f, 0.9f), Main.rand.Next(35, 55), true);
-                    MagnumParticleHandler.SpawnParticle(glow);
-                }
-                
-                // BLACK SMOKE COLUMN rising
                 for (int i = 0; i < 12; i++)
                 {
-                    var smoke = new HeavySmokeParticle(bellPos + Main.rand.NextVector2Circular(30f, 8f), 
-                        new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-8f, -4f)), 
-                        ThemedParticles.CampanellaBlack, Main.rand.Next(60, 100), Main.rand.NextFloat(0.6f, 1.1f), 
-                        0.7f, 0.02f, false);
+                    Vector2 vel = Main.rand.NextVector2Circular(6f, 3f);
+                    var smoke = new HeavySmokeParticle(NPC.Bottom + Main.rand.NextVector2Circular(80f, 20f), vel, CampanellaBlack, Main.rand.Next(35, 50), 0.4f, 0.8f, 0.012f, false);
                     MagnumParticleHandler.SpawnParticle(smoke);
                 }
                 
-                // Upward sparks shooting with the pillar
-                for (int s = 0; s < 15; s++)
+                Main.NewText("La Campanella tolls for thee...", CampanellaOrange);
+                
+                Timer = 0;
+                State = BossPhase.Grounded;
+                attackCooldown = AttackWindowFrames;
+            }
+        }
+        
+        private void AI_Grounded(Player target)
+        {
+            float targetX = target.Center.X;
+            float moveSpeed = BaseSpeed * (1f + difficultyTier * 0.2f);
+            
+            if (Math.Abs(NPC.Center.X - targetX) > 150f)
+            {
+                float dir = Math.Sign(targetX - NPC.Center.X);
+                NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dir * moveSpeed, 0.06f);
+            }
+            else
+            {
+                NPC.velocity.X *= 0.9f;
+            }
+            
+            if (!onGround && !isAirborne)
+            {
+                NPC.velocity.Y += 0.5f;
+                if (NPC.velocity.Y > 18f) NPC.velocity.Y = 18f;
+            }
+            else if (onGround)
+            {
+                NPC.velocity.Y = 0;
+            }
+            
+            if (attackCooldown <= 0 && Timer > 40)
+            {
+                SelectNextAttack(target);
+            }
+            
+            int fireRate = 40 - difficultyTier * 8; // Slower rate, fewer projectiles
+            if (Timer % fireRate == 0 && Main.netMode != NetmodeID.MultiplayerClient && Timer > 30)
+            {
+                float angle = MathHelper.ToRadians(-90 + Main.rand.NextFloat(-25f, 25f));
+                Vector2 vel = angle.ToRotationVector2() * (9f + difficultyTier * 2f); // Faster projectiles
+                // Alternate between orb and bolt for variety
+                if (Main.rand.NextBool())
+                    BossProjectileHelper.SpawnHostileOrb(NPC.Top - new Vector2(0, 20), vel, 65 + difficultyTier * 5, CampanellaOrange, 0.015f);
+                else
+                    BossProjectileHelper.SpawnAcceleratingBolt(NPC.Top - new Vector2(0, 20), vel * 0.8f, 65 + difficultyTier * 5, CampanellaGold, 14f);
+                CustomParticles.GenericFlare(NPC.Top, CampanellaGold, 0.4f, 10);
+            }
+        }
+        
+        private void SelectNextAttack(Player target)
+        {
+            List<AttackPattern> pool = new List<AttackPattern>
+            {
+                AttackPattern.BellSlam,
+                AttackPattern.TollWave,
+                AttackPattern.EmberShower
+            };
+            
+            if (difficultyTier >= 1)
+            {
+                pool.Add(AttackPattern.FireWallSweep);
+                pool.Add(AttackPattern.ChimeRings);
+                pool.Add(AttackPattern.InfernoCircle);
+                pool.Add(AttackPattern.RhythmicToll);
+                pool.Add(AttackPattern.InfernalJudgment);  // Hero's Judgment style
+                pool.Add(AttackPattern.BellLaserGrid);     // Laser grid attack
+            }
+            
+            if (difficultyTier >= 2)
+            {
+                pool.Add(AttackPattern.TripleSlam);
+                pool.Add(AttackPattern.InfernalTorrent);
+                pool.Add(AttackPattern.InfernoCage);
+                pool.Add(AttackPattern.ResonantShock);     // Electrical shock wave
+                
+                if (consecutiveAttacks >= 5 && Main.rand.NextBool(3))
                 {
-                    float sparkAngle = Main.rand.NextFloat(-0.4f, 0.4f);
-                    Vector2 sparkVel = new Vector2(sparkAngle * 5f, Main.rand.NextFloat(-16f, -10f));
-                    var spark = new GlowSparkParticle(bellPos + Main.rand.NextVector2Circular(20f, 5f), sparkVel, true, 
-                        Main.rand.Next(25, 40), Main.rand.NextFloat(0.4f, 0.7f), 
-                        primaryGradient, new Vector2(0.4f, 1.8f), false, true);
-                    MagnumParticleHandler.SpawnParticle(spark);
+                    pool.Add(AttackPattern.GrandFinale);
+                }
+            }
+            
+            pool.Remove(lastAttack);
+            
+            CurrentAttack = pool[Main.rand.Next(pool.Count)];
+            lastAttack = CurrentAttack;
+            
+            Timer = 0;
+            SubPhase = 0;
+            consecutiveAttacks++;
+            
+            if (CurrentAttack == AttackPattern.BellSlam || CurrentAttack == AttackPattern.TripleSlam)
+            {
+                State = BossPhase.Slam;
+                slamCount = CurrentAttack == AttackPattern.TripleSlam ? 3 : 1;
+            }
+            else
+            {
+                State = BossPhase.Attack;
+            }
+        }
+        
+        private void AI_Attack(Player target)
+        {
+            switch (CurrentAttack)
+            {
+                case AttackPattern.TollWave:
+                    Attack_TollWave(target);
+                    break;
+                case AttackPattern.EmberShower:
+                    Attack_EmberShower(target);
+                    break;
+                case AttackPattern.FireWallSweep:
+                    Attack_FireWallSweep(target);
+                    break;
+                case AttackPattern.ChimeRings:
+                    Attack_ChimeRings(target);
+                    break;
+                case AttackPattern.InfernoCircle:
+                    Attack_InfernoCircle(target);
+                    break;
+                case AttackPattern.RhythmicToll:
+                    Attack_RhythmicToll(target);
+                    break;
+                case AttackPattern.InfernalJudgment:
+                    Attack_InfernalJudgment(target);
+                    break;
+                case AttackPattern.BellLaserGrid:
+                    Attack_BellLaserGrid(target);
+                    break;
+                case AttackPattern.InfernalTorrent:
+                    Attack_InfernalTorrent(target);
+                    break;
+                case AttackPattern.InfernoCage:
+                    Attack_InfernoCage(target);
+                    break;
+                case AttackPattern.ResonantShock:
+                    Attack_ResonantShock(target);
+                    break;
+                case AttackPattern.GrandFinale:
+                    Attack_GrandFinale(target);
+                    break;
+            }
+        }
+        
+        private void AI_Slam(Player target)
+        {
+            int windupTime = 40 - difficultyTier * 8;
+            int hangTime = 15;
+            int descendSpeed = 25 + difficultyTier * 5;
+            
+            if (SubPhase == 0)
+            {
+                NPC.velocity.X *= 0.9f;
+                
+                if (Timer == 1)
+                {
+                    slamTarget = target.Center;
+                    SoundEngine.PlaySound(SoundID.DD2_BetsyFlameBreath with { Pitch = -0.2f }, NPC.Center);
                 }
                 
-                screenShakeIntensity = 12f;
-                AttackPhase++;
-                
-                // Sky flash on every other explosion
-                if (bellIndex % 2 == 0 && !Main.dedServ)
+                if (Timer % 4 == 0)
                 {
-                    if (SkyManager.Instance["MagnumOpus:LaCampanellaSky"] is LaCampanellaSkyEffect sky)
+                    for (int i = 0; i < 5; i++)
                     {
-                        sky.TriggerFlash(0.4f, primaryGradient);
+                        Vector2 offset = Main.rand.NextVector2CircularEdge(70f, 70f);
+                        CustomParticles.GenericFlare(NPC.Center + offset, CampanellaOrange, 0.35f, 10);
                     }
                 }
-            }
-            
-            if (Timer >= AttackDuration)
-            {
-                State = ActionState.Walking;
-                Timer = 0;
-                AttackCooldown = 100;
-            }
-        }
-        
-        // =====================================================
-        // ATTACK: BELL LIGHTNING - Infernal fractal lightning storm
-        // =====================================================
-        
-        private void BellLightningWindup(Player target)
-        {
-            const int WindupTime = 30;
-            NPC.velocity.X *= 0.85f;
-            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.5f, 0.1f);
-            
-            if (Timer == 1)
-            {
-                SoundEngine.PlaySound(SoundID.Thunder with { Volume = 1.2f }, NPC.Center);
-                EroicaScreenShake.MediumShake(NPC.Center);
                 
-                // Pre-calculate lightning strike positions around player
-                lightningStrikeIndex = 0;
-                int strikeCount = isEnraged ? 10 : 8;
-                for (int i = 0; i < strikeCount; i++)
+                if (Timer > windupTime / 2)
                 {
-                    float angle = MathHelper.TwoPi * i / strikeCount + Main.rand.NextFloat(-0.2f, 0.2f);
-                    float distance = 120f + Main.rand.NextFloat(60f);
-                    telegraphedLightningPositions[i] = target.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * distance;
-                }
-            }
-            
-            // Crackling energy buildup
-            if (Timer % 2 == 0)
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(120f, 120f);
-                CustomParticles.GenericFlare(NPC.Center + offset, ThemedParticles.CampanellaOrange * 0.7f, 0.3f, 12);
-                ThemedParticles.LaCampanellaSparkles(NPC.Center + offset, 2, 15f);
-            }
-            
-            // Telegraph: Show warning at strike positions
-            if (Timer > 15)
-            {
-                float telegraphIntensity = (Timer - 15f) / 15f;
-                int strikeCount = isEnraged ? 10 : 8;
-                for (int i = 0; i < strikeCount; i++)
-                {
-                    Vector2 pos = telegraphedLightningPositions[i];
-                    if (Main.rand.NextFloat() < telegraphIntensity * 0.5f)
+                    for (int i = 0; i < 10; i++)
                     {
-                        CustomParticles.GenericFlare(pos, ThemedParticles.CampanellaYellow * telegraphIntensity * 0.6f, 0.25f * telegraphIntensity, 10);
+                        float xOffset = slamTarget.X - 300f + i * 60f;
+                        CustomParticles.GenericFlare(new Vector2(xOffset, slamTarget.Y), CampanellaCrimson * 0.3f, 0.15f, 3);
                     }
                 }
-            }
-            
-            screenShakeIntensity = Math.Max(screenShakeIntensity, Timer / WindupTime * 8f);
-            
-            if (Timer >= WindupTime)
-            {
-                State = ActionState.BellLightning;
-                Timer = 0;
-                AttackPhase = 0;
-                lightningStrikeIndex = 0;
-            }
-        }
-        
-        private void BellLightningAttack(Player target)
-        {
-            const int AttackDuration = 80;
-            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.55f, 0.1f);
-            
-            // Aggressive movement during lightning
-            Vector2 toPlayer = (target.Center - NPC.Center).SafeNormalize(Vector2.Zero);
-            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, toPlayer.X * 8f, 0.05f);
-            
-            // Strike lightning at telegraphed positions
-            int strikeCount = isEnraged ? 10 : 8;
-            if (Timer % 8 == 0 && lightningStrikeIndex < strikeCount)
-            {
-                SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 0.8f }, NPC.Center);
                 
-                Vector2 strikePos = telegraphedLightningPositions[lightningStrikeIndex];
-                lightningStrikeIndex++;
-                
-                // Draw infernal lightning from boss to strike point
-                MagnumVFX.DrawLaCampanellaLightning(NPC.Center, strikePos, 10, 35f, 4, 0.5f);
-                
-                // Impact explosion - FULL VFX SUITE
-                ThemedParticles.LaCampanellaImpact(strikePos, 1.5f);
-                ThemedParticles.LaCampanellaHaloBurst(strikePos, 1.2f);
-                CustomParticles.GenericFlare(strikePos, ThemedParticles.CampanellaYellow, 0.7f, 20);
-                CustomParticles.GenericFlare(strikePos, Color.White, 0.5f, 15);
-                CustomParticles.HaloRing(strikePos, ThemedParticles.CampanellaOrange, 0.4f, 18);
-                CustomParticles.ExplosionBurst(strikePos, ThemedParticles.CampanellaOrange, 10, 8f);
-                CustomParticles.ExplosionBurst(strikePos, ThemedParticles.CampanellaBlack, 6, 5f);
-                
-                // Fire burst at strike point
-                for (int i = 0; i < 12; i++)
+                if (Timer >= windupTime)
                 {
-                    float angle = MathHelper.TwoPi * i / 12f;
-                    Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
-                    var spark = new GlowSparkParticle(strikePos, vel, true, 
-                        Main.rand.Next(20, 35), Main.rand.NextFloat(0.4f, 0.7f), 
-                        ThemedParticles.CampanellaOrange, new Vector2(0.4f, 1.6f), false, true);
-                    MagnumParticleHandler.SpawnParticle(spark);
-                }
-                
-                screenShakeIntensity = 8f;
-            }
-            
-            if (Timer >= AttackDuration)
-            {
-                State = ActionState.Walking;
-                Timer = 0;
-                AttackCooldown = 100;
-            }
-        }
-        
-        // =====================================================
-        // ATTACK: INFERNAL VORTEX - Spiraling inward fire beams
-        // =====================================================
-        
-        private void InfernalVortexWindup(Player target)
-        {
-            const int WindupTime = 50;
-            NPC.velocity.X *= 0.8f;
-            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.55f, 0.08f);
-            
-            if (Timer == 1)
-            {
-                SoundEngine.PlaySound(SoundID.Roar with { Pitch = -0.3f }, NPC.Center);
-                EroicaScreenShake.LargeShake(NPC.Center);
-                Main.NewText("The bell channels infernal fury!", 255, 100, 0);
-                
-                // Initialize vortex beam angles
-                for (int i = 0; i < 8; i++)
-                {
-                    vortexBeamAngles[i] = MathHelper.TwoPi * i / 8f;
-                }
-                vortexRotationSpeed = 0f;
-            }
-            
-            // Spiraling energy gathering
-            if (Timer % 2 == 0)
-            {
-                float chargeProgress = Timer / (float)WindupTime;
-                for (int i = 0; i < 6; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 6f + Timer * 0.15f;
-                    float radius = 180f * (1f - chargeProgress * 0.4f);
-                    Vector2 ringPos = NPC.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+                    Timer = 0;
+                    SubPhase = 1;
+                    isAirborne = true;
                     
-                    CustomParticles.GenericFlare(ringPos, ThemedParticles.CampanellaOrange, 0.4f * chargeProgress, 15);
-                    ThemedParticles.LaCampanellaSparks(ringPos, (NPC.Center - ringPos).SafeNormalize(Vector2.UnitY), 3, 4f);
+                    float horizontalDist = slamTarget.X - NPC.Center.X;
+                    NPC.velocity.Y = -18f - difficultyTier * 2f;
+                    NPC.velocity.X = horizontalDist / 35f;
+                    
+                    SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.1f, Volume = 1.2f }, NPC.Center);
+                    CustomParticles.GenericFlare(NPC.Bottom, CampanellaGold, 0.7f, 15);
+                }
+            }
+            else if (SubPhase == 1)
+            {
+                NPC.velocity.Y += 0.3f;
+                
+                if (Timer % 3 == 0)
+                {
+                    Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(35f, 35f);
+                    CustomParticles.GenericFlare(pos, CampanellaOrange, 0.4f, 10);
                 }
                 
-                // Core buildup
-                CustomParticles.GenericFlare(NPC.Center, ThemedParticles.CampanellaYellow, 0.3f + chargeProgress * 0.4f, 20);
-            }
-            
-            screenShakeIntensity = Math.Max(screenShakeIntensity, Timer / WindupTime * 12f);
-            
-            if (Timer >= WindupTime)
-            {
-                State = ActionState.InfernalVortex;
-                Timer = 0;
-                vortexRotationSpeed = 0.02f;
-            }
-        }
-        
-        private void InfernalVortexAttack(Player target)
-        {
-            const int AttackDuration = 180;
-            distortionIntensity = 0.6f;
-            
-            // Slow chase during vortex
-            Vector2 toPlayer = (target.Center - NPC.Center).SafeNormalize(Vector2.Zero);
-            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, toPlayer.X * 4f, 0.03f);
-            
-            // Accelerating rotation
-            vortexRotationSpeed = MathHelper.Lerp(vortexRotationSpeed, isEnraged ? 0.07f : 0.05f, 0.01f);
-            
-            // Update and draw vortex beams
-            for (int i = 0; i < 8; i++)
-            {
-                vortexBeamAngles[i] += vortexRotationSpeed;
-                
-                // Spiraling toward player
-                float spiralFactor = 1f - (Timer / (float)AttackDuration) * 0.5f;
-                float beamLength = 1500f * spiralFactor;
-                
-                Vector2 beamDir = vortexBeamAngles[i].ToRotationVector2();
-                Vector2 beamEnd = NPC.Center + beamDir * beamLength;
-                
-                // Draw the fire beam
-                DrawInfernalBeam(NPC.Center, vortexBeamAngles[i], beamLength * 0.8f);
-            }
-            
-            // Spawn fire projectiles along beams periodically
-            if (Timer % 25 == 0)
-            {
-                SoundEngine.PlaySound(SoundID.Item45 with { Pitch = 0.3f, Volume = 0.7f }, NPC.Center);
-                
-                // Burst VFX from core
-                ThemedParticles.LaCampanellaHaloBurst(NPC.Center, 1.2f);
-                CustomParticles.GenericFlare(NPC.Center, ThemedParticles.CampanellaOrange, 0.7f, 20);
-                
-                for (int i = 0; i < 8; i++)
+                if (NPC.velocity.Y >= 0)
                 {
-                    Vector2 beamDir = vortexBeamAngles[i].ToRotationVector2();
-                    Vector2 spawnPos = NPC.Center + beamDir * 200f;
+                    Timer = 0;
+                    SubPhase = 2;
+                    NPC.velocity.X *= 0.3f;
+                }
+            }
+            else if (SubPhase == 2)
+            {
+                if (Timer == 1)
+                {
+                    SoundEngine.PlaySound(SoundID.DD2_BetsyFlameBreath with { Pitch = 0.3f, Volume = 1.3f }, NPC.Center);
+                }
+                
+                if (Timer % 2 == 0)
+                {
+                    CustomParticles.GenericFlare(NPC.Bottom, CampanellaCrimson, 0.5f, 8);
+                }
+                
+                if (Timer >= hangTime)
+                {
+                    Timer = 0;
+                    SubPhase = 3;
+                }
+            }
+            else if (SubPhase == 3)
+            {
+                NPC.velocity.Y += 1.2f;
+                if (NPC.velocity.Y > descendSpeed) NPC.velocity.Y = descendSpeed;
+                
+                if (Timer % 2 == 0)
+                {
+                    for (int i = 0; i < 3; i++)
+                    {
+                        Vector2 offset = Main.rand.NextVector2Circular(40f, 40f);
+                        Color trailColor = Color.Lerp(CampanellaOrange, CampanellaCrimson, Main.rand.NextFloat());
+                        CustomParticles.GenericFlare(NPC.Center + offset - NPC.velocity * 0.2f, trailColor, 0.45f, 10);
+                    }
+                }
+                
+                if (onGround || Timer > 80)
+                {
+                    Timer = 0;
+                    SubPhase = 4;
+                }
+            }
+            else if (SubPhase == 4)
+            {
+                NPC.velocity = Vector2.Zero;
+                isAirborne = false;
+                
+                if (Timer == 1)
+                {
+                    MagnumScreenEffects.AddScreenShake(16f + difficultyTier * 4f);
+                    SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with { Pitch = -0.3f, Volume = 1.5f }, NPC.Center);
+                    
+                    CustomParticles.GenericFlare(NPC.Bottom, Color.White, 1.2f, 20);
+                    for (int r = 0; r < 8; r++)
+                    {
+                        CustomParticles.HaloRing(NPC.Bottom, Color.Lerp(CampanellaGold, CampanellaCrimson, r / 8f), 0.25f + r * 0.12f, 16 + r * 2);
+                    }
+                    
+                    for (int i = 0; i < 12; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / 12f;
+                        CustomParticles.GenericFlare(NPC.Bottom + angle.ToRotationVector2() * 80f, CampanellaOrange, 0.5f, 15);
+                    }
+                    
+                    for (int i = 0; i < 10; i++)
+                    {
+                        Vector2 vel = Main.rand.NextVector2Circular(8f, 4f);
+                        var smoke = new HeavySmokeParticle(NPC.Bottom + Main.rand.NextVector2Circular(60f, 15f), vel, CampanellaBlack, Main.rand.Next(30, 45), 0.5f, 0.9f, 0.012f, false);
+                        MagnumParticleHandler.SpawnParticle(smoke);
+                    }
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
-                        Projectile.NewProjectile(NPC.GetSource_FromAI(), spawnPos, beamDir * 50f,
-                            ModContent.ProjectileType<InfernalBellLaser>(), NPC.damage / 4, 2f, Main.myPlayer);
+                        int projCount = 6 + difficultyTier * 2; // Reduced from 10+3
+                        for (int i = 0; i < projCount; i++)
+                        {
+                            float angle = MathHelper.Pi + MathHelper.Pi * i / (projCount - 1);
+                            float speed = 13f + difficultyTier * 2.5f; // Faster
+                            Vector2 vel = angle.ToRotationVector2() * speed;
+                            // Mix types for variety
+                            if (i % 2 == 0)
+                                BossProjectileHelper.SpawnHostileOrb(NPC.Bottom, vel, 75 + difficultyTier * 5, CampanellaCrimson, 0f);
+                            else
+                                BossProjectileHelper.SpawnWaveProjectile(NPC.Bottom, vel, 75 + difficultyTier * 5, CampanellaOrange, 4.5f);
+                        }
+                        
+                        // Fewer upward bolts
+                        for (int i = 0; i < 3 + difficultyTier; i++) // Reduced from 6+2
+                        {
+                            float angle = MathHelper.ToRadians(-135 + i * 90f / (2 + difficultyTier));
+                            Vector2 vel = angle.ToRotationVector2() * (10f + difficultyTier * 1.5f);
+                            BossProjectileHelper.SpawnAcceleratingBolt(NPC.Top, vel, 70, CampanellaOrange, 14f);
+                        }
                     }
-                    
-                    // Spawn VFX per projectile
-                    CustomParticles.GenericFlare(spawnPos, ThemedParticles.CampanellaYellow, 0.4f, 15);
-                    CustomParticles.HaloRing(spawnPos, ThemedParticles.CampanellaOrange * 0.6f, 0.25f, 12);
+                }
+                
+                if (Timer >= 25)
+                {
+                    slamCount--;
+                    if (slamCount > 0)
+                    {
+                        Timer = 0;
+                        SubPhase = 0;
+                        slamTarget = Main.player[NPC.target].Center + Main.player[NPC.target].velocity * 15f;
+                    }
+                    else
+                    {
+                        EndAttack();
+                    }
                 }
             }
+        }
+        
+        private void AI_Recovery(Player target)
+        {
+            NPC.velocity.X *= 0.92f;
+            if (!onGround)
+            {
+                NPC.velocity.Y += 0.4f;
+            }
+            else
+            {
+                NPC.velocity.Y = 0;
+            }
             
-            // Continuous particles
-            if (Timer % 2 == 0)
+            if (Timer >= 30)
+            {
+                Timer = 0;
+                State = BossPhase.Grounded;
+                attackCooldown = AttackWindowFrames / 2;
+            }
+        }
+        
+        private void AI_Enraged(Player target)
+        {
+            Vector2 toTarget = (target.Center - NPC.Center).SafeNormalize(Vector2.Zero);
+            float enrageSpeed = BaseSpeed * 2.5f;
+            NPC.velocity = Vector2.Lerp(NPC.velocity, toTarget * enrageSpeed, 0.1f);
+            
+            int fireRate = 10 - difficultyTier * 2;
+            if (Timer % fireRate == 0 && Main.netMode != NetmodeID.MultiplayerClient)
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    float spiralAngle = Timer * 0.1f + i * MathHelper.PiOver2;
-                    float spiralRadius = 50f + (float)Math.Sin(Timer * 0.08f + i) * 20f;
-                    Vector2 spiralPos = NPC.Center + new Vector2((float)Math.Cos(spiralAngle), (float)Math.Sin(spiralAngle)) * spiralRadius;
-                    
-                    ThemedParticles.LaCampanellaSparks(spiralPos, spiralAngle.ToRotationVector2(), 3, 5f);
+                    float angle = MathHelper.TwoPi * i / 4f + Timer * 0.08f;
+                    Vector2 vel = angle.ToRotationVector2() * 9f;
+                    BossProjectileHelper.SpawnHostileOrb(NPC.Center, vel, 80, CampanellaCrimson, 0f);
                 }
+                CustomParticles.GenericFlare(NPC.Center, CampanellaCrimson, 0.5f, 10);
             }
             
-            // Screen shake
-            if (Timer % 10 == 0)
-            {
-                screenShakeIntensity = 6f;
-            }
-            
-            if (Timer >= AttackDuration)
-            {
-                State = ActionState.Walking;
-                Timer = 0;
-                AttackCooldown = 150;
-            }
-        }
-        
-        // =====================================================
-        // ATTACK: CHIME CASCADE - Falling bell projectiles from above
-        // =====================================================
-        
-        private void ChimeCascadeWindup(Player target)
-        {
-            const int WindupTime = 40;
-            NPC.velocity.X *= 0.85f;
-            
-            if (Timer == 1)
-            {
-                SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.8f, Volume = 1.2f }, NPC.Center);
-            }
-            
-            // Rising energy to sky
             if (Timer % 3 == 0)
             {
-                Vector2 upwardPos = NPC.Center + new Vector2(Main.rand.NextFloat(-80f, 80f), -Timer * 3f);
-                ThemedParticles.LaCampanellaSparkles(upwardPos, 4, 20f);
-                CustomParticles.GenericFlare(upwardPos, ThemedParticles.CampanellaOrange * 0.6f, 0.3f, 10);
-            }
-            
-            // Telegraph - show warning particles above player
-            if (Timer > 20)
-            {
-                float telegraphIntensity = (Timer - 20f) / 20f;
-                for (int i = -3; i <= 3; i++)
-                {
-                    Vector2 warningPos = target.Center + new Vector2(i * 100f, -400f);
-                    if (Main.rand.NextFloat() < telegraphIntensity * 0.3f)
-                    {
-                        CustomParticles.GenericFlare(warningPos, ThemedParticles.CampanellaYellow * telegraphIntensity * 0.4f, 0.2f, 8);
-                    }
-                }
-            }
-            
-            screenShakeIntensity = Math.Max(screenShakeIntensity, Timer / WindupTime * 5f);
-            
-            if (Timer >= WindupTime)
-            {
-                State = ActionState.ChimeCascade;
-                Timer = 0;
-                AttackPhase = 0;
+                Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(50f, 50f);
+                CustomParticles.GenericFlare(pos, CampanellaCrimson, 0.4f, 10);
             }
         }
         
-        private void ChimeCascadeAttack(Player target)
+        #endregion
+        
+        #region Attacks
+        
+        private void Attack_TollWave(Player target)
         {
-            const int AttackDuration = 120;
-            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.35f, 0.08f);
+            int totalTolls = 3 + difficultyTier;
+            int tollDelay = 35 - difficultyTier * 5;
+            
+            NPC.velocity.X *= 0.92f;
+            
+            if (SubPhase < totalTolls)
+            {
+                if (Timer < 20)
+                {
+                    if (Timer % 3 == 0)
+                    {
+                        float progress = Timer / 20f;
+                        for (int i = 0; i < 6; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / 6f + Timer * 0.08f;
+                            Vector2 pos = NPC.Center + angle.ToRotationVector2() * (60f - progress * 30f);
+                            CustomParticles.GenericFlare(pos, CampanellaGold, 0.3f + progress * 0.2f, 10);
+                        }
+                    }
+                }
+                
+                if (Timer == 20)
+                {
+                    SoundEngine.PlaySound(SoundID.Item28 with { Pitch = 0.1f + SubPhase * 0.08f, Volume = 1.2f }, NPC.Center);
+                    
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        int projCount = 8 + difficultyTier * 2; // Reduced from 12+4
+                        for (int i = 0; i < projCount; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / projCount;
+                            float speed = 11f + difficultyTier * 2f + SubPhase * 0.8f; // Faster
+                            Vector2 vel = angle.ToRotationVector2() * speed;
+                            // Alternate between Wave and AcceleratingBolt for variety
+                            if (i % 2 == 0)
+                                BossProjectileHelper.SpawnWaveProjectile(NPC.Center, vel, 70, CampanellaGold, 4f);
+                            else
+                                BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel * 0.9f, 70, CampanellaOrange, 15f);
+                        }
+                    }
+                    
+                    CustomParticles.GenericFlare(NPC.Center, Color.White, 0.8f, 18);
+                    for (int r = 0; r < 5; r++)
+                    {
+                        CustomParticles.HaloRing(NPC.Center, CampanellaOrange * (1f - r * 0.15f), 0.3f + r * 0.1f, 14 + r * 2);
+                    }
+                }
+                
+                if (Timer >= tollDelay)
+                {
+                    Timer = 0;
+                    SubPhase++;
+                }
+            }
+            else
+            {
+                if (Timer >= 30)
+                {
+                    EndAttack();
+                }
+            }
+        }
+        
+        private void Attack_EmberShower(Player target)
+        {
+            int duration = 100 + difficultyTier * 30; // Shorter duration
+            int fireInterval = 20 - difficultyTier * 3; // Slower fire rate = fewer projectiles
+            
+            Vector2 hoverPos = target.Center + new Vector2(0, -350f);
+            Vector2 toHover = hoverPos - NPC.Center;
+            if (toHover.Length() > 60f)
+            {
+                toHover.Normalize();
+                NPC.velocity = Vector2.Lerp(NPC.velocity, toHover * 8f, 0.05f);
+            }
+            else
+            {
+                NPC.velocity *= 0.9f;
+            }
+            
+            if (Timer % 25 == 0)
+            {
+                for (int i = 0; i < 4 + difficultyTier; i++)
+                {
+                    float xOffset = Main.rand.NextFloat(-350f, 350f);
+                    Vector2 warningPos = target.Center + new Vector2(xOffset, -450f);
+                    CustomParticles.GenericFlare(warningPos, CampanellaOrange * 0.4f, 0.3f, 18);
+                }
+            }
+            
+            if (Timer % fireInterval == 0 && Timer > 25 && Main.netMode != NetmodeID.MultiplayerClient)
+            {
+                int count = 2 + difficultyTier;
+                for (int i = 0; i < count; i++)
+                {
+                    float xOffset = Main.rand.NextFloat(-400f, 400f);
+                    Vector2 spawnPos = target.Center + new Vector2(xOffset, -500f);
+                    Vector2 vel = new Vector2(Main.rand.NextFloat(-2f, 2f), 7f + difficultyTier * 2f);
+                    BossProjectileHelper.SpawnAcceleratingBolt(spawnPos, vel, 75 + difficultyTier * 5, CampanellaCrimson, 18f);
+                    
+                    CustomParticles.GenericFlare(spawnPos, CampanellaOrange, 0.45f, 12);
+                }
+            }
+            
+            if (Timer >= duration)
+            {
+                EndAttack();
+            }
+        }
+        
+        private void Attack_FireWallSweep(Player target)
+        {
+            int wallCount = 2 + difficultyTier;
+            int wallDelay = 55 - difficultyTier * 8;
+            
+            NPC.velocity.X *= 0.92f;
+            
+            if (SubPhase < wallCount)
+            {
+                if (Timer == 1)
+                {
+                    SoundEngine.PlaySound(SoundID.Item73 with { Pitch = -0.1f + SubPhase * 0.1f }, NPC.Center);
+                }
+                
+                if (Timer >= 10 && Timer < 30)
+                {
+                    int side = (SubPhase % 2 == 0) ? -1 : 1;
+                    Vector2 wallStart = target.Center + new Vector2(side * 650f, -350f);
+                    
+                    for (int i = 0; i < 20; i++)
+                    {
+                        Vector2 warningPos = wallStart + new Vector2(0, i * 40f);
+                        Color warningColor = CampanellaOrange * (0.3f + (Timer - 10) / 20f * 0.3f);
+                        CustomParticles.GenericFlare(warningPos, warningColor, 0.2f, 3);
+                    }
+                }
+                
+                if (Timer == 30 && Main.netMode != NetmodeID.MultiplayerClient)
+                {
+                    int side = (SubPhase % 2 == 0) ? -1 : 1;
+                    Vector2 wallStart = target.Center + new Vector2(side * 650f, -350f);
+                    Vector2 wallDir = new Vector2(-side, 0);
+                    
+                    int projCount = 10 + difficultyTier * 2; // Reduced from 18+4
+                    for (int i = 0; i < projCount; i++)
+                    {
+                        Vector2 spawnPos = wallStart + new Vector2(0, i * 70f); // More spacing
+                        float speed = 14f + difficultyTier * 3f; // Faster
+                        Vector2 vel = wallDir * speed;
+                        // Alternate types for variety
+                        if (i % 3 == 0)
+                            BossProjectileHelper.SpawnWaveProjectile(spawnPos, vel, 80, CampanellaOrange, 4.5f);
+                        else
+                            BossProjectileHelper.SpawnHostileOrb(spawnPos, vel, 80, CampanellaCrimson, 0f);
+                    }
+                    
+                    MagnumScreenEffects.AddScreenShake(8f);
+                }
+                
+                if (Timer >= wallDelay)
+                {
+                    Timer = 0;
+                    SubPhase++;
+                }
+            }
+            else
+            {
+                if (Timer >= 30)
+                {
+                    EndAttack();
+                }
+            }
+        }
+        
+        private void Attack_ChimeRings(Player target)
+        {
+            int ringCount = 5 + difficultyTier * 2;
+            int ringDelay = 20 - difficultyTier * 3;
             
             NPC.velocity.X *= 0.9f;
             
-            // Spawn falling bells from above
-            if (Timer % 8 == 0)
+            if (SubPhase < ringCount)
             {
-                SoundEngine.PlaySound(SoundID.Item35 with { Pitch = Main.rand.NextFloat(-0.2f, 0.3f), Volume = 0.6f }, target.Center);
-                
-                int bellCount = isEnraged ? 5 : 3;
-                for (int i = 0; i < bellCount; i++)
+                if (Timer == 8)
                 {
-                    float xOffset = Main.rand.NextFloat(-350f, 350f);
-                    Vector2 spawnPos = target.Center + new Vector2(xOffset, -500f);
-                    Vector2 velocity = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(6f, 10f));
+                    SoundEngine.PlaySound(SoundID.Item28 with { Pitch = 0.3f + SubPhase * 0.03f }, NPC.Center);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
-                        Projectile.NewProjectile(NPC.GetSource_FromAI(), spawnPos, velocity,
-                            ModContent.ProjectileType<ExplosiveBellProjectile>(), NPC.damage / 3, 3f, Main.myPlayer);
+                        int projPerRing = 6 + difficultyTier; // Reduced from 10+2
+                        float baseAngle = MathHelper.TwoPi * SubPhase / ringCount;
+                        
+                        for (int i = 0; i < projPerRing; i++)
+                        {
+                            float angle = baseAngle + MathHelper.TwoPi * i / projPerRing;
+                            float speed = 10f + difficultyTier * 2f; // Faster
+                            Vector2 vel = angle.ToRotationVector2() * speed;
+                            Color orbColor = (SubPhase % 2 == 0) ? CampanellaGold : CampanellaOrange;
+                            // Mix of wave and orb
+                            if (i % 2 == 0)
+                                BossProjectileHelper.SpawnWaveProjectile(NPC.Center, vel, 70, orbColor, 4f);
+                            else
+                                BossProjectileHelper.SpawnHostileOrb(NPC.Center, vel * 1.1f, 70, orbColor, 0.01f);
+                        }
                     }
                     
-                    // Spawn particle at origin - FULL VFX
-                    ThemedParticles.LaCampanellaBloomBurst(spawnPos, 0.8f);
-                    CustomParticles.GenericFlare(spawnPos, ThemedParticles.CampanellaGold, 0.4f, 15);
-                    CustomParticles.HaloRing(spawnPos, ThemedParticles.CampanellaOrange, 0.3f, 12);
+                    CustomParticles.GenericFlare(NPC.Center, Color.White, 0.65f, 14);
+                    CustomParticles.HaloRing(NPC.Center, CampanellaGold, 0.35f, 12);
+                }
+                
+                if (Timer >= ringDelay)
+                {
+                    Timer = 0;
+                    SubPhase++;
                 }
             }
-            
-            // Ambient falling sparks
-            if (Timer % 3 == 0)
+            else
             {
-                Vector2 sparkPos = target.Center + new Vector2(Main.rand.NextFloat(-400f, 400f), -400f + Main.rand.NextFloat(-100f, 100f));
-                var spark = new GlowSparkParticle(sparkPos, new Vector2(Main.rand.NextFloat(-1f, 1f), 8f), true, 
-                    Main.rand.Next(30, 50), Main.rand.NextFloat(0.3f, 0.5f), 
-                    ThemedParticles.CampanellaOrange, new Vector2(0.3f, 1.5f), false, true);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            if (Timer >= AttackDuration)
-            {
-                State = ActionState.Walking;
-                Timer = 0;
-                AttackCooldown = 70;
+                if (Timer >= 25)
+                {
+                    EndAttack();
+                }
             }
         }
         
-        // =====================================================
-        // ATTACK: INFERNAL BEAM - Rotating massive fire laser (like Swan Lake's Apocalypse)
-        // =====================================================
-        
-        private void InfernalBeamWindup(Player target)
+        private void Attack_InfernoCircle(Player target)
         {
-            const int WindupTime = 55;
-            NPC.velocity.X *= 0.75f;
-            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.65f, 0.08f);
+            int duration = 100 + difficultyTier * 30;
+            int arms = 4 + difficultyTier;
+            float spinSpeed = 0.025f + difficultyTier * 0.008f;
             
-            if (Timer == 1)
-            {
-                SoundEngine.PlaySound(SoundID.Roar with { Pitch = -0.5f, Volume = 1.3f }, NPC.Center);
-                EroicaScreenShake.LargeShake(NPC.Center);
-                Main.NewText("La Campanella channels the Infernal Radiance!", 255, 100, 0);
-                beamRotationAngle = 0f;
-                beamLength = 0f;
-            }
+            NPC.velocity.X *= 0.9f;
             
-            // Intense energy buildup - rings of fire spiraling inward
-            if (Timer % 2 == 0)
+            if (Timer < 30)
             {
-                float chargeProgress = Timer / (float)WindupTime;
-                for (int i = 0; i < 8; i++)
+                if (Timer % 4 == 0)
                 {
-                    float angle = MathHelper.TwoPi * i / 8f + Timer * 0.12f;
-                    float radius = 220f * (1f - chargeProgress * 0.6f);
-                    Vector2 ringPos = NPC.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
-                    
-                    CustomParticles.GenericFlare(ringPos, ThemedParticles.CampanellaOrange, 0.5f * chargeProgress, 18);
-                    ThemedParticles.LaCampanellaSparks(ringPos, (NPC.Center - ringPos).SafeNormalize(Vector2.UnitY), 4, 5f);
+                    for (int i = 0; i < arms; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / arms + Timer * spinSpeed * 3f;
+                        Vector2 pos = NPC.Center + angle.ToRotationVector2() * 50f;
+                        CustomParticles.GenericFlare(pos, CampanellaOrange, 0.35f, 10);
+                    }
                 }
-                
-                // Core energy buildup
-                CustomParticles.GenericFlare(NPC.Center, ThemedParticles.CampanellaYellow, 0.4f + chargeProgress * 0.6f, 25);
-                ThemedParticles.LaCampanellaBellChime(NPC.Center, chargeProgress);
+            }
+            else
+            {
+                int fireInterval = 6 - difficultyTier; // Slightly slower = fewer projectiles
+                if (Timer % fireInterval == 0 && Main.netMode != NetmodeID.MultiplayerClient)
+                {
+                    float spiralAngle = Timer * spinSpeed;
+                    
+                    for (int arm = 0; arm < arms; arm++)
+                    {
+                        float angle = spiralAngle + MathHelper.TwoPi * arm / arms;
+                        float speed = 12f + difficultyTier * 2.5f; // Faster
+                        Vector2 vel = angle.ToRotationVector2() * speed;
+                        // Alternate types
+                        if (arm % 2 == 0)
+                            BossProjectileHelper.SpawnHostileOrb(NPC.Center, vel, 70, CampanellaOrange, 0f);
+                        else
+                            BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel * 0.85f, 70, CampanellaGold, 16f);
+                    }
+                    
+                    CustomParticles.GenericFlare(NPC.Center, CampanellaGold, 0.35f, 8);
+                }
             }
             
-            // Screenshake building up
-            if (Timer % 8 == 0)
+            if (Timer >= duration)
             {
-                screenShakeIntensity = Math.Max(screenShakeIntensity, Timer / WindupTime * 15f);
-            }
-            
-            if (Timer >= WindupTime)
-            {
-                State = ActionState.InfernalBeam;
-                Timer = 0;
-                beamRotationAngle = 0f;
-                beamLength = 3500f; // MASSIVE beam
-                SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.6f, Volume = 1.4f }, NPC.Center);
-                EroicaScreenShake.Phase2EnrageShake(NPC.Center);
+                EndAttack();
             }
         }
         
-        private void InfernalBeamAttack(Player target)
+        private void Attack_InfernalTorrent(Player target)
         {
-            const int AttackDuration = 180;
-            distortionIntensity = 0.7f;
+            int chargeTime = 50 - difficultyTier * 8;
+            int barrageTime = 80 + difficultyTier * 20;
             
-            // Slow movement during beam
-            Vector2 toPlayer = (target.Center - NPC.Center).SafeNormalize(Vector2.Zero);
-            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, toPlayer.X * 3f, 0.03f);
+            NPC.velocity *= 0.92f;
             
-            // Rotate the beam - CLOCKWISE
-            float rotationSpeed = isEnraged ? 0.045f : 0.035f;
-            beamRotationAngle += rotationSpeed;
-            
-            // Draw the infernal beam
-            DrawInfernalBeam(NPC.Center, beamRotationAngle, beamLength);
-            
-            // Secondary beam at 180 degrees for extra danger
-            if (Timer > 80 && isEnraged)
+            if (SubPhase == 0)
             {
-                DrawInfernalBeam(NPC.Center, beamRotationAngle + MathHelper.Pi, beamLength * 0.6f);
-            }
-            
-            // Particles spiraling around boss
-            if (Timer % 2 == 0)
-            {
-                for (int i = 0; i < 4; i++)
+                if (Timer == 1)
                 {
-                    float spiralAngle = beamRotationAngle * 2f + i * MathHelper.PiOver2;
-                    float spiralRadius = 60f + (float)Math.Sin(Timer * 0.1f + i) * 25f;
-                    Vector2 spiralPos = NPC.Center + new Vector2((float)Math.Cos(spiralAngle), (float)Math.Sin(spiralAngle)) * spiralRadius;
-                    
-                    ThemedParticles.LaCampanellaSparks(spiralPos, spiralAngle.ToRotationVector2(), 4, 6f);
+                    SoundEngine.PlaySound(SoundID.DD2_BetsyFlameBreath with { Pitch = -0.4f }, NPC.Center);
                 }
-            }
-            
-            // Bell chime particles along beam
-            if (Timer % 10 == 0)
-            {
-                ThemedParticles.LaCampanellaBellChime(NPC.Center, 1.2f);
                 
-                // Flares along beam direction
-                Vector2 beamDir = beamRotationAngle.ToRotationVector2();
-                for (int f = 0; f < 5; f++)
+                float progress = Timer / (float)chargeTime;
+                
+                if (Timer % 3 == 0)
                 {
-                    Vector2 flarePos = NPC.Center + beamDir * (150f + f * 150f);
-                    CustomParticles.GenericFlare(flarePos, ThemedParticles.CampanellaOrange, 0.7f, 18);
+                    int particleCount = (int)(5 + progress * 10);
+                    for (int i = 0; i < particleCount; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / particleCount + Timer * 0.06f;
+                        float radius = 150f * (1f - progress * 0.6f);
+                        Vector2 pos = NPC.Center + angle.ToRotationVector2() * radius;
+                        CustomParticles.GenericFlare(pos, Color.Lerp(CampanellaOrange, CampanellaCrimson, progress), 0.3f + progress * 0.3f, 10);
+                    }
+                }
+                
+                if (Timer > chargeTime / 2)
+                {
+                    MagnumScreenEffects.AddScreenShake(progress * 4f);
+                }
+                
+                if (Timer >= chargeTime)
+                {
+                    Timer = 0;
+                    SubPhase = 1;
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.1f, Volume = 1.3f }, NPC.Center);
                 }
             }
-            
-            // Screenshake
-            if (Timer % 6 == 0)
+            else if (SubPhase == 1)
             {
-                screenShakeIntensity = 8f;
+                int interval = 8 - difficultyTier; // Slower fire rate = fewer projectiles
+                if (Timer % interval == 0 && Main.netMode != NetmodeID.MultiplayerClient)
+                {
+                    Vector2 toPlayer = (target.Center - NPC.Center).SafeNormalize(Vector2.Zero);
+                    float baseAngle = toPlayer.ToRotation();
+                    
+                    int projCount = 2 + difficultyTier; // Reduced from 3+tier
+                    float spread = MathHelper.ToRadians(30 + difficultyTier * 8); // Tighter spread
+                    
+                    for (int i = 0; i < projCount; i++)
+                    {
+                        float angle = baseAngle - spread / 2f + spread * i / (projCount - 1);
+                        angle += Main.rand.NextFloat(-0.08f, 0.08f);
+                        float speed = 15f + difficultyTier * 2.5f + Main.rand.NextFloat(-1f, 1f); // Faster
+                        Vector2 vel = angle.ToRotationVector2() * speed;
+                        Color color = Main.rand.NextBool() ? CampanellaCrimson : CampanellaOrange;
+                        // Mix of bolt and orb
+                        if (i % 2 == 0)
+                            BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel, 75, color, 12f);
+                        else
+                            BossProjectileHelper.SpawnHostileOrb(NPC.Center, vel, 75, color, 0.02f);
+                    }
+                    
+                    CustomParticles.GenericFlare(NPC.Center + toPlayer * 40f, CampanellaGold, 0.4f, 8);
+                }
+                
+                if (Timer >= barrageTime)
+                {
+                    EndAttack();
+                }
             }
-            
-            // Sound effects
-            if (Timer % 18 == 0)
+        }
+        
+        private void Attack_GrandFinale(Player target)
+        {
+            if (SubPhase == 0)
             {
-                SoundEngine.PlaySound(SoundID.Item15 with { Pitch = 0.2f, Volume = 0.7f }, NPC.Center);
+                NPC.velocity *= 0.9f;
+                
+                if (Timer == 1)
+                {
+                    Main.NewText("HEAR THE FINAL TOLL!", CampanellaCrimson);
+                    SoundEngine.PlaySound(SoundID.Roar with { Pitch = -0.2f, Volume = 1.5f }, NPC.Center);
+                }
+                
+                if (Timer % 4 == 0)
+                {
+                    CustomParticles.GenericFlare(NPC.Center, CampanellaCrimson, 0.4f + Timer * 0.01f, 12);
+                    
+                    for (int i = 0; i < 15; i++)
+                    {
+                        Vector2 vel = Main.rand.NextVector2Circular(5f, 3f);
+                        var smoke = new HeavySmokeParticle(NPC.Center + Main.rand.NextVector2Circular(70f, 70f), vel, CampanellaBlack, Main.rand.Next(30, 50), 0.4f, 0.8f, 0.01f, false);
+                        MagnumParticleHandler.SpawnParticle(smoke);
+                    }
+                }
+                
+                MagnumScreenEffects.AddScreenShake(Timer * 0.15f);
+                
+                if (Timer >= 70)
+                {
+                    Timer = 0;
+                    SubPhase = 1;
+                    slamCount = 0;
+                }
             }
-            
-            if (Timer >= AttackDuration)
+            else if (SubPhase <= 3)
             {
-                State = ActionState.Walking;
-                Timer = 0;
-                beamLength = 0f;
-                AttackCooldown = 180;
+                int windupTime = 20 - SubPhase * 3;
+                int impactTime = 25;
+                
+                if (Timer < windupTime)
+                {
+                    if (Timer == 1)
+                    {
+                        slamTarget = target.Center + target.velocity * 12f;
+                        SoundEngine.PlaySound(SoundID.DD2_BetsyFlameBreath with { Pitch = 0.1f * SubPhase }, NPC.Center);
+                    }
+                    
+                    NPC.velocity.X *= 0.9f;
+                }
+                else if (Timer == windupTime)
+                {
+                    float horizontalDist = slamTarget.X - NPC.Center.X;
+                    NPC.velocity.Y = -22f;
+                    NPC.velocity.X = horizontalDist / 30f;
+                    isAirborne = true;
+                }
+                else if (Timer < windupTime + 15)
+                {
+                    NPC.velocity.Y += 0.8f;
+                }
+                else if (Timer == windupTime + 15)
+                {
+                    NPC.velocity.Y = 30f;
+                    NPC.velocity.X *= 0.2f;
+                }
+                else if (Timer < windupTime + 15 + impactTime)
+                {
+                    NPC.velocity.Y += 0.5f;
+                    if (NPC.velocity.Y > 35f) NPC.velocity.Y = 35f;
+                    
+                    if (onGround)
+                    {
+                        Timer = windupTime + 15 + impactTime - 1;
+                    }
+                }
+                else if (Timer == windupTime + 15 + impactTime)
+                {
+                    NPC.velocity = Vector2.Zero;
+                    isAirborne = false;
+                    
+                    MagnumScreenEffects.AddScreenShake(22f);
+                    SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with { Pitch = -0.2f, Volume = 1.6f }, NPC.Center);
+                    
+                    CustomParticles.GenericFlare(NPC.Bottom, Color.White, 1.4f, 22);
+                    
+                    for (int r = 0; r < 10; r++)
+                    {
+                        CustomParticles.HaloRing(NPC.Bottom, Color.Lerp(CampanellaGold, CampanellaCrimson, r / 10f), 0.3f + r * 0.15f, 18 + r * 3);
+                    }
+                    
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        int projCount = 16 + SubPhase * 4;
+                        for (int i = 0; i < projCount; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / projCount;
+                            float speed = 12f + SubPhase * 2f;
+                            Vector2 vel = angle.ToRotationVector2() * speed;
+                            BossProjectileHelper.SpawnHostileOrb(NPC.Bottom, vel, 85, CampanellaCrimson, 0f);
+                        }
+                    }
+                    
+                    for (int i = 0; i < 18; i++)
+                    {
+                        Vector2 vel = Main.rand.NextVector2Circular(10f, 5f);
+                        var smoke = new HeavySmokeParticle(NPC.Bottom + Main.rand.NextVector2Circular(80f, 20f), vel, CampanellaBlack, Main.rand.Next(40, 60), 0.6f, 1.1f, 0.012f, false);
+                        MagnumParticleHandler.SpawnParticle(smoke);
+                    }
+                }
+                
+                if (Timer >= windupTime + 15 + impactTime + 15)
+                {
+                    Timer = 0;
+                    SubPhase++;
+                }
+            }
+            else if (SubPhase == 4)
+            {
+                NPC.velocity *= 0.9f;
+                
+                if (Timer == 20)
+                {
+                    MagnumScreenEffects.AddScreenShake(25f);
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.5f, Volume = 1.8f }, NPC.Center);
+                    
+                    CustomParticles.GenericFlare(NPC.Center, Color.White, 1.8f, 30);
+                    
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        for (int arm = 0; arm < 8; arm++)
+                        {
+                            float armAngle = MathHelper.PiOver4 * arm;
+                            for (int p = 0; p < 6; p++)
+                            {
+                                float speed = 8f + p * 2.5f;
+                                Vector2 vel = armAngle.ToRotationVector2() * speed;
+                                Color color = arm % 2 == 0 ? CampanellaGold : CampanellaCrimson;
+                                BossProjectileHelper.SpawnHostileOrb(NPC.Center, vel, 80, color, 0f);
+                            }
+                        }
+                        
+                        for (int i = 0; i < 24; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / 24f;
+                            Vector2 vel = angle.ToRotationVector2() * 14f;
+                            BossProjectileHelper.SpawnWaveProjectile(NPC.Center, vel, 75, CampanellaOrange, 4f);
+                        }
+                    }
+                    
+                    for (int r = 0; r < 12; r++)
+                    {
+                        CustomParticles.HaloRing(NPC.Center, Color.Lerp(CampanellaGold, CampanellaCrimson, r / 12f), 0.35f + r * 0.18f, 20 + r * 4);
+                    }
+                }
+                
+                if (Timer >= 60)
+                {
+                    consecutiveAttacks = 0;
+                    EndAttack();
+                }
             }
         }
         
         /// <summary>
-        /// Draws a massive infernal fire beam like Swan Lake's prismatic beam
+        /// Rhythmic Toll - Symmetric bullet-hell pattern attack.
+        /// Creates precise, readable patterns that pulse outward in musical rhythm.
+        /// Players must weave through geometric formations.
         /// </summary>
-        private void DrawInfernalBeam(Vector2 origin, float angle, float length)
+        private void Attack_RhythmicToll(Player target)
         {
-            Vector2 direction = angle.ToRotationVector2();
-            Vector2 perpendicular = direction.RotatedBy(MathHelper.PiOver2);
+            // 4 phases of symmetric patterns, each with increasing complexity
+            int phaseDuration = 50 - difficultyTier * 5;
+            int totalPhases = 4 + difficultyTier;
             
-            int segments = 45;
-            float segmentLength = length / segments;
+            NPC.velocity *= 0.92f;
             
-            for (int i = 0; i < segments; i++)
+            int currentPhase = SubPhase;
+            int phaseTimer = Timer;
+            
+            if (currentPhase < totalPhases)
             {
-                Vector2 segmentPos = origin + direction * (i * segmentLength);
-                float segmentProgress = i / (float)segments;
-                
-                // Orange to yellow gradient along beam
-                Color beamColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaYellow, segmentProgress * 0.6f);
-                
-                // Core flares
-                float coreSize = 0.85f - segmentProgress * 0.35f;
-                CustomParticles.GenericFlare(segmentPos, ThemedParticles.CampanellaYellow, coreSize * 0.7f, 18);
-                CustomParticles.GenericFlare(segmentPos, beamColor, coreSize, 14);
-                
-                // Wide dust beam
-                if (i % 2 == 0)
+                // Warning buildup - geometric pattern preview
+                if (phaseTimer < 20)
                 {
-                    float dustScale = 3.5f - segmentProgress * 1.2f;
+                    float progress = phaseTimer / 20f;
+                    int previewCount = 8 + currentPhase * 2;
                     
-                    for (int layer = 0; layer < 3; layer++)
+                    for (int i = 0; i < previewCount; i++)
                     {
-                        float layerOffset = 10f + layer * 15f;
-                        
-                        // Fire dust on both sides
-                        Dust fireTop = Dust.NewDustPerfect(segmentPos + perpendicular * layerOffset, DustID.Torch,
-                            perpendicular * Main.rand.NextFloat(0.5f, 2f), 0, beamColor, dustScale - layer * 0.6f);
-                        fireTop.noGravity = true;
-                        
-                        Dust fireBottom = Dust.NewDustPerfect(segmentPos - perpendicular * layerOffset, DustID.Torch,
-                            -perpendicular * Main.rand.NextFloat(0.5f, 2f), 0, beamColor, dustScale - layer * 0.6f);
-                        fireBottom.noGravity = true;
+                        float angle = MathHelper.TwoPi * i / previewCount + currentPhase * 0.3f;
+                        float radius = 60f + progress * 40f;
+                        Vector2 pos = NPC.Center + angle.ToRotationVector2() * radius;
+                        Color warningColor = CampanellaGold * (0.3f + progress * 0.4f);
+                        CustomParticles.GenericFlare(pos, warningColor, 0.15f + progress * 0.15f, 4);
                     }
                 }
                 
-                // Black smoke outline
-                if (i % 3 == 0)
+                // The toll - spawn symmetric pattern
+                if (phaseTimer == 20)
                 {
-                    float blackOffset = 40f + Main.rand.NextFloat(10f);
-                    Dust blackTop = Dust.NewDustPerfect(segmentPos + perpendicular * blackOffset,
-                        DustID.Smoke, new Vector2(0, -0.5f), 200, Color.Black, 2.2f);
-                    blackTop.noGravity = true;
-                    
-                    Dust blackBottom = Dust.NewDustPerfect(segmentPos - perpendicular * blackOffset,
-                        DustID.Smoke, new Vector2(0, -0.5f), 200, Color.Black, 2.2f);
-                    blackBottom.noGravity = true;
-                }
-                
-                // Edge sparkles
-                if (i % 4 == 0)
-                {
-                    float perpOffset = 30f - segmentProgress * 10f;
-                    ThemedParticles.LaCampanellaSparks(segmentPos + perpendicular * perpOffset, perpendicular, 2, 3f);
-                    ThemedParticles.LaCampanellaSparks(segmentPos - perpendicular * perpOffset, -perpendicular, 2, 3f);
-                }
-                
-                // Intense lighting
-                float lightIntensity = 1.8f - segmentProgress * 0.7f;
-                Lighting.AddLight(segmentPos, ThemedParticles.CampanellaOrange.ToVector3() * lightIntensity);
-            }
-            
-            // Impact at beam end
-            Vector2 beamEnd = origin + direction * length;
-            ThemedParticles.LaCampanellaImpact(beamEnd, 1.5f);
-            
-            // Lightning from beam end occasionally
-            if (Main.rand.NextBool(3))
-            {
-                Vector2 lightningEnd = beamEnd + Main.rand.NextVector2Circular(100f, 100f);
-                MagnumVFX.DrawLaCampanellaLightning(beamEnd, lightningEnd, 6, 20f, 2, 0.3f);
-            }
-        }
-        
-        // =====================================================
-        // ATTACK: TOLL OF DOOM - Ultimate devastating attack
-        // =====================================================
-        
-        private void TollOfDoomWindup(Player target)
-        {
-            const int WindupTime = 75;
-            NPC.velocity.X *= 0.7f;
-            distortionIntensity = MathHelper.Lerp(distortionIntensity, 0.75f, 0.06f);
-            
-            if (Timer == 1)
-            {
-                SoundEngine.PlaySound(SoundID.Roar with { Pitch = -0.8f, Volume = 1.5f }, NPC.Center);
-                EroicaScreenShake.Phase2EnrageShake(NPC.Center);
-                Main.NewText("THE BELL TOLLS FOR THEE!", 255, 50, 0);
-            }
-            
-            // Dramatic bell tolling sounds
-            if (Timer % 25 == 0)
-            {
-                SoundEngine.PlaySound(SoundID.Item35 with { Pitch = -0.5f, Volume = 1.4f }, NPC.Center);
-                ThemedParticles.LaCampanellaShockwave(NPC.Center, 2f + Timer / 50f);
-                
-                // Sky flash
-                if (!Main.dedServ && SkyManager.Instance["MagnumOpus:LaCampanellaSky"] is LaCampanellaSkyEffect sky)
-                {
-                    sky.TriggerFlash(0.5f + Timer / 150f, ThemedParticles.CampanellaOrange);
-                }
-            }
-            
-            // Converging energy from everywhere
-            if (Timer % 2 == 0)
-            {
-                float chargeProgress = Timer / (float)WindupTime;
-                
-                for (int i = 0; i < 10; i++)
-                {
-                    float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                    float distance = Main.rand.NextFloat(150f, 300f);
-                    Vector2 offset = angle.ToRotationVector2() * distance;
-                    
-                    var glow = new GenericGlowParticle(NPC.Center + offset, -offset * 0.05f, 
-                        Main.rand.NextBool() ? ThemedParticles.CampanellaOrange : ThemedParticles.CampanellaYellow, 
-                        0.5f * chargeProgress, 25, true);
-                    MagnumParticleHandler.SpawnParticle(glow);
-                }
-                
-                // Core growing more intense
-                CustomParticles.GenericFlare(NPC.Center, ThemedParticles.CampanellaYellow, 0.5f + chargeProgress * 0.8f, 30);
-                ThemedParticles.LaCampanellaBellChime(NPC.Center, chargeProgress * 1.5f);
-            }
-            
-            screenShakeIntensity = Math.Max(screenShakeIntensity, Timer / WindupTime * 20f);
-            
-            if (Timer >= WindupTime)
-            {
-                State = ActionState.TollOfDoom;
-                Timer = 0;
-                AttackPhase = 0;
-                SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.8f, Volume = 1.6f }, NPC.Center);
-            }
-        }
-        
-        private void TollOfDoomAttack(Player target)
-        {
-            const int AttackDuration = 200;
-            distortionIntensity = 0.8f;
-            
-            NPC.velocity.X *= 0.85f;
-            
-            // Phase 1: Massive omni-directional bell barrage (0-60)
-            if (Timer <= 60 && Timer % 4 == 0)
-            {
-                SoundEngine.PlaySound(SoundID.Item35 with { Pitch = Main.rand.NextFloat(-0.3f, 0.3f), Volume = 0.7f }, NPC.Center);
-                
-                // Central burst VFX
-                ThemedParticles.LaCampanellaShockwave(NPC.Center, 1.5f);
-                ThemedParticles.LaCampanellaHaloBurst(NPC.Center, 1.2f);
-                CustomParticles.GenericFlare(NPC.Center, ThemedParticles.CampanellaOrange, 0.8f, 25);
-                
-                int bellCount = 16;
-                for (int i = 0; i < bellCount; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / bellCount + Timer * 0.05f;
-                    Vector2 velocity = angle.ToRotationVector2() * 12f;
-                    Vector2 spawnPos = NPC.Center + velocity * 2f;
+                    SoundEngine.PlaySound(SoundID.Item28 with { Pitch = 0.1f + currentPhase * 0.1f, Volume = 1.1f }, NPC.Center);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
-                        Projectile.NewProjectile(NPC.GetSource_FromAI(), spawnPos, velocity,
-                            ModContent.ProjectileType<ExplosiveBellProjectile>(), NPC.damage / 4, 2f, Main.myPlayer);
-                    }
-                    
-                    ThemedParticles.LaCampanellaSparks(spawnPos, velocity, 3, 6f);
-                    CustomParticles.GenericFlare(spawnPos, ThemedParticles.CampanellaYellow, 0.3f, 12);
-                }
-            }
-            
-            // Phase 2: Lightning storm (60-120)
-            if (Timer > 60 && Timer <= 120 && Timer % 6 == 0)
-            {
-                Vector2 strikePos = target.Center + Main.rand.NextVector2Circular(200f, 200f);
-                MagnumVFX.DrawLaCampanellaLightning(NPC.Center, strikePos, 12, 40f, 5, 0.6f);
-                ThemedParticles.LaCampanellaImpact(strikePos, 2f);
-                ThemedParticles.LaCampanellaHaloBurst(strikePos, 1.5f);
-                CustomParticles.GenericFlare(strikePos, ThemedParticles.CampanellaYellow, 0.6f, 18);
-                CustomParticles.HaloRing(strikePos, ThemedParticles.CampanellaOrange, 0.4f, 15);
-                screenShakeIntensity = 10f;
-                
-                SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 0.6f }, strikePos);
-            }
-            
-            // Phase 3: Fire geysers all around (120-180)
-            if (Timer > 120 && Timer <= 180 && Timer % 10 == 0)
-            {
-                for (int i = -2; i <= 2; i++)
-                {
-                    Vector2 geyserPos = target.Bottom + new Vector2(i * 150f + Main.rand.NextFloat(-30f, 30f), 0);
-                    
-                    if (Main.netMode != NetmodeID.MultiplayerClient)
-                    {
-                        for (int j = 0; j < 3; j++)
+                        // Pattern varies by phase for variety
+                        int pattern = currentPhase % 4;
+                        
+                        switch (pattern)
                         {
-                            Vector2 velocity = new Vector2(Main.rand.NextFloat(-2f, 2f), -10f - j * 3f);
-                            Projectile.NewProjectile(NPC.GetSource_FromAI(), geyserPos, velocity,
-                                ModContent.ProjectileType<InfernalGroundFire>(), NPC.damage / 4, 2f, Main.myPlayer);
+                            case 0: // Expanding ring - simple symmetric circle
+                                SpawnSymmetricRing(NPC.Center, 12 + difficultyTier * 2, 11f + difficultyTier * 2f, 0f, CampanellaGold);
+                                break;
+                                
+                            case 1: // Dual offset rings - two rings at different speeds
+                                SpawnSymmetricRing(NPC.Center, 8 + difficultyTier, 9f + difficultyTier, MathHelper.Pi / 8f, CampanellaOrange);
+                                SpawnSymmetricRing(NPC.Center, 8 + difficultyTier, 13f + difficultyTier * 1.5f, 0f, CampanellaCrimson);
+                                break;
+                                
+                            case 2: // Star burst - projectiles in star points with gaps
+                                int arms = 5 + difficultyTier;
+                                for (int arm = 0; arm < arms; arm++)
+                                {
+                                    float armAngle = MathHelper.TwoPi * arm / arms;
+                                    // Inner and outer projectile per arm
+                                    Vector2 innerVel = armAngle.ToRotationVector2() * (8f + difficultyTier);
+                                    Vector2 outerVel = armAngle.ToRotationVector2() * (14f + difficultyTier * 2f);
+                                    BossProjectileHelper.SpawnHostileOrb(NPC.Center, innerVel, 70, CampanellaGold, 0f);
+                                    BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, outerVel, 70, CampanellaOrange, 10f);
+                                }
+                                break;
+                                
+                            case 3: // Spiral wave - rotating pattern
+                                float spiralOffset = currentPhase * 0.4f;
+                                for (int i = 0; i < 16 + difficultyTier * 2; i++)
+                                {
+                                    float angle = MathHelper.TwoPi * i / (16 + difficultyTier * 2) + spiralOffset;
+                                    float speedVariation = 10f + (i % 4) * 1.5f + difficultyTier * 1.5f;
+                                    Vector2 vel = angle.ToRotationVector2() * speedVariation;
+                                    Color color = (i % 2 == 0) ? CampanellaGold : CampanellaOrange;
+                                    BossProjectileHelper.SpawnWaveProjectile(NPC.Center, vel, 70, color, 4f);
+                                }
+                                break;
                         }
                     }
                     
-                    // Geyser burst VFX - FULL SUITE
-                    ThemedParticles.LaCampanellaImpact(geyserPos, 1.5f);
-                    ThemedParticles.LaCampanellaHaloBurst(geyserPos, 1.2f);
-                    CustomParticles.GenericFlare(geyserPos, ThemedParticles.CampanellaOrange, 0.6f, 20);
-                    CustomParticles.HaloRing(geyserPos, ThemedParticles.CampanellaYellow * 0.8f, 0.3f, 15);
+                    // VFX - symmetric halo burst
+                    CustomParticles.GenericFlare(NPC.Center, Color.White, 0.7f, 16);
+                    for (int r = 0; r < 4; r++)
+                    {
+                        CustomParticles.HaloRing(NPC.Center, Color.Lerp(CampanellaGold, CampanellaOrange, r / 4f), 0.25f + r * 0.1f, 12 + r * 2);
+                    }
                 }
                 
-                SoundEngine.PlaySound(SoundID.Item74 with { Pitch = 0.2f, Volume = 1f }, target.Center);
-            }
-            
-            // Continuous intense particles
-            if (Timer % 2 == 0)
-            {
-                ThemedParticles.LaCampanellaAura(NPC.Center, 100f);
-                CustomParticles.GenericFlare(NPC.Center, ThemedParticles.CampanellaOrange, 0.6f, 20);
-            }
-            
-            // Constant screen shake
-            screenShakeIntensity = Math.Max(screenShakeIntensity, 8f);
-            
-            // Sky flashing
-            if (Timer % 15 == 0 && !Main.dedServ && SkyManager.Instance["MagnumOpus:LaCampanellaSky"] is LaCampanellaSkyEffect sky)
-            {
-                sky.TriggerFlash(0.4f, ThemedParticles.CampanellaOrange);
-            }
-            
-            if (Timer >= AttackDuration)
-            {
-                State = ActionState.Walking;
-                Timer = 0;
-                AttackCooldown = 200;
-            }
-        }
-        
-        #endregion
-        
-        #region Enrage and Special Effects
-        
-        private void TriggerEnrage()
-        {
-            isEnraged = true;
-            enrageTimer = 0;
-            
-            // Dramatic enrage effects
-            SoundEngine.PlaySound(SoundID.Roar with { Pitch = -0.6f, Volume = 1.5f }, NPC.Center);
-            Main.NewText("La Campanella's fury intensifies!", 255, 50, 0);
-            
-            // Massive explosion - FULL VFX SUITE
-            ThemedParticles.LaCampanellaImpact(NPC.Center, 4f);
-            ThemedParticles.LaCampanellaShockwave(NPC.Center, 3f);
-            ThemedParticles.LaCampanellaHaloBurst(NPC.Center, 3f);
-            CustomParticles.GenericFlare(NPC.Center, ThemedParticles.CampanellaOrange, 1.5f, 45);
-            CustomParticles.GenericFlare(NPC.Center, Color.White, 1.2f, 40);
-            CustomParticles.GenericFlare(NPC.Center, ThemedParticles.CampanellaYellow, 1.0f, 35);
-            CustomParticles.HaloRing(NPC.Center, Color.Red, 0.8f, 30);
-            CustomParticles.HaloRing(NPC.Center, ThemedParticles.CampanellaOrange, 0.6f, 25);
-            CustomParticles.ExplosionBurst(NPC.Center, ThemedParticles.CampanellaOrange, 20, 15f);
-            CustomParticles.ExplosionBurst(NPC.Center, ThemedParticles.CampanellaYellow, 16, 12f);
-            EroicaScreenShake.Phase2EnrageShake(NPC.Center);
-            
-            // Sky effect
-            if (!Main.dedServ && SkyManager.Instance["MagnumOpus:LaCampanellaSky"] is LaCampanellaSkyEffect sky)
-            {
-                sky.TriggerFlash(1f, Color.Red);
-            }
-            
-            // Boost stats
-            NPC.damage = (int)(NPC.damage * 1.2f);
-            walkSpeed = 4.5f;
-        }
-        
-        #endregion
-        
-        private void SpawnAmbientParticles()
-        {
-            // Rising embers and flames - ENHANCED
-            if (Main.rand.NextBool(2))
-            {
-                Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(NPC.width * 0.7f, NPC.height * 0.6f);
-                ThemedParticles.LaCampanellaAura(pos, 40f);
-            }
-            
-            // Occasional sparkles - MORE FREQUENT
-            if (Main.rand.NextBool(5))
-            {
-                ThemedParticles.LaCampanellaSparkles(NPC.Center, 5, NPC.width * 0.6f);
-            }
-            
-            // Black smoke wisps - MORE INTENSE
-            if (Main.rand.NextBool(6))
-            {
-                Vector2 pos = NPC.position + new Vector2(Main.rand.Next(NPC.width), Main.rand.Next(NPC.height));
-                var smoke = new HeavySmokeParticle(pos, new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -2.5f),
-                    ThemedParticles.CampanellaBlack, Main.rand.Next(50, 80), Main.rand.NextFloat(0.4f, 0.7f),
-                    0.5f, 0.015f, false);
-                MagnumParticleHandler.SpawnParticle(smoke);
-            }
-            
-            // NEW: Periodic fire flares
-            if (Main.rand.NextBool(10))
-            {
-                Vector2 flarePos = NPC.Center + Main.rand.NextVector2Circular(60f, 80f);
-                CustomParticles.GenericFlare(flarePos, ThemedParticles.CampanellaOrange * 0.5f, 0.3f, 15);
-            }
-            
-            // NEW: Bell chime particles when enraged
-            if (isEnraged && Main.rand.NextBool(12))
-            {
-                ThemedParticles.LaCampanellaBellChime(NPC.Center + Main.rand.NextVector2Circular(50f, 50f), 0.4f);
-            }
-            
-            // NEW: Glowing embers rising from bottom
-            if (Main.rand.NextBool(4))
-            {
-                Vector2 emberPos = NPC.Bottom + new Vector2(Main.rand.NextFloat(-NPC.width * 0.4f, NPC.width * 0.4f), 0);
-                var ember = new GenericGlowParticle(emberPos, new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-3f, -1.5f)),
-                    Main.rand.NextBool() ? ThemedParticles.CampanellaOrange : ThemedParticles.CampanellaYellow,
-                    Main.rand.NextFloat(0.2f, 0.4f), Main.rand.Next(30, 50), true);
-                MagnumParticleHandler.SpawnParticle(ember);
-            }
-            
-            // NEW: Heat distortion sparkles
-            if (distortionIntensity > 0.3f && Main.rand.NextBool(8))
-            {
-                Vector2 distortPos = NPC.Center + Main.rand.NextVector2Circular(100f, 100f);
-                var distortSpark = new GlowSparkParticle(distortPos, Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -1f),
-                    true, Main.rand.Next(20, 35), Main.rand.NextFloat(0.25f, 0.45f),
-                    ThemedParticles.CampanellaYellow, new Vector2(0.4f, 1.3f), true, true);
-                MagnumParticleHandler.SpawnParticle(distortSpark);
-            }
-        }
-        
-        private void UpdateScreenShake()
-        {
-            if (screenShakeIntensity > 0.1f)
-            {
-                Main.LocalPlayer.position += Main.rand.NextVector2Circular(screenShakeIntensity, screenShakeIntensity);
-                screenShakeIntensity *= 0.92f;
+                if (phaseTimer >= phaseDuration)
+                {
+                    Timer = 0;
+                    SubPhase++;
+                }
             }
             else
             {
-                screenShakeIntensity = 0f;
+                if (Timer >= 30)
+                {
+                    EndAttack();
+                }
             }
         }
         
-        private void DeactivateSky()
+        /// <summary>
+        /// Helper to spawn a symmetric ring of projectiles.
+        /// </summary>
+        private void SpawnSymmetricRing(Vector2 center, int count, float speed, float angleOffset, Color color)
         {
-            if (hasActivatedSky && !Main.dedServ)
+            for (int i = 0; i < count; i++)
             {
-                SkyManager.Instance.Deactivate("MagnumOpus:LaCampanellaSky");
-                hasActivatedSky = false;
+                float angle = MathHelper.TwoPi * i / count + angleOffset;
+                Vector2 vel = angle.ToRotationVector2() * speed;
+                BossProjectileHelper.SpawnHostileOrb(center, vel, 70, color, 0f);
             }
         }
         
-        private void UpdateDeathAnimation(Player target)
+        /// <summary>
+        /// Inferno Cage - Environment trap attack.
+        /// Creates closing fire walls that force player into shrinking safe zone.
+        /// Must dodge through gaps in the closing cage.
+        /// </summary>
+        private void Attack_InfernoCage(Player target)
+        {
+            int warningTime = 40 - difficultyTier * 5;
+            int cageCloseTime = 80 + difficultyTier * 20;
+            float maxCageSize = 450f - difficultyTier * 50f;
+            float minCageSize = 120f + difficultyTier * 20f;
+            
+            NPC.velocity *= 0.9f;
+            
+            if (SubPhase == 0) // Warning phase - show cage outline
+            {
+                if (Timer == 1)
+                {
+                    SoundEngine.PlaySound(SoundID.Item73 with { Pitch = -0.3f, Volume = 1.2f }, NPC.Center);
+                    cageCenter = target.Center; // Lock cage to player position at start
+                }
+                
+                // Draw cage warning outline
+                float progress = Timer / (float)warningTime;
+                int sides = 4;
+                for (int side = 0; side < sides; side++)
+                {
+                    float sideAngle = MathHelper.PiOver2 * side;
+                    Vector2 sideDir = sideAngle.ToRotationVector2();
+                    Vector2 sideCenter = cageCenter + sideDir * maxCageSize;
+                    
+                    // Draw warning particles along each wall
+                    for (int p = 0; p < 10; p++)
+                    {
+                        float offset = (p - 4.5f) * 60f;
+                        Vector2 perpDir = sideDir.RotatedBy(MathHelper.PiOver2);
+                        Vector2 warningPos = sideCenter + perpDir * offset;
+                        Color warningColor = CampanellaOrange * (0.2f + progress * 0.5f);
+                        CustomParticles.GenericFlare(warningPos, warningColor, 0.15f + progress * 0.1f, 3);
+                    }
+                }
+                
+                if (Timer >= warningTime)
+                {
+                    Timer = 0;
+                    SubPhase = 1;
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 1.3f }, cageCenter);
+                }
+            }
+            else if (SubPhase == 1) // Cage closing phase
+            {
+                float progress = Timer / (float)cageCloseTime;
+                float currentSize = MathHelper.Lerp(maxCageSize, minCageSize, progress);
+                
+                // Spawn cage walls as projectiles - only spawn periodically to avoid spam
+                int spawnInterval = 8 - difficultyTier;
+                if (Timer % spawnInterval == 0 && Main.netMode != NetmodeID.MultiplayerClient)
+                {
+                    // Spawn projectiles moving inward on each side
+                    // Leave gaps for player to dodge through
+                    int projPerSide = 3 + difficultyTier;
+                    float gapIndex = Timer / spawnInterval % projPerSide; // Rotating gap
+                    
+                    for (int side = 0; side < 4; side++)
+                    {
+                        float sideAngle = MathHelper.PiOver2 * side;
+                        Vector2 sideDir = sideAngle.ToRotationVector2();
+                        Vector2 perpDir = sideDir.RotatedBy(MathHelper.PiOver2);
+                        
+                        for (int p = 0; p < projPerSide; p++)
+                        {
+                            // Skip gap position to give player escape route
+                            if (p == (int)((gapIndex + side) % projPerSide))
+                                continue;
+                                
+                            float offset = (p - (projPerSide - 1) / 2f) * (currentSize * 0.4f);
+                            Vector2 spawnPos = cageCenter + sideDir * currentSize + perpDir * offset;
+                            Vector2 vel = -sideDir * (3f + difficultyTier * 0.5f);
+                            
+                            Color projColor = (p + side) % 2 == 0 ? CampanellaOrange : CampanellaCrimson;
+                            BossProjectileHelper.SpawnHostileOrb(spawnPos, vel, 60, projColor, 0f);
+                        }
+                    }
+                }
+                
+                // Visual cage walls
+                if (Timer % 4 == 0)
+                {
+                    for (int side = 0; side < 4; side++)
+                    {
+                        float sideAngle = MathHelper.PiOver2 * side;
+                        Vector2 sideDir = sideAngle.ToRotationVector2();
+                        Vector2 sideCenter = cageCenter + sideDir * currentSize;
+                        
+                        for (int p = 0; p < 8; p++)
+                        {
+                            float offset = (p - 3.5f) * (currentSize * 0.15f);
+                            Vector2 perpDir = sideDir.RotatedBy(MathHelper.PiOver2);
+                            Vector2 flamePos = sideCenter + perpDir * offset;
+                            Color flameColor = Color.Lerp(CampanellaOrange, CampanellaCrimson, progress);
+                            CustomParticles.GenericFlare(flamePos, flameColor, 0.25f, 8);
+                        }
+                    }
+                }
+                
+                // Corner danger indicators
+                if (Timer % 6 == 0)
+                {
+                    for (int corner = 0; corner < 4; corner++)
+                    {
+                        float cornerAngle = MathHelper.PiOver4 + MathHelper.PiOver2 * corner;
+                        Vector2 cornerPos = cageCenter + cornerAngle.ToRotationVector2() * currentSize * 1.3f;
+                        CustomParticles.GenericFlare(cornerPos, CampanellaCrimson, 0.3f, 10);
+                    }
+                }
+                
+                // Screen tension effect as cage closes
+                if (progress > 0.5f)
+                {
+                    MagnumScreenEffects.AddScreenShake((progress - 0.5f) * 3f);
+                }
+                
+                if (Timer >= cageCloseTime)
+                {
+                    Timer = 0;
+                    SubPhase = 2;
+                    
+                    // Final explosion when cage closes
+                    SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with { Pitch = 0.1f, Volume = 1.4f }, cageCenter);
+                    MagnumScreenEffects.AddScreenShake(12f);
+                    
+                    CustomParticles.GenericFlare(cageCenter, Color.White, 1.0f, 20);
+                    for (int r = 0; r < 6; r++)
+                    {
+                        CustomParticles.HaloRing(cageCenter, Color.Lerp(CampanellaGold, CampanellaCrimson, r / 6f), 0.3f + r * 0.15f, 14 + r * 3);
+                    }
+                    
+                    // Final burst of projectiles outward
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        for (int i = 0; i < 12 + difficultyTier * 2; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / (12 + difficultyTier * 2);
+                            Vector2 vel = angle.ToRotationVector2() * (10f + difficultyTier * 2f);
+                            BossProjectileHelper.SpawnWaveProjectile(cageCenter, vel, 70, CampanellaOrange, 4f);
+                        }
+                    }
+                }
+            }
+            else // Recovery phase
+            {
+                if (Timer >= 40)
+                {
+                    EndAttack();
+                }
+            }
+        }
+        
+        private Vector2 cageCenter; // Field to track cage center for InfernoCage attack
+        private float[] laserStartAngles; // Field for laser grid attack
+        
+        /// <summary>
+        /// INFERNAL JUDGMENT - Hero's Judgment style spectacle attack for La Campanella
+        /// Features: Charge with converging flames, safe zone indicators, multi-wave bell tolls with safe arc
+        /// 150 BPM timing: 24 frames per beat
+        /// </summary>
+        private void Attack_InfernalJudgment(Player target)
+        {
+            // DIFFICULTY: Shorter charge, more waves, faster projectiles, tighter safe arc
+            int chargeTime = 54 - difficultyTier * 6; // Shorter (was 72-8)
+            int waveCount = 4 + difficultyTier; // More waves (was 3+)
+            
+            if (SubPhase == 0)
+            {
+                // === CHARGE PHASE: Converging flames ===
+                NPC.velocity *= 0.95f;
+                
+                if (Timer == 1)
+                {
+                    SoundEngine.PlaySound(SoundID.Item28 with { Pitch = -0.6f, Volume = 1.3f }, NPC.Center);
+                    Main.NewText("THE BELL TOLLS FOR THEE!", CampanellaGold);
+                }
+                
+                float progress = Timer / (float)chargeTime;
+                
+                // OPTIMIZED: Converging flame ring with reduced particles
+                if (Timer % 5 == 0)
+                {
+                    BossVFXOptimizer.ConvergingWarning(NPC.Center, 250f, progress, CampanellaOrange, 6);
+                    
+                    // Occasional smoke for theme (reduced frequency)
+                    if (Timer % 10 == 0)
+                    {
+                        Vector2 smokePos = NPC.Center + Main.rand.NextVector2CircularEdge(150f * (1f - progress * 0.5f), 150f * (1f - progress * 0.5f));
+                        var smoke = new HeavySmokeParticle(smokePos, (NPC.Center - smokePos).SafeNormalize(Vector2.Zero) * 2f,
+                            CampanellaBlack, 20, 0.2f, 0.35f, 0.012f, false);
+                        MagnumParticleHandler.SpawnParticle(smoke);
+                    }
+                }
+                
+                // SAFE ZONE INDICATOR - earlier and clearer
+                if (Timer > chargeTime / 3)
+                {
+                    BossVFXOptimizer.SafeZoneRing(target.Center, 100f, 10);
+                    
+                    // Also show safe arc from boss
+                    float safeAngle = (target.Center - NPC.Center).ToRotation();
+                    BossVFXOptimizer.SafeArcIndicator(NPC.Center, safeAngle, MathHelper.ToRadians(28f), 150f, 6);
+                }
+                
+                // Screen shake builds at 60%+ charge
+                if (Timer > chargeTime * 0.6f)
+                {
+                    MagnumScreenEffects.AddScreenShake(progress * 5f);
+                }
+                
+                if (Timer >= chargeTime)
+                {
+                    Timer = 0;
+                    SubPhase = 1;
+                }
+            }
+            else if (SubPhase <= waveCount)
+            {
+                // === RELEASE PHASE: Multi-wave radial burst with safe arc ===
+                if (Timer == 1)
+                {
+                    MagnumScreenEffects.AddScreenShake(18f);
+                    SoundEngine.PlaySound(SoundID.Item28 with { Pitch = 0.1f + SubPhase * 0.12f, Volume = 1.5f }, NPC.Center);
+                    
+                    // OPTIMIZED: Use BossVFXOptimizer for release burst
+                    BossVFXOptimizer.AttackReleaseBurst(NPC.Center, CampanellaGold, CampanellaOrange, 1.2f);
+                    
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        // DIFFICULTY: More projectiles, faster, tighter safe arc
+                        int projectileCount = 36 + difficultyTier * 8; // More (was 28+6)
+                        float safeAngle = (target.Center - NPC.Center).ToRotation();
+                        float safeArc = MathHelper.ToRadians(25f - difficultyTier * 2f); // Tighter (was 35f)
+                        
+                        for (int i = 0; i < projectileCount; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / projectileCount;
+                            
+                            // SAFE ARC EXEMPTION
+                            float angleDiff = MathHelper.WrapAngle(angle - safeAngle);
+                            if (Math.Abs(angleDiff) < safeArc) continue;
+                            
+                            // DIFFICULTY: Faster projectiles
+                            float speed = 15f + difficultyTier * 3f + SubPhase * 2f; // Much faster (was 11f+2.5f+1.5f)
+                            Vector2 vel = angle.ToRotationVector2() * speed;
+                            
+                            if (i % 3 == 0)
+                                BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel * 0.8f, 85, CampanellaGold, 18f);
+                            else
+                                BossProjectileHelper.SpawnWaveProjectile(NPC.Center, vel * 0.85f, 85, CampanellaOrange, 4f);
+                        }
+                    }
+                    
+                    // OPTIMIZED: Cascading halos
+                    BossVFXOptimizer.OptimizedCascadingHalos(NPC.Center, CampanellaOrange, CampanellaGold, 6, 0.35f, 14);
+                }
+                
+                // DIFFICULTY: Faster waves (36 frames = 1.5 beats instead of 48)
+                if (Timer >= 36)
+                {
+                    Timer = 0;
+                    SubPhase++;
+                }
+            }
+            else
+            {
+                if (Timer >= 36)
+                {
+                    EndAttack();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// BELL LASER GRID - Crossing laser beams that sweep the arena
+        /// Features: Warning indicators, sweeping laser beams, safe spots
+        /// </summary>
+        private void Attack_BellLaserGrid(Player target)
+        {
+            // DIFFICULTY: More lasers, faster sweep
+            int laserCount = 5 + difficultyTier; // More lasers (was 4+)
+            int sweepDuration = 72 - difficultyTier * 10; // Faster (was 96-12)
+            
+            if (SubPhase == 0)
+            {
+                // === TELEGRAPH PHASE: Show laser paths ===
+                NPC.velocity *= 0.92f;
+                
+                if (Timer == 1)
+                {
+                    SoundEngine.PlaySound(SoundID.Item15 with { Pitch = 0.3f }, NPC.Center);
+                    laserStartAngles = new float[laserCount];
+                    for (int i = 0; i < laserCount; i++)
+                    {
+                        laserStartAngles[i] = MathHelper.TwoPi * i / laserCount;
+                    }
+                }
+                
+                // OPTIMIZED: Use LaserBeamWarning for clear telegraph
+                if (Timer % 4 == 0 && Timer < 36) // Shorter telegraph (was 48)
+                {
+                    float progress = Timer / 36f;
+                    for (int i = 0; i < laserCount; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / laserCount + Timer * 0.02f;
+                        BossVFXOptimizer.LaserBeamWarning(NPC.Center, angle, 1200f, progress);
+                    }
+                }
+                
+                // OPTIMIZED: Charge-up VFX - reduced frequency
+                if (Timer % 8 == 0)
+                {
+                    BossVFXOptimizer.ConvergingWarning(NPC.Center, 80f, Timer / 36f, CampanellaOrange, 4);
+                }
+                
+                if (Timer >= 36) // Shorter telegraph (was 48)
+                {
+                    Timer = 0;
+                    SubPhase = 1;
+                }
+            }
+            else if (SubPhase == 1)
+            {
+                // === LASER SWEEP PHASE ===
+                if (Timer == 1)
+                {
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 1.4f }, NPC.Center);
+                    MagnumScreenEffects.AddScreenShake(12f);
+                }
+                
+                float sweepProgress = Timer / (float)sweepDuration;
+                float sweepAngle = sweepProgress * MathHelper.Pi * 1.2f; // Wider sweep (was Pi)
+                
+                // OPTIMIZED: Reduced visual beam particle count but maintain threat
+                for (int i = 0; i < laserCount; i++)
+                {
+                    float currentAngle = laserStartAngles[i] + sweepAngle * (i % 2 == 0 ? 1 : -1);
+                    
+                    // Visual laser beam - fewer particles per frame
+                    if (Timer % 2 == 0)
+                    {
+                        for (int j = 0; j < 15; j++) // Reduced (was 30)
+                        {
+                            float dist = 50f + j * 100f;
+                            Vector2 beamPos = NPC.Center + currentAngle.ToRotationVector2() * dist;
+                            Color beamColor = Color.Lerp(CampanellaOrange, CampanellaGold, (float)j / 15f);
+                            BossVFXOptimizer.OptimizedFlare(beamPos, beamColor, 0.35f, 4);
+                        }
+                    }
+                    
+                    // OPTIMIZED: Occasional sparks only
+                    if (Main.rand.NextBool(12))
+                    {
+                        float dist = Main.rand.NextFloat(100f, 1000f);
+                        Vector2 sparkPos = NPC.Center + currentAngle.ToRotationVector2() * dist;
+                        var spark = new GlowSparkParticle(sparkPos, Main.rand.NextVector2Circular(2f, 2f),
+                            false, 10, 0.25f, CampanellaGold, new Vector2(0.4f, 1.2f), false, true);
+                        MagnumParticleHandler.SpawnParticle(spark);
+                    }
+                    
+                    // DIFFICULTY: More frequent projectiles (8 frames = third of beat)
+                    if (Timer % 8 == 0 && Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        for (int p = 0; p < 4 + difficultyTier; p++) // More projectiles per pulse
+                        {
+                            float dist = 120f + p * 180f;
+                            Vector2 projPos = NPC.Center + currentAngle.ToRotationVector2() * dist;
+                            float projSpeed = 5f + difficultyTier * 2f; // Faster
+                            Vector2 projVel = currentAngle.ToRotationVector2() * projSpeed;
+                            BossProjectileHelper.SpawnAcceleratingBolt(projPos, projVel, 80 + difficultyTier * 5, CampanellaOrange, 12f);
+                        }
+                    }
+                }
+                
+                if (Timer >= sweepDuration)
+                {
+                    Timer = 0;
+                    SubPhase = 2;
+                }
+            }
+            else
+            {
+                if (Timer >= 20) // Shorter recovery (was 30)
+                {
+                    EndAttack();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// RESONANT SHOCK - Electrical pulse wave that expands outward
+        /// Features: Building electrical charge, expanding shock rings, chain lightning
+        /// </summary>
+        private void Attack_ResonantShock(Player target)
+        {
+            // DIFFICULTY: More waves, faster
+            int shockWaves = 5 + difficultyTier; // More waves (was 4+)
+            int chargeTime = 36; // Shorter charge (was 48)
+            int waveDelay = 18; // Faster waves (was 24)
+            
+            if (SubPhase == 0)
+            {
+                // === ELECTRICAL CHARGE BUILDUP ===
+                NPC.velocity *= 0.9f;
+                
+                if (Timer == 1)
+                {
+                    SoundEngine.PlaySound(SoundID.Item93 with { Pitch = -0.3f }, NPC.Center);
+                }
+                
+                float progress = Timer / (float)chargeTime;
+                
+                // OPTIMIZED: Use ElectricalBuildupWarning instead of custom loops
+                if (Timer % 5 == 0)
+                {
+                    BossVFXOptimizer.ElectricalBuildupWarning(NPC.Center, CampanellaGold, 180f * (1f - progress * 0.5f), progress);
+                }
+                
+                // OPTIMIZED: Reduced charge VFX frequency
+                if (Timer % 6 == 0)
+                {
+                    BossVFXOptimizer.OptimizedRadialFlares(NPC.Center, Color.Lerp(CampanellaOrange, Color.White, progress),
+                        4, 50f - progress * 25f, 0.3f + progress * 0.3f, 8);
+                }
+                
+                // Show danger zone expanding
+                if (Timer > chargeTime / 2)
+                {
+                    BossVFXOptimizer.DangerZoneRing(NPC.Center, 80f + progress * 200f, 10);
+                }
+                
+                if (Timer >= chargeTime)
+                {
+                    Timer = 0;
+                    SubPhase = 1;
+                }
+            }
+            else if (SubPhase <= shockWaves)
+            {
+                // === SHOCK WAVE RELEASE ===
+                if (Timer == 1)
+                {
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.4f + SubPhase * 0.1f, Volume = 1.3f }, NPC.Center);
+                    MagnumScreenEffects.AddScreenShake(10f + SubPhase * 2f);
+                    
+                    // OPTIMIZED: Use BossVFXOptimizer burst
+                    BossVFXOptimizer.AttackReleaseBurst(NPC.Center, CampanellaGold, CampanellaOrange, 1.0f);
+                    
+                    // Spawn expanding shock ring projectiles
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        // DIFFICULTY: More projectiles, faster
+                        int ringCount = 20 + difficultyTier * 5; // More (was 16+4)
+                        float baseSpeed = 12f + SubPhase * 3f + difficultyTier * 2f; // Much faster (was 8f+2f+1.5f)
+                        
+                        for (int i = 0; i < ringCount; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / ringCount;
+                            Vector2 vel = angle.ToRotationVector2() * baseSpeed;
+                            
+                            // Alternate between accelerating bolts and tracking orbs
+                            if (i % 3 == 0)
+                                BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel * 0.7f, 85 + difficultyTier * 5, CampanellaGold, 15f);
+                            else
+                                BossProjectileHelper.SpawnHostileOrb(NPC.Center, vel, 85 + difficultyTier * 5, CampanellaOrange, 0.015f);
+                        }
+                    }
+                    
+                    // OPTIMIZED: Chain lightning with fewer iterations
+                    for (int i = 0; i < 4; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / 4f + Main.rand.NextFloat(0.3f);
+                        Vector2 lightningEnd = NPC.Center + angle.ToRotationVector2() * (180f + SubPhase * 40f);
+                        MagnumVFX.DrawLaCampanellaLightning(NPC.Center, lightningEnd, 8, 30f, 3, 0.7f);
+                    }
+                    
+                    // OPTIMIZED: Cascading halos
+                    BossVFXOptimizer.OptimizedCascadingHalos(NPC.Center, CampanellaOrange, CampanellaGold, 5, 0.4f, 14);
+                }
+                
+                if (Timer >= waveDelay)
+                {
+                    Timer = 0;
+                    SubPhase++;
+                }
+            }
+            else
+            {
+                if (Timer >= 24) // Shorter recovery (was 36)
+                {
+                    EndAttack();
+                }
+            }
+        }
+        
+        private void EndAttack()
+        {
+            Timer = 0;
+            SubPhase = 0;
+            State = BossPhase.Recovery;
+            attackCooldown = AttackWindowFrames - difficultyTier * 12;
+        }
+        
+        #endregion
+        
+        #region Visuals
+        
+        private void UpdateAnimation()
+        {
+            int frameSpeed = State == BossPhase.Slam ? 2 : 4;
+            frameCounter++;
+            if (frameCounter >= frameSpeed)
+            {
+                frameCounter = 0;
+                currentFrame++;
+                if (currentFrame >= TotalFrames)
+                    currentFrame = 0;
+            }
+        }
+        
+        private void SpawnAmbientParticles()
+        {
+            if (State == BossPhase.Spawning) return;
+            
+            if (Main.rand.NextBool(4 - difficultyTier))
+            {
+                Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(NPC.width * 0.4f, NPC.height * 0.4f);
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-3f, -1f));
+                Color color = Color.Lerp(CampanellaOrange, CampanellaGold, Main.rand.NextFloat());
+                CustomParticles.GenericFlare(pos, color, 0.3f, Main.rand.Next(15, 25));
+            }
+            
+            if (Main.rand.NextBool(10 - difficultyTier * 2))
+            {
+                Vector2 pos = NPC.Bottom + Main.rand.NextVector2Circular(50f, 10f);
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-1f, 0.5f));
+                var smoke = new HeavySmokeParticle(pos, vel, CampanellaBlack, Main.rand.Next(30, 50), 0.3f, 0.6f, 0.01f, false);
+                MagnumParticleHandler.SpawnParticle(smoke);
+            }
+            
+            if (isEnraged && Timer % 2 == 0)
+            {
+                Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(70f, 70f);
+                CustomParticles.GenericFlare(pos, CampanellaCrimson, 0.4f, 8);
+            }
+        }
+        
+        private void UpdateDeathAnimation()
         {
             deathTimer++;
+            NPC.velocity *= 0.95f;
             
-            NPC.velocity.X *= 0.95f;
-            NPC.velocity.Y += 0.15f; // Slight gravity during death
-            
-            // Escalating effects
-            float progress = (float)deathTimer / DeathAnimationDuration;
-            
-            // NO continuous screen shake during death - only shake on key explosive moments
-            // Let existing shake decay naturally via UpdateScreenShake()
-            
-            // Phase 1: Cracking and fire (0-140 ticks)
-            if (deathTimer <= 140)
+            if (deathTimer % 10 == 0)
             {
-                if (deathTimer % (int)MathHelper.Lerp(12, 4, progress * 2f) == 0)
-                {
-                    ThemedParticles.LaCampanellaImpact(NPC.Center + Main.rand.NextVector2Circular(100, 100), 1.2f + progress * 2f);
-                    SoundEngine.PlaySound(SoundID.Item14 with { Pitch = progress - 0.5f, Volume = 0.6f + progress * 0.5f }, NPC.Center);
-                    
-                    // Lightning crackles
-                    Vector2 lightningEnd = NPC.Center + Main.rand.NextVector2Circular(200f, 200f);
-                    MagnumVFX.DrawLaCampanellaLightning(NPC.Center, lightningEnd, 8, 25f, 3, 0.4f);
-                }
-            }
-            
-            // Phase 2: Bell tolling and fire geysers (140-280 ticks)
-            if (deathTimer > 140 && deathTimer <= 280)
-            {
-                float phase2Progress = (deathTimer - 140f) / 140f;
+                float progress = deathTimer / 200f;
+                MagnumScreenEffects.AddScreenShake(5f + progress * 20f);
                 
-                if (deathTimer % 25 == 0)
-                {
-                    SoundEngine.PlaySound(SoundID.Item35 with { Pitch = -0.6f + phase2Progress * 0.3f, Volume = 1.2f }, NPC.Center);
-                    ThemedParticles.LaCampanellaShockwave(NPC.Center, 2f + phase2Progress);
-                    ThemedParticles.LaCampanellaBellChime(NPC.Center, 1.5f + phase2Progress);
-                }
+                Vector2 burstPos = NPC.Center + Main.rand.NextVector2Circular(60f * (1f - progress * 0.4f), 60f * (1f - progress * 0.4f));
+                CustomParticles.GenericFlare(burstPos, Color.Lerp(CampanellaOrange, Color.White, progress), 0.5f + progress * 0.6f, 18);
+                CustomParticles.HaloRing(burstPos, CampanellaCrimson, 0.3f + progress * 0.4f, 14);
                 
-                if (deathTimer % 10 == 0)
+                for (int i = 0; i < 5; i++)
                 {
-                    // Fire geysers erupting from boss
-                    float geyserAngle = Main.rand.NextFloat(MathHelper.TwoPi);
-                    Vector2 geyserDir = geyserAngle.ToRotationVector2();
-                    for (int i = 0; i < 5; i++)
-                    {
-                        var geyser = new GlowSparkParticle(NPC.Center, geyserDir * (10f + i * 3f) + new Vector2(0, -2f),
-                            true, Main.rand.Next(40, 60), Main.rand.NextFloat(0.5f, 0.8f),
-                            Main.rand.NextBool() ? ThemedParticles.CampanellaOrange : ThemedParticles.CampanellaYellow,
-                            new Vector2(0.5f, 1.8f), false, true);
-                        MagnumParticleHandler.SpawnParticle(geyser);
-                    }
-                    
-                    // Phase 2 geyser eruption sounds
-                    SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with { Pitch = Main.rand.NextFloat(-0.2f, 0.3f), Volume = 0.4f }, NPC.Center);
-                }
-            }
-            
-            // Phase 3: Final crescendo (280-420 ticks)
-            if (deathTimer > 280)
-            {
-                float phase3Progress = (deathTimer - 280f) / 140f;
-                
-                // Continuous intense particles
-                if (deathTimer % 3 == 0)
-                {
-                    for (int i = 0; i < 5; i++)
-                    {
-                        ThemedParticles.LaCampanellaImpact(NPC.Center + Main.rand.NextVector2Circular(80, 80), 0.8f + phase3Progress);
-                    }
-                }
-                
-                // Rapid lightning
-                if (deathTimer % 5 == 0)
-                {
-                    for (int i = 0; i < 3; i++)
-                    {
-                        Vector2 lightningEnd = NPC.Center + Main.rand.NextVector2Circular(300f, 300f);
-                        MagnumVFX.DrawLaCampanellaLightning(NPC.Center, lightningEnd, 10, 35f, 4, 0.5f);
-                    }
-                    
-                    // Phase 3 electrical crackle sounds
-                    SoundEngine.PlaySound(SoundID.DD2_LightningBugZap with { Pitch = Main.rand.NextFloat(-0.3f, 0.5f), Volume = 0.5f + phase3Progress * 0.3f }, NPC.Center);
-                }
-                
-                // Escalating metallic bell stress sounds during crescendo
-                if (deathTimer % 15 == 0)
-                {
-                    SoundEngine.PlaySound(SoundID.Item35 with { Pitch = -0.8f + phase3Progress * 0.5f, Volume = 0.6f + phase3Progress * 0.4f }, NPC.Center);
-                    SoundEngine.PlaySound(SoundID.DD2_BetsyFireballImpact with { Pitch = -0.4f + phase3Progress * 0.3f, Volume = 0.3f + phase3Progress * 0.2f }, NPC.Center);
-                }
-            }
-            
-            // Flash sky effect throughout
-            if (deathTimer % (int)MathHelper.Lerp(25, 8, progress) == 0)
-            {
-                if (!Main.dedServ && SkyManager.Instance["MagnumOpus:LaCampanellaSky"] is LaCampanellaSkyEffect sky)
-                {
-                    sky.TriggerFlash(0.4f + progress * 0.6f, Color.Lerp(ThemedParticles.CampanellaOrange, Color.White, progress));
-                }
-            }
-            
-            // Final explosion
-            if (deathTimer >= DeathAnimationDuration)
-            {
-                // MASSIVE final explosion with UnifiedVFX
-                SoundEngine.PlaySound(SoundID.Item14 with { Pitch = -0.8f, Volume = 2f }, NPC.Center);
-                SoundEngine.PlaySound(SoundID.Roar with { Pitch = -0.5f, Volume = 1.5f }, NPC.Center);
-                
-                // UnifiedVFX themed death explosion
-                UnifiedVFX.LaCampanella.DeathExplosion(NPC.Center, 2f);
-                
-                // Radial fire burst with gradient
-                for (int i = 0; i < 80; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 80f;
-                    Vector2 dir = angle.ToRotationVector2();
-                    float burstProgress = (float)i / 80f;
-                    Color sparkColor = Color.Lerp(UnifiedVFX.LaCampanella.Black, UnifiedVFX.LaCampanella.Orange, burstProgress);
-                    ThemedParticles.LaCampanellaSparks(NPC.Center, dir, 10, 18f);
-                    CustomParticles.GenericFlare(NPC.Center + dir * 50f, sparkColor, 0.5f, 20);
-                }
-                
-                // Spiral galaxy effect for unique finale
-                for (int arm = 0; arm < 8; arm++)
-                {
-                    float armAngle = MathHelper.TwoPi * arm / 8f;
-                    for (int point = 0; point < 10; point++)
-                    {
-                        float spiralAngle = armAngle + point * 0.35f;
-                        float spiralRadius = 30f + point * 20f;
-                        Vector2 spiralPos = NPC.Center + spiralAngle.ToRotationVector2() * spiralRadius;
-                        float spiralProgress = (arm * 10 + point) / 80f;
-                        Color galaxyColor = Color.Lerp(UnifiedVFX.LaCampanella.Orange, UnifiedVFX.LaCampanella.Gold, spiralProgress);
-                        CustomParticles.GenericFlare(spiralPos, galaxyColor, 0.6f + point * 0.05f, 30 + point * 2);
-                    }
-                }
-                
-                // Multiple impact explosions
-                for (int i = 0; i < 12; i++)
-                {
-                    Vector2 explosionPos = NPC.Center + Main.rand.NextVector2Circular(100f, 100f);
-                    UnifiedVFX.LaCampanella.Impact(explosionPos, 2f);
-                }
-                
-                // Giant shockwaves
-                for (int i = 0; i < 4; i++)
-                {
-                    ThemedParticles.LaCampanellaShockwave(NPC.Center, 4f - i * 0.5f);
-                }
-                
-                // Lightning storm with gradient colors
-                for (int i = 0; i < 10; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 10f;
-                    Vector2 lightningEnd = NPC.Center + angle.ToRotationVector2() * 500f;
-                    MagnumVFX.DrawLaCampanellaLightning(NPC.Center, lightningEnd, 18, 60f, 7, 0.8f);
-                }
-                
-                // Massive smoke cloud with bell chime
-                UnifiedVFX.LaCampanella.BellChime(NPC.Center, 3f);
-                for (int i = 0; i < 40; i++)
-                {
-                    var smoke = new HeavySmokeParticle(NPC.Center + Main.rand.NextVector2Circular(60f, 60f),
-                        Main.rand.NextVector2Circular(6f, 6f) + new Vector2(0, -4f),
-                        ThemedParticles.CampanellaBlack, Main.rand.Next(100, 150), Main.rand.NextFloat(1f, 1.5f),
-                        0.7f, 0.012f, false);
+                    Vector2 vel = Main.rand.NextVector2Circular(6f, 4f);
+                    var smoke = new HeavySmokeParticle(burstPos + Main.rand.NextVector2Circular(30f, 30f), vel, CampanellaBlack, Main.rand.Next(35, 50), 0.4f, 0.8f, 0.012f, false);
                     MagnumParticleHandler.SpawnParticle(smoke);
                 }
+            }
+            
+            if (deathTimer >= 200)
+            {
+                MagnumScreenEffects.AddScreenShake(35f);
+                SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with { Pitch = -0.5f, Volume = 2f }, NPC.Center);
                 
-                // Layered halo cascade
-                for (int ring = 0; ring < 8; ring++)
+                CustomParticles.GenericFlare(NPC.Center, Color.White, 2.2f, 35);
+                
+                for (int i = 0; i < 15; i++)
                 {
-                    float ringProgress = (float)ring / 8f;
-                    Color ringColor = Color.Lerp(UnifiedVFX.LaCampanella.Orange, UnifiedVFX.LaCampanella.Gold, ringProgress);
-                    CustomParticles.HaloRing(NPC.Center, ringColor * (1f - ringProgress * 0.3f), 0.5f + ring * 0.25f, 25 + ring * 5);
+                    float scale = 0.35f + i * 0.18f;
+                    CustomParticles.HaloRing(NPC.Center, Color.Lerp(CampanellaGold, CampanellaCrimson, i / 15f), scale, 25 + i * 4);
                 }
                 
-                screenShakeIntensity = 8f; // Single impactful shake on final explosion only
-                
-                if (!Main.dedServ && SkyManager.Instance["MagnumOpus:LaCampanellaSky"] is LaCampanellaSkyEffect sky)
+                for (int i = 0; i < 24; i++)
                 {
-                    sky.TriggerFlash(1f, Color.White);
+                    float angle = MathHelper.TwoPi * i / 24f;
+                    CustomParticles.GenericFlare(NPC.Center + angle.ToRotationVector2() * 120f, CampanellaOrange, 0.8f, 30);
                 }
                 
-                DeactivateSky();
+                for (int i = 0; i < 40; i++)
+                {
+                    Vector2 vel = Main.rand.NextVector2Circular(15f, 10f);
+                    var smoke = new HeavySmokeParticle(NPC.Center + Main.rand.NextVector2Circular(100f, 100f), vel, CampanellaBlack, Main.rand.Next(50, 80), 0.7f, 1.4f, 0.012f, false);
+                    MagnumParticleHandler.SpawnParticle(smoke);
+                }
                 
                 NPC.life = 0;
                 NPC.HitEffect();
@@ -2532,158 +2025,80 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             }
         }
         
-        public override bool CheckDead()
-        {
-            if (State != ActionState.Dying && deathTimer < DeathAnimationDuration)
-            {
-                State = ActionState.Dying;
-                deathTimer = 0;
-                NPC.life = 1;
-                NPC.dontTakeDamage = true;
-                NPC.netUpdate = true;
-                return false;
-            }
-            
-            return true;
-        }
-
-        /// <summary>
-        /// Gets the source rectangle for the current frame in the 6x6 sprite sheet.
-        /// Frames are read left to right, top to bottom.
-        /// </summary>
-        private Rectangle GetFrameSourceRect(Texture2D texture)
-        {
-            int frameWidth = texture.Width / FrameColumns;
-            int frameHeight = texture.Height / FrameRows;
-            
-            int column = currentFrame % FrameColumns;
-            int row = currentFrame / FrameColumns;
-            
-            return new Rectangle(column * frameWidth, row * frameHeight, frameWidth, frameHeight);
-        }
+        #endregion
         
-        /// <summary>
-        /// Updates the animation frame. Call this in AI().
-        /// </summary>
-        private void UpdateAnimation()
-        {
-            frameCounter++;
-            if (frameCounter >= FrameSpeed)
-            {
-                frameCounter = 0;
-                currentFrame++;
-                if (currentFrame >= TotalFrames)
-                {
-                    currentFrame = 0;
-                }
-            }
-        }
-
+        #region Drawing
+        
         public override void FindFrame(int frameHeight)
         {
-            // For 6x6 sprite sheet, we handle frames manually via GetFrameSourceRect
-            // This method is kept for compatibility but the actual drawing uses GetFrameSourceRect
-            NPC.frame.Y = 0; // Not used with 6x6 sheet
+            NPC.frame.Y = currentFrame * frameHeight;
         }
-
-        public override void ModifyNPCLoot(NPCLoot npcLoot)
-        {
-            // Energy drops
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<LaCampanellaResonantEnergy>(), 1, 25, 35));
-            
-            // Weapons - guaranteed 2-3 different weapons
-            int[] weaponTypes = new int[]
-            {
-                ModContent.ItemType<IgnitionOfTheBell>(),
-                ModContent.ItemType<InfernalChimesCalling>(),
-                ModContent.ItemType<FangOfTheInfiniteBell>(),
-                ModContent.ItemType<DualFatedChime>()
-            };
-            
-            foreach (int weaponType in weaponTypes)
-            {
-                npcLoot.Add(ItemDropRule.Common(weaponType, 3));
-            }
-            
-            // Harmonic Core
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<HarmonicCoreOfLaCampanella>(), 1));
-            
-            // Expert mode treasure bag
-            npcLoot.Add(ItemDropRule.BossBag(ModContent.ItemType<LaCampanellaTreasureBag>()));
-        }
-
-        public override void OnKill()
-        {
-            DeactivateSky();
-            BossHealthBarUI.UnregisterBoss(NPC.whoAmI);
-        }
-
-        public override void BossLoot(ref string name, ref int potionType)
-        {
-            potionType = ItemID.GreaterHealingPotion;
-        }
-
+        
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
-            Texture2D texture = TextureAssets.Npc[Type].Value;
+            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
+            int frameWidth = tex.Width / 6;
+            int frameHeight = tex.Height / 6;
+            int row = currentFrame / 6;
+            int col = currentFrame % 6;
+            Rectangle sourceRect = new Rectangle(col * frameWidth, row * frameHeight, frameWidth, frameHeight);
+            Vector2 origin = new Vector2(frameWidth / 2f, frameHeight / 2f);
             Vector2 drawPos = NPC.Center - screenPos;
             
-            // Get the source rectangle for the current frame in the 6x6 sprite sheet
-            Rectangle sourceRect = GetFrameSourceRect(texture);
-            Vector2 origin = new Vector2(sourceRect.Width / 2f, sourceRect.Height / 2f);
-            
-            // Pulsing glow effect - ENHANCED
-            float glowPulse = (float)Math.Sin(auraPulse * 2f) * 0.25f + 0.85f;
-            float enragePulse = isEnraged ? (float)Math.Sin(auraPulse * 4f) * 0.15f + 1.1f : 1f;
-            
-            // Draw outer fire aura when enraged
-            if (isEnraged)
+            if ((State == BossPhase.Slam && SubPhase >= 3) || isEnraged)
             {
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < NPC.oldPos.Length; i++)
                 {
-                    float auraAngle = MathHelper.TwoPi * i / 4f + auraPulse;
-                    Vector2 auraOffset = auraAngle.ToRotationVector2() * (18f + (float)Math.Sin(auraPulse * 5f + i) * 6f);
-                    Color auraColor = ThemedParticles.CampanellaYellow * 0.25f * enragePulse;
-                    
-                    spriteBatch.Draw(texture, drawPos + auraOffset, sourceRect, auraColor, NPC.rotation, 
-                        origin, NPC.scale * 1.1f, NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
+                    float progress = (float)i / NPC.oldPos.Length;
+                    Color trailColor = Color.Lerp(CampanellaOrange, CampanellaCrimson, progress) * (1f - progress) * 0.4f;
+                    Vector2 trailPos = NPC.oldPos[i] + NPC.Size / 2f - screenPos;
+                    spriteBatch.Draw(tex, trailPos, sourceRect, trailColor, NPC.rotation, origin, NPC.scale * (1f - progress * 0.1f), SpriteEffects.None, 0f);
                 }
             }
             
-            // Draw orange glow behind - MORE LAYERS
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f + auraPulse * 0.5f;
-                float pulseOffset = 10f + (float)Math.Sin(auraPulse * 3f + i) * 4f;
-                Vector2 offset = angle.ToRotationVector2() * pulseOffset;
-                Color glowColor = ThemedParticles.CampanellaOrange * 0.35f * glowPulse * enragePulse;
-                
-                spriteBatch.Draw(texture, drawPos + offset, sourceRect, glowColor, NPC.rotation, 
-                    origin, NPC.scale, NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
-            }
+            float pulse = (float)Math.Sin(Timer * 0.07f) * 0.3f + 0.7f;
+            Color glowColor = isEnraged ? CampanellaCrimson : Color.Lerp(CampanellaOrange, CampanellaGold, pulse);
+            glowColor.A = 0;
+            spriteBatch.Draw(tex, drawPos, sourceRect, glowColor * 0.4f, NPC.rotation, origin, NPC.scale * 1.08f, SpriteEffects.None, 0f);
             
-            // Draw black shadow outline
-            for (int i = 0; i < 4; i++)
-            {
-                float shadowAngle = MathHelper.TwoPi * i / 4f + auraPulse * 0.3f;
-                Vector2 shadowOffset = shadowAngle.ToRotationVector2() * 5f;
-                Color shadowColor = ThemedParticles.CampanellaBlack * 0.4f;
-                
-                spriteBatch.Draw(texture, drawPos + shadowOffset, sourceRect, shadowColor, NPC.rotation, 
-                    origin, NPC.scale, NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
-            }
-            
-            // Draw main sprite
-            Color mainColor = Color.Lerp(drawColor, Color.White, 0.25f * enragePulse);
-            spriteBatch.Draw(texture, drawPos, sourceRect, mainColor, NPC.rotation, 
-                origin, NPC.scale, NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
-            
-            // Draw inner glow highlight
-            Color innerGlow = ThemedParticles.CampanellaYellow * 0.15f * glowPulse;
-            spriteBatch.Draw(texture, drawPos, sourceRect, innerGlow, NPC.rotation, 
-                origin, NPC.scale * 0.95f, NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
+            Color mainColor = NPC.IsABestiaryIconDummy ? Color.White : Lighting.GetColor((int)(NPC.Center.X / 16), (int)(NPC.Center.Y / 16));
+            mainColor = Color.Lerp(mainColor, Color.White, 0.4f);
+            spriteBatch.Draw(tex, drawPos, sourceRect, mainColor, NPC.rotation, origin, NPC.scale, SpriteEffects.None, 0f);
             
             return false;
         }
+        
+        #endregion
+        
+        #region Loot
+        
+        public override void ModifyNPCLoot(NPCLoot npcLoot)
+        {
+            npcLoot.Add(ItemDropRule.BossBag(ModContent.ItemType<LaCampanellaTreasureBag>()));
+            
+            LeadingConditionRule notExpert = new LeadingConditionRule(new Conditions.NotExpert());
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<LaCampanellaResonantEnergy>(), 1, 25, 35));
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<IgnitionOfTheBell>(), 3));
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<InfernalChimesCalling>(), 3));
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<FangOfTheInfiniteBell>(), 3));
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<DualFatedChime>(), 3));
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<HarmonicCoreOfLaCampanella>(), 1));
+            npcLoot.Add(notExpert);
+        }
+        
+        public override bool CheckDead()
+        {
+            if (State != BossPhase.Dying)
+            {
+                State = BossPhase.Dying;
+                deathTimer = 0;
+                NPC.life = 1;
+                NPC.dontTakeDamage = true;
+                return false;
+            }
+            return true;
+        }
+        
+        #endregion
     }
 }

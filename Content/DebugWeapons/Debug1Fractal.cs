@@ -86,7 +86,8 @@ namespace MagnumOpus.Content.DebugWeapons
     /// </summary>
     public class Debug1FractalFlare : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.RainbowRodBullet;
+        // Custom texture - no vanilla textures allowed
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
 
         private int FlareType => (int)Projectile.ai[0];
         private int TargetIndex => (int)Projectile.ai[1];

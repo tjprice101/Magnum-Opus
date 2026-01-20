@@ -8,6 +8,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Fate.Debuffs;
 using MagnumOpus.Content.Fate.Projectiles;
@@ -57,6 +58,47 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         public override bool CanConsumeAmmo(Item ammo, Player player)
         {
             return Main.rand.NextFloat() > 0.5f; // 50% ammo conservation
+        }
+        
+        public override void HoldItem(Player player)
+        {
+            // === COSMIC ACCELERATOR HOLD EFFECT ===
+            // Spiraling energy particles (representing acceleration)
+            if (Main.rand.NextBool(5))
+            {
+                float spiralAngle = Main.GameUpdateCount * 0.06f;
+                float spiralRadius = 30f + (Main.GameUpdateCount % 60) * 0.5f;
+                Vector2 spiralPos = player.Center + spiralAngle.ToRotationVector2() * spiralRadius;
+                Color spiralColor = FateCosmicVFX.GetCosmicGradient((spiralRadius - 30f) / 30f);
+                var spiral = new GenericGlowParticle(spiralPos, -spiralAngle.ToRotationVector2() * 1f, spiralColor, 0.2f, 15, true);
+                MagnumParticleHandler.SpawnParticle(spiral);
+            }
+            
+            // Heavy cosmic cloud wisps
+            if (Main.rand.NextBool(12))
+            {
+                FateCosmicVFX.SpawnCosmicCloudTrail(player.Center + Main.rand.NextVector2Circular(25f, 25f), 
+                    Main.rand.NextVector2Circular(1f, 1f), 0.35f);
+            }
+            
+            // Orbiting glyphs
+            if (Main.rand.NextBool(10))
+            {
+                float angle = Main.GameUpdateCount * 0.04f;
+                CustomParticles.Glyph(player.Center + angle.ToRotationVector2() * 42f, FateCosmicVFX.FatePurple, 0.32f, -1);
+            }
+            
+            // Star particles
+            if (Main.rand.NextBool(9))
+            {
+                var star = new GenericGlowParticle(player.Center + Main.rand.NextVector2Circular(35f, 35f),
+                    Main.rand.NextVector2Circular(0.5f, 0.5f), FateCosmicVFX.FateStarGold, 0.18f, 16, true);
+                MagnumParticleHandler.SpawnParticle(star);
+            }
+            
+            // Accelerating intensity light
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.15f + 0.85f;
+            Lighting.AddLight(player.Center, FateCosmicVFX.FateDarkPink.ToVector3() * pulse * 0.4f);
         }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)

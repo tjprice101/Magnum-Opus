@@ -17,8 +17,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
     /// </summary>
     public class PetalExplosion : ModProjectile
     {
-        // Use a vanilla texture for glow base
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.DD2ExplosiveTrapT3Explosion;
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
         
         private int explosionTimer = 0;
         private const int ExplosionDuration = 20;

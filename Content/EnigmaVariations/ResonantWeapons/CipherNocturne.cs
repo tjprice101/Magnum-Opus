@@ -10,6 +10,7 @@ using Terraria.Audio;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
@@ -285,17 +286,17 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 CustomParticles.GenericFlare(sparklePos, sparkleColor, 0.55f, 20);
             }
             
-            // Beam origin VFX - reduced frequency
+            // Beam origin VFX - ENHANCED MULTI-LAYER BLOOM
             if (Main.GameUpdateCount % 8 == 0)
             {
-                CustomParticles.GenericFlare(start, EnigmaGreen * beamIntensity, 0.55f, 14);
+                EnhancedParticles.BloomFlare(start, EnigmaGreen * beamIntensity, 0.55f, 14, 3, 0.9f);
             }
             
-            // Beam end VFX - reduced frequency
+            // Beam end VFX - ENHANCED WITH BLOOM
             if (Main.GameUpdateCount % 8 == 0)
             {
-                CustomParticles.GenericFlare(end, EnigmaGreen * beamIntensity, 0.65f, 16);
-                CustomParticles.HaloRing(end, EnigmaPurple * beamIntensity, 0.35f, 12);
+                EnhancedParticles.BloomFlare(end, EnigmaGreen * beamIntensity, 0.65f, 16, 4, 1.0f);
+                EnhancedThemedParticles.EnigmaBloomBurstEnhanced(end, beamIntensity * 0.5f);
             }
             
             Lighting.AddLight(end, GetEnigmaGradient(0.7f).ToVector3() * beamIntensity * 0.8f);
@@ -591,18 +592,19 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             if (IsEnhanced)
                 FateRealityDistortion.TriggerInversionPulse(6);
             
-            // === OPTIMIZED HIT EFFECT - Reduced particle counts ===
-            UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 1.0f);
+            // === ENHANCED HIT EFFECT WITH MULTI-LAYER BLOOM ===
+            UnifiedVFXBloom.EnigmaVariations.ImpactEnhanced(target.Center, IsEnhanced ? 1.2f : 0.9f);
             
             // === WATCHING EYE AT IMPACT ===
             CustomParticles.EnigmaEyeImpact(target.Center, target.Center, EnigmaGreen, 0.45f);
             
-            // === MUSIC NOTES - Reduced from 10+5 to 4 total ===
-            ThemedParticles.EnigmaMusicNoteBurst(target.Center, 4, 5f);
+            // === MUSIC NOTES ===
+            EnhancedThemedParticles.EnigmaMusicNotesEnhanced(target.Center, 4, 5f);
             
-            CustomParticles.GenericFlare(target.Center, EnigmaGreen, 0.55f, 14);
+            // Central bloom flare
+            EnhancedParticles.BloomFlare(target.Center, EnigmaGreen, 0.55f, 14, 3, 0.9f);
             
-            // === GLYPH CIRCLE - Reduced count ===
+            // === GLYPH CIRCLE ===
             CustomParticles.GlyphCircle(target.Center, EnigmaPurple, count: 4, radius: 40f, rotationSpeed: 0.06f);
             
             // === DYNAMIC LIGHTING ===
@@ -620,23 +622,32 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             if (IsEnhanced)
                 FateRealityDistortion.TriggerInversionPulse(6);
             
-            // Final burst
+            // === ENHANCED BLOOM BURST ===
+            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(Projectile.Center, scale);
+            
+            // Final burst with enhanced particles
             for (int i = 0; i < (IsEnhanced ? 10 : 6); i++)
             {
                 float angle = MathHelper.TwoPi * i / (IsEnhanced ? 10 : 6);
                 Vector2 vel = angle.ToRotationVector2() * (4f * scale);
                 Color burstColor = GetEnigmaGradient((float)i / (IsEnhanced ? 10 : 6));
-                var glow = new GenericGlowParticle(Projectile.Center, vel, burstColor, 0.4f * scale, 18, true);
-                MagnumParticleHandler.SpawnParticle(glow);
+                
+                // Use EnhancedParticlePool for bloom
+                var particle = EnhancedParticlePool.GetParticle()
+                    .Setup(Projectile.Center, vel, burstColor, 0.4f * scale, 18)
+                    .WithBloom(2, 0.8f)
+                    .WithDrag(0.96f);
+                EnhancedParticlePool.SpawnParticle(particle);
             }
             
-            CustomParticles.HaloRing(Projectile.Center, EnigmaPurple, 0.5f * scale, 15);
+            // Enhanced halo with bloom
+            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaPurple, 0.5f * scale, 15, 3, 0.9f);
             
             if (IsEnhanced)
             {
                 CustomParticles.GlyphBurst(Projectile.Center, EnigmaGreen, count: 6, speed: 3f);
                 
-                // === WATCHING EYES - enhanced beam releases many eyes ===
+                // === WATCHING EYES ===
                 CustomParticles.EnigmaEyeExplosion(Projectile.Center, EnigmaPurple, 6, 4f);
             }
             else

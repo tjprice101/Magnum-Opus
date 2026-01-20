@@ -10,6 +10,8 @@ using Terraria.Audio;
 using MagnumOpus.Content.MoonlightSonata.ResonantOres;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.MoonlightSonata.Enemies
 {
@@ -993,7 +995,21 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
     {
         public override string Texture => "MagnumOpus/Content/MoonlightSonata/Enemies/SnowOfTheMoon";
         
+        // === MOONLIGHT SONATA COLORS ===
+        private static readonly Color MoonlightPurple = new Color(80, 40, 140);
+        private static readonly Color MoonlightIceBlue = new Color(140, 200, 255);
+        private static readonly Color MoonlightSilver = new Color(220, 220, 235);
+        private static readonly Color MoonlightLavender = new Color(180, 150, 220);
+        
         private int targetPlayer = -1;
+        private float orbitAngle = 0f;
+        private float pulseTimer = 0f;
+        
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Type] = 12;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+        }
         
         public override void SetDefaults()
         {
@@ -1011,6 +1027,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
         public override void AI()
         {
             targetPlayer = (int)Projectile.ai[0];
+            orbitAngle += 0.12f;
+            pulseTimer += 0.1f;
             
             if (targetPlayer >= 0 && targetPlayer < Main.maxPlayers)
             {
@@ -1031,50 +1049,145 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             
             Projectile.rotation += 0.15f;
             
-            if (Main.rand.NextBool(3))
+            // === UNIQUE EFFECT: Orbiting moon dust motes ===
+            if (Projectile.timeLeft % 8 == 0)
             {
-                Color particleColor = Color.Lerp(new Color(80, 40, 140), new Color(140, 200, 255), Main.rand.NextFloat());
-                Dust trail = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
-                    DustID.PurpleTorch, 0f, 0f, 100, particleColor, 1.2f);
-                trail.noGravity = true;
-                trail.velocity = -Projectile.velocity * 0.2f;
+                for (int i = 0; i < 3; i++)
+                {
+                    float moteAngle = orbitAngle + MathHelper.TwoPi * i / 3f;
+                    Vector2 motePos = Projectile.Center + moteAngle.ToRotationVector2() * 16f;
+                    EnhancedParticles.BloomFlare(motePos, MoonlightIceBlue * 0.7f, 0.18f, 10, 2, 0.55f);
+                }
             }
             
-            Lighting.AddLight(Projectile.Center, 0.4f, 0.2f, 0.6f);
+            // === UNIQUE EFFECT: Sparkle trail with gradient ===
+            if (Main.rand.NextBool(2))
+            {
+                Color sparkleColor = Color.Lerp(MoonlightPurple, MoonlightIceBlue, Main.rand.NextFloat());
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f), 
+                    -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(1.5f, 1.5f), sparkleColor, 0.32f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // === UNIQUE EFFECT: Moonlight glow trail ===
+            if (Main.rand.NextBool(3))
+            {
+                float gradientProgress = Main.rand.NextFloat();
+                Color trailColor = Color.Lerp(MoonlightPurple, MoonlightLavender, gradientProgress);
+                var trail = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.12f + Main.rand.NextVector2Circular(1f, 1f),
+                    trailColor * 0.65f, 0.25f, 16, true);
+                MagnumParticleHandler.SpawnParticle(trail);
+            }
+            
+            // === UNIQUE EFFECT: Purple/ice dust particles ===
+            if (Main.rand.NextBool(3))
+            {
+                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
+                Color dustColor = Main.rand.NextBool() ? MoonlightPurple : MoonlightIceBlue;
+                Dust dust = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), 
+                    dustType, -Projectile.velocity * 0.18f + Main.rand.NextVector2Circular(1.5f, 1.5f), 0, dustColor, 1.0f);
+                dust.noGravity = true;
+            }
+            
+            // Pulsing light
+            float pulse = 0.4f + (float)Math.Sin(pulseTimer) * 0.15f;
+            Lighting.AddLight(Projectile.Center, MoonlightPurple.ToVector3() * pulse + MoonlightIceBlue.ToVector3() * pulse * 0.5f);
         }
         
         public override void OnKill(int timeLeft)
         {
             SoundEngine.PlaySound(SoundID.Item14, Projectile.Center);
             
-            for (int i = 0; i < 20; i++)
+            // === UNIQUE DEATH: Moonlight burst ===
+            // Central flash cascade
+            EnhancedParticles.BloomFlare(Projectile.Center, MoonlightSilver, 0.65f, 18, 4, 1f);
+            EnhancedParticles.BloomFlare(Projectile.Center, MoonlightIceBlue, 0.55f, 22, 3, 0.85f);
+            EnhancedParticles.BloomFlare(Projectile.Center, MoonlightPurple, 0.45f, 20, 3, 0.7f);
+            
+            // Sparkle burst
+            for (int i = 0; i < 12; i++)
             {
-                Color explosionColor = Main.rand.NextBool() ? new Color(80, 40, 140) : new Color(140, 200, 255);
-                Dust explosion = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.PurpleTorch, 0f, 0f, 100, explosionColor, 1.8f);
-                explosion.noGravity = true;
-                explosion.velocity = Main.rand.NextVector2Circular(8f, 8f);
+                float angle = MathHelper.TwoPi * i / 12f + orbitAngle;
+                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
+                Color sparkleColor = Color.Lerp(MoonlightPurple, MoonlightIceBlue, (float)i / 12f);
+                
+                var sparkle = new SparkleParticle(Projectile.Center, burstVel, sparkleColor, 0.4f, 25);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // Dust explosion
+            for (int i = 0; i < 16; i++)
+            {
+                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
+                Color dustColor = Main.rand.NextBool() ? MoonlightPurple : MoonlightIceBlue;
+                Dust dust = Dust.NewDustPerfect(Projectile.Center, dustType, Main.rand.NextVector2Circular(8f, 8f), 0, dustColor, 1.5f);
+                dust.noGravity = true;
+            }
+            
+            // Glow particle burst
+            for (int i = 0; i < 8; i++)
+            {
+                Color glowColor = Color.Lerp(MoonlightPurple, MoonlightLavender, Main.rand.NextFloat());
+                var glow = new GenericGlowParticle(Projectile.Center, Main.rand.NextVector2Circular(6f, 6f),
+                    glowColor * 0.75f, 0.3f, 22, true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            // Fractal flare points
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 flarePos = Projectile.Center + angle.ToRotationVector2() * 25f;
+                Color flareColor = Color.Lerp(MoonlightIceBlue, MoonlightSilver, (float)i / 6f);
+                EnhancedParticles.BloomFlare(flarePos, flareColor, 0.28f, 14, 2, 0.6f);
             }
         }
         
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[Type].Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            Vector2 glowOrigin = glowTex.Size() / 2f;
             
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.2f + 0.8f;
-            Color glowColor = Color.Lerp(new Color(80, 40, 140), new Color(140, 200, 255), 
-                (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.5f + 0.5f) * pulse * 0.6f;
+            float pulse = (float)Math.Sin(pulseTimer) * 0.2f + 1f;
             
-            for (int i = 0; i < 4; i++)
+            // === UNIQUE: Draw sparkle trail ===
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
-                Vector2 offset = new Vector2(4f, 0f).RotatedBy(MathHelper.TwoPi * i / 4 + Main.GameUpdateCount * 0.1f);
-                Main.EntitySpriteDraw(texture, drawPos + offset, null, glowColor, Projectile.rotation,
-                    texture.Size() / 2f, Projectile.scale * 1.2f, SpriteEffects.None, 0);
+                float progress = (float)i / Projectile.oldPos.Length;
+                float scale = 0.4f * (1f - progress) * pulse;
+                Color trailColor = Color.Lerp(MoonlightIceBlue, MoonlightPurple, progress) * (1f - progress) * 0.55f;
+                trailColor.A = 0;
+                
+                Main.spriteBatch.Draw(glowTex, Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition,
+                    null, trailColor, Projectile.oldRot[i], glowOrigin, scale, SpriteEffects.None, 0f);
             }
             
+            // === UNIQUE: Multi-layer moonlight bloom ===
+            Color outerGlow = MoonlightPurple with { A = 0 };
+            Color midGlow = MoonlightIceBlue with { A = 0 };
+            Color innerGlow = MoonlightSilver with { A = 0 };
+            
+            // Outer purple aura
+            Main.spriteBatch.Draw(glowTex, drawPos, null, outerGlow * 0.3f, 0f, glowOrigin, 1.8f * pulse, SpriteEffects.None, 0f);
+            // Middle ice blue glow
+            Main.spriteBatch.Draw(glowTex, drawPos, null, midGlow * 0.4f, 0f, glowOrigin, 1.3f * pulse, SpriteEffects.None, 0f);
+            // Inner silver glow
+            Main.spriteBatch.Draw(glowTex, drawPos, null, innerGlow * 0.5f, 0f, glowOrigin, 0.8f * pulse, SpriteEffects.None, 0f);
+            
+            // Draw orbiting moon motes
+            for (int i = 0; i < 3; i++)
+            {
+                float moteAngle = orbitAngle + MathHelper.TwoPi * i / 3f;
+                Vector2 motePos = drawPos + moteAngle.ToRotationVector2() * 14f;
+                Color moteColor = Color.Lerp(MoonlightIceBlue, MoonlightSilver, (float)i / 3f) with { A = 0 };
+                Main.spriteBatch.Draw(glowTex, motePos, null, moteColor * 0.6f, 0f, glowOrigin, 0.2f * pulse, SpriteEffects.None, 0f);
+            }
+            
+            // Draw main texture
             Main.EntitySpriteDraw(texture, drawPos, null, lightColor, Projectile.rotation,
-                texture.Size() / 2f, Projectile.scale, SpriteEffects.None, 0);
+                texture.Size() / 2f, Projectile.scale * pulse, SpriteEffects.None, 0);
             
             return false;
         }

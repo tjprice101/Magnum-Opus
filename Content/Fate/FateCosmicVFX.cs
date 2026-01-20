@@ -7,6 +7,8 @@ using Terraria.ModLoader;
 using Terraria.ID;
 using Terraria.Audio;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Fate
 {
@@ -87,10 +89,14 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Spawn cosmic cloud burst (explosion of nebula energy)
+        /// Spawn cosmic cloud burst (explosion of nebula energy) with enhanced multi-layer bloom
         /// </summary>
         public static void SpawnCosmicCloudBurst(Vector2 position, float scale = 1f, int cloudCount = 16)
         {
+            // === ENHANCED CENTRAL FLASH WITH MULTI-LAYER BLOOM ===
+            EnhancedParticles.BloomFlare(position, FateWhite, 0.8f * scale, 20, 4, 1.2f);
+            EnhancedParticles.BloomFlare(position, FateDarkPink, 0.6f * scale, 18, 3, 1.0f);
+            
             for (int i = 0; i < cloudCount; i++)
             {
                 float angle = MathHelper.TwoPi * i / cloudCount + Main.rand.NextFloat(-0.2f, 0.2f);
@@ -100,17 +106,25 @@ namespace MagnumOpus.Content.Fate
                 Color cloudColor = Color.Lerp(CosmicBlack, FatePurple, Main.rand.NextFloat()) * 0.5f;
                 float particleScale = Main.rand.NextFloat(0.3f, 0.6f) * scale;
                 
-                var cloud = new GenericGlowParticle(position, cloudVel, cloudColor, particleScale, 35, true);
-                MagnumParticleHandler.SpawnParticle(cloud);
+                // Enhanced cloud particle with bloom
+                var cloud = EnhancedParticlePool.GetParticle()
+                    .Setup(CustomParticleSystem.RandomGlow(), position, cloudVel, cloudColor, particleScale, 35)
+                    .WithBloom(2, 0.6f)
+                    .WithDrag(0.96f);
+                EnhancedParticlePool.SpawnParticle(cloud);
             }
 
-            // Central star burst
+            // Enhanced central star burst with bloom
             for (int i = 0; i < 12; i++)
             {
                 float angle = MathHelper.TwoPi * i / 12f;
                 Vector2 starVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f) * scale;
-                var star = new GenericGlowParticle(position, starVel, FateWhite * 0.8f, 0.25f * scale, 20, true);
-                MagnumParticleHandler.SpawnParticle(star);
+                
+                var star = EnhancedParticlePool.GetParticle()
+                    .Setup(CustomParticleSystem.RandomFlare(), position, starVel, FateWhite * 0.8f, 0.25f * scale, 20)
+                    .WithBloom(3, 0.8f)
+                    .WithShineFlare(0.5f);
+                EnhancedParticlePool.SpawnParticle(star);
             }
         }
 
@@ -168,13 +182,13 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Spawn a constellation pattern of stars with connecting lines
+        /// Spawn a constellation pattern of stars with connecting lines and enhanced bloom
         /// </summary>
         public static void SpawnConstellationBurst(Vector2 center, int starCount, float radius, float scale = 1f)
         {
             List<Vector2> starPositions = new List<Vector2>();
 
-            // Place stars in a pattern
+            // Place stars in a pattern with enhanced bloom
             for (int i = 0; i < starCount; i++)
             {
                 float angle = MathHelper.TwoPi * i / starCount + Main.rand.NextFloat(-0.3f, 0.3f);
@@ -182,13 +196,14 @@ namespace MagnumOpus.Content.Fate
                 Vector2 starPos = center + angle.ToRotationVector2() * dist;
                 starPositions.Add(starPos);
 
-                // Main star flare
-                var star = new GenericGlowParticle(starPos, Vector2.Zero, FateWhite, 0.4f * scale, 30, true);
-                MagnumParticleHandler.SpawnParticle(star);
+                // Enhanced main star flare with multi-layer bloom
+                EnhancedParticles.BloomFlare(starPos, FateWhite, 0.4f * scale, 30, 3, 0.9f);
                 
-                // Glyph at star position
-                var glyph = new GenericGlowParticle(starPos, Vector2.Zero, FateDarkPink * 0.8f, 0.25f * scale, 25, true);
-                MagnumParticleHandler.SpawnParticle(glyph);
+                // Glyph at star position with bloom
+                var glyph = EnhancedParticlePool.GetParticle()
+                    .Setup(CustomParticleSystem.RandomGlow(), starPos, Vector2.Zero, FateDarkPink * 0.8f, 0.25f * scale, 25)
+                    .WithBloom(2, 0.6f);
+                EnhancedParticlePool.SpawnParticle(glyph);
             }
 
             // Draw connecting line particles between stars
@@ -429,22 +444,27 @@ namespace MagnumOpus.Content.Fate
         // ========== COSMIC EXPLOSION EFFECTS ==========
 
         /// <summary>
-        /// Spawn a massive cosmic explosion with all the celestial elements
+        /// Spawn a massive cosmic explosion with all the celestial elements and ENHANCED MULTI-LAYER BLOOM
         /// </summary>
         public static void SpawnCosmicExplosion(Vector2 position, float scale = 1f)
         {
-            // Core flash
-            var coreFlash = new GenericGlowParticle(position, Vector2.Zero, FateWhite, 0.8f * scale, 15, true);
-            MagnumParticleHandler.SpawnParticle(coreFlash);
+            // === ENHANCED CORE FLASH WITH MULTI-LAYER BLOOM ===
+            EnhancedParticles.BloomFlare(position, FateWhite, 1.0f * scale, 20, 4, 1.5f);
+            EnhancedParticles.BloomFlare(position, FateDarkPink, 0.8f * scale, 18, 3, 1.2f);
+            EnhancedParticles.BloomFlare(position, FatePurple, 0.6f * scale, 16, 2, 1.0f);
             
-            // Cosmic cloud burst
+            // Enhanced cosmic cloud burst with bloom
             SpawnCosmicCloudBurst(position, scale, 20);
             
-            // Glyph burst
+            // Enhanced glyph burst
             SpawnGlyphBurst(position, 8, 6f * scale, 0.4f);
             
-            // Star sparkles
-            SpawnStarSparkles(position, 15, 50f * scale, 0.35f);
+            // Enhanced star sparkles with bloom
+            for (int i = 0; i < 15; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(50f * scale, 50f * scale);
+                EnhancedParticles.ShineFlare(position + offset, FateWhite, 0.3f * scale, 25);
+            }
             
             // Music notes
             SpawnMusicNoteExplosion(position, 8, 5f * scale);
@@ -452,7 +472,7 @@ namespace MagnumOpus.Content.Fate
             // Constellation burst
             SpawnConstellationBurst(position, 6, 60f * scale, scale);
             
-            // Halo rings
+            // Enhanced halo rings with gradient
             for (int ring = 0; ring < 4; ring++)
             {
                 float ringProgress = ring / 4f;

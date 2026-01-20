@@ -19,8 +19,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
     /// </summary>
     public class HeroicSpiritMinion : ModProjectile
     {
-        // Use a vanilla texture as base for afterimages
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.DD2SquireSonicBoom;
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
         
         private const int LifeDuration = 300; // 5 seconds
         private int targetNPC = -1;
@@ -384,7 +383,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
     /// </summary>
     public class HeroicSpiritSlash : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.DD2SquireSonicBoom;
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
         
         public override void SetStaticDefaults()
         {

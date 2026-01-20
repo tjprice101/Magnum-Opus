@@ -8,6 +8,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Fate.Debuffs;
 using MagnumOpus.Content.Fate.Projectiles;
@@ -49,6 +50,44 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             {
                 OverrideColor = FateCosmicVFX.FateBrightRed
             });
+        }
+        
+        public override void HoldItem(Player player)
+        {
+            // === COSMIC DEITY STAFF HOLD EFFECT ===
+            // Divine constellation pattern
+            if (Main.rand.NextBool(7))
+            {
+                // 6-point star formation
+                float baseAngle = Main.GameUpdateCount * 0.02f;
+                int point = Main.rand.Next(6);
+                float starAngle = baseAngle + MathHelper.TwoPi * point / 6f;
+                Vector2 starPos = player.Center + starAngle.ToRotationVector2() * 45f;
+                var star = new GenericGlowParticle(starPos, Vector2.Zero, FateCosmicVFX.FateStarGold, 0.25f, 20, true);
+                MagnumParticleHandler.SpawnParticle(star);
+            }
+            
+            // Orbiting deity essence glyphs
+            if (Main.rand.NextBool(10))
+            {
+                float glyphAngle = Main.GameUpdateCount * 0.035f;
+                for (int i = 0; i < 2; i++)
+                {
+                    Vector2 glyphPos = player.Center + (glyphAngle + MathHelper.Pi * i).ToRotationVector2() * 50f;
+                    CustomParticles.Glyph(glyphPos, FateCosmicVFX.FateDarkPink, 0.38f, -1);
+                }
+            }
+            
+            // Cosmic cloud aura
+            if (Main.rand.NextBool(15))
+            {
+                FateCosmicVFX.SpawnCosmicCloudTrail(player.Center + Main.rand.NextVector2Circular(30f, 30f),
+                    Main.rand.NextVector2Circular(0.5f, 0.5f), 0.3f);
+            }
+            
+            // Divine radiance light
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.2f + 0.8f;
+            Lighting.AddLight(player.Center, FateCosmicVFX.FateWhite.ToVector3() * pulse * 0.35f);
         }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)

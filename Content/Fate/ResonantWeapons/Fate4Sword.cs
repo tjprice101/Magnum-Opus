@@ -8,6 +8,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Fate.Debuffs;
 using MagnumOpus.Content.Fate.Projectiles;
@@ -48,6 +49,45 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             {
                 OverrideColor = FateCosmicVFX.FateBrightRed
             });
+        }
+        
+        public override void HoldItem(Player player)
+        {
+            // === SPECTRAL BLADE MASTER HOLD EFFECT ===
+            // Triple glyph orbit (matching the 3 spectral blades)
+            if (Main.rand.NextBool(7))
+            {
+                float angle = Main.GameUpdateCount * 0.045f;
+                for (int i = 0; i < 3; i++)
+                {
+                    float glyphAngle = angle + MathHelper.TwoPi * i / 3f;
+                    Vector2 glyphPos = player.Center + glyphAngle.ToRotationVector2() * 50f;
+                    Color glyphColor = Color.Lerp(FateCosmicVFX.FateDarkPink, FateCosmicVFX.FateBrightRed, (float)i / 3f);
+                    CustomParticles.Glyph(glyphPos, glyphColor, 0.38f, -1);
+                }
+            }
+            
+            // Spectral blade echo particles
+            if (Main.rand.NextBool(10))
+            {
+                float echoAngle = Main.rand.NextFloat(MathHelper.TwoPi);
+                Vector2 echoPos = player.Center + echoAngle.ToRotationVector2() * Main.rand.NextFloat(25f, 45f);
+                var echo = new GenericGlowParticle(echoPos, echoAngle.ToRotationVector2() * 0.5f, 
+                    FateCosmicVFX.FateWhite * 0.8f, 0.25f, 20, true);
+                MagnumParticleHandler.SpawnParticle(echo);
+            }
+            
+            // Star particles
+            if (Main.rand.NextBool(8))
+            {
+                var star = new GenericGlowParticle(player.Center + Main.rand.NextVector2Circular(40f, 40f),
+                    Main.rand.NextVector2Circular(0.5f, 0.5f), FateCosmicVFX.FateStarGold, 0.2f, 16, true);
+                MagnumParticleHandler.SpawnParticle(star);
+            }
+            
+            // Cosmic pulse light
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.15f + 0.85f;
+            Lighting.AddLight(player.Center, FateCosmicVFX.FateBrightRed.ToVector3() * pulse * 0.45f);
         }
         
         public override void MeleeEffects(Player player, Rectangle hitbox)
