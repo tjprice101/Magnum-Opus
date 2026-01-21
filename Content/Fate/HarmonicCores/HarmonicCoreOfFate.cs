@@ -105,38 +105,10 @@ namespace MagnumOpus.Content.Fate.HarmonicCores
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<ResonantCoreOfFate>(25)
+                .AddIngredient(ModContent.ItemType<ResonanceEnergies.ResonantCoreOfFate>(), 25)
                 .AddIngredient<FateResonantEnergy>(25)
                 .AddTile(ModContent.TileType<Content.MoonlightSonata.CraftingStations.MoonlightAnvilTile>())
                 .Register();
-        }
-    }
-    
-    public class ResonantCoreOfFate : ModItem
-    {
-        public override void SetStaticDefaults()
-        {
-            Item.ResearchUnlockCount = 1;
-        }
-
-        public override void SetDefaults()
-        {
-            Item.width = 24;
-            Item.height = 24;
-            Item.maxStack = 99;
-            Item.value = Item.sellPrice(gold: 20);
-            Item.rare = ItemRarityID.Red;
-        }
-
-        public override void PostUpdate()
-        {
-            Lighting.AddLight(Item.Center, 0.6f, 0.2f, 0.4f);
-            
-            if (Main.rand.NextBool(20))
-            {
-                Dust dust = Dust.NewDustDirect(Item.position, Item.width, Item.height, DustID.Enchanted_Pink, 0f, -0.3f, 100, default, 0.9f);
-                dust.noGravity = true;
-            }
         }
     }
 }

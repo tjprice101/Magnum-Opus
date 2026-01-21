@@ -3,6 +3,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 
 namespace MagnumOpus.Content.Items
 {
@@ -52,7 +53,7 @@ namespace MagnumOpus.Content.Items
             // Free recipe for testing/existing worlds
             CreateRecipe()
                 .AddIngredient(ItemID.LunarBar, 1)
-                .AddTile(TileID.LunarCraftingStation)
+                .AddTile(ModContent.TileType<MoonlightAnvilTile>())
                 .Register();
         }
     }

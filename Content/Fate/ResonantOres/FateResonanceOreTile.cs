@@ -89,7 +89,8 @@ namespace MagnumOpus.Content.Fate.ResonantOres
 
         public override IEnumerable<Item> GetItemDrops(int i, int j)
         {
-            yield return new Item(ModContent.ItemType<FateResonanceOre>());
+            // Drop exactly 1 Remnant of the Galaxy's Harmony per ore block
+            yield return new Item(ModContent.ItemType<ResonanceEnergies.RemnantOfTheGalaxysHarmony>(), 1);
         }
 
         public override bool PreDraw(int i, int j, SpriteBatch spriteBatch)

@@ -8,12 +8,14 @@ using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
+using Terraria.Graphics.Effects;
 using MagnumOpus.Content.LaCampanella.ResonanceEnergies;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons;
 using MagnumOpus.Content.LaCampanella.HarmonicCores;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using static MagnumOpus.Common.Systems.BossDialogueSystem;
 
 namespace MagnumOpus.Content.LaCampanella.Bosses
 {
@@ -242,6 +244,8 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             UpdateAnimation();
             SpawnAmbientParticles();
             
+            // Dialogue triggers at HP thresholds only
+            
             float lightIntensity = isEnraged ? 1.5f : 1.0f;
             Lighting.AddLight(NPC.Center, CampanellaOrange.ToVector3() * lightIntensity);
         }
@@ -342,6 +346,12 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             string message = difficultyTier == 2 ? "PRESTO INFERNALE!" : "VIVACE!";
             Color textColor = difficultyTier == 2 ? CampanellaCrimson : CampanellaOrange;
             CombatText.NewText(NPC.Hitbox, textColor, message, true);
+            
+            // Use dialogue system for phase transitions
+            if (difficultyTier == 1)
+                BossDialogueSystem.LaCampanella.OnPhase2(NPC.whoAmI);
+            else if (difficultyTier == 2)
+                BossDialogueSystem.LaCampanella.OnPhase3(NPC.whoAmI);
         }
         
         private void CheckEnrage(Player target)
@@ -357,7 +367,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     State = BossPhase.Enraged;
                     Timer = 0;
                     
-                    Main.NewText("La Campanella's fury ignites!", CampanellaCrimson);
+                    BossDialogueSystem.LaCampanella.OnEnrage();
                     SoundEngine.PlaySound(SoundID.Roar with { Pitch = -0.3f, Volume = 1.5f }, NPC.Center);
                 }
             }
@@ -416,7 +426,13 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     MagnumParticleHandler.SpawnParticle(smoke);
                 }
                 
-                Main.NewText("La Campanella tolls for thee...", CampanellaOrange);
+                BossDialogueSystem.LaCampanella.OnSpawn(NPC.whoAmI);
+                
+                // Activate the infernal sky effect
+                if (!Main.dedServ && SkyManager.Instance["MagnumOpus:LaCampanellaSky"] != null)
+                {
+                    SkyManager.Instance.Activate("MagnumOpus:LaCampanellaSky");
+                }
                 
                 Timer = 0;
                 State = BossPhase.Grounded;
@@ -721,7 +737,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     }
                 }
                 
-                if (Timer >= 25)
+                if (Timer >= 18)
                 {
                     slamCount--;
                     if (slamCount > 0)
@@ -750,7 +766,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 NPC.velocity.Y = 0;
             }
             
-            if (Timer >= 30)
+            if (Timer >= 21)
             {
                 Timer = 0;
                 State = BossPhase.Grounded;
@@ -845,7 +861,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             }
             else
             {
-                if (Timer >= 30)
+                if (Timer >= 21)
                 {
                     EndAttack();
                 }
@@ -854,8 +870,8 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         
         private void Attack_EmberShower(Player target)
         {
-            int duration = 100 + difficultyTier * 30; // Shorter duration
-            int fireInterval = 20 - difficultyTier * 3; // Slower fire rate = fewer projectiles
+            int duration = 70 + difficultyTier * 21; // Shorter duration
+            int fireInterval = 14 - difficultyTier * 2; // Slower fire rate = fewer projectiles
             
             Vector2 hoverPos = target.Center + new Vector2(0, -350f);
             Vector2 toHover = hoverPos - NPC.Center;
@@ -902,7 +918,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         private void Attack_FireWallSweep(Player target)
         {
             int wallCount = 2 + difficultyTier;
-            int wallDelay = 55 - difficultyTier * 8;
+            int wallDelay = 39 - difficultyTier * 6;
             
             NPC.velocity.X *= 0.92f;
             
@@ -913,7 +929,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     SoundEngine.PlaySound(SoundID.Item73 with { Pitch = -0.1f + SubPhase * 0.1f }, NPC.Center);
                 }
                 
-                if (Timer >= 10 && Timer < 30)
+                if (Timer >= 7 && Timer < 21)
                 {
                     int side = (SubPhase % 2 == 0) ? -1 : 1;
                     Vector2 wallStart = target.Center + new Vector2(side * 650f, -350f);
@@ -921,12 +937,12 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     for (int i = 0; i < 20; i++)
                     {
                         Vector2 warningPos = wallStart + new Vector2(0, i * 40f);
-                        Color warningColor = CampanellaOrange * (0.3f + (Timer - 10) / 20f * 0.3f);
+                        Color warningColor = CampanellaOrange * (0.3f + (Timer - 7) / 14f * 0.3f);
                         CustomParticles.GenericFlare(warningPos, warningColor, 0.2f, 3);
                     }
                 }
                 
-                if (Timer == 30 && Main.netMode != NetmodeID.MultiplayerClient)
+                if (Timer == 21 && Main.netMode != NetmodeID.MultiplayerClient)
                 {
                     int side = (SubPhase % 2 == 0) ? -1 : 1;
                     Vector2 wallStart = target.Center + new Vector2(side * 650f, -350f);
@@ -956,7 +972,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             }
             else
             {
-                if (Timer >= 30)
+                if (Timer >= 21)
                 {
                     EndAttack();
                 }
@@ -966,7 +982,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         private void Attack_ChimeRings(Player target)
         {
             int ringCount = 5 + difficultyTier * 2;
-            int ringDelay = 20 - difficultyTier * 3;
+            int ringDelay = 14 - difficultyTier * 2;
             
             NPC.velocity.X *= 0.9f;
             
@@ -1007,7 +1023,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             }
             else
             {
-                if (Timer >= 25)
+                if (Timer >= 18)
                 {
                     EndAttack();
                 }
@@ -1016,13 +1032,13 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         
         private void Attack_InfernoCircle(Player target)
         {
-            int duration = 100 + difficultyTier * 30;
+            int duration = 70 + difficultyTier * 21;
             int arms = 4 + difficultyTier;
             float spinSpeed = 0.025f + difficultyTier * 0.008f;
             
             NPC.velocity.X *= 0.9f;
             
-            if (Timer < 30)
+            if (Timer < 21)
             {
                 if (Timer % 4 == 0)
                 {
@@ -1065,8 +1081,8 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         
         private void Attack_InfernalTorrent(Player target)
         {
-            int chargeTime = 50 - difficultyTier * 8;
-            int barrageTime = 80 + difficultyTier * 20;
+            int chargeTime = 35 - difficultyTier * 6;
+            int barrageTime = 56 + difficultyTier * 14;
             
             NPC.velocity *= 0.92f;
             
@@ -1164,7 +1180,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 
                 MagnumScreenEffects.AddScreenShake(Timer * 0.15f);
                 
-                if (Timer >= 70)
+                if (Timer >= 49)
                 {
                     Timer = 0;
                     SubPhase = 1;
@@ -1292,7 +1308,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     }
                 }
                 
-                if (Timer >= 60)
+                if (Timer >= 42)
                 {
                     consecutiveAttacks = 0;
                     EndAttack();
@@ -1308,7 +1324,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         private void Attack_RhythmicToll(Player target)
         {
             // 4 phases of symmetric patterns, each with increasing complexity
-            int phaseDuration = 50 - difficultyTier * 5;
+            int phaseDuration = 35 - difficultyTier * 4;
             int totalPhases = 4 + difficultyTier;
             
             NPC.velocity *= 0.92f;
@@ -1398,7 +1414,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             }
             else
             {
-                if (Timer >= 30)
+                if (Timer >= 21)
                 {
                     EndAttack();
                 }
@@ -1425,8 +1441,8 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         /// </summary>
         private void Attack_InfernoCage(Player target)
         {
-            int warningTime = 40 - difficultyTier * 5;
-            int cageCloseTime = 80 + difficultyTier * 20;
+            int warningTime = 28 - difficultyTier * 4;
+            int cageCloseTime = 56 + difficultyTier * 14;
             float maxCageSize = 450f - difficultyTier * 50f;
             float minCageSize = 120f + difficultyTier * 20f;
             
@@ -1569,7 +1585,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             }
             else // Recovery phase
             {
-                if (Timer >= 40)
+                if (Timer >= 28)
                 {
                     EndAttack();
                 }
@@ -1587,7 +1603,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         private void Attack_InfernalJudgment(Player target)
         {
             // DIFFICULTY: Shorter charge, more waves, faster projectiles, tighter safe arc
-            int chargeTime = 54 - difficultyTier * 6; // Shorter (was 72-8)
+            int chargeTime = 38 - difficultyTier * 4; // Shorter (was 72-8)
             int waveCount = 4 + difficultyTier; // More waves (was 3+)
             
             if (SubPhase == 0)
@@ -1682,7 +1698,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 }
                 
                 // DIFFICULTY: Faster waves (36 frames = 1.5 beats instead of 48)
-                if (Timer >= 36)
+                if (Timer >= 25)
                 {
                     Timer = 0;
                     SubPhase++;
@@ -1690,7 +1706,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             }
             else
             {
-                if (Timer >= 36)
+                if (Timer >= 25)
                 {
                     EndAttack();
                 }
@@ -1705,7 +1721,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         {
             // DIFFICULTY: More lasers, faster sweep
             int laserCount = 5 + difficultyTier; // More lasers (was 4+)
-            int sweepDuration = 72 - difficultyTier * 10; // Faster (was 96-12)
+            int sweepDuration = 50 - difficultyTier * 7; // Faster (was 96-12)
             
             if (SubPhase == 0)
             {
@@ -1723,9 +1739,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 }
                 
                 // OPTIMIZED: Use LaserBeamWarning for clear telegraph
-                if (Timer % 4 == 0 && Timer < 36) // Shorter telegraph (was 48)
+                if (Timer % 4 == 0 && Timer < 25) // Shorter telegraph (was 48)
                 {
-                    float progress = Timer / 36f;
+                    float progress = Timer / 25f;
                     for (int i = 0; i < laserCount; i++)
                     {
                         float angle = MathHelper.TwoPi * i / laserCount + Timer * 0.02f;
@@ -1736,10 +1752,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 // OPTIMIZED: Charge-up VFX - reduced frequency
                 if (Timer % 8 == 0)
                 {
-                    BossVFXOptimizer.ConvergingWarning(NPC.Center, 80f, Timer / 36f, CampanellaOrange, 4);
+                    BossVFXOptimizer.ConvergingWarning(NPC.Center, 80f, Timer / 25f, CampanellaOrange, 4);
                 }
                 
-                if (Timer >= 36) // Shorter telegraph (was 48)
+                if (Timer >= 25) // Shorter telegraph (was 48)
                 {
                     Timer = 0;
                     SubPhase = 1;
@@ -1948,7 +1964,13 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         {
             if (State == BossPhase.Spawning) return;
             
-            if (Main.rand.NextBool(4 - difficultyTier))
+            // Performance gate - skip under critical load
+            if (BossVFXOptimizer.IsCriticalLoad) return;
+            bool isHighLoad = BossVFXOptimizer.IsHighLoad;
+            
+            // Flame particles - reduce under load
+            int flameChance = isHighLoad ? (6 - difficultyTier) : (4 - difficultyTier);
+            if (Main.rand.NextBool(flameChance))
             {
                 Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(NPC.width * 0.4f, NPC.height * 0.4f);
                 Vector2 vel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-3f, -1f));
@@ -1956,7 +1978,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 CustomParticles.GenericFlare(pos, color, 0.3f, Main.rand.Next(15, 25));
             }
             
-            if (Main.rand.NextBool(10 - difficultyTier * 2))
+            // Smoke particles - reduce under load
+            int smokeChance = isHighLoad ? (14 - difficultyTier * 2) : (10 - difficultyTier * 2);
+            if (Main.rand.NextBool(smokeChance))
             {
                 Vector2 pos = NPC.Bottom + Main.rand.NextVector2Circular(50f, 10f);
                 Vector2 vel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-1f, 0.5f));
@@ -1964,7 +1988,8 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 MagnumParticleHandler.SpawnParticle(smoke);
             }
             
-            if (isEnraged && Timer % 2 == 0)
+            // Enrage particles - reduce under load
+            if (isEnraged && Timer % (isHighLoad ? 4 : 2) == 0)
             {
                 Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(70f, 70f);
                 CustomParticles.GenericFlare(pos, CampanellaCrimson, 0.4f, 8);
@@ -2018,6 +2043,21 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     var smoke = new HeavySmokeParticle(NPC.Center + Main.rand.NextVector2Circular(100f, 100f), vel, CampanellaBlack, Main.rand.Next(50, 80), 0.7f, 1.4f, 0.012f, false);
                     MagnumParticleHandler.SpawnParticle(smoke);
                 }
+                
+                // Death dialogue
+                BossDialogueSystem.LaCampanella.OnDeath();
+                BossDialogueSystem.CleanupDialogue(NPC.whoAmI);
+                
+                // Deactivate the infernal sky effect
+                if (!Main.dedServ && SkyManager.Instance["MagnumOpus:LaCampanellaSky"] != null)
+                {
+                    SkyManager.Instance.Deactivate("MagnumOpus:LaCampanellaSky");
+                }
+                
+                // Set boss downed flag for miniboss essence drops
+                MoonlightSonataSystem.DownedLaCampanella = true;
+                if (Main.netMode == NetmodeID.Server)
+                    NetMessage.SendData(MessageID.WorldData);
                 
                 NPC.life = 0;
                 NPC.HitEffect();

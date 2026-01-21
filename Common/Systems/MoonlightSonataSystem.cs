@@ -22,6 +22,13 @@ namespace MagnumOpus.Common.Systems
         // Moon Lord kill tracking
         public static bool MoonLordKilledOnce { get; set; } = false;
         
+        // Main boss kill tracking - These gate miniboss essence drops
+        public static bool DownedEroica { get; set; } = false;
+        public static bool DownedSwanLake { get; set; } = false;
+        public static bool DownedEnigma { get; set; } = false;
+        public static bool DownedLaCampanella { get; set; } = false;
+        public static bool DownedMoonlitMaestro { get; set; } = false;
+        
         // Future boss kill tracking
         public static bool FateBossKilledOnce { get; set; } = false;
         public static bool ClairDeLuneBossKilledOnce { get; set; } = false;
@@ -32,6 +39,11 @@ namespace MagnumOpus.Common.Systems
         public override void ClearWorld()
         {
             MoonLordKilledOnce = false;
+            DownedEroica = false;
+            DownedSwanLake = false;
+            DownedEnigma = false;
+            DownedLaCampanella = false;
+            DownedMoonlitMaestro = false;
             FateBossKilledOnce = false;
             ClairDeLuneBossKilledOnce = false;
             PianoRoomCenter = Vector2.Zero;
@@ -42,6 +54,16 @@ namespace MagnumOpus.Common.Systems
         {
             if (MoonLordKilledOnce)
                 tag["MoonLordKilledOnce"] = true;
+            if (DownedEroica)
+                tag["DownedEroica"] = true;
+            if (DownedSwanLake)
+                tag["DownedSwanLake"] = true;
+            if (DownedEnigma)
+                tag["DownedEnigma"] = true;
+            if (DownedLaCampanella)
+                tag["DownedLaCampanella"] = true;
+            if (DownedMoonlitMaestro)
+                tag["DownedMoonlitMaestro"] = true;
             if (FateBossKilledOnce)
                 tag["FateBossKilledOnce"] = true;
             if (ClairDeLuneBossKilledOnce)
@@ -67,6 +89,11 @@ namespace MagnumOpus.Common.Systems
         public override void LoadWorldData(TagCompound tag)
         {
             MoonLordKilledOnce = tag.ContainsKey("MoonLordKilledOnce");
+            DownedEroica = tag.ContainsKey("DownedEroica");
+            DownedSwanLake = tag.ContainsKey("DownedSwanLake");
+            DownedEnigma = tag.ContainsKey("DownedEnigma");
+            DownedLaCampanella = tag.ContainsKey("DownedLaCampanella");
+            DownedMoonlitMaestro = tag.ContainsKey("DownedMoonlitMaestro");
             FateBossKilledOnce = tag.ContainsKey("FateBossKilledOnce");
             ClairDeLuneBossKilledOnce = tag.ContainsKey("ClairDeLuneBossKilledOnce");
             
@@ -93,6 +120,11 @@ namespace MagnumOpus.Common.Systems
             flags[0] = MoonLordKilledOnce;
             flags[1] = FateBossKilledOnce;
             flags[2] = ClairDeLuneBossKilledOnce;
+            flags[3] = DownedEroica;
+            flags[4] = DownedSwanLake;
+            flags[5] = DownedEnigma;
+            flags[6] = DownedLaCampanella;
+            flags[7] = DownedMoonlitMaestro;
             writer.Write(flags);
             writer.Write(PianoRoomCenter.X);
             writer.Write(PianoRoomCenter.Y);
@@ -110,6 +142,11 @@ namespace MagnumOpus.Common.Systems
             MoonLordKilledOnce = flags[0];
             FateBossKilledOnce = flags[1];
             ClairDeLuneBossKilledOnce = flags[2];
+            DownedEroica = flags[3];
+            DownedSwanLake = flags[4];
+            DownedEnigma = flags[5];
+            DownedLaCampanella = flags[6];
+            DownedMoonlitMaestro = flags[7];
             PianoRoomCenter = new Vector2(reader.ReadSingle(), reader.ReadSingle());
             ProtectedPedestalTiles.Clear();
             int count = reader.ReadInt32();

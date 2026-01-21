@@ -8,6 +8,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Fate.Debuffs;
 
@@ -17,16 +18,18 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
     /// <summary>
     /// Rapid cosmic bullet - every 5th hit spawns spectral blade
+    /// Enhanced with spectacular celestial visual effects
     /// </summary>
     public class FateRapidBullet : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
 
         public static int HitCounter = 0; // Shared between all bullets from same player
+        private float pulsePhase = 0f;
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 6;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 8;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -46,22 +49,53 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override void AI()
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
+            pulsePhase += 0.15f;
 
-            // Simple cosmic trail
+            // === ENHANCED COSMIC TRAIL ===
+            // Heavy cosmic cloud trail
+            if (Main.rand.NextBool(2))
+            {
+                FateCosmicVFX.SpawnCosmicCloudTrail(Projectile.Center, Projectile.velocity, 0.4f);
+            }
+            
+            // Gradient spark trail
             if (Main.rand.NextBool(2))
             {
                 Color trailColor = FateCosmicVFX.GetCosmicGradient(Main.rand.NextFloat());
-                var spark = new GlowSparkParticle(Projectile.Center, -Projectile.velocity * 0.05f, trailColor, 0.1f, 8);
+                var spark = new GlowSparkParticle(Projectile.Center, -Projectile.velocity * 0.08f + Main.rand.NextVector2Circular(1f, 1f), 
+                    trailColor, 0.15f, 10);
                 MagnumParticleHandler.SpawnParticle(spark);
             }
+            
+            // Star sparkles
+            if (Main.rand.NextBool(5))
+            {
+                FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 1, 10f, 0.15f);
+            }
+            
+            // Occasional glyph in trail
+            if (Main.rand.NextBool(12))
+            {
+                CustomParticles.Glyph(Projectile.Center, FateCosmicVFX.FatePurple, 0.15f, -1);
+            }
+            
+            // Music notes for musical theme
+            if (Main.rand.NextBool(15))
+            {
+                FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 1, 8f, 0.15f);
+            }
 
-            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateDarkPink.ToVector3() * 0.3f);
+            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateDarkPink.ToVector3() * 0.4f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             HitCounter++;
 
+            // === ENHANCED IMPACT VFX ===
+            FateCosmicVFX.SpawnCosmicExplosion(target.Center, 0.4f);
+            FateCosmicVFX.SpawnGlyphBurst(target.Center, 4, 4f, 0.2f);
+            
             // Every 5th hit spawns spectral blade
             if (HitCounter >= 5)
             {
@@ -79,13 +113,20 @@ namespace MagnumOpus.Content.Fate.Projectiles
                     target.whoAmI
                 );
 
-                // VFX
-                FateCosmicVFX.SpawnStarSparkles(target.Center, 10, 40f, 0.3f);
+                // Major VFX for blade spawn
+                FateCosmicVFX.SpawnCosmicExplosion(target.Center, 0.8f);
+                FateCosmicVFX.SpawnStarSparkles(target.Center, 12, 45f, 0.35f);
+                FateCosmicVFX.SpawnGlyphBurst(target.Center, 8, 6f, 0.4f);
+                FateCosmicVFX.SpawnCosmicMusicNotes(target.Center, 4, 30f, 0.3f);
                 SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.3f }, target.Center);
             }
-
-            // Small impact
-            FateCosmicVFX.SpawnGlyphBurst(target.Center, 4, 3f, 0.2f);
+        }
+        
+        public override void OnKill(int timeLeft)
+        {
+            // Death burst
+            FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 3, 3f, 0.15f);
+            FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 4, 15f, 0.2f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -93,14 +134,29 @@ namespace MagnumOpus.Content.Fate.Projectiles
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
             Vector2 origin = tex.Size() / 2f;
+            
+            float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.15f;
+
+            // Draw trail
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                float progress = (float)i / Projectile.oldPos.Length;
+                Color trailColor = FateCosmicVFX.GetCosmicGradient(progress) * (1f - progress) * 0.6f;
+                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, (0.2f - progress * 0.1f) * pulse, SpriteEffects.None, 0f);
+            }
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * 0.8f, Projectile.rotation, origin, 0.25f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateWhite * 0.6f, Projectile.rotation, origin, 0.12f, SpriteEffects.None, 0f);
+            
+            // Multi-layer bloom
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FatePurple * 0.3f, Projectile.rotation, origin, 0.4f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * 0.7f, Projectile.rotation, origin, 0.28f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateWhite * 0.8f, Projectile.rotation, origin, 0.15f * pulse, SpriteEffects.None, 0f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
@@ -112,15 +168,23 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
     /// <summary>
     /// Spectral blade that locks onto an enemy and slashes repeatedly for 3 seconds
+    /// Uses Coda of Annihilation texture with celestial bloom effects
     /// </summary>
     public class SpectralSlashingBlade : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Item_" + ItemID.Terragrim; // Uses Fate5Sword sprite style
+        public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/CodaOfAnnihilation";
 
         public ref float TargetNPC => ref Projectile.ai[0];
 
         private int slashCooldown = 0;
         private float orbitAngle = 0f;
+        private float pulsePhase = 0f;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 6;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -139,6 +203,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override void AI()
         {
             NPC target = Main.npc[(int)TargetNPC];
+            pulsePhase += 0.1f;
 
             if (!target.active || target.dontTakeDamage)
             {
@@ -174,18 +239,36 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 PerformSlash(target);
             }
 
-            // Bright flare and magical effects
+            // === ENHANCED CELESTIAL TRAIL ===
+            // Cosmic cloud trail
             if (Main.rand.NextBool(3))
             {
-                Color flareColor = Main.rand.NextBool() ? FateCosmicVFX.FateWhite : FateCosmicVFX.FateDarkPink;
-                var flare = new GenericGlowParticle(Projectile.Center, Main.rand.NextVector2Circular(2f, 2f), flareColor * 0.7f, 0.2f, 12, true);
-                MagnumParticleHandler.SpawnParticle(flare);
+                FateCosmicVFX.SpawnCosmicCloudTrail(Projectile.Center, Projectile.velocity, 0.35f);
             }
-
+            
+            // Star sparkle aura
+            if (Main.rand.NextBool(4))
+            {
+                FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 1, 15f, 0.2f);
+            }
+            
+            // Glyph particles
+            if (Main.rand.NextBool(8))
+            {
+                CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f), 
+                    FateCosmicVFX.FatePurple, 0.2f, -1);
+            }
+            
+            // Music notes for musical theme
+            if (Main.rand.NextBool(10))
+            {
+                FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 1, 12f, 0.18f);
+            }
+            
             // Cosmic energy emanation
-            FateCosmicVFX.SpawnSpectralAura(Projectile.Center, 0.6f);
+            FateCosmicVFX.SpawnSpectralAura(Projectile.Center, 0.5f);
 
-            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateWhite.ToVector3() * 0.6f);
+            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateWhite.ToVector3() * 0.7f);
         }
 
         private void PerformSlash(NPC target)
@@ -194,22 +277,29 @@ namespace MagnumOpus.Content.Fate.Projectiles
             target.SimpleStrikeNPC(Projectile.damage, Projectile.direction, false, 0f);
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 60);
 
-            // Slash VFX
+            // === ENHANCED SLASH VFX ===
             Vector2 slashDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
-            for (int i = 0; i < 6; i++)
+            
+            // Cosmic spark burst
+            for (int i = 0; i < 10; i++)
             {
-                float angle = slashDir.ToRotation() + MathHelper.Lerp(-0.5f, 0.5f, (float)i / 5f);
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
-                Color sparkColor = FateCosmicVFX.GetCosmicGradient((float)i / 5f);
-                var spark = new GlowSparkParticle(target.Center, sparkVel, sparkColor, 0.2f, 12);
+                float angle = slashDir.ToRotation() + MathHelper.Lerp(-0.6f, 0.6f, (float)i / 9f);
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 10f);
+                Color sparkColor = FateCosmicVFX.GetCosmicGradient((float)i / 9f);
+                var spark = new GlowSparkParticle(target.Center, sparkVel, sparkColor, 0.25f, 15);
                 MagnumParticleHandler.SpawnParticle(spark);
             }
 
-            // Bright flash
-            var flash = new GenericGlowParticle(target.Center, Vector2.Zero, FateCosmicVFX.FateWhite, 0.4f, 8, true);
-            MagnumParticleHandler.SpawnParticle(flash);
+            // Glyph burst on slash
+            FateCosmicVFX.SpawnGlyphBurst(target.Center, 4, 4f, 0.25f);
+            
+            // Star sparkles
+            FateCosmicVFX.SpawnStarSparkles(target.Center, 6, 25f, 0.25f);
+            
+            // Cosmic flash
+            FateCosmicVFX.SpawnCosmicExplosion(target.Center, 0.35f);
 
-            SoundEngine.PlaySound(SoundID.Item1 with { Pitch = 0.5f, Volume = 0.5f }, target.Center);
+            SoundEngine.PlaySound(SoundID.Item1 with { Pitch = 0.5f, Volume = 0.6f }, target.Center);
         }
 
         private NPC FindNearestEnemy(float range)
@@ -236,27 +326,51 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         public override bool? CanDamage() => false; // Damage handled manually
 
+        public override void OnKill(int timeLeft)
+        {
+            // Death explosion
+            FateCosmicVFX.SpawnCosmicExplosion(Projectile.Center, 0.6f);
+            FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 10, 35f, 0.3f);
+            FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 6, 5f, 0.3f);
+        }
+
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            
+            float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.1f;
 
-            // Glow effect
+            // Draw trail
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                float progress = (float)i / Projectile.oldPos.Length;
+                Color trailColor = FateCosmicVFX.GetCosmicGradient(progress) * (1f - progress) * 0.4f;
+                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, (1f - progress * 0.3f) * pulse, SpriteEffects.None, 0f);
+            }
+
+            // Multi-layer celestial bloom
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * 0.5f, Projectile.rotation, origin, 1.4f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateBrightRed * 0.4f, Projectile.rotation, origin, 1.6f, SpriteEffects.None, 0f);
+            // Outer purple nebula glow
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FatePurple * 0.25f, Projectile.rotation, origin, 1.8f * pulse, SpriteEffects.None, 0f);
+            // Bright red energy layer
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateBrightRed * 0.35f, Projectile.rotation, origin, 1.5f * pulse, SpriteEffects.None, 0f);
+            // Dark pink field
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * 0.5f, Projectile.rotation, origin, 1.25f * pulse, SpriteEffects.None, 0f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // White tinted sword
-            spriteBatch.Draw(tex, drawPos, null, Color.White, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
+            // Core sword - white tinted
+            spriteBatch.Draw(tex, drawPos, null, Color.White, Projectile.rotation, origin, 1f * pulse, SpriteEffects.None, 0f);
 
             return false;
         }
@@ -268,6 +382,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
     /// <summary>
     /// Special round that starts slow and accelerates while piercing
+    /// Enhanced with spectacular celestial cosmic effects
     /// </summary>
     public class AcceleratingCosmicRound : ModProjectile
     {
@@ -276,6 +391,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         private float currentSpeed = 4f;
         private const float MaxSpeed = 25f;
         private const float Acceleration = 0.8f;
+        private float pulsePhase = 0f;
 
         public override void SetStaticDefaults()
         {
@@ -300,6 +416,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override void AI()
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
+            pulsePhase += 0.12f + (currentSpeed / MaxSpeed) * 0.08f;
 
             // Accelerate toward nearest enemy
             NPC target = FindNearestEnemy(500f);
@@ -317,17 +434,47 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 Projectile.velocity = Projectile.velocity.SafeNormalize(Vector2.UnitX) * currentSpeed;
             }
 
+            float speedRatio = currentSpeed / MaxSpeed;
+
+            // === ENHANCED COSMIC TRAIL - scales with speed ===
+            // Cosmic cloud trail - more intense at higher speeds
+            if (Main.rand.NextBool(2))
+            {
+                FateCosmicVFX.SpawnCosmicCloudTrail(Projectile.Center, Projectile.velocity, 0.5f + speedRatio * 0.5f);
+            }
+            
+            // Star sparkles - more frequent at higher speeds
+            if (Main.rand.NextFloat() < 0.2f + speedRatio * 0.3f)
+            {
+                FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 1, 15f + speedRatio * 10f, 0.2f + speedRatio * 0.15f);
+            }
+            
+            // Glyphs at higher speeds
+            if (speedRatio > 0.3f && Main.rand.NextBool(6))
+            {
+                CustomParticles.Glyph(Projectile.Center, FateCosmicVFX.FatePurple, 0.2f + speedRatio * 0.15f, -1);
+            }
+            
+            // Cosmic electricity at high speeds
+            if (speedRatio > 0.5f && Main.rand.NextBool(5))
+            {
+                FateCosmicVFX.SpawnCosmicElectricity(Projectile.Center, 1, 25f, 0.2f);
+            }
+
             // Explosions in trail as it speeds up
             if (currentSpeed > 10f && Main.rand.NextBool(4))
             {
-                FateCosmicVFX.SpawnCosmicCloudBurst(Projectile.Center, 0.3f, 6);
-                SoundEngine.PlaySound(SoundID.Item10 with { Volume = 0.3f, Pitch = 0.5f }, Projectile.Center);
+                FateCosmicVFX.SpawnCosmicCloudBurst(Projectile.Center, 0.35f, 8);
+                SoundEngine.PlaySound(SoundID.Item10 with { Volume = 0.35f, Pitch = 0.5f + speedRatio * 0.3f }, Projectile.Center);
             }
 
-            // Heavy cosmic trail
-            FateCosmicVFX.SpawnCosmicCloudTrail(Projectile.Center, Projectile.velocity, 0.6f + currentSpeed / MaxSpeed * 0.4f);
+            // Music notes for musical theme
+            if (Main.rand.NextBool(10))
+            {
+                FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 1, 12f, 0.2f);
+            }
 
-            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateBrightRed.ToVector3() * (currentSpeed / MaxSpeed));
+            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateBrightRed.ToVector3() * (0.5f + speedRatio * 0.6f));
         }
 
         private NPC FindNearestEnemy(float range)
@@ -356,8 +503,11 @@ namespace MagnumOpus.Content.Fate.Projectiles
         {
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 180);
 
-            // Big explosion on contact
-            FateCosmicVFX.SpawnCosmicExplosion(target.Center, 0.8f);
+            // === ENHANCED IMPACT VFX ===
+            float speedRatio = currentSpeed / MaxSpeed;
+            FateCosmicVFX.SpawnCosmicExplosion(target.Center, 0.6f + speedRatio * 0.5f);
+            FateCosmicVFX.SpawnStarSparkles(target.Center, 8 + (int)(speedRatio * 6), 30f + speedRatio * 20f, 0.3f);
+            FateCosmicVFX.SpawnGlyphBurst(target.Center, 5, 5f, 0.3f);
 
             // Spawn 3 cosmic rockets from around the player
             Player owner = Main.player[Projectile.owner];
@@ -376,9 +526,19 @@ namespace MagnumOpus.Content.Fate.Projectiles
                     Projectile.knockBack,
                     Projectile.owner
                 );
+                
+                // Rocket spawn VFX
+                FateCosmicVFX.SpawnGlyphBurst(rocketSpawn, 3, 3f, 0.2f);
             }
 
             SoundEngine.PlaySound(SoundID.Item14, target.Center);
+        }
+        
+        public override void OnKill(int timeLeft)
+        {
+            // Death burst
+            FateCosmicVFX.SpawnCosmicExplosion(Projectile.Center, 0.5f);
+            FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 6, 25f, 0.25f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -386,25 +546,32 @@ namespace MagnumOpus.Content.Fate.Projectiles
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
             Vector2 origin = tex.Size() / 2f;
+            
+            float speedRatio = currentSpeed / MaxSpeed;
+            float pulse = 1f + (float)Math.Sin(pulsePhase) * (0.1f + speedRatio * 0.1f);
 
-            // Trail
+            // Enhanced trail with gradient
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 float progress = (float)i / Projectile.oldPos.Length;
-                Color trailColor = FateCosmicVFX.GetCosmicGradient(progress) * (1f - progress) * 0.6f;
+                Color trailColor = FateCosmicVFX.GetCosmicGradient(progress) * (1f - progress) * (0.5f + speedRatio * 0.3f);
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, (1f - progress) * 0.6f, SpriteEffects.None, 0f);
+                float trailScale = (1f - progress) * (0.5f + speedRatio * 0.3f) * pulse;
+                spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
             }
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            float speedRatio = currentSpeed / MaxSpeed;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateBrightRed * (0.6f + speedRatio * 0.4f), Projectile.rotation, origin, 0.5f + speedRatio * 0.3f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateWhite * (0.4f + speedRatio * 0.4f), Projectile.rotation, origin, 0.25f + speedRatio * 0.15f, SpriteEffects.None, 0f);
+            
+            // Multi-layer bloom that scales with speed
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FatePurple * (0.2f + speedRatio * 0.2f), Projectile.rotation, origin, (0.7f + speedRatio * 0.4f) * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateBrightRed * (0.5f + speedRatio * 0.4f), Projectile.rotation, origin, (0.5f + speedRatio * 0.3f) * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * (0.6f + speedRatio * 0.3f), Projectile.rotation, origin, (0.35f + speedRatio * 0.2f) * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateWhite * (0.5f + speedRatio * 0.4f), Projectile.rotation, origin, (0.2f + speedRatio * 0.15f) * pulse, SpriteEffects.None, 0f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
@@ -416,14 +583,17 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
     /// <summary>
     /// Cosmic rocket that homes and explodes
+    /// Enhanced with celestial trail effects
     /// </summary>
     public class CosmicRocket : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        
+        private float pulsePhase = 0f;
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 8;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -442,6 +612,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override void AI()
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
+            pulsePhase += 0.15f;
 
             // Light homing
             NPC target = FindNearestEnemy(400f);
@@ -451,15 +622,31 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 Projectile.velocity = Vector2.Lerp(Projectile.velocity, targetDir * 16f, 0.08f);
             }
 
-            // Rocket trail
-            FateCosmicVFX.SpawnCosmicCloudTrail(Projectile.Center, Projectile.velocity, 0.4f);
+            // === ENHANCED ROCKET TRAIL ===
+            // Cosmic cloud trail
+            FateCosmicVFX.SpawnCosmicCloudTrail(Projectile.Center, Projectile.velocity, 0.45f);
             
-            if (Main.rand.NextBool(4))
+            // Star sparkles
+            if (Main.rand.NextBool(3))
             {
-                FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 1, 10f, 0.2f);
+                FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 1, 12f, 0.2f);
+            }
+            
+            // Glyph accents
+            if (Main.rand.NextBool(8))
+            {
+                CustomParticles.Glyph(Projectile.Center, FateCosmicVFX.FatePurple, 0.15f, -1);
+            }
+            
+            // Gradient glow particles
+            if (Main.rand.NextBool(3))
+            {
+                Color glowColor = FateCosmicVFX.GetCosmicGradient(Main.rand.NextFloat());
+                var glow = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f, glowColor * 0.6f, 0.15f, 10, true);
+                MagnumParticleHandler.SpawnParticle(glow);
             }
 
-            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateDarkPink.ToVector3() * 0.5f);
+            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateDarkPink.ToVector3() * 0.6f);
         }
 
         private NPC FindNearestEnemy(float range)
@@ -491,7 +678,10 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            FateCosmicVFX.SpawnCosmicExplosion(Projectile.Center, 0.5f);
+            // Enhanced explosion
+            FateCosmicVFX.SpawnCosmicExplosion(Projectile.Center, 0.6f);
+            FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 8, 25f, 0.25f);
+            FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 4, 4f, 0.2f);
             SoundEngine.PlaySound(SoundID.Item14 with { Volume = 0.6f }, Projectile.Center);
         }
 
@@ -500,14 +690,30 @@ namespace MagnumOpus.Content.Fate.Projectiles
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
             Vector2 origin = tex.Size() / 2f;
+            
+            float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.12f;
+
+            // Draw trail
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                float progress = (float)i / Projectile.oldPos.Length;
+                Color trailColor = FateCosmicVFX.GetCosmicGradient(progress) * (1f - progress) * 0.5f;
+                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, (0.4f - progress * 0.2f) * pulse, SpriteEffects.None, 0f);
+            }
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FatePurple * 0.7f, Projectile.rotation, origin, 0.5f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateWhite * 0.5f, Projectile.rotation, origin, 0.25f, SpriteEffects.None, 0f);
+            
+            // Multi-layer bloom
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FatePurple * 0.4f, Projectile.rotation, origin, 0.6f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateBrightRed * 0.5f, Projectile.rotation, origin, 0.4f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * 0.6f, Projectile.rotation, origin, 0.28f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateWhite * 0.6f, Projectile.rotation, origin, 0.15f * pulse, SpriteEffects.None, 0f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
@@ -526,8 +732,6 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class CosmicDeityMinion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
-
         private int attackCooldown = 0;
         private int beamCooldown = 0;
         private const int SlashCooldown = 12;
@@ -658,20 +862,27 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         private void PerformSlash(NPC target)
         {
-            // Slash VFX
+            // === ENHANCED SLASH VFX ===
             Vector2 slashDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
             
-            for (int i = 0; i < 8; i++)
+            // Cosmic spark arc
+            for (int i = 0; i < 12; i++)
             {
-                float angle = slashDir.ToRotation() + MathHelper.Lerp(-0.8f, 0.8f, (float)i / 7f);
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(6f, 12f);
-                Color sparkColor = FateCosmicVFX.GetCosmicGradient((float)i / 7f);
-                var spark = new GlowSparkParticle(Projectile.Center + slashDir * 30f, sparkVel, sparkColor, 0.25f, 15);
+                float angle = slashDir.ToRotation() + MathHelper.Lerp(-0.9f, 0.9f, (float)i / 11f);
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(7f, 14f);
+                Color sparkColor = FateCosmicVFX.GetCosmicGradient((float)i / 11f);
+                var spark = new GlowSparkParticle(Projectile.Center + slashDir * 30f, sparkVel, sparkColor, 0.3f, 18);
                 MagnumParticleHandler.SpawnParticle(spark);
             }
+            
+            // Glyph accents on slash
+            FateCosmicVFX.SpawnGlyphBurst(Projectile.Center + slashDir * 25f, 3, 4f, 0.25f);
+            
+            // Star sparkles
+            FateCosmicVFX.SpawnStarSparkles(Projectile.Center + slashDir * 30f, 4, 20f, 0.2f);
 
             // Flash
-            var flash = new GenericGlowParticle(Projectile.Center + slashDir * 30f, Vector2.Zero, FateCosmicVFX.FateWhite, 0.5f, 8, true);
+            var flash = new GenericGlowParticle(Projectile.Center + slashDir * 30f, Vector2.Zero, FateCosmicVFX.FateWhite, 0.6f, 10, true);
             MagnumParticleHandler.SpawnParticle(flash);
 
             SoundEngine.PlaySound(SoundID.Item1 with { Pitch = 0.3f, Volume = 0.6f }, Projectile.Center);
@@ -691,35 +902,50 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 Projectile.owner
             );
 
-            // Beam VFX
-            FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 6, 5f, 0.35f);
-            FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 8, 30f, 0.3f);
+            // === ENHANCED BEAM FIRE VFX ===
+            FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 8, 6f, 0.4f);
+            FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 12, 40f, 0.35f);
+            FateCosmicVFX.SpawnCosmicExplosion(Projectile.Center, 0.5f);
+            FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 4, 25f, 0.25f);
 
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f }, Projectile.Center);
         }
 
         private void SpawnDeityAura()
         {
-            // Orbiting glyphs
-            if (Main.GameUpdateCount % 6 == 0)
+            // === ENHANCED DEITY AURA ===
+            // Orbiting glyphs - more frequent and dramatic
+            if (Main.GameUpdateCount % 4 == 0)
             {
-                float orbitAngle = Main.GameUpdateCount * 0.05f;
-                FateCosmicVFX.SpawnOrbitingGlyphs(Projectile.Center, 3, 35f, orbitAngle, 0.3f);
+                float orbitAngle = Main.GameUpdateCount * 0.06f;
+                FateCosmicVFX.SpawnOrbitingGlyphs(Projectile.Center, 4, 40f, orbitAngle, 0.35f);
             }
 
-            // Star sparkles
-            if (Main.rand.NextBool(8))
+            // Star sparkles - constant celestial shimmer
+            if (Main.rand.NextBool(5))
             {
-                FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 2, 25f, 0.2f);
+                FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 2, 30f, 0.22f);
             }
 
             // Cosmic cloud wisps
-            if (Main.rand.NextBool(6))
+            if (Main.rand.NextBool(4))
             {
-                FateCosmicVFX.SpawnCosmicCloudTrail(Projectile.Center, Projectile.velocity, 0.4f);
+                FateCosmicVFX.SpawnCosmicCloudTrail(Projectile.Center, Projectile.velocity, 0.45f);
+            }
+            
+            // Occasional cosmic electricity
+            if (Main.rand.NextBool(12))
+            {
+                FateCosmicVFX.SpawnCosmicElectricity(Projectile.Center, 1, 35f, 0.2f);
+            }
+            
+            // Music notes for musical theme
+            if (Main.rand.NextBool(15))
+            {
+                FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 1, 15f, 0.18f);
             }
 
-            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateDarkPink.ToVector3() * 0.8f);
+            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateDarkPink.ToVector3() * 0.9f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -759,8 +985,6 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class CosmicDeityBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.TwinEyesMinion;
-
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;
@@ -782,15 +1006,17 @@ namespace MagnumOpus.Content.Fate.Projectiles
     }
 
     /// <summary>
-    /// Beam fired by cosmic deity
+    /// Beam fired by cosmic deity - enhanced with spectacular celestial effects
     /// </summary>
     public class DeityCosmicBeam : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        
+        private float pulsePhase = 0f;
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 20;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 25;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -811,22 +1037,54 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override void AI()
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
+            pulsePhase += 0.18f;
 
+            // === ENHANCED COSMIC BEAM TRAIL ===
             // Pure cosmic light trail
-            FateCosmicVFX.SpawnCosmicBeamParticles(Projectile.Center, Projectile.Center - Projectile.velocity, 0.8f);
+            FateCosmicVFX.SpawnCosmicBeamParticles(Projectile.Center, Projectile.Center - Projectile.velocity, 0.9f);
+            
+            // Star sparkles in trail
+            if (Main.rand.NextBool(3))
+            {
+                FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 1, 15f, 0.25f);
+            }
+            
+            // Cosmic cloud wisps
+            if (Main.rand.NextBool(3))
+            {
+                FateCosmicVFX.SpawnCosmicCloudTrail(Projectile.Center, Projectile.velocity, 0.35f);
+            }
+            
+            // Glyph accents
+            if (Main.rand.NextBool(8))
+            {
+                CustomParticles.Glyph(Projectile.Center, FateCosmicVFX.FatePurple, 0.2f, -1);
+            }
+            
+            // Music notes
+            if (Main.rand.NextBool(12))
+            {
+                FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 1, 10f, 0.18f);
+            }
 
-            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateWhite.ToVector3() * 1.2f);
+            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateWhite.ToVector3() * 1.3f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 180);
-            FateCosmicVFX.SpawnCosmicExplosion(target.Center, 0.4f);
+            
+            // Enhanced impact
+            FateCosmicVFX.SpawnCosmicExplosion(target.Center, 0.5f);
+            FateCosmicVFX.SpawnStarSparkles(target.Center, 6, 25f, 0.25f);
+            FateCosmicVFX.SpawnGlyphBurst(target.Center, 4, 4f, 0.25f);
         }
 
         public override void OnKill(int timeLeft)
         {
-            FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 4, 3f, 0.25f);
+            FateCosmicVFX.SpawnCosmicExplosion(Projectile.Center, 0.4f);
+            FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 5, 4f, 0.25f);
+            FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 8, 20f, 0.25f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -834,15 +1092,18 @@ namespace MagnumOpus.Content.Fate.Projectiles
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
             Vector2 origin = tex.Size() / 2f;
+            
+            float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.15f;
 
-            // Trail
+            // Enhanced gradient trail
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 float progress = (float)i / Projectile.oldPos.Length;
-                Color trailColor = Color.Lerp(FateCosmicVFX.FateWhite, FateCosmicVFX.FateDarkPink, progress) * (1f - progress) * 0.7f;
+                Color trailColor = FateCosmicVFX.GetCosmicGradient(progress) * (1f - progress) * 0.6f;
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, (1f - progress * 0.5f) * 0.8f, SpriteEffects.None, 0f);
+                float trailScale = (1f - progress * 0.4f) * 0.7f * pulse;
+                spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
             }
 
             spriteBatch.End();
@@ -850,8 +1111,12 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateWhite * 0.9f, Projectile.rotation, origin, 0.7f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * 0.5f, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
+            
+            // Multi-layer bloom
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FatePurple * 0.4f, Projectile.rotation, origin, 1.1f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateBrightRed * 0.5f, Projectile.rotation, origin, 0.85f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * 0.6f, Projectile.rotation, origin, 0.6f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateWhite * 0.85f, Projectile.rotation, origin, 0.35f * pulse, SpriteEffects.None, 0f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,

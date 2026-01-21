@@ -15,6 +15,7 @@ using MagnumOpus.Content.Eroica.Pets;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using static MagnumOpus.Common.Systems.BossDialogueSystem;
 
 namespace MagnumOpus.Content.Eroica.Bosses
 {
@@ -53,7 +54,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
         private const int BaseDamage = 95;
         private const float EnrageDistance = 1000f;  // Tighter arena (was 1200f)
         private const float TeleportDistance = 1500f; // Teleport sooner (was 1800f)
-        private const int AttackWindowFrames = 50;   // Less downtime (was 90)
+        private const int AttackWindowFrames = 35;   // Less downtime (was 90)
         
         // Projectile speed constants - calibrated for wing dash players
         private const float FastProjectileSpeed = 18f;   // Fast enough players must react
@@ -135,7 +136,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
         // Aggression system - boss gets more aggressive over time
         private int fightTimer = 0;
         private float aggressionLevel = 0f; // 0 to 1, increases over fight duration
-        private const int MaxAggressionTime = 3600; // 60 seconds to reach max aggression
+        private const int MaxAggressionTime = 2520; // 60 seconds to reach max aggression
         
         private int frameCounter = 0;
         private int currentFrame = 0;
@@ -262,6 +263,13 @@ namespace MagnumOpus.Content.Eroica.Bosses
             Timer++;
             UpdateAnimation();
             SpawnAmbientParticles();
+            
+            // Boss dialogue system - combat taunts and player HP checks
+            if (phase2Started)
+            {
+                // Dialogue triggers at HP thresholds only
+                BossDialogueSystem.CheckPlayerLowHP(target, "Eroica");
+            }
             
             NPC.spriteDirection = NPC.direction = (target.Center.X > NPC.Center.X) ? 1 : -1;
             
@@ -429,9 +437,11 @@ namespace MagnumOpus.Content.Eroica.Bosses
             
             ThemedParticles.SakuraPetals(NPC.Center, 25 + difficultyTier * 10, 100f);
             
-            string message = difficultyTier == 2 ? "THE HERO'S FINAL STAND!" : "EROICA'S FURY AWAKENS!";
-            Color textColor = difficultyTier == 2 ? EroicaCrimson : EroicaGold;
-            CombatText.NewText(NPC.Hitbox, textColor, message, true);
+            // Use dialogue system for phase transitions
+            if (difficultyTier == 1)
+                BossDialogueSystem.Eroica.OnPhase2(NPC.whoAmI);
+            else if (difficultyTier == 2)
+                BossDialogueSystem.Eroica.OnPhase3(NPC.whoAmI);
         }
         
         private void CheckEnrage(Player target)
@@ -454,7 +464,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     State = BossPhase.Enraged;
                     Timer = 0;
                     
-                    Main.NewText("Eroica becomes enraged!", EroicaCrimson);
+                    BossDialogueSystem.Eroica.OnEnrage();
                     SoundEngine.PlaySound(SoundID.Roar with { Pitch = 0.5f, Volume = 1.5f }, NPC.Center);
                 }
             }
@@ -684,9 +694,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
         {
             // DIFFICULTY: More dashes, faster, less warning
             int maxDashes = 3 + difficultyTier; // More dashes (was 2+)
-            int telegraphTime = 24 - difficultyTier * 4; // Less warning (was 35-)
-            int dashDuration = 10; // Faster dash (was 12)
-            int recoveryTime = 10 - difficultyTier * 2; // Less recovery (was 15-)
+            int telegraphTime = 17 - difficultyTier * 3; // Less warning (was 35-)
+            int dashDuration = 7; // Faster dash (was 12)
+            int recoveryTime = 7 - difficultyTier * 1; // Less recovery (was 15-)
             
             if (SubPhase == 0)
             {
@@ -772,7 +782,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             else
             {
                 NPC.velocity *= 0.9f;
-                if (Timer >= 20)
+                if (Timer >= 14)
                 {
                     EndAttack();
                 }
@@ -783,13 +793,13 @@ namespace MagnumOpus.Content.Eroica.Bosses
         {
             // DIFFICULTY: More waves, faster, tighter timing
             int totalWaves = 4 + difficultyTier; // More waves (was 3+)
-            int waveDelay = (int)((18 - difficultyTier * 3) * GetAggressionRateMult()); // Faster waves (was 25-4)
+            int waveDelay = (int)((13 - difficultyTier * 2) * GetAggressionRateMult()); // Faster waves (was 25-4)
             
             NPC.velocity *= 0.92f;
             
             if (SubPhase < totalWaves)
             {
-                int chargeTime = 12; // Shorter charge
+                int chargeTime = 8; // Shorter charge
                 if (Timer < chargeTime)
                 {
                     // WARNING: Show spread pattern where projectiles will go
@@ -851,7 +861,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             }
             else
             {
-                if (Timer >= 30)
+                if (Timer >= 21)
                 {
                     EndAttack();
                 }
@@ -861,8 +871,8 @@ namespace MagnumOpus.Content.Eroica.Bosses
         private void Attack_GoldenRain(Player target)
         {
             // DIFFICULTY: Longer duration, faster fire rate, tracks player
-            int duration = (int)((150 + difficultyTier * 50) * GetAggressionRateMult()); // Longer (was 120+40)
-            int fireInterval = Math.Max(2, (int)((8 - difficultyTier * 2) * GetAggressionRateMult())); // Faster (was 12-2)
+            int duration = (int)((105 + difficultyTier * 35) * GetAggressionRateMult()); // Longer (was 120+40)
+            int fireInterval = Math.Max(1, (int)((6 - difficultyTier * 1) * GetAggressionRateMult())); // Faster (was 12-2)
             
             // Boss tracks player horizontally while hovering
             Vector2 hoverPos = target.Center + new Vector2(0, -350f); // Closer (was -400f)
@@ -935,13 +945,13 @@ namespace MagnumOpus.Content.Eroica.Bosses
         {
             // DIFFICULTY: More patterns, faster, tighter timing
             int patterns = 3 + difficultyTier; // More patterns (was 2+)
-            int patternDelay = 36 - difficultyTier * 6; // Faster (was 50-8)
+            int patternDelay = 25 - difficultyTier * 4; // Faster (was 50-8)
             
             NPC.velocity *= 0.92f;
             
             if (SubPhase < patterns)
             {
-                int telegraphTime = 18; // Shorter telegraph (was 25)
+                int telegraphTime = 13; // Shorter telegraph (was 25)
                 if (Timer < telegraphTime)
                 {
                     // WARNING: Show 8-arm pattern clearly
@@ -989,7 +999,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             }
             else
             {
-                if (Timer >= 30)
+                if (Timer >= 21)
                 {
                     EndAttack();
                 }
@@ -999,7 +1009,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
         private void Attack_SakuraStorm(Player target)
         {
             // DIFFICULTY: Longer, more arms, faster spin, tighter orbit
-            int duration = (int)((130 + difficultyTier * 40) * GetAggressionRateMult()); // Longer (was 100+30)
+            int duration = (int)((91 + difficultyTier * 28) * GetAggressionRateMult()); // Longer (was 100+30)
             int arms = 4 + difficultyTier; // More arms (was 3+)
             
             // DIFFICULTY: Faster orbit, gets closer over time
@@ -1064,9 +1074,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
         {
             // DIFFICULTY: More dashes, faster, harder to predict
             int maxDashes = 4 + difficultyTier; // More dashes (was 3+)
-            int windupTime = 18 - difficultyTier * 3; // Shorter warning (was 25-4)
-            int dashTime = 12; // Slightly shorter (was 15)
-            int recoveryTime = 8 - difficultyTier * 2; // Less recovery (was 12-2)
+            int windupTime = 13 - difficultyTier * 2; // Shorter warning (was 25-4)
+            int dashTime = 8; // Slightly shorter (was 15)
+            int recoveryTime = 6 - difficultyTier * 1; // Less recovery (was 12-2)
             
             if (SubPhase == 0)
             {
@@ -1148,7 +1158,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             else
             {
                 NPC.velocity *= 0.85f;
-                if (Timer >= 18) // Faster recovery (was 25)
+                if (Timer >= 13) // Faster recovery (was 25)
                 {
                     EndAttack();
                 }
@@ -1193,16 +1203,16 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 }
                 
                 // WARNING: Clear dive trajectory and impact zone
-                if (Timer > 3 && Timer < 18) // Shorter warning (was 5-25)
+                if (Timer > 2 && Timer < 13) // Shorter warning (was 5-25)
                 {
                     BossVFXOptimizer.WarningLine(NPC.Center, dashDirection, 600f, 12, WarningType.Imminent);
                     
                     // Show ground impact warning
                     Vector2 impactPos = NPC.Center + dashDirection * 500f;
-                    BossVFXOptimizer.GroundImpactWarning(impactPos, 80f, Timer / 18f);
+                    BossVFXOptimizer.GroundImpactWarning(impactPos, 80f, Timer / 13f);
                 }
                 
-                if (Timer >= 18) // Shorter telegraph (was 25)
+                if (Timer >= 13) // Shorter telegraph (was 25)
                 {
                     Timer = 0;
                     SubPhase = 2;
@@ -1236,7 +1246,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     }
                 }
                 
-                if (NPC.Center.Y > target.Center.Y + 150f || Timer >= 35) // Faster (was 200f, 40)
+                if (NPC.Center.Y > target.Center.Y + 150f || Timer >= 25) // Faster (was 200f, 40)
                 {
                     MagnumScreenEffects.AddScreenShake(15f);
                     BossVFXOptimizer.AttackReleaseBurst(NPC.Center, EroicaGold, EroicaScarlet, 1.2f);
@@ -1261,7 +1271,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             else
             {
                 NPC.velocity *= 0.85f;
-                if (Timer >= 25) // Shorter recovery (was 35)
+                if (Timer >= 18) // Shorter recovery (was 35)
                 {
                     EndAttack();
                 }
@@ -1271,7 +1281,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
         private void Attack_HeroesJudgment(Player target)
         {
             // DIFFICULTY: Shorter charge, more waves, faster projectiles, tighter safe arc
-            int chargeTime = 60 - difficultyTier * 8; // Shorter (was 90-10)
+            int chargeTime = 42 - difficultyTier * 6; // Shorter (was 90-10)
             int waveCount = 3 + difficultyTier; // More waves (was 2+)
             
             if (SubPhase == 0)
@@ -1357,7 +1367,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 }
                 
                 // DIFFICULTY: Shorter delay between waves
-                if (Timer >= 32) // Faster (was 45)
+                if (Timer >= 22) // Faster (was 45)
                 {
                     Timer = 0;
                     SubPhase++;
@@ -1365,7 +1375,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             }
             else
             {
-                if (Timer >= 28) // Shorter recovery (was 40)
+                if (Timer >= 20) // Shorter recovery (was 40)
                 {
                     EndAttack();
                 }
@@ -1392,7 +1402,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 
                 MagnumScreenEffects.AddScreenShake(Timer * 0.2f);
                 
-                if (Timer >= 60)
+                if (Timer >= 42)
                 {
                     Timer = 0;
                     SubPhase = 1;
@@ -1420,7 +1430,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     }
                 }
                 
-                if (Timer >= 12)
+                if (Timer >= 8)
                 {
                     NPC.velocity *= 0.7f;
                     Timer = 0;
@@ -1455,7 +1465,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     SoundEngine.PlaySound(SoundID.Item122 with { Volume = 1.3f }, NPC.Center);
                 }
                 
-                if (Timer >= 40)
+                if (Timer >= 28)
                 {
                     Timer = 0;
                     SubPhase = 7;
@@ -1463,7 +1473,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             }
             else if (SubPhase == 7)
             {
-                if (Timer < 60 && Timer % 5 == 0 && Main.netMode != NetmodeID.MultiplayerClient)
+                if (Timer < 42 && Timer % 4 == 0 && Main.netMode != NetmodeID.MultiplayerClient)
                 {
                     float spiralAngle = Timer * 0.15f;
                     for (int arm = 0; arm < 5; arm++)
@@ -1476,7 +1486,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     ThemedParticles.SakuraPetals(NPC.Center, 5, 60f);
                 }
                 
-                if (Timer >= 80)
+                if (Timer >= 56)
                 {
                     consecutiveAttacks = 0;
                     EndAttack();
@@ -1513,9 +1523,15 @@ namespace MagnumOpus.Content.Eroica.Bosses
         {
             if (!phase2Started) return;
             
-            if (Timer % 6 == 0)
+            // Performance gate - skip under critical load
+            if (BossVFXOptimizer.IsCriticalLoad) return;
+            bool isHighLoad = BossVFXOptimizer.IsHighLoad;
+            
+            // Orbiting embers - reduce count and frequency under load
+            int orbitInterval = isHighLoad ? 10 : 6;
+            if (Timer % orbitInterval == 0)
             {
-                int orbitCount = 3 + difficultyTier * 2;
+                int orbitCount = isHighLoad ? (2 + difficultyTier) : (3 + difficultyTier * 2);
                 for (int i = 0; i < orbitCount; i++)
                 {
                     float angle = Timer * 0.03f + MathHelper.TwoPi * i / orbitCount;
@@ -1526,12 +1542,16 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 }
             }
             
-            if (Main.rand.NextBool(6 - difficultyTier))
+            // Sakura petals - reduce under load
+            int petalChance = isHighLoad ? (10 - difficultyTier) : (6 - difficultyTier);
+            if (Main.rand.NextBool(petalChance))
             {
-                ThemedParticles.SakuraPetals(NPC.Center + Main.rand.NextVector2Circular(50f, 50f), 2, 25f);
+                int petalCount = isHighLoad ? 1 : 2;
+                ThemedParticles.SakuraPetals(NPC.Center + Main.rand.NextVector2Circular(50f, 50f), petalCount, 25f);
             }
             
-            if (isEnraged && Timer % 2 == 0)
+            // Enrage particles - reduce under load  
+            if (isEnraged && Timer % (isHighLoad ? 4 : 2) == 0)
             {
                 Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(60f, 60f);
                 CustomParticles.GenericFlare(pos, EroicaCrimson, 0.4f, 8);
@@ -1574,6 +1594,15 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 }
                 
                 ThemedParticles.SakuraPetals(NPC.Center, 60, 200f);
+                
+                // Death dialogue
+                BossDialogueSystem.Eroica.OnDeath();
+                BossDialogueSystem.CleanupDialogue(NPC.whoAmI);
+                
+                // Set boss downed flag for miniboss essence drops
+                MoonlightSonataSystem.DownedEroica = true;
+                if (Main.netMode == NetmodeID.Server)
+                    NetMessage.SendData(MessageID.WorldData);
                 
                 NPC.life = 0;
                 NPC.HitEffect();

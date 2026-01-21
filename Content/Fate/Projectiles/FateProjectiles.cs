@@ -18,12 +18,15 @@ namespace MagnumOpus.Content.Fate.Projectiles
     #region Fate1Sword Projectiles - Spectral Terrablade Beams
 
     /// <summary>
-    /// Spectral Sword Beam - Terrablade-style homing beams with white core and dark pink energy
+    /// Spectral Sword Beam - Terrablade-style homing beams
+    /// Renders as copies of The Conductor's Last Constellation flying through the air
     /// </summary>
     public class SpectralSwordBeam : ModProjectile
     {
-        // Custom texture - no vanilla textures allowed
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        // Use The Conductor's Last Constellation texture - the weapon itself as the projectile
+        public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/TheConductorsLastConstellation";
+        
+        private float pulsePhase = 0f;
 
         public override void SetStaticDefaults()
         {
@@ -49,6 +52,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override void AI()
         {
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver4;
+            pulsePhase += 0.1f;
 
             // Homing behavior after initial flight
             if (Projectile.timeLeft < 160)
@@ -95,6 +99,19 @@ namespace MagnumOpus.Content.Fate.Projectiles
             {
                 FateCosmicVFX.SpawnCosmicCloudTrail(Projectile.Center, Projectile.velocity, 0.5f);
             }
+            
+            // Star sparkles orbiting the flying sword
+            if (Main.rand.NextBool(5))
+            {
+                FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 1, 15f, 0.2f);
+            }
+            
+            // Orbiting glyphs for celestial feel
+            if (Main.rand.NextBool(10))
+            {
+                CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(12f, 12f), 
+                    FateCosmicVFX.FatePurple, 0.2f, -1);
+            }
 
             Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateWhite.ToVector3() * 0.6f);
         }
@@ -133,33 +150,47 @@ namespace MagnumOpus.Content.Fate.Projectiles
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
             Vector2 origin = tex.Size() / 2f;
+            
+            // Pulsing effects for magical feel
+            float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.08f;
+            float glowIntensity = 0.6f + (float)Math.Sin(pulsePhase * 0.7f) * 0.25f;
 
-            // Draw trail
+            // Draw trail with copies of the sword fading away
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 float progress = (float)i / Projectile.oldPos.Length;
-                Color trailColor = Color.Lerp(FateCosmicVFX.FateWhite, FateCosmicVFX.FateDarkPink, progress) * (1f - progress) * 0.7f;
+                Color trailColor = Color.Lerp(FateCosmicVFX.FateWhite, FateCosmicVFX.FateDarkPink, progress) * (1f - progress) * 0.5f;
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                float trailScale = 1f - progress * 0.5f;
+                float trailScale = (1f - progress * 0.4f) * 0.8f;
                 spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
             }
 
-            // Additive glow layers
+            // === MULTI-LAYER BLOOM STACK FOR CELESTIAL GLOW ===
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
-            // Dark pink outer glow
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * 0.6f, Projectile.rotation, origin, 1.3f, SpriteEffects.None, 0f);
-            // White core
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateWhite * 0.9f, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
+            // Outermost purple cosmic nebula
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FatePurple * 0.15f * glowIntensity, Projectile.rotation, origin, 1.8f * pulse, SpriteEffects.None, 0f);
+            
+            // Outer bright red energy
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateBrightRed * 0.25f * glowIntensity, Projectile.rotation, origin, 1.4f * pulse, SpriteEffects.None, 0f);
+            
+            // Middle dark pink glow
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * 0.4f * glowIntensity, Projectile.rotation, origin, 1.15f * pulse, SpriteEffects.None, 0f);
+            
+            // Inner white celestial core
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateWhite * 0.35f * glowIntensity, Projectile.rotation, origin, 1.0f * pulse, SpriteEffects.None, 0f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Main sword - the Conductor's Last Constellation flying through the air
+            spriteBatch.Draw(tex, drawPos, null, Color.White, Projectile.rotation, origin, 0.85f * pulse, SpriteEffects.None, 0f);
 
             return false;
         }
@@ -429,13 +460,16 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
     /// <summary>
     /// Held sword that channels a cosmic beam - gets brighter as held
+    /// Renders as Coda of Annihilation - the channeling blade
     /// </summary>
     public class CosmicBeamHeldSword : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Item_" + ItemID.TrueExcalibur;
+        // Use Coda of Annihilation texture
+        public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/CodaOfAnnihilation";
 
         private float chargeIntensity = 0f;
         private const float MaxCharge = 2f;
+        private float pulsePhase = 0f;
 
         public override void SetDefaults()
         {
@@ -461,6 +495,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
             // Increase intensity while held
             chargeIntensity = Math.Min(chargeIntensity + 0.015f, MaxCharge);
+            pulsePhase += 0.08f + chargeIntensity * 0.03f; // Pulse faster as charge builds
 
             Vector2 aimDir = (Main.MouseWorld - owner.Center).SafeNormalize(Vector2.UnitX);
             Projectile.Center = owner.Center + aimDir * 40f;
@@ -509,10 +544,32 @@ namespace MagnumOpus.Content.Fate.Projectiles
             {
                 FateCosmicVFX.SpawnCosmicMusicNotes(beamStart, 1, 20f, 0.3f);
             }
+            
+            // === ENHANCED CHANNELING VFX ===
+            // Orbiting glyphs around the held sword
+            if (Main.rand.NextBool(4))
+            {
+                float glyphAngle = pulsePhase + Main.rand.NextFloat(MathHelper.TwoPi);
+                Vector2 glyphPos = Projectile.Center + glyphAngle.ToRotationVector2() * (20f + chargeIntensity * 10f);
+                CustomParticles.Glyph(glyphPos, FateCosmicVFX.FatePurple, 0.2f + chargeIntensity * 0.1f, -1);
+            }
+            
+            // Star sparkles around the blade
+            if (Main.rand.NextBool(5) && chargeIntensity > 0.5f)
+            {
+                FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 1, 25f, 0.2f + chargeIntensity * 0.1f);
+            }
+            
+            // Cosmic cloud at tip
+            if (Main.rand.NextBool(4))
+            {
+                FateCosmicVFX.SpawnCosmicCloudTrail(beamStart, aimDir * 2f, 0.3f + chargeIntensity * 0.2f);
+            }
 
             // Glow at sword tip
             float tipGlow = chargeIntensity / MaxCharge;
             Lighting.AddLight(beamStart, FateCosmicVFX.FateWhite.ToVector3() * tipGlow * 1.5f);
+            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateDarkPink.ToVector3() * tipGlow * 0.8f);
         }
 
         private float DistanceToLine(Vector2 point, Vector2 lineStart, Vector2 lineEnd)
@@ -536,22 +593,43 @@ namespace MagnumOpus.Content.Fate.Projectiles
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
             float glowIntensity = chargeIntensity / MaxCharge;
+            float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.08f * glowIntensity;
 
-            // Draw sword with glow
+            // === MULTI-LAYER BLOOM STACK - INTENSIFIES WITH CHARGE ===
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
+            // Outer cosmic nebula - grows with charge
+            if (glowIntensity > 0.1f)
+            {
+                spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FatePurple * 0.12f * glowIntensity, Projectile.rotation, origin, (1.6f + glowIntensity * 0.4f) * pulse, SpriteEffects.None, 0f);
+            }
+            
+            // Middle bright red energy - grows with charge
             if (glowIntensity > 0.2f)
             {
-                spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * glowIntensity * 0.5f, Projectile.rotation, origin, 1.3f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateBrightRed * 0.2f * glowIntensity, Projectile.rotation, origin, (1.35f + glowIntensity * 0.3f) * pulse, SpriteEffects.None, 0f);
+            }
+            
+            // Inner dark pink glow
+            if (glowIntensity > 0.15f)
+            {
+                spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * 0.35f * glowIntensity, Projectile.rotation, origin, (1.15f + glowIntensity * 0.15f) * pulse, SpriteEffects.None, 0f);
+            }
+            
+            // Innermost white-hot celestial core
+            if (glowIntensity > 0.3f)
+            {
+                spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateWhite * 0.25f * glowIntensity, Projectile.rotation, origin, 1.05f * pulse, SpriteEffects.None, 0f);
             }
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            spriteBatch.Draw(tex, drawPos, null, Color.White, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
+            // Main Coda of Annihilation blade
+            spriteBatch.Draw(tex, drawPos, null, Color.White, Projectile.rotation, origin, pulse, SpriteEffects.None, 0f);
 
             return false;
         }
@@ -563,16 +641,19 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
     /// <summary>
     /// Spectral blade that orbits the player and shoots prismatic beams
+    /// Renders as Coda of Annihilation - the blade containing infinite celestial patterns
     /// </summary>
     public class OrbitingSpectralBlade : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Item_" + ItemID.TrueExcalibur;
+        // Use Coda of Annihilation texture - the celestial blade
+        public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/CodaOfAnnihilation";
 
         private int bladeIndex = 0;
         private int beamCooldown = 0;
         private float beamSize = 1f;
         private NPC lockedTarget = null;
         private int lockTime = 0;
+        private float pulsePhase = 0f; // For pulsing glow effect
 
         public ref float OrbitAngle => ref Projectile.ai[0];
         public ref float BladeCount => ref Projectile.ai[1];
@@ -661,6 +742,22 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 var energy = new GenericGlowParticle(Projectile.Center + offset, offset.SafeNormalize(Vector2.Zero) * 1f, energyColor * 0.6f, 0.2f, 15, true);
                 MagnumParticleHandler.SpawnParticle(energy);
             }
+            
+            // Orbiting star sparkles around the spectral blade
+            if (Main.rand.NextBool(6))
+            {
+                FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 1, 25f, 0.2f);
+            }
+            
+            // Occasional glyph orbiting
+            if (Main.rand.NextBool(12))
+            {
+                CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(18f, 18f), 
+                    FateCosmicVFX.FatePurple, 0.25f, -1);
+            }
+            
+            // Update pulse phase for drawing
+            pulsePhase += 0.08f;
 
             Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateDarkPink.ToVector3() * 0.5f);
         }
@@ -719,22 +816,34 @@ namespace MagnumOpus.Content.Fate.Projectiles
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            
+            // Pulsing scale and glow intensity
+            float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.1f;
+            float glowIntensity = 0.5f + (float)Math.Sin(pulsePhase * 0.7f) * 0.3f;
 
-            // White overlay with cosmic energy
+            // === MULTI-LAYER BLOOM STACK FOR CELESTIAL GLOW ===
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Dark pink/red energy glow
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * 0.4f, Projectile.rotation, origin, 1.3f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateBrightRed * 0.3f, Projectile.rotation, origin, 1.5f, SpriteEffects.None, 0f);
+            // Outermost cosmic nebula glow - purple/crimson
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FatePurple * 0.15f * glowIntensity, Projectile.rotation, origin, 2.0f * pulse, SpriteEffects.None, 0f);
+            
+            // Outer bright red energy corona
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateBrightRed * 0.25f * glowIntensity, Projectile.rotation, origin, 1.6f * pulse, SpriteEffects.None, 0f);
+            
+            // Middle dark pink energy field
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * 0.4f * glowIntensity, Projectile.rotation, origin, 1.3f * pulse, SpriteEffects.None, 0f);
+            
+            // Inner white-hot celestial core
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateWhite * 0.3f * glowIntensity, Projectile.rotation, origin, 1.1f * pulse, SpriteEffects.None, 0f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // White-tinted sword
-            spriteBatch.Draw(tex, drawPos, null, Color.White * 0.9f, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
+            // Main Coda of Annihilation blade - slightly tinted with celestial white
+            spriteBatch.Draw(tex, drawPos, null, Color.White * 0.95f, Projectile.rotation, origin, pulse, SpriteEffects.None, 0f);
 
             return false;
         }

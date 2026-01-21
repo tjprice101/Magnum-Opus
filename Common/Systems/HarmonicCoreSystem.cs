@@ -117,6 +117,31 @@ namespace MagnumOpus.Common.Systems
             cosmicMarks.Clear();
         }
         
+        /// <summary>
+        /// Resets all Harmonic Core effect timers and state every frame.
+        /// This ensures effects stop immediately when cores are unequipped.
+        /// </summary>
+        public override void ResetEffects()
+        {
+            // Clear cosmic marks if Fate core is not equipped
+            if (!HasCore("Fate"))
+            {
+                cosmicMarks.Clear();
+            }
+            
+            // Reset all effect timers when no cores are equipped
+            // This ensures effects stop immediately on unequip
+            if (GetEquippedCoreCount() == 0 || !HasUnlockedHarmonicSlots)
+            {
+                lunarAuraTimer = 0;
+                featherAttackTimer = 0;
+                prismaticFlareTimer = 0;
+                bellAuraTimer = 0;
+                bellEchoTimer = 0;
+                cosmicMarks.Clear();
+            }
+        }
+        
         public override void SaveData(TagCompound tag)
         {
             tag["HasKilledMoonLord"] = HasKilledMoonLord;

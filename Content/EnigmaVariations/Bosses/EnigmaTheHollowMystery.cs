@@ -8,12 +8,14 @@ using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
+using Terraria.Graphics.Effects;
 using MagnumOpus.Content.EnigmaVariations.ResonanceEnergies;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons;
 using MagnumOpus.Content.EnigmaVariations.HarmonicCores;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using static MagnumOpus.Common.Systems.BossDialogueSystem;
 
 namespace MagnumOpus.Content.EnigmaVariations.Bosses
 {
@@ -175,16 +177,20 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             NPC.HitSound = SoundID.NPCHit54;
             NPC.DeathSound = SoundID.NPCDeath52;
             NPC.knockBackResist = 0f;
-            NPC.noGravity = true;
-            NPC.noTileCollide = true;
+            NPC.noGravity = false; // Ground-based boss - has gravity
+            NPC.noTileCollide = true; // Still phases through tiles (teleport boss)
             NPC.value = Item.buyPrice(gold: 16);
             NPC.boss = true;
             NPC.npcSlots = 15f;
             NPC.aiStyle = -1;
             NPC.scale = 3f; // 3x bigger (was 1f)
             
+            // Shift the sprite up so the hitbox isn't in the ground
+            // Negative value shifts the sprite UP relative to hitbox
+            DrawOffsetY = -120f;
+            
             if (!Main.dedServ)
-                Music = MusicLoader.GetMusicSlot(Mod, "Assets/Music/EnigmaVariations");
+                Music = MusicLoader.GetMusicSlot(Mod, "Assets/Music/EmbersOfTheRiddle");
         }
 
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
@@ -255,6 +261,13 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             
             NPC.spriteDirection = NPC.direction = (target.Center.X > NPC.Center.X) ? 1 : -1;
             
+            // Boss dialogue system - combat taunts and player HP checks
+            if (State != BossPhase.Spawning)
+            {
+                // Dialogue triggers at HP thresholds only
+                BossDialogueSystem.CheckPlayerLowHP(target, "Enigma");
+            }
+            
             float lightIntensity = isEnraged ? 1.2f : 0.8f;
             float pulse = (float)Math.Sin(Timer * 0.1f) * 0.2f + 0.8f;
             Lighting.AddLight(NPC.Center, EnigmaPurple.ToVector3() * lightIntensity * pulse);
@@ -323,6 +336,12 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             string message = difficultyTier == 2 ? "V̴O̵I̷D̶ ̸R̶E̴V̵E̷L̴A̵T̵I̷O̵N̷" : "O̷B̶S̵E̶S̴S̶I̴O̶N̷";
             Color textColor = difficultyTier == 2 ? EnigmaGreen : EnigmaPurple;
             CombatText.NewText(NPC.Hitbox, textColor, message, true);
+            
+            // Use dialogue system for phase transitions
+            if (difficultyTier == 1)
+                BossDialogueSystem.Enigma.OnPhase2(NPC.whoAmI);
+            else if (difficultyTier == 2)
+                BossDialogueSystem.Enigma.OnPhase3(NPC.whoAmI);
         }
         
         private void CheckEnrage(Player target)
@@ -338,7 +357,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     State = BossPhase.Enraged;
                     Timer = 0;
                     
-                    Main.NewText("The mystery hunts you...", EnigmaGreen);
+                    BossDialogueSystem.Enigma.OnEnrage();
                     SoundEngine.PlaySound(SoundID.NPCDeath52 with { Pitch = 0.3f, Volume = 1.5f }, NPC.Center);
                 }
             }
@@ -376,7 +395,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 }
             }
             
-            NPC.alpha = (int)MathHelper.Lerp(255, 0, Timer / 70f);
+            NPC.alpha = (int)MathHelper.Lerp(255, 0, Timer / 49f);
             
             if (Timer % 5 == 0)
             {
@@ -384,9 +403,16 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 CustomParticles.GenericFlare(pos, EnigmaPurple, 0.35f, 12);
             }
             
-            if (Timer >= 70)
+            if (Timer >= 49)
             {
-                Main.NewText("The Mystery awakens...", EnigmaPurple);
+                BossDialogueSystem.Enigma.OnSpawn(NPC.whoAmI);
+                
+                // Activate the Enigma mystery sky effect
+                if (!Main.dedServ && SkyManager.Instance["MagnumOpus:EnigmaSky"] != null)
+                {
+                    SkyManager.Instance.Activate("MagnumOpus:EnigmaSky");
+                }
+                
                 Timer = 0;
                 State = BossPhase.Stalking;
                 attackCooldown = AttackWindowFrames;
@@ -396,6 +422,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         private void AI_Stalking(Player target)
         {
             float distance = Vector2.Distance(NPC.Center, target.Center);
+            float horizontalDist = Math.Abs(NPC.Center.X - target.Center.X);
             
             if (distance > TeleportRange)
             {
@@ -403,30 +430,34 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 return;
             }
             
+            // Ground-based horizontal movement only
             float moveSpeed = BaseSpeed * (1f + difficultyTier * 0.2f);
-            Vector2 toTarget = (target.Center - NPC.Center).SafeNormalize(Vector2.Zero);
+            float dirToTarget = Math.Sign(target.Center.X - NPC.Center.X);
             
             float idealDist = 300f - difficultyTier * 30f;
-            if (distance > idealDist + 50f)
+            if (horizontalDist > idealDist + 50f)
             {
-                NPC.velocity = Vector2.Lerp(NPC.velocity, toTarget * moveSpeed, 0.06f);
+                // Move toward player horizontally
+                NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dirToTarget * moveSpeed, 0.08f);
             }
-            else if (distance < idealDist - 50f)
+            else if (horizontalDist < idealDist - 50f)
             {
-                NPC.velocity = Vector2.Lerp(NPC.velocity, -toTarget * moveSpeed * 0.5f, 0.04f);
+                // Back away from player horizontally
+                NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, -dirToTarget * moveSpeed * 0.5f, 0.06f);
             }
             else
             {
-                float orbitAngle = Timer * 0.02f * (NPC.Center.X > target.Center.X ? 1 : -1);
-                Vector2 orbitDir = toTarget.RotatedBy(MathHelper.PiOver2 + orbitAngle);
-                NPC.velocity = Vector2.Lerp(NPC.velocity, orbitDir * moveSpeed * 0.6f, 0.05f);
+                // Pace back and forth when at ideal distance
+                float paceDir = (float)Math.Sin(Timer * 0.03f);
+                NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, paceDir * moveSpeed * 0.4f, 0.05f);
             }
             
-            if (!onGround)
-            {
-                NPC.velocity.Y += 0.15f;
-                if (NPC.velocity.Y > 8f) NPC.velocity.Y = 8f;
-            }
+            // Apply gravity - ground boss
+            NPC.velocity.Y += 0.4f;
+            if (NPC.velocity.Y > 12f) NPC.velocity.Y = 12f;
+            
+            // Simple ground collision
+            ApplyGroundCollision();
             
             if (attackCooldown <= 0 && Timer > 50)
             {
@@ -447,14 +478,69 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             }
         }
         
+        /// <summary>
+        /// Simple ground collision for the land-based boss
+        /// </summary>
+        private void ApplyGroundCollision()
+        {
+            // Check tiles below the NPC
+            int tileX = (int)(NPC.Center.X / 16f);
+            int tileYBottom = (int)((NPC.position.Y + NPC.height) / 16f);
+            
+            // Check a few tiles across the NPC width
+            for (int x = -2; x <= 2; x++)
+            {
+                Tile tile = Framing.GetTileSafely(tileX + x, tileYBottom);
+                if (tile.HasTile && Main.tileSolid[tile.TileType] && !Main.tileSolidTop[tile.TileType])
+                {
+                    float groundY = tileYBottom * 16f;
+                    if (NPC.position.Y + NPC.height > groundY && NPC.velocity.Y > 0)
+                    {
+                        NPC.position.Y = groundY - NPC.height;
+                        NPC.velocity.Y = 0;
+                        onGround = true;
+                        return;
+                    }
+                }
+            }
+            onGround = false;
+        }
+        
         private void InitiateTeleport(Player target)
         {
             State = BossPhase.Teleport;
             Timer = 0;
             isFading = true;
             
-            float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-            teleportTarget = target.Center + angle.ToRotationVector2() * (200f + Main.rand.NextFloat(100f));
+            // Find a ground position near the player (left or right)
+            float xOffset = (Main.rand.NextBool() ? 1 : -1) * (250f + Main.rand.NextFloat(150f));
+            Vector2 targetPos = new Vector2(target.Center.X + xOffset, target.Center.Y);
+            
+            // Find ground below target position
+            teleportTarget = FindGroundPosition(targetPos);
+        }
+        
+        /// <summary>
+        /// Find a valid ground position for teleportation
+        /// </summary>
+        private Vector2 FindGroundPosition(Vector2 startPos)
+        {
+            int tileX = (int)(startPos.X / 16f);
+            int startTileY = (int)(startPos.Y / 16f);
+            
+            // Search downward for ground
+            for (int y = startTileY; y < startTileY + 50; y++)
+            {
+                Tile tile = Framing.GetTileSafely(tileX, y);
+                if (tile.HasTile && Main.tileSolid[tile.TileType])
+                {
+                    // Found ground - position the NPC above it
+                    return new Vector2(startPos.X, y * 16f - NPC.height);
+                }
+            }
+            
+            // Fallback - just use the start position
+            return startPos;
         }
         
         private void SelectNextAttack(Player target)
@@ -636,9 +722,14 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         private void AI_Recovery(Player target)
         {
-            NPC.velocity *= 0.92f;
+            NPC.velocity.X *= 0.92f;
             
-            if (Timer >= 25)
+            // Apply gravity during recovery
+            NPC.velocity.Y += 0.4f;
+            if (NPC.velocity.Y > 12f) NPC.velocity.Y = 12f;
+            ApplyGroundCollision();
+            
+            if (Timer >= 18)
             {
                 Timer = 0;
                 State = BossPhase.Stalking;
@@ -648,9 +739,15 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         private void AI_Enraged(Player target)
         {
-            Vector2 toTarget = (target.Center - NPC.Center).SafeNormalize(Vector2.Zero);
+            // Ground-based enraged chase - horizontal movement only
+            float dirToTarget = Math.Sign(target.Center.X - NPC.Center.X);
             float enrageSpeed = BaseSpeed * 2.2f;
-            NPC.velocity = Vector2.Lerp(NPC.velocity, toTarget * enrageSpeed, 0.1f);
+            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dirToTarget * enrageSpeed, 0.12f);
+            
+            // Apply gravity
+            NPC.velocity.Y += 0.4f;
+            if (NPC.velocity.Y > 12f) NPC.velocity.Y = 12f;
+            ApplyGroundCollision();
             
             int fireRate = 12 - difficultyTier * 2;
             if (Timer % fireRate == 0 && Main.netMode != NetmodeID.MultiplayerClient)
@@ -678,9 +775,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         private void Attack_VoidLunge(Player target)
         {
             int maxLunges = 3 + difficultyTier;
-            int telegraphTime = 30 - difficultyTier * 5;
-            int lungeTime = 14;
-            int recoveryTime = 12 - difficultyTier * 2;
+            int telegraphTime = 21 - difficultyTier * 4;
+            int lungeTime = 10;
+            int recoveryTime = 8 - difficultyTier * 2;
             
             if (SubPhase == 0)
             {
@@ -767,7 +864,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             else
             {
                 NPC.velocity *= 0.88f;
-                if (Timer >= 18)
+                if (Timer >= 13)
                 {
                     EndAttack();
                 }
@@ -777,7 +874,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         private void Attack_EyeVolley(Player target)
         {
             int totalVolleys = 4 + difficultyTier;
-            int volleyDelay = 25 - difficultyTier * 4;
+            int volleyDelay = 18 - difficultyTier * 3;
             
             NPC.velocity *= 0.92f;
             
@@ -827,7 +924,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             }
             else
             {
-                if (Timer >= 25)
+                if (Timer >= 18)
                 {
                     EndAttack();
                 }
@@ -892,7 +989,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             }
             else
             {
-                if (Timer >= 25)
+                if (Timer >= 18)
                 {
                     EndAttack();
                 }
@@ -902,8 +999,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         private void Attack_ShadowDash(Player target)
         {
             int maxDashes = 3 + difficultyTier;
-            int fadeTime = 18 - difficultyTier * 3;
-            int dashTime = 15;
+            int fadeTime = 13 - difficultyTier * 2;
+            int dashTime = 11;
             
             if (SubPhase % 3 == 0)
             {
@@ -970,7 +1067,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             {
                 NPC.velocity *= 0.85f;
                 
-                if (Timer >= 10 - difficultyTier * 2)
+                if (Timer >= 7 - difficultyTier * 1)
                 {
                     Timer = 0;
                     SubPhase++;
@@ -979,7 +1076,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             else
             {
                 NPC.velocity *= 0.9f;
-                if (Timer >= 20)
+                if (Timer >= 14)
                 {
                     EndAttack();
                 }
@@ -989,7 +1086,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         private void Attack_GlyphCircle(Player target)
         {
             int circleCount = 2 + difficultyTier;
-            int circleDelay = 50 - difficultyTier * 8;
+            int circleDelay = 35 - difficultyTier * 6;
             
             NPC.velocity *= 0.92f;
             
@@ -1047,7 +1144,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             }
             else
             {
-                if (Timer >= 30)
+                if (Timer >= 21)
                 {
                     EndAttack();
                 }
@@ -1057,7 +1154,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         private void Attack_TendrilRise(Player target)
         {
             int waveCount = 3 + difficultyTier;
-            int waveDelay = 40 - difficultyTier * 6;
+            int waveDelay = 28 - difficultyTier * 4;
             
             NPC.velocity.X *= 0.9f;
             
@@ -1111,7 +1208,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             }
             else
             {
-                if (Timer >= 25)
+                if (Timer >= 18)
                 {
                     EndAttack();
                 }
@@ -1120,8 +1217,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         private void Attack_RealityFracture(Player target)
         {
-            int chargeTime = 50 - difficultyTier * 8;
-            int chaosTime = 120 + difficultyTier * 30;
+            int chargeTime = 35 - difficultyTier * 6;
+            int chaosTime = 84 + difficultyTier * 21;
             
             NPC.velocity *= 0.92f;
             
@@ -1210,8 +1307,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         private void Attack_EyeOfTheVoid(Player target)
         {
-            int formationTime = 55;
-            int fireTime = 70;
+            int formationTime = 39;
+            int fireTime = 49;
             
             NPC.velocity *= 0.9f;
             
@@ -1294,7 +1391,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 
                 MagnumScreenEffects.AddScreenShake(Timer * 0.12f);
                 
-                if (Timer >= 70)
+                if (Timer >= 49)
                 {
                     Timer = 0;
                     SubPhase = 1;
@@ -1303,8 +1400,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             }
             else if (SubPhase <= 4)
             {
-                int fadeTime = 12;
-                int attackTime = 20;
+                int fadeTime = 8;
+                int attackTime = 14;
                 
                 if (Timer < fadeTime)
                 {
@@ -1415,7 +1512,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         {
             int strands = 6 + difficultyTier * 2; // Web strands
             int webWaves = 4 + difficultyTier;
-            int waveDelay = 35 - difficultyTier * 4;
+            int waveDelay = 25 - difficultyTier * 3;
             
             NPC.velocity *= 0.92f;
             
@@ -1507,7 +1604,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             }
             else
             {
-                if (Timer >= 30)
+                if (Timer >= 21)
                 {
                     EndAttack();
                 }
@@ -1521,8 +1618,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         /// </summary>
         private void Attack_RealityZones(Player target)
         {
-            int warningTime = 35 - difficultyTier * 5;
-            int activeTime = 100 + difficultyTier * 30;
+            int warningTime = 25 - difficultyTier * 4;
+            int activeTime = 70 + difficultyTier * 21;
             int zoneCycles = 4 + difficultyTier;
             int cycleTime = activeTime / zoneCycles;
             
@@ -1610,7 +1707,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             }
             else // Recovery
             {
-                if (Timer >= 35)
+                if (Timer >= 25)
                 {
                     EndAttack();
                 }
@@ -1731,7 +1828,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         private void Attack_ParadoxJudgment(Player target)
         {
             // DIFFICULTY: Shorter charge, more waves, faster
-            int chargeTime = 54 - difficultyTier * 6; // Shorter (was 72-8)
+            int chargeTime = 38 - difficultyTier * 4; // Shorter (was 72-8)
             int waveCount = 4 + difficultyTier; // More waves (was 3+)
             
             if (SubPhase == 0)
@@ -1840,7 +1937,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 }
                 
                 // DIFFICULTY: Faster waves (36 frames instead of 48)
-                if (Timer >= 36)
+                if (Timer >= 25)
                 {
                     Timer = 0;
                     SubPhase++;
@@ -1848,7 +1945,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             }
             else
             {
-                if (Timer >= 28) // Shorter recovery (was 36)
+                if (Timer >= 20) // Shorter recovery (was 36)
                 {
                     EndAttack();
                 }
@@ -1864,7 +1961,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         {
             // DIFFICULTY: More lasers, faster sweep
             int laserCount = 7 + difficultyTier * 2; // More lasers (was 6+2)
-            int sweepDuration = 72 - difficultyTier * 10; // Faster (was 96-12)
+            int sweepDuration = 50 - difficultyTier * 7; // Faster (was 96-12)
             
             if (SubPhase == 0)
             {
@@ -1881,10 +1978,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     }
                 }
                 
-                float progress = Timer / 36f; // Shorter telegraph (was 48)
+                float progress = Timer / 25f; // Shorter telegraph (was 48)
                 
                 // OPTIMIZED: Use LaserBeamWarning for clear telegraph
-                if (Timer % 4 == 0 && Timer < 36)
+                if (Timer % 4 == 0 && Timer < 25)
                 {
                     for (int i = 0; i < laserCount; i++)
                     {
@@ -1899,7 +1996,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     BossVFXOptimizer.ConvergingWarning(NPC.Center, 90f, progress, EnigmaPurple, 5);
                 }
                 
-                if (Timer >= 36) // Shorter (was 48)
+                if (Timer >= 25) // Shorter (was 48)
                 {
                     Timer = 0;
                     SubPhase = 1;
@@ -1967,7 +2064,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             }
             else
             {
-                if (Timer >= 20) // Shorter recovery (was 30)
+                if (Timer >= 14) // Shorter recovery (was 30)
                 {
                     EndAttack();
                 }
@@ -1983,8 +2080,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         {
             // DIFFICULTY: More waves, faster
             int surgeWaves = 6 + difficultyTier; // More waves (was 5+)
-            int chargeTime = 36; // Shorter charge (was 48)
-            int waveDelay = 16; // Much faster waves (was 24)
+            int chargeTime = 25; // Shorter charge (was 48)
+            int waveDelay = 11; // Much faster waves (was 24)
             
             if (SubPhase == 0)
             {
@@ -2884,7 +2981,13 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         {
             if (State == BossPhase.Spawning) return;
             
-            if (Main.rand.NextBool(5 - difficultyTier))
+            // Performance gate - skip under critical load
+            if (BossVFXOptimizer.IsCriticalLoad) return;
+            bool isHighLoad = BossVFXOptimizer.IsHighLoad;
+            
+            // Void particles - reduce under load
+            int voidChance = isHighLoad ? (8 - difficultyTier) : (5 - difficultyTier);
+            if (Main.rand.NextBool(voidChance))
             {
                 Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(NPC.width * 0.5f, NPC.height * 0.4f);
                 Vector2 vel = Main.rand.NextVector2Circular(1f, 1f);
@@ -2892,19 +2995,23 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 CustomParticles.GenericFlare(pos, color * 0.7f, 0.28f, Main.rand.Next(15, 25));
             }
             
-            if (Main.rand.NextBool(15 - difficultyTier * 3))
+            // Glyphs - reduce under load
+            int glyphChance = isHighLoad ? (25 - difficultyTier * 3) : (15 - difficultyTier * 3);
+            if (Main.rand.NextBool(glyphChance))
             {
                 Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(60f, 60f);
                 CustomParticles.Glyph(pos, EnigmaPurple * 0.6f, 0.3f, -1);
             }
             
-            if (difficultyTier >= 1 && Main.rand.NextBool(25 - difficultyTier * 5))
+            // Eyes - skip under high load
+            if (!isHighLoad && difficultyTier >= 1 && Main.rand.NextBool(25 - difficultyTier * 5))
             {
                 Vector2 eyePos = NPC.Center + Main.rand.NextVector2Circular(100f, 100f);
                 CustomParticles.EnigmaEyeGaze(eyePos, EnigmaPurple * 0.5f, 0.35f, Main.player[NPC.target].Center);
             }
             
-            if (isEnraged && Timer % 3 == 0)
+            // Enrage particles - reduce under load
+            if (isEnraged && Timer % (isHighLoad ? 6 : 3) == 0)
             {
                 Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(60f, 60f);
                 CustomParticles.GenericFlare(pos, EnigmaGreen, 0.4f, 10);
@@ -2960,6 +3067,21 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     Vector2 eyePos = NPC.Center + Main.rand.NextVector2Circular(100f, 100f);
                     CustomParticles.EnigmaEyeGaze(eyePos, EnigmaPurple, 0.6f, eyePos + Main.rand.NextVector2Unit() * 150f);
                 }
+                
+                // Death dialogue
+                BossDialogueSystem.Enigma.OnDeath();
+                BossDialogueSystem.CleanupDialogue(NPC.whoAmI);
+                
+                // Deactivate the Enigma mystery sky effect
+                if (!Main.dedServ && SkyManager.Instance["MagnumOpus:EnigmaSky"] != null)
+                {
+                    SkyManager.Instance.Deactivate("MagnumOpus:EnigmaSky");
+                }
+                
+                // Set boss downed flag for miniboss essence drops
+                MoonlightSonataSystem.DownedEnigma = true;
+                if (Main.netMode == NetmodeID.Server)
+                    NetMessage.SendData(MessageID.WorldData);
                 
                 NPC.life = 0;
                 NPC.HitEffect();

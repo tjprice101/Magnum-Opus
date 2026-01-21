@@ -108,6 +108,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 
             NPCID.Sets.DangerDetectRange[Type] = 600;
             NPCID.Sets.TrailCacheLength[Type] = 8;
+            
+            // Register for minimap music note icon
+            MinibossMinimapSystem.RegisterMoonlightMiniboss(Type);
             NPCID.Sets.TrailingMode[Type] = 1;
         }
 
@@ -869,9 +872,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
+            // Essence drops only after killing the main Moonlit Maestro boss
+            LeadingConditionRule afterBossRule = new LeadingConditionRule(new DownedMoonlitMaestroCondition());
+            
             // Primary source of Shards of Moonlit Tempo
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<ShardsOfMoonlitTempo>(), 1, 8, 15));
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<ResonanceEnergies.ResonantCoreOfMoonlightSonata>(), 2, 1, 3));
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ShardsOfMoonlitTempo>(), 1, 8, 15));
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ResonanceEnergies.ResonantCoreOfMoonlightSonata>(), 2, 1, 3));
+            
+            npcLoot.Add(afterBossRule);
         }
 
         public override void HitEffect(NPC.HitInfo hit)

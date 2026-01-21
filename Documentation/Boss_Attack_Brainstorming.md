@@ -1,351 +1,392 @@
 # Boss Attack Brainstorming
 
-> **50 Unique Attack Concepts for MagnumOpus Bosses**
+> **50 Foundational Attack Patterns for Boss Implementation**
 > 
-> This document contains creative, outside-the-box attack ideas that can be adapted for any boss theme. Each attack includes a description, visual concept, and implementation notes.
+> This document contains generic, reusable attack patterns that can be themed and adapted for any boss. Names are intentionally mechanical/descriptive to serve as implementation foundations.
 
 ---
 
-## 🎭 CATEGORY 1: ENVIRONMENTAL MANIPULATION
+## 🌍 CATEGORY 1: ENVIRONMENTAL MANIPULATION
 
-### 1. **Gravity Flip Zones**
-- **Concept:** Boss creates localized gravity inversion fields. Players in these zones fall upward toward the ceiling for a duration.
-- **Visual:** Purple distortion bubbles with swirling particles. Players inside have inverted controls.
-- **Mechanic:** Forces repositioning, can combo with ceiling hazards.
+### 1. **LocalizedGravityInversion**
+- **Mechanic:** Creates circular zones where gravity is reversed for entities inside.
+- **Parameters:** `zoneRadius`, `duration`, `zoneCount`, `gravityStrength`
+- **Implementation:** Apply negative Y velocity to players in zone. Zone positions can be random or pattern-based.
 
-### 2. **Quicksand Abyss**
-- **Concept:** Patches of the ground become unstable, pulling players downward. Standing still = sinking.
-- **Visual:** Ground texture warps, ripples spread outward, glyph symbols mark danger zones.
-- **Mechanic:** Must keep moving or take damage and become slowed.
+### 2. **GroundSinkingZones**
+- **Mechanic:** Marked ground areas that pull players downward. Standing still increases sink rate.
+- **Parameters:** `sinkRate`, `zoneRadius`, `damagePerSecond`, `zoneCount`
+- **Implementation:** Apply downward velocity + damage over time to players in zone. Movement resets sink progress.
 
-### 3. **Mirror Dimension Shift**
-- **Concept:** Screen briefly inverts/mirrors. Left becomes right, up becomes down. Controls remain normal but visual feedback is reversed.
-- **Visual:** Screen shatters into mirror shards, reassembles inverted. Chromatic aberration.
-- **Mechanic:** Tests player adaptation. 3-5 second duration.
+### 3. **ScreenMirrorEffect**
+- **Mechanic:** Visual left-right or up-down inversion of the game view. Controls remain normal.
+- **Parameters:** `duration`, `mirrorAxis` (horizontal/vertical/both)
+- **Implementation:** Shader or render target flip. Purely visual disorientation.
 
-### 4. **Temporal Freeze Zones**
-- **Concept:** Boss creates zones where time moves slower. Projectiles entering these zones slow to a crawl, then resume normal speed on exit.
-- **Visual:** Blue-tinted bubble with clock particles, projectiles leave afterimages inside.
-- **Mechanic:** Can trap player projectiles but also boss projectiles. Strategic placement.
+### 4. **ProjectileTimeZones**
+- **Mechanic:** Spherical areas where projectile velocity is modified (slowed or sped up).
+- **Parameters:** `zoneRadius`, `timeMultiplier`, `duration`, `affectsPlayerProjectiles`, `affectsBossProjectiles`
+- **Implementation:** Modify projectile velocity when inside zone bounds.
 
-### 5. **Platform Collapse Cascade**
-- **Concept:** Boss marks platforms/ground in sequence. They collapse moments later, forcing constant movement.
-- **Visual:** Cracks spread, glow intensifies, then section crumbles into particles.
-- **Mechanic:** Pattern-based movement puzzle during the attack.
-
----
-
-## 🌀 CATEGORY 2: FORMATION & GEOMETRIC ATTACKS
-
-### 6. **Constellation Strike**
-- **Concept:** Points of light appear, then connect with laser beams in constellation patterns (triangle, square, star, etc.)
-- **Visual:** Star points twinkle, then bright lines connect them. Pattern glows before dealing damage.
-- **Mechanic:** Player must recognize pattern and find gaps.
-
-### 7. **Fibonacci Spiral Barrage**
-- **Concept:** Projectiles spawn in an expanding Fibonacci spiral pattern from boss center.
-- **Visual:** Golden ratio spiral with projectiles at each node. Mathematical beauty.
-- **Mechanic:** Spiral has natural gaps between arms if player positions correctly.
-
-### 8. **Fractal Recursion**
-- **Concept:** An attack spawns smaller versions of itself on impact, which spawn even smaller versions.
-- **Visual:** Explosion creates 3 smaller explosions, each creates 3 even smaller ones.
-- **Mechanic:** Initial hit is avoidable but staying near causes cascade damage.
-
-### 9. **Tetris Rain**
-- **Concept:** Tetromino-shaped projectile formations fall from above. Each shape has different collision patterns.
-- **Visual:** Glowing block formations descending. Different colors for different speeds.
-- **Mechanic:** Learn which shapes have safe spots inside them.
-
-### 10. **Mandala Unfold**
-- **Concept:** A complex mandala pattern unfolds from center, each layer rotating opposite directions.
-- **Visual:** Sacred geometry expanding outward with ornate particle work.
-- **Mechanic:** Must weave between rotating layers, each with gaps.
+### 5. **SequentialPlatformCollapse**
+- **Mechanic:** Platforms/ground segments are marked in sequence, then collapse after delay.
+- **Parameters:** `collapseDelay`, `collapseSequenceInterval`, `platformCount`, `respawnTime`
+- **Implementation:** Mark tiles, start timer, destroy/disable on timer completion.
 
 ---
 
-## 🎵 CATEGORY 3: RHYTHM & TIMING ATTACKS (Perfect for MagnumOpus!)
+## 🔷 CATEGORY 2: GEOMETRIC PATTERN ATTACKS
 
-### 11. **Heartbeat Pulse**
-- **Concept:** Boss pulses damage in a heartbeat rhythm. Being close during "beat" causes damage.
-- **Visual:** Boss glows/contracts on beats. Red pulse waves expand outward.
-- **Mechanic:** Learn the rhythm, attack during diastole (rest phase).
+### 6. **PointConnectLaserGrid**
+- **Mechanic:** Multiple points spawn, then laser beams connect them in a pattern (triangle, star, grid).
+- **Parameters:** `pointCount`, `pattern` (triangle/square/star/random), `telegraphTime`, `beamDuration`, `beamWidth`
+- **Implementation:** Spawn point markers, calculate connection lines, activate beams after telegraph.
 
-### 12. **Measure Markers**
-- **Concept:** Musical staff lines appear across arena. Notes spawn on specific lines at specific times.
-- **Visual:** Horizontal staff lines, colored notes descending/ascending.
-- **Mechanic:** Notes deal damage on their line. Player must be between lines.
+### 7. **SpiralProjectilePattern**
+- **Mechanic:** Projectiles spawn in an expanding spiral pattern from a center point.
+- **Parameters:** `armCount`, `projectilesPerArm`, `spiralTightness`, `expansionSpeed`, `projectileSpeed`
+- **Implementation:** Use polar coordinates with incrementing angle and radius for spawn positions.
 
-### 13. **Crescendo Buildup**
-- **Concept:** Attack starts weak and slow, accelerates and intensifies over time until "climax" burst.
-- **Visual:** Particles start sparse and dim, become dense and bright. Color shifts from cool to warm.
-- **Mechanic:** Early phase is easy, final burst is massive. Player can interrupt by dealing threshold damage.
+### 8. **RecursiveSplitExplosion**
+- **Mechanic:** Explosion spawns smaller explosions, which spawn even smaller ones. Recursive depth.
+- **Parameters:** `recursionDepth`, `splitCount`, `sizeReductionFactor`, `delayBetweenSplits`
+- **Implementation:** On explosion, spawn N smaller projectiles at reduced scale. Each can trigger same logic.
 
-### 14. **Rest Note Safe Zones**
-- **Concept:** Musical rest symbols (𝄽) appear briefly as safe zones during an otherwise arena-filling attack.
-- **Visual:** Rest symbols glow white amidst chaotic projectile storm.
-- **Mechanic:** Dash to rest symbols before they expire.
+### 9. **ShapedProjectileFormation**
+- **Mechanic:** Projectiles arranged in geometric shapes (L, T, square, line) that move as a unit.
+- **Parameters:** `shape`, `formationSize`, `moveSpeed`, `rotationSpeed`, `projectileSpacing`
+- **Implementation:** Define shape template, spawn projectiles at relative positions, move formation as group.
 
-### 15. **Syncopated Strikes**
-- **Concept:** Boss attacks on off-beats intentionally. Pattern seems random but follows syncopation rules.
-- **Visual:** Each strike has a brief "silent" telegraph (no particles) before hitting.
-- **Mechanic:** Advanced players can learn the syncopated pattern.
-
----
-
-## 👁️ CATEGORY 4: PSYCHOLOGICAL & PERCEPTION ATTACKS
-
-### 16. **Phantom Pain Memory**
-- **Concept:** Ghost images of player's past positions appear, then get attacked. Where you WERE is dangerous.
-- **Visual:** Translucent afterimages of player trail behind. They flash red before being "hit."
-- **Mechanic:** Constant movement required. Standing still means your afterimages stack.
-
-### 17. **Gaze Lock**
-- **Concept:** Boss's eye(s) track player. Laser fires wherever the eye "looks" with brief delay.
-- **Visual:** Giant eye follows player, pupil constricts before firing beam.
-- **Mechanic:** Erratic movement shakes the eye. Predictable movement = easy target.
-
-### 18. **False Telegraph**
-- **Concept:** Boss shows a fake attack telegraph (e.g., charging left) then attacks from different direction.
-- **Visual:** Obvious fake windup, then real attack from unexpected angle.
-- **Mechanic:** Train players to watch secondary cues, not primary ones. Fair but tricky.
-
-### 19. **Invisibility Cloak**
-- **Concept:** Boss or its projectiles become invisible briefly. Audio cues become critical.
-- **Visual:** Boss/projectiles fade to transparency. Distortion shimmer remains faintly.
-- **Mechanic:** Sound direction indicates threat location. Rewards headphone users.
-
-### 20. **Doubt Clones**
-- **Concept:** Multiple copies of boss appear. Only one is "real" but they all perform attacks. Real one has subtle tell.
-- **Visual:** 4-6 identical bosses. True boss has slightly different particle trail/eye glow.
-- **Mechanic:** Rewards observation. Attacking real boss deals extra damage.
+### 10. **ConcentricRotatingRings**
+- **Mechanic:** Multiple rings of projectiles rotate around center, each ring rotating opposite direction.
+- **Parameters:** `ringCount`, `projectilesPerRing`, `ringRadii[]`, `rotationSpeeds[]`, `gapSize`
+- **Implementation:** Each ring is independent rotation. Player must weave through gaps between rings.
 
 ---
 
-## 🔄 CATEGORY 5: PHASE & STATE TRANSFORMATION
+## 🎵 CATEGORY 3: TIMING-BASED ATTACKS
 
-### 21. **Elemental Cycle**
-- **Concept:** Boss cycles through elements (fire→ice→lightning→earth) each with different attack properties.
-- **Visual:** Color and particle shifts. Fire = red/orange embers. Ice = blue crystals. Lightning = yellow sparks. Earth = brown rocks.
-- **Mechanic:** Each element has different weaknesses/counters.
+### 11. **RhythmicPulseDamage**
+- **Mechanic:** Boss emits damage pulses at regular intervals. Proximity determines damage.
+- **Parameters:** `pulseInterval`, `pulseRadius`, `damageAtCenter`, `damageFalloff`
+- **Implementation:** Timer-based pulse emission. Damage = base * (1 - distance/radius).
 
-### 22. **Size Oscillation**
-- **Concept:** Boss grows and shrinks rhythmically. Larger = slower but bigger hitbox/damage. Smaller = faster but weaker.
-- **Visual:** Pulsing scale changes with stretch animations.
-- **Mechanic:** Attack during small phase for safety, large phase for DPS windows.
+### 12. **HorizontalLaneProjectiles**
+- **Mechanic:** Arena divided into horizontal lanes. Projectiles spawn on specific lanes at specific times.
+- **Parameters:** `laneCount`, `laneHeight`, `projectilePattern[]`, `spawnInterval`
+- **Implementation:** Define which lanes are dangerous per time unit. Visual lane markers help readability.
 
-### 23. **Emotional States**
-- **Concept:** Boss has "moods" that change its behavior: Rage (aggressive), Sorrow (defensive), Joy (erratic), Fear (evasive).
-- **Visual:** Color palette shifts, facial expression changes, aura changes.
-- **Mechanic:** Each mood has different optimal player strategy.
+### 13. **EscalatingIntensityAttack**
+- **Mechanic:** Attack starts slow/weak, accelerates and intensifies over duration until final burst.
+- **Parameters:** `initialRate`, `finalRate`, `rampDuration`, `finalBurstDamage`, `interruptThreshold`
+- **Implementation:** Lerp between initial and final parameters over time. Optional cancel on damage threshold.
 
-### 24. **Binary Split**
-- **Concept:** Boss splits into two halves that fight independently but share HP. They periodically merge for combined attacks.
-- **Visual:** Boss tears in half with energy tether between. Merge creates shockwave.
-- **Mechanic:** Must damage both or they heal when merging.
+### 14. **TemporarySafeZoneSpawns**
+- **Mechanic:** During dangerous attack, small safe zones appear briefly. Player must reach them.
+- **Parameters:** `safeZoneRadius`, `safeZoneDuration`, `spawnInterval`, `dangerousDamage`
+- **Implementation:** Everything outside safe zone deals damage. Safe zone relocates periodically.
 
-### 25. **Evolution Stages**
-- **Concept:** Boss "evolves" at HP thresholds into visually and mechanically different forms. No going back.
-- **Visual:** Dramatic transformation cutscene. New form has different silhouette.
-- **Mechanic:** Each form requires different tactics. Learning curve resets each evolution.
-
----
-
-## 💥 CATEGORY 6: PROJECTILE BEHAVIOR INNOVATIONS
-
-### 26. **Boomerang Swarm**
-- **Concept:** Projectiles fly outward, pause at max range, then return to boss (passing through player area twice).
-- **Visual:** Curved flight paths with lingering trails. "Recall" effect when returning.
-- **Mechanic:** Dodge twice - once outgoing, once returning.
-
-### 27. **Magnetic Projectiles**
-- **Concept:** Projectiles are attracted to or repelled by player based on player's "charge" state.
-- **Visual:** +/- symbols on projectiles. Player has visible charge aura.
-- **Mechanic:** Dash reverses charge. Opposite charges attract, same repel.
-
-### 28. **Splitting Cells**
-- **Concept:** Large projectile splits into multiple smaller ones when hit by player attack.
-- **Visual:** Cell-like membrane that ruptures into clusters.
-- **Mechanic:** Sometimes better to not attack and let them pass.
-
-### 29. **Orbiting Shields**
-- **Concept:** Boss has orbiting projectiles that block player attacks. Must time attacks through gaps.
-- **Visual:** Rotating ring of glowing orbs around boss.
-- **Mechanic:** Orbs can be destroyed but respawn. Gap timing is key.
-
-### 30. **Homing With Honor**
-- **Concept:** Projectiles home but only turn at specific angles (90° only). Creates predictable but complex paths.
-- **Visual:** Sharp angular turns with spark effects. Clear direction change animations.
-- **Mechanic:** Lure projectiles into walls/obstacles by positioning correctly.
+### 15. **OffBeatAttackPattern**
+- **Mechanic:** Attacks occur on unexpected timing (syncopated). Pattern is consistent but non-obvious.
+- **Parameters:** `beatInterval`, `offBeatOffset`, `attacksPerCycle`
+- **Implementation:** Instead of attacking on beat, attack between beats. Rewards pattern learning.
 
 ---
 
-## 🌐 CATEGORY 7: ARENA & SPACE CONTROL
+## 👁️ CATEGORY 4: TRACKING & TARGETING ATTACKS
 
-### 31. **Shrinking Arena**
-- **Concept:** Walls of damage close in periodically, shrinking safe space. Resets after reaching minimum.
-- **Visual:** Energy walls advance with warning indicators. Pressure intensifies.
-- **Mechanic:** Boss attacks become harder to dodge in cramped space. Race against the walls.
+### 16. **DelayedPositionTargeting**
+- **Mechanic:** Attack targets where player WAS, not where they ARE. Past positions become danger zones.
+- **Parameters:** `positionDelay` (frames), `attackCount`, `attackInterval`
+- **Implementation:** Store player position history. Attack targets position from N frames ago.
 
-### 32. **Tile Corruption**
-- **Concept:** Boss "corrupts" tiles it touches. Corrupted tiles damage player. Spreads over time.
-- **Visual:** Ground changes color/texture, oozes particles. Spreading infection pattern.
-- **Mechanic:** Kite boss to already-corrupted areas. Fresh ground is valuable.
+### 17. **EntityGazeTracking**
+- **Mechanic:** A tracking element (eye, cursor) follows player. Fires attack in look direction after delay.
+- **Parameters:** `trackingSpeed`, `chargeTime`, `attackType`, `trackingDuration`
+- **Implementation:** Rotate toward player at limited speed. Fire in facing direction after charge completes.
 
-### 33. **Pocket Dimension Trap**
-- **Concept:** Boss creates a small isolated arena the player gets pulled into. Must survive mini-challenge to escape.
-- **Visual:** Portal opens, player is sucked in. Inside is void space with unique hazards.
-- **Mechanic:** Boss is invulnerable until player escapes the pocket dimension.
+### 18. **FakeTelegraphMisdirection**
+- **Mechanic:** Shows obvious telegraph for attack direction A, then attacks from direction B.
+- **Parameters:** `fakeTelegraphDuration`, `realTelegraphDuration`, `fakeDirection`, `realDirection`
+- **Implementation:** Display fake windup, brief pause, then real attack from different angle.
 
-### 34. **Rotating Arena**
-- **Concept:** The entire arena rotates around the boss. Player's relative position changes even when standing still.
-- **Visual:** Background spins, platform indicators rotate. Dizzying effect.
-- **Mechanic:** Aims and movements must account for rotation. Very disorienting.
+### 19. **InvisibilityPhase**
+- **Mechanic:** Boss or projectiles become invisible/transparent. Audio cues indicate position.
+- **Parameters:** `invisDuration`, `visibilityLevel` (0-1), `audioIntensity`
+- **Implementation:** Set alpha to near-zero. Play positional audio. Optional shimmer effect.
 
-### 35. **Safe Zone Musical Chairs**
-- **Concept:** Only one small area is safe at a time. Safe zone teleports to new location periodically.
-- **Visual:** Bright spotlight effect on safe area. Warning before it moves.
-- **Mechanic:** Dash to new safe zone before old one becomes deadly.
-
----
-
-## ⚡ CATEGORY 8: INTERACTIVE & COUNTER ATTACKS
-
-### 36. **Parry Window**
-- **Concept:** Certain attacks can be parried by attacking at exact moment. Successful parry damages boss.
-- **Visual:** Parryable attacks have distinct golden glow. Successful parry creates satisfying clash effect.
-- **Mechanic:** High risk/reward. Failed parry = double damage.
-
-### 37. **Absorb And Redirect**
-- **Concept:** Boss launches slow projectile that absorbs all player projectiles it touches, growing larger. Then fires it back.
-- **Visual:** Dark sphere that visibly grows as it absorbs attacks. Glows when "full."
-- **Mechanic:** Stop attacking when absorber is active, or hit it enough to destroy it.
-
-### 38. **Environmental Weapons**
-- **Concept:** Boss creates objects player can hit to launch them back at boss.
-- **Visual:** Glowing orbs that "arm" when player strikes them. Launch toward boss on hit.
-- **Mechanic:** Hitting them deals massive damage to boss. Mini-game within fight.
-
-### 39. **Charge Steal**
-- **Concept:** Boss can "steal" player's held item charge/mana, using it for a powerful attack.
-- **Visual:** Energy drains visually from player to boss. Boss glows with stolen power.
-- **Mechanic:** Release charge before boss can steal it. Timing puzzle.
-
-### 40. **Copycat**
-- **Concept:** Boss copies player's last used attack type and uses it against them.
-- **Visual:** Boss performs mirrored version of player's attack.
-- **Mechanic:** Use weak attacks intentionally to give boss weak copied attack.
+### 20. **MultipleEntityOneReal**
+- **Mechanic:** Multiple identical copies appear. Only one is "real" (can be damaged/deals full damage).
+- **Parameters:** `copyCount`, `realEntityTell` (subtle visual difference), `copyDamageMult`
+- **Implementation:** Spawn copies with slight visual variation on real one. Copies deal reduced/no damage.
 
 ---
 
-## 🎪 CATEGORY 9: SPECTACLE & CINEMATIC ATTACKS
+## 🔄 CATEGORY 5: STATE & TRANSFORMATION
 
-### 41. **The World Goes Dark**
-- **Concept:** All light sources extinguish. Only boss's glowing attacks visible. Player must navigate by attack light.
-- **Visual:** Complete darkness except for projectile glows and boss eyes.
-- **Mechanic:** Memorize arena layout. Attacks ironically provide necessary light.
+### 21. **CyclingElementalState**
+- **Mechanic:** Boss cycles through distinct states, each with different attack properties and vulnerabilities.
+- **Parameters:** `stateCount`, `stateDuration`, `stateProperties[]` (damage type, color, attack set)
+- **Implementation:** Timer-based state machine. Each state loads different attack pool and visuals.
 
-### 42. **Slow Motion Execution**
-- **Concept:** Time slows dramatically for a "finishing blow" style attack. Player has extra time to dodge but less space.
-- **Visual:** Everything enters slow-mo with blur effects. Attack is visually spectacular but avoidable.
-- **Mechanic:** Tension builder. Makes player feel like they barely survived.
+### 22. **SizeOscillation**
+- **Mechanic:** Boss scale changes over time. Larger = slower movement, bigger hitbox. Smaller = faster, smaller hitbox.
+- **Parameters:** `minScale`, `maxScale`, `oscillationPeriod`, `scaleAffectsSpeed`, `scaleAffectsDamage`
+- **Implementation:** Sinusoidal scale interpolation. Adjust movement speed inversely to scale.
 
-### 43. **The Floor Is Lava (Literally)**
-- **Concept:** Floor ignites in waves. Must use platforms/flight to survive. Boss floats smugly above.
-- **Visual:** Rising lava/flames with heat distortion. Safe platforms highlighted.
-- **Mechanic:** Vertical arena control. Rewards mobility.
+### 23. **BehaviorModeSwitch**
+- **Mechanic:** Boss has distinct behavior modes (aggressive, defensive, erratic, evasive) that swap based on triggers.
+- **Parameters:** `modes[]`, `modeTriggers` (HP threshold, time, player action), `modeProperties[]`
+- **Implementation:** State machine with trigger conditions. Each mode has different AI parameters.
 
-### 44. **Heaven's Judgement**
-- **Concept:** Giant glowing blade/hammer descends from sky, visible for several seconds before impact.
-- **Visual:** Massive weapon materializes above, shadow below shows impact zone. Devastating impact VFX.
-- **Mechanic:** Dodge the obvious thing while boss does regular attacks.
+### 24. **EntitySplitAndMerge**
+- **Mechanic:** Boss splits into multiple smaller entities that fight independently, then merge back together.
+- **Parameters:** `splitCount`, `splitDuration`, `sharedHP`, `mergeAttack`
+- **Implementation:** Spawn child NPCs on split. Track combined HP. Despawn children and restore boss on merge.
 
-### 45. **Bullet Time Curtain**
-- **Concept:** Hundreds of projectiles fill screen but move in super slow motion. Player moves at normal speed through them.
-- **Visual:** Dense but slow "curtain" of beautiful projectiles. Very bullet-hell aesthetic.
-- **Mechanic:** Navigation puzzle through a frozen storm.
-
----
-
-## 🎲 CATEGORY 10: WILD CARD & EXPERIMENTAL
-
-### 46. **Attack Roulette**
-- **Concept:** Spinning wheel appears. Whatever attack it lands on, boss performs. Player sees what's coming.
-- **Visual:** Casino-style wheel with attack icons. Dramatic slowdown as it settles.
-- **Mechanic:** Random but telegraphed. Adds variety and tension.
-
-### 47. **Crowd Control Summons**
-- **Concept:** Boss summons audience of "spectators" who throw popcorn/items at player. Non-lethal but annoying chip damage.
-- **Visual:** Stands appear filled with cheering/booing entities. They throw themed debris.
-- **Mechanic:** Comic relief during intense fight. Can destroy spectators for drops.
-
-### 48. **Boss Takes Damage For You**
-- **Concept:** Boss creates tether. Any damage player would take, boss takes instead... but boss heals for 2x that amount.
-- **Visual:** Health tether between boss and player. Visual shows damage redirecting.
-- **Mechanic:** Must avoid damage MORE carefully. Getting hit heals boss!
-
-### 49. **Attack Auction**
-- **Concept:** Multiple potential attacks appear. The one player deals most damage to gets "cancelled." Others fire.
-- **Visual:** Attack sigils appear. Damage counter visible. Lowest damage one activates.
-- **Mechanic:** Choose which attack to "buy out." Interesting decision during DPS.
-
-### 50. **Fourth Wall Break**
-- **Concept:** Boss directly references being in a game. Attacks the UI, obscures health bar, messes with controls.
-- **Visual:** Boss looks at camera, winks. HUD elements flicker/move. Fake error messages.
-- **Mechanic:** Disorienting but fair. All "broken" elements have tells for what's actually happening.
+### 25. **PermanentFormEvolution**
+- **Mechanic:** Boss permanently transforms at HP thresholds. Each form has unique attacks and appearance.
+- **Parameters:** `formCount`, `hpThresholds[]`, `formProperties[]`
+- **Implementation:** On HP threshold, play transformation, load new sprite/attack set. No reverting.
 
 ---
 
-## 📋 IMPLEMENTATION PRIORITY MATRIX
+## 🎯 CATEGORY 6: PROJECTILE BEHAVIOR VARIANTS
 
-| Attack | Difficulty to Implement | Visual Impact | Gameplay Innovation | Priority |
-|--------|------------------------|---------------|---------------------|----------|
-| Constellation Strike | Medium | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | HIGH |
-| Heartbeat Pulse | Low | ⭐⭐⭐ | ⭐⭐⭐⭐ | HIGH |
-| Gaze Lock | Medium | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | HIGH |
-| Fibonacci Spiral | High | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | MEDIUM |
-| Mirror Dimension | High | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | MEDIUM |
-| Binary Split | High | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | LOW |
-| Fourth Wall Break | Very High | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | LOW |
+### 26. **ReturnToSourceProjectile**
+- **Mechanic:** Projectiles travel outward, pause at max range, then return to spawn point.
+- **Parameters:** `outwardSpeed`, `pauseDuration`, `returnSpeed`, `maxRange`
+- **Implementation:** Phase-based AI: outward phase, pause phase, return phase.
 
----
+### 27. **ChargeBasedAttraction**
+- **Mechanic:** Projectiles and player have +/- charges. Same charge = repulsion, opposite = attraction.
+- **Parameters:** `attractionStrength`, `chargeSwapMethod` (dash, timer, item), `projectileCharge`
+- **Implementation:** Calculate force vector between charged entities. Apply to projectile velocity.
 
-## 🎨 THEME SUITABILITY GUIDE
+### 28. **SplitOnDamageProjectile**
+- **Mechanic:** Large projectile splits into smaller ones when struck by player attack.
+- **Parameters:** `splitCount`, `childScale`, `splitVelocitySpread`, `splitOnlyFromPlayerDamage`
+- **Implementation:** OnHit check for player projectile. Spawn children with velocity variance.
 
-### La Campanella (Fire/Bell)
-- Best fits: #3 Crescendo Buildup, #11 Heartbeat Pulse, #43 Floor Is Lava, #44 Heaven's Judgement
+### 29. **OrbitingShieldProjectiles**
+- **Mechanic:** Projectiles orbit boss, blocking player attacks. Gaps in orbit allow shots through.
+- **Parameters:** `orbitRadius`, `orbitSpeed`, `shieldCount`, `shieldHP`, `respawnTime`
+- **Implementation:** Circular motion around boss center. Shields have HP and can be destroyed.
 
-### Eroica (Heroic/Sakura)
-- Best fits: #6 Constellation Strike, #25 Evolution Stages, #36 Parry Window, #42 Slow Motion Execution
-
-### Swan Lake (Graceful/Monochrome)  
-- Best fits: #10 Mandala Unfold, #7 Fibonacci Spiral, #23 Emotional States, #45 Bullet Time Curtain
-
-### Enigma Variations (Mystery/Void)
-- Best fits: #16 Phantom Pain Memory, #19 Invisibility Cloak, #20 Doubt Clones, #41 World Goes Dark
-
-### Fate (Cosmic/Destiny)
-- Best fits: #4 Temporal Freeze, #33 Pocket Dimension, #46 Attack Roulette, #50 Fourth Wall Break
-
-### Moonlight Sonata (Lunar/Ethereal)
-- Best fits: #1 Gravity Flip, #12 Measure Markers, #14 Rest Note Safe Zones, #35 Musical Chairs
+### 30. **AngularHomingProjectile**
+- **Mechanic:** Homing projectile that can only turn at fixed angles (90°, 45°). Creates grid-like paths.
+- **Parameters:** `turnAngle`, `turnInterval`, `maxTurns`, `moveSpeed`
+- **Implementation:** On turn interval, calculate new direction snapped to angle. Apply until next turn.
 
 ---
 
-## 📝 NOTES FOR IMPLEMENTATION
+## 🏟️ CATEGORY 7: ARENA CONTROL
 
-1. **Always Telegraph** - Even the trickiest attacks need fair warning. The challenge is execution, not information.
+### 31. **ShrinkingBoundary**
+- **Mechanic:** Arena boundaries close in over time, reducing safe space. Resets after reaching minimum.
+- **Parameters:** `shrinkSpeed`, `minArenaSize`, `boundaryDamage`, `resetBehavior`
+- **Implementation:** Move damage walls inward. Deal damage on contact. Reset or hold at minimum.
 
-2. **Theme Integration** - Any attack can be themed. Gravity flip works for cosmic, fire, magic - just change the VFX.
+### 32. **TileConversionSpread**
+- **Mechanic:** Boss contact converts tiles to damaging terrain. Conversion spreads over time.
+- **Parameters:** `conversionRadius`, `spreadRate`, `spreadCap`, `damagePerTile`
+- **Implementation:** Mark tiles as converted on boss contact. Spread to adjacent tiles over time.
 
-3. **Difficulty Scaling** - Most attacks can scale by: speed, projectile count, safe zone size, or timing windows.
+### 33. **IsolatedArenaPhase**
+- **Mechanic:** Player is pulled into isolated mini-arena for survival challenge. Must complete to return.
+- **Parameters:** `arenaSize`, `challengeDuration`, `challengeAttacks[]`, `exitCondition`
+- **Implementation:** Teleport player to separate area. Run challenge sequence. Return on completion.
 
-4. **Combo Potential** - Consider how attacks combo together. Shrinking arena + homing projectiles = nightmare.
+### 34. **RotatingArenaView**
+- **Mechanic:** Arena visually rotates around boss. Player's relative position changes without movement.
+- **Parameters:** `rotationSpeed`, `rotationDirection`, `affectsProjectiles`
+- **Implementation:** Rotate camera/background. Optionally rotate projectile spawn positions to match.
 
-5. **Player Expression** - Best attacks allow skilled players to look cool while surviving. Style points matter.
-
-6. **Audio Sync** - For MagnumOpus, EVERY attack should have audio that matches the musical theme. Attacks are notes in the symphony.
+### 35. **MovingSafeZone**
+- **Mechanic:** Only one small area is safe. Safe area relocates periodically. Must chase the safe zone.
+- **Parameters:** `safeRadius`, `relocateInterval`, `transitionTime`, `outsideDamage`
+- **Implementation:** Mark safe position. Deal damage outside. Move safe position on timer.
 
 ---
 
-*"A truly great boss attack makes the player feel like they survived something impossible - and want to do it again."*
+## ⚔️ CATEGORY 8: INTERACTIVE MECHANICS
+
+### 36. **TimedParryWindow**
+- **Mechanic:** Specific attacks can be parried by player attack during brief window. Parry damages boss.
+- **Parameters:** `parryWindowStart`, `parryWindowDuration`, `parryDamage`, `failedParryPenalty`
+- **Implementation:** Mark attack as parryable. Check for player attack collision during window frames.
+
+### 37. **ProjectileAbsorptionOrb**
+- **Mechanic:** Slow-moving orb absorbs player projectiles it contacts. Grows larger. Fires back when full.
+- **Parameters:** `moveSpeed`, `absorptionCap`, `growthPerAbsorb`, `returnDamageMultiplier`
+- **Implementation:** Track absorbed damage. Scale orb. Fire at player when threshold reached.
+
+### 38. **ReflectableEnvironmentObject**
+- **Mechanic:** Boss spawns objects player can strike to launch at boss, dealing significant damage.
+- **Parameters:** `objectHP`, `launchSpeed`, `bossHitDamage`, `objectSpawnInterval`
+- **Implementation:** Spawn hittable projectile. On player hit, reverse direction toward boss.
+
+### 39. **ResourceDrainAttack**
+- **Mechanic:** Boss drains player resource (mana, held charge, buff duration) and uses it against them.
+- **Parameters:** `drainRate`, `drainType`, `stolenResourceUse`
+- **Implementation:** Reduce player resource value. Boss performs attack scaled to stolen amount.
+
+### 40. **AttackMimicry**
+- **Mechanic:** Boss copies player's most recent attack type and uses mirrored version against them.
+- **Parameters:** `mimicDelay`, `mimicDamageScale`, `mimicDuration`
+- **Implementation:** Track last player weapon/attack used. Boss performs similar attack pattern.
+
+---
+
+## 🎬 CATEGORY 9: VISUAL SPECTACLE ATTACKS
+
+### 41. **FullDarknessPhase**
+- **Mechanic:** All light sources extinguished. Only boss attacks and glowing elements visible.
+- **Parameters:** `darknessDuration`, `bossGlowIntensity`, `attackGlowIntensity`
+- **Implementation:** Override lighting to minimal. Boss/attack sprites use self-illumination.
+
+### 42. **SlowMotionExecution**
+- **Mechanic:** Game speed dramatically reduced for high-damage attack. Extra time to react but less space.
+- **Parameters:** `slowFactor`, `slowDuration`, `attackDuringSlowmo`
+- **Implementation:** Reduce Main.timeScale or manually slow all velocities. Attack is visually impressive.
+
+### 43. **FloorHazardWaves**
+- **Mechanic:** Ground becomes hazardous in waves. Player must use platforms or flight to survive.
+- **Parameters:** `waveDuration`, `safeZones[]`, `hazardDamage`, `wavePattern`
+- **Implementation:** All ground-level tiles deal damage. Mark safe platforms visually.
+
+### 44. **TelegraphedMassiveStrike**
+- **Mechanic:** Huge attack with very long telegraph. Massive visual but avoidable with positioning.
+- **Parameters:** `telegraphDuration`, `impactRadius`, `impactDamage`, `telegraphVisual`
+- **Implementation:** Large visual warning (shadow, descending object). Devastating damage on impact.
+
+### 45. **DenseSlowProjectileField**
+- **Mechanic:** Extremely dense projectile curtain moving very slowly. Navigation puzzle through static field.
+- **Parameters:** `projectileDensity`, `fieldSpeed`, `fieldWidth`, `gapSize`
+- **Implementation:** Spawn dense grid of slow projectiles. Player weaves through at normal speed.
+
+---
+
+## 🎲 CATEGORY 10: SPECIAL MECHANICS
+
+### 46. **RandomAttackSelection**
+- **Mechanic:** Attack chosen randomly from pool with visible selection process. Player sees what's coming.
+- **Parameters:** `attackPool[]`, `selectionVisualDuration`, `selectionBias`
+- **Implementation:** Display attack options. Animate selection. Execute chosen attack.
+
+### 47. **DistractionEntitySpawns**
+- **Mechanic:** Minor entities spawn that harass player with non-lethal interference during boss attacks.
+- **Parameters:** `spawnCount`, `spawnInterval`, `distractionDamage`, `distractionHP`
+- **Implementation:** Spawn weak enemies that chip damage or obscure vision. Player can kill for drops.
+
+### 48. **ReverseHealingTether**
+- **Mechanic:** Damage player takes is prevented but heals boss for greater amount. Avoiding damage is critical.
+- **Parameters:** `tetherDuration`, `healMultiplier`, `maxHealPerSecond`
+- **Implementation:** Intercept player damage. Cancel damage. Heal boss for multiplied amount.
+
+### 49. **DamageBasedAttackCancel**
+- **Mechanic:** Multiple attacks telegraph simultaneously. One with most player damage is cancelled.
+- **Parameters:** `attackCount`, `damageWindow`, `cancelledAttackCount`
+- **Implementation:** Display attack sigils with damage counters. Remove lowest-damaged from execution.
+
+### 50. **MetaGameInterference**
+- **Mechanic:** Attack affects game UI elements - health bar moves, fake error messages, input display scramble.
+- **Parameters:** `interferenceType`, `interferenceDuration`, `actualMechanicBehindInterference`
+- **Implementation:** Modify UI positions temporarily. All "broken" elements have underlying real mechanic.
+
+---
+
+## 📋 IMPLEMENTATION TEMPLATE
+
+```csharp
+/// <summary>
+/// [ATTACK_NAME] - [Brief description]
+/// Category: [Category name]
+/// </summary>
+private void Attack_[AttackName](Player target)
+{
+    // PARAMETERS (adjust per difficulty tier)
+    int paramA = baseValue + difficultyTier * scaling;
+    float paramB = baseFloat - difficultyTier * reduction;
+    
+    // PHASE 0: TELEGRAPH
+    if (SubPhase == 0)
+    {
+        float progress = Timer / (float)telegraphTime;
+        
+        // Visual warnings
+        BossVFXOptimizer.WarningMethod(...);
+        
+        if (Timer >= telegraphTime)
+        {
+            Timer = 0;
+            SubPhase = 1;
+        }
+    }
+    // PHASE 1: EXECUTION
+    else if (SubPhase == 1)
+    {
+        // Spawn projectiles / deal damage / apply effect
+        if (Timer == 1 && Main.netMode != NetmodeID.MultiplayerClient)
+        {
+            // Attack logic
+        }
+        
+        if (Timer >= executionTime)
+        {
+            Timer = 0;
+            SubPhase = 2;
+        }
+    }
+    // PHASE 2: RECOVERY
+    else
+    {
+        if (Timer >= recoveryTime)
+        {
+            EndAttack();
+        }
+    }
+}
+```
+
+---
+
+## 📊 PARAMETER REFERENCE
+
+| Parameter Type | Common Names | Typical Range | Scaling Direction |
+|---------------|--------------|---------------|-------------------|
+| **Timing** | `telegraphTime`, `duration`, `interval` | 20-120 frames | Decrease with difficulty |
+| **Count** | `projectileCount`, `waveCount`, `zoneCount` | 3-30 | Increase with difficulty |
+| **Speed** | `moveSpeed`, `rotationSpeed`, `projectileSpeed` | 5-25 | Increase with difficulty |
+| **Size** | `radius`, `width`, `zoneSize` | 50-300 pixels | Decrease safe zones, increase danger zones |
+| **Damage** | `baseDamage`, `damagePerTick` | 50-150 | Slight increase with difficulty |
+
+---
+
+## 🔗 COMBINATION SUGGESTIONS
+
+**High Difficulty Combos:**
+- `ShrinkingBoundary` + `ConcentricRotatingRings` = Shrinking space + rotating hazards
+- `DelayedPositionTargeting` + `DenseSlowProjectileField` = Past and present both dangerous
+- `InvisibilityPhase` + `RhythmicPulseDamage` = Audio-based survival
+
+**Fair But Challenging Combos:**
+- `PointConnectLaserGrid` + `TemporarySafeZoneSpawns` = Learn pattern, find safety
+- `ReturnToSourceProjectile` + `SpiralProjectilePattern` = Dodge twice, learn spiral
+- `EntitySplitAndMerge` + `BehaviorModeSwitch` = Split entities have different modes
+
+---
+
+## 📝 IMPLEMENTATION NOTES
+
+1. **All attacks need telegraph phase** - Minimum 20-30 frames of visual warning.
+
+2. **Parameters should scale with `difficultyTier`** - Use the standard 3-tier HP-based system.
+
+3. **Use BossVFXOptimizer methods** - `WarningLine`, `SafeZoneRing`, `DangerZoneRing`, `ConvergingWarning`, etc.
+
+4. **Mix projectile types** - Use `BossProjectileHelper` variety: `SpawnHostileOrb`, `SpawnAcceleratingBolt`, `SpawnWaveProjectile`.
+
+5. **Include recovery windows** - Player needs time to reposition and deal damage between attacks.
+
+6. **Theme the visuals, not the mechanics** - Same `PointConnectLaserGrid` can be fire beams, ice lines, void tethers, etc.

@@ -1,7 +1,11 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.DataStructures;
+using ReLogic.Content;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
@@ -16,6 +20,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
     /// Every 5 seconds, a random minion gains "Riddle's Blessing":
     /// - Doubled attack speed for 3 seconds
     /// Additionally, +1 max minion slot.
+    /// 
+    /// Features a floating animated cauldron that orbits the player using a 6x6 sprite sheet.
     /// 
     /// Theme: The bubbling cauldron of riddles,
     /// where each answer spawns a dozen new questions.
@@ -38,6 +44,11 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
         
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
+            // Enable floating cauldron visual
+            // Enable floating cauldron visual
+            var cauldronPlayer = player.GetModPlayer<RiddlemastersCauldronPlayer>();
+            cauldronPlayer.showFloatingCauldron = !hideVisual;
+            
             var modPlayer = player.GetModPlayer<EnigmaAccessoryPlayer>();
             modPlayer.hasRiddlemastersCauldron = true;
             
@@ -47,7 +58,12 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
                 // Cauldron bubble particles around the player - every 30 frames
                 if (Main.GameUpdateCount % 30 == 0)
                 {
-                    Vector2 bubbleStart = player.Bottom + new Vector2(Main.rand.NextFloat(-20f, 20f), 0);
+                    // Bubbles rise from the floating cauldron position
+                    float cauldronAngle = cauldronPlayer.orbitAngle;
+                    Vector2 cauldronPos = player.Center + new Vector2((float)Math.Cos(cauldronAngle) * 50f, 
+                        (float)Math.Sin(cauldronAngle * 0.5f) * 15f - 20f);
+                    
+                    Vector2 bubbleStart = cauldronPos + new Vector2(Main.rand.NextFloat(-8f, 8f), -5f);
                     Vector2 bubbleVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -1.2f - Main.rand.NextFloat(0.6f));
                     
                     float progress = Main.rand.NextFloat();
@@ -188,6 +204,127 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             {
                 extraUpdateCounter = 0;
             }
+        }
+    }
+    
+    /// <summary>
+    /// ModPlayer to handle the floating cauldron visual and animation state.
+    /// </summary>
+    public class RiddlemastersCauldronPlayer : ModPlayer
+    {
+        // Visual state
+        public bool showFloatingCauldron = false;
+        public float orbitAngle = 0f;
+        public int animationFrame = 0;
+        private int animationTimer = 0;
+        private const int FramesPerAnimStep = 4; // Animation speed
+        
+        public override void ResetEffects()
+        {
+            showFloatingCauldron = false;
+        }
+        
+        public override void PostUpdate()
+        {
+            if (showFloatingCauldron)
+            {
+                // Update orbit angle - cauldron circles player
+                orbitAngle += 0.02f;
+                if (orbitAngle > MathHelper.TwoPi)
+                    orbitAngle -= MathHelper.TwoPi;
+                
+                // Update animation frame - cycles through 6x6 sprite sheet
+                animationTimer++;
+                if (animationTimer >= FramesPerAnimStep)
+                {
+                    animationTimer = 0;
+                    animationFrame++;
+                    if (animationFrame >= 36) // 6x6 = 36 frames
+                        animationFrame = 0;
+                }
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Custom draw layer for the floating Riddlemaster's Cauldron.
+    /// Uses 6x6 sprite sheet for bubbling animation.
+    /// </summary>
+    public class RiddlemastersCauldronDrawLayer : PlayerDrawLayer
+    {
+        // Enigma color palette
+        private static readonly Color EnigmaPurple = new Color(140, 60, 200);
+        private static readonly Color EnigmaGreenFlame = new Color(50, 220, 100);
+        
+        private Asset<Texture2D> _cauldronTexture;
+
+        public override Position GetDefaultPosition() => new BeforeParent(PlayerDrawLayers.FrontAccFront);
+
+        public override bool GetDefaultVisibility(PlayerDrawSet drawInfo)
+        {
+            var modPlayer = drawInfo.drawPlayer.GetModPlayer<RiddlemastersCauldronPlayer>();
+            return modPlayer.showFloatingCauldron && !drawInfo.drawPlayer.dead && !drawInfo.drawPlayer.invis;
+        }
+
+        protected override void Draw(ref PlayerDrawSet drawInfo)
+        {
+            Player player = drawInfo.drawPlayer;
+            var modPlayer = player.GetModPlayer<RiddlemastersCauldronPlayer>();
+
+            _cauldronTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Content/EnigmaVariations/Accessories/RiddlemastersCauldron_Summon");
+            if (_cauldronTexture.State != AssetState.Loaded)
+                return;
+
+            Texture2D tex = _cauldronTexture.Value;
+            int cols = 6;
+            int rows = 6;
+            int frameW = tex.Width / cols;
+            int frameH = tex.Height / rows;
+
+            // Get current frame from animation
+            int frame = modPlayer.animationFrame;
+            int col = frame % cols;
+            int row = frame / cols;
+
+            Rectangle source = new Rectangle(col * frameW, row * frameH, frameW, frameH);
+
+            // Calculate orbiting position - figure-8 pattern around player
+            float orbitRadius = 50f;
+            float verticalBob = (float)Math.Sin(modPlayer.orbitAngle * 0.5f) * 15f;
+            Vector2 offset = new Vector2(
+                (float)Math.Cos(modPlayer.orbitAngle) * orbitRadius,
+                verticalBob - 20f // Float above player
+            );
+            
+            Vector2 pos = drawInfo.Position - Main.screenPosition + new Vector2(player.width / 2f, player.height / 2f) + offset;
+            pos.Y += player.gfxOffY;
+            pos = pos.Floor();
+
+            // Determine direction based on orbit position
+            SpriteEffects fx = offset.X > 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            if (player.gravDir == -1)
+                fx |= SpriteEffects.FlipVertically;
+
+            // Use a mysterious glow color
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.15f + 0.85f;
+            Color glowColor = Color.Lerp(Color.White, EnigmaPurple, 0.2f) * pulse;
+
+            Vector2 origin = new Vector2(frameW / 2f, frameH / 2f);
+
+            // Draw main cauldron
+            float scale = 0.5f;
+            DrawData mainData = new DrawData(tex, pos, source, glowColor, 0f, origin, scale, fx, 0);
+            drawInfo.DrawDataCache.Add(mainData);
+            
+            // Draw additive glow layer
+            Color additiveGlow = EnigmaGreenFlame * 0.3f * pulse;
+            additiveGlow.A = 0; // For additive blending effect
+            DrawData glowData = new DrawData(tex, pos, source, additiveGlow, 0f, origin, scale * 1.1f, fx, 0);
+            drawInfo.DrawDataCache.Add(glowData);
+            
+            // Add dynamic lighting from the cauldron
+            Vector2 lightPos = player.Center + offset;
+            Lighting.AddLight(lightPos, EnigmaGreenFlame.ToVector3() * 0.5f * pulse);
         }
     }
 }

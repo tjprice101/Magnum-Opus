@@ -342,6 +342,41 @@ namespace MagnumOpus.Common.Systems
         }
         
         #endregion
+        
+        #region Performance Utilities
+        
+        /// <summary>
+        /// Returns a scaled count based on current particle load.
+        /// Use this when you need to spawn N particles but want to scale based on performance.
+        /// Example: int count = BossVFXOptimizer.ScaleCount(20); // Returns 8-20 based on load
+        /// </summary>
+        public static int ScaleCount(int baseCount, float minRatio = 0.4f)
+        {
+            return Math.Max((int)(baseCount * minRatio), (int)(baseCount * QualityMult));
+        }
+        
+        /// <summary>
+        /// Check if we should spawn a particle this frame (for throttling in loops).
+        /// Example: if (BossVFXOptimizer.ShouldSpawn(i, 2)) spawn particle...
+        /// </summary>
+        public static bool ShouldSpawn(int index, int interval = 2)
+        {
+            return (index + Main.GameUpdateCount) % (interval * FrameSkipMult) == 0;
+        }
+        
+        /// <summary>
+        /// Returns true if the particle system is under heavy load (>500 particles).
+        /// Use this to skip non-essential particles entirely.
+        /// </summary>
+        public static bool IsHighLoad => MagnumParticleHandler.ActiveParticleCount > 500;
+        
+        /// <summary>
+        /// Returns true if the particle system is at critical load (>800 particles).
+        /// Use this to skip ALL optional particles.
+        /// </summary>
+        public static bool IsCriticalLoad => MagnumParticleHandler.ActiveParticleCount > 800;
+        
+        #endregion
     }
     
     /// <summary>

@@ -96,6 +96,9 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
             
             // Boss map icon
             NPCID.Sets.BossBestiaryPriority.Add(Type);
+            
+            // Register for minimap music note icon
+            MinibossMinimapSystem.RegisterLaCampanellaMiniboss(Type);
         }
 
         public override void SetDefaults()
@@ -628,9 +631,14 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
+            // Essence drops only after killing the main La Campanella boss
+            LeadingConditionRule afterBossRule = new LeadingConditionRule(new DownedLaCampanellaCondition());
+            
             // Mini-boss tier drops - matching other themes
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<LaCampanellaResonantEnergy>(), 1, 8, 15));
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<ResonantCoreOfLaCampanella>(), 1, 3, 6));
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<LaCampanellaResonantEnergy>(), 1, 8, 15));
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ResonantCoreOfLaCampanella>(), 1, 3, 6));
+            
+            npcLoot.Add(afterBossRule);
         }
 
         public override float SpawnChance(NPCSpawnInfo spawnInfo)

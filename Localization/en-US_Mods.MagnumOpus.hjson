@@ -1675,6 +1675,76 @@ Items: {
 		DisplayName: Score Of Swan Lake
 		Tooltip: ""
 	}
+
+	CelestialConductorsBaton: {
+		DisplayName: Celestial Conductors Baton
+		Tooltip: ""
+	}
+
+	CodaOfAnnihilation: {
+		DisplayName: Coda Of Annihilation
+		Tooltip: ""
+	}
+
+	DestinysCrescendo: {
+		DisplayName: Destinys Crescendo
+		Tooltip: ""
+	}
+
+	FractalOfTheStars: {
+		DisplayName: Fractal Of The Stars
+		Tooltip: ""
+	}
+
+	LightOfTheFuture: {
+		DisplayName: Light Of The Future
+		Tooltip: ""
+	}
+
+	OpusUltima: {
+		DisplayName: Opus Ultima
+		Tooltip: ""
+	}
+
+	RequiemOfReality: {
+		DisplayName: Requiem Of Reality
+		Tooltip: ""
+	}
+
+	ResonanceOfABygoneReality: {
+		DisplayName: Resonance Of A Bygone Reality
+		Tooltip: ""
+	}
+
+	SymphonysEnd: {
+		DisplayName: Symphonys End
+		Tooltip: ""
+	}
+
+	TheConductorsLastConstellation: {
+		DisplayName: The Conductors Last Constellation
+		Tooltip: ""
+	}
+
+	TheFinalFermata: {
+		DisplayName: The Final Fermata
+		Tooltip: ""
+	}
+
+	FatesAxe: {
+		DisplayName: Fates Axe
+		Tooltip: ""
+	}
+
+	FatesHammer: {
+		DisplayName: Fates Hammer
+		Tooltip: ""
+	}
+
+	FatesPickaxe: {
+		DisplayName: Fates Pickaxe
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -1697,6 +1767,7 @@ NPCs: {
 	EnigmaTheHollowMystery.DisplayName: Enigma The Hollow Mystery
 	MysterysEnd.DisplayName: Mystery's End
 	CrawlerOfTheBell.DisplayName: Crawler of the Bell
+	FateWardenOfMelodies.DisplayName: Fate Warden Of Melodies
 }
 
 Projectiles: {
@@ -2097,6 +2168,10 @@ Projectiles: {
 	DelayedDetonationProjectile.DisplayName: Delayed Detonation Projectile
 	BoomerangProjectile.DisplayName: Boomerang Projectile
 	AcceleratingBoltProjectile.DisplayName: Accelerating Bolt Projectile
+	EnigmaMazeWall.DisplayName: Enigma Maze Wall
+	EnigmaVoidBeam.DisplayName: Enigma Void Beam
+	EroicaSplittingOrb.DisplayName: Eroica Splitting Orb
+	CodaZenithSwordProjectile.DisplayName: Coda Zenith Sword Projectile
 }
 
 "Keybinds.Toggle Harmonic Core UI.DisplayName": Toggle  Harmonic  Core  U I

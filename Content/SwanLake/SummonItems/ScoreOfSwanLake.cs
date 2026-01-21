@@ -4,6 +4,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Content.SwanLake.ResonanceEnergies;
 using MagnumOpus.Content.SwanLake.HarmonicCores;
+using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 
 namespace MagnumOpus.Content.SwanLake.SummonItems
 {
@@ -37,7 +38,7 @@ namespace MagnumOpus.Content.SwanLake.SummonItems
             CreateRecipe()
                 .AddIngredient(ModContent.ItemType<RemnantOfSwansHarmony>(), 10)
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfSwanLake>(), 5)
-                .AddTile(TileID.LunarCraftingStation)
+                .AddTile(ModContent.TileType<MoonlightAnvilTile>())
                 .Register();
         }
     }

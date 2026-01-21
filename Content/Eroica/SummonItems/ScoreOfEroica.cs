@@ -4,6 +4,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.HarmonicCores;
+using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 
 namespace MagnumOpus.Content.Eroica.SummonItems
 {
@@ -36,7 +37,7 @@ namespace MagnumOpus.Content.Eroica.SummonItems
             CreateRecipe()
                 .AddIngredient(ModContent.ItemType<RemnantOfEroicasTriumph>(), 10)
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfEroica>(), 5)
-                .AddTile(TileID.LunarCraftingStation)
+                .AddTile(ModContent.TileType<MoonlightAnvilTile>())
                 .Register();
         }
     }

@@ -97,6 +97,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
             // Debuff immunities
             NPCID.Sets.SpecificDebuffImmunity[Type][BuffID.Poisoned] = true;
             NPCID.Sets.SpecificDebuffImmunity[Type][BuffID.Confused] = true;
+            
+            // Register for minimap music note icon
+            MinibossMinimapSystem.RegisterEnigmaMiniboss(Type);
         }
 
         public override void SetDefaults()
@@ -690,18 +693,23 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
 
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
+            // Essence drops only after killing the main Enigma boss
+            LeadingConditionRule afterBossRule = new LeadingConditionRule(new DownedEnigmaCondition());
+            
             // Mini-boss tier drops - matching Eroica mini-bosses
             // Remnant of Mysteries (theme-specific crafting material like ShardOfTriumphsTempo)
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<RemnantOfMysteries>(), 1, 5, 10));
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<RemnantOfMysteries>(), 1, 5, 10));
             
             // Enigma Resonance Energy (guaranteed)
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<EnigmaResonantEnergy>(), 1, 8, 15));
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<EnigmaResonantEnergy>(), 1, 8, 15));
             
             // Resonant Core of Enigma (guaranteed)
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<HarmonicCores.ResonantCoreOfEnigma>(), 1, 3, 6));
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<HarmonicCores.ResonantCoreOfEnigma>(), 1, 3, 6));
             
             // Enigma Ore bonus
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<EnigmaResonanceOre>(), 2, 5, 12));
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<EnigmaResonanceOre>(), 2, 5, 12));
+            
+            npcLoot.Add(afterBossRule);
         }
 
         public override void FindFrame(int frameHeight)
@@ -744,7 +752,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
             
             Vector2 drawPos = NPC.Center - screenPos;
             Vector2 origin = new Vector2(frameWidth / 2f, frameHeight / 2f);
-            SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            // FIXED: Sprite is drawn facing left by default, flip when facing right
+            SpriteEffects effects = NPC.spriteDirection == 1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             
             // Glow underlay
             if (eyeGlow > 0.3f)

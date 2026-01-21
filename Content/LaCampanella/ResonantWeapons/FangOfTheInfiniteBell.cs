@@ -819,8 +819,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
     /// </summary>
     public class InfiniteBellDamageBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.WeaponImbueConfetti;
-        
         public override void SetStaticDefaults()
         {
             Main.buffNoTimeDisplay[Type] = false;
@@ -852,8 +850,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
     /// </summary>
     public class InfiniteBellEmpoweredBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.WeaponImbueIchor;
-        
         public override void SetStaticDefaults()
         {
             Main.buffNoTimeDisplay[Type] = false;

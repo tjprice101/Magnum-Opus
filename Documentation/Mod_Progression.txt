@@ -374,9 +374,14 @@ TRIGGER: Defeat Ode to Joy Boss (first kill)
                         [NOT IMPLEMENTED]
 ────────────────────────────────────────────────────────────────────────────────
 
-BIOME: All layers (world-wide)
-COLOR THEME: Triumphant Gold
-THEME: Triumph, unity, celebration
+BIOME: All layers (Hallow biome connections)
+COLOR THEME: Very Pale Rainbow with White Primary - Light, Hallow-inspired
+             Primary: Pure White / Secondary: Pale pastel rainbow (soft)
+THEME: Triumph, unity, celebration, light, holy/hallow aesthetic
+
+VISUAL STYLE: Bright, radiant, pure light with very soft rainbow tints.
+              Think angelic/divine with subtle prismatic edges.
+              Opposite of Dies Irae's darkness - pure positive energy.
 
 BOSS: [NOT IMPLEMENTED]
   • Drops: Harmonic Essence of Ode to Joy
@@ -405,9 +410,14 @@ TRIGGER: Defeat Dies Irae Boss (first kill)
                         [NOT IMPLEMENTED]
 ────────────────────────────────────────────────────────────────────────────────
 
-BIOME: Underworld / Hell
-COLOR THEME: Apocalyptic Dark Red
-THEME: Death, judgment, apocalyptic
+BIOME: Underworld / Hell / Crimson
+COLOR THEME: Black and Reddish Orange - Hell, Crimson, Apocalyptic
+             Primary: Deep Black / Secondary: Reddish-Orange (burnt embers)
+THEME: Death, judgment, apocalyptic, hellfire, damnation
+
+VISUAL STYLE: Dark, fiery, oppressive. Black void with reddish-orange flames.
+              Crimson biome connection. Opposite of Ode to Joy's purity -
+              pure wrath and destruction. Volcanic, infernal atmosphere.
 
 BOSS: [NOT IMPLEMENTED]
   • Drops: Harmonic Essence of Dies Irae
@@ -467,9 +477,15 @@ TRIGGER: Defeat Nachtmusik Boss (first kill)
                         [NOT IMPLEMENTED]
 ────────────────────────────────────────────────────────────────────────────────
 
-BIOME: Surface (night-themed)
-COLOR THEME: Silver / Moonlit
-THEME: Night, serenade, lightness
+BIOME: Surface (night-themed), Corruption
+COLOR THEME: Corruption, Darkness, Night
+             Primary: Deep Purple/Black (corruption tints)
+             Secondary: Sickly Green/Dark Violet accents
+THEME: Night, corruption, serenade in darkness, twisted elegance
+
+VISUAL STYLE: Dark, corrupted night aesthetic. Mozart's elegant night music
+              twisted into something sinister. Corruption-biome connection.
+              Starless night skies, creeping shadows, darkened beauty.
 
 BOSS: [NOT IMPLEMENTED]
   • Drops: Harmonic Essence of Nachtmusik
@@ -506,9 +522,15 @@ TRIGGER: Defeat Clair de Lune Boss (first kill)
                         [NOT IMPLEMENTED]
 ────────────────────────────────────────────────────────────────────────────────
 
-BIOME: World-wide
-COLOR THEME: Soft Blue / Dreamy
-THEME: Moonlight (impressionistic), dreams, tranquility
+BIOME: World-wide (Skies, Heaven, Space)
+COLOR THEME: White, Dark Gray, and Red Flames - Skies, Heaven, Time
+             Primary: Pure White / Secondary: Dark Gray / Accent: Red Flames
+THEME: Moonlight (impressionistic), dreams, skies, heaven, time itself
+
+VISUAL STYLE: Ethereal heavenly aesthetic. White clouds, dark gray voids,
+              and red flame accents representing time's passage. Think
+              celestial realms beyond mortal comprehension. Time-warping
+              visual effects, clock motifs, transcendent beauty.
 
 THIS IS THE FINAL MILESTONE BOSS - EXTREMELY CHALLENGING
 
@@ -680,6 +702,95 @@ TIER 3 (Celestial Stations) - Not Implemented:
 ──────────────────────────────────────────────
 [░░░░░░░░░░] 0% - CLAIR DE LUNE ★ (Final Milestone)
 [░░░░░░░░░░] 0% - MERCURY
+
+================================================================================
+                  FOUR SEASONS BOSS INTEGRATION PROPOSAL
+================================================================================
+
+The Four Seasons (Vivaldi) could be integrated as a PRE-MOON LORD PROGRESSION
+in normal mode to hardmode, providing content before the main MagnumOpus themes.
+
+SUGGESTED PLACEMENT - Normal Mode to Hardmode (Before Moon Lord):
+─────────────────────────────────────────────────────────────────
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│              FOUR SEASONS - VANILLA PROGRESSION INSERT                      │
+│                                                                             │
+│  Wall of Flesh ──► SPRING ──► Mech Bosses ──► SUMMER ──► Plantera          │
+│                                                                             │
+│  Plantera ──► AUTUMN ──► Golem ──► WINTER ──► Cultist ──► Moon Lord        │
+│                                                                             │
+│  Moon Lord ──► [MagnumOpus Main Progression Begins]                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+INDIVIDUAL BOSS PLACEMENT SUGGESTIONS:
+
+1. SPRING (La Primavera) - Post-Wall of Flesh / Early Hardmode
+───────────────────────────────────────────────────────────────
+   TIMING: After Wall of Flesh, before Mechanical Bosses
+   DIFFICULTY: Comparable to early hardmode bosses
+   BIOME: Forest / Jungle (rebirth, new growth)
+   COLOR THEME: Vibrant Greens, Pink Blossoms, Soft Yellow (sunshine)
+   THEME: Rebirth, awakening, hope, new beginnings
+   
+   LORE: "The world awakens from its slumber..."
+   SUMMON: Crafted from early hardmode materials
+   DROPS: Spring Essence - helps with Mech Boss progression
+
+2. SUMMER (L'estate) - Post-Mechanical Bosses / Mid-Hardmode
+────────────────────────────────────────────────────────────
+   TIMING: After all 3 Mechanical Bosses, before Plantera
+   DIFFICULTY: Bridge between Mechs and Plantera
+   BIOME: Desert / Ocean (heat, intensity)
+   COLOR THEME: Bright Oranges, Intense Yellows, Solar Gold
+   THEME: Heat, intensity, peak power, blazing fury
+   
+   LORE: "The heat of Summer scorches the land..."
+   SUMMON: Requires Hallowed Bars + Summer-specific drops
+   DROPS: Summer Essence - prepares for Plantera
+
+3. AUTUMN (L'autunno) - Post-Plantera / Late-Mid Hardmode
+────────────────────────────────────────────────────────
+   TIMING: After Plantera, before Golem
+   DIFFICULTY: Between Plantera and Golem
+   BIOME: Surface Forest (changing leaves, decay)
+   COLOR THEME: Deep Oranges, Crimson Reds, Brown Gold (harvest)
+   THEME: Harvest, change, preparation for cold, melancholy
+   
+   LORE: "The leaves fall as Autumn approaches..."
+   SUMMON: Requires Chlorophyte + Autumn-specific drops
+   DROPS: Autumn Essence - temple/golem preparation
+
+4. WINTER (L'inverno) - Post-Golem / Pre-Cultist
+────────────────────────────────────────────────
+   TIMING: After Golem, before Lunatic Cultist
+   DIFFICULTY: Final preparation for Lunar Events
+   BIOME: Snow / Ice (cold, survival)
+   COLOR THEME: Icy Blues, Pure White, Silver Frost
+   THEME: Cold, harshness, endurance, stillness before the storm
+   
+   LORE: "Winter's chill descends upon the world..."
+   SUMMON: Requires Beetle materials + Winter-specific drops
+   DROPS: Winter Essence - Lunar event preparation
+   
+   NOTE: This is SEPARATE from the post-Fate "Winter" theme (Tier 9).
+         The Four Seasons Winter is a hardmode progression boss.
+         Consider renaming post-Fate Winter to something else to avoid
+         confusion, or make them connected (Winter returns stronger).
+
+ALTERNATIVE: SEASONAL CYCLE BOSS (Single Boss, Four Phases)
+──────────────────────────────────────────────────────────
+Instead of 4 separate bosses, consider ONE boss that cycles through
+all four seasons as phases:
+   
+   • Phase 1 - Spring (100-75% HP): Rebirth attacks, healing
+   • Phase 2 - Summer (75-50% HP): Fire attacks, intensity ramps
+   • Phase 3 - Autumn (50-25% HP): Decay attacks, area denial
+   • Phase 4 - Winter (25-0% HP): Ice attacks, slowing, final push
+   
+   TIMING: Single boss post-Golem, pre-Cultist
+   DIFFICULTY: Multi-phase challenge preparing for Moon Lord
+   DROPS: All four seasonal essences at once
 [░░░░░░░░░░] 0% - MARS ★★★ (Final Boss)
 
 ================================================================================

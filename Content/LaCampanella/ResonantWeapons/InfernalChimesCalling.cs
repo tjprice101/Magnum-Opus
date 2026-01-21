@@ -44,7 +44,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Item.rare = ModContent.RarityType<LaCampanellaRainbowRarity>();
             Item.UseSound = SoundID.Item44;
             Item.noMelee = true;
-            Item.shoot = ModContent.ProjectileType<CampanellaChoirMinion>();
+            Item.shoot = ModContent.ProjectileType<InfernalBellMinion>();
             Item.buffType = ModContent.BuffType<CampanellaChoirBuff>();
         }
 
@@ -220,7 +220,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void Update(Player player, ref int buffIndex)
         {
-            if (player.ownedProjectileCounts[ModContent.ProjectileType<CampanellaChoirMinion>()] > 0)
+            // Check for both old and new minion types for compatibility
+            if (player.ownedProjectileCounts[ModContent.ProjectileType<InfernalBellMinion>()] > 0 ||
+                player.ownedProjectileCounts[ModContent.ProjectileType<CampanellaChoirMinion>()] > 0)
             {
                 player.buffTime[buffIndex] = 18000;
             }

@@ -51,7 +51,13 @@ namespace MagnumOpus.Content.Eroica.Bosses
             RingExplosionWindup,
             RingExplosionFiring,
             DiveBombWindup,
-            DiveBombing
+            DiveBombing,
+            
+            // Foundation pattern attacks (from brainstorming)
+            SpiralProjectilePatternWindup,
+            SpiralProjectilePatternFiring,
+            RecursiveSplitExplosionWindup,
+            RecursiveSplitExplosionFiring
         }
         
         private AttackState currentAttack = AttackState.Orbiting;
@@ -89,6 +95,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
             NPCID.Sets.SpecificDebuffImmunity[Type][BuffID.Confused] = true;
             NPCID.Sets.SpecificDebuffImmunity[Type][BuffID.OnFire] = true;
             NPCID.Sets.SpecificDebuffImmunity[Type][BuffID.Frostburn] = true;
+            
+            // Register for minimap music note icon
+            MinibossMinimapSystem.RegisterEroicaMiniboss(Type);
         }
 
         public override void SetDefaults()
@@ -187,6 +196,20 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 case AttackState.DiveBombing:
                     DiveBombingBehavior(target, parentBoss);
                     break;
+                    
+                // Foundation pattern attacks
+                case AttackState.SpiralProjectilePatternWindup:
+                    SpiralProjectilePatternWindupBehavior(target);
+                    break;
+                case AttackState.SpiralProjectilePatternFiring:
+                    SpiralProjectilePatternFiringBehavior(target);
+                    break;
+                case AttackState.RecursiveSplitExplosionWindup:
+                    RecursiveSplitExplosionWindupBehavior(target);
+                    break;
+                case AttackState.RecursiveSplitExplosionFiring:
+                    RecursiveSplitExplosionFiringBehavior(target);
+                    break;
             }
             
             // Face movement direction
@@ -228,7 +251,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             AttackCooldown++;
             
             // Frequently initiate attacks (every 90-150 frames = 1.5-2.5 seconds)
-            if (AttackCooldown > 90 + Main.rand.Next(60))
+            if (AttackCooldown > 63 + Main.rand.Next(42))
             {
                 AttackCooldown = 0;
                 AttackTimer = 0;
@@ -250,14 +273,22 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 {
                     currentAttack = AttackState.SpiralBurstWindup;
                 }
-                else if (attackRoll < 85) // 20% - Ring explosion
+                else if (attackRoll < 80) // 15% - Ring explosion
                 {
                     currentAttack = AttackState.RingExplosionWindup;
                 }
-                else // 15% - Dive bomb
+                else if (attackRoll < 88) // 8% - Dive bomb
                 {
                     currentAttack = AttackState.DiveBombWindup;
                     chargeDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
+                }
+                else if (attackRoll < 94) // 6% - Expanding spiral pattern
+                {
+                    currentAttack = AttackState.SpiralProjectilePatternWindup;
+                }
+                else // 6% - Recursive split explosion
+                {
+                    currentAttack = AttackState.RecursiveSplitExplosionWindup;
                 }
                 
                 isGlowing = true;
@@ -274,7 +305,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             AttackTimer++;
             
             // Build up glow
-            glowIntensity = Math.Min(1f, AttackTimer / 30f);
+            glowIntensity = Math.Min(1f, AttackTimer / 21f);
             
             // Slow down and face target
             NPC.velocity *= 0.9f;
@@ -293,7 +324,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             }
             
             // Windup complete - launch!
-            if (AttackTimer >= 40)
+            if (AttackTimer >= 28)
             {
                 AttackTimer = 0;
                 currentAttack = AttackState.Charging;
@@ -334,7 +365,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             }
             
             // Charge duration
-            if (AttackTimer >= 20)
+            if (AttackTimer >= 14)
             {
                 AttackTimer = 0;
                 currentAttack = AttackState.ChargeReturn;
@@ -370,7 +401,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             }
             
             // Return complete or timeout
-            if (distance < 30f || AttackTimer >= 60)
+            if (distance < 30f || AttackTimer >= 42)
             {
                 AttackTimer = 0;
                 currentAttack = AttackState.Orbiting;
@@ -384,7 +415,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             AttackTimer++;
             
             // Build up glow
-            glowIntensity = Math.Min(1f, AttackTimer / 45f);
+            glowIntensity = Math.Min(1f, AttackTimer / 32f);
             
             // Slow down and aim at player
             NPC.velocity *= 0.92f;
@@ -419,7 +450,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             }
             
             // Fire beam!
-            if (AttackTimer >= 40 && Main.netMode != NetmodeID.MultiplayerClient) // Fires more often (was 50)
+            if (AttackTimer >= 28 && Main.netMode != NetmodeID.MultiplayerClient) // Fires more often (was 50)
             {
                 AttackTimer = 0;
                 currentAttack = AttackState.BeamFiring;
@@ -461,7 +492,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             NPC.velocity *= 0.95f;
             glowIntensity = Math.Max(0f, 1f - AttackTimer / 30f);
             
-            if (AttackTimer >= 40)
+            if (AttackTimer >= 28)
             {
                 AttackTimer = 0;
                 currentAttack = AttackState.Orbiting;
@@ -474,7 +505,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
         private void SpiralBurstWindupBehavior(Player target)
         {
             AttackTimer++;
-            glowIntensity = Math.Min(1f, AttackTimer / 35f);
+            glowIntensity = Math.Min(1f, AttackTimer / 25f);
             NPC.velocity *= 0.92f;
             
             // Spiral gathering VFX
@@ -484,7 +515,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 for (int i = 0; i < 3; i++)
                 {
                     float angle = spiralAngle + MathHelper.TwoPi * i / 3f;
-                    float radius = 80f * (1f - AttackTimer / 35f);
+                    float radius = 80f * (1f - AttackTimer / 25f);
                     Vector2 dustPos = NPC.Center + angle.ToRotationVector2() * radius;
                     int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
                     Dust dust = Dust.NewDustPerfect(dustPos, dustType, (NPC.Center - dustPos) * 0.08f, 100, default, 1.5f);
@@ -492,7 +523,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 }
             }
             
-            if (AttackTimer >= 35)
+            if (AttackTimer >= 25)
             {
                 AttackTimer = 0;
                 currentAttack = AttackState.SpiralBurstFiring;
@@ -505,7 +536,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             NPC.velocity *= 0.95f;
             
             // Fire spiral of projectiles over time
-            if (AttackTimer <= 30 && AttackTimer % 5 == 0 && Main.netMode != NetmodeID.MultiplayerClient)
+            if (AttackTimer <= 21 && AttackTimer % 4 == 0 && Main.netMode != NetmodeID.MultiplayerClient)
             {
                 float spiralAngle = AttackTimer * 0.3f;
                 int arms = 4;
@@ -522,7 +553,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 SoundEngine.PlaySound(SoundID.Item12 with { Pitch = 0.3f + AttackTimer * 0.02f, Volume = 0.5f }, NPC.Center);
             }
             
-            if (AttackTimer >= 50)
+            if (AttackTimer >= 35)
             {
                 AttackTimer = 0;
                 currentAttack = AttackState.Orbiting;
@@ -533,13 +564,13 @@ namespace MagnumOpus.Content.Eroica.Bosses
         private void RingExplosionWindupBehavior(Player target)
         {
             AttackTimer++;
-            glowIntensity = Math.Min(1f, AttackTimer / 45f);
+            glowIntensity = Math.Min(1f, AttackTimer / 32f);
             NPC.velocity *= 0.9f;
             
             // Pulsing ring telegraph
             if (AttackTimer % 8 == 0)
             {
-                float ringProgress = AttackTimer / 45f;
+                float ringProgress = AttackTimer / 32f;
                 for (int i = 0; i < 12; i++)
                 {
                     float angle = MathHelper.TwoPi * i / 12f;
@@ -550,7 +581,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 }
             }
             
-            if (AttackTimer >= 45)
+            if (AttackTimer >= 32)
             {
                 AttackTimer = 0;
                 currentAttack = AttackState.RingExplosionFiring;
@@ -584,7 +615,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 ThemedParticles.SakuraPetals(NPC.Center, 8, 50f);
             }
             
-            if (AttackTimer >= 40)
+            if (AttackTimer >= 28)
             {
                 AttackTimer = 0;
                 currentAttack = AttackState.Orbiting;
@@ -595,7 +626,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
         private void DiveBombWindupBehavior(Player target)
         {
             AttackTimer++;
-            glowIntensity = Math.Min(1f, AttackTimer / 30f);
+            glowIntensity = Math.Min(1f, AttackTimer / 21f);
             
             // Rise up above player
             Vector2 riseTarget = target.Center + new Vector2(0, -350f);
@@ -611,7 +642,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             }
             
             // Target player and prepare to dive
-            if (AttackTimer >= 30)
+            if (AttackTimer >= 21)
             {
                 chargeDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
                 AttackTimer = 0;
@@ -645,7 +676,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             }
             
             // End dive and return
-            if (AttackTimer >= 25)
+            if (AttackTimer >= 18)
             {
                 AttackTimer = 0;
                 currentAttack = AttackState.ChargeReturn;
@@ -656,6 +687,198 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 ThemedParticles.SakuraPetals(NPC.Center, 5, 30f);
             }
         }
+        
+        #region Foundation Pattern Attacks
+        
+        /// <summary>
+        /// SpiralProjectilePattern - Projectiles spawn in an expanding spiral from center.
+        /// Uses polar coordinates with incrementing angle and radius.
+        /// </summary>
+        private void SpiralProjectilePatternWindupBehavior(Player target)
+        {
+            AttackTimer++;
+            glowIntensity = Math.Min(1f, AttackTimer / 28f);
+            NPC.velocity *= 0.9f;
+            
+            // Telegraph: Show spiral arm directions converging
+            if (AttackTimer % 4 == 0)
+            {
+                int armCount = 5;
+                float windupAngle = AttackTimer * 0.08f;
+                for (int arm = 0; arm < armCount; arm++)
+                {
+                    float armAngle = windupAngle + MathHelper.TwoPi * arm / armCount;
+                    float radius = 100f * (1f - AttackTimer / 28f) + 20f;
+                    Vector2 pos = NPC.Center + armAngle.ToRotationVector2() * radius;
+                    
+                    int dustType = arm % 2 == 0 ? DustID.GoldFlame : DustID.CrimsonTorch;
+                    Dust dust = Dust.NewDustPerfect(pos, dustType, (NPC.Center - pos) * 0.06f, 100, default, 1.6f);
+                    dust.noGravity = true;
+                }
+            }
+            
+            // Converging particles toward center
+            if (AttackTimer % 6 == 0)
+            {
+                CustomParticles.GenericFlare(NPC.Center, new Color(255, 180, 80) * glowIntensity, 0.3f + glowIntensity * 0.2f, 12);
+            }
+            
+            if (AttackTimer >= 28)
+            {
+                AttackTimer = 0;
+                currentAttack = AttackState.SpiralProjectilePatternFiring;
+                SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.4f, Volume = 0.9f }, NPC.Center);
+            }
+        }
+        
+        private void SpiralProjectilePatternFiringBehavior(Player target)
+        {
+            AttackTimer++;
+            NPC.velocity *= 0.95f;
+            
+            // Parameters
+            int armCount = 5;
+            int projectilesPerArm = 6;
+            float spiralTightness = 0.4f; // Radians per projectile
+            float expansionSpeed = 25f; // Pixels per projectile outward
+            float projectileSpeed = 10f;
+            int firingDuration = armCount * projectilesPerArm * 2; // 2 frames per projectile
+            
+            // Fire projectiles progressively in expanding spiral
+            if (AttackTimer <= firingDuration && AttackTimer % 2 == 0 && Main.netMode != NetmodeID.MultiplayerClient)
+            {
+                int projectileIndex = (int)(AttackTimer / 2);
+                int currentArm = projectileIndex % armCount;
+                int currentProjectileInArm = projectileIndex / armCount;
+                
+                // Calculate spiral position using polar coordinates
+                float baseAngle = MathHelper.TwoPi * currentArm / armCount;
+                float spiralOffset = currentProjectileInArm * spiralTightness;
+                float angle = baseAngle + spiralOffset;
+                float radius = 20f + currentProjectileInArm * expansionSpeed;
+                
+                Vector2 spawnOffset = angle.ToRotationVector2() * radius;
+                Vector2 spawnPos = NPC.Center + spawnOffset;
+                Vector2 vel = spawnOffset.SafeNormalize(Vector2.UnitY) * projectileSpeed;
+                
+                // Alternate colors per arm
+                Color color = currentArm % 2 == 0 ? new Color(255, 200, 80) : new Color(200, 50, 50);
+                BossProjectileHelper.SpawnHostileOrb(spawnPos, vel, 70, color, 0.005f); // Slight homing
+                
+                // VFX at spawn
+                CustomParticles.GenericFlare(spawnPos, color, 0.35f, 10);
+                
+                // Sound pitch rises as spiral expands
+                if (projectileIndex % 5 == 0)
+                {
+                    float pitchProgress = (float)projectileIndex / (armCount * projectilesPerArm);
+                    SoundEngine.PlaySound(SoundID.Item12 with { Pitch = -0.2f + pitchProgress * 0.6f, Volume = 0.4f }, NPC.Center);
+                }
+            }
+            
+            // Central glow during firing
+            if (AttackTimer % 4 == 0)
+            {
+                CustomParticles.GenericFlare(NPC.Center, new Color(255, 180, 80), 0.5f, 8);
+            }
+            
+            if (AttackTimer >= firingDuration + 30)
+            {
+                AttackTimer = 0;
+                currentAttack = AttackState.Orbiting;
+                isGlowing = false;
+            }
+        }
+        
+        /// <summary>
+        /// RecursiveSplitExplosion - Fires large projectiles that split into smaller ones.
+        /// Each child can potentially split again (depth limited).
+        /// </summary>
+        private void RecursiveSplitExplosionWindupBehavior(Player target)
+        {
+            AttackTimer++;
+            glowIntensity = Math.Min(1f, AttackTimer / 32f);
+            NPC.velocity *= 0.88f;
+            
+            // Pulsing expansion telegraph
+            if (AttackTimer % 5 == 0)
+            {
+                float pulseRadius = 30f + (AttackTimer / 32f) * 60f;
+                int points = 8;
+                for (int i = 0; i < points; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / points + AttackTimer * 0.02f;
+                    Vector2 pos = NPC.Center + angle.ToRotationVector2() * pulseRadius;
+                    
+                    int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
+                    Dust dust = Dust.NewDustPerfect(pos, dustType, Vector2.Zero, 100, default, 2f);
+                    dust.noGravity = true;
+                }
+                
+                // Growing central glow
+                CustomParticles.GenericFlare(NPC.Center, new Color(255, 100, 50), 0.3f + glowIntensity * 0.4f, 10);
+            }
+            
+            // Warning text-style buildup
+            if (AttackTimer % 15 == 0)
+            {
+                CustomParticles.HaloRing(NPC.Center, new Color(255, 180, 80) * glowIntensity, 0.25f + glowIntensity * 0.15f, 12);
+            }
+            
+            if (AttackTimer >= 32)
+            {
+                AttackTimer = 0;
+                currentAttack = AttackState.RecursiveSplitExplosionFiring;
+                SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.3f, Volume = 1.0f }, NPC.Center);
+            }
+        }
+        
+        private void RecursiveSplitExplosionFiringBehavior(Player target)
+        {
+            AttackTimer++;
+            NPC.velocity *= 0.95f;
+            
+            // Fire initial large projectiles that will split
+            if (AttackTimer == 1 && Main.netMode != NetmodeID.MultiplayerClient)
+            {
+                int initialCount = 6;
+                for (int i = 0; i < initialCount; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / initialCount;
+                    Vector2 vel = angle.ToRotationVector2() * 8f; // Slower initial projectiles
+                    
+                    // Spawn splitting projectile with recursion depth 2
+                    Projectile.NewProjectile(
+                        NPC.GetSource_FromAI(),
+                        NPC.Center,
+                        vel,
+                        ModContent.ProjectileType<EroicaSplittingOrb>(),
+                        75,
+                        2f,
+                        Main.myPlayer,
+                        ai0: 2f // recursionDepth
+                    );
+                }
+                
+                // Burst VFX
+                CustomParticles.GenericFlare(NPC.Center, Color.White, 1.0f, 20);
+                for (int i = 0; i < 6; i++)
+                {
+                    CustomParticles.HaloRing(NPC.Center, Color.Lerp(new Color(200, 50, 50), new Color(255, 200, 80), i / 6f), 0.3f + i * 0.1f, 14 + i * 2);
+                }
+                ThemedParticles.SakuraPetals(NPC.Center, 10, 60f);
+            }
+            
+            // Dramatic pause while projectiles split
+            if (AttackTimer >= 56)
+            {
+                AttackTimer = 0;
+                currentAttack = AttackState.Orbiting;
+                isGlowing = false;
+            }
+        }
+        
+        #endregion
         
         #endregion
         

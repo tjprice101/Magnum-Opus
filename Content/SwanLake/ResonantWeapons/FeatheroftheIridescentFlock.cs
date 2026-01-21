@@ -190,9 +190,6 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
 
     public class IridescentFlockBuff : ModBuff
     {
-        // Use a vanilla buff texture since we don't have a custom one
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.StardustDragonMinion;
-
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;

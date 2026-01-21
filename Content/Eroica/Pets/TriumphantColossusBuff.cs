@@ -8,9 +8,6 @@ namespace MagnumOpus.Content.Eroica.Pets
     /// </summary>
     public class TriumphantColossusBuff : ModBuff
     {
-        // Use vanilla pet buff texture as placeholder until custom sprite is made
-        public override string Texture => "Terraria/Images/Buff_176"; // Companion Cube buff
-
         public override void SetStaticDefaults()
         {
             Main.buffNoTimeDisplay[Type] = true;

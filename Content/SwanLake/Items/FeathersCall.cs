@@ -116,9 +116,6 @@ namespace MagnumOpus.Content.SwanLake.Items
     /// </summary>
     public class FeathersCallBuff : ModBuff
     {
-        // Use vanilla buff icon
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.Shimmer;
-
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = false;

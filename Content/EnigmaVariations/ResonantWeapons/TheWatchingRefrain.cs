@@ -162,8 +162,6 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
     
     public class UnsolvedPhantomBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.StardustMinionBleed;
-        
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;
@@ -201,8 +199,6 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
         private int mysteryZoneCooldown = 0;
         private const int AttackCooldownMax = 30;
         private const int MysteryZoneCooldownMax = 180;
-        
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
         
         public override bool PreDraw(ref Color lightColor)
         {
