@@ -40,8 +40,8 @@ namespace MagnumOpus.Content.Fate.Tools
             Item.autoReuse = true;
             Item.useTurn = true;
 
-            // Highest axe power
-            Item.axe = 60; // Effective power is this * 5 = 300%
+            // Highest axe power - Tier 6
+            Item.axe = 65; // 325% axe power - highest tier, above Swan Lake (300%)
             
             Item.maxStack = 1;
         }

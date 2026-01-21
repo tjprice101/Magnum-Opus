@@ -43,7 +43,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
             Item.useTurn = true;
 
             // Axe power - high tier
-            Item.axe = 55; // Divide by 5 for displayed power (275%)
+            Item.axe = 50; // Tier 4: 250% axe power - between La Campanella (225%) and Swan Lake (300%)
             
             Item.maxStack = 1;
         }

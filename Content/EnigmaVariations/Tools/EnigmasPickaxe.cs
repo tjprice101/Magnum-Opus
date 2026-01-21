@@ -13,7 +13,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
     /// <summary>
     /// Enigma's Pickaxe - A mysterious pickaxe that questions the very stone it breaks.
     /// Features eerie green flame effects and occasional watching eye particles.
-    /// Tier between Swan Lake and Fate.
+    /// Tier 4 - between La Campanella and Swan Lake (Moonlight → Eroica → La Campanella → Enigma → Swan Lake → Fate)
     /// </summary>
     public class EnigmasPickaxe : ModItem
     {
@@ -28,22 +28,22 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
 
         public override void SetDefaults()
         {
-            Item.damage = 195; // Higher than Swan Lake (185)
+            Item.damage = 150; // Tier 4: Between La Campanella (135) and Swan Lake (185)
             Item.DamageType = DamageClass.Melee;
             Item.width = 40;
             Item.height = 40;
             Item.useTime = 2;
-            Item.useAnimation = 4;
+            Item.useAnimation = 5;
             Item.useStyle = ItemUseStyleID.Swing;
-            Item.knockBack = 8f;
-            Item.value = Item.sellPrice(gold: 50);
+            Item.knockBack = 7f;
+            Item.value = Item.sellPrice(gold: 35);
             Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
             Item.UseSound = SoundID.Item15 with { Pitch = -0.2f, Volume = 0.7f };
             Item.autoReuse = true;
             Item.useTurn = true;
 
-            // Pickaxe power - can mine Fate ore (510), just below Fate tier
-            Item.pick = 510;
+            // Pickaxe power - can mine Swan Lake ore (450), Tier 4 between La Campanella (400) and Swan Lake (500)
+            Item.pick = 450;
             
             Item.maxStack = 1;
         }

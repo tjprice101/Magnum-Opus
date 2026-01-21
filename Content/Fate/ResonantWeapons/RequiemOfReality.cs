@@ -17,7 +17,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
 {
     /// <summary>
     /// Requiem of Reality - A blade that plays existence's funeral march.
-    /// Swings release cosmic music notes that float in place briefly, then seek nearby enemies.
+    /// Left-click: Swings release cosmic music notes that float in place briefly, then seek nearby enemies.
+    /// Right-click: Unique combo attack - swings down, swings up, throws spinning above head, explodes, 
+    ///              seeks nearest enemy, slashes through twice, and returns.
     /// Notes deal damage with cosmic flames and electricity on impact.
     /// </summary>
     public class RequiemOfReality : ModItem
@@ -45,16 +47,70 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "FateEffect", "Swings release cosmic music notes that float, then seek enemies"));
-            tooltips.Add(new TooltipLine(Mod, "FateSpecial", "Notes explode with cosmic flames and electricity on contact"));
+            tooltips.Add(new TooltipLine(Mod, "FateSpecial", "Right-click performs a devastating thrown blade combo that explodes and seeks enemies"));
+            tooltips.Add(new TooltipLine(Mod, "FateSpecial2", "Notes explode with cosmic flames and electricity on contact"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The final requiem for a dying reality'")
             {
                 OverrideColor = FateCosmicVFX.FateBrightRed
             });
         }
         
+        public override bool AltFunctionUse(Player player)
+        {
+            return true;
+        }
+        
+        public override bool CanUseItem(Player player)
+        {
+            if (player.altFunctionUse == 2)
+            {
+                // Right-click: Thrown combo attack
+                Item.useStyle = ItemUseStyleID.Shoot;
+                Item.noMelee = true;
+                Item.noUseGraphic = true;
+                Item.useTime = 60;
+                Item.useAnimation = 60;
+                Item.UseSound = null; // Projectile handles sounds
+                Item.shoot = ModContent.ProjectileType<RequiemHeldProjectile>();
+                Item.shootSpeed = 1f;
+                
+                // Can only use if no existing held projectile
+                return player.ownedProjectileCounts[ModContent.ProjectileType<RequiemHeldProjectile>()] < 1;
+            }
+            else
+            {
+                // Left-click: Normal swing with music notes
+                Item.useStyle = ItemUseStyleID.Swing;
+                Item.noMelee = false;
+                Item.noUseGraphic = false;
+                Item.useTime = 20;
+                Item.useAnimation = 20;
+                Item.UseSound = SoundID.Item1;
+                Item.shoot = ModContent.ProjectileType<CosmicMusicNoteProjectile>();
+                Item.shootSpeed = 8f;
+            }
+            return base.CanUseItem(player);
+        }
+        
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Spawn 3-5 music notes in a spread
+            // Track for star circle effect
+            player.GetModPlayer<FateWeaponEffectPlayer>()?.OnFateWeaponAttack(player.Center);
+            
+            if (player.altFunctionUse == 2)
+            {
+                // Right-click: Spawn the held combo projectile
+                Projectile.NewProjectile(source, player.Center, Vector2.Zero, 
+                    ModContent.ProjectileType<RequiemHeldProjectile>(), damage * 2, knockback, player.whoAmI);
+                
+                // Dramatic spawn VFX
+                FateCosmicVFX.SpawnGlyphBurst(player.Center, 6, 5f, 0.4f);
+                FateCosmicVFX.SpawnCosmicMusicNotes(player.Center, 4, 30f, 0.3f);
+                
+                return false;
+            }
+            
+            // Left-click: Spawn 3-5 music notes in a spread
             int noteCount = Main.rand.Next(3, 6);
             float baseAngle = velocity.ToRotation();
             

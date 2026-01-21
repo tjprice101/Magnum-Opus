@@ -43,7 +43,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
             Item.useTurn = true;
 
             // Hammer power - high tier
-            Item.hammer = 125; // High hammer power
+            Item.hammer = 105; // Tier 4: Between La Campanella (95) and Swan Lake (165)
             
             Item.maxStack = 1;
         }

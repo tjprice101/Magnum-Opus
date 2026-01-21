@@ -133,8 +133,8 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 trailRotations[i] = Projectile.rotation;
             }
             
-            // Random initial rotation speed
-            rotationSpeed = Main.rand.NextFloat(0.15f, 0.35f) * (Main.rand.NextBool() ? 1 : -1);
+            // Random initial rotation speed - slower to show full circular animation
+            rotationSpeed = Main.rand.NextFloat(0.06f, 0.12f) * (Main.rand.NextBool() ? 1 : -1);
             
             // Spawn VFX
             Color weaponColor = GetWeaponColor();
@@ -224,10 +224,10 @@ namespace MagnumOpus.Content.Fate.Projectiles
                     Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredVelocity, homingStrength);
                 }
                 
-                // Speed up when close to target
+                // Speed up when close to target (but not too fast to hide animation)
                 if (targetDistance < 200f)
                 {
-                    rotationSpeed *= 1.02f; // Spin faster as it approaches
+                    rotationSpeed *= 1.005f; // Spin slightly faster as it approaches
                     if (Projectile.velocity.Length() < 25f)
                         Projectile.velocity *= 1.03f;
                 }

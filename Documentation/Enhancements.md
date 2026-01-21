@@ -1058,3 +1058,391 @@ ultimate permanent upgrade, echo of perfection --ar 1:1 --s 400
 
 *Document Version 2.1 - Reorganized by Implementation Phase + Epic Prompt Templates*
 *Last Updated: Session Date*
+
+---
+
+# 🚀 PHASE 7: PROGRESSIVE ACCESSORY CHAINS & UTILITY
+*Items that grow with the player - combine and upgrade throughout progression*
+
+> **FOUR SEASONS BOSS PLACEMENT:**
+> - 🌸 **Primavera (Spring)** - Post-Eye of Cthulhu
+> - ☀️ **L'Estate (Summer)** - Post-Skeletron  
+> - 🍂 **Autunno (Autumn)** - Post-Wall of Flesh (Early Hardmode)
+> - ❄️ **L'Inverno (Winter)** - Post-Mechanical Bosses
+
+> **FULL PROGRESSION:** Eye of Cthulhu → **Primavera** → Skeletron → **L'Estate** → Wall of Flesh → **Autunno** → Mech Bosses → **L'Inverno** → Plantera → Golem → Moon Lord → Moonlight → Eroica → La Campanella → Enigma → Swan Lake → Fate
+
+---
+
+# 🎯 PROGRESSIVE ACCESSORY CHAINS BY CLASS
+
+The core philosophy: **Unique mechanics that complement vanilla, not replace it.** Each chain introduces a NEW SYSTEM that works alongside vanilla gear, providing playstyles and options that don't exist in base Terraria.
+
+---
+
+## 7.1 ⚔️ MELEE ACCESSORY CHAIN — "Resonance Combo System"
+
+> **Design Philosophy:** Vanilla melee has damage/speed boosts (Fire Gauntlet, Emblems). This chain introduces a **COMBO SYSTEM** — consecutive hits build Resonance stacks that unlock special attacks. Works WITH vanilla accessories, not instead of them.
+
+### Tier 1: Pre-Hardmode Foundation
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Resonant Rhythm Band** | 10 Resonant Crystal Shards + Band of Regeneration | Hitting enemies builds **Resonance** (max 10). Lose 1 stack/2s of not hitting. Visual note indicator |
+| **Spring Tempo Charm** | Resonant Rhythm Band + 15 Vernal Bars + Primavera drop | Resonance max 15. At 10+ stacks: +8% melee speed |
+
+### Tier 2: Mid Pre-Hardmode (Post-L'Estate)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Solar Crescendo Ring** | Spring Tempo Charm + 15 Solstice Bars + L'Estate drop | Resonance max 20. At 15+ stacks: melee attacks inflict "Scorched" (fire DoT that stacks) |
+
+### Tier 3: Early Hardmode (Post-Autunno)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Harvest Rhythm Signet** | Solar Crescendo Ring + 20 Harvest Bars + Autunno drop | Resonance max 25. At 20+ stacks: 1% lifesteal. Losing stacks grants brief regen |
+
+### Tier 4: Post-Mech (Post-L'Inverno)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Permafrost Cadence Seal** | Harvest Rhythm Signet + 25 Permafrost Bars + L'Inverno drop | Resonance max 30. At 25+ stacks: hits freeze nearby enemies briefly |
+| **Vivaldi's Tempo Master** | Permafrost Cadence Seal + Cycle of Seasons (Post-Plantera) | Resonance max 40. **Consume 30 stacks** to unleash a seasonal elemental burst (changes with biome) |
+
+### Tier 5: Post-Moon Lord Theme Chain
+| Item | Recipe | Effect | Tier |
+|------|--------|--------|------|
+| **Moonlit Sonata Band** | Vivaldi's Tempo Master + 20 Moonlight Resonant Cores | Resonance decays slower at night. Consume 25 stacks: summon moonbeam slash | T1 |
+| **Heroic Crescendo** | Moonlit Sonata Band + 20 Eroica Resonant Cores | Crits grant +2 Resonance. Consume 30 stacks: heroic charge dash | T2 |
+| **Infernal Fortissimo** | Heroic Crescendo + 20 La Campanella Resonant Cores | Max Resonance 50. Consume 40 stacks: bell shockwave (huge AoE) | T3 |
+| **Enigma's Dissonance** | Infernal Fortissimo + 20 Enigma Resonant Cores | Resonance randomly fluctuates ±3, but at 45+ enemies take "Paradox" DoT | T4 |
+| **Swan's Perfect Measure** | Enigma's Dissonance + 20 Swan Lake Resonant Cores | Graceful hits (not taking damage) build +2 Resonance. Consume 35: feather storm | T5 |
+| **Fate's Cosmic Symphony** | Swan's Perfect Measure + 30 Fate Resonant Cores + Fate Harmonic | Max 60 Resonance. Consume 50: reality-rending slash that hits all on-screen enemies | T6 |
+
+---
+
+## 7.2 🏹 RANGED ACCESSORY CHAIN — "Marked for Death System"
+
+> **Design Philosophy:** Vanilla ranged has ammo conservation and crit. This chain introduces **MARK** mechanics — hitting enemies marks them, and marked enemies take bonus effects. Synergizes with vanilla gear.
+
+### Tier 1: Pre-Hardmode Foundation
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Resonant Spotter** | 10 Resonant Crystal Shards + Binoculars | Ranged attacks **Mark** enemies for 5s (visual indicator). Marked enemies glow slightly |
+| **Spring Hunter's Lens** | Resonant Spotter + 15 Vernal Bars + Primavera drop | Marks last 8s. Hitting marked enemies has 10% chance to drop hearts |
+
+### Tier 2: Mid Pre-Hardmode (Post-L'Estate)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Solar Tracker's Badge** | Spring Hunter's Lens + 15 Solstice Bars + L'Estate drop | Marks last 10s. Marked enemies take +5% damage from ALL sources (helps the whole team!) |
+
+### Tier 3: Early Hardmode (Post-Autunno)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Harvest Reaper's Mark** | Solar Tracker's Badge + 20 Harvest Bars + Autunno drop | Marked enemies explode on death (small AoE, 50% weapon damage). Chain marking |
+
+### Tier 4: Post-Mech (Post-L'Inverno)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Permafrost Hunter's Eye** | Harvest Reaper's Mark + 25 Permafrost Bars + L'Inverno drop | Marked enemies are slowed 15%. Killing marked enemy refreshes marks on nearby enemies |
+| **Vivaldi's Seasonal Sight** | Permafrost Hunter's Eye + Cycle of Seasons (Post-Plantera) | Marks apply seasonal debuff (burn/chill/wither/bloom). Mark duration 15s |
+
+### Tier 5: Post-Moon Lord Theme Chain
+| Item | Recipe | Effect | Tier |
+|------|--------|--------|------|
+| **Moonlit Predator's Gaze** | Vivaldi's Seasonal Sight + 20 Moonlight Resonant Cores | Can mark up to 8 enemies. Marked enemies visible through walls | T1 |
+| **Heroic Deadeye** | Moonlit Predator's Gaze + 20 Eroica Resonant Cores | Marked enemies take +8% damage. First shot on marked enemy is auto-crit | T2 |
+| **Infernal Executioner's Brand** | Heroic Deadeye + 20 La Campanella Resonant Cores | Marked enemies burn. Death explosion radius +50% | T3 |
+| **Enigma's Paradox Mark** | Infernal Executioner's Brand + 20 Enigma Resonant Cores | Marks can spread to unmarked enemies on hit (15% chance). Marks enemies in other dimensions? | T4 |
+| **Swan's Graceful Hunt** | Enigma's Paradox Mark + 20 Swan Lake Resonant Cores | Perfect shots (no damage taken for 3s) apply "Swan Mark" — +15% crit chance against target | T5 |
+| **Fate's Cosmic Verdict** | Swan's Graceful Hunt + 30 Fate Resonant Cores + Fate Harmonic | Marked enemies take +12% damage. Killing marked boss drops bonus loot bag | T6 |
+
+---
+
+## 7.3 ✨ MAGIC ACCESSORY CHAIN — "Harmonic Overflow System"
+
+> **Design Philosophy:** Vanilla magic focuses on mana cost/regen. This chain introduces **OVERFLOW** — spending mana beyond 0 (going negative) triggers special effects instead of stopping your spells. High risk, high reward.
+
+### Tier 1: Pre-Hardmode Foundation
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Resonant Overflow Gem** | 10 Resonant Crystal Shards + Mana Regeneration Band | Can cast spells up to -20 mana. While negative: -25% magic damage, +50% mana regen |
+| **Spring Arcane Conduit** | Resonant Overflow Gem + 15 Vernal Bars + Primavera drop | Overflow to -40 mana. While negative: spells leave healing petal trails |
+
+### Tier 2: Mid Pre-Hardmode (Post-L'Estate)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Solar Mana Crucible** | Spring Arcane Conduit + 15 Solstice Bars + L'Estate drop | Overflow to -60 mana. While negative: spells inflict "Sunburn" debuff |
+
+### Tier 3: Early Hardmode (Post-Autunno)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Harvest Soul Vessel** | Solar Mana Crucible + 20 Harvest Bars + Autunno drop | Overflow to -80 mana. Killing enemies while negative restores +15 mana instantly |
+
+### Tier 4: Post-Mech (Post-L'Inverno)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Permafrost Void Heart** | Harvest Soul Vessel + 25 Permafrost Bars + L'Inverno drop | Overflow to -100 mana. While negative: spells have +15% damage (risk/reward!) |
+| **Vivaldi's Harmonic Core** | Permafrost Void Heart + Cycle of Seasons (Post-Plantera) | Overflow to -120 mana. Recovering from negative mana releases a seasonal burst |
+
+### Tier 5: Post-Moon Lord Theme Chain
+| Item | Recipe | Effect | Tier |
+|------|--------|--------|------|
+| **Moonlit Overflow Star** | Vivaldi's Harmonic Core + 20 Moonlight Resonant Cores | At exactly 0 mana: next spell costs 0. Precision timing reward | T1 |
+| **Heroic Arcane Surge** | Moonlit Overflow Star + 20 Eroica Resonant Cores | Going negative triggers brief invincibility (1s). 30s cooldown | T2 |
+| **Infernal Mana Inferno** | Heroic Arcane Surge + 20 La Campanella Resonant Cores | While negative: leave fire trail. Enemies in trail take DoT | T3 |
+| **Enigma's Negative Space** | Infernal Mana Inferno + 20 Enigma Resonant Cores | Overflow to -150. At -100 or below: spells hit twice but you take 5% max HP/s | T4 |
+| **Swan's Balanced Flow** | Enigma's Negative Space + 20 Swan Lake Resonant Cores | Gain "Grace" buff when recovering from negative. Grace: +20% damage for 5s | T5 |
+| **Fate's Cosmic Reservoir** | Swan's Balanced Flow + 30 Fate Resonant Cores + Fate Harmonic | Overflow to -200. At -150: spells bend reality, hitting enemies through walls | T6 |
+
+---
+
+## 7.4 🐉 SUMMON ACCESSORY CHAIN — "Conductor's Baton System"
+
+> **Design Philosophy:** Vanilla summoner has +slots/+damage. This chain introduces **CONDUCTING** — actively directing your minions with special commands for burst damage windows. More engaged summoner gameplay.
+
+### Tier 1: Pre-Hardmode Foundation
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Resonant Conductor's Wand** | 10 Resonant Crystal Shards + Flinx Fur | Right-click to **Conduct**: all minions focus one enemy for 3s (+20% damage to target). 15s cooldown |
+| **Spring Maestro's Badge** | Resonant Conductor's Wand + 15 Vernal Bars + Primavera drop | Conduct cooldown 12s. Conducted minions heal you 1HP/hit during focus |
+
+### Tier 2: Mid Pre-Hardmode (Post-L'Estate)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Solar Director's Crest** | Spring Maestro's Badge + 15 Solstice Bars + L'Estate drop | Conduct cooldown 10s. Focus target takes "Performed" debuff: -5 defense |
+
+### Tier 3: Early Hardmode (Post-Autunno)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Harvest Beastlord's Horn** | Solar Director's Crest + 20 Harvest Bars + Autunno drop | Conduct grants minions +30% damage during focus. Killing conducted target extends buff 2s |
+
+### Tier 4: Post-Mech (Post-L'Inverno)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Permafrost Commander's Crown** | Harvest Beastlord's Horn + 25 Permafrost Bars + L'Inverno drop | Conduct cooldown 8s. Conducted target is slowed 25% |
+| **Vivaldi's Orchestra Baton** | Permafrost Commander's Crown + Cycle of Seasons (Post-Plantera) | **New command**: Double-tap Conduct for "Scatter" — minions spread to all nearby enemies briefly |
+
+### Tier 5: Post-Moon Lord Theme Chain
+| Item | Recipe | Effect | Tier |
+|------|--------|--------|------|
+| **Moonlit Symphony Wand** | Vivaldi's Orchestra Baton + 20 Moonlight Resonant Cores | Conducting at night: +10% minion damage globally for duration | T1 |
+| **Heroic General's Baton** | Moonlit Symphony Wand + 20 Eroica Resonant Cores | Conduct grants minions brief invincibility (1s). Rally your troops! | T2 |
+| **Infernal Choir Master's Rod** | Heroic General's Baton + 20 La Campanella Resonant Cores | Conducted minions explode on hit (doesn't kill them). +50% damage as AoE | T3 |
+| **Enigma's Hivemind Link** | Infernal Choir Master's Rod + 20 Enigma Resonant Cores | Minions can phase through blocks during Conduct. Ambush from anywhere | T4 |
+| **Swan's Graceful Direction** | Enigma's Hivemind Link + 20 Swan Lake Resonant Cores | Perfect Conduct (full HP): minions deal double damage for focus duration | T5 |
+| **Fate's Cosmic Dominion** | Swan's Graceful Direction + 30 Fate Resonant Cores + Fate Harmonic | Conduct cooldown 5s. "Finale": hold Conduct 2s to sacrifice all minions for massive single hit | T6 |
+
+---
+
+## 7.5 🛡️ DEFENSE ACCESSORY CHAIN — "Resonant Shield System"
+
+> **Design Philosophy:** Vanilla defense has DR/dodge/immunities. This chain introduces **RESONANT SHIELD** — a regenerating barrier that absorbs hits, with unique effects when the shield breaks. Tactical tanking.
+
+### Tier 1: Pre-Hardmode Foundation
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Resonant Barrier Core** | 10 Resonant Crystal Shards + Shackle | Gain a **Resonant Shield** equal to 10% max HP. Regenerates when not hit for 5s |
+| **Spring Vitality Shell** | Resonant Barrier Core + 15 Vernal Bars + Primavera drop | Shield = 15% max HP. When shield breaks: release healing petals (10 HP to nearby allies) |
+
+### Tier 2: Mid Pre-Hardmode (Post-L'Estate)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Solar Flare Aegis** | Spring Vitality Shell + 15 Solstice Bars + L'Estate drop | Shield = 20% max HP. When shield breaks: release fire nova (damages nearby enemies) |
+
+### Tier 3: Early Hardmode (Post-Autunno)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Harvest Thorned Guard** | Solar Flare Aegis + 20 Harvest Bars + Autunno drop | Shield = 25% max HP. While shield active: thorns (return 15% damage to melee attackers) |
+
+### Tier 4: Post-Mech (Post-L'Inverno)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Permafrost Crystal Ward** | Harvest Thorned Guard + 25 Permafrost Bars + L'Inverno drop | Shield = 30% max HP. When shield breaks: freeze attackers for 1s |
+| **Vivaldi's Seasonal Bulwark** | Permafrost Crystal Ward + Cycle of Seasons (Post-Plantera) | Shield = 35% max HP. Shield break effect changes with season (heal/fire/thorns/freeze) |
+
+### Tier 5: Post-Moon Lord Theme Chain
+| Item | Recipe | Effect | Tier |
+|------|--------|--------|------|
+| **Moonlit Guardian's Veil** | Vivaldi's Seasonal Bulwark + 20 Moonlight Resonant Cores | Shield regens faster at night. Break effect: brief invisibility (2s) | T1 |
+| **Heroic Valor's Aegis** | Moonlit Guardian's Veil + 20 Eroica Resonant Cores | Break effect: gain +15% damage for 5s. Turn defense into offense! | T2 |
+| **Infernal Bell's Fortress** | Heroic Valor's Aegis + 20 La Campanella Resonant Cores | Shield = 40% HP. Break releases massive bell shockwave | T3 |
+| **Enigma's Void Shell** | Infernal Bell's Fortress + 20 Enigma Resonant Cores | While shield active: 10% chance to phase through attacks entirely | T4 |
+| **Swan's Immortal Grace** | Enigma's Void Shell + 20 Swan Lake Resonant Cores | Shield = 50% HP. At full shield: gain +5% dodge chance | T5 |
+| **Fate's Cosmic Aegis** | Swan's Immortal Grace + 30 Fate Resonant Cores + Fate Harmonic | Shield = 60% HP. Break triggers "Last Stand": invincible for 3s, once per 2 minutes | T6 |
+
+---
+
+## 7.6 ⚡ MOBILITY ACCESSORY CHAIN — "Momentum System"
+
+> **Design Philosophy:** Vanilla mobility has speed/flight/dash. This chain introduces **MOMENTUM** — moving continuously builds speed and power. Rewards constant motion and aggressive positioning.
+
+### Tier 1: Pre-Hardmode Foundation
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Resonant Velocity Band** | 10 Resonant Crystal Shards + Aglet + Anklet of the Wind | Moving builds **Momentum** (max 100). Standing still loses 5/s. Visual speed lines at high momentum |
+| **Spring Zephyr Boots** | Resonant Velocity Band + 15 Vernal Bars + Primavera drop | At 50+ Momentum: +10% move speed. At 80+: double jump resets mid-air |
+
+### Tier 2: Mid Pre-Hardmode (Post-L'Estate)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Solar Blitz Treads** | Spring Zephyr Boots + 15 Solstice Bars + L'Estate drop | At 70+ Momentum: leave fire trail that damages enemies. Running is attacking! |
+
+### Tier 3: Early Hardmode (Post-Autunno)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Harvest Phantom Stride** | Solar Blitz Treads + 20 Harvest Bars + Autunno drop | At 80+ Momentum: phase through enemies (no contact damage). Ghost running |
+
+### Tier 4: Post-Mech (Post-L'Inverno)
+| Item | Recipe/Source | Effect |
+|------|---------------|--------|
+| **Permafrost Avalanche Step** | Harvest Phantom Stride + 25 Permafrost Bars + L'Inverno drop | At 90+ Momentum: leave ice trail that slows enemies. At 100: brief ice dash |
+| **Vivaldi's Seasonal Sprint** | Permafrost Avalanche Step + Cycle of Seasons (Post-Plantera) | Momentum max 120. Trail effect changes with season |
+
+### Tier 5: Post-Moon Lord Theme Chain
+| Item | Recipe | Effect | Tier |
+|------|--------|--------|------|
+| **Moonlit Phantom's Rush** | Vivaldi's Seasonal Sprint + 20 Moonlight Resonant Cores | At 100+ Momentum: become semi-transparent, enemies target you less | T1 |
+| **Heroic Charge Boots** | Moonlit Phantom's Rush + 20 Eroica Resonant Cores | **Consume 80 Momentum** to dash-attack (damages enemies in path) | T2 |
+| **Infernal Meteor Stride** | Heroic Charge Boots + 20 La Campanella Resonant Cores | At 100+ Momentum while falling: create impact crater on landing | T3 |
+| **Enigma's Phase Shift** | Infernal Meteor Stride + 20 Enigma Resonant Cores | Consume 100 Momentum: short-range teleport in movement direction | T4 |
+| **Swan's Eternal Glide** | Enigma's Phase Shift + 20 Swan Lake Resonant Cores | Momentum decays 50% slower. At max: flight doesn't consume wing time | T5 |
+| **Fate's Cosmic Velocity** | Swan's Eternal Glide + 30 Fate Resonant Cores + Fate Harmonic | Momentum max 150. At 150: **time slows 20%** for enemies near you | T6 |
+
+---
+
+# 🎁 ONE-OFF UTILITY ITEMS
+
+## 7.7 MOUNTS
+
+| Item | Recipe/Source | Speed | Flight | Notes |
+|------|---------------|-------|--------|-------|
+| **Resonant Slime Saddle** | Slime Saddle + 15 Resonant Crystal Shards | 35 mph | Bounce | Musical bounce, note particles |
+| **Primavera's Petal Steed** | Primavera boss (10%) | 42 mph | 3s hover | Pink unicorn, petal trail |
+| **L'Estate's Sun Chariot** | L'Estate boss (10%) | 48 mph | 4s | Blazing chariot, fire trail |
+| **Autunno's Phantom Horse** | Autunno boss (10%) | 50 mph | 5s glide | Ghostly steed, leaf trail |
+| **L'Inverno's Frost Sleigh** | L'Inverno boss (10%) | 45 mph | 6s glide | Ice sleigh, freeze trail |
+| **Vivaldi's Seasonal Carriage** | All 4 Season Mounts + Cycle of Seasons | 58 mph | Infinite | Transforms per season |
+| **Cosmic Throne of Fate** | Fate Harmonic + 50 Fate Resonant Cores + All Theme Harmonics | 95 mph | Infinite | Constellation throne |
+
+## 7.8 LIGHT PETS
+
+| Item | Source | Notes |
+|------|--------|-------|
+| **Minor Note Pet** | 15 Minor Music Notes + Shadow Key | Floating music note |
+| **Spring Sprite** | Primavera boss (20%) | Pink fairy with petals |
+| **Summer Wisp** | L'Estate boss (20%) | Orange flame wisp |
+| **Autumn Phantom** | Autunno boss (20%) | Ghost leaf |
+| **Winter Frost** | L'Inverno boss (20%) | Snowflake sprite |
+| **Moonlit Wisp** | Moonlight boss (15%) | Purple crescent |
+| **Heroic Spirit** | Eroica boss (15%) | Mini phoenix |
+| **Infernal Chime** | La Campanella boss (15%) | Floating bell |
+| **Void Eye** | Enigma boss (15%) | Watching eye |
+| **Prismatic Feather** | Swan Lake boss (15%) | Rainbow feather |
+| **Cosmic Shard** | Fate boss (15%) | Star fragment |
+
+## 7.9 VANITY & COSMETICS
+
+### Seasonal Dyes
+| Item | Recipe | Effect |
+|------|--------|--------|
+| **Vernal Bloom Dye** | 5 Vernal Bars + Strange Plant | Pink/white petals |
+| **Solstice Flame Dye** | 5 Solstice Bars + Strange Plant | Animated fire |
+| **Harvest Twilight Dye** | 5 Harvest Bars + Strange Plant | Falling leaves |
+| **Permafrost Crystal Dye** | 5 Permafrost Bars + Strange Plant | Frost sparkle |
+| **Seasonal Cycle Dye** | All 4 Season Dyes | Shifts through seasons |
+
+### Theme Dyes
+| Item | Recipe | Effect |
+|------|--------|--------|
+| **Moonlit Glow Dye** | Moonlight Resonant Core ×5 + Strange Plant | Purple/silver moon phases |
+| **Heroic Valor Dye** | Eroica Resonant Core ×5 + Strange Plant | Scarlet/gold sakura |
+| **Infernal Bell Dye** | La Campanella Resonant Core ×5 + Strange Plant | Black/orange flames |
+| **Enigmatic Void Dye** | Enigma Resonant Core ×5 + Strange Plant | Purple/green eyes |
+| **Swan Grace Dye** | Swan Lake Resonant Core ×5 + Strange Plant | White/black rainbow |
+| **Cosmic Fate Dye** | Fate Resonant Core ×5 + Strange Plant | Black/pink stars |
+
+### Boss Vanity Sets (5% drop each)
+- **Primavera's Garb** - Flower dress, petal crown
+- **L'Estate's Regalia** - Solar robes, flame crown
+- **Autunno's Mantle** - Ghostly robes, leaf crown
+- **L'Inverno's Vestments** - Ice robes, crystal crown
+- **Maestro's Formal Attire** (1% any boss) - Conductor's tuxedo
+
+---
+
+## 7.10 Phase 7 Asset Checklist
+
+```
+PROGRESSIVE ACCESSORY CHAINS (36 items per chain × 6 chains = 36 items)
+MELEE CHAIN (6 tiers)
+[ ] Rhythmic Wristband → Spring Bloom Gauntlet → Solar Fury Gauntlet →
+    Harvest Reaper's Grip → Permafrost Warrior's Grasp → Vivaldi's Masterwork →
+    Moonlit → Heroic → Infernal → Enigma's → Swan's → Fate's Cosmic Grip
+
+RANGED CHAIN (6 tiers)
+[ ] Resonant Quiver → Spring Petal → Solar Blaze → Harvest Moon →
+    Permafrost Arsenal → Vivaldi's → Moonlit → Heroic → Infernal →
+    Enigma's → Swan's → Fate's Cosmic Trajectory
+
+MAGIC CHAIN (6 tiers)  
+[ ] Harmonic Focus → Spring Arcane → Solar Mage's → Harvest Witch's →
+    Permafrost Mage's → Vivaldi's → Moonlit → Heroic → Infernal →
+    Enigma's → Swan's → Fate's Cosmic Conduit
+
+SUMMON CHAIN (6 tiers)
+[ ] Conductor's Fragment → Spring Whistle → Solar Commander's → 
+    Harvest Necromancer's → Permafrost Beast Master's → Vivaldi's →
+    Moonlit → Heroic → Infernal → Enigma's → Swan's → Fate's Orchestra
+
+DEFENSE CHAIN (6 tiers)
+[ ] Resonant Guard → Spring Vitality → Solar Bulwark → Harvest Undying →
+    Permafrost Aegis → Vivaldi's Fortress → Moonlit → Heroic → Infernal →
+    Enigma's → Swan's → Fate's Cosmic Immortality
+
+MOBILITY CHAIN (6 tiers)
+[ ] Harmonic Dash Band → Spring Breeze → Solar Sprint → Harvest Wind Walker →
+    Permafrost Blizzard → Vivaldi's Step → Moonlit → Heroic → Infernal →
+    Enigma's → Swan's → Fate's Cosmic Velocity
+
+MOUNTS (7 items)
+[ ] Resonant Slime Saddle
+[ ] Primavera's Petal Steed
+[ ] L'Estate's Sun Chariot
+[ ] Autunno's Phantom Horse
+[ ] L'Inverno's Frost Sleigh
+[ ] Vivaldi's Seasonal Carriage
+[ ] Cosmic Throne of Fate
+
+LIGHT PETS (11 items)
+[ ] Minor Note Pet
+[ ] 4× Seasonal Pets
+[ ] 6× Theme Pets
+
+VANITY (26 items)
+[ ] 5× Seasonal Dyes
+[ ] 6× Theme Dyes
+[ ] 5× Boss Vanity Sets (15 pieces)
+
+TOTAL PHASE 7: ~80 unique item sprites
+(Many accessories are upgrades that could share base sprites with palette swaps)
+```
+
+---
+
+# 📊 UPDATED COMPLETE ASSET SUMMARY
+
+| Phase | Items | Priority |
+|-------|-------|----------|
+| Phase 1 - Foundation Materials | ~41 items | 🔴 DO FIRST |
+| Phase 2 - Four Seasons | 4 bosses + 16 accessories | 🟠 SECOND |
+| Phase 3 - Theme Expansions | 23 items | 🟡 THIRD |
+| Phase 4 - Combinations | 10 accessories | 🟢 FOURTH |
+| Phase 5 - Fate & Ultimate | 14 accessories | 🔵 FIFTH |
+| Phase 6 - Utilities | 15 items | ⚪ SIXTH |
+| **Phase 7 - Progressive Chains & Utility** | **~80 items** | 🟣 SEVENTH |
+
+**GRAND TOTAL: ~199 new item sprites + 4 boss sprite sets**
+
+---
+
+*Document Version 3.1 - Restructured Phase 7: Progressive Accessory Chains*
+*Four Seasons spread across Eye of Cthulhu → Moon Lord progression*
+*Last Updated: January 2026*

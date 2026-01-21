@@ -118,26 +118,5 @@ namespace MagnumOpus.Content.LaCampanella.HarmonicCores
                 .Register();
         }
     }
-    
-    public class ResonantCoreOfLaCampanella : ModItem
-    {
-        public override void SetStaticDefaults()
-        {
-            Item.ResearchUnlockCount = 1;
-        }
-
-        public override void SetDefaults()
-        {
-            Item.width = 24;
-            Item.height = 24;
-            Item.maxStack = 99;
-            Item.value = Item.sellPrice(gold: 8);
-            Item.rare = ItemRarityID.Yellow;
-        }
-
-        public override void PostUpdate()
-        {
-            Lighting.AddLight(Item.Center, 0.5f, 0.4f, 0.2f);
-        }
-    }
+    // ResonantCoreOfLaCampanella moved to its own file: ResonantCoreOfLaCampanella.cs
 }

@@ -89,7 +89,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantOres
 
         public override IEnumerable<Item> GetItemDrops(int i, int j)
         {
-            yield return new Item(ModContent.ItemType<LaCampanellaResonanceOre>());
+            // Drop exactly 1 Remnant of the Bell's Harmony per ore block
+            yield return new Item(ModContent.ItemType<RemnantOfTheBellsHarmony>(), 1);
         }
 
         public override bool PreDraw(int i, int j, SpriteBatch spriteBatch)

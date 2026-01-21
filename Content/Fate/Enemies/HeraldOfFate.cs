@@ -44,10 +44,10 @@ namespace MagnumOpus.Content.Fate.Enemies
         private float sizeMultiplier = 1f;
         private bool hasSetSize = false;
         
-        // Animation - assumes spritesheet
+        // Animation - single frame sprite (no spritesheet)
         private int frameCounter = 0;
         private int currentFrame = 0;
-        private const int TotalFrames = 8;
+        private const int TotalFrames = 1;
         private const int FrameSpeed = 5;
         
         // Visual effects

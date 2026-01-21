@@ -51,8 +51,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             Item.DamageType = DamageClass.Melee;
             Item.width = 54;
             Item.height = 54;
-            Item.useTime = 6;
-            Item.useAnimation = 6;
+            Item.useTime = 18;
+            Item.useAnimation = 18;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.knockBack = 8f;
             Item.value = Item.sellPrice(platinum: 5);

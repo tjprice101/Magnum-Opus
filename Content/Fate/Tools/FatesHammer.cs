@@ -40,8 +40,8 @@ namespace MagnumOpus.Content.Fate.Tools
             Item.autoReuse = true;
             Item.useTurn = true;
 
-            // Highest hammer power
-            Item.hammer = 120; // 120% hammer power
+            // Highest hammer power - Tier 6
+            Item.hammer = 180; // Highest tier: above Swan Lake (165)
             
             Item.maxStack = 1;
         }

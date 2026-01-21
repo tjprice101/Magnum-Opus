@@ -324,8 +324,8 @@ namespace MagnumOpus.Content.Fate.Projectiles
             "MagnumOpus/Content/Fate/ResonantWeapons/TheConductorsLastConstellation",
             "MagnumOpus/Content/Fate/ResonantWeapons/CodaOfAnnihilation",
             "MagnumOpus/Content/Fate/ResonantWeapons/FractalOfTheStars",
-            "MagnumOpus/Content/Fate/ResonantWeapons/StellarRequiem",
-            "MagnumOpus/Content/Fate/ResonantWeapons/SymphonysEnd"
+            "MagnumOpus/Content/Fate/ResonantWeapons/RequiemOfReality",
+            "MagnumOpus/Content/Fate/ResonantWeapons/OpusUltima"
         };
 
         private int weaponTextureIndex = 0;
@@ -522,12 +522,17 @@ namespace MagnumOpus.Content.Fate.Projectiles
     #region Cinematic Star Circle - Player Attack Effect
 
     /// <summary>
-    /// Player ModPlayer to track weapon usage and trigger star circle effect
+    /// Player ModPlayer to track weapon usage and trigger star circle effect.
+    /// Also spawns the massive figure-8 chromatic/pearlescent light effect when holding ANY Fate weapon.
     /// </summary>
     public class FateWeaponEffectPlayer : ModPlayer
     {
         private int attackCounter = 0;
         private const int AttacksForStarCircle = 6;
+        
+        // Figure-8 effect tracking
+        private float figure8Phase = 0f;
+        private bool wasHoldingFateWeapon = false;
 
         /// <summary>
         /// Call this when a Fate weapon attacks. Position parameter for potential future use.
@@ -541,6 +546,180 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 attackCounter = 0;
                 FateCosmicVFX.TriggerStarCircleEffect(Player);
             }
+        }
+        
+        public override void PostUpdate()
+        {
+            // Check if player is holding a Fate weapon (by rarity)
+            bool isHoldingFateWeapon = IsHoldingFateWeapon();
+            
+            if (isHoldingFateWeapon)
+            {
+                // Spawn the massive figure-8 chromatic/pearlescent light effect
+                SpawnFigure8Effect();
+                wasHoldingFateWeapon = true;
+            }
+            else if (wasHoldingFateWeapon)
+            {
+                // Was holding but no longer - reset
+                wasHoldingFateWeapon = false;
+            }
+        }
+        
+        private bool IsHoldingFateWeapon()
+        {
+            Item heldItem = Player.HeldItem;
+            if (heldItem == null || heldItem.IsAir)
+                return false;
+            
+            // Check if the item has FateRarity
+            int fateRarityId = ModContent.RarityType<FateRarity>();
+            return heldItem.rare == fateRarityId;
+        }
+        
+        private void SpawnFigure8Effect()
+        {
+            // Advance figure-8 phase
+            figure8Phase += 0.035f;
+            if (figure8Phase > MathHelper.TwoPi * 4f)
+                figure8Phase -= MathHelper.TwoPi * 4f;
+            
+            // === MASSIVE FIGURE-8 CHROMATIC/PEARLESCENT LIGHT EFFECT ===
+            // The figure-8 is created using parametric equations
+            // x = sin(t), y = sin(2t) creates a figure-8 (Lissajous curve)
+            
+            float time = figure8Phase;
+            
+            // Large figure-8 dimensions
+            float xRadius = 100f; // Horizontal extent
+            float yRadius = 60f;  // Vertical extent
+            
+            // === PRIMARY FIGURE-8 PATH - CHROMATIC RAINBOW ===
+            // Spawn particles along the figure-8 path
+            for (int i = 0; i < 3; i++)
+            {
+                float pathOffset = i * 0.3f;
+                float t = time + pathOffset;
+                
+                // Figure-8 parametric: x = sin(t), y = sin(2t) / 2
+                float x = (float)Math.Sin(t) * xRadius;
+                float y = (float)Math.Sin(t * 2f) * yRadius * 0.5f;
+                
+                Vector2 particlePos = Player.Center + new Vector2(x, y);
+                
+                // Chromatic rainbow cycling through the path
+                float hue = (t * 0.15f + Main.GameUpdateCount * 0.008f) % 1f;
+                Color chromaticColor = Main.hslToRgb(hue, 1f, 0.7f);
+                
+                // Main chromatic glow
+                var chromatic = new GenericGlowParticle(particlePos, 
+                    new Vector2((float)Math.Cos(t) * 0.8f, (float)Math.Cos(t * 2f) * 0.5f),
+                    chromaticColor * 0.7f, 0.35f, 25, true);
+                MagnumParticleHandler.SpawnParticle(chromatic);
+            }
+            
+            // === SECONDARY FIGURE-8 PATH - PEARLESCENT (offset and opposite direction) ===
+            for (int i = 0; i < 2; i++)
+            {
+                float pathOffset = i * 0.4f + 0.15f;
+                float t = -time * 0.8f + pathOffset; // Opposite direction, slightly slower
+                
+                float x = (float)Math.Sin(t) * (xRadius * 0.85f);
+                float y = (float)Math.Sin(t * 2f) * (yRadius * 0.85f) * 0.5f;
+                
+                Vector2 particlePos = Player.Center + new Vector2(x, y);
+                
+                // Pearlescent white/pink/cyan cycling
+                float pearlPhase = (t * 0.2f + Main.GameUpdateCount * 0.01f) % 1f;
+                Color pearlColor;
+                if (pearlPhase < 0.33f)
+                    pearlColor = Color.Lerp(Color.White, new Color(255, 200, 220), pearlPhase * 3f); // White to pink
+                else if (pearlPhase < 0.66f)
+                    pearlColor = Color.Lerp(new Color(255, 200, 220), new Color(200, 230, 255), (pearlPhase - 0.33f) * 3f); // Pink to cyan
+                else
+                    pearlColor = Color.Lerp(new Color(200, 230, 255), Color.White, (pearlPhase - 0.66f) * 3f); // Cyan to white
+                
+                var pearl = new GenericGlowParticle(particlePos,
+                    new Vector2((float)Math.Cos(t) * -0.6f, (float)Math.Cos(t * 2f) * -0.4f),
+                    pearlColor * 0.5f, 0.28f, 22, true);
+                MagnumParticleHandler.SpawnParticle(pearl);
+            }
+            
+            // === SPARKLE ACCENTS AT FIGURE-8 CROSSOVER POINTS ===
+            // The crossover point is at the center (0,0 of the figure-8)
+            if (Main.rand.NextBool(3))
+            {
+                // Near the center crossover
+                Vector2 crossoverPos = Player.Center + Main.rand.NextVector2Circular(15f, 15f);
+                float sparkHue = Main.rand.NextFloat();
+                Color sparkColor = Main.hslToRgb(sparkHue, 1f, 0.85f);
+                
+                CustomParticles.GenericFlare(crossoverPos, sparkColor, 0.3f, 15);
+            }
+            
+            // === OUTER CHROMATIC HALO RING (pulsing) ===
+            if (Main.GameUpdateCount % 8 == 0)
+            {
+                float haloHue = (Main.GameUpdateCount * 0.02f) % 1f;
+                Color haloColor = Main.hslToRgb(haloHue, 0.8f, 0.6f);
+                CustomParticles.HaloRing(Player.Center, haloColor * 0.4f, 0.6f, 18);
+            }
+            
+            // === PEARLESCENT STAR SPARKLES ===
+            if (Main.rand.NextBool(4))
+            {
+                // Random position along the figure-8 path
+                float randT = Main.rand.NextFloat(MathHelper.TwoPi * 2f);
+                float randX = (float)Math.Sin(randT) * xRadius * Main.rand.NextFloat(0.8f, 1.1f);
+                float randY = (float)Math.Sin(randT * 2f) * yRadius * 0.5f * Main.rand.NextFloat(0.8f, 1.1f);
+                Vector2 starPos = Player.Center + new Vector2(randX, randY);
+                
+                Color starColor = Main.rand.NextBool() ? Color.White : new Color(255, 240, 250);
+                var star = new GenericGlowParticle(starPos, Main.rand.NextVector2Circular(0.5f, 0.5f),
+                    starColor, 0.22f, 20, true);
+                MagnumParticleHandler.SpawnParticle(star);
+            }
+            
+            // === GLYPHS ORBITING THE FIGURE-8 ===
+            if (Main.GameUpdateCount % 12 == 0)
+            {
+                float glyphT = time * 0.5f;
+                float glyphX = (float)Math.Sin(glyphT) * xRadius * 1.1f;
+                float glyphY = (float)Math.Sin(glyphT * 2f) * yRadius * 0.55f;
+                Vector2 glyphPos = Player.Center + new Vector2(glyphX, glyphY);
+                
+                CustomParticles.Glyph(glyphPos, FateCosmicVFX.FateDarkPink * 0.6f, 0.35f, -1);
+            }
+            
+            // === COSMIC DUST MOTES DRIFTING ===
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 dustPos = Player.Center + Main.rand.NextVector2Circular(xRadius * 1.2f, yRadius * 0.8f);
+                float dustHue = Main.rand.NextFloat();
+                Color dustColor = Main.hslToRgb(dustHue, 0.6f, 0.5f);
+                
+                var dust = new GenericGlowParticle(dustPos, new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -0.3f),
+                    dustColor * 0.35f, 0.12f, 30, true);
+                MagnumParticleHandler.SpawnParticle(dust);
+            }
+            
+            // === FIGURE-8 LIGHTING ===
+            // Multiple light sources along the figure-8
+            for (int i = 0; i < 4; i++)
+            {
+                float lightT = time + MathHelper.PiOver2 * i;
+                float lightX = (float)Math.Sin(lightT) * xRadius * 0.6f;
+                float lightY = (float)Math.Sin(lightT * 2f) * yRadius * 0.3f;
+                Vector2 lightPos = Player.Center + new Vector2(lightX, lightY);
+                
+                float lightHue = (lightT * 0.1f) % 1f;
+                Color lightColor = Main.hslToRgb(lightHue, 0.7f, 0.5f);
+                Lighting.AddLight(lightPos, lightColor.ToVector3() * 0.35f);
+            }
+            
+            // Central cosmic glow
+            float centralPulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.2f + 0.8f;
+            Lighting.AddLight(Player.Center, FateCosmicVFX.FatePurple.ToVector3() * centralPulse * 0.5f);
         }
 
         public override void ResetEffects()

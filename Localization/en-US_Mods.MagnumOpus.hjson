@@ -1745,6 +1745,51 @@ Items: {
 		DisplayName: Fates Pickaxe
 		Tooltip: ""
 	}
+
+	ScoreOfEnigma: {
+		DisplayName: Score Of Enigma
+		Tooltip: ""
+	}
+
+	AstralConduit: {
+		DisplayName: Astral Conduit
+		Tooltip: ""
+	}
+
+	ConstellationCompass: {
+		DisplayName: Constellation Compass
+		Tooltip: ""
+	}
+
+	MachinationoftheEventHorizon: {
+		DisplayName: Machinationofthe Event Horizon
+		Tooltip: ""
+	}
+
+	OrreryofInfiniteOrbits: {
+		DisplayName: Orreryof Infinite Orbits
+		Tooltip: ""
+	}
+
+	ParadoxChronometer: {
+		DisplayName: Paradox Chronometer
+		Tooltip: ""
+	}
+
+	RemnantOfTheGalaxysHarmony: {
+		DisplayName: Remnant Of The Galaxys Harmony
+		Tooltip: ""
+	}
+
+	ScoreOfFate: {
+		DisplayName: Score Of Fate
+		Tooltip: ""
+	}
+
+	ScoreOfLaCampanella: {
+		DisplayName: Score Of La Campanella
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -1768,6 +1813,8 @@ NPCs: {
 	MysterysEnd.DisplayName: Mystery's End
 	CrawlerOfTheBell.DisplayName: Crawler of the Bell
 	FateWardenOfMelodies.DisplayName: Fate Warden Of Melodies
+	HeraldOfFate.DisplayName: Herald Of Fate
+	ShatteredPrima.DisplayName: Shattered Prima
 }
 
 Projectiles: {
@@ -2172,6 +2219,16 @@ Projectiles: {
 	EnigmaVoidBeam.DisplayName: Enigma Void Beam
 	EroicaSplittingOrb.DisplayName: Eroica Splitting Orb
 	CodaZenithSwordProjectile.DisplayName: Coda Zenith Sword Projectile
+	ConstellationBeam.DisplayName: Constellation Beam
+	CosmicRendSlash.DisplayName: Cosmic Rend Slash
+	FateSealedShard.DisplayName: Fate Sealed Shard
+	RealityFractureTrail.DisplayName: Reality Fracture Trail
+	StellarBolt.DisplayName: Stellar Bolt
+	InfernalBellMinion.DisplayName: Infernal Bell Minion
+	InfernalBellWave.DisplayName: Infernal Bell Wave
+	PrimaFeatherBlade.DisplayName: Prima Feather Blade
+	PrimaSoundWave.DisplayName: Prima Sound Wave
+	ShatteredPrimaShadow.DisplayName: Shattered Prima Shadow
 }
 
 "Keybinds.Toggle Harmonic Core UI.DisplayName": Toggle  Harmonic  Core  U I
