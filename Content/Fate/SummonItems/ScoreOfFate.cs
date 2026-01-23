@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -28,6 +30,15 @@ namespace MagnumOpus.Content.Fate.SummonItems
             Item.rare = ModContent.RarityType<FateRarity>();
             Item.consumable = false; // NOT consumable on use - consumed by piano
             Item.useStyle = ItemUseStyleID.None; // Cannot be used directly
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Usage", "Place at a Grand Piano to invoke the Warden of Melodies"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Da-da-da-DUM—four notes that echo across eternity, heralding the arrival\nof cosmic destiny itself, the conductor of all that was and will be'") 
+            { 
+                OverrideColor = new Color(200, 80, 120) 
+            });
         }
 
         public override void AddRecipes()

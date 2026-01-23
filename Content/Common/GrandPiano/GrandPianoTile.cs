@@ -14,13 +14,19 @@ using MagnumOpus.Content.Eroica.Bosses;
 using MagnumOpus.Content.Eroica.SummonItems;
 using MagnumOpus.Content.SwanLake.Bosses;
 using MagnumOpus.Content.SwanLake.SummonItems;
+using MagnumOpus.Content.LaCampanella.Bosses;
+using MagnumOpus.Content.LaCampanella.SummonItems;
+using MagnumOpus.Content.EnigmaVariations.Bosses;
+using MagnumOpus.Content.EnigmaVariations.SummonItems;
+using MagnumOpus.Content.Fate.Bosses;
+using MagnumOpus.Content.Fate.SummonItems;
 
 namespace MagnumOpus.Content.Common.GrandPiano
 {
     /// <summary>
     /// The Grand Piano - A mystical instrument that appears after Moon Lord's defeat.
     /// Used to summon the musical bosses of Magnum Opus.
-    /// Cannot be mined, destroyed, or moved.
+    /// Can be mined with a pickaxe and placed anywhere in the world.
     /// </summary>
     public class GrandPianoTile : ModTile
     {
@@ -49,36 +55,21 @@ namespace MagnumOpus.Content.Common.GrandPiano
 
             DustType = DustID.Gold;
             
-            // Cannot be mined - set to maximum values
-            MinPick = int.MaxValue;
-            MineResist = float.MaxValue;
+            // Mineable with a post-Moon Lord pickaxe (Luminite tier)
+            MinPick = 225;
+            
+            // Register the item that drops when mined
+            RegisterItemDrop(ModContent.ItemType<GrandPianoItem>());
         }
 
         public override bool CanExplode(int i, int j)
         {
-            return false; // Cannot be blown up by any explosive
-        }
-
-        public override bool CanKillTile(int i, int j, ref bool blockDamaged)
-        {
-            blockDamaged = false;
-            return false; // Cannot be killed/mined by any means
-        }
-
-        public override bool CanReplace(int i, int j, int tileTypeBeingPlaced)
-        {
-            return false; // Cannot be replaced by other tiles
+            return false; // Cannot be blown up by explosives (must be mined properly)
         }
 
         public override void NumDust(int i, int j, bool fail, ref int num)
         {
-            num = 0; // No dust when hit (can't be hit anyway)
-        }
-
-        public override void KillMultiTile(int i, int j, int frameX, int frameY)
-        {
-            // Override to prevent any destruction - this should never be called
-            // but just in case, do nothing
+            num = fail ? 1 : 3; // Golden dust when mined
         }
 
         public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b)
@@ -201,9 +192,95 @@ namespace MagnumOpus.Content.Common.GrandPiano
                 return true;
             }
 
-            // TODO: Add more boss summon items here as they're created
-            // Example:
-            // if (heldItem.type == ModContent.ItemType<ScoreOfMoonlight>()) { ... }
+            // Check if holding Score of La Campanella
+            if (heldItem != null && !heldItem.IsAir && heldItem.type == ModContent.ItemType<ScoreOfLaCampanella>())
+            {
+                // Check if La Campanella boss is already alive
+                if (NPC.AnyNPCs(ModContent.NPCType<LaCampanellaChimeOfLife>()))
+                {
+                    Main.NewText("La Campanella, Chime of Life is already ringing...", 255, 140, 40);
+                    return true;
+                }
+
+                // Consume 1 item
+                heldItem.stack--;
+                if (heldItem.stack <= 0)
+                {
+                    heldItem.TurnToAir();
+                }
+
+                // Play piano sound
+                SoundEngine.PlaySound(SoundID.Item4, player.Center);
+
+                // Spawn the boss
+                if (Main.netMode != NetmodeID.MultiplayerClient)
+                {
+                    NPC.SpawnOnPlayer(player.whoAmI, ModContent.NPCType<LaCampanellaChimeOfLife>());
+                }
+
+                Main.NewText("The Grand Piano plays La Campanella's fiery virtuoso melody...", 255, 140, 40);
+                return true;
+            }
+            
+            // Check if holding Score of Enigma
+            if (heldItem != null && !heldItem.IsAir && heldItem.type == ModContent.ItemType<ScoreOfEnigma>())
+            {
+                // Check if Enigma boss is already alive
+                if (NPC.AnyNPCs(ModContent.NPCType<EnigmaTheHollowMystery>()))
+                {
+                    Main.NewText("Enigma, The Hollow Mystery is already watching...", 140, 60, 200);
+                    return true;
+                }
+
+                // Consume 1 item
+                heldItem.stack--;
+                if (heldItem.stack <= 0)
+                {
+                    heldItem.TurnToAir();
+                }
+
+                // Play piano sound
+                SoundEngine.PlaySound(SoundID.Item4, player.Center);
+
+                // Spawn the boss
+                if (Main.netMode != NetmodeID.MultiplayerClient)
+                {
+                    NPC.SpawnOnPlayer(player.whoAmI, ModContent.NPCType<EnigmaTheHollowMystery>());
+                }
+
+                Main.NewText("The Grand Piano plays Enigma's mysterious, unanswerable melody...", 140, 60, 200);
+                return true;
+            }
+            
+            // Check if holding Score of Fate
+            if (heldItem != null && !heldItem.IsAir && heldItem.type == ModContent.ItemType<ScoreOfFate>())
+            {
+                // Check if Fate boss is already alive
+                if (NPC.AnyNPCs(ModContent.NPCType<FateWardenOfMelodies>()))
+                {
+                    Main.NewText("The Warden of Melodies already conducts the cosmos...", 180, 50, 100);
+                    return true;
+                }
+
+                // Consume 1 item
+                heldItem.stack--;
+                if (heldItem.stack <= 0)
+                {
+                    heldItem.TurnToAir();
+                }
+
+                // Play piano sound
+                SoundEngine.PlaySound(SoundID.Item4, player.Center);
+
+                // Spawn the boss
+                if (Main.netMode != NetmodeID.MultiplayerClient)
+                {
+                    NPC.SpawnOnPlayer(player.whoAmI, ModContent.NPCType<FateWardenOfMelodies>());
+                }
+
+                Main.NewText("The Grand Piano plays Fate's cosmic symphony of inevitability...", 180, 50, 100);
+                return true;
+            }
 
             // If holding anything else (or nothing), reject
             Main.NewText("The piano rejects your music...", 180, 180, 180);

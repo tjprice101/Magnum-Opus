@@ -17,14 +17,19 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
 {
     /// <summary>
     /// Requiem of Reality - A blade that plays existence's funeral march.
-    /// Left-click: Swings release cosmic music notes that float in place briefly, then seek nearby enemies.
-    /// Right-click: Unique combo attack - swings down, swings up, throws spinning above head, explodes, 
-    ///              seeks nearest enemy, slashes through twice, and returns.
+    /// Swings release cosmic music notes that float in place briefly, then seek nearby enemies.
+    /// Every 4th swing spawns a spectral blade that performs a combo attack - flies up, spins above head,
+    /// explodes, seeks nearest enemy, slashes through twice, and returns.
     /// Notes deal damage with cosmic flames and electricity on impact.
+    /// The player continues swinging while the spectral blade performs its combo.
     /// </summary>
     public class RequiemOfReality : ModItem
     {
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/RequiemOfReality";
+        
+        // Tracks swings for combo trigger
+        private int swingCounter = 0;
+        private const int SwingsForCombo = 4;
         
         public override void SetDefaults()
         {
@@ -47,7 +52,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "FateEffect", "Swings release cosmic music notes that float, then seek enemies"));
-            tooltips.Add(new TooltipLine(Mod, "FateSpecial", "Right-click performs a devastating thrown blade combo that explodes and seeks enemies"));
+            tooltips.Add(new TooltipLine(Mod, "FateSpecial", "Every 4th swing summons a spectral blade that explodes and slashes through enemies"));
             tooltips.Add(new TooltipLine(Mod, "FateSpecial2", "Notes explode with cosmic flames and electricity on contact"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The final requiem for a dying reality'")
             {
@@ -55,62 +60,35 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             });
         }
         
-        public override bool AltFunctionUse(Player player)
-        {
-            return true;
-        }
-        
-        public override bool CanUseItem(Player player)
-        {
-            if (player.altFunctionUse == 2)
-            {
-                // Right-click: Thrown combo attack
-                Item.useStyle = ItemUseStyleID.Shoot;
-                Item.noMelee = true;
-                Item.noUseGraphic = true;
-                Item.useTime = 60;
-                Item.useAnimation = 60;
-                Item.UseSound = null; // Projectile handles sounds
-                Item.shoot = ModContent.ProjectileType<RequiemHeldProjectile>();
-                Item.shootSpeed = 1f;
-                
-                // Can only use if no existing held projectile
-                return player.ownedProjectileCounts[ModContent.ProjectileType<RequiemHeldProjectile>()] < 1;
-            }
-            else
-            {
-                // Left-click: Normal swing with music notes
-                Item.useStyle = ItemUseStyleID.Swing;
-                Item.noMelee = false;
-                Item.noUseGraphic = false;
-                Item.useTime = 20;
-                Item.useAnimation = 20;
-                Item.UseSound = SoundID.Item1;
-                Item.shoot = ModContent.ProjectileType<CosmicMusicNoteProjectile>();
-                Item.shootSpeed = 8f;
-            }
-            return base.CanUseItem(player);
-        }
-        
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             // Track for star circle effect
             player.GetModPlayer<FateWeaponEffectPlayer>()?.OnFateWeaponAttack(player.Center);
             
-            if (player.altFunctionUse == 2)
+            // Increment swing counter
+            swingCounter++;
+            
+            // Check if we should spawn the spectral blade combo (every 4th swing)
+            bool shouldSpawnCombo = swingCounter >= SwingsForCombo && 
+                player.ownedProjectileCounts[ModContent.ProjectileType<RequiemSpectralBladeProjectile>()] < 1;
+            
+            if (shouldSpawnCombo)
             {
-                // Right-click: Spawn the held combo projectile
+                // Reset counter
+                swingCounter = 0;
+                
+                // Spawn the spectral blade combo projectile (independent of player)
                 Projectile.NewProjectile(source, player.Center, Vector2.Zero, 
-                    ModContent.ProjectileType<RequiemHeldProjectile>(), damage * 2, knockback, player.whoAmI);
+                    ModContent.ProjectileType<RequiemSpectralBladeProjectile>(), damage * 2, knockback, player.whoAmI);
                 
                 // Dramatic spawn VFX
-                FateCosmicVFX.SpawnGlyphBurst(player.Center, 6, 5f, 0.4f);
-                FateCosmicVFX.SpawnCosmicMusicNotes(player.Center, 4, 30f, 0.3f);
-                
-                return false;
+                FateCosmicVFX.SpawnGlyphBurst(player.Center, 8, 6f, 0.45f);
+                FateCosmicVFX.SpawnCosmicMusicNotes(player.Center, 6, 40f, 0.35f);
+                FateCosmicVFX.SpawnCosmicCloudBurst(player.Center, 0.6f, 12);
+                SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 0.8f }, player.Center);
             }
             
-            // Left-click: Spawn 3-5 music notes in a spread
+            // Always spawn music notes on every swing
             int noteCount = Main.rand.Next(3, 6);
             float baseAngle = velocity.ToRotation();
             
@@ -127,9 +105,6 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
                     Main.rand.Next(30, 60) // Random delay before seeking
                 );
             }
-            
-            // Track for star circle effect
-            player.GetModPlayer<FateWeaponEffectPlayer>()?.OnFateWeaponAttack(player.Center);
             
             // Musical spawn VFX
             FateCosmicVFX.SpawnCosmicMusicNotes(player.Center + velocity.SafeNormalize(Vector2.Zero) * 30f, 2, 15f, 0.25f);

@@ -313,7 +313,8 @@ namespace MagnumOpus.Content.Fate.Projectiles
     #region Fate2Magic Projectiles - Spectral Sword Blades
 
     /// <summary>
-    /// Spectral sword blade that spirals toward cursor
+    /// Aggressive spectral sword blade that hunts enemies like a dragonfly
+    /// Seeks targets, dashes at them rapidly, explodes on contact
     /// Renders as pulsing, glowing copies of the 5 Fate melee weapons
     /// </summary>
     public class SpiralingSpectralBlade : ModProjectile
@@ -329,18 +330,26 @@ namespace MagnumOpus.Content.Fate.Projectiles
         };
 
         private int weaponTextureIndex = 0;
-        private Vector2 targetPosition;
-        private float spiralAngle = 0f;
-        private float spiralRadius = 0f;
         private float pulsePhase = 0f;
         private string currentTexturePath;
+        
+        // Aggressive hunting AI state
+        private int attackPhase = 0;  // 0 = seeking, 1 = charging/dashing, 2 = cooldown
+        private int phaseTimer = 0;
+        private NPC currentTarget = null;
+        private Vector2 dashDirection = Vector2.Zero;
+        
+        private const float SeekRange = 600f;
+        private const float DashSpeed = 28f;
+        private const int DashDuration = 15;
+        private const int CooldownDuration = 8;
 
         // Fallback to first weapon texture if load fails
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/TheConductorsLastConstellation";
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 12;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 15;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -350,10 +359,12 @@ namespace MagnumOpus.Content.Fate.Projectiles
             Projectile.height = 30;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Magic;
-            Projectile.penetrate = 1;
-            Projectile.timeLeft = 120;
+            Projectile.penetrate = 3;  // Can hit 3 enemies before dying
+            Projectile.timeLeft = 180; // 3 seconds to hunt
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 10;
         }
 
         public override void OnSpawn(IEntitySource source)
@@ -362,97 +373,216 @@ namespace MagnumOpus.Content.Fate.Projectiles
             weaponTextureIndex = Main.rand.Next(FateWeaponTextures.Length);
             currentTexturePath = FateWeaponTextures[weaponTextureIndex];
             
-            // Target is cursor position
-            targetPosition = new Vector2(Projectile.ai[0], Projectile.ai[1]);
-            if (targetPosition == Vector2.Zero)
-                targetPosition = Main.MouseWorld;
-            
-            // Initial spiral parameters
-            spiralRadius = Vector2.Distance(Projectile.Center, targetPosition);
-            spiralAngle = (targetPosition - Projectile.Center).ToRotation();
-            
             // Random starting pulse phase for variety
             pulsePhase = Main.rand.NextFloat(MathHelper.TwoPi);
+            
+            // Start in seeking mode
+            attackPhase = 0;
+            phaseTimer = 0;
+            
+            // Spawn VFX
+            FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 3, 3f, 0.25f);
         }
 
         public override void AI()
         {
             // Update pulse phase for magical glow
-            pulsePhase += 0.12f;
-            
-            // Spiral toward target
-            spiralAngle += 0.15f;
-            spiralRadius = Math.Max(0, spiralRadius - 8f);
+            pulsePhase += 0.15f;
+            phaseTimer++;
 
-            Vector2 desiredPos = targetPosition + spiralAngle.ToRotationVector2() * spiralRadius;
-            Projectile.velocity = (desiredPos - Projectile.Center) * 0.3f;
+            switch (attackPhase)
+            {
+                case 0: // SEEKING - Hunt for target
+                    AI_Seeking();
+                    break;
+                case 1: // DASHING - Fast attack dash
+                    AI_Dashing();
+                    break;
+                case 2: // COOLDOWN - Brief pause before next attack
+                    AI_Cooldown();
+                    break;
+            }
             
             // Rotate blade to face movement
-            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver4;
+            if (Projectile.velocity.LengthSquared() > 1f)
+                Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver4;
 
-            // === ENHANCED COSMIC TRAIL EFFECTS ===
+            // Spawn trail VFX based on phase
+            SpawnTrailEffects();
+            
+            // Dynamic lighting
+            float lightPulse = 0.6f + (float)Math.Sin(pulsePhase) * 0.25f;
+            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateDarkPink.ToVector3() * lightPulse);
+        }
+
+        private void AI_Seeking()
+        {
+            // Find nearest enemy
+            currentTarget = FindNearestEnemy();
+            
+            if (currentTarget != null)
+            {
+                // Home in on target aggressively
+                Vector2 toTarget = currentTarget.Center - Projectile.Center;
+                float distance = toTarget.Length();
+                
+                if (distance < 80f)
+                {
+                    // Close enough - begin dash attack!
+                    attackPhase = 1;
+                    phaseTimer = 0;
+                    dashDirection = toTarget.SafeNormalize(Vector2.UnitX);
+                    Projectile.velocity = dashDirection * DashSpeed;
+                    
+                    // Dash initiation VFX
+                    FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 4, 5f, 0.3f);
+                    SoundEngine.PlaySound(SoundID.Item1 with { Pitch = 0.5f, Volume = 0.6f }, Projectile.Center);
+                }
+                else
+                {
+                    // Aggressively home toward target
+                    toTarget.Normalize();
+                    float homingStrength = 0.25f;
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * 18f, homingStrength);
+                    
+                    // Cap speed during seeking
+                    if (Projectile.velocity.Length() > 20f)
+                        Projectile.velocity = Projectile.velocity.SafeNormalize(Vector2.Zero) * 20f;
+                }
+            }
+            else
+            {
+                // No target - drift toward cursor or slow down
+                Vector2 toCursor = Main.MouseWorld - Projectile.Center;
+                if (toCursor.Length() > 50f)
+                {
+                    toCursor.Normalize();
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, toCursor * 12f, 0.1f);
+                }
+                else
+                {
+                    Projectile.velocity *= 0.95f;
+                }
+            }
+        }
+
+        private void AI_Dashing()
+        {
+            // Maintain dash velocity
+            Projectile.velocity = dashDirection * DashSpeed;
+            
+            // Extra aggressive trail during dash
+            if (Main.rand.NextBool(2))
+            {
+                var spark = new GlowSparkParticle(Projectile.Center, -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(3f, 3f),
+                    FateCosmicVFX.FateWhite, 0.25f, 12);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+            
+            if (phaseTimer >= DashDuration)
+            {
+                // Dash complete - enter cooldown
+                attackPhase = 2;
+                phaseTimer = 0;
+            }
+        }
+
+        private void AI_Cooldown()
+        {
+            // Slow down during cooldown
+            Projectile.velocity *= 0.85f;
+            
+            if (phaseTimer >= CooldownDuration)
+            {
+                // Ready for next attack
+                attackPhase = 0;
+                phaseTimer = 0;
+            }
+        }
+
+        private NPC FindNearestEnemy()
+        {
+            NPC closest = null;
+            float closestDist = SeekRange;
+            
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (npc.active && npc.CanBeChasedBy(Projectile) && !npc.friendly)
+                {
+                    float dist = Vector2.Distance(Projectile.Center, npc.Center);
+                    if (dist < closestDist)
+                    {
+                        closestDist = dist;
+                        closest = npc;
+                    }
+                }
+            }
+            
+            return closest;
+        }
+
+        private void SpawnTrailEffects()
+        {
+            // More intense effects during dash
+            bool isDashing = attackPhase == 1;
+            
             // Cosmic cloud trail
-            FateCosmicVFX.SpawnSpectralSwordTrail(Projectile.Center, Projectile.velocity, 0.7f);
-            
-            // Heavy cosmic cloud wisps
-            if (Main.rand.NextBool(3))
+            if (Main.rand.NextBool(isDashing ? 2 : 4))
             {
-                FateCosmicVFX.SpawnCosmicCloudTrail(Projectile.Center, Projectile.velocity, 0.6f);
+                FateCosmicVFX.SpawnCosmicCloudTrail(Projectile.Center, Projectile.velocity, isDashing ? 0.8f : 0.5f);
             }
             
-            // Star sparkles around the blade
-            if (Main.rand.NextBool(4))
+            // Star sparkles
+            if (Main.rand.NextBool(isDashing ? 2 : 5))
             {
-                FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 1, 18f, 0.22f);
+                FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 1, 15f, 0.2f);
             }
 
-            // Music notes occasionally - it's a symphony!
-            if (Main.rand.NextBool(8))
-            {
-                FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 1, 15f, 0.28f);
-            }
-            
-            // Orbiting glyphs for celestial feel
+            // Music notes - it's a symphony!
             if (Main.rand.NextBool(10))
             {
-                CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f), 
-                    FateCosmicVFX.FatePurple, 0.22f, -1);
+                FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 1, 12f, 0.22f);
             }
             
-            // Cosmic electricity sparks
+            // Orbiting glyphs
             if (Main.rand.NextBool(12))
             {
-                FateCosmicVFX.SpawnCosmicElectricity(Projectile.Center, 1, 15f, 0.4f);
+                CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(12f, 12f), 
+                    FateCosmicVFX.FatePurple, 0.2f, -1);
             }
-
-            // Explode when reaching target
-            if (spiralRadius < 20f)
+            
+            // Cosmic sparks during dash
+            if (isDashing && Main.rand.NextBool(3))
             {
-                Projectile.Kill();
+                FateCosmicVFX.SpawnCosmicElectricity(Projectile.Center, 1, 12f, 0.35f);
             }
-
-            // Dynamic lighting that pulses
-            float lightPulse = 0.5f + (float)Math.Sin(pulsePhase) * 0.2f;
-            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateDarkPink.ToVector3() * lightPulse);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 180);
             
-            // Enhanced hit VFX
-            FateCosmicVFX.SpawnCosmicExplosion(target.Center, 0.5f);
-            FateCosmicVFX.SpawnGlyphBurst(target.Center, 4, 4f, 0.25f);
+            // Impact VFX
+            FateCosmicVFX.SpawnCosmicExplosion(target.Center, 0.6f);
+            FateCosmicVFX.SpawnGlyphBurst(target.Center, 5, 5f, 0.3f);
+            FateCosmicVFX.SpawnStarSparkles(target.Center, 4, 25f, 0.25f);
+            
+            // Reset to seeking for next attack
+            attackPhase = 2; // Brief cooldown after hit
+            phaseTimer = 0;
+            
+            SoundEngine.PlaySound(SoundID.Item14 with { Volume = 0.5f, Pitch = 0.4f }, target.Center);
         }
 
         public override void OnKill(int timeLeft)
         {
             // === SPECTACULAR DEATH EXPLOSION ===
-            FateCosmicVFX.SpawnCosmicExplosion(Projectile.Center, 0.8f);
-            FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 6, 5f, 0.35f);
-            FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 6, 30f, 0.3f);
-            FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 3, 25f, 0.3f);
-            SoundEngine.PlaySound(SoundID.Item14 with { Volume = 0.7f, Pitch = 0.3f }, Projectile.Center);
+            FateCosmicVFX.SpawnCosmicExplosion(Projectile.Center, 1.0f);
+            FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 8, 6f, 0.4f);
+            FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 8, 35f, 0.35f);
+            FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 4, 30f, 0.35f);
+            SoundEngine.PlaySound(SoundID.Item14 with { Volume = 0.8f, Pitch = 0.2f }, Projectile.Center);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -472,16 +602,18 @@ namespace MagnumOpus.Content.Fate.Projectiles
             
             Vector2 origin = tex.Size() / 2f;
             
-            // Pulsing scale for magical effect
-            float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.12f;
-            float glowIntensity = 0.6f + (float)Math.Sin(pulsePhase * 0.8f) * 0.3f;
+            // More intense pulsing during dash
+            float dashIntensity = attackPhase == 1 ? 1.3f : 1f;
+            float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.15f * dashIntensity;
+            float glowIntensity = (0.6f + (float)Math.Sin(pulsePhase * 0.8f) * 0.3f) * dashIntensity;
 
-            // Trail with fading weapon copies
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            // Trail with fading weapon copies - longer trail during dash
+            int trailCount = attackPhase == 1 ? Projectile.oldPos.Length : Projectile.oldPos.Length / 2;
+            for (int i = 0; i < trailCount; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 float progress = (float)i / Projectile.oldPos.Length;
-                Color trailColor = FateCosmicVFX.GetCosmicGradient(progress) * (1f - progress) * 0.4f;
+                Color trailColor = FateCosmicVFX.GetCosmicGradient(progress) * (1f - progress) * 0.5f;
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
                 float trailScale = (1f - progress * 0.4f) * 0.7f;
                 spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
@@ -495,16 +627,16 @@ namespace MagnumOpus.Content.Fate.Projectiles
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
             // Outermost cosmic nebula glow - purple
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FatePurple * 0.12f * glowIntensity, Projectile.rotation, origin, 1.9f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FatePurple * 0.15f * glowIntensity, Projectile.rotation, origin, 1.9f * pulse, SpriteEffects.None, 0f);
             
             // Outer bright red energy corona
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateBrightRed * 0.2f * glowIntensity, Projectile.rotation, origin, 1.5f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateBrightRed * 0.25f * glowIntensity, Projectile.rotation, origin, 1.5f * pulse, SpriteEffects.None, 0f);
             
             // Middle dark pink energy field
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * 0.35f * glowIntensity, Projectile.rotation, origin, 1.25f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateDarkPink * 0.4f * glowIntensity, Projectile.rotation, origin, 1.25f * pulse, SpriteEffects.None, 0f);
             
             // Inner white-hot celestial core
-            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateWhite * 0.25f * glowIntensity, Projectile.rotation, origin, 1.05f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FateCosmicVFX.FateWhite * 0.3f * glowIntensity, Projectile.rotation, origin, 1.05f * pulse, SpriteEffects.None, 0f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
@@ -701,6 +833,159 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 var dust = new GenericGlowParticle(dustPos, new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -0.3f),
                     dustColor * 0.35f, 0.12f, 30, true);
                 MagnumParticleHandler.SpawnParticle(dust);
+            }
+            
+            // === LENS FLARE EFFECT - DRAMATIC COSMIC RAYS ===
+            // Spawns periodically at the weapon/player position with radiant streaks
+            if (Main.GameUpdateCount % 6 == 0)
+            {
+                // Main lens flare center - bright white core
+                float flarePulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.3f + 0.7f;
+                CustomParticles.GenericFlare(Player.Center, Color.White * flarePulse, 0.45f * flarePulse, 12);
+                
+                // Chromatic lens flare rays - 6-point star pattern
+                for (int ray = 0; ray < 6; ray++)
+                {
+                    float rayAngle = MathHelper.TwoPi * ray / 6f + Main.GameUpdateCount * 0.015f;
+                    float rayLength = 45f + (float)Math.Sin(Main.GameUpdateCount * 0.1f + ray) * 15f;
+                    Vector2 rayEnd = Player.Center + rayAngle.ToRotationVector2() * rayLength;
+                    
+                    // Chromatic color for each ray - shifted hue
+                    float rayHue = (ray / 6f + Main.GameUpdateCount * 0.005f) % 1f;
+                    Color rayColor = Main.hslToRgb(rayHue, 0.9f, 0.75f);
+                    
+                    // Ray flare at end point
+                    CustomParticles.GenericFlare(rayEnd, rayColor * 0.6f, 0.25f, 10);
+                    
+                    // Streak particle along the ray
+                    Vector2 streakPos = Vector2.Lerp(Player.Center, rayEnd, 0.5f + Main.rand.NextFloat(0.3f));
+                    var streak = new GenericGlowParticle(streakPos, rayAngle.ToRotationVector2() * 2f,
+                        rayColor * 0.5f, 0.18f, 15, true);
+                    MagnumParticleHandler.SpawnParticle(streak);
+                }
+            }
+            
+            // === SECONDARY LENS FLARE ARTIFACTS - Pearlescent hexagonal bokeh ===
+            if (Main.GameUpdateCount % 10 == 0)
+            {
+                // Hexagonal bokeh artifacts at random positions (like camera lens artifacts)
+                for (int i = 0; i < 3; i++)
+                {
+                    // Position bokeh along a line from player toward a random direction
+                    float bokehAngle = Main.rand.NextFloat(MathHelper.TwoPi);
+                    float bokehDist = 30f + Main.rand.NextFloat(60f);
+                    Vector2 bokehPos = Player.Center + bokehAngle.ToRotationVector2() * bokehDist;
+                    
+                    // Pearlescent color cycling
+                    float bokehPhase = (Main.GameUpdateCount * 0.02f + i * 0.33f) % 1f;
+                    Color bokehColor;
+                    if (bokehPhase < 0.33f)
+                        bokehColor = Color.Lerp(new Color(255, 220, 240), Color.White, bokehPhase * 3f);
+                    else if (bokehPhase < 0.66f)
+                        bokehColor = Color.Lerp(Color.White, new Color(220, 240, 255), (bokehPhase - 0.33f) * 3f);
+                    else
+                        bokehColor = Color.Lerp(new Color(220, 240, 255), new Color(255, 220, 240), (bokehPhase - 0.66f) * 3f);
+                    
+                    CustomParticles.GenericFlare(bokehPos, bokehColor * 0.4f, 0.2f + Main.rand.NextFloat(0.15f), 15);
+                }
+            }
+            
+            // === INFINITY SPARKLE LINES - SCREEN-SPANNING EFFECT ===
+            // Dramatic sparkle lines that extend across the screen in an infinity pattern
+            if (Main.GameUpdateCount % 3 == 0)
+            {
+                float infinityPhase = Main.GameUpdateCount * 0.025f;
+                
+                // Screen dimensions for sparkle line extent
+                float lineExtent = Main.screenWidth * 0.6f; // Lines extend well across screen
+                
+                // Multiple sparkle points along each infinity arm
+                for (int arm = 0; arm < 2; arm++)
+                {
+                    float armOffset = arm * MathHelper.Pi;
+                    
+                    // Create sparkle points along extending lines
+                    for (int point = 0; point < 8; point++)
+                    {
+                        float pointProgress = (float)point / 8f;
+                        float extensionDist = pointProgress * lineExtent;
+                        
+                        // Infinity pattern angle calculation
+                        // Creates sweeping lines that curve in figure-8 pattern
+                        float curveAngle = infinityPhase + armOffset;
+                        float curveFactor = (float)Math.Sin(curveAngle * 2f) * 0.3f;
+                        float lineAngle = curveAngle + curveFactor * pointProgress;
+                        
+                        Vector2 sparklePos = Player.Center + lineAngle.ToRotationVector2() * extensionDist;
+                        
+                        // Don't spawn if off-screen
+                        if (sparklePos.X < Main.screenPosition.X - 50 || sparklePos.X > Main.screenPosition.X + Main.screenWidth + 50 ||
+                            sparklePos.Y < Main.screenPosition.Y - 50 || sparklePos.Y > Main.screenPosition.Y + Main.screenHeight + 50)
+                            continue;
+                        
+                        // Fade based on distance
+                        float distanceFade = 1f - pointProgress * 0.7f;
+                        
+                        // Chromatic color cycling along the line
+                        float sparkHue = (infinityPhase * 0.3f + pointProgress * 0.5f + arm * 0.5f) % 1f;
+                        Color sparkColor = Main.hslToRgb(sparkHue, 1f, 0.8f);
+                        
+                        // Main sparkle
+                        float sparkScale = 0.2f + (1f - pointProgress) * 0.25f;
+                        CustomParticles.GenericFlare(sparklePos, sparkColor * distanceFade * 0.8f, sparkScale, 8);
+                        
+                        // Trailing glow particle
+                        if (point < 6 && Main.rand.NextBool(2))
+                        {
+                            Vector2 trailVel = lineAngle.ToRotationVector2() * (2f + pointProgress * 3f);
+                            var trail = new GenericGlowParticle(sparklePos, trailVel * 0.3f,
+                                sparkColor * distanceFade * 0.5f, sparkScale * 0.7f, 15, true);
+                            MagnumParticleHandler.SpawnParticle(trail);
+                        }
+                    }
+                }
+                
+                // === CENTRAL INFINITY CROSSOVER BURST ===
+                // Extra sparkles at the center where the infinity lines cross
+                float crossBurst = (float)Math.Sin(infinityPhase * 2f) * 0.5f + 0.5f;
+                if (crossBurst > 0.8f)
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        float burstAngle = MathHelper.TwoPi * i / 4f + infinityPhase;
+                        Vector2 burstPos = Player.Center + burstAngle.ToRotationVector2() * 20f;
+                        
+                        float burstHue = (infinityPhase * 0.5f + i * 0.25f) % 1f;
+                        Color burstColor = Main.hslToRgb(burstHue, 1f, 0.9f);
+                        
+                        CustomParticles.GenericFlare(burstPos, burstColor * 0.7f, 0.35f, 12);
+                    }
+                }
+            }
+            
+            // === ANAMORPHIC LENS STREAK - Horizontal light streak through center ===
+            if (Main.GameUpdateCount % 15 == 0)
+            {
+                float streakLength = 80f + (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 30f;
+                
+                // Horizontal streak particles
+                for (int s = -3; s <= 3; s++)
+                {
+                    if (s == 0) continue; // Skip center (already has main flare)
+                    
+                    float streakX = s * (streakLength / 3f);
+                    Vector2 streakPos = Player.Center + new Vector2(streakX, 0);
+                    
+                    // Fade based on distance from center
+                    float distFade = 1f - Math.Abs(s) / 4f;
+                    
+                    // Chromatic aberration - slightly different colors on each side
+                    Color streakColor = s < 0 
+                        ? Color.Lerp(new Color(255, 200, 220), Color.White, distFade) // Pink on left
+                        : Color.Lerp(new Color(200, 220, 255), Color.White, distFade); // Cyan on right
+                    
+                    CustomParticles.GenericFlare(streakPos, streakColor * distFade * 0.5f, 0.15f, 12);
+                }
             }
             
             // === FIGURE-8 LIGHTING ===

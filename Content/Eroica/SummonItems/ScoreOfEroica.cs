@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -29,6 +31,15 @@ namespace MagnumOpus.Content.Eroica.SummonItems
             Item.rare = ModContent.RarityType<EroicaRainbowRarity>();
             Item.consumable = false; // NOT consumable on use - consumed by piano
             Item.useStyle = ItemUseStyleID.None; // Cannot be used directly
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Usage", "Place at a Grand Piano to invoke the God of Valor"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A symphony born of heroism and sacrifice—when the first notes ring,\nthe heavens themselves tremble in anticipation of valor's return'") 
+            { 
+                OverrideColor = new Color(255, 200, 80) 
+            });
         }
 
         public override void AddRecipes()

@@ -12,7 +12,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantOres
 {
     public class EnigmaResonanceOreTile : ModTile
     {
-        // Uses EnigmaResonanceOreTile.png - single 16x16 texture rendered for all ore blocks
+        // Uses the same texture as EnigmaResonanceOre.png for visual consistency
+        public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantOres/EnigmaResonanceOre";
 
         public override void SetStaticDefaults()
         {
@@ -89,7 +90,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantOres
 
         public override IEnumerable<Item> GetItemDrops(int i, int j)
         {
-            yield return new Item(ModContent.ItemType<EnigmaResonanceOre>());
+            // Drop exactly 1 Remnant of Mysteries per ore block (consistent with other scores)
+            yield return new Item(ModContent.ItemType<RemnantOfMysteries>(), 1);
         }
 
         public override bool PreDraw(int i, int j, SpriteBatch spriteBatch)

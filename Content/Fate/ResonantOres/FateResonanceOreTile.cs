@@ -12,7 +12,8 @@ namespace MagnumOpus.Content.Fate.ResonantOres
 {
     public class FateResonanceOreTile : ModTile
     {
-        // Uses FateResonanceOreTile.png - single 16x16 texture rendered for all ore blocks
+        // Uses the same texture as FateResonanceOre.png for visual consistency
+        public override string Texture => "MagnumOpus/Content/Fate/ResonantOres/FateResonanceOre";
 
         public override void SetStaticDefaults()
         {

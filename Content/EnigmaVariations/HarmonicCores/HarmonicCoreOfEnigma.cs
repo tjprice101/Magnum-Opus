@@ -99,26 +99,4 @@ namespace MagnumOpus.Content.EnigmaVariations.HarmonicCores
                 .Register();
         }
     }
-    
-    public class ResonantCoreOfEnigma : ModItem
-    {
-        public override void SetStaticDefaults()
-        {
-            Item.ResearchUnlockCount = 1;
-        }
-
-        public override void SetDefaults()
-        {
-            Item.width = 24;
-            Item.height = 24;
-            Item.maxStack = 99;
-            Item.value = Item.sellPrice(gold: 12);
-            Item.rare = ItemRarityID.Lime;
-        }
-
-        public override void PostUpdate()
-        {
-            Lighting.AddLight(Item.Center, 0.2f, 0.5f, 0.3f);
-        }
-    }
 }

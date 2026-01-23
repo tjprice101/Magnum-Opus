@@ -53,7 +53,7 @@ namespace MagnumOpus.Common.Systems
             Projectile.friendly = false;
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;
-            Projectile.timeLeft = 300;
+            Projectile.timeLeft = 180; // 3 seconds - balanced lifetime
             Projectile.alpha = 0;
             Projectile.extraUpdates = 1;
             Projectile.scale = 0.5f; // Player-sized projectile
@@ -244,7 +244,7 @@ namespace MagnumOpus.Common.Systems
             Projectile.friendly = false;
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;
-            Projectile.timeLeft = 240;
+            Projectile.timeLeft = 150; // 2.5 seconds - fast bolt
             Projectile.extraUpdates = 1;
             Projectile.scale = 0.45f; // Player-sized bolt
         }
@@ -614,7 +614,7 @@ namespace MagnumOpus.Common.Systems
             Projectile.friendly = false;
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;
-            Projectile.timeLeft = 300;
+            Projectile.timeLeft = 180; // 3 seconds - balanced wave lifetime
             Projectile.extraUpdates = 1;
             Projectile.scale = 0.45f; // Player-sized wave
         }
@@ -995,7 +995,7 @@ namespace MagnumOpus.Common.Systems
             Projectile.friendly = false;
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;
-            Projectile.timeLeft = 300;
+            Projectile.timeLeft = 180; // 3 seconds - balanced boomerang lifetime
         }
         
         public override void AI()

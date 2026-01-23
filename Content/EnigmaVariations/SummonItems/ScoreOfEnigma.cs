@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -29,6 +31,15 @@ namespace MagnumOpus.Content.EnigmaVariations.SummonItems
             Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
             Item.consumable = false; // NOT consumable on use - consumed by piano
             Item.useStyle = ItemUseStyleID.None; // Cannot be used directly
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Usage", "Place at a Grand Piano to invoke the Hollow Mystery"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The answer lies hidden within fourteen variations—yet the question\nitself remains forever unknowable, watching from the void'") 
+            { 
+                OverrideColor = new Color(140, 60, 200) 
+            });
         }
 
         public override void AddRecipes()

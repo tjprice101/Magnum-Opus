@@ -704,7 +704,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
             afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<EnigmaResonantEnergy>(), 1, 8, 15));
             
             // Resonant Core of Enigma (guaranteed)
-            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<HarmonicCores.ResonantCoreOfEnigma>(), 1, 3, 6));
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ResonanceEnergies.ResonantCoreOfEnigma>(), 1, 3, 6));
             
             // Enigma Ore bonus
             afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<EnigmaResonanceOre>(), 2, 5, 12));

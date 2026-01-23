@@ -12,7 +12,8 @@ namespace MagnumOpus.Content.Eroica.ResonantOres
 {
     public class EroicaResonanceOreTile : ModTile
     {
-        // Uses EroicaResonanceOreTile.png - single 16x16 texture rendered for all ore blocks
+        // Uses the same texture as EroicaResonanceOre.png for visual consistency
+        public override string Texture => "MagnumOpus/Content/Eroica/ResonantOres/EroicaResonanceOre";
 
         public override void SetStaticDefaults()
         {

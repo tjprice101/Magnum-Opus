@@ -634,7 +634,11 @@ namespace MagnumOpus.Common.Systems
         LaCampanella,// Black and orange
         Enigma,      // Green and purple
         Fate,        // Dark pink and red
-        SwanLake     // Black with rainbow shifting
+        SwanLake,    // Black with rainbow shifting
+        Spring,      // Green and pink (renewal)
+        Summer,      // Gold and orange (blazing)
+        Autumn,      // Brown and dark orange (decay)
+        Winter       // White and deep blue (frozen)
     }
     
     /// <summary>

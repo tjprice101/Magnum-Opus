@@ -454,22 +454,22 @@ Buffs: {
 
 	MusicsDissonance: {
 		DisplayName: Music's Dissonance
-		Description: Mods.MagnumOpus.Buffs.MusicsDissonance.Description
+		Description: The symphony of your soul is disrupted - all stats reduced
 	}
 
 	TriumphantColossusBuff: {
-		DisplayName: Triumphant Colossus Buff
-		Description: Mods.MagnumOpus.Buffs.TriumphantColossusBuff.Description
+		DisplayName: Triumphant Colossus
+		Description: A triumphant colossus of heroic might fights by your side
 	}
 
 	FlameOfTheSwan: {
 		DisplayName: Flame Of The Swan
-		Description: Mods.MagnumOpus.Buffs.FlameOfTheSwan.Description
+		Description: A graceful swan of ethereal flame dances at your command
 	}
 
 	IridescentFlockBuff: {
-		DisplayName: Iridescent Flock Buff
-		Description: Mods.MagnumOpus.Buffs.IridescentFlockBuff.Description
+		DisplayName: Iridescent Flock
+		Description: A flock of iridescent feathers swirls around you protectively
 	}
 
 	FeathersCallBuff: {
@@ -498,18 +498,18 @@ Buffs: {
 	}
 
 	BellfireCrescendoBuff: {
-		DisplayName: Bellfire Crescendo Buff
-		Description: Mods.MagnumOpus.Buffs.BellfireCrescendoBuff.Description
+		DisplayName: Bellfire Crescendo
+		Description: Blazing bell-fire minions strike with infernal resonance
 	}
 
 	InfiniteBellDamageBuff: {
-		DisplayName: Infinite Bell Damage Buff
-		Description: Mods.MagnumOpus.Buffs.InfiniteBellDamageBuff.Description
+		DisplayName: Infinite Bell Damage
+		Description: The infinite bell tolls - damage increased dramatically
 	}
 
 	InfiniteBellEmpoweredBuff: {
-		DisplayName: Infinite Bell Empowered Buff
-		Description: Mods.MagnumOpus.Buffs.InfiniteBellEmpoweredBuff.Description
+		DisplayName: Infinite Bell Empowered
+		Description: Empowered by the infinite bell's resonance - all abilities enhanced
 	}
 
 	ParadoxBrand: {
@@ -533,73 +533,73 @@ Buffs: {
 	}
 
 	CipherChoirBuff: {
-		DisplayName: Cipher Choir Buff
-		Description: Mods.MagnumOpus.Buffs.CipherChoirBuff.Description
+		DisplayName: Cipher Choir
+		Description: A choir of cryptic ciphers whispers secrets into being
 	}
 
 	EnigmaWispBuff: {
-		DisplayName: Enigma Wisp Buff
-		Description: Mods.MagnumOpus.Buffs.EnigmaWispBuff.Description
+		DisplayName: Enigma Wisp
+		Description: An enigmatic wisp of mystery drifts beside you
 	}
 
 	ParadoxFamiliarBuff: {
-		DisplayName: Paradox Familiar Buff
-		Description: Mods.MagnumOpus.Buffs.ParadoxFamiliarBuff.Description
+		DisplayName: Paradox Familiar
+		Description: A paradoxical familiar exists in multiple states simultaneously
 	}
 
 	DestinyCollapse: {
 		DisplayName: Destiny Collapse
-		Description: Mods.MagnumOpus.Buffs.DestinyCollapse.Description
+		Description: Your fate is unraveling - reality warps around you
 	}
 
 	CosmicFateWispBuff: {
-		DisplayName: Cosmic Fate Wisp Buff
-		Description: Mods.MagnumOpus.Buffs.CosmicFateWispBuff.Description
+		DisplayName: Cosmic Fate Wisp
+		Description: A wisp of cosmic destiny illuminates your path
 	}
 
 	DestinyChoirBuff: {
-		DisplayName: Destiny Choir Buff
-		Description: Mods.MagnumOpus.Buffs.DestinyChoirBuff.Description
+		DisplayName: Destiny Choir
+		Description: A choir of fate's chosen sings reality into submission
 	}
 
 	SingularityFamiliarBuff: {
-		DisplayName: Singularity Familiar Buff
-		Description: Mods.MagnumOpus.Buffs.SingularityFamiliarBuff.Description
+		DisplayName: Singularity Familiar
+		Description: A familiar born of cosmic singularity warps space around your enemies
 	}
 
 	UnsolvedPhantomBuff: {
-		DisplayName: Unsolved Phantom Buff
-		Description: Mods.MagnumOpus.Buffs.UnsolvedPhantomBuff.Description
+		DisplayName: Unsolved Phantom
+		Description: An unsolved mystery given form haunts your enemies
 	}
 
 	FateAvatarBuff: {
-		DisplayName: Fate Avatar Buff
-		Description: Mods.MagnumOpus.Buffs.FateAvatarBuff.Description
+		DisplayName: Fate Avatar
+		Description: An avatar of fate itself fights alongside you with cosmic authority
 	}
 
 	FateMarked: {
 		DisplayName: Fate Marked
-		Description: Mods.MagnumOpus.Buffs.FateMarked.Description
+		Description: Marked by destiny - your fate is sealed
 	}
 
 	CapricornBuff: {
-		DisplayName: Capricorn Buff
-		Description: Mods.MagnumOpus.Buffs.CapricornBuff.Description
+		DisplayName: Capricorn
+		Description: The constellation Capricorn guides your strikes with celestial precision
 	}
 
 	CapricornMinionBuff: {
-		DisplayName: Capricorn Minion Buff
-		Description: Mods.MagnumOpus.Buffs.CapricornMinionBuff.Description
+		DisplayName: Capricorn Minion
+		Description: A celestial goat of the stars charges at your foes
 	}
 
 	HydraConstellationBuff: {
-		DisplayName: Hydra Constellation Buff
-		Description: Mods.MagnumOpus.Buffs.HydraConstellationBuff.Description
+		DisplayName: Hydra Constellation
+		Description: The many-headed Hydra constellation strikes from the cosmos
 	}
 
 	CosmicDeityBuff: {
-		Description: Mods.MagnumOpus.Buffs.CosmicDeityBuff.Description
-		DisplayName: Cosmic Deity Buff
+		Description: A cosmic deity of unimaginable power serves your will
+		DisplayName: Cosmic Deity
 	}
 }
 
@@ -672,6 +672,15 @@ Items: {
 			'''
 	}
 
+	GrandPianoItem: {
+		DisplayName: Grand Piano
+		Tooltip:
+			'''
+			'The mystical instrument through which all symphonies resonate'
+			Place and use with Score items to summon the musical bosses
+			'''
+	}
+
 	ScoreOfEroica: {
 		DisplayName: Score of Eroica
 		Tooltip:
@@ -726,52 +735,22 @@ Items: {
 
 	MoonlitEngine: {
 		DisplayName: Moonlit Engine
-		Tooltip:
-			'''
-			'The heart of moonlight given mechanical form'
-			+18% melee speed
-			Every 5th hit unleashes a 200% damage shockwave
-			'''
+		Tooltip: ""
 	}
 
 	MoonlitGyre: {
 		DisplayName: Moonlit Gyre
-		Tooltip:
-			'''
-			'The gyre empowers those who embrace the moon'
-			All Ranged Weapons:
-			+12% ranged damage
-			+10% ranged critical strike chance
-			20% chance not to consume ammo
-			Moonlight Rifle Weapons:
-			+25% fire rate for Moonlight rifles
-			+25% bullet damage for Moonlight rifles
-			'''
+		Tooltip: ""
 	}
 
 	FractalOfMoonlight: {
 		DisplayName: Fractal of Moonlight
-		Tooltip:
-			'''
-			'Infinite reflections of lunar power'
-			All Summons:
-			+2 minion slots
-			+15% summon damage
-			Moonlight Minions:
-			+50% additional damage for Moonlight minions
-			+25% attack speed for Moonlight minions
-			'''
+		Tooltip: ""
 	}
 
 	EmberOfTheMoon: {
 		DisplayName: Ember of the Moon
-		Tooltip:
-			'''
-			'A dying star's last breath of magic'
-			-30% mana cost, +25% magic damage
-			15% chance to double-cast spells
-			Restores 100 mana when below 20% (2 min cooldown)
-			'''
+		Tooltip: ""
 	}
 
 	ShardsOfMoonlitTempo: {
@@ -1581,6 +1560,11 @@ Items: {
 		Tooltip: ""
 	}
 
+	FateTreasureBag: {
+		DisplayName: Fate Treasure Bag
+		Tooltip: "{$CommonItemTooltip.RightClickToOpen}"
+	}
+
 	HeartOfMusic: {
 		DisplayName: Heart Of Music
 		Tooltip: ""
@@ -1790,6 +1774,36 @@ Items: {
 		DisplayName: Score Of La Campanella
 		Tooltip: ""
 	}
+
+	ShardOfFatesTempo: {
+		DisplayName: Shard Of Fates Tempo
+		Tooltip: ""
+	}
+
+	RemnantOfTheBellsHarmony: {
+		DisplayName: Remnant Of The Bells Harmony
+		Tooltip: ""
+	}
+
+	BellBornAxe: {
+		DisplayName: Bell Born Axe
+		Tooltip: ""
+	}
+
+	BellBornHammer: {
+		DisplayName: Bell Born Hammer
+		Tooltip: ""
+	}
+
+	BellBornPickaxe: {
+		DisplayName: Bell Born Pickaxe
+		Tooltip: ""
+	}
+
+	ShardOfTheMysterysTempo: {
+		Tooltip: ""
+		DisplayName: Shard Of The Mysterys Tempo
+	}
 }
 
 NPCs: {
@@ -1808,7 +1822,6 @@ NPCs: {
 	FlamesOfValor.DisplayName: Flames Of Valor
 	SwanLakeTheMonochromaticFractal.DisplayName: Swan Lake The Monochromatic Fractal
 	LaCampanellaChimeOfLife.DisplayName: La Campanella Chime Of Life
-	EnigmaMiniSpider.DisplayName: Enigma Mini Spider
 	EnigmaTheHollowMystery.DisplayName: Enigma The Hollow Mystery
 	MysterysEnd.DisplayName: Mystery's End
 	CrawlerOfTheBell.DisplayName: Crawler of the Bell
@@ -2229,6 +2242,622 @@ Projectiles: {
 	PrimaFeatherBlade.DisplayName: Prima Feather Blade
 	PrimaSoundWave.DisplayName: Prima Sound Wave
 	ShatteredPrimaShadow.DisplayName: Shattered Prima Shadow
+	FermataSpectralSword.DisplayName: Fermata Spectral Sword
+	RequiemHeldProjectile.DisplayName: Requiem Held Projectile
+	RequiemSpectralBladeProjectile.DisplayName: Requiem Spectral Blade Projectile
+
+	// ========================================
+	// PHASE 1: FOUNDATION MATERIALS
+	// ========================================
+
+	// Pre-Hardmode World Drops
+	ResonantCrystalShard: {
+		DisplayName: Resonant Crystal Shard
+		Tooltip:
+			'''
+			'Crystallized harmonies from deep within the earth'
+			A musical fragment waiting to be awakened
+			'''
+	}
+
+	MinorMusicNote: {
+		DisplayName: Minor Music Note
+		Tooltip:
+			'''
+			'A simple melody fragment'
+			Basic crafting material for musical items
+			'''
+	}
+
+	FadedSheetMusic: {
+		DisplayName: Faded Sheet Music
+		Tooltip:
+			'''
+			'Ancient compositions, nearly lost to time'
+			The notes still hold faint power
+			'''
+	}
+
+	BrokenBaton: {
+		DisplayName: Broken Baton
+		Tooltip:
+			'''
+			'A conductor's tool, snapped but not silenced'
+			Still resonates with commanding energy
+			'''
+	}
+
+	TuningFork: {
+		DisplayName: Tuning Fork
+		Tooltip:
+			'''
+			'Strikes the perfect pitch'
+			Vibrates with latent musical power
+			'''
+	}
+
+	OldMetronome: {
+		DisplayName: Old Metronome
+		Tooltip:
+			'''
+			'Tick, tock, tick, tock...'
+			Still keeps perfect time after all these years
+			'''
+	}
+
+	RustedClef: {
+		DisplayName: Rusted Clef
+		Tooltip:
+			'''
+			'A treble clef frozen in rust and time'
+			The ice preserved its musical essence
+			'''
+	}
+
+	DullResonator: {
+		DisplayName: Dull Resonator
+		Tooltip:
+			'''
+			'A dormant resonating disc'
+			Awaits the right frequency to awaken
+			'''
+	}
+
+	// Dormant Seasonal Cores
+	DormantSpringCore: {
+		DisplayName: Dormant Spring Core
+		Tooltip:
+			'''
+			'The promise of bloom, suspended in slumber'
+			Will awaken when the world grows stronger
+			'''
+	}
+
+	DormantSummerCore: {
+		DisplayName: Dormant Summer Core
+		Tooltip:
+			'''
+			'Faded warmth waiting to ignite'
+			Will awaken when the world grows stronger
+			'''
+	}
+
+	DormantAutumnCore: {
+		DisplayName: Dormant Autumn Core
+		Tooltip:
+			'''
+			'The whisper of falling leaves, held in stasis'
+			Will awaken when the world grows stronger
+			'''
+	}
+
+	DormantWinterCore: {
+		DisplayName: Dormant Winter Core
+		Tooltip:
+			'''
+			'Frozen silence, preserved in crystal'
+			Will awaken when the world grows stronger
+			'''
+	}
+
+	// Seasonal Bars
+	VernalBar: {
+		DisplayName: Vernal Bar
+		Tooltip:
+			'''
+			'Forged from the essence of spring's rebirth'
+			Polished metal infused with renewal
+			'''
+	}
+
+	SolsticeBar: {
+		DisplayName: Solstice Bar
+		Tooltip:
+			'''
+			'The peak of summer's intensity made solid'
+			Radiates with captured sunlight
+			'''
+	}
+
+	HarvestBar: {
+		DisplayName: Harvest Bar
+		Tooltip:
+			'''
+			'The weight of autumn's final yield'
+			Carries the dignity of endings
+			'''
+	}
+
+	PermafrostBar: {
+		DisplayName: Permafrost Bar
+		Tooltip:
+			'''
+			'Winter's eternal stillness crystallized'
+			Cold to the touch, yet full of potential
+			'''
+	}
+
+	// Seasonal Essences (Harmonic Essences)
+	BlossomEssence: {
+		DisplayName: Spring's Harmonic Essence
+		Tooltip:
+			'''
+			'The first breath of spring captured'
+			Dropped by Plantera
+			Essential for spring-themed crafting
+			'''
+	}
+
+	SolarEssence: {
+		DisplayName: Summer's Harmonic Essence
+		Tooltip:
+			'''
+			'A fragment of the sun's zenith'
+			Dropped by Golem
+			Essential for summer-themed crafting
+			'''
+	}
+
+	DecayEssence: {
+		DisplayName: Autumn's Harmonic Essence
+		Tooltip:
+			'''
+			'The beauty of gentle decline'
+			Dropped by Pumpking
+			Essential for autumn-themed crafting
+			'''
+	}
+
+	FrostEssence: {
+		DisplayName: Winter's Harmonic Essence
+		Tooltip:
+			'''
+			'Perfect stillness given form'
+			Dropped by Ice Queen
+			Essential for winter-themed crafting
+			'''
+	}
+
+	// Seasonal Resonant Energies (Boss Drops)
+	SpringResonantEnergy: {
+		DisplayName: Spring Resonant Energy
+		Tooltip:
+			'''
+			'The harmonics of rebirth swirl within'
+			Dropped by Primavera, Herald of Bloom
+			'''
+	}
+
+	SummerResonantEnergy: {
+		DisplayName: Summer Resonant Energy
+		Tooltip:
+			'''
+			'Solar fury contained in pure energy'
+			Dropped by L'Estate, Lord of the Zenith
+			'''
+	}
+
+	AutumnResonantEnergy: {
+		DisplayName: Autumn Resonant Energy
+		Tooltip:
+			'''
+			'The melancholy of endings made manifest'
+			Dropped by Autunno, the Withering Maestro
+			'''
+	}
+
+	WinterResonantEnergy: {
+		DisplayName: Winter Resonant Energy
+		Tooltip:
+			'''
+			'Crystalline silence from the frozen finale'
+			Dropped by L'Inverno, the Silent Finale
+			'''
+	}
+
+	// Spring Enemy Drops
+	PetalOfRebirth: {
+		DisplayName: Petal of Rebirth
+		Tooltip:
+			'''
+			'A petal that refuses to wilt'
+			Primary material for Vernal Bars
+			'''
+	}
+
+	VernalDust: {
+		DisplayName: Vernal Dust
+		Tooltip:
+			'''
+			'The pollen of eternal spring'
+			Used in spring accessory crafting
+			'''
+	}
+
+	RainbowPetal: {
+		DisplayName: Rainbow Petal
+		Tooltip:
+			'''
+			'Shifts through every color of spring'
+			A rare material from Rainbow Slimes
+			'''
+	}
+
+	// Summer Enemy Drops
+	EmberOfIntensity: {
+		DisplayName: Ember of Intensity
+		Tooltip:
+			'''
+			'Burns with summer's relentless heat'
+			Primary material for Solstice Bars
+			'''
+	}
+
+	SunfireCore: {
+		DisplayName: Sunfire Core
+		Tooltip:
+			'''
+			'The heart of a solar predator'
+			Used in summer accessory crafting
+			'''
+	}
+
+	HeatScale: {
+		DisplayName: Heat Scale
+		Tooltip:
+			'''
+			'Hardened by hellfire'
+			Used in summer accessory crafting
+			'''
+	}
+
+	// Autumn Enemy Drops
+	LeafOfEnding: {
+		DisplayName: Leaf of Ending
+		Tooltip:
+			'''
+			'The final leaf before winter's silence'
+			Primary material for Harvest Bars
+			'''
+	}
+
+	TwilightWingFragment: {
+		DisplayName: Twilight Wing Fragment
+		Tooltip:
+			'''
+			'Torn between day and night'
+			Used in autumn accessory crafting
+			'''
+	}
+
+	DeathsNote: {
+		DisplayName: Death's Note
+		Tooltip:
+			'''
+			'A melody that ends all melodies'
+			Used in autumn accessory crafting
+			'''
+	}
+
+	DecayFragment: {
+		DisplayName: Decay Fragment
+		Tooltip:
+			'''
+			'A piece of gentle decline'
+			Common autumn crafting material
+			'''
+	}
+
+	// Winter Enemy Drops
+	ShardOfStillness: {
+		DisplayName: Shard of Stillness
+		Tooltip:
+			'''
+			'Frozen in perfect silence'
+			Primary material for Permafrost Bars
+			'''
+	}
+
+	FrozenCore: {
+		DisplayName: Frozen Core
+		Tooltip:
+			'''
+			'The heart of an ice elemental'
+			Used in winter accessory crafting
+			'''
+	}
+
+	IcicleCoronet: {
+		DisplayName: Icicle Coronet
+		Tooltip:
+			'''
+			'A crown of eternal winter'
+			Used in winter accessory crafting
+			'''
+	}
+
+	PermafrostShard: {
+		DisplayName: Permafrost Shard
+		Tooltip:
+			'''
+			'A fragment of ancient ice'
+			Common winter crafting material
+			'''
+	}
+
+	// Theme Essences (Post-Moon Lord)
+	LunarEssence: {
+		DisplayName: Lunar Essence
+		Tooltip:
+			'''
+			'Moonlight condensed into pure form'
+			Drops from Moonlight Sonata enemies
+			'''
+	}
+
+	ValorEssence: {
+		DisplayName: Valor Essence
+		Tooltip:
+			'''
+			'The courage of heroes crystallized'
+			Drops from Eroica enemies
+			'''
+	}
+
+	BellEssence: {
+		DisplayName: Bell Essence
+		Tooltip:
+			'''
+			'The chime of infernal bells'
+			Drops from La Campanella enemies
+			'''
+	}
+
+	MysteryEssence: {
+		DisplayName: Mystery Essence
+		Tooltip:
+			'''
+			'Questions without answers, solidified'
+			Drops from Enigma enemies
+			'''
+	}
+
+	GraceEssence: {
+		DisplayName: Grace Essence
+		Tooltip:
+			'''
+			'Elegance in its purest form'
+			Drops from Swan Lake enemies
+			'''
+	}
+
+	FateEssence: {
+		DisplayName: Fate Essence
+		Tooltip:
+			'''
+			'The threads of destiny intertwined'
+			Drops from Fate enemies
+			'''
+	}
+
+	// ==================== SEASONAL BOSSES ====================
+
+	Primavera: {
+		DisplayName: Primavera, Herald of Bloom
+	}
+
+	LEstate: {
+		DisplayName: L'Estate, Lord of the Zenith
+	}
+
+	Autunno: {
+		DisplayName: Autunno, the Withering Maestro
+	}
+
+	LInverno: {
+		DisplayName: L'Inverno, the Silent Finale
+	}
+
+	// ==================== SEASONAL ACCESSORIES ====================
+
+	// Spring Accessories
+	PetalShield: {
+		DisplayName: Petal Shield
+		Tooltip:
+			'''
+			+8 defense
+			6% damage reduction
+			Blooming petals surround you
+			'Protection born from spring's embrace'
+			'''
+	}
+
+	GrowthBand: {
+		DisplayName: Growth Band
+		Tooltip:
+			'''
+			Increased life and mana regeneration
+			4% increased damage
+			'The cycle of renewal flows through you'
+			'''
+	}
+
+	BloomCrest: {
+		DisplayName: Bloom Crest
+		Tooltip:
+			'''
+			6% increased damage
+			Additional damage and crit while moving
+			'In motion, the flowers blossom'
+			'''
+	}
+
+	// Summer Accessories
+	SunfirePendant: {
+		DisplayName: Sunfire Pendant
+		Tooltip:
+			'''
+			8% increased damage
+			Melee attacks inflict On Fire
+			Solar flames dance around you
+			'The sun's fury burns within'
+			'''
+	}
+
+	ZenithBand: {
+		DisplayName: Zenith Band
+		Tooltip:
+			'''
+			10% increased attack speed
+			12% increased movement speed
+			'At the peak of summer's power'
+			'''
+	}
+
+	RadiantCrown: {
+		DisplayName: Radiant Crown
+		Tooltip:
+			'''
+			Increased damage during daytime
+			Increased critical strike chance during daytime
+			'Crowned by the noon sun'
+			'''
+	}
+
+	// Autumn Accessories
+	ReapersCharm: {
+		DisplayName: Reaper's Charm
+		Tooltip:
+			'''
+			7% increased damage
+			Chance to steal life on hit
+			'Harvest the essence of your foes'
+			'''
+	}
+
+	TwilightRing: {
+		DisplayName: Twilight Ring
+		Tooltip:
+			'''
+			+10 critical strike chance
+			Bonuses during twilight hours
+			'Between light and dark, power grows'
+			'''
+	}
+
+	HarvestMantle: {
+		DisplayName: Harvest Mantle
+		Tooltip:
+			'''
+			+12 defense
+			8% damage reduction
+			Thorns effect damages attackers
+			'The harvest protects its keeper'
+			'''
+	}
+
+	// Winter Accessories
+	FrostbiteAmulet: {
+		DisplayName: Frostbite Amulet
+		Tooltip:
+			'''
+			10% increased damage
+			Attacks inflict Frostburn
+			Frost particles swirl around you
+			'Cold as winter's heart'
+			'''
+	}
+
+	StillnessShrine: {
+		DisplayName: Stillness Shrine
+		Tooltip:
+			'''
+			Greatly increased defense when stationary
+			Enhanced life regeneration when still
+			Damage reduction while motionless
+			'In stillness, find strength'
+			'''
+	}
+
+	GlacialHeart: {
+		DisplayName: Glacial Heart
+		Tooltip:
+			'''
+			Immunity to Frozen, Chilled, and Frostburn
+			8% increased damage
+			+6 defense and critical strike chance
+			'The cold cannot touch you'
+			'''
+	}
+
+	// Combination Accessories
+	RelicOfTheEquinox: {
+		DisplayName: Relic of the Equinox
+		Tooltip:
+			'''
+			Combines Spring and Autumn powers
+			Life regeneration and damage bonuses
+			Thorns and life steal effects
+			'Balance between growth and decay'
+			'''
+	}
+
+	SolsticeRing: {
+		DisplayName: Solstice Ring
+		Tooltip:
+			'''
+			Combines Summer and Winter powers
+			Fire and frost elemental effects
+			Damage, attack speed, and defense bonuses
+			Extreme temperature bonuses
+			'The extremes of light and dark unite'
+			'''
+	}
+
+	CycleOfSeasons: {
+		DisplayName: Cycle of Seasons
+		Tooltip:
+			'''
+			Combines all four seasonal powers
+			Massive damage, crit, and defense bonuses
+			Life regeneration and damage reduction
+			All elemental status effects
+			'The eternal cycle flows through you'
+			'''
+	}
+
+	VivaldisMasterwork: {
+		DisplayName: Vivaldi's Masterwork
+		Tooltip:
+			'''
+			The ultimate seasonal accessory
+			Dramatically increased all stats
+			All seasonal immunities and effects
+			Enhanced life steal on critical hits
+			'The Four Seasons, perfected'
+			'''
+	}
 }
 
 "Keybinds.Toggle Harmonic Core UI.DisplayName": Toggle  Harmonic  Core  U I
+

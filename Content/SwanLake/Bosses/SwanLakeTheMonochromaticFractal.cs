@@ -3722,6 +3722,12 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             // These are class-based weapons from the Swan Lake tier
             LeadingConditionRule normalModeRule = new LeadingConditionRule(new Conditions.NotExpert());
             
+            // Normal mode: Swan's Resonance Energy (15-20, half of Expert mode 20-25)
+            normalModeRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ResonanceEnergies.SwansResonanceEnergy>(), 1, 15, 20));
+            
+            // Normal mode: Remnant of Swan's Harmony (20-25, half of Expert mode 30-35)
+            normalModeRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ResonanceEnergies.RemnantOfSwansHarmony>(), 1, 20, 25));
+            
             // 1-2 random weapons from Swan Lake weapon pool
             int[] swanWeapons = new int[]
             {

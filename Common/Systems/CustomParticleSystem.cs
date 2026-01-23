@@ -723,6 +723,18 @@ namespace MagnumOpus.Common.Systems
             CustomParticleSystem.SpawnParticle(p);
         }
         
+        /// <summary>
+        /// GenericGlow with velocity and optional fade parameter.
+        /// Used for trail effects and moving glow particles.
+        /// </summary>
+        public static void GenericGlow(Vector2 pos, Vector2 velocity, Color col, float scale = 0.5f, int life = 20, bool fade = false)
+        {
+            if (!CustomParticleSystem.TexturesLoaded) return;
+            var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.RandomGlow(), pos, velocity,
+                col, scale, life, 0f, fade, false);
+            CustomParticleSystem.SpawnParticle(p);
+        }
+        
         public static void GenericMusicNotes(Vector2 pos, Color col, int count = 3, float spread = 20f)
         {
             if (!CustomParticleSystem.TexturesLoaded) return;

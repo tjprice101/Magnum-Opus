@@ -12,7 +12,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantOres
 {
     public class SwanLakeResonanceOreTile : ModTile
     {
-        // Uses SwanLakeResonanceOreTile.png - single 16x16 texture rendered for all ore blocks
+        // Uses the same texture as SwanLakeResonanceOre.png for visual consistency
+        public override string Texture => "MagnumOpus/Content/SwanLake/ResonantOres/SwanLakeResonanceOre";
 
         public override void SetStaticDefaults()
         {

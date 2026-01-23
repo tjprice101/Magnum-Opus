@@ -12,7 +12,8 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantOres
 {
     public class MoonlitResonanceOreTile : ModTile
     {
-        // Uses MoonlitResonanceOreTile.png - single 16x16 texture rendered for all ore blocks
+        // Uses the same texture as MoonlitResonanceOre.png for visual consistency
+        public override string Texture => "MagnumOpus/Content/MoonlightSonata/ResonantOres/MoonlitResonanceOre";
 
         public override void SetStaticDefaults()
         {

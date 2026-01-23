@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -29,6 +31,15 @@ namespace MagnumOpus.Content.LaCampanella.SummonItems
             Item.rare = ModContent.RarityType<LaCampanellaRarity>();
             Item.consumable = false; // NOT consumable on use - consumed by piano
             Item.useStyle = ItemUseStyleID.None; // Cannot be used directly
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Usage", "Place at a Grand Piano to invoke the Chime of Life"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Each note burns with the fury of an infernal bell—play this score,\nand summon forth flames that have sung since the dawn of creation'") 
+            { 
+                OverrideColor = new Color(255, 140, 40) 
+            });
         }
 
         public override void AddRecipes()

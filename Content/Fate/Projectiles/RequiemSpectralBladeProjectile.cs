@@ -16,30 +16,27 @@ using MagnumOpus.Content.Fate.Debuffs;
 namespace MagnumOpus.Content.Fate.Projectiles
 {
     /// <summary>
-    /// RequiemHeldProjectile - Multi-phase melee combo attack for Requiem of Reality.
-    /// Phase 0: Swing Down (held, visual swing animation)
-    /// Phase 1: Swing Up (held, visual swing animation) 
-    /// Phase 2: Throw upward (projectile leaves player, spins above head)
-    /// Phase 3: Spin above head with building energy
-    /// Phase 4: Explosion effect and targeting
-    /// Phase 5: Seek nearest enemy and slash through
-    /// Phase 6: Return to player (boomerang-style)
+    /// RequiemSpectralBladeProjectile - Spectral blade combo that triggers automatically on every 4th swing.
+    /// This projectile operates independently of the player's swinging (player continues attacking).
+    /// Phase 0: Rise upward (spectral blade flies up)
+    /// Phase 1: Spin above player with building energy
+    /// Phase 2: Explosion effect and targeting
+    /// Phase 3: Seek nearest enemy and slash through twice
+    /// Phase 4: Return and fade away
     /// </summary>
-    public class RequiemHeldProjectile : ModProjectile
+    public class RequiemSpectralBladeProjectile : ModProjectile
     {
-        // Use the weapon's texture for the held sword
+        // Use a ghostly version texture (falls back to weapon texture)
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/RequiemOfReality";
         
-        // Attack phases
+        // Attack phases (simplified - no held phases)
         private enum AttackPhase
         {
-            SwingDown,      // Phase 0: Held swing down
-            SwingUp,        // Phase 1: Held swing up  
-            ThrowUp,        // Phase 2: Throw upward
-            SpinAbove,      // Phase 3: Spin above player's head
-            Explode,        // Phase 4: Explosion + target acquisition
-            SeekEnemy,      // Phase 5: Dash to enemy and slash
-            Return          // Phase 6: Return to player
+            RiseUp,         // Phase 0: Rise above player
+            SpinAbove,      // Phase 1: Spin above player's head
+            Explode,        // Phase 2: Explosion + target acquisition
+            SeekEnemy,      // Phase 3: Dash to enemy and slash
+            Return          // Phase 4: Return and fade
         }
         
         private AttackPhase CurrentPhase
@@ -64,6 +61,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         private Vector2 slashDirection;
         private int slashCount = 0;
         private const int MaxSlashes = 2; // Slash through, then back
+        private float spectralAlpha = 0.85f; // Ghostly transparency
         
         // Trail rendering
         private Vector2[] trailPositions = new Vector2[16];
@@ -71,9 +69,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         private int trailIndex = 0;
         
         // Phase timings
-        private const int SwingDownTime = 12;
-        private const int SwingUpTime = 12;
-        private const int ThrowUpTime = 18;
+        private const int RiseUpTime = 20;
         private const int SpinTime = 45;
         private const int ExplodeTime = 15;
         private const int SeekTime = 60;
@@ -109,11 +105,15 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 trailRotations[i] = 0f;
             }
             
-            spinSpeed = 0.1f;
+            spinSpeed = 0.15f;
             
-            // Initial spawn VFX
-            FateCosmicVFX.SpawnCosmicCloudBurst(Projectile.Center, 0.4f, 8);
-            SoundEngine.PlaySound(SoundID.Item1 with { Pitch = -0.2f, Volume = 0.8f }, Projectile.Center);
+            // Initial spawn VFX - spectral appearance
+            FateCosmicVFX.SpawnCosmicCloudBurst(Projectile.Center, 0.5f, 10);
+            SoundEngine.PlaySound(SoundID.Item8 with { Pitch = 0.3f, Volume = 0.7f }, Projectile.Center);
+            
+            // Set initial hover position above owner
+            Player owner = Main.player[Projectile.owner];
+            hoverPosition = owner.Center + new Vector2(0, -120f);
         }
         
         public override void AI()
@@ -137,16 +137,13 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 trailRotations[trailIndex] = Projectile.rotation;
             }
             
+            // Player does NOT hold this projectile - they continue swinging
+            // This is an independent spectral blade
+            
             switch (CurrentPhase)
             {
-                case AttackPhase.SwingDown:
-                    AI_SwingDown(owner);
-                    break;
-                case AttackPhase.SwingUp:
-                    AI_SwingUp(owner);
-                    break;
-                case AttackPhase.ThrowUp:
-                    AI_ThrowUp(owner);
+                case AttackPhase.RiseUp:
+                    AI_RiseUp(owner);
                     break;
                 case AttackPhase.SpinAbove:
                     AI_SpinAbove(owner);
@@ -162,101 +159,23 @@ namespace MagnumOpus.Content.Fate.Projectiles
                     break;
             }
             
-            // Cosmic lighting
+            // Spectral cosmic lighting
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.2f + 0.8f;
-            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateDarkPink.ToVector3() * pulse * 0.7f);
+            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateDarkPink.ToVector3() * pulse * 0.6f);
         }
         
-        private void AI_SwingDown(Player owner)
+        private void AI_RiseUp(Player owner)
         {
-            // Lock to owner, animate swing down
-            float progress = (float)PhaseTimer / SwingDownTime;
-            float swingAngle = MathHelper.Lerp(-MathHelper.PiOver4, MathHelper.PiOver4 + MathHelper.PiOver2, progress);
-            
-            Projectile.Center = owner.Center + new Vector2(owner.direction * 35f, -10f);
-            Projectile.rotation = swingAngle * owner.direction;
-            
-            // Spawn swing particles
-            if (PhaseTimer % 2 == 0)
-            {
-                Vector2 tipPos = Projectile.Center + Projectile.rotation.ToRotationVector2() * 45f;
-                Color sparkColor = FateCosmicVFX.GetCosmicGradient(progress);
-                var spark = new GlowSparkParticle(tipPos, Main.rand.NextVector2Circular(2f, 2f), sparkColor, 0.2f, 12);
-                MagnumParticleHandler.SpawnParticle(spark);
-                
-                // Music notes in swing
-                if (Main.rand.NextBool(3))
-                    FateCosmicVFX.SpawnCosmicMusicNotes(tipPos, 1, 12f, 0.2f);
-            }
-            
-            // Direction locking
-            owner.ChangeDir(Main.MouseWorld.X > owner.Center.X ? 1 : -1);
-            owner.heldProj = Projectile.whoAmI;
-            owner.itemAnimation = 2;
-            owner.itemTime = 2;
-            
-            if (PhaseTimer >= SwingDownTime)
-            {
-                CurrentPhase = AttackPhase.SwingUp;
-                PhaseTimer = 0;
-                SoundEngine.PlaySound(SoundID.Item71 with { Pitch = 0.2f, Volume = 0.6f }, Projectile.Center);
-            }
-        }
-        
-        private void AI_SwingUp(Player owner)
-        {
-            // Swing back up, preparing to throw
-            float progress = (float)PhaseTimer / SwingUpTime;
-            float swingAngle = MathHelper.Lerp(MathHelper.PiOver4 + MathHelper.PiOver2, -MathHelper.PiOver2 - MathHelper.PiOver4, progress);
-            
-            Projectile.Center = owner.Center + new Vector2(owner.direction * 35f, -10f - progress * 30f);
-            Projectile.rotation = swingAngle * owner.direction;
-            
-            // More intense particles as throw approaches
-            if (PhaseTimer % 2 == 0)
-            {
-                Vector2 tipPos = Projectile.Center + Projectile.rotation.ToRotationVector2() * 45f;
-                Color sparkColor = FateCosmicVFX.GetCosmicGradient(progress);
-                
-                for (int i = 0; i < 2; i++)
-                {
-                    var spark = new GlowSparkParticle(tipPos + Main.rand.NextVector2Circular(10f, 10f), 
-                        Main.rand.NextVector2Circular(3f, 3f), sparkColor, 0.25f, 15);
-                    MagnumParticleHandler.SpawnParticle(spark);
-                }
-                
-                // Glyphs gathering
-                if (progress > 0.5f && Main.rand.NextBool(2))
-                    CustomParticles.Glyph(tipPos + Main.rand.NextVector2Circular(20f, 20f), FateCosmicVFX.FatePurple, 0.3f, -1);
-            }
-            
-            owner.heldProj = Projectile.whoAmI;
-            owner.itemAnimation = 2;
-            owner.itemTime = 2;
-            
-            if (PhaseTimer >= SwingUpTime)
-            {
-                CurrentPhase = AttackPhase.ThrowUp;
-                PhaseTimer = 0;
-                hoverPosition = owner.Center + new Vector2(0, -120f);
-                
-                // Throw sound and VFX
-                SoundEngine.PlaySound(SoundID.Item1 with { Pitch = 0.4f, Volume = 0.9f }, Projectile.Center);
-                FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 6, 6f, 0.4f);
-            }
-        }
-        
-        private void AI_ThrowUp(Player owner)
-        {
-            // Sword flies upward to hover position
-            float progress = (float)PhaseTimer / ThrowUpTime;
+            // Spectral blade rises to hover position above player
+            float progress = (float)PhaseTimer / RiseUpTime;
             float easedProgress = 1f - (float)Math.Pow(1f - progress, 3); // Ease out
             
-            Vector2 startPos = owner.Center + new Vector2(0, -40f);
+            Vector2 startPos = owner.Center + new Vector2(0, -20f);
+            hoverPosition = owner.Center + new Vector2(0, -120f);
             Projectile.Center = Vector2.Lerp(startPos, hoverPosition, easedProgress);
             
             // Start spinning
-            spinSpeed = MathHelper.Lerp(0.1f, 0.35f, progress);
+            spinSpeed = MathHelper.Lerp(0.15f, 0.35f, progress);
             spinAngle += spinSpeed;
             Projectile.rotation = spinAngle;
             
@@ -265,34 +184,36 @@ namespace MagnumOpus.Content.Fate.Projectiles
             {
                 Color trailColor = FateCosmicVFX.GetCosmicGradient(progress);
                 var trail = new GenericGlowParticle(Projectile.Center, new Vector2(Main.rand.NextFloat(-1f, 1f), 2f), 
-                    trailColor * 0.7f, 0.3f, 20, true);
+                    trailColor * 0.6f, 0.3f, 20, true);
                 MagnumParticleHandler.SpawnParticle(trail);
                 
                 // Star sparkles
                 if (Main.rand.NextBool(2))
                 {
                     var star = new GenericGlowParticle(Projectile.Center + Main.rand.NextVector2Circular(25f, 25f),
-                        Main.rand.NextVector2Circular(0.5f, 0.5f), FateCosmicVFX.FateWhite, 0.2f, 15, true);
+                        Main.rand.NextVector2Circular(0.5f, 0.5f), FateCosmicVFX.FateWhite * spectralAlpha, 0.2f, 15, true);
                     MagnumParticleHandler.SpawnParticle(star);
                 }
+                
+                // Spectral glyph trail
+                if (Main.rand.NextBool(3))
+                    CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f), FateCosmicVFX.FatePurple * spectralAlpha, 0.28f, -1);
             }
             
-            if (PhaseTimer >= ThrowUpTime)
+            if (PhaseTimer >= RiseUpTime)
             {
                 CurrentPhase = AttackPhase.SpinAbove;
                 PhaseTimer = 0;
-                hoverPosition = owner.Center + new Vector2(0, -100f);
             }
         }
-        
         private void AI_SpinAbove(Player owner)
         {
-            // Hover above player, spinning with building energy
+            // Hover above player (follows loosely), spinning with building energy
             float progress = (float)PhaseTimer / SpinTime;
             
-            // Keep hover position updated relative to player
+            // Keep hover position updated relative to player (loose follow)
             hoverPosition = owner.Center + new Vector2(0, -100f);
-            Projectile.Center = Vector2.Lerp(Projectile.Center, hoverPosition, 0.15f);
+            Projectile.Center = Vector2.Lerp(Projectile.Center, hoverPosition, 0.1f);
             
             // Accelerating spin
             spinSpeed = MathHelper.Lerp(0.35f, 0.8f, progress);
@@ -309,7 +230,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             int glyphCount = 3 + (int)(progress * 4);
             if (PhaseTimer % 4 == 0)
             {
-                FateCosmicVFX.SpawnOrbitingGlyphs(Projectile.Center, glyphCount, 35f + progress * 25f, spinAngle, 0.35f);
+                FateCosmicVFX.SpawnOrbitingGlyphs(Projectile.Center, glyphCount, 35f + progress * 25f, spinAngle, 0.3f * spectralAlpha);
             }
             
             // Star particles gathering
@@ -319,14 +240,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 Vector2 gatherStart = Projectile.Center + gatherAngle.ToRotationVector2() * (80f - progress * 40f);
                 Vector2 gatherVel = (Projectile.Center - gatherStart).SafeNormalize(Vector2.Zero) * (2f + progress * 4f);
                 
-                var star = new GenericGlowParticle(gatherStart, gatherVel, FateCosmicVFX.FateWhite, 0.25f, 20, true);
+                var star = new GenericGlowParticle(gatherStart, gatherVel, FateCosmicVFX.FateWhite * spectralAlpha, 0.25f, 20, true);
                 MagnumParticleHandler.SpawnParticle(star);
             }
             
             // Music notes circling
             if (PhaseTimer % 8 == 0)
             {
-                FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center + Main.rand.NextVector2Circular(30f, 30f), 2, 20f, 0.28f);
+                FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center + Main.rand.NextVector2Circular(30f, 30f), 2, 20f, 0.25f);
             }
             
             // Pulsing hum sound
@@ -610,37 +531,39 @@ namespace MagnumOpus.Content.Fate.Projectiles
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
             
-            // Draw trail
+            // Draw trail (ghostly)
             for (int i = 0; i < trailPositions.Length; i++)
             {
                 int trailIdx = (trailIndex - i + trailPositions.Length) % trailPositions.Length;
                 Vector2 trailPos = trailPositions[trailIdx] - Main.screenPosition;
                 float trailProgress = (float)i / trailPositions.Length;
-                float trailAlpha = (1f - trailProgress) * 0.4f;
+                float trailAlpha = (1f - trailProgress) * 0.3f * spectralAlpha;
                 float trailScale = (1f - trailProgress * 0.5f) * 0.9f;
                 
                 Color trailColor = FateCosmicVFX.GetCosmicGradient(trailProgress) * trailAlpha;
                 spriteBatch.Draw(texture, trailPos, null, trailColor, trailRotations[trailIdx], origin, trailScale, SpriteEffects.None, 0f);
             }
             
-            // Glow layers
+            // Glow layers (spectral appearance)
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.15f + 1f;
             
-            // Outer cosmic glow
-            spriteBatch.Draw(texture, drawPos, null, FateCosmicVFX.FateBrightRed * 0.3f, Projectile.rotation, origin, 1.3f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, FateCosmicVFX.FateDarkPink * 0.4f, Projectile.rotation, origin, 1.15f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, FateCosmicVFX.FateWhite * 0.2f, Projectile.rotation, origin, 1.05f * pulse, SpriteEffects.None, 0f);
+            // Outer cosmic glow (more intense for spectral look)
+            spriteBatch.Draw(texture, drawPos, null, FateCosmicVFX.FateBrightRed * 0.35f * spectralAlpha, Projectile.rotation, origin, 1.4f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, drawPos, null, FateCosmicVFX.FateDarkPink * 0.45f * spectralAlpha, Projectile.rotation, origin, 1.2f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, drawPos, null, FateCosmicVFX.FateWhite * 0.25f * spectralAlpha, Projectile.rotation, origin, 1.08f * pulse, SpriteEffects.None, 0f);
             
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            // Main sword
-            spriteBatch.Draw(texture, drawPos, null, Color.White, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
+            // Main sword (semi-transparent spectral)
+            Color spectralColor = Color.White * spectralAlpha;
+            spectralColor.B = (byte)(spectralColor.B * 1.1f); // Slight blue tint for ghostly feel
+            spriteBatch.Draw(texture, drawPos, null, spectralColor, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
             
             return false;
         }

@@ -45,8 +45,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "FateEffect", "Spawns spectral blades that spiral toward the cursor"));
-            tooltips.Add(new TooltipLine(Mod, "FateSpecial", "Blades explode on contact with enemies"));
+            tooltips.Add(new TooltipLine(Mod, "FateEffect", "Spawns aggressive spectral blades that hunt enemies"));
+            tooltips.Add(new TooltipLine(Mod, "FateSpecial", "Blades dash at targets rapidly and explode on contact"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Every song must end, but this ending reshapes the cosmos'")
             {
                 OverrideColor = FateCosmicVFX.FateBrightRed

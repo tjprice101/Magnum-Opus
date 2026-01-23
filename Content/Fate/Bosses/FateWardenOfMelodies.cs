@@ -1790,8 +1790,35 @@ namespace MagnumOpus.Content.Fate.Bosses
         
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
-            // Drop Fate crafting materials
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<FateResonantEnergy>(), 1, 20, 35));
+            // Expert/Master mode: Treasure Bag
+            npcLoot.Add(ItemDropRule.BossBag(ModContent.ItemType<FateTreasureBag>()));
+            
+            // Non-Expert drops (only when not in Expert mode)
+            LeadingConditionRule notExpert = new LeadingConditionRule(new Conditions.NotExpert());
+            
+            // Drop Fate crafting materials in normal mode
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<FateResonantEnergy>(), 1, 20, 35));
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<RemnantOfTheGalaxysHarmony>(), 1, 25, 35));
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ShardOfFatesTempo>(), 1, 10, 18));
+            
+            // Random weapon drop in normal mode (1 weapon)
+            notExpert.OnSuccess(ItemDropRule.OneFromOptions(1, 
+                ModContent.ItemType<Content.Fate.ResonantWeapons.CodaOfAnnihilation>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.DestinysCrescendo>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.FractalOfTheStars>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.LightOfTheFuture>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.OpusUltima>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.RequiemOfReality>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.ResonanceOfABygoneReality>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.SymphonysEnd>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.TheConductorsLastConstellation>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.TheFinalFermata>()
+            ));
+            
+            npcLoot.Add(notExpert);
+            
+            // Seed of Universal Melodies - legendary crafting material (always drops 1-2)
+            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<Content.Items.SeedOfUniversalMelodies>(), 1, 1, 2));
             
             // Trophy and mask (commented until items exist)
             // npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<FateTrophy>(), 10));

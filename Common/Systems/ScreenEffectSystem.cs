@@ -37,7 +37,8 @@ namespace MagnumOpus.Common.Systems
         
         // ==================== SCREEN SHAKE ====================
         private static float CurrentScreenShakePower;
-        private static float ScreenShakeDecay = 0.2f;
+        private static float ScreenShakeDecay = 0.5f;  // Increased from 0.2f for faster falloff
+        private static float ScreenShakeDecayPercentage = 0.08f;  // Additional percentage decay for high values
         
         /// <summary>
         /// Creates a flash effect at the specified position.
@@ -114,9 +115,14 @@ namespace MagnumOpus.Common.Systems
                     BlurActive = false;
             }
             
-            // Decay screen shake
+            // Decay screen shake with both flat and percentage-based decay
+            // This makes high values decay faster (25 power decays ~2.5 per frame vs 0.5 for low values)
             if (CurrentScreenShakePower > 0f)
-                CurrentScreenShakePower = Math.Max(0f, CurrentScreenShakePower - ScreenShakeDecay);
+            {
+                float percentageDecay = CurrentScreenShakePower * ScreenShakeDecayPercentage;
+                float totalDecay = ScreenShakeDecay + percentageDecay;
+                CurrentScreenShakePower = Math.Max(0f, CurrentScreenShakePower - totalDecay);
+            }
         }
         
         public override void ModifyScreenPosition()

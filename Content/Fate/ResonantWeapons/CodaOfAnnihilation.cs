@@ -33,6 +33,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
     /// Coda of Annihilation - The Zenith of MagnumOpus.
     /// A legendary melee weapon that throws spectral copies of all previous score's melee weapons.
     /// Functions like Terraria's Zenith - rapid sword projectiles that home to enemies.
+    /// The weapon itself swings in a 360-degree arc around the player as part of the attack.
     /// </summary>
     public class CodaOfAnnihilation : ModItem
     {
@@ -43,6 +44,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         
         // Counter for which weapon to spawn next
         private int weaponCycleIndex = 0;
+        
+        // Track the 360 swing phase
+        private float swingAngle = 0f;
+        private const float SwingSpeed = 0.18f; // Radians per frame for full 360 swing
         
         public override void SetDefaults()
         {
@@ -59,11 +64,78 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             Item.rare = ModContent.RarityType<FateRarity>();
             Item.UseSound = SoundID.Item1 with { Pitch = 0.1f, Volume = 0.8f };
             Item.autoReuse = true;
-            Item.noMelee = true;
-            Item.noUseGraphic = true;
+            Item.noMelee = false; // Enable melee hitbox during 360 swing
+            Item.noUseGraphic = true; // We'll draw it ourselves
             Item.shoot = ModContent.ProjectileType<CodaZenithSwordProjectile>();
             Item.shootSpeed = 22f;
             Item.crit = 15;
+        }
+        
+        public override void UseItemFrame(Player player)
+        {
+            // Override to control the 360 swing animation
+            // Advance swing angle during use
+            swingAngle += SwingSpeed * player.direction;
+            
+            // Keep in range
+            if (Math.Abs(swingAngle) > MathHelper.TwoPi)
+            {
+                swingAngle = swingAngle % MathHelper.TwoPi;
+            }
+        }
+        
+        public override void UseStyle(Player player, Rectangle heldItemFrame)
+        {
+            // Custom 360 swing style - weapon rotates around player
+            // Position the item's rotation based on swingAngle
+            float progress = (float)player.itemAnimation / (float)player.itemAnimationMax;
+            float currentSwingAngle = swingAngle + progress * MathHelper.TwoPi * player.direction;
+            
+            // Update player arm and item position
+            player.itemRotation = currentSwingAngle + (player.direction == 1 ? MathHelper.PiOver4 : MathHelper.Pi + MathHelper.PiOver4);
+            
+            // The item visually orbits around the player
+            float orbitRadius = 50f;
+            Vector2 orbitOffset = currentSwingAngle.ToRotationVector2() * orbitRadius;
+            player.itemLocation = player.Center + orbitOffset;
+            
+            // Spawn trail particles along the swing arc
+            if (player.itemAnimation % 2 == 0)
+            {
+                Vector2 tipPos = player.itemLocation + player.itemRotation.ToRotationVector2() * 35f;
+                Color trailColor = FateCosmicVFX.GetCosmicGradient(progress);
+                
+                var trail = new GlowSparkParticle(tipPos, currentSwingAngle.ToRotationVector2() * 3f, 
+                    trailColor * 0.8f, 0.3f, 15);
+                MagnumParticleHandler.SpawnParticle(trail);
+                
+                // Music notes scatter from swing
+                if (Main.rand.NextBool(3))
+                {
+                    FateCosmicVFX.SpawnCosmicMusicNotes(tipPos, 1, 15f, 0.25f);
+                }
+            }
+        }
+        
+        public override void MeleeEffects(Player player, Rectangle hitbox)
+        {
+            // Extra swing VFX during the 360 rotation
+            Vector2 swingPos = hitbox.Center.ToVector2();
+            
+            // Cosmic sparks from swing
+            if (Main.rand.NextBool(2))
+            {
+                Color sparkColor = FateCosmicVFX.GetCosmicGradient(Main.rand.NextFloat());
+                Vector2 sparkVel = Main.rand.NextVector2Circular(3f, 3f);
+                var spark = new GlowSparkParticle(swingPos + Main.rand.NextVector2Circular(20f, 20f), sparkVel, sparkColor, 0.25f, 12);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+            
+            // Glyph sparks
+            if (Main.rand.NextBool(4))
+            {
+                CustomParticles.Glyph(swingPos + Main.rand.NextVector2Circular(25f, 25f), FateCosmicVFX.FateDarkPink * 0.7f, 0.3f, -1);
+            }
         }
         
         public override void AddRecipes()

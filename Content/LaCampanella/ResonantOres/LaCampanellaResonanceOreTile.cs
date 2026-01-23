@@ -12,7 +12,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantOres
 {
     public class LaCampanellaResonanceOreTile : ModTile
     {
-        // Uses LaCampanellaResonanceOreTile.png - single 16x16 texture rendered for all ore blocks
+        // Uses the same texture as LaCampanellaResonanceOre.png for visual consistency
+        public override string Texture => "MagnumOpus/Content/LaCampanella/ResonantOres/LaCampanellaResonanceOre";
 
         public override void SetStaticDefaults()
         {
