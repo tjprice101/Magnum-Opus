@@ -132,7 +132,7 @@ namespace MagnumOpus.Content.Common.Accessories
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<LunarFlames>()
+                .AddIngredient<NocturneOfAzureFlames>()
                 .AddIngredient<RiddleOfTheVoid>()
                 .AddIngredient<HarmonicCoreOfMoonlightSonata>(20)
                 .AddIngredient<HarmonicCoreOfLaCampanella>(20)
@@ -324,12 +324,12 @@ namespace MagnumOpus.Content.Common.Accessories
     }
     #endregion
 
-    #region Heroic Grace - Eroica + Moonlight + Swan Lake
+    #region Adagio of Radiant Valor - Eroica + Moonlight + Swan Lake
     /// <summary>
     /// Phase 4 Three-Theme Combination: Eroica + Moonlight Sonata + Swan Lake
     /// Ultimate noble theme combining valor, moonlight, and balletic grace
     /// </summary>
-    public class HeroicGrace : ModItem
+    public class AdagioOfRadiantValor : ModItem
     {
         public override void SetDefaults()
         {
@@ -342,8 +342,8 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<HeroicGracePlayer>();
-            modPlayer.heroicGraceEquipped = true;
+            var modPlayer = player.GetModPlayer<AdagioOfRadiantValorPlayer>();
+            modPlayer.adagioOfRadiantValorEquipped = true;
             
             bool isNight = !Main.dayTime;
             
@@ -422,7 +422,7 @@ namespace MagnumOpus.Content.Common.Accessories
         {
             CreateRecipe()
                 .AddIngredient<HerosSymhpony>()
-                .AddIngredient<GracefulSonata>()
+                .AddIngredient<ReverieOfTheSilverSwan>()
                 .AddIngredient<HarmonicCoreOfEroica>(20)
                 .AddIngredient<HarmonicCoreOfMoonlightSonata>(20)
                 .AddIngredient<HarmonicCoreOfSwanLake>(20)
@@ -431,16 +431,16 @@ namespace MagnumOpus.Content.Common.Accessories
         }
     }
 
-    public class HeroicGracePlayer : ModPlayer
+    public class AdagioOfRadiantValorPlayer : ModPlayer
     {
-        public bool heroicGraceEquipped;
+        public bool adagioOfRadiantValorEquipped;
         private int heroicSurgeTimer;
         private int invulnFramesOnKill = 90;
         private int dodgeCooldown;
 
         public override void ResetEffects()
         {
-            heroicGraceEquipped = false;
+            adagioOfRadiantValorEquipped = false;
         }
 
         public override void PostUpdate()
@@ -479,7 +479,7 @@ namespace MagnumOpus.Content.Common.Accessories
 
         private void HandleKill(NPC target)
         {
-            if (!heroicGraceEquipped) return;
+            if (!adagioOfRadiantValorEquipped) return;
             
             if (target.life <= 0 && !target.immortal)
             {
@@ -516,7 +516,7 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override bool FreeDodge(Player.HurtInfo info)
         {
-            if (!heroicGraceEquipped) return false;
+            if (!adagioOfRadiantValorEquipped) return false;
             if (dodgeCooldown > 0) return false;
             
             bool isNight = !Main.dayTime;
@@ -568,12 +568,12 @@ namespace MagnumOpus.Content.Common.Accessories
     }
     #endregion
 
-    #region Blazing Enigma - La Campanella + Enigma + Swan Lake
+    #region Requiem of the Enigmatic Flame - La Campanella + Enigma + Swan Lake
     /// <summary>
     /// Phase 4 Three-Theme Combination: La Campanella + Enigma Variations + Swan Lake
     /// Ultimate chaos theme combining fire, mystery, and grace
     /// </summary>
-    public class BlazingEnigma : ModItem
+    public class RequiemOfTheEnigmaticFlame : ModItem
     {
         public override void SetDefaults()
         {
@@ -586,8 +586,8 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<BlazingEnigmaPlayer>();
-            modPlayer.blazingEnigmaEquipped = true;
+            var modPlayer = player.GetModPlayer<RequiemOfTheEnigmaticFlamePlayer>();
+            modPlayer.requiemOfTheEnigmaticFlameEquipped = true;
             
             // La Campanella bonuses
             player.GetDamage(DamageClass.Magic) += 0.25f;
@@ -668,7 +668,7 @@ namespace MagnumOpus.Content.Common.Accessories
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<BlazingSwan>()
+                .AddIngredient<FantasiaOfBurningGrace>()
                 .AddIngredient<RiddleOfTheVoid>()
                 .AddIngredient<HarmonicCoreOfLaCampanella>(20)
                 .AddIngredient<HarmonicCoreOfEnigma>(20)
@@ -678,9 +678,9 @@ namespace MagnumOpus.Content.Common.Accessories
         }
     }
 
-    public class BlazingEnigmaPlayer : ModPlayer
+    public class RequiemOfTheEnigmaticFlamePlayer : ModPlayer
     {
-        public bool blazingEnigmaEquipped;
+        public bool requiemOfTheEnigmaticFlameEquipped;
         private int bellRingCooldown;
         private int dodgeCooldown;
         private Dictionary<int, int> paradoxStacks = new Dictionary<int, int>();
@@ -694,7 +694,7 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void ResetEffects()
         {
-            blazingEnigmaEquipped = false;
+            requiemOfTheEnigmaticFlameEquipped = false;
         }
 
         public override void PostUpdate()
@@ -718,7 +718,7 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (!blazingEnigmaEquipped) return;
+            if (!requiemOfTheEnigmaticFlameEquipped) return;
             if (proj.owner != Player.whoAmI) return;
             
             // Chaotic Paradox (18% for magic)
@@ -888,7 +888,7 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override bool FreeDodge(Player.HurtInfo info)
         {
-            if (!blazingEnigmaEquipped) return false;
+            if (!requiemOfTheEnigmaticFlameEquipped) return false;
             if (dodgeCooldown > 0) return false;
             
             if (Main.rand.NextFloat() < 0.12f)

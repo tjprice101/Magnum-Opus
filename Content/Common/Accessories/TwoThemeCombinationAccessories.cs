@@ -25,13 +25,13 @@ using MagnumOpus.Content.SwanLake.HarmonicCores;
 
 namespace MagnumOpus.Content.Common.Accessories
 {
-    #region Lunar Flames - Moonlight + La Campanella
+    #region Nocturne of Azure Flames - Moonlight + La Campanella
     /// <summary>
     /// Phase 4 Two-Theme Combination: Moonlight Sonata + La Campanella
     /// Combines lunar mysticism with infernal flames
     /// Fire burns blue at night for extra damage
     /// </summary>
-    public class LunarFlames : ModItem
+    public class NocturneOfAzureFlames : ModItem
     {
         public override void SetDefaults()
         {
@@ -44,8 +44,8 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<LunarFlamesPlayer>();
-            modPlayer.lunarFlamesEquipped = true;
+            var modPlayer = player.GetModPlayer<NocturneOfAzureFlamesPlayer>();
+            modPlayer.nocturneOfAzureFlamesEquipped = true;
             
             bool isNight = !Main.dayTime;
             
@@ -118,14 +118,14 @@ namespace MagnumOpus.Content.Common.Accessories
         }
     }
 
-    public class LunarFlamesPlayer : ModPlayer
+    public class NocturneOfAzureFlamesPlayer : ModPlayer
     {
-        public bool lunarFlamesEquipped;
+        public bool nocturneOfAzureFlamesEquipped;
         private int bellRingCooldown;
 
         public override void ResetEffects()
         {
-            lunarFlamesEquipped = false;
+            nocturneOfAzureFlamesEquipped = false;
         }
 
         public override void PostUpdate()
@@ -135,7 +135,7 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (!lunarFlamesEquipped) return;
+            if (!nocturneOfAzureFlamesEquipped) return;
             if (proj.owner != Player.whoAmI) return;
             
             bool isNight = !Main.dayTime;
@@ -177,13 +177,13 @@ namespace MagnumOpus.Content.Common.Accessories
     }
     #endregion
 
-    #region Heroic Enigma - Eroica + Enigma Variations
+    #region Valse Macabre - Eroica + Enigma Variations
     /// <summary>
     /// Phase 4 Two-Theme Combination: Eroica + Enigma Variations
     /// Combines heroic valor with mysterious paradoxes
     /// Heroic kills spread Paradox debuffs to nearby enemies
     /// </summary>
-    public class HeroicEnigma : ModItem
+    public class ValseMacabre : ModItem
     {
         public override void SetDefaults()
         {
@@ -196,8 +196,8 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<HeroicEnigmaPlayer>();
-            modPlayer.heroicEnigmaEquipped = true;
+            var modPlayer = player.GetModPlayer<ValseMacabrePlayer>();
+            modPlayer.valseMacabreEquipped = true;
             
             // Eroica bonuses - melee
             player.GetDamage(DamageClass.Melee) += 0.20f;
@@ -252,9 +252,9 @@ namespace MagnumOpus.Content.Common.Accessories
         }
     }
 
-    public class HeroicEnigmaPlayer : ModPlayer
+    public class ValseMacabrePlayer : ModPlayer
     {
-        public bool heroicEnigmaEquipped;
+        public bool valseMacabreEquipped;
         private int heroicSurgeTimer;
         private int invulnFramesOnKill = 60; // 1 second
         
@@ -269,7 +269,7 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void ResetEffects()
         {
-            heroicEnigmaEquipped = false;
+            valseMacabreEquipped = false;
         }
 
         public override void PostUpdate()
@@ -292,20 +292,20 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            HandleHeroicEnigmaHit(target, damageDone);
+            HandleValseMacabreHit(target, damageDone);
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
             if (proj.owner == Player.whoAmI)
             {
-                HandleHeroicEnigmaHit(target, damageDone);
+                HandleValseMacabreHit(target, damageDone);
             }
         }
 
-        private void HandleHeroicEnigmaHit(NPC target, int damageDone)
+        private void HandleValseMacabreHit(NPC target, int damageDone)
         {
-            if (!heroicEnigmaEquipped) return;
+            if (!valseMacabreEquipped) return;
             
             // 12% Paradox chance
             if (Main.rand.NextFloat() < 0.12f)
@@ -383,13 +383,13 @@ namespace MagnumOpus.Content.Common.Accessories
     }
     #endregion
 
-    #region Graceful Sonata - Moonlight + Swan Lake
+    #region Reverie of the Silver Swan - Moonlight + Swan Lake
     /// <summary>
     /// Phase 4 Two-Theme Combination: Moonlight Sonata + Swan Lake
     /// Combines lunar mysticism with balletic grace
     /// Dancing under moonlight grants powerful buffs
     /// </summary>
-    public class GracefulSonata : ModItem
+    public class ReverieOfTheSilverSwan : ModItem
     {
         public override void SetDefaults()
         {
@@ -402,8 +402,8 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<GracefulSonataPlayer>();
-            modPlayer.gracefulSonataEquipped = true;
+            var modPlayer = player.GetModPlayer<ReverieOfTheSilverSwanPlayer>();
+            modPlayer.reverieOfTheSilverSwanEquipped = true;
             
             bool isNight = !Main.dayTime;
             
@@ -483,14 +483,14 @@ namespace MagnumOpus.Content.Common.Accessories
         }
     }
 
-    public class GracefulSonataPlayer : ModPlayer
+    public class ReverieOfTheSilverSwanPlayer : ModPlayer
     {
-        public bool gracefulSonataEquipped;
+        public bool reverieOfTheSilverSwanEquipped;
         private int dodgeCooldown;
 
         public override void ResetEffects()
         {
-            gracefulSonataEquipped = false;
+            reverieOfTheSilverSwanEquipped = false;
         }
 
         public override void PostUpdate()
@@ -500,7 +500,7 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override bool FreeDodge(Player.HurtInfo info)
         {
-            if (!gracefulSonataEquipped) return false;
+            if (!reverieOfTheSilverSwanEquipped) return false;
             if (dodgeCooldown > 0) return false;
             
             bool isNight = !Main.dayTime;
@@ -562,13 +562,13 @@ namespace MagnumOpus.Content.Common.Accessories
     }
     #endregion
 
-    #region Blazing Swan - La Campanella + Swan Lake
+    #region Fantasia of Burning Grace - La Campanella + Swan Lake
     /// <summary>
     /// Phase 4 Two-Theme Combination: La Campanella + Swan Lake
     /// Combines infernal flames with balletic grace
     /// Fire trails shimmer with rainbow colors
     /// </summary>
-    public class BlazingSwan : ModItem
+    public class FantasiaOfBurningGrace : ModItem
     {
         public override void SetDefaults()
         {
@@ -581,8 +581,8 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<BlazingSwanPlayer>();
-            modPlayer.blazingSwanEquipped = true;
+            var modPlayer = player.GetModPlayer<FantasiaOfBurningGracePlayer>();
+            modPlayer.fantasiaOfBurningGraceEquipped = true;
             
             // La Campanella bonuses
             player.GetDamage(DamageClass.Magic) += 0.22f;
@@ -646,15 +646,15 @@ namespace MagnumOpus.Content.Common.Accessories
         }
     }
 
-    public class BlazingSwanPlayer : ModPlayer
+    public class FantasiaOfBurningGracePlayer : ModPlayer
     {
-        public bool blazingSwanEquipped;
+        public bool fantasiaOfBurningGraceEquipped;
         private int bellRingCooldown;
         private int dodgeCooldown;
 
         public override void ResetEffects()
         {
-            blazingSwanEquipped = false;
+            fantasiaOfBurningGraceEquipped = false;
         }
 
         public override void PostUpdate()
@@ -665,7 +665,7 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (!blazingSwanEquipped) return;
+            if (!fantasiaOfBurningGraceEquipped) return;
             if (proj.owner != Player.whoAmI) return;
             
             // Rainbow fire trail on magic projectiles
@@ -714,20 +714,20 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override bool FreeDodge(Player.HurtInfo info)
         {
-            if (!blazingSwanEquipped) return false;
+            if (!fantasiaOfBurningGraceEquipped) return false;
             if (dodgeCooldown > 0) return false;
             
             if (Main.rand.NextFloat() < 0.10f)
             {
                 dodgeCooldown = 100;
-                TriggerBlazingSwanDodge();
+                TriggerFantasiaDodge();
                 return true;
             }
             
             return false;
         }
 
-        private void TriggerBlazingSwanDodge()
+        private void TriggerFantasiaDodge()
         {
             // Fiery rainbow burst
             CustomParticles.GenericFlare(Player.Center, Color.White, 1.2f, 25);
@@ -755,13 +755,13 @@ namespace MagnumOpus.Content.Common.Accessories
     }
     #endregion
 
-    #region Valor's Symphonic Grace - Eroica + Swan Lake
+    #region Triumphant Arabesque - Eroica + Swan Lake
     /// <summary>
     /// Phase 4 Two-Theme Combination: Eroica + Swan Lake
     /// Combines heroic valor with balletic grace
     /// Graceful kills trigger Heroic Surges
     /// </summary>
-    public class ValorsSymphonicGrace : ModItem
+    public class TriumphantArabesque : ModItem
     {
         public override void SetDefaults()
         {
@@ -774,8 +774,8 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<ValorsSymphonicGracePlayer>();
-            modPlayer.valorGraceEquipped = true;
+            var modPlayer = player.GetModPlayer<TriumphantArabesquePlayer>();
+            modPlayer.triumphantArabesqueEquipped = true;
             
             // Eroica bonuses
             player.GetDamage(DamageClass.Melee) += 0.20f;
@@ -830,16 +830,16 @@ namespace MagnumOpus.Content.Common.Accessories
         }
     }
 
-    public class ValorsSymphonicGracePlayer : ModPlayer
+    public class TriumphantArabesquePlayer : ModPlayer
     {
-        public bool valorGraceEquipped;
+        public bool triumphantArabesqueEquipped;
         private int heroicSurgeTimer;
         private int invulnFramesOnKill = 60;
         private int dodgeCooldown;
 
         public override void ResetEffects()
         {
-            valorGraceEquipped = false;
+            triumphantArabesqueEquipped = false;
         }
 
         public override void PostUpdate()
@@ -876,7 +876,7 @@ namespace MagnumOpus.Content.Common.Accessories
 
         private void HandleKill(NPC target)
         {
-            if (!valorGraceEquipped) return;
+            if (!triumphantArabesqueEquipped) return;
             
             if (target.life <= 0 && !target.immortal)
             {
@@ -910,7 +910,7 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override bool FreeDodge(Player.HurtInfo info)
         {
-            if (!valorGraceEquipped) return false;
+            if (!triumphantArabesqueEquipped) return false;
             if (dodgeCooldown > 0) return false;
             
             if (Main.rand.NextFloat() < 0.10f)
@@ -946,13 +946,13 @@ namespace MagnumOpus.Content.Common.Accessories
     }
     #endregion
 
-    #region Void Flames - La Campanella + Enigma Variations
+    #region Inferno of Lost Shadows - La Campanella + Enigma Variations
     /// <summary>
     /// Phase 4 Two-Theme Combination: La Campanella + Enigma Variations
     /// Combines infernal flames with mysterious paradoxes
     /// Fire inflicts random Paradox debuffs
     /// </summary>
-    public class VoidFlames : ModItem
+    public class InfernoOfLostShadows : ModItem
     {
         public override void SetDefaults()
         {
@@ -965,8 +965,8 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<VoidFlamesPlayer>();
-            modPlayer.voidFlamesEquipped = true;
+            var modPlayer = player.GetModPlayer<InfernoOfLostShadowsPlayer>();
+            modPlayer.infernoOfLostShadowsEquipped = true;
             
             // La Campanella bonuses
             player.GetDamage(DamageClass.Magic) += 0.22f;
@@ -1025,9 +1025,9 @@ namespace MagnumOpus.Content.Common.Accessories
         }
     }
 
-    public class VoidFlamesPlayer : ModPlayer
+    public class InfernoOfLostShadowsPlayer : ModPlayer
     {
-        public bool voidFlamesEquipped;
+        public bool infernoOfLostShadowsEquipped;
         private int bellRingCooldown;
         private Dictionary<int, int> paradoxStacks = new Dictionary<int, int>();
         private Dictionary<int, int> paradoxTimers = new Dictionary<int, int>();
@@ -1044,7 +1044,7 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void ResetEffects()
         {
-            voidFlamesEquipped = false;
+            infernoOfLostShadowsEquipped = false;
         }
 
         public override void PostUpdate()
@@ -1068,7 +1068,7 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (!voidFlamesEquipped) return;
+            if (!infernoOfLostShadowsEquipped) return;
             if (proj.owner != Player.whoAmI) return;
             
             // Fire inflicts random Paradox (15% for magic, 10% otherwise)

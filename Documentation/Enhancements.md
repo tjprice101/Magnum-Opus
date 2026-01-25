@@ -410,20 +410,20 @@ TOTAL PHASE 3: 13 items ✅ ALL IMPLEMENTED
 
 | # | Item | Combines | Sprite Size |
 |---|------|----------|-------------|
-| 30 | **Lunar Flames** | Moonlight + La Campanella | 34x34 |
-| 31 | **Heroic Enigma** | Eroica + Enigma | 34x34 |
-| 32 | **Graceful Sonata** | Moonlight + Swan Lake | 34x34 |
-| 33 | **Blazing Swan** | La Campanella + Swan Lake | 34x34 |
-| 34 | **Valor's Mystery** | Eroica + Swan Lake | 34x34 |
-| 35 | **Void Flames** | La Campanella + Enigma | 34x34 |
+| 30 | **Nocturne of Azure Flames** | Moonlight + La Campanella | 34x34 |
+| 31 | **Valse Macabre** | Eroica + Enigma | 34x34 |
+| 32 | **Reverie of the Silver Swan** | Moonlight + Swan Lake | 34x34 |
+| 33 | **Fantasia of Burning Grace** | La Campanella + Swan Lake | 34x34 |
+| 34 | **Triumphant Arabesque** | Eroica + Swan Lake | 34x34 |
+| 35 | **Inferno of Lost Shadows** | La Campanella + Enigma | 34x34 |
 
 ## 4.2 Three-Theme Combinations (4 items)
 
 | # | Item | Combines | Sprite Size |
 |---|------|----------|-------------|
 | 36 | **Trinity of Night** | Moonlight + Campanella + Enigma | 36x36 |
-| 37 | **Heroic Grace** | Eroica + Moonlight + Swan Lake | 36x36 |
-| 38 | **Blazing Enigma** | Campanella + Enigma + Swan Lake | 36x36 |
+| 37 | **Adagio of Radiant Valor** | Eroica + Moonlight + Swan Lake | 36x36 |
+| 38 | **Requiem of the Enigmatic Flame** | Campanella + Enigma + Swan Lake | 36x36 |
 | 39 | **Complete Harmony** | All 5 Themes | 38x38 |
 
 ---
@@ -434,17 +434,17 @@ TOTAL PHASE 3: 13 items ✅ ALL IMPLEMENTED
 
 ```
 TWO-THEME COMBOS (6 items) ✅ COMPLETE
-[X] Lunar Flames - Content/Common/Accessories/TwoThemeCombinationAccessories.cs
-[X] Heroic Enigma - Content/Common/Accessories/TwoThemeCombinationAccessories.cs
-[X] Graceful Sonata - Content/Common/Accessories/TwoThemeCombinationAccessories.cs
-[X] Blazing Swan - Content/Common/Accessories/TwoThemeCombinationAccessories.cs
-[X] Valor's Mystery - Content/Common/Accessories/TwoThemeCombinationAccessories.cs
-[X] Void Flames - Content/Common/Accessories/TwoThemeCombinationAccessories.cs
+[X] Nocturne of Azure Flames - Content/Common/Accessories/TwoThemeCombinationAccessories.cs
+[X] Valse Macabre - Content/Common/Accessories/TwoThemeCombinationAccessories.cs
+[X] Reverie of the Silver Swan - Content/Common/Accessories/TwoThemeCombinationAccessories.cs
+[X] Fantasia of Burning Grace - Content/Common/Accessories/TwoThemeCombinationAccessories.cs
+[X] Triumphant Arabesque - Content/Common/Accessories/TwoThemeCombinationAccessories.cs
+[X] Inferno of Lost Shadows - Content/Common/Accessories/TwoThemeCombinationAccessories.cs
 
 THREE-THEME COMBOS (4 items) ✅ COMPLETE
 [X] Trinity of Night - Content/Common/Accessories/ThreeThemeCombinationAccessories.cs
-[X] Heroic Grace - Content/Common/Accessories/ThreeThemeCombinationAccessories.cs
-[X] Blazing Enigma - Content/Common/Accessories/ThreeThemeCombinationAccessories.cs
+[X] Adagio of Radiant Valor - Content/Common/Accessories/ThreeThemeCombinationAccessories.cs
+[X] Requiem of the Enigmatic Flame - Content/Common/Accessories/ThreeThemeCombinationAccessories.cs
 [X] Complete Harmony - Content/Common/Accessories/ThreeThemeCombinationAccessories.cs
 
 TOTAL PHASE 4: 10 accessories ✅ ALL IMPLEMENTED

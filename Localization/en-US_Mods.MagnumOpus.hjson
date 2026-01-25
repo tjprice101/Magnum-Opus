@@ -2857,6 +2857,217 @@ Projectiles: {
 			'The Four Seasons, perfected'
 			'''
 	}
+
+	// ==================== TWO-THEME COMBINATION ACCESSORIES ====================
+
+	NocturneOfAzureFlames: {
+		DisplayName: Nocturne of Azure Flames
+		Tooltip:
+			'''
+			Combines the essence of Moonlight Sonata and La Campanella
+			Lunar and flame damage bonuses
+			Bell attacks spawn moonlit echoes
+			'Where moonbeams meet infernal chimes'
+			'''
+	}
+
+	ValseMacabre: {
+		DisplayName: Valse Macabre
+		Tooltip:
+			'''
+			Combines the essence of Eroica and Enigma Variations
+			Heroic and mysterious damage bonuses
+			Valor strikes reveal hidden weaknesses
+			'A dance between triumph and shadow'
+			'''
+	}
+
+	ReverieOfTheSilverSwan: {
+		DisplayName: Reverie of the Silver Swan
+		Tooltip:
+			'''
+			Combines the essence of Moonlight Sonata and Swan Lake
+			Lunar and graceful damage bonuses
+			Moon-blessed feathers trail your movements
+			'Dreaming of moonlit waters'
+			'''
+	}
+
+	FantasiaOfBurningGrace: {
+		DisplayName: Fantasia of Burning Grace
+		Tooltip:
+			'''
+			Combines the essence of La Campanella and Swan Lake
+			Flame and grace damage bonuses
+			Fire dances with elegant precision
+			'Where inferno meets the ballet'
+			'''
+	}
+
+	TriumphantArabesque: {
+		DisplayName: Triumphant Arabesque
+		Tooltip:
+			'''
+			Combines the essence of Eroica and Swan Lake
+			Heroic and graceful damage bonuses
+			Victory poses grant ethereal protection
+			'The hero's most elegant flourish'
+			'''
+	}
+
+	InfernoOfLostShadows: {
+		DisplayName: Inferno of Lost Shadows
+		Tooltip:
+			'''
+			Combines the essence of La Campanella and Enigma Variations
+			Flame and mysterious damage bonuses
+			Fire reveals what darkness conceals
+			'Burning questions, smoldering answers'
+			'''
+	}
+
+	// ==================== THREE-THEME COMBINATION ACCESSORIES ====================
+
+	TrinityOfNight: {
+		DisplayName: Trinity of Night
+		Tooltip:
+			'''
+			Combines Moonlight, Campanella, and Enigma
+			Massive damage and critical bonuses
+			Midnight flames illuminate mysteries
+			'Three movements of the nocturnal symphony'
+			'''
+	}
+
+	AdagioOfRadiantValor: {
+		DisplayName: Adagio of Radiant Valor
+		Tooltip:
+			'''
+			Combines Eroica, Moonlight, and Swan Lake
+			Heroic grace blessed by moonlight
+			Triumphant movements shine with lunar beauty
+			'The slow movement of a hero's grace'
+			'''
+	}
+
+	RequiemOfTheEnigmaticFlame: {
+		DisplayName: Requiem of the Enigmatic Flame
+		Tooltip:
+			'''
+			Combines Campanella, Enigma, and Swan Lake
+			Fire, mystery, and grace intertwined
+			Burning elegance shrouded in shadow
+			'A funeral mass for beautiful mysteries'
+			'''
+	}
+
+	CompleteHarmony: {
+		DisplayName: Complete Harmony
+		Tooltip:
+			'''
+			Combines all five core themes
+			The ultimate accessory of resonance
+			All theme bonuses and synergies active
+			'The grand finale of all movements'
+			'''
+	}
+
+	// ==================== PHASE 6 CONSUMABLES ====================
+
+	HarmonicResonatorFragment: {
+		DisplayName: Harmonic Resonator Fragment
+		Tooltip:
+			'''
+			'A crystallized fragment of pure harmonic energy'
+			Base crafting material for resonance potions
+			'''
+	}
+
+	MinorResonanceTonic: {
+		DisplayName: Minor Resonance Tonic
+		Tooltip:
+			'''
+			Grants Minor Resonance for 8 minutes
+			+10% damage
+			'A gentle boost of harmonic energy'
+			'''
+	}
+
+	HarmonicElixir: {
+		DisplayName: Harmonic Elixir
+		Tooltip:
+			'''
+			Grants Harmonic Power for 6 minutes
+			+20% damage and +10% critical strike chance
+			'The melody of power courses through you'
+			'''
+	}
+
+	SeasonalDraught: {
+		DisplayName: Seasonal Draught
+		Tooltip:
+			'''
+			Grants Seasonal Attunement for 5 minutes
+			+25% bonus to current season effects
+			'The essence of the changing seasons'
+			'''
+	}
+
+	ElixirOfTheMaestro: {
+		DisplayName: Elixir of the Maestro
+		Tooltip:
+			'''
+			Grants Maestro's Blessing for 4 minutes
+			+35% damage, +20% crit, +15% attack speed
+			'Command the symphony of destruction'
+			'''
+	}
+
+	ConductorsInsight: {
+		DisplayName: Conductor's Insight
+		Tooltip:
+			'''
+			A permanent upgrade accessory
+			Displays detailed combat analysis
+			Shows DPS, enemy weakness, and combo potential
+			'See the battlefield as a maestro sees an orchestra'
+			'''
+	}
+
+	FatesBlessing: {
+		DisplayName: Fate's Blessing
+		Tooltip:
+			'''
+			A permanent consumable upgrade
+			Permanently increases all damage by 5%
+			The blessing of destiny itself
+			'Your fate is intertwined with power'
+			'''
+	}
+
+	CodasEcho: {
+		DisplayName: Coda's Echo
+		Tooltip:
+			'''
+			A permanent consumable upgrade
+			Permanently increases all damage by 10%
+			The final notes resonate eternally
+			'The last chord never truly fades'
+			'''
+	}
+
+	FatesCosmicBrew: {
+		DisplayName: Fate's Cosmic Brew
+		Tooltip:
+			'''
+			The ultimate combat potion
+			Grants Cosmic Resonance for 3 minutes
+			+50% damage, +30% crit, +20% attack speed
+			+25% damage reduction, life steal on crits
+			Can only be used once per day
+			'Drink deep of destiny's power'
+			'''
+	}
 }
 
 "Keybinds.Toggle Harmonic Core UI.DisplayName": Toggle  Harmonic  Core  U I

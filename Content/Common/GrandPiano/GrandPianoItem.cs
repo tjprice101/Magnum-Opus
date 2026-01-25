@@ -10,6 +10,8 @@ namespace MagnumOpus.Content.Common.GrandPiano
     /// </summary>
     public class GrandPianoItem : ModItem
     {
+        public override string Texture => "Terraria/Images/Item_" + ItemID.Piano;
+
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 1;
