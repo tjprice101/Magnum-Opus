@@ -204,6 +204,32 @@ namespace MagnumOpus.Content.Common.Accessories
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
         }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color opusColor = new Color(200, 100, 255);
+            
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% damage, +15% crit, +12% attack speed, +20 defense")
+            {
+                OverrideColor = opusColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Life and mana regen, +12% damage reduction, +15% movement")
+            {
+                OverrideColor = opusColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Inflicts On Fire and Frostburn, full theme bonuses at night")
+            {
+                OverrideColor = opusColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Paradox stacks trigger grand explosions, 14-18% dodge chance")
+            {
+                OverrideColor = opusColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Immunity to fire, frost, and poison effects")
+            {
+                OverrideColor = opusColor
+            });
+        }
     }
 
     public class OpusOfFourMovementsPlayer : ModPlayer
@@ -592,6 +618,32 @@ namespace MagnumOpus.Content.Common.Accessories
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
         }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color cosmicColor = new Color(180, 80, 220);
+            
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines all five Fate vanilla accessory upgrades")
+            {
+                OverrideColor = cosmicColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Massive all-class damage, crit, and attack speed bonuses")
+            {
+                OverrideColor = cosmicColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+4 minions, +30% movement, +60 wing time, no fall damage")
+            {
+                OverrideColor = cosmicColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Temporal echoes on melee, constellation marks, mana burst")
+            {
+                OverrideColor = cosmicColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "12% cosmic dodge chance with damage burst")
+            {
+                OverrideColor = cosmicColor
+            });
+        }
     }
 
     public class CosmicWardensRegaliaPlayer : ModPlayer
@@ -837,6 +889,32 @@ namespace MagnumOpus.Content.Common.Accessories
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
         }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color destinyColor = new Color(200, 150, 180);
+            
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines Vivaldi's Masterwork with Paradox Chronometer")
+            {
+                OverrideColor = destinyColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+22% damage, +16% crit, +22 defense, enhanced regen")
+            {
+                OverrideColor = destinyColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+18% melee damage and +20% melee attack speed")
+            {
+                OverrideColor = destinyColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Temporal echoes on every 7th melee strike")
+            {
+                OverrideColor = destinyColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Inflicts On Fire and Frostburn, immunity to temperature effects")
+            {
+                OverrideColor = destinyColor
+            });
+        }
     }
 
     public class SeasonalDestinyPlayer : ModPlayer
@@ -1005,6 +1083,33 @@ namespace MagnumOpus.Content.Common.Accessories
                 .AddIngredient<HarmonicCoreOfFate>(30)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            float hue = (Main.GameUpdateCount * 0.01f) % 1f;
+            Color wandererColor = Main.hslToRgb(hue, 0.8f, 0.6f);
+            
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines Complete Harmony with Machination of the Event Horizon")
+            {
+                OverrideColor = wandererColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "All five theme bonuses with enhanced night damage")
+            {
+                OverrideColor = wandererColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+35% movement, +30% run speed, +80 wing time, no fall damage")
+            {
+                OverrideColor = wandererColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Theme debuff procs on hits, bell confusion effect")
+            {
+                OverrideColor = wandererColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "14% dodge chance with multi-theme burst")
+            {
+                OverrideColor = wandererColor
+            });
         }
     }
 
@@ -1177,6 +1282,32 @@ namespace MagnumOpus.Content.Common.Accessories
                 .AddIngredient<HarmonicCoreOfFate>(30)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color summonColor = new Color(150, 100, 200);
+            
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines Complete Harmony with Orrery of Infinite Orbits")
+            {
+                OverrideColor = summonColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+35% damage, +18% crit, enhanced night bonuses")
+            {
+                OverrideColor = summonColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+5 minions, +30% summon damage, +10% summon crit")
+            {
+                OverrideColor = summonColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Minions trigger random theme effects on hits")
+            {
+                OverrideColor = summonColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Night damage, fire debuffs, confusion, and prismatic sparkles")
+            {
+                OverrideColor = summonColor
+            });
         }
     }
 

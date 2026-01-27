@@ -15,6 +15,8 @@
 | **Phase 4** | Combination Accessories (Multi-theme Combos) | ~10 items | 🟢 LOWER | ✅ COMPLETE |
 | **Phase 5** | Fate Tier & Ultimate Items | ~14 items | 🔵 ENDGAME | ✅ COMPLETE |
 | **Phase 6** | Utilities & Polish | ~15 items | ⚪ OPTIONAL | ⏳ Pending |
+| **Phase 7** | Progressive Chains & Utility | ~80 items | 🟣 SEVENTH | ⏳ Pending |
+| **Phase 8** | Seasonal Boss Weapons (Vivaldi's Arsenal) | 20 weapons | 🌸 EIGHTH | ⏳ Pending |
 
 ---
 
@@ -1439,6 +1441,32 @@ Concept art for a side-view idle pixel art sprite of an ancient divine Coda's Ec
 Concept art for a side-view idle pixel art sprite of an ancient transcendent Symphony of Ages made of magnificent crystal containing the entirety of MagnumOpus's musical journey from first resonant shards to cosmic fate power all visible in swirling layers with every seasonal boss every theme every composition playing eternally within in perfect unified symphony created by music in the style of Terraria, radiating existence-conducting overwhelming transcendent mastery, ornate frame of consuming the crystal granting mastery over the music of existence itself with ability to conduct reality's soundtrack as the ultimate permanent upgrade crystallizes all of music history, detailed, ornate design like a royal mechanism, full-view --v 7.0
 ```
 
+**Crystallized Harmony** (38x38)
+*Recipe: 25 of each Seasonal Essence (100 total) + 10 of each Theme Resonant Energy + 30 Luminite Bars @ Ancient Manipulator*
+*Use: Permanently grants +10% damage reduction and +5% all damage (one-time use)*
+```
+Concept art for a side-view idle pixel art sprite of an ancient crystallized Crystallized Harmony made of perfect geometric crystal containing all four seasonal essences spring pink summer orange autumn brown winter blue AND all theme energies purple scarlet black-orange purple-green white-rainbow dark-pink locked in eternal balance with visible harmonic waveforms frozen in crystalline structure created by music in the style of Terraria, radiating permanent overwhelming harmonic protection, ornate frame of consuming the crystal permanently harmonizing the body's resonance as the ultimate defensive-offensive balance crystallizes all musical energies into protective power, detailed, ornate design like a royal mechanism, full-view --v 7.0
+```
+
+**Seasonal Attunement** (38x38)
+*Recipe: All 4 Dormant Seasonal Cores (from Four Seasons bosses) + Vivaldi's Masterwork + 50 Luminite Bars @ Ancient Manipulator*
+*Use: Permanently grants adaptive seasonal buffs - automatically gain current season's bonuses without needing potions (one-time use)*
+```
+Concept art for a side-view idle pixel art sprite of an ancient attuned Seasonal Attunement made of four interlocking rings representing spring summer autumn winter with Primavera's pink blossoms L'Estate's orange solar rays Autunno's brown leaves L'Inverno's blue ice crystals all rotating in perfect orbital harmony around central core of pure seasonal energy created by music in the style of Terraria, radiating permanent overwhelming seasonal synchronization, ornate frame of consuming the rings forever binding the user to Vivaldi's eternal cycle as the four seasons become one with the imbiber granting perpetual seasonal empowerment, detailed, ornate design like a royal mechanism, full-view --v 7.0
+```
+
+### Informational Accessories (POSTPONED - Cosmetic UI/HUD Features)
+
+The following 5 items are **POSTPONED** as they require custom UI/HUD rendering systems and provide only informational/cosmetic benefits:
+
+- **Harmonic Tuner** - Shows boss music phase indicators
+- **Composer's Lens** - Displays enemy weakness to damage types  
+- **Fate's Metronome** - Visual BPM indicator for rhythm-based attacks
+- **Seasonal Calendar** - Shows current season and time until next transition
+- **Symphony Analyzer** - Real-time DPS meter with musical visualization
+
+*These will be implemented in a future phase when custom UI systems are added.*
+
 ---
 
 *Document Version 2.2 - Reorganized by Implementation Phase + Complete Detailed Prompts*
@@ -1939,6 +1967,773 @@ TOTAL PHASE 7: ~80 unique item sprites
 
 ---
 
+# 🌸⚔️ PHASE 8: SEASONAL BOSS WEAPONS - VIVALDI'S ARSENAL
+
+> **Each seasonal boss drops a unique weapon set inspired by their design.**
+> These weapons share the boss's color scheme and visual motifs, embodying the essence of each season.
+> All prompts formatted for Midjourney with the specified style.
+
+---
+
+## 📊 PHASE 8 PROGRESSION OVERVIEW
+
+| Boss | Difficulty Tier | Vanilla Equivalent | Weapon Power Level |
+|------|-----------------|-------------------|-------------------|
+| **Primavera** | Post-WoF (Early HM) | Hallowed/Titanium | 70-85 damage range |
+| **L'Estate** | Post-Mech Bosses | Chlorophyte/Spectre | 95-125 damage range |
+| **Autunno** | Post-Plantera | Shroomite/Turtle | 130-165 damage range |
+| **L'Inverno** | Post-Golem | Beetle/Spooky | 180-230 damage range |
+| **Vivaldi's Masterworks** | Post-All Seasons | Pre-Moonlight Sonata | 250-320 damage range |
+
+*Note: The seasonal bosses are optional parallel progression to the main music themes.*
+*They provide alternative gear options and lead to powerful crafted weapons.*
+
+---
+
+## 8.1 PRIMAVERA'S ARSENAL (Spring - Post-Wall of Flesh)
+*Theme Colors: White (#FFFFFF), Pink (#FFB7C5), Light Blue (#ADD8E6)*
+*Design Motifs: Cherry blossoms, renewal, gentle growth, budding flowers*
+*Progression Tier: Early Hardmode (Post-WoF) | Comparable to: Hallowed/Titanium Gear*
+
+### Melee - Blossom's Edge
+**A graceful blade infused with spring's renewal**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 72 Melee | Comparable to True Excalibur (70) |
+| **Use Time** | 20 (Very Fast) | Swift, flowing swings |
+| **Knockback** | 5.5 (Average) | Balanced push |
+| **Crit Chance** | +6% | Enhanced precision |
+| **Autoswing** | Yes | Continuous attacks |
+
+**Mechanics:**
+- **Petal Trail:** Each swing leaves a trail of damaging cherry blossom petals that linger for 1.5 seconds, dealing 25% weapon damage per tick
+- **Renewal Strike:** Every 5th consecutive hit triggers a healing petal burst, restoring 8 HP to the player
+- **Bloom Resonance:** Hitting enemies under 25% HP releases a burst of 6 homing petal projectiles (40% damage each)
+
+**Recipe:** 12 Vernal Bars + 1 Spring Resonant Energy + 5 Souls of Might @ Mythril Anvil
+
+**Drop Rate:** 25% from Primavera (alternative to crafting)
+
+**VFX:** Soft pink/white bloom trails, cherry blossom petals scatter on swing, gentle light blue sparkles on heal proc
+
+```
+Concept art for a side-view idle pixel art sprite of a sword themed around "Spring" made of white and soft pink metal created by music in the style of Terraria, radiating a gentle blooming aura, music notes surround the weapon, adorned with cherry blossom petals and light blue crystal accents, flower vines wrap around the elegant blade, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+### Ranged - Petal Storm Bow
+**A bow that fires arrows transformed into swirling petals**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 48 Ranged | Per petal (fires 3) = 144 total |
+| **Use Time** | 22 (Fast) | Quick volleys |
+| **Velocity** | 12 | Moderate speed |
+| **Knockback** | 2.5 (Weak) | Light push |
+| **Ammo** | Arrows | Converts any arrow type |
+
+**Mechanics:**
+- **Petal Conversion:** Converts any arrow into 3 spiraling petal projectiles that home slightly toward enemies
+- **Bloom Burst:** Petals explode on contact, dealing 30% splash damage in a small radius
+- **Spring Breeze:** Every 8 shots creates a gust of wind that pushes all petals forward 50% faster
+- **Vernal Growth:** Enemies killed by petals have 15% chance to drop bonus life hearts
+
+**Recipe:** 12 Vernal Bars + 1 Spring Resonant Energy + 5 Souls of Sight @ Mythril Anvil
+
+**Drop Rate:** 25% from Primavera (alternative to crafting)
+
+**VFX:** Arrows transform into spiraling pink/white petals mid-flight, gentle bloom explosions on impact, wind gust visual every 8th shot
+
+```
+Concept art for a side-view idle pixel art sprite of a bow themed around "Spring" made of white wood and pink crystal created by music in the style of Terraria, radiating a gentle blooming aura, music notes surround the weapon, cherry blossom branches form the bow limbs with light blue string, flower petals drift around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+### Magic - Vernal Scepter
+**A staff channeling the renewing magic of spring**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 58 Magic | Base projectile damage |
+| **Use Time** | 28 (Average) | Measured casting |
+| **Mana Cost** | 14 | Moderate mana use |
+| **Velocity** | 10 | Moderate speed |
+| **Knockback** | 4 (Weak) | Light disruption |
+
+**Mechanics:**
+- **Bloom Bolt:** Fires a spiraling projectile that splits into 4 smaller petals on contact with an enemy or surface
+- **Renewal Aura:** While held, passively regenerates 2 HP every 3 seconds
+- **Growth Magic:** Split petals deal 40% base damage and pierce 2 enemies each
+- **Spring Awakening:** Critical hits cause flowers to bloom at the impact point, dealing 75% damage over 2 seconds to enemies standing in them
+
+**Recipe:** 12 Vernal Bars + 1 Spring Resonant Energy + 5 Souls of Fright @ Mythril Anvil
+
+**Drop Rate:** 25% from Primavera (alternative to crafting)
+
+**VFX:** Spiraling pink/light blue bolt, blooming flower explosions, healing green particles while held, ground flowers on crit
+
+```
+Concept art for a side-view idle pixel art sprite of a magic staff themed around "Spring" made of white and pink crystalline material created by music in the style of Terraria, radiating a gentle blooming aura, music notes surround the weapon, topped with a blooming flower orb of light blue and pink energy, vines and petals spiral around the shaft, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+### Summon - Primavera's Bloom Whistle
+**Summons miniature petal sprites to fight alongside you**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 42 Summon | Per sprite attack |
+| **Use Time** | 36 (Slow) | Standard summon speed |
+| **Mana Cost** | 10 | Low summon cost |
+| **Knockback** | 3 (Very Weak) | Minimal push |
+| **Minion Slots** | 1 | Per sprite summoned |
+
+**Mechanics:**
+- **Petal Sprites:** Summons adorable flower sprites (2 max base) that orbit the player and dash at nearby enemies
+- **Pollination:** Sprites leave behind a trail of pollen that slows enemies by 15% for 2 seconds
+- **Spring Harmony:** When 2+ sprites exist, they periodically sync attacks for a combined burst dealing 150% damage
+- **Renewal Bond:** Every 10 seconds, sprites heal the player for 5 HP each
+
+**Recipe:** 12 Vernal Bars + 1 Spring Resonant Energy + 8 Souls of Light @ Mythril Anvil
+
+**Drop Rate:** 25% from Primavera (alternative to crafting)
+
+**VFX:** Cute flower sprites with fluttering petal wings, pollen trail particles, synchronized pink burst on harmony attack
+
+```
+Concept art for a side-view idle pixel art sprite of a summoner whistle themed around "Spring" made of white pearl and pink crystal created by music in the style of Terraria, radiating a gentle blooming aura, music notes surround the item, shaped like a blooming flower with light blue accents, cherry blossom petals float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+## 8.2 L'ESTATE'S ARSENAL (Summer - Post-Mechanical Bosses)
+*Theme Colors: Orange (#FF8C00), White (#FFFFFF), Solar Gold (#FFC800)*
+*Design Motifs: Solar flares, blazing sun, intense heat, radiant light*
+*Progression Tier: Post-Mechs | Comparable to: Chlorophyte/Spectre Gear*
+
+### Melee - Zenith Cleaver
+**A massive blade forged from concentrated sunfire**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 115 Melee | Heavy-hitting greatsword |
+| **Use Time** | 32 (Slow) | Deliberate, powerful swings |
+| **Knockback** | 7.5 (Strong) | Massive impact |
+| **Crit Chance** | +4% | Standard crit |
+| **Autoswing** | Yes | Continuous cleaving |
+| **Scale** | 1.4x | Oversized blade |
+
+**Mechanics:**
+- **Solar Cleave:** Swings leave behind a lingering arc of solar fire that deals 50% damage for 2 seconds
+- **Heatwave:** Every 3rd swing releases a 180° wave of heat dealing 75% damage that travels 400 pixels
+- **Sunburn Stacks:** Enemies hit accumulate Sunburn (stacks to 5), each stack deals 8 damage/second for 3 seconds
+- **Solstice Strike:** At max Sunburn stacks, the next hit triggers a solar explosion dealing 200% damage in a 150px radius
+
+**Recipe:** 15 Solstice Bars + 1 Summer Resonant Energy + 12 Chlorophyte Bars @ Mythril Anvil
+
+**Drop Rate:** 20% from L'Estate (alternative to crafting)
+
+**VFX:** Blazing orange/gold swing trails, lingering solar fire arcs, heat shimmer distortion, sunburn stack indicators on enemies
+
+```
+Concept art for a side-view idle pixel art sprite of a greatsword themed around "Summer" made of blazing orange and white-hot metal created by music in the style of Terraria, radiating a powerful solar aura, music notes surround the weapon, ignited in orange and golden flames, solar flares and sun rays emanate from the blade and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+### Ranged - Solar Scorcher
+**A rifle that fires concentrated beams of summer heat**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 68 Ranged | Per tick of beam |
+| **Use Time** | 8 (Insanely Fast) | Continuous beam |
+| **Mana Cost** | 0 | Uses Musket Balls as fuel |
+| **Velocity** | Instant | Hitscan beam |
+| **Knockback** | 1 (Extremely Weak) | Beam pressure |
+
+**Mechanics:**
+- **Solar Beam:** Fires a continuous heat beam (hold to fire) that deals rapid tick damage
+- **Overheat Gauge:** Extended firing builds heat (max 100). At 70+, damage increases 25%. At 100, weapon overheats for 2 seconds
+- **Heat Mirages:** Beam creates shimmering mirages at hit location that confuse enemies (10% miss chance for 3s)
+- **Thermal Expansion:** Beam width increases the longer you fire (up to 3x width at max heat)
+- **Cooling Vents:** Kills reduce heat by 15, rewarding accurate play
+
+**Recipe:** 15 Solstice Bars + 1 Summer Resonant Energy + 1 Megashark @ Mythril Anvil
+
+**Drop Rate:** 20% from L'Estate (alternative to crafting)
+
+**VFX:** Orange-white heat beam with distortion waves, heat gauge UI element, golden particle spray at impact, mirage shimmer effects
+
+```
+Concept art for a side-view idle pixel art sprite of a rifle themed around "Summer" made of orange metal and white crystal barrel created by music in the style of Terraria, radiating a powerful solar aura, music notes surround the weapon, heat waves and golden energy ripple around the barrel, solar disc ornaments adorn the weapon and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+### Magic - Solstice Tome
+**A grimoire containing the blazing knowledge of midsummer**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 95 Magic | Strong magic damage |
+| **Use Time** | 35 (Slow) | Channeled casting |
+| **Mana Cost** | 22 | High mana investment |
+| **Velocity** | 8 | Moderate projectile speed |
+| **Knockback** | 5 (Average) | Solar impact |
+
+**Mechanics:**
+- **Solar Flare:** Summons a miniature sun at cursor position that orbits and fires 4 solar bolts at nearby enemies
+- **Flare Duration:** Each sun lasts 8 seconds and can be refreshed by recasting (max 2 suns active)
+- **Corona Burst:** When a sun expires or is destroyed, it explodes dealing 150% damage in a 200px radius
+- **Midsummer's Blessing:** Standing near your suns grants +15% magic damage and 3 mana regen/second
+- **Solar Eclipse:** At night, suns deal 30% more damage but drain mana 20% faster
+
+**Recipe:** 15 Solstice Bars + 1 Summer Resonant Energy + 1 Crystal Storm + 1 Golden Shower @ Mythril Anvil
+
+**Drop Rate:** 20% from L'Estate (alternative to crafting)
+
+**VFX:** Orbiting miniature suns with corona effects, solar bolts with orange trails, dramatic explosion on sun death, golden aura when near suns
+
+```
+Concept art for a side-view idle pixel art sprite of a magic tome themed around "Summer" made of orange leather with white and gold pages created by music in the style of Terraria, radiating a powerful solar aura, music notes surround the book, flames lick from between the pages, sun symbols and solar glyphs glow on the cover and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+### Summon - L'Estate's Solar Crest
+**Summons orbiting sun fragments that scorch enemies**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 65 Summon | Per sun fragment attack |
+| **Use Time** | 36 (Slow) | Standard summon speed |
+| **Mana Cost** | 10 | Low summon cost |
+| **Knockback** | 4 (Weak) | Heat push |
+| **Minion Slots** | 1 | Per fragment summoned |
+
+**Mechanics:**
+- **Sun Fragments:** Summons blazing sun fragments (3 max base) that orbit the player at varying distances
+- **Solar Barrage:** Fragments periodically fire heat bolts at the nearest enemy (every 1.5 seconds)
+- **Orbital Defense:** Fragments block enemy projectiles they contact, destroying the projectile and dealing 50% damage to nearby enemies
+- **Summer's Fury:** When the player takes damage, all fragments briefly converge and unleash a combined solar beam (300% damage)
+- **Heat Absorption:** Enemies killed by fragments restore 3 mana to the player
+
+**Recipe:** 15 Solstice Bars + 1 Summer Resonant Energy + 1 Optic Staff @ Mythril Anvil
+
+**Drop Rate:** 20% from L'Estate (alternative to crafting)
+
+**VFX:** Glowing orange/gold sun fragments with corona, heat bolt projectiles, defensive barrier flash, convergence beam on player damage
+
+```
+Concept art for a side-view idle pixel art sprite of a summoner crest themed around "Summer" made of orange crystal and white gold metal created by music in the style of Terraria, radiating a powerful solar aura, music notes surround the item, shaped like a blazing miniature sun with golden corona, heat distortion and solar flares float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+## 8.3 AUTUNNO'S ARSENAL (Autumn - Post-Plantera)
+*Theme Colors: White (#FFFFFF), Brown (#8B4513), Dark Orange (#FF4500)*
+*Design Motifs: Falling leaves, decay, harvest moon, twilight, withering beauty*
+*Progression Tier: Post-Plantera | Comparable to: Shroomite/Turtle Gear*
+
+### Melee - Harvest Reaper
+**A scythe that reaps both crops and souls**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 145 Melee | High base damage |
+| **Use Time** | 28 (Average) | Sweeping arcs |
+| **Knockback** | 6.5 (Strong) | Reaping force |
+| **Crit Chance** | +12% | Death's precision |
+| **Autoswing** | Yes | Continuous reaping |
+| **Range** | Extended | Scythe reach bonus |
+
+**Mechanics:**
+- **Reaper's Arc:** Swings in a wide 220° arc, hitting all enemies in the sweep
+- **Soul Harvest:** Enemies killed drop "Soul Fragments" that orbit the player (max 8). Each fragment grants +3% damage
+- **Withering Touch:** Hits apply "Withering" debuff - enemies take 5% increased damage from all sources for 5 seconds
+- **Harvest Moon:** At night or during eclipse, scythe gains +20% damage and +10% crit chance
+- **Death's Toll:** Every 10th enemy killed triggers a massive reap that deals 250% damage to all enemies on screen
+
+**Recipe:** 18 Harvest Bars + 1 Autumn Resonant Energy + 1 Death Sickle @ Mythril Anvil
+
+**Drop Rate:** 18% from Autunno (alternative to crafting)
+
+**VFX:** Brown/orange leaf trails, soul fragments orbiting player, withering decay particles on enemies, harvest moon glow at night
+
+```
+Concept art for a side-view idle pixel art sprite of a scythe themed around "Autumn" made of white metal and dark brown wood created by music in the style of Terraria, radiating a melancholic withering aura, music notes surround the weapon, dark orange and brown leaves drift around the curved blade, harvest moon symbols and decay patterns adorn the shaft and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+### Ranged - Twilight Arbalest
+**A crossbow that fires bolts of fading autumn light**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 98 Ranged | Per bolt |
+| **Use Time** | 18 (Very Fast) | Rapid repeating |
+| **Velocity** | 16 | Fast bolts |
+| **Knockback** | 4.5 (Average) | Solid impact |
+| **Ammo** | Arrows | Converts to twilight bolts |
+
+**Mechanics:**
+- **Twilight Conversion:** Converts any arrow into piercing twilight bolts that pass through 3 enemies
+- **Fading Light:** Bolts deal 15% more damage for each enemy they've already pierced
+- **Dusk Burst:** Every 5th shot fires a spread of 5 bolts in a 45° cone
+- **Autumn's End:** Enemies killed by bolts explode into 4 homing leaf projectiles (30% damage each)
+- **Twilight Zone:** Bolts that travel more than 600px gain 50% bonus damage (rewarding long-range play)
+
+**Recipe:** 18 Harvest Bars + 1 Autumn Resonant Energy + 1 Stake Launcher @ Mythril Anvil
+
+**Drop Rate:** 18% from Autunno (alternative to crafting)
+
+**VFX:** Brown/orange twilight bolts with fading trails, leaf explosion on kills, dusk burst spread visual, long-range damage indicator
+
+```
+Concept art for a side-view idle pixel art sprite of a crossbow themed around "Autumn" made of white bone and brown aged wood created by music in the style of Terraria, radiating a melancholic withering aura, music notes surround the weapon, dark orange maple leaves wrap around the stock, twilight energy glows from the mechanism and is apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+### Magic - Withering Grimoire
+**A tome of decay magic and harvest spells**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 125 Magic | Strong base damage |
+| **Use Time** | 40 (Very Slow) | Channeled decay |
+| **Mana Cost** | 28 | High mana cost |
+| **Velocity** | 6 | Slow, deliberate |
+| **Knockback** | 3 (Very Weak) | Decay doesn't push |
+
+**Mechanics:**
+- **Decay Zone:** Creates a 300px radius zone of withering at cursor that lasts 6 seconds
+- **Withering Damage:** Enemies in the zone take 40% weapon damage per second and move 25% slower
+- **Life Drain:** 10% of damage dealt to enemies in the zone heals the player
+- **Autumn's Grasp:** Enemies that die in the zone become "Harvest Spirits" that attack other enemies for 4 seconds (50% damage)
+- **Final Harvest:** Only one zone can exist. Casting again relocates it and triggers a burst dealing 100% damage to all enemies in the old zone
+
+**Recipe:** 18 Harvest Bars + 1 Autumn Resonant Energy + 1 Inferno Fork + 1 Shadowflame Hex Doll @ Mythril Anvil
+
+**Drop Rate:** 18% from Autunno (alternative to crafting)
+
+**VFX:** Swirling brown/orange decay zone with falling leaves, life drain green particles, harvest spirit ghosts, zone relocation burst
+
+```
+Concept art for a side-view idle pixel art sprite of a magic grimoire themed around "Autumn" made of white parchment and brown leather worn with age created by music in the style of Terraria, radiating a melancholic withering aura, music notes surround the book, dark orange runes glow on crumbling pages, falling leaves and decay particles drift around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+### Summon - Autunno's Decay Bell
+**Summons spectral harvest spirits to drain enemy life**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 88 Summon | Per spirit attack |
+| **Use Time** | 36 (Slow) | Standard summon speed |
+| **Mana Cost** | 10 | Low summon cost |
+| **Knockback** | 2 (Very Weak) | Spectral touch |
+| **Minion Slots** | 1 | Per spirit summoned |
+
+**Mechanics:**
+- **Harvest Spirits:** Summons ghostly harvest spirits (2 max base) that phase through blocks to reach enemies
+- **Life Siphon:** Spirit attacks heal the player for 5% of damage dealt
+- **Decay Aura:** Spirits passively apply "Fading" to nearby enemies - 3% damage reduction per second (stacks to 15%)
+- **Twilight Possession:** When a spirit kills an enemy, it temporarily inhabits the corpse, fighting as a stronger minion for 5 seconds (150% damage)
+- **Harvest Toll:** Every 15 seconds, spirits ring their bells, dealing 75% damage to all enemies within 400px and slowing them
+
+**Recipe:** 18 Harvest Bars + 1 Autumn Resonant Energy + 1 Pygmy Staff @ Mythril Anvil
+
+**Drop Rate:** 18% from Autunno (alternative to crafting)
+
+**VFX:** Spectral brown/white harvest spirits, life drain green particles flowing to player, possessed corpse glow, bell toll shockwave ring
+
+```
+Concept art for a side-view idle pixel art sprite of a summoner bell themed around "Autumn" made of white tarnished silver and brown copper created by music in the style of Terraria, radiating a melancholic withering aura, music notes surround the item, shaped like an aged harvest bell with dark orange patina, falling leaves and fading spirits swirl around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+## 8.4 L'INVERNO'S ARSENAL (Winter - Post-Golem)
+*Theme Colors: White (#FFFFFF), Light Blue (#ADD8E6), Deep Blue (#1E90FF)*
+*Design Motifs: Ice crystals, snowflakes, frozen stillness, glacial power*
+*Progression Tier: Post-Golem | Comparable to: Beetle/Spooky Gear*
+
+### Melee - Glacial Executioner
+**A greathammer of eternal ice that shatters all it strikes**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 195 Melee | Devastating strikes |
+| **Use Time** | 38 (Very Slow) | Massive hammer swing |
+| **Knockback** | 9 (Very Strong) | Shattering impact |
+| **Crit Chance** | +8% | Precision crushing |
+| **Autoswing** | Yes | Continuous execution |
+| **Scale** | 1.5x | Enormous hammer |
+
+**Mechanics:**
+- **Permafrost Strike:** Hits freeze enemies for 0.5 seconds and apply "Frostbite" (8 damage/second for 4 seconds)
+- **Shatter:** Frozen enemies take 35% increased damage. Killing a frozen enemy shatters them, dealing 100% damage to nearby enemies
+- **Glacial Wave:** Every swing sends out a ground-hugging ice wave that travels 500px, freezing and damaging enemies (60% damage)
+- **Absolute Zero:** Consecutive hits on the same enemy stack "Hypothermia" - at 5 stacks, the enemy is encased in ice for 3 seconds
+- **Winter's End:** Encased enemies shatter instantly if hit, dealing 400% damage in a 200px radius
+
+**Recipe:** 20 Permafrost Bars + 1 Winter Resonant Energy + 1 Golem Fist + 15 Frost Cores @ Mythril Anvil
+
+**Drop Rate:** 15% from L'Inverno (alternative to crafting)
+
+**VFX:** Deep blue/white ice trails, freezing particles, ice encasement visual, shatter explosion with ice shards, glacial wave ground effect
+
+```
+Concept art for a side-view idle pixel art sprite of a warhammer themed around "Winter" made of white ice and deep blue frozen crystal created by music in the style of Terraria, radiating a freezing glacial aura, music notes surround the weapon, ignited in light blue frost flames, icicles and snowflakes form around the head and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+### Ranged - Frostbite Repeater
+**A repeating crossbow that fires shards of absolute cold**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 135 Ranged | Per ice shard |
+| **Use Time** | 10 (Very Fast) | Rapid fire repeater |
+| **Velocity** | 18 | High-speed shards |
+| **Knockback** | 3 (Very Weak) | Ice slows, not pushes |
+| **Ammo** | Arrows | Converts to ice shards |
+
+**Mechanics:**
+- **Ice Shard Conversion:** Converts any arrow into piercing ice shards that pass through 2 enemies
+- **Chill Stacks:** Each hit applies 1 stack of "Chill" to enemies. At 10 stacks, the enemy is frozen for 2 seconds
+- **Blizzard Burst:** Every 12 shots unleashes a 7-shard spread in a wide cone, all with enhanced freeze chance
+- **Permafrost Bolts:** Shards that hit frozen enemies deal 75% bonus damage and extend freeze by 0.5 seconds
+- **Winter's Grasp:** Frozen enemies killed shatter into 6 homing ice shards that target nearby enemies (25% damage each)
+
+**Recipe:** 20 Permafrost Bars + 1 Winter Resonant Energy + 1 Chain Gun @ Mythril Anvil
+
+**Drop Rate:** 15% from L'Inverno (alternative to crafting)
+
+**VFX:** White/light blue ice shards with frost trails, chill stack indicators on enemies, blizzard cone visual, shatter explosion with mini shards
+
+```
+Concept art for a side-view idle pixel art sprite of a repeating crossbow themed around "Winter" made of white frozen metal and light blue ice crystal created by music in the style of Terraria, radiating a freezing glacial aura, music notes surround the weapon, frost patterns and deep blue ice veins run through the mechanism, snowflakes and ice shards float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+### Magic - Permafrost Codex
+**A tome containing the frozen secrets of eternal winter**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 165 Magic | Heavy magic damage |
+| **Use Time** | 30 (Average) | Deliberate casting |
+| **Mana Cost** | 25 | High mana investment |
+| **Velocity** | 12 | Moderate projectile speed |
+| **Knockback** | 5.5 (Average) | Glacial push |
+
+**Mechanics:**
+- **Glacial Surge:** Fires a large ice crystal that shatters on impact, sending 8 ice shards in all directions (50% damage each)
+- **Frozen Domain:** Every 3rd cast creates a frozen ground zone (400px) that slows enemies by 40% and deals 30% damage/second for 5 seconds
+- **Absolute Zero:** Enemies below 20% HP hit by the primary crystal are instantly frozen for 3 seconds
+- **Winter's Wrath:** Critical hits cause ice spikes to erupt from the ground at the target's location, dealing 100% damage in a line
+- **Glacial Resonance:** Standing in your frozen domain grants +20% magic damage and reduces mana costs by 15%
+
+**Recipe:** 20 Permafrost Bars + 1 Winter Resonant Energy + 1 Blizzard Staff + 1 Razorblade Typhoon @ Mythril Anvil
+
+**Drop Rate:** 15% from L'Inverno (alternative to crafting)
+
+**VFX:** Large ice crystal projectile with shard explosion, frozen ground zone with ice particles, ice spike eruption on crit, blue domain buff aura
+
+```
+Concept art for a side-view idle pixel art sprite of a magic codex themed around "Winter" made of white frost-covered leather and light blue crystalline pages created by music in the style of Terraria, radiating a freezing glacial aura, music notes surround the book, deep blue ice runes glow on frozen pages, snowflakes and frost mist drift from between the covers and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+### Summon - L'Inverno's Frozen Heart
+**Summons frost wraiths that freeze enemies solid**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 115 Summon | Per wraith attack |
+| **Use Time** | 36 (Slow) | Standard summon speed |
+| **Mana Cost** | 10 | Low summon cost |
+| **Knockback** | 4 (Weak) | Cold push |
+| **Minion Slots** | 1 | Per wraith summoned |
+
+**Mechanics:**
+- **Frost Wraiths:** Summons spectral ice wraiths (2 max base) that phase through blocks and leave frozen trails
+- **Freezing Touch:** Wraith attacks have 20% chance to freeze enemies for 1 second
+- **Glacial Trail:** Wraiths leave behind a trail of frost that damages enemies for 25% weapon damage and slows by 30%
+- **Winter's Vengeance:** When the player is hit, all wraiths converge on the attacker and unleash a combined frost nova (250% damage, guaranteed freeze)
+- **Eternal Cold:** Wraiths gain +5% damage for each frozen enemy on screen (up to +50%)
+
+**Recipe:** 20 Permafrost Bars + 1 Winter Resonant Energy + 1 Raven Staff @ Mythril Anvil
+
+**Drop Rate:** 15% from L'Inverno (alternative to crafting)
+
+**VFX:** Spectral white/blue wraiths with ice particle trails, frost trail ground effect, frost nova convergence burst, frozen enemy ice crystal encasement
+
+```
+Concept art for a side-view idle pixel art sprite of a summoner heart crystal themed around "Winter" made of white ice and deep blue frozen core created by music in the style of Terraria, radiating a freezing glacial aura, music notes surround the item, shaped like a crystalline frozen heart with light blue veins, blizzard particles and ice crystals orbit around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+## 8.5 VIVALDI'S MASTERWORKS (Crafted from all 4 Seasonal Weapons)
+*Theme Colors: All seasonal colors combined - shifting gradient*
+*Design Motifs: All four seasons united, cyclical nature, harmonic balance*
+*Progression Tier: Post-All Seasons | Pre-Moonlight Sonata Bridge Content*
+
+> **These weapons represent the pinnacle of seasonal power, bridging the gap between**
+> **vanilla progression and the main MagnumOpus music theme content.**
+> **They are powerful enough to challenge Moon Lord but don't trivialize early theme content.**
+
+---
+
+### Ultimate Melee - The Four Seasons Blade
+**Forged from Blossom's Edge + Zenith Cleaver + Harvest Reaper + Glacial Executioner**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 285 Melee | Ultimate seasonal power |
+| **Use Time** | 24 (Fast) | Flowing seasonal strikes |
+| **Knockback** | 7 (Strong) | Nature's force |
+| **Crit Chance** | +10% | Harmonic precision |
+| **Autoswing** | Yes | Endless cycle |
+| **Scale** | 1.4x | Majestic blade |
+
+**Mechanics:**
+- **Seasonal Cycle:** Each swing cycles through seasons (Spring → Summer → Autumn → Winter), each with unique effects:
+  - **Spring:** Releases 4 homing petal projectiles (40% damage), heals 5 HP
+  - **Summer:** Creates solar arc dealing 80% damage, applies Sunburn (10 DPS for 4s)
+  - **Autumn:** Wide 240° sweep, killed enemies become harvest spirits (4s, 60% damage)
+  - **Winter:** Ground ice wave (500px), freezes for 1s, 35% bonus to frozen
+- **Year's Passage:** After completing 4 swings (full cycle), the next swing unleashes ALL seasonal effects simultaneously
+- **Harmonic Resonance:** Each seasonal hit builds "Resonance" (max 100). At 100, gain 30% damage for 5 seconds
+- **Vivaldi's Crescendo:** Every 20th swing triggers a massive explosion of all seasonal energies (300% damage, 300px radius)
+
+**Recipe:** Blossom's Edge + Zenith Cleaver + Harvest Reaper + Glacial Executioner + 10 of each Seasonal Resonant Energy @ Mythril Anvil
+
+**VFX:** Blade color shifts through pink→orange→brown→blue, seasonal particle trails, combined seasonal burst on cycle complete
+
+```
+Concept art for a side-view idle pixel art sprite of an ultimate greatsword themed around "Four Seasons" made of shifting metal that cycles through pink spring, orange summer, brown autumn, and blue winter created by music in the style of Terraria, radiating a powerful harmonic seasonal aura, music notes surround the weapon, cherry blossoms fade into solar flares fade into falling leaves fade into snowflakes all swirling around the magnificent blade, all four seasonal energies pulse through the edge and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+### Ultimate Ranged - Vivaldi's Seasonal Bow
+**Forged from Petal Storm Bow + Solar Scorcher + Twilight Arbalest + Frostbite Repeater**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 165 Ranged | Per arrow (varies by season) |
+| **Use Time** | 14 (Very Fast) | Rapid seasonal volleys |
+| **Velocity** | 16 | Swift arrows |
+| **Knockback** | 4 (Weak) | Elemental push |
+| **Ammo** | Arrows | Converts to seasonal |
+
+**Mechanics:**
+- **Seasonal Conversion:** Arrows automatically cycle through seasonal types every 4 shots:
+  - **Spring Petals:** 3 homing petals, 15% lifesteal on kill
+  - **Summer Beams:** Piercing heat beam, applies Sunburn, +30% damage at range
+  - **Autumn Bolts:** Pierce 4 enemies, +20% damage per pierce, leaf explosion on kill
+  - **Winter Shards:** Chill stacks, freeze at 8 stacks, shatter bonus damage
+- **Year's Barrage:** Every 16th shot fires ALL seasonal types simultaneously (4 projectiles at once)
+- **Seasonal Synergy:** Hitting an enemy with all 4 seasonal types within 3 seconds triggers "Nature's Judgment" (500% damage burst)
+- **Vivaldi's Tempo:** The more consecutive hits you land, the faster the weapon fires (up to 50% faster at 20 hits)
+
+**Recipe:** Petal Storm Bow + Solar Scorcher + Twilight Arbalest + Frostbite Repeater + 10 of each Seasonal Resonant Energy @ Mythril Anvil
+
+**VFX:** Arrow type visually changes color, seasonal particle trails, Nature's Judgment explosion with all seasonal colors
+
+```
+Concept art for a side-view idle pixel art sprite of an ultimate bow themed around "Four Seasons" made of wood and crystal that shifts through spring pink, summer orange, autumn brown, and winter blue created by music in the style of Terraria, radiating a powerful harmonic seasonal aura, music notes surround the weapon, the four seasonal elements intertwine along the bow limbs creating a cycle of nature, petals flames leaves and snow orbit around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+### Ultimate Magic - Concerto of the Seasons
+**Forged from Vernal Scepter + Solstice Tome + Withering Grimoire + Permafrost Codex**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 195 Magic | Powerful seasonal magic |
+| **Use Time** | 25 (Fast) | Flowing spellcasting |
+| **Mana Cost** | 20 | Moderate cost |
+| **Velocity** | 14 | Swift projectiles |
+| **Knockback** | 5 (Average) | Elemental force |
+
+**Mechanics:**
+- **Seasonal Orchestra:** Fires a projectile that cycles through seasonal behaviors mid-flight:
+  - Starts as Spring (splitting petals on first hit)
+  - Transforms to Summer (creates mini sun on second hit)
+  - Shifts to Autumn (life drain zone on third hit)
+  - Ends as Winter (ice explosion on fourth hit or timeout)
+- **Conductor's Domain:** Creates a 500px aura around the player that cycles through seasonal zones every 5 seconds, applying that season's debuffs to enemies and buffs to the player
+- **Harmonic Mastery:** Each season the projectile passes through grants stacking damage (+15% per transition, up to +60%)
+- **Grand Finale:** When the projectile completes all 4 transformations on a single enemy, that enemy is marked with "Nature's Wrath" - taking 50% more damage from all sources for 8 seconds
+
+**Recipe:** Vernal Scepter + Solstice Tome + Withering Grimoire + Permafrost Codex + 10 of each Seasonal Resonant Energy @ Mythril Anvil
+
+**VFX:** Projectile visually transforms through seasons, conductor's domain changes color every 5s, Nature's Wrath mark glows all seasonal colors
+
+```
+Concept art for a side-view idle pixel art sprite of an ultimate magic staff themed around "Four Seasons" made of crystalline material that phases through spring pink, summer orange, autumn brown, and winter blue created by music in the style of Terraria, radiating a powerful harmonic seasonal aura, music notes surround the weapon, topped with an orb containing all four seasons in perfect balance, the cycle of nature swirls within the crystal and is apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+### Ultimate Summon - Vivaldi's Baton
+**Forged from all 4 seasonal summon items**
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| **Damage** | 145 Summon | Per seasonal spirit |
+| **Use Time** | 36 (Slow) | Conductor's pace |
+| **Mana Cost** | 10 | Low summon cost |
+| **Knockback** | 3.5 (Weak) | Spectral touch |
+| **Minion Slots** | 1 | Summons 4 spirits total |
+
+**Mechanics:**
+- **Seasonal Quartet:** Summons 4 spirits (one of each season) that take only 1 minion slot total:
+  - **Spring Sprite:** Heals player 3 HP every 5 seconds, attacks with petal bursts
+  - **Summer Fragment:** Deals highest damage, applies Sunburn, creates heat barriers
+  - **Autumn Spirit:** Life drains enemies, possesses corpses, rings decay bell
+  - **Winter Wraith:** Freezes enemies, leaves frost trails, frost nova on player damage
+- **Conductor's Command:** Right-click to cycle which spirit is "lead" - the lead spirit deals 50% more damage and its effects are enhanced
+- **Seasonal Symphony:** When all 4 spirits attack the same enemy within 2 seconds, they perform a "Concerto Strike" dealing 400% combined damage
+- **Vivaldi's Masterpiece:** Every 30 seconds, all spirits converge and perform a massive coordinated attack hitting all enemies on screen for 200% damage
+
+**Recipe:** Primavera's Bloom Whistle + L'Estate's Solar Crest + Autunno's Decay Bell + L'Inverno's Frozen Heart + 10 of each Seasonal Resonant Energy @ Mythril Anvil
+
+**VFX:** 4 distinct seasonal spirits orbiting player, lead spirit glows brighter, Concerto Strike creates seasonal spiral, Masterpiece creates full-screen seasonal wave
+
+```
+Concept art for a side-view idle pixel art sprite of an ultimate conductor's baton themed around "Four Seasons" made of pristine white metal with gems of pink, orange, brown, and blue at the tip created by music in the style of Terraria, radiating a powerful harmonic seasonal aura, music notes surround the item, seasonal spirits and elemental energies dance around the elegant baton responding to its movements, musical notation and seasonal symbols spiral around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view, --ar 16:9 --v 7.0
+```
+
+---
+
+## 8.6 Phase 8 Asset Checklist & Progression Summary
+
+### Progression Flow
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     SEASONAL WEAPON PROGRESSION                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  POST-WoF          POST-MECHS         POST-PLANTERA      POST-GOLEM         │
+│  ─────────         ──────────         ─────────────      ──────────         │
+│  Primavera         L'Estate           Autunno            L'Inverno          │
+│  (Spring)          (Summer)           (Autumn)           (Winter)           │
+│  70-85 DMG         95-125 DMG         130-165 DMG        180-230 DMG        │
+│       │                │                   │                  │              │
+│       └────────────────┴───────────────────┴──────────────────┘              │
+│                                    │                                         │
+│                                    ▼                                         │
+│                    ┌───────────────────────────────┐                        │
+│                    │   VIVALDI'S MASTERWORKS       │                        │
+│                    │   (Post-All Seasonal Bosses)  │                        │
+│                    │   250-320 DMG                 │                        │
+│                    │   Pre-Moonlight Sonata Tier   │                        │
+│                    └───────────────────────────────┘                        │
+│                                    │                                         │
+│                                    ▼                                         │
+│                    ┌───────────────────────────────┐                        │
+│                    │   MOONLIGHT SONATA (Theme 1)  │                        │
+│                    │   Main MagnumOpus Progression │                        │
+│                    └───────────────────────────────┘                        │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Weapon Statistics Summary
+
+| Weapon | Type | Damage | Tier | Key Mechanic |
+|--------|------|--------|------|--------------|
+| **SPRING (Post-WoF)** |||||
+| Blossom's Edge | Sword | 72 | Hallowed | Petal trail, heal every 5th hit |
+| Petal Storm Bow | Bow | 48×3 | Hallowed | 3 homing petals per shot |
+| Vernal Scepter | Staff | 58 | Hallowed | Splitting bolt, passive regen |
+| Bloom Whistle | Summon | 42 | Hallowed | Synced harmony attacks |
+| **SUMMER (Post-Mechs)** |||||
+| Zenith Cleaver | Greatsword | 115 | Chlorophyte | Sunburn stacks, solar explosion |
+| Solar Scorcher | Rifle | 68/tick | Chlorophyte | Continuous beam, heat gauge |
+| Solstice Tome | Tome | 95 | Chlorophyte | Orbiting sun turrets |
+| Solar Crest | Summon | 65 | Chlorophyte | Projectile-blocking fragments |
+| **AUTUMN (Post-Plantera)** |||||
+| Harvest Reaper | Scythe | 145 | Shroomite | Soul harvest stacking damage |
+| Twilight Arbalest | Crossbow | 98 | Shroomite | Pierce damage scaling |
+| Withering Grimoire | Grimoire | 125 | Shroomite | Life drain decay zone |
+| Decay Bell | Summon | 88 | Shroomite | Corpse possession |
+| **WINTER (Post-Golem)** |||||
+| Glacial Executioner | Hammer | 195 | Beetle | Freeze + shatter combo |
+| Frostbite Repeater | Repeater | 135 | Beetle | Chill stack → freeze |
+| Permafrost Codex | Codex | 165 | Beetle | Frozen domain buff zone |
+| Frozen Heart | Summon | 115 | Beetle | Frost trails, vengeance nova |
+| **VIVALDI'S (Ultimate)** |||||
+| Four Seasons Blade | Ultimate Sword | 285 | Pre-Moonlight | Cycling seasonal effects |
+| Seasonal Bow | Ultimate Bow | 165 | Pre-Moonlight | All season arrow types |
+| Concerto of Seasons | Ultimate Staff | 195 | Pre-Moonlight | Transforming projectile |
+| Vivaldi's Baton | Ultimate Summon | 145 | Pre-Moonlight | 4 spirits, 1 slot |
+
+### Asset Checklist
+
+```
+SPRING WEAPONS (4 items) - Primavera Drops/Crafts
+[ ] Blossom's Edge (Sword) - 72 damage, petal trails, healing
+[ ] Petal Storm Bow (Bow) - 48×3 damage, homing petals
+[ ] Vernal Scepter (Staff) - 58 damage, splitting, passive HP regen
+[ ] Primavera's Bloom Whistle (Summon) - 42 damage, harmony sync
+
+SUMMER WEAPONS (4 items) - L'Estate Drops/Crafts
+[ ] Zenith Cleaver (Greatsword) - 115 damage, sunburn, solar explosion
+[ ] Solar Scorcher (Rifle) - 68/tick beam, heat gauge mechanic
+[ ] Solstice Tome (Magic Tome) - 95 damage, orbiting sun turrets
+[ ] L'Estate's Solar Crest (Summon) - 65 damage, projectile blocking
+
+AUTUMN WEAPONS (4 items) - Autunno Drops/Crafts
+[ ] Harvest Reaper (Scythe) - 145 damage, soul harvest, death's toll
+[ ] Twilight Arbalest (Crossbow) - 98 damage, pierce scaling
+[ ] Withering Grimoire (Magic Book) - 125 damage, life drain zones
+[ ] Autunno's Decay Bell (Summon) - 88 damage, corpse possession
+
+WINTER WEAPONS (4 items) - L'Inverno Drops/Crafts
+[ ] Glacial Executioner (Warhammer) - 195 damage, freeze + shatter
+[ ] Frostbite Repeater (Repeating Crossbow) - 135 damage, chill stacks
+[ ] Permafrost Codex (Magic Codex) - 165 damage, frozen domain
+[ ] L'Inverno's Frozen Heart (Summon) - 115 damage, frost trails
+
+ULTIMATE VIVALDI WEAPONS (4 items) - Crafted from All Seasonals
+[ ] The Four Seasons Blade - 285 damage, cycling seasonal effects
+[ ] Vivaldi's Seasonal Bow - 165 damage, all arrow types
+[ ] Concerto of the Seasons - 195 damage, transforming projectile
+[ ] Vivaldi's Baton - 145 damage, 4 spirits for 1 slot
+
+TOTAL PHASE 8: 20 unique weapon sprites
+```
+
+### Recipe Summary
+
+| Weapon | Recipe | Station |
+|--------|--------|---------|
+| **Spring Weapons** | 12 Vernal Bars + 1 Spring Energy + Souls | Mythril Anvil |
+| **Summer Weapons** | 15 Solstice Bars + 1 Summer Energy + Mech Material | Mythril Anvil |
+| **Autumn Weapons** | 18 Harvest Bars + 1 Autumn Energy + Post-Plantera Material | Mythril Anvil |
+| **Winter Weapons** | 20 Permafrost Bars + 1 Winter Energy + Post-Golem Material | Mythril Anvil |
+| **Ultimate Weapons** | All 4 Seasonal Weapons + 10 of each Seasonal Energy | Mythril Anvil |
+
+---
+
 # 📊 UPDATED COMPLETE ASSET SUMMARY
 
 | Phase | Items | Priority |
@@ -1949,9 +2744,10 @@ TOTAL PHASE 7: ~80 unique item sprites
 | Phase 4 - Combinations | 10 accessories | 🟢 FOURTH |
 | Phase 5 - Fate & Ultimate | 14 accessories | 🔵 FIFTH |
 | Phase 6 - Utilities | 15 items | ⚪ SIXTH |
-| **Phase 7 - Progressive Chains & Utility** | **~80 items** | 🟣 SEVENTH |
+| Phase 7 - Progressive Chains & Utility | ~80 items | 🟣 SEVENTH |
+| **Phase 8 - Seasonal Boss Weapons** | **20 weapons** | 🌸 EIGHTH |
 
-**GRAND TOTAL: ~199 new item sprites + 4 boss sprite sets**
+**GRAND TOTAL: ~219 new item sprites + 4 boss sprite sets**
 
 ---
 

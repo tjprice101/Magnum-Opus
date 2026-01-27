@@ -134,8 +134,8 @@ namespace MagnumOpus.Content.Autumn.Bosses
             NPC.width = 105;
             NPC.height = 125;
             NPC.damage = BaseDamage;
-            NPC.defense = 38;
-            NPC.lifeMax = 52000; // Post-Plantera tier (similar to Duke Fishron)
+            NPC.defense = 30; // Post-Wall of Flesh tier
+            NPC.lifeMax = 32000; // Post-Wall of Flesh tier (comparable to Queen Slime 18k, pre-mech boss tier)
             NPC.HitSound = SoundID.NPCHit1;
             NPC.DeathSound = SoundID.NPCDeath6;
             NPC.knockBackResist = 0f;
@@ -145,6 +145,11 @@ namespace MagnumOpus.Content.Autumn.Bosses
             NPC.boss = true;
             NPC.npcSlots = 12f;
             NPC.aiStyle = -1;
+            
+            if (!Main.dedServ)
+            {
+                Music = MusicLoader.GetMusicSlot(Mod, "Assets/Music/TwilightOfTheFallingCrown");
+            }
         }
 
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
@@ -1130,7 +1135,6 @@ namespace MagnumOpus.Content.Autumn.Bosses
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<AutumnResonantEnergy>(), 1, 3, 5));
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<DecayEssence>(), 1, 5, 8));
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<LeafOfEnding>(), 1, 18, 28));
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<DormantAutumnCore>(), 3));
         }

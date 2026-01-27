@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ID;
@@ -38,6 +39,17 @@ namespace MagnumOpus.Content.Spring.Accessories
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color springPink = new Color(255, 183, 197);
+            Color springGreen = new Color(144, 238, 144);
+            
+            tooltips.Add(new TooltipLine(Mod, "Season", "Spring Accessory") { OverrideColor = springPink });
+            tooltips.Add(new TooltipLine(Mod, "Defense", "+8 defense") { OverrideColor = springGreen });
+            tooltips.Add(new TooltipLine(Mod, "DR", "+6% damage reduction") { OverrideColor = springGreen });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Petals form an impenetrable shield of renewal'") { OverrideColor = Color.Lerp(springPink, Color.White, 0.3f) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -80,6 +92,18 @@ namespace MagnumOpus.Content.Spring.Accessories
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color springPink = new Color(255, 183, 197);
+            Color springGreen = new Color(144, 238, 144);
+            
+            tooltips.Add(new TooltipLine(Mod, "Season", "Spring Accessory") { OverrideColor = springPink });
+            tooltips.Add(new TooltipLine(Mod, "Regen", "+3 life regeneration") { OverrideColor = springGreen });
+            tooltips.Add(new TooltipLine(Mod, "ManaRegen", "+2 mana regeneration") { OverrideColor = springGreen });
+            tooltips.Add(new TooltipLine(Mod, "Damage", "+4% damage") { OverrideColor = springGreen });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Life flows through the wearer like sap through a tree'") { OverrideColor = Color.Lerp(springGreen, Color.White, 0.3f) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -129,6 +153,17 @@ namespace MagnumOpus.Content.Spring.Accessories
             Lighting.AddLight(player.Center, new Color(255, 200, 220).ToVector3() * 0.3f);
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color springPink = new Color(255, 183, 197);
+            Color springGreen = new Color(144, 238, 144);
+            
+            tooltips.Add(new TooltipLine(Mod, "Season", "Spring Accessory") { OverrideColor = springPink });
+            tooltips.Add(new TooltipLine(Mod, "Damage", "+6% damage (base)") { OverrideColor = springGreen });
+            tooltips.Add(new TooltipLine(Mod, "Moving", "While moving: +4% additional damage, +5% crit chance") { OverrideColor = springPink });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The crest blooms brighter with each step forward'") { OverrideColor = Color.Lerp(springPink, Color.White, 0.3f) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()

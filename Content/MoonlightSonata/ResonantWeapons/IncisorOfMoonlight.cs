@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -87,53 +88,70 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Spawn 2 moon-themed projectiles in a 40 degree cone
-            float coneAngle = MathHelper.ToRadians(40f);
-            float halfCone = coneAngle / 2f;
+            // === LUNAR CRESCENT BEAM ATTACK ===
+            // Fires a large sweeping crescent moon beam that expands as it travels
+            // Much more moon-like, beam-like, unique, and flashy!
             
-            // Calculate projectile damage (split between two)
-            int projDamage = (int)(damage * 0.65f);
-            
-            // Left projectile (-20 degrees from center)
-            Vector2 leftVelocity = velocity.RotatedBy(-halfCone);
-            Projectile.NewProjectile(source, position, leftVelocity, type, projDamage, knockback, player.whoAmI);
-            
-            // Right projectile (+20 degrees from center)
-            Vector2 rightVelocity = velocity.RotatedBy(halfCone);
-            Projectile.NewProjectile(source, position, rightVelocity, type, projDamage, knockback, player.whoAmI);
-            
-            // === UnifiedVFX MOONLIGHT SONATA SWING AURA ===
             Vector2 direction = velocity.SafeNormalize(Vector2.UnitX);
-            UnifiedVFX.MoonlightSonata.SwingAura(position, direction, 0.9f);
+            float baseAngle = direction.ToRotation();
             
-            // Elegant moonlight crescent slash between the projectiles
-            CustomParticles.SwordArcCrescent(position, velocity * 0.6f, UnifiedVFX.MoonlightSonata.LightBlue, 0.6f);
+            // Main crescent moon beam - large and sweeping
+            int projDamage = (int)(damage * 0.8f);
+            Projectile.NewProjectile(source, position, velocity * 1.2f, type, projDamage, knockback, player.whoAmI, 0f, 0f);
             
-            // Fractal flare burst - signature moonlight geometric pattern
-            for (int i = 0; i < 6; i++)
+            // === MOONLIGHT BURST VFX ===
+            UnifiedVFX.MoonlightSonata.SwingAura(position, direction, 1.2f);
+            
+            // Massive lunar crescent slash - sweeping arc of moonlight
+            CustomParticles.SwordArcCrescent(position, velocity * 0.8f, UnifiedVFX.MoonlightSonata.LightBlue, 0.9f);
+            
+            // Radiating moon phases - crescents expanding outward
+            for (int i = 0; i < 8; i++)
             {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 offset = angle.ToRotationVector2() * 28f;
-                float progress = (float)i / 6f;
-                Color flareColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
-                CustomParticles.GenericFlare(position + offset, flareColor, 0.48f, 18);
+                float angle = baseAngle + MathHelper.TwoPi * i / 8f;
+                Vector2 crescentVel = angle.ToRotationVector2() * 3f;
+                float progress = (float)i / 8f;
+                Color crescentColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
+                CustomParticles.SwordArcCrescent(position + angle.ToRotationVector2() * 20f, crescentVel, crescentColor * 0.6f, 0.4f);
             }
             
-            // Gradient halo rings - Purple → Blue
-            for (int ring = 0; ring < 3; ring++)
+            // Signature fractal flare burst - larger and more prominent
+            for (int i = 0; i < 8; i++)
             {
-                float progress = (float)ring / 3f;
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 offset = angle.ToRotationVector2() * 35f;
+                float progress = (float)i / 8f;
+                Color flareColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
+                CustomParticles.GenericFlare(position + offset, flareColor, 0.65f, 22);
+            }
+            
+            // Expanding lunar halo rings
+            for (int ring = 0; ring < 5; ring++)
+            {
+                float progress = (float)ring / 5f;
                 Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
-                CustomParticles.HaloRing(position, ringColor, 0.35f + ring * 0.1f, 13 + ring * 2);
+                float scale = 0.3f + ring * 0.15f;
+                CustomParticles.HaloRing(position, ringColor, scale, 15 + ring * 3);
+            }
+            
+            // Moonlight sparkle cascade
+            for (int i = 0; i < 12; i++)
+            {
+                Vector2 sparkleVel = Main.rand.NextVector2Circular(4f, 4f);
+                Color sparkleColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, Color.White, Main.rand.NextFloat());
+                CustomParticles.PrismaticSparkle(position + Main.rand.NextVector2Circular(20f, 20f), sparkleColor, 0.35f);
             }
             
             // Musical notes floating from swing
-            CustomParticles.MoonlightMusicNotes(position, 4, 32f);
+            CustomParticles.MoonlightMusicNotes(position, 6, 40f);
             
-            // Themed moonlight sparks shooting forward
-            ThemedParticles.MoonlightSparks(position, velocity, 8, 6f);
+            // Themed moonlight sparks shooting forward in beam direction
+            ThemedParticles.MoonlightSparks(position, velocity, 12, 8f);
+            
+            // Beam launch sound
+            SoundEngine.PlaySound(SoundID.Item60 with { Volume = 0.7f, Pitch = -0.3f }, position);
 
-            return false; // We already created the projectiles
+            return false; // We already created the projectile
         }
 
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)

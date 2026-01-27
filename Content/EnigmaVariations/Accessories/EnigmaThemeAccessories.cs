@@ -83,6 +83,26 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
         }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+12% damage")
+            {
+                OverrideColor = EnigmaColors.Purple
+            });
+            tooltips.Add(new TooltipLine(Mod, "Paradox", "8% chance on hit to apply 'Paradox' - a random debuff")
+            {
+                OverrideColor = EnigmaColors.GreenFlame
+            });
+            tooltips.Add(new TooltipLine(Mod, "Debuffs", "Paradox: Confused, Slow, Cursed Inferno, or Ichor")
+            {
+                OverrideColor = EnigmaColors.DeepPurple
+            });
+            tooltips.Add(new TooltipLine(Mod, "Flavor", "'A piece of a puzzle no one was meant to solve'")
+            {
+                OverrideColor = new Color(100, 100, 100)
+            });
+        }
     }
 
     public class PuzzleFragmentPlayer : ModPlayer
@@ -237,6 +257,30 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
                 .AddIngredient(ItemID.FragmentNebula, 10)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+18% damage, +8% critical strike chance")
+            {
+                OverrideColor = EnigmaColors.Purple
+            });
+            tooltips.Add(new TooltipLine(Mod, "Paradox", "12% chance on hit to apply 'Paradox' debuffs")
+            {
+                OverrideColor = EnigmaColors.GreenFlame
+            });
+            tooltips.Add(new TooltipLine(Mod, "Stacking", "Paradox can stack up to 5 times")
+            {
+                OverrideColor = EnigmaColors.DeepPurple
+            });
+            tooltips.Add(new TooltipLine(Mod, "VoidCollapse", "At 5 stacks, triggers 'Void Collapse' - massive damage explosion")
+            {
+                OverrideColor = EnigmaColors.GreenFlame
+            });
+            tooltips.Add(new TooltipLine(Mod, "Flavor", "'The answer was void all along'")
+            {
+                OverrideColor = new Color(100, 100, 100)
+            });
         }
     }
 

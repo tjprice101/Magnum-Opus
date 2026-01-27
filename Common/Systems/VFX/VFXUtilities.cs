@@ -396,7 +396,7 @@ namespace MagnumOpus.Common.Systems.VFX
         public static void DrawShineFlare(SpriteBatch spriteBatch, Vector2 position,
             Color color, float scale, float rotationSpeed = 2f)
         {
-            Texture2D flare = MagnumTextureRegistry.ShineFlare4Point?.Value;
+            Texture2D flare = MagnumTextureRegistry.GetShineFlare4Point();
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             
             if (bloom == null) return;

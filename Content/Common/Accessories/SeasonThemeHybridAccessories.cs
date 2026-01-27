@@ -144,6 +144,33 @@ namespace MagnumOpus.Content.Common.Accessories
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
         }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color SpringPink = new Color(255, 183, 197);
+            Color MoonlightPurple = new Color(138, 43, 226);
+
+            tooltips.Add(new TooltipLine(Mod, "Hybrid", "Bloom Crest + Sonata's Embrace")
+            {
+                OverrideColor = Color.Lerp(SpringPink, MoonlightPurple, 0.5f)
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+6 life regen, +8 defense, +6% damage reduction, 60% thorns")
+            {
+                OverrideColor = SpringPink
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "At night: +22% damage, +18% crit, +12 defense, +15% move speed")
+            {
+                OverrideColor = MoonlightPurple
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+12% magic damage, +4 mana regen, +8 life regen at night")
+            {
+                OverrideColor = Color.Lerp(SpringPink, MoonlightPurple, 0.3f)
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Hits can inflict Moonstruck and heal you, thorns poison enemies")
+            {
+                OverrideColor = Color.Lerp(SpringPink, MoonlightPurple, 0.7f)
+            });
+        }
     }
 
     public class SpringsMoonlitGardenPlayer : ModPlayer
@@ -333,6 +360,33 @@ namespace MagnumOpus.Content.Common.Accessories
                 .AddIngredient<ResonantCoreOfLaCampanella>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color SummerGold = new Color(255, 180, 50);
+            Color CampanellaOrange = new Color(255, 140, 40);
+
+            tooltips.Add(new TooltipLine(Mod, "Hybrid", "Radiant Crown + Infernal Virtuoso")
+            {
+                OverrideColor = Color.Lerp(SummerGold, CampanellaOrange, 0.5f)
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+16% damage, +10% crit, +8 defense, attacks inflict fire")
+            {
+                OverrideColor = SummerGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+22% magic damage, +14% magic crit, -15% mana cost, +4 mana regen")
+            {
+                OverrideColor = CampanellaOrange
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Immunity to On Fire, Burning, and lava")
+            {
+                OverrideColor = Color.Lerp(SummerGold, CampanellaOrange, 0.3f)
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Bell Chime stuns enemies with fire AOE, Solar Burst during daytime")
+            {
+                OverrideColor = Color.Lerp(SummerGold, CampanellaOrange, 0.7f)
+            });
         }
     }
 
@@ -559,6 +613,33 @@ namespace MagnumOpus.Content.Common.Accessories
                 .AddIngredient<ResonantCoreOfEnigma>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color WinterBlue = new Color(150, 220, 255);
+            Color EnigmaPurple = new Color(140, 60, 200);
+
+            tooltips.Add(new TooltipLine(Mod, "Hybrid", "Glacial Heart + Riddle of the Void")
+            {
+                OverrideColor = Color.Lerp(WinterBlue, EnigmaPurple, 0.5f)
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+14 defense, +12% damage reduction, +8% move speed, attacks inflict frostburn")
+            {
+                OverrideColor = WinterBlue
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+18% damage, +12% crit, immunity to Frozen, Chilled, and Frostburn")
+            {
+                OverrideColor = EnigmaPurple
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Paradox stacks apply random debuffs and slow enemies")
+            {
+                OverrideColor = Color.Lerp(WinterBlue, EnigmaPurple, 0.3f)
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "At 4 stacks: Frozen Void Collapse deals massive AOE damage")
+            {
+                OverrideColor = Color.Lerp(WinterBlue, EnigmaPurple, 0.7f)
+            });
         }
     }
 

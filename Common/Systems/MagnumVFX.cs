@@ -15,6 +15,9 @@ namespace MagnumOpus.Common.Systems
     /// </summary>
     public static class MagnumVFX
     {
+        // Commonly used extra texture IDs for VFX
+        private const int SoftGlowTextureId = ExtrasID.SharpTears;
+        
         // ================== ADDITIVE BLENDING UTILITIES ==================
         
         /// <summary>
@@ -1511,7 +1514,7 @@ namespace MagnumOpus.Common.Systems
         public static void DrawEroicaPrismaticGem(SpriteBatch spriteBatch, Vector2 position, 
             float scale = 1f, float alpha = 1f, float pulsePhase = 0f)
         {
-            Texture2D glowTex = TextureAssets.Extra[98].Value;
+            Texture2D glowTex = TextureAssets.Extra[SoftGlowTextureId].Value;
             Vector2 drawPos = position - Main.screenPosition;
             Vector2 origin = glowTex.Size() / 2f;
             
@@ -1547,7 +1550,7 @@ namespace MagnumOpus.Common.Systems
         public static void DrawMoonlightPrismaticGem(SpriteBatch spriteBatch, Vector2 position, 
             float scale = 1f, float alpha = 1f, float pulsePhase = 0f)
         {
-            Texture2D glowTex = TextureAssets.Extra[98].Value;
+            Texture2D glowTex = TextureAssets.Extra[SoftGlowTextureId].Value;
             Vector2 drawPos = position - Main.screenPosition;
             Vector2 origin = glowTex.Size() / 2f;
             
@@ -1584,7 +1587,7 @@ namespace MagnumOpus.Common.Systems
             Color outerColor, Color midColor, Color innerColor, Color coreColor,
             float scale = 1f, float alpha = 1f, float pulsePhase = 0f)
         {
-            Texture2D glowTex = TextureAssets.Extra[98].Value;
+            Texture2D glowTex = TextureAssets.Extra[SoftGlowTextureId].Value;
             Vector2 drawPos = position - Main.screenPosition;
             Vector2 origin = glowTex.Size() / 2f;
             
@@ -1838,7 +1841,7 @@ namespace MagnumOpus.Common.Systems
         public static void DrawItemBackglow(SpriteBatch spriteBatch, Item item, Vector2 position, 
             Color glowColor, float rotation, float scale, float glowScale = 1.5f)
         {
-            Texture2D glowTex = TextureAssets.Extra[98].Value;
+            Texture2D glowTex = TextureAssets.Extra[SoftGlowTextureId].Value;
             
             // Pulse the glow
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 1f;
@@ -1871,7 +1874,7 @@ namespace MagnumOpus.Common.Systems
         public static void DrawSlashWhoosh(SpriteBatch spriteBatch, Vector2 position, float rotation,
             Color slashColor, float scale = 1f, float alpha = 0.8f)
         {
-            Texture2D slashTex = TextureAssets.Extra[98].Value; // Soft glow circle
+            Texture2D slashTex = TextureAssets.Extra[SoftGlowTextureId].Value; // Soft glow circle
             Vector2 drawPos = position - Main.screenPosition;
             
             // Draw stretched ellipse for slash effect
@@ -1888,7 +1891,7 @@ namespace MagnumOpus.Common.Systems
         public static void DrawChargeUpEffect(SpriteBatch spriteBatch, Vector2 position, Color color,
             float chargeProgress, float maxScale = 60f)
         {
-            Texture2D ringTex = TextureAssets.Extra[98].Value;
+            Texture2D ringTex = TextureAssets.Extra[SoftGlowTextureId].Value;
             Vector2 drawPos = position - Main.screenPosition;
             Vector2 origin = ringTex.Size() / 2f;
             
@@ -1915,7 +1918,7 @@ namespace MagnumOpus.Common.Systems
         public static void DrawBloomFlare(SpriteBatch spriteBatch, Vector2 position, Color color,
             float scale = 1f, float rotation = 0f, float alpha = 1f)
         {
-            Texture2D bloomTex = TextureAssets.Extra[98].Value;
+            Texture2D bloomTex = TextureAssets.Extra[SoftGlowTextureId].Value;
             Vector2 drawPos = position - Main.screenPosition;
             Vector2 origin = bloomTex.Size() / 2f;
             
@@ -1940,7 +1943,7 @@ namespace MagnumOpus.Common.Systems
         public static void DrawRippleRing(SpriteBatch spriteBatch, Vector2 position, Color color,
             float progress, float maxRadius = 100f, float thickness = 10f)
         {
-            Texture2D ringTex = TextureAssets.Extra[98].Value;
+            Texture2D ringTex = TextureAssets.Extra[SoftGlowTextureId].Value;
             Vector2 drawPos = position - Main.screenPosition;
             Vector2 origin = ringTex.Size() / 2f;
             
@@ -2061,7 +2064,7 @@ namespace MagnumOpus.Common.Systems
         /// </summary>
         private static void DrawBeamTerminator(SpriteBatch spriteBatch, Vector2 position, Color color, float size, float intensity)
         {
-            Texture2D bloomTex = TextureAssets.Extra[98].Value; // Soft glow circle
+            Texture2D bloomTex = TextureAssets.Extra[SoftGlowTextureId].Value; // Soft glow circle
             Vector2 drawPos = position - Main.screenPosition;
             Vector2 origin = bloomTex.Size() / 2f;
             float scale = size / bloomTex.Width * 4f;
@@ -2261,7 +2264,7 @@ namespace MagnumOpus.Common.Systems
         public static void DrawEnergyOrb(SpriteBatch spriteBatch, Vector2 position, Color coreColor, 
             float size = 20f, float intensity = 1f, float pulse = 0f)
         {
-            Texture2D bloomTex = TextureAssets.Extra[98].Value;
+            Texture2D bloomTex = TextureAssets.Extra[SoftGlowTextureId].Value;
             Vector2 drawPos = position - Main.screenPosition;
             Vector2 origin = bloomTex.Size() / 2f;
             
@@ -2348,4 +2351,5 @@ namespace MagnumOpus.Common.Systems
         }
     }
 }
+
 

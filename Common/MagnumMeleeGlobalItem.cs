@@ -212,6 +212,24 @@ namespace MagnumOpus.Common
             base.UseItemHitbox(item, player, ref hitbox, ref noHitbox);
         }
         
+        /// <summary>
+        /// Melee effects hook - kept for future use.
+        /// The melee smear system (MeleeSmearEffect.cs) handles the visual swing trails.
+        /// </summary>
+        public override void MeleeEffects(Item item, Player player, Rectangle hitbox)
+        {
+            if (!ShouldUseMagnumSwing(item))
+            {
+                base.MeleeEffects(item, player, hitbox);
+                return;
+            }
+            
+            // The MeleeSmearEffect system handles visual trails.
+            // No additional dust/sparkle effect here to avoid visual clutter.
+            
+            base.MeleeEffects(item, player, hitbox);
+        }
+        
         public override void ModifyTooltips(Item item, List<TooltipLine> tooltips)
         {
             if (!ShouldUseMagnumSwing(item))

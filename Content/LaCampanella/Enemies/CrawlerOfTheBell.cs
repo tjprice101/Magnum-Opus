@@ -10,6 +10,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonanceEnergies;
 using MagnumOpus.Content.LaCampanella.HarmonicCores;
+using MagnumOpus.Content.Materials.EnemyDrops;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
@@ -639,6 +640,9 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
             afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ResonantCoreOfLaCampanella>(), 1, 3, 6));
             
             npcLoot.Add(afterBossRule);
+            
+            // Bell Essence - theme essence drop (15%)
+            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<BellEssence>(), 7));
         }
 
         public override float SpawnChance(NPCSpawnInfo spawnInfo)

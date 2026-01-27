@@ -307,7 +307,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
         
         private void DrawAfterimages(SpriteBatch spriteBatch)
         {
-            Texture2D glowTex = TextureAssets.Extra[98].Value; // Soft glow texture
+            Texture2D glowTex = TextureAssets.Extra[ExtrasID.SharpTears].Value; // Soft glow texture
             
             // Draw each afterimage with decreasing opacity
             for (int i = 0; i < AfterimageCount; i++)
@@ -337,7 +337,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
         
         private void DrawGhostlyForm(SpriteBatch spriteBatch)
         {
-            Texture2D glowTex = TextureAssets.Extra[98].Value;
+            Texture2D glowTex = TextureAssets.Extra[ExtrasID.SharpTears].Value;
             
             float pulse = (float)Math.Sin(glowPulse) * 0.15f + 1f;
             float fadeAlpha = Projectile.timeLeft < 60 ? Projectile.timeLeft / 60f : 1f;
@@ -449,7 +449,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            Texture2D glowTex = TextureAssets.Extra[98].Value;
+            Texture2D glowTex = TextureAssets.Extra[ExtrasID.SharpTears].Value;
             
             // Draw trail using oldPos
             for (int i = 0; i < Projectile.oldPos.Length; i++)
@@ -489,3 +489,4 @@ namespace MagnumOpus.Content.Eroica.Accessories
         }
     }
 }
+

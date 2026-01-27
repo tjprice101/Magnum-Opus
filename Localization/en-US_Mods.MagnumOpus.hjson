@@ -1,335 +1,92 @@
-# This file will automatically update with entries for new content after a build and reload.
-
-Mods: {
+﻿Mods: {
 	MagnumOpus: {
 		DropConditions.PostMoonLord: After Moon Lord has been defeated
 
 		Items: {
-			RemnantOfMoonlightsHarmony: {
-				DisplayName: Remnant of Moonlight's Harmony
+			SwanLakeResonanceOre: {
+				DisplayName: Swan Lake Resonance Ore
 				Tooltip:
 					'''
-					'Fractured echoes of the first movement linger within'
-					The raw essence of lunar melodies, awaiting refinement
-					Smelt at a Moonlight Furnace to forge into Resonant Cores
+					'Crystallized grace from the celestial ballet'
+					White resonant ore found in sky bubbles
 					'''
 			}
 
-			ResonantCoreOfMoonlightSonata: {
-				DisplayName: Resonant Core of Moonlight Sonata
+			LaCampanellaResonanceOre: {
+				DisplayName: La Campanella Resonance Ore
 				Tooltip:
 					'''
-					'The Adagio sostenuto crystallized into physical form'
-					Refined lunar essence pulsing with harmonic energy
-					The foundation of all Moonlight Sonata equipment
+					'The infernal bells ring beneath the scorching sands'
+					Orange resonant ore, burning with virtuosic intensity
+					Found where desert heat meets musical legend
 					'''
 			}
 
-			IncisorOfMoonlight: {
-				DisplayName: Incisor of Moonlight
+			EnigmaResonanceOre: {
+				DisplayName: Enigma Resonance Ore
 				Tooltip:
 					'''
-					"When darkness falls, the moon shall sing."
-					Forged from the resonant crystals that emerged after the Moon Lord's defeat,
-					this blade channels the haunting melody of Beethoven's Moonlight Sonata.
-					Each swing releases waves of harmonic energy that pierce through all who oppose you.
-					The first movement plays eternal.
+					'Mysterious variations crystallized in green'
+					Green resonant ore found in jungle depths
 					'''
 			}
 
-			MoonlightsResonantEnergy: {
-				DisplayName: Moonlight's Resonant Energy
+			FateResonanceOre: {
+				DisplayName: Fate Resonance Ore
 				Tooltip:
 					'''
-					'Pure resonance extracted from the space between notes'
-					This ethereal energy defies gravity, floating as if conducted by an unseen maestro
-					A rare and precious material for the most powerful resonant equipment
+					'The threads of destiny made manifest'
+					Pink resonant ore found in evil biomes
+					Drops from Herald of Fate in Corruption/Crimson (post-Moon Lord)
 					'''
 			}
 
-			EroicasResonantEnergy: {
-				DisplayName: Eroica's Resonant Energy
+			EternalMoon: {
+				DisplayName: Eternal Moon
 				Tooltip:
 					'''
-					'The heroic energy of Beethoven's Third Symphony'
-					A rare crafting material for powerful resonant weapons
+					'The moon's eternal embrace given form'
+					A heavy sword that releases waves of purple energy
+					Inflicts Musical Dissonance on enemies
 					'''
 			}
 
-			RemnantOfEroicasTriumph: {
-				DisplayName: Remnant of Eroica's Triumph
+			MoonlightsCalling: {
+				DisplayName: Moonlight's Calling
 				Tooltip:
 					'''
-					'Echoes of heroism crystallized in pink light'
-					Raw essence from the movements of Eroica's symphony
-					Smelt at a Moonlight Furnace to forge into Resonant Cores of Eroica
+					'The moon beckons through arcane pages'
+					Rapidly fires beams of moonlight magic
+					Inflicts Musical Dissonance on enemies
 					'''
 			}
 
-			ResonantCoreOfEroica: {
-				DisplayName: Resonant Core of Eroica
+			StaffOfTheLunarPhases: {
+				DisplayName: Staff of the Lunar Phases
 				Tooltip:
 					'''
-					'The heroic spirit condensed into physical form'
-					Refined essence pulsing with triumphant energy
-					The foundation of all Eroica equipment
+					'Command the shadows between crescent and full'
+					Summons a mighty Goliath of Moonlight to fight for you
+					The Goliath fires devastating moonlight beams at enemies
+					Inflicts Musical Dissonance on enemies
 					'''
 			}
 
-			HarmonicCoreOfMoonlightSonata: {
-				DisplayName: Harmonic Core of Moonlight Sonata
+			GrandPianoItem: {
+				DisplayName: Grand Piano
 				Tooltip:
 					'''
-					'The soul of the Adagio sostenuto bound in crystal'
-					A powerful artifact that harmonizes with your very being
-					Equip in the Harmonic Core slot to receive lunar blessings
-					Upgrade with Moonlight's Resonant Energy to unlock greater power
+					'The mystical instrument through which all symphonies resonate'
+					Place and use with Score items to summon the musical bosses
 					'''
 			}
 
-			HarmonicCoreOfEroica: {
-				DisplayName: Harmonic Core of Eroica
+			ScoreOfEroica: {
+				DisplayName: Score of Eroica
 				Tooltip:
 					'''
-					'The triumphant spirit of heroism made manifest'
-					A crystallized symphony of courage and strength
-					Equip in the Harmonic Core slot to channel heroic might
-					Upgrade with Eroica's Resonant Energy to unlock greater power
-					'''
-			}
-
-			SwansResonanceEnergy: {
-				DisplayName: Swan's Resonance Energy
-				Tooltip:
-					'''
-					'Pure grace made manifest'
-					Rare energy from the ballet of swans
-					Used for crafting powerful Swan Lake equipment
-					'''
-			}
-
-			RemnantOfSwansHarmony: {
-				DisplayName: Remnant of Swan's Harmony
-				Tooltip:
-					'''
-					'A fragment of frozen grace'
-					Raw material mined from Swan Lake ore
-					Refine at a Moonlight Furnace
-					'''
-			}
-
-			ResonantCoreOfSwanLake: {
-				DisplayName: Resonant Core of Swan Lake
-				Tooltip:
-					'''
-					'The grace of the white swan crystallized'
-					A foundation material for Swan Lake equipment
-					'''
-			}
-
-			HarmonicCoreOfSwanLake: {
-				DisplayName: Harmonic Core of Swan Lake
-				Tooltip:
-					'''
-					'The eternal dance of Odette and Odile'
-					A Tier 3 Harmonic Core focused on agility and grace
-					Equip in the Harmonic Core slot for movement bonuses
-					Features 4 class upgrade trees: Melee, Ranged, Magic, Summon
-					'''
-			}
-
-			LaCampanellaResonantEnergy: {
-				DisplayName: La Campanella Resonant Energy
-				Tooltip:
-					'''
-					'Each particle rings with bell-like clarity'
-					Golden energy resonating with Liszt's virtuoso piece
-					Radiates with impossible speed and blazing intensity
-					Used to upgrade the Harmonic Core of La Campanella
-					'''
-			}
-
-			ResonantCoreOfLaCampanella: {
-				DisplayName: Resonant Core of La Campanella
-				Tooltip:
-					'''
-					'The bell's toll captured in crystal form'
-					Refined essence of virtuosic fury and blazing passion
-					A foundation material for La Campanella equipment
-					'''
-			}
-
-			HarmonicCoreOfLaCampanella: {
-				DisplayName: Harmonic Core of La Campanella
-				Tooltip:
-					'''
-					'The Maestro's heart - where virtuosity becomes power'
-					A Tier 4 Harmonic Core forged from the eternal flames of Liszt's passion
-					Equip in the Harmonic Core slot to conduct the infernal symphony
-					Toggle between Chromatic (offensive) and Diatonic (defensive) modes
-					'The bells toll in harmony - and the world trembles'
-					'''
-			}
-
-			EnigmaResonantEnergy: {
-				DisplayName: Enigma Resonant Energy
-				Tooltip:
-					'''
-					'A mystery wrapped in harmonic variance'
-					Green energy pulsing with Elgar's enigmatic themes
-					Used to upgrade the Harmonic Core of Enigma
-					'''
-			}
-
-			RemnantOfMysteries: {
-				DisplayName: Remnant of Mysteries
-				Tooltip:
-					'''
-					Dropped by Mystery's End in the Jungle
-					A fragment of arcane power saturated with unanswered questions
-					Used to craft powerful Enigma equipment
-					'''
-			}
-
-			ResonantCoreOfEnigma: {
-				DisplayName: Resonant Core of Enigma
-				Tooltip:
-					'''
-					'The variations remain unsolved'
-					A foundation material for Enigma equipment
-					'''
-			}
-
-			HarmonicCoreOfEnigma: {
-				DisplayName: Harmonic Core of Enigma
-				Tooltip:
-					'''
-					'Each variation holds a different truth'
-					A Tier 5 Harmonic Core providing balanced bonuses to all classes
-					Equip in the Harmonic Core slot for universal power
-					Features 4 class upgrade trees: Melee, Ranged, Magic, Summon
-					'''
-			}
-
-			FateResonantEnergy: {
-				DisplayName: Fate Resonant Energy
-				Tooltip:
-					'''
-					'The knock of destiny resonates within'
-					Crimson energy thrumming with Beethoven's Fifth
-					Used to upgrade the Harmonic Core of Fate
-					'''
-			}
-
-			ResonantCoreOfFate: {
-				DisplayName: Resonant Core of Fate
-				Tooltip:
-					'''
-					'Da-da-da-DUM'
-					A foundation material for Fate equipment
-					'''
-			}
-
-			HarmonicCoreOfFate: {
-				DisplayName: Harmonic Core of Fate
-				Tooltip:
-					'''
-					'Fate itself bends to the symphony'
-					The ultimate Tier 6 Harmonic Core with the strongest bonuses
-					Equip in the Harmonic Core slot to master your destiny
-					Features 4 class upgrade trees: Melee, Ranged, Magic, Summon
-					'''
-			}
-
-			MoonlightFurnace: {
-				DisplayName: Moonlight Furnace
-				Tooltip:
-					'''
-					'Where raw remnants are reborn through lunar flame'
-					A furnace that burns with the cold fire of moonlight
-					Transmutes Remnants of Moonlight's Harmony into Resonant Cores
-					'''
-			}
-
-			MoonlightAnvil: {
-				DisplayName: Moonlight Anvil
-				Tooltip:
-					'''
-					'Upon this anvil, the first movement takes shape'
-					An ethereal workstation humming with Beethoven's melody
-					Required for forging all Moonlight Sonata equipment
-					'''
-			}
-
-			MoonlightsPickaxe: {
-				DisplayName: Moonlight's Pickaxe
-				Tooltip:
-					'''
-					'The earth itself resonates with each strike'
-					Infused with the rhythmic pulse of the Adagio sostenuto
-					300% pickaxe power - superior to all Luminite pickaxes
-					'''
-			}
-
-			MoonlightsAxe: {
-				DisplayName: Moonlight's Axe
-				Tooltip:
-					'''
-					'Trees fall in silent harmony with the first movement'
-					The blade hums a melancholic tune as it cleaves through wood
-					225% axe power - superior to all Luminite axes
-					'''
-			}
-
-			MoonlightsHammer: {
-				DisplayName: Moonlight's Hammer
-				Tooltip:
-					'''
-					'Each strike echoes like a piano key in an empty hall'
-					Walls crumble to the beat of Beethoven's moonlit masterpiece
-					125% hammer power - superior to all Luminite hammers
-					'''
-			}
-
-			WingsOfTheMoon: {
-				DisplayName: Wings of the Moon
-				Tooltip:
-					'''
-					'Woven from moonbeams and the dreams of distant stars'
-					Exceptional flight speed and duration
-					Right-click to lunar dodge toward your cursor
-					Creates a purple and blue explosion on activation
-					0.5 second cooldown between dodges
-					'''
-			}
-
-			EroicasPickaxe: {
-				DisplayName: Eroica's Pickaxe
-				Tooltip:
-					'''
-					'The earth trembles beneath heroic strikes'
-					Forged from the triumphant energy of Beethoven's Third Symphony
-					350% pickaxe power - can mine Swan Lake Resonant Ore
-					'''
-			}
-
-			EroicasAxe: {
-				DisplayName: Eroica's Axe
-				Tooltip:
-					'''
-					'Trees fall to the march of heroes'
-					Each swing resonates with Eroica's mighty chorus
-					250% axe power - superior to Moonlight tools
-					'''
-			}
-
-			EroicasHammer: {
-				DisplayName: Eroica's Hammer
-				Tooltip:
-					'''
-					'Walls shatter to the symphony's crescendo'
-					Forged in the fires of heroic triumph
-					140% hammer power - superior to Moonlight tools
+					Summons Eroica, God of Valor
+					'The heroic symphony rises when valor calls'
 					'''
 			}
 
@@ -337,22 +94,99 @@ Mods: {
 				DisplayName: Funeral Prayer
 				Tooltip:
 					'''
-					'A solemn dirge for the fallen'
-					Fires 5 electric beams in a 90-degree arc that seek enemies
-					If all beams hit, unleashes a massive ricochet beam
-					Ricochet beam bounces between enemies 5-6 times dealing massive damage
-					Applies Musical Dissonance debuff
-					The second movement - Marcia funebre
+					'A hymn of flames for the fallen brave'
+					Fires 5 powerful homing beams of sacred fire
+					When all beams strike, unleashes a devastating ricochet beam
+					Low mana cost for its power
 					'''
 			}
 
-			SakurasBlossom: {
-				DisplayName: Sakura's Blossom
+			FinalityOfTheSakura: {
+				DisplayName: Finality of the Sakura
 				Tooltip:
 					'''
-					'Cherry petals dance in the wind of battle'
-					Creates three spectral copies that seek out enemies
-					Impacts create massive scarlet explosions
+					'A final blossom before eternal night'
+					Summons a Sakura of Fate to fight for you
+					The Sakura fires black and scarlet flames at enemies
+					'''
+			}
+
+			PiercingLightOfTheSakura: {
+				DisplayName: Piercing Light of the Sakura
+				Tooltip:
+					'''
+					'A rifle forged from valor's radiance'
+					Fires rapid piercing bolts of sakura light
+					Every 10th shot fires a devastating lightning projectile
+					that calls down black and gold thunderbolts
+					'''
+			}
+
+			CelestialValor: {
+				DisplayName: Celestial Valor
+				Tooltip:
+					'''
+					'A blade that echoes with heroic triumph'
+					Each swing releases a homing celestial projectile
+					that seeks out the mightiest foes
+					Projectiles create explosive impacts that damage nearby enemies
+					'''
+			}
+
+			MoonlitEngine: {
+				DisplayName: Moonlit Engine
+				Tooltip:
+					'''
+					Lunar-powered yoyo that leaves silvery afterimages
+					'The engine hums with moonlit resonance'
+					'''
+			}
+
+			MoonlitGyre: {
+				DisplayName: Moonlit Gyre
+				Tooltip:
+					'''
+					Spins with ethereal lunar energy
+					'Caught in the moon's eternal orbit'
+					'''
+			}
+
+			FractalOfMoonlight: {
+				DisplayName: Fractal of Moonlight
+				Tooltip:
+					'''
+					Fires fractal projectiles infused with lunar sorrow
+					Projectiles split into silvery shards on impact
+					'Each fragment carries the moon's quiet melancholy'
+					'''
+			}
+
+			EmberOfTheMoon: {
+				DisplayName: Ember of the Moon
+				Tooltip:
+					'''
+					'A cold flame born from lunar light'
+					Used to craft Moonlight Sonata equipment
+					'''
+			}
+
+			ShardsOfMoonlitTempo: {
+				DisplayName: Shards of Moonlit Tempo
+				Tooltip:
+					'''
+					'Crystallized fragments of lunar rhythm'
+					Used in crafting Moonlight Sonata equipment
+					Drops from Waning Deer in snow biomes (post-Moon Lord)
+					'''
+			}
+
+			ShardOfTheFeatheredTempo: {
+				DisplayName: Shard of the Feathered Tempo
+				Tooltip:
+					'''
+					'A graceful fragment of swan-like elegance'
+					Used in crafting Swan Lake equipment
+					Drops from Shattered Prima in the Hallow (post-Moon Lord)
 					'''
 			}
 
@@ -360,27 +194,1378 @@ Mods: {
 				DisplayName: Triumphant Fractal
 				Tooltip:
 					'''
-					'Geometry of heroic victory'
-					Fires three fractal projectiles wreathed in crimson fire
-					Explodes with devastating force on impact
+					'Fractured lightning of victorious fury'
+					Fires 3 powerful fractal projectiles
+					Projectiles deal 115% enhanced damage and create massive explosions
+					'''
+			}
+
+			ResonantCoreOfLaCampanella: {
+				DisplayName: Resonant Core of La Campanella
+				Tooltip:
+					'''
+					'The eternal bell's toll, frozen in crystalline form'
+					Foundation material for La Campanella equipment
+					Drops from Crawler of the Bell in deserts (post-Moon Lord)
+					'''
+			}
+
+			LaCampanellaResonantEnergy: {
+				DisplayName: La Campanella Resonant Energy
+				Tooltip:
+					'''
+					'Each mote of energy rings with bell-like clarity'
+					Used in La Campanella equipment crafting
+					Drops from Crawler of the Bell in deserts (post-Moon Lord)
+					'''
+			}
+
+			HarmonicCoreOfSwanLake: {
+				DisplayName: Harmonic Core of Swan Lake
+				Tooltip:
+					'''
+					A core that pulses with dual energies
+					Used to craft powerful Swan Lake equipment
+					'Where white meets black, harmony is born'
+					'''
+			}
+
+			ResonantCoreOfSwanLake: {
+				DisplayName: Resonant Core of Swan Lake
+				Tooltip:
+					'''
+					'Crystallized resonance of the eternal ballet'
+					A key component for Swan Lake crafting
+					Drops from Shattered Prima in the Hallow (post-Moon Lord, 10%)
+					'''
+			}
+
+			RemnantOfSwansHarmony: {
+				DisplayName: Remnant of Swan's Harmony
+				Tooltip:
+					'''
+					'A fragment of perfect synchronization'
+					Used in Swan Lake equipment crafting
+					Drops from Shattered Prima in the Hallow (post-Moon Lord)
+					'''
+			}
+
+			SwansResonanceEnergy: {
+				DisplayName: Swan's Resonance Energy
+				Tooltip:
+					'''
+					'A crystallized essence of duality'
+					Used in Swan Lake equipment crafting
+					Drops from Shattered Prima in the Hallow (post-Moon Lord)
+					'''
+			}
+
+			BlackWingsOfTheMonochromaticDawn: {
+				DisplayName: Black Wings of the Monochromatic Dawn
+				Tooltip:
+					'''
+					Summoner Accessory - Toggle modes with right-click
+					WHITE MODE: Up to 25% damage reduction when minions nearby (5% per minion)
+					          Protective white shields orbit around you
+					BLACK MODE: +35% minion damage, -20% defense, minions apply Flame of the Swan
+					'At dawn, when darkness meets light, the monochromatic wings spread'
+					'''
+			}
+
+			CrownOfTheSwan: {
+				DisplayName: Crown of the Swan
+				Tooltip:
+					'''
+					Mage Accessory - Toggle modes with right-click
+					WHITE MODE: -20% mana cost, protective wisps absorb 50% of one hit each
+					BLACK MODE: +30% magic damage, +15% mana cost, spells apply Flame of the Swan
+					'A crown fit for royalty of two kingdoms - light and shadow'
+					'''
+			}
+
+			DualFeatherQuiver: {
+				DisplayName: Dual Feather Quiver
+				Tooltip:
+					'''
+					Ranger Accessory - Works with arrows AND bullets
+					Toggle modes with right-click
+					WHITE MODE (Grace of Odette): +10% ranged crit, every 5th shot spawns a homing swan feather
+					          Enemies killed have 25% chance to drop healing feathers (+5 HP on pickup)
+					BLACK MODE (Shadow of Odile): +18% ranged damage, +2 pierce, applies Flame of the Swan
+					'Each feather remembers the flight - one toward the light, one into darkness'
+					'''
+			}
+
+			PendantOfTheTwoSwans: {
+				DisplayName: Pendant of the Two Swans
+				Tooltip:
+					'''
+					Melee Accessory - Toggle modes with right-click
+					WHITE MODE: A monochromatic halo surrounds you, granting 3 shield charges
+					          Each charge blocks 1 lethal hit (recharges after 15 seconds)
+					          Halo brightness indicates remaining charges
+					BLACK MODE: 20% chance on ANY melee crit to trigger rainbow explosions with Flame of the Swan
+					'Two souls entwined in eternal dance - light and shadow, love and deception'
+					'''
+			}
+
+			TheSwansAxe: {
+				DisplayName: The Swan's Axe
+				Tooltip:
+					'''
+					300% axe power
+					Cuts through wood like a swan glides through water
+					'Grace and power united in crystalline edge'
+					'''
+			}
+
+			TheSwansHammer: {
+				DisplayName: The Swan's Hammer
+				Tooltip:
+					'''
+					165% hammer power
+					Reshapes the world with elegant force
+					'Even walls crumble before the swan's determination'
+					'''
+			}
+
+			TheSwansPickaxe: {
+				DisplayName: The Swan's Pickaxe
+				Tooltip:
+					'''
+					425% pickaxe power
+					Can mine La Campanella Resonance Ore
+					'Unearths treasures hidden in the deepest lakes'
+					'''
+			}
+
+			CalloftheBlackSwan: {
+				DisplayName: Call of the Black Swan
+				Tooltip:
+					'''
+					Greatsword that fires 3 black/white flares per swing
+					Landing all 3 flares empowers the next swing
+					Empowered swing fires 8 projectiles at 200% damage
+					Applies Flame of the Swan on hit
+					'Odile's seduction made manifest'
+					'''
+			}
+
+			CallofthePearlescentLake: {
+				DisplayName: Call of the Pearlescent Lake
+				Tooltip:
+					'''
+					Fires tracking black/white rockets that create rainbow explosions
+					Converts bullets into homing projectiles
+					Applies Flame of the Swan
+					'The lake speaks in tongues of fire and light'
+					'''
+			}
+
+			ChromaticSwanSong: {
+				DisplayName: Chromatic Swan Song
+				Tooltip:
+					'''
+					Magic pistol with tracking black/white shots
+					Hitting the same enemy 3 times triggers a triple explosion
+					'The final melody plays in colors beyond mortal sight'
+					'''
+			}
+
+			FeatheroftheIridescentFlock: {
+				DisplayName: Feather of the Iridescent Flock
+				Tooltip:
+					'''
+					Summons 3 orbiting black/white crystals
+					Crystals fire homing flares and charge up rainbow beams
+					Each crystal attacks independently
+					'From one feather, a flock is born in iridescent glory'
+					'''
+			}
+
+			IridescentWingspan: {
+				DisplayName: Iridescent Wingspan
+				Tooltip:
+					'''
+					Staff that fires 3 black/white flares in a 60 degree cone
+					Flares create pearlescent rainbow explosions on hit
+					Each hit rings with crystalline resonance
+					Applies Flame of the Swan
+					'Wings spread wide catch light from both sun and shadow'
+					'''
+			}
+
+			TheSwansLament: {
+				DisplayName: The Swan's Lament
+				Tooltip:
+					'''
+					Shotgun rifle firing 10-15 black/white flaming bullets
+					Creates halos of destruction and black/white lightning on hit
+					Each bullet can pierce and create additional explosions
+					'A song of sorrow echoes through each devastating volley'
+					'''
+			}
+
+			FeathersCall: {
+				DisplayName: Feather's Call
+				Tooltip:
+					'''
+					Transforms you into a fragment of the Swan's essence
+					Drains all mana on use for full transformation
+					Left-click: Rain pearlescent flares with tracking explosions
+					Right-click: Unleash black and white lightning
+					Grants infinite flight while transformed
+					'The Swan's power courses through your veins...'
+					'''
+			}
+
+			CampanellasPyreMedallion: {
+				DisplayName: Campanella's Pyre Medallion
+				Tooltip:
+					'''
+					'Forged in the flames of Liszt's fastest passage'
+					The medallion burns with an eternal inferno
+					+15% critical strike chance
+					+8% attack speed
+					+20% damage to enemies marked by Resonant Toll
+					Your swift movements leave trails of sacred bellfire
+					'Each note blazes brighter than the last'
+					'''
+			}
+
+			ChamberOfBellfire: {
+				DisplayName: Chamber of Bellfire
+				Tooltip:
+					'''
+					'The first bell tolls - and flames answer'
+					+6 defense, +12% damage
+					Grants immunity to all fire debuffs and lava
+					Blazing aura surrounds you, damaging nearby foes
+					Every 10 strikes, the bells toll with explosive fury
+					'Within this chamber burns the virtuoso's undying passion'
+					'''
+			}
+
+			InfernalBellOfTheMaestro: {
+				DisplayName: Infernal Bell of the Maestro
+				Tooltip:
+					'''
+					'The Grand Finale - Where Music Becomes Fire'
+					+15 defense, +60 max life, +8 life regen
+					+20% all damage, +20% crit chance, +15% attack speed, +15% movement
+					Complete mastery over flame - no fire can harm you
+					INFERNAL RESONANCE: Your very presence ignites all who draw near
+					GRAND TOLLING: Every 5 seconds, the bell's voice shakes reality itself
+					Critical strikes erupt in pillars of sacred fire (+25% bonus damage)
+					Each Resonant Toll stack amplifies your fury (+5% damage per stack)
+					'Become the Maestro. Conduct the Inferno. Let the Bell Sing!'
+					'''
+			}
+
+			SymphonyOfTheBlazingSanctuary: {
+				DisplayName: Symphony of the Blazing Sanctuary
+				Tooltip:
+					'''
+					'Where bells ring, the faithful find shelter in flames'
+					+10 defense, +40 max life, +4 life regen
+					+15 defense when wounded below half health
+					BELL BARRIER: At death's door, the sanctuary's bells intervene
+					              Blocks 70% of lethal damage (30s cooldown)
+					              Repels enemies and brands them with Resonant Toll
+					Fallen enemies become pillars of healing fire
+					'The Symphony protects those who carry its flame'
+					'''
+			}
+
+			LaCampanellaTreasureBag: {
+				DisplayName: La Campanella Treasure Bag
+				Tooltip:
+					'''
+					{$CommonItemTooltip.RightClickToOpen}
+					'Within lies the Maestro's burning legacy'
+					Contains treasures forged in the infernal bells
+					'''
+			}
+
+			RemnantOfTheInfernalBell: {
+				DisplayName: Remnant of the Infernal Bell
+				Tooltip:
+					'''
+					'A fragment of the bell that played the Etude of Fire'
+					Crystallized essence from Liszt's legendary composition
+					The heat within never fades, even in the coldest depths
+					Smelt at a Moonlight Furnace to forge Resonant Cores
+					'''
+			}
+
+			ShardOfTheBurningTempo: {
+				DisplayName: Shard of the Burning Tempo
+				Tooltip:
+					'''
+					'Each shard rings with notes played faster than thought'
+					A fragment of virtuosic fury, blazing with impossible speed
+					The tempo within accelerates eternally
+					Essential for crafting La Campanella equipment
+					'''
+			}
+
+			DualFatedChime: {
+				DisplayName: Dual-Fated Chime
+				Tooltip:
+					'''
+					Zenith-style blade that summons 2-4 spectral bell echoes per swing
+					All attacks apply Resonant Toll debuff
+					Right-click: Inferno Waltz - spinning flame attack (requires full charge)
+					'When the dual chimes toll, even gods take notice'
+					'''
+			}
+
+			FangOfTheInfiniteBell: {
+				DisplayName: Fang of the Infinite Bell
+				Tooltip:
+					'''
+					Channels a fire vortex at your cursor that pulls in enemies
+					Caught enemies are continuously branded with Resonant Toll
+					Periodic eruptions deal burst damage every 1.5 seconds
+					'Listen to the infinite bell - it speaks only of destruction'
+					'''
+			}
+
+			GrandioseChime: {
+				DisplayName: Grandiose Chime
+				Tooltip:
+					'''
+					Fires piercing bell-flame beams that hit up to 3 enemies
+					Applies Resonant Toll on impact
+					Every 5th shot scatters 7 burning note projectiles
+					'The Grandiose Chime plays a melody of precision and fire'
+					'''
+			}
+
+			IgnitionOfTheBell: {
+				DisplayName: Ignition of the Bell
+				Tooltip:
+					'''
+					Each thrust releases 3 streams of blazing musical waves
+					Applies Resonant Toll on all hits
+					Every 3rd hit unleashes a flaming cyclone
+					'The bell's ignition cannot be contained - it yearns to burn'
+					'''
+			}
+
+			InfernalChimesCalling: {
+				DisplayName: Infernal Chime's Calling
+				Tooltip:
+					'''
+					Summons bell-flame spirit minions that attack in harmony
+					Minion attacks apply Resonant Toll
+					Every 5 harmonized strikes trigger a shockwave
+					'When the infernal choir calls, none can silence their song'
+					'''
+			}
+
+			PiercingBellsResonance: {
+				DisplayName: Piercing Bell's Resonance
+				Tooltip:
+					'''
+					Rapid-fire bullets that trigger cascading explosions on hit
+					Fire rate increases up to 40% while continuously shooting
+					Applies Resonant Toll on all hits
+					'The resonance grows louder with each shot fired'
+					'''
+			}
+
+			SymphonicBellfireAnnihilator: {
+				DisplayName: Symphonic Bellfire Annihilator
+				Tooltip:
+					'''
+					Launches bell-shaped rockets that spawn 8 wall-piercing pulses on explosion
+					Double Resonant Toll stacks on blast victims
+					Three rapid explosions trigger 36 flame waves and 5s of blazing swiftness
+					'When the symphony reaches its crescendo, only silence remains'
+					'''
+			}
+
+			InfernalBellFragment: {
+				DisplayName: Infernal Bell Fragment
+				Tooltip:
+					'''
+					'A shard still ringing with infernal resonance'
+					Used to craft La Campanella equipment
+					'''
+			}
+
+			VariationsOfTheVoid: {
+				DisplayName: Variations of the Void
+				Tooltip:
+					'''
+					Each swing unleashes a different void variation
+					Hits inflict Paradox, building to mysterious detonation
+					'The void plays infinite variations on a theme of oblivion'
+					'''
+			}
+
+			TheUnresolvedCadence: {
+				DisplayName: The Unresolved Cadence
+				Tooltip:
+					'''
+					Projectiles linger and refuse to resolve
+					Applies Paradox stacks that amplify over time
+					'Some melodies were never meant to end'
+					'''
+			}
+
+			DissonanceOfSecrets: {
+				DisplayName: Dissonance of Secrets
+				Tooltip:
+					'''
+					Fires discordant notes that reveal hidden weaknesses
+					Marked enemies take amplified damage from all sources
+					'Secrets cannot hide from those who listen'
+					'''
+			}
+
+			CipherNocturne: {
+				DisplayName: Cipher Nocturne
+				Tooltip:
+					'''
+					A nocturnal melody encoded with forbidden knowledge
+					Each note deciphers a fragment of the enemy's fate
+					'The night whispers in code'
+					'''
+			}
+
+			FugueOfTheUnknown: {
+				DisplayName: Fugue of the Unknown
+				Tooltip:
+					'''
+					Summons minions that phase between reality and mystery
+					Minion attacks build Paradox stacks on targets
+					'They follow melodies only they can hear'
+					'''
+			}
+
+			TheWatchingRefrain: {
+				DisplayName: The Watching Refrain
+				Tooltip:
+					'''
+					Conjures watching eyes that fire upon enemies
+					Eyes mark targets with the Paradox debuff
+					'A thousand eyes, a single refrain'
+					'''
+			}
+
+			TheSilentMeasure: {
+				DisplayName: The Silent Measure
+				Tooltip:
+					'''
+					Strikes with silent precision that bypasses defense
+					The quieter the strike, the deeper the wound
+					'Some measures are best left unheard'
+					'''
+			}
+
+			TacetsEnigma: {
+				DisplayName: Tacet's Enigma
+				Tooltip:
+					'''
+					Harnesses the power of musical silence
+					Enemies fall silent, their attacks weakened
+					'In tacet, the greatest mysteries are revealed'
+					'''
+			}
+
+			Debug1Fractal: {
+				DisplayName: Debug1 Fractal
+				Tooltip:
+					'''
+					'Fractured reality in testing'
+					Development item
+					'''
+			}
+
+			RiddlemastersFlight: {
+				DisplayName: Riddlemasters Flight
+				Tooltip:
+					'''
+					Wings shrouded in arcane mystery
+					'Fly through riddles, soar through secrets'
+					'''
+			}
+
+			EnigmasPickaxe: {
+				DisplayName: Enigma's Pickaxe
+				Tooltip:
+					'''
+					Watching eyes follow the pickaxe as you mine
+					'The earth holds many secrets... each swing reveals another'
+					'''
+			}
+
+			EnigmasAxe: {
+				DisplayName: Enigma's Axe
+				Tooltip:
+					'''
+					Arcane glyphs swirl around each strike
+					'Trees fall to riddles they cannot solve'
+					'''
+			}
+
+			EnigmasHammer: {
+				DisplayName: Enigma's Hammer
+				Tooltip:
+					'''
+					Powerful impacts leave lingering mysteries
+					'Some walls were never meant to stand'
+					'''
+			}
+
+			SymphonyOfTheUniverse: {
+				DisplayName: Symphony Of The Universe
+				Tooltip:
+					'''
+					Channels the cosmic orchestra itself
+					Each note rewrites reality around the target
+					'All of existence is but one grand composition'
+					'''
+			}
+
+			WingsOfTheBellbornDawn: {
+				DisplayName: Wings Of The Bellborn Dawn
+				Tooltip:
+					'''
+					Blazing wings forged from infernal resonance
+					'Rise with the dawn, chime with the bell'
+					'''
+			}
+
+			IridescentDawn: {
+				DisplayName: Iridescent Dawn
+				Tooltip:
+					'''
+					Prismatic light bursts forth with each strike
+					The beauty of dawn captured in blade form
+					'Where light meets darkness, rainbows are born'
+					'''
+			}
+
+			Debug2Ray: {
+				DisplayName: Debug2 Ray
+				Tooltip:
+					'''
+					'A ray of debugging light'
+					Development item
+					'''
+			}
+
+			EnigmaTreasureBag: {
+				DisplayName: Enigma Treasure Bag
+				Tooltip: "{$CommonItemTooltip.RightClickToOpen}"
+			}
+
+			Fate1Sword: {
+				DisplayName: Fate1 Sword
+				Tooltip:
+					'''
+					'A blade forged from stellar dust'
+					Development item
+					'''
+			}
+
+			Fate1Magic: {
+				DisplayName: Fate1 Magic
+				Tooltip:
+					'''
+					'Cosmic energy awaits channeling'
+					Development item
+					'''
+			}
+
+			Fate1Ranged: {
+				DisplayName: Fate1 Ranged
+				Tooltip:
+					'''
+					'Fires projectiles of destiny'
+					Development item
+					'''
+			}
+
+			Fate1Summon: {
+				DisplayName: Fate1 Summon
+				Tooltip:
+					'''
+					'Summons celestial servants'
+					Development item
+					'''
+			}
+
+			Fate2Magic: {
+				DisplayName: Fate2 Magic
+				Tooltip:
+					'''
+					'Twin arcane forces intertwine'
+					Development item
+					'''
+			}
+
+			Fate2Ranged: {
+				DisplayName: Fate2 Ranged
+				Tooltip:
+					'''
+					'Two paths, one target'
+					Development item
+					'''
+			}
+
+			Fate2Sword: {
+				DisplayName: Fate2 Sword
+				Tooltip:
+					'''
+					'Dual fates clash upon this edge'
+					Development item
+					'''
+			}
+
+			Fate3Sword: {
+				DisplayName: Fate3 Sword
+				Tooltip:
+					'''
+					'The trinity of blades awakens'
+					Development item
+					'''
+			}
+
+			Fate4Sword: {
+				DisplayName: Fate4 Sword
+				Tooltip:
+					'''
+					'Four cardinal destinies unite'
+					Development item
+					'''
+			}
+
+			Fate5Sword: {
+				DisplayName: Fate5 Sword
+				Tooltip:
+					'''
+					'The pentagram of doom is complete'
+					Development item
+					'''
+			}
+
+			IgnitionOfMystery: {
+				DisplayName: Ignition of Mystery
+				Tooltip:
+					'''
+					Mysteries Unveiled:
+					Melee attacks build mystery stacks (max 10)
+					Each stack grants +2% melee speed (up to +20%)
+					At max stacks, unleash a devastating eye burst
+					Marked enemies take 15% increased damage for 5 seconds
+					'The unknown fears those who seek it'
+					'''
+			}
+
+			PendantOfAThousandPuzzles: {
+				DisplayName: Pendant of a Thousand Puzzles
+				Tooltip:
+					'''
+					Arcane Enigma:
+					Magic attacks have 15% chance to spawn puzzle fragments
+					Collect 5 fragments to activate Puzzle Mastery (8 seconds):
+					  +30% magic damage, -20% mana cost
+					  Magic projectiles leave glowing glyph trails
+					'A thousand answers to questions never asked'
+					'''
+			}
+
+			AlchemicalParadox: {
+				DisplayName: Alchemical Paradox
+				Tooltip:
+					'''
+					Paradox Shots:
+					Every 4th ranged attack becomes a Paradox Bolt
+					Paradox Bolts split into 2-3 projectiles on hit
+					Applies Paradox debuff (damage over time)
+					Afflicted enemies explode on death
+					+8% ranged critical strike chance
+					'In contradiction, truth unravels'
+					'''
+			}
+
+			RiddlemastersCauldron: {
+				DisplayName: Riddlemaster's Cauldron
+				Tooltip:
+					'''
+					Cauldron's Brew:
+					Minions release Mystery Vapors every 3 seconds
+					Vapors confuse enemies and reduce their damage by 15%
+					Every 5 seconds, a random minion gains Riddle's Blessing
+					Blessed minions attack twice as fast for 3 seconds
+					+1 max minion slot
+					'The answer was always in the question'
+					'''
+			}
+
+			RemnantOfMysteries: {
+				DisplayName: Remnant of Mysteries
+				Tooltip:
+					'''
+					'Fragments of questions that will never be answered'
+					Used in crafting Enigma equipment
+					Drops from Mystery's End in jungle biomes (post-Moon Lord)
+					'''
+			}
+
+			HarmonicCoreOfEnigma: {
+				DisplayName: Harmonic Core Of Enigma
+				Tooltip:
+					'''
+					'A core pulsing with unknowable harmonies'
+					Used to craft Enigma equipment
+					'''
+			}
+
+			ResonantCoreOfEnigma: {
+				DisplayName: Resonant Core of Enigma
+				Tooltip:
+					'''
+					'Crystallized resonance of unfathomable mystery'
+					A key component for Enigma crafting
+					Drops from Mystery's End in jungle biomes (post-Moon Lord)
+					'''
+			}
+
+			EnigmaResonantEnergy: {
+				DisplayName: Enigma Resonant Energy
+				Tooltip:
+					'''
+					'Each mote whispers riddles to those who listen'
+					Used in crafting Enigma equipment
+					Drops from Mystery's End in jungle biomes (post-Moon Lord)
+					'''
+			}
+
+			FuneralMarchInsignia: {
+				DisplayName: Funeral March Insignia
+				Tooltip:
+					'''
+					Heroic Sacrifice:
+					When below 25% health, gain +25% damage
+					Dodge the next fatal hit once per minute
+					'Even in death, heroes find glory'
+					'''
+			}
+
+			PyreOfTheFallenHero: {
+				DisplayName: Pyre Of The Fallen Hero
+				Tooltip:
+					'''
+					The Fallen Rise:
+					Nearby fallen enemies fuel your heroic flames
+					Kills grant stacking fire damage bonus
+					'From the ashes of the fallen, the hero is reborn'
+					'''
+			}
+
+			SakurasBurningWill: {
+				DisplayName: Sakuras Burning Will
+				Tooltip:
+					'''
+					Blossoming Fury:
+					Critical strikes scatter burning sakura petals
+					Petals deal area damage to nearby enemies
+					'Beauty and destruction bloom as one'
+					'''
+			}
+
+			SymphonyOfScarletFlames: {
+				DisplayName: Symphony Of Scarlet Flames
+				Tooltip:
+					'''
+					The Heroic Symphony:
+					All attacks ignite enemies with scarlet fire
+					+15% fire damage against burning foes
+					'The flames of heroism burn brightest in battle'
+					'''
+			}
+
+			EroicaTreasureBag: {
+				DisplayName: Eroica Treasure Bag
+				Tooltip: "{$CommonItemTooltip.RightClickToOpen}"
+			}
+
+			ShardOfTriumphsTempo: {
+				DisplayName: Shard of Triumph's Tempo
+				Tooltip:
+					'''
+					'Crystallized fragments of victorious rhythm'
+					Used in crafting Eroica equipment
+					Drops from Stolen Valor, Eroican Centurion, Behemoth of Valor, and Funeral Blitzer
+					'''
+			}
+
+			HarmonicCoreOfEroica: {
+				DisplayName: Harmonic Core Of Eroica
+				Tooltip:
+					'''
+					'A core pulsing with triumphant harmonies'
+					Used to craft powerful Eroica equipment
+					'''
+			}
+
+			BellOfEroica: {
+				DisplayName: Bell Of Eroica
+				Tooltip:
+					'''
+					'This bell tolls for the triumphant'
+					Rings with the sound of victory
+					'''
+			}
+
+			EroicasResonantEnergy: {
+				DisplayName: Eroica's Resonant Energy
+				Tooltip:
+					'''
+					'Each mote burns with heroic determination'
+					Used in crafting Eroica equipment
+					Drops from Eroica desert mini-bosses
+					'''
+			}
+
+			RemnantOfEroicasTriumph: {
+				DisplayName: Remnant Of Eroicas Triumph
+				Tooltip:
+					'''
+					'A fragment of a hero's ultimate victory'
+					Essential for crafting Eroica equipment
+					'''
+			}
+
+			ResonantCoreOfEroica: {
+				DisplayName: Resonant Core of Eroica
+				Tooltip:
+					'''
+					'Crystallized resonance of the hero's symphony'
+					A key component for Eroica crafting
+					Drops from Eroica desert mini-bosses
+					'''
+			}
+
+			EroicaResonanceOre: {
+				DisplayName: Eroica Resonance Ore
+				Tooltip:
+					'''
+					'Ore infused with the spirit of triumph'
+					Smelt to create Eroica crafting materials
 					'''
 			}
 
 			BlossomOfTheSakura: {
-				DisplayName: Blossom of the Sakura
+				DisplayName: Blossom Of The Sakura
 				Tooltip:
 					'''
-					'Rapid fire brings the storm of petals'
-					High-speed assault rifle with explosive rounds
-					Each bullet bursts into scarlet flames
+					'Beauty eternal, frozen at the peak of bloom'
+					Used in crafting Eroica equipment
 					'''
+			}
+
+			SakurasBlossom: {
+				DisplayName: Sakuras Blossom
+				Tooltip:
+					'''
+					'A petal that never withers'
+					Holds the essence of heroic beauty
+					'''
+			}
+
+			EroicasAxe: {
+				DisplayName: Eroicas Axe
+				Tooltip:
+					'''
+					Sakura petals scatter with each swing
+					'Trees fall with triumphant grace'
+					'''
+			}
+
+			EroicasHammer: {
+				DisplayName: Eroicas Hammer
+				Tooltip:
+					'''
+					Golden sparks fly from victorious strikes
+					'Walls crumble before the hero's might'
+					'''
+			}
+
+			EroicasPickaxe: {
+				DisplayName: Eroicas Pickaxe
+				Tooltip:
+					'''
+					Scarlet flames linger where the earth is struck
+					'The hero forges their own path'
+					'''
+			}
+
+			ReincarnatedValor: {
+				DisplayName: Reincarnated Valor
+				Tooltip:
+					'''
+					Wings reborn from the flames of heroism
+					'Death cannot contain true valor'
+					'''
+			}
+
+			HarmonicCoreOfFate: {
+				DisplayName: Harmonic Core of Fate
+				Tooltip:
+					'''
+					'A core resonating with the universe's final song'
+					Used to craft endgame Fate equipment
+					Drops from Herald of Fate (20% chance)
+					'''
+			}
+
+			ResonantCoreOfFate: {
+				DisplayName: Resonant Core of Fate
+				Tooltip:
+					'''
+					'Crystallized resonance of cosmic destiny'
+					A key component for Fate crafting
+					Drops from Herald of Fate in Corruption/Crimson (post-Moon Lord)
+					'''
+			}
+
+			FateResonantEnergy: {
+				DisplayName: Fate Resonant Energy
+				Tooltip:
+					'''
+					'Each mote pulses with the heartbeat of the cosmos'
+					Used in Fate equipment crafting
+					Drops from Herald of Fate in Corruption/Crimson (post-Moon Lord)
+					'''
+			}
+
+			FateTreasureBag: {
+				DisplayName: Fate Treasure Bag
+				Tooltip: "{$CommonItemTooltip.RightClickToOpen}"
+			}
+
+			HeartOfMusic: {
+				DisplayName: Heart Of Music
+				Tooltip:
+					'''
+					'The very essence of all melodies'
+					This sacred material forms the foundation of ultimate weapons
+					'''
+			}
+
+			ResonanceAwakener: {
+				DisplayName: Resonance Awakener
+				Tooltip:
+					'''
+					'Stirs dormant resonance within materials'
+					Used to activate crafting components
+					'''
+			}
+
+			SeedOfUniversalMelodies: {
+				DisplayName: Seed Of Universal Melodies
+				Tooltip:
+					'''
+					'From this seed, infinite songs may bloom'
+					The origin point of all musical power
+					'''
+			}
+
+			HarmonicCoreOfLaCampanella: {
+				DisplayName: Harmonic Core Of La Campanella
+				Tooltip:
+					'''
+					'A core that rings with infernal clarity'
+					Used to craft La Campanella equipment
+					'''
+			}
+
+			MoonlightAnvil: {
+				DisplayName: Moonlight Anvil
+				Tooltip:
+					'''
+					Used to craft Moonlight Sonata equipment
+					'Shaped by the hands of the moon itself'
+					'''
+			}
+
+			MoonlightFurnace: {
+				DisplayName: Moonlight Furnace
+				Tooltip:
+					'''
+					Smelts ores with the cold flame of moonlight
+					'The moon's fire burns without heat'
+					'''
+			}
+
+			HarmonicCoreOfMoonlightSonata: {
+				DisplayName: Harmonic Core Of Moonlight Sonata
+				Tooltip:
+					'''
+					'A core humming with lunar melancholy'
+					Used to craft Moonlight Sonata equipment
+					'''
+			}
+
+			MoonlightsResonantEnergy: {
+				DisplayName: Moonlights Resonant Energy
+				Tooltip:
+					'''
+					'Each mote glows with soft, sorrowful light'
+					Harness this to strengthen the Harmonic Core's resonance
+					'''
+			}
+
+			RemnantOfMoonlightsHarmony: {
+				DisplayName: Remnant Of Moonlights Harmony
+				Tooltip:
+					'''
+					'A fragment of the moon's eternal song'
+					Essential for crafting Moonlight equipment
+					'''
+			}
+
+			ResonantCoreOfMoonlightSonata: {
+				DisplayName: Resonant Core of Moonlight Sonata
+				Tooltip:
+					'''
+					'Crystallized resonance of nocturnal sorrow'
+					A key component for Moonlight crafting
+					Drops from Waning Deer in snow biomes (post-Moon Lord)
+					'''
+			}
+
+			MoonlitResonanceOre: {
+				DisplayName: Moonlit Resonance Ore
+				Tooltip:
+					'''
+					'Ore that glows with captured moonlight'
+					Smelt at a Moonlight Furnace to forge Resonant Cores
+					'''
+			}
+
+			IncisorOfMoonlight: {
+				DisplayName: Incisor Of Moonlight
+				Tooltip:
+					'''
+					A blade that cuts with lunar precision
+					Strikes leave ethereal crescent trails
+					'Sharp as the moon's edge at midnight'
+					'''
+			}
+
+			MoonlightsAxe: {
+				DisplayName: Moonlights Axe
+				Tooltip:
+					'''
+					Silvery mist trails behind each swing
+					'The forest sleeps when the moon axe falls'
+					'''
+			}
+
+			MoonlightsHammer: {
+				DisplayName: Moonlights Hammer
+				Tooltip:
+					'''
+					Purple lunar dust shimmers from impacts
+					'Walls dissolve like shadows at dawn'
+					'''
+			}
+
+			MoonlightsPickaxe: {
+				DisplayName: Moonlights Pickaxe
+				Tooltip:
+					'''
+					Ethereal light reveals hidden ores
+					'The moon illuminates what the earth conceals'
+					'''
+			}
+
+			WingsOfTheMoon: {
+				DisplayName: Wings Of The Moon
+				Tooltip:
+					'''
+					Glide silently on wings of moonlight
+					'Soar through the night like a whispered dream'
+					'''
+			}
+
+			SwanLakeTreasureBag: {
+				DisplayName: Swan Lake Treasure Bag
+				Tooltip: "{$CommonItemTooltip.RightClickToOpen}"
+			}
+
+			ScoreOfSwanLake: {
+				DisplayName: Score Of Swan Lake
+				Tooltip:
+					'''
+					Summons Swan Lake, The Monochromatic Fractal
+					'The final act begins when the music plays'
+					'''
+			}
+
+			CelestialConductorsBaton: {
+				DisplayName: Celestial Conductors Baton
+				Tooltip:
+					'''
+					Conduct the cosmic orchestra itself
+					Sweeping motions command celestial projectiles
+					'The universe dances to your command'
+					'''
+			}
+
+			CodaOfAnnihilation: {
+				DisplayName: Coda Of Annihilation
+				Tooltip:
+					'''
+					The final passage of reality's symphony
+					Each strike echoes with universal finality
+					'When the coda plays, existence trembles'
+					'''
+			}
+
+			DestinysCrescendo: {
+				DisplayName: Destinys Crescendo
+				Tooltip:
+					'''
+					Builds to an inevitable climax of destruction
+					Damage increases with consecutive hits
+					'All paths lead to this moment'
+					'''
+			}
+
+			FractalOfTheStars: {
+				DisplayName: Fractal Of The Stars
+				Tooltip:
+					'''
+					Fires constellation-pattern projectiles
+					Projectiles split into smaller star fragments
+					'Each fragment holds a galaxy's worth of power'
+					'''
+			}
+
+			LightOfTheFuture: {
+				DisplayName: Light Of The Future
+				Tooltip:
+					'''
+					Illuminates targets with predestined doom
+					Marked enemies suffer inevitable destruction
+					'The future is already written'
+					'''
+			}
+
+			OpusUltima: {
+				DisplayName: Opus Ultima
+				Tooltip:
+					'''
+					The magnum opus - the ultimate composition
+					Channels the combined power of all themes
+					'The final masterpiece of creation itself'
+					'''
+			}
+
+			RequiemOfReality: {
+				DisplayName: Requiem Of Reality
+				Tooltip:
+					'''
+					A funeral dirge for existence itself
+					Reality tears asunder where the requiem plays
+					'Rest now, for all things must end'
+					'''
+			}
+
+			ResonanceOfABygoneReality: {
+				DisplayName: Resonance Of A Bygone Reality
+				Tooltip:
+					'''
+					Echoes from a reality that no longer exists
+					Channels power from parallel timelines
+					'What was, what is, what might have been'
+					'''
+			}
+
+			SymphonysEnd: {
+				DisplayName: Symphonys End
+				Tooltip:
+					'''
+					The last note of the cosmic symphony
+					Strikes with universal finality
+					'All music must conclude'
+					'''
+			}
+
+			TheConductorsLastConstellation: {
+				DisplayName: The Conductors Last Constellation
+				Tooltip:
+					'''
+					Summons constellation spirits to fight for you
+					Minions orbit and attack in stellar patterns
+					'The conductor's final arrangement'
+					'''
+			}
+
+			TheFinalFermata: {
+				DisplayName: The Final Fermata
+				Tooltip:
+					'''
+					Suspends enemies in temporal stasis
+					Frozen targets take massive burst damage
+					'Time holds its breath at your command'
+					'''
+			}
+
+			FatesAxe: {
+				DisplayName: Fates Axe
+				Tooltip:
+					'''
+					Cosmic glyphs orbit each swing
+					'The trees know their time has come'
+					'''
+			}
+
+			FatesHammer: {
+				DisplayName: Fates Hammer
+				Tooltip:
+					'''
+					Star particles cascade from each strike
+					'Walls cannot deny their destiny'
+					'''
+			}
+
+			FatesPickaxe: {
+				DisplayName: Fates Pickaxe
+				Tooltip:
+					'''
+					Constellations form where the earth breaks
+					'The stones yield to universal truth'
+					'''
+			}
+
+			ScoreOfEnigma: {
+				DisplayName: Score Of Enigma
+				Tooltip:
+					'''
+					Summons Enigma, The Hollow Mystery
+					'The riddle awakens when the score is read'
+					'''
+			}
+
+			AstralConduit: {
+				DisplayName: Astral Conduit
+				Tooltip: "'The stars themselves bend to your will'"
+			}
+
+			ConstellationCompass: {
+				DisplayName: Constellation Compass
+				Tooltip: "'Every shot follows the path written in the stars'"
+			}
+
+			MachinationoftheEventHorizon: {
+				DisplayName: Machination of the Event Horizon
+				Tooltip: "'Space bends around those who walk the event horizon'"
+			}
+
+			OrreryofInfiniteOrbits: {
+				DisplayName: Orrery of Infinite Orbits
+				Tooltip: "'The universe itself serves at your command'"
+			}
+
+			ParadoxChronometer: {
+				DisplayName: Paradox Chronometer
+				Tooltip: "'Time bends to the rhythm of your blade'"
+			}
+
+			RemnantOfTheGalaxysHarmony: {
+				DisplayName: Remnant Of The Galaxys Harmony
+				Tooltip:
+					'''
+					'A fragment of galactic synchronization'
+					Essential for crafting Fate equipment
+					'''
+			}
+
+			ScoreOfFate: {
+				DisplayName: Score Of Fate
+				Tooltip:
+					'''
+					Summons the embodiment of cosmic destiny
+					'When this score plays, all fates are sealed'
+					'''
+			}
+
+			ScoreOfLaCampanella: {
+				DisplayName: Score Of La Campanella
+				Tooltip:
+					'''
+					Summons La Campanella, Chime of Life
+					'The infernal bell tolls for those who dare'
+					'''
+			}
+
+			ShardOfFatesTempo: {
+				DisplayName: Shard Of Fates Tempo
+				Tooltip:
+					'''
+					'Crystallized fragments of cosmic rhythm'
+					Used in crafting Fate equipment
+					'''
+			}
+
+			RemnantOfTheBellsHarmony: {
+				DisplayName: Remnant Of The Bells Harmony
+				Tooltip:
+					'''
+					'A fragment of perfect bell resonance'
+					Essential for crafting La Campanella equipment
+					'''
+			}
+
+			BellBornAxe: {
+				DisplayName: Bell Born Axe
+				Tooltip:
+					'''
+					Rings with each strike, flames following the sound
+					'The bell chimes, the forest burns'
+					'''
+			}
+
+			BellBornHammer: {
+				DisplayName: Bell Born Hammer
+				Tooltip:
+					'''
+					Infernal resonance shatters walls with ease
+					'A single toll brings destruction'
+					'''
+			}
+
+			BellBornPickaxe: {
+				DisplayName: Bell Born Pickaxe
+				Tooltip:
+					'''
+					Smoke and embers trail behind each swing
+					'The earth yields to the bell's call'
+					'''
+			}
+
+			ShardOfTheMysterysTempo: {
+				Tooltip:
+					'''
+					'Crystallized fragments of unknowable rhythm'
+					Used in crafting Enigma equipment
+					'''
+				DisplayName: Shard Of The Mysterys Tempo
 			}
 		}
 
 		Tiles: {
+			GrandPianoTile.MapEntry: Grand Piano
 			MoonlitResonanceOreTile.MapEntry: Moonlit Resonance Ore
-			MoonlightFurnaceTile.MapEntry: Moonlight Furnace
-			MoonlightAnvilTile.MapEntry: Moonlight Anvil
 			EroicaResonanceOreTile.MapEntry: Eroica Resonance Ore
 			SwanLakeResonanceOreTile.MapEntry: Swan Lake Resonance Ore
 			LaCampanellaResonanceOreTile.MapEntry: La Campanella Resonance Ore
@@ -389,878 +1574,1818 @@ Mods: {
 		}
 
 		Buffs: {
+			ResonantBurnDebuff: {
+				DisplayName: Resonant Burn
+				Description: Scorched by rainbow flames and musical echoes
+			}
+
+			RazerOfMoonlightsShadowBuff: {
+				DisplayName: Razer of Moonlight's Shadow
+				Description: A shadow of moonlight fights for you
+			}
+
+			GoliathOfMoonlightBuff: {
+				DisplayName: Goliath of Moonlight
+				Description: A massive lunar guardian fights by your side
+			}
+
+			SakuraOfFateBuff: {
+				DisplayName: Sakura of Fate
+				Description: A spectral sakura guardian fights by your side
+			}
+
 			MusicsDissonance: {
 				DisplayName: Music's Dissonance
-				Description: Harmonic dissonance makes you 5% more vulnerable to damage
+				Description: The symphony of your soul is disrupted - all stats reduced
+			}
+
+			TriumphantColossusBuff: {
+				DisplayName: Triumphant Colossus
+				Description: A triumphant colossus of heroic might fights by your side
+			}
+
+			FlameOfTheSwan: {
+				DisplayName: Flame Of The Swan
+				Description: A graceful swan of ethereal flame dances at your command
+			}
+
+			IridescentFlockBuff: {
+				DisplayName: Iridescent Flock
+				Description: A flock of iridescent feathers swirls around you protectively
+			}
+
+			FeathersCallBuff: {
+				DisplayName: Feather's Call
+				Description: You are one with the Swan's Melody...
+			}
+
+			ResonantToll: {
+				DisplayName: Resonant Toll
+				Description: The bells toll for thee - stacking fire damage and increased vulnerability
+			}
+
+			CampanellaChoirBuff: {
+				DisplayName: Campanella Choir
+				Description: The choir sings with infernal passion - your minions blaze with bell-fire
+			}
+
+			GrandCrescendoBuff: {
+				DisplayName: Grand Crescendo
+				Description: +50% movement speed, +4 max run speed - the finale resonates through you!
+			}
+
+			InfernoWaltzBuff: {
+				DisplayName: Inferno Waltz
+				Description: +30% movement speed - dancing through flames with virtuosic grace
+			}
+
+			BellfireCrescendoBuff: {
+				DisplayName: Bellfire Crescendo
+				Description: Blazing bell-fire minions strike with infernal resonance
+			}
+
+			InfiniteBellDamageBuff: {
+				DisplayName: Infinite Bell Damage
+				Description: The infinite bell tolls - damage increased dramatically
+			}
+
+			InfiniteBellEmpoweredBuff: {
+				DisplayName: Infinite Bell Empowered
+				Description: Empowered by the infinite bell's resonance - all abilities enhanced
+			}
+
+			ParadoxBrand: {
+				DisplayName: Paradox Brand
+				Description: Reality collapses around you - taking damage over time
+			}
+
+			EchoMark: {
+				DisplayName: Echo Mark
+				Description: Voices of the fugue echo within - at 3 stacks triggers Harmonic Convergence
+			}
+
+			WatchedDebuff: {
+				DisplayName: Watched
+				Description: The mystery has seen you - taking 15% increased damage
+			}
+
+			MysteryVaporDebuff: {
+				DisplayName: Mystery Vapor
+				Description: Shrouded in enigmatic mist - dealing 15% reduced damage
+			}
+
+			CipherChoirBuff: {
+				DisplayName: Cipher Choir
+				Description: A choir of cryptic ciphers whispers secrets into being
+			}
+
+			EnigmaWispBuff: {
+				DisplayName: Enigma Wisp
+				Description: An enigmatic wisp of mystery drifts beside you
+			}
+
+			ParadoxFamiliarBuff: {
+				DisplayName: Paradox Familiar
+				Description: A paradoxical familiar exists in multiple states simultaneously
+			}
+
+			DestinyCollapse: {
+				DisplayName: Destiny Collapse
+				Description: Your fate is unraveling - reality warps around you
+			}
+
+			CosmicFateWispBuff: {
+				DisplayName: Cosmic Fate Wisp
+				Description: A wisp of cosmic destiny illuminates your path
+			}
+
+			DestinyChoirBuff: {
+				DisplayName: Destiny Choir
+				Description: A choir of fate's chosen sings reality into submission
+			}
+
+			SingularityFamiliarBuff: {
+				DisplayName: Singularity Familiar
+				Description: A familiar born of cosmic singularity warps space around your enemies
+			}
+
+			UnsolvedPhantomBuff: {
+				DisplayName: Unsolved Phantom
+				Description: An unsolved mystery given form haunts your enemies
+			}
+
+			FateAvatarBuff: {
+				DisplayName: Fate Avatar
+				Description: An avatar of fate itself fights alongside you with cosmic authority
+			}
+
+			FateMarked: {
+				DisplayName: Fate Marked
+				Description: Marked by destiny - your fate is sealed
+			}
+
+			CapricornBuff: {
+				DisplayName: Capricorn
+				Description: The constellation Capricorn guides your strikes with celestial precision
+			}
+
+			CapricornMinionBuff: {
+				DisplayName: Capricorn Minion
+				Description: A celestial goat of the stars charges at your foes
+			}
+
+			HydraConstellationBuff: {
+				DisplayName: Hydra Constellation
+				Description: The many-headed Hydra constellation strikes from the cosmos
+			}
+
+			CosmicDeityBuff: {
+				Description: A cosmic deity of unimaginable power serves your will
+				DisplayName: Cosmic Deity
+			}
+
+			CosmicBrewBuff: {
+				DisplayName: Cosmic Brew Buff
+				Description: Mods.MagnumOpus.Buffs.CosmicBrewBuff.Description
+			}
+
+			HarmonicElixirBuff: {
+				DisplayName: Harmonic Elixir Buff
+				Description: Mods.MagnumOpus.Buffs.HarmonicElixirBuff.Description
+			}
+
+			MaestroBuff: {
+				DisplayName: Maestro Buff
+				Description: Mods.MagnumOpus.Buffs.MaestroBuff.Description
+			}
+
+			MinorResonanceBuff: {
+				DisplayName: Minor Resonance Buff
+				Description: Mods.MagnumOpus.Buffs.MinorResonanceBuff.Description
+			}
+
+			SeasonalDraughtBuff: {
+				DisplayName: Seasonal Draught Buff
+				Description: Mods.MagnumOpus.Buffs.SeasonalDraughtBuff.Description
 			}
 		}
 
 		NPCs: {
-			EroicasRetribution: {
-				DisplayName: Eroica, God of Valor
-				BestiaryFlavorText: A triumphant yet tragic entity born from Beethoven's Third Symphony. The Flames of Valor orbit as loyal guardians of its divine spirit.
-			}
-
-			MovementI: {
-				DisplayName: Flames of Valor
-				BestiaryFlavorText: The first movement of Eroica's symphony - Allegro con brio. A Flame of Valor that channels heroic energy towards its enemies.
-			}
-
-			MovementII: {
-				DisplayName: Flames of Valor
-				BestiaryFlavorText: The second movement of Eroica's symphony - Marcia funebre. A Flame of Valor that charges with relentless determination.
-			}
-
-			MovementIII: {
-				DisplayName: Flames of Valor
-				BestiaryFlavorText: The third movement of Eroica's symphony - Scherzo. A Flame of Valor that unleashes blazing bolts of pink flame.
-			}
+			EroicasRetribution.DisplayName: Eroica, God of Valor
+			MovementI.DisplayName: Flames of Valor
+			MovementII.DisplayName: Flames of Valor
+			MovementIII.DisplayName: Flames of Valor
+			Lunus.DisplayName: Lunus
+			WaningDeer.DisplayName: Waning Deer
+			AbyssalMoonLurker.DisplayName: Abyssal Moon Lurker
+			StolenValor.DisplayName: Stolen Valor
+			StolenValorMinion.DisplayName: Stolen Valor Minion
+			BehemothOfValor.DisplayName: Behemoth Of Valor
+			EroicanCenturion.DisplayName: Eroican Centurion
+			FuneralBlitzer.DisplayName: Funeral Blitzer
+			FlamesOfValor.DisplayName: Flames Of Valor
+			SwanLakeTheMonochromaticFractal.DisplayName: Swan Lake The Monochromatic Fractal
+			LaCampanellaChimeOfLife.DisplayName: La Campanella Chime Of Life
+			EnigmaTheHollowMystery.DisplayName: Enigma The Hollow Mystery
+			MysterysEnd.DisplayName: Mystery's End
+			CrawlerOfTheBell.DisplayName: Crawler of the Bell
+			FateWardenOfMelodies.DisplayName: Fate Warden Of Melodies
+			HeraldOfFate.DisplayName: Herald Of Fate
+			ShatteredPrima.DisplayName: Shattered Prima
+			Autunno.DisplayName: Autunno
+			Primavera.DisplayName: Primavera
+			LEstate.DisplayName: L Estate
+			LInverno.DisplayName: L Inverno
 		}
 
 		Projectiles: {
-			MoonlightWaveProjectile.DisplayName: Moonlight Wave
-			EnergyOfEroica.DisplayName: Energy of Eroica
-			PinkFlamingBolt.DisplayName: Pink Flaming Bolt
+			EnergyOfEroica.DisplayName: Energy Of Eroica
 			EroicasBeam.DisplayName: Eroica's Beam
+			PinkFlamingBolt.DisplayName: Pink Flaming Bolt
+			MoonlightWaveProjectile.DisplayName: Moonlight Wave Projectile
+			EternalMoonWave.DisplayName: Eternal Moon Wave
+			MoonlightBeam.DisplayName: Moonlight Beam
+			RazerOfMoonlightsShadow.DisplayName: Razer of Moonlight's Shadow
+			EternalMoonBeam.DisplayName: Eternal Moon Beam
+			BlossomOfTheSakuraBulletProjectile.DisplayName: Blossom Of The Sakura Bullet Projectile
+			FuneralPrayerProjectile.DisplayName: Funeral Prayer Projectile
+			SakurasBlossomSpectral.DisplayName: Sakura's Blossom Spectral
+			TriumphantFractalProjectile.DisplayName: Triumphant Fractal Projectile
+			FuneralPrayerBeam.DisplayName: Funeral Prayer Beam
+			GoliathOfMoonlight.DisplayName: Goliath of Moonlight
+			GoliathMoonlightBeam.DisplayName: Goliath Moonlight Beam
+			GoliathDevastatingBeam.DisplayName: Goliath Devastating Beam
+			SakuraOfFate.DisplayName: Sakura of Fate
+			SakuraFlameProjectile.DisplayName: Sakura Flame
+			FuneralPrayerRicochetBeam.DisplayName: Funeral Prayer Ricochet Beam
+			MoonlitEngineShockwave.DisplayName: Moonlit Engine Shockwave
+			MoonlitGyreSonicBoom.DisplayName: Moonlit Gyre Sonic Boom
+			MoonlightFlareProjectile.DisplayName: Moonlight Flare
+			LunarBlazeProjectile.DisplayName: Lunar Blaze
+			DiatonicMoonLanternOrbiting.DisplayName: Diatonic Moon Lantern
+			SnowOfTheMoonProjectile.DisplayName: Snow of the Moon
+			WaningDeerChandelierOrbiting.DisplayName: Waning Chandelier
+			AbyssalOrbProjectile.DisplayName: Abyssal Orb
+			AbyssalBoltProjectile.DisplayName: Abyssal Bolt
+			ResurrectionProjectile.DisplayName: Resurrection Projectile
+
+			ResurrectionOfTheMoon: {
+				DisplayName: Resurrection of the Moon
+				Tooltip:
+					'''
+					'From death comes rebirth in silver light'
+					Fires a devastating moonlight bullet
+					Bullets ricochet 10 times to nearby enemies
+					Each hit creates a devastating radial explosion
+					Requires reloading between shots
+					Synergizes with Moonlit Gyre: +25% damage, +15% velocity
+					'''
+			}
+
+			HeroicSpiritMinion.DisplayName: Heroic Spirit Minion
+			HeroicSpiritSlash.DisplayName: Heroic Spirit Slash
+			PetalExplosion.DisplayName: Petal Explosion
+			PyreSlashWave.DisplayName: Pyre Slash Wave
+			StolenValorFlame.DisplayName: Stolen Valor Flame
+			StolenValorMinion.DisplayName: Stolen Valor Minion
+			BehemothFlameRain.DisplayName: Behemoth Flame Rain
+			BlitzerProjectile1.DisplayName: Blitzer Projectile1
+			BlitzerProjectile2.DisplayName: Blitzer Projectile2
+			CenturionLantern.DisplayName: Centurion Lantern
+			CenturionSwordProjectile.DisplayName: Centurion Sword Projectile
+			TriumphantColossusPet.DisplayName: Triumphant Colossus Pet
+			PiercingLightOfTheSakuraProjectile.DisplayName: Piercing Light of the Sakura
+			SakuraLightning.DisplayName: Sakura Lightning
+			CelestialValorProjectile.DisplayName: Celestial Valor Slash
+			FlameOfValorBeam.DisplayName: Flame Of Valor Beam
+			HandOfValor.DisplayName: Hand Of Valor
+			FistOfEroica.DisplayName: Fist Of Eroica
+			BlackSwanFlare.DisplayName: Black Swan Flare
+			ChromaticSwanSongProjectile.DisplayName: Chromatic Swan Song Projectile
+			IridescentBeam.DisplayName: Iridescent Beam
+			IridescentCrystal.DisplayName: Iridescent Crystal
+			IridescentFlare.DisplayName: Iridescent Flare
+			IridescentWingspanProjectile.DisplayName: Iridescent Wingspan Projectile
+			PearlescentRocket.DisplayName: Pearlescent Rocket
+			SwansLamentBullet.DisplayName: Swan's Lament Bullet
+			HealingSwanHalo.DisplayName: Healing Swan Halo
+			FeathersCallFlare.DisplayName: Feather's Call Flare
+			HealingFeatherPickup.DisplayName: Healing Feather Pickup
+			HomingSwanFeather.DisplayName: Homing Swan Feather
+			BehemothBreathFlame.DisplayName: Behemoth Breath Flame
+			BehemothDebris.DisplayName: Behemoth Debris
+			BehemothEruptionWave.DisplayName: Behemoth Eruption Wave
+			BehemothFirePillar.DisplayName: Behemoth Fire Pillar
+			BehemothShockwave.DisplayName: Behemoth Shockwave
+			BlitzerHomingSoul.DisplayName: Blitzer Homing Soul
+			BlitzerLightningBolt.DisplayName: Blitzer Lightning Bolt
+			BlitzerSalvoProjectile.DisplayName: Blitzer Salvo Projectile
+			BlitzerSorrowBomb.DisplayName: Blitzer Sorrow Bomb
+			CenturionCrimsonMeteor.DisplayName: Centurion Crimson Meteor
+			CenturionFireTrail.DisplayName: Centurion Fire Trail
+			CenturionGoldenSword.DisplayName: Centurion Golden Sword
+			CenturionInfernoOrb.DisplayName: Centurion Inferno Orb
+			CenturionNovaWave.DisplayName: Centurion Nova Wave
+			StolenValorCageOrb.DisplayName: Stolen Valor Cage Orb
+			StolenValorChargeWave.DisplayName: Stolen Valor Charge Wave
+			StolenValorMinionShot.DisplayName: Stolen Valor Minion Shot
+			StolenValorOrbitalShot.DisplayName: Stolen Valor Orbital Shot
+			StolenValorTriumphWave.DisplayName: Stolen Valor Triumph Wave
+			WaningDeerHomingOrb.DisplayName: Waning Deer Homing Orb
+			BellEnergyBeam.DisplayName: Bell Energy Beam
+			BellFireBullet.DisplayName: Bell Fire Bullet
+			BellFlameWave.DisplayName: Bell Flame Wave
+			BellRocket.DisplayName: Bell Rocket
+			BlazingMusicalWave.DisplayName: Blazing Musical Wave
+			BurningMusicalNote.DisplayName: Burning Musical Note
+			CampanellaChoirMinion.DisplayName: Campanella Choir Minion
+			CampanellaConflagrationProjectile.DisplayName: Campanella Conflagration Projectile
+			ChimeCycloneProjectile.DisplayName: Chime Cyclone Projectile
+			ChoirFlameWave.DisplayName: Choir Flame Wave
+			DualFatedChimeProjectile.DisplayName: Dual Fated Chime Projectile
+			GrandCrescendoWave.DisplayName: Grand Crescendo Wave
+			HarmonicPulse.DisplayName: Harmonic Pulse
+			IgnitionThrustProjectile.DisplayName: Ignition Thrust Projectile
+			InfernoWaltzProjectile.DisplayName: Inferno Waltz Projectile
+			ExplosiveBellProjectile.DisplayName: Explosive Bell Projectile
+			InfernalBellLaser.DisplayName: Infernal Bell Laser
+			InfernalFireWave.DisplayName: Infernal Fire Wave
+			InfernalGroundFire.DisplayName: Infernal Ground Fire
+			MassiveInfernalLaser.DisplayName: Massive Infernal Laser
+			HomingBellRocket.DisplayName: Homing Bell Rocket
+			HomingMusicNote.DisplayName: Homing Music Note
+			MusicNoteMine.DisplayName: Music Note Mine
+			OrbitingMusicNote.DisplayName: Orbiting Music Note
+			ResonantBellBlast.DisplayName: Resonant Bell Blast
+			TrailingMusicNote.DisplayName: Trailing Music Note
+			ChargedThunderStrikeProjectile.DisplayName: Charged Thunder Strike Projectile
+			FallingMusicNoteProjectile.DisplayName: Falling Music Note Projectile
+			InfiniteBellExplosiveProjectile.DisplayName: Infinite Bell Explosive Projectile
+			InfiniteBellSpiralProjectile.DisplayName: Infinite Bell Spiral Projectile
+			SpectralBarrageBlade.DisplayName: Spectral Barrage Blade
+			CipherBeam.DisplayName: Cipher Beam
+			CipherCascade.DisplayName: Cipher Cascade
+			CipherChoir.DisplayName: Cipher Choir
+			CipherNote.DisplayName: Cipher Note
+			CipherRocket.DisplayName: Cipher Rocket
+			Enigma2Charge.DisplayName: Enigma2 Charge
+			EnigmaRift.DisplayName: Enigma Rift
+			EnigmaRiftArrow.DisplayName: Enigma Rift Arrow
+			EnigmaWisp.DisplayName: Enigma Wisp
+			MysteryMaelstrom.DisplayName: Mystery Maelstrom
+			ParadoxFamiliar.DisplayName: Paradox Familiar
+			ParadoxPulse.DisplayName: Paradox Pulse
+			ParadoxSeeker.DisplayName: Paradox Seeker
+			ParadoxZone.DisplayName: Paradox Zone
+			RiddleFragment.DisplayName: Riddle Fragment
+			CollapseBeam.DisplayName: Collapse Beam
+			CollapseOverloadBeam.DisplayName: Collapse Overload Beam
+			CosmicFateWisp.DisplayName: Cosmic Fate Wisp
+			CosmicPulseBullet.DisplayName: Cosmic Pulse Bullet
+			CosmicZone.DisplayName: Cosmic Zone
+			DestinyChoirSinger.DisplayName: Destiny Choir Singer
+			DestinyNote.DisplayName: Destiny Note
+			DestinyRift.DisplayName: Destiny Rift
+			Fate2EventHorizon.DisplayName: Fate2 Event Horizon
+			FateCataclysmRocket.DisplayName: Fate Cataclysm Rocket
+			FateFracture.DisplayName: Fate Fracture
+			FateMaelstrom.DisplayName: Fate Maelstrom
+			FateRiftArrow.DisplayName: Fate Rift Arrow
+			FateWispBeam.DisplayName: Fate Wisp Beam
+			GravityBolt.DisplayName: Gravity Bolt
+			RedshiftCascade.DisplayName: Redshift Cascade
+			SingularityFamiliar.DisplayName: Singularity Familiar
+			SingularityFragment.DisplayName: Singularity Fragment
+			AwarenessZone.DisplayName: Awareness Zone
+			ChargedParadoxThrust.DisplayName: Charged Paradox Thrust
+			ContradictionOrb.DisplayName: Contradiction Orb
+			DimensionalSlash.DisplayName: Dimensional Slash
+			HomingQuestionSeeker.DisplayName: Homing Question Seeker
+			MysteryZone.DisplayName: Mystery Zone
+			ObeliskParadoxBeam.DisplayName: Obelisk Paradox Beam
+			ParadoxAfterimage.DisplayName: Paradox Afterimage
+			ParadoxCollapseUltimate.DisplayName: Paradox Collapse Ultimate
+			ParadoxImpalerThrust.DisplayName: Paradox Impaler Thrust
+			ParadoxNovaExplosion.DisplayName: Paradox Nova Explosion
+			ParadoxPendulumHead.DisplayName: Paradox Pendulum Head
+			ParadoxPiercingArrow.DisplayName: Paradox Piercing Arrow
+			ParadoxRift.DisplayName: Paradox Rift
+			ParadoxSpiralProjectile.DisplayName: Paradox Spiral Projectile
+			PhantomBolt.DisplayName: Phantom Bolt
+			PhantomRift.DisplayName: Phantom Rift
+			QuantumSingularity.DisplayName: Quantum Singularity
+			QuestionBolt.DisplayName: Question Bolt
+			QuestionSeekerArrow.DisplayName: Question Seeker Arrow
+			RealitySnapBack.DisplayName: Reality Snap Back
+			RealityTear.DisplayName: Reality Tear
+			RealityTearLine.DisplayName: Reality Tear Line
+			RealityUnravelerBeam.DisplayName: Reality Unraveler Beam
+			Riddlebolt.DisplayName: Riddlebolt
+			RiddleCascadeOrb.DisplayName: Riddle Cascade Orb
+			SuperpositionRocket.DisplayName: Superposition Rocket
+			TemporalEchoAttack.DisplayName: Temporal Echo Attack
+			TimeCascadeExplosion.DisplayName: Time Cascade Explosion
+			UncertaintyFragment.DisplayName: Uncertainty Fragment
+			UnsolvedPhantomMinion.DisplayName: Unsolved Phantom Minion
+			VoidConvergenceBeam.DisplayName: Void Convergence Beam
+			VoidConvergencePoint.DisplayName: Void Convergence Point
+			VoidSeekerGlyph.DisplayName: Void Seeker Glyph
+			VoidSeekerEye.DisplayName: Void Seeker Eye
+			VoidQuestionShot.DisplayName: Void Question Shot
+			VoidSingularity.DisplayName: Void Singularity
+			WatchingObelisk.DisplayName: Watching Obelisk
+			CosmicDecreeMarker.DisplayName: Cosmic Decree Marker
+			FateLineProjectile.DisplayName: Fate Line Projectile
+			FateSeverSlash.DisplayName: Fate Sever Slash
+			InevitabilityArrow.DisplayName: Inevitability Arrow
+			TimelineGhostArrow.DisplayName: Timeline Ghost Arrow
+			ParadoxPiercingBolt.DisplayName: Paradox Piercing Bolt
+			QuestionSeekerBolt.DisplayName: Question Seeker Bolt
+			InevitabilityBolt.DisplayName: Inevitability Bolt
+			TimelineGhostBolt.DisplayName: Timeline Ghost Bolt
+			Debug1FractalFlare.DisplayName: Debug1 Fractal Flare
+			SplittingValorOrb.DisplayName: Splitting Valor Orb
+			Debug2RayBeam.DisplayName: Debug2 Ray Beam
+			EnigmaGlyphProjectile.DisplayName: Enigma Glyph Projectile
+			EnigmaHomingEye.DisplayName: Enigma Homing Eye
+			EnigmaShockwave.DisplayName: Enigma Shockwave
+			EnigmaVoidWeb.DisplayName: Enigma Void Web
+			EnigmaWebShot.DisplayName: Enigma Web Shot
+			MysterysEndProjectile.DisplayName: Mysterys End Projectile
+			ParadoxGazeEye.DisplayName: Paradox Gaze Eye
+			CascadingGlyph.DisplayName: Cascading Glyph
+			WatchingEyeProjectile.DisplayName: Watching Eye Projectile
+			MysteryVortexZone.DisplayName: Mystery Vortex Zone
+			RevelationEyeProjectile.DisplayName: Revelation Eye Projectile
+			BellTollFlame.DisplayName: Bell Toll Flame
+			InfernalCrawlTrail.DisplayName: Infernal Crawl Trail
+			SmokeCloudProjectile.DisplayName: Smoke Cloud
+			SmokeFireball.DisplayName: Smoke Fireball
+			ChimePillar.DisplayName: Chime Pillar
+			CrescendoFireball.DisplayName: Crescendo Fireball
+			AvatarDestinyOrb.DisplayName: Avatar Destiny Orb
+			AvatarRealityRift.DisplayName: Avatar Reality Rift
+			AvatarSwordSlash.DisplayName: Avatar Sword Slash
+			CosmicCrescentArc.DisplayName: Cosmic Crescent Arc
+			CosmicExecutionerSlash.DisplayName: Cosmic Executioner Slash
+			DestinyArrow.DisplayName: Destiny Arrow
+			DestinyEcho.DisplayName: Destiny Echo
+			EventHorizonBeam.DisplayName: Event Horizon Beam
+			FateAvatarMinion.DisplayName: Fate Avatar Minion
+			FateFractureLine.DisplayName: Fate Fracture Line
+			FateOrbSeeker.DisplayName: Fate Orb Seeker
+			FateShockwave.DisplayName: Fate Shockwave
+			FateTrailLine.DisplayName: Fate Trail Line
+			KaleidoscopicPortal.DisplayName: Kaleidoscopic Portal
+			MicroSingularity.DisplayName: Micro Singularity
+			PhantomTimelineBlade.DisplayName: Phantom Timeline Blade
+			PhaseArrow.DisplayName: Phase Arrow
+			RealityRift.DisplayName: Reality Rift
+			SingularitySpearProj.DisplayName: Singularity Spear Proj
+			StarJudgment.DisplayName: Star Judgment
+			TemporalEchoSlash.DisplayName: Temporal Echo Slash
+			TimelineArrowRain.DisplayName: Timeline Arrow Rain
+			TimelineBullet.DisplayName: Timeline Bullet
+			DestinyBullet.DisplayName: Destiny Bullet
+			PhaseBullet.DisplayName: Phase Bullet
+			TimelineBulletRain.DisplayName: Timeline Bullet Rain
+			CapricornMinion.DisplayName: Capricorn Minion
+			GeminiTwinProjectile.DisplayName: Gemini Twin Projectile
+			LibraBalanceArrow.DisplayName: Libra Balance Arrow
+			SagittariusArrow.DisplayName: Sagittarius Arrow
+			SagittariusBeam.DisplayName: Sagittarius Beam
+			ScorpioStinger.DisplayName: Scorpio Stinger
+			TaurusChargeSlash.DisplayName: Taurus Charge Slash
+			VirgoJudgmentShot.DisplayName: Virgo Judgment Shot
+			AriesConstellationSlash.DisplayName: Aries Constellation Slash
+			CancerCosmicWave.DisplayName: Cancer Cosmic Wave
+			GeminiCosmicSpear.DisplayName: Gemini Cosmic Spear
+			LeoCosmicRoar.DisplayName: Leo Cosmic Roar
+			LibraJudgmentZone.DisplayName: Libra Judgment Zone
+			SagittariusArrowBeam.DisplayName: Sagittarius Arrow Beam
+			SagittariusMeteorArrow.DisplayName: Sagittarius Meteor Arrow
+			ScorpioTailStrike.DisplayName: Scorpio Tail Strike
+			ScorpioVenomBolt.DisplayName: Scorpio Venom Bolt
+			TaurusCosmicSlash.DisplayName: Taurus Cosmic Slash
+			VirgoCosmicBullet.DisplayName: Virgo Cosmic Bullet
+			VirgoHarvestRay.DisplayName: Virgo Harvest Ray
+			GalacticCosmicProjectile.DisplayName: Galactic Cosmic Projectile
+			StarSpiralExplosion.DisplayName: Star Spiral Explosion
+			ConstellationBurst.DisplayName: Constellation Burst
+			CosmicStarProjectile.DisplayName: Cosmic Star Projectile
+			AstrographConstellation.DisplayName: Astrograph Constellation
+			AquilaDiveStrike.DisplayName: Aquila Dive Strike
+			AquilaTalonProjectile.DisplayName: Aquila Talon Projectile
+			ChainingStarProjectile.DisplayName: Chaining Star Projectile
+			DragonBreathFireball.DisplayName: Dragon Breath Fireball
+			DragonBreathHeldSword.DisplayName: Dragon Breath Held Sword
+			HarmonicWaveProjectile.DisplayName: Harmonic Wave Projectile
+			HarmonyBurst.DisplayName: Harmony Burst
+			HydraHeadMinion.DisplayName: Hydra Head Minion
+			HydraVenomBolt.DisplayName: Hydra Venom Bolt
+			LionRoarShockwave.DisplayName: Lion Roar Shockwave
+			PhoenixExplosion.DisplayName: Phoenix Explosion
+			PhoenixFeatherProjectile.DisplayName: Phoenix Feather Projectile
+			SagittariusHeldBow.DisplayName: Sagittarius Held Bow
+			ScorpionStingerLine.DisplayName: Scorpion Stinger Line
+			ScorpionStingerProjectile.DisplayName: Scorpion Stinger Projectile
+			ZodiacExplosion.DisplayName: Zodiac Explosion
+			SpiralingSpectralBlade.DisplayName: Spiraling Spectral Blade
+			SpectralSwordBeam.DisplayName: Spectral Sword Beam
+			SpectralSlashingBlade.DisplayName: Spectral Slashing Blade
+			PrismaticBeam.DisplayName: Prismatic Beam
+			OrbitingSpectralBlade.DisplayName: Orbiting Spectral Blade
+			GlassDistortionEffect.DisplayName: Glass Distortion Effect
+			FateRapidBullet.DisplayName: Fate Rapid Bullet
+			DeityCosmicBeam.DisplayName: Deity Cosmic Beam
+			CosmicSeekerBall.DisplayName: Cosmic Seeker Ball
+			CosmicRocket.DisplayName: Cosmic Rocket
+			CosmicMusicNoteProjectile.DisplayName: Cosmic Music Note Projectile
+			CosmicEnergyBall.DisplayName: Cosmic Energy Ball
+			CosmicElectricityStaff.DisplayName: Cosmic Electricity Staff
+			CosmicDeityMinion.DisplayName: Cosmic Deity Minion
+			CosmicBeamHeldSword.DisplayName: Cosmic Beam Held Sword
+			AcceleratingCosmicRound.DisplayName: Accelerating Cosmic Round
+			CosmicStarCircleEffect.DisplayName: Cosmic Star Circle Effect
+			FugueVoiceProjectile.DisplayName: Fugue Voice Projectile
+			TacetEnigmaShot.DisplayName: Tacet Enigma Shot
+			TacetParadoxBolt.DisplayName: Tacet Paradox Bolt
+			VoidConvergenceBeamSet.DisplayName: Void Convergence Beam Set
+			VoidResonanceExplosion.DisplayName: Void Resonance Explosion
+			WaveProjectile.DisplayName: Wave Projectile
+			HostileOrbProjectile.DisplayName: Hostile Orb Projectile
+			ExplosiveOrbProjectile.DisplayName: Explosive Orb Projectile
+			DelayedDetonationProjectile.DisplayName: Delayed Detonation Projectile
+			BoomerangProjectile.DisplayName: Boomerang Projectile
+			AcceleratingBoltProjectile.DisplayName: Accelerating Bolt Projectile
+			EnigmaMazeWall.DisplayName: Enigma Maze Wall
+			EnigmaVoidBeam.DisplayName: Enigma Void Beam
+			EroicaSplittingOrb.DisplayName: Eroica Splitting Orb
+			CodaZenithSwordProjectile.DisplayName: Coda Zenith Sword Projectile
+			ConstellationBeam.DisplayName: Constellation Beam
+			CosmicRendSlash.DisplayName: Cosmic Rend Slash
+			FateSealedShard.DisplayName: Fate Sealed Shard
+			RealityFractureTrail.DisplayName: Reality Fracture Trail
+			StellarBolt.DisplayName: Stellar Bolt
+			InfernalBellMinion.DisplayName: Infernal Bell Minion
+			InfernalBellWave.DisplayName: Infernal Bell Wave
+			PrimaFeatherBlade.DisplayName: Prima Feather Blade
+			PrimaSoundWave.DisplayName: Prima Sound Wave
+			ShatteredPrimaShadow.DisplayName: Shattered Prima Shadow
+			FermataSpectralSword.DisplayName: Fermata Spectral Sword
+			RequiemHeldProjectile.DisplayName: Requiem Held Projectile
+			RequiemSpectralBladeProjectile.DisplayName: Requiem Spectral Blade Projectile
+
+			// ========================================
+			// PHASE 1: FOUNDATION MATERIALS
+			// ========================================
+			
+			// Pre-Hardmode World Drops
+			ResonantCrystalShard: {
+				DisplayName: Resonant Crystal Shard
+				Tooltip:
+					'''
+					'Crystallized harmonies from deep within the earth'
+					A musical fragment waiting to be awakened
+					'''
+			}
+
+			MinorMusicNote: {
+				DisplayName: Minor Music Note
+				Tooltip:
+					'''
+					'A simple melody fragment'
+					Basic crafting material for musical items
+					Drops from surface enemies (5% chance)
+					'''
+			}
+
+			FadedSheetMusic: {
+				DisplayName: Faded Sheet Music
+				Tooltip:
+					'''
+					'Ancient compositions, nearly lost to time'
+					The notes still hold faint power
+					'''
+			}
+
+			BrokenBaton: {
+				DisplayName: Broken Baton
+				Tooltip:
+					'''
+					'A conductor's tool, snapped but not silenced'
+					Still resonates with commanding energy
+					'''
+			}
+
+			TuningFork: {
+				DisplayName: Tuning Fork
+				Tooltip:
+					'''
+					'Strikes the perfect pitch'
+					Vibrates with latent musical power
+					Drops from cavern enemies (3% chance)
+					'''
+			}
+
+			OldMetronome: {
+				DisplayName: Old Metronome
+				Tooltip:
+					'''
+					'Tick, tock, tick, tock...'
+					Still keeps perfect time after all these years
+					'''
+			}
+
+			RustedClef: {
+				DisplayName: Rusted Clef
+				Tooltip:
+					'''
+					'A treble clef frozen in rust and time'
+					The ice preserved its musical essence
+					'''
+			}
+
+			DullResonator: {
+				DisplayName: Dull Resonator
+				Tooltip:
+					'''
+					'A dormant resonating disc'
+					Awaits the right frequency to awaken
+					'''
+			}
+
+			// Dormant Seasonal Cores
+			DormantSpringCore: {
+				DisplayName: Dormant Spring Core
+				Tooltip:
+					'''
+					'The promise of bloom, suspended in slumber'
+					Will awaken when the world grows stronger
+					'''
+			}
+
+			DormantSummerCore: {
+				DisplayName: Dormant Summer Core
+				Tooltip:
+					'''
+					'Faded warmth waiting to ignite'
+					Will awaken when the world grows stronger
+					'''
+			}
+
+			DormantAutumnCore: {
+				DisplayName: Dormant Autumn Core
+				Tooltip:
+					'''
+					'The whisper of falling leaves, held in stasis'
+					Will awaken when the world grows stronger
+					'''
+			}
+
+			DormantWinterCore: {
+				DisplayName: Dormant Winter Core
+				Tooltip:
+					'''
+					'Frozen silence, preserved in crystal'
+					Will awaken when the world grows stronger
+					'''
+			}
+
+			// Seasonal Bars
+			VernalBar: {
+				DisplayName: Vernal Bar
+				Tooltip:
+					'''
+					'Forged from the essence of spring's rebirth'
+					Polished metal infused with renewal
+					'''
+			}
+
+			SolsticeBar: {
+				DisplayName: Solstice Bar
+				Tooltip:
+					'''
+					'The peak of summer's intensity made solid'
+					Radiates with captured sunlight
+					'''
+			}
+
+			HarvestBar: {
+				DisplayName: Harvest Bar
+				Tooltip:
+					'''
+					'The weight of autumn's final yield'
+					Carries the dignity of endings
+					'''
+			}
+
+			PermafrostBar: {
+				DisplayName: Permafrost Bar
+				Tooltip:
+					'''
+					'Winter's eternal stillness crystallized'
+					Cold to the touch, yet full of potential
+					'''
+			}
+
+			// Seasonal Essences (Harmonic Essences)
+			BlossomEssence: {
+				DisplayName: Spring's Harmonic Essence
+				Tooltip:
+					'''
+					'The first breath of spring captured'
+					Guaranteed drop from Plantera (3-5)
+					Essential for spring-themed crafting
+					'''
+			}
+
+			SolarEssence: {
+				DisplayName: Summer's Harmonic Essence
+				Tooltip:
+					'''
+					'A fragment of the sun's zenith'
+					Guaranteed drop from Golem (3-5)
+					Essential for summer-themed crafting
+					'''
+			}
+
+			DecayEssence: {
+				DisplayName: Autumn's Harmonic Essence
+				Tooltip:
+					'''
+					'The beauty of gentle decline'
+					Guaranteed drop from Pumpking (3-5)
+					Essential for autumn-themed crafting
+					'''
+			}
+
+			FrostEssence: {
+				DisplayName: Winter's Harmonic Essence
+				Tooltip:
+					'''
+					'Perfect stillness given form'
+					Guaranteed drop from Ice Queen (3-5)
+					Essential for winter-themed crafting
+					'''
+			}
+
+			// Seasonal Resonant Energies (Boss Drops)
+			SpringResonantEnergy: {
+				DisplayName: Spring Resonant Energy
+				Tooltip:
+					'''
+					'The harmonics of rebirth swirl within'
+					Dropped by Primavera, Herald of Bloom
+					'''
+			}
+
+			SummerResonantEnergy: {
+				DisplayName: Summer Resonant Energy
+				Tooltip:
+					'''
+					'Solar fury contained in pure energy'
+					Dropped by L'Estate, Lord of the Zenith
+					'''
+			}
+
+			AutumnResonantEnergy: {
+				DisplayName: Autumn Resonant Energy
+				Tooltip:
+					'''
+					'The melancholy of endings made manifest'
+					Dropped by Autunno, the Withering Maestro
+					'''
+			}
+
+			WinterResonantEnergy: {
+				DisplayName: Winter Resonant Energy
+				Tooltip:
+					'''
+					'Crystalline silence from the frozen finale'
+					Dropped by L'Inverno, the Silent Finale
+					'''
+			}
+
+			// Spring Enemy Drops
+			PetalOfRebirth: {
+				DisplayName: Petal of Rebirth
+				Tooltip:
+					'''
+					'A petal that refuses to wilt'
+					Primary material for Vernal Bars
+					Drops from Plantera's Tentacles (8%) and Hardmode Jungle enemies (3%)
+					'''
+			}
+
+			VernalDust: {
+				DisplayName: Vernal Dust
+				Tooltip:
+					'''
+					'The pollen of eternal spring'
+					Used in spring accessory crafting
+					Drops from Hardmode Jungle enemies (5%)
+					'''
+			}
+
+			RainbowPetal: {
+				DisplayName: Rainbow Petal
+				Tooltip:
+					'''
+					'Shifts through every color of spring'
+					A rare material from Rainbow Slimes (10%)
+					'''
+			}
+
+			// Summer Enemy Drops
+			EmberOfIntensity: {
+				DisplayName: Ember of Intensity
+				Tooltip:
+					'''
+					'Burns with summer's relentless heat'
+					Primary material for Solstice Bars
+					Drops from Solar Pillar enemies (5%) and Lava enemies (3%)
+					'''
+			}
+
+			SunfireCore: {
+				DisplayName: Sunfire Core
+				Tooltip:
+					'''
+					'The heart of a solar predator'
+					Used in summer accessory crafting
+					Drops from Mothron during Solar Eclipse (15%)
+					'''
+			}
+
+			HeatScale: {
+				DisplayName: Heat Scale
+				Tooltip:
+					'''
+					'Hardened by hellfire'
+					Used in summer accessory crafting
+					Drops from Hell enemies (6%)
+					'''
+			}
+
+			// Autumn Enemy Drops
+			LeafOfEnding: {
+				DisplayName: Leaf of Ending
+				Tooltip:
+					'''
+					'The final leaf before winter's silence'
+					Primary material for Harvest Bars
+					Drops from Pumpking (12%) and Solar Eclipse enemies (3%)
+					'''
+			}
+
+			TwilightWingFragment: {
+				DisplayName: Twilight Wing Fragment
+				Tooltip:
+					'''
+					'Torn between day and night'
+					Used in autumn accessory crafting
+					Drops from Mothron during Solar Eclipse (10%)
+					'''
+			}
+
+			DeathsNote: {
+				DisplayName: Death's Note
+				Tooltip:
+					'''
+					'A melody that ends all melodies'
+					Used in autumn accessory crafting
+					Drops from Reapers during Blood Moon (8%)
+					'''
+			}
+
+			DecayFragment: {
+				DisplayName: Decay Fragment
+				Tooltip:
+					'''
+					'A piece of gentle decline'
+					Common autumn crafting material
+					Drops from Solar Eclipse enemies (4%)
+					'''
+			}
+
+			// Winter Enemy Drops
+			ShardOfStillness: {
+				DisplayName: Shard of Stillness
+				Tooltip:
+					'''
+					'Frozen in perfect silence'
+					Primary material for Permafrost Bars
+					Drops from Ice Queen (15%) and Hardmode Ice enemies (2%)
+					'''
+			}
+
+			FrozenCore: {
+				DisplayName: Frozen Core
+				Tooltip:
+					'''
+					'The heart of an ice elemental'
+					Used in winter accessory crafting
+					Drops from Ice Golems (20%)
+					'''
+			}
+
+			IcicleCoronet: {
+				DisplayName: Icicle Coronet
+				Tooltip:
+					'''
+					'A crown of eternal winter'
+					Used in winter accessory crafting
+					Drops from Ice Queen during Frost Moon (10%)
+					'''
+			}
+
+			PermafrostShard: {
+				DisplayName: Permafrost Shard
+				Tooltip:
+					'''
+					'A fragment of ancient ice'
+					Common winter crafting material
+					Drops from Hardmode Ice enemies (3%)
+					'''
+			}
+
+			// Theme Essences (Post-Moon Lord)
+			LunarEssence: {
+				DisplayName: Lunar Essence
+				Tooltip:
+					'''
+					'Moonlight condensed into pure form'
+					Drops from Waning Deer in snow biomes (2% chance)
+					Only appears after Moon Lord has been defeated
+					'''
+			}
+
+			ValorEssence: {
+				DisplayName: Valor Essence
+				Tooltip:
+					'''
+					'The courage of heroes crystallized'
+					Drops from Stolen Valor, Eroican Centurion, Behemoth of Valor,
+					and Funeral Blitzer in deserts (2% chance)
+					Only appears after Moon Lord has been defeated
+					'''
+			}
+
+			BellEssence: {
+				DisplayName: Bell Essence
+				Tooltip:
+					'''
+					'The chime of infernal bells'
+					Drops from Crawler of the Bell in deserts (2% chance)
+					Only appears after Moon Lord has been defeated
+					'''
+			}
+
+			MysteryEssence: {
+				DisplayName: Mystery Essence
+				Tooltip:
+					'''
+					'Questions without answers, solidified'
+					Drops from Mystery's End in jungle biomes (2% chance)
+					Only appears after Moon Lord has been defeated
+					'''
+			}
+
+			GraceEssence: {
+				DisplayName: Grace Essence
+				Tooltip:
+					'''
+					'Elegance in its purest form'
+					Drops from Shattered Prima in the Hallow (2% chance)
+					Only appears after Moon Lord has been defeated
+					'''
+			}
+
+			FateEssence: {
+				DisplayName: Fate Essence
+				Tooltip:
+					'''
+					'The threads of destiny intertwined'
+					Drops from Herald of Fate in Corruption/Crimson (2% chance)
+					Only appears after Moon Lord has been defeated
+					'''
+			}
+
+			Primavera.DisplayName: Primavera, Herald of Bloom
+			LEstate.DisplayName: L'Estate, Lord of the Zenith
+			Autunno.DisplayName: Autunno, the Withering Maestro
+			LInverno.DisplayName: L'Inverno, the Silent Finale
+
+			// ==================== SEASONAL ACCESSORIES ====================
+			
+			// Spring Accessories
+			PetalShield: {
+				DisplayName: Petal Shield
+				Tooltip:
+					'''
+					+8 defense
+					6% damage reduction
+					Blooming petals surround you
+					'Protection born from spring's embrace'
+					'''
+			}
+
+			GrowthBand: {
+				DisplayName: Growth Band
+				Tooltip:
+					'''
+					+3 life regeneration
+					+2 mana regeneration
+					+4% damage
+					'The cycle of renewal flows through you'
+					'''
+			}
+
+			BloomCrest: {
+				DisplayName: Bloom Crest
+				Tooltip:
+					'''
+					+6% damage
+					[c/90EE90:While moving:] +4% damage, +5% crit
+					'In motion, the flowers blossom'
+					'''
+			}
+
+			// Summer Accessories
+			SunfirePendant: {
+				DisplayName: Sunfire Pendant
+				Tooltip:
+					'''
+					8% increased damage
+					Melee attacks inflict On Fire
+					Solar flames dance around you
+					'The sun's fury burns within'
+					'''
+			}
+
+			ZenithBand: {
+				DisplayName: Zenith Band
+				Tooltip:
+					'''
+					10% increased attack speed
+					12% increased movement speed
+					'At the peak of summer's power'
+					'''
+			}
+
+			RadiantCrown: {
+				DisplayName: Radiant Crown
+				Tooltip:
+					'''
+					+6% damage, +5 defense
+					[c/FFD700:Daytime:] +6% additional damage, +8% crit, +2 life regen
+					'Crowned by the noon sun'
+					'''
+			}
+
+			// Autumn Accessories
+			ReapersCharm: {
+				DisplayName: Reaper's Charm
+				Tooltip:
+					'''
+					+7% damage
+					20% chance to steal 4% of damage dealt as health (max 8 HP)
+					'Harvest the essence of your foes'
+					'''
+			}
+
+			TwilightRing: {
+				DisplayName: Twilight Ring
+				Tooltip:
+					'''
+					+10% crit chance
+					+5% damage (up to +6.5% during twilight hours)
+					'Between light and dark, power grows'
+					'''
+			}
+
+			HarvestMantle: {
+				DisplayName: Harvest Mantle
+				Tooltip:
+					'''
+					+12 defense
+					8% damage reduction
+					Thorns effect damages attackers
+					'The harvest protects its keeper'
+					'''
+			}
+
+			// Winter Accessories
+			FrostbiteAmulet: {
+				DisplayName: Frostbite Amulet
+				Tooltip:
+					'''
+					10% increased damage
+					Attacks inflict Frostburn
+					Frost particles swirl around you
+					'Cold as winter's heart'
+					'''
+			}
+
+			StillnessShrine: {
+				DisplayName: Stillness Shrine
+				Tooltip:
+					'''
+					+8 defense, +2 life regen
+					[c/ADD8E6:While stationary:] +8 defense, +4 life regen, +10% DR
+					'In stillness, find strength'
+					'''
+			}
+
+			GlacialHeart: {
+				DisplayName: Glacial Heart
+				Tooltip:
+					'''
+					Immune to Frozen, Chilled, and Frostburn
+					+8% damage, +6% crit, +6 defense
+					'The cold cannot touch you'
+					'''
+			}
+
+			// Combination Accessories
+			RelicOfTheEquinox: {
+				DisplayName: Relic of the Equinox
+				Tooltip:
+					'''
+					Combines Spring and Autumn powers
+					+4 life regen, +8% damage, +8% crit, +10 defense
+					Thorns effect and 20% chance to steal life
+					'Balance between growth and decay'
+					'''
+			}
+
+			SolsticeRing: {
+				DisplayName: Solstice Ring
+				Tooltip:
+					'''
+					Combines Summer and Winter powers
+					+10% damage, +10% attack speed, +10 defense
+					Melee attacks inflict On Fire and Frostburn
+					Immune to Frozen and On Fire
+					[c/FFD700:HP extremes:] +8% damage, +6% crit at full/low HP
+					'The extremes of light and dark unite'
+					'''
+			}
+
+			CycleOfSeasons: {
+				DisplayName: Cycle of Seasons
+				Tooltip:
+					'''
+					Combines all four seasonal powers
+					+15% damage, +12% crit, +8% attack speed, +15 defense
+					+5 life regen, 8% damage reduction
+					Inflicts On Fire and Frostburn, thorns, life steal
+					Immune to Frozen, On Fire, and Frostburn
+					'The eternal cycle flows through you'
+					'''
+			}
+
+			VivaldisMasterwork: {
+				DisplayName: Vivaldi's Masterwork
+				Tooltip:
+					'''
+					[c/FFD700:The ultimate seasonal accessory]
+					+20% damage, +15% crit, +12% attack speed
+					+20 defense, +12% damage reduction
+					+8 life regen, +4 mana regen, +15% movement speed
+					Inflicts On Fire and Frostburn, thorns (1.5x damage)
+					Immune to Frozen, On Fire, Frostburn, Chilled, and Poisoned
+					Enhanced life steal on critical hits
+					'The Four Seasons, perfected'
+					'''
+			}
+
+			// ==================== TWO-THEME COMBINATION ACCESSORIES ====================
+			
+			NocturneOfAzureFlames: {
+				DisplayName: Nocturne of Azure Flames
+				Tooltip:
+					'''
+					Combines the essence of Moonlight Sonata and La Campanella
+					[c/9966FF:Night:] +18% damage, +20% crit, +12 defense
+					[c/FFD700:Day:] +10% damage
+					[c/FF8C00:Magic:] +22% damage, +10% crit, -12% mana cost
+					Immune to Fire and Burning
+					10% chance for bell ring stun (8% during day)
+					Magic hits at night deal 15% bonus blue fire damage
+					'Where moonbeams meet infernal chimes'
+					'''
+			}
+
+			ValseMacabre: {
+				DisplayName: Valse Macabre
+				Tooltip:
+					'''
+					Combines the essence of Eroica and Enigma Variations
+					[c/DC143C:Melee:] +20% damage, +15% attack speed, +10% crit
+					[c/9400D3:Generic:] +26% damage, +8% crit
+					12% chance to inflict random Paradox debuff on enemies
+					Killing enemies grants 1 second invulnerability
+					Kills trigger Heroic Surge (+25% damage for 5 seconds)
+					Kills spread Paradox debuffs to nearby enemies
+					'A dance between triumph and shadow'
+					'''
+			}
+
+			ReverieOfTheSilverSwan: {
+				DisplayName: Reverie of the Silver Swan
+				Tooltip:
+					'''
+					Combines the essence of Moonlight Sonata and Swan Lake
+					[c/9966FF:Night:] +18% damage, +20% crit, +12 defense
+					[c/FFD700:Day:] +10% damage
+					[c/FFFFFF:Grace:] +16% damage, +8% crit, +20% movement speed
+					Moving at night grants +5% damage, +5% crit
+					12% dodge chance at night (8% during day)
+					'Dreaming of moonlit waters'
+					'''
+			}
+
+			FantasiaOfBurningGrace: {
+				DisplayName: Fantasia of Burning Grace
+				Tooltip:
+					'''
+					Combines the essence of La Campanella and Swan Lake
+					[c/FF8C00:Magic:] +22% damage, +10% crit, -12% mana cost
+					[c/FFFFFF:Grace:] +16% damage, +8% crit, +20% movement speed
+					Immune to Fire and Burning
+					10% chance for bell ring stun with rainbow fire AoE
+					10% dodge chance
+					'Where inferno meets the ballet'
+					'''
+			}
+
+			TriumphantArabesque: {
+				DisplayName: Triumphant Arabesque
+				Tooltip:
+					'''
+					Combines the essence of Eroica and Swan Lake
+					[c/DC143C:Melee:] +20% damage, +15% attack speed, +10% crit
+					[c/FFFFFF:Generic:] +24% damage, +8% crit
+					[c/FFFFFF:Grace:] +20% movement speed
+					Kills grant 1 second invulnerability + Heroic Surge (+25% damage for 5 sec)
+					10% dodge chance
+					'The hero's most elegant flourish'
+					'''
+			}
+
+			InfernoOfLostShadows: {
+				DisplayName: Inferno of Lost Shadows
+				Tooltip:
+					'''
+					Combines the essence of La Campanella and Enigma Variations
+					[c/FF8C00:Magic:] +22% damage, +10% crit, -12% mana cost
+					[c/9400D3:Generic:] +18% damage, +8% crit
+					Immune to Fire and Burning
+					15% chance (magic) / 10% chance to inflict Paradox + Fire
+					10% chance for bell ring stun with AoE Paradox + Fire
+					5 Paradox stacks trigger massive Void Flame Collapse explosion
+					'Burning questions, smoldering answers'
+					'''
+			}
+
+			// ==================== THREE-THEME COMBINATION ACCESSORIES ====================
+			
+			TrinityOfNight: {
+				DisplayName: Trinity of Night
+				Tooltip:
+					'''
+					Combines Moonlight, Campanella, and Enigma
+					[c/9966FF:Night:] +22% damage, +25% crit, +15 defense
+					[c/FFD700:Day:] +12% damage
+					[c/FF8C00:Magic:] +25% damage, +12% crit, -15% mana cost
+					[c/9400D3:Generic:] +20% damage, +10% crit
+					Immune to Fire and Burning
+					Magic at night deals 20% bonus blue fire damage
+					15% Paradox chance (inflicts debuffs + Fire)
+					12% bell ring stun chance
+					5 Paradox stacks trigger Trinity Collapse (3x damage explosion)
+					'Three movements of the nocturnal symphony'
+					'''
+			}
+
+			AdagioOfRadiantValor: {
+				DisplayName: Adagio of Radiant Valor
+				Tooltip:
+					'''
+					Combines Eroica, Moonlight, and Swan Lake
+					[c/DC143C:Melee:] +22% damage, +18% attack speed, +12% crit
+					[c/9966FF:Night:] +20% damage, +22% crit, +14 defense
+					[c/FFD700:Day:] +10% damage
+					[c/FFFFFF:Grace:] +18% damage, +10% crit, +22% movement speed
+					Kills grant 1.5 sec invulnerability + Heroic Surge (+30% damage for 6 sec)
+					14% dodge chance at night (10% during day)
+					'The slow movement of a hero's grace'
+					'''
+			}
+
+			RequiemOfTheEnigmaticFlame: {
+				DisplayName: Requiem of the Enigmatic Flame
+				Tooltip:
+					'''
+					Combines Campanella, Enigma, and Swan Lake
+					[c/FF8C00:Magic:] +25% damage, +12% crit, -15% mana cost
+					[c/9400D3:Generic:] +38% damage, +20% crit
+					[c/FFFFFF:Grace:] +22% movement speed
+					Immune to Fire and Burning
+					18% Paradox chance (magic) / 12% (other) with Fire
+					12% bell ring stun with rainbow fire AoE
+					5 Paradox stacks trigger Chaos Collapse explosion
+					'A funeral mass for beautiful mysteries'
+					'''
+			}
+
+			CompleteHarmony: {
+				DisplayName: Complete Harmony
+				Tooltip:
+					'''
+					Combines all five core themes - the ultimate accessory
+					[c/9966FF:Moonlight] Night: +20% damage, +22% crit, +15 defense / Day: +12% damage
+					[c/DC143C:Eroica] Melee: +22% damage, +18% attack speed, +12% crit / +10% generic damage
+					[c/FF8C00:Campanella] Magic: +25% damage, +12% crit, -15% mana / Fire immune
+					[c/9400D3:Enigma] +20% damage, +10% crit
+					[c/FFFFFF:Swan Lake] +18% damage, +10% crit, +25% movement speed
+					All on-hit effects from all themes active
+					15% dodge chance at night, 12% during day
+					Kills grant extended invulnerability + Heroic Surge
+					'The grand finale of all movements'
+					'''
+			}
+
+			// ==================== PHASE 6 CONSUMABLES ====================
+			
+			HarmonicResonatorFragment: {
+				DisplayName: Harmonic Resonator Fragment
+				Tooltip:
+					'''
+					'A crystallized fragment of pure harmonic energy'
+					Base crafting material for resonance potions
+					'''
+			}
+
+			MinorResonanceTonic: {
+				DisplayName: Minor Resonance Tonic
+				Tooltip:
+					'''
+					Grants Minor Resonance for 8 minutes
+					+10% damage
+					'A gentle boost of harmonic energy'
+					'''
+			}
+
+			HarmonicElixir: {
+				DisplayName: Harmonic Elixir
+				Tooltip:
+					'''
+					Grants Harmonic Power for 6 minutes
+					+20% damage and +10% critical strike chance
+					'The melody of power courses through you'
+					'''
+			}
+
+			SeasonalDraught: {
+				DisplayName: Seasonal Draught
+				Tooltip:
+					'''
+					Grants Seasonal Attunement for 5 minutes
+					+25% bonus to current season effects
+					'The essence of the changing seasons'
+					'''
+			}
+
+			ElixirOfTheMaestro: {
+				DisplayName: Elixir of the Maestro
+				Tooltip:
+					'''
+					Grants Maestro's Blessing for 4 minutes
+					+35% damage, +20% crit, +15% attack speed
+					'Command the symphony of destruction'
+					'''
+			}
+
+			ConductorsInsight: {
+				DisplayName: Conductor's Insight
+				Tooltip:
+					'''
+					A permanent upgrade accessory
+					Displays detailed combat analysis
+					Shows DPS, enemy weakness, and combo potential
+					'See the battlefield as a maestro sees an orchestra'
+					'''
+			}
+
+			FatesBlessing: {
+				DisplayName: Fate's Blessing
+				Tooltip:
+					'''
+					A permanent consumable upgrade
+					Permanently increases all damage by 5%
+					The blessing of destiny itself
+					'Your fate is intertwined with power'
+					'''
+			}
+
+			CodasEcho: {
+				DisplayName: Coda's Echo
+				Tooltip:
+					'''
+					A permanent consumable upgrade
+					Permanently increases all damage by 10%
+					The final notes resonate eternally
+					'The last chord never truly fades'
+					'''
+			}
+
+			FatesCosmicBrew: {
+				DisplayName: Fate's Cosmic Brew
+				Tooltip:
+					'''
+					The ultimate combat potion
+					Grants Cosmic Resonance for 3 minutes
+					+50% damage, +30% crit, +20% attack speed
+					+25% damage reduction, life steal on crits
+					Can only be used once per day
+					'Drink deep of destiny's power'
+					'''
+			}
 		}
+
+		Keybinds.ToggleHarmonicCoreUI.DisplayName: Toggle Harmonic Core UI
+		Prefixes.ResonantScarPrefix.DisplayName: Resonance Scarred
 	}
 }
 
 Tiles: {
-	GrandPianoTile.MapEntry: Grand Piano
-	MoonlitResonanceOreTile.MapEntry: Moonlit Resonance Ore
-	EroicaResonanceOreTile.MapEntry: Eroica Resonance Ore
-	SwanLakeResonanceOreTile.MapEntry: Swan Lake Resonance Ore
-	LaCampanellaResonanceOreTile.MapEntry: La Campanella Resonance Ore
-	EnigmaResonanceOreTile.MapEntry: Enigma Resonance Ore
-	FateResonanceOreTile.MapEntry: Fate Resonance Ore
+	GrandPianoTile.MapEntry: Grand Piano Tile
+	EnigmaResonanceOreTile.MapEntry: Enigma Resonance Ore Tile
+	EroicaResonanceOreTile.MapEntry: Eroica Resonance Ore Tile
+	FateResonanceOreTile.MapEntry: Fate Resonance Ore Tile
+	LaCampanellaResonanceOreTile.MapEntry: La Campanella Resonance Ore Tile
+	MoonlitResonanceOreTile.MapEntry: Moonlit Resonance Ore Tile
+	SwanLakeResonanceOreTile.MapEntry: Swan Lake Resonance Ore Tile
 }
 
 Buffs: {
-	RazerOfMoonlightsShadowBuff: {
-		DisplayName: Razer of Moonlight's Shadow
-		Description: A shadow of moonlight fights for you
+	ResonantBurnDebuff: {
+		DisplayName: Resonant Burn Debuff
+		Description: Mods.MagnumOpus.Buffs.ResonantBurnDebuff.Description
 	}
 
-	GoliathOfMoonlightBuff: {
-		DisplayName: Goliath of Moonlight
-		Description: A massive lunar guardian fights by your side
+	CosmicBrewBuff: {
+		DisplayName: Cosmic Brew Buff
+		Description: Mods.MagnumOpus.Buffs.CosmicBrewBuff.Description
 	}
 
-	SakuraOfFateBuff: {
-		DisplayName: Sakura of Fate
-		Description: A spectral sakura guardian fights by your side
+	HarmonicElixirBuff: {
+		DisplayName: Harmonic Elixir Buff
+		Description: Mods.MagnumOpus.Buffs.HarmonicElixirBuff.Description
 	}
 
-	MusicsDissonance: {
-		DisplayName: Music's Dissonance
-		Description: The symphony of your soul is disrupted - all stats reduced
+	MaestroBuff: {
+		DisplayName: Maestro Buff
+		Description: Mods.MagnumOpus.Buffs.MaestroBuff.Description
 	}
 
-	TriumphantColossusBuff: {
-		DisplayName: Triumphant Colossus
-		Description: A triumphant colossus of heroic might fights by your side
+	MinorResonanceBuff: {
+		DisplayName: Minor Resonance Buff
+		Description: Mods.MagnumOpus.Buffs.MinorResonanceBuff.Description
 	}
 
-	FlameOfTheSwan: {
-		DisplayName: Flame Of The Swan
-		Description: A graceful swan of ethereal flame dances at your command
+	SeasonalDraughtBuff: {
+		DisplayName: Seasonal Draught Buff
+		Description: Mods.MagnumOpus.Buffs.SeasonalDraughtBuff.Description
 	}
 
-	IridescentFlockBuff: {
-		DisplayName: Iridescent Flock
-		Description: A flock of iridescent feathers swirls around you protectively
-	}
-
-	FeathersCallBuff: {
-		DisplayName: Feather's Call
-		Description: You are one with the Swan's Melody...
-	}
-
-	ResonantToll: {
-		DisplayName: Resonant Toll
-		Description: The bells toll for thee - stacking fire damage and increased vulnerability
-	}
-
-	CampanellaChoirBuff: {
-		DisplayName: Campanella Choir
-		Description: The choir sings with infernal passion - your minions blaze with bell-fire
-	}
-
-	GrandCrescendoBuff: {
-		DisplayName: Grand Crescendo
-		Description: +50% movement speed, +4 max run speed - the finale resonates through you!
-	}
-
-	InfernoWaltzBuff: {
-		DisplayName: Inferno Waltz
-		Description: +30% movement speed - dancing through flames with virtuosic grace
-	}
-
-	BellfireCrescendoBuff: {
-		DisplayName: Bellfire Crescendo
-		Description: Blazing bell-fire minions strike with infernal resonance
-	}
-
-	InfiniteBellDamageBuff: {
-		DisplayName: Infinite Bell Damage
-		Description: The infinite bell tolls - damage increased dramatically
-	}
-
-	InfiniteBellEmpoweredBuff: {
-		DisplayName: Infinite Bell Empowered
-		Description: Empowered by the infinite bell's resonance - all abilities enhanced
+	MysteryVaporDebuff: {
+		DisplayName: Mystery Vapor Debuff
+		Description: Mods.MagnumOpus.Buffs.MysteryVaporDebuff.Description
 	}
 
 	ParadoxBrand: {
 		DisplayName: Paradox Brand
-		Description: Reality collapses around you - taking damage over time
+		Description: Mods.MagnumOpus.Buffs.ParadoxBrand.Description
+	}
+
+	WatchedDebuff: {
+		DisplayName: Watched Debuff
+		Description: Mods.MagnumOpus.Buffs.WatchedDebuff.Description
 	}
 
 	EchoMark: {
 		DisplayName: Echo Mark
-		Description: Voices of the fugue echo within - at 3 stacks triggers Harmonic Convergence
+		Description: Mods.MagnumOpus.Buffs.EchoMark.Description
 	}
 
-	WatchedDebuff: {
-		DisplayName: Watched
-		Description: The mystery has seen you - taking 15% increased damage
+	UnsolvedPhantomBuff: {
+		DisplayName: Unsolved Phantom Buff
+		Description: Mods.MagnumOpus.Buffs.UnsolvedPhantomBuff.Description
 	}
 
-	MysteryVaporDebuff: {
-		DisplayName: Mystery Vapor
-		Description: Shrouded in enigmatic mist - dealing 15% reduced damage
+	SakuraOfFateBuff: {
+		DisplayName: Sakura Of Fate Buff
+		Description: Mods.MagnumOpus.Buffs.SakuraOfFateBuff.Description
 	}
 
-	CipherChoirBuff: {
-		DisplayName: Cipher Choir
-		Description: A choir of cryptic ciphers whispers secrets into being
-	}
-
-	EnigmaWispBuff: {
-		DisplayName: Enigma Wisp
-		Description: An enigmatic wisp of mystery drifts beside you
-	}
-
-	ParadoxFamiliarBuff: {
-		DisplayName: Paradox Familiar
-		Description: A paradoxical familiar exists in multiple states simultaneously
+	TriumphantColossusBuff: {
+		DisplayName: Triumphant Colossus Buff
+		Description: Mods.MagnumOpus.Buffs.TriumphantColossusBuff.Description
 	}
 
 	DestinyCollapse: {
 		DisplayName: Destiny Collapse
-		Description: Your fate is unraveling - reality warps around you
-	}
-
-	CosmicFateWispBuff: {
-		DisplayName: Cosmic Fate Wisp
-		Description: A wisp of cosmic destiny illuminates your path
-	}
-
-	DestinyChoirBuff: {
-		DisplayName: Destiny Choir
-		Description: A choir of fate's chosen sings reality into submission
-	}
-
-	SingularityFamiliarBuff: {
-		DisplayName: Singularity Familiar
-		Description: A familiar born of cosmic singularity warps space around your enemies
-	}
-
-	UnsolvedPhantomBuff: {
-		DisplayName: Unsolved Phantom
-		Description: An unsolved mystery given form haunts your enemies
-	}
-
-	FateAvatarBuff: {
-		DisplayName: Fate Avatar
-		Description: An avatar of fate itself fights alongside you with cosmic authority
-	}
-
-	FateMarked: {
-		DisplayName: Fate Marked
-		Description: Marked by destiny - your fate is sealed
-	}
-
-	CapricornBuff: {
-		DisplayName: Capricorn
-		Description: The constellation Capricorn guides your strikes with celestial precision
-	}
-
-	CapricornMinionBuff: {
-		DisplayName: Capricorn Minion
-		Description: A celestial goat of the stars charges at your foes
-	}
-
-	HydraConstellationBuff: {
-		DisplayName: Hydra Constellation
-		Description: The many-headed Hydra constellation strikes from the cosmos
+		Description: Mods.MagnumOpus.Buffs.DestinyCollapse.Description
 	}
 
 	CosmicDeityBuff: {
-		Description: A cosmic deity of unimaginable power serves your will
-		DisplayName: Cosmic Deity
+		DisplayName: Cosmic Deity Buff
+		Description: Mods.MagnumOpus.Buffs.CosmicDeityBuff.Description
+	}
+
+	ResonantToll: {
+		DisplayName: Resonant Toll
+		Description: Mods.MagnumOpus.Buffs.ResonantToll.Description
+	}
+
+	BellfireCrescendoBuff: {
+		DisplayName: Bellfire Crescendo Buff
+		Description: Mods.MagnumOpus.Buffs.BellfireCrescendoBuff.Description
+	}
+
+	CampanellaChoirBuff: {
+		DisplayName: Campanella Choir Buff
+		Description: Mods.MagnumOpus.Buffs.CampanellaChoirBuff.Description
+	}
+
+	GrandCrescendoBuff: {
+		DisplayName: Grand Crescendo Buff
+		Description: Mods.MagnumOpus.Buffs.GrandCrescendoBuff.Description
+	}
+
+	InfernoWaltzBuff: {
+		DisplayName: Inferno Waltz Buff
+		Description: Mods.MagnumOpus.Buffs.InfernoWaltzBuff.Description
+	}
+
+	InfiniteBellDamageBuff: {
+		DisplayName: Infinite Bell Damage Buff
+		Description: Mods.MagnumOpus.Buffs.InfiniteBellDamageBuff.Description
+	}
+
+	InfiniteBellEmpoweredBuff: {
+		DisplayName: Infinite Bell Empowered Buff
+		Description: Mods.MagnumOpus.Buffs.InfiniteBellEmpoweredBuff.Description
+	}
+
+	MusicsDissonance: {
+		DisplayName: Musics Dissonance
+		Description: Mods.MagnumOpus.Buffs.MusicsDissonance.Description
+	}
+
+	GoliathOfMoonlightBuff: {
+		DisplayName: Goliath Of Moonlight Buff
+		Description: Mods.MagnumOpus.Buffs.GoliathOfMoonlightBuff.Description
+	}
+
+	RazerOfMoonlightsShadowBuff: {
+		DisplayName: Razer Of Moonlights Shadow Buff
+		Description: Mods.MagnumOpus.Buffs.RazerOfMoonlightsShadowBuff.Description
+	}
+
+	FlameOfTheSwan: {
+		DisplayName: Flame Of The Swan
+		Description: Mods.MagnumOpus.Buffs.FlameOfTheSwan.Description
+	}
+
+	FeathersCallBuff: {
+		DisplayName: Feathers Call Buff
+		Description: Mods.MagnumOpus.Buffs.FeathersCallBuff.Description
+	}
+
+	IridescentFlockBuff: {
+		DisplayName: Iridescent Flock Buff
+		Description: Mods.MagnumOpus.Buffs.IridescentFlockBuff.Description
 	}
 }
 
 Items: {
-	SwanLakeResonanceOre: {
-		DisplayName: Swan Lake Resonance Ore
-		Tooltip:
-			'''
-			'Crystallized grace from the celestial ballet'
-			White resonant ore found in sky bubbles
-			'''
+	HarvestMantle: {
+		DisplayName: Harvest Mantle
+		Tooltip: ""
 	}
 
-	LaCampanellaResonanceOre: {
-		DisplayName: La Campanella Resonance Ore
-		Tooltip:
-			'''
-			'The infernal bells ring beneath the scorching sands'
-			Orange resonant ore, burning with virtuosic intensity
-			Found where desert heat meets musical legend
-			'''
+	ReapersCharm: {
+		DisplayName: Reapers Charm
+		Tooltip: ""
 	}
 
-	EnigmaResonanceOre: {
-		DisplayName: Enigma Resonance Ore
-		Tooltip:
-			'''
-			'Mysterious variations crystallized in green'
-			Green resonant ore found in jungle depths
-			'''
+	TwilightRing: {
+		DisplayName: Twilight Ring
+		Tooltip: ""
 	}
 
-	FateResonanceOre: {
-		DisplayName: Fate Resonance Ore
-		Tooltip:
-			'''
-			'The threads of destiny made manifest'
-			Pink resonant ore found in evil biomes
-			'''
+	AutumnResonantEnergy: {
+		DisplayName: Autumn Resonant Energy
+		Tooltip: ""
 	}
 
-	EternalMoon: {
-		DisplayName: Eternal Moon
-		Tooltip:
-			'''
-			'The moon's eternal embrace given form'
-			A heavy sword that releases waves of purple energy
-			Inflicts Musical Dissonance on enemies
-			'''
+	DeathsNote: {
+		DisplayName: Deaths Note
+		Tooltip: ""
 	}
 
-	MoonlightsCalling: {
-		DisplayName: Moonlight's Calling
-		Tooltip:
-			'''
-			'The moon beckons through arcane pages'
-			Rapidly fires beams of moonlight magic
-			Inflicts Musical Dissonance on enemies
-			'''
+	DecayEssence: {
+		DisplayName: Decay Essence
+		Tooltip: ""
 	}
 
-	StaffOfTheLunarPhases: {
-		DisplayName: Staff of the Lunar Phases
-		Tooltip:
-			'''
-			'Command the shadows between crescent and full'
-			Summons a mighty Goliath of Moonlight to fight for you
-			The Goliath fires devastating moonlight beams at enemies
-			Inflicts Musical Dissonance on enemies
-			'''
+	DecayFragment: {
+		DisplayName: Decay Fragment
+		Tooltip: ""
+	}
+
+	DormantAutumnCore: {
+		DisplayName: Dormant Autumn Core
+		Tooltip: ""
+	}
+
+	HarvestBar: {
+		DisplayName: Harvest Bar
+		Tooltip: ""
+	}
+
+	LeafOfEnding: {
+		DisplayName: Leaf Of Ending
+		Tooltip: ""
+	}
+
+	TwilightWingFragment: {
+		DisplayName: Twilight Wing Fragment
+		Tooltip: ""
+	}
+
+	AdagioOfRadiantValor: {
+		DisplayName: Adagio Of Radiant Valor
+		Tooltip: ""
+	}
+
+	CodaOfAbsoluteHarmony: {
+		DisplayName: Coda Of Absolute Harmony
+		Tooltip: ""
+	}
+
+	CompleteHarmony: {
+		DisplayName: Complete Harmony
+		Tooltip: ""
+	}
+
+	ComposersNotebook: {
+		DisplayName: Composers Notebook
+		Tooltip: ""
+	}
+
+	CosmicWardensRegalia: {
+		DisplayName: Cosmic Wardens Regalia
+		Tooltip: ""
+	}
+
+	FantasiaOfBurningGrace: {
+		DisplayName: Fantasia Of Burning Grace
+		Tooltip: ""
+	}
+
+	InfernoOfLostShadows: {
+		DisplayName: Inferno Of Lost Shadows
+		Tooltip: ""
+	}
+
+	MelodicCharm: {
+		DisplayName: Melodic Charm
+		Tooltip: ""
+	}
+
+	NocturneOfAzureFlames: {
+		DisplayName: Nocturne Of Azure Flames
+		Tooltip: ""
+	}
+
+	OpusOfFourMovements: {
+		DisplayName: Opus Of Four Movements
+		Tooltip: ""
+	}
+
+	RequiemOfTheEnigmaticFlame: {
+		DisplayName: Requiem Of The Enigmatic Flame
+		Tooltip: ""
+	}
+
+	ResonantPendant: {
+		DisplayName: Resonant Pendant
+		Tooltip: ""
+	}
+
+	ReverieOfTheSilverSwan: {
+		DisplayName: Reverie Of The Silver Swan
+		Tooltip: ""
+	}
+
+	SeasonalDestiny: {
+		DisplayName: Seasonal Destiny
+		Tooltip: ""
+	}
+
+	SpringsMoonlitGarden: {
+		DisplayName: Springs Moonlit Garden
+		Tooltip: ""
+	}
+
+	SummersInfernalPeak: {
+		DisplayName: Summers Infernal Peak
+		Tooltip: ""
+	}
+
+	SummonersMagnumOpus: {
+		DisplayName: Summoners Magnum Opus
+		Tooltip: ""
+	}
+
+	ThemeWanderer: {
+		DisplayName: Theme Wanderer
+		Tooltip: ""
+	}
+
+	TrinityOfNight: {
+		DisplayName: Trinity Of Night
+		Tooltip: ""
+	}
+
+	TriumphantArabesque: {
+		DisplayName: Triumphant Arabesque
+		Tooltip: ""
+	}
+
+	ValseMacabre: {
+		DisplayName: Valse Macabre
+		Tooltip: ""
+	}
+
+	WintersEnigmaticSilence: {
+		DisplayName: Winters Enigmatic Silence
+		Tooltip: ""
+	}
+
+	CodasEcho: {
+		DisplayName: Codas Echo
+		Tooltip: ""
+	}
+
+	ConductorsInsight: {
+		DisplayName: Conductors Insight
+		Tooltip: ""
+	}
+
+	ElixirOfTheMaestro: {
+		DisplayName: Elixir Of The Maestro
+		Tooltip: ""
+	}
+
+	FatesBlessing: {
+		DisplayName: Fates Blessing
+		Tooltip: ""
+	}
+
+	FatesCosmicBrew: {
+		DisplayName: Fates Cosmic Brew
+		Tooltip: ""
+	}
+
+	HarmonicElixir: {
+		DisplayName: Harmonic Elixir
+		Tooltip: ""
+	}
+
+	HarmonicResonatorFragment: {
+		DisplayName: Harmonic Resonator Fragment
+		Tooltip: ""
+	}
+
+	MinorResonanceTonic: {
+		DisplayName: Minor Resonance Tonic
+		Tooltip: ""
+	}
+
+	SeasonalDraught: {
+		DisplayName: Seasonal Draught
+		Tooltip: ""
 	}
 
 	GrandPianoItem: {
-		DisplayName: Grand Piano
-		Tooltip:
-			'''
-			'The mystical instrument through which all symphonies resonate'
-			Place and use with Score items to summon the musical bosses
-			'''
-	}
-
-	ScoreOfEroica: {
-		DisplayName: Score of Eroica
-		Tooltip:
-			'''
-			'The heroic symphony, transcribed in celestial ink'
-			Use at the Grand Piano to summon Eroica, God of Valor
-			'''
-	}
-
-	FuneralPrayer: {
-		DisplayName: Funeral Prayer
-		Tooltip:
-			'''
-			'A hymn of flames for the fallen brave'
-			Fires 5 powerful homing beams of sacred fire
-			When all beams strike, unleashes a devastating ricochet beam
-			Low mana cost for its power
-			'''
-	}
-
-	FinalityOfTheSakura: {
-		DisplayName: Finality of the Sakura
-		Tooltip:
-			'''
-			'A final blossom before eternal night'
-			Summons a Sakura of Fate to fight for you
-			The Sakura fires black and scarlet flames at enemies
-			'''
-	}
-
-	PiercingLightOfTheSakura: {
-		DisplayName: Piercing Light of the Sakura
-		Tooltip:
-			'''
-			'A rifle forged from valor's radiance'
-			Fires rapid piercing bolts of sakura light
-			Every 10th shot fires a devastating lightning projectile
-			that calls down black and gold thunderbolts
-			'''
-	}
-
-	CelestialValor: {
-		DisplayName: Celestial Valor
-		Tooltip:
-			'''
-			'A blade that echoes with heroic triumph'
-			Each swing releases a homing celestial projectile
-			that seeks out the mightiest foes
-			Projectiles create explosive impacts that damage nearby enemies
-			'''
-	}
-
-	MoonlitEngine: {
-		DisplayName: Moonlit Engine
-		Tooltip: ""
-	}
-
-	MoonlitGyre: {
-		DisplayName: Moonlit Gyre
-		Tooltip: ""
-	}
-
-	FractalOfMoonlight: {
-		DisplayName: Fractal of Moonlight
-		Tooltip: ""
-	}
-
-	EmberOfTheMoon: {
-		DisplayName: Ember of the Moon
-		Tooltip: ""
-	}
-
-	ShardsOfMoonlitTempo: {
-		DisplayName: Shards of Moonlit Tempo
-		Tooltip: "'Crystallized fragments of lunar rhythm'"
-	}
-
-	ShardOfTheFeatheredTempo: {
-		DisplayName: Shard of the Feathered Tempo
-		Tooltip: "'A graceful fragment of swan-like elegance'"
-	}
-
-	TriumphantFractal: {
-		DisplayName: Triumphant Fractal
-		Tooltip:
-			'''
-			'Fractured lightning of victorious fury'
-			Fires 3 powerful fractal projectiles
-			Projectiles deal 115% enhanced damage and create massive explosions
-			'''
-	}
-
-	ResonantCoreOfLaCampanella: {
-		DisplayName: Resonant Core of La Campanella
-		Tooltip:
-			'''
-			'The eternal bell's toll, frozen in crystalline form'
-			Foundation material for all La Campanella armaments
-			Smelt blazing remnants to forge this sacred core
-			'''
-	}
-
-	LaCampanellaResonantEnergy: {
-		DisplayName: La Campanella Resonant Energy
-		Tooltip:
-			'''
-			'Each mote of energy rings with bell-like clarity'
-			Harness this to strengthen the Harmonic Core's resonance
-			The bells grow louder with each infusion
-			'''
-	}
-
-	HarmonicCoreOfSwanLake: {
-		DisplayName: Harmonic Core of Swan Lake
-		Tooltip:
-			'''
-			A core that pulses with dual energies
-			Used to craft powerful Swan Lake equipment
-			'Where white meets black, harmony is born'
-			'''
-	}
-
-	ResonantCoreOfSwanLake: {
-		DisplayName: Resonant Core of Swan Lake
-		Tooltip:
-			'''
-			Crystallized resonance of the eternal ballet
-			A key component for Swan Lake crafting
-			'Each facet reflects a different dancer'
-			'''
-	}
-
-	RemnantOfSwansHarmony: {
-		DisplayName: Remnant of Swan's Harmony
-		Tooltip:
-			'''
-			A fragment of perfect synchronization
-			Drops from defeated lake denizens
-			'Two become one in this crystalline memory'
-			'''
-	}
-
-	SwansResonanceEnergy: {
-		DisplayName: Swan's Resonance Energy
-		Tooltip:
-			'''
-			A crystallized essence of duality
-			Shimmers between pure white and absolute black
-			'In the dance of swans, energy flows eternal'
-			'''
-	}
-
-	BlackWingsOfTheMonochromaticDawn: {
-		DisplayName: Black Wings of the Monochromatic Dawn
-		Tooltip:
-			'''
-			Summoner Accessory - Toggle modes with right-click
-			WHITE MODE: Up to 25% damage reduction when minions nearby (5% per minion)
-			          Protective white shields orbit around you
-			BLACK MODE: +35% minion damage, -20% defense, minions apply Flame of the Swan
-			'At dawn, when darkness meets light, the monochromatic wings spread'
-			'''
-	}
-
-	CrownOfTheSwan: {
-		DisplayName: Crown of the Swan
-		Tooltip:
-			'''
-			Mage Accessory - Toggle modes with right-click
-			WHITE MODE: -20% mana cost, protective wisps absorb 50% of one hit each
-			BLACK MODE: +30% magic damage, +15% mana cost, spells apply Flame of the Swan
-			'A crown fit for royalty of two kingdoms - light and shadow'
-			'''
-	}
-
-	DualFeatherQuiver: {
-		DisplayName: Dual Feather Quiver
-		Tooltip:
-			'''
-			Ranger Accessory - Works with arrows AND bullets
-			Toggle modes with right-click
-			WHITE MODE (Grace of Odette): +10% ranged crit, every 5th shot spawns a homing swan feather
-			          Enemies killed have 25% chance to drop healing feathers (+5 HP on pickup)
-			BLACK MODE (Shadow of Odile): +18% ranged damage, +2 pierce, applies Flame of the Swan
-			'Each feather remembers the flight - one toward the light, one into darkness'
-			'''
-	}
-
-	PendantOfTheTwoSwans: {
-		DisplayName: Pendant of the Two Swans
-		Tooltip:
-			'''
-			Melee Accessory - Toggle modes with right-click
-			WHITE MODE: A monochromatic halo surrounds you, granting 3 shield charges
-			          Each charge blocks 1 lethal hit (recharges after 15 seconds)
-			          Halo brightness indicates remaining charges
-			BLACK MODE: 20% chance on ANY melee crit to trigger rainbow explosions with Flame of the Swan
-			'Two souls entwined in eternal dance - light and shadow, love and deception'
-			'''
-	}
-
-	TheSwansAxe: {
-		DisplayName: The Swan's Axe
-		Tooltip:
-			'''
-			300% axe power
-			Cuts through wood like a swan glides through water
-			'Grace and power united in crystalline edge'
-			'''
-	}
-
-	TheSwansHammer: {
-		DisplayName: The Swan's Hammer
-		Tooltip:
-			'''
-			165% hammer power
-			Reshapes the world with elegant force
-			'Even walls crumble before the swan's determination'
-			'''
-	}
-
-	TheSwansPickaxe: {
-		DisplayName: The Swan's Pickaxe
-		Tooltip:
-			'''
-			425% pickaxe power
-			Can mine La Campanella Resonance Ore
-			'Unearths treasures hidden in the deepest lakes'
-			'''
-	}
-
-	CalloftheBlackSwan: {
-		DisplayName: Call of the Black Swan
-		Tooltip:
-			'''
-			Greatsword that fires 3 black/white flares per swing
-			Landing all 3 flares empowers the next swing
-			Empowered swing fires 8 projectiles at 200% damage
-			Applies Flame of the Swan on hit
-			'Odile's seduction made manifest'
-			'''
-	}
-
-	CallofthePearlescentLake: {
-		DisplayName: Call of the Pearlescent Lake
-		Tooltip:
-			'''
-			Fires tracking black/white rockets that create rainbow explosions
-			Converts bullets into homing projectiles
-			Applies Flame of the Swan
-			'The lake speaks in tongues of fire and light'
-			'''
-	}
-
-	ChromaticSwanSong: {
-		DisplayName: Chromatic Swan Song
-		Tooltip:
-			'''
-			Magic pistol with tracking black/white shots
-			Hitting the same enemy 3 times triggers a triple explosion
-			'The final melody plays in colors beyond mortal sight'
-			'''
-	}
-
-	FeatheroftheIridescentFlock: {
-		DisplayName: Feather of the Iridescent Flock
-		Tooltip:
-			'''
-			Summons 3 orbiting black/white crystals
-			Crystals fire homing flares and charge up rainbow beams
-			Each crystal attacks independently
-			'From one feather, a flock is born in iridescent glory'
-			'''
-	}
-
-	IridescentWingspan: {
-		DisplayName: Iridescent Wingspan
-		Tooltip:
-			'''
-			Staff that fires 3 black/white flares in a 60° cone
-			Flares create pearlescent rainbow explosions on hit
-			Each hit rings with crystalline resonance
-			Applies Flame of the Swan
-			'Wings spread wide catch light from both sun and shadow'
-			'''
-	}
-
-	TheSwansLament: {
-		DisplayName: The Swan's Lament
-		Tooltip:
-			'''
-			Shotgun rifle firing 10-15 black/white flaming bullets
-			Creates halos of destruction and black/white lightning on hit
-			Each bullet can pierce and create additional explosions
-			'A song of sorrow echoes through each devastating volley'
-			'''
-	}
-
-	FeathersCall: {
-		DisplayName: Feather's Call
-		Tooltip:
-			'''
-			Transforms you into a fragment of the Swan's essence
-			Drains all mana on use for full transformation
-			Left-click: Rain pearlescent flares with tracking explosions
-			Right-click: Unleash black and white lightning
-			Grants infinite flight while transformed
-			'The Swan's power courses through your veins...'
-			'''
-	}
-
-	CampanellasPyreMedallion: {
-		DisplayName: Campanella's Pyre Medallion
-		Tooltip:
-			'''
-			'Forged in the flames of Liszt's fastest passage'
-			The medallion burns with an eternal inferno
-			+15% critical strike chance
-			+8% attack speed
-			+20% damage to enemies marked by Resonant Toll
-			Your swift movements leave trails of sacred bellfire
-			'Each note blazes brighter than the last'
-			'''
-	}
-
-	ChamberOfBellfire: {
-		DisplayName: Chamber of Bellfire
-		Tooltip:
-			'''
-			'The first bell tolls - and flames answer'
-			+6 defense, +12% damage
-			Grants immunity to all fire debuffs and lava
-			Blazing aura surrounds you, damaging nearby foes
-			Every 10 strikes, the bells toll with explosive fury
-			'Within this chamber burns the virtuoso's undying passion'
-			'''
-	}
-
-	InfernalBellOfTheMaestro: {
-		DisplayName: Infernal Bell of the Maestro
-		Tooltip:
-			'''
-			'The Grand Finale - Where Music Becomes Fire'
-			+15 defense, +60 max life, +8 life regen
-			+20% all damage, +20% crit chance, +15% attack speed, +15% movement
-			Complete mastery over flame - no fire can harm you
-			INFERNAL RESONANCE: Your very presence ignites all who draw near
-			GRAND TOLLING: Every 5 seconds, the bell's voice shakes reality itself
-			Critical strikes erupt in pillars of sacred fire (+25% bonus damage)
-			Each Resonant Toll stack amplifies your fury (+5% damage per stack)
-			'Become the Maestro. Conduct the Inferno. Let the Bell Sing!'
-			'''
-	}
-
-	SymphonyOfTheBlazingSanctuary: {
-		DisplayName: Symphony of the Blazing Sanctuary
-		Tooltip:
-			'''
-			'Where bells ring, the faithful find shelter in flames'
-			+10 defense, +40 max life, +4 life regen
-			+15 defense when wounded below half health
-			BELL BARRIER: At death's door, the sanctuary's bells intervene
-			              Blocks 70% of lethal damage (30s cooldown)
-			              Repels enemies and brands them with Resonant Toll
-			Fallen enemies become pillars of healing fire
-			'The Symphony protects those who carry its flame'
-			'''
-	}
-
-	LaCampanellaTreasureBag: {
-		DisplayName: La Campanella Treasure Bag
-		Tooltip:
-			'''
-			{$CommonItemTooltip.RightClickToOpen}
-			'Within lies the Maestro's burning legacy'
-			Contains treasures forged in the infernal bells
-			'''
-	}
-
-	RemnantOfTheInfernalBell: {
-		DisplayName: Remnant of the Infernal Bell
-		Tooltip:
-			'''
-			'A fragment of the bell that played the Étude of Fire'
-			Crystallized essence from Liszt's legendary composition
-			The heat within never fades, even in the coldest depths
-			Smelt at a Moonlight Furnace to forge Resonant Cores
-			'''
-	}
-
-	ShardOfTheBurningTempo: {
-		DisplayName: Shard of the Burning Tempo
-		Tooltip:
-			'''
-			'Each shard rings with notes played faster than thought'
-			A fragment of virtuosic fury, blazing with impossible speed
-			The tempo within accelerates eternally
-			Essential for crafting La Campanella equipment
-			'''
-	}
-
-	DualFatedChime: {
-		DisplayName: Dual-Fated Chime
-		Tooltip:
-			'''
-			Zenith-style blade that summons 2-4 spectral bell echoes per swing
-			All attacks apply Resonant Toll debuff
-			Right-click: Inferno Waltz - spinning flame attack (requires full charge)
-			'When the dual chimes toll, even gods take notice'
-			'''
-	}
-
-	FangOfTheInfiniteBell: {
-		DisplayName: Fang of the Infinite Bell
-		Tooltip:
-			'''
-			Channels a fire vortex at your cursor that pulls in enemies
-			Caught enemies are continuously branded with Resonant Toll
-			Periodic eruptions deal burst damage every 1.5 seconds
-			'Listen to the infinite bell - it speaks only of destruction'
-			'''
-	}
-
-	GrandioseChime: {
-		DisplayName: Grandiose Chime
-		Tooltip:
-			'''
-			Fires piercing bell-flame beams that hit up to 3 enemies
-			Applies Resonant Toll on impact
-			Every 5th shot scatters 7 burning note projectiles
-			'The Grandiose Chime plays a melody of precision and fire'
-			'''
-	}
-
-	IgnitionOfTheBell: {
-		DisplayName: Ignition of the Bell
-		Tooltip:
-			'''
-			Each thrust releases 3 streams of blazing musical waves
-			Applies Resonant Toll on all hits
-			Every 3rd hit unleashes a flaming cyclone
-			'The bell's ignition cannot be contained - it yearns to burn'
-			'''
-	}
-
-	InfernalChimesCalling: {
-		DisplayName: Infernal Chime's Calling
-		Tooltip:
-			'''
-			Summons bell-flame spirit minions that attack in harmony
-			Minion attacks apply Resonant Toll
-			Every 5 harmonized strikes trigger a shockwave
-			'When the infernal choir calls, none can silence their song'
-			'''
-	}
-
-	PiercingBellsResonance: {
-		DisplayName: Piercing Bell's Resonance
-		Tooltip:
-			'''
-			Rapid-fire bullets that trigger cascading explosions on hit
-			Fire rate increases up to 40% while continuously shooting
-			Applies Resonant Toll on all hits
-			'The resonance grows louder with each shot fired'
-			'''
-	}
-
-	SymphonicBellfireAnnihilator: {
-		DisplayName: Symphonic Bellfire Annihilator
-		Tooltip:
-			'''
-			Launches bell-shaped rockets that spawn 8 wall-piercing pulses on explosion
-			Double Resonant Toll stacks on blast victims
-			Three rapid explosions trigger 36 flame waves and 5s of blazing swiftness
-			'When the symphony reaches its crescendo, only silence remains'
-			'''
-	}
-
-	InfernalBellFragment: {
-		DisplayName: Infernal Bell Fragment
-		Tooltip: ""
-	}
-
-	VariationsOfTheVoid: {
-		DisplayName: Variations of the Void
-		Tooltip: ""
-	}
-
-	TheUnresolvedCadence: {
-		DisplayName: The Unresolved Cadence
-		Tooltip: ""
-	}
-
-	DissonanceOfSecrets: {
-		DisplayName: Dissonance of Secrets
-		Tooltip: ""
-	}
-
-	CipherNocturne: {
-		DisplayName: Cipher Nocturne
-		Tooltip: ""
-	}
-
-	FugueOfTheUnknown: {
-		DisplayName: Fugue of the Unknown
-		Tooltip: ""
-	}
-
-	TheWatchingRefrain: {
-		DisplayName: The Watching Refrain
-		Tooltip: ""
-	}
-
-	TheSilentMeasure: {
-		DisplayName: The Silent Measure
-		Tooltip: ""
-	}
-
-	TacetsEnigma: {
-		DisplayName: Tacet's Enigma
-		Tooltip: ""
-	}
-
-	Fate1: {
-		DisplayName: Fate1
-		Tooltip: ""
-	}
-
-	Fate10: {
-		DisplayName: Fate10
-		Tooltip: ""
-	}
-
-	Fate11: {
-		DisplayName: Fate11
-		Tooltip: ""
-	}
-
-	Fate12: {
-		DisplayName: Fate12
-		Tooltip: ""
-	}
-
-	Fate2: {
-		DisplayName: Fate2
-		Tooltip: ""
-	}
-
-	Fate3: {
-		DisplayName: Fate3
-		Tooltip: ""
-	}
-
-	Fate4: {
-		DisplayName: Fate4
-		Tooltip: ""
-	}
-
-	Fate5: {
-		DisplayName: Fate5
-		Tooltip: ""
-	}
-
-	Fate6: {
-		DisplayName: Fate6
-		Tooltip: ""
-	}
-
-	Fate7: {
-		DisplayName: Fate7
-		Tooltip: ""
-	}
-
-	Fate8: {
-		DisplayName: Fate8
-		Tooltip: ""
-	}
-
-	Fate9: {
-		DisplayName: Fate9
+		DisplayName: Grand Piano Item
 		Tooltip: ""
 	}
 
@@ -1269,55 +3394,38 @@ Items: {
 		Tooltip: ""
 	}
 
-	RiddlemastersFlight: {
-		DisplayName: Riddlemasters Flight
-		Tooltip: ""
-	}
-
-	EnigmasPickaxe: {
-		DisplayName: Enigma's Pickaxe
-		Tooltip:
-			'''
-			Watching eyes follow the pickaxe as you mine
-			'The earth holds many secrets... each swing reveals another'
-			'''
-	}
-
-	EnigmasAxe: {
-		DisplayName: Enigma's Axe
-		Tooltip:
-			'''
-			Arcane glyphs swirl around each strike
-			'Trees fall to riddles they cannot solve'
-			'''
-	}
-
-	EnigmasHammer: {
-		DisplayName: Enigma's Hammer
-		Tooltip:
-			'''
-			Powerful impacts leave lingering mysteries
-			'Some walls were never meant to stand'
-			'''
-	}
-
-	SymphonyOfTheUniverse: {
-		DisplayName: Symphony Of The Universe
-		Tooltip: ""
-	}
-
-	WingsOfTheBellbornDawn: {
-		DisplayName: Wings Of The Bellborn Dawn
-		Tooltip: ""
-	}
-
-	IridescentDawn: {
-		DisplayName: Iridescent Dawn
-		Tooltip: ""
-	}
-
 	Debug2Ray: {
 		DisplayName: Debug2 Ray
+		Tooltip: ""
+	}
+
+	AlchemicalParadox: {
+		DisplayName: Alchemical Paradox
+		Tooltip: ""
+	}
+
+	IgnitionOfMystery: {
+		DisplayName: Ignition Of Mystery
+		Tooltip: ""
+	}
+
+	PendantOfAThousandPuzzles: {
+		DisplayName: Pendant Of A Thousand Puzzles
+		Tooltip: ""
+	}
+
+	PuzzleFragment: {
+		DisplayName: Puzzle Fragment
+		Tooltip: ""
+	}
+
+	RiddlemastersCauldron: {
+		DisplayName: Riddlemasters Cauldron
+		Tooltip: ""
+	}
+
+	RiddleOfTheVoid: {
+		DisplayName: Riddle Of The Void
 		Tooltip: ""
 	}
 
@@ -1326,127 +3434,8 @@ Items: {
 		Tooltip: ""
 	}
 
-	Fate1Sword: {
-		DisplayName: Fate1 Sword
-		Tooltip: ""
-	}
-
-	Fate1Magic: {
-		DisplayName: Fate1 Magic
-		Tooltip: ""
-	}
-
-	Fate1Ranged: {
-		DisplayName: Fate1 Ranged
-		Tooltip: ""
-	}
-
-	Fate1Summon: {
-		DisplayName: Fate1 Summon
-		Tooltip: ""
-	}
-
-	Fate2Magic: {
-		DisplayName: Fate2 Magic
-		Tooltip: ""
-	}
-
-	Fate2Ranged: {
-		DisplayName: Fate2 Ranged
-		Tooltip: ""
-	}
-
-	Fate2Sword: {
-		DisplayName: Fate2 Sword
-		Tooltip: ""
-	}
-
-	Fate3Sword: {
-		DisplayName: Fate3 Sword
-		Tooltip: ""
-	}
-
-	Fate4Sword: {
-		DisplayName: Fate4 Sword
-		Tooltip: ""
-	}
-
-	Fate5Sword: {
-		DisplayName: Fate5 Sword
-		Tooltip: ""
-	}
-
-	IgnitionOfMystery: {
-		DisplayName: Ignition of Mystery
-		Tooltip:
-			'''
-			Mysteries Unveiled:
-			Melee attacks build mystery stacks (max 10)
-			Each stack grants +2% melee speed (up to +20%)
-			At max stacks, unleash a devastating eye burst
-			Marked enemies take 15% increased damage for 5 seconds
-			'The unknown fears those who seek it'
-			'''
-	}
-
-	PendantOfAThousandPuzzles: {
-		DisplayName: Pendant of a Thousand Puzzles
-		Tooltip:
-			'''
-			Arcane Enigma:
-			Magic attacks have 15% chance to spawn puzzle fragments
-			Collect 5 fragments to activate Puzzle Mastery (8 seconds):
-			  +30% magic damage, -20% mana cost
-			  Magic projectiles leave glowing glyph trails
-			'A thousand answers to questions never asked'
-			'''
-	}
-
-	AlchemicalParadox: {
-		DisplayName: Alchemical Paradox
-		Tooltip:
-			'''
-			Paradox Shots:
-			Every 4th ranged attack becomes a Paradox Bolt
-			Paradox Bolts split into 2-3 projectiles on hit
-			Applies Paradox debuff (damage over time)
-			Afflicted enemies explode on death
-			+8% ranged critical strike chance
-			'In contradiction, truth unravels'
-			'''
-	}
-
-	RiddlemastersCauldron: {
-		DisplayName: Riddlemaster's Cauldron
-		Tooltip:
-			'''
-			Cauldron's Brew:
-			Minions release Mystery Vapors every 3 seconds
-			Vapors confuse enemies and reduce their damage by 15%
-			Every 5 seconds, a random minion gains Riddle's Blessing
-			Blessed minions attack twice as fast for 3 seconds
-			+1 max minion slot
-			'The answer was always in the question'
-			'''
-	}
-
-	RemnantOfMysteries: {
-		DisplayName: Remnant of Mysteries
-		Tooltip:
-			'''
-			'Fragments of questions that will never be answered'
-			Raw essence from the enigmatic variations
-			Used in crafting Enigma equipment
-			'''
-	}
-
 	HarmonicCoreOfEnigma: {
 		DisplayName: Harmonic Core Of Enigma
-		Tooltip: ""
-	}
-
-	ResonantCoreOfEnigma: {
-		DisplayName: Resonant Core Of Enigma
 		Tooltip: ""
 	}
 
@@ -1455,8 +3444,103 @@ Items: {
 		Tooltip: ""
 	}
 
+	RemnantOfMysteries: {
+		DisplayName: Remnant Of Mysteries
+		Tooltip: ""
+	}
+
+	ResonantCoreOfEnigma: {
+		DisplayName: Resonant Core Of Enigma
+		Tooltip: ""
+	}
+
+	ShardOfTheMysterysTempo: {
+		DisplayName: Shard Of The Mysterys Tempo
+		Tooltip: ""
+	}
+
+	EnigmaResonanceOre: {
+		DisplayName: Enigma Resonance Ore
+		Tooltip: ""
+	}
+
+	CipherNocturne: {
+		DisplayName: Cipher Nocturne
+		Tooltip: ""
+	}
+
+	DissonanceOfSecrets: {
+		DisplayName: Dissonance Of Secrets
+		Tooltip: ""
+	}
+
+	FugueOfTheUnknown: {
+		DisplayName: Fugue Of The Unknown
+		Tooltip: ""
+	}
+
+	TacetsEnigma: {
+		DisplayName: Tacets Enigma
+		Tooltip: ""
+	}
+
+	TheSilentMeasure: {
+		DisplayName: The Silent Measure
+		Tooltip: ""
+	}
+
+	TheUnresolvedCadence: {
+		DisplayName: The Unresolved Cadence
+		Tooltip: ""
+	}
+
+	TheWatchingRefrain: {
+		DisplayName: The Watching Refrain
+		Tooltip: ""
+	}
+
+	VariationsOfTheVoid: {
+		DisplayName: Variations Of The Void
+		Tooltip: ""
+	}
+
+	ScoreOfEnigma: {
+		DisplayName: Score Of Enigma
+		Tooltip: ""
+	}
+
+	EnigmasAxe: {
+		DisplayName: Enigmas Axe
+		Tooltip: ""
+	}
+
+	EnigmasHammer: {
+		DisplayName: Enigmas Hammer
+		Tooltip: ""
+	}
+
+	EnigmasPickaxe: {
+		DisplayName: Enigmas Pickaxe
+		Tooltip: ""
+	}
+
+	RiddlemastersFlight: {
+		DisplayName: Riddlemasters Flight
+		Tooltip: ""
+	}
+
+	BadgeOfValor: {
+		DisplayName: Badge Of Valor
+		Tooltip: ""
+	}
+
 	FuneralMarchInsignia: {
 		DisplayName: Funeral March Insignia
+		Tooltip: ""
+	}
+
+	HerosSymphony: {
+		DisplayName: Heros Symphony
 		Tooltip: ""
 	}
 
@@ -1520,8 +3604,38 @@ Items: {
 		Tooltip: ""
 	}
 
+	CelestialValor: {
+		DisplayName: Celestial Valor
+		Tooltip: ""
+	}
+
+	FinalityOfTheSakura: {
+		DisplayName: Finality Of The Sakura
+		Tooltip: ""
+	}
+
+	FuneralPrayer: {
+		DisplayName: Funeral Prayer
+		Tooltip: ""
+	}
+
+	PiercingLightOfTheSakura: {
+		DisplayName: Piercing Light Of The Sakura
+		Tooltip: ""
+	}
+
 	SakurasBlossom: {
 		DisplayName: Sakuras Blossom
+		Tooltip: ""
+	}
+
+	TriumphantFractal: {
+		DisplayName: Triumphant Fractal
+		Tooltip: ""
+	}
+
+	ScoreOfEroica: {
+		DisplayName: Score Of Eroica
 		Tooltip: ""
 	}
 
@@ -1545,13 +3659,43 @@ Items: {
 		Tooltip: ""
 	}
 
+	AstralConduit: {
+		DisplayName: Astral Conduit
+		Tooltip: ""
+	}
+
+	ConstellationCompass: {
+		DisplayName: Constellation Compass
+		Tooltip: ""
+	}
+
+	MachinationoftheEventHorizon: {
+		DisplayName: Machination of the Event Horizon
+		Tooltip: ""
+	}
+
+	OrreryofInfiniteOrbits: {
+		DisplayName: Orrery of Infinite Orbits
+		Tooltip: ""
+	}
+
+	ParadoxChronometer: {
+		DisplayName: Paradox Chronometer
+		Tooltip: ""
+	}
+
+	FateTreasureBag: {
+		DisplayName: Fate Treasure Bag
+		Tooltip: ""
+	}
+
 	HarmonicCoreOfFate: {
 		DisplayName: Harmonic Core Of Fate
 		Tooltip: ""
 	}
 
-	ResonantCoreOfFate: {
-		DisplayName: Resonant Core Of Fate
+	CelestialConductorsBaton: {
+		DisplayName: Celestial Conductors Baton
 		Tooltip: ""
 	}
 
@@ -1560,108 +3704,23 @@ Items: {
 		Tooltip: ""
 	}
 
-	FateTreasureBag: {
-		DisplayName: Fate Treasure Bag
-		Tooltip: "{$CommonItemTooltip.RightClickToOpen}"
-	}
-
-	HeartOfMusic: {
-		DisplayName: Heart Of Music
+	RemnantOfTheGalaxysHarmony: {
+		DisplayName: Remnant Of The Galaxys Harmony
 		Tooltip: ""
 	}
 
-	ResonanceAwakener: {
-		DisplayName: Resonance Awakener
+	ResonantCoreOfFate: {
+		DisplayName: Resonant Core Of Fate
 		Tooltip: ""
 	}
 
-	SeedOfUniversalMelodies: {
-		DisplayName: Seed Of Universal Melodies
+	ShardOfFatesTempo: {
+		DisplayName: Shard Of Fates Tempo
 		Tooltip: ""
 	}
 
-	HarmonicCoreOfLaCampanella: {
-		DisplayName: Harmonic Core Of La Campanella
-		Tooltip: ""
-	}
-
-	MoonlightAnvil: {
-		DisplayName: Moonlight Anvil
-		Tooltip: ""
-	}
-
-	MoonlightFurnace: {
-		DisplayName: Moonlight Furnace
-		Tooltip: ""
-	}
-
-	HarmonicCoreOfMoonlightSonata: {
-		DisplayName: Harmonic Core Of Moonlight Sonata
-		Tooltip: ""
-	}
-
-	MoonlightsResonantEnergy: {
-		DisplayName: Moonlights Resonant Energy
-		Tooltip: ""
-	}
-
-	RemnantOfMoonlightsHarmony: {
-		DisplayName: Remnant Of Moonlights Harmony
-		Tooltip: ""
-	}
-
-	ResonantCoreOfMoonlightSonata: {
-		DisplayName: Resonant Core Of Moonlight Sonata
-		Tooltip: ""
-	}
-
-	MoonlitResonanceOre: {
-		DisplayName: Moonlit Resonance Ore
-		Tooltip: ""
-	}
-
-	IncisorOfMoonlight: {
-		DisplayName: Incisor Of Moonlight
-		Tooltip: ""
-	}
-
-	MoonlightsAxe: {
-		DisplayName: Moonlights Axe
-		Tooltip: ""
-	}
-
-	MoonlightsHammer: {
-		DisplayName: Moonlights Hammer
-		Tooltip: ""
-	}
-
-	MoonlightsPickaxe: {
-		DisplayName: Moonlights Pickaxe
-		Tooltip: ""
-	}
-
-	WingsOfTheMoon: {
-		DisplayName: Wings Of The Moon
-		Tooltip: ""
-	}
-
-	ResurrectionOfTheMoon: {
-		DisplayName: Resurrection Of The Moon
-		Tooltip: ""
-	}
-
-	SwanLakeTreasureBag: {
-		DisplayName: Swan Lake Treasure Bag
-		Tooltip: ""
-	}
-
-	ScoreOfSwanLake: {
-		DisplayName: Score Of Swan Lake
-		Tooltip: ""
-	}
-
-	CelestialConductorsBaton: {
-		DisplayName: Celestial Conductors Baton
+	FateResonanceOre: {
+		DisplayName: Fate Resonance Ore
 		Tooltip: ""
 	}
 
@@ -1715,6 +3774,11 @@ Items: {
 		Tooltip: ""
 	}
 
+	ScoreOfFate: {
+		DisplayName: Score Of Fate
+		Tooltip: ""
+	}
+
 	FatesAxe: {
 		DisplayName: Fates Axe
 		Tooltip: ""
@@ -1730,58 +3794,138 @@ Items: {
 		Tooltip: ""
 	}
 
-	ScoreOfEnigma: {
-		DisplayName: Score Of Enigma
+	SymphonyOfTheUniverse: {
+		DisplayName: Symphony Of The Universe
 		Tooltip: ""
 	}
 
-	AstralConduit: {
-		DisplayName: Astral Conduit
+	HeartOfMusic: {
+		DisplayName: Heart Of Music
 		Tooltip: ""
 	}
 
-	ConstellationCompass: {
-		DisplayName: Constellation Compass
+	ResonanceAwakener: {
+		DisplayName: Resonance Awakener
 		Tooltip: ""
 	}
 
-	MachinationoftheEventHorizon: {
-		DisplayName: Machinationofthe Event Horizon
+	SeedOfUniversalMelodies: {
+		DisplayName: Seed Of Universal Melodies
 		Tooltip: ""
 	}
 
-	OrreryofInfiniteOrbits: {
-		DisplayName: Orreryof Infinite Orbits
+	CampanellasPyreMedallion: {
+		DisplayName: Campanellas Pyre Medallion
 		Tooltip: ""
 	}
 
-	ParadoxChronometer: {
-		DisplayName: Paradox Chronometer
+	ChamberOfBellfire: {
+		DisplayName: Chamber Of Bellfire
 		Tooltip: ""
 	}
 
-	RemnantOfTheGalaxysHarmony: {
-		DisplayName: Remnant Of The Galaxys Harmony
+	ChimeOfFlames: {
+		DisplayName: Chime Of Flames
 		Tooltip: ""
 	}
 
-	ScoreOfFate: {
-		DisplayName: Score Of Fate
+	InfernalBellOfTheMaestro: {
+		DisplayName: Infernal Bell Of The Maestro
 		Tooltip: ""
 	}
 
-	ScoreOfLaCampanella: {
-		DisplayName: Score Of La Campanella
+	InfernalVirtuoso: {
+		DisplayName: Infernal Virtuoso
 		Tooltip: ""
 	}
 
-	ShardOfFatesTempo: {
-		DisplayName: Shard Of Fates Tempo
+	SymphonyOfTheBlazingSanctuary: {
+		DisplayName: Symphony Of The Blazing Sanctuary
+		Tooltip: ""
+	}
+
+	LaCampanellaTreasureBag: {
+		DisplayName: La Campanella Treasure Bag
+		Tooltip: ""
+	}
+
+	RemnantOfTheInfernalBell: {
+		DisplayName: Remnant Of The Infernal Bell
+		Tooltip: ""
+	}
+
+	ShardOfTheBurningTempo: {
+		DisplayName: Shard Of The Burning Tempo
+		Tooltip: ""
+	}
+
+	HarmonicCoreOfLaCampanella: {
+		DisplayName: Harmonic Core Of La Campanella
+		Tooltip: ""
+	}
+
+	ResonantCoreOfLaCampanella: {
+		DisplayName: Resonant Core Of La Campanella
+		Tooltip: ""
+	}
+
+	LaCampanellaResonantEnergy: {
+		DisplayName: La Campanella Resonant Energy
 		Tooltip: ""
 	}
 
 	RemnantOfTheBellsHarmony: {
 		DisplayName: Remnant Of The Bells Harmony
+		Tooltip: ""
+	}
+
+	LaCampanellaResonanceOre: {
+		DisplayName: La Campanella Resonance Ore
+		Tooltip: ""
+	}
+
+	DualFatedChime: {
+		DisplayName: Dual Fated Chime
+		Tooltip: ""
+	}
+
+	FangOfTheInfiniteBell: {
+		DisplayName: Fang Of The Infinite Bell
+		Tooltip: ""
+	}
+
+	GrandioseChime: {
+		DisplayName: Grandiose Chime
+		Tooltip: ""
+	}
+
+	IgnitionOfTheBell: {
+		DisplayName: Ignition Of The Bell
+		Tooltip: ""
+	}
+
+	InfernalChimesCalling: {
+		DisplayName: Infernal Chimes Calling
+		Tooltip: ""
+	}
+
+	PiercingBellsResonance: {
+		DisplayName: Piercing Bells Resonance
+		Tooltip: ""
+	}
+
+	SymphonicBellfireAnnihilator: {
+		DisplayName: Symphonic Bellfire Annihilator
+		Tooltip: ""
+	}
+
+	InfernalBellFragment: {
+		DisplayName: Infernal Bell Fragment
+		Tooltip: ""
+	}
+
+	ScoreOfLaCampanella: {
+		DisplayName: Score Of La Campanella
 		Tooltip: ""
 	}
 
@@ -1800,208 +3944,653 @@ Items: {
 		Tooltip: ""
 	}
 
-	ShardOfTheMysterysTempo: {
+	WingsOfTheBellbornDawn: {
+		DisplayName: Wings Of The Bellborn Dawn
 		Tooltip: ""
-		DisplayName: Shard Of The Mysterys Tempo
 	}
-}
 
-NPCs: {
-	EroicasRetribution.DisplayName: Eroica, God of Valor
-	MovementI.DisplayName: Flames of Valor
-	MovementII.DisplayName: Flames of Valor
-	MovementIII.DisplayName: Flames of Valor
-	Lunus.DisplayName: Lunus
-	WaningDeer.DisplayName: Waning Deer
-	AbyssalMoonLurker.DisplayName: Abyssal Moon Lurker
-	StolenValor.DisplayName: Stolen Valor
-	StolenValorMinion.DisplayName: Stolen Valor Minion
-	BehemothOfValor.DisplayName: Behemoth Of Valor
-	EroicanCenturion.DisplayName: Eroican Centurion
-	FuneralBlitzer.DisplayName: Funeral Blitzer
-	FlamesOfValor.DisplayName: Flames Of Valor
-	SwanLakeTheMonochromaticFractal.DisplayName: Swan Lake The Monochromatic Fractal
-	LaCampanellaChimeOfLife.DisplayName: La Campanella Chime Of Life
-	EnigmaTheHollowMystery.DisplayName: Enigma The Hollow Mystery
-	MysterysEnd.DisplayName: Mystery's End
-	CrawlerOfTheBell.DisplayName: Crawler of the Bell
-	FateWardenOfMelodies.DisplayName: Fate Warden Of Melodies
-	HeraldOfFate.DisplayName: Herald Of Fate
-	ShatteredPrima.DisplayName: Shattered Prima
-}
+	BellEssence: {
+		DisplayName: Bell Essence
+		Tooltip: ""
+	}
 
-Projectiles: {
-	EnergyOfEroica.DisplayName: Energy Of Eroica
-	EroicasBeam.DisplayName: Eroica's Beam
-	PinkFlamingBolt.DisplayName: Pink Flaming Bolt
-	MoonlightWaveProjectile.DisplayName: Moonlight Wave Projectile
-	EternalMoonWave.DisplayName: Eternal Moon Wave
-	MoonlightBeam.DisplayName: Moonlight Beam
-	RazerOfMoonlightsShadow.DisplayName: Razer of Moonlight's Shadow
-	EternalMoonBeam.DisplayName: Eternal Moon Beam
-	BlossomOfTheSakuraBulletProjectile.DisplayName: Blossom Of The Sakura Bullet Projectile
-	FuneralPrayerProjectile.DisplayName: Funeral Prayer Projectile
-	SakurasBlossomSpectral.DisplayName: Sakura's Blossom Spectral
-	TriumphantFractalProjectile.DisplayName: Triumphant Fractal Projectile
-	FuneralPrayerBeam.DisplayName: Funeral Prayer Beam
-	GoliathOfMoonlight.DisplayName: Goliath of Moonlight
-	GoliathMoonlightBeam.DisplayName: Goliath Moonlight Beam
-	GoliathDevastatingBeam.DisplayName: Goliath Devastating Beam
-	SakuraOfFate.DisplayName: Sakura of Fate
-	SakuraFlameProjectile.DisplayName: Sakura Flame
-	FuneralPrayerRicochetBeam.DisplayName: Funeral Prayer Ricochet Beam
-	MoonlitEngineShockwave.DisplayName: Moonlit Engine Shockwave
-	MoonlitGyreSonicBoom.DisplayName: Moonlit Gyre Sonic Boom
-	MoonlightFlareProjectile.DisplayName: Moonlight Flare
-	LunarBlazeProjectile.DisplayName: Lunar Blaze
-	DiatonicMoonLanternOrbiting.DisplayName: Diatonic Moon Lantern
-	SnowOfTheMoonProjectile.DisplayName: Snow of the Moon
-	WaningDeerChandelierOrbiting.DisplayName: Waning Chandelier
-	AbyssalOrbProjectile.DisplayName: Abyssal Orb
-	AbyssalBoltProjectile.DisplayName: Abyssal Bolt
-	ResurrectionProjectile.DisplayName: Resurrection Projectile
+	FateEssence: {
+		DisplayName: Fate Essence
+		Tooltip: ""
+	}
+
+	GraceEssence: {
+		DisplayName: Grace Essence
+		Tooltip: ""
+	}
+
+	LunarEssence: {
+		DisplayName: Lunar Essence
+		Tooltip: ""
+	}
+
+	MysteryEssence: {
+		DisplayName: Mystery Essence
+		Tooltip: ""
+	}
+
+	ValorEssence: {
+		DisplayName: Valor Essence
+		Tooltip: ""
+	}
+
+	BrokenBaton: {
+		DisplayName: Broken Baton
+		Tooltip: ""
+	}
+
+	DullResonator: {
+		DisplayName: Dull Resonator
+		Tooltip: ""
+	}
+
+	FadedSheetMusic: {
+		DisplayName: Faded Sheet Music
+		Tooltip: ""
+	}
+
+	MinorMusicNote: {
+		DisplayName: Minor Music Note
+		Tooltip: ""
+	}
+
+	OldMetronome: {
+		DisplayName: Old Metronome
+		Tooltip: ""
+	}
+
+	ResonantCrystalShard: {
+		DisplayName: Resonant Crystal Shard
+		Tooltip: ""
+	}
+
+	RustedClef: {
+		DisplayName: Rusted Clef
+		Tooltip: ""
+	}
+
+	TuningFork: {
+		DisplayName: Tuning Fork
+		Tooltip: ""
+	}
+
+	AdagioPendant: {
+		DisplayName: Adagio Pendant
+		Tooltip: ""
+	}
+
+	EmberOfTheMoon: {
+		DisplayName: Ember Of The Moon
+		Tooltip: ""
+	}
+
+	FractalOfMoonlight: {
+		DisplayName: Fractal Of Moonlight
+		Tooltip: ""
+	}
+
+	MoonlitEngine: {
+		DisplayName: Moonlit Engine
+		Tooltip: ""
+	}
+
+	MoonlitGyre: {
+		DisplayName: Moonlit Gyre
+		Tooltip: ""
+	}
+
+	SonatasEmbrace: {
+		DisplayName: Sonatas Embrace
+		Tooltip: ""
+	}
+
+	MoonlightAnvil: {
+		DisplayName: Moonlight Anvil
+		Tooltip: ""
+	}
+
+	MoonlightFurnace: {
+		DisplayName: Moonlight Furnace
+		Tooltip: ""
+	}
+
+	ShardsOfMoonlitTempo: {
+		DisplayName: Shards Of Moonlit Tempo
+		Tooltip: ""
+	}
+
+	HarmonicCoreOfMoonlightSonata: {
+		DisplayName: Harmonic Core Of Moonlight Sonata
+		Tooltip: ""
+	}
+
+	MoonlightsResonantEnergy: {
+		DisplayName: Moonlights Resonant Energy
+		Tooltip: ""
+	}
+
+	RemnantOfMoonlightsHarmony: {
+		DisplayName: Remnant Of Moonlights Harmony
+		Tooltip: ""
+	}
+
+	ResonantCoreOfMoonlightSonata: {
+		DisplayName: Resonant Core Of Moonlight Sonata
+		Tooltip: ""
+	}
+
+	MoonlitResonanceOre: {
+		DisplayName: Moonlit Resonance Ore
+		Tooltip: ""
+	}
+
+	IncisorOfMoonlight: {
+		DisplayName: Incisor Of Moonlight
+		Tooltip: ""
+	}
+
+	MoonlightsAxe: {
+		DisplayName: Moonlights Axe
+		Tooltip: ""
+	}
+
+	MoonlightsHammer: {
+		DisplayName: Moonlights Hammer
+		Tooltip: ""
+	}
+
+	MoonlightsPickaxe: {
+		DisplayName: Moonlights Pickaxe
+		Tooltip: ""
+	}
+
+	WingsOfTheMoon: {
+		DisplayName: Wings Of The Moon
+		Tooltip: ""
+	}
+
+	EternalMoon: {
+		DisplayName: Eternal Moon
+		Tooltip: ""
+	}
+
+	MoonlightsCalling: {
+		DisplayName: Moonlights Calling
+		Tooltip: ""
+	}
 
 	ResurrectionOfTheMoon: {
-		DisplayName: Resurrection of the Moon
-		Tooltip:
-			'''
-			'From death comes rebirth in silver light'
-			Fires a devastating moonlight bullet
-			Bullets ricochet 10 times to nearby enemies
-			Each hit creates a devastating radial explosion
-			Requires reloading between shots
-			Synergizes with Moonlit Gyre: +25% damage, +15% velocity
-			'''
+		DisplayName: Resurrection Of The Moon
+		Tooltip: ""
 	}
 
-	HeroicSpiritMinion.DisplayName: Heroic Spirit Minion
-	HeroicSpiritSlash.DisplayName: Heroic Spirit Slash
-	PetalExplosion.DisplayName: Petal Explosion
-	PyreSlashWave.DisplayName: Pyre Slash Wave
-	StolenValorFlame.DisplayName: Stolen Valor Flame
-	StolenValorMinion.DisplayName: Stolen Valor Minion
-	BehemothFlameRain.DisplayName: Behemoth Flame Rain
-	BlitzerProjectile1.DisplayName: Blitzer Projectile1
-	BlitzerProjectile2.DisplayName: Blitzer Projectile2
-	CenturionLantern.DisplayName: Centurion Lantern
-	CenturionSwordProjectile.DisplayName: Centurion Sword Projectile
-	TriumphantColossusPet.DisplayName: Triumphant Colossus Pet
-	PiercingLightOfTheSakuraProjectile.DisplayName: Piercing Light of the Sakura
-	SakuraLightning.DisplayName: Sakura Lightning
-	CelestialValorProjectile.DisplayName: Celestial Valor Slash
-	FlameOfValorBeam.DisplayName: Flame Of Valor Beam
-	HandOfValor.DisplayName: Hand Of Valor
-	FistOfEroica.DisplayName: Fist Of Eroica
+	StaffOfTheLunarPhases: {
+		DisplayName: Staff Of The Lunar Phases
+		Tooltip: ""
+	}
 
-	PendantOfTheTwoSwans: {
-		DisplayName: Pendant of the Two Swans
-		Tooltip:
-			'''
-			A dual-natured pendant embodying Odette and Odile
-			[Right-click to toggle between White and Black Swan modes]
-			WHITE SWAN (Odette): Monochromatic halo grants 3 shield charges (blocks lethal hits)
-			                     Halo brightness shows remaining charges, recharges after 15s
-			BLACK SWAN (Odile): 20% chance on ANY melee crit for rainbow explosions + Flame of the Swan
-			'Two souls entwined in eternal dance'
-			'''
+	CycleOfSeasons: {
+		DisplayName: Cycle Of Seasons
+		Tooltip: ""
+	}
+
+	RelicOfTheEquinox: {
+		DisplayName: Relic Of The Equinox
+		Tooltip: ""
+	}
+
+	SolsticeRing: {
+		DisplayName: Solstice Ring
+		Tooltip: ""
+	}
+
+	VivaldisMasterwork: {
+		DisplayName: Vivaldis Masterwork
+		Tooltip: ""
+	}
+
+	BloomCrest: {
+		DisplayName: Bloom Crest
+		Tooltip: ""
+	}
+
+	GrowthBand: {
+		DisplayName: Growth Band
+		Tooltip: ""
+	}
+
+	PetalShield: {
+		DisplayName: Petal Shield
+		Tooltip: ""
+	}
+
+	BlossomEssence: {
+		DisplayName: Blossom Essence
+		Tooltip: ""
+	}
+
+	DormantSpringCore: {
+		DisplayName: Dormant Spring Core
+		Tooltip: ""
+	}
+
+	PetalOfRebirth: {
+		DisplayName: Petal Of Rebirth
+		Tooltip: ""
+	}
+
+	RainbowPetal: {
+		DisplayName: Rainbow Petal
+		Tooltip: ""
+	}
+
+	SpringResonantEnergy: {
+		DisplayName: Spring Resonant Energy
+		Tooltip: ""
+	}
+
+	VernalBar: {
+		DisplayName: Vernal Bar
+		Tooltip: ""
+	}
+
+	VernalDust: {
+		DisplayName: Vernal Dust
+		Tooltip: ""
+	}
+
+	RadiantCrown: {
+		DisplayName: Radiant Crown
+		Tooltip: ""
+	}
+
+	SunfirePendant: {
+		DisplayName: Sunfire Pendant
+		Tooltip: ""
+	}
+
+	ZenithBand: {
+		DisplayName: Zenith Band
+		Tooltip: ""
+	}
+
+	DormantSummerCore: {
+		DisplayName: Dormant Summer Core
+		Tooltip: ""
+	}
+
+	EmberOfIntensity: {
+		DisplayName: Ember Of Intensity
+		Tooltip: ""
+	}
+
+	HeatScale: {
+		DisplayName: Heat Scale
+		Tooltip: ""
+	}
+
+	SolarEssence: {
+		DisplayName: Solar Essence
+		Tooltip: ""
+	}
+
+	SolsticeBar: {
+		DisplayName: Solstice Bar
+		Tooltip: ""
+	}
+
+	SummerResonantEnergy: {
+		DisplayName: Summer Resonant Energy
+		Tooltip: ""
+	}
+
+	SunfireCore: {
+		DisplayName: Sunfire Core
+		Tooltip: ""
+	}
+
+	BlackWingsOfTheMonochromaticDawn: {
+		DisplayName: Black Wings Of The Monochromatic Dawn
+		Tooltip: ""
+	}
+
+	CrownOfTheSwan: {
+		DisplayName: Crown Of The Swan
+		Tooltip: ""
 	}
 
 	DualFeatherQuiver: {
 		DisplayName: Dual Feather Quiver
-		Tooltip:
-			'''
-			A mystical quiver crafted from twin swan feathers
-			[Right-click to toggle between White and Black Swan modes]
-			WHITE SWAN (Grace of Odette): +10% ranged crit, every 5th shot spawns homing swan feather
-			                              Kills have 25% chance to drop healing feathers (+5 HP)
-			BLACK SWAN (Shadow of Odile): +2 pierce, +18% ranged damage, Flame of the Swan
-			'Each feather remembers the flight'
-			'''
+		Tooltip: ""
 	}
 
-	CrownOfTheSwan: {
-		DisplayName: Crown of the Swan
-		Tooltip:
-			'''
-			A regal crown channeling dual swan magic
-			[Right-click to toggle between White and Black Swan modes]
-			WHITE SWAN: -20% mana cost, protective wisps absorb damage
-			BLACK SWAN: +30% magic damage, +15% mana cost, Flame of the Swan
-			'True power lies in choice'
-			'''
+	PendantOfTheTwoSwans: {
+		DisplayName: Pendant Of The Two Swans
+		Tooltip: ""
 	}
 
-	BlackWingsOfTheMonochromaticDawn: {
-		DisplayName: Black Wings of the Monochromatic Dawn
-		Tooltip:
-			'''
-			Ethereal wings that empower minions with dual nature
-			[Right-click to toggle between White and Black Swan modes]
-			WHITE SWAN: Up to 25% DR when minions nearby, protective shields orbit you
-			BLACK SWAN: +35% minion damage, -20% defense, minions apply Flame of the Swan
-			'At dawn, when darkness meets light'
-			'''
+	PlumeOfElegance: {
+		DisplayName: Plume Of Elegance
+		Tooltip: ""
 	}
 
-	TheSwansPickaxe: {
-		DisplayName: The Swan's Pickaxe
-		Tooltip:
-			'''
-			400% pickaxe power
-			'Grace flows through every swing'
-			'''
+	SwansChromaticDiadem: {
+		DisplayName: Swans Chromatic Diadem
+		Tooltip: ""
+	}
+
+	SwanLakeTreasureBag: {
+		DisplayName: Swan Lake Treasure Bag
+		Tooltip: ""
+	}
+
+	HarmonicCoreOfSwanLake: {
+		DisplayName: Harmonic Core Of Swan Lake
+		Tooltip: ""
+	}
+
+	FeathersCall: {
+		DisplayName: Feathers Call
+		Tooltip: ""
+	}
+
+	RemnantOfSwansHarmony: {
+		DisplayName: Remnant Of Swans Harmony
+		Tooltip: ""
+	}
+
+	ResonantCoreOfSwanLake: {
+		DisplayName: Resonant Core Of Swan Lake
+		Tooltip: ""
+	}
+
+	ShardOfTheFeatheredTempo: {
+		DisplayName: Shard Of The Feathered Tempo
+		Tooltip: ""
+	}
+
+	SwansResonanceEnergy: {
+		DisplayName: Swans Resonance Energy
+		Tooltip: ""
+	}
+
+	SwanLakeResonanceOre: {
+		DisplayName: Swan Lake Resonance Ore
+		Tooltip: ""
+	}
+
+	CalloftheBlackSwan: {
+		DisplayName: Call of the Black Swan
+		Tooltip: ""
+	}
+
+	CallofthePearlescentLake: {
+		DisplayName: Call of the Pearlescent Lake
+		Tooltip: ""
+	}
+
+	ChromaticSwanSong: {
+		DisplayName: Chromatic Swan Song
+		Tooltip: ""
+	}
+
+	FeatheroftheIridescentFlock: {
+		DisplayName: Feather of the Iridescent Flock
+		Tooltip: ""
+	}
+
+	IridescentWingspan: {
+		DisplayName: Iridescent Wingspan
+		Tooltip: ""
+	}
+
+	TheSwansLament: {
+		DisplayName: The Swans Lament
+		Tooltip: ""
+	}
+
+	ScoreOfSwanLake: {
+		DisplayName: Score Of Swan Lake
+		Tooltip: ""
+	}
+
+	IridescentDawn: {
+		DisplayName: Iridescent Dawn
+		Tooltip: ""
 	}
 
 	TheSwansAxe: {
-		DisplayName: The Swan's Axe
-		Tooltip:
-			'''
-			275% axe power
-			'The dancer's precision fells even the mightiest tree'
-			'''
+		DisplayName: The Swans Axe
+		Tooltip: ""
 	}
 
 	TheSwansHammer: {
-		DisplayName: The Swan's Hammer
-		Tooltip:
-			'''
-			150% hammer power
-			'Each strike echoes with the rhythm of the lake'
-			'''
+		DisplayName: The Swans Hammer
+		Tooltip: ""
 	}
 
-	BlackSwanFlare.DisplayName: Black Swan Flare
-	ChromaticSwanSongProjectile.DisplayName: Chromatic Swan Song Projectile
-	IridescentBeam.DisplayName: Iridescent Beam
-	IridescentCrystal.DisplayName: Iridescent Crystal
-	IridescentFlare.DisplayName: Iridescent Flare
-	IridescentWingspanProjectile.DisplayName: Iridescent Wingspan Projectile
-	PearlescentRocket.DisplayName: Pearlescent Rocket
-	SwansLamentBullet.DisplayName: Swan's Lament Bullet
-	HealingSwanHalo.DisplayName: Healing Swan Halo
-	FeathersCallFlare.DisplayName: Feather's Call Flare
-	HealingFeatherPickup.DisplayName: Healing Feather Pickup
-	HomingSwanFeather.DisplayName: Homing Swan Feather
+	TheSwansPickaxe: {
+		DisplayName: The Swans Pickaxe
+		Tooltip: ""
+	}
+
+	FrostbiteAmulet: {
+		DisplayName: Frostbite Amulet
+		Tooltip: ""
+	}
+
+	GlacialHeart: {
+		DisplayName: Glacial Heart
+		Tooltip: ""
+	}
+
+	StillnessShrine: {
+		DisplayName: Stillness Shrine
+		Tooltip: ""
+	}
+
+	DormantWinterCore: {
+		DisplayName: Dormant Winter Core
+		Tooltip: ""
+	}
+
+	FrostEssence: {
+		DisplayName: Frost Essence
+		Tooltip: ""
+	}
+
+	FrozenCore: {
+		DisplayName: Frozen Core
+		Tooltip: ""
+	}
+
+	IcicleCoronet: {
+		DisplayName: Icicle Coronet
+		Tooltip: ""
+	}
+
+	PermafrostBar: {
+		DisplayName: Permafrost Bar
+		Tooltip: ""
+	}
+
+	PermafrostShard: {
+		DisplayName: Permafrost Shard
+		Tooltip: ""
+	}
+
+	ShardOfStillness: {
+		DisplayName: Shard Of Stillness
+		Tooltip: ""
+	}
+
+	WinterResonantEnergy: {
+		DisplayName: Winter Resonant Energy
+		Tooltip: ""
+	}
+}
+
+NPCs: {
+	Autunno.DisplayName: Autunno
+	EnigmaTheHollowMystery.DisplayName: Enigma, The Hollow Mystery
+	MysterysEnd.DisplayName: Mystery's End
+	EroicasRetribution.DisplayName: Eroica, God of Valor
+	FlamesOfValor.DisplayName: Flames of Valor
+	MovementI.DisplayName: Movement I
+	MovementII.DisplayName: Movement II
+	MovementIII.DisplayName: Movement III
+	BehemothOfValor.DisplayName: Behemoth of Valor
+	EroicanCenturion.DisplayName: Eroican Centurion
+	FuneralBlitzer.DisplayName: Funeral Blitzer
+	StolenValor.DisplayName: Stolen Valor
+	FateWardenOfMelodies.DisplayName: Fate Warden Of Melodies
+	HeraldOfFate.DisplayName: Herald Of Fate
+	LaCampanellaChimeOfLife.DisplayName: La Campanella Chime Of Life
+	CrawlerOfTheBell.DisplayName: Crawler Of The Bell
+	WaningDeer.DisplayName: Waning Deer
+	Primavera.DisplayName: Primavera
+	LEstate.DisplayName: L Estate
+	SwanLakeTheMonochromaticFractal.DisplayName: Swan Lake The Monochromatic Fractal
+	ShatteredPrima.DisplayName: Shattered Prima
+	LInverno.DisplayName: L Inverno
+}
+
+Prefixes.ResonantScarPrefix.DisplayName: Resonance Scarred
+
+Projectiles: {
+	AcceleratingBoltProjectile.DisplayName: Accelerating Bolt Projectile
+	BoomerangProjectile.DisplayName: Boomerang Projectile
+	DelayedDetonationProjectile.DisplayName: Delayed Detonation Projectile
+	ExplosiveOrbProjectile.DisplayName: Explosive Orb Projectile
+	HostileOrbProjectile.DisplayName: Hostile Orb Projectile
+	WaveProjectile.DisplayName: Wave Projectile
+	Debug1FractalFlare.DisplayName: Debug1 Fractal Flare
+	Debug2RayBeam.DisplayName: Debug2 Ray Beam
+	EnigmaGlyphProjectile.DisplayName: Enigma Glyph Projectile
+	EnigmaHomingEye.DisplayName: Enigma Homing Eye
+	EnigmaMazeWall.DisplayName: Enigma Maze Wall
+	EnigmaShockwave.DisplayName: Enigma Shockwave
+	EnigmaVoidBeam.DisplayName: Enigma Void Beam
+	EnigmaVoidWeb.DisplayName: Enigma Void Web
+	EnigmaWebShot.DisplayName: Enigma Web Shot
+	CascadingGlyph.DisplayName: Cascading Glyph
+	MysterysEndProjectile.DisplayName: Mysterys End Projectile
+	MysteryVortexZone.DisplayName: Mystery Vortex Zone
+	ParadoxGazeEye.DisplayName: Paradox Gaze Eye
+	RevelationEyeProjectile.DisplayName: Revelation Eye Projectile
+	WatchingEyeProjectile.DisplayName: Watching Eye Projectile
+	DimensionalSlash.DisplayName: Dimensional Slash
+	FugueVoiceProjectile.DisplayName: Fugue Voice Projectile
+	HomingQuestionSeeker.DisplayName: Homing Question Seeker
+	MysteryZone.DisplayName: Mystery Zone
+	ParadoxCollapseUltimate.DisplayName: Paradox Collapse Ultimate
+	ParadoxPiercingBolt.DisplayName: Paradox Piercing Bolt
+	PhantomBolt.DisplayName: Phantom Bolt
+	PhantomRift.DisplayName: Phantom Rift
+	QuestionSeekerBolt.DisplayName: Question Seeker Bolt
+	RealitySnapBack.DisplayName: Reality Snap Back
+	RealityUnravelerBeam.DisplayName: Reality Unraveler Beam
+	Riddlebolt.DisplayName: Riddlebolt
+	RiddleCascadeOrb.DisplayName: Riddle Cascade Orb
+	TacetEnigmaShot.DisplayName: Tacet Enigma Shot
+	TacetParadoxBolt.DisplayName: Tacet Paradox Bolt
+	UnsolvedPhantomMinion.DisplayName: Unsolved Phantom Minion
+	VoidConvergenceBeamSet.DisplayName: Void Convergence Beam Set
+	VoidResonanceExplosion.DisplayName: Void Resonance Explosion
+	HeroicSpiritMinion.DisplayName: Heroic Spirit Minion
+	HeroicSpiritSlash.DisplayName: Heroic Spirit Slash
+	PetalExplosion.DisplayName: Petal Explosion
+	PyreSlashWave.DisplayName: Pyre Slash Wave
 	BehemothBreathFlame.DisplayName: Behemoth Breath Flame
 	BehemothDebris.DisplayName: Behemoth Debris
 	BehemothEruptionWave.DisplayName: Behemoth Eruption Wave
 	BehemothFirePillar.DisplayName: Behemoth Fire Pillar
+	BehemothFlameRain.DisplayName: Behemoth Flame Rain
 	BehemothShockwave.DisplayName: Behemoth Shockwave
 	BlitzerHomingSoul.DisplayName: Blitzer Homing Soul
 	BlitzerLightningBolt.DisplayName: Blitzer Lightning Bolt
+	BlitzerProjectile1.DisplayName: Blitzer Projectile1
+	BlitzerProjectile2.DisplayName: Blitzer Projectile2
 	BlitzerSalvoProjectile.DisplayName: Blitzer Salvo Projectile
 	BlitzerSorrowBomb.DisplayName: Blitzer Sorrow Bomb
 	CenturionCrimsonMeteor.DisplayName: Centurion Crimson Meteor
 	CenturionFireTrail.DisplayName: Centurion Fire Trail
 	CenturionGoldenSword.DisplayName: Centurion Golden Sword
 	CenturionInfernoOrb.DisplayName: Centurion Inferno Orb
+	CenturionLantern.DisplayName: Centurion Lantern
 	CenturionNovaWave.DisplayName: Centurion Nova Wave
+	CenturionSwordProjectile.DisplayName: Centurion Sword Projectile
 	StolenValorCageOrb.DisplayName: Stolen Valor Cage Orb
 	StolenValorChargeWave.DisplayName: Stolen Valor Charge Wave
+	StolenValorFlame.DisplayName: Stolen Valor Flame
+	StolenValorMinion.DisplayName: Stolen Valor Minion
 	StolenValorMinionShot.DisplayName: Stolen Valor Minion Shot
 	StolenValorOrbitalShot.DisplayName: Stolen Valor Orbital Shot
 	StolenValorTriumphWave.DisplayName: Stolen Valor Triumph Wave
-	WaningDeerHomingOrb.DisplayName: Waning Deer Homing Orb
+	SakuraFlameProjectile.DisplayName: Sakura Flame Projectile
+	SakuraOfFate.DisplayName: Sakura Of Fate
+	TriumphantColossusPet.DisplayName: Triumphant Colossus Pet
+	BlossomOfTheSakuraBulletProjectile.DisplayName: Blossom Of The Sakura Bullet Projectile
+	CelestialValorProjectile.DisplayName: Celestial Valor Projectile
+	EnergyOfEroica.DisplayName: Energy Of Eroica
+	EroicasBeam.DisplayName: Eroicas Beam
+	EroicaSplittingOrb.DisplayName: Eroica Splitting Orb
+	FistOfEroica.DisplayName: Fist Of Eroica
+	FlameOfValorBeam.DisplayName: Flame Of Valor Beam
+	FuneralPrayerBeam.DisplayName: Funeral Prayer Beam
+	FuneralPrayerProjectile.DisplayName: Funeral Prayer Projectile
+	FuneralPrayerRicochetBeam.DisplayName: Funeral Prayer Ricochet Beam
+	HandOfValor.DisplayName: Hand Of Valor
+	PiercingLightOfTheSakuraProjectile.DisplayName: Piercing Light Of The Sakura Projectile
+	PinkFlamingBolt.DisplayName: Pink Flaming Bolt
+	SakuraLightning.DisplayName: Sakura Lightning
+	SakurasBlossomSpectral.DisplayName: Sakuras Blossom Spectral
+	SplittingValorOrb.DisplayName: Splitting Valor Orb
+	TriumphantFractalProjectile.DisplayName: Triumphant Fractal Projectile
+	AstrographConstellation.DisplayName: Astrograph Constellation
+	CosmicStarCircleEffect.DisplayName: Cosmic Star Circle Effect
+	ConstellationBeam.DisplayName: Constellation Beam
+	CosmicRendSlash.DisplayName: Cosmic Rend Slash
+	FateSealedShard.DisplayName: Fate Sealed Shard
+	RealityFractureTrail.DisplayName: Reality Fracture Trail
+	StellarBolt.DisplayName: Stellar Bolt
+	AcceleratingCosmicRound.DisplayName: Accelerating Cosmic Round
+	CodaHeldSwingProjectile.DisplayName: Coda Held Swing Projectile
+	CodaZenithSwordProjectile.DisplayName: Coda Zenith Sword Projectile
+	CosmicBeamHeldSword.DisplayName: Cosmic Beam Held Sword
+	CosmicDeityMinion.DisplayName: Cosmic Deity Minion
+	CosmicElectricityStaff.DisplayName: Cosmic Electricity Staff
+	CosmicEnergyBall.DisplayName: Cosmic Energy Ball
+	CosmicMusicNoteProjectile.DisplayName: Cosmic Music Note Projectile
+	CosmicRocket.DisplayName: Cosmic Rocket
+	CosmicSeekerBall.DisplayName: Cosmic Seeker Ball
+	DeityCosmicBeam.DisplayName: Deity Cosmic Beam
+	FateRapidBullet.DisplayName: Fate Rapid Bullet
+	FermataSpectralSword.DisplayName: Fermata Spectral Sword
+	GlassDistortionEffect.DisplayName: Glass Distortion Effect
+	OrbitingSpectralBlade.DisplayName: Orbiting Spectral Blade
+	PrismaticBeam.DisplayName: Prismatic Beam
+	RequiemSpectralBladeProjectile.DisplayName: Requiem Spectral Blade Projectile
+	SpectralSlashingBlade.DisplayName: Spectral Slashing Blade
+	SpectralSwordBeam.DisplayName: Spectral Sword Beam
+	SpiralingSpectralBlade.DisplayName: Spiraling Spectral Blade
+	ZodiacExplosion.DisplayName: Zodiac Explosion
+	ExplosiveBellProjectile.DisplayName: Explosive Bell Projectile
+	InfernalBellLaser.DisplayName: Infernal Bell Laser
+	InfernalFireWave.DisplayName: Infernal Fire Wave
+	InfernalGroundFire.DisplayName: Infernal Ground Fire
+	MassiveInfernalLaser.DisplayName: Massive Infernal Laser
+	BellTollFlame.DisplayName: Bell Toll Flame
+	ChimePillar.DisplayName: Chime Pillar
+	CrescendoFireball.DisplayName: Crescendo Fireball
+	InfernalCrawlTrail.DisplayName: Infernal Crawl Trail
+	SmokeCloudProjectile.DisplayName: Smoke Cloud Projectile
+	SmokeFireball.DisplayName: Smoke Fireball
 	BellEnergyBeam.DisplayName: Bell Energy Beam
 	BellFireBullet.DisplayName: Bell Fire Bullet
 	BellFlameWave.DisplayName: Bell Flame Wave
@@ -2009,1066 +4598,49 @@ Projectiles: {
 	BlazingMusicalWave.DisplayName: Blazing Musical Wave
 	BurningMusicalNote.DisplayName: Burning Musical Note
 	CampanellaChoirMinion.DisplayName: Campanella Choir Minion
-	CampanellaConflagrationProjectile.DisplayName: Campanella Conflagration Projectile
 	ChimeCycloneProjectile.DisplayName: Chime Cyclone Projectile
 	ChoirFlameWave.DisplayName: Choir Flame Wave
 	DualFatedChimeProjectile.DisplayName: Dual Fated Chime Projectile
 	GrandCrescendoWave.DisplayName: Grand Crescendo Wave
 	HarmonicPulse.DisplayName: Harmonic Pulse
-	IgnitionThrustProjectile.DisplayName: Ignition Thrust Projectile
-	InfernoWaltzProjectile.DisplayName: Inferno Waltz Projectile
-	ExplosiveBellProjectile.DisplayName: Explosive Bell Projectile
-	InfernalBellLaser.DisplayName: Infernal Bell Laser
-	InfernalFireWave.DisplayName: Infernal Fire Wave
-	InfernalGroundFire.DisplayName: Infernal Ground Fire
-	MassiveInfernalLaser.DisplayName: Massive Infernal Laser
 	HomingBellRocket.DisplayName: Homing Bell Rocket
 	HomingMusicNote.DisplayName: Homing Music Note
+	IgnitionThrustProjectile.DisplayName: Ignition Thrust Projectile
+	InfernalBellMinion.DisplayName: Infernal Bell Minion
+	InfernalBellWave.DisplayName: Infernal Bell Wave
+	InfernoWaltzProjectile.DisplayName: Inferno Waltz Projectile
+	InfiniteBellExplosiveProjectile.DisplayName: Infinite Bell Explosive Projectile
+	InfiniteBellSpiralProjectile.DisplayName: Infinite Bell Spiral Projectile
 	MusicNoteMine.DisplayName: Music Note Mine
 	OrbitingMusicNote.DisplayName: Orbiting Music Note
 	ResonantBellBlast.DisplayName: Resonant Bell Blast
 	TrailingMusicNote.DisplayName: Trailing Music Note
-	ChargedThunderStrikeProjectile.DisplayName: Charged Thunder Strike Projectile
-	FallingMusicNoteProjectile.DisplayName: Falling Music Note Projectile
-	InfiniteBellExplosiveProjectile.DisplayName: Infinite Bell Explosive Projectile
-	InfiniteBellSpiralProjectile.DisplayName: Infinite Bell Spiral Projectile
-	SpectralBarrageBlade.DisplayName: Spectral Barrage Blade
-	CipherBeam.DisplayName: Cipher Beam
-	CipherCascade.DisplayName: Cipher Cascade
-	CipherChoir.DisplayName: Cipher Choir
-	CipherNote.DisplayName: Cipher Note
-	CipherRocket.DisplayName: Cipher Rocket
-	Enigma2Charge.DisplayName: Enigma2 Charge
-	EnigmaRift.DisplayName: Enigma Rift
-	EnigmaRiftArrow.DisplayName: Enigma Rift Arrow
-	EnigmaWisp.DisplayName: Enigma Wisp
-	MysteryMaelstrom.DisplayName: Mystery Maelstrom
-	ParadoxFamiliar.DisplayName: Paradox Familiar
-	ParadoxPulse.DisplayName: Paradox Pulse
-	ParadoxSeeker.DisplayName: Paradox Seeker
-	ParadoxZone.DisplayName: Paradox Zone
-	RiddleFragment.DisplayName: Riddle Fragment
-	CollapseBeam.DisplayName: Collapse Beam
-	CollapseOverloadBeam.DisplayName: Collapse Overload Beam
-	CosmicFateWisp.DisplayName: Cosmic Fate Wisp
-	CosmicPulseBullet.DisplayName: Cosmic Pulse Bullet
-	CosmicZone.DisplayName: Cosmic Zone
-	DestinyChoirSinger.DisplayName: Destiny Choir Singer
-	DestinyNote.DisplayName: Destiny Note
-	DestinyRift.DisplayName: Destiny Rift
-	Fate2EventHorizon.DisplayName: Fate2 Event Horizon
-	FateCataclysmRocket.DisplayName: Fate Cataclysm Rocket
-	FateFracture.DisplayName: Fate Fracture
-	FateMaelstrom.DisplayName: Fate Maelstrom
-	FateRiftArrow.DisplayName: Fate Rift Arrow
-	FateWispBeam.DisplayName: Fate Wisp Beam
-	GravityBolt.DisplayName: Gravity Bolt
-	RedshiftCascade.DisplayName: Redshift Cascade
-	SingularityFamiliar.DisplayName: Singularity Familiar
-	SingularityFragment.DisplayName: Singularity Fragment
-	AwarenessZone.DisplayName: Awareness Zone
-	ChargedParadoxThrust.DisplayName: Charged Paradox Thrust
-	ContradictionOrb.DisplayName: Contradiction Orb
-	DimensionalSlash.DisplayName: Dimensional Slash
-	HomingQuestionSeeker.DisplayName: Homing Question Seeker
-	MysteryZone.DisplayName: Mystery Zone
-	ObeliskParadoxBeam.DisplayName: Obelisk Paradox Beam
-	ParadoxAfterimage.DisplayName: Paradox Afterimage
-	ParadoxCollapseUltimate.DisplayName: Paradox Collapse Ultimate
-	ParadoxImpalerThrust.DisplayName: Paradox Impaler Thrust
-	ParadoxNovaExplosion.DisplayName: Paradox Nova Explosion
-	ParadoxPendulumHead.DisplayName: Paradox Pendulum Head
-	ParadoxPiercingArrow.DisplayName: Paradox Piercing Arrow
-	ParadoxRift.DisplayName: Paradox Rift
-	ParadoxSpiralProjectile.DisplayName: Paradox Spiral Projectile
-	PhantomBolt.DisplayName: Phantom Bolt
-	PhantomRift.DisplayName: Phantom Rift
-	QuantumSingularity.DisplayName: Quantum Singularity
-	QuestionBolt.DisplayName: Question Bolt
-	QuestionSeekerArrow.DisplayName: Question Seeker Arrow
-	RealitySnapBack.DisplayName: Reality Snap Back
-	RealityTear.DisplayName: Reality Tear
-	RealityTearLine.DisplayName: Reality Tear Line
-	RealityUnravelerBeam.DisplayName: Reality Unraveler Beam
-	Riddlebolt.DisplayName: Riddlebolt
-	RiddleCascadeOrb.DisplayName: Riddle Cascade Orb
-	SuperpositionRocket.DisplayName: Superposition Rocket
-	TemporalEchoAttack.DisplayName: Temporal Echo Attack
-	TimeCascadeExplosion.DisplayName: Time Cascade Explosion
-	UncertaintyFragment.DisplayName: Uncertainty Fragment
-	UnsolvedPhantomMinion.DisplayName: Unsolved Phantom Minion
-	VoidConvergenceBeam.DisplayName: Void Convergence Beam
-	VoidConvergencePoint.DisplayName: Void Convergence Point
-	VoidSeekerGlyph.DisplayName: Void Seeker Glyph
-	VoidSeekerEye.DisplayName: Void Seeker Eye
-	VoidQuestionShot.DisplayName: Void Question Shot
-	VoidSingularity.DisplayName: Void Singularity
-	WatchingObelisk.DisplayName: Watching Obelisk
-	CosmicDecreeMarker.DisplayName: Cosmic Decree Marker
-	FateLineProjectile.DisplayName: Fate Line Projectile
-	FateSeverSlash.DisplayName: Fate Sever Slash
-	InevitabilityArrow.DisplayName: Inevitability Arrow
-	TimelineGhostArrow.DisplayName: Timeline Ghost Arrow
-	ParadoxPiercingBolt.DisplayName: Paradox Piercing Bolt
-	QuestionSeekerBolt.DisplayName: Question Seeker Bolt
-	InevitabilityBolt.DisplayName: Inevitability Bolt
-	TimelineGhostBolt.DisplayName: Timeline Ghost Bolt
-	Debug1FractalFlare.DisplayName: Debug1 Fractal Flare
-	SplittingValorOrb.DisplayName: Splitting Valor Orb
-	Debug2RayBeam.DisplayName: Debug2 Ray Beam
-	EnigmaGlyphProjectile.DisplayName: Enigma Glyph Projectile
-	EnigmaHomingEye.DisplayName: Enigma Homing Eye
-	EnigmaShockwave.DisplayName: Enigma Shockwave
-	EnigmaVoidWeb.DisplayName: Enigma Void Web
-	EnigmaWebShot.DisplayName: Enigma Web Shot
-	MysterysEndProjectile.DisplayName: Mysterys End Projectile
-	ParadoxGazeEye.DisplayName: Paradox Gaze Eye
-	CascadingGlyph.DisplayName: Cascading Glyph
-	WatchingEyeProjectile.DisplayName: Watching Eye Projectile
-	MysteryVortexZone.DisplayName: Mystery Vortex Zone
-	RevelationEyeProjectile.DisplayName: Revelation Eye Projectile
-	BellTollFlame.DisplayName: Bell Toll Flame
-	InfernalCrawlTrail.DisplayName: Infernal Crawl Trail
-	SmokeCloudProjectile.DisplayName: Smoke Cloud
-	SmokeFireball.DisplayName: Smoke Fireball
-	ChimePillar.DisplayName: Chime Pillar
-	CrescendoFireball.DisplayName: Crescendo Fireball
-	AvatarDestinyOrb.DisplayName: Avatar Destiny Orb
-	AvatarRealityRift.DisplayName: Avatar Reality Rift
-	AvatarSwordSlash.DisplayName: Avatar Sword Slash
-	CosmicCrescentArc.DisplayName: Cosmic Crescent Arc
-	CosmicExecutionerSlash.DisplayName: Cosmic Executioner Slash
-	DestinyArrow.DisplayName: Destiny Arrow
-	DestinyEcho.DisplayName: Destiny Echo
-	EventHorizonBeam.DisplayName: Event Horizon Beam
-	FateAvatarMinion.DisplayName: Fate Avatar Minion
-	FateFractureLine.DisplayName: Fate Fracture Line
-	FateOrbSeeker.DisplayName: Fate Orb Seeker
-	FateShockwave.DisplayName: Fate Shockwave
-	FateTrailLine.DisplayName: Fate Trail Line
-	KaleidoscopicPortal.DisplayName: Kaleidoscopic Portal
-	MicroSingularity.DisplayName: Micro Singularity
-	PhantomTimelineBlade.DisplayName: Phantom Timeline Blade
-	PhaseArrow.DisplayName: Phase Arrow
-	RealityRift.DisplayName: Reality Rift
-	SingularitySpearProj.DisplayName: Singularity Spear Proj
-	StarJudgment.DisplayName: Star Judgment
-	TemporalEchoSlash.DisplayName: Temporal Echo Slash
-	TimelineArrowRain.DisplayName: Timeline Arrow Rain
-	TimelineBullet.DisplayName: Timeline Bullet
-	DestinyBullet.DisplayName: Destiny Bullet
-	PhaseBullet.DisplayName: Phase Bullet
-	TimelineBulletRain.DisplayName: Timeline Bullet Rain
-	CapricornMinion.DisplayName: Capricorn Minion
-	GeminiTwinProjectile.DisplayName: Gemini Twin Projectile
-	LibraBalanceArrow.DisplayName: Libra Balance Arrow
-	SagittariusArrow.DisplayName: Sagittarius Arrow
-	SagittariusBeam.DisplayName: Sagittarius Beam
-	ScorpioStinger.DisplayName: Scorpio Stinger
-	TaurusChargeSlash.DisplayName: Taurus Charge Slash
-	VirgoJudgmentShot.DisplayName: Virgo Judgment Shot
-	AriesConstellationSlash.DisplayName: Aries Constellation Slash
-	CancerCosmicWave.DisplayName: Cancer Cosmic Wave
-	GeminiCosmicSpear.DisplayName: Gemini Cosmic Spear
-	LeoCosmicRoar.DisplayName: Leo Cosmic Roar
-	LibraJudgmentZone.DisplayName: Libra Judgment Zone
-	SagittariusArrowBeam.DisplayName: Sagittarius Arrow Beam
-	SagittariusMeteorArrow.DisplayName: Sagittarius Meteor Arrow
-	ScorpioTailStrike.DisplayName: Scorpio Tail Strike
-	ScorpioVenomBolt.DisplayName: Scorpio Venom Bolt
-	TaurusCosmicSlash.DisplayName: Taurus Cosmic Slash
-	VirgoCosmicBullet.DisplayName: Virgo Cosmic Bullet
-	VirgoHarvestRay.DisplayName: Virgo Harvest Ray
-	GalacticCosmicProjectile.DisplayName: Galactic Cosmic Projectile
-	StarSpiralExplosion.DisplayName: Star Spiral Explosion
-	ConstellationBurst.DisplayName: Constellation Burst
-	CosmicStarProjectile.DisplayName: Cosmic Star Projectile
-	AstrographConstellation.DisplayName: Astrograph Constellation
-	AquilaDiveStrike.DisplayName: Aquila Dive Strike
-	AquilaTalonProjectile.DisplayName: Aquila Talon Projectile
-	ChainingStarProjectile.DisplayName: Chaining Star Projectile
-	DragonBreathFireball.DisplayName: Dragon Breath Fireball
-	DragonBreathHeldSword.DisplayName: Dragon Breath Held Sword
-	HarmonicWaveProjectile.DisplayName: Harmonic Wave Projectile
-	HarmonyBurst.DisplayName: Harmony Burst
-	HydraHeadMinion.DisplayName: Hydra Head Minion
-	HydraVenomBolt.DisplayName: Hydra Venom Bolt
-	LionRoarShockwave.DisplayName: Lion Roar Shockwave
-	PhoenixExplosion.DisplayName: Phoenix Explosion
-	PhoenixFeatherProjectile.DisplayName: Phoenix Feather Projectile
-	SagittariusHeldBow.DisplayName: Sagittarius Held Bow
-	ScorpionStingerLine.DisplayName: Scorpion Stinger Line
-	ScorpionStingerProjectile.DisplayName: Scorpion Stinger Projectile
-	ZodiacExplosion.DisplayName: Zodiac Explosion
-	SpiralingSpectralBlade.DisplayName: Spiraling Spectral Blade
-	SpectralSwordBeam.DisplayName: Spectral Sword Beam
-	SpectralSlashingBlade.DisplayName: Spectral Slashing Blade
-	PrismaticBeam.DisplayName: Prismatic Beam
-	OrbitingSpectralBlade.DisplayName: Orbiting Spectral Blade
-	GlassDistortionEffect.DisplayName: Glass Distortion Effect
-	FateRapidBullet.DisplayName: Fate Rapid Bullet
-	DeityCosmicBeam.DisplayName: Deity Cosmic Beam
-	CosmicSeekerBall.DisplayName: Cosmic Seeker Ball
-	CosmicRocket.DisplayName: Cosmic Rocket
-	CosmicMusicNoteProjectile.DisplayName: Cosmic Music Note Projectile
-	CosmicEnergyBall.DisplayName: Cosmic Energy Ball
-	CosmicElectricityStaff.DisplayName: Cosmic Electricity Staff
-	CosmicDeityMinion.DisplayName: Cosmic Deity Minion
-	CosmicBeamHeldSword.DisplayName: Cosmic Beam Held Sword
-	AcceleratingCosmicRound.DisplayName: Accelerating Cosmic Round
-	CosmicStarCircleEffect.DisplayName: Cosmic Star Circle Effect
-	FugueVoiceProjectile.DisplayName: Fugue Voice Projectile
-	TacetEnigmaShot.DisplayName: Tacet Enigma Shot
-	TacetParadoxBolt.DisplayName: Tacet Paradox Bolt
-	VoidConvergenceBeamSet.DisplayName: Void Convergence Beam Set
-	VoidResonanceExplosion.DisplayName: Void Resonance Explosion
-	WaveProjectile.DisplayName: Wave Projectile
-	HostileOrbProjectile.DisplayName: Hostile Orb Projectile
-	ExplosiveOrbProjectile.DisplayName: Explosive Orb Projectile
-	DelayedDetonationProjectile.DisplayName: Delayed Detonation Projectile
-	BoomerangProjectile.DisplayName: Boomerang Projectile
-	AcceleratingBoltProjectile.DisplayName: Accelerating Bolt Projectile
-	EnigmaMazeWall.DisplayName: Enigma Maze Wall
-	EnigmaVoidBeam.DisplayName: Enigma Void Beam
-	EroicaSplittingOrb.DisplayName: Eroica Splitting Orb
-	CodaZenithSwordProjectile.DisplayName: Coda Zenith Sword Projectile
-	ConstellationBeam.DisplayName: Constellation Beam
-	CosmicRendSlash.DisplayName: Cosmic Rend Slash
-	FateSealedShard.DisplayName: Fate Sealed Shard
-	RealityFractureTrail.DisplayName: Reality Fracture Trail
-	StellarBolt.DisplayName: Stellar Bolt
-	InfernalBellMinion.DisplayName: Infernal Bell Minion
-	InfernalBellWave.DisplayName: Infernal Bell Wave
+	MoonlitEngineShockwave.DisplayName: Moonlit Engine Shockwave
+	MoonlitGyreSonicBoom.DisplayName: Moonlit Gyre Sonic Boom
+	SnowOfTheMoonProjectile.DisplayName: Snow Of The Moon Projectile
+	WaningDeerChandelierOrbiting.DisplayName: Waning Deer Chandelier Orbiting
+	WaningDeerHomingOrb.DisplayName: Waning Deer Homing Orb
+	GoliathOfMoonlight.DisplayName: Goliath Of Moonlight
+	RazerOfMoonlightsShadow.DisplayName: Razer Of Moonlights Shadow
+	EternalMoonBeam.DisplayName: Eternal Moon Beam
+	EternalMoonWave.DisplayName: Eternal Moon Wave
+	GoliathDevastatingBeam.DisplayName: Goliath Devastating Beam
+	GoliathMoonlightBeam.DisplayName: Goliath Moonlight Beam
+	MoonlightBeam.DisplayName: Moonlight Beam
+	ResurrectionProjectile.DisplayName: Resurrection Projectile
+	MoonlightWaveProjectile.DisplayName: Moonlight Wave Projectile
+	HealingFeatherPickup.DisplayName: Healing Feather Pickup
+	HomingSwanFeather.DisplayName: Homing Swan Feather
 	PrimaFeatherBlade.DisplayName: Prima Feather Blade
 	PrimaSoundWave.DisplayName: Prima Sound Wave
 	ShatteredPrimaShadow.DisplayName: Shattered Prima Shadow
-	FermataSpectralSword.DisplayName: Fermata Spectral Sword
-	RequiemHeldProjectile.DisplayName: Requiem Held Projectile
-	RequiemSpectralBladeProjectile.DisplayName: Requiem Spectral Blade Projectile
-
-	// ========================================
-	// PHASE 1: FOUNDATION MATERIALS
-	// ========================================
-
-	// Pre-Hardmode World Drops
-	ResonantCrystalShard: {
-		DisplayName: Resonant Crystal Shard
-		Tooltip:
-			'''
-			'Crystallized harmonies from deep within the earth'
-			A musical fragment waiting to be awakened
-			'''
-	}
-
-	MinorMusicNote: {
-		DisplayName: Minor Music Note
-		Tooltip:
-			'''
-			'A simple melody fragment'
-			Basic crafting material for musical items
-			'''
-	}
-
-	FadedSheetMusic: {
-		DisplayName: Faded Sheet Music
-		Tooltip:
-			'''
-			'Ancient compositions, nearly lost to time'
-			The notes still hold faint power
-			'''
-	}
-
-	BrokenBaton: {
-		DisplayName: Broken Baton
-		Tooltip:
-			'''
-			'A conductor's tool, snapped but not silenced'
-			Still resonates with commanding energy
-			'''
-	}
-
-	TuningFork: {
-		DisplayName: Tuning Fork
-		Tooltip:
-			'''
-			'Strikes the perfect pitch'
-			Vibrates with latent musical power
-			'''
-	}
-
-	OldMetronome: {
-		DisplayName: Old Metronome
-		Tooltip:
-			'''
-			'Tick, tock, tick, tock...'
-			Still keeps perfect time after all these years
-			'''
-	}
-
-	RustedClef: {
-		DisplayName: Rusted Clef
-		Tooltip:
-			'''
-			'A treble clef frozen in rust and time'
-			The ice preserved its musical essence
-			'''
-	}
-
-	DullResonator: {
-		DisplayName: Dull Resonator
-		Tooltip:
-			'''
-			'A dormant resonating disc'
-			Awaits the right frequency to awaken
-			'''
-	}
-
-	// Dormant Seasonal Cores
-	DormantSpringCore: {
-		DisplayName: Dormant Spring Core
-		Tooltip:
-			'''
-			'The promise of bloom, suspended in slumber'
-			Will awaken when the world grows stronger
-			'''
-	}
-
-	DormantSummerCore: {
-		DisplayName: Dormant Summer Core
-		Tooltip:
-			'''
-			'Faded warmth waiting to ignite'
-			Will awaken when the world grows stronger
-			'''
-	}
-
-	DormantAutumnCore: {
-		DisplayName: Dormant Autumn Core
-		Tooltip:
-			'''
-			'The whisper of falling leaves, held in stasis'
-			Will awaken when the world grows stronger
-			'''
-	}
-
-	DormantWinterCore: {
-		DisplayName: Dormant Winter Core
-		Tooltip:
-			'''
-			'Frozen silence, preserved in crystal'
-			Will awaken when the world grows stronger
-			'''
-	}
-
-	// Seasonal Bars
-	VernalBar: {
-		DisplayName: Vernal Bar
-		Tooltip:
-			'''
-			'Forged from the essence of spring's rebirth'
-			Polished metal infused with renewal
-			'''
-	}
-
-	SolsticeBar: {
-		DisplayName: Solstice Bar
-		Tooltip:
-			'''
-			'The peak of summer's intensity made solid'
-			Radiates with captured sunlight
-			'''
-	}
-
-	HarvestBar: {
-		DisplayName: Harvest Bar
-		Tooltip:
-			'''
-			'The weight of autumn's final yield'
-			Carries the dignity of endings
-			'''
-	}
-
-	PermafrostBar: {
-		DisplayName: Permafrost Bar
-		Tooltip:
-			'''
-			'Winter's eternal stillness crystallized'
-			Cold to the touch, yet full of potential
-			'''
-	}
-
-	// Seasonal Essences (Harmonic Essences)
-	BlossomEssence: {
-		DisplayName: Spring's Harmonic Essence
-		Tooltip:
-			'''
-			'The first breath of spring captured'
-			Dropped by Plantera
-			Essential for spring-themed crafting
-			'''
-	}
-
-	SolarEssence: {
-		DisplayName: Summer's Harmonic Essence
-		Tooltip:
-			'''
-			'A fragment of the sun's zenith'
-			Dropped by Golem
-			Essential for summer-themed crafting
-			'''
-	}
-
-	DecayEssence: {
-		DisplayName: Autumn's Harmonic Essence
-		Tooltip:
-			'''
-			'The beauty of gentle decline'
-			Dropped by Pumpking
-			Essential for autumn-themed crafting
-			'''
-	}
-
-	FrostEssence: {
-		DisplayName: Winter's Harmonic Essence
-		Tooltip:
-			'''
-			'Perfect stillness given form'
-			Dropped by Ice Queen
-			Essential for winter-themed crafting
-			'''
-	}
-
-	// Seasonal Resonant Energies (Boss Drops)
-	SpringResonantEnergy: {
-		DisplayName: Spring Resonant Energy
-		Tooltip:
-			'''
-			'The harmonics of rebirth swirl within'
-			Dropped by Primavera, Herald of Bloom
-			'''
-	}
-
-	SummerResonantEnergy: {
-		DisplayName: Summer Resonant Energy
-		Tooltip:
-			'''
-			'Solar fury contained in pure energy'
-			Dropped by L'Estate, Lord of the Zenith
-			'''
-	}
-
-	AutumnResonantEnergy: {
-		DisplayName: Autumn Resonant Energy
-		Tooltip:
-			'''
-			'The melancholy of endings made manifest'
-			Dropped by Autunno, the Withering Maestro
-			'''
-	}
-
-	WinterResonantEnergy: {
-		DisplayName: Winter Resonant Energy
-		Tooltip:
-			'''
-			'Crystalline silence from the frozen finale'
-			Dropped by L'Inverno, the Silent Finale
-			'''
-	}
-
-	// Spring Enemy Drops
-	PetalOfRebirth: {
-		DisplayName: Petal of Rebirth
-		Tooltip:
-			'''
-			'A petal that refuses to wilt'
-			Primary material for Vernal Bars
-			'''
-	}
-
-	VernalDust: {
-		DisplayName: Vernal Dust
-		Tooltip:
-			'''
-			'The pollen of eternal spring'
-			Used in spring accessory crafting
-			'''
-	}
-
-	RainbowPetal: {
-		DisplayName: Rainbow Petal
-		Tooltip:
-			'''
-			'Shifts through every color of spring'
-			A rare material from Rainbow Slimes
-			'''
-	}
-
-	// Summer Enemy Drops
-	EmberOfIntensity: {
-		DisplayName: Ember of Intensity
-		Tooltip:
-			'''
-			'Burns with summer's relentless heat'
-			Primary material for Solstice Bars
-			'''
-	}
-
-	SunfireCore: {
-		DisplayName: Sunfire Core
-		Tooltip:
-			'''
-			'The heart of a solar predator'
-			Used in summer accessory crafting
-			'''
-	}
-
-	HeatScale: {
-		DisplayName: Heat Scale
-		Tooltip:
-			'''
-			'Hardened by hellfire'
-			Used in summer accessory crafting
-			'''
-	}
-
-	// Autumn Enemy Drops
-	LeafOfEnding: {
-		DisplayName: Leaf of Ending
-		Tooltip:
-			'''
-			'The final leaf before winter's silence'
-			Primary material for Harvest Bars
-			'''
-	}
-
-	TwilightWingFragment: {
-		DisplayName: Twilight Wing Fragment
-		Tooltip:
-			'''
-			'Torn between day and night'
-			Used in autumn accessory crafting
-			'''
-	}
-
-	DeathsNote: {
-		DisplayName: Death's Note
-		Tooltip:
-			'''
-			'A melody that ends all melodies'
-			Used in autumn accessory crafting
-			'''
-	}
-
-	DecayFragment: {
-		DisplayName: Decay Fragment
-		Tooltip:
-			'''
-			'A piece of gentle decline'
-			Common autumn crafting material
-			'''
-	}
-
-	// Winter Enemy Drops
-	ShardOfStillness: {
-		DisplayName: Shard of Stillness
-		Tooltip:
-			'''
-			'Frozen in perfect silence'
-			Primary material for Permafrost Bars
-			'''
-	}
-
-	FrozenCore: {
-		DisplayName: Frozen Core
-		Tooltip:
-			'''
-			'The heart of an ice elemental'
-			Used in winter accessory crafting
-			'''
-	}
-
-	IcicleCoronet: {
-		DisplayName: Icicle Coronet
-		Tooltip:
-			'''
-			'A crown of eternal winter'
-			Used in winter accessory crafting
-			'''
-	}
-
-	PermafrostShard: {
-		DisplayName: Permafrost Shard
-		Tooltip:
-			'''
-			'A fragment of ancient ice'
-			Common winter crafting material
-			'''
-	}
-
-	// Theme Essences (Post-Moon Lord)
-	LunarEssence: {
-		DisplayName: Lunar Essence
-		Tooltip:
-			'''
-			'Moonlight condensed into pure form'
-			Drops from Moonlight Sonata enemies
-			'''
-	}
-
-	ValorEssence: {
-		DisplayName: Valor Essence
-		Tooltip:
-			'''
-			'The courage of heroes crystallized'
-			Drops from Eroica enemies
-			'''
-	}
-
-	BellEssence: {
-		DisplayName: Bell Essence
-		Tooltip:
-			'''
-			'The chime of infernal bells'
-			Drops from La Campanella enemies
-			'''
-	}
-
-	MysteryEssence: {
-		DisplayName: Mystery Essence
-		Tooltip:
-			'''
-			'Questions without answers, solidified'
-			Drops from Enigma enemies
-			'''
-	}
-
-	GraceEssence: {
-		DisplayName: Grace Essence
-		Tooltip:
-			'''
-			'Elegance in its purest form'
-			Drops from Swan Lake enemies
-			'''
-	}
-
-	FateEssence: {
-		DisplayName: Fate Essence
-		Tooltip:
-			'''
-			'The threads of destiny intertwined'
-			Drops from Fate enemies
-			'''
-	}
-
-	// ==================== SEASONAL BOSSES ====================
-
-	Primavera: {
-		DisplayName: Primavera, Herald of Bloom
-	}
-
-	LEstate: {
-		DisplayName: L'Estate, Lord of the Zenith
-	}
-
-	Autunno: {
-		DisplayName: Autunno, the Withering Maestro
-	}
-
-	LInverno: {
-		DisplayName: L'Inverno, the Silent Finale
-	}
-
-	// ==================== SEASONAL ACCESSORIES ====================
-
-	// Spring Accessories
-	PetalShield: {
-		DisplayName: Petal Shield
-		Tooltip:
-			'''
-			+8 defense
-			6% damage reduction
-			Blooming petals surround you
-			'Protection born from spring's embrace'
-			'''
-	}
-
-	GrowthBand: {
-		DisplayName: Growth Band
-		Tooltip:
-			'''
-			Increased life and mana regeneration
-			4% increased damage
-			'The cycle of renewal flows through you'
-			'''
-	}
-
-	BloomCrest: {
-		DisplayName: Bloom Crest
-		Tooltip:
-			'''
-			6% increased damage
-			Additional damage and crit while moving
-			'In motion, the flowers blossom'
-			'''
-	}
-
-	// Summer Accessories
-	SunfirePendant: {
-		DisplayName: Sunfire Pendant
-		Tooltip:
-			'''
-			8% increased damage
-			Melee attacks inflict On Fire
-			Solar flames dance around you
-			'The sun's fury burns within'
-			'''
-	}
-
-	ZenithBand: {
-		DisplayName: Zenith Band
-		Tooltip:
-			'''
-			10% increased attack speed
-			12% increased movement speed
-			'At the peak of summer's power'
-			'''
-	}
-
-	RadiantCrown: {
-		DisplayName: Radiant Crown
-		Tooltip:
-			'''
-			Increased damage during daytime
-			Increased critical strike chance during daytime
-			'Crowned by the noon sun'
-			'''
-	}
-
-	// Autumn Accessories
-	ReapersCharm: {
-		DisplayName: Reaper's Charm
-		Tooltip:
-			'''
-			7% increased damage
-			Chance to steal life on hit
-			'Harvest the essence of your foes'
-			'''
-	}
-
-	TwilightRing: {
-		DisplayName: Twilight Ring
-		Tooltip:
-			'''
-			+10 critical strike chance
-			Bonuses during twilight hours
-			'Between light and dark, power grows'
-			'''
-	}
-
-	HarvestMantle: {
-		DisplayName: Harvest Mantle
-		Tooltip:
-			'''
-			+12 defense
-			8% damage reduction
-			Thorns effect damages attackers
-			'The harvest protects its keeper'
-			'''
-	}
-
-	// Winter Accessories
-	FrostbiteAmulet: {
-		DisplayName: Frostbite Amulet
-		Tooltip:
-			'''
-			10% increased damage
-			Attacks inflict Frostburn
-			Frost particles swirl around you
-			'Cold as winter's heart'
-			'''
-	}
-
-	StillnessShrine: {
-		DisplayName: Stillness Shrine
-		Tooltip:
-			'''
-			Greatly increased defense when stationary
-			Enhanced life regeneration when still
-			Damage reduction while motionless
-			'In stillness, find strength'
-			'''
-	}
-
-	GlacialHeart: {
-		DisplayName: Glacial Heart
-		Tooltip:
-			'''
-			Immunity to Frozen, Chilled, and Frostburn
-			8% increased damage
-			+6 defense and critical strike chance
-			'The cold cannot touch you'
-			'''
-	}
-
-	// Combination Accessories
-	RelicOfTheEquinox: {
-		DisplayName: Relic of the Equinox
-		Tooltip:
-			'''
-			Combines Spring and Autumn powers
-			Life regeneration and damage bonuses
-			Thorns and life steal effects
-			'Balance between growth and decay'
-			'''
-	}
-
-	SolsticeRing: {
-		DisplayName: Solstice Ring
-		Tooltip:
-			'''
-			Combines Summer and Winter powers
-			Fire and frost elemental effects
-			Damage, attack speed, and defense bonuses
-			Extreme temperature bonuses
-			'The extremes of light and dark unite'
-			'''
-	}
-
-	CycleOfSeasons: {
-		DisplayName: Cycle of Seasons
-		Tooltip:
-			'''
-			Combines all four seasonal powers
-			Massive damage, crit, and defense bonuses
-			Life regeneration and damage reduction
-			All elemental status effects
-			'The eternal cycle flows through you'
-			'''
-	}
-
-	VivaldisMasterwork: {
-		DisplayName: Vivaldi's Masterwork
-		Tooltip:
-			'''
-			The ultimate seasonal accessory
-			Dramatically increased all stats
-			All seasonal immunities and effects
-			Enhanced life steal on critical hits
-			'The Four Seasons, perfected'
-			'''
-	}
-
-	// ==================== TWO-THEME COMBINATION ACCESSORIES ====================
-
-	NocturneOfAzureFlames: {
-		DisplayName: Nocturne of Azure Flames
-		Tooltip:
-			'''
-			Combines the essence of Moonlight Sonata and La Campanella
-			Lunar and flame damage bonuses
-			Bell attacks spawn moonlit echoes
-			'Where moonbeams meet infernal chimes'
-			'''
-	}
-
-	ValseMacabre: {
-		DisplayName: Valse Macabre
-		Tooltip:
-			'''
-			Combines the essence of Eroica and Enigma Variations
-			Heroic and mysterious damage bonuses
-			Valor strikes reveal hidden weaknesses
-			'A dance between triumph and shadow'
-			'''
-	}
-
-	ReverieOfTheSilverSwan: {
-		DisplayName: Reverie of the Silver Swan
-		Tooltip:
-			'''
-			Combines the essence of Moonlight Sonata and Swan Lake
-			Lunar and graceful damage bonuses
-			Moon-blessed feathers trail your movements
-			'Dreaming of moonlit waters'
-			'''
-	}
-
-	FantasiaOfBurningGrace: {
-		DisplayName: Fantasia of Burning Grace
-		Tooltip:
-			'''
-			Combines the essence of La Campanella and Swan Lake
-			Flame and grace damage bonuses
-			Fire dances with elegant precision
-			'Where inferno meets the ballet'
-			'''
-	}
-
-	TriumphantArabesque: {
-		DisplayName: Triumphant Arabesque
-		Tooltip:
-			'''
-			Combines the essence of Eroica and Swan Lake
-			Heroic and graceful damage bonuses
-			Victory poses grant ethereal protection
-			'The hero's most elegant flourish'
-			'''
-	}
-
-	InfernoOfLostShadows: {
-		DisplayName: Inferno of Lost Shadows
-		Tooltip:
-			'''
-			Combines the essence of La Campanella and Enigma Variations
-			Flame and mysterious damage bonuses
-			Fire reveals what darkness conceals
-			'Burning questions, smoldering answers'
-			'''
-	}
-
-	// ==================== THREE-THEME COMBINATION ACCESSORIES ====================
-
-	TrinityOfNight: {
-		DisplayName: Trinity of Night
-		Tooltip:
-			'''
-			Combines Moonlight, Campanella, and Enigma
-			Massive damage and critical bonuses
-			Midnight flames illuminate mysteries
-			'Three movements of the nocturnal symphony'
-			'''
-	}
-
-	AdagioOfRadiantValor: {
-		DisplayName: Adagio of Radiant Valor
-		Tooltip:
-			'''
-			Combines Eroica, Moonlight, and Swan Lake
-			Heroic grace blessed by moonlight
-			Triumphant movements shine with lunar beauty
-			'The slow movement of a hero's grace'
-			'''
-	}
-
-	RequiemOfTheEnigmaticFlame: {
-		DisplayName: Requiem of the Enigmatic Flame
-		Tooltip:
-			'''
-			Combines Campanella, Enigma, and Swan Lake
-			Fire, mystery, and grace intertwined
-			Burning elegance shrouded in shadow
-			'A funeral mass for beautiful mysteries'
-			'''
-	}
-
-	CompleteHarmony: {
-		DisplayName: Complete Harmony
-		Tooltip:
-			'''
-			Combines all five core themes
-			The ultimate accessory of resonance
-			All theme bonuses and synergies active
-			'The grand finale of all movements'
-			'''
-	}
-
-	// ==================== PHASE 6 CONSUMABLES ====================
-
-	HarmonicResonatorFragment: {
-		DisplayName: Harmonic Resonator Fragment
-		Tooltip:
-			'''
-			'A crystallized fragment of pure harmonic energy'
-			Base crafting material for resonance potions
-			'''
-	}
-
-	MinorResonanceTonic: {
-		DisplayName: Minor Resonance Tonic
-		Tooltip:
-			'''
-			Grants Minor Resonance for 8 minutes
-			+10% damage
-			'A gentle boost of harmonic energy'
-			'''
-	}
-
-	HarmonicElixir: {
-		DisplayName: Harmonic Elixir
-		Tooltip:
-			'''
-			Grants Harmonic Power for 6 minutes
-			+20% damage and +10% critical strike chance
-			'The melody of power courses through you'
-			'''
-	}
-
-	SeasonalDraught: {
-		DisplayName: Seasonal Draught
-		Tooltip:
-			'''
-			Grants Seasonal Attunement for 5 minutes
-			+25% bonus to current season effects
-			'The essence of the changing seasons'
-			'''
-	}
-
-	ElixirOfTheMaestro: {
-		DisplayName: Elixir of the Maestro
-		Tooltip:
-			'''
-			Grants Maestro's Blessing for 4 minutes
-			+35% damage, +20% crit, +15% attack speed
-			'Command the symphony of destruction'
-			'''
-	}
-
-	ConductorsInsight: {
-		DisplayName: Conductor's Insight
-		Tooltip:
-			'''
-			A permanent upgrade accessory
-			Displays detailed combat analysis
-			Shows DPS, enemy weakness, and combo potential
-			'See the battlefield as a maestro sees an orchestra'
-			'''
-	}
-
-	FatesBlessing: {
-		DisplayName: Fate's Blessing
-		Tooltip:
-			'''
-			A permanent consumable upgrade
-			Permanently increases all damage by 5%
-			The blessing of destiny itself
-			'Your fate is intertwined with power'
-			'''
-	}
-
-	CodasEcho: {
-		DisplayName: Coda's Echo
-		Tooltip:
-			'''
-			A permanent consumable upgrade
-			Permanently increases all damage by 10%
-			The final notes resonate eternally
-			'The last chord never truly fades'
-			'''
-	}
-
-	FatesCosmicBrew: {
-		DisplayName: Fate's Cosmic Brew
-		Tooltip:
-			'''
-			The ultimate combat potion
-			Grants Cosmic Resonance for 3 minutes
-			+50% damage, +30% crit, +20% attack speed
-			+25% damage reduction, life steal on crits
-			Can only be used once per day
-			'Drink deep of destiny's power'
-			'''
-	}
+	FeathersCallFlare.DisplayName: Feathers Call Flare
+	BlackSwanFlare.DisplayName: Black Swan Flare
+	ChromaticSwanSongProjectile.DisplayName: Chromatic Swan Song Projectile
+	IridescentBeam.DisplayName: Iridescent Beam
+	IridescentCrystal.DisplayName: Iridescent Crystal
+	IridescentFlare.DisplayName: Iridescent Flare
+	IridescentWingspanProjectile.DisplayName: Iridescent Wingspan Projectile
+	PearlescentRocket.DisplayName: Pearlescent Rocket
+	SwansLamentBullet.DisplayName: Swans Lament Bullet
 }
-
-"Keybinds.Toggle Harmonic Core UI.DisplayName": Toggle  Harmonic  Core  U I
-

@@ -659,14 +659,14 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 Color trailColor = Main.hslToRgb(hue, 1f, 0.7f) * fade * 0.6f;
                 
                 // Rainbow glow texture
-                Texture2D glowTex = TextureAssets.Extra[98].Value;
+                Texture2D glowTex = TextureAssets.Extra[ExtrasID.SharpTears].Value;
                 spriteBatch.Draw(glowTex, trailPos, null, trailColor, Projectile.oldRot[i], glowTex.Size() / 2f, trailScale * 0.4f, SpriteEffects.None, 0f);
             }
             
             // Draw rainbow outline glow around feather
             float currentHue = (Main.GameUpdateCount * 0.03f) % 1f;
             Color glowColor = Main.hslToRgb(currentHue, 1f, 0.7f) * 0.7f;
-            Texture2D glow = TextureAssets.Extra[98].Value;
+            Texture2D glow = TextureAssets.Extra[ExtrasID.SharpTears].Value;
             spriteBatch.Draw(glow, drawPos, null, glowColor, Projectile.rotation, glow.Size() / 2f, 0.5f, SpriteEffects.None, 0f);
             
             // Draw black feather core (tinted dark)
@@ -857,7 +857,7 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             Vector2 origin = texture.Size() / 2f;
             
             // === GLOW BACKDROP ===
-            Texture2D glowTex = TextureAssets.Extra[98].Value; // Soft glow texture
+            Texture2D glowTex = TextureAssets.Extra[ExtrasID.SharpTears].Value; // Soft glow texture
             float glowScale = 0.6f + glowPulse * 0.15f;
             
             // White glow base
@@ -899,3 +899,4 @@ namespace MagnumOpus.Content.SwanLake.Accessories
         }
     }
 }
+

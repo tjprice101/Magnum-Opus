@@ -210,7 +210,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
         
         private void DrawExplosionGlow(SpriteBatch spriteBatch)
         {
-            Texture2D glowTex = TextureAssets.Extra[98].Value; // Soft glow texture
+            Texture2D glowTex = TextureAssets.Extra[ExtrasID.SharpTears].Value; // Soft glow texture
             
             // Outer scarlet glow
             float outerScale = 2.5f * glowIntensity;
@@ -266,3 +266,4 @@ namespace MagnumOpus.Content.Eroica.Accessories
         }
     }
 }
+

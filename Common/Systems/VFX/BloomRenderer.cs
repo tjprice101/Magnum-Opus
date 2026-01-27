@@ -170,7 +170,7 @@ namespace MagnumOpus.Common.Systems.VFX
         public static void DrawShineFlare(SpriteBatch spriteBatch, Vector2 worldPosition,
             Color color, float scale, float rotation = 0f, float opacity = 1f)
         {
-            Texture2D flare = MagnumTextureRegistry.ShineFlare4Point?.Value;
+            Texture2D flare = MagnumTextureRegistry.GetShineFlare4Point();
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             
             Vector2 drawPos = worldPosition - Main.screenPosition;

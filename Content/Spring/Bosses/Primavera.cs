@@ -38,7 +38,7 @@ namespace MagnumOpus.Content.Spring.Bosses
         
         #region Constants
         private const float BaseSpeed = 10f;
-        private const int BaseDamage = 55;
+        private const int BaseDamage = 35; // Post-Eye of Cthulhu tier
         private const float EnrageDistance = 2000f;
         private const int AttackWindowFrames = 60;
         #endregion
@@ -112,6 +112,13 @@ namespace MagnumOpus.Content.Spring.Bosses
         
         private bool hasRegisteredHealthBar = false;
         private int deathTimer = 0;
+        
+        // Ground-based movement
+        private int jumpCooldown = 0;
+        private bool isGrounded = false;
+        private const float JumpVelocity = -14f;
+        private const float HighJumpVelocity = -18f;
+        private const float MoveSpeed = 8f;
         #endregion
 
         public override void SetStaticDefaults()
@@ -132,17 +139,22 @@ namespace MagnumOpus.Content.Spring.Bosses
             NPC.width = 100;
             NPC.height = 120;
             NPC.damage = BaseDamage;
-            NPC.defense = 25;
-            NPC.lifeMax = 28000; // Post-WoF tier
+            NPC.defense = 15; // Post-Eye of Cthulhu tier
+            NPC.lifeMax = 8000; // Post-Eye of Cthulhu tier (comparable to Skeletron 4.4k in Classic)
             NPC.HitSound = SoundID.NPCHit5;
             NPC.DeathSound = SoundID.NPCDeath7;
             NPC.knockBackResist = 0f;
-            NPC.noGravity = true;
-            NPC.noTileCollide = true;
+            NPC.noGravity = false;  // Ground-based boss
+            NPC.noTileCollide = false;  // Respects terrain
             NPC.value = Item.buyPrice(gold: 8);
             NPC.boss = true;
             NPC.npcSlots = 10f;
             NPC.aiStyle = -1;
+            
+            if (!Main.dedServ)
+            {
+                Music = MusicLoader.GetMusicSlot(Mod, "Assets/Music/DawnOfTheGroveColossus");
+            }
         }
 
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
@@ -293,23 +305,70 @@ namespace MagnumOpus.Content.Spring.Bosses
         
         private void AI_Idle(Player target)
         {
-            // Graceful hovering motion
-            float hoverDist = 300f - difficultyTier * 30f;
-            Vector2 idealPos = target.Center + new Vector2(NPC.Center.X > target.Center.X ? hoverDist : -hoverDist, -150f);
+            // Ground-based movement - check if grounded
+            isGrounded = NPC.velocity.Y == 0f || NPC.collideY;
+            jumpCooldown = Math.Max(0, jumpCooldown - 1);
             
-            // Add gentle floating motion
-            idealPos.Y += (float)Math.Sin(Timer * 0.03f) * 30f;
+            // Horizontal movement toward player
+            float idealDist = 200f - difficultyTier * 20f;
+            float distX = target.Center.X - NPC.Center.X;
+            float absDistX = Math.Abs(distX);
             
-            Vector2 toIdeal = idealPos - NPC.Center;
-            if (toIdeal.Length() > 40f)
+            if (absDistX > idealDist)
             {
-                toIdeal.Normalize();
-                float speed = BaseSpeed * GetAggressionSpeedMult();
-                NPC.velocity = Vector2.Lerp(NPC.velocity, toIdeal * speed, 0.05f);
+                // Move toward player
+                float dir = Math.Sign(distX);
+                float speed = MoveSpeed * GetAggressionSpeedMult();
+                NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dir * speed, 0.08f);
+            }
+            else if (absDistX < idealDist * 0.5f)
+            {
+                // Too close, back away
+                float dir = -Math.Sign(distX);
+                NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dir * MoveSpeed * 0.5f, 0.06f);
             }
             else
             {
-                NPC.velocity *= 0.92f;
+                // Ideal range, slow down
+                NPC.velocity.X *= 0.9f;
+            }
+            
+            // Jumping logic - jump to reach player or over obstacles
+            if (isGrounded && jumpCooldown <= 0)
+            {
+                bool shouldJump = false;
+                bool highJump = false;
+                
+                // Jump if player is significantly above
+                float yDiff = NPC.Center.Y - target.Center.Y;
+                if (yDiff > 100f)
+                {
+                    shouldJump = true;
+                    highJump = yDiff > 250f;
+                }
+                
+                // Jump over obstacles (simple check)
+                if (Math.Abs(NPC.velocity.X) < 1f && absDistX > 60f)
+                {
+                    // We're trying to move but stuck
+                    shouldJump = true;
+                }
+                
+                // Random hop for variety
+                if (!shouldJump && Main.rand.NextBool(120))
+                {
+                    shouldJump = true;
+                }
+                
+                if (shouldJump)
+                {
+                    NPC.velocity.Y = highJump ? HighJumpVelocity : JumpVelocity;
+                    jumpCooldown = 40 + Main.rand.Next(20);
+                    
+                    // Jump VFX
+                    SpawnPetalBurst(NPC.Bottom, 6, 4f);
+                    SoundEngine.PlaySound(SoundID.Item24 with { Pitch = 0.4f, Volume = 0.7f }, NPC.Center);
+                }
             }
             
             int effectiveCooldown = (int)(attackCooldown * GetAggressionRateMult());
@@ -391,11 +450,15 @@ namespace MagnumOpus.Content.Spring.Bosses
         
         private void AI_Reposition(Player target)
         {
-            float idealDist = 350f;
-            Vector2 toTarget = (target.Center - NPC.Center);
-            float currentDist = toTarget.Length();
+            // Ground-based repositioning
+            isGrounded = NPC.velocity.Y == 0f || NPC.collideY;
+            jumpCooldown = Math.Max(0, jumpCooldown - 1);
             
-            if (Math.Abs(currentDist - idealDist) < 80f && Timer > 25)
+            float idealDist = 250f;
+            float distX = target.Center.X - NPC.Center.X;
+            float absDistX = Math.Abs(distX);
+            
+            if (Math.Abs(absDistX - idealDist) < 100f && Timer > 25)
             {
                 State = BossPhase.Idle;
                 Timer = 0;
@@ -403,8 +466,17 @@ namespace MagnumOpus.Content.Spring.Bosses
                 return;
             }
             
-            Vector2 idealDir = currentDist > idealDist ? -toTarget.SafeNormalize(Vector2.Zero) : toTarget.SafeNormalize(Vector2.Zero);
-            NPC.velocity = Vector2.Lerp(NPC.velocity, idealDir * 12f, 0.07f);
+            // Move toward or away from player
+            float dir = absDistX > idealDist ? Math.Sign(distX) : -Math.Sign(distX);
+            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dir * MoveSpeed * 1.2f, 0.1f);
+            
+            // Jump if needed
+            if (isGrounded && jumpCooldown <= 0 && (target.Center.Y < NPC.Center.Y - 80f || Math.Abs(NPC.velocity.X) < 1f))
+            {
+                NPC.velocity.Y = JumpVelocity;
+                jumpCooldown = 30;
+                SpawnPetalBurst(NPC.Bottom, 4, 3f);
+            }
             
             if (Timer > 70)
             {
@@ -415,9 +487,21 @@ namespace MagnumOpus.Content.Spring.Bosses
         
         private void AI_Enraged(Player target)
         {
-            float enrageSpeed = BaseSpeed * 1.8f;
-            Vector2 toTarget = (target.Center - NPC.Center).SafeNormalize(Vector2.Zero);
-            NPC.velocity = Vector2.Lerp(NPC.velocity, toTarget * enrageSpeed, 0.1f);
+            // Aggressive ground pursuit
+            isGrounded = NPC.velocity.Y == 0f || NPC.collideY;
+            jumpCooldown = Math.Max(0, jumpCooldown - 1);
+            
+            float enrageSpeed = MoveSpeed * 1.8f;
+            float dir = Math.Sign(target.Center.X - NPC.Center.X);
+            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dir * enrageSpeed, 0.12f);
+            
+            // Aggressive jumping
+            if (isGrounded && jumpCooldown <= 0)
+            {
+                NPC.velocity.Y = HighJumpVelocity;
+                jumpCooldown = 25;
+                SpawnPetalBurst(NPC.Bottom, 8, 6f);
+            }
             
             // Angry petal storm while chasing
             if (Timer % 12 == 0 && Main.netMode != NetmodeID.MultiplayerClient)
@@ -598,14 +682,8 @@ namespace MagnumOpus.Content.Spring.Bosses
             int duration = 120 + difficultyTier * 30;
             int fireInterval = 8 - difficultyTier;
             
-            // Hover above target
-            Vector2 hoverPos = target.Center + new Vector2(0, -400f);
-            Vector2 toHover = hoverPos - NPC.Center;
-            if (toHover.Length() > 50f)
-            {
-                toHover.Normalize();
-                NPC.velocity = Vector2.Lerp(NPC.velocity, toHover * 10f * GetAggressionSpeedMult(), 0.05f);
-            }
+            // Ground-based: stand still and summon rain from above
+            NPC.velocity.X *= 0.9f;
             
             // Warning flares
             if (Timer % 15 == 0)
@@ -618,7 +696,7 @@ namespace MagnumOpus.Content.Spring.Bosses
                 }
             }
             
-            // Spawn projectiles
+            // Spawn projectiles from the sky
             if (Timer % fireInterval == 0 && Timer > 30 && Main.netMode != NetmodeID.MultiplayerClient)
             {
                 int count = 2 + difficultyTier;
@@ -634,6 +712,14 @@ namespace MagnumOpus.Content.Spring.Bosses
                 }
             }
             
+            // Periodic jump to stay active
+            isGrounded = NPC.velocity.Y == 0f || NPC.collideY;
+            if (isGrounded && Timer % 50 == 0 && Timer > 0)
+            {
+                NPC.velocity.Y = JumpVelocity * 0.7f;
+                SpawnPetalBurst(NPC.Bottom, 4, 3f);
+            }
+            
             if (Timer >= duration)
                 EndAttack();
         }
@@ -642,16 +728,28 @@ namespace MagnumOpus.Content.Spring.Bosses
         {
             int duration = 150 + difficultyTier * 20;
             
-            // Circle around player creating vortex
-            float spinSpeed = (0.025f + difficultyTier * 0.008f) * GetAggressionSpeedMult();
-            float radius = 280f - aggressionLevel * 40f;
-            float angle = Timer * spinSpeed;
-            Vector2 idealPos = target.Center + angle.ToRotationVector2() * radius;
+            // Ground-based: charge back and forth while creating vortex of petals
+            isGrounded = NPC.velocity.Y == 0f || NPC.collideY;
+            jumpCooldown = Math.Max(0, jumpCooldown - 1);
             
-            Vector2 toIdeal = idealPos - NPC.Center;
-            NPC.velocity = Vector2.Lerp(NPC.velocity, toIdeal.SafeNormalize(Vector2.Zero) * 14f, 0.08f);
+            // Charge toward player with periodic direction changes
+            float dir = Math.Sign(target.Center.X - NPC.Center.X);
+            float speed = (MoveSpeed + difficultyTier * 2f) * GetAggressionSpeedMult();
+            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dir * speed, 0.1f);
             
-            // Spiral projectiles
+            // Jump periodically or to follow player upward
+            if (isGrounded && jumpCooldown <= 0)
+            {
+                bool shouldJump = Timer % 40 == 0 || target.Center.Y < NPC.Center.Y - 100f;
+                if (shouldJump)
+                {
+                    NPC.velocity.Y = target.Center.Y < NPC.Center.Y - 200f ? HighJumpVelocity : JumpVelocity;
+                    jumpCooldown = 30;
+                    SpawnPetalBurst(NPC.Bottom, 5, 4f);
+                }
+            }
+            
+            // Spiral projectiles emanate from boss
             int fireInterval = Math.Max(4, 10 - difficultyTier * 2);
             if (Timer % fireInterval == 0 && Main.netMode != NetmodeID.MultiplayerClient)
             {
@@ -661,8 +759,8 @@ namespace MagnumOpus.Content.Spring.Bosses
                 for (int arm = 0; arm < arms; arm++)
                 {
                     float armAngle = spiralAngle + MathHelper.TwoPi * arm / arms;
-                    float speed = 8f + difficultyTier * 2f;
-                    Vector2 vel = armAngle.ToRotationVector2() * speed;
+                    float projSpeed = 8f + difficultyTier * 2f;
+                    Vector2 vel = armAngle.ToRotationVector2() * projSpeed;
                     SpawnPetalProjectile(NPC.Center, vel, 40, arm % 2 == 0);
                 }
                 
@@ -1105,9 +1203,6 @@ namespace MagnumOpus.Content.Spring.Bosses
         {
             // Spring Resonant Energy (100%)
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<SpringResonantEnergy>(), 1, 3, 5));
-            
-            // Spring's Harmonic Essence (100%)
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<BlossomEssence>(), 1, 5, 8));
             
             // Vernal Bar materials
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<PetalOfRebirth>(), 1, 15, 25));

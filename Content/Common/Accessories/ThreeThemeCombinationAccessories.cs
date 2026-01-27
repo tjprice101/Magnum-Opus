@@ -129,6 +129,48 @@ namespace MagnumOpus.Content.Common.Accessories
             }
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color darkPurple = new Color(100, 50, 150);
+            Color moonBlue = new Color(100, 150, 255);
+            Color flameOrange = new Color(255, 140, 40);
+            
+            tooltips.Add(new TooltipLine(Mod, "Combo", "Combines: Moonlight Sonata + La Campanella + Enigma Variations")
+            {
+                OverrideColor = darkPurple
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "MoonlightStats", "At night: +22% damage, +25 crit chance, +15 defense | Day: +12% damage")
+            {
+                OverrideColor = moonBlue
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "CampanellaStats", "+25% magic damage, +12 magic crit, -15% mana cost")
+            {
+                OverrideColor = flameOrange
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "EnigmaStats", "+20% all damage, +10 crit chance")
+            {
+                OverrideColor = EnigmaColors.GreenFlame
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Immunities", "Immunity to On Fire! and Burning")
+            {
+                OverrideColor = flameOrange
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Effects", "Bell ring AOE on magic crits, Paradox stacking on all hits")
+            {
+                OverrideColor = darkPurple
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Three dark powers united - lunar mysticism, infernal flames, and void mystery'")
+            {
+                OverrideColor = new Color(180, 150, 200)
+            });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -418,10 +460,47 @@ namespace MagnumOpus.Content.Common.Accessories
             }
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color gold = new Color(255, 200, 80);
+            Color moonSilver = new Color(200, 200, 230);
+            Color rainbow = SwanColors.GetRainbow((float)(Main.GameUpdateCount % 300) / 300f);
+            
+            tooltips.Add(new TooltipLine(Mod, "Combo", "Combines: Eroica + Moonlight Sonata + Swan Lake")
+            {
+                OverrideColor = gold
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "EroicaStats", "+22% melee damage, +18% melee attack speed, +12 melee crit, +10% all damage")
+            {
+                OverrideColor = EroicaColors.Gold
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "MoonlightStats", "At night: +20% damage, +22 crit chance, +14 defense | Day: +10% damage")
+            {
+                OverrideColor = moonSilver
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "SwanStats", "+18% all damage, +10 crit chance, +22% movement speed")
+            {
+                OverrideColor = rainbow
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Effects", "Heroic surge on melee kills, Feather dodge chance")
+            {
+                OverrideColor = gold
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Noble valor, moonlit grace, and balletic elegance united'")
+            {
+                OverrideColor = new Color(220, 200, 240)
+            });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<HerosSymhpony>()
+                .AddIngredient<HerosSymphony>()
                 .AddIngredient<ReverieOfTheSilverSwan>()
                 .AddIngredient<HarmonicCoreOfEroica>(20)
                 .AddIngredient<HarmonicCoreOfMoonlightSonata>(20)
@@ -663,6 +742,48 @@ namespace MagnumOpus.Content.Common.Accessories
                     CustomParticles.EnigmaEyeGaze(eyePos, EnigmaColors.GreenFlame, 0.35f, null);
                 }
             }
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color flameOrange = new Color(255, 140, 40);
+            Color greenFlame = EnigmaColors.GreenFlame;
+            Color rainbow = SwanColors.GetRainbow((float)(Main.GameUpdateCount % 300) / 300f);
+            
+            tooltips.Add(new TooltipLine(Mod, "Combo", "Combines: La Campanella + Enigma Variations + Swan Lake")
+            {
+                OverrideColor = flameOrange
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "CampanellaStats", "+25% magic damage, +12 magic crit, -15% mana cost")
+            {
+                OverrideColor = flameOrange
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "EnigmaStats", "+20% all damage, +10 crit chance")
+            {
+                OverrideColor = greenFlame
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "SwanStats", "+18% all damage, +10 crit chance, +22% movement speed")
+            {
+                OverrideColor = rainbow
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Immunities", "Immunity to On Fire! and Burning")
+            {
+                OverrideColor = flameOrange
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Effects", "Bell ring AOE, Paradox stacking, Feather dodge")
+            {
+                OverrideColor = greenFlame
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Beautiful chaos - fire, mystery, and grace intertwined'")
+            {
+                OverrideColor = new Color(200, 180, 220)
+            });
         }
 
         public override void AddRecipes()
@@ -1066,11 +1187,71 @@ namespace MagnumOpus.Content.Common.Accessories
             }
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color harmonyGold = new Color(255, 220, 100);
+            Color moonSilver = new Color(150, 170, 220);
+            Color eroicaGold = new Color(255, 200, 80);
+            Color flameOrange = new Color(255, 140, 40);
+            Color greenFlame = EnigmaColors.GreenFlame;
+            Color rainbow = SwanColors.GetRainbow((float)(Main.GameUpdateCount % 300) / 300f);
+            
+            tooltips.Add(new TooltipLine(Mod, "Ultimate", "The complete harmony of ALL FIVE THEMES")
+            {
+                OverrideColor = harmonyGold
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Combo", "Moonlight Sonata + Eroica + La Campanella + Enigma Variations + Swan Lake")
+            {
+                OverrideColor = new Color(200, 180, 255)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "MoonlightStats", "Night: +20% damage, +22 crit, +15 defense | Day: +12% damage")
+            {
+                OverrideColor = moonSilver
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "EroicaStats", "+22% melee damage, +18% melee attack speed, +12 melee crit")
+            {
+                OverrideColor = eroicaGold
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "CampanellaStats", "+25% magic damage, +12 magic crit, -15% mana cost")
+            {
+                OverrideColor = flameOrange
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "EnigmaStats", "+20% all damage, +10 crit chance")
+            {
+                OverrideColor = greenFlame
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "SwanStats", "+18% all damage, +10 crit, +25% movement speed")
+            {
+                OverrideColor = rainbow
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Immunities", "Immunity to On Fire! and Burning")
+            {
+                OverrideColor = flameOrange
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "AllEffects", "Heroic surge, Bell ring AOE, Paradox stacks, Feather dodge, Night bonus")
+            {
+                OverrideColor = harmonyGold
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'When all five movements converge, the symphony achieves perfect harmony'")
+            {
+                OverrideColor = new Color(255, 240, 200)
+            });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
                 .AddIngredient<SonatasEmbrace>()
-                .AddIngredient<HerosSymhpony>()
+                .AddIngredient<HerosSymphony>()
                 .AddIngredient<InfernalVirtuoso>()
                 .AddIngredient<RiddleOfTheVoid>()
                 .AddIngredient<SwansChromaticDiadem>()

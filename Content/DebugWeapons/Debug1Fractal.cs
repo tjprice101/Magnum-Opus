@@ -259,7 +259,7 @@ namespace MagnumOpus.Content.DebugWeapons
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
-            Texture2D glowTex = TextureAssets.Extra[98].Value; // Glow orb texture
+            Texture2D glowTex = TextureAssets.Extra[ExtrasID.SharpTears].Value; // Glow orb texture
             Vector2 origin = texture.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
 
@@ -310,3 +310,4 @@ namespace MagnumOpus.Content.DebugWeapons
         }
     }
 }
+

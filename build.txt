@@ -1,3 +1,5 @@
 displayName = Magnum Opus
 author = SacredTrevor
 version = 0.1
+homepage = https://github.com/SacredTrevor/MagnumOpus
+icon = icon.png

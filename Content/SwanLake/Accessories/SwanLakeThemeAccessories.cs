@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -105,6 +106,26 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 .AddIngredient(ItemID.LunarBar, 10)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+10% damage")
+            {
+                OverrideColor = SwanColors.White
+            });
+            tooltips.Add(new TooltipLine(Mod, "SpeedBoost", "+15% movement speed")
+            {
+                OverrideColor = SwanColors.IcyBlue
+            });
+            tooltips.Add(new TooltipLine(Mod, "Afterimage", "Dodging leaves rainbow afterimages")
+            {
+                OverrideColor = SwanColors.GetRainbow(0f)
+            });
+            tooltips.Add(new TooltipLine(Mod, "Flavor", "'Grace in motion, elegance personified'")
+            {
+                OverrideColor = SwanColors.Silver
+            });
         }
     }
 
@@ -267,6 +288,30 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 .AddIngredient(ItemID.FragmentStardust, 10)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+16% damage, +8% critical strike chance")
+            {
+                OverrideColor = SwanColors.White
+            });
+            tooltips.Add(new TooltipLine(Mod, "SpeedBoost", "+20% movement speed")
+            {
+                OverrideColor = SwanColors.IcyBlue
+            });
+            tooltips.Add(new TooltipLine(Mod, "DodgeChance", "+10% dodge chance")
+            {
+                OverrideColor = SwanColors.GetRainbow(0.3f)
+            });
+            tooltips.Add(new TooltipLine(Mod, "DyingSwan", "Perfect dodges trigger 'Dying Swan' - prismatic damage burst")
+            {
+                OverrideColor = SwanColors.GetRainbow(0.6f)
+            });
+            tooltips.Add(new TooltipLine(Mod, "Flavor", "'The final dance of the dying swan - beautiful, tragic, eternal'")
+            {
+                OverrideColor = SwanColors.Silver
+            });
         }
     }
 

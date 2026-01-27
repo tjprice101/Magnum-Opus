@@ -9,6 +9,7 @@ using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Content.MoonlightSonata.ResonantOres;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
+using MagnumOpus.Content.Materials.EnemyDrops;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
@@ -880,6 +881,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ResonanceEnergies.ResonantCoreOfMoonlightSonata>(), 2, 1, 3));
             
             npcLoot.Add(afterBossRule);
+            
+            // Lunar Essence - theme essence drop (15%)
+            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<LunarEssence>(), 7));
         }
 
         public override void HitEffect(NPC.HitInfo hit)

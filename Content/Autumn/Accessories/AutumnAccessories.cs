@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ID;
@@ -40,6 +41,17 @@ namespace MagnumOpus.Content.Autumn.Accessories
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color autumnOrange = new Color(255, 100, 30);
+            Color autumnBrown = new Color(139, 69, 19);
+            
+            tooltips.Add(new TooltipLine(Mod, "Season", "Autumn Accessory") { OverrideColor = autumnOrange });
+            tooltips.Add(new TooltipLine(Mod, "Damage", "+7% damage") { OverrideColor = autumnBrown });
+            tooltips.Add(new TooltipLine(Mod, "LifeSteal", "20% chance to life steal 4% of damage dealt (max 8 HP)") { OverrideColor = autumnOrange });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The reaper claims a portion of every soul'") { OverrideColor = Color.Lerp(autumnBrown, Color.Black, 0.3f) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -113,6 +125,17 @@ namespace MagnumOpus.Content.Autumn.Accessories
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color autumnOrange = new Color(255, 100, 30);
+            Color twilightPurple = new Color(128, 64, 96);
+            
+            tooltips.Add(new TooltipLine(Mod, "Season", "Autumn Accessory") { OverrideColor = autumnOrange });
+            tooltips.Add(new TooltipLine(Mod, "Crit", "+10% critical strike chance") { OverrideColor = twilightPurple });
+            tooltips.Add(new TooltipLine(Mod, "Damage", "+5% damage (boosted during twilight hours)") { OverrideColor = twilightPurple });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The boundary between day and night holds great power'") { OverrideColor = Color.Lerp(autumnOrange, twilightPurple, 0.5f) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -157,6 +180,18 @@ namespace MagnumOpus.Content.Autumn.Accessories
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color autumnOrange = new Color(255, 100, 30);
+            Color harvestGold = new Color(218, 165, 32);
+            
+            tooltips.Add(new TooltipLine(Mod, "Season", "Autumn Accessory") { OverrideColor = autumnOrange });
+            tooltips.Add(new TooltipLine(Mod, "Defense", "+12 defense") { OverrideColor = harvestGold });
+            tooltips.Add(new TooltipLine(Mod, "DR", "+8% damage reduction") { OverrideColor = harvestGold });
+            tooltips.Add(new TooltipLine(Mod, "Thorns", "Attackers take damage") { OverrideColor = autumnOrange });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The harvest provides both bounty and protection'") { OverrideColor = Color.Lerp(harvestGold, Color.White, 0.3f) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()

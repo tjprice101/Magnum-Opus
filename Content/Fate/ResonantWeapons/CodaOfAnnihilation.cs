@@ -45,9 +45,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         // Counter for which weapon to spawn next
         private int weaponCycleIndex = 0;
         
-        // Track the 360 swing phase
-        private float swingAngle = 0f;
-        private const float SwingSpeed = 0.18f; // Radians per frame for full 360 swing
+        // Track the held swing projectile
+        private int heldSwingProjectile = -1;
         
         public override void SetDefaults()
         {
@@ -58,84 +57,41 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             Item.height = 54;
             Item.useTime = 18;
             Item.useAnimation = 18;
-            Item.useStyle = ItemUseStyleID.Swing;
+            Item.useStyle = ItemUseStyleID.Shoot; // Use Shoot style for custom weapon positioning
             Item.knockBack = 8f;
             Item.value = Item.sellPrice(platinum: 5);
             Item.rare = ModContent.RarityType<FateRarity>();
             Item.UseSound = SoundID.Item1 with { Pitch = 0.1f, Volume = 0.8f };
             Item.autoReuse = true;
-            Item.noMelee = false; // Enable melee hitbox during 360 swing
-            Item.noUseGraphic = true; // We'll draw it ourselves
+            Item.noMelee = true; // The held swing projectile handles damage
+            Item.noUseGraphic = true; // We draw it ourselves via the held projectile
             Item.shoot = ModContent.ProjectileType<CodaZenithSwordProjectile>();
             Item.shootSpeed = 22f;
             Item.crit = 15;
-        }
-        
-        public override void UseItemFrame(Player player)
-        {
-            // Override to control the 360 swing animation
-            // Advance swing angle during use
-            swingAngle += SwingSpeed * player.direction;
-            
-            // Keep in range
-            if (Math.Abs(swingAngle) > MathHelper.TwoPi)
-            {
-                swingAngle = swingAngle % MathHelper.TwoPi;
-            }
+            Item.channel = true; // Allow channeling for swing control
         }
         
         public override void UseStyle(Player player, Rectangle heldItemFrame)
         {
-            // Custom 360 swing style - weapon rotates around player
-            // Position the item's rotation based on swingAngle
-            float progress = (float)player.itemAnimation / (float)player.itemAnimationMax;
-            float currentSwingAngle = swingAngle + progress * MathHelper.TwoPi * player.direction;
-            
-            // Update player arm and item position
-            player.itemRotation = currentSwingAngle + (player.direction == 1 ? MathHelper.PiOver4 : MathHelper.Pi + MathHelper.PiOver4);
-            
-            // The item visually orbits around the player
-            float orbitRadius = 50f;
-            Vector2 orbitOffset = currentSwingAngle.ToRotationVector2() * orbitRadius;
-            player.itemLocation = player.Center + orbitOffset;
-            
-            // Spawn trail particles along the swing arc
-            if (player.itemAnimation % 2 == 0)
+            // Point toward mouse during channel for better control feel
+            if (player.channel)
             {
-                Vector2 tipPos = player.itemLocation + player.itemRotation.ToRotationVector2() * 35f;
-                Color trailColor = FateCosmicVFX.GetCosmicGradient(progress);
-                
-                var trail = new GlowSparkParticle(tipPos, currentSwingAngle.ToRotationVector2() * 3f, 
-                    trailColor * 0.8f, 0.3f, 15);
-                MagnumParticleHandler.SpawnParticle(trail);
-                
-                // Music notes scatter from swing
-                if (Main.rand.NextBool(3))
-                {
-                    FateCosmicVFX.SpawnCosmicMusicNotes(tipPos, 1, 15f, 0.25f);
-                }
+                Vector2 toMouse = Main.MouseWorld - player.Center;
+                player.itemRotation = toMouse.ToRotation();
+                if (player.direction == -1)
+                    player.itemRotation += MathHelper.Pi;
             }
+        }
+        
+        public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox)
+        {
+            // No hitbox from the item itself - the held swing projectile handles this
+            noHitbox = true;
         }
         
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
-            // Extra swing VFX during the 360 rotation
-            Vector2 swingPos = hitbox.Center.ToVector2();
-            
-            // Cosmic sparks from swing
-            if (Main.rand.NextBool(2))
-            {
-                Color sparkColor = FateCosmicVFX.GetCosmicGradient(Main.rand.NextFloat());
-                Vector2 sparkVel = Main.rand.NextVector2Circular(3f, 3f);
-                var spark = new GlowSparkParticle(swingPos + Main.rand.NextVector2Circular(20f, 20f), sparkVel, sparkColor, 0.25f, 12);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            // Glyph sparks
-            if (Main.rand.NextBool(4))
-            {
-                CustomParticles.Glyph(swingPos + Main.rand.NextVector2Circular(25f, 25f), FateCosmicVFX.FateDarkPink * 0.7f, 0.3f, -1);
-            }
+            // Melee effects handled by the CodaHeldSwingProjectile
         }
         
         public override void AddRecipes()
@@ -191,6 +147,24 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         
         public override void HoldItem(Player player)
         {
+            // Spawn held swing projectile when starting to use the weapon
+            if (player.itemAnimation > 0 && player.itemAnimation == player.itemAnimationMax - 1)
+            {
+                // Spawn the visual spinning sword projectile
+                if (Main.myPlayer == player.whoAmI)
+                {
+                    heldSwingProjectile = Projectile.NewProjectile(
+                        player.GetSource_ItemUse(Item),
+                        player.Center,
+                        Vector2.Zero,
+                        ModContent.ProjectileType<CodaHeldSwingProjectile>(),
+                        Item.damage,
+                        Item.knockBack,
+                        player.whoAmI
+                    );
+                }
+            }
+            
             // === COSMIC ASTRALGRAPH ORBIT EFFECT ===
             // Multiple layered celestial orbits around the player
             

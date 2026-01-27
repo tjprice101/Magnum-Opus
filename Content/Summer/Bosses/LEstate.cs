@@ -112,6 +112,13 @@ namespace MagnumOpus.Content.Summer.Bosses
         
         private bool hasRegisteredHealthBar = false;
         private int deathTimer = 0;
+        
+        // Ground-based movement
+        private int jumpCooldown = 0;
+        private bool isGrounded = false;
+        private const float JumpVelocity = -15f;
+        private const float HighJumpVelocity = -20f;
+        private const float MoveSpeed = 10f;
         #endregion
 
         public override void SetStaticDefaults()
@@ -133,17 +140,22 @@ namespace MagnumOpus.Content.Summer.Bosses
             NPC.width = 110;
             NPC.height = 130;
             NPC.damage = BaseDamage;
-            NPC.defense = 40;
-            NPC.lifeMax = 42000; // Post-Mech tier (between Plantera 30k and Duke 50k)
+            NPC.defense = 25; // Post-Skeletron tier
+            NPC.lifeMax = 15000; // Post-Skeletron tier (comparable to Queen Bee 3.4k Classic, WoF 8k Classic)
             NPC.HitSound = SoundID.NPCHit3;
             NPC.DeathSound = SoundID.NPCDeath14;
             NPC.knockBackResist = 0f;
-            NPC.noGravity = true;
-            NPC.noTileCollide = true;
+            NPC.noGravity = false;  // Ground-based boss
+            NPC.noTileCollide = false;  // Respects terrain
             NPC.value = Item.buyPrice(gold: 12);
             NPC.boss = true;
             NPC.npcSlots = 12f;
             NPC.aiStyle = -1;
+            
+            if (!Main.dedServ)
+            {
+                Music = MusicLoader.GetMusicSlot(Mod, "Assets/Music/ScorchOfTheFinalSun");
+            }
         }
 
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
@@ -287,20 +299,69 @@ namespace MagnumOpus.Content.Summer.Bosses
         
         private void AI_Idle(Player target)
         {
-            float hoverDist = 280f - difficultyTier * 25f;
-            Vector2 idealPos = target.Center + new Vector2(NPC.Center.X > target.Center.X ? hoverDist : -hoverDist, -120f);
-            idealPos.Y += (float)Math.Sin(Timer * 0.04f) * 25f;
+            // Ground-based movement - check if grounded
+            isGrounded = NPC.velocity.Y == 0f || NPC.collideY;
+            jumpCooldown = Math.Max(0, jumpCooldown - 1);
             
-            Vector2 toIdeal = idealPos - NPC.Center;
-            if (toIdeal.Length() > 35f)
+            // Horizontal movement toward player
+            float idealDist = 180f - difficultyTier * 15f;
+            float distX = target.Center.X - NPC.Center.X;
+            float absDistX = Math.Abs(distX);
+            
+            if (absDistX > idealDist)
             {
-                toIdeal.Normalize();
-                float speed = BaseSpeed * GetAggressionSpeedMult();
-                NPC.velocity = Vector2.Lerp(NPC.velocity, toIdeal * speed, 0.06f);
+                // Move toward player
+                float dir = Math.Sign(distX);
+                float speed = MoveSpeed * GetAggressionSpeedMult();
+                NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dir * speed, 0.1f);
+            }
+            else if (absDistX < idealDist * 0.4f)
+            {
+                // Too close, back away
+                float dir = -Math.Sign(distX);
+                NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dir * MoveSpeed * 0.6f, 0.08f);
             }
             else
             {
-                NPC.velocity *= 0.9f;
+                // Ideal range, slow down
+                NPC.velocity.X *= 0.88f;
+            }
+            
+            // Jumping logic - jump to reach player or over obstacles
+            if (isGrounded && jumpCooldown <= 0)
+            {
+                bool shouldJump = false;
+                bool highJump = false;
+                
+                // Jump if player is significantly above
+                float yDiff = NPC.Center.Y - target.Center.Y;
+                if (yDiff > 80f)
+                {
+                    shouldJump = true;
+                    highJump = yDiff > 200f;
+                }
+                
+                // Jump over obstacles (simple check)
+                if (Math.Abs(NPC.velocity.X) < 1f && absDistX > 50f)
+                {
+                    shouldJump = true;
+                }
+                
+                // Random hop for variety - Summer boss is more aggressive
+                if (!shouldJump && Main.rand.NextBool(80))
+                {
+                    shouldJump = true;
+                }
+                
+                if (shouldJump)
+                {
+                    NPC.velocity.Y = highJump ? HighJumpVelocity : JumpVelocity;
+                    jumpCooldown = 35 + Main.rand.Next(15);
+                    
+                    // Jump VFX - solar flare
+                    SpawnSolarBurst(NPC.Bottom, 8, 5f);
+                    SoundEngine.PlaySound(SoundID.Item74 with { Pitch = 0.2f, Volume = 0.6f }, NPC.Center);
+                }
             }
             
             int effectiveCooldown = (int)(attackCooldown * GetAggressionRateMult());
@@ -383,11 +444,15 @@ namespace MagnumOpus.Content.Summer.Bosses
         
         private void AI_Reposition(Player target)
         {
-            float idealDist = 320f;
-            Vector2 toTarget = (target.Center - NPC.Center);
-            float currentDist = toTarget.Length();
+            // Ground-based repositioning
+            isGrounded = NPC.velocity.Y == 0f || NPC.collideY;
+            jumpCooldown = Math.Max(0, jumpCooldown - 1);
             
-            if (Math.Abs(currentDist - idealDist) < 70f && Timer > 25)
+            float idealDist = 220f;
+            float distX = target.Center.X - NPC.Center.X;
+            float absDistX = Math.Abs(distX);
+            
+            if (Math.Abs(absDistX - idealDist) < 90f && Timer > 25)
             {
                 State = BossPhase.Idle;
                 Timer = 0;
@@ -395,8 +460,17 @@ namespace MagnumOpus.Content.Summer.Bosses
                 return;
             }
             
-            Vector2 idealDir = currentDist > idealDist ? -toTarget.SafeNormalize(Vector2.Zero) : toTarget.SafeNormalize(Vector2.Zero);
-            NPC.velocity = Vector2.Lerp(NPC.velocity, idealDir * 14f, 0.08f);
+            // Move toward or away from player
+            float dir = absDistX > idealDist ? Math.Sign(distX) : -Math.Sign(distX);
+            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dir * MoveSpeed * 1.3f, 0.12f);
+            
+            // Jump if needed
+            if (isGrounded && jumpCooldown <= 0 && (target.Center.Y < NPC.Center.Y - 60f || Math.Abs(NPC.velocity.X) < 1f))
+            {
+                NPC.velocity.Y = JumpVelocity;
+                jumpCooldown = 25;
+                SpawnSolarBurst(NPC.Bottom, 6, 4f);
+            }
             
             if (Timer > 65)
             {
@@ -407,10 +481,23 @@ namespace MagnumOpus.Content.Summer.Bosses
         
         private void AI_Enraged(Player target)
         {
-            float enrageSpeed = BaseSpeed * 2f;
-            Vector2 toTarget = (target.Center - NPC.Center).SafeNormalize(Vector2.Zero);
-            NPC.velocity = Vector2.Lerp(NPC.velocity, toTarget * enrageSpeed, 0.12f);
+            // Aggressive ground pursuit
+            isGrounded = NPC.velocity.Y == 0f || NPC.collideY;
+            jumpCooldown = Math.Max(0, jumpCooldown - 1);
             
+            float enrageSpeed = MoveSpeed * 2f;
+            float dir = Math.Sign(target.Center.X - NPC.Center.X);
+            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dir * enrageSpeed, 0.15f);
+            
+            // Very aggressive jumping
+            if (isGrounded && jumpCooldown <= 0)
+            {
+                NPC.velocity.Y = HighJumpVelocity;
+                jumpCooldown = 20;
+                SpawnSolarBurst(NPC.Bottom, 10, 8f);
+            }
+            
+            // Solar flare storm while chasing
             if (Timer % 10 == 0 && Main.netMode != NetmodeID.MultiplayerClient)
             {
                 for (int i = 0; i < 6; i++)
@@ -584,12 +671,15 @@ namespace MagnumOpus.Content.Summer.Bosses
             int duration = 130 + difficultyTier * 35;
             int fireInterval = 6 - difficultyTier;
             
-            Vector2 hoverPos = target.Center + new Vector2(0, -450f);
-            Vector2 toHover = hoverPos - NPC.Center;
-            if (toHover.Length() > 50f)
+            // Ground-based: stand still and summon fire from above
+            NPC.velocity.X *= 0.9f;
+            
+            // Check for grounded and occasional jump
+            isGrounded = NPC.velocity.Y == 0f || NPC.collideY;
+            if (isGrounded && Timer % 60 == 0 && Timer > 0)
             {
-                toHover.Normalize();
-                NPC.velocity = Vector2.Lerp(NPC.velocity, toHover * 12f * GetAggressionSpeedMult(), 0.06f);
+                NPC.velocity.Y = JumpVelocity * 0.6f;
+                SpawnSolarBurst(NPC.Bottom, 5, 4f);
             }
             
             if (Timer % 12 == 0)
@@ -1150,7 +1240,6 @@ namespace MagnumOpus.Content.Summer.Bosses
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<SummerResonantEnergy>(), 1, 3, 5));
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<SolarEssence>(), 1, 5, 8));
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<EmberOfIntensity>(), 1, 18, 28));
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<DormantSummerCore>(), 3));
         }

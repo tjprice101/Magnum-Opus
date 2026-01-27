@@ -16,6 +16,7 @@ using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.SwanLake.ResonanceEnergies;
 using MagnumOpus.Content.SwanLake.ResonantOres;
 using MagnumOpus.Content.SwanLake.HarmonicCores;
+using MagnumOpus.Content.Materials.EnemyDrops;
 
 namespace MagnumOpus.Content.SwanLake.Enemies
 {
@@ -39,8 +40,8 @@ namespace MagnumOpus.Content.SwanLake.Enemies
     /// </summary>
     public class ShatteredPrima : ModNPC
     {
-        // Use placeholder until sprite is created
-        public override string Texture => "Terraria/Images/NPC_" + NPCID.Harpy;
+        // Custom sprite
+        public override string Texture => "MagnumOpus/Content/SwanLake/Enemies/ShatteredPrima";
         
         // Swan Lake theme colors - monochrome with rainbow accents
         private static readonly Color SwanWhite = new Color(255, 255, 255);
@@ -1234,6 +1235,9 @@ namespace MagnumOpus.Content.SwanLake.Enemies
             
             // Money always drops
             npcLoot.Add(ItemDropRule.Common(ItemID.GoldCoin, 1, 8, 15));
+            
+            // Grace Essence - theme essence drop (15%)
+            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<GraceEssence>(), 7));
         }
 
         public override float SpawnChance(NPCSpawnInfo spawnInfo)

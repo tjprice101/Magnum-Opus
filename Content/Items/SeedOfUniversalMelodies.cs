@@ -16,7 +16,7 @@ namespace MagnumOpus.Content.Items
     /// </summary>
     public class SeedOfUniversalMelodies : ModItem
     {
-        // TODO: Create proper texture - using HeartOfMusic as placeholder
+        // Uses HeartOfMusic texture as placeholder until custom art is created
         public override string Texture => "MagnumOpus/Content/Items/HeartOfMusic";
 
         public override void SetDefaults()

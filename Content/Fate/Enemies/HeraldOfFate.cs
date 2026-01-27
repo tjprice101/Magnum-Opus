@@ -15,6 +15,7 @@ using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Fate.ResonanceEnergies;
 using MagnumOpus.Content.Fate.ResonantOres;
 using MagnumOpus.Content.Fate.HarmonicCores;
+using MagnumOpus.Content.Materials.EnemyDrops;
 
 namespace MagnumOpus.Content.Fate.Enemies
 {
@@ -1081,6 +1082,9 @@ namespace MagnumOpus.Content.Fate.Enemies
             
             // Money always drops
             npcLoot.Add(ItemDropRule.Common(ItemID.GoldCoin, 1, 5, 10));
+            
+            // Fate Essence - theme essence drop (15%)
+            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<FateEssence>(), 7));
         }
 
         public override void OnKill()

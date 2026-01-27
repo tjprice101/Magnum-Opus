@@ -447,4 +447,229 @@ namespace MagnumOpus.Content.Fate.Projectiles
             return false;
         }
     }
+    
+    /// <summary>
+    /// The held swing projectile that draws the Coda weapon spinning around the player in a full 360.
+    /// This handles the visual spinning sword AND deals melee damage.
+    /// </summary>
+    public class CodaHeldSwingProjectile : ModProjectile
+    {
+        // Swing speed in radians per frame - completes full 360 during use animation
+        // useAnimation = 18 frames, with extraUpdates = 1 (2 updates per frame)
+        // Total updates = 18 * 2 = 36 updates per swing
+        // Full rotation = 2π radians ≈ 6.283
+        // SwingSpeed = 6.283 / 36 ≈ 0.175 radians per update
+        private const float SwingSpeed = 0.175f;
+        
+        // Current swing angle
+        private float SwingAngle
+        {
+            get => Projectile.ai[0];
+            set => Projectile.ai[0] = value;
+        }
+        
+        // Orbit radius around player
+        private const float OrbitRadius = 65f;
+        
+        // Trail positions for afterimages
+        private Vector2[] trailPositions = new Vector2[12];
+        private float[] trailRotations = new float[12];
+        private int trailIndex = 0;
+        
+        public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/CodaOfAnnihilation";
+        
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 12;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
+        
+        public override void SetDefaults()
+        {
+            Projectile.width = 80;
+            Projectile.height = 80;
+            Projectile.friendly = true;
+            Projectile.DamageType = DamageClass.Melee;
+            Projectile.penetrate = -1;
+            Projectile.tileCollide = false;
+            Projectile.ignoreWater = true;
+            Projectile.ownerHitCheck = true;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 8;
+            Projectile.extraUpdates = 1; // Smoother rotation
+        }
+        
+        public override void AI()
+        {
+            Player owner = Main.player[Projectile.owner];
+            
+            // Check if owner is still using the weapon
+            if (!owner.active || owner.dead || owner.itemAnimation <= 0)
+            {
+                Projectile.Kill();
+                return;
+            }
+            
+            // Keep projectile alive while swinging
+            Projectile.timeLeft = 2;
+            
+            // Advance swing angle for full 360 rotation
+            SwingAngle += SwingSpeed * owner.direction;
+            
+            // Position the sword orbiting around player
+            Projectile.Center = owner.Center + SwingAngle.ToRotationVector2() * OrbitRadius;
+            
+            // Rotate the sword to point outward (tangent to orbit + slight outward angle)
+            Projectile.rotation = SwingAngle + MathHelper.PiOver4 + (owner.direction == 1 ? 0 : MathHelper.PiOver2);
+            
+            // Update trail
+            trailIndex = (trailIndex + 1) % trailPositions.Length;
+            trailPositions[trailIndex] = Projectile.Center;
+            trailRotations[trailIndex] = Projectile.rotation;
+            
+            // VFX at sword tip - REDUCED rates to prevent particle spam
+            Vector2 tipOffset = Projectile.rotation.ToRotationVector2() * 45f;
+            Vector2 tipPos = Projectile.Center + tipOffset;
+            
+            // Cosmic trail particles - only every 6 frames for smooth trail without spam
+            if (Main.GameUpdateCount % 6 == 0)
+            {
+                Color trailColor = FateCosmicVFX.GetCosmicGradient((SwingAngle % MathHelper.TwoPi) / MathHelper.TwoPi);
+                var trail = new GlowSparkParticle(tipPos, SwingAngle.ToRotationVector2() * 3f, trailColor * 0.6f, 0.25f, 15);
+                MagnumParticleHandler.SpawnParticle(trail);
+            }
+            
+            // Music notes scatter from swing - sparse (1 in 20)
+            if (Main.rand.NextBool(20))
+            {
+                FateCosmicVFX.SpawnCosmicMusicNotes(tipPos, 1, 15f, 0.25f);
+            }
+            
+            // Glyphs at swing points - rare (1 in 25)
+            if (Main.rand.NextBool(25))
+            {
+                CustomParticles.Glyph(tipPos + Main.rand.NextVector2Circular(10f, 10f), 
+                    FateCosmicVFX.FateDarkPink * 0.5f, 0.25f, -1);
+            }
+            
+            // Star sparkles along the arc - occasional (1 in 15)
+            if (Main.rand.NextBool(15))
+            {
+                Vector2 sparkPos = owner.Center + SwingAngle.ToRotationVector2() * Main.rand.NextFloat(30f, OrbitRadius);
+                CustomParticles.GenericFlare(sparkPos, FateCosmicVFX.FateWhite * 0.4f, 0.15f, 8);
+            }
+            
+            // Cosmic cloud energy wisps - sparse (1 in 18)
+            if (Main.rand.NextBool(18))
+            {
+                FateCosmicVFX.SpawnCosmicCloudTrail(tipPos, SwingAngle.ToRotationVector2() * 1.5f, 0.3f);
+            }
+            
+            // Dynamic lighting at sword
+            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FatePurple.ToVector3() * 0.8f);
+            Lighting.AddLight(tipPos, FateCosmicVFX.FateBrightRed.ToVector3() * 0.5f);
+        }
+        
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            // Apply Fate debuff
+            target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 300);
+            
+            // Impact VFX
+            Vector2 hitPos = target.Center;
+            CustomParticles.GenericFlare(hitPos, FateCosmicVFX.FateWhite, 0.8f, 20);
+            CustomParticles.GenericFlare(hitPos, FateCosmicVFX.FateDarkPink, 0.6f, 18);
+            CustomParticles.HaloRing(hitPos, FateCosmicVFX.FatePurple, 0.5f, 15);
+            CustomParticles.GlyphBurst(hitPos, FateCosmicVFX.FateDarkPink, 4, 4f);
+            
+            // Cosmic lightning to nearby enemies
+            if (Main.rand.NextBool(3))
+            {
+                foreach (NPC npc in Main.npc)
+                {
+                    if (npc.active && !npc.friendly && npc.whoAmI != target.whoAmI && 
+                        npc.Distance(target.Center) < 200f)
+                    {
+                        FateCosmicVFX.DrawCosmicLightning(target.Center, npc.Center, 6, 15f);
+                        break;
+                    }
+                }
+            }
+        }
+        
+        public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
+        {
+            // Extended hitbox along the sword's swing arc
+            Player owner = Main.player[Projectile.owner];
+            float length = 70f;
+            float _ = 0f;
+            Vector2 lineStart = owner.Center;
+            Vector2 lineEnd = owner.Center + SwingAngle.ToRotationVector2() * (OrbitRadius + length * 0.5f);
+            
+            return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), lineStart, lineEnd, 40f, ref _);
+        }
+        
+        public override bool PreDraw(ref Color lightColor)
+        {
+            SpriteBatch spriteBatch = Main.spriteBatch;
+            Texture2D weaponTex = ModContent.Request<Texture2D>(Texture).Value;
+            
+            if (weaponTex == null) return false;
+            
+            Vector2 origin = weaponTex.Size() / 2f;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            
+            // Draw afterimage trail
+            for (int i = 0; i < trailPositions.Length; i++)
+            {
+                int actualIndex = (trailIndex - i + trailPositions.Length) % trailPositions.Length;
+                if (trailPositions[actualIndex] == Vector2.Zero) continue;
+                
+                Vector2 trailPos = trailPositions[actualIndex] - Main.screenPosition;
+                float trailRot = trailRotations[actualIndex];
+                
+                float progress = (float)i / trailPositions.Length;
+                float trailAlpha = (1f - progress) * 0.4f;
+                float trailScale = 1f - progress * 0.2f;
+                
+                // Cosmic gradient trail color
+                Color trailColor = Color.Lerp(FateCosmicVFX.FateDarkPink, FateCosmicVFX.FatePurple, progress);
+                trailColor = trailColor with { A = 0 } * trailAlpha;
+                
+                spriteBatch.Draw(weaponTex, trailPos, null, trailColor, trailRot, origin, trailScale, SpriteEffects.None, 0f);
+            }
+            
+            // Outer cosmic glow
+            Color outerGlow = FateCosmicVFX.FatePurple with { A = 0 } * 0.35f;
+            spriteBatch.Draw(weaponTex, drawPos, null, outerGlow, Projectile.rotation, origin, 1.2f, SpriteEffects.None, 0f);
+            
+            // Middle glow layer
+            Color midGlow = FateCosmicVFX.FateDarkPink with { A = 0 } * 0.4f;
+            spriteBatch.Draw(weaponTex, drawPos, null, midGlow, Projectile.rotation, origin, 1.1f, SpriteEffects.None, 0f);
+            
+            // Main weapon sprite with light color
+            spriteBatch.Draw(weaponTex, drawPos, null, lightColor, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
+            
+            // Inner bright glow
+            Color innerGlow = Color.Lerp(FateCosmicVFX.FateBrightRed, Color.White, 0.4f) with { A = 0 } * 0.35f;
+            spriteBatch.Draw(weaponTex, drawPos, null, innerGlow, Projectile.rotation, origin, 0.85f, SpriteEffects.None, 0f);
+            
+            return false;
+        }
+        
+        public override void OnKill(int timeLeft)
+        {
+            // Final burst of particles when swing ends
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
+                Color burstColor = Color.Lerp(FateCosmicVFX.FateDarkPink, FateCosmicVFX.FateWhite, Main.rand.NextFloat());
+                var burst = new GenericGlowParticle(Projectile.Center, burstVel, burstColor * 0.7f, 0.3f, 18, true);
+                MagnumParticleHandler.SpawnParticle(burst);
+            }
+            
+            CustomParticles.HaloRing(Projectile.Center, FateCosmicVFX.FatePurple * 0.5f, 0.4f, 12);
+        }
+    }
 }

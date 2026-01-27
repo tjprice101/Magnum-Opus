@@ -287,7 +287,7 @@ namespace MagnumOpus.Content.DebugWeapons
         {
             // Use pixel texture for beam body and glow texture for effects
             Texture2D pixel = TextureAssets.MagicPixel.Value;
-            Texture2D glow = TextureAssets.Extra[98].Value;
+            Texture2D glow = TextureAssets.Extra[ExtrasID.SharpTears].Value;
 
             float beamLength = Projectile.ai[1];
             float rotation = Projectile.ai[0];
@@ -423,3 +423,4 @@ namespace MagnumOpus.Content.DebugWeapons
         }
     }
 }
+

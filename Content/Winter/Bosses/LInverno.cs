@@ -135,8 +135,8 @@ namespace MagnumOpus.Content.Winter.Bosses
             NPC.width = 115;
             NPC.height = 130;
             NPC.damage = BaseDamage;
-            NPC.defense = 55;
-            NPC.lifeMax = 88000; // Post-Golem tier (between Empress 70k and Moon Lord)
+            NPC.defense = 45; // Post-Mechanical Bosses tier
+            NPC.lifeMax = 65000; // Post-Mechanical Bosses tier (comparable to Plantera 30k, Duke Fishron 50k)
             NPC.HitSound = SoundID.Tink;
             NPC.DeathSound = SoundID.Shatter;
             NPC.knockBackResist = 0f;
@@ -147,6 +147,11 @@ namespace MagnumOpus.Content.Winter.Bosses
             NPC.npcSlots = 14f;
             NPC.aiStyle = -1;
             NPC.coldDamage = true;
+            
+            if (!Main.dedServ)
+            {
+                Music = MusicLoader.GetMusicSlot(Mod, "Assets/Music/FrozenColossus");
+            }
         }
 
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
@@ -1161,7 +1166,6 @@ namespace MagnumOpus.Content.Winter.Bosses
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<WinterResonantEnergy>(), 1, 3, 5));
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<FrostEssence>(), 1, 5, 8));
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<ShardOfStillness>(), 1, 18, 28));
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<DormantWinterCore>(), 3));
         }

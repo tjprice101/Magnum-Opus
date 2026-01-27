@@ -61,8 +61,8 @@ namespace MagnumOpus.Common.Systems
                 Vector2 offset = (rotation + MathHelper.PiOver4 * player.direction).ToRotationVector2() * (heldItem.width * 0.5f * heldItem.scale);
                 Vector2 smearPos = weaponPos + offset;
 
-                // Determine glow color based on weapon theme
-                Color glowColor = GetWeaponGlowColor(heldItem.type);
+                // Determine glow color based on weapon theme (DYNAMIC)
+                Color glowColor = GetWeaponGlowColor(heldItem);
 
                 // Add new smear frame
                 smearFrames.Add(new SmearFrame
@@ -111,6 +111,9 @@ namespace MagnumOpus.Common.Systems
             if (item == null || item.IsAir) return false;
             if (item.DamageType != DamageClass.Melee) return false;
             if (item.useStyle != ItemUseStyleID.Swing) return false;
+            
+            // Skip weapons with custom graphics (they handle their own VFX)
+            if (item.noUseGraphic) return false;
 
             // Check if it's from our mod
             if (item.ModItem == null) return false;
@@ -120,76 +123,75 @@ namespace MagnumOpus.Common.Systems
         }
 
         /// <summary>
-        /// Get the appropriate glow color based on weapon type/theme
+        /// Get the appropriate glow color based on weapon type/theme (DYNAMIC via rarity)
         /// </summary>
-        private Color GetWeaponGlowColor(int itemType)
+        private Color GetWeaponGlowColor(Item item)
         {
-            // Eroica weapons - crimson/gold
-            if (itemType == ModContent.ItemType<SakurasBlossom>() ||
-                itemType == ModContent.ItemType<CelestialValor>())
-            {
+            if (item == null || item.IsAir) return new Color(200, 220, 255);
+            
+            // Detect theme via rarity type
+            int rarityType = item.rare;
+            
+            // Eroica - crimson/gold gradient
+            if (rarityType == ModContent.RarityType<EroicaRarity>())
                 return new Color(255, 120, 60); // Warm golden-orange
-            }
             
-            // Moonlight weapons - purple/silver
-            if (itemType == ModContent.ItemType<IncisorOfMoonlight>() ||
-                itemType == ModContent.ItemType<EternalMoon>())
-            {
+            // Moonlight Sonata - purple/silver
+            if (rarityType == ModContent.RarityType<MoonlightSonataRarity>())
                 return new Color(180, 120, 255); // Ethereal purple
-            }
             
-            // Swan Lake weapons - black/white/pearlescent
-            if (itemType == ModContent.ItemType<CalloftheBlackSwan>())
-            {
+            // Swan Lake - pearlescent white
+            if (rarityType == ModContent.RarityType<SwanRarity>())
                 return new Color(220, 220, 230); // Pearlescent white
-            }
             
-            // La Campanella weapons - INFERNAL (Black → Orange)
-            if (itemType == ModContent.ItemType<DualFatedChime>() ||
-                itemType == ModContent.ItemType<IgnitionOfTheBell>())
-            {
+            // La Campanella - infernal orange
+            if (rarityType == ModContent.RarityType<LaCampanellaRarity>())
                 return new Color(255, 100, 0); // Infernal orange
-            }
             
-            // Enigma Variations weapons - ARCANE (Black → Purple → Green)
-            if (itemType == ModContent.ItemType<VariationsOfTheVoid>() ||
-                itemType == ModContent.ItemType<TheUnresolvedCadence>())
-            {
+            // Enigma Variations - arcane purple
+            if (rarityType == ModContent.RarityType<EnigmaVariationsRarity>())
                 return new Color(140, 60, 200); // Arcane purple
-            }
+            
+            // Fate - cosmic pink/crimson
+            if (rarityType == ModContent.RarityType<FateRarity>())
+                return new Color(200, 80, 120); // Dark pink cosmic
 
             // Default glow - white/silver
             return new Color(200, 220, 255);
         }
 
         /// <summary>
-        /// Get weapon theme type for special effects
+        /// Get weapon theme type for special effects (DYNAMIC via rarity)
         /// </summary>
-        public WeaponTheme GetWeaponTheme(int itemType)
+        public WeaponTheme GetWeaponTheme(Item item)
         {
-            // La Campanella weapons - need heavy smoke
-            if (itemType == ModContent.ItemType<DualFatedChime>() ||
-                itemType == ModContent.ItemType<IgnitionOfTheBell>())
+            if (item == null || item.IsAir) return WeaponTheme.Default;
+            
+            int rarityType = item.rare;
+            
+            // La Campanella - heavy smoke
+            if (rarityType == ModContent.RarityType<LaCampanellaRarity>())
                 return WeaponTheme.LaCampanella;
                 
-            // Enigma weapons - need void/glyph effects
-            if (itemType == ModContent.ItemType<VariationsOfTheVoid>() ||
-                itemType == ModContent.ItemType<TheUnresolvedCadence>())
+            // Enigma - void/glyph effects
+            if (rarityType == ModContent.RarityType<EnigmaVariationsRarity>())
                 return WeaponTheme.Enigma;
                 
             // Swan Lake - feather effects
-            if (itemType == ModContent.ItemType<CalloftheBlackSwan>())
+            if (rarityType == ModContent.RarityType<SwanRarity>())
                 return WeaponTheme.SwanLake;
                 
             // Eroica - sakura effects
-            if (itemType == ModContent.ItemType<SakurasBlossom>() ||
-                itemType == ModContent.ItemType<CelestialValor>())
+            if (rarityType == ModContent.RarityType<EroicaRarity>())
                 return WeaponTheme.Eroica;
                 
             // Moonlight - lunar effects
-            if (itemType == ModContent.ItemType<IncisorOfMoonlight>() ||
-                itemType == ModContent.ItemType<EternalMoon>())
+            if (rarityType == ModContent.RarityType<MoonlightSonataRarity>())
                 return WeaponTheme.MoonlightSonata;
+            
+            // Fate - cosmic glyphs and stars
+            if (rarityType == ModContent.RarityType<FateRarity>())
+                return WeaponTheme.Fate;
                 
             return WeaponTheme.Default;
         }
@@ -245,8 +247,8 @@ namespace MagnumOpus.Common.Systems
             Texture2D texture = TextureAssets.Item[heldItem.type].Value;
             if (texture == null) return;
             
-            // Get weapon theme for special effects
-            var weaponTheme = smearPlayer.GetWeaponTheme(heldItem.type);
+            // Get weapon theme for special effects (DYNAMIC)
+            var weaponTheme = smearPlayer.GetWeaponTheme(heldItem);
 
             // Draw smear afterimages (oldest first, so newest is on top)
             // This creates a layered, fluid glow trail effect
@@ -463,6 +465,8 @@ namespace MagnumOpus.Common.Systems
             if (entity.ModItem.Mod.Name != "MagnumOpus") return false;
             if (entity.DamageType != DamageClass.Melee) return false;
             if (entity.useStyle != ItemUseStyleID.Swing) return false;
+            // Skip weapons with custom graphics (they handle their own VFX)
+            if (entity.noUseGraphic) return false;
             return true;
         }
 
@@ -474,8 +478,8 @@ namespace MagnumOpus.Common.Systems
                 // Get swing position
                 Vector2 swingPos = player.MountedCenter + (player.itemRotation + MathHelper.PiOver4 * player.direction).ToRotationVector2() * (item.width * item.scale);
                 
-                // Spawn themed particles based on weapon
-                Color glowColor = GetWeaponThemeColor(item.type);
+                // Spawn themed particles based on weapon (DYNAMIC)
+                Color glowColor = GetWeaponThemeColor(item);
                 
                 // Small sparkle dust
                 Dust sparkle = Dust.NewDustDirect(swingPos, 1, 1, DustID.FireworkFountain_Yellow, 
@@ -485,41 +489,35 @@ namespace MagnumOpus.Common.Systems
             }
         }
 
-        private Color GetWeaponThemeColor(int itemType)
+        private Color GetWeaponThemeColor(Item item)
         {
-            // Eroica weapons - sakura/gold
-            if (itemType == ModContent.ItemType<SakurasBlossom>() ||
-                itemType == ModContent.ItemType<CelestialValor>())
-            {
+            if (item == null || item.IsAir) return Color.White;
+            
+            int rarityType = item.rare;
+            
+            // Eroica - sakura/gold
+            if (rarityType == ModContent.RarityType<EroicaRarity>())
                 return new Color(255, 180, 100);
-            }
             
-            // Moonlight weapons - purple/silver
-            if (itemType == ModContent.ItemType<IncisorOfMoonlight>() ||
-                itemType == ModContent.ItemType<EternalMoon>())
-            {
+            // Moonlight - purple/silver
+            if (rarityType == ModContent.RarityType<MoonlightSonataRarity>())
                 return new Color(200, 150, 255);
-            }
             
-            // Swan Lake weapons - pearlescent white
-            if (itemType == ModContent.ItemType<CalloftheBlackSwan>())
-            {
+            // Swan Lake - pearlescent white
+            if (rarityType == ModContent.RarityType<SwanRarity>())
                 return new Color(220, 220, 235);
-            }
             
-            // La Campanella weapons - infernal orange
-            if (itemType == ModContent.ItemType<DualFatedChime>() ||
-                itemType == ModContent.ItemType<IgnitionOfTheBell>())
-            {
+            // La Campanella - infernal orange
+            if (rarityType == ModContent.RarityType<LaCampanellaRarity>())
                 return new Color(255, 100, 0);
-            }
             
-            // Enigma weapons - arcane purple
-            if (itemType == ModContent.ItemType<VariationsOfTheVoid>() ||
-                itemType == ModContent.ItemType<TheUnresolvedCadence>())
-            {
+            // Enigma - arcane purple
+            if (rarityType == ModContent.RarityType<EnigmaVariationsRarity>())
                 return new Color(140, 60, 200);
-            }
+            
+            // Fate - cosmic pink
+            if (rarityType == ModContent.RarityType<FateRarity>())
+                return new Color(200, 80, 120);
 
             return Color.White;
         }

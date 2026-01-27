@@ -188,7 +188,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
     /// The triumphant power of Eroica crystallized into wearable form.
     /// All Eroica bonuses maximized, kills trigger "Heroic Surge" (+25% damage for 5s).
     /// </summary>
-    public class HerosSymhpony : ModItem
+    public class HerosSymphony : ModItem
     {
         public override void SetDefaults()
         {

@@ -258,6 +258,58 @@ namespace MagnumOpus.Content.Common.Accessories
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
         }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color ultimateGold = new Color(255, 215, 0);
+            Color cosmicPurple = new Color(200, 100, 255);
+            Color softGold = new Color(255, 255, 200);
+            
+            tooltips.Add(new TooltipLine(Mod, "Ultimate1", "The ULTIMATE musical accessory - the grand finale of all symphonies")
+            {
+                OverrideColor = ultimateGold
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Ultimate2", "Combines Opus of Four Movements, Cosmic Warden's Regalia, all Season-Theme Hybrids, and the Coda of Annihilation")
+            {
+                OverrideColor = cosmicPurple
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Stats1", "+62% all damage, +30% crit chance, +20% attack speed, +35 defense")
+            {
+                OverrideColor = ultimateGold
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Stats2", "+15 life regen, +10 mana regen, +18% damage reduction, +60% movement speed")
+            {
+                OverrideColor = ultimateGold
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "ClassBonuses", "Melee: +25% damage, +22% attack speed | Magic: +30% damage, -25% mana cost | Ranged: +30% damage, +18% crit | Summon: +30% damage, +6 minions")
+            {
+                OverrideColor = cosmicPurple
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "NightPower", "At night: Additional +25% damage, +25% crit, +20 defense from Moonlight Sonata")
+            {
+                OverrideColor = new Color(138, 43, 226)
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Effects", "All theme effects active: Temporal echoes, bell ring AOE, paradox stacking, feather dodge, heroic surge, cosmic bursts")
+            {
+                OverrideColor = cosmicPurple
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Immunities", "Immunity to all elemental debuffs, status effects, and grants magma stone, frost burn, and 200% thorns")
+            {
+                OverrideColor = ultimateGold
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'When all movements converge into one, the symphony transcends mortal limits - this is the Coda of Absolute Harmony'")
+            {
+                OverrideColor = softGold
+            });
+        }
     }
 
     public class CodaOfAbsoluteHarmonyPlayer : ModPlayer

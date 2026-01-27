@@ -150,7 +150,7 @@ namespace MagnumOpus.Common.Systems.VFX
         
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
-            Texture2D tex = MagnumTextureRegistry.GlowySpark?.Value ?? MagnumTextureRegistry.GetBloom();
+            Texture2D tex = MagnumTextureRegistry.GetBloom();
             if (tex == null) return;
             
             Vector2 drawPos = Position - Main.screenPosition;
@@ -327,7 +327,7 @@ namespace MagnumOpus.Common.Systems.VFX
         
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
-            Texture2D lineTex = MagnumTextureRegistry.BloomLine?.Value ?? MagnumTextureRegistry.GetBloom();
+            Texture2D lineTex = MagnumTextureRegistry.GetBloom();
             if (lineTex == null) return;
             
             Vector2 drawPos = Position - Main.screenPosition;
@@ -398,7 +398,7 @@ namespace MagnumOpus.Common.Systems.VFX
         
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
-            Texture2D smokeTex = MagnumTextureRegistry.SmokePuff?.Value ?? MagnumTextureRegistry.GetBloom();
+            Texture2D smokeTex = MagnumTextureRegistry.GetBloom();
             if (smokeTex == null) return;
             
             Vector2 drawPos = Position - Main.screenPosition;
@@ -449,7 +449,7 @@ namespace MagnumOpus.Common.Systems.VFX
         
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
-            Texture2D flare = MagnumTextureRegistry.ShineFlare4Point?.Value;
+            Texture2D flare = MagnumTextureRegistry.GetShineFlare4Point();
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             
             if (bloom == null) return;

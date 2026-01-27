@@ -240,7 +240,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
         private void DrawCenterGlow(SpriteBatch spriteBatch)
         {
             // Draw a large soft glow in the center
-            Texture2D glowTex = TextureAssets.Extra[98].Value; // Soft glow texture
+            Texture2D glowTex = TextureAssets.Extra[ExtrasID.SharpTears].Value; // Soft glow texture
             
             float glowScale = (currentRadius / MaxRadius) * 2f + 1f;
             float glowAlpha = 1f - (currentRadius / MaxRadius) * 0.7f;
@@ -259,3 +259,4 @@ namespace MagnumOpus.Content.Eroica.Accessories
         }
     }
 }
+

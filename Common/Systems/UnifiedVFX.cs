@@ -365,7 +365,7 @@ namespace MagnumOpus.Common.Systems
                     SpawnDirectionalSpark(position, velocity, sparkColor, 35, 1.2f * scale);
                 }
                 
-                MagnumScreenEffects.AddScreenShake(2.5f * scale);
+                // Screen shake removed - too distracting for weapon hits
             }
 
             /// <summary>Mystical explosion with lunar energy.</summary>

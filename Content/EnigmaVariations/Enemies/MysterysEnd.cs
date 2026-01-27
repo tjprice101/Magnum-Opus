@@ -15,6 +15,7 @@ using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
 using MagnumOpus.Content.EnigmaVariations.ResonanceEnergies;
 using MagnumOpus.Content.EnigmaVariations.ResonantOres;
+using MagnumOpus.Content.Materials.EnemyDrops;
 
 namespace MagnumOpus.Content.EnigmaVariations.Enemies
 {
@@ -710,6 +711,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
             afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<EnigmaResonanceOre>(), 2, 5, 12));
             
             npcLoot.Add(afterBossRule);
+            
+            // Mystery Essence - theme essence drop (15%)
+            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<MysteryEssence>(), 7));
         }
 
         public override void FindFrame(int frameHeight)

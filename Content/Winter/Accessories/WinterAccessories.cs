@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ID;
@@ -40,6 +41,17 @@ namespace MagnumOpus.Content.Winter.Accessories
             Lighting.AddLight(player.Center, new Color(150, 200, 255).ToVector3() * 0.35f);
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color winterBlue = new Color(173, 216, 230);
+            Color winterCyan = new Color(0, 255, 255);
+            
+            tooltips.Add(new TooltipLine(Mod, "Season", "Winter Accessory") { OverrideColor = winterBlue });
+            tooltips.Add(new TooltipLine(Mod, "Damage", "+10% damage") { OverrideColor = winterCyan });
+            tooltips.Add(new TooltipLine(Mod, "Frostburn", "Attacks inflict Frostburn") { OverrideColor = winterBlue });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The cold burns deeper than any flame'") { OverrideColor = Color.Lerp(winterBlue, Color.White, 0.3f) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -92,6 +104,17 @@ namespace MagnumOpus.Content.Winter.Accessories
             Lighting.AddLight(player.Center, new Color(200, 220, 255).ToVector3() * 0.3f);
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color winterBlue = new Color(173, 216, 230);
+            Color winterWhite = new Color(200, 230, 255);
+            
+            tooltips.Add(new TooltipLine(Mod, "Season", "Winter Accessory") { OverrideColor = winterBlue });
+            tooltips.Add(new TooltipLine(Mod, "Base", "+8 defense, +2 life regeneration") { OverrideColor = winterWhite });
+            tooltips.Add(new TooltipLine(Mod, "Stationary", "While stationary: +8 additional defense, +4 life regen, +10% DR") { OverrideColor = winterBlue });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'In perfect stillness, the cold becomes a shield'") { OverrideColor = Color.Lerp(winterWhite, Color.White, 0.3f) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -154,6 +177,17 @@ namespace MagnumOpus.Content.Winter.Accessories
             Lighting.AddLight(player.Center, new Color(150, 220, 255).ToVector3() * 0.4f);
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color winterBlue = new Color(173, 216, 230);
+            Color winterCyan = new Color(0, 255, 255);
+            
+            tooltips.Add(new TooltipLine(Mod, "Season", "Winter Accessory") { OverrideColor = winterBlue });
+            tooltips.Add(new TooltipLine(Mod, "Stats", "+8% damage, +6% crit, +6 defense") { OverrideColor = winterCyan });
+            tooltips.Add(new TooltipLine(Mod, "Immunity", "Immune to Frozen, Chilled, and Frostburn") { OverrideColor = winterBlue });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A heart of ice beats eternal'") { OverrideColor = Color.Lerp(winterCyan, Color.White, 0.3f) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()

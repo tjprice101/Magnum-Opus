@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ID;
@@ -69,6 +70,19 @@ namespace MagnumOpus.Content.Seasons.Accessories
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.03f) * 0.5f + 0.5f;
             Color lightColor = Color.Lerp(new Color(200, 255, 200), new Color(255, 150, 50), pulse);
             Lighting.AddLight(player.Center, lightColor.ToVector3() * 0.4f);
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color springGreen = new Color(144, 238, 144);
+            Color autumnOrange = new Color(255, 100, 30);
+            
+            tooltips.Add(new TooltipLine(Mod, "Combo", "Spring + Autumn Combination") { OverrideColor = Color.Lerp(springGreen, autumnOrange, 0.5f) });
+            tooltips.Add(new TooltipLine(Mod, "Spring", "+4 life regen, +8% damage") { OverrideColor = springGreen });
+            tooltips.Add(new TooltipLine(Mod, "Autumn", "+8% crit chance, +10 defense") { OverrideColor = autumnOrange });
+            tooltips.Add(new TooltipLine(Mod, "LifeSteal", "20% chance to life steal on hit") { OverrideColor = autumnOrange });
+            tooltips.Add(new TooltipLine(Mod, "Thorns", "Attackers take 80% damage back") { OverrideColor = autumnOrange });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Balance between life and death, growth and decay'") { OverrideColor = Color.Lerp(springGreen, autumnOrange, 0.5f) });
         }
         
         public override void AddRecipes()
@@ -145,6 +159,19 @@ namespace MagnumOpus.Content.Seasons.Accessories
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.5f + 0.5f;
             Color lightColor = Color.Lerp(new Color(255, 160, 50), new Color(150, 200, 255), pulse);
             Lighting.AddLight(player.Center, lightColor.ToVector3() * 0.45f);
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color summerOrange = new Color(255, 140, 0);
+            Color winterCyan = new Color(0, 255, 255);
+            
+            tooltips.Add(new TooltipLine(Mod, "Combo", "Summer + Winter Combination") { OverrideColor = Color.Lerp(summerOrange, winterCyan, 0.5f) });
+            tooltips.Add(new TooltipLine(Mod, "Summer", "+10% damage, +10% attack speed, inflicts On Fire!") { OverrideColor = summerOrange });
+            tooltips.Add(new TooltipLine(Mod, "Winter", "+10 defense, inflicts Frostburn") { OverrideColor = winterCyan });
+            tooltips.Add(new TooltipLine(Mod, "Extreme", "At 90%+ or 25%- HP: +8% additional damage, +6% crit") { OverrideColor = Color.Lerp(summerOrange, winterCyan, 0.5f) });
+            tooltips.Add(new TooltipLine(Mod, "Immunity", "Immune to Frozen and On Fire!") { OverrideColor = winterCyan });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Fire and ice united in perfect opposition'") { OverrideColor = Color.Lerp(summerOrange, winterCyan, 0.5f) });
         }
         
         public override void AddRecipes()
@@ -236,6 +263,23 @@ namespace MagnumOpus.Content.Seasons.Accessories
             Color lightColor = Main.hslToRgb(hue, 0.7f, 0.6f);
             Lighting.AddLight(player.Center, lightColor.ToVector3() * 0.5f);
         }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color springGreen = new Color(144, 238, 144);
+            Color summerOrange = new Color(255, 140, 0);
+            Color autumnBrown = new Color(139, 69, 19);
+            Color winterCyan = new Color(0, 255, 255);
+            
+            tooltips.Add(new TooltipLine(Mod, "Combo", "All Four Seasons Combined") { OverrideColor = Main.hslToRgb((Main.GameUpdateCount * 0.01f) % 1f, 0.8f, 0.7f) });
+            tooltips.Add(new TooltipLine(Mod, "Damage", "+15% damage, +12% crit chance, +8% attack speed") { OverrideColor = summerOrange });
+            tooltips.Add(new TooltipLine(Mod, "Defense", "+15 defense, +8% damage reduction") { OverrideColor = autumnBrown });
+            tooltips.Add(new TooltipLine(Mod, "Regen", "+5 life regeneration") { OverrideColor = springGreen });
+            tooltips.Add(new TooltipLine(Mod, "Elements", "Inflicts On Fire! and Frostburn, applies Thorns") { OverrideColor = Color.Lerp(summerOrange, winterCyan, 0.5f) });
+            tooltips.Add(new TooltipLine(Mod, "LifeSteal", "20% chance to life steal on hit") { OverrideColor = autumnBrown });
+            tooltips.Add(new TooltipLine(Mod, "Immunity", "Immune to Frozen, On Fire!, and Frostburn") { OverrideColor = winterCyan });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The eternal cycle turns, granting power over all seasons'") { OverrideColor = Main.hslToRgb((Main.GameUpdateCount * 0.01f + 0.5f) % 1f, 0.8f, 0.7f) });
+        }
         
         public override void AddRecipes()
         {
@@ -261,6 +305,20 @@ namespace MagnumOpus.Content.Seasons.Accessories
             Item.accessory = true;
             Item.rare = ItemRarityID.Purple;
             Item.value = Item.sellPrice(platinum: 1);
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% damage, +15% critical strike chance"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+12% attack speed, +20 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+12% damage reduction"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Increased life and mana regeneration"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Immunity to Frozen, On Fire, Frostburn, Chilled, and Poisoned"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Melee attacks inflict fire and frostburn, enhanced thorns damage"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The eternal cycle of Four Seasons united in perfect harmony'") 
+            { 
+                OverrideColor = new Color(200, 150, 255) 
+            });
         }
 
         public override void UpdateAccessory(Player player, bool hideVisual)

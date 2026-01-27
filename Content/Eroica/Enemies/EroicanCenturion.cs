@@ -8,6 +8,7 @@ using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
+using MagnumOpus.Content.Materials.EnemyDrops;
 using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Enemies
@@ -763,6 +764,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<ShardOfTriumphsTempo>(), 1, 5, 10));
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<EroicasResonantEnergy>(), 1, 8, 15));
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<ResonantCoreOfEroica>(), 1, 3, 6));
+            
+            // Valor Essence - theme essence drop (15%)
+            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<ValorEssence>(), 7));
         }
 
         public override float SpawnChance(NPCSpawnInfo spawnInfo)

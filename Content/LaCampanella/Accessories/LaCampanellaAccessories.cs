@@ -69,6 +69,37 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             
             Lighting.AddLight(player.Center, 0.4f, 0.2f, 0.05f);
         }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color flameOrange = new Color(255, 140, 40);
+            Color smokyBlack = new Color(50, 40, 45);
+            
+            tooltips.Add(new TooltipLine(Mod, "Stats", "+12% all damage, +6 defense")
+            {
+                OverrideColor = flameOrange
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Aura", "Bellfire aura damages nearby enemies (25 damage every 0.5s)")
+            {
+                OverrideColor = flameOrange
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Effect", "Every 10 hits triggers a bell explosion")
+            {
+                OverrideColor = smokyBlack
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Immunities", "Immunity to fire debuffs and lava")
+            {
+                OverrideColor = flameOrange
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The chamber resonates with infernal flames'")
+            {
+                OverrideColor = new Color(200, 150, 100)
+            });
+        }
     }
 
     public class ChamberOfBellfirePlayer : ModPlayer
@@ -213,7 +244,7 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
     #region Campanella's Pyre Medallion
     
     /// <summary>
-    /// Campanella's Pyre Medallion - Tier 2 La Campanella accessory.
+    /// Campanella's Pyre Medallion - La Campanella accessory.
     /// Enhances Resonant Toll debuff, grants crit chance against burning enemies,
     /// and leaves a trail of flame when dashing.
     /// </summary>
@@ -257,6 +288,38 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
                     glow.noGravity = true;
                 }
             }
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color campanellaOrange = new Color(255, 140, 40);
+            Color campanellaGold = new Color(255, 200, 80);
+            Color campanellaYellow = new Color(255, 220, 100);
+
+            tooltips.Add(new TooltipLine(Mod, "Tier", "Tier 2 La Campanella Accessory")
+            {
+                OverrideColor = campanellaOrange
+            });
+            tooltips.Add(new TooltipLine(Mod, "Stats", "+15% critical strike chance")
+            {
+                OverrideColor = campanellaGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "Speed", "+8% attack speed")
+            {
+                OverrideColor = campanellaGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "DamageBonus", "+20% damage against enemies with Resonant Toll stacks")
+            {
+                OverrideColor = campanellaYellow
+            });
+            tooltips.Add(new TooltipLine(Mod, "FlameTrail", "Leaves a trail of fire when dashing")
+            {
+                OverrideColor = campanellaOrange
+            });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The pyre burns brightest for those who embrace the inferno'")
+            {
+                OverrideColor = Color.Lerp(campanellaOrange, Color.Black, 0.3f)
+            });
         }
     }
 
@@ -369,6 +432,42 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             }
             
             Lighting.AddLight(player.Center, 0.5f, 0.3f, 0.1f);
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color campanellaOrange = new Color(255, 140, 40);
+            Color campanellaGold = new Color(255, 200, 80);
+            Color campanellaYellow = new Color(255, 220, 100);
+
+            tooltips.Add(new TooltipLine(Mod, "Tier", "Tier 3 La Campanella Accessory")
+            {
+                OverrideColor = campanellaOrange
+            });
+            tooltips.Add(new TooltipLine(Mod, "Defense", "+10 defense (+15 when below 50% health)")
+            {
+                OverrideColor = campanellaGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "MaxLife", "+40 maximum life")
+            {
+                OverrideColor = campanellaGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "Regen", "+4 life regeneration")
+            {
+                OverrideColor = campanellaGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "BellBarrier", "Protective bell barrier when below 30% health (70% damage reduction)")
+            {
+                OverrideColor = campanellaYellow
+            });
+            tooltips.Add(new TooltipLine(Mod, "Cooldown", "Bell barrier has a 30 second cooldown")
+            {
+                OverrideColor = Color.Gray
+            });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Within the blazing sanctuary, even the flames sing prayers of protection'")
+            {
+                OverrideColor = Color.Lerp(campanellaOrange, Color.Black, 0.3f)
+            });
         }
     }
 
@@ -644,6 +743,62 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             }
             
             Lighting.AddLight(player.Center, 0.8f, 0.4f, 0.15f);
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color campanellaOrange = new Color(255, 140, 40);
+            Color campanellaGold = new Color(255, 200, 80);
+            Color campanellaYellow = new Color(255, 220, 100);
+
+            tooltips.Add(new TooltipLine(Mod, "Tier", "Ultimate La Campanella Accessory")
+            {
+                OverrideColor = campanellaOrange
+            });
+            tooltips.Add(new TooltipLine(Mod, "Defense", "+15 defense")
+            {
+                OverrideColor = campanellaGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "Damage", "+20% damage")
+            {
+                OverrideColor = campanellaGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "Crit", "+20% critical strike chance")
+            {
+                OverrideColor = campanellaGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "Speed", "+15% attack speed and movement speed")
+            {
+                OverrideColor = campanellaGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "MaxLife", "+60 maximum life")
+            {
+                OverrideColor = campanellaGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "Regen", "+8 life regeneration")
+            {
+                OverrideColor = campanellaGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "GrandTolling", "Grand Tolling: Powerful bell explosion every 5 seconds")
+            {
+                OverrideColor = campanellaYellow
+            });
+            tooltips.Add(new TooltipLine(Mod, "FireInfusion", "Fire Mastery: Attacks deal additional fire damage")
+            {
+                OverrideColor = campanellaYellow
+            });
+            tooltips.Add(new TooltipLine(Mod, "AuraDamage", "Infernal aura damages nearby enemies")
+            {
+                OverrideColor = campanellaYellow
+            });
+            tooltips.Add(new TooltipLine(Mod, "Immunities", "Immunity to On Fire!, Burning, and lava")
+            {
+                OverrideColor = campanellaOrange
+            });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The Maestro commands the inferno itself, conducting symphonies of destruction'")
+            {
+                OverrideColor = Color.Lerp(campanellaOrange, Color.Black, 0.3f)
+            });
         }
     }
 

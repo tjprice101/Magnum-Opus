@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ID;
@@ -40,6 +41,17 @@ namespace MagnumOpus.Content.Summer.Accessories
             Lighting.AddLight(player.Center, new Color(255, 160, 50).ToVector3() * 0.4f);
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color summerOrange = new Color(255, 140, 0);
+            Color summerGold = new Color(255, 215, 0);
+            
+            tooltips.Add(new TooltipLine(Mod, "Season", "Summer Accessory") { OverrideColor = summerOrange });
+            tooltips.Add(new TooltipLine(Mod, "Damage", "+8% damage") { OverrideColor = summerGold });
+            tooltips.Add(new TooltipLine(Mod, "OnFire", "Melee attacks inflict On Fire!") { OverrideColor = summerOrange });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The sun's fury burns within'") { OverrideColor = Color.Lerp(summerOrange, Color.Yellow, 0.3f) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -82,6 +94,18 @@ namespace MagnumOpus.Content.Summer.Accessories
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color summerOrange = new Color(255, 140, 0);
+            Color summerGold = new Color(255, 215, 0);
+            
+            tooltips.Add(new TooltipLine(Mod, "Season", "Summer Accessory") { OverrideColor = summerOrange });
+            tooltips.Add(new TooltipLine(Mod, "Speed", "+10% attack speed") { OverrideColor = summerGold });
+            tooltips.Add(new TooltipLine(Mod, "MoveSpeed", "+12% movement speed") { OverrideColor = summerGold });
+            tooltips.Add(new TooltipLine(Mod, "RunSpeed", "Increased run acceleration") { OverrideColor = summerGold });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'At the zenith of summer, speed becomes light'") { OverrideColor = Color.Lerp(summerGold, Color.White, 0.3f) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -137,6 +161,17 @@ namespace MagnumOpus.Content.Summer.Accessories
                 Lighting.AddLight(player.Center, new Color(255, 200, 100).ToVector3() * (Main.dayTime ? 0.5f : 0.25f));
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Color summerOrange = new Color(255, 140, 0);
+            Color summerGold = new Color(255, 215, 0);
+            
+            tooltips.Add(new TooltipLine(Mod, "Season", "Summer Accessory") { OverrideColor = summerOrange });
+            tooltips.Add(new TooltipLine(Mod, "Base", "+6% damage, +5 defense") { OverrideColor = summerGold });
+            tooltips.Add(new TooltipLine(Mod, "DayBonus", "During daytime: +6% additional damage, +8% crit, +2 life regen") { OverrideColor = summerOrange });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The crown blazes with the power of the midday sun'") { OverrideColor = Color.Lerp(summerGold, Color.White, 0.3f) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()

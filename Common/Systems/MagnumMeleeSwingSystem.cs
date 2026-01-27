@@ -133,10 +133,9 @@ namespace MagnumOpus.Common.Systems
         
         private float EaseSwing(float t)
         {
-            // Smooth ease in/out
-            return t < 0.5f 
-                ? 4f * t * t * t 
-                : 1f - (float)Math.Pow(-2f * t + 2f, 3) / 2f;
+            // Linear interpolation for consistent swing speed
+            // No acceleration or deceleration - constant angular velocity
+            return t;
         }
         
         private void SpawnSwingTrail(float progress)

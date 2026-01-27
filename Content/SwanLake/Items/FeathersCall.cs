@@ -744,12 +744,12 @@ namespace MagnumOpus.Content.SwanLake.Items
                 Color trailCol = glowColor * fade * 0.5f;
 
                 // Draw glowing orb trail
-                Texture2D glowTex = TextureAssets.Extra[98].Value; // Glow texture
+                Texture2D glowTex = TextureAssets.Extra[ExtrasID.SharpTears].Value; // Glow texture
                 spriteBatch.Draw(glowTex, trailPos, null, trailCol, 0f, glowTex.Size() / 2f, trailScale, SpriteEffects.None, 0f);
             }
 
             // Draw outer glow
-            Texture2D glowTexture = TextureAssets.Extra[98].Value;
+            Texture2D glowTexture = TextureAssets.Extra[ExtrasID.SharpTears].Value;
             spriteBatch.Draw(glowTexture, drawPos, null, glowColor * 0.6f, 0f, glowTexture.Size() / 2f, 0.8f, SpriteEffects.None, 0f);
 
             // Draw inner core
@@ -767,3 +767,4 @@ namespace MagnumOpus.Content.SwanLake.Items
         }
     }
 }
+

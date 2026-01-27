@@ -238,10 +238,6 @@ namespace MagnumOpus.Common.Systems
             else DrawShimmerBorder(spriteBatch, collapsedPanel.GetDimensions());
             
             base.Draw(spriteBatch);
-            
-            // Tooltip disabled - info now shows in-panel via descriptionText
-            // if (hoveredSlot >= 0 && !string.IsNullOrEmpty(hoveredDescription))
-            //     DrawHoverTooltip(spriteBatch);
         }
         
         private void DrawShimmerBorder(SpriteBatch spriteBatch, CalculatedStyle dims)
