@@ -611,6 +611,10 @@ namespace MagnumOpus.Common.Systems
                     color1 = new Color(20, 20, 30);
                     color2 = Main.hslToRgb(hue, 0.85f, 0.75f);
                     break;
+                case BossColorTheme.Nachtmusik:
+                    color1 = new Color(45, 27, 78);    // Deep purple
+                    color2 = new Color(255, 215, 0);   // Gold
+                    break;
                 default:
                     color1 = Color.White;
                     color2 = Color.Gray;
@@ -638,7 +642,8 @@ namespace MagnumOpus.Common.Systems
         Spring,      // Green and pink (renewal)
         Summer,      // Gold and orange (blazing)
         Autumn,      // Brown and dark orange (decay)
-        Winter       // White and deep blue (frozen)
+        Winter,      // White and deep blue (frozen)
+        Nachtmusik   // Deep purple and gold (celestial)
     }
     
     /// <summary>

@@ -3025,7 +3025,25 @@ TOTAL PHASE 8: 20 unique weapon sprites
 
 ---
 
-## 📋 COLOR REFERENCE
+## �️ FATE CRAFTING STATIONS (Required for Phase 9 Content)
+
+*These stations are crafted after defeating the Fate boss and are required to craft all post-Fate content (Nachtmusik, Dies Irae, Ode to Joy, Clair de Lune).*
+
+**Fate's Cosmic Anvil** (32x16 tile sprite, 2x1 tiles) - NEEDED
+*Recipe: Moonlight Anvil + 20 Fate Resonant Energy + 10 Harmonic Core of Fate + 15 Luminite Bars*
+```
+Concept art for a side-view idle pixel art sprite of an ancient celestial crafting anvil themed around "Fate" made of deep cosmic black metal surface with swirling dark pink and crimson cosmic energy veins flowing through the anvil body with golden star inclusions embedded throughout, central striking surface radiates with prismatic fate energy pulsing outward, small constellation patterns etched into the metal sides with purple cosmic dust drifting upward, ancient glyph runes carved along the base glowing with cosmic power, in the style of Terraria pixel art tile, radiating a powerful cosmic forging aura, small orbiting star particles and cosmic wisps float around the anvil, ignited in dark prismatic flames of black-pink-red cosmic gradient, detailed crafting station sprite, ornate celestial blacksmith design, 32x16 pixels for 2x1 tile placement, full-view --v 7.0
+```
+
+**Fate's Stellar Furnace** (32x32 tile sprite, 2x2 tiles) - NEEDED
+*Recipe: Moonlight Furnace + 20 Fate Resonant Energy + 10 Harmonic Core of Fate + 15 Luminite Bars*
+```
+Concept art for a side-view idle pixel art sprite of an ancient celestial smelting furnace themed around "Fate" made of deep cosmic black iron framework with swirling dark pink and crimson cosmic energy flames burning within the furnace chamber with golden star sparks flying upward, central fire opening radiates with prismatic fate fire pulsing with stellar intensity, constellation patterns of glowing embers visible through the grate with purple-pink cosmic smoke rising from the chimney, ancient glyph runes carved around the furnace opening glowing with cosmic heat, in the style of Terraria pixel art tile, radiating a powerful cosmic smelting aura, small orbiting cinders and cosmic flame wisps float around the furnace, ignited in dark prismatic flames of black-pink-red cosmic gradient with bright star-white sparks, detailed crafting station sprite, ornate celestial forge design, 32x32 pixels for 2x2 tile placement, full-view --v 7.0
+```
+
+---
+
+## �📋 COLOR REFERENCE
 
 | Theme | Primary | Secondary | Accent | Highlight |
 |-------|---------|-----------|--------|-----------|

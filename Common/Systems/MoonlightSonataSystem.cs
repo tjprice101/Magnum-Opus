@@ -13,6 +13,7 @@ using MagnumOpus.Content.SwanLake.ResonantOres;
 using MagnumOpus.Content.LaCampanella.ResonantOres;
 using MagnumOpus.Content.EnigmaVariations.ResonantOres;
 using MagnumOpus.Content.Fate.ResonantOres;
+using MagnumOpus.Content.Nachtmusik.ResonantOres;
 using MagnumOpus.Content.Common.GrandPiano;
 
 namespace MagnumOpus.Common.Systems
@@ -32,6 +33,11 @@ namespace MagnumOpus.Common.Systems
         // Future boss kill tracking
         public static bool FateBossKilledOnce { get; set; } = false;
         public static bool ClairDeLuneBossKilledOnce { get; set; } = false;
+        
+        // Post-Fate boss kill tracking (Phase 9 Secondary Theme Progression)
+        public static bool DownedNachtmusik { get; set; } = false;
+        public static bool DownedDiesIrae { get; set; } = false;
+        public static bool DownedOdeToJoy { get; set; } = false;
 
         // Protected pedestal positions (indestructible)
         public static HashSet<Point> ProtectedPedestalTiles { get; private set; } = new HashSet<Point>();
@@ -46,6 +52,9 @@ namespace MagnumOpus.Common.Systems
             DownedMoonlitMaestro = false;
             FateBossKilledOnce = false;
             ClairDeLuneBossKilledOnce = false;
+            DownedNachtmusik = false;
+            DownedDiesIrae = false;
+            DownedOdeToJoy = false;
             PianoRoomCenter = Vector2.Zero;
             ProtectedPedestalTiles.Clear();
         }
@@ -68,6 +77,12 @@ namespace MagnumOpus.Common.Systems
                 tag["FateBossKilledOnce"] = true;
             if (ClairDeLuneBossKilledOnce)
                 tag["ClairDeLuneBossKilledOnce"] = true;
+            if (DownedNachtmusik)
+                tag["DownedNachtmusik"] = true;
+            if (DownedDiesIrae)
+                tag["DownedDiesIrae"] = true;
+            if (DownedOdeToJoy)
+                tag["DownedOdeToJoy"] = true;
             if (PianoRoomCenter != Vector2.Zero)
             {
                 tag["PianoRoomX"] = PianoRoomCenter.X;
@@ -96,6 +111,9 @@ namespace MagnumOpus.Common.Systems
             DownedMoonlitMaestro = tag.ContainsKey("DownedMoonlitMaestro");
             FateBossKilledOnce = tag.ContainsKey("FateBossKilledOnce");
             ClairDeLuneBossKilledOnce = tag.ContainsKey("ClairDeLuneBossKilledOnce");
+            DownedNachtmusik = tag.ContainsKey("DownedNachtmusik");
+            DownedDiesIrae = tag.ContainsKey("DownedDiesIrae");
+            DownedOdeToJoy = tag.ContainsKey("DownedOdeToJoy");
             
             if (tag.ContainsKey("PianoRoomX") && tag.ContainsKey("PianoRoomY"))
             {
@@ -196,6 +214,13 @@ namespace MagnumOpus.Common.Systems
                 return;
 
             FateBossKilledOnce = true;
+            
+            // Spawn Phase 9 theme ores (post-Fate content)
+            SpawnNachtmusikResonanceOre();
+            // TODO: SpawnDiesIraeResonanceOre(); - when implemented
+            // TODO: SpawnOdeToJoyResonanceOre(); - when implemented
+            // TODO: SpawnClairDeLuneResonanceOre(); - when implemented
+            
             DisplayFateShatteredMessages();
 
             if (Main.netMode == NetmodeID.Server)
@@ -991,6 +1016,50 @@ namespace MagnumOpus.Common.Systems
                 if (evilCount > 60 && Main.tile[x, y].HasTile && Main.tileSolid[Main.tile[x, y].TileType])
                 {
                     int veinSize = Main.rand.Next(11, 25); // Veins (reduced 45%)
+                    
+                    if (SpawnOreVein(x, y, tileType, veinSize))
+                    {
+                        successfulVeins++;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Spawns Nachtmusik Resonance Ore throughout the Underground layer.
+        /// This ore spawns after the Fate boss is defeated (post-Fate content).
+        /// Location: Underground layer (between surface and caverns)
+        /// Vein sizes: 15-28 tiles for moderate visibility
+        /// </summary>
+        private static void SpawnNachtmusikResonanceOre()
+        {
+            int tileType = ModContent.TileType<NachtmusikResonanceOreTile>();
+            
+            // Spawn in Underground layer (somewhat uncommon but findable)
+            // Less than Moonlight Sonata (which fills the whole underground) but still plentiful
+            int veinsToSpawn = Main.rand.Next(100, 151); // 100-150 veins
+            int successfulVeins = 0;
+
+            for (int attempt = 0; attempt < veinsToSpawn * 20 && successfulVeins < veinsToSpawn; attempt++)
+            {
+                // Random position in the Underground layer (between surface and caverns)
+                int x = Main.rand.Next(50, Main.maxTilesX - 50);
+                
+                // Underground layer: between worldSurface and rockLayer
+                int minY = (int)Main.worldSurface + 20;
+                int maxY = (int)Main.rockLayer; // Stop at cavern layer
+                
+                // Make sure we have a valid range
+                if (maxY <= minY)
+                    maxY = minY + 100;
+                
+                int y = Main.rand.Next(minY, maxY);
+
+                // Check if the area is valid (solid tile)
+                if (Main.tile[x, y].HasTile && Main.tileSolid[Main.tile[x, y].TileType])
+                {
+                    // Vein sizes of 15-28 tiles (slightly larger for post-Fate content visibility)
+                    int veinSize = Main.rand.Next(15, 29);
                     
                     if (SpawnOreVein(x, y, tileType, veinSize))
                     {

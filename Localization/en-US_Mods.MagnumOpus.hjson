@@ -1561,6 +1561,112 @@
 					'''
 				DisplayName: Shard Of The Mysterys Tempo
 			}
+
+			// ==================== NACHTMUSIK (POST-FATE) ====================
+
+			NachtmusikResonanceOre: {
+				DisplayName: Nachtmusik Resonance Ore
+				Tooltip:
+					'''
+					'The night sky crystallized into earthly form'
+					Deep purple resonant ore infused with starlight
+					Found in the underground after Fate has been conquered
+					'''
+			}
+
+			RemnantOfNachtmusiksHarmony: {
+				DisplayName: Remnant of Nachtmusik's Harmony
+				Tooltip:
+					'''
+					'A fragment of the eternal serenade'
+					Used in Nachtmusik equipment crafting
+					Mined from Nachtmusik Resonance Ore
+					'''
+			}
+
+			NachtmusikResonantEnergy: {
+				DisplayName: Nachtmusik Resonant Energy
+				Tooltip:
+					'''
+					'Each mote pulses with starlight and moonbeams'
+					Used in Nachtmusik equipment crafting
+					Crafted from remnants of the night's harmony
+					'''
+			}
+
+			NachtmusikResonantCore: {
+				DisplayName: Nachtmusik Resonant Core
+				Tooltip:
+					'''
+					'Crystallized resonance of the nocturnal symphony'
+					A key component for Nachtmusik crafting
+					'''
+			}
+
+			HarmonicCoreOfNachtmusik: {
+				DisplayName: Harmonic Core of Nachtmusik
+				Tooltip:
+					'''
+					'A core that echoes with the music of the night'
+					Used to craft powerful Nachtmusik equipment
+					'Where starlight meets shadow, harmony awakens'
+					'''
+			}
+
+			StarweaversSignet: {
+				DisplayName: Starweaver's Signet
+				Tooltip:
+					'''
+					22% increased melee damage
+					15% increased melee speed
+					10% increased melee critical strike chance
+					Critical strikes call down starfall
+					'The night sky bends to the wearer's blade'
+					'''
+			}
+
+			MoonlitSerenadePendant: {
+				DisplayName: Moonlit Serenade Pendant
+				Tooltip:
+					'''
+					20% increased magic damage
+					Greatly increased mana regeneration
+					Releases harmonic waves when casting spells
+					'The moon's song flows through your magic'
+					'''
+			}
+
+			RadianceOfTheNightQueen: {
+				DisplayName: Radiance of the Night Queen
+				Tooltip:
+					'''
+					15% increased damage for all classes
+					8% increased critical strike chance
+					Every 10 seconds, releases a celestial nova
+					'Her majesty's blessing illuminates the darkness'
+					'''
+			}
+
+			NocturnesEmbrace: {
+				DisplayName: Nocturne's Embrace
+				Tooltip:
+					'''
+					25% increased summon damage
+					Increases your max number of minions by 2
+					Minions periodically trigger constellation strikes
+					'The night itself fights alongside you'
+					'''
+			}
+
+			ScoreOfNachtmusik: {
+				DisplayName: Score of Nachtmusik
+				Tooltip:
+					'''
+					Summons Nachtmusik, Queen of Radiance
+					Use at night to call forth the celestial queen
+					'When the stars align, the Queen descends...'
+					'''
+			}
 		}
 
 		Tiles: {
@@ -1571,6 +1677,7 @@
 			LaCampanellaResonanceOreTile.MapEntry: La Campanella Resonance Ore
 			EnigmaResonanceOreTile.MapEntry: Enigma Resonance Ore
 			FateResonanceOreTile.MapEntry: Fate Resonance Ore
+			NachtmusikResonanceOreTile.MapEntry: Nachtmusik Resonance Ore
 		}
 
 		Buffs: {
@@ -1796,6 +1903,7 @@
 			Primavera.DisplayName: Primavera
 			LEstate.DisplayName: L Estate
 			LInverno.DisplayName: L Inverno
+			NachtmusikQueenOfRadiance.DisplayName: Nachtmusik, Queen of Radiance
 		}
 
 		Projectiles: {
