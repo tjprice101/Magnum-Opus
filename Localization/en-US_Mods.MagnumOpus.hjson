@@ -1667,6 +1667,32 @@
 					'When the stars align, the Queen descends...'
 					'''
 			}
+
+			NachtmusikTreasureBag: {
+				DisplayName: Treasure Bag (Nachtmusik)
+				Tooltip:
+					'''
+					{$CommonItemTooltip.RightClickToOpen}
+					'''
+			}
+
+			FatesCosmicAnvil: {
+				DisplayName: Fate's Cosmic Anvil
+				Tooltip:
+					'''
+					Used to craft post-Fate equipment
+					'Where cosmic destiny is forged into reality'
+					'''
+			}
+
+			FatesStellarFurnace: {
+				DisplayName: Fate's Stellar Furnace
+				Tooltip:
+					'''
+					Used to smelt post-Fate materials
+					'Burns with the fire of a thousand dying stars'
+					'''
+			}
 		}
 
 		Tiles: {
@@ -1678,6 +1704,8 @@
 			EnigmaResonanceOreTile.MapEntry: Enigma Resonance Ore
 			FateResonanceOreTile.MapEntry: Fate Resonance Ore
 			NachtmusikResonanceOreTile.MapEntry: Nachtmusik Resonance Ore
+			FatesCosmicAnvilTile.MapEntry: Fate's Cosmic Anvil
+			FatesStellarFurnaceTile.MapEntry: Fate's Stellar Furnace
 		}
 
 		Buffs: {

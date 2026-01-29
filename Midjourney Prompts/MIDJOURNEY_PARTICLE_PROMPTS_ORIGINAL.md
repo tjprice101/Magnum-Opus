@@ -550,6 +550,86 @@ terraria pixel art floating sheet music item sprite, swan lake monochromatic the
 
 ---
 
+---
+
+# PHASE 9 POST-FATE BOSS TREASURE BAGS
+
+*Treasure bags for the four post-Fate bosses: Nachtmusik, Dies Irae, Ode to Joy, and Clair de Lune.*
+
+---
+
+## Nachtmusik Treasure Bag
+
+*A celestial treasure bag for Nachtmusik, Queen of Radiance. Features deep purple/violet with golden starlight accents, radiating ethereal celestial energy.*
+
+### PROMPT: Nachtmusik Treasure Bag
+
+```
+pixel art treasure bag sprite terraria style, celestial queen of radiance theme, bag shaped like ornate cosmic pouch with drawstring top made of woven starlight, exterior fabric appears as deep purple violet gradient with embedded constellation patterns, golden star decorations scattered across surface, radiating ethereal white and gold celestial glow from opening, metallic clasp shaped like crescent moon with golden filigree, floating golden music notes and twinkling star particles surrounding bag, delicate embroidered crown of stars on bag face, cosmic nebula swirl patterns in violet and deep purple, pale stardust particles rising from bag, bag rim decorated with tiny golden bells, soft ethereal moonlight illumination, professional terraria calamity mod treasure bag quality, clean pixel art 64x64 base resolution, color palette deep purple midnight violet golden yellow warm white starlight, transparent background PNG, centered composition, item sprite game asset --v 6.1 --ar 1:1 --style raw --s 175
+```
+
+### PROMPT VARIANT: Nachtmusik Treasure Bag (Radiant)
+
+```
+terraria pixel art treasure bag boss loot container, nachtmusik queen of radiance themed, regal drawstring pouch with celestial void interior visible at opening, exterior features midnight purple fabric with woven golden thread forming constellation patterns and music staff lines, golden metal trim and clasp decorated with tiny dangling star charms, radiant white-gold light emanating from bag opening suggesting divine treasures, floating quarter notes and treble clefs in golden sparkles around bag, embroidered celestial queen silhouette on bag face, violet aurora wisps trailing from bag, ornate crown motif at drawstring top, stardust and moonbeam particles, professional pixel art matching terraria calamity treasure bags, 64x64 pixel sprite clean edges, color scheme deep purple violet indigo with rich gold and pure white accents, elegant celestial presence, transparent background for game implementation --v 6.1 --ar 1:1 --style raw --s 200
+```
+
+---
+
+## Dies Irae Treasure Bag
+
+*A dark and ominous treasure bag for the Dies Irae boss. Features deep blood red, black, and smoldering ember accents, evoking the Day of Wrath.*
+
+### PROMPT: Dies Irae Treasure Bag
+
+```
+pixel art treasure bag sprite terraria style, dies irae day of wrath theme, bag shaped like ancient cursed satchel with heavy iron chains, exterior fabric appears as charred black leather with cracked ember lines glowing blood red, skull motif clasp with red gem eyes, smoldering dark flames licking at bag edges, floating ember particles and ash wisps surrounding bag, ominous crimson glow emanating from opening, gothic cross and judgment scale symbols embroidered in dark red, heavy chains wrapped around bag base trailing into darkness, cracked molten fractures revealing hellfire within, apocalyptic runes etched into leather, brimstone smoke rising, professional terraria calamity mod treasure bag quality, clean pixel art 64x64 base resolution, color palette deep black charcoal blood red dark crimson orange ember accents, dark foreboding presence, transparent background PNG, centered composition, item sprite game asset --v 6.1 --ar 1:1 --style raw --s 175
+```
+
+### PROMPT VARIANT: Dies Irae Treasure Bag (Infernal)
+
+```
+terraria pixel art treasure bag boss loot container, dies irae judgment day themed, ominous bag shaped as ancient iron-bound satchel exuding dread, exterior features cracked obsidian leather with molten ember veins pulsing, heavy rusted chains and iron bands wrapped around bag, skull-shaped clasp with glowing red eye sockets, dark crimson hellfire visible through bag opening, floating embers ash particles and brimstone smoke, apocalyptic symbols swords scales trumpets embossed in burnt orange, charred edges suggesting fire damage, gothic metal spikes and studs, ominous blood-red aura radiating outward, crumbling ash falling from bag, professional pixel art matching terraria calamity treasure bags, 64x64 pixel sprite dark and foreboding, color scheme pitch black charcoal deep blood red bright ember orange white-hot accents, menacing infernal presence, transparent background for game implementation --v 6.1 --ar 1:1 --style raw --s 200
+```
+
+---
+
+## Ode to Joy Treasure Bag
+
+*A radiant and triumphant treasure bag for the Ode to Joy boss. Features brilliant gold, pure white, and celebratory divine light, evoking universal joy and brotherhood.*
+
+### PROMPT: Ode to Joy Treasure Bag
+
+```
+pixel art treasure bag sprite terraria style, ode to joy triumphant celebration theme, bag shaped like ornate golden chalice-pouch overflowing with light, exterior fabric appears as pristine white silk with golden embroidered laurel wreaths, brilliant divine golden light bursting from opening, metallic gold clasp shaped like angel wings, floating golden music notes and joyful sparkle particles, radiant sunburst pattern embroidered on bag face, celebratory ribbon streamers flowing from top, choir of tiny golden bells decorating rim, olympian victory motifs and triumphant symbols, holy divine glow surrounding entire bag, pure white feathers and golden stars floating around, professional terraria calamity mod treasure bag quality, clean pixel art 64x64 base resolution, color palette pure white brilliant gold warm ivory divine yellow, joyful triumphant radiant presence, transparent background PNG, centered composition, item sprite game asset --v 6.1 --ar 1:1 --style raw --s 175
+```
+
+### PROMPT VARIANT: Ode to Joy Treasure Bag (Divine)
+
+```
+terraria pixel art treasure bag boss loot container, ode to joy universal brotherhood themed, celestial bag shaped as divine chalice-pouch radiating pure joy, exterior features pristine white fabric with intricate gold thread laurel leaf patterns and ninth symphony motifs, golden metallic trim glowing with inner divine light, brilliant white-gold radiance streaming from bag opening suggesting heavenly treasures, floating golden treble clefs eighth notes and celebration sparkles, embroidered multi-pointed star of unity on bag face, victory laurel crown decorating drawstring top, ethereal choir light rays, heavenly feathers and stardust, golden ribbon banner accents, professional pixel art matching terraria calamity treasure bags, 64x64 pixel sprite clean and bright, color scheme pure brilliant white rich gold warm yellow ivory divine glow, triumphant joyful celestial presence, transparent background for game implementation --v 6.1 --ar 1:1 --style raw --s 200
+```
+
+---
+
+## Clair de Lune Treasure Bag
+
+*A serene and ethereal treasure bag for the Clair de Lune boss. Features soft moonlit blues, silver, and gentle moonbeam glow, evoking peaceful nocturnal beauty.*
+
+### PROMPT: Clair de Lune Treasure Bag
+
+```
+pixel art treasure bag sprite terraria style, clair de lune moonlight theme, bag shaped like elegant velvet pouch bathed in soft moonlight, exterior fabric appears as deep midnight blue with silver thread moonbeam patterns, crescent moon silver clasp with pearl inlay, gentle pale blue-white moonlight emanating from opening, floating silver dust motes and soft moonbeam rays surrounding bag, embroidered full moon reflecting on water imagery, delicate ripple wave patterns in silver, tiny silver stars decorating rim, nocturnal flower motifs lilies and moonflowers, soft dreamy mist wisps trailing from bag, serene peaceful glow, professional terraria calamity mod treasure bag quality, clean pixel art 64x64 base resolution, color palette deep blue midnight navy soft silver pale moonlight white gentle cyan, peaceful serene dreamy presence, transparent background PNG, centered composition, item sprite game asset --v 6.1 --ar 1:1 --style raw --s 175
+```
+
+### PROMPT VARIANT: Clair de Lune Treasure Bag (Ethereal)
+
+```
+terraria pixel art treasure bag boss loot container, clair de lune peaceful moonlight themed, dreamy bag shaped as silk pouch floating in gentle moonbeam, exterior features deep midnight blue velvet with silver thread piano key patterns and moonlit ripple effects, ornate silver crescent moon clasp with dangling star charm, soft pale blue-white ethereal glow from bag opening suggesting moonlit treasures, floating silver particles soft moonbeam wisps and gentle starlight, embroidered reflection of moon on tranquil water on bag face, delicate lace trim in silver-white, nocturnal flowers and sleeping nightingale motifs, peaceful serene dreamy atmosphere, professional pixel art matching terraria calamity treasure bags, 64x64 pixel sprite soft and elegant, color scheme midnight blue navy silver pale blue moonlight white gentle lavender hints, tranquil ethereal nocturnal presence, transparent background for game implementation --v 6.1 --ar 1:1 --style raw --s 200
+```
+
+---
+
 ### BOSS TREASURE BAG & SHEET MUSIC NOTES
 
 **Treasure Bag Design Philosophy:**

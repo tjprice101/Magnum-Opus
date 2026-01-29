@@ -6,7 +6,7 @@ using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.Nachtmusik.ResonanceEnergies;
 using MagnumOpus.Content.Nachtmusik.HarmonicCores;
-using MagnumOpus.Content.MoonlightSonata.CraftingStations;
+using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.Nachtmusik.Accessories
@@ -106,7 +106,7 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                 .AddIngredient(ItemID.FragmentSolar, 8)
                 .AddIngredient(ItemID.LunarBar, 8)
                 .AddIngredient(ItemID.FallenStar, 15)
-                .AddTile(ModContent.TileType<MoonlightAnvilTile>())
+                .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
                 .Register();
         }
     }

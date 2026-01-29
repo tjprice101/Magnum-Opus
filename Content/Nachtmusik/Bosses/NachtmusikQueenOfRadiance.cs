@@ -201,6 +201,13 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             {
                 phase1MusicSlot = MusicLoader.GetMusicSlot(Mod, "Assets/Music/Moonlit Resonance Overflows...");
                 phase2MusicSlot = MusicLoader.GetMusicSlot(Mod, "Assets/Music/...as the Stars Sing Into Your Heart");
+                
+                // Fallback to vanilla boss music if custom tracks don't exist
+                if (phase1MusicSlot == -1)
+                    phase1MusicSlot = MusicID.Boss3; // Moonlord-style as fallback
+                if (phase2MusicSlot == -1)
+                    phase2MusicSlot = MusicID.Boss2; // Intense boss music fallback
+                    
                 Music = phase1MusicSlot;
             }
             
@@ -344,8 +351,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 State = BossPhase.TrueDeath;
                 Timer = 0;
                 
-                // Trigger Nachtmusik defeat flag
-                MoonlightSonataSystem.DownedNachtmusik = true;
+                // Note: DownedNachtmusik flag is set in OnKill()
                 
                 return false;
             }
@@ -1757,7 +1763,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
             // Boss bag (Expert/Master)
-            // npcLoot.Add(ItemDropRule.BossBag(ModContent.ItemType<NachtmusikTreasureBag>()));
+            npcLoot.Add(ItemDropRule.BossBag(ModContent.ItemType<NachtmusikTreasureBag>()));
             
             // Normal mode drops
             LeadingConditionRule notExpert = new LeadingConditionRule(new Conditions.NotExpert());

@@ -17,7 +17,7 @@
 | **Phase 6** | Utilities & Polish | ~15 items | ⚪ OPTIONAL | ✅ COMPLETE |
 | **Phase 7** | Progressive Chains & Utility | ~80 items | 🟣 SEVENTH | ✅ COMPLETE |
 | **Phase 8** | Seasonal Boss Weapons (Vivaldi's Arsenal) | 20 weapons | 🌸 EIGHTH | ⏳ Pending |
-| **Phase 9** | Secondary Theme Progression (Nachtmusik → Dies Irae → Ode to Joy → Clair de Lune) | ~150 ~100+ items | 🎵 NINTH | ⏳ Pending |
+| **Phase 9** | Post-Fate Progression (Nachtmusik → Dies Irae → Ode to Joy → Clair de Lune) | ~150 ~100+ items | 🎵 NINTH | ⏳ Pending |
 | **Phase NA** | Eternal Symphony (Post-Completion Content) | ~100+ items | 🎭 FUTURE | ⏳ TBD |
 
 ---
@@ -3018,27 +3018,27 @@ TOTAL PHASE 8: 20 unique weapon sprites
 
 ---
 
-# 🎵 PHASE 9: SECONDARY THEME PROGRESSION
+# 🎵 PHASE 9: POST-FATE PROGRESSION
 *Boss progression: Nachtmusik → Dies Irae → Ode to Joy → Clair de Lune*
 
-> **Philosophy:** Four new bosses with distinct musical themes running parallel to the main progression.
+> **Philosophy:** Four endgame bosses with distinct musical themes that continue the mainline progression after defeating Fate.
 
 ---
 
 ## �️ FATE CRAFTING STATIONS (Required for Phase 9 Content)
 
-*These stations are crafted after defeating the Fate boss and are required to craft all post-Fate content (Nachtmusik, Dies Irae, Ode to Joy, Clair de Lune).*
+*These endgame crafting stations are unlocked after defeating the Fate boss and are required to craft all Phase 9 mainline content (Nachtmusik, Dies Irae, Ode to Joy, Clair de Lune).*
 
-**Fate's Cosmic Anvil** (32x16 tile sprite, 2x1 tiles) - NEEDED
+**Fate's Cosmic Anvil** (32x32 tile sprite, 2x2 tiles) - NEEDED
 *Recipe: Moonlight Anvil + 20 Fate Resonant Energy + 10 Harmonic Core of Fate + 15 Luminite Bars*
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial crafting anvil themed around "Fate" made of deep cosmic black metal surface with swirling dark pink and crimson cosmic energy veins flowing through the anvil body with golden star inclusions embedded throughout, central striking surface radiates with prismatic fate energy pulsing outward, small constellation patterns etched into the metal sides with purple cosmic dust drifting upward, ancient glyph runes carved along the base glowing with cosmic power, in the style of Terraria pixel art tile, radiating a powerful cosmic forging aura, small orbiting star particles and cosmic wisps float around the anvil, ignited in dark prismatic flames of black-pink-red cosmic gradient, detailed crafting station sprite, ornate celestial blacksmith design, 32x16 pixels for 2x1 tile placement, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial crafting anvil themed around "Fate" made of deep cosmic black metal surface with swirling dark pink and crimson cosmic energy veins flowing through the anvil body with golden star inclusions embedded throughout, central striking surface radiates with prismatic fate energy pulsing outward, small constellation patterns etched into the metal sides with purple cosmic dust drifting upward, ancient glyph runes carved along the base glowing with cosmic power, in the style of Terraria pixel art tile, radiating a powerful cosmic forging aura, small orbiting star particles and cosmic wisps float around the anvil, ignited in dark prismatic flames of black-pink-red cosmic gradient, detailed crafting station sprite, ornate celestial blacksmith design, 32x32 pixels for 2x2 tile placement, full-view --v 7.0
 ```
 
-**Fate's Stellar Furnace** (32x32 tile sprite, 2x2 tiles) - NEEDED
+**Fate's Stellar Furnace** (32x64 tile sprite, 2x4 tiles) - NEEDED
 *Recipe: Moonlight Furnace + 20 Fate Resonant Energy + 10 Harmonic Core of Fate + 15 Luminite Bars*
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial smelting furnace themed around "Fate" made of deep cosmic black iron framework with swirling dark pink and crimson cosmic energy flames burning within the furnace chamber with golden star sparks flying upward, central fire opening radiates with prismatic fate fire pulsing with stellar intensity, constellation patterns of glowing embers visible through the grate with purple-pink cosmic smoke rising from the chimney, ancient glyph runes carved around the furnace opening glowing with cosmic heat, in the style of Terraria pixel art tile, radiating a powerful cosmic smelting aura, small orbiting cinders and cosmic flame wisps float around the furnace, ignited in dark prismatic flames of black-pink-red cosmic gradient with bright star-white sparks, detailed crafting station sprite, ornate celestial forge design, 32x32 pixels for 2x2 tile placement, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial smelting furnace themed around "Fate" made of deep cosmic black iron framework with swirling dark pink and crimson cosmic energy flames burning within the furnace chamber with golden star sparks flying upward, central fire opening radiates with prismatic fate fire pulsing with stellar intensity, constellation patterns of glowing embers visible through the grate with purple-pink cosmic smoke rising from the chimney, ancient glyph runes carved around the furnace opening glowing with cosmic heat, in the style of Terraria pixel art tile, radiating a powerful cosmic smelting aura, small orbiting cinders and cosmic flame wisps float around the furnace, ignited in dark prismatic flames of black-pink-red cosmic gradient with bright star-white sparks, detailed crafting station sprite, ornate celestial forge design, 32x64 pixels for 2x4 tile placement, full-view --v 7.0
 ```
 
 ---
@@ -3909,7 +3909,7 @@ Concept art for a side-view idle pixel art sprite of an ancient celestial summon
 
 **Hymnal Treant Staff** (52x56) - Spawns Living Treant
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive living staff weapon rotated 45 degrees with treant face top pointing upward, pristine white living wood forming clean elegant staff outline shaft and base with treant summoning finish, staff top is actual treant face interior filled with flowing amorphous verdant life energy swirling like ancient nature spirit, wavy harmonic energy flows through roots extending from base creating visible ancient currents, living wood surface decorated with flowing bark patterns and treant expressions and musical notation, flowering vines spiral around shaft, face awakens when summoning, golden pollen emanates from mouth, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming treant authority radiating, epic powerful sprite art, full staff composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive living staff weapon rotated 45 degrees with treant face top pointing upward, pristine white living wood forming clean elegant staff outline shaft and base with treant summoning finish, staff top is actual treant face interior filled with flowing amorphous verdant life energy swirling like ancient nature spirit, wavy harmonic energy flows through roots extending from base creating visible ancient currents, living wood surface decorated with flowing bark patterns and treant expressions and musical notation, flowering vines spiral around shaft, face awakens when summoning, golden pollen emanates from mouth, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming treant authority radiating, epic poweI rful sprite art, full staff composition, --ar 16:9 --v 7.0
 ```
 
 **Living Treant** (Summon Companion) (36x40 per frame, 4 frames)
@@ -5514,14 +5514,14 @@ TOTAL PHASE NA: ~150+ assets (many are variants/recolors/UI elements)
 | ✅ Phase 6 - Utilities | 15 items | ⚪ SIXTH | COMPLETE |
 | ✅ Phase 7 - Progressive Chains & Utility | ~80 items | 🟣 SEVENTH | COMPLETE |
 | ⏳ Phase 8 - Seasonal Boss Weapons | 20 weapons | 🌸 EIGHTH | Pending |
-| ⏳ Phase 9 - Secondary Themes (Nachtmusik → Clair de Lune) | 96 assets | 🎵 NINTH | Pending |
+| ⏳ Phase 9 - Post-Fate Themes (Nachtmusik → Clair de Lune) | 96 assets | 🎵 NINTH | Pending |
 | ⏳ Phase NA - Eternal Symphony | ~150+ items | 🎭 FUTURE | TBD |
 
 **GRAND TOTAL: ~470+ new item sprites + 8 boss sprite sets + UI systems**
 
 ---
 
-*Document Version 3.5 - Renamed Phase 9 to Phase NA, Added new Phase 9 (Secondary Theme Progression)*
+*Document Version 3.6 - Updated Phase 9 to reflect Post-Fate mainline progression (not secondary)*
 *Format: "Concept art for a side-view idle pixel art sprite of [ITEM] in the style of Terraria..."*
 *All recipes include specific quantities and crafting stations*
 *Last Updated: Current Session*

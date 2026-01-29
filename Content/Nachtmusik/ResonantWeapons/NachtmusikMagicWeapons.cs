@@ -1,0 +1,312 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
+using Terraria;
+using Terraria.Audio;
+using Terraria.DataStructures;
+using Terraria.ID;
+using Terraria.ModLoader;
+using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.Nachtmusik.Debuffs;
+using MagnumOpus.Content.Nachtmusik.Projectiles;
+
+namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
+{
+    /// <summary>
+    /// Starweaver's Grimoire - A tome that weaves constellations of destruction.
+    /// Fires cosmic orbs that create mini-explosions along their path.
+    /// DAMAGE: 450 base + periodic explosions
+    /// </summary>
+    public class StarweaversGrimoire : ModItem
+    {
+        private int constellationCharge = 0;
+        
+        public override void SetStaticDefaults()
+        {
+            ItemID.Sets.ItemsThatAllowRepeatedRightClick[Item.type] = true;
+        }
+        
+        public override void SetDefaults()
+        {
+            Item.width = 32;
+            Item.height = 38;
+            Item.damage = 450;
+            Item.DamageType = DamageClass.Magic;
+            Item.mana = 12;
+            Item.useTime = 18;
+            Item.useAnimation = 18;
+            Item.useStyle = ItemUseStyleID.Shoot;
+            Item.knockBack = 5f;
+            Item.value = Item.sellPrice(gold: 46);
+            Item.rare = ModContent.RarityType<NachtmusikRarity>();
+            Item.UseSound = SoundID.Item8;
+            Item.autoReuse = true;
+            Item.noMelee = true;
+            Item.shoot = ModContent.ProjectileType<StarweaverOrbProjectile>();
+            Item.shootSpeed = 12f;
+            Item.crit = 16;
+            Item.staff[Item.type] = true;
+        }
+        
+        public override bool AltFunctionUse(Player player) => true;
+        
+        public override bool CanUseItem(Player player)
+        {
+            if (player.altFunctionUse == 2)
+            {
+                // Constellation Burst - requires full charge
+                if (constellationCharge < 100)
+                    return false;
+                    
+                Item.mana = 40;
+                Item.useTime = 35;
+                Item.useAnimation = 35;
+            }
+            else
+            {
+                Item.mana = 12;
+                Item.useTime = 18;
+                Item.useAnimation = 18;
+            }
+            return base.CanUseItem(player);
+        }
+        
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            Vector2 direction = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
+            
+            if (player.altFunctionUse == 2 && constellationCharge >= 100)
+            {
+                // Constellation Burst - fire a massive barrage
+                constellationCharge = 0;
+                
+                // Fire 12 orbs in a complex pattern
+                for (int wave = 0; wave < 3; wave++)
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        float angleOffset = MathHelper.ToRadians(-30f + 20f * i);
+                        float speedMod = 1f - wave * 0.15f;
+                        Vector2 orbVel = direction.RotatedBy(angleOffset) * 14f * speedMod;
+                        
+                        // Stagger spawns for wave effect
+                        Vector2 spawnPos = player.Center + direction * (20f + wave * 15f);
+                        
+                        Projectile.NewProjectile(source, spawnPos, orbVel, type, (int)(damage * 1.5f), knockback, player.whoAmI);
+                    }
+                }
+                
+                // Massive VFX
+                NachtmusikCosmicVFX.SpawnCelestialExplosion(player.Center + direction * 40f, 1.5f);
+                NachtmusikCosmicVFX.SpawnConstellationCircle(player.Center, 60f, 12, 0.5f);
+                MagnumScreenEffects.AddScreenShake(10f);
+                
+                SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 1f }, player.Center);
+            }
+            else
+            {
+                // Normal shot - single orb
+                Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
+                
+                // Build constellation charge
+                constellationCharge = Math.Min(100, constellationCharge + 8);
+                
+                // Cast VFX
+                CustomParticles.GenericFlare(position + direction * 20f, NachtmusikCosmicVFX.Violet, 0.4f, 12);
+            }
+            
+            return false;
+        }
+        
+        public override void HoldItem(Player player)
+        {
+            // Constellation charge indicator
+            if (constellationCharge > 0)
+            {
+                float chargePercent = constellationCharge / 100f;
+                
+                // Orbiting constellation points
+                if (Main.rand.NextBool((int)(8 - chargePercent * 5) + 1))
+                {
+                    float angle = Main.GameUpdateCount * 0.04f;
+                    int points = 3 + (int)(chargePercent * 3);
+                    
+                    for (int i = 0; i < points; i++)
+                    {
+                        float pointAngle = angle + MathHelper.TwoPi * i / points;
+                        Vector2 pointPos = player.Center + pointAngle.ToRotationVector2() * (30f + chargePercent * 15f);
+                        Color pointColor = Color.Lerp(NachtmusikCosmicVFX.DeepPurple, NachtmusikCosmicVFX.StarWhite, chargePercent);
+                        CustomParticles.GenericFlare(pointPos, pointColor, 0.15f + chargePercent * 0.1f, 8);
+                    }
+                }
+                
+                // Full charge glow
+                if (constellationCharge >= 100 && Main.rand.NextBool(6))
+                {
+                    NachtmusikCosmicVFX.SpawnGlyphBurst(player.Center, 1, 2f, 0.2f);
+                }
+            }
+            
+            Lighting.AddLight(player.Center, NachtmusikCosmicVFX.Violet.ToVector3() * 0.4f);
+        }
+        
+        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Orb", "Fires cosmic orbs that create mini-explosions along their path"));
+            tooltips.Add(new TooltipLine(Mod, "Charge", $"Constellation Charge: {constellationCharge}/100"));
+            tooltips.Add(new TooltipLine(Mod, "Burst", "Right-click at full charge: Constellation Burst"));
+            tooltips.Add(new TooltipLine(Mod, "Debuff", "Inflicts heavy Celestial Harmony stacks"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Written in stardust, bound in eternity'")
+            {
+                OverrideColor = NachtmusikCosmicVFX.Violet
+            });
+        }
+    }
+    
+    /// <summary>
+    /// Requiem of the Cosmos - The ultimate magic weapon from Nachtmusik.
+    /// Fires devastating cosmic beams that pierce all enemies.
+    /// DAMAGE: 580 with infinite pierce
+    /// </summary>
+    public class RequiemOfTheCosmos : ModItem
+    {
+        private int requiemTimer = 0;
+        private bool isChanneling = false;
+        
+        public override void SetDefaults()
+        {
+            Item.width = 36;
+            Item.height = 42;
+            Item.damage = 580;
+            Item.DamageType = DamageClass.Magic;
+            Item.mana = 18;
+            Item.useTime = 8;
+            Item.useAnimation = 8;
+            Item.useStyle = ItemUseStyleID.Shoot;
+            Item.knockBack = 4f;
+            Item.value = Item.sellPrice(gold: 52);
+            Item.rare = ModContent.RarityType<NachtmusikRarity>();
+            Item.UseSound = SoundID.Item12;
+            Item.autoReuse = true;
+            Item.noMelee = true;
+            Item.shoot = ModContent.ProjectileType<CosmicRequiemBeamProjectile>();
+            Item.shootSpeed = 22f;
+            Item.crit = 22;
+            Item.channel = true;
+            Item.staff[Item.type] = true;
+        }
+        
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            requiemTimer++;
+            isChanneling = true;
+            
+            Vector2 direction = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
+            
+            // Fire beam
+            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
+            
+            // Channeling intensifies over time
+            float intensity = Math.Min(1f, requiemTimer / 60f);
+            
+            // Fire additional beams at higher intensity
+            if (requiemTimer % 4 == 0 && intensity > 0.3f)
+            {
+                float angleOffset = MathHelper.ToRadians(Main.rand.NextFloat(-8f, 8f) * intensity);
+                Vector2 sideVel = velocity.RotatedBy(angleOffset);
+                Projectile.NewProjectile(source, position, sideVel, type, (int)(damage * 0.6f), knockback * 0.5f, player.whoAmI);
+            }
+            
+            // Grand finale at peak intensity
+            if (requiemTimer % 45 == 0 && intensity >= 1f)
+            {
+                // Burst of 8 beams
+                for (int i = 0; i < 8; i++)
+                {
+                    float burstAngle = MathHelper.TwoPi * i / 8f;
+                    Vector2 burstVel = burstAngle.ToRotationVector2() * 18f;
+                    Projectile.NewProjectile(source, player.Center, burstVel, type, (int)(damage * 0.8f), knockback, player.whoAmI);
+                }
+                
+                NachtmusikCosmicVFX.SpawnCelestialExplosion(player.Center, 1.2f);
+                NachtmusikCosmicVFX.SpawnMusicNoteBurst(player.Center, 12, 6f);
+                MagnumScreenEffects.AddScreenShake(8f);
+            }
+            
+            // Channeling VFX
+            CustomParticles.GenericFlare(position + direction * 25f, NachtmusikCosmicVFX.Violet, 0.35f + intensity * 0.2f, 8);
+            
+            if (Main.rand.NextBool(3))
+            {
+                Color trailColor = NachtmusikCosmicVFX.GetCelestialGradient(Main.rand.NextFloat());
+                var trail = new GenericGlowParticle(position + Main.rand.NextVector2Circular(15f, 15f),
+                    direction * 2f + Main.rand.NextVector2Circular(1f, 1f), trailColor * 0.6f, 0.2f, 12, true);
+                MagnumParticleHandler.SpawnParticle(trail);
+            }
+            
+            return false;
+        }
+        
+        public override void UpdateInventory(Player player)
+        {
+            // Reset channel timer when not using
+            if (!player.channel || player.HeldItem.type != Item.type)
+            {
+                if (isChanneling && requiemTimer > 30)
+                {
+                    // Release burst when stopping channel
+                    Vector2 direction = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
+                    for (int i = 0; i < 5; i++)
+                    {
+                        float angle = direction.ToRotation() + MathHelper.ToRadians(-20f + 10f * i);
+                        Vector2 burstVel = angle.ToRotationVector2() * 20f;
+                        Projectile.NewProjectile(player.GetSource_FromThis(), player.Center, burstVel,
+                            ModContent.ProjectileType<CosmicRequiemBeamProjectile>(), (int)(Item.damage * player.GetDamage(DamageClass.Magic).Multiplicative), Item.knockBack, player.whoAmI);
+                    }
+                    
+                    NachtmusikCosmicVFX.SpawnCelestialImpact(player.Center + direction * 30f, 1f);
+                }
+                
+                requiemTimer = 0;
+                isChanneling = false;
+            }
+        }
+        
+        public override void HoldItem(Player player)
+        {
+            float intensity = Math.Min(1f, requiemTimer / 60f);
+            
+            // Channeling aura
+            if (isChanneling && Main.rand.NextBool((int)(6 - intensity * 4) + 1))
+            {
+                float angle = Main.GameUpdateCount * 0.08f * (1f + intensity);
+                Vector2 auraPos = player.Center + angle.ToRotationVector2() * (25f + intensity * 20f);
+                Color auraColor = NachtmusikCosmicVFX.GetCelestialGradient(Main.rand.NextFloat());
+                CustomParticles.GenericFlare(auraPos, auraColor, 0.2f + intensity * 0.15f, 10);
+            }
+            
+            // Glyphs at high intensity
+            if (intensity > 0.7f && Main.rand.NextBool(10))
+            {
+                NachtmusikCosmicVFX.SpawnGlyphBurst(player.Center, 1, 3f, 0.25f);
+            }
+            
+            Lighting.AddLight(player.Center, NachtmusikCosmicVFX.Violet.ToVector3() * (0.4f + intensity * 0.4f));
+        }
+        
+        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Beam", "Fires piercing cosmic beams that hit all enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Channel", "Hold to channel - intensity builds over time"));
+            tooltips.Add(new TooltipLine(Mod, "Burst", "At peak intensity, periodically fires beam bursts"));
+            tooltips.Add(new TooltipLine(Mod, "Release", "Releasing channel fires a final burst"));
+            tooltips.Add(new TooltipLine(Mod, "Debuff", "Inflicts heavy Celestial Harmony stacks"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The final movement plays as the universe falls silent'")
+            {
+                OverrideColor = NachtmusikCosmicVFX.DeepPurple
+            });
+        }
+    }
+}

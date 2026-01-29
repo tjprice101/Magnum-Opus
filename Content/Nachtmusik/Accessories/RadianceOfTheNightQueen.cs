@@ -6,7 +6,7 @@ using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.Nachtmusik.ResonanceEnergies;
 using MagnumOpus.Content.Nachtmusik.HarmonicCores;
-using MagnumOpus.Content.MoonlightSonata.CraftingStations;
+using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.Nachtmusik.Accessories
@@ -119,7 +119,7 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                 .AddIngredient(ItemID.FragmentVortex, 5)
                 .AddIngredient(ItemID.FragmentStardust, 5)
                 .AddIngredient(ItemID.LunarBar, 10)
-                .AddTile(ModContent.TileType<MoonlightAnvilTile>())
+                .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
                 .Register();
         }
     }
@@ -246,8 +246,6 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
     /// </summary>
     public class QueensRadianceBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.Shine;
-
         public override void SetStaticDefaults()
         {
             Main.buffNoTimeDisplay[Type] = false;

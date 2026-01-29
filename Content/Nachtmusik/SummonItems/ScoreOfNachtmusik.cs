@@ -5,7 +5,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Nachtmusik.Bosses;
 using MagnumOpus.Content.Nachtmusik.HarmonicCores;
-using MagnumOpus.Content.MoonlightSonata.CraftingStations;
+using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 
@@ -129,14 +129,12 @@ namespace MagnumOpus.Content.Nachtmusik.SummonItems
 
         public override void AddRecipes()
         {
-            // NOTE: Should use FateAnvilTile once implemented
-            // Currently using MoonlightAnvilTile as placeholder
             CreateRecipe()
                 .AddIngredient(ModContent.ItemType<HarmonicCoreOfNachtmusik>(), 1)
                 .AddIngredient(ItemID.FallenStar, 15)
                 .AddIngredient(ItemID.SoulofLight, 10)
                 .AddIngredient(ItemID.SoulofNight, 10)
-                .AddTile<MoonlightAnvilTile>()
+                .AddTile<FatesCosmicAnvilTile>()
                 .Register();
         }
     }

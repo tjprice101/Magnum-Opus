@@ -10,10 +10,14 @@ using MagnumOpus.Content.Eroica.ResonanceEnergies;
 
 namespace MagnumOpus.Content.Eroica.ResonantOres
 {
+    /// <summary>
+    /// Eroica Resonance Ore Tile - Uses a 4x4 sprite sheet (64x64 total) where each 16x16 frame is a unique ore variant.
+    /// Each ore block randomly selects one of the 16 frames to display for visual variety.
+    /// </summary>
     public class EroicaResonanceOreTile : ModTile
     {
-        // Uses the same texture as EroicaResonanceOre.png for visual consistency
-        public override string Texture => "MagnumOpus/Content/Eroica/ResonantOres/EroicaResonanceOre";
+        // The texture is a 4x4 sprite sheet (64x64) of 16x16 tiles
+        public override string Texture => "MagnumOpus/Content/Eroica/ResonantOres/EroicaResonanceOreTile";
 
         public override void SetStaticDefaults()
         {
@@ -105,7 +109,8 @@ namespace MagnumOpus.Content.Eroica.ResonantOres
 
         public override bool PreDraw(int i, int j, SpriteBatch spriteBatch)
         {
-            // Draw the single 16x16 texture for every ore block, ignoring frame variations
+            // The texture is a 4x4 sprite sheet (64x64 total with 16x16 tiles)
+            // We use a seeded random based on tile position to pick a consistent frame
             Texture2D texture = TextureAssets.Tile[Type].Value;
             Vector2 zero = Main.drawToScreen ? Vector2.Zero : new Vector2(Main.offScreenRange);
             Vector2 position = new Vector2(i * 16, j * 16) - Main.screenPosition + zero;
@@ -113,8 +118,18 @@ namespace MagnumOpus.Content.Eroica.ResonantOres
             // Get lighting at this tile position
             Color lightColor = Lighting.GetColor(i, j);
             
-            // Draw the entire texture as a single 16x16 tile
-            Rectangle sourceRect = new Rectangle(0, 0, texture.Width, texture.Height);
+            // Use tile coordinates as seed for consistent random per-tile
+            // This ensures the same tile always shows the same variant
+            int seed = i * 7919 + j * 6997; // Prime numbers for better distribution
+            var tileRandom = new System.Random(seed);
+            
+            // Pick random frame from 4x4 grid (0-3 for X, 0-3 for Y)
+            int frameX = tileRandom.Next(4);
+            int frameY = tileRandom.Next(4);
+            
+            // Each frame is 16x16 pixels
+            Rectangle sourceRect = new Rectangle(frameX * 16, frameY * 16, 16, 16);
+            
             spriteBatch.Draw(texture, position, sourceRect, lightColor, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
             
             return false; // Skip default drawing
