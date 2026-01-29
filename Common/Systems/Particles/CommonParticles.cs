@@ -860,4 +860,173 @@ namespace MagnumOpus.Common.Systems.Particles
     }
     
     #endregion
+    
+    #region Nachtmusik Celestial Particles
+    
+    /// <summary>
+    /// An 8-pointed star burst particle for Nachtmusik's celestial impacts.
+    /// Uses StarBurst1.png or StarBurst2.png textures.
+    /// </summary>
+    public class StarBurstParticle : Particle
+    {
+        public override string Texture => _variant == 0 ? "StarBurst1" : "StarBurst2";
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+        public override bool SetLifetime => true;
+        
+        private int _variant;
+        private float opacity;
+        private Color BaseColor;
+        private float Spin;
+        private float OriginalScale;
+        private float FinalScale;
+        
+        public StarBurstParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime, int variant = -1)
+        {
+            Position = position;
+            Velocity = velocity;
+            BaseColor = color;
+            OriginalScale = scale;
+            FinalScale = scale * 0.3f;
+            Scale = scale;
+            Lifetime = lifetime;
+            _variant = variant < 0 ? Main.rand.Next(2) : variant;
+            Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
+            Spin = Main.rand.NextFloat(-0.08f, 0.08f);
+        }
+        
+        public override void Update()
+        {
+            // Rapid fade-out curve for impact feel
+            float fadeProgress = 1f - (LifetimeCompletion * LifetimeCompletion);
+            opacity = fadeProgress;
+            
+            // Scale shrinks over time
+            Scale = MathHelper.Lerp(OriginalScale, FinalScale, LifetimeCompletion);
+            
+            Rotation += Spin;
+            Velocity *= 0.92f;
+            
+            if (opacity > 0.15f)
+                Lighting.AddLight(Position, BaseColor.R / 255f * opacity * 0.8f, BaseColor.G / 255f * opacity * 0.8f, BaseColor.B / 255f * opacity * 0.8f);
+        }
+        
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            Texture2D texture = ParticleTextureHelper.GetTexture(Texture);
+            Texture2D bloomTex = ParticleTextureHelper.GetTexture("BloomCircle");
+            
+            Vector2 drawPos = Position - Main.screenPosition;
+            Vector2 origin = texture.Size() / 2f;
+            
+            // FARGOS PATTERN: Multi-layer bloom with { A = 0 }
+            Color bloomColor = BaseColor with { A = 0 };
+            
+            // Outer bloom glow
+            spriteBatch.Draw(bloomTex, drawPos, null, bloomColor * opacity * 0.4f,
+                0f, bloomTex.Size() / 2f, Scale * 2.2f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(bloomTex, drawPos, null, bloomColor * opacity * 0.6f,
+                0f, bloomTex.Size() / 2f, Scale * 1.4f, SpriteEffects.None, 0f);
+            
+            // Star burst sprite
+            spriteBatch.Draw(texture, drawPos, null, Color.White * opacity * 0.9f,
+                Rotation, origin, Scale, SpriteEffects.None, 0f);
+            
+            // White-hot core
+            spriteBatch.Draw(bloomTex, drawPos, null, Color.White with { A = 0 } * opacity * 0.7f,
+                0f, bloomTex.Size() / 2f, Scale * 0.4f, SpriteEffects.None, 0f);
+        }
+    }
+    
+    /// <summary>
+    /// Crystalline shattered starlight fragment particle for Nachtmusik weapon hits.
+    /// Creates sharp, gleaming shards of light that scatter on impact.
+    /// </summary>
+    public class ShatteredStarlightParticle : Particle
+    {
+        public override string Texture => "ShatteredStarlight";
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+        public override bool SetLifetime => true;
+        
+        private float opacity;
+        private Color BaseColor;
+        private float Spin;
+        private bool HasGravity;
+        private float GravityStrength;
+        private Rectangle? SourceRect;
+        
+        /// <summary>
+        /// Creates a shattered starlight fragment.
+        /// </summary>
+        /// <param name="position">Start position</param>
+        /// <param name="velocity">Initial velocity</param>
+        /// <param name="color">Tint color (texture is grayscale)</param>
+        /// <param name="scale">Base scale</param>
+        /// <param name="lifetime">Frames until despawn</param>
+        /// <param name="hasGravity">Whether fragment falls</param>
+        /// <param name="gravityStrength">Gravity acceleration if enabled</param>
+        public ShatteredStarlightParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime, bool hasGravity = true, float gravityStrength = 0.15f)
+        {
+            Position = position;
+            Velocity = velocity;
+            BaseColor = color;
+            Scale = scale;
+            Lifetime = lifetime;
+            HasGravity = hasGravity;
+            GravityStrength = gravityStrength;
+            Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
+            Spin = Main.rand.NextFloat(-0.12f, 0.12f);
+            
+            // Random source rectangle from the sprite sheet (assumed 16 variations in a 4x4 grid of 32x32)
+            int frameX = Main.rand.Next(4);
+            int frameY = Main.rand.Next(4);
+            SourceRect = new Rectangle(frameX * 32, frameY * 32, 32, 32);
+        }
+        
+        public override void Update()
+        {
+            // Smooth fade out
+            opacity = 1f - (LifetimeCompletion * LifetimeCompletion);
+            
+            Rotation += Spin;
+            Spin *= 0.98f; // Slow down spin
+            
+            if (HasGravity)
+                Velocity.Y += GravityStrength;
+            
+            Velocity *= 0.96f;
+            
+            if (opacity > 0.15f)
+                Lighting.AddLight(Position, BaseColor.R / 255f * opacity * 0.5f, BaseColor.G / 255f * opacity * 0.5f, BaseColor.B / 255f * opacity * 0.5f);
+        }
+        
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            Texture2D texture = ParticleTextureHelper.GetTexture(Texture);
+            Texture2D bloomTex = ParticleTextureHelper.GetTexture("BloomCircle");
+            
+            Vector2 drawPos = Position - Main.screenPosition;
+            
+            Rectangle sourceRect = SourceRect ?? new Rectangle(0, 0, 32, 32);
+            Vector2 origin = new Vector2(16, 16); // Center of 32x32 frame
+            
+            // FARGOS PATTERN: Remove alpha for additive bloom
+            Color bloomColor = BaseColor with { A = 0 };
+            
+            // Soft outer glow
+            spriteBatch.Draw(bloomTex, drawPos, null, bloomColor * opacity * 0.35f,
+                0f, bloomTex.Size() / 2f, Scale * 1.8f, SpriteEffects.None, 0f);
+            
+            // Fragment sprite (tinted)
+            spriteBatch.Draw(texture, drawPos, sourceRect, BaseColor * opacity,
+                Rotation, origin, Scale, SpriteEffects.None, 0f);
+            
+            // Gleaming edge highlight
+            spriteBatch.Draw(bloomTex, drawPos, null, Color.White with { A = 0 } * opacity * 0.5f,
+                0f, bloomTex.Size() / 2f, Scale * 0.25f, SpriteEffects.None, 0f);
+        }
+    }
+    
+    #endregion
 }

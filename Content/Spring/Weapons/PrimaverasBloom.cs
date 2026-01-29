@@ -143,6 +143,8 @@ namespace MagnumOpus.Content.Spring.Weapons
     /// </summary>
     public class FlowerSpriteBuff : ModBuff
     {
+        public override string Texture => "Terraria/Images/Buff_" + BuffID.Regeneration;
+        
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;

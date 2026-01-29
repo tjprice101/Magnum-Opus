@@ -15,6 +15,8 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class DecayBoltProjectile : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color DecayPurple = new Color(100, 50, 120);
         private static readonly Color DeathGreen = new Color(80, 120, 60);
         private static readonly Color WitherBrown = new Color(90, 60, 40);
@@ -131,6 +133,8 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class EntropicField : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color DecayPurple = new Color(100, 50, 120);
         private static readonly Color DeathGreen = new Color(80, 120, 60);
 
@@ -221,6 +225,8 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class WitheringWave : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color DecayPurple = new Color(100, 50, 120);
         private static readonly Color DeathGreen = new Color(80, 120, 60);
         private static readonly Color WitherBrown = new Color(90, 60, 40);

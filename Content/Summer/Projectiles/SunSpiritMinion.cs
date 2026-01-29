@@ -21,6 +21,8 @@ namespace MagnumOpus.Content.Summer.Projectiles
     /// </summary>
     public class SunSpiritMinion : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color SunGold = new Color(255, 215, 0);
         private static readonly Color SunOrange = new Color(255, 140, 0);
         private static readonly Color SunWhite = new Color(255, 250, 240);
@@ -360,6 +362,8 @@ namespace MagnumOpus.Content.Summer.Projectiles
     /// </summary>
     public class SolarFlareProjectile : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color SunGold = new Color(255, 215, 0);
         private static readonly Color SunOrange = new Color(255, 140, 0);
         private static readonly Color SunRed = new Color(255, 100, 50);
@@ -457,6 +461,8 @@ namespace MagnumOpus.Content.Summer.Projectiles
     /// </summary>
     public class ZenithFlareProjectile : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color SunGold = new Color(255, 215, 0);
         private static readonly Color SunWhite = new Color(255, 250, 240);
         private static readonly Color SunRed = new Color(255, 100, 50);

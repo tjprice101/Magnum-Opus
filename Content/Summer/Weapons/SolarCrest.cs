@@ -143,6 +143,8 @@ namespace MagnumOpus.Content.Summer.Weapons
     /// </summary>
     public class SunSpiritBuff : ModBuff
     {
+        public override string Texture => "Terraria/Images/Buff_" + BuffID.OnFire;
+        
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;

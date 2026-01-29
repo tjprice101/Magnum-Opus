@@ -15,6 +15,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class VivaldiSeasonalWave : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
         private static readonly Color SummerGold = new Color(255, 215, 0);

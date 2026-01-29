@@ -96,14 +96,15 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             target.AddBuff(ModContent.BuffType<CelestialHarmony>(), 480);
             target.GetGlobalNPC<CelestialHarmonyNPC>().AddStack(target, 2);
             
-            // Impact VFX
+            // Impact VFX with star burst
             NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, 1.2f);
+            NachtmusikCosmicVFX.SpawnStarBurstImpact(target.Center, 0.8f, 2);
         }
         
         public override void OnKill(int timeLeft)
         {
-            // Death explosion
-            NachtmusikCosmicVFX.SpawnCelestialExplosion(Projectile.Center, 0.8f);
+            // Death explosion with shattered starlight
+            NachtmusikCosmicVFX.SpawnCelestialProjectileDeath(Projectile.Center, 0.9f);
             SoundEngine.PlaySound(SoundID.Item62 with { Pitch = 0.3f, Volume = 0.7f }, Projectile.Center);
         }
         
@@ -224,11 +225,12 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             target.GetGlobalNPC<CelestialHarmonyNPC>().AddStack(target, 1);
             
             NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, 0.8f * growthFactor);
+            NachtmusikCosmicVFX.SpawnStarBurstImpact(target.Center, 0.5f * growthFactor, 2);
         }
         
         public override void OnKill(int timeLeft)
         {
-            NachtmusikCosmicVFX.SpawnCelestialExplosion(Projectile.Center, growthFactor * 0.7f);
+            NachtmusikCosmicVFX.SpawnCelestialProjectileDeath(Projectile.Center, growthFactor * 0.8f);
             NachtmusikCosmicVFX.SpawnMusicNoteBurst(Projectile.Center, 8, 5f * growthFactor);
         }
         

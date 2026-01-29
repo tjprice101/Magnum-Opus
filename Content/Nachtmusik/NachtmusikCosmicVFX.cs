@@ -387,5 +387,208 @@ namespace MagnumOpus.Content.Nachtmusik
         }
         
         #endregion
+        
+        #region Nachtmusik-Specific Signature Effects
+        
+        /// <summary>
+        /// Spawns a dramatic 8-pointed star burst impact - signature Nachtmusik effect.
+        /// Uses the new StarBurst textures for celestial impacts.
+        /// </summary>
+        public static void SpawnStarBurstImpact(Vector2 position, float scale = 1f, int burstCount = 3)
+        {
+            // Central star burst
+            for (int i = 0; i < burstCount; i++)
+            {
+                float delay = i * 0.1f;
+                float burstScale = (1f - i * 0.2f) * scale;
+                Color burstColor = GetCelestialGradient((float)i / burstCount);
+                
+                Vector2 offset = Main.rand.NextVector2Circular(4f * i, 4f * i);
+                var starBurst = new StarBurstParticle(position + offset, Vector2.Zero, burstColor, burstScale * 0.5f, 18 + i * 4, i % 2);
+                MagnumParticleHandler.SpawnParticle(starBurst);
+            }
+            
+            // Core white flash
+            CustomParticles.GenericFlare(position, StarWhite, 0.9f * scale, 15);
+            
+            // Golden halo
+            CustomParticles.HaloRing(position, Gold, 0.45f * scale, 16);
+            
+            // Outer violet ripple
+            CustomParticles.HaloRing(position, Violet * 0.7f, 0.6f * scale, 20);
+            
+            Lighting.AddLight(position, StarWhite.ToVector3() * 1.5f * scale);
+        }
+        
+        /// <summary>
+        /// Spawns shattered starlight fragments that scatter like crystalline shards.
+        /// Perfect for weapon hit effects and projectile deaths.
+        /// </summary>
+        public static void SpawnShatteredStarlightBurst(Vector2 position, int count, float speed, float scale = 1f, bool hasGravity = true)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float angle = MathHelper.TwoPi * i / count + Main.rand.NextFloat(-0.3f, 0.3f);
+                float fragmentSpeed = speed * Main.rand.NextFloat(0.7f, 1.3f);
+                Vector2 vel = angle.ToRotationVector2() * fragmentSpeed;
+                
+                Color fragmentColor = GetCelestialGradient(Main.rand.NextFloat());
+                float fragmentScale = scale * Main.rand.NextFloat(0.3f, 0.5f);
+                
+                var fragment = new ShatteredStarlightParticle(position, vel, fragmentColor, fragmentScale, 
+                    Main.rand.Next(20, 35), hasGravity, hasGravity ? 0.12f : 0f);
+                MagnumParticleHandler.SpawnParticle(fragment);
+            }
+            
+            // Central glow
+            CustomParticles.GenericFlare(position, StarWhite * 0.8f, 0.5f * scale, 12);
+        }
+        
+        /// <summary>
+        /// Spawns a grand celestial weapon impact combining star bursts and shattered starlight.
+        /// The signature hit effect for Nachtmusik melee weapons.
+        /// </summary>
+        public static void SpawnGrandCelestialImpact(Vector2 position, float scale = 1f)
+        {
+            // Layer 1: Central star burst explosion
+            SpawnStarBurstImpact(position, scale, 4);
+            
+            // Layer 2: Shattered starlight fragments flying outward
+            SpawnShatteredStarlightBurst(position, 12, 8f * scale, scale, true);
+            
+            // Layer 3: Celestial sparks
+            for (int i = 0; i < 10; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 10f + Main.rand.NextFloat(-0.2f, 0.2f);
+                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 10f) * scale;
+                Color sparkColor = Main.rand.NextBool() ? Gold : Violet;
+                var spark = new GlowSparkParticle(position, vel, sparkColor, 0.3f * scale, 16);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+            
+            // Layer 4: Music note accents
+            SpawnMusicNoteBurst(position, 4, 3f * scale);
+            
+            // Layer 5: Cascading halos
+            for (int i = 0; i < 5; i++)
+            {
+                Color haloColor = GetCelestialGradient((float)i / 5f);
+                CustomParticles.HaloRing(position, haloColor * 0.8f, (0.3f + i * 0.12f) * scale, 14 + i * 3);
+            }
+            
+            // Intense lighting burst
+            Lighting.AddLight(position, Gold.ToVector3() * 2f * scale);
+        }
+        
+        /// <summary>
+        /// Spawns a projectile trail with star burst accents for ranged weapons.
+        /// </summary>
+        public static void SpawnStarTrailEffect(Vector2 position, Vector2 velocity, float scale = 1f)
+        {
+            // Base celestial cloud trail
+            SpawnCelestialCloudTrail(position, velocity, scale);
+            
+            // Occasional star burst sparkle in trail
+            if (Main.rand.NextBool(5))
+            {
+                var starBurst = new StarBurstParticle(position + Main.rand.NextVector2Circular(8f, 8f), 
+                    -velocity * 0.08f, Gold, 0.2f * scale, 12, Main.rand.Next(2));
+                MagnumParticleHandler.SpawnParticle(starBurst);
+            }
+            
+            // Occasional shattered fragment
+            if (Main.rand.NextBool(8))
+            {
+                Vector2 fragVel = -velocity * 0.1f + Main.rand.NextVector2Circular(1.5f, 1.5f);
+                var fragment = new ShatteredStarlightParticle(position, fragVel, Violet, 0.18f * scale, 18, false, 0f);
+                MagnumParticleHandler.SpawnParticle(fragment);
+            }
+        }
+        
+        /// <summary>
+        /// Spawns a celestial projectile death explosion with maximum visual impact.
+        /// </summary>
+        public static void SpawnCelestialProjectileDeath(Vector2 position, float scale = 1f)
+        {
+            // Multi-layered star burst
+            for (int i = 0; i < 3; i++)
+            {
+                Color burstColor = GetCelestialGradient((float)i / 3f);
+                var burst = new StarBurstParticle(position, Vector2.Zero, burstColor, (0.6f - i * 0.12f) * scale, 20 + i * 5);
+                MagnumParticleHandler.SpawnParticle(burst);
+            }
+            
+            // Dramatic shattered starlight spray
+            SpawnShatteredStarlightBurst(position, 16, 10f * scale, scale, true);
+            
+            // Core celestial explosion
+            SpawnCelestialExplosion(position, scale * 0.8f);
+        }
+        
+        /// <summary>
+        /// Boss attack warning circle with star points.
+        /// </summary>
+        public static void SpawnBossWarningStarCircle(Vector2 center, float radius, float progress)
+        {
+            int starCount = 8;
+            float rotation = Main.GameUpdateCount * 0.02f;
+            
+            // Star points around circle
+            for (int i = 0; i < starCount; i++)
+            {
+                float angle = rotation + MathHelper.TwoPi * i / starCount;
+                Vector2 starPos = center + angle.ToRotationVector2() * radius;
+                
+                Color starColor = Color.Lerp(Violet, Gold, progress);
+                var burst = new StarBurstParticle(starPos, Vector2.Zero, starColor, 0.25f + progress * 0.15f, 8);
+                MagnumParticleHandler.SpawnParticle(burst);
+            }
+            
+            // Inner ring connecting stars
+            if (progress > 0.3f)
+            {
+                CustomParticles.HaloRing(center, Gold * (progress * 0.6f), radius / 80f, 10);
+            }
+        }
+        
+        /// <summary>
+        /// Boss phase transition celestial explosion.
+        /// </summary>
+        public static void SpawnBossPhaseTransition(Vector2 position, float scale = 1.5f)
+        {
+            // Massive central star bursts
+            for (int layer = 0; layer < 5; layer++)
+            {
+                float delay = layer * 2f;
+                Vector2 offset = Main.rand.NextVector2Circular(10f, 10f);
+                Color layerColor = GetCelestialGradient((float)layer / 5f);
+                var burst = new StarBurstParticle(position + offset, Vector2.Zero, layerColor, (0.8f - layer * 0.1f) * scale, 25 + layer * 5);
+                MagnumParticleHandler.SpawnParticle(burst);
+            }
+            
+            // Shattered starlight explosion
+            SpawnShatteredStarlightBurst(position, 24, 15f * scale, scale * 1.2f, true);
+            
+            // Constellation circle
+            SpawnConstellationCircle(position, 80f * scale, 12, Main.GameUpdateCount * 0.03f);
+            
+            // Glyph circle
+            SpawnOrbitingGlyphs(position, 8, 60f * scale, Main.GameUpdateCount * 0.02f);
+            
+            // Massive halo cascade
+            for (int i = 0; i < 8; i++)
+            {
+                Color haloColor = GetCelestialGradient((float)i / 8f);
+                CustomParticles.HaloRing(position, haloColor, (0.4f + i * 0.15f) * scale, 20 + i * 4);
+            }
+            
+            // Music notes scattered
+            SpawnMusicNoteBurst(position, 12, 8f * scale);
+            
+            // Intense lighting
+            Lighting.AddLight(position, StarWhite.ToVector3() * 3f * scale);
+        }
+        
+        #endregion
     }
 }

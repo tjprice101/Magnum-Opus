@@ -18,6 +18,8 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class FrostSentinelMinion : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
         private static readonly Color DeepBlue = new Color(60, 100, 180);
@@ -371,6 +373,8 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class SentinelFrostBolt : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
         private static readonly Color CrystalCyan = new Color(100, 255, 255);

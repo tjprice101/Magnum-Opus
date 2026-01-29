@@ -14,6 +14,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SpringSpiritMinion : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
         private static readonly Color SpringWhite = new Color(255, 250, 250);
@@ -240,6 +242,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SpiritPetalBolt : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color SpringPink = new Color(255, 183, 197);
 
         public override void SetDefaults()
@@ -299,6 +303,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SummerSpiritMinion : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color SummerGold = new Color(255, 215, 0);
         private static readonly Color SummerOrange = new Color(255, 140, 0);
         private static readonly Color SummerWhite = new Color(255, 255, 240);
@@ -494,6 +500,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SpiritSolarBolt : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color SummerGold = new Color(255, 215, 0);
         private static readonly Color SummerOrange = new Color(255, 140, 0);
 
@@ -555,6 +563,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class AutumnSpiritMinion : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color AutumnOrange = new Color(255, 140, 50);
         private static readonly Color AutumnBrown = new Color(139, 90, 43);
         private static readonly Color AutumnRed = new Color(180, 50, 30);
@@ -776,6 +786,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class WinterSpiritMinion : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color WinterBlue = new Color(150, 220, 255);
         private static readonly Color WinterWhite = new Color(240, 250, 255);
         private static readonly Color WinterPurple = new Color(180, 160, 255);
@@ -1008,6 +1020,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SpiritIceBolt : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color WinterBlue = new Color(150, 220, 255);
 
         public override void SetDefaults()

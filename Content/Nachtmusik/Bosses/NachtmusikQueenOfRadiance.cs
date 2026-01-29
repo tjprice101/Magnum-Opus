@@ -510,14 +510,25 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             {
                 if (Timer == 91)
                 {
-                    // Ultimate reveal flash
+                    // Ultimate reveal flash with star bursts and shattered starlight
                     CustomParticles.GenericFlare(NPC.Center, StarWhite, 2.0f, 30);
+                    
+                    // Star burst explosion at center
+                    NachtmusikCosmicVFX.SpawnStarBurstImpact(NPC.Center, 1.5f, 6);
+                    
+                    // Massive shattered starlight explosion
+                    NachtmusikCosmicVFX.SpawnShatteredStarlightBurst(NPC.Center, 30, 12f, 1.0f, true);
+                    
                     for (int i = 0; i < 16; i++)
                     {
                         float scale = 0.2f + i * 0.1f;
                         Color color = Color.Lerp(Gold, Violet, i / 16f);
                         CustomParticles.HaloRing(NPC.Center, color, scale, 20 + i * 2);
                     }
+                    
+                    // Glyphs and music notes
+                    NachtmusikCosmicVFX.SpawnGlyphBurst(NPC.Center, 12, 8f, 0.5f);
+                    NachtmusikCosmicVFX.SpawnMusicNoteBurst(NPC.Center, 16, 8f);
                     
                     Main.NewText("NACHTMUSIK, CELESTIAL FURY awakens!", Gold);
                 }
@@ -1662,7 +1673,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
         
         private void SpawnAmbientParticles()
         {
-            // Orbiting stars
+            // Orbiting stars with star burst accents
             if (Main.GameUpdateCount % 8 == 0)
             {
                 for (int i = 0; i < 3; i++)
@@ -1672,6 +1683,13 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                     Vector2 pos = NPC.Center + angle.ToRotationVector2() * radius;
                     Color color = isPhase2 ? Gold : Violet;
                     CustomParticles.GenericFlare(pos, color * 0.6f, 0.25f, 12);
+                    
+                    // Occasional star burst on orbit points in Phase 2
+                    if (isPhase2 && Main.rand.NextBool(8))
+                    {
+                        var starBurst = new StarBurstParticle(pos, Vector2.Zero, color, 0.2f, 12);
+                        MagnumParticleHandler.SpawnParticle(starBurst);
+                    }
                 }
             }
             
@@ -1696,12 +1714,21 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 dust.noGravity = true;
             }
             
-            // Golden shimmer in Phase 2
+            // Golden shimmer in Phase 2 with occasional shattered starlight
             if (isPhase2 && Main.rand.NextBool(8))
             {
                 Vector2 shimmerPos = NPC.Center + Main.rand.NextVector2Circular(NPC.width * 0.8f, NPC.height * 0.8f);
                 Dust gold = Dust.NewDustDirect(shimmerPos, 1, 1, DustID.GoldFlame, 0, -0.5f, 0, default, 0.9f);
                 gold.noGravity = true;
+            }
+            
+            // Phase 2: Periodic shattered starlight fragments trailing from wings
+            if (isPhase2 && Main.rand.NextBool(12))
+            {
+                Vector2 wingOffset = new Vector2(NPC.spriteDirection * 50f, -10f);
+                Color fragmentColor = GetNachtmusikGradient(Main.rand.NextFloat());
+                var fragment = new ShatteredStarlightParticle(NPC.Center + wingOffset, new Vector2(0, 1.5f) + Main.rand.NextVector2Circular(0.8f, 0.3f), fragmentColor, 0.25f, 25, true, 0.08f);
+                MagnumParticleHandler.SpawnParticle(fragment);
             }
         }
         

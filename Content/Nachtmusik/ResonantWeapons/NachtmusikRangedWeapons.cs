@@ -58,8 +58,10 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 Projectile.NewProjectile(source, position, sideVel, ModContent.ProjectileType<ConstellationBoltProjectile>(), (int)(damage * 0.7f), knockback * 0.5f, player.whoAmI);
             }
             
-            // Muzzle VFX
+            // Enhanced muzzle VFX with star burst
+            NachtmusikCosmicVFX.SpawnStarBurstImpact(position + direction * 25f, 0.7f, 2);
             NachtmusikCosmicVFX.SpawnConstellationCircle(position + direction * 30f, 25f, 4, 0.25f);
+            NachtmusikCosmicVFX.SpawnShatteredStarlightBurst(position + direction * 20f, 6, 5f, 0.4f, false);
             CustomParticles.GenericFlare(position + direction * 15f, NachtmusikCosmicVFX.Gold, 0.5f, 12);
             
             return false;
@@ -216,10 +218,12 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 Projectile.NewProjectile(source, starPos, starVel, ModContent.ProjectileType<SerenadeStarProjectile>(), damage, knockback, player.whoAmI);
             }
             
-            // Serenade burst VFX
+            // Enhanced serenade burst VFX with star particles
             Vector2 direction = velocity.SafeNormalize(Vector2.UnitX);
+            NachtmusikCosmicVFX.SpawnStarBurstImpact(position + direction * 25f, 0.6f, 2);
             CustomParticles.GenericFlare(position + direction * 20f, NachtmusikCosmicVFX.StarWhite, 0.6f, 15);
             NachtmusikCosmicVFX.SpawnMusicNoteBurst(position + direction * 30f, 4, 4f);
+            NachtmusikCosmicVFX.SpawnShatteredStarlightBurst(position + direction * 18f, 4, 3f, 0.35f, false);
             
             // Play a musical sound
             SoundEngine.PlaySound(SoundID.Item25 with { Pitch = 0.3f + Main.rand.NextFloat(-0.1f, 0.1f), Volume = 0.6f }, position);

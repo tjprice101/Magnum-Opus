@@ -15,6 +15,8 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class DecayCrescentWave : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color AutumnOrange = new Color(255, 140, 50);
         private static readonly Color AutumnRed = new Color(178, 34, 34);
         private static readonly Color DecayPurple = new Color(100, 50, 120);
@@ -133,6 +135,8 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class SoulWisp : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color AutumnGold = new Color(218, 165, 32);
         private static readonly Color SoulWhite = new Color(255, 250, 230);
 

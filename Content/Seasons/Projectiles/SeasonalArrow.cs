@@ -15,6 +15,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SeasonalArrow : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
         private static readonly Color SummerGold = new Color(255, 215, 0);
@@ -113,7 +115,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                         float angle = MathHelper.TwoPi * i / 6f;
                         Vector2 flareVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 8f);
                         Projectile.NewProjectile(Projectile.GetSource_FromAI(), target.Center, flareVel,
-                            ModContent.ProjectileType<SolarFlareProjectile>(), Projectile.damage / 4, Projectile.knockBack * 0.2f, Projectile.owner);
+                            ModContent.ProjectileType<SummerArrowFlareProjectile>(), Projectile.damage / 4, Projectile.knockBack * 0.2f, Projectile.owner);
                     }
                     target.AddBuff(BuffID.OnFire3, 300);
                     target.AddBuff(BuffID.Daybreak, 120);
@@ -216,6 +218,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class HomingPetalProjectile : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
 
@@ -310,8 +314,10 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// <summary>
     /// Solar Flare - Summer arrow explosion projectile
     /// </summary>
-    public class SolarFlareProjectile : ModProjectile
+    public class SummerArrowFlareProjectile : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color SummerGold = new Color(255, 215, 0);
         private static readonly Color SummerOrange = new Color(255, 140, 0);
 
@@ -375,6 +381,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class DecayZoneProjectile : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color AutumnOrange = new Color(255, 140, 50);
         private static readonly Color AutumnBrown = new Color(139, 90, 43);
 

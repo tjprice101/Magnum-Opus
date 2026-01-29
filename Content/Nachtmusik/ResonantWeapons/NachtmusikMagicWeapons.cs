@@ -98,9 +98,10 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                     }
                 }
                 
-                // Massive VFX
-                NachtmusikCosmicVFX.SpawnCelestialExplosion(player.Center + direction * 40f, 1.5f);
+                // Massive VFX with star bursts and shattered starlight
+                NachtmusikCosmicVFX.SpawnGrandCelestialImpact(player.Center + direction * 40f, 1.8f);
                 NachtmusikCosmicVFX.SpawnConstellationCircle(player.Center, 60f, 12, 0.5f);
+                NachtmusikCosmicVFX.SpawnStarBurstImpact(player.Center + direction * 60f, 1.2f, 5);
                 MagnumScreenEffects.AddScreenShake(10f);
                 
                 SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 1f }, player.Center);
@@ -113,8 +114,12 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 // Build constellation charge
                 constellationCharge = Math.Min(100, constellationCharge + 8);
                 
-                // Cast VFX
+                // Cast VFX with shattered starlight accents
                 CustomParticles.GenericFlare(position + direction * 20f, NachtmusikCosmicVFX.Violet, 0.4f, 12);
+                if (Main.rand.NextBool(3))
+                {
+                    NachtmusikCosmicVFX.SpawnShatteredStarlightBurst(position + direction * 15f, 3, 3f, 0.3f, false);
+                }
             }
             
             return false;
@@ -230,13 +235,15 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                     Projectile.NewProjectile(source, player.Center, burstVel, type, (int)(damage * 0.8f), knockback, player.whoAmI);
                 }
                 
-                NachtmusikCosmicVFX.SpawnCelestialExplosion(player.Center, 1.2f);
+                // Grand celestial impact with star bursts and shattered starlight
+                NachtmusikCosmicVFX.SpawnGrandCelestialImpact(player.Center, 1.4f);
                 NachtmusikCosmicVFX.SpawnMusicNoteBurst(player.Center, 12, 6f);
                 MagnumScreenEffects.AddScreenShake(8f);
             }
             
-            // Channeling VFX
+            // Channeling VFX with star trail effects
             CustomParticles.GenericFlare(position + direction * 25f, NachtmusikCosmicVFX.Violet, 0.35f + intensity * 0.2f, 8);
+            NachtmusikCosmicVFX.SpawnStarTrailEffect(position + direction * 20f, velocity, 0.3f + intensity * 0.3f);
             
             if (Main.rand.NextBool(3))
             {

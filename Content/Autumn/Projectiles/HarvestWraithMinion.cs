@@ -21,6 +21,8 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class HarvestWraithMinion : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color DecayPurple = new Color(100, 50, 120);
         private static readonly Color WraithGreen = new Color(120, 180, 100);
         private static readonly Color SoulWhite = new Color(240, 240, 255);
@@ -329,6 +331,8 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class SoulHarvestOrb : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color WraithGreen = new Color(120, 180, 100);
         private static readonly Color SoulWhite = new Color(240, 240, 255);
 

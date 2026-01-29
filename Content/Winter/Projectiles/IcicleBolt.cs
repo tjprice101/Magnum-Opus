@@ -17,6 +17,8 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class IcicleBolt : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
         private static readonly Color CrystalCyan = new Color(100, 255, 255);
@@ -132,6 +134,8 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class BlizzardShardProjectile : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
         private static readonly Color CrystalCyan = new Color(100, 255, 255);
@@ -290,6 +294,8 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class HypothermiaBuff : ModBuff
     {
+        public override string Texture => "Terraria/Images/Buff_" + BuffID.Frostburn;
+        
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

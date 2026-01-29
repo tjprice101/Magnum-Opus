@@ -250,6 +250,8 @@ namespace MagnumOpus.Content.Seasons.Weapons
     /// </summary>
     public class VivaldiConductorBuff : ModBuff
     {
+        public override string Texture => "Terraria/Images/Buff_" + BuffID.Swiftness;
+        
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;

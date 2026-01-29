@@ -156,12 +156,14 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             target.AddBuff(ModContent.BuffType<CelestialHarmony>(), 480);
             target.GetGlobalNPC<CelestialHarmonyNPC>().AddStack(target, 2);
             
-            // Impact VFX
-            NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, 1.2f);
+            // GRAND CELESTIAL IMPACT - signature Nachtmusik effect with StarBurst and ShatteredStarlight
+            NachtmusikCosmicVFX.SpawnGrandCelestialImpact(target.Center, 1.2f);
             
             // Glyph burst on crit
             if (hit.Crit)
             {
+                // Additional star burst explosion on crit
+                NachtmusikCosmicVFX.SpawnStarBurstImpact(target.Center, 1.4f, 5);
                 NachtmusikCosmicVFX.SpawnGlyphBurst(target.Center, 6, 5f, 0.4f);
                 executionCharge = Math.Min(100, executionCharge + 15);
             }
@@ -310,10 +312,11 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 crescendoStacks++;
                 decayTimer = DecayTime;
                 
-                // Stack gain VFX
+                // Stack gain VFX with shattered starlight
                 if (crescendoStacks % 3 == 0)
                 {
                     NachtmusikCosmicVFX.SpawnMusicNoteBurst(target.Center, 3, 3f);
+                    NachtmusikCosmicVFX.SpawnShatteredStarlightBurst(target.Center, 6, 4f, 0.6f, true);
                 }
             }
             
@@ -322,14 +325,23 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             int stacksToAdd = 1 + crescendoStacks / 5;
             target.GetGlobalNPC<CelestialHarmonyNPC>().AddStack(target, stacksToAdd);
             
-            // Impact VFX scales with crescendo
+            // Impact VFX scales with crescendo - use StarBurst for high stacks
             float stackPercent = (float)crescendoStacks / MaxStacks;
-            NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, 0.8f + stackPercent * 0.6f);
+            if (stackPercent > 0.5f)
+            {
+                // High crescendo = star burst impact
+                NachtmusikCosmicVFX.SpawnStarBurstImpact(target.Center, 0.6f + stackPercent * 0.8f, 2 + (int)(stackPercent * 3));
+                NachtmusikCosmicVFX.SpawnShatteredStarlightBurst(target.Center, (int)(4 + stackPercent * 8), 5f + stackPercent * 4f, stackPercent, true);
+            }
+            else
+            {
+                NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, 0.8f + stackPercent * 0.6f);
+            }
             
-            // Max stack explosion
+            // Max stack explosion with GRAND impact
             if (crescendoStacks == MaxStacks && hit.Crit)
             {
-                NachtmusikCosmicVFX.SpawnCelestialExplosion(target.Center, 1.3f);
+                NachtmusikCosmicVFX.SpawnGrandCelestialImpact(target.Center, 1.5f);
                 MagnumScreenEffects.AddScreenShake(8f);
             }
         }
@@ -526,13 +538,15 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 harmonyNPC.AddStack(target, stacks);
             }
             
-            // Fast slash VFX
+            // Fast slash VFX with shattered starlight fragments
             NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, 0.5f);
+            NachtmusikCosmicVFX.SpawnShatteredStarlightBurst(target.Center, 5, 6f, 0.4f, false); // No gravity for fast effect
             
-            // Build twilight charge faster on crits
+            // Build twilight charge faster on crits - add star burst
             if (hit.Crit)
             {
                 twilightCharge = Math.Min(MaxTwilightCharge, twilightCharge + 8);
+                NachtmusikCosmicVFX.SpawnStarBurstImpact(target.Center, 0.8f, 2);
                 NachtmusikCosmicVFX.SpawnMusicNoteBurst(target.Center, 3, 25f);
             }
         }

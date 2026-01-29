@@ -16,6 +16,8 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class TwilightBolt : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color TwilightPurple = new Color(120, 60, 140);
         private static readonly Color TwilightOrange = new Color(255, 120, 60);
         private static readonly Color AutumnGold = new Color(218, 165, 32);
@@ -156,6 +158,8 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class HarvestMoonBolt : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color MoonSilver = new Color(200, 200, 220);
         private static readonly Color MoonGold = new Color(218, 165, 32);
         private static readonly Color TwilightPurple = new Color(120, 60, 140);
@@ -286,6 +290,8 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class HomingLeafShard : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        
         private static readonly Color AutumnOrange = new Color(255, 140, 50);
         private static readonly Color AutumnRed = new Color(178, 34, 34);
         private static readonly Color AutumnGold = new Color(218, 165, 32);
