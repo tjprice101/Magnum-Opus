@@ -874,7 +874,9 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             if (isDimensionSever)
             {
                 NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, 0.8f);
-                CustomParticles.HaloRing(target.Center, NachtmusikCosmicVFX.Gold, 0.4f, 12);
+                // Starburst instead of banned HaloRing
+                var hitBurst = new StarBurstParticle(target.Center, Vector2.Zero, NachtmusikCosmicVFX.Gold, 0.35f, 12);
+                MagnumParticleHandler.SpawnParticle(hitBurst);
             }
             else
             {

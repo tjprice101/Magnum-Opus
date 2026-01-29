@@ -77,12 +77,18 @@ namespace MagnumOpus.Content.Nachtmusik
             CustomParticles.GenericFlare(position, Gold, 0.9f * scale, 20);
             CustomParticles.GenericFlare(position, Violet, 0.7f * scale, 18);
             
-            // Cascading halos
+            // Cascading starburst layers (replacing banned HaloRing)
             for (int i = 0; i < 6; i++)
             {
                 float progress = (float)i / 6f;
-                Color ringColor = GetCelestialGradient(progress);
-                CustomParticles.HaloRing(position, ringColor, (0.35f + i * 0.12f) * scale, 16 + i * 3);
+                Color burstColor = GetCelestialGradient(progress);
+                float burstScale = (0.4f + i * 0.08f) * scale;
+                var starburst = new StarBurstParticle(position, Vector2.Zero, burstColor, burstScale, 16 + i * 3, i % 2);
+                MagnumParticleHandler.SpawnParticle(starburst);
+                
+                // Add sparkle accents
+                Vector2 offset = Main.rand.NextVector2Circular(12f * progress, 12f * progress);
+                CustomParticles.GenericFlare(position + offset, burstColor, 0.25f * scale, 14 + i * 2);
             }
             
             // Star burst particles
@@ -111,9 +117,14 @@ namespace MagnumOpus.Content.Nachtmusik
             CustomParticles.GenericFlare(position, StarWhite, 0.8f * scale, 18);
             CustomParticles.GenericFlare(position, Gold, 0.6f * scale, 16);
             
-            // Halo rings
-            CustomParticles.HaloRing(position, Violet, 0.4f * scale, 14);
-            CustomParticles.HaloRing(position, Gold * 0.8f, 0.3f * scale, 12);
+            // Starburst layers (replacing banned HaloRing)
+            var violetBurst = new StarBurstParticle(position, Vector2.Zero, Violet, 0.35f * scale, 14);
+            MagnumParticleHandler.SpawnParticle(violetBurst);
+            var goldBurst = new StarBurstParticle(position, Vector2.Zero, Gold * 0.8f, 0.28f * scale, 12, 1);
+            MagnumParticleHandler.SpawnParticle(goldBurst);
+            
+            // Shattered starlight accents
+            SpawnShatteredStarlightBurst(position, 4, 3f * scale, 0.3f * scale, false);
             
             // Sparks outward
             for (int i = 0; i < 8; i++)
@@ -357,8 +368,9 @@ namespace MagnumOpus.Content.Nachtmusik
                 MagnumParticleHandler.SpawnParticle(spark);
             }
             
-            // Halo
-            CustomParticles.HaloRing(position, Gold * 0.7f, 0.25f * scale, 10);
+            // Sparkle burst (replacing banned HaloRing)
+            var muzzleBurst = new StarBurstParticle(position, Vector2.Zero, Gold * 0.7f, 0.22f * scale, 10, 1);
+            MagnumParticleHandler.SpawnParticle(muzzleBurst);
         }
         
         /// <summary>
@@ -373,8 +385,11 @@ namespace MagnumOpus.Content.Nachtmusik
             CustomParticles.GenericFlare(position, Violet, 0.8f * scale, 16);
             CustomParticles.GenericFlare(position, Gold * 0.8f, 0.6f * scale, 14);
             
-            // Expanding magic ring
-            CustomParticles.HaloRing(position, Violet, 0.5f * scale, 18);
+            // Expanding magic starburst (replacing banned HaloRing)
+            var magicBurst = new StarBurstParticle(position, Vector2.Zero, Violet, 0.45f * scale, 18);
+            MagnumParticleHandler.SpawnParticle(magicBurst);
+            var magicBurst2 = new StarBurstParticle(position, Vector2.Zero, NebulaPink * 0.7f, 0.35f * scale, 14, 1);
+            MagnumParticleHandler.SpawnParticle(magicBurst2);
             
             // Star particles
             for (int i = 0; i < 8; i++)
@@ -411,11 +426,18 @@ namespace MagnumOpus.Content.Nachtmusik
             // Core white flash
             CustomParticles.GenericFlare(position, StarWhite, 0.9f * scale, 15);
             
-            // Golden halo
-            CustomParticles.HaloRing(position, Gold, 0.45f * scale, 16);
+            // Golden starburst (replacing banned HaloRing)
+            var goldenBurst = new StarBurstParticle(position, Vector2.Zero, Gold, 0.4f * scale, 16, 0);
+            MagnumParticleHandler.SpawnParticle(goldenBurst);
             
-            // Outer violet ripple
-            CustomParticles.HaloRing(position, Violet * 0.7f, 0.6f * scale, 20);
+            // Outer violet sparkle spray
+            for (int j = 0; j < 6; j++)
+            {
+                float sparkAngle = MathHelper.TwoPi * j / 6f;
+                Vector2 sparkVel = sparkAngle.ToRotationVector2() * 4f * scale;
+                var violetSparkle = new GlowSparkParticle(position, sparkVel, Violet * 0.7f, 0.22f * scale, 20);
+                MagnumParticleHandler.SpawnParticle(violetSparkle);
+            }
             
             Lighting.AddLight(position, StarWhite.ToVector3() * 1.5f * scale);
         }
@@ -469,11 +491,22 @@ namespace MagnumOpus.Content.Nachtmusik
             // Layer 4: Music note accents
             SpawnMusicNoteBurst(position, 4, 3f * scale);
             
-            // Layer 5: Cascading halos
+            // Layer 5: Cascading starburst cascade (replacing banned HaloRing)
             for (int i = 0; i < 5; i++)
             {
-                Color haloColor = GetCelestialGradient((float)i / 5f);
-                CustomParticles.HaloRing(position, haloColor * 0.8f, (0.3f + i * 0.12f) * scale, 14 + i * 3);
+                Color cascadeColor = GetCelestialGradient((float)i / 5f);
+                float cascadeScale = (0.35f + i * 0.08f) * scale;
+                var cascadeBurst = new StarBurstParticle(position, Vector2.Zero, cascadeColor * 0.8f, cascadeScale, 14 + i * 3, i % 2);
+                MagnumParticleHandler.SpawnParticle(cascadeBurst);
+                
+                // Shattered starlight accent per layer
+                if (i % 2 == 0)
+                {
+                    float fragAngle = MathHelper.TwoPi * i / 5f;
+                    Vector2 fragVel = fragAngle.ToRotationVector2() * 5f * scale;
+                    var fragment = new ShatteredStarlightParticle(position, fragVel, cascadeColor, 0.25f * scale, 18, false, 0f);
+                    MagnumParticleHandler.SpawnParticle(fragment);
+                }
             }
             
             // Intense lighting burst
@@ -544,10 +577,18 @@ namespace MagnumOpus.Content.Nachtmusik
                 MagnumParticleHandler.SpawnParticle(burst);
             }
             
-            // Inner ring connecting stars
+            // Inner constellation glow connecting stars (replacing banned HaloRing)
             if (progress > 0.3f)
             {
-                CustomParticles.HaloRing(center, Gold * (progress * 0.6f), radius / 80f, 10);
+                // Glow particles at star connection points
+                for (int j = 0; j < starCount; j++)
+                {
+                    float connectAngle = rotation + MathHelper.TwoPi * j / starCount;
+                    float nextAngle = rotation + MathHelper.TwoPi * ((j + 1) % starCount) / starCount;
+                    Vector2 midPoint = center + ((connectAngle.ToRotationVector2() + nextAngle.ToRotationVector2()) * 0.5f).SafeNormalize(Vector2.Zero) * radius * 0.8f;
+                    var connector = new GenericGlowParticle(midPoint, Vector2.Zero, Gold * (progress * 0.6f), 0.15f, 8, true);
+                    MagnumParticleHandler.SpawnParticle(connector);
+                }
             }
         }
         
@@ -575,11 +616,19 @@ namespace MagnumOpus.Content.Nachtmusik
             // Glyph circle
             SpawnOrbitingGlyphs(position, 8, 60f * scale, Main.GameUpdateCount * 0.02f);
             
-            // Massive halo cascade
+            // Massive starburst cascade (replacing banned HaloRing)
             for (int i = 0; i < 8; i++)
             {
-                Color haloColor = GetCelestialGradient((float)i / 8f);
-                CustomParticles.HaloRing(position, haloColor, (0.4f + i * 0.15f) * scale, 20 + i * 4);
+                Color cascadeColor = GetCelestialGradient((float)i / 8f);
+                float cascadeScale = (0.5f + i * 0.1f) * scale;
+                var phaseBurst = new StarBurstParticle(position, Vector2.Zero, cascadeColor, cascadeScale, 20 + i * 4, i % 2);
+                MagnumParticleHandler.SpawnParticle(phaseBurst);
+                
+                // Add shattered starlight fragments radiating outward
+                float fragAngle = MathHelper.TwoPi * i / 8f;
+                Vector2 fragVel = fragAngle.ToRotationVector2() * (8f + i * 2f) * scale;
+                var fragment = new ShatteredStarlightParticle(position, fragVel, cascadeColor, 0.35f * scale, 25, true, 0.1f);
+                MagnumParticleHandler.SpawnParticle(fragment);
             }
             
             // Music notes scattered

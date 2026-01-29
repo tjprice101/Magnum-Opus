@@ -296,8 +296,30 @@ namespace MagnumOpus.Common
 
         public override bool CanRoll(Item item)
         {
-            // Can roll on ALL weapons with damage (melee, ranged, magic, summon, etc.)
-            return item.damage > 0 && !item.accessory;
+            // Can roll on ALL weapons with damage (melee, ranged, magic, summon, throwing, etc.)
+            // Explicitly allow any item that deals damage and is not an accessory
+            if (item.accessory)
+                return false;
+                
+            // Allow on any damage-dealing item
+            if (item.damage > 0)
+                return true;
+                
+            // Also allow on items with useStyle (weapons that may have 0 base damage but deal damage through projectiles)
+            if (item.useStyle != ItemUseStyleID.None && item.shoot != ProjectileID.None)
+                return true;
+                
+            return false;
+        }
+
+        // CRITICAL: This override forces the prefix to be valid on ALL weapons
+        // Without this, tModLoader may reject the prefix if it thinks the stats don't apply
+        public override bool AllStatChangesHaveEffectOn(Item item)
+        {
+            // Always return true - our prefix should apply to everything
+            // The individual stats will apply or not based on the weapon type,
+            // but the prefix itself should always be valid
+            return true;
         }
     }
 

@@ -1,4 +1,4 @@
-﻿Mods: {
+Mods: {
 	MagnumOpus: {
 		DropConditions.PostMoonLord: After Moon Lord has been defeated
 
@@ -1563,7 +1563,7 @@
 			}
 
 			// ==================== NACHTMUSIK (POST-FATE) ====================
-
+			
 			NachtmusikResonanceOre: {
 				DisplayName: Nachtmusik Resonance Ore
 				Tooltip:
@@ -1670,10 +1670,7 @@
 
 			NachtmusikTreasureBag: {
 				DisplayName: Treasure Bag (Nachtmusik)
-				Tooltip:
-					'''
-					{$CommonItemTooltip.RightClickToOpen}
-					'''
+				Tooltip: "{$CommonItemTooltip.RightClickToOpen}"
 			}
 
 			FatesCosmicAnvil: {
@@ -3470,7 +3467,7 @@
 			}
 
 			// ==================== MAGE CHAIN - HARMONIC OVERFLOW SYSTEM ====================
-
+			
 			ResonantOverflowGem: {
 				DisplayName: Resonant Overflow Gem
 				Tooltip:
@@ -3611,7 +3608,7 @@
 			// ==========================================
 			// SUMMONER CHAIN - CONDUCTOR'S BATON SYSTEM
 			// ==========================================
-
+			
 			ResonantConductorsWand: {
 				DisplayName: Resonant Conductor's Wand
 				Tooltip:
@@ -3747,7 +3744,7 @@
 			// ==========================================
 			// MOBILITY CHAIN - MOMENTUM SYSTEM
 			// ==========================================
-
+			
 			ResonantVelocityBand: {
 				DisplayName: Resonant Velocity Band
 				Tooltip:
@@ -3894,7 +3891,7 @@
 			// ==========================================
 			// DEFENSE CHAIN - RESONANT SHIELD SYSTEM
 			// ==========================================
-
+			
 			ResonantBarrierCore: {
 				DisplayName: Resonant Barrier Core
 				Tooltip:
@@ -4069,6 +4066,7 @@ Tiles: {
 	LaCampanellaResonanceOreTile.MapEntry: La Campanella Resonance Ore Tile
 	MoonlitResonanceOreTile.MapEntry: Moonlit Resonance Ore Tile
 	SwanLakeResonanceOreTile.MapEntry: Swan Lake Resonance Ore Tile
+	NachtmusikResonanceOreTile.MapEntry: Nachtmusik Resonance Ore Tile
 }
 
 Buffs: {
@@ -4210,6 +4208,61 @@ Buffs: {
 	IridescentFlockBuff: {
 		DisplayName: Iridescent Flock Buff
 		Description: Mods.MagnumOpus.Buffs.IridescentFlockBuff.Description
+	}
+
+	HarvestWraithBuff: {
+		DisplayName: Harvest Wraith Buff
+		Description: Mods.MagnumOpus.Buffs.HarvestWraithBuff.Description
+	}
+
+	QueensRadianceBuff: {
+		DisplayName: Queens Radiance Buff
+		Description: Mods.MagnumOpus.Buffs.QueensRadianceBuff.Description
+	}
+
+	CelestialHarmony: {
+		DisplayName: Celestial Harmony
+		Description: Mods.MagnumOpus.Buffs.CelestialHarmony.Description
+	}
+
+	CelestialChorusBatonBuff: {
+		DisplayName: Celestial Chorus Baton Buff
+		Description: Mods.MagnumOpus.Buffs.CelestialChorusBatonBuff.Description
+	}
+
+	ConductorOfConstellationsBuff: {
+		DisplayName: Conductor Of Constellations Buff
+		Description: Mods.MagnumOpus.Buffs.ConductorOfConstellationsBuff.Description
+	}
+
+	GalacticOvertureBuff: {
+		DisplayName: Galactic Overture Buff
+		Description: Mods.MagnumOpus.Buffs.GalacticOvertureBuff.Description
+	}
+
+	VivaldiConductorBuff: {
+		DisplayName: Vivaldi Conductor Buff
+		Description: Mods.MagnumOpus.Buffs.VivaldiConductorBuff.Description
+	}
+
+	FlowerSpriteBuff: {
+		DisplayName: Flower Sprite Buff
+		Description: Mods.MagnumOpus.Buffs.FlowerSpriteBuff.Description
+	}
+
+	SunSpiritBuff: {
+		DisplayName: Sun Spirit Buff
+		Description: Mods.MagnumOpus.Buffs.SunSpiritBuff.Description
+	}
+
+	HypothermiaBuff: {
+		DisplayName: Hypothermia Buff
+		Description: Mods.MagnumOpus.Buffs.HypothermiaBuff.Description
+	}
+
+	FrostSentinelBuff: {
+		DisplayName: Frost Sentinel Buff
+		Description: Mods.MagnumOpus.Buffs.FrostSentinelBuff.Description
 	}
 }
 
@@ -5473,6 +5526,593 @@ Items: {
 		DisplayName: Winter Resonant Energy
 		Tooltip: ""
 	}
+
+	DecayBell: {
+		DisplayName: Decay Bell
+		Tooltip: ""
+	}
+
+	HarvestReaper: {
+		DisplayName: Harvest Reaper
+		Tooltip: ""
+	}
+
+	TwilightArbalest: {
+		DisplayName: Twilight Arbalest
+		Tooltip: ""
+	}
+
+	WitheringGrimoire: {
+		DisplayName: Withering Grimoire
+		Tooltip: ""
+	}
+
+	EnigmasVoidShell: {
+		DisplayName: Enigmas Void Shell
+		Tooltip: ""
+	}
+
+	FatesCosmicAegis: {
+		DisplayName: Fates Cosmic Aegis
+		Tooltip: ""
+	}
+
+	HarvestThornedGuard: {
+		DisplayName: Harvest Thorned Guard
+		Tooltip: ""
+	}
+
+	HeroicValorsAegis: {
+		DisplayName: Heroic Valors Aegis
+		Tooltip: ""
+	}
+
+	InfernalBellsFortress: {
+		DisplayName: Infernal Bells Fortress
+		Tooltip: ""
+	}
+
+	MoonlitGuardiansVeil: {
+		DisplayName: Moonlit Guardians Veil
+		Tooltip: ""
+	}
+
+	PermafrostCrystalWard: {
+		DisplayName: Permafrost Crystal Ward
+		Tooltip: ""
+	}
+
+	ResonantBarrierCore: {
+		DisplayName: Resonant Barrier Core
+		Tooltip: ""
+	}
+
+	SolarFlareAegis: {
+		DisplayName: Solar Flare Aegis
+		Tooltip: ""
+	}
+
+	SpringVitalityShell: {
+		DisplayName: Spring Vitality Shell
+		Tooltip: ""
+	}
+
+	SwansImmortalGrace: {
+		DisplayName: Swans Immortal Grace
+		Tooltip: ""
+	}
+
+	VivaldisSeasonalBulwark: {
+		DisplayName: Vivaldis Seasonal Bulwark
+		Tooltip: ""
+	}
+
+	EnigmasNegativeSpace: {
+		DisplayName: Enigmas Negative Space
+		Tooltip: ""
+	}
+
+	FatesCosmicReservoir: {
+		DisplayName: Fates Cosmic Reservoir
+		Tooltip: ""
+	}
+
+	HarvestSoulVessel: {
+		DisplayName: Harvest Soul Vessel
+		Tooltip: ""
+	}
+
+	HeroicArcaneSurge: {
+		DisplayName: Heroic Arcane Surge
+		Tooltip: ""
+	}
+
+	InfernalManaInferno: {
+		DisplayName: Infernal Mana Inferno
+		Tooltip: ""
+	}
+
+	MoonlitOverflowStar: {
+		DisplayName: Moonlit Overflow Star
+		Tooltip: ""
+	}
+
+	PermafrostVoidHeart: {
+		DisplayName: Permafrost Void Heart
+		Tooltip: ""
+	}
+
+	ResonantOverflowGem: {
+		DisplayName: Resonant Overflow Gem
+		Tooltip: ""
+	}
+
+	SolarManaCrucible: {
+		DisplayName: Solar Mana Crucible
+		Tooltip: ""
+	}
+
+	SpringArcaneConduit: {
+		DisplayName: Spring Arcane Conduit
+		Tooltip: ""
+	}
+
+	SwansBalancedFlow: {
+		DisplayName: Swans Balanced Flow
+		Tooltip: ""
+	}
+
+	// VivaldisHarmonicCore defined elsewhere with full tooltip
+
+	EnigmasDissonance: {
+		DisplayName: Enigmas Dissonance
+		Tooltip: ""
+	}
+
+	FatesCosmicSymphony: {
+		DisplayName: Fates Cosmic Symphony
+		Tooltip: ""
+	}
+
+	HarvestRhythmSignet: {
+		DisplayName: Harvest Rhythm Signet
+		Tooltip: ""
+	}
+
+	HeroicCrescendo: {
+		DisplayName: Heroic Crescendo
+		Tooltip: ""
+	}
+
+	InfernalFortissimo: {
+		DisplayName: Infernal Fortissimo
+		Tooltip: ""
+	}
+
+	MoonlitSonataBand: {
+		DisplayName: Moonlit Sonata Band
+		Tooltip: ""
+	}
+
+	PermafrostCadenceSeal: {
+		DisplayName: Permafrost Cadence Seal
+		Tooltip: ""
+	}
+
+	ResonantRhythmBand: {
+		DisplayName: Resonant Rhythm Band
+		Tooltip: ""
+	}
+
+	SolarCrescendoRing: {
+		DisplayName: Solar Crescendo Ring
+		Tooltip: ""
+	}
+
+	SpringTempoCharm: {
+		DisplayName: Spring Tempo Charm
+		Tooltip: ""
+	}
+
+	SwansPerfectMeasure: {
+		DisplayName: Swans Perfect Measure
+		Tooltip: ""
+	}
+
+	VivaldisTempoMaster: {
+		DisplayName: Vivaldis Tempo Master
+		Tooltip: ""
+	}
+
+	EnigmasPhaseShift: {
+		DisplayName: Enigmas Phase Shift
+		Tooltip: ""
+	}
+
+	FatesCosmicVelocity: {
+		DisplayName: Fates Cosmic Velocity
+		Tooltip: ""
+	}
+
+	HarvestPhantomStride: {
+		DisplayName: Harvest Phantom Stride
+		Tooltip: ""
+	}
+
+	HeroicChargeBoots: {
+		DisplayName: Heroic Charge Boots
+		Tooltip: ""
+	}
+
+	InfernalMeteorStride: {
+		DisplayName: Infernal Meteor Stride
+		Tooltip: ""
+	}
+
+	MoonlitPhantomsRush: {
+		DisplayName: Moonlit Phantoms Rush
+		Tooltip: ""
+	}
+
+	PermafrostAvalancheStep: {
+		DisplayName: Permafrost Avalanche Step
+		Tooltip: ""
+	}
+
+	ResonantVelocityBand: {
+		DisplayName: Resonant Velocity Band
+		Tooltip: ""
+	}
+
+	SolarBlitzTreads: {
+		DisplayName: Solar Blitz Treads
+		Tooltip: ""
+	}
+
+	SpringZephyrBoots: {
+		DisplayName: Spring Zephyr Boots
+		Tooltip: ""
+	}
+
+	SwansEternalGlide: {
+		DisplayName: Swans Eternal Glide
+		Tooltip: ""
+	}
+
+	VivaldisSeasonalSprint: {
+		DisplayName: Vivaldis Seasonal Sprint
+		Tooltip: ""
+	}
+
+	EnigmasParadoxMark: {
+		DisplayName: Enigmas Paradox Mark
+		Tooltip: ""
+	}
+
+	FatesCosmicVerdict: {
+		DisplayName: Fates Cosmic Verdict
+		Tooltip: ""
+	}
+
+	HarvestReapersMark: {
+		DisplayName: Harvest Reapers Mark
+		Tooltip: ""
+	}
+
+	HeroicDeadeye: {
+		DisplayName: Heroic Deadeye
+		Tooltip: ""
+	}
+
+	InfernalExecutionersBrand: {
+		DisplayName: Infernal Executioners Brand
+		Tooltip: ""
+	}
+
+	MoonlitPredatorsGaze: {
+		DisplayName: Moonlit Predators Gaze
+		Tooltip: ""
+	}
+
+	PermafrostHuntersEye: {
+		DisplayName: Permafrost Hunters Eye
+		Tooltip: ""
+	}
+
+	ResonantSpotter: {
+		DisplayName: Resonant Spotter
+		Tooltip: ""
+	}
+
+	SolarTrackersBadge: {
+		DisplayName: Solar Trackers Badge
+		Tooltip: ""
+	}
+
+	SpringHuntersLens: {
+		DisplayName: Spring Hunters Lens
+		Tooltip: ""
+	}
+
+	SwansGracefulHunt: {
+		DisplayName: Swans Graceful Hunt
+		Tooltip: ""
+	}
+
+	VivaldisSeSonalSight: {
+		DisplayName: Vivaldis Se Sonal Sight
+		Tooltip: ""
+	}
+
+	EnigmasHivemindLink: {
+		DisplayName: Enigmas Hivemind Link
+		Tooltip: ""
+	}
+
+	FatesCosmicDominion: {
+		DisplayName: Fates Cosmic Dominion
+		Tooltip: ""
+	}
+
+	HarvestBeastlordsHorn: {
+		DisplayName: Harvest Beastlords Horn
+		Tooltip: ""
+	}
+
+	HeroicGeneralsBaton: {
+		DisplayName: Heroic Generals Baton
+		Tooltip: ""
+	}
+
+	InfernalChoirMastersRod: {
+		DisplayName: Infernal Choir Masters Rod
+		Tooltip: ""
+	}
+
+	MoonlitSymphonyWand: {
+		DisplayName: Moonlit Symphony Wand
+		Tooltip: ""
+	}
+
+	PermafrostCommandersCrown: {
+		DisplayName: Permafrost Commanders Crown
+		Tooltip: ""
+	}
+
+	ResonantConductorsWand: {
+		DisplayName: Resonant Conductors Wand
+		Tooltip: ""
+	}
+
+	SolarDirectorsCrest: {
+		DisplayName: Solar Directors Crest
+		Tooltip: ""
+	}
+
+	SpringMaestrosBadge: {
+		DisplayName: Spring Maestros Badge
+		Tooltip: ""
+	}
+
+	SwansGracefulDirection: {
+		DisplayName: Swans Graceful Direction
+		Tooltip: ""
+	}
+
+	VivaldisOrchestraBaton: {
+		DisplayName: Vivaldis Orchestra Baton
+		Tooltip: ""
+	}
+
+	ArcaneHarmonicPrism: {
+		DisplayName: Arcane Harmonic Prism
+		Tooltip: ""
+	}
+
+	CrystallizedHarmony: {
+		DisplayName: Crystallized Harmony
+		Tooltip: ""
+	}
+
+	FatesCosmicAnvil: {
+		DisplayName: Fates Cosmic Anvil
+		Tooltip: ""
+	}
+
+	FatesStellarFurnace: {
+		DisplayName: Fates Stellar Furnace
+		Tooltip: ""
+	}
+
+	MoonlitSerenadePendant: {
+		DisplayName: Moonlit Serenade Pendant
+		Tooltip: ""
+	}
+
+	NocturnesEmbrace: {
+		DisplayName: Nocturnes Embrace
+		Tooltip: ""
+	}
+
+	RadianceOfTheNightQueen: {
+		DisplayName: Radiance Of The Night Queen
+		Tooltip: ""
+	}
+
+	StarweaversSignet: {
+		DisplayName: Starweavers Signet
+		Tooltip: ""
+	}
+
+	NachtmusikTreasureBag: {
+		DisplayName: Nachtmusik Treasure Bag
+		Tooltip: ""
+	}
+
+	HarmonicCoreOfNachtmusik: {
+		DisplayName: Harmonic Core Of Nachtmusik
+		Tooltip: ""
+	}
+
+	NachtmusikResonantCore: {
+		DisplayName: Nachtmusik Resonant Core
+		Tooltip: ""
+	}
+
+	NachtmusikResonantEnergy: {
+		DisplayName: Nachtmusik Resonant Energy
+		Tooltip: ""
+	}
+
+	RemnantOfNachtmusiksHarmony: {
+		DisplayName: Remnant Of Nachtmusiks Harmony
+		Tooltip: ""
+	}
+
+	NachtmusikResonanceOre: {
+		DisplayName: Nachtmusik Resonance Ore
+		Tooltip: ""
+	}
+
+	CelestialChorusBaton: {
+		DisplayName: Celestial Chorus Baton
+		Tooltip: ""
+	}
+
+	ConductorOfConstellations: {
+		DisplayName: Conductor Of Constellations
+		Tooltip: ""
+	}
+
+	ConstellationPiercer: {
+		DisplayName: Constellation Piercer
+		Tooltip: ""
+	}
+
+	GalacticOverture: {
+		DisplayName: Galactic Overture
+		Tooltip: ""
+	}
+
+	MidnightsCrescendo: {
+		DisplayName: Midnights Crescendo
+		Tooltip: ""
+	}
+
+	NebulasWhisper: {
+		DisplayName: Nebulas Whisper
+		Tooltip: ""
+	}
+
+	NocturnalExecutioner: {
+		DisplayName: Nocturnal Executioner
+		Tooltip: ""
+	}
+
+	RequiemOfTheCosmos: {
+		DisplayName: Requiem Of The Cosmos
+		Tooltip: ""
+	}
+
+	SerenadeOfDistantStars: {
+		DisplayName: Serenade Of Distant Stars
+		Tooltip: ""
+	}
+
+	StarweaversGrimoire: {
+		DisplayName: Starweavers Grimoire
+		Tooltip: ""
+	}
+
+	TwilightSeverance: {
+		DisplayName: Twilight Severance
+		Tooltip: ""
+	}
+
+	ScoreOfNachtmusik: {
+		DisplayName: Score Of Nachtmusik
+		Tooltip: ""
+	}
+
+	ConcertoOfSeasons: {
+		DisplayName: Concerto Of Seasons
+		Tooltip: ""
+	}
+
+	FourSeasonsBlade: {
+		DisplayName: Four Seasons Blade
+		Tooltip: ""
+	}
+
+	SeasonalBow: {
+		DisplayName: Seasonal Bow
+		Tooltip: ""
+	}
+
+	VivaldisBaton: {
+		DisplayName: Vivaldis Baton
+		Tooltip: ""
+	}
+
+	BlossomsEdge: {
+		DisplayName: Blossoms Edge
+		Tooltip: ""
+	}
+
+	PetalStormBow: {
+		DisplayName: Petal Storm Bow
+		Tooltip: ""
+	}
+
+	PrimaverasBloom: {
+		DisplayName: Primaveras Bloom
+		Tooltip: ""
+	}
+
+	VernalScepter: {
+		DisplayName: Vernal Scepter
+		Tooltip: ""
+	}
+
+	SolarCrest: {
+		DisplayName: Solar Crest
+		Tooltip: ""
+	}
+
+	SolarScorcher: {
+		DisplayName: Solar Scorcher
+		Tooltip: ""
+	}
+
+	SolsticeTome: {
+		DisplayName: Solstice Tome
+		Tooltip: ""
+	}
+
+	ZenithCleaver: {
+		DisplayName: Zenith Cleaver
+		Tooltip: ""
+	}
+
+	FrostbiteRepeater: {
+		DisplayName: Frostbite Repeater
+		Tooltip: ""
+	}
+
+	FrozenHeart: {
+		DisplayName: Frozen Heart
+		Tooltip: ""
+	}
+
+	GlacialExecutioner: {
+		DisplayName: Glacial Executioner
+		Tooltip: ""
+	}
+
+	PermafrostCodex: {
+		DisplayName: Permafrost Codex
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -5498,6 +6138,7 @@ NPCs: {
 	SwanLakeTheMonochromaticFractal.DisplayName: Swan Lake The Monochromatic Fractal
 	ShatteredPrima.DisplayName: Shattered Prima
 	LInverno.DisplayName: L Inverno
+	NachtmusikQueenOfRadiance.DisplayName: Nachtmusik Queen Of Radiance
 }
 
 Prefixes.ResonantScarPrefix.DisplayName: Resonance Scarred
@@ -5683,4 +6324,76 @@ Projectiles: {
 	IridescentWingspanProjectile.DisplayName: Iridescent Wingspan Projectile
 	PearlescentRocket.DisplayName: Pearlescent Rocket
 	SwansLamentBullet.DisplayName: Swans Lament Bullet
+	DecayBoltProjectile.DisplayName: Decay Bolt Projectile
+	DecayCrescentWave.DisplayName: Decay Crescent Wave
+	EntropicField.DisplayName: Entropic Field
+	HarvestMoonBolt.DisplayName: Harvest Moon Bolt
+	HarvestWraithMinion.DisplayName: Harvest Wraith Minion
+	HomingLeafShard.DisplayName: Homing Leaf Shard
+	SoulHarvestOrb.DisplayName: Soul Harvest Orb
+	SoulWisp.DisplayName: Soul Wisp
+	TwilightBolt.DisplayName: Twilight Bolt
+	WitheringWave.DisplayName: Withering Wave
+	CelestialMuseMinion.DisplayName: Celestial Muse Minion
+	ConductorStarProjectile.DisplayName: Conductor Star Projectile
+	ConstellationBoltProjectile.DisplayName: Constellation Bolt Projectile
+	CosmicRequiemBeamProjectile.DisplayName: Cosmic Requiem Beam Projectile
+	CrescendoWaveProjectile.DisplayName: Crescendo Wave Projectile
+	MuseNoteProjectile.DisplayName: Muse Note Projectile
+	NebulaArrowProjectile.DisplayName: Nebula Arrow Projectile
+	NocturnalBladeProjectile.DisplayName: Nocturnal Blade Projectile
+	NocturnalGuardianMinion.DisplayName: Nocturnal Guardian Minion
+	SerenadeStarProjectile.DisplayName: Serenade Star Projectile
+	StarweaverOrbProjectile.DisplayName: Starweaver Orb Projectile
+	StellarConductorMinion.DisplayName: Stellar Conductor Minion
+	TwilightSlashProjectile.DisplayName: Twilight Slash Projectile
+	AutumnPassageProjectile.DisplayName: Autumn Passage Projectile
+	AutumnSpiritMinion.DisplayName: Autumn Spirit Minion
+	DecayFieldProjectile.DisplayName: Decay Field Projectile
+	DecayZoneProjectile.DisplayName: Decay Zone Projectile
+	FinaleIceShardProjectile.DisplayName: Finale Ice Shard Projectile
+	HomingPetalProjectile.DisplayName: Homing Petal Projectile
+	HomingPetal.DisplayName: Homing Petal
+	SeasonalArrow.DisplayName: Seasonal Arrow
+	SolarPillarProjectile.DisplayName: Solar Pillar Projectile
+	SpiritIceBolt.DisplayName: Spirit Ice Bolt
+	SpiritPetalBolt.DisplayName: Spirit Petal Bolt
+	SpiritSolarBolt.DisplayName: Spirit Solar Bolt
+	SpringSpiritMinion.DisplayName: Spring Spirit Minion
+	SpringVerseProjectile.DisplayName: Spring Verse Projectile
+	SummerArrowFlareProjectile.DisplayName: Summer Arrow Flare Projectile
+	SummerMovementProjectile.DisplayName: Summer Movement Projectile
+	SummerSpiritMinion.DisplayName: Summer Spirit Minion
+	VersePetalProjectile.DisplayName: Verse Petal Projectile
+	VivaldiSeasonalWave.DisplayName: Vivaldi Seasonal Wave
+	WinterFinaleProjectile.DisplayName: Winter Finale Projectile
+	WinterSpiritMinion.DisplayName: Winter Spirit Minion
+	BloomArrow.DisplayName: Bloom Arrow
+	BlossomPetal.DisplayName: Blossom Petal
+	FlowerSpriteMinion.DisplayName: Flower Sprite Minion
+	HealingFlower.DisplayName: Healing Flower
+	HomingFlowerBolt.DisplayName: Homing Flower Bolt
+	HomingSpringPetal.DisplayName: Homing Spring Petal
+	PollenBolt.DisplayName: Pollen Bolt
+	PollenCloud.DisplayName: Pollen Cloud
+	SyncPetal.DisplayName: Sync Petal
+	VernalBolt.DisplayName: Vernal Bolt
+	HeatwavePulse.DisplayName: Heatwave Pulse
+	SolarFlameStream.DisplayName: Solar Flame Stream
+	SolarFlareProjectile.DisplayName: Solar Flare Projectile
+	SolarOrbProjectile.DisplayName: Solar Orb Projectile
+	SolarWave.DisplayName: Solar Wave
+	SunbeamProjectile.DisplayName: Sunbeam Projectile
+	SunSpiritMinion.DisplayName: Sun Spirit Minion
+	ZenithFlare.DisplayName: Zenith Flare
+	ZenithFlareProjectile.DisplayName: Zenith Flare Projectile
+	AvalancheWave.DisplayName: Avalanche Wave
+	BlizzardShardProjectile.DisplayName: Blizzard Shard Projectile
+	FrostSentinelMinion.DisplayName: Frost Sentinel Minion
+	IceShardProjectile.DisplayName: Ice Shard Projectile
+	IceStormProjectile.DisplayName: Ice Storm Projectile
+	IcicleBolt.DisplayName: Icicle Bolt
+	PermafrostBolt.DisplayName: Permafrost Bolt
+	SentinelFrostBolt.DisplayName: Sentinel Frost Bolt
+	StormIcicle.DisplayName: Storm Icicle
 }

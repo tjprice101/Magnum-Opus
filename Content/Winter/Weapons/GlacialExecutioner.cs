@@ -103,9 +103,13 @@ namespace MagnumOpus.Content.Winter.Weapons
 
                 // VFX burst
                 CustomParticles.GenericFlare(player.Center, FrostWhite, 1.0f, 25);
-                CustomParticles.HaloRing(player.Center, IceBlue * 0.7f, 0.7f, 20);
-                CustomParticles.HaloRing(player.Center, CrystalCyan * 0.5f, 0.5f, 18);
-                CustomParticles.HaloRing(player.Center, DeepBlue * 0.4f, 0.35f, 15);
+                // Frost sparkle burst (replacing banned HaloRing)
+                var frostSparkle1 = new SparkleParticle(player.Center, Vector2.Zero, IceBlue * 0.7f, 0.7f * 0.6f, 20);
+                MagnumParticleHandler.SpawnParticle(frostSparkle1);
+                var frostSparkle2 = new SparkleParticle(player.Center, Vector2.Zero, CrystalCyan * 0.5f, 0.5f * 0.6f, 18);
+                MagnumParticleHandler.SpawnParticle(frostSparkle2);
+                var frostSparkle3 = new SparkleParticle(player.Center, Vector2.Zero, DeepBlue * 0.4f, 0.35f * 0.6f, 15);
+                MagnumParticleHandler.SpawnParticle(frostSparkle3);
 
                 // Ice crystal explosion
                 for (int i = 0; i < 14; i++)
@@ -144,7 +148,9 @@ namespace MagnumOpus.Content.Winter.Weapons
                 
                 // Freeze VFX
                 CustomParticles.GenericFlare(target.Center, CrystalCyan, 0.75f, 22);
-                CustomParticles.HaloRing(target.Center, IceBlue * 0.7f, 0.55f, 18);
+                // Frost sparkle burst (replacing banned HaloRing)
+                var frostSparkle = new SparkleParticle(target.Center, Vector2.Zero, IceBlue * 0.7f, 0.55f * 0.6f, 18);
+                MagnumParticleHandler.SpawnParticle(frostSparkle);
 
                 // Ice crystal burst
                 for (int i = 0; i < 10; i++)

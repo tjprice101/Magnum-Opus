@@ -154,8 +154,11 @@ namespace MagnumOpus.Content.Winter.Projectiles
         {
             // Death explosion VFX
             CustomParticles.GenericFlare(Projectile.Center, FrostWhite, 0.9f, 25);
-            CustomParticles.HaloRing(Projectile.Center, IceBlue * 0.6f, 0.6f * Projectile.scale, 20);
-            CustomParticles.HaloRing(Projectile.Center, CrystalCyan * 0.4f, 0.4f * Projectile.scale, 16);
+            // Frost sparkle burst (replacing banned HaloRing)
+            var frostSparkle1 = new SparkleParticle(Projectile.Center, Vector2.Zero, IceBlue * 0.6f, 0.6f * Projectile.scale * 0.6f, 20);
+            MagnumParticleHandler.SpawnParticle(frostSparkle1);
+            var frostSparkle2 = new SparkleParticle(Projectile.Center, Vector2.Zero, CrystalCyan * 0.4f, 0.4f * Projectile.scale * 0.6f, 16);
+            MagnumParticleHandler.SpawnParticle(frostSparkle2);
 
             for (int i = 0; i < 12; i++)
             {

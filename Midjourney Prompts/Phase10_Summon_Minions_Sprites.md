@@ -28,14 +28,14 @@
 **Description**: A tiny fairy/sprite made of spring flowers with delicate petal wings
 
 ```
-pixel art game sprite, tiny flower fairy minion, adorable spring sprite creature, body made of pink cherry blossom petals, delicate translucent petal wings like butterfly, small leaf dress or body covering, soft pink and pale green coloring, tiny flower crown on head, floating pose with wings spread, gentle glowing aura, cute innocent expression, pixel art style 16-bit aesthetic, Terraria game sprite style, facing right side profile, 24x24 pixels upscaled 8x for detail, vibrant spring colors pink green white yellow, transparent background, black background for extraction --v 6.1 --ar 1:1 --style raw --s 100
+pixel art game sprite sheet, 24x24 flower fairy minion, adorable tiny spring sprite, body made of pink cherry blossom petals, delicate translucent petal wings, small leaf dress, flower crown on head, tiny musical notes floating around form, soft pink and pale green glow, floating pose wings spread, cute innocent expression, facing right, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### FlowerSpriteBuff.png (32x32)
 **Description**: Buff icon showing a small flower fairy silhouette
 
 ```
-pixel art game buff icon, spring flower fairy symbol, small pink flower with tiny fairy wings emerging, cherry blossom petals scattered around, soft pink and green colors, Terraria buff icon style, clean simple design readable at small size, subtle dark outline border, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, pink cherry blossom flower with tiny fairy wings emerging, spring renewal power buff, soft pink and green ethereal glow, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ---
@@ -46,14 +46,14 @@ pixel art game buff icon, spring flower fairy symbol, small pink flower with tin
 **Description**: A small solar elemental - a living ball of fire and sunlight
 
 ```
-pixel art game sprite, small sun spirit elemental minion, floating ball of golden solar fire, warm orange and yellow flames, bright white-hot core center, small face with happy expression in the flames, corona flares radiating outward, solar prominence wisps, cheerful summer energy, pixel art style 16-bit aesthetic, Terraria game sprite style, facing right side profile, 28x28 pixels upscaled 8x for detail, vibrant sun colors gold orange yellow white, transparent background, black background for extraction --v 6.1 --ar 1:1 --style raw --s 100
+pixel art game sprite sheet, 28x28 sun spirit elemental minion, floating ball of golden solar fire, bright white-hot core center, warm orange and yellow corona flares radiating outward, small fiery musical notes orbiting around form, cheerful solar energy, facing right, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### SunSpiritBuff.png (32x32)
 **Description**: Buff icon showing a small stylized sun
 
 ```
-pixel art game buff icon, summer sun spirit symbol, stylized miniature sun with corona rays, bright golden center fading to orange edges, small happy face optional, radiating heat waves, Terraria buff icon style, clean simple design readable at small size, subtle dark outline border, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, radiant golden sun with corona rays, summer solar blessing power buff, bright orange and yellow energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ---
@@ -64,14 +64,14 @@ pixel art game buff icon, summer sun spirit symbol, stylized miniature sun with 
 **Description**: A spectral grim reaper harvester with scythe, autumn-themed
 
 ```
-pixel art game sprite, harvest wraith minion, spectral ghostly reaper figure, tattered dark purple robes, holding curved harvest scythe, ghostly green and purple ethereal glow, hollow hood with glowing green eyes, autumn leaves swirling around form, semi-transparent ghostly body, floating hovering pose, pixel art style 16-bit aesthetic, Terraria game sprite style, facing right side profile, menacing but not too scary, 40x50 pixels upscaled 8x for detail, colors purple green orange brown, transparent background, black background for extraction --v 6.1 --ar 4:5 --style raw --s 100
+pixel art game sprite sheet, 40x50 harvest wraith minion, spectral ghostly reaper figure, tattered dark purple robes, holding curved harvest scythe, hollow hood with glowing green eyes, autumn leaves and ghostly musical notes swirling around form, semi-transparent ethereal body, floating hovering pose, facing right, terraria style, transparent background --ar 4:5 --s 250
 ```
 
 ### HarvestWraithBuff.png (32x32)
 **Description**: Buff icon showing a spectral scythe with autumn leaf
 
 ```
-pixel art game buff icon, harvest wraith symbol, curved scythe blade with ghostly green glow, single autumn orange leaf falling, purple ethereal wisps around blade, Terraria buff icon style, clean simple design readable at small size, subtle dark outline border, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, curved harvest scythe with ghostly green glow, autumn reaper power buff, purple and orange ethereal energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ---
@@ -82,14 +82,14 @@ pixel art game buff icon, harvest wraith symbol, curved scythe blade with ghostl
 **Description**: An ice elemental sentinel - crystalline humanoid made of ice
 
 ```
-pixel art game sprite, frost sentinel ice elemental minion, crystalline humanoid figure made of ice, sharp angular ice crystal body, glowing ice blue core visible through translucent ice, ice shard crown on head, floating ice crystals orbiting around it, icy mist emanating from form, cold stoic expression, pixel art style 16-bit aesthetic, Terraria game sprite style, facing right side profile, 32x32 pixels upscaled 8x for detail, colors ice blue white cyan deep blue, transparent background, black background for extraction --v 6.1 --ar 1:1 --style raw --s 100
+pixel art game sprite sheet, 32x32 frost sentinel ice elemental minion, crystalline humanoid figure made of ice, sharp angular ice crystal body, glowing ice blue core, ice shard crown on head, frozen musical notes and ice crystals orbiting, icy mist emanating, cold stoic expression, facing right, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### FrostSentinelBuff.png (32x32)
 **Description**: Buff icon showing an ice crystal with cold aura
 
 ```
-pixel art game buff icon, frost sentinel symbol, angular ice crystal formation, glowing ice blue inner light, cold mist emanating, snowflake accent, Terraria buff icon style, clean simple design readable at small size, subtle dark outline border, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, angular ice crystal formation with glowing blue core, frost sentinel power buff, cold icy mist energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ---
@@ -100,35 +100,35 @@ pixel art game buff icon, frost sentinel symbol, angular ice crystal formation, 
 **Description**: Musical spring spirit - quarter of the seasonal quartet
 
 ```
-pixel art game sprite, spring spirit minion for Vivaldi seasons, elegant floating spirit with flower petal dress, holding tiny violin or playing invisible instrument, cherry blossom petals flowing from form, soft pink and green ethereal glow, musical notes floating around, graceful dancing pose, pixel art style 16-bit aesthetic, Terraria game sprite style, facing right, 30x30 pixels upscaled 8x, colors pink green white pastel spring tones, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 100
+pixel art game sprite sheet, 30x30 spring spirit minion, elegant floating spirit with flower petal dress, cherry blossom petals and pink musical notes flowing from form, holding tiny ethereal violin, soft pink and green ethereal glow, graceful dancing pose, facing right, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### SummerSpiritMinion.png (30x30)
 **Description**: Musical summer spirit - vibrant and energetic
 
 ```
-pixel art game sprite, summer spirit minion for Vivaldi seasons, energetic floating spirit with sun ray cape, radiating golden warmth, playing invisible fiery instrument, sunflower and light motifs, bright orange and yellow ethereal glow, musical notes made of sunlight, dynamic active pose, pixel art style 16-bit aesthetic, Terraria game sprite style, facing right, 30x30 pixels upscaled 8x, colors gold orange yellow bright summer tones, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 100
+pixel art game sprite sheet, 30x30 summer spirit minion, energetic floating spirit with sun ray cape, radiating golden warmth, holding tiny ethereal trumpet, bright orange and yellow ethereal glow, golden musical notes made of sunlight trailing behind, dynamic active pose, facing right, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### AutumnSpiritMinion.png (30x30)
 **Description**: Musical autumn spirit - melancholic and mature
 
 ```
-pixel art game sprite, autumn spirit minion for Vivaldi seasons, contemplative floating spirit with falling leaf cloak, warm amber and russet tones, playing invisible wind instrument, maple leaves swirling around, orange and brown ethereal glow, musical notes like falling leaves, serene thoughtful pose, pixel art style 16-bit aesthetic, Terraria game sprite style, facing right, 30x30 pixels upscaled 8x, colors orange brown red amber autumn tones, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 100
+pixel art game sprite sheet, 30x30 autumn spirit minion, contemplative floating spirit with falling leaf cloak, holding tiny ethereal flute, maple leaves and amber musical notes swirling around, orange and brown ethereal glow, serene thoughtful pose, facing right, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### WinterSpiritMinion.png (30x30)
 **Description**: Musical winter spirit - cold and crystalline
 
 ```
-pixel art game sprite, winter spirit minion for Vivaldi seasons, ethereal floating spirit with ice crystal robes, snowflake halo above head, playing invisible crystalline instrument, ice shards and snow swirling, ice blue and white ethereal glow, musical notes made of frost, elegant cold pose, pixel art style 16-bit aesthetic, Terraria game sprite style, facing right, 30x30 pixels upscaled 8x, colors ice blue white silver winter tones, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 100
+pixel art game sprite sheet, 30x30 winter spirit minion, ethereal floating spirit with ice crystal robes, snowflake halo above head, holding tiny ethereal harp made of ice, ice shards snow and frozen musical notes swirling, ice blue and white ethereal glow, elegant cold pose, facing right, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### VivaldiConductorBuff.png (32x32)
 **Description**: Buff icon for Vivaldi's Baton summons
 
 ```
-pixel art game buff icon, Vivaldi four seasons conductor symbol, elegant conductor baton with four colored ribbons, pink green orange blue representing seasons, musical staff curves, four small leaves in seasonal colors, Terraria buff icon style, clean simple design readable at small size, subtle dark outline border, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, elegant conductor baton with four colored seasonal ribbons, Vivaldi four seasons power buff, pink green orange blue energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ---
@@ -139,28 +139,28 @@ pixel art game buff icon, Vivaldi four seasons conductor symbol, elegant conduct
 **Description**: A demonic floating bell wreathed in flames
 
 ```
-pixel art game sprite, infernal bell minion, dark metal demonic bell floating, flames emerging from inside and around bell, cracked glowing orange lines like magma veins, small horns on top of bell, smoke rising from form, fire and embers, orange and black color scheme, menacing but elegant, pixel art style 16-bit aesthetic, Terraria game sprite style, facing right slight angle, 36x44 pixels upscaled 8x for detail, colors black orange gold red flame colors, transparent background, black background for extraction --v 6.1 --ar 9:11 --style raw --s 100
+pixel art game sprite sheet, 36x44 infernal bell minion, dark metal demonic bell floating, flames emerging from inside and around bell, cracked glowing orange magma veins, small horns on top, smoke rising, fire embers and burning musical notes orbiting, orange and black color scheme, menacing but elegant, facing right, terraria style, transparent background --ar 9:11 --s 250
 ```
 
 ### InfernalBellBuff.png (32x32)
 **Description**: Buff icon showing a flaming bell
 
 ```
-pixel art game buff icon, infernal bell symbol, dark bell shape with flames inside, orange fire glow escaping from opening, small smoke wisps, Terraria buff icon style, clean simple design readable at small size, subtle dark outline border, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, dark demonic bell with flames inside, infernal chime power buff, orange fire and black smoke energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### CampanellaChoirMinion.png (30x35)
 **Description**: A smaller choir bell minion, part of a set
 
 ```
-pixel art game sprite, campanella choir bell minion, smaller elegant bell with fire accents, singing bell with sound waves emanating, golden trim on dark metal, soft orange inner glow, musical notes made of fire around it, floating gracefully, pixel art style 16-bit aesthetic, Terraria game sprite style, facing right, 30x35 pixels upscaled 8x, colors dark metal gold orange fire accents, transparent background, black background --v 6.1 --ar 6:7 --style raw --s 100
+pixel art game sprite sheet, 30x35 campanella choir bell minion, elegant bell with fire accents, singing bell with visible sound waves and fiery musical notes emanating, golden trim on dark metal, soft orange inner glow, treble clef symbol etched on surface, floating gracefully, facing right, terraria style, transparent background --ar 6:7 --s 250
 ```
 
 ### CampanellaChoirBuff.png (32x32)
 **Description**: Buff icon for the bell choir
 
 ```
-pixel art game buff icon, campanella choir symbol, three small bells arranged in arc, fire and music notes between them, golden and orange coloring, Terraria buff icon style, clean simple design readable at small size, subtle dark outline border, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, three small bells arranged in arc with fire between them, campanella choir power buff, golden and orange flame energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ---
@@ -171,14 +171,14 @@ pixel art game buff icon, campanella choir symbol, three small bells arranged in
 **Description**: A ghostly samurai/warrior spirit wreathed in sakura petals
 
 ```
-pixel art game sprite, heroic spirit warrior minion, ghostly samurai warrior figure, translucent ethereal body, sakura pink and scarlet flames around form, holding phantom katana sword, samurai armor silhouette, cherry blossom petals swirling, heroic determined pose, afterimage trail effect, pixel art style 16-bit aesthetic, Terraria game sprite style, facing right action pose, 40x60 pixels upscaled 8x for detail, colors pink scarlet gold ghostly white, transparent background, black background for extraction --v 6.1 --ar 2:3 --style raw --s 100
+pixel art game sprite sheet, 40x60 heroic spirit warrior minion, ghostly samurai warrior figure, translucent ethereal body, sakura pink and scarlet flames around form, holding phantom katana sword, samurai armor silhouette, cherry blossom petals and triumphant golden musical notes swirling, heroic determined pose, facing right action pose, terraria style, transparent background --ar 2:3 --s 250
 ```
 
 ### HeroicSpiritBuff.png (32x32)
 **Description**: Buff icon showing a ghostly warrior helm with sakura
 
 ```
-pixel art game buff icon, heroic spirit symbol, ghostly samurai helmet silhouette, sakura petals around it, scarlet and pink ethereal glow, Terraria buff icon style, clean simple design readable at small size, subtle dark outline border, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, ghostly samurai helmet with sakura petals, heroic valor power buff, scarlet and pink ethereal energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ---
@@ -187,22 +187,22 @@ pixel art game buff icon, heroic spirit symbol, ghostly samurai helmet silhouett
 
 ### DecayBellBuff.png (32x32) - Autumn/Decay themed bell
 ```
-pixel art game buff icon, decay bell symbol, cracked old bell with green cursed flames, autumn leaves falling from it, eerie green glow, Terraria buff icon style, clean simple design, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, cracked old bell with green cursed flames, decay harvest power buff, eerie green and autumn orange energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### FrozenHeartBuff.png (32x32) - Winter heart of ice
 ```
-pixel art game buff icon, frozen heart symbol, crystalline ice heart shape, cold blue inner glow, frost emanating, snowflakes around edges, Terraria buff icon style, clean simple design, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, crystalline ice heart with cold blue inner glow, frozen heart power buff, frost and snowflake energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### PrimaverasBloomBuff.png (32x32) - Spring bloom flower
 ```
-pixel art game buff icon, spring bloom symbol, opening flower bud with petals, soft pink and green glow, small sparkles, dewdrop accent, Terraria buff icon style, clean simple design, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, opening flower bud with soft petals, spring bloom power buff, pink and green sparkle energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### SolarCrestBuff.png (32x32) - Summer sun crest
 ```
-pixel art game buff icon, solar crest symbol, stylized sun emblem with radiating rays, golden orange center, corona flares, Terraria buff icon style, clean simple design, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, stylized sun emblem with radiating rays, solar crest power buff, golden orange corona energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ---
@@ -211,7 +211,7 @@ pixel art game buff icon, solar crest symbol, stylized sun emblem with radiating
 
 ### DestinyCollapseBuff.png (32x32) - Cosmic collapse debuff
 ```
-pixel art game buff icon, destiny collapse debuff symbol, fractured cosmic void, dark pink and purple swirling into black hole center, reality cracks, ominous, Terraria buff icon style, clean simple design, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, fractured cosmic void swirling into black hole center, destiny collapse debuff, dark pink and purple reality crack energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ---
@@ -220,22 +220,22 @@ pixel art game buff icon, destiny collapse debuff symbol, fractured cosmic void,
 
 ### ParadoxBrandBuff.png (32x32) - Paradox mark debuff
 ```
-pixel art game buff icon, paradox brand symbol, purple question mark with eye at the dot, swirling void around it, mysterious arcane glow, Terraria buff icon style, clean simple design, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, purple question mark with mysterious eye at the dot, paradox brand debuff, swirling void and arcane energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### WatchedDebuffBuff.png (32x32) - Being watched debuff
 ```
-pixel art game buff icon, watched debuff symbol, single large eye staring forward, purple and green eerie glow, watching menacingly, Terraria buff icon style, clean simple design, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, single large menacing eye staring forward, watched debuff, purple and green eerie energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### MysteryVaporDebuff.png (32x32) - Mystery vapor debuff
 ```
-pixel art game buff icon, mystery vapor symbol, swirling purple mist with question marks, green eerie accents, unknown gas cloud, Terraria buff icon style, clean simple design, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, swirling purple mist with question marks, mystery vapor debuff, green and purple eerie energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### UnsolvedPhantomBuff.png (32x32) - Phantom summon buff
 ```
-pixel art game buff icon, unsolved phantom symbol, ghostly question mark shaped figure, purple and green ethereal glow, mysterious eye, Terraria buff icon style, clean simple design, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, ghostly question mark shaped phantom figure, unsolved phantom power buff, purple and green ethereal energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ---
@@ -244,27 +244,27 @@ pixel art game buff icon, unsolved phantom symbol, ghostly question mark shaped 
 
 ### MinorResonanceBuff.png (32x32)
 ```
-pixel art game buff icon, minor resonance potion buff, small musical note with soft glow, rainbow shimmer edge, healing aura, Terraria buff icon style, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, small musical note with soft rainbow glow, minor resonance power buff, healing shimmer energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### ResonantManaBuff.png (32x32)
 ```
-pixel art game buff icon, resonant mana potion buff, swirling blue mana with musical symbols, arcane energy, Terraria buff icon style, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, swirling blue mana with musical symbols, resonant mana power buff, arcane blue energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### HarmonicEnduranceBuff.png (32x32)
 ```
-pixel art game buff icon, harmonic endurance buff, shield with musical staff pattern, warm protective glow, Terraria buff icon style, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, shield with musical staff pattern, harmonic endurance power buff, warm protective energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### SymphonicRageBuff.png (32x32)
 ```
-pixel art game buff icon, symphonic rage buff, angry red musical note, fire and power aura, aggressive energy, Terraria buff icon style, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, angry red musical note with fire, symphonic rage power buff, aggressive red energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ### CrescendoVitalityBuff.png (32x32)
 ```
-pixel art game buff icon, crescendo vitality buff, heart with crescendo musical symbol, life energy radiating, healthy green and red, Terraria buff icon style, 32x32 pixels upscaled 8x, transparent background, black background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art game buff icon, 32x32 pristine frame, heart with crescendo musical symbol, crescendo vitality power buff, healthy green and red energy aura, terraria style, transparent background --ar 1:1 --s 250
 ```
 
 ---

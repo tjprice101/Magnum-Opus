@@ -15,6 +15,8 @@ namespace MagnumOpus.Content.Fate.CraftingStations
     /// </summary>
     public class FatesCosmicAnvilTile : ModTile
     {
+        // Use the item texture since tile texture doesn't exist yet
+        public override string Texture => "MagnumOpus/Content/Fate/CraftingStations/FatesCosmicAnvil";
         public override void SetStaticDefaults()
         {
             Main.tileFrameImportant[Type] = true;

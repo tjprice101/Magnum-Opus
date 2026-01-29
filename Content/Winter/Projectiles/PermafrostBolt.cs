@@ -214,10 +214,11 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 CustomParticles.GenericFlare(Projectile.Center, GlacialPurple * 0.6f, 0.4f + lifeProgress * 0.3f, 12);
             }
 
-            // Halo rings
+            // Frost sparkles (replacing banned HaloRing)
             if (Projectile.timeLeft % 20 == 0)
             {
-                CustomParticles.HaloRing(Projectile.Center, IceBlue * 0.4f, currentRadius / 200f, 25);
+                var frostSparkle = new SparkleParticle(Projectile.Center, Vector2.Zero, IceBlue * 0.4f, (currentRadius / 200f) * 0.6f, 25);
+                MagnumParticleHandler.SpawnParticle(frostSparkle);
             }
 
             Lighting.AddLight(Projectile.Center, IceBlue.ToVector3() * (0.8f + lifeProgress * 0.4f));
@@ -281,9 +282,13 @@ namespace MagnumOpus.Content.Winter.Projectiles
         {
             // Final explosion
             CustomParticles.GenericFlare(Projectile.Center, FrostWhite, 1.0f, 30);
-            CustomParticles.HaloRing(Projectile.Center, IceBlue * 0.7f, 0.8f, 25);
-            CustomParticles.HaloRing(Projectile.Center, CrystalCyan * 0.5f, 0.6f, 20);
-            CustomParticles.HaloRing(Projectile.Center, GlacialPurple * 0.4f, 0.4f, 18);
+            // Frost sparkle burst (replacing banned HaloRing)
+            var frostSparkle1 = new SparkleParticle(Projectile.Center, Vector2.Zero, IceBlue * 0.7f, 0.8f * 0.6f, 25);
+            MagnumParticleHandler.SpawnParticle(frostSparkle1);
+            var frostSparkle2 = new SparkleParticle(Projectile.Center, Vector2.Zero, CrystalCyan * 0.5f, 0.6f * 0.6f, 20);
+            MagnumParticleHandler.SpawnParticle(frostSparkle2);
+            var frostSparkle3 = new SparkleParticle(Projectile.Center, Vector2.Zero, GlacialPurple * 0.4f, 0.4f * 0.6f, 18);
+            MagnumParticleHandler.SpawnParticle(frostSparkle3);
 
             for (int i = 0; i < 20; i++)
             {

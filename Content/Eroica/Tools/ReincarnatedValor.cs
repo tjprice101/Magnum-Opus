@@ -79,7 +79,13 @@ namespace MagnumOpus.Content.Eroica.Tools
     {
         public int wingFrame = 0;
         private int frameCounter = 0;
-        private bool wasFlying = false;  // Track previous flying state
+        private bool wasFlying = false;
+        
+        // Direction constants for doubleTapCardinalTimer array
+        private const int DashDown = 0;
+        private const int DashUp = 1;
+        private const int DashLeft = 2;
+        private const int DashRight = 3;
         
         public bool hasWingsEquipped = false;
         private int dodgeCooldown = 0;
@@ -88,11 +94,83 @@ namespace MagnumOpus.Content.Eroica.Tools
         private bool isDodging = false;
         private int dodgeTimer = 0;
         private const int DodgeDuration = 8;
-        private int lastDodgeDirection = 0; // -1 = left, 1 = right
+        private int dashDir = -1;
 
         public override void ResetEffects()
         {
             hasWingsEquipped = false;
+            
+            int wingSlot = EquipLoader.GetEquipSlot(Mod, "ReincarnatedValor", EquipType.Wings);
+            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
+            
+            if (!hasWings && !hasWingsEquipped)
+            {
+                dashDir = -1;
+                return;
+            }
+            
+            if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[DashRight] < 15 && Player.doubleTapCardinalTimer[DashLeft] == 0)
+            {
+                dashDir = DashRight;
+            }
+            else if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[DashLeft] < 15 && Player.doubleTapCardinalTimer[DashRight] == 0)
+            {
+                dashDir = DashLeft;
+            }
+            else
+            {
+                dashDir = -1;
+            }
+        }
+        
+        public override void PreUpdateMovement()
+        {
+            int wingSlot = EquipLoader.GetEquipSlot(Mod, "ReincarnatedValor", EquipType.Wings);
+            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
+            
+            if (!hasWings && !hasWingsEquipped)
+                return;
+            
+            if (CanDodge() && dashDir != -1 && dodgeCooldown <= 0)
+            {
+                int direction = dashDir == DashLeft ? -1 : 1;
+                PerformDodge(direction);
+            }
+            
+            if (isDodging)
+            {
+                dodgeTimer++;
+                Player.immune = true;
+                Player.immuneTime = 2;
+                Player.immuneNoBlink = true;
+                
+                ThemedParticles.DodgeTrail(Player.Center, Player.velocity, false);
+                
+                for (int i = 0; i < 2; i++)
+                {
+                    Dust trail = Dust.NewDustDirect(Player.position, Player.width, Player.height, 
+                        DustID.CrimsonTorch, -Player.velocity.X * 0.2f, -Player.velocity.Y * 0.2f, 100, default, 1.4f);
+                    trail.noGravity = true;
+                }
+                
+                if (dodgeTimer >= DodgeDuration)
+                {
+                    isDodging = false;
+                    dodgeTimer = 0;
+                    ThemedParticles.EroicaImpact(Player.Center, 1f);
+                }
+            }
+            
+            if (dodgeCooldown > 0)
+                dodgeCooldown--;
+        }
+        
+        private bool CanDodge()
+        {
+            return (hasWingsEquipped || Player.wings == EquipLoader.GetEquipSlot(Mod, "ReincarnatedValor", EquipType.Wings))
+                && Player.dashType == DashID.None
+                && !Player.setSolar
+                && !Player.mount.Active;
         }
 
         public override void PostUpdate()
@@ -108,84 +186,31 @@ namespace MagnumOpus.Content.Eroica.Tools
                 return;
             }
 
-            // Dodge cooldown tick
-            if (dodgeCooldown > 0)
-                dodgeCooldown--;
-            
-            // Handle dodge input - double-tap left/right like Shield of Cthulhu
-            if (dodgeCooldown <= 0 && !isDodging)
-            {
-                if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[2] < 15)
-                {
-                    PerformDodge(-1);
-                }
-                else if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[3] < 15)
-                {
-                    PerformDodge(1);
-                }
-            }
-            
-            // Handle ongoing dodge
-            if (isDodging)
-            {
-                dodgeTimer++;
-                Player.immune = true;
-                Player.immuneTime = 2;
-                Player.immuneNoBlink = true; // Don't blink during dodge
-                
-                // Enhanced scarlet trail with new particle system
-                ThemedParticles.DodgeTrail(Player.Center, Player.velocity, false);
-                
-                // Additional dust trail
-                for (int i = 0; i < 2; i++)
-                {
-                    Dust trail = Dust.NewDustDirect(Player.position, Player.width, Player.height, 
-                        DustID.CrimsonTorch, -Player.velocity.X * 0.2f, -Player.velocity.Y * 0.2f, 100, default, 1.4f);
-                    trail.noGravity = true;
-                }
-                
-                if (dodgeTimer >= DodgeDuration)
-                {
-                    isDodging = false;
-                    dodgeTimer = 0;
-                    
-                    // End dodge burst
-                    ThemedParticles.EroicaImpact(Player.Center, 1f);
-                }
-            }
-
-            // Wing animation logic - matches WingsOfTheMoon behavior exactly
-            // Flying = actively holding jump while in the air with wings active
             bool isFlying = Player.controlJump && Player.velocity.Y != 0 && !Player.mount.Active;
             bool isOnGround = Player.velocity.Y == 0;
             
             if (isFlying || isDodging)
             {
-                // Animate through 6x6 sprite sheet
                 frameCounter++;
-                if (frameCounter >= 2) // Fast animation
+                if (frameCounter >= 2)
                 {
                     frameCounter = 0;
                     wingFrame++;
-                    if (wingFrame >= 36) // 6x6 = 36 frames
+                    if (wingFrame >= 36)
                         wingFrame = 0;
                 }
                 wasFlying = true;
             }
             else if (isOnGround)
             {
-                // On ground - reset to first frame (idle/folded)
                 wingFrame = 0;
                 frameCounter = 0;
                 wasFlying = false;
             }
             else if (wasFlying && !isFlying)
             {
-                // Stopped flying but still in air - hold on first frame until landing
-                // This deactivates animation but keeps wings visible
                 wingFrame = 0;
                 frameCounter = 0;
-                // Keep wasFlying true until landing
             }
         }
 
@@ -194,14 +219,12 @@ namespace MagnumOpus.Content.Eroica.Tools
             isDodging = true;
             dodgeTimer = 0;
             dodgeCooldown = DodgeCooldownMax;
-            lastDodgeDirection = direction;
             
-            Vector2 dodgeDir = new Vector2(direction, 0f);
-            Player.velocity = dodgeDir * DodgeSpeed;
+            Vector2 dodgeVelocity = new Vector2(direction, 0f);
+            Player.velocity = dodgeVelocity * DodgeSpeed;
             
             SoundEngine.PlaySound(SoundID.Item71 with { Pitch = 0.3f, Volume = 0.8f }, Player.Center);
             
-            // Enhanced burst with new themed particle system
             ThemedParticles.EroicaImpact(Player.Center, 1.5f);
             ThemedParticles.TeleportBurst(Player.Center, false);
         }
@@ -211,7 +234,6 @@ namespace MagnumOpus.Content.Eroica.Tools
             int wingSlot = EquipLoader.GetEquipSlot(Mod, "ReincarnatedValor", EquipType.Wings);
             if (Player.wings == wingSlot && wingSlot > 0)
             {
-                // Hide vanilla wing drawing - we do custom drawing
                 PlayerDrawLayers.Wings.Hide();
             }
         }

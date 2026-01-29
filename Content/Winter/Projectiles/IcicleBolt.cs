@@ -228,7 +228,9 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
             // Impact VFX
             CustomParticles.GenericFlare(target.Center, FrostWhite, 0.65f, 20);
-            CustomParticles.HaloRing(target.Center, IceBlue * 0.5f, 0.4f, 16);
+            // Frost sparkle burst (replacing banned HaloRing)
+            var frostSparkle = new SparkleParticle(target.Center, Vector2.Zero, IceBlue * 0.5f, 0.4f * 0.6f, 16);
+            MagnumParticleHandler.SpawnParticle(frostSparkle);
 
             for (int i = 0; i < 8; i++)
             {
@@ -277,7 +279,9 @@ namespace MagnumOpus.Content.Winter.Projectiles
         public override void OnKill(int timeLeft)
         {
             CustomParticles.GenericFlare(Projectile.Center, FrostWhite, 0.6f, 18);
-            CustomParticles.HaloRing(Projectile.Center, IceBlue * 0.5f, 0.35f, 14);
+            // Frost sparkle burst (replacing banned HaloRing)
+            var frostSparkle = new SparkleParticle(Projectile.Center, Vector2.Zero, IceBlue * 0.5f, 0.35f * 0.6f, 14);
+            MagnumParticleHandler.SpawnParticle(frostSparkle);
 
             for (int i = 0; i < 8; i++)
             {
@@ -331,7 +335,9 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
                 // Freeze VFX
                 CustomParticles.GenericFlare(npc.Center, new Color(100, 255, 255), 0.8f, 25);
-                CustomParticles.HaloRing(npc.Center, new Color(150, 220, 255), 0.6f, 20);
+                // Frost sparkle burst (replacing banned HaloRing)
+                var frostSparkle = new SparkleParticle(npc.Center, Vector2.Zero, new Color(150, 220, 255), 0.6f * 0.6f, 20);
+                MagnumParticleHandler.SpawnParticle(frostSparkle);
             }
 
             // Visual frost particles on debuffed enemies

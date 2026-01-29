@@ -106,7 +106,9 @@ namespace MagnumOpus.Content.Winter.Weapons
 
                 // Barrage VFX
                 CustomParticles.GenericFlare(muzzlePos, FrostWhite, 0.85f, 22);
-                CustomParticles.HaloRing(muzzlePos, IceBlue * 0.6f, 0.5f, 18);
+                // Frost sparkle burst (replacing banned HaloRing)
+                var frostSparkle = new SparkleParticle(muzzlePos, Vector2.Zero, IceBlue * 0.6f, 0.5f * 0.6f, 18);
+                MagnumParticleHandler.SpawnParticle(frostSparkle);
 
                 for (int i = 0; i < 10; i++)
                 {

@@ -38,7 +38,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             Projectile.hostile = false;
             Projectile.minion = true;
             Projectile.DamageType = DamageClass.Summon;
-            Projectile.minionSlots = 1f;
+            Projectile.minionSlots = 0f; // No slots - all 4 spirits come together
             Projectile.penetrate = -1;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
@@ -47,6 +47,27 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool? CanCutTiles() => false;
         public override bool MinionContactDamage() => true;
+
+        /// <summary>
+        /// Gets the damage multiplier based on player's total minion slots.
+        /// More slots = stronger spirits.
+        /// </summary>
+        private float GetMinionSlotBonus(Player owner)
+        {
+            int slots = owner.maxMinions;
+            // Base 1.0x at 1 slot, +15% per additional slot, caps at 3x
+            return Math.Min(3f, 1f + (slots - 1) * 0.15f);
+        }
+
+        /// <summary>
+        /// Gets the speed multiplier based on player's total minion slots.
+        /// </summary>
+        private float GetSpeedBonus(Player owner)
+        {
+            int slots = owner.maxMinions;
+            // Base 1.0x at 1 slot, +8% per additional slot, caps at 2x
+            return Math.Min(2f, 1f + (slots - 1) * 0.08f);
+        }
 
         public override void AI()
         {
@@ -65,6 +86,10 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 Projectile.timeLeft = 2;
             }
 
+            // Get minion slot bonuses
+            float damageBonus = GetMinionSlotBonus(owner);
+            float speedBonus = GetSpeedBonus(owner);
+
             // Find target
             NPC target = FindTarget(owner);
             float targetDist = target != null ? Vector2.Distance(Projectile.Center, target.Center) : 999f;
@@ -78,14 +103,14 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 {
                     // Aggressive homing during coordination
                     Vector2 targetDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, targetDir * 16f, 0.12f);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, targetDir * 16f * speedBonus, 0.12f);
 
                     // Fire petal bolts rapidly
                     if (CoordinatedAttackTimer % 8 == 0)
                     {
-                        Vector2 boltVel = targetDir * 14f;
+                        Vector2 boltVel = targetDir * 14f * speedBonus;
                         Projectile.NewProjectile(Projectile.GetSource_FromAI(), Projectile.Center, boltVel,
-                            ModContent.ProjectileType<SpiritPetalBolt>(), Projectile.damage, Projectile.knockBack * 0.5f, Projectile.owner);
+                            ModContent.ProjectileType<SpiritPetalBolt>(), (int)(Projectile.damage * damageBonus), Projectile.knockBack * 0.5f, Projectile.owner);
                         CustomParticles.GenericFlare(Projectile.Center, SpringPink, 0.35f, 12);
                     }
                 }
@@ -104,7 +129,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                     {
                         // Dart to target
                         Vector2 targetDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                        Projectile.velocity = Vector2.Lerp(Projectile.velocity, targetDir * 14f, 0.08f);
+                        Projectile.velocity = Vector2.Lerp(Projectile.velocity, targetDir * 14f * speedBonus, 0.08f);
                     }
                     else
                     {
@@ -116,12 +141,13 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                         }
                     }
 
-                    // Fire petal bolt periodically
-                    if (Main.GameUpdateCount % 45 == 0)
+                    // Fire petal bolt periodically - faster with more minion slots
+                    int fireInterval = Math.Max(20, (int)(45 / speedBonus));
+                    if (Main.GameUpdateCount % fireInterval == 0)
                     {
-                        Vector2 boltVel = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero) * 12f;
+                        Vector2 boltVel = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero) * 12f * speedBonus;
                         Projectile.NewProjectile(Projectile.GetSource_FromAI(), Projectile.Center, boltVel,
-                            ModContent.ProjectileType<SpiritPetalBolt>(), Projectile.damage / 2, Projectile.knockBack * 0.3f, Projectile.owner);
+                            ModContent.ProjectileType<SpiritPetalBolt>(), (int)(Projectile.damage / 2 * damageBonus), Projectile.knockBack * 0.3f, Projectile.owner);
                     }
                 }
                 else
@@ -326,7 +352,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             Projectile.hostile = false;
             Projectile.minion = true;
             Projectile.DamageType = DamageClass.Summon;
-            Projectile.minionSlots = 1f;
+            Projectile.minionSlots = 0f; // No slots - all 4 spirits come together
             Projectile.penetrate = -1;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
@@ -335,6 +361,18 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool? CanCutTiles() => false;
         public override bool MinionContactDamage() => true;
+
+        private float GetMinionSlotBonus(Player owner)
+        {
+            int slots = owner.maxMinions;
+            return Math.Min(3f, 1f + (slots - 1) * 0.15f);
+        }
+
+        private float GetSpeedBonus(Player owner)
+        {
+            int slots = owner.maxMinions;
+            return Math.Min(2f, 1f + (slots - 1) * 0.08f);
+        }
 
         public override void AI()
         {
@@ -352,6 +390,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 Projectile.timeLeft = 2;
             }
 
+            float damageBonus = GetMinionSlotBonus(owner);
+            float speedBonus = GetSpeedBonus(owner);
+
             NPC target = FindTarget(owner);
             float targetDist = target != null ? Vector2.Distance(Projectile.Center, target.Center) : 999f;
 
@@ -362,13 +403,13 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 if (target != null)
                 {
                     Vector2 targetDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, targetDir * 18f, 0.1f);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, targetDir * 18f * speedBonus, 0.1f);
 
                     if (CoordinatedAttackTimer % 6 == 0)
                     {
-                        Vector2 boltVel = targetDir * 16f;
+                        Vector2 boltVel = targetDir * 16f * speedBonus;
                         Projectile.NewProjectile(Projectile.GetSource_FromAI(), Projectile.Center, boltVel,
-                            ModContent.ProjectileType<SpiritSolarBolt>(), Projectile.damage, Projectile.knockBack * 0.5f, Projectile.owner);
+                            ModContent.ProjectileType<SpiritSolarBolt>(), (int)(Projectile.damage * damageBonus), Projectile.knockBack * 0.5f, Projectile.owner);
                         CustomParticles.GenericFlare(Projectile.Center, SummerGold, 0.4f, 12);
                     }
                 }
@@ -382,13 +423,14 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 {
                     // Aggressive pursuit
                     Vector2 targetDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, targetDir * 12f, 0.06f);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, targetDir * 12f * speedBonus, 0.06f);
 
-                    if (Main.GameUpdateCount % 25 == 0)
+                    int fireInterval = Math.Max(12, (int)(25 / speedBonus));
+                    if (Main.GameUpdateCount % fireInterval == 0)
                     {
-                        Vector2 boltVel = targetDir * 14f;
+                        Vector2 boltVel = targetDir * 14f * speedBonus;
                         Projectile.NewProjectile(Projectile.GetSource_FromAI(), Projectile.Center, boltVel,
-                            ModContent.ProjectileType<SpiritSolarBolt>(), Projectile.damage / 2, Projectile.knockBack * 0.4f, Projectile.owner);
+                            ModContent.ProjectileType<SpiritSolarBolt>(), (int)(Projectile.damage / 2 * damageBonus), Projectile.knockBack * 0.4f, Projectile.owner);
                         CustomParticles.GenericFlare(Projectile.Center, SummerOrange, 0.35f, 10);
                     }
                 }
@@ -587,7 +629,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             Projectile.hostile = false;
             Projectile.minion = true;
             Projectile.DamageType = DamageClass.Summon;
-            Projectile.minionSlots = 1f;
+            Projectile.minionSlots = 0f; // No slots - all 4 spirits come together
             Projectile.penetrate = -1;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
@@ -596,6 +638,18 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool? CanCutTiles() => false;
         public override bool MinionContactDamage() => true;
+
+        private float GetMinionSlotBonus(Player owner)
+        {
+            int slots = owner.maxMinions;
+            return Math.Min(3f, 1f + (slots - 1) * 0.15f);
+        }
+
+        private float GetSpeedBonus(Player owner)
+        {
+            int slots = owner.maxMinions;
+            return Math.Min(2f, 1f + (slots - 1) * 0.08f);
+        }
 
         public override void AI()
         {
@@ -613,15 +667,19 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 Projectile.timeLeft = 2;
             }
 
+            float damageBonus = GetMinionSlotBonus(owner);
+            float speedBonus = GetSpeedBonus(owner);
+
             NPC target = FindTarget(owner);
 
-            // Life drain aura
+            // Life drain aura - scales with minion slots
             auraDamageTimer++;
-            if (auraDamageTimer >= 30)
+            int auraInterval = Math.Max(15, (int)(30 / speedBonus));
+            if (auraDamageTimer >= auraInterval)
             {
                 auraDamageTimer = 0;
-                float auraRange = CoordinatedAttackTimer > 0 ? 150f : 100f;
-                int auraDamage = CoordinatedAttackTimer > 0 ? Projectile.damage / 2 : Projectile.damage / 4;
+                float auraRange = (CoordinatedAttackTimer > 0 ? 150f : 100f) * (1f + (owner.maxMinions - 1) * 0.1f);
+                int auraDamage = (int)((CoordinatedAttackTimer > 0 ? Projectile.damage / 2 : Projectile.damage / 4) * damageBonus);
 
                 for (int i = 0; i < Main.maxNPCs; i++)
                 {
@@ -654,7 +712,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 if (target != null)
                 {
                     Vector2 targetDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, targetDir * 12f, 0.08f);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, targetDir * 12f * speedBonus, 0.08f);
                 }
             }
             else
@@ -667,7 +725,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                     // Stay at medium range for aura
                     Vector2 idealPos = target.Center + (Projectile.Center - target.Center).SafeNormalize(Vector2.Zero) * 60f;
                     Vector2 toIdeal = (idealPos - Projectile.Center);
-                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, toIdeal.SafeNormalize(Vector2.Zero) * 8f, 0.05f);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, toIdeal.SafeNormalize(Vector2.Zero) * 8f * speedBonus, 0.05f);
                 }
                 else
                 {
@@ -810,7 +868,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             Projectile.hostile = false;
             Projectile.minion = true;
             Projectile.DamageType = DamageClass.Summon;
-            Projectile.minionSlots = 1f;
+            Projectile.minionSlots = 0f; // No slots - all 4 spirits come together
             Projectile.penetrate = -1;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
@@ -819,6 +877,18 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool? CanCutTiles() => false;
         public override bool MinionContactDamage() => true;
+
+        private float GetMinionSlotBonus(Player owner)
+        {
+            int slots = owner.maxMinions;
+            return Math.Min(3f, 1f + (slots - 1) * 0.15f);
+        }
+
+        private float GetSpeedBonus(Player owner)
+        {
+            int slots = owner.maxMinions;
+            return Math.Min(2f, 1f + (slots - 1) * 0.08f);
+        }
 
         public override void AI()
         {
@@ -836,14 +906,19 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 Projectile.timeLeft = 2;
             }
 
+            float damageBonus = GetMinionSlotBonus(owner);
+            float speedBonus = GetSpeedBonus(owner);
+
             NPC target = FindTarget(owner);
 
-            // Frost aura - slows nearby enemies
+            // Frost aura - slows nearby enemies, scales with minion slots
             frostAuraTimer++;
-            if (frostAuraTimer >= 20)
+            int frostInterval = Math.Max(10, (int)(20 / speedBonus));
+            if (frostAuraTimer >= frostInterval)
             {
                 frostAuraTimer = 0;
-                float auraRange = CoordinatedAttackTimer > 0 ? 140f : 90f;
+                float auraRange = (CoordinatedAttackTimer > 0 ? 140f : 90f) * (1f + (owner.maxMinions - 1) * 0.1f);
+                float freezeChance = 0.15f + (owner.maxMinions - 1) * 0.02f; // Better freeze chance with more slots
 
                 for (int i = 0; i < Main.maxNPCs; i++)
                 {
@@ -856,8 +931,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                             npc.AddBuff(BuffID.Frostburn2, 60);
                             npc.AddBuff(BuffID.Slow, 60);
 
-                            // Freeze chance during coordination
-                            if (CoordinatedAttackTimer > 0 && Main.rand.NextFloat() < 0.15f)
+                            // Freeze chance during coordination - better with more slots
+                            if (CoordinatedAttackTimer > 0 && Main.rand.NextFloat() < freezeChance)
                             {
                                 npc.AddBuff(BuffID.Frozen, 45);
                             }
@@ -873,13 +948,13 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 if (target != null)
                 {
                     Vector2 targetDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, targetDir * 14f, 0.09f);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, targetDir * 14f * speedBonus, 0.09f);
 
                     if (CoordinatedAttackTimer % 10 == 0)
                     {
-                        Vector2 boltVel = targetDir * 12f;
+                        Vector2 boltVel = targetDir * 12f * speedBonus;
                         Projectile.NewProjectile(Projectile.GetSource_FromAI(), Projectile.Center, boltVel,
-                            ModContent.ProjectileType<SpiritIceBolt>(), Projectile.damage / 2, Projectile.knockBack * 0.5f, Projectile.owner);
+                            ModContent.ProjectileType<SpiritIceBolt>(), (int)(Projectile.damage / 2 * damageBonus), Projectile.knockBack * 0.5f, Projectile.owner);
                         CustomParticles.GenericFlare(Projectile.Center, WinterBlue, 0.35f, 12);
                     }
                 }
@@ -894,13 +969,14 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                     // Defensive positioning - stay between target and player
                     Vector2 defendPos = owner.Center + (target.Center - owner.Center).SafeNormalize(Vector2.Zero) * 60f;
                     Vector2 toDefend = (defendPos - Projectile.Center);
-                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, toDefend.SafeNormalize(Vector2.Zero) * 9f, 0.05f);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, toDefend.SafeNormalize(Vector2.Zero) * 9f * speedBonus, 0.05f);
 
-                    if (Main.GameUpdateCount % 35 == 0)
+                    int fireInterval = Math.Max(18, (int)(35 / speedBonus));
+                    if (Main.GameUpdateCount % fireInterval == 0)
                     {
-                        Vector2 boltVel = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero) * 10f;
+                        Vector2 boltVel = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero) * 10f * speedBonus;
                         Projectile.NewProjectile(Projectile.GetSource_FromAI(), Projectile.Center, boltVel,
-                            ModContent.ProjectileType<SpiritIceBolt>(), Projectile.damage / 3, Projectile.knockBack * 0.3f, Projectile.owner);
+                            ModContent.ProjectileType<SpiritIceBolt>(), (int)(Projectile.damage / 3 * damageBonus), Projectile.knockBack * 0.3f, Projectile.owner);
                     }
                 }
                 else

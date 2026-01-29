@@ -69,6 +69,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
         private bool wasFlying = false;  // Track previous flying state
         
         // Dodge mechanic - Double-tap left/right like Shield of Cthulhu
+        // Direction constants for doubleTapCardinalTimer array
+        private const int DashDown = 0;
+        private const int DashUp = 1;
+        private const int DashLeft = 2;
+        private const int DashRight = 3;
+        
         public bool hasWingsEquipped = false;
         private int dodgeCooldown = 0;
         private const int DodgeCooldownMax = 30; // 0.5 seconds at 60fps
@@ -76,11 +82,87 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
         private bool isDodging = false;
         private int dodgeTimer = 0;
         private const int DodgeDuration = 8; // Duration of the dodge in ticks
-        private int lastDodgeDirection = 0; // -1 = left, 1 = right
+        private int dashDir = -1; // -1 = none, DashLeft = left, DashRight = right
 
         public override void ResetEffects()
         {
             hasWingsEquipped = false;
+            
+            // ResetEffects is called right after doubleTapCardinalTimer values are set by vanilla
+            // This is the optimal place to detect double-tap input (from tModLoader ExampleMod)
+            // When a directional key is pressed and released, vanilla starts a 15 tick timer
+            // If the timer is set to 15, this is the first press. Otherwise, it's a double-tap.
+            
+            int wingSlot = EquipLoader.GetEquipSlot(Mod, "WingsOfTheMoon", EquipType.Wings);
+            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
+            
+            if (!hasWings && !hasWingsEquipped)
+            {
+                dashDir = -1;
+                return;
+            }
+            
+            // Check for double-tap (timer < 15 means this is the second tap)
+            // Also check opposite direction timer == 0 to prevent conflicts
+            if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[DashRight] < 15 && Player.doubleTapCardinalTimer[DashLeft] == 0)
+            {
+                dashDir = DashRight;
+            }
+            else if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[DashLeft] < 15 && Player.doubleTapCardinalTimer[DashRight] == 0)
+            {
+                dashDir = DashLeft;
+            }
+            else
+            {
+                dashDir = -1;
+            }
+        }
+        
+        public override void PreUpdateMovement()
+        {
+            // PreUpdateMovement is the perfect place to apply dash movement
+            // It's after vanilla movement code, before position is modified based on velocity
+            
+            int wingSlot = EquipLoader.GetEquipSlot(Mod, "WingsOfTheMoon", EquipType.Wings);
+            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
+            
+            if (!hasWings && !hasWingsEquipped)
+                return;
+            
+            // Check if we can start a new dodge
+            if (CanDodge() && dashDir != -1 && dodgeCooldown <= 0)
+            {
+                int direction = dashDir == DashLeft ? -1 : 1;
+                PerformDodge(direction);
+            }
+            
+            // Handle active dodge
+            if (isDodging)
+            {
+                dodgeTimer++;
+                Player.immune = true;
+                Player.immuneTime = 2;
+                
+                // Trail effects during dodge
+                CreateDodgeTrailEffects();
+                
+                if (dodgeTimer >= DodgeDuration)
+                {
+                    EndDodge();
+                }
+            }
+            
+            // Dodge cooldown tick
+            if (dodgeCooldown > 0)
+                dodgeCooldown--;
+        }
+        
+        private bool CanDodge()
+        {
+            return (hasWingsEquipped || Player.wings == EquipLoader.GetEquipSlot(Mod, "WingsOfTheMoon", EquipType.Wings))
+                && Player.dashType == DashID.None // Don't override Tabi/EoCShield
+                && !Player.setSolar // Not wearing solar armor
+                && !Player.mount.Active; // Not mounted
         }
 
         public override void PostUpdate()
@@ -94,39 +176,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
                 frameCounter = 0;
                 wasFlying = false;
                 return;
-            }
-
-            // Dodge cooldown tick
-            if (dodgeCooldown > 0)
-                dodgeCooldown--;
-            
-            // Handle dodge input - double-tap left/right like Shield of Cthulhu
-            if (dodgeCooldown <= 0 && !isDodging)
-            {
-                // Check for double-tap left (index 2) or right (index 3)
-                if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[2] < 15)
-                {
-                    PerformDodge(-1); // Dodge left
-                }
-                else if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[3] < 15)
-                {
-                    PerformDodge(1); // Dodge right
-                }
-            }
-            
-            // Handle active dodge
-            if (isDodging)
-            {
-                dodgeTimer++;
-                // No immunity during dash - removed for balance
-                
-                // Trail effects during dodge
-                CreateDodgeTrailEffects();
-                
-                if (dodgeTimer >= DodgeDuration)
-                {
-                    EndDodge();
-                }
             }
 
             // Wing animation logic
@@ -165,13 +214,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
             isDodging = true;
             dodgeTimer = 0;
             dodgeCooldown = DodgeCooldownMax;
-            lastDodgeDirection = direction;
             
             // Dodge in the tapped direction (left or right)
-            Vector2 dodgeDir = new Vector2(direction, 0f);
+            Vector2 dodgeVelocity = new Vector2(direction, 0f);
             
             // Set velocity in dodge direction
-            Player.velocity = dodgeDir * DodgeSpeed;
+            Player.velocity = dodgeVelocity * DodgeSpeed;
             
             // Play dodge sound
             SoundEngine.PlaySound(SoundID.Item8 with { Pitch = 0.3f, Volume = 0.8f }, Player.Center);

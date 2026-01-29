@@ -127,6 +127,12 @@ namespace MagnumOpus.Content.Fate.Tools
         private int frameCounter = 0;
         private bool wasFlying = false;
         
+        // Direction constants for doubleTapCardinalTimer array
+        private const int DashDown = 0;
+        private const int DashUp = 1;
+        private const int DashLeft = 2;
+        private const int DashRight = 3;
+        
         public bool hasWingsEquipped = false;
         private int dodgeCooldown = 0;
         private const int DodgeCooldownMax = 15; // Fastest cooldown
@@ -134,11 +140,106 @@ namespace MagnumOpus.Content.Fate.Tools
         private bool isDodging = false;
         private int dodgeTimer = 0;
         private const int DodgeDuration = 10;
-        private int lastDodgeDirection = 0;
+        private int dashDir = -1;
 
         public override void ResetEffects()
         {
             hasWingsEquipped = false;
+            
+            int wingSlot = EquipLoader.GetEquipSlot(Mod, "SymphonyOfTheUniverse", EquipType.Wings);
+            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
+            
+            if (!hasWings && !hasWingsEquipped)
+            {
+                dashDir = -1;
+                return;
+            }
+            
+            if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[DashRight] < 15 && Player.doubleTapCardinalTimer[DashLeft] == 0)
+            {
+                dashDir = DashRight;
+            }
+            else if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[DashLeft] < 15 && Player.doubleTapCardinalTimer[DashRight] == 0)
+            {
+                dashDir = DashLeft;
+            }
+            else
+            {
+                dashDir = -1;
+            }
+        }
+        
+        public override void PreUpdateMovement()
+        {
+            int wingSlot = EquipLoader.GetEquipSlot(Mod, "SymphonyOfTheUniverse", EquipType.Wings);
+            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
+            
+            if (!hasWings && !hasWingsEquipped)
+                return;
+            
+            if (CanDodge() && dashDir != -1 && dodgeCooldown <= 0)
+            {
+                int direction = dashDir == DashLeft ? -1 : 1;
+                PerformDodge(direction);
+            }
+            
+            if (isDodging)
+            {
+                dodgeTimer++;
+                Player.immune = true;
+                Player.immuneTime = 2;
+                Player.immuneNoBlink = true;
+                
+                ThemedParticles.FateTrail(Player.Center, Player.velocity);
+                
+                for (int s = 0; s < 2; s++)
+                {
+                    var smoke = new HeavySmokeParticle(
+                        Player.Center + Main.rand.NextVector2Circular(15f, 15f),
+                        -Player.velocity * 0.15f + Main.rand.NextVector2Circular(2f, 2f),
+                        Color.Lerp(ThemedParticles.FateBlack, ThemedParticles.FateDarkPink, Main.rand.NextFloat(0.35f)),
+                        Main.rand.Next(30, 50), 0.4f, 0.55f, 0.02f, false);
+                    MagnumParticleHandler.SpawnParticle(smoke);
+                }
+                
+                for (int i = 0; i < 3; i++)
+                {
+                    Vector2 offset = new Vector2(i - 1, 0) * 3f;
+                    Color[] rgbColors = { new Color(255, 80, 100), new Color(200, 80, 160), new Color(100, 60, 140) };
+                    Dust trail = Dust.NewDustDirect(Player.position + offset, Player.width, Player.height, 
+                        DustID.Enchanted_Pink, -Player.velocity.X * 0.2f, -Player.velocity.Y * 0.2f, 100, rgbColors[i], 1.5f);
+                    trail.noGravity = true;
+                }
+                
+                if (dodgeTimer >= DodgeDuration)
+                {
+                    isDodging = false;
+                    dodgeTimer = 0;
+                    
+                    ThemedParticles.FateImpact(Player.Center, 1.2f);
+                    CustomParticles.GlyphCircle(Player.Center, ThemedParticles.FateDarkPink, 8, 50f, 0.04f);
+                    
+                    for (int i = 0; i < 6; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / 6f;
+                        Vector2 echoPos = Player.Center + angle.ToRotationVector2() * 40f;
+                        float progress = (float)i / 6f;
+                        Color echoColor = Color.Lerp(ThemedParticles.FateBrightRed, ThemedParticles.FateDarkPink, progress);
+                        CustomParticles.GenericFlare(echoPos, echoColor * 0.7f, 0.4f, 20);
+                    }
+                }
+            }
+            
+            if (dodgeCooldown > 0)
+                dodgeCooldown--;
+        }
+        
+        private bool CanDodge()
+        {
+            return (hasWingsEquipped || Player.wings == EquipLoader.GetEquipSlot(Mod, "SymphonyOfTheUniverse", EquipType.Wings))
+                && Player.dashType == DashID.None
+                && !Player.setSolar
+                && !Player.mount.Active;
         }
 
         public override void PostUpdate()
@@ -154,77 +255,6 @@ namespace MagnumOpus.Content.Fate.Tools
                 return;
             }
 
-            // Dodge cooldown tick
-            if (dodgeCooldown > 0)
-                dodgeCooldown--;
-            
-            // Handle dodge input - double-tap left/right like Shield of Cthulhu
-            if (dodgeCooldown <= 0 && !isDodging)
-            {
-                if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[2] < 15)
-                {
-                    PerformDodge(-1);
-                }
-                else if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[3] < 15)
-                {
-                    PerformDodge(1);
-                }
-            }
-            
-            // Handle ongoing dodge
-            if (isDodging)
-            {
-                dodgeTimer++;
-                Player.immune = true;
-                Player.immuneTime = 2;
-                Player.immuneNoBlink = true;
-                
-                // Cosmic reality-bending trail
-                ThemedParticles.FateTrail(Player.Center, Player.velocity);
-                
-                // === DARK COSMIC SMOKE - dodge reality tear ===
-                for (int s = 0; s < 2; s++)
-                {
-                    var smoke = new HeavySmokeParticle(
-                        Player.Center + Main.rand.NextVector2Circular(15f, 15f),
-                        -Player.velocity * 0.15f + Main.rand.NextVector2Circular(2f, 2f),
-                        Color.Lerp(ThemedParticles.FateBlack, ThemedParticles.FateDarkPink, Main.rand.NextFloat(0.35f)),
-                        Main.rand.Next(30, 50), 0.4f, 0.55f, 0.02f, false);
-                    MagnumParticleHandler.SpawnParticle(smoke);
-                }
-                
-                // Dark prismatic dust with chromatic separation
-                for (int i = 0; i < 3; i++)
-                {
-                    Vector2 offset = new Vector2(i - 1, 0) * 3f; // RGB separation
-                    Color[] rgbColors = { new Color(255, 80, 100), new Color(200, 80, 160), new Color(100, 60, 140) };
-                    Dust trail = Dust.NewDustDirect(Player.position + offset, Player.width, Player.height, 
-                        DustID.Enchanted_Pink, -Player.velocity.X * 0.2f, -Player.velocity.Y * 0.2f, 100, rgbColors[i], 1.5f);
-                    trail.noGravity = true;
-                }
-                
-                if (dodgeTimer >= DodgeDuration)
-                {
-                    isDodging = false;
-                    dodgeTimer = 0;
-                    
-                    // Reality-shattering cosmic burst
-                    ThemedParticles.FateImpact(Player.Center, 1.2f);
-                    CustomParticles.GlyphCircle(Player.Center, ThemedParticles.FateDarkPink, 8, 50f, 0.04f);
-                    
-                    // Temporal echoes at arrival
-                    for (int i = 0; i < 6; i++)
-                    {
-                        float angle = MathHelper.TwoPi * i / 6f;
-                        Vector2 echoPos = Player.Center + angle.ToRotationVector2() * 40f;
-                        float progress = (float)i / 6f;
-                        Color echoColor = Color.Lerp(ThemedParticles.FateBrightRed, ThemedParticles.FateDarkPink, progress);
-                        CustomParticles.GenericFlare(echoPos, echoColor * 0.7f, 0.4f, 20);
-                    }
-                }
-            }
-
-            // Wing animation logic
             bool isFlying = Player.controlJump && Player.velocity.Y != 0 && !Player.mount.Active;
             bool isOnGround = Player.velocity.Y == 0;
             
@@ -235,7 +265,7 @@ namespace MagnumOpus.Content.Fate.Tools
                 {
                     frameCounter = 0;
                     wingFrame++;
-                    if (wingFrame >= 36) // 6x6 = 36 frames
+                    if (wingFrame >= 36)
                         wingFrame = 0;
                 }
                 wasFlying = true;
@@ -258,20 +288,15 @@ namespace MagnumOpus.Content.Fate.Tools
             isDodging = true;
             dodgeTimer = 0;
             dodgeCooldown = DodgeCooldownMax;
-            lastDodgeDirection = direction;
             
-            Vector2 dodgeDir = new Vector2(direction, 0f);
-            Player.velocity = dodgeDir * DodgeSpeed;
+            Vector2 dodgeVelocity = new Vector2(direction, 0f);
+            Player.velocity = dodgeVelocity * DodgeSpeed;
             
             SoundEngine.PlaySound(SoundID.Item163 with { Pitch = 0.1f, Volume = 0.8f }, Player.Center);
             
-            // Reality-shattering cosmic burst at departure
             ThemedParticles.FateImpact(Player.Center, 2f);
-            
-            // Cosmic glyph circle with dark prismatic gradient
             CustomParticles.GlyphCircle(Player.Center, ThemedParticles.FateBrightRed, 10, 60f, 0.05f);
             
-            // Fractal flare burst with Fate gradient
             for (int i = 0; i < 10; i++)
             {
                 float angle = MathHelper.TwoPi * i / 10f;

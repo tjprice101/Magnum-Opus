@@ -203,7 +203,8 @@ namespace MagnumOpus.Content.Nachtmusik.Debuffs
                     // Echo explosion VFX
                     CustomParticles.GenericFlare(echo.Position, echo.EchoColor, 0.6f, 15);
                     CustomParticles.GenericFlare(echo.Position, NachtmusikCosmicVFX.StarWhite, 0.4f, 12);
-                    CustomParticles.HaloRing(echo.Position, echo.EchoColor * 0.7f, 0.35f, 14);
+                    var echoBurst = new StarBurstParticle(echo.Position, Vector2.Zero, echo.EchoColor * 0.7f, 0.3f, 14);
+                    MagnumParticleHandler.SpawnParticle(echoBurst);
                     
                     // Star sparkles
                     for (int j = 0; j < 6; j++)
@@ -226,12 +227,19 @@ namespace MagnumOpus.Content.Nachtmusik.Debuffs
             // === MASSIVE CELESTIAL EXPLOSION ===
             NachtmusikCosmicVFX.SpawnCelestialExplosion(npc.Center, 2f);
             
-            // Additional VFX layers
+            // Additional VFX layers - starburst cascade
             for (int ring = 0; ring < 10; ring++)
             {
                 float progress = ring / 10f;
-                Color ringColor = NachtmusikCosmicVFX.GetCelestialGradient(progress);
-                CustomParticles.HaloRing(npc.Center, ringColor, 0.5f + ring * 0.2f, 20 + ring * 3);
+                Color burstColor = NachtmusikCosmicVFX.GetCelestialGradient(progress);
+                var crescendoBurst = new StarBurstParticle(npc.Center, Vector2.Zero, burstColor, 0.45f + ring * 0.15f, 20 + ring * 3, ring % 2);
+                MagnumParticleHandler.SpawnParticle(crescendoBurst);
+                
+                // Shattered starlight fragments
+                float fragAngle = MathHelper.TwoPi * ring / 10f;
+                Vector2 fragVel = fragAngle.ToRotationVector2() * (8f + ring);
+                var fragment = new ShatteredStarlightParticle(npc.Center, fragVel, burstColor, 0.35f, 25, true, 0.08f);
+                MagnumParticleHandler.SpawnParticle(fragment);
             }
             
             // Lightning strikes in radius

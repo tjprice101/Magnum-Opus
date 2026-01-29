@@ -97,6 +97,12 @@ namespace MagnumOpus.Content.SwanLake.Tools
         private int frameCounter = 0;
         private bool wasFlying = false;
         
+        // Direction constants for doubleTapCardinalTimer array
+        private const int DashDown = 0;
+        private const int DashUp = 1;
+        private const int DashLeft = 2;
+        private const int DashRight = 3;
+        
         public bool hasWingsEquipped = false;
         private int dodgeCooldown = 0;
         private const int DodgeCooldownMax = 20;
@@ -104,41 +110,50 @@ namespace MagnumOpus.Content.SwanLake.Tools
         private bool isDodging = false;
         private int dodgeTimer = 0;
         private const int DodgeDuration = 9;
-        private int lastDodgeDirection = 0;
+        private int dashDir = -1; // -1 = none, DashLeft = left, DashRight = right
 
         public override void ResetEffects()
         {
             hasWingsEquipped = false;
+            
+            // ResetEffects is called right after doubleTapCardinalTimer values are set by vanilla
+            int wingSlot = EquipLoader.GetEquipSlot(Mod, "IridescentDawn", EquipType.Wings);
+            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
+            
+            if (!hasWings && !hasWingsEquipped)
+            {
+                dashDir = -1;
+                return;
+            }
+            
+            // Check for double-tap with opposite direction check to prevent conflicts
+            if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[DashRight] < 15 && Player.doubleTapCardinalTimer[DashLeft] == 0)
+            {
+                dashDir = DashRight;
+            }
+            else if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[DashLeft] < 15 && Player.doubleTapCardinalTimer[DashRight] == 0)
+            {
+                dashDir = DashLeft;
+            }
+            else
+            {
+                dashDir = -1;
+            }
         }
-
-        public override void PostUpdate()
+        
+        public override void PreUpdateMovement()
         {
             int wingSlot = EquipLoader.GetEquipSlot(Mod, "IridescentDawn", EquipType.Wings);
             bool hasWings = Player.wings == wingSlot && wingSlot > 0;
-
-            if (!hasWings && !hasWingsEquipped)
-            {
-                wingFrame = 0;
-                frameCounter = 0;
-                wasFlying = false;
-                return;
-            }
-
-            // Dodge cooldown tick
-            if (dodgeCooldown > 0)
-                dodgeCooldown--;
             
-            // Handle dodge input - double-tap left/right like Shield of Cthulhu
-            if (dodgeCooldown <= 0 && !isDodging)
+            if (!hasWings && !hasWingsEquipped)
+                return;
+            
+            // Check if we can start a new dodge
+            if (CanDodge() && dashDir != -1 && dodgeCooldown <= 0)
             {
-                if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[2] < 15)
-                {
-                    PerformDodge(-1);
-                }
-                else if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[3] < 15)
-                {
-                    PerformDodge(1);
-                }
+                int direction = dashDir == DashLeft ? -1 : 1;
+                PerformDodge(direction);
             }
             
             // Handle ongoing dodge
@@ -170,6 +185,32 @@ namespace MagnumOpus.Content.SwanLake.Tools
                     ThemedParticles.SwanLakeImpact(Player.Center, 1f);
                     ThemedParticles.SwanFeatherBurst(Player.Center, 8, 40f);
                 }
+            }
+            
+            // Dodge cooldown tick
+            if (dodgeCooldown > 0)
+                dodgeCooldown--;
+        }
+        
+        private bool CanDodge()
+        {
+            return (hasWingsEquipped || Player.wings == EquipLoader.GetEquipSlot(Mod, "IridescentDawn", EquipType.Wings))
+                && Player.dashType == DashID.None
+                && !Player.setSolar
+                && !Player.mount.Active;
+        }
+
+        public override void PostUpdate()
+        {
+            int wingSlot = EquipLoader.GetEquipSlot(Mod, "IridescentDawn", EquipType.Wings);
+            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
+
+            if (!hasWings && !hasWingsEquipped)
+            {
+                wingFrame = 0;
+                frameCounter = 0;
+                wasFlying = false;
+                return;
             }
 
             // Wing animation logic
@@ -206,10 +247,9 @@ namespace MagnumOpus.Content.SwanLake.Tools
             isDodging = true;
             dodgeTimer = 0;
             dodgeCooldown = DodgeCooldownMax;
-            lastDodgeDirection = direction;
             
-            Vector2 dodgeDir = new Vector2(direction, 0f);
-            Player.velocity = dodgeDir * DodgeSpeed;
+            Vector2 dodgeVelocity = new Vector2(direction, 0f);
+            Player.velocity = dodgeVelocity * DodgeSpeed;
             
             SoundEngine.PlaySound(SoundID.Item45 with { Pitch = 0.4f, Volume = 0.7f }, Player.Center);
             

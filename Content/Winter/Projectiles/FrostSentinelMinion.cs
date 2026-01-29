@@ -304,7 +304,9 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
                 // Main shatter VFX
                 CustomParticles.GenericFlare(target.Center, FrostWhite, 0.7f, 20);
-                CustomParticles.HaloRing(target.Center, IceBlue * 0.6f, 0.5f, 18);
+                // Frost sparkle burst (replacing banned HaloRing)
+                var frostSparkle = new SparkleParticle(target.Center, Vector2.Zero, IceBlue * 0.6f, 0.5f * 0.6f, 18);
+                MagnumParticleHandler.SpawnParticle(frostSparkle);
 
                 for (int i = 0; i < 10; i++)
                 {
@@ -356,7 +358,9 @@ namespace MagnumOpus.Content.Winter.Projectiles
         public override void OnKill(int timeLeft)
         {
             CustomParticles.GenericFlare(Projectile.Center, FrostWhite, 0.7f, 22);
-            CustomParticles.HaloRing(Projectile.Center, IceBlue * 0.6f, 0.45f, 18);
+            // Frost sparkle burst (replacing banned HaloRing)
+            var frostSparkle = new SparkleParticle(Projectile.Center, Vector2.Zero, IceBlue * 0.6f, 0.45f * 0.6f, 18);
+            MagnumParticleHandler.SpawnParticle(frostSparkle);
 
             for (int i = 0; i < 10; i++)
             {

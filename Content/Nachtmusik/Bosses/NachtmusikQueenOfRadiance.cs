@@ -487,11 +487,13 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                     MagnumScreenEffects.AddScreenShake(15f);
                 }
                 
-                // Expanding gold halos
+                // Expanding gold starbursts
                 if (Timer % 5 == 0)
                 {
-                    CustomParticles.HaloRing(NPC.Center, Gold, 0.3f + progress * 0.5f, 25);
-                    CustomParticles.HaloRing(NPC.Center, Violet, 0.2f + progress * 0.4f, 22);
+                    var goldBurst = new StarBurstParticle(NPC.Center, Vector2.Zero, Gold, 0.35f + progress * 0.4f, 25);
+                    MagnumParticleHandler.SpawnParticle(goldBurst);
+                    var violetBurst = new StarBurstParticle(NPC.Center, Vector2.Zero, Violet, 0.25f + progress * 0.35f, 22, 1);
+                    MagnumParticleHandler.SpawnParticle(violetBurst);
                 }
                 
                 // Star burst
@@ -521,9 +523,19 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                     
                     for (int i = 0; i < 16; i++)
                     {
-                        float scale = 0.2f + i * 0.1f;
+                        float scale = 0.25f + i * 0.08f;
                         Color color = Color.Lerp(Gold, Violet, i / 16f);
-                        CustomParticles.HaloRing(NPC.Center, color, scale, 20 + i * 2);
+                        var revealBurst = new StarBurstParticle(NPC.Center, Vector2.Zero, color, scale, 20 + i * 2, i % 2);
+                        MagnumParticleHandler.SpawnParticle(revealBurst);
+                        
+                        // Shattered starlight accents
+                        if (i % 3 == 0)
+                        {
+                            float angle = MathHelper.TwoPi * i / 16f;
+                            Vector2 fragVel = angle.ToRotationVector2() * 8f;
+                            var fragment = new ShatteredStarlightParticle(NPC.Center, fragVel, color, 0.3f, 25, true, 0.08f);
+                            MagnumParticleHandler.SpawnParticle(fragment);
+                        }
                     }
                     
                     // Glyphs and music notes
@@ -666,7 +678,8 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             // Arrival VFX
             SoundEngine.PlaySound(SoundID.Item8 with { Pitch = 0.4f }, NPC.Center);
             CustomParticles.GenericFlare(NPC.Center, Gold, 0.8f, 15);
-            CustomParticles.HaloRing(NPC.Center, Violet, 0.5f, 18);
+            var teleportBurst = new StarBurstParticle(NPC.Center, Vector2.Zero, Violet, 0.45f, 18);
+            MagnumParticleHandler.SpawnParticle(teleportBurst);
         }
         
         #endregion
@@ -707,7 +720,9 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 CustomParticles.GenericFlare(NPC.Center, StarWhite, 1.2f, 25);
                 for (int i = 0; i < 10; i++)
                 {
-                    CustomParticles.HaloRing(NPC.Center, Color.Lerp(DeepPurple, Gold, i / 10f), 0.3f + i * 0.1f, 18 + i * 2);
+                    Color burstColor = Color.Lerp(DeepPurple, Gold, i / 10f);
+                    var spawnBurst = new StarBurstParticle(NPC.Center, Vector2.Zero, burstColor, 0.3f + i * 0.08f, 18 + i * 2, i % 2);
+                    MagnumParticleHandler.SpawnParticle(spawnBurst);
                 }
             }
         }
@@ -1029,10 +1044,13 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                         CustomParticles.GenericFlare(spawnPos, StarWhite, 0.6f, 15);
                     }
                     
-                    // Connecting lines effect
+                    // Connecting constellation effect
                     for (int i = 0; i < 8; i++)
                     {
-                        CustomParticles.HaloRing(NPC.Center, Violet, 0.3f + i * 0.08f, 18);
+                        float constAngle = MathHelper.TwoPi * i / 8f;
+                        Vector2 constPos = NPC.Center + constAngle.ToRotationVector2() * (30f + i * 8f);
+                        var constBurst = new StarBurstParticle(constPos, Vector2.Zero, Violet, 0.2f + i * 0.04f, 18, i % 2);
+                        MagnumParticleHandler.SpawnParticle(constBurst);
                     }
                 }
                 
@@ -1260,7 +1278,15 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                     CustomParticles.GenericFlare(NPC.Center, StarWhite, 1.2f, 20);
                     for (int i = 0; i < 10; i++)
                     {
-                        CustomParticles.HaloRing(NPC.Center, Color.Lerp(Gold, Violet, i / 10f), 0.2f + i * 0.1f, 15 + i);
+                        Color radiantColor = Color.Lerp(Gold, Violet, i / 10f);
+                        var radiantBurst = new StarBurstParticle(NPC.Center, Vector2.Zero, radiantColor, 0.25f + i * 0.08f, 15 + i, i % 2);
+                        MagnumParticleHandler.SpawnParticle(radiantBurst);
+                        
+                        // Sparkle spray
+                        float sparkAngle = MathHelper.TwoPi * i / 10f;
+                        Vector2 sparkVel = sparkAngle.ToRotationVector2() * 5f;
+                        var spark = new GlowSparkParticle(NPC.Center, sparkVel, radiantColor, 0.2f, 18);
+                        MagnumParticleHandler.SpawnParticle(spark);
                     }
                     SoundEngine.PlaySound(SoundID.Item122, NPC.Center);
                 }
@@ -1342,12 +1368,19 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                         BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel, (int)(85 * Phase2DamageMult), Gold, 8f);
                     }
                     
-                    // Cascading halos
+                    // Cascading starbursts
                     CustomParticles.GenericFlare(NPC.Center, StarWhite, 1.5f, 25);
                     for (int i = 0; i < 12; i++)
                     {
                         Color color = Color.Lerp(DeepPurple, Gold, i / 12f);
-                        CustomParticles.HaloRing(NPC.Center, color, 0.3f + i * 0.12f, 18 + i * 2);
+                        var cascadeBurst = new StarBurstParticle(NPC.Center, Vector2.Zero, color, 0.35f + i * 0.1f, 18 + i * 2, i % 2);
+                        MagnumParticleHandler.SpawnParticle(cascadeBurst);
+                        
+                        // Shattered starlight fragments
+                        float fragAngle = MathHelper.TwoPi * i / 12f;
+                        Vector2 fragVel = fragAngle.ToRotationVector2() * 7f;
+                        var fragment = new ShatteredStarlightParticle(NPC.Center, fragVel, color, 0.25f, 22, true, 0.08f);
+                        MagnumParticleHandler.SpawnParticle(fragment);
                     }
                 }
                 
@@ -1490,7 +1523,9 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                     CustomParticles.GenericFlare(NPC.Center, StarWhite, 1.5f, 25);
                     for (int i = 0; i < 10; i++)
                     {
-                        CustomParticles.HaloRing(NPC.Center, Color.Lerp(DeepPurple, Gold, i / 10f), 0.3f + i * 0.1f, 18);
+                        Color finaleColor = Color.Lerp(DeepPurple, Gold, i / 10f);
+                        var finaleBurst = new StarBurstParticle(NPC.Center, Vector2.Zero, finaleColor, 0.35f + i * 0.08f, 18, i % 2);
+                        MagnumParticleHandler.SpawnParticle(finaleBurst);
                     }
                     MagnumScreenEffects.AddScreenShake(12f);
                 }
@@ -1630,9 +1665,16 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 
                 for (int ring = 0; ring < 20; ring++)
                 {
-                    float scale = 0.3f + ring * 0.15f;
+                    float scale = 0.35f + ring * 0.12f;
                     Color color = GetNachtmusikGradient(ring / 20f);
-                    CustomParticles.HaloRing(NPC.Center, color, scale, 25 + ring * 2);
+                    var deathBurst = new StarBurstParticle(NPC.Center, Vector2.Zero, color, scale, 25 + ring * 2, ring % 2);
+                    MagnumParticleHandler.SpawnParticle(deathBurst);
+                    
+                    // Massive shattered starlight spray
+                    float fragAngle = MathHelper.TwoPi * ring / 20f;
+                    Vector2 fragVel = fragAngle.ToRotationVector2() * (10f + ring * 0.5f);
+                    var fragment = new ShatteredStarlightParticle(NPC.Center, fragVel, color, 0.4f, 30, true, 0.06f);
+                    MagnumParticleHandler.SpawnParticle(fragment);
                 }
                 
                 // Radial star burst

@@ -109,6 +109,12 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
         private int frameCounter = 0;
         private bool wasFlying = false;
         
+        // Direction constants for doubleTapCardinalTimer array
+        private const int DashDown = 0;
+        private const int DashUp = 1;
+        private const int DashLeft = 2;
+        private const int DashRight = 3;
+        
         public bool hasWingsEquipped = false;
         private int dodgeCooldown = 0;
         private const int DodgeCooldownMax = 18;
@@ -116,11 +122,85 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
         private bool isDodging = false;
         private int dodgeTimer = 0;
         private const int DodgeDuration = 9;
-        private int lastDodgeDirection = 0;
+        private int dashDir = -1;
 
         public override void ResetEffects()
         {
             hasWingsEquipped = false;
+            
+            int wingSlot = EquipLoader.GetEquipSlot(Mod, "RiddlemastersFlight", EquipType.Wings);
+            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
+            
+            if (!hasWings && !hasWingsEquipped)
+            {
+                dashDir = -1;
+                return;
+            }
+            
+            if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[DashRight] < 15 && Player.doubleTapCardinalTimer[DashLeft] == 0)
+            {
+                dashDir = DashRight;
+            }
+            else if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[DashLeft] < 15 && Player.doubleTapCardinalTimer[DashRight] == 0)
+            {
+                dashDir = DashLeft;
+            }
+            else
+            {
+                dashDir = -1;
+            }
+        }
+        
+        public override void PreUpdateMovement()
+        {
+            int wingSlot = EquipLoader.GetEquipSlot(Mod, "RiddlemastersFlight", EquipType.Wings);
+            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
+            
+            if (!hasWings && !hasWingsEquipped)
+                return;
+            
+            if (CanDodge() && dashDir != -1 && dodgeCooldown <= 0)
+            {
+                int direction = dashDir == DashLeft ? -1 : 1;
+                PerformDodge(direction);
+            }
+            
+            if (isDodging)
+            {
+                dodgeTimer++;
+                Player.immune = true;
+                Player.immuneTime = 2;
+                Player.immuneNoBlink = true;
+                
+                ThemedParticles.EnigmaTrail(Player.Center, Player.velocity);
+                
+                for (int i = 0; i < 2; i++)
+                {
+                    Dust trail = Dust.NewDustDirect(Player.position, Player.width, Player.height, 
+                        DustID.GreenTorch, -Player.velocity.X * 0.2f, -Player.velocity.Y * 0.2f, 100, default, 1.4f);
+                    trail.noGravity = true;
+                }
+                
+                if (dodgeTimer >= DodgeDuration)
+                {
+                    isDodging = false;
+                    dodgeTimer = 0;
+                    
+                    ThemedParticles.EnigmaImpact(Player.Center, 1f);
+                    CustomParticles.GlyphBurst(Player.Center, ThemedParticles.EnigmaPurple, 6, 4f);
+                }
+            }
+            
+            if (dodgeCooldown > 0)
+                dodgeCooldown--;
+        }
+        
+        private bool CanDodge()
+        {
+            return (hasWingsEquipped || Player.wings == EquipLoader.GetEquipSlot(Mod, "RiddlemastersFlight", EquipType.Wings))
+                && Player.dashType == DashID.None
+                && !Player.setSolar
+                && !Player.mount.Active;
         }
 
         public override void PostUpdate()
@@ -136,54 +216,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
                 return;
             }
 
-            // Dodge cooldown tick
-            if (dodgeCooldown > 0)
-                dodgeCooldown--;
-            
-            // Handle dodge input - double-tap left/right like Shield of Cthulhu
-            if (dodgeCooldown <= 0 && !isDodging)
-            {
-                if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[2] < 15)
-                {
-                    PerformDodge(-1);
-                }
-                else if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[3] < 15)
-                {
-                    PerformDodge(1);
-                }
-            }
-            
-            // Handle ongoing dodge
-            if (isDodging)
-            {
-                dodgeTimer++;
-                Player.immune = true;
-                Player.immuneTime = 2;
-                Player.immuneNoBlink = true;
-                
-                // Mysterious trail with green flame
-                ThemedParticles.EnigmaTrail(Player.Center, Player.velocity);
-                
-                // Green flame dust trail
-                for (int i = 0; i < 2; i++)
-                {
-                    Dust trail = Dust.NewDustDirect(Player.position, Player.width, Player.height, 
-                        DustID.GreenTorch, -Player.velocity.X * 0.2f, -Player.velocity.Y * 0.2f, 100, default, 1.4f);
-                    trail.noGravity = true;
-                }
-                
-                if (dodgeTimer >= DodgeDuration)
-                {
-                    isDodging = false;
-                    dodgeTimer = 0;
-                    
-                    // Mysterious burst with eyes watching
-                    ThemedParticles.EnigmaImpact(Player.Center, 1f);
-                    CustomParticles.GlyphBurst(Player.Center, ThemedParticles.EnigmaPurple, 6, 4f);
-                }
-            }
-
-            // Wing animation logic
             bool isFlying = Player.controlJump && Player.velocity.Y != 0 && !Player.mount.Active;
             bool isOnGround = Player.velocity.Y == 0;
             
@@ -194,7 +226,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
                 {
                     frameCounter = 0;
                     wingFrame++;
-                    if (wingFrame >= 36) // 6x6 = 36 frames
+                    if (wingFrame >= 36)
                         wingFrame = 0;
                 }
                 wasFlying = true;
@@ -217,18 +249,14 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
             isDodging = true;
             dodgeTimer = 0;
             dodgeCooldown = DodgeCooldownMax;
-            lastDodgeDirection = direction;
             
-            Vector2 dodgeDir = new Vector2(direction, 0f);
-            Player.velocity = dodgeDir * DodgeSpeed;
+            Vector2 dodgeVelocity = new Vector2(direction, 0f);
+            Player.velocity = dodgeVelocity * DodgeSpeed;
             
             SoundEngine.PlaySound(SoundID.Item103 with { Pitch = -0.2f, Volume = 0.7f }, Player.Center);
             
-            // Enigmatic burst with glyphs
             ThemedParticles.EnigmaImpact(Player.Center, 1.5f);
             CustomParticles.GlyphCircle(Player.Center, ThemedParticles.EnigmaGreenFlame, 6, 40f, 0.03f);
-            
-            // Watching eyes spawn at departure point
             CustomParticles.EnigmaEyeFormation(Player.Center, ThemedParticles.EnigmaPurple * 0.8f, 3, 35f);
         }
         

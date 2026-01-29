@@ -111,11 +111,12 @@ namespace MagnumOpus.Content.Nachtmusik.SummonItems
                 CustomParticles.GenericFlare(pos, color, 0.4f + progress * 0.3f, 20);
             }
             
-            // Expanding halos at spawn
+            // Expanding starbursts at spawn
             for (int i = 0; i < 8; i++)
             {
                 Color color = Color.Lerp(Violet, Gold, i / 8f);
-                CustomParticles.HaloRing(spawnPos, color, 0.3f + i * 0.1f, 18 + i * 2);
+                var summonBurst = new StarBurstParticle(spawnPos, Vector2.Zero, color, 0.35f + i * 0.08f, 18 + i * 2, i % 2);
+                MagnumParticleHandler.SpawnParticle(summonBurst);
             }
             
             // Star particles at player

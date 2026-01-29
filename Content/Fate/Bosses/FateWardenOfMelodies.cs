@@ -404,9 +404,19 @@ namespace MagnumOpus.Content.Fate.Bosses
             // Arrival VFX
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.4f }, NPC.Center);
             CustomParticles.GenericFlare(NPC.Center, FateWhite, 1.5f, 28);
+            // Cascading star burst arrival effect
             for (int i = 0; i < 6; i++)
             {
-                CustomParticles.HaloRing(NPC.Center, GetCosmicGradient(i / 6f), 0.3f + i * 0.12f, 15 + i * 3);
+                float progress = i / 6f;
+                int starsInRing = 6 + i;
+                for (int star = 0; star < starsInRing; star++)
+                {
+                    float angle = MathHelper.TwoPi * star / starsInRing + i * 0.3f;
+                    Vector2 starPos = NPC.Center + angle.ToRotationVector2() * (25f + i * 12f);
+                    Vector2 outVel = angle.ToRotationVector2() * (1.5f + i * 0.3f);
+                    var starBurst = new StarBurstParticle(starPos, outVel, GetCosmicGradient(progress), 0.25f + i * 0.04f, 15 + i * 3);
+                    MagnumParticleHandler.SpawnParticle(starBurst);
+                }
             }
             CustomParticles.GlyphBurst(NPC.Center, FateDarkPink, 8, 6f);
         }
@@ -447,9 +457,19 @@ namespace MagnumOpus.Content.Fate.Bosses
                 // Grand entrance explosion
                 MagnumScreenEffects.AddScreenShake(25f);
                 CustomParticles.GenericFlare(NPC.Center, FateWhite, 2f, 30);
+                // Cascading star burst entrance explosion
                 for (int i = 0; i < 12; i++)
                 {
-                    CustomParticles.HaloRing(NPC.Center, GetCosmicGradient(i / 12f), 0.25f + i * 0.2f, 18 + i * 4);
+                    float progress = i / 12f;
+                    int starsInRing = 8 + i;
+                    for (int star = 0; star < starsInRing; star++)
+                    {
+                        float angle = MathHelper.TwoPi * star / starsInRing + i * 0.25f;
+                        Vector2 starPos = NPC.Center + angle.ToRotationVector2() * (30f + i * 18f);
+                        Vector2 outVel = angle.ToRotationVector2() * (2f + i * 0.5f);
+                        var starBurst = new StarBurstParticle(starPos, outVel, GetCosmicGradient(progress), 0.25f + i * 0.05f, 18 + i * 4);
+                        MagnumParticleHandler.SpawnParticle(starBurst);
+                    }
                 }
                 CustomParticles.GlyphBurst(NPC.Center, FateBrightRed, 12, 8f);
             }
@@ -851,8 +871,9 @@ namespace MagnumOpus.Content.Fate.Bosses
                         CustomParticles.GenericFlare(spawnPos, FateDarkPink, 0.5f, 12);
                     }
                     
-                    // Central warning
-                    CustomParticles.HaloRing(target.Center, FateBrightRed * 0.6f, 0.4f, 15);
+                    // Central warning - cosmic glyph flash instead of halo
+                    CustomParticles.GenericFlare(target.Center, FateBrightRed * 0.6f, 0.6f, 15);
+                    CustomParticles.Glyph(target.Center, FateBrightRed * 0.7f, 0.5f, -1);
                 }
                 
                 if (Timer >= 21) EndAttack();
@@ -1176,10 +1197,19 @@ namespace MagnumOpus.Content.Fate.Bosses
                         }
                     }
                     
-                    // Cascading halos
+                    // Cascading cosmic star burst
                     for (int i = 0; i < 8; i++)
                     {
-                        CustomParticles.HaloRing(NPC.Center, GetCosmicGradient(i / 8f), 0.35f + i * 0.15f, 16 + i * 4);
+                        float progress = i / 8f;
+                        int starsInRing = 6 + i;
+                        for (int star = 0; star < starsInRing; star++)
+                        {
+                            float angle = MathHelper.TwoPi * star / starsInRing + i * 0.2f;
+                            Vector2 starPos = NPC.Center + angle.ToRotationVector2() * (30f + i * 15f);
+                            Vector2 outVel = angle.ToRotationVector2() * (2f + i * 0.4f);
+                            var starBurst = new StarBurstParticle(starPos, outVel, GetCosmicGradient(progress), 0.3f + i * 0.05f, 16 + i * 4);
+                            MagnumParticleHandler.SpawnParticle(starBurst);
+                        }
                     }
                     
                     // Glyph explosion
@@ -1239,7 +1269,14 @@ namespace MagnumOpus.Content.Fate.Bosses
             if (Timer % 12 == 0)
             {
                 CustomParticles.Glyph(vortexCenter, FateBrightRed, 0.6f, -1);
-                CustomParticles.HaloRing(vortexCenter, FateDarkPink * 0.5f, 0.4f, 15);
+                // Orbiting cosmic sparkles instead of halo
+                for (int i = 0; i < 6; i++)
+                {
+                    float sparkAngle = MathHelper.TwoPi * i / 6f + Timer * 0.05f;
+                    Vector2 sparkPos = vortexCenter + sparkAngle.ToRotationVector2() * 35f;
+                    var sparkle = new SparkleParticle(sparkPos, sparkAngle.ToRotationVector2() * 1f, FateDarkPink * 0.7f, 0.35f, 18);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
             }
             
             // Spawn projectiles from vortex edge
@@ -1364,10 +1401,25 @@ namespace MagnumOpus.Content.Fate.Bosses
                         }
                     }
                     
-                    // Epic cascading halos
+                    // Epic cascading cosmic star burst
                     for (int i = 0; i < 12; i++)
                     {
-                        CustomParticles.HaloRing(NPC.Center, GetCosmicGradient(i / 12f), 0.3f + i * 0.2f, 18 + i * 5);
+                        float progress = i / 12f;
+                        int starsInRing = 8 + i;
+                        for (int star = 0; star < starsInRing; star++)
+                        {
+                            float angle = MathHelper.TwoPi * star / starsInRing + i * 0.2f;
+                            Vector2 starPos = NPC.Center + angle.ToRotationVector2() * (35f + i * 20f);
+                            Vector2 outVel = angle.ToRotationVector2() * (2.5f + i * 0.6f);
+                            var starBurst = new StarBurstParticle(starPos, outVel, GetCosmicGradient(progress), 0.35f + i * 0.06f, 18 + i * 5);
+                            MagnumParticleHandler.SpawnParticle(starBurst);
+                            
+                            if (star % 3 == 0)
+                            {
+                                var shatter = new ShatteredStarlightParticle(starPos, outVel * 0.6f, GetCosmicGradient(progress) * 0.8f, 0.25f, 22 + i * 3);
+                                MagnumParticleHandler.SpawnParticle(shatter);
+                            }
+                        }
                     }
                     
                     CustomParticles.GlyphBurst(NPC.Center, FateBrightRed, 16, 10f);
@@ -1575,11 +1627,19 @@ namespace MagnumOpus.Content.Fate.Bosses
                     }
                 }
                 
-                // Cascading halo rings
+                // Cascading cosmic star burst during awakening
                 if (awakeningTimer % 10 == 0)
                 {
                     int ringIndex = (awakeningTimer - 150) / 10;
-                    CustomParticles.HaloRing(NPC.Center, GetCosmicGradient(ringIndex / 9f), 0.4f + ringIndex * 0.15f, 25);
+                    int starsInRing = 6 + ringIndex;
+                    for (int star = 0; star < starsInRing; star++)
+                    {
+                        float angle = MathHelper.TwoPi * star / starsInRing + ringIndex * 0.25f;
+                        Vector2 starPos = NPC.Center + angle.ToRotationVector2() * (35f + ringIndex * 15f);
+                        Vector2 outVel = angle.ToRotationVector2() * (2f + ringIndex * 0.4f);
+                        var starBurst = new StarBurstParticle(starPos, outVel, GetCosmicGradient(ringIndex / 9f), 0.35f + ringIndex * 0.05f, 25);
+                        MagnumParticleHandler.SpawnParticle(starBurst);
+                    }
                 }
                 
                 MagnumScreenEffects.AddScreenShake(12f + emergenceProgress * 20f);
@@ -1608,10 +1668,26 @@ namespace MagnumOpus.Content.Fate.Bosses
                     CustomParticles.GenericFlare(NPC.Center, FateWhite, 4f, 45);
                     CustomParticles.GenericFlare(NPC.Center, FateBrightRed, 3f, 40);
                     
-                    // 20 cascading halos
+                    // 20 cascading cosmic star bursts - the grand rebirth explosion
                     for (int i = 0; i < 20; i++)
                     {
-                        CustomParticles.HaloRing(NPC.Center, GetCosmicGradient(i / 20f), 0.4f + i * 0.2f, 25 + i * 4);
+                        float progress = i / 20f;
+                        int starsInRing = 8 + i;
+                        for (int star = 0; star < starsInRing; star++)
+                        {
+                            float angle = MathHelper.TwoPi * star / starsInRing + i * 0.18f;
+                            Vector2 starPos = NPC.Center + angle.ToRotationVector2() * (40f + i * 22f);
+                            Vector2 outVel = angle.ToRotationVector2() * (3f + i * 0.7f);
+                            var starBurst = new StarBurstParticle(starPos, outVel, GetCosmicGradient(progress), 0.4f + i * 0.06f, 25 + i * 4);
+                            MagnumParticleHandler.SpawnParticle(starBurst);
+                            
+                            // Extra shattered starlight for ultimate spectacle
+                            if (star % 2 == 0)
+                            {
+                                var shatter = new ShatteredStarlightParticle(starPos, outVel * 0.5f, GetCosmicGradient(progress) * 0.85f, 0.3f, 30 + i * 3);
+                                MagnumParticleHandler.SpawnParticle(shatter);
+                            }
+                        }
                     }
                     
                     // Massive glyph explosion
@@ -1718,12 +1794,35 @@ namespace MagnumOpus.Content.Fate.Bosses
                 MagnumScreenEffects.AddScreenShake(30f);
                 SoundEngine.PlaySound(SoundID.Item122 with { Volume = 2f, Pitch = -0.3f }, NPC.Center);
                 
-                // Massive cosmic explosion
+                // Massive cosmic explosion - white core flash
                 CustomParticles.GenericFlare(NPC.Center, FateWhite, 3f, 40);
+                CustomParticles.GenericFlare(NPC.Center, FateDarkPink, 2.5f, 35);
+                CustomParticles.GenericFlare(NPC.Center, FateBrightRed, 2f, 30);
                 
-                for (int i = 0; i < 16; i++)
+                // Cascading star burst explosion (replacing banned HaloRing)
+                for (int ring = 0; ring < 16; ring++)
                 {
-                    CustomParticles.HaloRing(NPC.Center, GetCosmicGradient(i / 16f), 0.3f + i * 0.25f, 20 + i * 5);
+                    Color ringColor = GetCosmicGradient(ring / 16f);
+                    float radius = 40f + ring * 30f;
+                    int starsInRing = 8 + ring;
+                    
+                    for (int star = 0; star < starsInRing; star++)
+                    {
+                        float angle = MathHelper.TwoPi * star / starsInRing + ring * 0.3f;
+                        Vector2 starPos = NPC.Center + angle.ToRotationVector2() * radius;
+                        Vector2 outVel = angle.ToRotationVector2() * (3f + ring * 0.5f);
+                        
+                        // Star burst particle
+                        var starBurst = new StarBurstParticle(starPos, outVel, ringColor, 0.4f + ring * 0.05f, 25 + ring * 3);
+                        MagnumParticleHandler.SpawnParticle(starBurst);
+                        
+                        // Shattered starlight for extra shimmer
+                        if (star % 2 == 0)
+                        {
+                            var shatter = new ShatteredStarlightParticle(starPos, outVel * 0.5f, ringColor * 0.8f, 0.3f, 30 + ring * 2);
+                            MagnumParticleHandler.SpawnParticle(shatter);
+                        }
+                    }
                 }
                 
                 CustomParticles.GlyphBurst(NPC.Center, FateBrightRed, 20, 12f);
@@ -1744,6 +1843,12 @@ namespace MagnumOpus.Content.Fate.Bosses
                 bool isFirstKill = !MoonlightSonataSystem.FateBossKilledOnce;
                 BossDialogueSystem.Fate.OnDeath(isFirstKill);
                 BossDialogueSystem.CleanupDialogue(NPC.whoAmI);
+                
+                // CRITICAL: Trigger first kill rewards (Nachtmusik ore spawn + messages)
+                if (isFirstKill && Main.netMode != NetmodeID.MultiplayerClient)
+                {
+                    MoonlightSonataSystem.OnFirstFateBossKill();
+                }
                 
                 // Deactivate the cosmic Fate sky effect
                 if (!Main.dedServ && SkyManager.Instance["MagnumOpus:FateSky"] != null)

@@ -92,6 +92,12 @@ namespace MagnumOpus.Content.LaCampanella.Tools
         private int frameCounter = 0;
         private bool wasFlying = false;
         
+        // Direction constants for doubleTapCardinalTimer array
+        private const int DashDown = 0;
+        private const int DashUp = 1;
+        private const int DashLeft = 2;
+        private const int DashRight = 3;
+        
         public bool hasWingsEquipped = false;
         private int dodgeCooldown = 0;
         private const int DodgeCooldownMax = 22;
@@ -99,11 +105,85 @@ namespace MagnumOpus.Content.LaCampanella.Tools
         private bool isDodging = false;
         private int dodgeTimer = 0;
         private const int DodgeDuration = 8;
-        private int lastDodgeDirection = 0;
+        private int dashDir = -1;
 
         public override void ResetEffects()
         {
             hasWingsEquipped = false;
+            
+            int wingSlot = EquipLoader.GetEquipSlot(Mod, "WingsOfTheBellbornDawn", EquipType.Wings);
+            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
+            
+            if (!hasWings && !hasWingsEquipped)
+            {
+                dashDir = -1;
+                return;
+            }
+            
+            if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[DashRight] < 15 && Player.doubleTapCardinalTimer[DashLeft] == 0)
+            {
+                dashDir = DashRight;
+            }
+            else if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[DashLeft] < 15 && Player.doubleTapCardinalTimer[DashRight] == 0)
+            {
+                dashDir = DashLeft;
+            }
+            else
+            {
+                dashDir = -1;
+            }
+        }
+        
+        public override void PreUpdateMovement()
+        {
+            int wingSlot = EquipLoader.GetEquipSlot(Mod, "WingsOfTheBellbornDawn", EquipType.Wings);
+            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
+            
+            if (!hasWings && !hasWingsEquipped)
+                return;
+            
+            if (CanDodge() && dashDir != -1 && dodgeCooldown <= 0)
+            {
+                int direction = dashDir == DashLeft ? -1 : 1;
+                PerformDodge(direction);
+            }
+            
+            if (isDodging)
+            {
+                dodgeTimer++;
+                Player.immune = true;
+                Player.immuneTime = 2;
+                Player.immuneNoBlink = true;
+                
+                ThemedParticles.DodgeTrail(Player.Center, Player.velocity, false);
+                
+                for (int i = 0; i < 3; i++)
+                {
+                    Dust trail = Dust.NewDustDirect(Player.position, Player.width, Player.height, 
+                        DustID.Torch, -Player.velocity.X * 0.2f, -Player.velocity.Y * 0.2f, 100, default, 1.5f);
+                    trail.noGravity = true;
+                }
+                
+                if (dodgeTimer >= DodgeDuration)
+                {
+                    isDodging = false;
+                    dodgeTimer = 0;
+                    
+                    ThemedParticles.LaCampanellaImpact(Player.Center, 1f);
+                    SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.5f, Volume = 0.6f }, Player.Center);
+                }
+            }
+            
+            if (dodgeCooldown > 0)
+                dodgeCooldown--;
+        }
+        
+        private bool CanDodge()
+        {
+            return (hasWingsEquipped || Player.wings == EquipLoader.GetEquipSlot(Mod, "WingsOfTheBellbornDawn", EquipType.Wings))
+                && Player.dashType == DashID.None
+                && !Player.setSolar
+                && !Player.mount.Active;
         }
 
         public override void PostUpdate()
@@ -119,54 +199,6 @@ namespace MagnumOpus.Content.LaCampanella.Tools
                 return;
             }
 
-            // Dodge cooldown tick
-            if (dodgeCooldown > 0)
-                dodgeCooldown--;
-            
-            // Handle dodge input - double-tap left/right like Shield of Cthulhu
-            if (dodgeCooldown <= 0 && !isDodging)
-            {
-                if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[2] < 15)
-                {
-                    PerformDodge(-1);
-                }
-                else if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[3] < 15)
-                {
-                    PerformDodge(1);
-                }
-            }
-            
-            // Handle ongoing dodge
-            if (isDodging)
-            {
-                dodgeTimer++;
-                Player.immune = true;
-                Player.immuneTime = 2;
-                Player.immuneNoBlink = true;
-                
-                // Infernal trail with smoke
-                ThemedParticles.DodgeTrail(Player.Center, Player.velocity, false);
-                
-                // Fire dust trail
-                for (int i = 0; i < 3; i++)
-                {
-                    Dust trail = Dust.NewDustDirect(Player.position, Player.width, Player.height, 
-                        DustID.Torch, -Player.velocity.X * 0.2f, -Player.velocity.Y * 0.2f, 100, default, 1.5f);
-                    trail.noGravity = true;
-                }
-                
-                if (dodgeTimer >= DodgeDuration)
-                {
-                    isDodging = false;
-                    dodgeTimer = 0;
-                    
-                    // Bell chime burst on dodge end
-                    ThemedParticles.LaCampanellaImpact(Player.Center, 1f);
-                    SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.5f, Volume = 0.6f }, Player.Center);
-                }
-            }
-
-            // Wing animation logic
             bool isFlying = Player.controlJump && Player.velocity.Y != 0 && !Player.mount.Active;
             bool isOnGround = Player.velocity.Y == 0;
             
@@ -177,7 +209,7 @@ namespace MagnumOpus.Content.LaCampanella.Tools
                 {
                     frameCounter = 0;
                     wingFrame++;
-                    if (wingFrame >= 36) // 6x6 = 36 frames
+                    if (wingFrame >= 36)
                         wingFrame = 0;
                 }
                 wasFlying = true;
@@ -200,14 +232,12 @@ namespace MagnumOpus.Content.LaCampanella.Tools
             isDodging = true;
             dodgeTimer = 0;
             dodgeCooldown = DodgeCooldownMax;
-            lastDodgeDirection = direction;
             
-            Vector2 dodgeDir = new Vector2(direction, 0f);
-            Player.velocity = dodgeDir * DodgeSpeed;
+            Vector2 dodgeVelocity = new Vector2(direction, 0f);
+            Player.velocity = dodgeVelocity * DodgeSpeed;
             
             SoundEngine.PlaySound(SoundID.Item74 with { Pitch = 0.2f, Volume = 0.8f }, Player.Center);
             
-            // Infernal burst
             ThemedParticles.LaCampanellaImpact(Player.Center, 1.5f);
             ThemedParticles.TeleportBurst(Player.Center, false);
         }
