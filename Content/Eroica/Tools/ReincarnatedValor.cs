@@ -88,6 +88,7 @@ namespace MagnumOpus.Content.Eroica.Tools
         private bool isDodging = false;
         private int dodgeTimer = 0;
         private const int DodgeDuration = 8;
+        private int lastDodgeDirection = 0; // -1 = left, 1 = right
 
         public override void ResetEffects()
         {
@@ -111,12 +112,17 @@ namespace MagnumOpus.Content.Eroica.Tools
             if (dodgeCooldown > 0)
                 dodgeCooldown--;
             
-            // Handle dodge input - right click (only when no UI is open)
-            bool canDodge = !Main.playerInventory && !Main.ingameOptionsWindow && !Main.inFancyUI && 
-                           !Main.mapFullscreen && !Main.editChest && !Main.editSign;
-            if (canDodge && Main.mouseRight && Main.mouseRightRelease && dodgeCooldown <= 0 && !isDodging)
+            // Handle dodge input - double-tap left/right like Shield of Cthulhu
+            if (dodgeCooldown <= 0 && !isDodging)
             {
-                PerformDodge();
+                if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[2] < 15)
+                {
+                    PerformDodge(-1);
+                }
+                else if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[3] < 15)
+                {
+                    PerformDodge(1);
+                }
             }
             
             // Handle ongoing dodge
@@ -183,14 +189,15 @@ namespace MagnumOpus.Content.Eroica.Tools
             }
         }
 
-        private void PerformDodge()
+        private void PerformDodge(int direction)
         {
             isDodging = true;
             dodgeTimer = 0;
             dodgeCooldown = DodgeCooldownMax;
+            lastDodgeDirection = direction;
             
-            Vector2 dodgeDirection = (Main.MouseWorld - Player.Center).SafeNormalize(Vector2.UnitX);
-            Player.velocity = dodgeDirection * DodgeSpeed;
+            Vector2 dodgeDir = new Vector2(direction, 0f);
+            Player.velocity = dodgeDir * DodgeSpeed;
             
             SoundEngine.PlaySound(SoundID.Item71 with { Pitch = 0.3f, Volume = 0.8f }, Player.Center);
             

@@ -1,0 +1,280 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
+using Terraria;
+using Terraria.ID;
+using Terraria.ModLoader;
+using Terraria.GameContent;
+using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
+
+namespace MagnumOpus.Content.Summer.Projectiles
+{
+    /// <summary>
+    /// Solar Orb Projectile - Rapid fire orb from Solstice Tome
+    /// Explodes on impact
+    /// </summary>
+    public class SolarOrbProjectile : ModProjectile
+    {
+        private static readonly Color SunGold = new Color(255, 215, 0);
+        private static readonly Color SunOrange = new Color(255, 140, 0);
+        private static readonly Color SunWhite = new Color(255, 250, 240);
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 8;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
+
+        public override void SetDefaults()
+        {
+            Projectile.width = 14;
+            Projectile.height = 14;
+            Projectile.friendly = true;
+            Projectile.hostile = false;
+            Projectile.DamageType = DamageClass.Magic;
+            Projectile.penetrate = 1;
+            Projectile.timeLeft = 120;
+            Projectile.light = 0.4f;
+            Projectile.tileCollide = true;
+            Projectile.ignoreWater = true;
+            Projectile.alpha = 0;
+        }
+
+        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.SolarWhipSwordExplosion;
+
+        public override void AI()
+        {
+            Projectile.rotation += 0.15f;
+
+            // Trail particles
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 trailPos = Projectile.Center + Main.rand.NextVector2Circular(5f, 5f);
+                Vector2 trailVel = -Projectile.velocity * 0.08f + Main.rand.NextVector2Circular(1.5f, 1.5f);
+                Color trailColor = Color.Lerp(SunGold, SunOrange, Main.rand.NextFloat()) * 0.65f;
+                var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.28f, 18, true);
+                MagnumParticleHandler.SpawnParticle(trail);
+            }
+
+            // Fire dust
+            if (Main.rand.NextBool(4))
+            {
+                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.SolarFlare, -Projectile.velocity * 0.1f, 0, SunOrange, 0.9f);
+                dust.noGravity = true;
+            }
+
+            Lighting.AddLight(Projectile.Center, SunGold.ToVector3() * 0.45f);
+        }
+
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            target.AddBuff(BuffID.OnFire3, 90);
+        }
+
+        public override void OnKill(int timeLeft)
+        {
+            // Explosion VFX
+            CustomParticles.GenericFlare(Projectile.Center, SunGold, 0.6f, 18);
+            CustomParticles.HaloRing(Projectile.Center, SunOrange * 0.5f, 0.35f, 14);
+
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
+                Color burstColor = Color.Lerp(SunGold, SunOrange, Main.rand.NextFloat());
+                var burst = new GenericGlowParticle(Projectile.Center, burstVel, burstColor * 0.65f, 0.28f, 18, true);
+                MagnumParticleHandler.SpawnParticle(burst);
+            }
+
+            // Fire dust burst
+            for (int i = 0; i < 6; i++)
+            {
+                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.SolarFlare, Main.rand.NextVector2Circular(5f, 5f), 0, SunOrange, 1.1f);
+                dust.noGravity = true;
+            }
+        }
+
+        public override bool PreDraw(ref Color lightColor)
+        {
+            Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
+            Vector2 origin = texture.Size() / 2f;
+
+            SpriteBatch spriteBatch = Main.spriteBatch;
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Trail
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                float progress = (float)i / Projectile.oldPos.Length;
+                float trailAlpha = 1f - progress;
+                Color trailColor = Color.Lerp(SunGold, SunOrange, progress) * trailAlpha * 0.5f;
+                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                spriteBatch.Draw(texture, trailPos, null, trailColor, Projectile.oldRot[i], origin, 0.35f * (1f - progress * 0.4f), SpriteEffects.None, 0f);
+            }
+
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.08f + 1f;
+
+            spriteBatch.Draw(texture, drawPos, null, SunGold * 0.4f, Projectile.rotation, origin, 0.4f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, drawPos, null, SunOrange * 0.5f, Projectile.rotation, origin, 0.28f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, drawPos, null, SunWhite * 0.6f, Projectile.rotation, origin, 0.16f * pulse, SpriteEffects.None, 0f);
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Sunbeam Projectile - Charged beam from Solstice Tome
+    /// </summary>
+    public class SunbeamProjectile : ModProjectile
+    {
+        private static readonly Color SunGold = new Color(255, 215, 0);
+        private static readonly Color SunOrange = new Color(255, 140, 0);
+        private static readonly Color SunWhite = new Color(255, 250, 240);
+        private static readonly Color SunRed = new Color(255, 100, 50);
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 20;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
+
+        public override void SetDefaults()
+        {
+            Projectile.width = 24;
+            Projectile.height = 24;
+            Projectile.friendly = true;
+            Projectile.hostile = false;
+            Projectile.DamageType = DamageClass.Magic;
+            Projectile.penetrate = 10;
+            Projectile.timeLeft = 90;
+            Projectile.light = 0.9f;
+            Projectile.tileCollide = true;
+            Projectile.ignoreWater = true;
+            Projectile.alpha = 0;
+            Projectile.extraUpdates = 2;
+        }
+
+        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.SolarWhipSwordExplosion;
+
+        public override void AI()
+        {
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
+
+            // Intense trail
+            for (int i = 0; i < 2; i++)
+            {
+                Vector2 trailPos = Projectile.Center + Main.rand.NextVector2Circular(8f, 8f);
+                Vector2 trailVel = -Projectile.velocity * 0.05f + Main.rand.NextVector2Circular(2f, 2f);
+                Color trailColor = Color.Lerp(SunGold, SunWhite, Main.rand.NextFloat()) * 0.7f;
+                var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.4f, 20, true);
+                MagnumParticleHandler.SpawnParticle(trail);
+            }
+
+            // Fire dust
+            Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.SolarFlare, -Projectile.velocity * 0.08f, 0, SunOrange, 1.3f);
+            dust.noGravity = true;
+
+            // Side sparks
+            if (Projectile.timeLeft % 3 == 0)
+            {
+                for (int side = -1; side <= 1; side += 2)
+                {
+                    Vector2 perpDir = Projectile.velocity.RotatedBy(MathHelper.PiOver2 * side).SafeNormalize(Vector2.Zero);
+                    Vector2 sparkPos = Projectile.Center + perpDir * 10f;
+                    CustomParticles.GenericFlare(sparkPos, SunGold * 0.6f, 0.22f, 8);
+                }
+            }
+
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.2f + 1f;
+            Lighting.AddLight(Projectile.Center, SunGold.ToVector3() * pulse);
+        }
+
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            // Heavy burning
+            target.AddBuff(BuffID.OnFire3, 300);
+            target.AddBuff(BuffID.Daybreak, 180);
+
+            // Hit VFX
+            CustomParticles.GenericFlare(target.Center, SunWhite, 0.75f, 18);
+            CustomParticles.HaloRing(target.Center, SunGold * 0.6f, 0.45f, 16);
+
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 sparkVel = Main.rand.NextVector2Circular(6f, 6f);
+                Color sparkColor = Color.Lerp(SunGold, SunRed, Main.rand.NextFloat());
+                var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor * 0.7f, 0.32f, 18, true);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+        }
+
+        public override void OnKill(int timeLeft)
+        {
+            // Big explosion
+            CustomParticles.GenericFlare(Projectile.Center, Color.White, 1.1f, 25);
+            CustomParticles.GenericFlare(Projectile.Center, SunGold, 0.9f, 22);
+            CustomParticles.HaloRing(Projectile.Center, SunOrange * 0.7f, 0.6f, 20);
+
+            // Radial burst
+            for (int i = 0; i < 14; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 14f;
+                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 10f);
+                Color burstColor = Color.Lerp(SunGold, SunRed, (float)i / 14f);
+                var burst = new GenericGlowParticle(Projectile.Center, burstVel, burstColor * 0.7f, 0.38f, 24, true);
+                MagnumParticleHandler.SpawnParticle(burst);
+            }
+
+            // Fire dust explosion
+            for (int i = 0; i < 10; i++)
+            {
+                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.SolarFlare, Main.rand.NextVector2Circular(7f, 7f), 0, SunOrange, 1.3f);
+                dust.noGravity = true;
+            }
+        }
+
+        public override bool PreDraw(ref Color lightColor)
+        {
+            Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
+            Vector2 origin = texture.Size() / 2f;
+
+            SpriteBatch spriteBatch = Main.spriteBatch;
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Long intense trail
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                float progress = (float)i / Projectile.oldPos.Length;
+                float trailAlpha = 1f - progress;
+                float trailScale = (1f - progress * 0.3f);
+                Color trailColor = Color.Lerp(SunWhite, SunOrange, progress) * trailAlpha * 0.6f;
+                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                spriteBatch.Draw(texture, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale * 0.5f, SpriteEffects.None, 0f);
+            }
+
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f + 1f;
+
+            // Multi-layer bloom
+            spriteBatch.Draw(texture, drawPos, null, SunOrange * 0.35f, Projectile.rotation, origin, 0.65f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, drawPos, null, SunGold * 0.5f, Projectile.rotation, origin, 0.48f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, drawPos, null, SunWhite * 0.65f, Projectile.rotation, origin, 0.3f * pulse, SpriteEffects.None, 0f);
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            return false;
+        }
+    }
+}

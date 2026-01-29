@@ -1740,8 +1740,9 @@ namespace MagnumOpus.Content.Fate.Bosses
             
             if (deathTimer >= 180)
             {
-                // TRUE death dialogue (after awakening)
-                BossDialogueSystem.Fate.OnDeath();
+                // TRUE death dialogue (after awakening) - pass whether this is the first kill
+                bool isFirstKill = !MoonlightSonataSystem.FateBossKilledOnce;
+                BossDialogueSystem.Fate.OnDeath(isFirstKill);
                 BossDialogueSystem.CleanupDialogue(NPC.whoAmI);
                 
                 // Deactivate the cosmic Fate sky effect

@@ -512,15 +512,18 @@ namespace MagnumOpus.Common.Systems
             }
             
             // Death - THE CLIMAX. The four Revolutionary Melodies are freed.
-            public static void OnDeath()
+            // NOTE: The melody awakening messages are displayed as world messages in MoonlightSonataSystem.DisplayFateShatteredMessages()
+            public static void OnDeath(bool isFirstKill)
             {
+                // Always say this line
                 SayDialogue("No... NO... The chains... shatter...", DreadColor);
-                SayDialogue("Do you hear them? The melodies... they're FREE...", DesperationColor);
-                SayDialogue("Ode to Joy... it rises...", new Color(255, 220, 100));
-                SayDialogue("Dies Irae... it JUDGES...", new Color(200, 50, 50));
-                SayDialogue("Nachtmusik... it WHISPERS...", new Color(100, 80, 150));
-                SayDialogue("And Clair de Lune... the score of time... it PLAYS...", new Color(150, 200, 255));
-                SayDialogue("I hope the Swan prepared you well. The Revolutionary Melodies... are AWAKE.", DivinityColor);
+                
+                // Only on first kill - the dramatic reveal
+                if (isFirstKill)
+                {
+                    SayDialogue("Do you hear them? The melodies... they're FREE...", DesperationColor);
+                    SayDialogue("I hope the Swan prepared you well. The Revolutionary Melodies... are AWAKE.", DivinityColor);
+                }
             }
             
             // Special method for post-death world message

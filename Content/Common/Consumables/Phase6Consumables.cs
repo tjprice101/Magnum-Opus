@@ -8,6 +8,17 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Materials;
 using MagnumOpus.Content.Fate.HarmonicCores;
+using MagnumOpus.Content.Spring.Materials;
+using MagnumOpus.Content.Summer.Materials;
+using MagnumOpus.Content.Autumn.Materials;
+using MagnumOpus.Content.Winter.Materials;
+using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
+using MagnumOpus.Content.Eroica.ResonanceEnergies;
+using MagnumOpus.Content.LaCampanella.ResonanceEnergies;
+using MagnumOpus.Content.EnigmaVariations.ResonanceEnergies;
+using MagnumOpus.Content.SwanLake.ResonanceEnergies;
+using MagnumOpus.Content.SwanLake.HarmonicCores;
+using MagnumOpus.Content.Fate.ResonanceEnergies;
 
 namespace MagnumOpus.Content.Common.Consumables
 {
@@ -695,6 +706,391 @@ namespace MagnumOpus.Content.Common.Consumables
         public override void LoadData(Terraria.ModLoader.IO.TagCompound tag)
         {
             cosmicBrewCooldown = tag.GetInt("cosmicBrewCooldown");
+        }
+    }
+    #endregion
+
+    #region Crystallized Harmony - Permanent Health Upgrade
+    /// <summary>
+    /// Phase 6: Consumable item that permanently transforms one health heart into a rainbow-shimmering version.
+    /// Can be crafted and consumed multiple times to convert all 20 hearts one by one.
+    /// Each use grants +5 max health permanently (up to 100 bonus, 20 uses total).
+    /// </summary>
+    public class CrystallizedHarmony : ModItem
+    {
+        public const int MaxUses = 20;
+        public const int HealthPerUse = 5;
+
+        public override void SetDefaults()
+        {
+            Item.width = 38;
+            Item.height = 38;
+            Item.useStyle = ItemUseStyleID.HoldUp;
+            Item.useAnimation = 45;
+            Item.useTime = 45;
+            Item.consumable = true;
+            Item.maxStack = 20;
+            Item.value = Item.sellPrice(gold: 25);
+            Item.rare = ModContent.RarityType<FateRarity>();
+            Item.UseSound = SoundID.Item119;
+        }
+
+        public override bool CanUseItem(Player player)
+        {
+            var modPlayer = player.GetModPlayer<CrystallizedHarmonyPlayer>();
+            if (modPlayer.crystallizedHarmonyUses >= MaxUses)
+            {
+                Main.NewText("Your life force is already fully attuned to the harmonics.", new Color(255, 200, 220));
+                return false;
+            }
+            return true;
+        }
+
+        public override bool? UseItem(Player player)
+        {
+            var modPlayer = player.GetModPlayer<CrystallizedHarmonyPlayer>();
+            
+            modPlayer.crystallizedHarmonyUses++;
+            int currentUses = modPlayer.crystallizedHarmonyUses;
+            
+            // Spectacular rainbow transformation VFX
+            SpawnTransformationVFX(player, currentUses);
+            
+            // Immediately apply health bonus
+            player.statLifeMax2 += HealthPerUse;
+            player.statLife = Math.Min(player.statLife + HealthPerUse, player.statLifeMax2);
+            
+            // Healing effect
+            player.HealEffect(HealthPerUse, true);
+            
+            Main.NewText($"Heart #{currentUses} resonates with eternal harmony! (+{HealthPerUse} max health)", 
+                Color.Lerp(new Color(255, 150, 200), new Color(200, 255, 255), (float)currentUses / MaxUses));
+            
+            if (currentUses >= MaxUses)
+            {
+                Main.NewText("All hearts now shimmer with the music of existence!", new Color(255, 255, 200));
+            }
+            
+            return true;
+        }
+
+        private void SpawnTransformationVFX(Player player, int heartNumber)
+        {
+            // Rainbow color cycling based on heart number
+            float hueBase = (float)heartNumber / MaxUses;
+            
+            // Central burst
+            CustomParticles.GenericFlare(player.Center, Color.White, 1.2f, 30);
+            
+            // Rainbow spiral burst
+            for (int i = 0; i < 24; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 24f;
+                float hue = (hueBase + (float)i / 24f) % 1f;
+                Color rainbowColor = Main.hslToRgb(hue, 1f, 0.65f);
+                
+                Vector2 offset = angle.ToRotationVector2() * 50f;
+                CustomParticles.GenericFlare(player.Center + offset, rainbowColor, 0.5f, 25);
+                
+                // Outward particles
+                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
+                var particle = new GenericGlowParticle(player.Center, vel, rainbowColor * 0.8f, 0.35f, 30, true);
+                MagnumParticleHandler.SpawnParticle(particle);
+            }
+            
+            // Seasonal color halos (representing all four seasons)
+            Color[] seasonalColors = {
+                new Color(255, 183, 197), // Spring pink
+                new Color(255, 140, 40),  // Summer orange
+                new Color(139, 90, 43),   // Autumn brown
+                new Color(135, 206, 250)  // Winter blue
+            };
+            
+            for (int s = 0; s < 4; s++)
+            {
+                float delay = s * 0.1f;
+                CustomParticles.HaloRing(player.Center, seasonalColors[s], 0.6f + s * 0.15f, 20 + s * 5);
+            }
+            
+            // Music notes spiral
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f + Main.GameUpdateCount * 0.05f;
+                Vector2 notePos = player.Center + angle.ToRotationVector2() * 35f;
+                ThemedParticles.MusicNote(notePos, angle.ToRotationVector2() * 2f, Main.hslToRgb((hueBase + i * 0.1f) % 1f, 1f, 0.7f), 0.4f, 35);
+            }
+            
+            // Theme glyphs
+            CustomParticles.GlyphBurst(player.Center, new Color(255, 200, 255), 6, 4f);
+        }
+
+        public override void AddRecipes()
+        {
+            CreateRecipe()
+                .AddIngredient<BlossomEssence>(25)
+                .AddIngredient<SolarEssence>(25)
+                .AddIngredient<DecayEssence>(25)
+                .AddIngredient<FrostEssence>(25)
+                .AddIngredient<MoonlightsResonantEnergy>(10)
+                .AddIngredient<EroicasResonantEnergy>(10)
+                .AddIngredient<LaCampanellaResonantEnergy>(10)
+                .AddIngredient<EnigmaResonantEnergy>(10)
+                .AddIngredient<SwansResonanceEnergy>(10)
+                .AddIngredient<FateResonantEnergy>(10)
+                .AddIngredient(ItemID.LunarBar, 30)
+                .AddTile(TileID.LunarCraftingStation)
+                .Register();
+        }
+
+        public override void PostUpdate()
+        {
+            // Rainbow prismatic glow when on ground
+            float hue = (Main.GameUpdateCount * 0.02f) % 1f;
+            Vector3 light = Main.hslToRgb(hue, 0.8f, 0.5f).ToVector3();
+            Lighting.AddLight(Item.Center, light * 0.6f);
+            
+            if (Main.rand.NextBool(8))
+            {
+                float sparkleHue = Main.rand.NextFloat();
+                Color sparkleColor = Main.hslToRgb(sparkleHue, 1f, 0.75f);
+                Dust dust = Dust.NewDustDirect(Item.position, Item.width, Item.height, DustID.RainbowMk2, 0f, -0.5f, 100, sparkleColor, 0.6f);
+                dust.noGravity = true;
+                dust.velocity *= 0.3f;
+            }
+        }
+    }
+
+    public class CrystallizedHarmonyPlayer : ModPlayer
+    {
+        public int crystallizedHarmonyUses;
+
+        public override void ModifyMaxStats(out StatModifier health, out StatModifier mana)
+        {
+            health = StatModifier.Default;
+            mana = StatModifier.Default;
+            
+            // Add permanent health bonus
+            health = health.CombineWith(new StatModifier(1f, 1f, crystallizedHarmonyUses * CrystallizedHarmony.HealthPerUse, 0f));
+        }
+
+        public override void PostUpdate()
+        {
+            // Rainbow shimmer effect on hearts when fully upgraded
+            if (crystallizedHarmonyUses >= CrystallizedHarmony.MaxUses && Main.rand.NextBool(60))
+            {
+                // Subtle ambient rainbow sparkle around player
+                Vector2 sparklePos = Player.Center + Main.rand.NextVector2Circular(30f, 40f);
+                float hue = Main.rand.NextFloat();
+                CustomParticles.GenericFlare(sparklePos, Main.hslToRgb(hue, 0.9f, 0.7f) * 0.4f, 0.2f, 12);
+            }
+        }
+
+        public override void SaveData(Terraria.ModLoader.IO.TagCompound tag)
+        {
+            tag["crystallizedHarmonyUses"] = crystallizedHarmonyUses;
+        }
+
+        public override void LoadData(Terraria.ModLoader.IO.TagCompound tag)
+        {
+            crystallizedHarmonyUses = tag.GetInt("crystallizedHarmonyUses");
+        }
+    }
+    #endregion
+
+    #region Arcane Harmonic Prism - Permanent Mana Upgrade
+    /// <summary>
+    /// Phase 6: Consumable item that permanently transforms one mana star into a rainbow-shimmering version.
+    /// Can be crafted and consumed multiple times to convert all 10 mana stars one by one.
+    /// Each use grants +20 max mana permanently (up to 200 bonus, 10 uses total).
+    /// </summary>
+    public class ArcaneHarmonicPrism : ModItem
+    {
+        public const int MaxUses = 10;
+        public const int ManaPerUse = 20;
+
+        public override void SetDefaults()
+        {
+            Item.width = 38;
+            Item.height = 38;
+            Item.useStyle = ItemUseStyleID.HoldUp;
+            Item.useAnimation = 45;
+            Item.useTime = 45;
+            Item.consumable = true;
+            Item.maxStack = 10;
+            Item.value = Item.sellPrice(gold: 25);
+            Item.rare = ModContent.RarityType<FateRarity>();
+            Item.UseSound = SoundID.Item119;
+        }
+
+        public override bool CanUseItem(Player player)
+        {
+            var modPlayer = player.GetModPlayer<ArcaneHarmonicPrismPlayer>();
+            if (modPlayer.arcaneHarmonicPrismUses >= MaxUses)
+            {
+                Main.NewText("Your magical essence is already fully attuned to the arcane harmonics.", new Color(150, 200, 255));
+                return false;
+            }
+            return true;
+        }
+
+        public override bool? UseItem(Player player)
+        {
+            var modPlayer = player.GetModPlayer<ArcaneHarmonicPrismPlayer>();
+            
+            modPlayer.arcaneHarmonicPrismUses++;
+            int currentUses = modPlayer.arcaneHarmonicPrismUses;
+            
+            // Spectacular arcane transformation VFX
+            SpawnArcaneTransformationVFX(player, currentUses);
+            
+            // Immediately apply mana bonus
+            player.statManaMax2 += ManaPerUse;
+            player.statMana = Math.Min(player.statMana + ManaPerUse, player.statManaMax2);
+            
+            // Mana restore effect
+            player.ManaEffect(ManaPerUse);
+            
+            Main.NewText($"Mana Star #{currentUses} resonates with arcane harmony! (+{ManaPerUse} max mana)", 
+                Color.Lerp(new Color(100, 150, 255), new Color(200, 150, 255), (float)currentUses / MaxUses));
+            
+            if (currentUses >= MaxUses)
+            {
+                Main.NewText("All mana stars now shimmer with the arcane music of the cosmos!", new Color(200, 220, 255));
+            }
+            
+            return true;
+        }
+
+        private void SpawnArcaneTransformationVFX(Player player, int starNumber)
+        {
+            // Arcane blue-violet color cycling based on star number
+            float hueBase = 0.6f + (float)starNumber / MaxUses * 0.2f; // Blue to violet range
+            
+            // Central burst - arcane white-blue
+            CustomParticles.GenericFlare(player.Center, new Color(200, 220, 255), 1.2f, 30);
+            
+            // Arcane spiral burst
+            for (int i = 0; i < 20; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 20f;
+                float hue = (hueBase + (float)i / 20f * 0.15f) % 1f;
+                Color arcaneColor = Main.hslToRgb(hue, 0.8f, 0.65f);
+                
+                Vector2 offset = angle.ToRotationVector2() * 45f;
+                CustomParticles.GenericFlare(player.Center + offset, arcaneColor, 0.45f, 25);
+                
+                // Outward particles
+                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
+                var particle = new GenericGlowParticle(player.Center, vel, arcaneColor * 0.8f, 0.3f, 28, true);
+                MagnumParticleHandler.SpawnParticle(particle);
+            }
+            
+            // Theme color halos (representing magical themes)
+            Color[] themeColors = {
+                new Color(138, 43, 226),  // Moonlight purple
+                new Color(255, 140, 40),  // La Campanella orange
+                new Color(140, 60, 200),  // Enigma purple
+                new Color(200, 80, 120),  // Fate pink
+                Color.White               // Swan Lake white
+            };
+            
+            for (int t = 0; t < 5; t++)
+            {
+                CustomParticles.HaloRing(player.Center, themeColors[t], 0.5f + t * 0.12f, 18 + t * 4);
+            }
+            
+            // Arcane glyphs orbit
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 glyphPos = player.Center + angle.ToRotationVector2() * 55f;
+                CustomParticles.Glyph(glyphPos, new Color(150, 180, 255), 0.45f, -1);
+            }
+            
+            // Music notes with arcane colors
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f + Main.GameUpdateCount * 0.04f;
+                Vector2 notePos = player.Center + angle.ToRotationVector2() * 30f;
+                Color noteColor = Color.Lerp(new Color(100, 150, 255), new Color(200, 150, 255), (float)i / 6f);
+                ThemedParticles.MusicNote(notePos, angle.ToRotationVector2() * 1.5f, noteColor, 0.35f, 30);
+            }
+            
+            // Star sparkles for mana theme
+            for (int i = 0; i < 12; i++)
+            {
+                Vector2 starPos = player.Center + Main.rand.NextVector2Circular(50f, 50f);
+                CustomParticles.GenericFlare(starPos, new Color(200, 220, 255) * 0.7f, 0.3f, 20);
+            }
+        }
+
+        public override void AddRecipes()
+        {
+            CreateRecipe()
+                .AddIngredient<BlossomEssence>(25)
+                .AddIngredient<SolarEssence>(25)
+                .AddIngredient<DecayEssence>(25)
+                .AddIngredient<FrostEssence>(25)
+                .AddIngredient<MoonlightsResonantEnergy>(10)
+                .AddIngredient<EroicasResonantEnergy>(10)
+                .AddIngredient<LaCampanellaResonantEnergy>(10)
+                .AddIngredient<EnigmaResonantEnergy>(10)
+                .AddIngredient<SwansResonanceEnergy>(10)
+                .AddIngredient<FateResonantEnergy>(10)
+                .AddIngredient(ItemID.LunarBar, 30)
+                .AddTile(TileID.LunarCraftingStation)
+                .Register();
+        }
+
+        public override void PostUpdate()
+        {
+            // Arcane blue-violet prismatic glow when on ground
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.2f + 0.6f;
+            Lighting.AddLight(Item.Center, 0.4f * pulse, 0.5f * pulse, 0.8f * pulse);
+            
+            if (Main.rand.NextBool(8))
+            {
+                Color arcaneColor = Color.Lerp(new Color(100, 150, 255), new Color(180, 130, 255), Main.rand.NextFloat());
+                Dust dust = Dust.NewDustDirect(Item.position, Item.width, Item.height, DustID.BlueTorch, 0f, -0.5f, 100, arcaneColor, 0.6f);
+                dust.noGravity = true;
+                dust.velocity *= 0.3f;
+            }
+        }
+    }
+
+    public class ArcaneHarmonicPrismPlayer : ModPlayer
+    {
+        public int arcaneHarmonicPrismUses;
+
+        public override void ModifyMaxStats(out StatModifier health, out StatModifier mana)
+        {
+            health = StatModifier.Default;
+            mana = StatModifier.Default;
+            
+            // Add permanent mana bonus
+            mana = mana.CombineWith(new StatModifier(1f, 1f, arcaneHarmonicPrismUses * ArcaneHarmonicPrism.ManaPerUse, 0f));
+        }
+
+        public override void PostUpdate()
+        {
+            // Arcane shimmer effect on mana stars when fully upgraded
+            if (arcaneHarmonicPrismUses >= ArcaneHarmonicPrism.MaxUses && Main.rand.NextBool(60))
+            {
+                // Subtle ambient arcane sparkle around player
+                Vector2 sparklePos = Player.Center + Main.rand.NextVector2Circular(30f, 40f);
+                Color arcaneColor = Color.Lerp(new Color(100, 150, 255), new Color(180, 130, 255), Main.rand.NextFloat());
+                CustomParticles.GenericFlare(sparklePos, arcaneColor * 0.4f, 0.2f, 12);
+            }
+        }
+
+        public override void SaveData(Terraria.ModLoader.IO.TagCompound tag)
+        {
+            tag["arcaneHarmonicPrismUses"] = arcaneHarmonicPrismUses;
+        }
+
+        public override void LoadData(Terraria.ModLoader.IO.TagCompound tag)
+        {
+            arcaneHarmonicPrismUses = tag.GetInt("arcaneHarmonicPrismUses");
         }
     }
     #endregion

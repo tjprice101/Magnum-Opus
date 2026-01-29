@@ -281,21 +281,21 @@ namespace MagnumOpus.Common.Systems
             if (Main.netMode == NetmodeID.MultiplayerClient)
                 return;
 
-            // Ode to Joy - Gold (All layers)
-            DisplayMessage("Fate has been shattered...Ode to Joy's Resonance Energy spreads throughout the world...", 
-                new Color(255, 215, 0));
+            // Nachtmusik - Deep Purple/Gold (Underground) - First
+            DisplayMessage("Nachtmusik...it whispers among the stars...resonating the Underground with her starlit melody...", 
+                new Color(100, 80, 150));
 
             // Dies Irae - Dark Red (Underworld)
-            DisplayMessage("Fate has been shattered...Dies Irae's Resonance Energy spreads throughout the underworld...", 
+            DisplayMessage("Dies Irae...it judges...resonating the Underworld with his wrathful melody...", 
                 new Color(139, 0, 0));
 
-            // Winter - Icy Blue (Snow biome)
-            DisplayMessage("Fate has been shattered...Winter's Resonance Energy spreads throughout the snow covered fields...", 
-                new Color(173, 216, 230));
+            // Ode to Joy - Gold (Hallow)
+            DisplayMessage("Ode to Joy...she sings...resonating the Hallow with her jubilous melody...", 
+                new Color(255, 215, 0));
 
-            // Nachtmusik - Silver (Surface)
-            DisplayMessage("Fate has been shattered...Nachtmusik's Resonance Energy spreads throughout the surface under moonlight...", 
-                new Color(192, 192, 192));
+            // Clair de Lune - Soft Blue (Sky)
+            DisplayMessage("Clair de Lune...she conducts time to her whim...resonating the skies with her chrono-melodic harmony...", 
+                new Color(150, 200, 255));
         }
 
         private static void DisplayClairDeLuneMessages()
@@ -698,8 +698,8 @@ namespace MagnumOpus.Common.Systems
                 // Check if the area is valid (solid tile)
                 if (Main.tile[x, y].HasTile && Main.tileSolid[Main.tile[x, y].TileType])
                 {
-                    // Large vein sizes of 24-58 tiles (reduced ~4%)
-                    int veinSize = Main.rand.Next(24, 59);
+                    // Vein sizes of 13-32 tiles (reduced 45% from original)
+                    int veinSize = Main.rand.Next(13, 33);
                     
                     if (SpawnOreVein(x, y, tileType, veinSize))
                     {
@@ -729,8 +729,8 @@ namespace MagnumOpus.Common.Systems
                 // Check if the area is valid (solid tile)
                 if (Main.tile[x, y].HasTile && Main.tileSolid[Main.tile[x, y].TileType])
                 {
-                    // Large vein sizes of 19-48 tiles (reduced ~4%)
-                    int veinSize = Main.rand.Next(19, 49);
+                    // Vein sizes of 10-26 tiles (reduced 45% from original)
+                    int veinSize = Main.rand.Next(10, 27);
                     
                     if (SpawnOreVein(x, y, tileType, veinSize))
                     {
@@ -895,7 +895,7 @@ namespace MagnumOpus.Common.Systems
                 // Need at least some sand blocks nearby to qualify as desert
                 if (sandCount > 50 && Main.tile[x, y].HasTile && Main.tileSolid[Main.tile[x, y].TileType])
                 {
-                    int veinSize = Main.rand.Next(22, 48); // Large veins
+                    int veinSize = Main.rand.Next(12, 27); // Veins (reduced 45%)
                     
                     if (SpawnOreVein(x, y, tileType, veinSize))
                     {
@@ -941,8 +941,8 @@ namespace MagnumOpus.Common.Systems
                 // Need significant jungle presence
                 if (jungleCount > 80 && Main.tile[x, y].HasTile && Main.tileSolid[Main.tile[x, y].TileType])
                 {
-                    // Use OreRunner for proper connected pod veins (smaller strength for tighter pods)
-                    int podSize = Main.rand.Next(10, 17);
+                    // Use OreRunner for proper connected pod veins (reduced 45%)
+                    int podSize = Main.rand.Next(6, 10);
                     
                     if (SpawnOreVein(x, y, tileType, podSize))
                     {
@@ -990,7 +990,7 @@ namespace MagnumOpus.Common.Systems
                 // Need significant evil biome presence
                 if (evilCount > 60 && Main.tile[x, y].HasTile && Main.tileSolid[Main.tile[x, y].TileType])
                 {
-                    int veinSize = Main.rand.Next(20, 45); // Medium-large veins
+                    int veinSize = Main.rand.Next(11, 25); // Veins (reduced 45%)
                     
                     if (SpawnOreVein(x, y, tileType, veinSize))
                     {

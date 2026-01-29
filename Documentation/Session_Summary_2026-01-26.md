@@ -159,7 +159,7 @@ ResonantBurnDebuff: {
 
 **Ready for Phase 6:**
 - Potions (Minor Resonance Tonic through Fate's Cosmic Brew)
-- Permanent upgrades (Harmonic Resonator Fragment through Symphony of Ages)
+- Permanent upgrades (Harmonic Resonator Fragment through Crystallized Harmony)
 
 **Ready for Phase 7:**
 - Progressive accessory chains by class (Melee, Ranged, Magic, Summon)

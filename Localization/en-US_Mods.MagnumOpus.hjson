@@ -2761,6 +2761,304 @@
 					'''
 			}
 
+			// ==================== MELEE CHAIN ACCESSORIES ====================
+			
+			ResonantRhythmBand: {
+				DisplayName: Resonant Rhythm Band
+				Tooltip:
+					'''
+					Enables the Resonance Combo System
+					Melee hits build Resonance stacks (max 10)
+					Lose 1 stack every 2 seconds without hitting
+					'The rhythm of battle begins with a single beat'
+					'''
+			}
+
+			SpringTempoCharm: {
+				DisplayName: Spring Tempo Charm
+				Tooltip:
+					'''
+					Resonance Combo System (Upgraded)
+					Max Resonance increased to 15
+					At 10+ stacks: +8% melee speed
+					'Spring awakens the tempo of new beginnings'
+					'''
+			}
+
+			SolarCrescendoRing: {
+				DisplayName: Solar Crescendo Ring
+				Tooltip:
+					'''
+					Resonance Combo System (Solar)
+					Max Resonance increased to 20
+					At 10+ stacks: +8% melee speed
+					At 15+ stacks: melee attacks inflict Scorched
+					'The summer sun fuels an ever-rising crescendo'
+					'''
+			}
+
+			HarvestRhythmSignet: {
+				DisplayName: Harvest Rhythm Signet
+				Tooltip:
+					'''
+					Resonance Combo System (Harvest)
+					Max Resonance increased to 25
+					At 10+ stacks: +8% melee speed
+					At 15+ stacks: melee attacks inflict Scorched
+					At 20+ stacks: 1% lifesteal on melee hits
+					'The harvest reaps what the rhythm sows'
+					'''
+			}
+
+			PermafrostCadenceSeal: {
+				DisplayName: Permafrost Cadence Seal
+				Tooltip:
+					'''
+					Resonance Combo System (Permafrost)
+					Max Resonance increased to 30
+					Includes all previous tier bonuses
+					At 25+ stacks: melee hits freeze enemies briefly
+					'Winter's cadence freezes time itself'
+					'''
+			}
+
+			VivaldisTempoMaster: {
+				DisplayName: Vivaldi's Tempo Master
+				Tooltip:
+					'''
+					Resonance Combo System (Four Seasons)
+					Max Resonance increased to 40
+					Includes all previous tier bonuses
+					Consume 30 Resonance: Seasonal elemental burst
+					'The Four Seasons unite under the maestro's baton'
+					'''
+			}
+
+			MoonlitSonataBand: {
+				DisplayName: Moonlit Sonata Band
+				Tooltip:
+					'''
+					Resonance Combo System (Moonlit)
+					Max Resonance increased to 45
+					Includes all previous tier bonuses
+					At 35+ stacks: melee crits spawn lunar wisps
+					'The moon's soft melody guides your blade through the darkness'
+					'''
+			}
+
+			HeroicCrescendo: {
+				DisplayName: Heroic Crescendo
+				Tooltip:
+					'''
+					Resonance Combo System (Heroic)
+					Max Resonance increased to 50
+					Includes all previous tier bonuses
+					At 40+ stacks: +15% melee damage, +10% melee crit
+					'A hero's strength crescendos when hope is needed most'
+					'''
+			}
+
+			InfernalFortissimo: {
+				DisplayName: Infernal Fortissimo
+				Tooltip:
+					'''
+					Resonance Combo System (Infernal)
+					Max Resonance increased to 55
+					Includes all previous tier bonuses
+					At 45+ stacks: Scorched deals 3x damage
+					Enemies killed with Scorched explode
+					'The bell's infernal toll echoes through eternity'
+					'''
+			}
+
+			EnigmasDissonance: {
+				DisplayName: Enigma's Dissonance
+				Tooltip:
+					'''
+					Resonance Combo System (Enigmatic)
+					Max Resonance increased to 60
+					Includes all previous tier bonuses
+					At 50+ stacks: melee hits apply Paradox
+					Paradox: enemies take delayed burst damage after 2 seconds
+					'The answer to the enigma... is another question'
+					'''
+			}
+
+			SwansPerfectMeasure: {
+				DisplayName: Swan's Perfect Measure
+				Tooltip:
+					'''
+					Resonance Combo System (Perfect)
+					Max Resonance: 60
+					Includes all previous tier bonuses
+					At 55+ stacks: Perfect Measure active
+					Dodge within 0.3s of being hit: 2s invulnerability + full Resonance
+					At 60 stacks: +25% melee damage, rainbow attack trails
+					'In the swan's final dance, every measure is perfect'
+					'''
+			}
+
+			FatesCosmicSymphony: {
+				DisplayName: Fate's Cosmic Symphony
+				Tooltip:
+					'''
+					★ ULTIMATE RESONANCE SYSTEM ★
+					Max Resonance: 60 (Final)
+					Includes ALL previous tier bonuses
+					At 60 stacks: Cosmic Aura damages nearby enemies
+					Consume 60 Resonance: Destiny's Crescendo
+					Unleashes a massive cosmic explosion
+					'The cosmos itself plays the final symphony of destiny'
+					'''
+			}
+
+			// ==================== RANGER CHAIN ACCESSORIES (Marked for Death) ====================
+			
+			ResonantSpotter: {
+				DisplayName: Resonant Spotter
+				Tooltip:
+					'''
+					Enables the Marked for Death System
+					Ranged attacks mark enemies for 5 seconds
+					Marked enemies glow, making them easier to track
+					'The hunt begins with a single mark'
+					'''
+			}
+
+			SpringHuntersLens: {
+				DisplayName: Spring Hunter's Lens
+				Tooltip:
+					'''
+					Marked for Death System
+					Marks last 8 seconds
+					Hitting marked enemies has 10% chance to drop hearts
+					'Spring's renewal brings vitality to the hunter'
+					'''
+			}
+
+			SolarTrackersBadge: {
+				DisplayName: Solar Tracker's Badge
+				Tooltip:
+					'''
+					Marked for Death System
+					Marks last 10 seconds
+					Marked enemies take +5% damage from ALL sources
+					Great for multiplayer - helps the whole team!
+					'The summer sun reveals all prey'
+					'''
+			}
+
+			HarvestReapersMark: {
+				DisplayName: Harvest Reaper's Mark
+				Tooltip:
+					'''
+					Marked for Death System
+					Marked enemies explode on death (50% weapon damage)
+					Explosion marks nearby enemies (chain marking)
+					'The harvest reaps what was sown in blood'
+					'''
+			}
+
+			PermafrostHuntersEye: {
+				DisplayName: Permafrost Hunter's Eye
+				Tooltip:
+					'''
+					Marked for Death System
+					Marked enemies are slowed by 15%
+					Killing marked enemies refreshes marks on nearby enemies
+					'The cold eye of winter sees all and freezes hope'
+					'''
+			}
+
+			VivaldisSeSonalSight: {
+				DisplayName: Vivaldi's Seasonal Sight
+				Tooltip:
+					'''
+					Marked for Death System - Vivaldi's Masterwork
+					Marks last 15 seconds
+					Marks apply seasonal debuffs that cycle:
+					Spring: Bloom - Healing petals on hit
+					Summer: Burn - Fire damage over time
+					Autumn: Wither - Life drain effect
+					Winter: Chill - Slowed and minor damage
+					'The Four Seasons dance eternal in the hunter's gaze'
+					'''
+			}
+
+			MoonlitPredatorsGaze: {
+				DisplayName: Moonlit Predator's Gaze
+				Tooltip:
+					'''
+					Marked for Death System - Moonlit Enhancement
+					Can mark up to 8 enemies simultaneously
+					Marked enemies glow through walls
+					Inherits all seasonal mark effects
+					'Under the moonlight, no prey can hide'
+					'''
+			}
+
+			HeroicDeadeye: {
+				DisplayName: Heroic Deadeye
+				Tooltip:
+					'''
+					Marked for Death System - Heroic Enhancement
+					Marked enemies take +8% damage from your attacks
+					First ranged hit on a newly marked enemy is guaranteed critical
+					Inherits Moonlit Predator's abilities
+					'A hero's aim never wavers'
+					'''
+			}
+
+			InfernalExecutionersBrand: {
+				DisplayName: Infernal Executioner's Brand
+				Tooltip:
+					'''
+					Marked for Death System - Infernal Enhancement
+					Marked enemies burn with infernal fire
+					Death explosion radius increased by 50%
+					Inherits Heroic Deadeye's abilities
+					'The bell tolls for those who bear the brand'
+					'''
+			}
+
+			EnigmasParadoxMark: {
+				DisplayName: Enigma's Paradox Mark
+				Tooltip:
+					'''
+					Marked for Death System - Paradox Enhancement
+					Hitting marked enemies has 15% chance to spread marks
+					Marks transcend dimensions, touching the void
+					Inherits Infernal Executioner's abilities
+					'The mark spreads like questions without answers'
+					'''
+			}
+
+			SwansGracefulHunt: {
+				DisplayName: Swan's Graceful Hunt
+				Tooltip:
+					'''
+					Marked for Death System - Graceful Enhancement
+					Perfect shots apply 'Swan Mark'
+					Perfect shot: No damage taken for 3 seconds
+					Swan Marked enemies: +15% crit chance
+					Inherits Enigma's Paradox Mark abilities
+					'Grace in the hunt, elegance in the kill'
+					'''
+			}
+
+			FatesCosmicVerdict: {
+				DisplayName: Fate's Cosmic Verdict
+				Tooltip:
+					'''
+					★ ULTIMATE RANGER ACCESSORY ★
+					Marked for Death System - COSMIC VERDICT
+					Marked enemies take +12% damage
+					Killing a marked boss drops bonus treasure
+					Inherits ALL previous mark abilities
+					'The cosmos itself judges those marked for death'
+					'''
+			}
+
 			// ==================== TWO-THEME COMBINATION ACCESSORIES ====================
 			
 			NocturneOfAzureFlames: {
@@ -2943,7 +3241,7 @@
 				DisplayName: Harmonic Elixir
 				Tooltip:
 					'''
-					Grants Harmonic Power for 6 minutes
+					Grants Harmonic Power for 8 minutes
 					+20% damage and +10% critical strike chance
 					'The melody of power courses through you'
 					'''
@@ -2953,7 +3251,7 @@
 				DisplayName: Seasonal Draught
 				Tooltip:
 					'''
-					Grants Seasonal Attunement for 5 minutes
+					Grants Seasonal Attunement for 10 minutes
 					+25% bonus to current season effects
 					'The essence of the changing seasons'
 					'''
@@ -2963,7 +3261,7 @@
 				DisplayName: Elixir of the Maestro
 				Tooltip:
 					'''
-					Grants Maestro's Blessing for 4 minutes
+					Grants Maestro's Blessing for 10 minutes
 					+35% damage, +20% crit, +15% attack speed
 					'Command the symphony of destruction'
 					'''
@@ -2973,9 +3271,8 @@
 				DisplayName: Conductor's Insight
 				Tooltip:
 					'''
-					A permanent upgrade accessory
 					Displays detailed combat analysis
-					Shows DPS, enemy weakness, and combo potential
+					Shows real-time DPS and damage statistics
 					'See the battlefield as a maestro sees an orchestra'
 					'''
 			}
@@ -3007,11 +3304,618 @@
 				Tooltip:
 					'''
 					The ultimate combat potion
-					Grants Cosmic Resonance for 3 minutes
-					+50% damage, +30% crit, +20% attack speed
-					+25% damage reduction, life steal on crits
-					Can only be used once per day
+					Grants Cosmic Resonance for 15 minutes
+					+50% damage, +30% crit, +25% attack speed
+					Can only be used once per in-game day (24 minutes real time)
 					'Drink deep of destiny's power'
+					'''
+			}
+
+			CrystallizedHarmony: {
+				DisplayName: Crystallized Harmony
+				Tooltip:
+					'''
+					Permanently transforms one health heart into a rainbow-shimmering version
+					Grants +5 max health permanently (can be used up to 20 times)
+					Each heart resonates with the eternal music of existence
+					'Where life meets melody, immortality is born'
+					'''
+			}
+
+			ArcaneHarmonicPrism: {
+				DisplayName: Arcane Harmonic Prism
+				Tooltip:
+					'''
+					Permanently transforms one mana star into a rainbow-shimmering version
+					Grants +20 max mana permanently (can be used up to 10 times)
+					Each star resonates with the arcane harmonics of the cosmos
+					'Where magic meets music, infinity awaits'
+					'''
+			}
+
+			// ==================== MAGE CHAIN - HARMONIC OVERFLOW SYSTEM ====================
+
+			ResonantOverflowGem: {
+				DisplayName: Resonant Overflow Gem
+				Tooltip:
+					'''
+					Enables the Harmonic Overflow System
+					Can cast spells up to -20 mana (negative mana)
+					While in overflow: -25% magic damage, +50% mana regen
+					'The first step into forbidden mana territory'
+					'''
+			}
+
+			SpringArcaneConduit: {
+				DisplayName: Spring Arcane Conduit
+				Tooltip:
+					'''
+					Overflow to -40 mana
+					While in overflow: spells leave healing petal trails
+					Inherits Resonant Overflow Gem abilities
+					'Spring's renewal flows through your magic'
+					'''
+			}
+
+			SolarManaCrucible: {
+				DisplayName: Solar Mana Crucible
+				Tooltip:
+					'''
+					Overflow to -60 mana
+					While in overflow: spells inflict Sunburn debuff
+					Inherits Spring Arcane Conduit abilities
+					'Summer's heat empowers your spells'
+					'''
+			}
+
+			HarvestSoulVessel: {
+				DisplayName: Harvest Soul Vessel
+				Tooltip:
+					'''
+					Overflow to -80 mana
+					Killing enemies while in overflow restores +15 mana
+					Inherits Solar Mana Crucible abilities
+					'Reap the souls to fuel your magic'
+					'''
+			}
+
+			PermafrostVoidHeart: {
+				DisplayName: Permafrost Void Heart
+				Tooltip:
+					'''
+					Overflow to -100 mana
+					While in overflow: spells deal +15% damage
+					Risk/reward: Offset the overflow damage penalty!
+					Inherits Harvest Soul Vessel abilities
+					'Winter's cold heart beats with power'
+					'''
+			}
+
+			VivaldisHarmonicCore: {
+				DisplayName: Vivaldi's Harmonic Core
+				Tooltip:
+					'''
+					Overflow to -120 mana
+					Recovering from overflow releases a seasonal burst
+					The burst deals damage and varies by season
+					Inherits Permafrost Void Heart abilities
+					'The Four Seasons harmonize within'
+					'''
+			}
+
+			MoonlitOverflowStar: {
+				DisplayName: Moonlit Overflow Star
+				Tooltip:
+					'''
+					At exactly 0 mana: next spell costs nothing
+					Precision timing reward for skilled mages
+					Inherits Vivaldi's Harmonic Core abilities
+					'The moon rewards those who dance on the edge'
+					'''
+			}
+
+			HeroicArcaneSurge: {
+				DisplayName: Heroic Arcane Surge
+				Tooltip:
+					'''
+					Going into overflow triggers 1 second of invincibility
+					30 second cooldown
+					Inherits Moonlit Overflow Star abilities
+					'A hero's magic defies even death'
+					'''
+			}
+
+			InfernalManaInferno: {
+				DisplayName: Infernal Mana Inferno
+				Tooltip:
+					'''
+					While in overflow: leave a trail of fire behind you
+					Enemies in the trail take damage over time
+					Inherits Heroic Arcane Surge abilities
+					'The bell tolls for those who follow'
+					'''
+			}
+
+			EnigmasNegativeSpace: {
+				DisplayName: Enigma's Negative Space
+				Tooltip:
+					'''
+					Overflow to -150 mana
+					At -100 or below: spells hit enemies twice
+					BUT you take 5% max HP per second while this deep
+					Inherits Infernal Mana Inferno abilities
+					'Reality questions itself in the negative space'
+					'''
+			}
+
+			SwansBalancedFlow: {
+				DisplayName: Swan's Balanced Flow
+				Tooltip:
+					'''
+					Gain "Grace" buff when recovering from overflow
+					Grace: +20% magic damage for 5 seconds
+					Rewards returning to positive mana
+					Inherits Enigma's Negative Space abilities
+					'Elegance in the dance between mana and void'
+					'''
+			}
+
+			FatesCosmicReservoir: {
+				DisplayName: Fate's Cosmic Reservoir
+				Tooltip:
+					'''
+					★ ULTIMATE MAGE ACCESSORY ★
+					Overflow to -200 mana
+					At -150 or below: spells pierce through walls
+					Inherits ALL previous overflow abilities
+					'The cosmos bends to fuel your magic'
+					'''
+			}
+
+			// ==========================================
+			// SUMMONER CHAIN - CONDUCTOR'S BATON SYSTEM
+			// ==========================================
+
+			ResonantConductorsWand: {
+				DisplayName: Resonant Conductor's Wand
+				Tooltip:
+					'''
+					Right-click to Conduct: focus all minions on one enemy for 3 seconds
+					Conducted target takes +20% damage from minions
+					15 second cooldown
+					'The baton that commands the symphony of war'
+					'''
+			}
+
+			SpringMaestrosBadge: {
+				DisplayName: Spring Maestro's Badge
+				Tooltip:
+					'''
+					Conduct cooldown reduced to 12 seconds
+					Conducted minions heal you 1 HP per hit during focus
+					Inherits Resonant Conductor's Wand abilities
+					'Bloom with every strike'
+					'''
+			}
+
+			SolarDirectorsCrest: {
+				DisplayName: Solar Director's Crest
+				Tooltip:
+					'''
+					Conduct cooldown reduced to 10 seconds
+					Conducted target takes "Performed" debuff: -5 defense
+					Inherits Spring Maestro's Badge abilities
+					'Under the summer sun, no defense stands'
+					'''
+			}
+
+			HarvestBeastlordsHorn: {
+				DisplayName: Harvest Beastlord's Horn
+				Tooltip:
+					'''
+					Conducted minions deal +30% damage during focus
+					Killing a conducted target extends the damage buff by 2 seconds
+					Inherits Solar Director's Crest abilities
+					'Rally the beasts of the autumn hunt'
+					'''
+			}
+
+			PermafrostCommandersCrown: {
+				DisplayName: Permafrost Commander's Crown
+				Tooltip:
+					'''
+					Conduct cooldown reduced to 8 seconds
+					Conducted target is slowed by 25%
+					Inherits Harvest Beastlord's Horn abilities
+					'Winter's chill follows your command'
+					'''
+			}
+
+			VivaldisOrchestraBaton: {
+				DisplayName: Vivaldi's Orchestra Baton
+				Tooltip:
+					'''
+					New Command: Double-tap Conduct to "Scatter"
+					Scatter spreads minions to attack all nearby enemies
+					Inherits Permafrost Commander's Crown abilities
+					'Four seasons of war at your fingertips'
+					'''
+			}
+
+			MoonlitSymphonyWand: {
+				DisplayName: Moonlit Symphony Wand
+				Tooltip:
+					'''
+					Conducting at night grants +10% minion damage globally
+					Inherits Vivaldi's Orchestra Baton abilities
+					'The moon's light guides your troops to victory'
+					'''
+			}
+
+			HeroicGeneralsBaton: {
+				DisplayName: Heroic General's Baton
+				Tooltip:
+					'''
+					Conduct grants minions brief invincibility (1 second)
+					Rally your troops!
+					Inherits Moonlit Symphony Wand abilities
+					'For glory! For honor! For victory!'
+					'''
+			}
+
+			InfernalChoirMastersRod: {
+				DisplayName: Infernal Choir Master's Rod
+				Tooltip:
+					'''
+					Conducted minions explode on hit (doesn't kill them)
+					+50% damage dealt as area-of-effect explosion
+					Inherits Heroic General's Baton abilities
+					'The choir of flames sings destruction'
+					'''
+			}
+
+			EnigmasHivemindLink: {
+				DisplayName: Enigma's Hivemind Link
+				Tooltip:
+					'''
+					Minions can phase through blocks during Conduct
+					Ambush enemies from anywhere!
+					Inherits Infernal Choir Master's Rod abilities
+					'The swarm knows no barriers'
+					'''
+			}
+
+			SwansGracefulDirection: {
+				DisplayName: Swan's Graceful Direction
+				Tooltip:
+					'''
+					Perfect Conduct (at full HP): minions deal DOUBLE damage
+					Inherits Enigma's Hivemind Link abilities
+					'Grace rewarded with devastating precision'
+					'''
+			}
+
+			FatesCosmicDominion: {
+				DisplayName: Fate's Cosmic Dominion
+				Tooltip:
+					'''
+					★ ULTIMATE SUMMONER ACCESSORY ★
+					Conduct cooldown reduced to 5 seconds
+					"Finale": Hold Conduct for 2 seconds to sacrifice all minions
+					Finale deals massive single-target damage (5x total minion damage)
+					Inherits ALL previous conductor abilities
+					'The final movement of the cosmic symphony'
+					'''
+			}
+
+			// ==========================================
+			// MOBILITY CHAIN - MOMENTUM SYSTEM
+			// ==========================================
+
+			ResonantVelocityBand: {
+				DisplayName: Resonant Velocity Band
+				Tooltip:
+					'''
+					Enables the Momentum System
+					Moving continuously builds Momentum (max 100)
+					Standing still causes Momentum to decay (5/s)
+					+8% movement speed
+					'Speed creates its own harmony'
+					'''
+			}
+
+			SpringZephyrBoots: {
+				DisplayName: Spring Zephyr Boots
+				Tooltip:
+					'''
+					At 50+ Momentum: +10% movement speed
+					At 80+ Momentum: Resets double jump mid-air
+					Grants Cloud in a Bottle jump
+					Inherits Resonant Velocity Band abilities
+					'Dance on the spring breeze'
+					'''
+			}
+
+			SolarBlitzTreads: {
+				DisplayName: Solar Blitz Treads
+				Tooltip:
+					'''
+					At 70+ Momentum: Leaves a damaging fire trail
+					Grants immunity to fire debuffs at high momentum
+					Inherits Spring Zephyr Boots abilities
+					'Blazing footsteps mark your passage'
+					'''
+			}
+
+			HarvestPhantomStride: {
+				DisplayName: Harvest Phantom Stride
+				Tooltip:
+					'''
+					At 80+ Momentum: Phase through enemies (75% reduced contact damage)
+					Ghost through the battlefield at high speed!
+					Inherits Solar Blitz Treads abilities
+					'The autumn wind carries phantoms'
+					'''
+			}
+
+			PermafrostAvalancheStep: {
+				DisplayName: Permafrost Avalanche Step
+				Tooltip:
+					'''
+					At 90+ Momentum: Leaves a slowing ice trail
+					At 100: Ice dash ability
+					+5 defense at high momentum
+					Inherits Harvest Phantom Stride abilities
+					'The cold follows in your wake'
+					'''
+			}
+
+			VivaldisSeasonalSprint: {
+				DisplayName: Vivaldi's Seasonal Sprint
+				Tooltip:
+					'''
+					Max Momentum increased to 120
+					Trail effects cycle through seasonal elements
+					Grants all jump types
+					Inherits Permafrost Avalanche Step abilities
+					'Four seasons of speed at your command'
+					'''
+			}
+
+			MoonlitPhantomsRush: {
+				DisplayName: Moonlit Phantom's Rush
+				Tooltip:
+					'''
+					At 100+ Momentum: Become semi-transparent (-200 aggro)
+					Night vision and +5% damage/speed at night
+					Inherits Vivaldi's Seasonal Sprint abilities
+					'A ghost beneath the moonlight'
+					'''
+			}
+
+			HeroicChargeBoots: {
+				DisplayName: Heroic Charge Boots
+				Tooltip:
+					'''
+					Consume 80 Momentum for heroic dash attack
+					Dash deals damage and grants brief invincibility
+					+8 defense at high momentum
+					Inherits Moonlit Phantom's Rush abilities
+					'Charge forth with heroic valor!'
+					'''
+			}
+
+			InfernalMeteorStride: {
+				DisplayName: Infernal Meteor Stride
+				Tooltip:
+					'''
+					At 100+ Momentum: Landing from heights creates impact crater
+					Meteor impact deals AoE damage to nearby enemies
+					Lava immunity, +8% damage at high momentum
+					Inherits Heroic Charge Boots abilities
+					'Descend like a meteor upon your foes'
+					'''
+			}
+
+			EnigmasPhaseShift: {
+				DisplayName: Enigma's Phase Shift
+				Tooltip:
+					'''
+					Consume 100 Momentum to teleport forward (12.5 tiles)
+					Grants ninja dodge chance at 80+ momentum
+					Confusion immunity
+					Inherits Infernal Meteor Stride abilities
+					'Phase through the boundaries of reality'
+					'''
+			}
+
+			SwansEternalGlide: {
+				DisplayName: Swan's Eternal Glide
+				Tooltip:
+					'''
+					50% slower Momentum decay
+					At max Momentum: Infinite flight duration
+					+100 wing time, reduced aggro
+					Inherits Enigma's Phase Shift abilities
+					'Glide eternally on graceful wings'
+					'''
+			}
+
+			FatesCosmicVelocity: {
+				DisplayName: Fate's Cosmic Velocity
+				Tooltip:
+					'''
+					★ ULTIMATE MOBILITY ACCESSORY ★
+					Max Momentum increased to 150
+					At 150 Momentum: Nearby enemies are slowed 20%
+					50% slower Momentum decay
+					+10% all damage, +150 wing time
+					ALL abilities from previous chain accessories
+					'Time bends around cosmic velocity'
+					'''
+			}
+
+			// ==========================================
+			// DEFENSE CHAIN - RESONANT SHIELD SYSTEM
+			// ==========================================
+
+			ResonantBarrierCore: {
+				DisplayName: Resonant Barrier Core
+				Tooltip:
+					'''
+					Enables the Resonant Shield System
+					Grants a shield equal to 10% of max HP
+					Shield regenerates when not hit for 5 seconds
+					+2 defense
+					'A barrier woven from pure resonance'
+					'''
+			}
+
+			SpringVitalityShell: {
+				DisplayName: Spring Vitality Shell
+				Tooltip:
+					'''
+					Shield equals 15% of max HP
+					When shield breaks: Releases healing petals (+10 HP to nearby allies)
+					+4 defense, +2 life regen
+					Inherits Resonant Barrier Core abilities
+					'New life blooms from broken barriers'
+					'''
+			}
+
+			SolarFlareAegis: {
+				DisplayName: Solar Flare Aegis
+				Tooltip:
+					'''
+					Shield equals 20% of max HP
+					When shield breaks: Releases fire nova (damages enemies)
+					Immunity to fire and burning
+					+6 defense
+					Inherits Spring Vitality Shell abilities
+					'The sun's wrath protects and retaliates'
+					'''
+			}
+
+			HarvestThornedGuard: {
+				DisplayName: Harvest Thorned Guard
+				Tooltip:
+					'''
+					Shield equals 25% of max HP
+					While shield active: Thorns return 15% damage to melee attackers
+					+8 defense
+					Inherits Solar Flare Aegis abilities
+					'Those who strike you shall feel autumn's sting'
+					'''
+			}
+
+			PermafrostCrystalWard: {
+				DisplayName: Permafrost Crystal Ward
+				Tooltip:
+					'''
+					Shield equals 30% of max HP
+					When shield breaks: Freezes nearby attackers for 1 second
+					Immunity to frost, chill, and freeze
+					+10 defense
+					Inherits Harvest Thorned Guard abilities
+					'Winter's cold preserves your life'
+					'''
+			}
+
+			VivaldisSeasonalBulwark: {
+				DisplayName: Vivaldi's Seasonal Bulwark
+				Tooltip:
+					'''
+					Shield equals 35% of max HP
+					Shield break effect cycles: Heal → Fire → Thorns → Freeze
+					All seasonal immunities and bonuses
+					+14 defense, +3 life regen
+					Inherits Permafrost Crystal Ward abilities
+					'Four seasons of protection guard you'
+					'''
+			}
+
+			MoonlitGuardiansVeil: {
+				DisplayName: Moonlit Guardian's Veil
+				Tooltip:
+					'''
+					Shield equals 36% of max HP
+					Shield regenerates faster at night
+					When shield breaks: Grants 2 seconds of invisibility
+					Night vision, +5 defense/damage at night
+					+18 defense, +4 life regen
+					Inherits Vivaldi's Seasonal Bulwark abilities
+					'The moon veils those who seek protection'
+					'''
+			}
+
+			HeroicValorsAegis: {
+				DisplayName: Heroic Valor's Aegis
+				Tooltip:
+					'''
+					Shield equals 38% of max HP
+					When shield breaks: Grants +15% damage for 5 seconds
+					Turn your defense into furious offense!
+					+20 defense, +5% base damage
+					+5 life regen, enhanced thorns
+					Inherits Moonlit Guardian's Veil abilities
+					'A hero's shield empowers their counterattack'
+					'''
+			}
+
+			InfernalBellsFortress: {
+				DisplayName: Infernal Bell's Fortress
+				Tooltip:
+					'''
+					Shield equals 40% of max HP
+					When shield breaks: Releases massive bell shockwave
+					Shockwave damages and knocks back enemies
+					Lava immunity, +8% damage
+					+24 defense, +6 life regen
+					Inherits Heroic Valor's Aegis abilities
+					'The bell tolls destruction upon your foes'
+					'''
+			}
+
+			EnigmasVoidShell: {
+				DisplayName: Enigma's Void Shell
+				Tooltip:
+					'''
+					Shield equals 45% of max HP
+					While shield active: 10% chance to phase through attacks entirely
+					Grants Black Belt dodge chance
+					Confusion immunity
+					+26 defense, +7 life regen
+					Inherits Infernal Bell's Fortress abilities
+					'Reality cannot touch what doesn't exist'
+					'''
+			}
+
+			SwansImmortalGrace: {
+				DisplayName: Swan's Immortal Grace
+				Tooltip:
+					'''
+					Shield equals 50% of max HP
+					At full shield: +5% dodge chance
+					Faster shield regeneration
+					Reduced enemy aggro
+					+30 defense, +8 life regen
+					Inherits Enigma's Void Shell abilities
+					'Graceful immortality shields the worthy'
+					'''
+			}
+
+			FatesCosmicAegis: {
+				DisplayName: Fate's Cosmic Aegis
+				Tooltip:
+					'''
+					★ ULTIMATE DEFENSE ACCESSORY ★
+					Shield equals 60% of max HP
+					At low HP: Triggers "Last Stand" - 3 seconds invincibility
+					Last Stand has a 2 minute cooldown
+					+35 defense, +10 life regen, +10% damage
+					Maximum thorns, all immunities
+					ALL abilities from previous chain accessories
+					'The cosmos itself becomes your aegis'
 					'''
 			}
 		}

@@ -134,6 +134,7 @@ namespace MagnumOpus.Content.Fate.Tools
         private bool isDodging = false;
         private int dodgeTimer = 0;
         private const int DodgeDuration = 10;
+        private int lastDodgeDirection = 0;
 
         public override void ResetEffects()
         {
@@ -157,12 +158,17 @@ namespace MagnumOpus.Content.Fate.Tools
             if (dodgeCooldown > 0)
                 dodgeCooldown--;
             
-            // Handle dodge input - right click (only when no UI is open)
-            bool canDodge = !Main.playerInventory && !Main.ingameOptionsWindow && !Main.inFancyUI && 
-                           !Main.mapFullscreen && !Main.editChest && !Main.editSign;
-            if (canDodge && Main.mouseRight && Main.mouseRightRelease && dodgeCooldown <= 0 && !isDodging)
+            // Handle dodge input - double-tap left/right like Shield of Cthulhu
+            if (dodgeCooldown <= 0 && !isDodging)
             {
-                PerformDodge();
+                if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[2] < 15)
+                {
+                    PerformDodge(-1);
+                }
+                else if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[3] < 15)
+                {
+                    PerformDodge(1);
+                }
             }
             
             // Handle ongoing dodge
@@ -247,14 +253,15 @@ namespace MagnumOpus.Content.Fate.Tools
             }
         }
 
-        private void PerformDodge()
+        private void PerformDodge(int direction)
         {
             isDodging = true;
             dodgeTimer = 0;
             dodgeCooldown = DodgeCooldownMax;
+            lastDodgeDirection = direction;
             
-            Vector2 dodgeDirection = (Main.MouseWorld - Player.Center).SafeNormalize(Vector2.UnitX);
-            Player.velocity = dodgeDirection * DodgeSpeed;
+            Vector2 dodgeDir = new Vector2(direction, 0f);
+            Player.velocity = dodgeDir * DodgeSpeed;
             
             SoundEngine.PlaySound(SoundID.Item163 with { Pitch = 0.1f, Volume = 0.8f }, Player.Center);
             

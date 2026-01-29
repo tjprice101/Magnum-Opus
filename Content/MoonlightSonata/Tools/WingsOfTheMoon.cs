@@ -68,7 +68,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
         private int frameCounter = 0;
         private bool wasFlying = false;  // Track previous flying state
         
-        // Dodge mechanic
+        // Dodge mechanic - Double-tap left/right like Shield of Cthulhu
         public bool hasWingsEquipped = false;
         private int dodgeCooldown = 0;
         private const int DodgeCooldownMax = 30; // 0.5 seconds at 60fps
@@ -76,6 +76,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
         private bool isDodging = false;
         private int dodgeTimer = 0;
         private const int DodgeDuration = 8; // Duration of the dodge in ticks
+        private int lastDodgeDirection = 0; // -1 = left, 1 = right
 
         public override void ResetEffects()
         {
@@ -99,12 +100,18 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
             if (dodgeCooldown > 0)
                 dodgeCooldown--;
             
-            // Handle dodge input - right click (only when no UI is open)
-            bool canDodge = !Main.playerInventory && !Main.ingameOptionsWindow && !Main.inFancyUI && 
-                           !Main.mapFullscreen && !Main.editChest && !Main.editSign;
-            if (canDodge && Main.mouseRight && Main.mouseRightRelease && dodgeCooldown <= 0 && !isDodging)
+            // Handle dodge input - double-tap left/right like Shield of Cthulhu
+            if (dodgeCooldown <= 0 && !isDodging)
             {
-                PerformDodge();
+                // Check for double-tap left (index 2) or right (index 3)
+                if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[2] < 15)
+                {
+                    PerformDodge(-1); // Dodge left
+                }
+                else if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[3] < 15)
+                {
+                    PerformDodge(1); // Dodge right
+                }
             }
             
             // Handle active dodge
@@ -153,18 +160,18 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
             }
         }
         
-        private void PerformDodge()
+        private void PerformDodge(int direction)
         {
             isDodging = true;
             dodgeTimer = 0;
             dodgeCooldown = DodgeCooldownMax;
+            lastDodgeDirection = direction;
             
-            // Calculate direction toward cursor
-            Vector2 cursorWorld = Main.MouseWorld;
-            Vector2 direction = (cursorWorld - Player.Center).SafeNormalize(Vector2.UnitX);
+            // Dodge in the tapped direction (left or right)
+            Vector2 dodgeDir = new Vector2(direction, 0f);
             
-            // Set velocity toward cursor
-            Player.velocity = direction * DodgeSpeed;
+            // Set velocity in dodge direction
+            Player.velocity = dodgeDir * DodgeSpeed;
             
             // Play dodge sound
             SoundEngine.PlaySound(SoundID.Item8 with { Pitch = 0.3f, Volume = 0.8f }, Player.Center);
