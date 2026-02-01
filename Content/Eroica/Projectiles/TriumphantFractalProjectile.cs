@@ -140,6 +140,20 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Music notes on hit
             ThemedParticles.EroicaMusicNotes(target.Center, 3, 25f);
             
+            // === SEEKING CRYSTALS - Triumphant fractal burst ===
+            if (Main.rand.NextBool(3))
+            {
+                SeekingCrystalHelper.SpawnEroicaCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.20f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    4
+                );
+            }
+            
             CreateMassiveExplosion();
         }
 

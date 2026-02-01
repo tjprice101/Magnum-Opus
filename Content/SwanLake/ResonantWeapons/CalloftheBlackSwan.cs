@@ -299,6 +299,16 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
                 // Crit sound and light
                 SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with { Volume = 0.6f, Pitch = 0.4f }, target.Center);
                 Lighting.AddLight(target.Center, 2f, 2f, 2.5f);
+                
+                // Spawn seeking crystals on crit - Swan Lake prismatic power
+                SeekingCrystalHelper.SpawnSwanLakeCrystals(
+                    player.GetSource_ItemUse(Item),
+                    target.Center,
+                    (Main.MouseWorld - target.Center).SafeNormalize(Vector2.UnitX) * 8f,
+                    (int)(damageDone * 0.2f),
+                    Item.knockBack * 0.4f,
+                    player.whoAmI,
+                    5);
             }
             else
             {

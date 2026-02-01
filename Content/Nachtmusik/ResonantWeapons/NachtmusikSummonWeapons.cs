@@ -240,6 +240,18 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 CustomParticles.GenericFlare(starPos, NachtmusikCosmicVFX.StarWhite, 0.4f, 18);
             }
             
+            // === SEEKING CRYSTALS ON SUMMON - STELLAR CONDUCTOR'S GIFT ===
+            // The conductor gifts seeking crystals to hunt nearby enemies on summon
+            SeekingCrystalHelper.SpawnNachtmusikCrystals(
+                source,
+                spawnPos,
+                Vector2.Zero, // Radiate outward
+                (int)(damage * 0.25f),
+                3f,
+                player.whoAmI,
+                6
+            );
+            
             // Music note ring and burst for grand entrance
             ThemedParticles.MusicNoteRing(spawnPos, new Color(100, 60, 180), 55f, 10);
             ThemedParticles.MusicNoteBurst(spawnPos, new Color(80, 100, 200), 8, 5f);

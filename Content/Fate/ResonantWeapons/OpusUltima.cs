@@ -109,6 +109,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         {
             Vector2 swingPos = hitbox.Center.ToVector2();
             
+            // === SPECTACULAR SWING SYSTEM - ENDGAME TIER (7-8 arcs + cosmic clouds + glyphs) ===
+            SpectacularMeleeSwing.OnSwing(player, hitbox, FateCosmicVFX.FateDarkPink, FateCosmicVFX.FateBrightRed, 
+                SpectacularMeleeSwing.SwingTier.Endgame, SpectacularMeleeSwing.WeaponTheme.Fate);
+            
             // Cosmic sparks from swing
             if (Main.rand.NextBool(2))
             {
@@ -116,6 +120,21 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
                 Vector2 sparkVel = new Vector2(player.direction * 3f, Main.rand.NextFloat(-2f, 2f));
                 var spark = new GlowSparkParticle(swingPos + Main.rand.NextVector2Circular(15f, 15f), sparkVel, sparkColor, 0.22f, 12);
                 MagnumParticleHandler.SpawnParticle(spark);
+            }
+            
+            // Star particles in swing
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 starOffset = Main.rand.NextVector2Circular(20f, 20f);
+                var star = new GenericGlowParticle(swingPos + starOffset, -player.velocity * 0.1f, 
+                    FateCosmicVFX.FateWhite, 0.2f, 14, true);
+                MagnumParticleHandler.SpawnParticle(star);
+            }
+            
+            // Glyphs trailing the swing
+            if (Main.rand.NextBool(6))
+            {
+                CustomParticles.GlyphTrail(swingPos, -player.velocity * 0.15f, FateCosmicVFX.FatePurple, 0.28f);
             }
         }
         
@@ -126,6 +145,20 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             // Impact VFX with glyphs and stars
             FateCosmicVFX.SpawnCosmicExplosion(target.Center, 0.8f);
             FateCosmicVFX.SpawnGlyphBurst(target.Center, 4, 5f, 0.35f);
+            
+            // === SPAWN SEEKING CRYSTALS - THE MAIN DAMAGE SOURCE ===
+            // On hit, release 3-5 homing crystal projectiles that seek nearby enemies
+            Vector2 crystalDir = (target.Center - player.Center).SafeNormalize(Vector2.UnitX);
+            int crystalCount = hit.Crit ? 5 : 3;
+            SeekingCrystalHelper.SpawnFateCrystals(
+                player.GetSource_ItemUse(player.HeldItem),
+                target.Center,
+                crystalDir * 8f,
+                (int)(damageDone * 0.4f), // 40% of hit damage per crystal
+                2f,
+                player.whoAmI,
+                crystalCount
+            );
             
             // Star particles
             for (int i = 0; i < 6; i++)

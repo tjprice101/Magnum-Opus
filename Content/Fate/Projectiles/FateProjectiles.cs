@@ -145,6 +145,20 @@ namespace MagnumOpus.Content.Fate.Projectiles
             
             // ☁EMUSICAL IMPACT - Fate's chord burst
             ThemedParticles.MusicNoteBurst(target.Center, new Color(180, 50, 100), 5, 3.5f);
+            
+            // === SEEKING CRYSTALS - Cosmic lightning burst ===
+            if (Main.rand.NextBool(3))
+            {
+                SeekingCrystalHelper.SpawnFateCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.20f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    4
+                );
+            }
         }
 
         public override void OnKill(int timeLeft)
@@ -471,6 +485,20 @@ namespace MagnumOpus.Content.Fate.Projectiles
             
             // ☁EMUSICAL IMPACT - Fate's chord burst
             ThemedParticles.MusicNoteBurst(target.Center, new Color(180, 50, 100), 4, 3f);
+            
+            // === SEEKING CRYSTALS - Cosmic seeker burst ===
+            if (Main.rand.NextBool(4))
+            {
+                SeekingCrystalHelper.SpawnFateCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.15f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    3
+                );
+            }
         }
 
         public override void OnKill(int timeLeft)
@@ -981,6 +1009,20 @@ namespace MagnumOpus.Content.Fate.Projectiles
             
             // ☁EMUSICAL IMPACT - Fate's chord burst
             ThemedParticles.MusicNoteBurst(target.Center, new Color(180, 50, 100), 4, 3f);
+            
+            // === SEEKING CRYSTALS - Cosmic beam impact ===
+            if (Main.rand.NextBool(4))
+            {
+                SeekingCrystalHelper.SpawnFateCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.15f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    3
+                );
+            }
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -1131,6 +1173,20 @@ namespace MagnumOpus.Content.Fate.Projectiles
             FateCosmicVFX.SpawnCosmicFlames(target.Center, 12, 30f, 0.8f);
             FateCosmicVFX.SpawnCosmicElectricity(target.Center, 4, 40f, 0.8f);
             FateCosmicVFX.SpawnCosmicExplosion(target.Center, 0.6f);
+            
+            // === SEEKING CRYSTALS - Cosmic music note burst ===
+            if (Main.rand.NextBool(3))
+            {
+                SeekingCrystalHelper.SpawnFateCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.20f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    5
+                );
+            }
 
             SoundEngine.PlaySound(SoundID.Item14, target.Center);
         }

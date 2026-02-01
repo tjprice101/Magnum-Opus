@@ -780,6 +780,20 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(ModContent.BuffType<FlameOfTheSwan>(), 180); // 3 seconds
+            
+            // === SEEKING CRYSTALS - 33% chance on summon hit ===
+            if (Main.rand.NextBool(3))
+            {
+                SeekingCrystalHelper.SpawnSwanLakeCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.2f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    4
+                );
+            }
 
             // === MASSIVE RAINBOW EXPLOSION ON IMPACT ===
             CreateMassiveRainbowExplosion(target.Center);

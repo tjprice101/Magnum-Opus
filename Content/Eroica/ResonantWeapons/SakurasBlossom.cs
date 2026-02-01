@@ -269,6 +269,19 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             
             // Music notes on hit
             CustomParticles.EroicaMusicNotes(target.Center, 3, 20f);
+            
+            // Spawn seeking crystals on every hit - Eroica melee power
+            if (Main.rand.NextBool(3)) // 33% chance
+            {
+                SeekingCrystalHelper.SpawnEroicaCrystals(
+                    player.GetSource_ItemUse(Item),
+                    target.Center,
+                    (Main.MouseWorld - target.Center).SafeNormalize(Vector2.UnitX) * 8f,
+                    (int)(damageDone * 0.2f),
+                    Item.knockBack * 0.4f,
+                    player.whoAmI,
+                    4);
+            }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

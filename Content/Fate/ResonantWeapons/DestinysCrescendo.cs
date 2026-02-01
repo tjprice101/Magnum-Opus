@@ -114,6 +114,18 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
                 MagnumParticleHandler.SpawnParticle(star);
             }
             
+            // === SEEKING CRYSTALS - DESTINY'S HERALD SHARDS ===
+            // Release cosmic crystals that seek enemies upon deity summoning
+            SeekingCrystalHelper.SpawnFateCrystals(
+                source,
+                spawnPos,
+                Vector2.Zero, // Radiate outward
+                (int)(damage * 0.3f),
+                3f,
+                player.whoAmI,
+                5
+            );
+            
             return false;
         }
     }

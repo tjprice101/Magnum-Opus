@@ -151,6 +151,16 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             SoundEngine.PlaySound(SoundID.Item105 with { Pitch = 0.2f, Volume = 0.8f }, target.Center);
             
             Lighting.AddLight(target.Center, FateCosmicVFX.FateBrightRed.ToVector3() * 1.5f);
+            
+            // Spawn seeking crystals on every hit - Fate endgame power
+            SeekingCrystalHelper.SpawnFateCrystals(
+                player.GetSource_ItemUse(Item),
+                target.Center,
+                (Main.MouseWorld - target.Center).SafeNormalize(Vector2.UnitX) * 10f,
+                (int)(damageDone * 0.2f),
+                Item.knockBack * 0.4f,
+                player.whoAmI,
+                4);
         }
     }
 }

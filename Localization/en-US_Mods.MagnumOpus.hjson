@@ -6402,4 +6402,5 @@ Projectiles: {
 	SentinelFrostBolt.DisplayName: Sentinel Frost Bolt
 	StormIcicle.DisplayName: Storm Icicle
 	NebulaStarfallProjectile.DisplayName: Nebula Starfall Projectile
+	SeekingCrystalProjectile.DisplayName: Seeking Crystal Projectile
 }

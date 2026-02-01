@@ -177,6 +177,10 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                     ModContent.ProjectileType<HomingMusicNote>(), damage / 2, knockback * 0.5f, player.whoAmI);
             }
             
+            // === SEEKING INFERNAL CRYSTALS - La Campanella Fire Crystals ===
+            SeekingCrystalHelper.SpawnLaCampanellaCrystals(
+                source, position, velocity * 0.5f, (int)(damage * 0.45f), knockback, player.whoAmI, 6);
+            
             // Massive visual effects
             Vector2 muzzlePos = position + velocity.SafeNormalize(Vector2.Zero) * 40f;
             ThemedParticles.LaCampanellaBloomBurst(muzzlePos, 0.8f);
@@ -351,6 +355,20 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
+            
+            // === SEEKING CRYSTALS - 25% chance on hit ===
+            if (Main.rand.NextBool(4))
+            {
+                SeekingCrystalHelper.SpawnLaCampanellaCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.18f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    3
+                );
+            }
             
             // ☁EMUSICAL IMPACT - Burst of music notes on hit
             ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 140, 40), 5, 3.5f);

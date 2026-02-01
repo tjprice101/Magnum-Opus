@@ -22,6 +22,8 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
     /// </summary>
     public class ConstellationPiercer : ModItem
     {
+        private int crystalCounter = 0;
+        
         public override void SetDefaults()
         {
             Item.width = 34;
@@ -48,6 +50,9 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             // Always fire constellation bolts, ignore arrow type
             Vector2 direction = velocity.SafeNormalize(Vector2.UnitX);
             
+            // Track shots for crystal burst
+            crystalCounter++;
+            
             // Fire main bolt
             Projectile.NewProjectile(source, position, velocity, ModContent.ProjectileType<ConstellationBoltProjectile>(), damage, knockback, player.whoAmI);
             
@@ -57,6 +62,22 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 float angleOffset = MathHelper.ToRadians(8f * i);
                 Vector2 sideVel = velocity.RotatedBy(angleOffset);
                 Projectile.NewProjectile(source, position, sideVel, ModContent.ProjectileType<ConstellationBoltProjectile>(), (int)(damage * 0.7f), knockback * 0.5f, player.whoAmI);
+            }
+            
+            // === SPAWN SEEKING CRYSTALS EVERY 5 SHOTS ===
+            if (crystalCounter >= 5)
+            {
+                crystalCounter = 0;
+                SeekingCrystalHelper.SpawnNachtmusikCrystals(
+                    source,
+                    position + direction * 30f,
+                    velocity * 0.8f,
+                    (int)(damage * 0.5f),
+                    knockback,
+                    player.whoAmI,
+                    4
+                );
+                SoundEngine.PlaySound(SoundID.Item25 with { Pitch = 0.4f, Volume = 0.7f }, position);
             }
             
             // Enhanced muzzle VFX with star burst

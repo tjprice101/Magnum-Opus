@@ -158,7 +158,13 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
-            // Trail particles
+            Vector2 hitCenter = hitbox.Center.ToVector2();
+            
+            // === SPECTACULAR SWING SYSTEM - MID TIER (3-4 arcs with decay swirls) ===
+            SpectacularMeleeSwing.OnSwing(player, hitbox, AutumnOrange, DecayPurple, 
+                SpectacularMeleeSwing.SwingTier.Mid, SpectacularMeleeSwing.WeaponTheme.Autumn);
+            
+            // Trail particles - decay wisps
             if (Main.rand.NextBool(2))
             {
                 Vector2 trailPos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
@@ -166,6 +172,25 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 Color trailColor = Color.Lerp(AutumnOrange, AutumnRed, Main.rand.NextFloat()) * 0.5f;
                 var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.28f, 18, true);
                 MagnumParticleHandler.SpawnParticle(trail);
+            }
+            
+            // Music notes - melancholy autumn melody
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 notePos = hitCenter + Main.rand.NextVector2Circular(10f, 10f);
+                Vector2 noteVel = (player.direction * Vector2.UnitX).RotatedByRandom(0.5f) * Main.rand.NextFloat(1f, 2.5f);
+                Color noteColor = Color.Lerp(AutumnOrange, AutumnBrown, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor * 0.8f, 0.75f, 28);
+            }
+            
+            // Falling leaves along swing
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 leafPos = hitCenter + Main.rand.NextVector2Circular(15f, 15f);
+                Vector2 leafVel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(1f, 3f));
+                Color leafColor = Main.rand.NextBool() ? AutumnOrange : AutumnRed;
+                var leaf = new GenericGlowParticle(leafPos, leafVel, leafColor * 0.6f, 0.25f, 30, true);
+                MagnumParticleHandler.SpawnParticle(leaf);
             }
         }
 
@@ -179,6 +204,11 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 hitCount = 0;
                 // Apply stacking decay (using vanilla Ichor as proxy for armor reduction)
                 target.AddBuff(BuffID.Ichor, 300);
+                
+                // === SEEKING AUTUMN DECAY CRYSTALS ===
+                SeekingCrystalHelper.SpawnAutumnCrystals(
+                    player.GetSource_OnHit(target), target.Center, (target.Center - player.Center).SafeNormalize(Vector2.Zero) * 4f, 
+                    (int)(damageDone * 0.4f), hit.Knockback, player.whoAmI, 5);
                 
                 // Decay burst VFX - layered bloom instead of halo
                 CustomParticles.GenericFlare(target.Center, DecayPurple, 0.65f, 18);

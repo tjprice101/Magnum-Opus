@@ -179,6 +179,20 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
             
             // Music notes on impact
             CustomParticles.MoonlightMusicNotes(target.Center, 3, 22f);
+            
+            // === SPAWN SEEKING CRYSTALS - LUNAR SHARDS ===
+            // On hit, release 3 homing lunar crystal shards (5 on crit)
+            int crystalCount = hit.Crit ? 5 : 3;
+            Vector2 crystalDir = (target.Center - player.Center).SafeNormalize(Vector2.UnitX);
+            SeekingCrystalHelper.SpawnMoonlightCrystals(
+                player.GetSource_ItemUse(player.HeldItem),
+                target.Center,
+                crystalDir * 7f,
+                (int)(damageDone * 0.35f),
+                2.5f,
+                player.whoAmI,
+                crystalCount
+            );
         }
 
         public override void HoldItem(Player player)

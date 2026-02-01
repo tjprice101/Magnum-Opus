@@ -149,7 +149,13 @@ namespace MagnumOpus.Content.Winter.Weapons
 
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
-            // Frost trail particles
+            Vector2 hitCenter = hitbox.Center.ToVector2();
+            
+            // === SPECTACULAR SWING SYSTEM - HIGH TIER (5-6 arcs with frost crystals) ===
+            SpectacularMeleeSwing.OnSwing(player, hitbox, IceBlue, CrystalCyan, 
+                SpectacularMeleeSwing.SwingTier.High, SpectacularMeleeSwing.WeaponTheme.Winter);
+            
+            // Frost trail particles - crystalline shards
             if (Main.rand.NextBool(2))
             {
                 Vector2 trailPos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
@@ -157,6 +163,24 @@ namespace MagnumOpus.Content.Winter.Weapons
                 Color trailColor = Color.Lerp(IceBlue, FrostWhite, Main.rand.NextFloat()) * 0.55f;
                 var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.3f, 20, true);
                 MagnumParticleHandler.SpawnParticle(trail);
+            }
+            
+            // Music notes - haunting winter melody
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 notePos = hitCenter + Main.rand.NextVector2Circular(10f, 10f);
+                Vector2 noteVel = (player.direction * Vector2.UnitX).RotatedByRandom(0.5f) * Main.rand.NextFloat(1f, 2.5f);
+                noteVel.Y += Main.rand.NextFloat(0.5f, 1f); // Drift downward like snow
+                Color noteColor = Color.Lerp(IceBlue, FrostWhite, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor * 0.8f, 0.75f, 30);
+            }
+            
+            // Snowflake dust
+            if (Main.rand.NextBool(3))
+            {
+                Dust frost = Dust.NewDustPerfect(hitCenter + Main.rand.NextVector2Circular(15f, 15f), 
+                    DustID.Frost, Main.rand.NextVector2Circular(2f, 2f), 0, FrostWhite, 1.0f);
+                frost.noGravity = true;
             }
         }
 
@@ -167,6 +191,11 @@ namespace MagnumOpus.Content.Winter.Weapons
             {
                 // Freeze effect (Frozen debuff)
                 target.AddBuff(BuffID.Frozen, 90);
+                
+                // === SEEKING WINTER FROST CRYSTALS ===
+                SeekingCrystalHelper.SpawnWinterCrystals(
+                    player.GetSource_OnHit(target), target.Center, (target.Center - player.Center).SafeNormalize(Vector2.Zero) * 5f, 
+                    (int)(damageDone * 0.35f), hit.Knockback, player.whoAmI, 5);
                 
                 // Freeze VFX
                 CustomParticles.GenericFlare(target.Center, CrystalCyan, 0.75f, 22);

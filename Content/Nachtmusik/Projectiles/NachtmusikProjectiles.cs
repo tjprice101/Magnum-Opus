@@ -116,6 +116,20 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             
             // 笘・MUSICAL IMPACT - Celestial chord burst
             ThemedParticles.MusicNoteBurst(target.Center, NachtmusikCosmicVFX.Gold, 5, 3.5f);
+            
+            // === SEEKING CRYSTALS - Celestial burst ===
+            if (Main.rand.NextBool(3))
+            {
+                SeekingCrystalHelper.SpawnNachtmusikCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.18f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    4
+                );
+            }
         }
         
         public override void OnKill(int timeLeft)
@@ -253,6 +267,20 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             
             // 笘・MUSICAL IMPACT - Crescendo chord burst
             ThemedParticles.MusicNoteBurst(target.Center, NachtmusikCosmicVFX.Gold, 4, 3f);
+            
+            // === SEEKING CRYSTALS - Crescendo burst ===
+            if (Main.rand.NextBool(4))
+            {
+                SeekingCrystalHelper.SpawnNachtmusikCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.15f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    3
+                );
+            }
         }
         
         public override void OnKill(int timeLeft)
@@ -841,6 +869,20 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             
             // 笘・MUSICAL IMPACT - Serenade chord burst
             ThemedParticles.MusicNoteBurst(target.Center, NachtmusikCosmicVFX.StarWhite, 5, 3.5f);
+            
+            // === SEEKING CRYSTALS - Star burst ===
+            if (Main.rand.NextBool(4))
+            {
+                SeekingCrystalHelper.SpawnNachtmusikCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.15f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    3
+                );
+            }
         }
         
         public override void OnKill(int timeLeft)

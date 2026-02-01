@@ -180,10 +180,15 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
+            Vector2 hitCenter = hitbox.Center.ToVector2();
+            
+            // === SPECTACULAR SWING SYSTEM - ENDGAME TIER (7-8 layered arcs + cosmic effects) ===
+            SpectacularMeleeSwing.OnSwing(player, hitbox, UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, 
+                SpectacularMeleeSwing.SwingTier.Endgame, SpectacularMeleeSwing.WeaponTheme.Eroica);
+            
             // Swing trail with occasional sword arc slash
             if (Main.rand.NextBool(4))
             {
-                Vector2 hitCenter = new Vector2(hitbox.X + hitbox.Width / 2, hitbox.Y + hitbox.Height / 2);
                 Vector2 swingDir = (hitCenter - player.Center).SafeNormalize(Vector2.UnitX);
                 CustomParticles.SwordArcSlash(hitCenter, swingDir, CustomParticleSystem.EroicaColors.Scarlet * 0.7f, 0.3f, swingDir.ToRotation());
             }
@@ -191,8 +196,13 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             // Themed trail particles
             if (Main.rand.NextBool(3))
             {
-                Vector2 hitCenter = new Vector2(hitbox.X + hitbox.Width / 2, hitbox.Y + hitbox.Height / 2);
                 ThemedParticles.EroicaTrail(hitCenter, player.velocity * 0.25f);
+            }
+            
+            // Sakura petals in swing arc
+            if (Main.rand.NextBool(5))
+            {
+                ThemedParticles.SakuraPetals(hitCenter, 1, 20f);
             }
         }
 
@@ -227,6 +237,19 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             
             // Musical accidentals on hit
             CustomParticles.EroicaMusicNotes(target.Center, 2, 18f);
+            
+            // Spawn seeking crystals on crit - Celestial Valor power
+            if (hit.Crit)
+            {
+                SeekingCrystalHelper.SpawnEroicaCrystals(
+                    player.GetSource_ItemUse(Item),
+                    target.Center,
+                    (Main.MouseWorld - target.Center).SafeNormalize(Vector2.UnitX) * 8f,
+                    (int)(damageDone * 0.25f),
+                    Item.knockBack * 0.5f,
+                    player.whoAmI,
+                    5);
+            }
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)

@@ -177,6 +177,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
             // Music note chord
             ThemedParticles.MusicNoteBurst(target.Center, SpringPink * 0.75f, 5, 3.5f);
+            
+            // === SEEKING CRYSTALS - Spring blossom burst ===
+            if (Main.rand.NextBool(3))
+            {
+                SeekingCrystalHelper.SpawnSpringCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.18f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    4
+                );
+            }
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -480,6 +494,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             }
 
             ThemedParticles.MusicNoteBurst(target.Center, SummerGold * 0.75f, 6, 4f);
+            
+            // === SEEKING CRYSTALS - Summer blazing burst ===
+            if (Main.rand.NextBool(3))
+            {
+                SeekingCrystalHelper.SpawnSummerCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.18f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    4
+                );
+            }
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -768,6 +796,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
             // MUSICAL IMPACT - Autumn harvest chord
             ThemedParticles.MusicNoteBurst(target.Center, AutumnOrange * 0.75f, 5, 3.5f);
+            
+            // === SEEKING CRYSTALS - Autumn harvest burst ===
+            if (Main.rand.NextBool(3))
+            {
+                SeekingCrystalHelper.SpawnAutumnCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.18f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    4
+                );
+            }
         }
 
         public override bool PreDraw(ref Color lightColor)

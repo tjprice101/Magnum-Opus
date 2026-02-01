@@ -127,6 +127,10 @@ namespace MagnumOpus.Content.Spring.Weapons
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
             Vector2 hitCenter = hitbox.Center.ToVector2();
+            
+            // === SPECTACULAR SWING SYSTEM - BASIC TIER (1-2 arcs) ===
+            SpectacularMeleeSwing.OnSwing(player, hitbox, SpringPink, SpringGreen, 
+                SpectacularMeleeSwing.SwingTier.Basic, SpectacularMeleeSwing.WeaponTheme.Spring);
 
             // Cherry blossom petal trail - dense and beautiful
             for (int i = 0; i < 3; i++)
@@ -245,6 +249,11 @@ namespace MagnumOpus.Content.Spring.Weapons
             // Spring Bloom: Critical hits cause flower burst AoE
             if (hit.Crit)
             {
+                // === SEEKING SPRING BLOSSOM CRYSTALS ===
+                SeekingCrystalHelper.SpawnSpringCrystals(
+                    player.GetSource_OnHit(target), target.Center, (target.Center - player.Center).SafeNormalize(Vector2.Zero) * 4f, 
+                    (int)(damageDone * 0.4f), hit.Knockback, player.whoAmI, 4);
+                
                 // Massive petal explosion
                 CustomParticles.GenericFlare(target.Center, Color.White, 1.0f, 20);
                 CustomParticles.GenericFlare(target.Center, SpringPink, 0.8f, 18);

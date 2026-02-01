@@ -215,6 +215,20 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
             // Apply Musical Dissonance debuff
             target.AddBuff(ModContent.BuffType<Debuffs.MusicsDissonance>(), 180); // 3 seconds
             
+            // === SEEKING CRYSTALS - on critical hits ===
+            if (hit.Crit)
+            {
+                SeekingCrystalHelper.SpawnMoonlightCrystals(
+                    player.GetSource_ItemUse(player.HeldItem),
+                    target.Center,
+                    new Vector2(player.direction * 8f, 0f),
+                    (int)(damageDone * 0.22f),
+                    player.HeldItem.knockBack,
+                    player.whoAmI,
+                    5
+                );
+            }
+            
             // === CALAMITY-INSPIRED MULTI-LAYER IMPACT ===
             // Phase 1: Central white flash - the moment of contact
             CustomParticles.GenericFlare(target.Center, Color.White, 0.9f, 22);

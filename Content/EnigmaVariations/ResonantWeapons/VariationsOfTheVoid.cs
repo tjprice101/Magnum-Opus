@@ -92,13 +92,32 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
-            // Swing trail when not channeling
+            Vector2 hitCenter = hitbox.Center.ToVector2();
+            
+            // === SPECTACULAR SWING SYSTEM - ENDGAME TIER (7-8 layered arcs + void effects) ===
+            SpectacularMeleeSwing.OnSwing(player, hitbox, EnigmaPurple, EnigmaGreen, 
+                SpectacularMeleeSwing.SwingTier.Endgame, SpectacularMeleeSwing.WeaponTheme.Enigma);
+            
+            // Swing trail when not channeling - void energy wisps
             if (Main.rand.NextBool(3))
             {
                 Vector2 pos = new Vector2(
                     Main.rand.Next(hitbox.Left, hitbox.Right),
                     Main.rand.Next(hitbox.Top, hitbox.Bottom));
                 CustomParticles.GenericFlare(pos, GetEnigmaGradient(Main.rand.NextFloat()) * 0.7f, 0.35f, 12);
+            }
+            
+            // Watching eyes trailing the swing
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 eyePos = hitCenter + Main.rand.NextVector2Circular(15f, 15f);
+                CustomParticles.EnigmaEyeGaze(eyePos, EnigmaPurple, 0.35f, player.direction * Vector2.UnitX);
+            }
+            
+            // Mystery glyphs in swing
+            if (Main.rand.NextBool(5))
+            {
+                CustomParticles.GlyphTrail(hitCenter, -player.velocity * 0.2f, EnigmaPurple, 0.3f);
             }
         }
         
@@ -114,6 +133,19 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             brandNPC.AddParadoxStack(target, 1);
             
             Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.6f);
+            
+            // Spawn seeking crystals on crit - Enigma power
+            if (hit.Crit)
+            {
+                SeekingCrystalHelper.SpawnEnigmaCrystals(
+                    player.GetSource_ItemUse(Item),
+                    target.Center,
+                    (Main.MouseWorld - target.Center).SafeNormalize(Vector2.UnitX) * 8f,
+                    (int)(damageDone * 0.2f),
+                    Item.knockBack * 0.4f,
+                    player.whoAmI,
+                    4);
+            }
         }
     }
     

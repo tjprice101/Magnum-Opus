@@ -149,6 +149,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         {
             Vector2 swingPos = hitbox.Center.ToVector2();
             
+            // === SPECTACULAR SWING SYSTEM - ENDGAME TIER (7-8 arcs + cosmic music notes) ===
+            SpectacularMeleeSwing.OnSwing(player, hitbox, FateCosmicVFX.FateDarkPink, FateCosmicVFX.FateBrightRed, 
+                SpectacularMeleeSwing.SwingTier.Endgame, SpectacularMeleeSwing.WeaponTheme.Fate);
+            
             // Cosmic sparks and music notes from swing
             if (Main.rand.NextBool(2))
             {
@@ -158,10 +162,18 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
                 MagnumParticleHandler.SpawnParticle(spark);
             }
             
-            // Music notes scatter from swing
+            // Music notes scatter from swing - VISIBLE SCALE 0.7f+
             if (Main.rand.NextBool(4))
             {
                 FateCosmicVFX.SpawnCosmicMusicNotes(swingPos, 1, 20f, 0.2f);
+            }
+            
+            // Star sparkle accents
+            if (Main.rand.NextBool(5))
+            {
+                var sparkle = new SparkleParticle(swingPos + Main.rand.NextVector2Circular(15f, 15f), 
+                    Main.rand.NextVector2Circular(1f, 1f), FateCosmicVFX.FateWhite * 0.5f, 0.2f, 14);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
         }
         
@@ -185,6 +197,19 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             }
             
             Lighting.AddLight(target.Center, FateCosmicVFX.FateBrightRed.ToVector3() * 1.3f);
+            
+            // Spawn seeking crystals on every hit - Fate endgame power
+            if (Main.rand.NextBool(3)) // 33% chance per hit
+            {
+                SeekingCrystalHelper.SpawnFateCrystals(
+                    player.GetSource_ItemUse(Item),
+                    target.Center,
+                    (Main.MouseWorld - target.Center).SafeNormalize(Vector2.UnitX) * 10f,
+                    (int)(damageDone * 0.2f),
+                    Item.knockBack * 0.4f,
+                    player.whoAmI,
+                    3);
+            }
         }
     }
 }

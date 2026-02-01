@@ -784,6 +784,20 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         {
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
             
+            // === SEEKING CRYSTALS - 25% chance on summon minion hit ===
+            if (Main.rand.NextBool(4))
+            {
+                SeekingCrystalHelper.SpawnLaCampanellaCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.18f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    3
+                );
+            }
+            
             // Notify parent minion of hit
             if (parentMinionIndex >= 0 && Main.projectile[parentMinionIndex].active &&
                 Main.projectile[parentMinionIndex].ModProjectile is CampanellaChoirMinion minion)

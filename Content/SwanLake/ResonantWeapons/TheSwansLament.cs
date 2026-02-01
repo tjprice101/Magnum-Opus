@@ -117,6 +117,10 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             Vector2 direction = velocity.SafeNormalize(Vector2.Zero);
             UnifiedVFX.SwanLake.Impact(muzzlePos, 1.4f);
             
+            // === SEEKING PRISMATIC SWAN CRYSTALS ===
+            SeekingCrystalHelper.SpawnSwanLakeCrystals(
+                source, muzzlePos, velocity * 0.4f, (int)(damage * 0.35f), knockback, player.whoAmI, 5);
+            
             // HUGE spark effects!
             ThemedParticles.SwanLakeSparks(muzzlePos, direction, 28, 15f);
             ThemedParticles.SwanLakeSparkles(muzzlePos, 22, 52f);

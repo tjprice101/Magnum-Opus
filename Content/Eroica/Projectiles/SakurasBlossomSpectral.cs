@@ -152,6 +152,20 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Music notes on hit
             ThemedParticles.EroicaMusicNotes(target.Center, 4, 30f);
             
+            // === SEEKING CRYSTALS - Spectral sakura ===
+            if (Main.rand.NextBool(3))
+            {
+                SeekingCrystalHelper.SpawnEroicaCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.18f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    4
+                );
+            }
+            
             // Massive scarlet explosion with white sparkles
             for (int i = 0; i < 40; i++)
             {

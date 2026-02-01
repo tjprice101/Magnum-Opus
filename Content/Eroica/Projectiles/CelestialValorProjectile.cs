@@ -122,6 +122,20 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Enhanced music notes with bloom
             EnhancedThemedParticles.EroicaMusicNotesEnhanced(target.Center, 5, 32f);
             
+            // === SEEKING CRYSTALS - Celestial valor burst ===
+            if (Main.rand.NextBool(3))
+            {
+                SeekingCrystalHelper.SpawnEroicaCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.20f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    5
+                );
+            }
+            
             // Deal 5% bonus explosion damage to nearby enemies
             int explosionDamage = (int)(damageDone * 0.05f);
             float explosionRadius = 100f;

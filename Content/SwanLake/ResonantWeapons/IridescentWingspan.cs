@@ -414,6 +414,20 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             // Apply Flame of the Swan debuff
             target.AddBuff(ModContent.BuffType<FlameOfTheSwan>(), 300); // 5 seconds
 
+            // === SEEKING CRYSTALS - 33% chance on hit ===
+            if (Main.rand.NextBool(3))
+            {
+                SeekingCrystalHelper.SpawnSwanLakeCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.2f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    4
+                );
+            }
+
             // Create rings and flares on hit
             CreateRainbowExplosion();
             

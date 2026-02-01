@@ -123,6 +123,20 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             // Apply Musical Dissonance debuff
             target.AddBuff(ModContent.BuffType<Debuffs.MusicsDissonance>(), 300); // 5 seconds
             
+            // === SEEKING CRYSTALS - 33% chance on hit ===
+            if (Main.rand.NextBool(3))
+            {
+                SeekingCrystalHelper.SpawnMoonlightCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.18f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    4
+                );
+            }
+            
             // === ENHANCED IMPACT WITH MULTI-LAYER BLOOM ===
             // Central flash with proper bloom stacking
             EnhancedParticles.BloomFlare(target.Center, Color.White, 0.85f, 20, 4, 1.2f);

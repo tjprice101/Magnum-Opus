@@ -347,6 +347,20 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             var brandNPC = target.GetGlobalNPC<ParadoxBrandNPC>();
             brandNPC.AddParadoxStack(target, 1);
             
+            // === SEEKING CRYSTALS - 33% chance on hit ===
+            if (Main.rand.NextBool(3))
+            {
+                SeekingCrystalHelper.SpawnEnigmaCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.18f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    3
+                );
+            }
+            
             // Track hit enemies for chain lightning
             if (!recentlyHitEnemies.Contains(target.whoAmI))
                 recentlyHitEnemies.Add(target.whoAmI);

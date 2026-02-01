@@ -512,6 +512,20 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             // Apply Resonant Toll
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
             
+            // === SEEKING CRYSTALS - 33% chance on hit ===
+            if (Main.rand.NextBool(3))
+            {
+                SeekingCrystalHelper.SpawnLaCampanellaCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.2f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    4
+                );
+            }
+            
             // Register hit for empowerment
             Player owner = Main.player[Projectile.owner];
             owner.GetModPlayer<InfiniteBellPlayer>().RegisterHit(target.Center);

@@ -208,6 +208,19 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             // player.GetModPlayer<ScreenShakePlayer>()?.AddShake(2f, 4);
             
             Lighting.AddLight(target.Center, 0.8f, 0.4f, 0.1f);
+            
+            // Spawn seeking crystals on crit - Infernal Bell power
+            if (hit.Crit)
+            {
+                SeekingCrystalHelper.SpawnLaCampanellaCrystals(
+                    player.GetSource_ItemUse(Item),
+                    target.Center,
+                    (Main.MouseWorld - target.Center).SafeNormalize(Vector2.UnitX) * 8f,
+                    (int)(damageDone * 0.2f),
+                    Item.knockBack * 0.4f,
+                    player.whoAmI,
+                    4);
+            }
         }
 
         public override void HoldItem(Player player)

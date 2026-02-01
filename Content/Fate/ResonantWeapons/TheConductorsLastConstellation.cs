@@ -173,6 +173,16 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             FateCosmicVFX.SpawnGlyphBurst(target.Center, 4, 6f, 0.4f);
             
             Lighting.AddLight(target.Center, FateCosmicVFX.FateBrightRed.ToVector3() * 1.5f);
+            
+            // Spawn seeking crystals on every hit - Fate ultimate melee power
+            SeekingCrystalHelper.SpawnFateCrystals(
+                player.GetSource_ItemUse(Item),
+                target.Center,
+                (Main.MouseWorld - target.Center).SafeNormalize(Vector2.UnitX) * 10f,
+                (int)(damageDone * 0.25f),
+                Item.knockBack * 0.5f,
+                player.whoAmI,
+                5); // 5 crystals for ultimate weapon
         }
     }
 }

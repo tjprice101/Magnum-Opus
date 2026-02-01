@@ -298,6 +298,17 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             var brandNPC = target.GetGlobalNPC<ParadoxBrandNPC>();
             brandNPC.AddParadoxStack(target, 3);
             
+            // === SEEKING CRYSTALS - every hit on ultimate sword ===
+            SeekingCrystalHelper.SpawnEnigmaCrystals(
+                player.GetSource_ItemUse(player.HeldItem),
+                target.Center,
+                new Vector2(player.direction * 8f, 0f),
+                (int)(damageDone * 0.2f),
+                player.HeldItem.knockBack,
+                player.whoAmI,
+                4
+            );
+            
             // === ULTIMATE BLADE REALITY WARP ===
             FateRealityDistortion.TriggerChromaticAberration(target.Center, 2f, 10);
             

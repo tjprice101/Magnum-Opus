@@ -99,6 +99,10 @@ namespace MagnumOpus.Content.Summer.Weapons
         {
             Vector2 hitCenter = hitbox.Center.ToVector2();
             
+            // === SPECTACULAR SWING SYSTEM - MID TIER (3-4 arcs with heat effects) ===
+            SpectacularMeleeSwing.OnSwing(player, hitbox, SunGold, SunOrange, 
+                SpectacularMeleeSwing.SwingTier.Mid, SpectacularMeleeSwing.WeaponTheme.Summer);
+            
             // Swing trail
             if (Main.rand.NextBool(2))
             {
@@ -201,6 +205,12 @@ namespace MagnumOpus.Content.Summer.Weapons
             // Sunstroke: Apply burning debuff
             target.AddBuff(BuffID.OnFire3, 180); // Hellfire for 3 seconds
             target.AddBuff(BuffID.Daybreak, 120); // Daybreak stacking
+            
+            // === SEEKING SUMMER SOLAR CRYSTALS (every hit spawns 2-3) ===
+            int crystalCount = Main.rand.Next(2, 4);
+            SeekingCrystalHelper.SpawnSummerCrystals(
+                player.GetSource_OnHit(target), target.Center, (target.Center - player.Center).SafeNormalize(Vector2.Zero) * 4f, 
+                (int)(damageDone * 0.3f), hit.Knockback, player.whoAmI, crystalCount);
 
             // Impact VFX - layered solar bloom instead of halo
             CustomParticles.GenericFlare(target.Center, SunOrange, 0.65f, 18);

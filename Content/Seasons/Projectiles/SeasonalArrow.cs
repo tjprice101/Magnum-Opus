@@ -178,8 +178,29 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(burst);
             }
 
-            // ☁EMUSICAL IMPACT - Seasonal bow crescendo
+            // 🎵 MUSICAL IMPACT - Seasonal bow crescendo
             ThemedParticles.MusicNoteBurst(target.Center, PrimaryColor * 0.75f, 6, 3.5f);
+            
+            // === SEEKING CRYSTALS - Season-based burst ===
+            if (Main.rand.NextBool(3))
+            {
+                int crystalDamage = (int)(damageDone * 0.18f);
+                switch (SeasonIndex)
+                {
+                    case 0: // Spring
+                        SeekingCrystalHelper.SpawnSpringCrystals(Projectile.GetSource_FromThis(), target.Center, Projectile.velocity, crystalDamage, Projectile.knockBack, Projectile.owner, 4);
+                        break;
+                    case 1: // Summer
+                        SeekingCrystalHelper.SpawnSummerCrystals(Projectile.GetSource_FromThis(), target.Center, Projectile.velocity, crystalDamage, Projectile.knockBack, Projectile.owner, 4);
+                        break;
+                    case 2: // Autumn
+                        SeekingCrystalHelper.SpawnAutumnCrystals(Projectile.GetSource_FromThis(), target.Center, Projectile.velocity, crystalDamage, Projectile.knockBack, Projectile.owner, 4);
+                        break;
+                    case 3: // Winter
+                        SeekingCrystalHelper.SpawnWinterCrystals(Projectile.GetSource_FromThis(), target.Center, Projectile.velocity, crystalDamage, Projectile.knockBack, Projectile.owner, 4);
+                        break;
+                }
+            }
         }
 
         public override bool PreDraw(ref Color lightColor)

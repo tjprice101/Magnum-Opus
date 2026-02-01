@@ -77,6 +77,17 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                     ModContent.ProjectileType<PiercingLightOfTheSakuraProjectile>(), 
                     (int)(damage * 2.5f), knockback * 2f, player.whoAmI);
                 
+                // === SPAWN SEEKING CRYSTALS - HEROIC VALOR BURST ===
+                SeekingCrystalHelper.SpawnEroicaCrystals(
+                    source,
+                    position + velocity.SafeNormalize(Vector2.UnitX) * 25f,
+                    velocity * 0.6f,
+                    (int)(damage * 0.4f),
+                    knockback,
+                    player.whoAmI,
+                    5  // 5 golden crystals
+                );
+                
                 // Special firing effect with gradient burst
                 SoundEngine.PlaySound(SoundID.Item125 with { Pitch = 0.3f, Volume = 0.8f }, position);
                 

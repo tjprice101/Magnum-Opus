@@ -154,6 +154,20 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
         {
             // Apply Music's Dissonance debuff
             target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 300);
+            
+            // === SEEKING CRYSTALS - 25% chance on hit ===
+            if (Main.rand.NextBool(4))
+            {
+                SeekingCrystalHelper.SpawnMoonlightCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.2f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    3
+                );
+            }
 
             // === LUNAR IMPACT BURST ===
             UnifiedVFX.MoonlightSonata.Impact(target.Center, 1.3f);

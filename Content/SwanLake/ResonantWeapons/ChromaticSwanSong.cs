@@ -337,6 +337,17 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
                 // Reset counter
                 ChromaticSwanSong.EnemyHitCounts[npcIndex] = 0;
                 
+                // === SEEKING CRYSTALS - burst on 3-hit combo! ===
+                SeekingCrystalHelper.SpawnSwanLakeCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.25f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    6
+                );
+                
                 // Fractal gem burst on the big explosion!
                 ThemedParticles.SwanLakeFractalGemBurst(target.Center, Color.White, 1.2f, 8, true);
                 

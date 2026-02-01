@@ -99,6 +99,18 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                     }
                 }
                 
+                // === SPAWN SEEKING CRYSTALS - CONSTELLATION BURST FINALE ===
+                // Massive burst of 8 seeking crystals that spread out and home to enemies
+                SeekingCrystalHelper.SpawnNachtmusikCrystals(
+                    source,
+                    player.Center + direction * 40f,
+                    direction * 10f,
+                    (int)(damage * 0.6f),
+                    knockback,
+                    player.whoAmI,
+                    8  // 8 crystals for constellation burst
+                );
+                
                 // Massive VFX with star bursts and shattered starlight
                 NachtmusikCosmicVFX.SpawnGrandCelestialImpact(player.Center + direction * 40f, 1.8f);
                 NachtmusikCosmicVFX.SpawnConstellationCircle(player.Center, 60f, 12, 0.5f);

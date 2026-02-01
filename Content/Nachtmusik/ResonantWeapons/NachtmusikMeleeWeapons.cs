@@ -137,10 +137,16 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
+            Vector2 hitCenter = hitbox.Center.ToVector2();
+            
+            // === SPECTACULAR SWING SYSTEM - ULTIMATE TIER (9+ arcs + constellation + cosmic clouds + seeking shimmers) ===
+            SpectacularMeleeSwing.OnSwing(player, hitbox, NachtmusikCosmicVFX.DeepPurple, NachtmusikCosmicVFX.Gold, 
+                SpectacularMeleeSwing.SwingTier.Ultimate, SpectacularMeleeSwing.WeaponTheme.Nachtmusik);
+            
             // Cosmic swing trail
             if (Main.rand.NextBool())
             {
-                Vector2 trailPos = hitbox.Center.ToVector2() + Main.rand.NextVector2Circular(hitbox.Width / 3f, hitbox.Height / 3f);
+                Vector2 trailPos = hitCenter + Main.rand.NextVector2Circular(hitbox.Width / 3f, hitbox.Height / 3f);
                 Color trailColor = NachtmusikCosmicVFX.GetCelestialGradient(Main.rand.NextFloat());
                 
                 var trail = new GenericGlowParticle(trailPos, player.velocity * 0.3f + Main.rand.NextVector2Circular(1f, 1f),
@@ -151,17 +157,25 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             // Music notes in trail - VISIBLE SCALE 0.7f+
             if (Main.rand.NextBool(4))
             {
-                Vector2 notePos = hitbox.Center.ToVector2() + Main.rand.NextVector2Circular(20f, 20f);
-                ThemedParticles.MusicNote(notePos, Main.rand.NextVector2Circular(2f, 2f), NachtmusikCosmicVFX.Gold, 0.7f, 20);
+                Vector2 notePos = hitCenter + Main.rand.NextVector2Circular(20f, 20f);
+                ThemedParticles.MusicNote(notePos, Main.rand.NextVector2Circular(2f, 2f), NachtmusikCosmicVFX.Gold, 0.75f, 20);
                 
                 // Celestial sparkle accent
                 var sparkle = new SparkleParticle(notePos, Main.rand.NextVector2Circular(1.5f, 1.5f), NachtmusikCosmicVFX.StarWhite * 0.5f, 0.25f, 16);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            // Dust
-            Dust dust = Dust.NewDustPerfect(hitbox.Center.ToVector2(), DustID.PurpleTorch, Main.rand.NextVector2Circular(3f, 3f), 0, default, 1.1f);
+            // Star dust
+            Dust dust = Dust.NewDustPerfect(hitCenter, DustID.PurpleTorch, Main.rand.NextVector2Circular(3f, 3f), 0, default, 1.1f);
             dust.noGravity = true;
+            
+            // Additional gold star dust
+            if (Main.rand.NextBool(3))
+            {
+                Dust starDust = Dust.NewDustPerfect(hitCenter + Main.rand.NextVector2Circular(15f, 15f), 
+                    DustID.Enchanted_Gold, Main.rand.NextVector2Circular(2f, 2f), 0, NachtmusikCosmicVFX.Gold, 1.0f);
+                starDust.noGravity = true;
+            }
         }
         
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
@@ -176,13 +190,23 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             // GRAND CELESTIAL IMPACT - signature Nachtmusik effect with StarBurst and ShatteredStarlight
             NachtmusikCosmicVFX.SpawnGrandCelestialImpact(target.Center, 1.2f);
             
-            // Glyph burst on crit
+            // Glyph burst on crit + seeking crystals
             if (hit.Crit)
             {
                 // Additional star burst explosion on crit
                 NachtmusikCosmicVFX.SpawnStarBurstImpact(target.Center, 1.4f, 5);
                 NachtmusikCosmicVFX.SpawnGlyphBurst(target.Center, 6, 5f, 0.4f);
                 executionCharge = Math.Min(100, executionCharge + 15);
+                
+                // Spawn seeking crystals on crit - POST-FATE ULTIMATE power
+                SeekingCrystalHelper.SpawnNachtmusikCrystals(
+                    player.GetSource_ItemUse(Item),
+                    target.Center,
+                    (Main.MouseWorld - target.Center).SafeNormalize(Vector2.UnitX) * 8f,
+                    (int)(damageDone * 0.3f),
+                    Item.knockBack * 0.5f,
+                    player.whoAmI,
+                    6); // 6 crystals for ultimate tier
             }
         }
         
@@ -374,11 +398,33 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, 0.8f + stackPercent * 0.6f);
             }
             
-            // Max stack explosion with GRAND impact
+            // Max stack explosion with GRAND impact + seeking crystals
             if (crescendoStacks == MaxStacks && hit.Crit)
             {
                 NachtmusikCosmicVFX.SpawnGrandCelestialImpact(target.Center, 1.5f);
                 MagnumScreenEffects.AddScreenShake(8f);
+                
+                // Spawn seeking crystals at full crescendo crit - powerful burst
+                SeekingCrystalHelper.SpawnNachtmusikCrystals(
+                    player.GetSource_ItemUse(Item),
+                    target.Center,
+                    (Main.MouseWorld - target.Center).SafeNormalize(Vector2.UnitX) * 10f,
+                    (int)(damageDone * 0.25f),
+                    Item.knockBack * 0.5f,
+                    player.whoAmI,
+                    5); // 5 crystals at max crescendo
+            }
+            // Also spawn crystals periodically at high stacks
+            else if (crescendoStacks >= 10 && Main.rand.NextBool(4))
+            {
+                SeekingCrystalHelper.SpawnNachtmusikCrystals(
+                    player.GetSource_ItemUse(Item),
+                    target.Center,
+                    (Main.MouseWorld - target.Center).SafeNormalize(Vector2.UnitX) * 8f,
+                    (int)(damageDone * 0.15f),
+                    Item.knockBack * 0.4f,
+                    player.whoAmI,
+                    3); // 3 crystals at high stacks
             }
         }
         
@@ -614,12 +660,22 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, 0.5f);
             NachtmusikCosmicVFX.SpawnShatteredStarlightBurst(target.Center, 5, 6f, 0.4f, false); // No gravity for fast effect
             
-            // Build twilight charge faster on crits - add star burst
+            // Build twilight charge faster on crits - add star burst + seeking crystals
             if (hit.Crit)
             {
                 twilightCharge = Math.Min(MaxTwilightCharge, twilightCharge + 8);
                 NachtmusikCosmicVFX.SpawnStarBurstImpact(target.Center, 0.8f, 2);
                 NachtmusikCosmicVFX.SpawnMusicNoteBurst(target.Center, 3, 25f);
+                
+                // Fast katana spawns 4 seeking crystals on crit
+                SeekingCrystalHelper.SpawnNachtmusikCrystals(
+                    player.GetSource_ItemUse(Item),
+                    target.Center,
+                    (Main.MouseWorld - target.Center).SafeNormalize(Vector2.UnitX) * 10f,
+                    (int)(damageDone * 0.2f),
+                    Item.knockBack * 0.4f,
+                    player.whoAmI,
+                    4); // 4 crystals for fast weapon
             }
         }
         

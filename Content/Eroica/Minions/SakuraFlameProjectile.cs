@@ -183,6 +183,20 @@ namespace MagnumOpus.Content.Eroica.Minions
             {
                 ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 215, 0), 3, 2.5f);
             }
+            
+            // === SEEKING CRYSTALS - Sakura flame minion ===
+            if (Main.rand.NextBool(4))
+            {
+                SeekingCrystalHelper.SpawnEroicaCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.15f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    3
+                );
+            }
         }
         
         public override void OnKill(int timeLeft)

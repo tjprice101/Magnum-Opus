@@ -117,6 +117,20 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // === SEEKING CRYSTALS - Sakura blossom burst ===
+            if (Main.rand.NextBool(4))
+            {
+                SeekingCrystalHelper.SpawnEroicaCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.15f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    3
+                );
+            }
+            
             CreateExplosion();
         }
 

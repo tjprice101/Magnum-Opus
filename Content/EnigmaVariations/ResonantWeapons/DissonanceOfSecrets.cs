@@ -549,6 +549,19 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             ThemedParticles.EnigmaMusicNoteBurst(Projectile.Center, 12, 6f);
             ThemedParticles.EnigmaMusicNotes(Projectile.Center, 8, 80f * currentScale);
             
+            // === SPAWN SEEKING CRYSTALS - THE CASCADE RELEASES ITS SECRETS ===
+            // Massive burst of seeking crystals that home to all nearby enemies
+            int crystalCount = 6 + (int)(currentScale * 4); // More crystals as the orb grew larger
+            SeekingCrystalHelper.SpawnEnigmaCrystals(
+                Projectile.GetSource_Death(),
+                Projectile.Center,
+                Vector2.Zero, // Zero velocity - they radiate outward
+                (int)(Projectile.damage * 0.35f),
+                5f,
+                Projectile.owner,
+                crystalCount
+            );
+            
             // Damage and debuff enemies in radius
             foreach (NPC npc in Main.ActiveNPCs)
             {

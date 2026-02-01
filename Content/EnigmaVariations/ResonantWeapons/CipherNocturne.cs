@@ -593,6 +593,20 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             var brandNPC = target.GetGlobalNPC<ParadoxBrandNPC>();
             brandNPC.AddParadoxStack(target, IsEnhanced ? 3 : 2);
             
+            // === SEEKING CRYSTALS - 25% chance on beam hit ===
+            if (Main.rand.NextBool(4))
+            {
+                SeekingCrystalHelper.SpawnEnigmaCrystals(
+                    Projectile.GetSource_FromThis(),
+                    target.Center,
+                    Projectile.velocity,
+                    (int)(damageDone * 0.15f),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    IsEnhanced ? 4 : 3
+                );
+            }
+            
             // === REALITY UNRAVELING DISTORTION ===
             float distortionIntensity = IsEnhanced ? 5f : 3.5f;
             int distortionLifetime = IsEnhanced ? 18 : 12;
