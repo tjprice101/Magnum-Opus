@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -24,6 +25,11 @@ namespace MagnumOpus.Content.Winter.Materials
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 5);
             Item.rare = ItemRarityID.Lime;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The serene stillness of the frozen world'") { OverrideColor = new Color(150, 200, 255) });
         }
 
         public override void PostUpdate()

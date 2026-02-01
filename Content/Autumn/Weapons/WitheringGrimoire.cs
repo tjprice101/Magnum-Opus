@@ -11,6 +11,7 @@ using MagnumOpus.Content.Autumn.Materials;
 using MagnumOpus.Content.Autumn.Projectiles;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Autumn.Weapons
 {
@@ -64,6 +65,15 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 Color auraColor = Color.Lerp(DecayPurple, DeathGreen, Main.rand.NextFloat()) * 0.35f;
                 var aura = new GenericGlowParticle(auraPos, auraVel, auraColor, 0.2f, 28, true);
                 MagnumParticleHandler.SpawnParticle(aura);
+            }
+
+            // Floating autumn melody notes
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.2f, 0.5f));
+                Color noteColor = Color.Lerp(AutumnOrange, new Color(139, 90, 43), Main.rand.NextFloat()) * 0.6f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 40);
             }
 
             // Charging logic
@@ -128,10 +138,35 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 player.whoAmI
             );
 
-            // Release VFX
+            // Release VFX - layered bloom instead of halo
             CustomParticles.GenericFlare(player.Center, DeathGreen, 0.8f, 22);
-            CustomParticles.HaloRing(player.Center, DecayPurple * 0.7f, 0.6f, 18);
-            CustomParticles.HaloRing(player.Center, WitherBrown * 0.5f, 0.4f, 15);
+            CustomParticles.GenericFlare(player.Center, DecayPurple * 0.7f, 0.65f, 18);
+            CustomParticles.GenericFlare(player.Center, WitherBrown * 0.5f, 0.45f, 15);
+            
+            // Music note ring and burst for Autumn's Wrath
+            ThemedParticles.MusicNoteRing(player.Center, AutumnOrange, 45f, 7);
+            ThemedParticles.MusicNoteBurst(player.Center, new Color(139, 90, 43), 6, 5f);
+            
+            // Withering glyphs (Autumn decay theme)
+            CustomParticles.GlyphBurst(player.Center, DecayPurple, 5, 4f);
+            CustomParticles.GlyphBurst(player.Center, WitherBrown, 3, 2.5f);
+            
+            // Sparkle accents
+            for (int sparkIdx = 0; sparkIdx < 6; sparkIdx++)
+            {
+                var sparkle = new SparkleParticle(player.Center + Main.rand.NextVector2Circular(15f, 15f),
+                    Main.rand.NextVector2Circular(3f, 3f), new Color(218, 165, 32) * 0.5f, 0.22f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // Decay wisp burst
+            for (int wisp = 0; wisp < 6; wisp++)
+            {
+                float wispAngle = MathHelper.TwoPi * wisp / 6f;
+                Vector2 wispPos = player.Center + wispAngle.ToRotationVector2() * 22f;
+                Color wispColor = Color.Lerp(DecayPurple, WitherBrown, (float)wisp / 6f);
+                CustomParticles.GenericFlare(wispPos, wispColor * 0.7f, 0.28f, 14);
+            }
 
             // Radial decay burst
             for (int i = 0; i < 14; i++)
@@ -151,9 +186,20 @@ namespace MagnumOpus.Content.Autumn.Weapons
             // Only fire normal bolts if not charging
             if (isCharging && chargeTimer > 15) return false;
 
-            // Muzzle VFX
+            // Muzzle VFX - layered bloom instead of halo
             CustomParticles.GenericFlare(position, DecayPurple, 0.45f, 15);
-            CustomParticles.HaloRing(position, DeathGreen * 0.4f, 0.25f, 12);
+            CustomParticles.GenericFlare(position, DeathGreen * 0.4f, 0.3f, 12);
+            
+            // Music note on cast
+            ThemedParticles.MusicNote(position, velocity * 0.1f, new Color(218, 165, 32) * 0.8f, 0.7f, 25);
+            
+            // Decay wisp burst
+            for (int wisp = 0; wisp < 4; wisp++)
+            {
+                float wispAngle = MathHelper.TwoPi * wisp / 4f;
+                Vector2 wispPos = position + wispAngle.ToRotationVector2() * 10f;
+                CustomParticles.GenericFlare(wispPos, DeathGreen * 0.5f, 0.15f, 9);
+            }
 
             for (int i = 0; i < 4; i++)
             {

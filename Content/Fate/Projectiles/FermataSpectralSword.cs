@@ -215,6 +215,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 1, 15f, 0.22f);
             }
             
+            // ☁EMUSICAL NOTATION - Cosmic destiny trail
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(new Color(180, 50, 100), new Color(255, 60, 80), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor * spectralAlpha, 0.35f, 35);
+            }
+            
             if (phaseTimer >= OrbitTime)
             {
                 // Find target

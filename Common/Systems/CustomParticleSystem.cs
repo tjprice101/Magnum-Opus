@@ -65,7 +65,7 @@ namespace MagnumOpus.Common.Systems
                     EnergyFlares[i] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles/EnergyFlare{i + 1}", AssetRequestMode.ImmediateLoad);
                 
                 // Load SoftGlow variants
-                SoftGlows[0] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow", AssetRequestMode.ImmediateLoad);
+                SoftGlows[0] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare", AssetRequestMode.ImmediateLoad);
                 for (int i = 1; i < 4; i++)
                     SoftGlows[i] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles/SoftGlow{i + 1}", AssetRequestMode.ImmediateLoad);
                 
@@ -74,11 +74,11 @@ namespace MagnumOpus.Common.Systems
                 for (int i = 1; i < 6; i++)
                     MusicNotes[i] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles/MusicNote{i + 1}", AssetRequestMode.ImmediateLoad);
                 
-                // Load GlowingHalo variants (SKIP index 2 - GlowingHalo3.png is BANNED and DELETED)
-                // Index mapping: 0=Halo1, 1=Halo2, 2=DELETED, 3=Halo4, 4=Halo5, 5=Halo6
+                // Load GlowingHalo variants (index 2 uses fallback)
+                // Index mapping: 0=Halo1, 1=Halo2, 2=Fallback, 3=Halo4, 4=Halo5, 5=Halo6
                 GlowingHalos[0] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo1", AssetRequestMode.ImmediateLoad);
                 GlowingHalos[1] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo2", AssetRequestMode.ImmediateLoad);
-                // GlowingHalos[2] - BANNED - GlowingHalo3.png has been DELETED from the mod
+                // GlowingHalos[2] - uses fallback to Halo2
                 GlowingHalos[2] = GlowingHalos[1]; // Fallback to Halo2 if code accidentally tries to use index 2
                 GlowingHalos[3] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo4", AssetRequestMode.ImmediateLoad);
                 GlowingHalos[4] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo5", AssetRequestMode.ImmediateLoad);
@@ -154,7 +154,7 @@ namespace MagnumOpus.Common.Systems
         public static Asset<Texture2D> RandomFlare() => EnergyFlares[Main.rand.Next(7)];
         public static Asset<Texture2D> RandomGlow() => SoftGlows[Main.rand.Next(4)];
         public static Asset<Texture2D> RandomNote() => MusicNotes[Main.rand.Next(6)];
-        // BANNED: GlowingHalo3 (index 2) is excluded - it's the concentric ring texture
+        // Index 2 is excluded (uses fallback texture)
         // Only use indices 0, 1, 3, 4, 5
         public static Asset<Texture2D> RandomHalo()
         {
@@ -822,7 +822,6 @@ namespace MagnumOpus.Common.Systems
         {
             if (!CustomParticleSystem.TexturesLoaded) return;
             var col = Color.Lerp(CustomParticleSystem.MoonlightColors.DeepPurple, CustomParticleSystem.MoonlightColors.Silver, Main.rand.NextFloat());
-            // BANNED: GlowingHalos[3] was the concentric ring texture - using GlowingHalos[1] instead
             var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.GlowingHalos[1], pos, Vector2.Zero,
                 col, scale * (0.7f + Main.rand.NextFloat(0.5f)), 40, 0.008f, true, true)
                 .WithScaleVelocity(0.015f);
@@ -1601,7 +1600,7 @@ namespace MagnumOpus.Common.Systems
             public static Color Random() => Main.rand.Next(5) switch { 0 => Black, 1 => DeepPurple, 2 => Purple, 3 => GreenFlame, _ => DarkGreen };
             public static Color Gradient(float t)
             {
-                // Black → Purple → Green flame transition
+                // Black ↁEPurple ↁEGreen flame transition
                 if (t < 0.5f)
                     return Color.Lerp(DeepPurple, Purple, t * 2f);
                 return Color.Lerp(Purple, GreenFlame, (t - 0.5f) * 2f);

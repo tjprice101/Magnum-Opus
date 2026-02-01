@@ -177,6 +177,13 @@ namespace MagnumOpus.Content.Eroica.Pets
             {
                 CustomParticles.EroicaTrailFlare(Projectile.Center, Projectile.velocity);
             }
+            
+            // ☁EMUSICAL PRESENCE - Heroic aura (ambient notes for pet)
+            if (Main.rand.NextBool(20))
+            {
+                Color noteColor = Color.Lerp(new Color(200, 50, 50), new Color(255, 150, 180), Main.rand.NextFloat());
+                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(12f, 12f), new Vector2(0, -0.6f), noteColor, 0.22f, 28);
+            }
         }
 
         private bool CheckActive(Player owner)

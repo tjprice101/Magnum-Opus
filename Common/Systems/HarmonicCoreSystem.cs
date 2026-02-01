@@ -744,7 +744,7 @@ namespace MagnumOpus.Common.Systems
         
         // === FATE: Cosmic Destiny ===
         // Process delayed cosmic marks that deal massive damage
-        // Features dark prismatic visuals: black → dark pink → bright red
+        // Features dark prismatic visuals: black ↁEdark pink ↁEbright red
         // COSMETIC: Subtle ambient effect, visible feedback only on marks/strikes
         private void UpdateCosmicMarks()
         {

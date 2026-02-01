@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -30,6 +31,11 @@ namespace MagnumOpus.Content.Eroica.Pets
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 1;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Summons a miniature colossus of heroic might'") { OverrideColor = new Color(200, 50, 50) });
         }
 
         public override void UseStyle(Player player, Rectangle heldItemFrame)

@@ -25,7 +25,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
         {
             Item.width = 28;
             Item.height = 30;
-            Item.damage = 200; // Balanced: ~1000 DPS (200 × 60/12)
+            Item.damage = 200; // Balanced: ~1000 DPS (200 ÁE60/12)
             Item.DamageType = DamageClass.Magic;
             Item.mana = 8;
             Item.useTime = 12; // Fast fire rate
@@ -185,6 +185,16 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
             CustomParticles.MoonlightFlare(position, 0.28f);
             
             return false;
+        }
+
+        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires rapid moonlight beams that pierce enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Beams leave sparkle trails and create prismatic impacts"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The moon whispers secrets to those who listen'")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(140, 100, 200)
+            });
         }
 
         public override void AddRecipes()

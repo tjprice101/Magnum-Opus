@@ -18,7 +18,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class FrostSentinelMinion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField10";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
@@ -150,6 +150,17 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 Color particleColor = Color.Lerp(IceBlue, CrystalCyan, Main.rand.NextFloat()) * 0.5f;
                 var particle = new GenericGlowParticle(particlePos, particleVel, particleColor, 0.2f, 18, true);
                 MagnumParticleHandler.SpawnParticle(particle);
+            }
+
+            // ☁EMUSICAL NOTATION - Sentinel frost hymn - VISIBLE SCALE 0.72f+
+            if (Main.rand.NextBool(8))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, CrystalCyan * 0.6f, 0.72f, 38);
+                
+                // Frost sparkle accent
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f), noteVel * 0.5f, IceBlue * 0.5f, 0.28f, 22);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
             // Frost trail
@@ -304,9 +315,13 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
                 // Main shatter VFX
                 CustomParticles.GenericFlare(target.Center, FrostWhite, 0.7f, 20);
-                // Frost sparkle burst (replacing banned HaloRing)
+                // Frost sparkle burst 
                 var frostSparkle = new SparkleParticle(target.Center, Vector2.Zero, IceBlue * 0.6f, 0.5f * 0.6f, 18);
                 MagnumParticleHandler.SpawnParticle(frostSparkle);
+
+                // ☁EMUSICAL CRIT - Shatter Strike crystal chord
+                ThemedParticles.MusicNoteBurst(target.Center, CrystalCyan * 0.8f, 8, 5f);
+                ThemedParticles.MusicNoteRing(target.Center, IceBlue * 0.65f, 40f, 6);
 
                 for (int i = 0; i < 10; i++)
                 {
@@ -320,12 +335,15 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
             // Standard hit VFX
             CustomParticles.GenericFlare(target.Center, IceBlue, 0.45f, 14);
+
+            // ☁EMUSICAL IMPACT - Sentinel strike note
+            ThemedParticles.MusicNoteBurst(target.Center, IceBlue * 0.65f, 4, 3f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField10").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -358,9 +376,13 @@ namespace MagnumOpus.Content.Winter.Projectiles
         public override void OnKill(int timeLeft)
         {
             CustomParticles.GenericFlare(Projectile.Center, FrostWhite, 0.7f, 22);
-            // Frost sparkle burst (replacing banned HaloRing)
+            // Frost sparkle burst 
             var frostSparkle = new SparkleParticle(Projectile.Center, Vector2.Zero, IceBlue * 0.6f, 0.45f * 0.6f, 18);
             MagnumParticleHandler.SpawnParticle(frostSparkle);
+
+            // ☁EMUSICAL FINALE - Sentinel farewell melody
+            ThemedParticles.MusicNoteBurst(Projectile.Center, CrystalCyan * 0.7f, 8, 4.5f);
+            ThemedParticles.MusicNoteRing(Projectile.Center, IceBlue * 0.6f, 45f, 6);
 
             for (int i = 0; i < 10; i++)
             {
@@ -377,7 +399,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class SentinelFrostBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle11";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
@@ -443,6 +465,17 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
+            // ☁EMUSICAL NOTATION - Frost bolt whisper - VISIBLE SCALE 0.68f+
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), Main.rand.NextFloat(-1f, -0.3f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, IceBlue * 0.55f, 0.68f, 32);
+                
+                // Tiny frost sparkle
+                var sparkle = new SparkleParticle(Projectile.Center, noteVel * 0.4f, CrystalCyan * 0.4f, 0.2f, 16);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, IceBlue.ToVector3() * 0.3f);
         }
 
@@ -457,12 +490,15 @@ namespace MagnumOpus.Content.Winter.Projectiles
             }
 
             CustomParticles.GenericFlare(target.Center, CrystalCyan, 0.4f, 14);
+
+            // ☁EMUSICAL IMPACT - Frost bolt impact note
+            ThemedParticles.MusicNoteBurst(target.Center, IceBlue * 0.6f, 4, 3f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle11").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -490,6 +526,9 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
         public override void OnKill(int timeLeft)
         {
+            // ☁EMUSICAL FINALE - Frost bolt fade
+            ThemedParticles.MusicNoteBurst(Projectile.Center, IceBlue * 0.5f, 4, 2.5f);
+
             for (int i = 0; i < 5; i++)
             {
                 Vector2 burstVel = Main.rand.NextVector2Circular(3f, 3f);

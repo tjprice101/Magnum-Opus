@@ -5663,7 +5663,7 @@ Items: {
 	}
 
 	// VivaldisHarmonicCore defined elsewhere with full tooltip
-
+	
 	EnigmasDissonance: {
 		DisplayName: Enigmas Dissonance
 		Tooltip: ""
@@ -6113,6 +6113,11 @@ Items: {
 		DisplayName: Permafrost Codex
 		Tooltip: ""
 	}
+
+	VivaldisHarmonicCore: {
+		DisplayName: Vivaldis Harmonic Core
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -6396,4 +6401,5 @@ Projectiles: {
 	PermafrostBolt.DisplayName: Permafrost Bolt
 	SentinelFrostBolt.DisplayName: Sentinel Frost Bolt
 	StormIcicle.DisplayName: Storm Icicle
+	NebulaStarfallProjectile.DisplayName: Nebula Starfall Projectile
 }

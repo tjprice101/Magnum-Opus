@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -24,6 +25,11 @@ namespace MagnumOpus.Content.Autumn.Materials
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 5);
             Item.rare = ItemRarityID.Lime;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The melancholy resonance of falling leaves'") { OverrideColor = new Color(200, 150, 80) });
         }
 
         public override void PostUpdate()

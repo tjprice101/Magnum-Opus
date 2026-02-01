@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -30,6 +31,11 @@ namespace MagnumOpus.Content.Summer.Materials
             Item.autoReuse = true;
             Item.consumable = true;
             Item.createTile = -1;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Forged at summer's zenith'") { OverrideColor = new Color(255, 140, 50) });
         }
 
         public override void PostUpdate()

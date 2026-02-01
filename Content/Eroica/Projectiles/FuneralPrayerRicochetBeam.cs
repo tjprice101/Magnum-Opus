@@ -85,6 +85,14 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             
             // Custom particle trail effect
             CustomParticles.EroicaTrail(Projectile.Center, Projectile.velocity, 0.4f);
+            
+            // ☁EMUSICAL NOTATION - Heroic melody trail
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(new Color(200, 50, 50), new Color(255, 215, 0), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
+            }
 
             // Large red torch particles for massive beam
             if (Main.rand.NextBool(1)) // Every frame
@@ -184,6 +192,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 new Color(255, 100, 50), 0.5f, 15, 0.02f, true, true);
             CustomParticleSystem.SpawnParticle(ricochetFlare);
             CustomParticles.ExplosionBurst(target.Center, new Color(255, 120, 80), 6, 4f);
+            
+            // ☁EMUSICAL IMPACT - Triumphant chord burst
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 215, 0), 5, 3.5f);
 
             // Massive explosion particles
             for (int i = 0; i < 30; i++)

@@ -11,6 +11,7 @@ using MagnumOpus.Content.Spring.Materials;
 using MagnumOpus.Content.Spring.Projectiles;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Spring.Weapons
 {
@@ -62,6 +63,15 @@ namespace MagnumOpus.Content.Spring.Weapons
                 var petal = new GenericGlowParticle(pos, vel, petalColor * 0.6f, 0.25f, 35, true);
                 MagnumParticleHandler.SpawnParticle(petal);
             }
+            
+            // Floating spring melody notes
+            if (Main.rand.NextBool(14))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
+                Vector2 noteVel = new Vector2(0, -Main.rand.NextFloat(0.3f, 0.7f));
+                Color noteColor = Color.Lerp(SpringPink, SpringGreen, Main.rand.NextFloat()) * 0.65f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 40);
+            }
 
             // Soft lighting
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 0.4f;
@@ -74,6 +84,9 @@ namespace MagnumOpus.Content.Spring.Weapons
 
             // Muzzle bloom VFX
             CustomParticles.GenericFlare(position, SpringPink, 0.5f, 15);
+            
+            // Music note on shot
+            ThemedParticles.MusicNote(position, velocity * 0.1f, SpringPink * 0.8f, 0.75f, 25);
             
             // Petal particles on shot
             for (int i = 0; i < 4; i++)
@@ -88,9 +101,29 @@ namespace MagnumOpus.Content.Spring.Weapons
             {
                 shotCounter = 0;
                 
-                // Big bloom VFX
+                // Big bloom VFX - layered flares instead of halo
                 CustomParticles.GenericFlare(position, Color.White, 0.7f, 18);
-                CustomParticles.HaloRing(position, SpringPink * 0.6f, 0.4f, 15);
+                CustomParticles.GenericFlare(position, SpringPink, 0.55f, 15);
+                CustomParticles.GenericFlare(position, SpringPink * 0.6f, 0.4f, 12);
+                
+                // Music note burst for Spring Showers
+                ThemedParticles.MusicNoteBurst(position, SpringPink, 5, 4f);
+                
+                // Sparkle accents
+                for (int i = 0; i < 4; i++)
+                {
+                    var sparkle = new SparkleParticle(position + Main.rand.NextVector2Circular(15f, 15f),
+                        velocity * 0.05f + Main.rand.NextVector2Circular(2f, 2f), SpringWhite * 0.6f, 0.22f, 18);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
+                
+                // Petal sparkle burst
+                for (int s = 0; s < 6; s++)
+                {
+                    float sparkAngle = MathHelper.TwoPi * s / 6f;
+                    Vector2 sparkPos = position + sparkAngle.ToRotationVector2() * 18f;
+                    CustomParticles.GenericFlare(sparkPos, SpringWhite * 0.8f, 0.25f, 12);
+                }
                 
                 // Fire 5 petal arrows in a fan
                 for (int i = -2; i <= 2; i++)

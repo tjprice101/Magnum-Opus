@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -24,6 +25,11 @@ namespace MagnumOpus.Content.Materials.EnemyDrops
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 3);
             Item.rare = ItemRarityID.Cyan;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The moon's quiet sorrow, crystallized'") { OverrideColor = new Color(140, 100, 200) });
         }
 
         public override void PostUpdate()
@@ -62,6 +68,11 @@ namespace MagnumOpus.Content.Materials.EnemyDrops
             Item.rare = ItemRarityID.Yellow;
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The hero\'s triumphant spirit, distilled'") { OverrideColor = new Color(200, 50, 50) });
+        }
+
         public override void PostUpdate()
         {
             // Heroic scarlet-gold glow
@@ -98,6 +109,11 @@ namespace MagnumOpus.Content.Materials.EnemyDrops
             Item.rare = ItemRarityID.Orange;
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The infernal bell\'s resonance, captured'") { OverrideColor = new Color(255, 140, 40) });
+        }
+
         public override void PostUpdate()
         {
             // Infernal bell orange-black glow
@@ -132,6 +148,11 @@ namespace MagnumOpus.Content.Materials.EnemyDrops
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 3);
             Item.rare = ItemRarityID.Purple;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'An unknowable secret, given form'") { OverrideColor = new Color(140, 60, 200) });
         }
 
         public override void PostUpdate()
@@ -171,6 +192,11 @@ namespace MagnumOpus.Content.Materials.EnemyDrops
             Item.rare = ItemRarityID.White;
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Elegance incarnate, preserved eternally'") { OverrideColor = new Color(240, 240, 255) });
+        }
+
         public override void PostUpdate()
         {
             // Swan Lake white-rainbow shimmer
@@ -206,6 +232,11 @@ namespace MagnumOpus.Content.Materials.EnemyDrops
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 5);
             Item.rare = ItemRarityID.Red;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Destiny\'s celestial power, condensed'") { OverrideColor = new Color(180, 40, 80) });
         }
 
         public override void PostUpdate()

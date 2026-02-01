@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -20,6 +21,11 @@ namespace MagnumOpus.Content.SwanLake.ResonanceEnergies
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 2);
             Item.rare = ModContent.RarityType<SwanRarity>();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Between white grace and black deception, the feathers dance in timeless rhythm'") { OverrideColor = new Color(240, 240, 255) });
         }
 
         public override void SetStaticDefaults()

@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using MagnumOpus.Content.Autumn.Materials;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Autumn.Accessories
 {
@@ -38,6 +39,15 @@ namespace MagnumOpus.Content.Autumn.Accessories
                 Vector2 vel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(0.5f, 1.5f));
                 Color decayColor = Color.Lerp(new Color(255, 100, 30), new Color(139, 69, 19), Main.rand.NextFloat());
                 CustomParticles.GenericGlow(pos, vel, decayColor, 0.24f, 26, true);
+            }
+            
+            // Floating autumn melody note
+            if (!hideVisual && Main.rand.NextBool(10))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), Main.rand.NextFloat(0.1f, 0.4f));
+                Color noteColor = Color.Lerp(new Color(255, 140, 50), new Color(139, 90, 43), Main.rand.NextFloat()) * 0.55f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 35);
             }
         }
         
@@ -83,6 +93,17 @@ namespace MagnumOpus.Content.Autumn.Accessories
                 
                 // Lifesteal VFX
                 CustomParticles.GenericFlare(target.Center, new Color(180, 80, 40), 0.4f, 15);
+                
+                // Music note burst for soul reap
+                ThemedParticles.MusicNoteBurst(target.Center, new Color(139, 90, 43), 3, 2.5f);
+                
+                // Reaper glyphs
+                CustomParticles.GlyphBurst(target.Center, new Color(139, 90, 43), 2, 2f);
+                
+                // Sparkle accent
+                var sparkle = new SparkleParticle(target.Center + Main.rand.NextVector2Circular(8f, 8f),
+                    Main.rand.NextVector2Circular(1.5f, 1.5f), new Color(218, 165, 32) * 0.4f, 0.15f, 12);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
         }
     }
@@ -122,6 +143,15 @@ namespace MagnumOpus.Content.Autumn.Accessories
                 Vector2 pos = player.Center + angle.ToRotationVector2() * 25f;
                 Color twilightColor = Color.Lerp(new Color(255, 100, 30), new Color(128, 64, 96), Main.rand.NextFloat());
                 CustomParticles.GenericFlare(pos, twilightColor * 0.7f, 0.22f, 18);
+            }
+            
+            // Floating autumn melody note
+            if (!hideVisual && Main.rand.NextBool(10))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), Main.rand.NextFloat(0.1f, 0.4f));
+                Color noteColor = Color.Lerp(new Color(255, 140, 50), new Color(128, 64, 96), Main.rand.NextFloat()) * 0.55f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 35);
             }
         }
         
@@ -177,6 +207,15 @@ namespace MagnumOpus.Content.Autumn.Accessories
                 Vector2 vel = angle.ToRotationVector2() * 0.5f;
                 Color harvestColor = Color.Lerp(new Color(139, 69, 19), new Color(218, 165, 32), Main.rand.NextFloat());
                 CustomParticles.GenericGlow(pos, vel, harvestColor, 0.26f, 24, true);
+            }
+            
+            // Floating autumn melody note
+            if (!hideVisual && Main.rand.NextBool(10))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), Main.rand.NextFloat(0.1f, 0.4f));
+                Color noteColor = Color.Lerp(new Color(255, 140, 50), new Color(139, 90, 43), Main.rand.NextFloat()) * 0.55f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 35);
             }
         }
         

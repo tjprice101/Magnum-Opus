@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -23,6 +24,11 @@ namespace MagnumOpus.Content.Spring.Materials
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 80);
             Item.rare = ItemRarityID.LightRed;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A fragment of nature's eternal cycle'") { OverrideColor = new Color(255, 180, 200) });
         }
 
         public override void PostUpdate()
@@ -60,6 +66,11 @@ namespace MagnumOpus.Content.Spring.Materials
             Item.rare = ItemRarityID.Pink;
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Pollen of the awakening season'") { OverrideColor = new Color(255, 180, 200) });
+        }
+
         public override void PostUpdate()
         {
             Lighting.AddLight(Item.Center, 0.3f, 0.35f, 0.25f);
@@ -91,6 +102,11 @@ namespace MagnumOpus.Content.Spring.Materials
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 1);
             Item.rare = ItemRarityID.Pink;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A rare gift from the prismatic slime'") { OverrideColor = new Color(255, 180, 200) });
         }
 
         public override void PostUpdate()

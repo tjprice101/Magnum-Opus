@@ -8,6 +8,7 @@ using MagnumOpus.Content.Nachtmusik.ResonanceEnergies;
 using MagnumOpus.Content.Nachtmusik.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Nachtmusik.Accessories
 {
@@ -38,14 +39,14 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             var modPlayer = player.GetModPlayer<NocturnesEmbracePlayer>();
             modPlayer.hasNocturnesEmbrace = true;
 
-            // +25% summon damage
-            player.GetDamage(DamageClass.Summon) += 0.25f;
+            // +45% summon damage - POST-FATE ULTIMATE
+            player.GetDamage(DamageClass.Summon) += 0.45f;
 
-            // +2 minion slots
-            player.maxMinions += 2;
+            // +4 minion slots - POST-FATE ULTIMATE
+            player.maxMinions += 4;
 
-            // +10% minion knockback
-            player.GetKnockback(DamageClass.Summon) += 0.10f;
+            // +25% minion knockback - POST-FATE ULTIMATE
+            player.GetKnockback(DamageClass.Summon) += 0.25f;
 
             // Minions inflict a stacking debuff
             // (handled in ModPlayer)
@@ -71,21 +72,30 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                     CustomParticles.GenericFlare(starPos, Gold * 0.5f, 0.18f, 10);
                 }
             }
+
+            // Floating nocturnal melody notes
+            if (!hideVisual && Main.rand.NextBool(10))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(32f, 32f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), -Main.rand.NextFloat(0.3f, 0.5f)); // Rising like night whispers
+                Color noteColor = Color.Lerp(new Color(100, 60, 180), new Color(80, 100, 200), Main.rand.NextFloat()) * 0.55f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 35);
+            }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "SummonBoost", "+25% summon damage")
+            tooltips.Add(new TooltipLine(Mod, "SummonBoost", "+45% summon damage")
             {
                 OverrideColor = Gold
             });
 
-            tooltips.Add(new TooltipLine(Mod, "MinionSlots", "+2 max minions")
+            tooltips.Add(new TooltipLine(Mod, "MinionSlots", "+4 max minions")
             {
                 OverrideColor = Violet
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Knockback", "+10% minion knockback")
+            tooltips.Add(new TooltipLine(Mod, "Knockback", "+25% minion knockback")
             {
                 OverrideColor = DeepPurple
             });
@@ -208,6 +218,17 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                 // Visual burst at minion
                 CustomParticles.GenericFlare(minionPos, StarWhite, 0.8f, 18);
                 CustomParticles.GenericFlare(minionPos, Gold, 0.6f, 16);
+
+                // Music note burst on constellation strike
+                ThemedParticles.MusicNoteBurst(minionPos, new Color(100, 60, 180), 4, 3.5f);
+
+                // Star sparkle accents
+                for (int j = 0; j < 3; j++)
+                {
+                    var sparkle = new SparkleParticle(minionPos + Main.rand.NextVector2Circular(10f, 10f),
+                        Main.rand.NextVector2Circular(2f, 2f), new Color(255, 250, 240) * 0.5f, 0.2f, 15);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
                 
                 // Expanding star burst
                 for (int i = 0; i < 8; i++)

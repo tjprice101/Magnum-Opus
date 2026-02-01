@@ -13,7 +13,7 @@ using MagnumOpus.Content.EnigmaVariations.HarmonicCores;
 namespace MagnumOpus.Content.EnigmaVariations.Accessories
 {
     /// <summary>
-    /// Enigma theme color constants - void mystery, purple → green gradient
+    /// Enigma theme color constants - void mystery, purple ↁEgreen gradient
     /// </summary>
     public static class EnigmaColors
     {

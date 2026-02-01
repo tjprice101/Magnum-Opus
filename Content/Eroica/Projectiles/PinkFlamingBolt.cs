@@ -157,7 +157,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D pixel = TextureAssets.MagicPixel.Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle11").Value;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             
             // Switch to additive blending for glow

@@ -120,6 +120,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
             {
                 CustomParticles.MoonlightHalo(Projectile.Center, 0.35f);
             }
+            
+            // ☁EMUSICAL PRESENCE - Moonlit aura
+            if (Main.rand.NextBool(15))
+            {
+                Color noteColor = Color.Lerp(new Color(75, 0, 130), new Color(220, 220, 235), Main.rand.NextFloat());
+                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f), new Vector2(0, -0.8f), noteColor, 0.28f, 30);
+            }
 
             // Lighting
             Lighting.AddLight(Projectile.Center, 0.3f, 0.1f, 0.5f);
@@ -285,6 +292,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
         {
             // Apply Musical Dissonance debuff
             target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 180);
+            
+            // ☁EMUSICAL IMPACT - Moonlit chord burst
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(135, 206, 250), 5, 3.5f);
 
             // Hit effect
             for (int i = 0; i < 6; i++)

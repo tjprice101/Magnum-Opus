@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -39,6 +41,11 @@ namespace MagnumOpus.Content.SwanLake.Tools
             
             // Enable reforging
             Item.maxStack = 1;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Glides through stone with elegant precision'") { OverrideColor = new Color(240, 240, 255) });
         }
 
         public override void AddRecipes()

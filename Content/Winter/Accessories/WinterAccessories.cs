@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using MagnumOpus.Content.Winter.Materials;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Winter.Accessories
 {
@@ -36,6 +37,15 @@ namespace MagnumOpus.Content.Winter.Accessories
                 Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.5f, 0.5f));
                 Color frostColor = Color.Lerp(new Color(173, 216, 230), new Color(0, 255, 255), Main.rand.NextFloat());
                 CustomParticles.GenericGlow(pos, vel, frostColor, 0.26f, 24, true);
+            }
+
+            // Floating winter melody note
+            if (!hideVisual && Main.rand.NextBool(10))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(0.1f, 0.4f)); // Gentle snowfall drift
+                Color noteColor = Color.Lerp(new Color(150, 200, 255), new Color(240, 250, 255), Main.rand.NextFloat()) * 0.55f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 35);
             }
             
             Lighting.AddLight(player.Center, new Color(150, 200, 255).ToVector3() * 0.35f);
@@ -98,6 +108,15 @@ namespace MagnumOpus.Content.Winter.Accessories
                     Vector2 pos = player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(20f, 40f);
                     Color shrineColor = Color.Lerp(new Color(200, 230, 255), Color.White, Main.rand.NextFloat());
                     CustomParticles.GenericFlare(pos, shrineColor * 0.6f, 0.2f, 22);
+                }
+
+                // Floating winter melody note when still
+                if (!hideVisual && Main.rand.NextBool(8))
+                {
+                    Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                    Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(0.1f, 0.4f)); // Gentle snowfall drift
+                    Color noteColor = Color.Lerp(new Color(150, 200, 255), new Color(240, 250, 255), Main.rand.NextFloat()) * 0.55f;
+                    ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 35);
                 }
             }
             
@@ -171,6 +190,15 @@ namespace MagnumOpus.Content.Winter.Accessories
                     float angle = Main.GameUpdateCount * 0.025f + Main.rand.NextFloat(MathHelper.TwoPi);
                     Vector2 orbitPos = player.Center + angle.ToRotationVector2() * 40f;
                     CustomParticles.GenericFlare(orbitPos, new Color(200, 240, 255) * 0.6f, 0.18f, 16);
+                }
+
+                // Floating winter melody note
+                if (Main.rand.NextBool(10))
+                {
+                    Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                    Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(0.1f, 0.4f)); // Gentle snowfall drift
+                    Color noteColor = Color.Lerp(new Color(150, 200, 255), new Color(240, 250, 255), Main.rand.NextFloat()) * 0.55f;
+                    ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 35);
                 }
             }
             

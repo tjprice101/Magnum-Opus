@@ -29,7 +29,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
         {
             Item.width = 50;
             Item.height = 50;
-            Item.damage = 300; // Balanced: ~1000 DPS (300 × 60/18)
+            Item.damage = 300; // Balanced: ~1000 DPS (300 ÁE60/18)
             Item.DamageType = DamageClass.Melee;
             Item.useTime = 18; // Faster swing
             Item.useAnimation = 18;
@@ -355,6 +355,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
             }
             
             return false;
+        }
+
+        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Swings release waves of lunar energy"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Hold right-click to charge a devastating lunar storm"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Hits apply Musical Dissonance debuff"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The eternal cycle made blade'")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(140, 100, 200)
+            });
         }
 
         public override void AddRecipes()

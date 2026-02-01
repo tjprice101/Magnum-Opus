@@ -450,7 +450,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 float progress = (float)i / points;
                 Vector2 offset = angle.ToRotationVector2() * (40f * intensity);
                 
-                // Dark prismatic gradient: black → pink → red
+                // Dark prismatic gradient: black ↁEpink ↁEred
                 Color fractalColor;
                 if (progress < 0.4f)
                     fractalColor = Color.Lerp(new Color(15, 5, 20), new Color(180, 50, 100), progress / 0.4f);

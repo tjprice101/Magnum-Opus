@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -41,6 +42,11 @@ namespace MagnumOpus.Content.Fate.Tools
             Item.accessory = true;
             Item.value = Item.buyPrice(platinum: 8);
             Item.rare = ModContent.RarityType<FateRarity>();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Wings woven from the fabric of cosmic destiny itself'") { OverrideColor = new Color(180, 40, 80) });
         }
 
         public override void VerticalWingSpeeds(Player player, ref float ascentWhenFalling, ref float ascentWhenRising,

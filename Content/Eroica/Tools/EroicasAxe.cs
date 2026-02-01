@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -40,6 +41,11 @@ namespace MagnumOpus.Content.Eroica.Tools
             
             // Enable reforging
             Item.maxStack = 1;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Cleaves through all with heroic determination'") { OverrideColor = new Microsoft.Xna.Framework.Color(200, 50, 50) });
         }
 
         public override void AddRecipes()

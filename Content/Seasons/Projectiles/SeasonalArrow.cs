@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SeasonalArrow : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/ParticleTrail2";
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
@@ -81,6 +81,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 Color trailColor = Color.Lerp(PrimaryColor, SecondaryColor, Main.rand.NextFloat()) * 0.5f;
                 var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.22f, 16, true);
                 MagnumParticleHandler.SpawnParticle(trail);
+            }
+
+            // ☁EMUSICAL NOTATION - Seasonal arrow melody (VISIBLE SCALE 0.75f+)
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, PrimaryColor * 0.85f, 0.75f, 35);
+            }
+            
+            // ☁ESPARKLE ACCENT - Seasonal shimmer
+            if (Main.rand.NextBool(4))
+            {
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(5f, 5f), -Projectile.velocity * 0.08f, SecondaryColor, 0.28f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
             // Autumn-specific: Leave decay zones
@@ -163,12 +177,15 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 var burst = new GenericGlowParticle(target.Center, burstVel, burstColor, 0.28f, 18, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
+
+            // ☁EMUSICAL IMPACT - Seasonal bow crescendo
+            ThemedParticles.MusicNoteBurst(target.Center, PrimaryColor * 0.75f, 6, 3.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/ParticleTrail2").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -210,6 +227,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 var burst = new GenericGlowParticle(Projectile.Center, burstVel, PrimaryColor * 0.5f, 0.22f, 16, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
+
+            // ☁EMUSICAL FINALE - Seasonal arrow finale
+            ThemedParticles.MusicNoteBurst(Projectile.Center, PrimaryColor * 0.7f, 5, 3f);
         }
     }
 
@@ -218,7 +238,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class HomingPetalProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle5";
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
@@ -282,6 +302,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
+            // ☁EMUSICAL NOTATION - Homing petal dance (VISIBLE SCALE 0.7f+)
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, SpringPink * 0.85f, 0.7f, 32);
+            }
+            
+            // ☁ESPARKLE ACCENT - Petal shimmer
+            if (Main.rand.NextBool(5))
+            {
+                var sparkle = new SparkleParticle(Projectile.Center, Main.rand.NextVector2Circular(1f, 1f), SpringGreen, 0.22f, 16);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, SpringPink.ToVector3() * 0.3f);
         }
 
@@ -289,12 +323,15 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         {
             target.AddBuff(BuffID.Poisoned, 120);
             CustomParticles.GenericFlare(target.Center, SpringPink, 0.4f, 14);
+
+            // ☁EMUSICAL IMPACT - Petal pirouette
+            ThemedParticles.MusicNoteBurst(target.Center, SpringPink * 0.65f, 3, 2.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle5").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -316,7 +353,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SummerArrowFlareProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField8";
         
         private static readonly Color SummerGold = new Color(255, 215, 0);
         private static readonly Color SummerOrange = new Color(255, 140, 0);
@@ -346,6 +383,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
+            // ☁EMUSICAL NOTATION - Solar flare sizzle (VISIBLE SCALE 0.72f+)
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, SummerGold * 0.85f, 0.72f, 30);
+            }
+            
+            // ☁ESPARKLE ACCENT - Solar sparkle
+            if (Main.rand.NextBool(4))
+            {
+                var sparkle = new SparkleParticle(Projectile.Center, Main.rand.NextVector2Circular(2f, 2f), SummerOrange, 0.25f, 14);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, SummerGold.ToVector3() * 0.5f);
         }
 
@@ -353,12 +404,15 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         {
             target.AddBuff(BuffID.OnFire3, 180);
             CustomParticles.GenericFlare(target.Center, SummerGold, 0.4f, 14);
+
+            // ☁EMUSICAL IMPACT - Solar burst fanfare
+            ThemedParticles.MusicNoteBurst(target.Center, SummerGold * 0.7f, 4, 3f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField8").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -381,7 +435,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class DecayZoneProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField9";
         
         private static readonly Color AutumnOrange = new Color(255, 140, 50);
         private static readonly Color AutumnBrown = new Color(139, 90, 43);
@@ -417,18 +471,34 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(particle);
             }
 
+            // ☁EMUSICAL NOTATION - Decay zone lament (VISIBLE SCALE 0.68f+)
+            if (Main.rand.NextBool(10))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.5f, -0.5f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, AutumnBrown * 0.8f, 0.68f, 28);
+            }
+            
+            // ☁EGLYPH ACCENT - Decay runes
+            if (Main.rand.NextBool(12))
+            {
+                CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f), AutumnOrange * 0.6f, 0.25f, -1);
+            }
+
             Lighting.AddLight(Projectile.Center, AutumnOrange.ToVector3() * 0.25f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(BuffID.CursedInferno, 90);
+
+            // ☁EMUSICAL IMPACT - Decay zone toll
+            ThemedParticles.MusicNoteBurst(target.Center, AutumnOrange * 0.55f, 2, 2f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField9").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 

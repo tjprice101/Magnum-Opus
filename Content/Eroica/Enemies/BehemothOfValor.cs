@@ -691,7 +691,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class BehemothFlameRain : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/ParticleTrail3";
 
         public override void SetDefaults()
         {
@@ -727,6 +727,14 @@ namespace MagnumOpus.Content.Eroica.Enemies
                 black.noGravity = true;
                 black.velocity *= 0.2f;
             }
+            
+            // ☁EMUSICAL NOTATION - Subtle heroic melody trail (dimmer for enemy projectile)
+            if (Main.rand.NextBool(10))
+            {
+                Color noteColor = Color.Lerp(new Color(200, 50, 50), new Color(255, 215, 0), Main.rand.NextFloat()) * 0.7f;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.6f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.25f, 28);
+            }
 
             Lighting.AddLight(Projectile.Center, 0.5f, 0.1f, 0.05f);
         }
@@ -747,6 +755,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
                 Dust smoke = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Smoke, 0f, 0f, 150, Color.Black, 1.5f);
                 smoke.velocity = Main.rand.NextVector2Circular(4f, 4f);
             }
+            
+            // ☁EMUSICAL FINALE - Hero's symphony (dimmer for enemy projectile)
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(200, 50, 50) * 0.7f, 4, 3f);
         }
 
         public override bool PreDraw(ref Color lightColor) => false;
@@ -754,7 +765,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class BehemothShockwave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo4";
 
         public override void SetDefaults()
         {
@@ -792,7 +803,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class BehemothBreathFlame : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow4";
 
         public override void SetDefaults()
         {
@@ -828,7 +839,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class BehemothFirePillar : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo5";
 
         public override void SetDefaults()
         {
@@ -883,7 +894,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class BehemothEruptionWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/StarBurst1";
 
         public override void SetDefaults()
         {
@@ -925,7 +936,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class BehemothDebris : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles/StarBurst2";
 
         public override void SetDefaults()
         {

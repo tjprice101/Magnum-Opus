@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -30,6 +31,11 @@ namespace MagnumOpus.Content.Spring.Materials
             Item.autoReuse = true;
             Item.consumable = true;
             Item.createTile = -1; // No tile placement for now
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Forged from the promise of renewal'") { OverrideColor = new Color(255, 180, 200) });
         }
 
         public override void PostUpdate()

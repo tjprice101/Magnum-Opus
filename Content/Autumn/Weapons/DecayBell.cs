@@ -11,6 +11,7 @@ using MagnumOpus.Content.Autumn.Materials;
 using MagnumOpus.Content.Autumn.Projectiles;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Autumn.Weapons
 {
@@ -65,6 +66,15 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 MagnumParticleHandler.SpawnParticle(aura);
             }
 
+            // Floating autumn melody notes
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.2f, 0.5f));
+                Color noteColor = Color.Lerp(AutumnOrange, new Color(139, 90, 43), Main.rand.NextFloat()) * 0.6f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 40);
+            }
+
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.1f + 0.4f;
             Lighting.AddLight(player.Center, DecayPurple.ToVector3() * pulse);
         }
@@ -74,9 +84,37 @@ namespace MagnumOpus.Content.Autumn.Weapons
             // Apply buff
             player.AddBuff(Item.buffType, 2);
 
-            // Spawn VFX
+            // Spawn VFX - layered bloom instead of halo
             CustomParticles.GenericFlare(Main.MouseWorld, WraithGreen, 0.7f, 20);
-            CustomParticles.HaloRing(Main.MouseWorld, DecayPurple * 0.5f, 0.45f, 16);
+            CustomParticles.GenericFlare(Main.MouseWorld, DecayPurple, 0.55f, 16);
+            CustomParticles.GenericFlare(Main.MouseWorld, DecayPurple * 0.5f, 0.4f, 13);
+            
+            // Music note on summon
+            ThemedParticles.MusicNote(Main.MouseWorld, Vector2.Zero, AutumnOrange * 0.8f, 0.7f, 25);
+            
+            // Music note ring and burst for summoning
+            ThemedParticles.MusicNoteRing(Main.MouseWorld, AutumnOrange, 40f, 6);
+            ThemedParticles.MusicNoteBurst(Main.MouseWorld, new Color(139, 90, 43), 5, 4f);
+            
+            // Decay glyphs (Autumn harvest theme)
+            CustomParticles.GlyphBurst(Main.MouseWorld, new Color(139, 90, 43), 4, 3f);
+            
+            // Sparkle accents
+            for (int sparkIdx = 0; sparkIdx < 4; sparkIdx++)
+            {
+                var sparkle = new SparkleParticle(Main.MouseWorld + Main.rand.NextVector2Circular(12f, 12f),
+                    Main.rand.NextVector2Circular(2f, 2f), new Color(218, 165, 32) * 0.5f, 0.2f, 16);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // Soul wisp burst
+            for (int wisp = 0; wisp < 6; wisp++)
+            {
+                float wispAngle = MathHelper.TwoPi * wisp / 6f;
+                Vector2 wispPos = Main.MouseWorld + wispAngle.ToRotationVector2() * 18f;
+                Color wispColor = Color.Lerp(WraithGreen, DecayPurple, (float)wisp / 6f);
+                CustomParticles.GenericFlare(wispPos, wispColor * 0.7f, 0.25f, 14);
+            }
 
             // Summoning burst
             for (int i = 0; i < 10; i++)
@@ -189,6 +227,17 @@ namespace MagnumOpus.Content.Autumn.Weapons
                         Color auraColor = Color.Lerp(new Color(100, 50, 120), new Color(120, 180, 100), Main.rand.NextFloat()) * 0.4f;
                         var aura = new GenericGlowParticle(pos, vel, auraColor, 0.22f, 25, true);
                         MagnumParticleHandler.SpawnParticle(aura);
+                    }
+                    
+                    // Floating music notes in decay aura
+                    if (Main.rand.NextBool(15))
+                    {
+                        float noteAngle = Main.rand.NextFloat(MathHelper.TwoPi);
+                        float noteDist = Main.rand.NextFloat(100f, 180f);
+                        Vector2 notePos = player.Center + noteAngle.ToRotationVector2() * noteDist;
+                        Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(0.1f, 0.4f));
+                        Color noteColor = Color.Lerp(new Color(255, 140, 50), new Color(139, 90, 43), Main.rand.NextFloat()) * 0.5f;
+                        ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.65f, 35);
                     }
                 }
             }

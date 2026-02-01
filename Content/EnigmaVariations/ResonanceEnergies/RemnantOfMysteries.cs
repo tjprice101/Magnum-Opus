@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -31,17 +32,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonanceEnergies
             Item.rare = ItemRarityID.Lime;
         }
 
-        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Material", "Enigma crafting material")
-            {
-                OverrideColor = EnigmaGreen
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Flavor", "'A fragment of questions left unanswered'")
-            {
-                OverrideColor = EnigmaPurple
-            });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Fragments of riddles never solved'") { OverrideColor = new Color(140, 60, 200) });
         }
 
         public override void PostUpdate()

@@ -11,6 +11,7 @@ using MagnumOpus.Content.Autumn.Materials;
 using MagnumOpus.Content.Autumn.Projectiles;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Autumn.Weapons
 {
@@ -74,6 +75,15 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 MagnumParticleHandler.SpawnParticle(leaf);
             }
 
+            // Floating autumn melody notes
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.2f, 0.5f));
+                Color noteColor = Color.Lerp(AutumnOrange, AutumnBrown, Main.rand.NextFloat()) * 0.6f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 40);
+            }
+
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.1f + 0.4f;
             Lighting.AddLight(player.Center, AutumnOrange.ToVector3() * pulse);
         }
@@ -103,10 +113,34 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 // Spawn crescent wave
                 Projectile.NewProjectile(source, player.Center, velocity * 1.5f, type, (int)(damage * 1.6f), knockback, player.whoAmI);
 
-                // VFX burst
+                // VFX burst - layered decay bloom instead of halo
                 CustomParticles.GenericFlare(player.Center, AutumnGold, 0.9f, 22);
-                CustomParticles.HaloRing(player.Center, AutumnOrange * 0.7f, 0.6f, 18);
-                CustomParticles.HaloRing(player.Center, DecayPurple * 0.5f, 0.4f, 15);
+                CustomParticles.GenericFlare(player.Center, AutumnOrange, 0.7f, 18);
+                CustomParticles.GenericFlare(player.Center, DecayPurple * 0.6f, 0.5f, 15);
+                
+                // Music note ring and burst for special ability
+                ThemedParticles.MusicNoteRing(player.Center, AutumnOrange, 40f, 6);
+                ThemedParticles.MusicNoteBurst(player.Center, AutumnBrown, 5, 4f);
+                
+                // Harvest glyphs (Autumn decay theme)
+                CustomParticles.GlyphBurst(player.Center, AutumnBrown, 4, 3f);
+                
+                // Sparkle accents
+                for (int sparkIdx = 0; sparkIdx < 4; sparkIdx++)
+                {
+                    var sparkle = new SparkleParticle(player.Center + Main.rand.NextVector2Circular(12f, 12f),
+                        Main.rand.NextVector2Circular(2f, 2f), AutumnGold * 0.5f, 0.2f, 16);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
+                
+                // Decay wisp burst
+                for (int wisp = 0; wisp < 6; wisp++)
+                {
+                    float wispAngle = MathHelper.TwoPi * wisp / 6f;
+                    Vector2 wispPos = player.Center + wispAngle.ToRotationVector2() * 22f;
+                    Color wispColor = Color.Lerp(AutumnOrange, DecayPurple, (float)wisp / 6f);
+                    CustomParticles.GenericFlare(wispPos, wispColor * 0.75f, 0.28f, 14);
+                }
 
                 // Radial decay particles
                 for (int i = 0; i < 12; i++)
@@ -146,9 +180,31 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 // Apply stacking decay (using vanilla Ichor as proxy for armor reduction)
                 target.AddBuff(BuffID.Ichor, 300);
                 
-                // Decay burst VFX
+                // Decay burst VFX - layered bloom instead of halo
                 CustomParticles.GenericFlare(target.Center, DecayPurple, 0.65f, 18);
-                CustomParticles.HaloRing(target.Center, DecayPurple * 0.6f, 0.4f, 15);
+                CustomParticles.GenericFlare(target.Center, DecayPurple * 0.6f, 0.45f, 15);
+                
+                // Music note burst for decay proc
+                ThemedParticles.MusicNoteBurst(target.Center, AutumnBrown, 4, 3f);
+                
+                // Decay glyphs (harvest theme)
+                CustomParticles.GlyphBurst(target.Center, DecayPurple, 3, 2.5f);
+                
+                // Sparkle accents
+                for (int sparkIdx = 0; sparkIdx < 3; sparkIdx++)
+                {
+                    var sparkle = new SparkleParticle(target.Center + Main.rand.NextVector2Circular(10f, 10f),
+                        Main.rand.NextVector2Circular(2f, 2f), AutumnGold * 0.4f, 0.18f, 14);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
+                
+                // Decay wisps around impact
+                for (int wisp = 0; wisp < 4; wisp++)
+                {
+                    float wispAngle = MathHelper.TwoPi * wisp / 4f;
+                    Vector2 wispPos = target.Center + wispAngle.ToRotationVector2() * 15f;
+                    CustomParticles.GenericFlare(wispPos, DecayPurple * 0.7f, 0.22f, 12);
+                }
 
                 for (int i = 0; i < 8; i++)
                 {
@@ -198,9 +254,33 @@ namespace MagnumOpus.Content.Autumn.Weapons
                     );
                 }
 
-                // Death VFX
+                // Death VFX - layered bloom instead of halo
                 CustomParticles.GenericFlare(target.Center, AutumnGold, 0.7f, 20);
-                CustomParticles.HaloRing(target.Center, DecayPurple, 0.5f, 18);
+                CustomParticles.GenericFlare(target.Center, DecayPurple, 0.55f, 18);
+                CustomParticles.GenericFlare(target.Center, DecayPurple * 0.6f, 0.4f, 14);
+                
+                // Music note ring for soul harvest
+                ThemedParticles.MusicNoteRing(target.Center, AutumnOrange, 35f, 5);
+                ThemedParticles.MusicNoteBurst(target.Center, AutumnGold, 4, 3.5f);
+                
+                // Harvest glyphs for soul reaping
+                CustomParticles.GlyphBurst(target.Center, AutumnBrown, 5, 4f);
+                
+                // Sparkle accents
+                for (int sparkIdx = 0; sparkIdx < 5; sparkIdx++)
+                {
+                    var sparkle = new SparkleParticle(target.Center + Main.rand.NextVector2Circular(15f, 15f),
+                        Main.rand.NextVector2Circular(3f, 3f), AutumnGold * 0.6f, 0.22f, 18);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
+                
+                // Soul wisp burst
+                for (int wisp = 0; wisp < 5; wisp++)
+                {
+                    float wispAngle = MathHelper.TwoPi * wisp / 5f;
+                    Vector2 wispPos = target.Center + wispAngle.ToRotationVector2() * 18f;
+                    CustomParticles.GenericFlare(wispPos, DecayPurple * 0.7f, 0.22f, 12);
+                }
 
                 // Soul release particles
                 for (int i = 0; i < 10; i++)

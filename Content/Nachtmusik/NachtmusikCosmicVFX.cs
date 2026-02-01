@@ -38,7 +38,7 @@ namespace MagnumOpus.Content.Nachtmusik
         
         /// <summary>
         /// Gets a gradient color along the Nachtmusik celestial spectrum.
-        /// 0.0 = Deep Purple → 0.25 = Violet → 0.5 = Nebula Pink → 0.75 = Gold → 1.0 = Star White
+        /// 0.0 = Deep Purple ↁE0.25 = Violet ↁE0.5 = Nebula Pink ↁE0.75 = Gold ↁE1.0 = Star White
         /// </summary>
         public static Color GetCelestialGradient(float progress)
         {
@@ -77,7 +77,7 @@ namespace MagnumOpus.Content.Nachtmusik
             CustomParticles.GenericFlare(position, Gold, 0.9f * scale, 20);
             CustomParticles.GenericFlare(position, Violet, 0.7f * scale, 18);
             
-            // Cascading starburst layers (replacing banned HaloRing)
+            // Cascading starburst layers 
             for (int i = 0; i < 6; i++)
             {
                 float progress = (float)i / 6f;
@@ -117,7 +117,7 @@ namespace MagnumOpus.Content.Nachtmusik
             CustomParticles.GenericFlare(position, StarWhite, 0.8f * scale, 18);
             CustomParticles.GenericFlare(position, Gold, 0.6f * scale, 16);
             
-            // Starburst layers (replacing banned HaloRing)
+            // Starburst layers 
             var violetBurst = new StarBurstParticle(position, Vector2.Zero, Violet, 0.35f * scale, 14);
             MagnumParticleHandler.SpawnParticle(violetBurst);
             var goldBurst = new StarBurstParticle(position, Vector2.Zero, Gold * 0.8f, 0.28f * scale, 12, 1);
@@ -191,7 +191,15 @@ namespace MagnumOpus.Content.Nachtmusik
                 float angle = MathHelper.TwoPi * i / count + Main.rand.NextFloat(-0.4f, 0.4f);
                 Vector2 vel = angle.ToRotationVector2() * spread * Main.rand.NextFloat(0.7f, 1.3f);
                 Color noteColor = GetCelestialGradient(Main.rand.NextFloat());
-                ThemedParticles.MusicNote(position, vel * 0.5f, noteColor, 0.35f, 25);
+                // VISIBLE SCALE 0.7f+ with random variant
+                ThemedParticles.MusicNote(position, vel * 0.5f, noteColor, 0.7f, 25);
+                
+                // Add sparkle accent for extra shimmer
+                if (Main.rand.NextBool(2))
+                {
+                    var sparkle = new SparkleParticle(position + vel * 0.3f, vel * 0.4f, StarWhite * 0.5f, 0.22f, 18);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
             }
         }
         
@@ -368,7 +376,7 @@ namespace MagnumOpus.Content.Nachtmusik
                 MagnumParticleHandler.SpawnParticle(spark);
             }
             
-            // Sparkle burst (replacing banned HaloRing)
+            // Sparkle burst 
             var muzzleBurst = new StarBurstParticle(position, Vector2.Zero, Gold * 0.7f, 0.22f * scale, 10, 1);
             MagnumParticleHandler.SpawnParticle(muzzleBurst);
         }
@@ -385,7 +393,7 @@ namespace MagnumOpus.Content.Nachtmusik
             CustomParticles.GenericFlare(position, Violet, 0.8f * scale, 16);
             CustomParticles.GenericFlare(position, Gold * 0.8f, 0.6f * scale, 14);
             
-            // Expanding magic starburst (replacing banned HaloRing)
+            // Expanding magic starburst 
             var magicBurst = new StarBurstParticle(position, Vector2.Zero, Violet, 0.45f * scale, 18);
             MagnumParticleHandler.SpawnParticle(magicBurst);
             var magicBurst2 = new StarBurstParticle(position, Vector2.Zero, NebulaPink * 0.7f, 0.35f * scale, 14, 1);
@@ -426,7 +434,7 @@ namespace MagnumOpus.Content.Nachtmusik
             // Core white flash
             CustomParticles.GenericFlare(position, StarWhite, 0.9f * scale, 15);
             
-            // Golden starburst (replacing banned HaloRing)
+            // Golden starburst 
             var goldenBurst = new StarBurstParticle(position, Vector2.Zero, Gold, 0.4f * scale, 16, 0);
             MagnumParticleHandler.SpawnParticle(goldenBurst);
             
@@ -491,7 +499,7 @@ namespace MagnumOpus.Content.Nachtmusik
             // Layer 4: Music note accents
             SpawnMusicNoteBurst(position, 4, 3f * scale);
             
-            // Layer 5: Cascading starburst cascade (replacing banned HaloRing)
+            // Layer 5: Cascading starburst cascade 
             for (int i = 0; i < 5; i++)
             {
                 Color cascadeColor = GetCelestialGradient((float)i / 5f);
@@ -577,7 +585,7 @@ namespace MagnumOpus.Content.Nachtmusik
                 MagnumParticleHandler.SpawnParticle(burst);
             }
             
-            // Inner constellation glow connecting stars (replacing banned HaloRing)
+            // Inner constellation glow connecting stars 
             if (progress > 0.3f)
             {
                 // Glow particles at star connection points
@@ -616,7 +624,7 @@ namespace MagnumOpus.Content.Nachtmusik
             // Glyph circle
             SpawnOrbitingGlyphs(position, 8, 60f * scale, Main.GameUpdateCount * 0.02f);
             
-            // Massive starburst cascade (replacing banned HaloRing)
+            // Massive starburst cascade 
             for (int i = 0; i < 8; i++)
             {
                 Color cascadeColor = GetCelestialGradient((float)i / 8f);

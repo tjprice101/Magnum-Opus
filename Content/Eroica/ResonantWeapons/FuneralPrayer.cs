@@ -33,7 +33,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void SetDefaults()
         {
-            Item.damage = 340; // Balanced: ~1133 DPS (340 × 60/18)
+            Item.damage = 340; // Balanced: ~1133 DPS (340 ÁE60/18)
             Item.DamageType = DamageClass.Magic;
             Item.width = 50;
             Item.height = 50;
@@ -294,6 +294,13 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                 // Clean up tracking
                 BeamHitTracking.Remove(shotId);
             }
+        }
+
+        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires 5 large flaming projectiles"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Hitting multiple enemies triggers ricochet beams"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A requiem for the fallen'") { OverrideColor = new Color(200, 50, 50) });
         }
 
         // Recipe removed - drops from Eroica, God of Valor

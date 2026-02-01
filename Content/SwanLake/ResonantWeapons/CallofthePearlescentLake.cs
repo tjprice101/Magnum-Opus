@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
@@ -58,7 +59,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
                 float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
                 float radius = Main.rand.NextFloat(30f, 60f);
                 Vector2 flarePos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
-                // Gradient: Black → White with rainbow overlay
+                // Gradient: Black ↁEWhite with rainbow overlay
                 Color baseColor = Main.rand.NextBool() ? UnifiedVFX.SwanLake.Black : UnifiedVFX.SwanLake.White;
                 Color rainbow = UnifiedVFX.SwanLake.GetRainbow(Main.rand.NextFloat());
                 Color fractalColor = Color.Lerp(baseColor, rainbow, 0.35f);
@@ -119,7 +120,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
                 CustomParticles.GenericFlare(muzzlePos + offset, flareColor, 0.6f, 20);
             }
             
-            // Gradient halo rings - Black → White with rainbow edge
+            // Gradient halo rings - Black ↁEWhite with rainbow edge
             for (int ring = 0; ring < 4; ring++)
             {
                 float progress = (float)ring / 4f;
@@ -198,11 +199,21 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             spriteBatch.Draw(texture, position, frame, drawColor, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
             return false;
         }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Rapidly fires black and white flaming rockets"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Creates pearlescent rainbow explosions on impact"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Where feathers fall, the lake remembers'") 
+            { 
+                OverrideColor = new Color(220, 225, 235) 
+            });
+        }
     }
 
     public class PearlescentRocket : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.RocketI;
+        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo1";
 
         private bool isBlackRocket => Projectile.localAI[0] == 0;
 
@@ -308,6 +319,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             {
                 ThemedParticles.SwanLakeFractalTrail(Projectile.Center, 0.45f);
             }
+            
+            // ☁EMUSICAL NOTATION - Swan Lake graceful melody
+            if (Main.rand.NextBool(5))
+            {
+                float hue = (Main.GameUpdateCount * 0.01f + Main.rand.NextFloat()) % 1f;
+                Color noteColor = Main.hslToRgb(hue, 0.8f, 0.9f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
+            }
 
             // BRIGHT pulsing light!
             float intensity = isBlackRocket ? 0.7f : 1.1f;
@@ -366,6 +386,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             // Swan feather burst on hit!
             CustomParticles.SwanFeatherBurst(position, 5, 0.3f);
             
+            // ☁EMUSICAL IMPACT - Swan's graceful chord
+            ThemedParticles.MusicNoteBurst(position, Color.White, 5, 3.5f);
+            
             // Fractal gem burst on hit!
             ThemedParticles.SwanLakeFractalGemBurst(position, isBlackRocket ? Color.Black : Color.White, 0.7f, 6, false);
             
@@ -401,6 +424,11 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             ThemedParticles.SwanLakeMusicNotes(Projectile.Center, 6, 25f);
             ThemedParticles.SwanLakeAccidentals(Projectile.Center, 3, 20f);
             ThemedParticles.SwanLakeFeathers(Projectile.Center, 4, 21f);
+            
+            // ☁EMUSICAL FINALE - Feathered symphony
+            float finaleHue = (Main.GameUpdateCount * 0.02f) % 1f;
+            Color finaleColor = Main.hslToRgb(finaleHue, 0.9f, 0.85f);
+            ThemedParticles.MusicNoteBurst(Projectile.Center, finaleColor, 6, 4f);
             
             // Swan feather explosion on rocket death (70% size)!
             CustomParticles.SwanFeatherExplosion(Projectile.Center, 7, 0.28f);

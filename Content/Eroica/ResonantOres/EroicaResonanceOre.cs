@@ -1,6 +1,8 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using MagnumOpus.Common;
 
 namespace MagnumOpus.Content.Eroica.ResonantOres
@@ -29,6 +31,11 @@ namespace MagnumOpus.Content.Eroica.ResonantOres
             Item.createTile = ModContent.TileType<EroicaResonanceOreTile>();
             Item.rare = ModContent.RarityType<EroicaRarity>();
             Item.value = Item.sellPrice(silver: 50);
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Material", "'Ore forged in the flames of triumph'") { OverrideColor = new Color(200, 50, 50) });
         }
     }
 }

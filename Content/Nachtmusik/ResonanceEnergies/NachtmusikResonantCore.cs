@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -24,6 +25,11 @@ namespace MagnumOpus.Content.Nachtmusik.ResonanceEnergies
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 8);
             Item.rare = ModContent.RarityType<NachtmusikRarity>();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A heart that beats only under starlight'") { OverrideColor = new Color(100, 80, 160) });
         }
 
         public override void PostUpdate()

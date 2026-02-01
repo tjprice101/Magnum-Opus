@@ -42,7 +42,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             Projectile.extraUpdates = 1;
         }
 
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Flames;
+        public override string Texture => "MagnumOpus/Assets/Particles/ParticleTrail3";
 
         public override void AI()
         {
@@ -70,6 +70,22 @@ namespace MagnumOpus.Content.Summer.Projectiles
                 dust.noGravity = true;
             }
 
+            // ☁EMUSICAL NOTATION - VISIBLE notes dance in flames! (scale 0.7f)
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), Main.rand.NextFloat(-1.2f, -0.3f));
+                // Scale 0.7f makes notes VISIBLE!
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, Color.Lerp(SunOrange, SunGold, Main.rand.NextFloat()), 0.7f, 30);
+            }
+            
+            // Sparkle accents
+            if (Main.rand.NextBool(4))
+            {
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    Main.rand.NextVector2Circular(1f, 1f), SunWhite * 0.5f, 0.2f, 12);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             // Slow down slightly
             Projectile.velocity *= 0.97f;
 
@@ -79,6 +95,14 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // ☁EMUSICAL IMPACT - VISIBLE fire notes! (scale 0.75f)
+            for (int i = 0; i < 5; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 5f;
+                Vector2 noteVel = angle.ToRotationVector2() * 3f;
+                ThemedParticles.MusicNote(target.Center, noteVel, SunOrange, 0.75f, 30);
+            }
+            
             // Apply burning
             target.AddBuff(BuffID.OnFire3, 120);
             target.AddBuff(BuffID.Daybreak, 60);
@@ -159,7 +183,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.SolarWhipSwordExplosion;
+        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo5";
 
         public override void AI()
         {
@@ -180,6 +204,19 @@ namespace MagnumOpus.Content.Summer.Projectiles
                     Color particleColor = Color.Lerp(SunOrange, SunRed, Main.rand.NextFloat()) * 0.6f;
                     var particle = new GenericGlowParticle(particlePos, particleVel, particleColor, 0.3f, 18, true);
                     MagnumParticleHandler.SpawnParticle(particle);
+                }
+                
+                // ☁EMUSICAL NOTATION - Notes ride the heatwave! - VISIBLE SCALE 0.72f+
+                for (int n = 0; n < 3; n++)
+                {
+                    float noteAngle = MathHelper.TwoPi * n / 3f + Main.rand.NextFloat(MathHelper.PiOver4);
+                    Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * expandRadius;
+                    Vector2 noteVel = noteAngle.ToRotationVector2() * 1.5f + new Vector2(0, -0.5f);
+                    ThemedParticles.MusicNote(notePos, noteVel, SunGold, 0.72f, 35);
+                    
+                    // Heat sparkle
+                    var sparkle = new SparkleParticle(notePos, noteVel * 0.5f, SunOrange * 0.4f, 0.2f, 16);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
                 }
             }
 

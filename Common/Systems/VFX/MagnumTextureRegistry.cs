@@ -48,7 +48,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 return;
             
             // Load only textures that ACTUALLY EXIST in Assets/Particles/
-            SoftGlow = SafeLoad("MagnumOpus/Assets/Particles/SoftGlow");
+            SoftGlow = SafeLoad("MagnumOpus/Assets/Particles/EnergyFlare");
             EnergyFlare = SafeLoad("MagnumOpus/Assets/Particles/EnergyFlare");
             HaloRing = SafeLoad("MagnumOpus/Assets/Particles/GlowingHalo1");
             

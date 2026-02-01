@@ -1,6 +1,9 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
+using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using MagnumOpus.Common;
 
 namespace MagnumOpus.Content.Fate.ResonantOres
@@ -32,6 +35,14 @@ namespace MagnumOpus.Content.Fate.ResonantOres
             Item.consumable = true;
             Item.createTile = ModContent.TileType<FateResonanceOreTile>();
             Item.placeStyle = 0;
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Crystallized destiny, humming with the inevitability of the cosmos'")
+            {
+                OverrideColor = new Color(180, 40, 80)
+            });
         }
     }
 }

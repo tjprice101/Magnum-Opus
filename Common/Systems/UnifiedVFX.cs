@@ -23,7 +23,7 @@ namespace MagnumOpus.Common.Systems
     public static class UnifiedVFX
     {
         // ============================================================================
-        // LA CAMPANELLA THEME - Black → Orange infernal bell effects
+        // LA CAMPANELLA THEME - Black ↁEOrange infernal bell effects
         // ============================================================================
         public static class LaCampanella
         {
@@ -46,7 +46,7 @@ namespace MagnumOpus.Common.Systems
                 // Themed particles
                 ThemedParticles.LaCampanellaImpact(position, scale);
                 
-                // Gradient sparks Black → Orange
+                // Gradient sparks Black ↁEOrange
                 for (int i = 0; i < (int)(20 * scale); i++)
                 {
                     Vector2 velocity = Main.rand.NextVector2Unit() * Main.rand.NextFloat(5f, 15f) * scale;
@@ -203,7 +203,7 @@ namespace MagnumOpus.Common.Systems
         }
 
         // ============================================================================
-        // EROICA THEME - Scarlet → Gold heroic/triumphant effects
+        // EROICA THEME - Scarlet ↁEGold heroic/triumphant effects
         // ============================================================================
         public static class Eroica
         {
@@ -223,7 +223,7 @@ namespace MagnumOpus.Common.Systems
                 
                 ThemedParticles.EroicaImpact(position, scale);
                 
-                // Gradient sparks Scarlet → Gold
+                // Gradient sparks Scarlet ↁEGold
                 for (int i = 0; i < (int)(15 * scale); i++)
                 {
                     Vector2 velocity = Main.rand.NextVector2Unit() * Main.rand.NextFloat(5f, 12f) * scale;
@@ -336,7 +336,7 @@ namespace MagnumOpus.Common.Systems
         }
 
         // ============================================================================
-        // MOONLIGHT SONATA THEME - Dark Purple → Light Blue lunar effects
+        // MOONLIGHT SONATA THEME - Dark Purple ↁELight Blue lunar effects
         // ============================================================================
         public static class MoonlightSonata
         {
@@ -356,7 +356,7 @@ namespace MagnumOpus.Common.Systems
                 
                 ThemedParticles.MoonlightImpact(position, scale);
                 
-                // Gradient sparks Purple → Blue
+                // Gradient sparks Purple ↁEBlue
                 for (int i = 0; i < (int)(12 * scale); i++)
                 {
                     Vector2 velocity = Main.rand.NextVector2Unit() * Main.rand.NextFloat(4f, 10f) * scale;
@@ -568,7 +568,7 @@ namespace MagnumOpus.Common.Systems
         }
 
         // ============================================================================
-        // ENIGMA VARIATIONS THEME - Black → Purple → Green flame (mysterious/arcane)
+        // ENIGMA VARIATIONS THEME - Black ↁEPurple ↁEGreen flame (mysterious/arcane)
         // ============================================================================
         // DESIGN: Flashy, beautiful, elegant - mysteries made visible
         // Eyes watch meaningfully, glyphs mark arcane power, swirling void consumes
@@ -581,7 +581,7 @@ namespace MagnumOpus.Common.Systems
             public static readonly Color GreenFlame = new Color(50, 220, 100);
             public static readonly Color DarkGreen = new Color(30, 100, 50);
 
-            /// <summary>Get enigma gradient: Black → Purple → Green</summary>
+            /// <summary>Get enigma gradient: Black ↁEPurple ↁEGreen</summary>
             public static Color GetGradient(float progress)
             {
                 if (progress < 0.5f)
@@ -931,7 +931,7 @@ namespace MagnumOpus.Common.Systems
         }
 
         // ============================================================================
-        // FATE THEME - DARK PRISMATIC: Black → Dark Pink → Bright Red (cosmic endgame)
+        // FATE THEME - DARK PRISMATIC: Black ↁEDark Pink ↁEBright Red (cosmic endgame)
         // ============================================================================
         // DESIGN: ULTIMATE ENDGAME SPECTACLE - Reality itself bending
         // Chromatic aberration, temporal echoes, screen distortions, cosmic inevitability
@@ -953,7 +953,7 @@ namespace MagnumOpus.Common.Systems
             public static Color Crimson => FateBrightRed;
             public static Color Black => FateBlack;
 
-            /// <summary>Get DARK prismatic gradient: Black → Pink → Red → White flash.</summary>
+            /// <summary>Get DARK prismatic gradient: Black ↁEPink ↁERed ↁEWhite flash.</summary>
             public static Color GetCosmicGradient(float progress)
             {
                 if (progress < 0.4f)

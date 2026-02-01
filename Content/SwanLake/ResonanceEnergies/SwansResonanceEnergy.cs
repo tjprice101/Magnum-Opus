@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -25,6 +26,11 @@ namespace MagnumOpus.Content.SwanLake.ResonanceEnergies
             Item.value = Item.sellPrice(gold: 3);
             Item.rare = ItemRarityID.Cyan;
             Item.scale = 0.5f;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The dying swan's final breath given form—tragic beauty that endures'") { OverrideColor = new Color(240, 240, 255) });
         }
 
         public override void PostUpdate()

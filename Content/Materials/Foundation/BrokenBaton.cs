@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -23,6 +24,11 @@ namespace MagnumOpus.Content.Materials.Foundation
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 50);
             Item.rare = ItemRarityID.Orange;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A conductor's authority never truly fades'") { OverrideColor = new Color(255, 180, 100) });
         }
 
         public override void PostUpdate()

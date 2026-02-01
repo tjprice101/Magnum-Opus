@@ -212,6 +212,17 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             }
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Swings send black and white flares that track enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Landing 3 flares empowers the next swing with devastating force"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Hold right-click to charge a prismatic swan storm"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'In darkness and light, the black swan dances alone'") 
+            { 
+                OverrideColor = new Color(220, 225, 235) 
+            });
+        }
+
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(ModContent.BuffType<FlameOfTheSwan>(), 360); // 6 seconds
@@ -225,7 +236,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
                 // HEAVY black/white spark explosion with GRADIENT to rainbow!
             for (int i = 0; i < 20; i++)
             {
-                // GRADIENT: Black → White with rainbow shimmer overlay
+                // GRADIENT: Black ↁEWhite with rainbow shimmer overlay
                 float progress = (float)i / 20f;
                 Color baseColor = Color.Lerp(Color.Black, Color.White, progress);
                 // Add rainbow shimmer overlay
@@ -470,7 +481,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
 
     public class BlackSwanFlare : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.RainbowRodBullet;
+        public override string Texture => "MagnumOpus/Assets/Particles/SwanFeather2";
 
         private bool isBlack => Projectile.ai[0] == 0;
         private bool isEmpowered => Projectile.ai[1] == 1;
@@ -576,6 +587,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             {
                 ThemedParticles.SwanLakeFractalTrail(Projectile.Center, 0.4f);
             }
+            
+            // ☁EMUSICAL NOTATION - Swan Lake graceful melody
+            if (Main.rand.NextBool(6))
+            {
+                float hue = (Main.GameUpdateCount * 0.01f + Main.rand.NextFloat()) % 1f;
+                Color noteColor = Main.hslToRgb(hue, 0.8f, 0.9f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
+            }
 
             // BRIGHT pulsing light!
             float intensity = isBlack ? 0.5f : 0.9f;
@@ -614,6 +634,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             // Multiple music notes on impact!
             ThemedParticles.SwanLakeMusicNotes(position, (int)(8 * scale), 35f * scale);
             ThemedParticles.SwanLakeAccidentals(position, (int)(4 * scale), 25f * scale);
+            
+            // ☁EMUSICAL IMPACT - Swan's graceful chord
+            ThemedParticles.MusicNoteBurst(position, Color.White, (int)(5 * scale), 3.5f * scale);
             
             // Stacked halo rings (reduced size)!
             for (int ring = 0; ring < 3; ring++)
@@ -691,6 +714,11 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             
             // Small halo
             CustomParticles.HaloRing(Projectile.Center, isBlack ? Color.Black : Color.White, 0.35f, 12);
+            
+            // ☁EMUSICAL FINALE - Feathered symphony
+            float finaleHue = (Main.GameUpdateCount * 0.02f) % 1f;
+            Color finaleColor = Main.hslToRgb(finaleHue, 0.9f, 0.85f);
+            ThemedParticles.MusicNoteBurst(Projectile.Center, finaleColor, 5, 3.5f);
             
             // Fractal gem burst on death!
             ThemedParticles.SwanLakeFractalGemBurst(Projectile.Center, isBlack ? Color.Black : Color.White, 0.7f, 5, false);

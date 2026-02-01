@@ -38,6 +38,11 @@ namespace MagnumOpus.Content.Fate.Bosses
             Item.expert = true;
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Destiny's rewards for those who dare'") { OverrideColor = new Color(180, 40, 80) });
+        }
+
         public override bool CanRightClick() => true;
         
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)

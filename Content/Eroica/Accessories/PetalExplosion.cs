@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
     /// </summary>
     public class PetalExplosion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField3";
         
         private int explosionTimer = 0;
         private const int ExplosionDuration = 20;

@@ -64,7 +64,7 @@ namespace MagnumOpus.Content.Nachtmusik.HarmonicCores
             
             tooltips.Add(new TooltipLine(Mod, "Spacer2", " ") { OverrideColor = Color.Transparent });
             
-            tooltips.Add(new TooltipLine(Mod, "UniqueHeader", "◆ Queen's Serenade")
+            tooltips.Add(new TooltipLine(Mod, "UniqueHeader", "◁EQueen's Serenade")
             {
                 OverrideColor = Gold
             });

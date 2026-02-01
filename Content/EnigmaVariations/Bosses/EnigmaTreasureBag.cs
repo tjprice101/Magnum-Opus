@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -37,6 +38,11 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             Item.height = 24; // Reduced from 32 for smaller minimap icon
             Item.rare = ItemRarityID.Expert;
             Item.expert = true;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Answers to questions never asked'") { OverrideColor = new Color(140, 60, 200) });
         }
 
         public override bool CanRightClick() => true;

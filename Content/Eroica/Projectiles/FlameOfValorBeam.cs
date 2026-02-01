@@ -18,7 +18,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     public class FlameOfValorBeam : ModProjectile
     {
         // Custom invisible texture - we draw everything with particles
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField10";
         
         // === EROICA COLORS ===
         private static readonly Color EroicaScarlet = new Color(180, 50, 50);
@@ -105,6 +105,14 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 ThemedParticles.SakuraPetals(Projectile.Center, 1, 8f);
             }
             
+            // ☁EMUSICAL NOTATION - Heroic melody trail
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(EroicaScarlet, EroicaGold, Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
+            }
+            
             // Pulsing light
             float pulse = 0.7f + (float)Math.Sin(pulseTimer) * 0.2f;
             Lighting.AddLight(Projectile.Center, EroicaGold.ToVector3() * pulse * 0.8f + EroicaScarlet.ToVector3() * pulse * 0.4f);
@@ -120,6 +128,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             
             // Sakura petals burst
             ThemedParticles.SakuraPetals(Projectile.Center, 3, 25f);
+            
+            // ☁EMUSICAL FINALE - Hero's symphony
+            ThemedParticles.MusicNoteBurst(Projectile.Center, EroicaScarlet, 6, 4f);
             
             // Flame spark explosion
             for (int i = 0; i < 10; i++)
@@ -151,8 +162,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField10").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField10").Value;
             Vector2 flareOrigin = flareTex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             

@@ -16,7 +16,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
     /// <summary>
     /// ModPlayer class that handles all Enigma Variations accessory effects.
     /// Theme: Mystery, the unknowable, arcane secrets, questioning reality
-    /// Colors: Black → Deep Purple → Eerie Green Flame
+    /// Colors: Black ↁEDeep Purple ↁEEerie Green Flame
     /// </summary>
     public class EnigmaAccessoryPlayer : ModPlayer
     {

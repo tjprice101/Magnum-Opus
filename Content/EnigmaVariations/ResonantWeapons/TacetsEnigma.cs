@@ -175,7 +175,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnigmaEye3";
         
         private Color GetEnigmaGradient(float progress)
         {
@@ -208,7 +208,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
             
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnigmaEye3").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = flareTex.Size() / 2f;
             
@@ -249,6 +249,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             {
                 Color trailColor = GetEnigmaGradient(Main.rand.NextFloat());
                 CustomParticles.GenericFlare(Projectile.Center, trailColor * 0.5f, 0.25f, 10);
+            }
+            
+            // Music note trail - the tacet's whisper
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(new Color(140, 60, 200), new Color(50, 220, 100), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.32f, 30);
             }
             
             Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.35f);
@@ -365,7 +373,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         private List<int> hitEnemies = new List<int>();
         
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnigmaEye4";
         
         private Color GetEnigmaGradient(float progress)
         {
@@ -400,7 +408,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
             
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnigmaEye4").Value;
             Texture2D glyphTex = CustomParticleSystem.RandomGlyph().Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = flareTex.Size() / 2f;
@@ -461,6 +469,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             if (Projectile.timeLeft % 6 == 0)
             {
                 CustomParticles.GlyphTrail(Projectile.Center, Projectile.velocity, EnigmaPurple * 0.6f, 0.25f);
+            }
+            
+            // Music note trail - the paradox's melody
+            if (Main.rand.NextBool(5))
+            {
+                Color noteColor = Color.Lerp(new Color(140, 60, 200), new Color(50, 220, 100), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
             }
             
             Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.5f);

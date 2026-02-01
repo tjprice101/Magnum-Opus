@@ -40,6 +40,11 @@ namespace MagnumOpus.Content.Eroica.Bosses
             Item.expert = true;
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Contains the spoils of heroic victory'") { OverrideColor = new Color(200, 50, 50) });
+        }
+
         public override bool CanRightClick() => true;
         
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)

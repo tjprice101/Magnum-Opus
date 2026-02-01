@@ -4,6 +4,7 @@ using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria.GameContent;
+using System.Collections.Generic;
 
 namespace MagnumOpus.Content.SwanLake.ResonantOres
 {
@@ -30,6 +31,14 @@ namespace MagnumOpus.Content.SwanLake.ResonantOres
             Item.consumable = true;
             Item.createTile = ModContent.TileType<SwanLakeResonanceOreTile>();
             Item.placeStyle = 0;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Material for crafting Swan Lake equipment'") 
+            { 
+                OverrideColor = new Color(220, 225, 235) 
+            });
         }
     }
 }

@@ -50,7 +50,7 @@ namespace MagnumOpus.Content.SwanLake.HarmonicCores
             
             tooltips.Add(new TooltipLine(Mod, "Spacer2", " ") { OverrideColor = Color.Transparent });
             
-            tooltips.Add(new TooltipLine(Mod, "UniqueHeader", "◆ Feathered Grace")
+            tooltips.Add(new TooltipLine(Mod, "UniqueHeader", "◁EFeathered Grace")
             {
                 OverrideColor = new Color(200, 220, 255)
             });

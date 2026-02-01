@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     public class EroicaSplittingOrb : ModProjectile
     {
         // Use placeholder texture - projectile is rendered entirely via particles/PreDraw
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField9";
         
         // Colors
         private static readonly Color EroicaGold = new Color(255, 200, 80);
@@ -90,6 +90,14 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
                 Dust dust = Dust.NewDustPerfect(Projectile.Center, dustType, -Projectile.velocity * 0.15f, 100, default, 1.2f + RecursionDepth * 0.3f);
                 dust.noGravity = true;
+            }
+            
+            // ☁EMUSICAL NOTATION - Heroic melody trail
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(EroicaScarlet, EroicaGold, Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
             }
             
             // Slight homing toward player for larger orbs
@@ -182,13 +190,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     dust.noGravity = true;
                     dust.velocity = Main.rand.NextVector2Circular(5f, 5f);
                 }
+                
+                // ☁EMUSICAL FINALE - Hero's symphony
+                ThemedParticles.MusicNoteBurst(Projectile.Center, EroicaScarlet, 6, 4f);
             }
         }
         
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField9").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             

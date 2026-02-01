@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class DecayBoltProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow2";
         
         private static readonly Color DecayPurple = new Color(100, 50, 120);
         private static readonly Color DeathGreen = new Color(80, 120, 60);
@@ -46,6 +46,21 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 Color trailColor = Color.Lerp(DecayPurple, DeathGreen, Main.rand.NextFloat()) * 0.5f;
                 var trail = new GenericGlowParticle(Projectile.Center, trailVel, trailColor, 0.28f, 20, true);
                 MagnumParticleHandler.SpawnParticle(trail);
+            }
+
+            // ☁EMUSICAL NOTATION - VISIBLE decaying notes drift up (scale 0.7f+)
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2.5f, -1f));
+                Color noteColor = Color.Lerp(DecayPurple, DeathGreen, Main.rand.NextFloat());
+                // Scale 0.7f makes notes VISIBLE!
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.7f, 35);
+            }
+            
+            // Glyph accents for arcane decay feel
+            if (Main.rand.NextBool(8))
+            {
+                CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), DecayPurple * 0.6f, 0.35f, Main.rand.Next(1, 13));
             }
 
             // Core glow
@@ -80,7 +95,15 @@ namespace MagnumOpus.Content.Autumn.Projectiles
 
             // Hit VFX
             CustomParticles.GenericFlare(target.Center, DeathGreen, 0.5f, 16);
-            CustomParticles.HaloRing(target.Center, DecayPurple * 0.5f, 0.35f, 14);
+            CustomParticles.GenericFlare(target.Center, DecayPurple, 0.45f, 15);
+            CustomParticles.GenericFlare(target.Center, DecayPurple * 0.6f, 0.32f, 11);
+            // Decay wisp burst
+            for (int wisp = 0; wisp < 4; wisp++)
+            {
+                float wispAngle = MathHelper.TwoPi * wisp / 4f;
+                Vector2 wispPos = target.Center + wispAngle.ToRotationVector2() * 12f;
+                CustomParticles.GenericFlare(wispPos, DecayPurple * 0.7f, 0.18f, 10);
+            }
 
             for (int i = 0; i < 6; i++)
             {
@@ -89,12 +112,32 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.22f, 18, true);
                 MagnumParticleHandler.SpawnParticle(spark);
             }
+
+            // ☁EMUSICAL IMPACT - VISIBLE decaying melody (scale 0.75f)
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 noteVel = angle.ToRotationVector2() * 3.5f;
+                Color noteColor = Color.Lerp(DecayPurple, DeathGreen, i / 6f);
+                ThemedParticles.MusicNote(target.Center, noteVel, noteColor, 0.75f, 32);
+            }
+            
+            // Glyph burst for arcane impact
+            CustomParticles.GlyphBurst(target.Center, DecayPurple, 4, 4f);
         }
 
         public override void OnKill(int timeLeft)
         {
             CustomParticles.GenericFlare(Projectile.Center, DecayPurple, 0.45f, 16);
-            CustomParticles.HaloRing(Projectile.Center, DeathGreen * 0.4f, 0.3f, 14);
+            CustomParticles.GenericFlare(Projectile.Center, DeathGreen, 0.4f, 15);
+            CustomParticles.GenericFlare(Projectile.Center, DeathGreen * 0.6f, 0.28f, 11);
+            // Decay wisp burst
+            for (int wisp = 0; wisp < 4; wisp++)
+            {
+                float wispAngle = MathHelper.TwoPi * wisp / 4f;
+                Vector2 wispPos = Projectile.Center + wispAngle.ToRotationVector2() * 11f;
+                CustomParticles.GenericFlare(wispPos, DeathGreen * 0.7f, 0.16f, 9);
+            }
 
             for (int i = 0; i < 8; i++)
             {
@@ -103,12 +146,23 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 var burst = new GenericGlowParticle(Projectile.Center, burstVel, burstColor, 0.22f, 18, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
+
+            // ☁EMUSICAL FINALE - VISIBLE fading requiem (scale 0.8f)
+            for (int i = 0; i < 7; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 7f;
+                Vector2 noteVel = angle.ToRotationVector2() * 4f;
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, DecayPurple, 0.8f, 38);
+            }
+            
+            // Glyph circle on death
+            CustomParticles.GlyphBurst(Projectile.Center, DeathGreen, 5, 3.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
@@ -133,7 +187,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class EntropicField : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo2";
         
         private static readonly Color DecayPurple = new Color(100, 50, 120);
         private static readonly Color DeathGreen = new Color(80, 120, 60);
@@ -175,6 +229,17 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             // Central glow
             CustomParticles.GenericFlare(Projectile.Center, DecayPurple * 0.3f * fadeOut, 0.3f, 6);
 
+            // ☁EMUSICAL NOTATION - Haunting notes rise from the decay field - VISIBLE SCALE 0.7f+
+            if (Main.rand.NextBool(8))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-2f, -0.5f));
+                Color noteColor = Color.Lerp(DecayPurple, DeathGreen, Main.rand.NextFloat()) * fadeOut;
+                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(25f, 25f), noteVel, noteColor, 0.7f, 30);
+                
+                // Decay glyph accent
+                CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f), DeathGreen * 0.3f * fadeOut, 0.18f, -1);
+            }
+
             Lighting.AddLight(Projectile.Center, DecayPurple.ToVector3() * 0.35f * fadeOut);
         }
 
@@ -195,12 +260,21 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.18f, 12, true);
                 MagnumParticleHandler.SpawnParticle(spark);
             }
+
+            // ☁EMUSICAL IMPACT - Entropic note on hit - VISIBLE SCALE 0.68f+
+            if (Main.rand.NextBool(2))
+            {
+                ThemedParticles.MusicNote(target.Center, new Vector2(0, -1.5f), DeathGreen, 0.68f, 25);
+                
+                // Decay glyph burst
+                CustomParticles.Glyph(target.Center, DecayPurple * 0.4f, 0.2f, -1);
+            }
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo2").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
@@ -225,7 +299,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class WitheringWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/ParticleTrail2";
         
         private static readonly Color DecayPurple = new Color(100, 50, 120);
         private static readonly Color DeathGreen = new Color(80, 120, 60);
@@ -275,6 +349,17 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             // Core wave glow
             CustomParticles.GenericFlare(Projectile.Center, DecayPurple * 0.4f * fadeOut, 0.4f, 6);
 
+            // ☁EMUSICAL NOTATION - Withering notes scatter from the wave - VISIBLE SCALE 0.72f+
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-3f, -1f));
+                Color noteColor = Color.Lerp(DecayPurple, WitherBrown, Main.rand.NextFloat()) * fadeOut;
+                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(20f, 10f), noteVel, noteColor, 0.72f, 28);
+                
+                // Wither glyph accent
+                CustomParticles.Glyph(Projectile.Center, WitherBrown * 0.3f * fadeOut, 0.18f, -1);
+            }
+
             Lighting.AddLight(Projectile.Center, DeathGreen.ToVector3() * 0.6f * fadeOut);
         }
 
@@ -305,8 +390,18 @@ namespace MagnumOpus.Content.Autumn.Projectiles
 
             // Heavy hit VFX
             CustomParticles.GenericFlare(target.Center, DeathGreen, 0.7f, 20);
-            CustomParticles.HaloRing(target.Center, DecayPurple * 0.6f, 0.5f, 16);
-            CustomParticles.HaloRing(target.Center, WitherBrown * 0.4f, 0.35f, 14);
+            CustomParticles.GenericFlare(target.Center, DecayPurple, 0.6f, 18);
+            CustomParticles.GenericFlare(target.Center, DecayPurple * 0.6f, 0.45f, 14);
+            CustomParticles.GenericFlare(target.Center, WitherBrown, 0.45f, 16);
+            CustomParticles.GenericFlare(target.Center, WitherBrown * 0.5f, 0.3f, 12);
+            // Heavy decay wisp burst
+            for (int wisp = 0; wisp < 5; wisp++)
+            {
+                float wispAngle = MathHelper.TwoPi * wisp / 5f;
+                Vector2 wispPos = target.Center + wispAngle.ToRotationVector2() * 16f;
+                Color wispColor = Color.Lerp(DecayPurple, WitherBrown, (float)wisp / 5f) * 0.7f;
+                CustomParticles.GenericFlare(wispPos, wispColor, 0.22f, 12);
+            }
 
             for (int i = 0; i < 10; i++)
             {
@@ -315,13 +410,24 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.28f, 20, true);
                 MagnumParticleHandler.SpawnParticle(spark);
             }
+
+            // ☁EMUSICAL IMPACT - Powerful withering chord
+            ThemedParticles.MusicNoteBurst(target.Center, Color.Lerp(DecayPurple, WitherBrown, 0.5f), 8, 4.5f);
         }
 
         public override void OnKill(int timeLeft)
         {
             // Dissipation VFX
             CustomParticles.GenericFlare(Projectile.Center, DecayPurple, 0.6f, 20);
-            CustomParticles.HaloRing(Projectile.Center, DeathGreen * 0.5f, 0.45f, 16);
+            CustomParticles.GenericFlare(Projectile.Center, DeathGreen, 0.55f, 18);
+            CustomParticles.GenericFlare(Projectile.Center, DeathGreen * 0.6f, 0.4f, 14);
+            // Decay wisp burst
+            for (int wisp = 0; wisp < 5; wisp++)
+            {
+                float wispAngle = MathHelper.TwoPi * wisp / 5f;
+                Vector2 wispPos = Projectile.Center + wispAngle.ToRotationVector2() * 14f;
+                CustomParticles.GenericFlare(wispPos, DeathGreen * 0.7f, 0.2f, 11);
+            }
 
             for (int i = 0; i < 14; i++)
             {
@@ -331,12 +437,16 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 var burst = new GenericGlowParticle(Projectile.Center, burstVel, burstColor, 0.28f, 22, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
+
+            // ☁EMUSICAL FINALE - Grand withering crescendo
+            ThemedParticles.MusicNoteBurst(Projectile.Center, WitherBrown, 10, 5f);
+            ThemedParticles.MusicNoteRing(Projectile.Center, DecayPurple, 45f, 6);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/ParticleTrail2").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 

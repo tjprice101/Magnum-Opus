@@ -118,7 +118,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
         }
         
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs11";
         
         public override bool PreDraw(ref Color lightColor)
         {
@@ -438,7 +438,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
         }
         
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs12";
         
         public override bool PreDraw(ref Color lightColor)
         {
@@ -458,7 +458,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Texture2D eyeTex = CustomParticleSystem.EnigmaEyes[(int)(lifeProgress * 7) % 8].Value;
             Texture2D glyphTex = CustomParticleSystem.Glyphs[(int)(Main.GameUpdateCount / 8) % 12].Value;
             Texture2D sparkleTex = CustomParticleSystem.PrismaticSparkles[(int)(Main.GameUpdateCount / 6) % 8].Value;
-            Texture2D flareTex = CustomParticleSystem.EnergyFlares[0].Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             // Draw imploding/exploding glyph ring
             int glyphCount = lifeProgress < 0.4f ? 8 : 12;
@@ -567,6 +567,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             if (Main.GameUpdateCount % 6 == 0)
             {
                 CustomParticles.GenericFlare(Projectile.Center, EnigmaGreen * intensity, 0.65f * scale * intensity, 12);
+            }
+            
+            // Music note trail - reality snap echoes with musical notes
+            if (Main.rand.NextBool(5))
+            {
+                Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreenFlame, Main.rand.NextFloat()) * intensity;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), -1.5f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f * scale, 32);
             }
             
             // Mystical flare at center during snap

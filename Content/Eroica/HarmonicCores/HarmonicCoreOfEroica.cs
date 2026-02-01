@@ -63,7 +63,7 @@ namespace MagnumOpus.Content.Eroica.HarmonicCores
             
             tooltips.Add(new TooltipLine(Mod, "Spacer2", " ") { OverrideColor = Color.Transparent });
             
-            tooltips.Add(new TooltipLine(Mod, "UniqueHeader", "◆ Heroic Rally")
+            tooltips.Add(new TooltipLine(Mod, "UniqueHeader", "◁EHeroic Rally")
             {
                 OverrideColor = new Color(255, 150, 180)
             });

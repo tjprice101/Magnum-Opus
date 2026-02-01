@@ -14,7 +14,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SpringSpiritMinion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        // Use the proper Spring minion sprite
+        public override string Texture => "MagnumOpus/Content/Spring/Projectiles/FlowerSpriteMinion";
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
@@ -176,6 +177,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(particle);
             }
 
+            // ☁EMUSICAL NOTATION - Spring spirit's gentle song (VISIBLE SCALE 0.72f+)
+            if (Main.rand.NextBool(8))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, SpringPink * 0.85f, 0.72f, 38);
+            }
+            
+            // ☁ESPARKLE ACCENT - Spirit petal shimmer
+            if (Main.rand.NextBool(6))
+            {
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f), Vector2.Zero, SpringGreen, 0.22f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, SpringPink.ToVector3() * 0.4f);
         }
 
@@ -194,6 +209,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 var burst = new GenericGlowParticle(target.Center, burstVel, SpringGreen * 0.5f, 0.22f, 16, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
+
+            // ☁EMUSICAL IMPACT - Spring spirit healing harmony
+            ThemedParticles.MusicNoteBurst(target.Center, SpringPink * 0.7f, 4, 3f);
         }
 
         private NPC FindTarget(Player owner)
@@ -233,31 +251,41 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
-            Vector2 origin = texture.Size() / 2f;
+            // Use the ACTUAL sprite texture for the minion
+            Texture2D spriteTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Spring/Projectiles/FlowerSpriteMinion").Value;
+            Texture2D glowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Vector2 spriteOrigin = spriteTexture.Size() / 2f;
+            Vector2 glowOrigin = glowTexture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.1f + 1f;
             float coordinatedBoost = CoordinatedAttackTimer > 0 ? 1.3f : 1f;
+            
+            // Draw additive glow BEHIND the sprite
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Core layers
-            spriteBatch.Draw(texture, drawPos, null, SpringGreen * 0.3f * coordinatedBoost, Projectile.rotation, origin, 0.55f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SpringPink * 0.5f * coordinatedBoost, Projectile.rotation, origin, 0.4f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SpringWhite * 0.7f, Projectile.rotation, origin, 0.22f, SpriteEffects.None, 0f);
+            // Outer glow layers
+            Color springGlow = SpringPink with { A = 0 };
+            spriteBatch.Draw(glowTexture, drawPos, null, springGlow * 0.3f * coordinatedBoost, 0f, glowOrigin, 0.6f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(glowTexture, drawPos, null, SpringGreen with { A = 0 } * 0.2f * coordinatedBoost, 0f, glowOrigin, 0.8f * pulse, SpriteEffects.None, 0f);
 
-            // Petal-like orbiting points
+            // Petal-like orbiting glow points
             for (int i = 0; i < 5; i++)
             {
                 float petalAngle = Main.GameUpdateCount * 0.04f + MathHelper.TwoPi * i / 5f;
-                Vector2 petalPos = drawPos + petalAngle.ToRotationVector2() * 16f;
-                spriteBatch.Draw(texture, petalPos, null, SpringPink * 0.45f, 0f, origin, 0.12f, SpriteEffects.None, 0f);
+                Vector2 petalPos = drawPos + petalAngle.ToRotationVector2() * 20f;
+                spriteBatch.Draw(glowTexture, petalPos, null, springGlow * 0.35f, 0f, glowOrigin, 0.15f, SpriteEffects.None, 0f);
             }
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Draw the ACTUAL minion sprite
+            float scale = 1f * pulse;
+            SpriteEffects effects = Projectile.velocity.X < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            Color drawColor = Projectile.GetAlpha(lightColor) * coordinatedBoost;
+            spriteBatch.Draw(spriteTexture, drawPos, null, drawColor, Projectile.rotation * 0.5f, spriteOrigin, scale, effects, 0f);
 
             return false;
         }
@@ -268,7 +296,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SpiritPetalBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle3";
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
 
@@ -296,6 +324,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
+            // ☁EMUSICAL NOTATION - Petal bolt flutter (VISIBLE SCALE 0.68f+)
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, SpringPink * 0.8f, 0.68f, 28);
+            }
+            
+            // ☁ESPARKLE ACCENT - Petal twinkle
+            if (Main.rand.NextBool(5))
+            {
+                var sparkle = new SparkleParticle(Projectile.Center, -Projectile.velocity * 0.08f, SpringPink, 0.18f, 14);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, SpringPink.ToVector3() * 0.2f);
         }
 
@@ -303,12 +345,15 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         {
             target.AddBuff(BuffID.Poisoned, 90);
             CustomParticles.GenericFlare(target.Center, SpringPink, 0.35f, 12);
+
+            // ☁EMUSICAL IMPACT - Petal bolt chime
+            ThemedParticles.MusicNoteBurst(target.Center, SpringPink * 0.6f, 2, 2f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle3").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -329,7 +374,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SummerSpiritMinion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        // Use Summer spirit sprite (uses SunfireCore as placeholder until dedicated sprite exists)
+        public override string Texture => "MagnumOpus/Content/Summer/Materials/SunfireCore";
         
         private static readonly Color SummerGold = new Color(255, 215, 0);
         private static readonly Color SummerOrange = new Color(255, 140, 0);
@@ -458,6 +504,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(particle);
             }
 
+            // ☁EMUSICAL NOTATION - Summer spirit's blazing anthem (VISIBLE SCALE 0.72f+)
+            if (Main.rand.NextBool(8))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, SummerGold * 0.85f, 0.72f, 38);
+            }
+            
+            // ☁ESPARKLE ACCENT - Solar spirit shimmer
+            if (Main.rand.NextBool(5))
+            {
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f), Vector2.Zero, SummerOrange, 0.25f, 16);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, SummerGold.ToVector3() * 0.5f);
         }
 
@@ -473,6 +533,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 var burst = new GenericGlowParticle(target.Center, burstVel, SummerOrange * 0.5f, 0.25f, 16, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
+
+            // ☁EMUSICAL IMPACT - Summer spirit solar fanfare
+            ThemedParticles.MusicNoteBurst(target.Center, SummerGold * 0.75f, 5, 3.5f);
         }
 
         private NPC FindTarget(Player owner)
@@ -508,7 +571,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/StarBurst1").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -542,7 +605,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SpiritSolarBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField7";
         
         private static readonly Color SummerGold = new Color(255, 215, 0);
         private static readonly Color SummerOrange = new Color(255, 140, 0);
@@ -571,6 +634,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
+            // ☁EMUSICAL NOTATION - Solar bolt sizzle (VISIBLE SCALE 0.68f+)
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, SummerGold * 0.85f, 0.68f, 28);
+            }
+            
+            // ☁ESPARKLE ACCENT - Solar sparkle
+            if (Main.rand.NextBool(4))
+            {
+                var sparkle = new SparkleParticle(Projectile.Center, -Projectile.velocity * 0.08f, SummerOrange, 0.2f, 12);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, SummerGold.ToVector3() * 0.35f);
         }
 
@@ -578,12 +655,15 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         {
             target.AddBuff(BuffID.OnFire3, 120);
             CustomParticles.GenericFlare(target.Center, SummerGold, 0.4f, 14);
+
+            // ☁EMUSICAL IMPACT - Solar bolt flare
+            ThemedParticles.MusicNoteBurst(target.Center, SummerGold * 0.65f, 3, 2.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField7").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -605,7 +685,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class AutumnSpiritMinion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        // Use the proper Autumn minion sprite
+        public override string Texture => "MagnumOpus/Content/Autumn/Projectiles/HarvestWraithMinion";
         
         private static readonly Color AutumnOrange = new Color(255, 140, 50);
         private static readonly Color AutumnBrown = new Color(139, 90, 43);
@@ -752,6 +833,17 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(particle);
             }
 
+            // ☁EMUSICAL NOTATION - Autumn spirit's fading elegy - VISIBLE SCALE 0.72f+
+            if (Main.rand.NextBool(8))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, AutumnOrange * 0.6f, 0.72f, 38);
+                
+                // Autumn Glyph accent for arcane decay theme
+                if (Main.rand.NextBool(3))
+                    CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), AutumnBrown * 0.5f, 0.25f, Main.rand.Next(1, 13));
+            }
+
             Lighting.AddLight(Projectile.Center, AutumnOrange.ToVector3() * 0.4f);
         }
 
@@ -770,6 +862,12 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 var burst = new GenericGlowParticle(target.Center, burstVel, AutumnRed * 0.5f, 0.22f, 16, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
+
+            // ☁EMUSICAL IMPACT - Autumn spirit harvest dirge - VISIBLE SCALE 0.7f+
+            ThemedParticles.MusicNoteBurst(target.Center, AutumnOrange * 0.7f, 4, 3f);
+            
+            // Decay Glyph burst on impact
+            CustomParticles.GlyphBurst(target.Center, AutumnRed * 0.5f, 3, 2.5f);
         }
 
         private NPC FindTarget(Player owner)
@@ -805,35 +903,46 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
-            Vector2 origin = texture.Size() / 2f;
+            // Use the ACTUAL sprite texture for the minion
+            Texture2D spriteTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Autumn/Projectiles/HarvestWraithMinion").Value;
+            Texture2D glowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo6").Value;
+            Vector2 spriteOrigin = spriteTexture.Size() / 2f;
+            Vector2 glowOrigin = glowTexture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.07f) * 0.1f + 1f;
             float coordinatedBoost = CoordinatedAttackTimer > 0 ? 1.35f : 1f;
 
-            // Aura ring
-            float auraScale = (CoordinatedAttackTimer > 0 ? 0.75f : 0.5f) * (0.95f + (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.05f);
-            spriteBatch.Draw(texture, drawPos, null, AutumnOrange * 0.15f * coordinatedBoost, 0f, origin, auraScale, SpriteEffects.None, 0f);
+            // Draw additive glow BEHIND the sprite
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            spriteBatch.Draw(texture, drawPos, null, AutumnBrown * 0.35f * coordinatedBoost, Projectile.rotation, origin, 0.55f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, AutumnOrange * 0.5f * coordinatedBoost, Projectile.rotation, origin, 0.38f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, AutumnRed * 0.7f, Projectile.rotation, origin, 0.18f, SpriteEffects.None, 0f);
+            // Outer aura ring
+            Color autumnGlow = AutumnOrange with { A = 0 };
+            float auraScale = (CoordinatedAttackTimer > 0 ? 0.75f : 0.5f) * (0.95f + (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.05f);
+            spriteBatch.Draw(glowTexture, drawPos, null, autumnGlow * 0.2f * coordinatedBoost, 0f, glowOrigin, auraScale, SpriteEffects.None, 0f);
+
+            // Inner glows
+            spriteBatch.Draw(glowTexture, drawPos, null, AutumnBrown with { A = 0 } * 0.3f * coordinatedBoost, 0f, glowOrigin, 0.55f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(glowTexture, drawPos, null, autumnGlow * 0.4f * coordinatedBoost, 0f, glowOrigin, 0.38f * pulse, SpriteEffects.None, 0f);
 
             // Falling leaf points
             for (int i = 0; i < 4; i++)
             {
                 float leafAngle = Main.GameUpdateCount * 0.025f + MathHelper.PiOver2 * i;
-                float leafDist = 14f + (float)Math.Sin(Main.GameUpdateCount * 0.08f + i * 1.5f) * 6f;
+                float leafDist = 18f + (float)Math.Sin(Main.GameUpdateCount * 0.08f + i * 1.5f) * 6f;
                 Vector2 leafPos = drawPos + leafAngle.ToRotationVector2() * leafDist;
-                spriteBatch.Draw(texture, leafPos, null, AutumnOrange * 0.4f, 0f, origin, 0.1f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(glowTexture, leafPos, null, autumnGlow * 0.35f, 0f, glowOrigin, 0.12f, SpriteEffects.None, 0f);
             }
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Draw the ACTUAL minion sprite
+            float scale = 1f * pulse;
+            SpriteEffects effects = Projectile.velocity.X < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            Color drawColor = Projectile.GetAlpha(lightColor) * coordinatedBoost;
+            spriteBatch.Draw(spriteTexture, drawPos, null, drawColor, Projectile.rotation * 0.3f, spriteOrigin, scale, effects, 0f);
 
             return false;
         }
@@ -844,7 +953,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class WinterSpiritMinion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        // Use the proper Winter minion sprite
+        public override string Texture => "MagnumOpus/Content/Winter/Projectiles/FrostSentinelMinion";
         
         private static readonly Color WinterBlue = new Color(150, 220, 255);
         private static readonly Color WinterWhite = new Color(240, 250, 255);
@@ -1003,6 +1113,17 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(particle);
             }
 
+            // ☁EMUSICAL NOTATION - Winter spirit's frost carol - VISIBLE SCALE 0.72f+
+            if (Main.rand.NextBool(8))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, WinterBlue * 0.6f, 0.72f, 38);
+                
+                // Frost sparkle accent
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f), noteVel * 0.5f, WinterWhite * 0.6f, 0.35f, 25);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, WinterBlue.ToVector3() * 0.4f);
         }
 
@@ -1022,6 +1143,17 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 Vector2 burstVel = Main.rand.NextVector2Circular(5f, 5f);
                 var burst = new GenericGlowParticle(target.Center, burstVel, WinterWhite * 0.5f, 0.22f, 16, true);
                 MagnumParticleHandler.SpawnParticle(burst);
+            }
+
+            // ☁EMUSICAL IMPACT - Winter spirit crystalline chime - VISIBLE SCALE 0.72f+
+            ThemedParticles.MusicNoteBurst(target.Center, WinterBlue * 0.75f, 5, 3.5f);
+            
+            // Frost sparkle burst on impact
+            for (int j = 0; j < 4; j++)
+            {
+                Vector2 sparkleVel = Main.rand.NextVector2Circular(3f, 3f);
+                var sparkle = new SparkleParticle(target.Center, sparkleVel, WinterWhite * 0.7f, 0.3f, 20);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
         }
 
@@ -1058,34 +1190,44 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
-            Vector2 origin = texture.Size() / 2f;
+            // Use the ACTUAL sprite texture for the minion
+            Texture2D spriteTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Winter/Projectiles/FrostSentinelMinion").Value;
+            Texture2D glowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Vector2 spriteOrigin = spriteTexture.Size() / 2f;
+            Vector2 glowOrigin = glowTexture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 1f;
             float coordinatedBoost = CoordinatedAttackTimer > 0 ? 1.35f : 1f;
 
-            // Frost aura
-            float auraScale = (CoordinatedAttackTimer > 0 ? 0.7f : 0.45f) * (0.95f + (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.05f);
-            spriteBatch.Draw(texture, drawPos, null, WinterBlue * 0.12f * coordinatedBoost, 0f, origin, auraScale, SpriteEffects.None, 0f);
+            // Draw additive glow BEHIND the sprite
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            spriteBatch.Draw(texture, drawPos, null, WinterPurple * 0.3f * coordinatedBoost, Projectile.rotation, origin, 0.55f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, WinterBlue * 0.5f * coordinatedBoost, Projectile.rotation, origin, 0.4f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, WinterWhite * 0.75f, Projectile.rotation, origin, 0.2f, SpriteEffects.None, 0f);
+            // Frost aura
+            Color winterGlow = WinterBlue with { A = 0 };
+            float auraScale = (CoordinatedAttackTimer > 0 ? 0.7f : 0.45f) * (0.95f + (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.05f);
+            spriteBatch.Draw(glowTexture, drawPos, null, winterGlow * 0.15f * coordinatedBoost, 0f, glowOrigin, auraScale, SpriteEffects.None, 0f);
+
+            spriteBatch.Draw(glowTexture, drawPos, null, WinterPurple with { A = 0 } * 0.25f * coordinatedBoost, 0f, glowOrigin, 0.55f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(glowTexture, drawPos, null, winterGlow * 0.35f * coordinatedBoost, 0f, glowOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
 
             // Ice crystal points
             for (int i = 0; i < 6; i++)
             {
                 float crystalAngle = Main.GameUpdateCount * 0.03f + MathHelper.TwoPi * i / 6f;
-                Vector2 crystalPos = drawPos + crystalAngle.ToRotationVector2() * 16f;
-                spriteBatch.Draw(texture, crystalPos, null, WinterBlue * 0.45f, 0f, origin, 0.1f, SpriteEffects.None, 0f);
+                Vector2 crystalPos = drawPos + crystalAngle.ToRotationVector2() * 20f;
+                spriteBatch.Draw(glowTexture, crystalPos, null, winterGlow * 0.4f, 0f, glowOrigin, 0.12f, SpriteEffects.None, 0f);
             }
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Draw the ACTUAL minion sprite
+            float scale = 1f * pulse;
+            SpriteEffects effects = Projectile.velocity.X < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            Color drawColor = Projectile.GetAlpha(lightColor) * coordinatedBoost;
+            spriteBatch.Draw(spriteTexture, drawPos, null, drawColor, Projectile.rotation * 0.3f, spriteOrigin, scale, effects, 0f);
 
             return false;
         }
@@ -1096,7 +1238,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SpiritIceBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle9";
         
         private static readonly Color WinterBlue = new Color(150, 220, 255);
 
@@ -1124,6 +1266,17 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
+            // ☁EMUSICAL NOTATION - Ice bolt tinkle - VISIBLE SCALE 0.68f+
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, WinterBlue * 0.55f, 0.68f, 28);
+                
+                // Tiny frost sparkle
+                var sparkle = new SparkleParticle(Projectile.Center, noteVel * 0.3f, WinterBlue * 0.5f, 0.2f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, WinterBlue.ToVector3() * 0.25f);
         }
 
@@ -1132,12 +1285,19 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             target.AddBuff(BuffID.Frostburn2, 90);
             target.AddBuff(BuffID.Slow, 60);
             CustomParticles.GenericFlare(target.Center, WinterBlue, 0.35f, 12);
+
+            // ☁EMUSICAL IMPACT - Ice bolt ping - VISIBLE SCALE 0.68f+
+            ThemedParticles.MusicNoteBurst(target.Center, WinterBlue * 0.6f, 2, 2f);
+            
+            // Frost sparkle on impact
+            var sparkle = new SparkleParticle(target.Center, Main.rand.NextVector2Circular(2f, 2f), WinterBlue * 0.5f, 0.25f, 15);
+            MagnumParticleHandler.SpawnParticle(sparkle);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle9").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 

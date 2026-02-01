@@ -746,7 +746,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class StolenValorMinionShot : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles/MusicNote";
 
         public override void SetDefaults()
         {
@@ -787,7 +787,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class StolenValorChargeWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/MusicNote6";
 
         public override void SetDefaults()
         {
@@ -824,7 +824,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class StolenValorOrbitalShot : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles/MusicNote3";
 
         public override void SetDefaults()
         {
@@ -865,7 +865,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class StolenValorCageOrb : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/MusicNote4";
 
         public override void SetDefaults()
         {
@@ -921,7 +921,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class StolenValorTriumphWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/MusicNote5";
 
         public override void SetDefaults()
         {

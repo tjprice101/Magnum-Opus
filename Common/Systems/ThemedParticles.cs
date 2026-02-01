@@ -10,8 +10,8 @@ namespace MagnumOpus.Common.Systems
     /// Themed particle effect helpers for Moonlight Sonata and Eroica content.
     /// Provides easy-to-use methods that spawn the new custom particles with correct color palettes.
     /// 
-    /// MOONLIGHT PALETTE: Dark purple (#4B0082) → Light blue (#87CEEB) with silver/white accents
-    /// EROICA PALETTE: Deep scarlet (#8B0000) → Gold (#FFD700) with black accents
+    /// MOONLIGHT PALETTE: Dark purple (#4B0082) ↁELight blue (#87CEEB) with silver/white accents
+    /// EROICA PALETTE: Deep scarlet (#8B0000) ↁEGold (#FFD700) with black accents
     /// </summary>
     public static class ThemedParticles
     {
@@ -903,9 +903,9 @@ namespace MagnumOpus.Common.Systems
         /// <param name="position">Spawn position</param>
         /// <param name="velocity">Note velocity</param>
         /// <param name="color">Note color</param>
-        /// <param name="scale">Note scale (0.2-0.8 recommended)</param>
+        /// <param name="scale">Note scale (0.15-0.35 recommended for subtle elegance)</param>
         /// <param name="lifetime">Particle lifetime in frames</param>
-        public static void MusicNote(Vector2 position, Vector2 velocity, Color color, float scale = 0.4f, int lifetime = 45)
+        public static void MusicNote(Vector2 position, Vector2 velocity, Color color, float scale = 0.22f, int lifetime = 45)
         {
             var note = new MusicNoteParticle(position, velocity, color, scale, lifetime);
             MagnumParticleHandler.SpawnParticle(note);
@@ -929,7 +929,7 @@ namespace MagnumOpus.Common.Systems
                 // Slight color variation
                 Color noteColor = color * Main.rand.NextFloat(0.8f, 1.2f);
                 
-                float scale = Main.rand.NextFloat(0.4f, 0.8f);
+                float scale = Main.rand.NextFloat(0.18f, 0.32f);
                 int lifetime = Main.rand.Next(50, 90);
                 
                 var note = new MusicNoteParticle(position + offset, velocity, noteColor, scale, lifetime);
@@ -954,7 +954,7 @@ namespace MagnumOpus.Common.Systems
                 
                 Color noteColor = color * Main.rand.NextFloat(0.85f, 1.15f);
                 
-                var note = new MusicNoteParticle(spawnPos, velocity, noteColor, Main.rand.NextFloat(0.4f, 0.7f),
+                var note = new MusicNoteParticle(spawnPos, velocity, noteColor, Main.rand.NextFloat(0.2f, 0.35f),
                     Main.rand.Next(60, 100));
                 MagnumParticleHandler.SpawnParticle(note);
             }
@@ -977,7 +977,7 @@ namespace MagnumOpus.Common.Systems
                 
                 Color noteColor = color * Main.rand.NextFloat(0.85f, 1.15f);
                 
-                var note = new MusicNoteParticle(position, velocity, noteColor, Main.rand.NextFloat(0.5f, 0.8f),
+                var note = new MusicNoteParticle(position, velocity, noteColor, Main.rand.NextFloat(0.22f, 0.38f),
                     Main.rand.Next(50, 80));
                 MagnumParticleHandler.SpawnParticle(note);
             }
@@ -1000,7 +1000,7 @@ namespace MagnumOpus.Common.Systems
                 Vector2 velocity = (angle + MathHelper.PiOver2).ToRotationVector2() * 2f; // Tangential velocity
                 
                 var note = new MusicNoteParticle(center + offset, velocity, color,
-                    Main.rand.NextFloat(0.4f, 0.6f), 40);
+                    Main.rand.NextFloat(0.2f, 0.32f), 40);
                 MagnumParticleHandler.SpawnParticle(note);
             }
         }
@@ -2502,7 +2502,7 @@ namespace MagnumOpus.Common.Systems
         // =============================
         // ENIGMA VARIATIONS THEME
         // Theme: Mystery, the unknowable, arcane secrets, questioning reality
-        // Colors: Black → Deep Purple → Eerie Green Flame
+        // Colors: Black ↁEDeep Purple ↁEEerie Green Flame
         // Soul: "The unknowable mystery"
         // =============================
         
@@ -2514,7 +2514,7 @@ namespace MagnumOpus.Common.Systems
         public static readonly Color EnigmaDarkGreen = new Color(30, 100, 50);
         
         /// <summary>
-        /// Gets a color along the Enigma gradient: Black → Purple → Green.
+        /// Gets a color along the Enigma gradient: Black ↁEPurple ↁEGreen.
         /// </summary>
         public static Color GetEnigmaGradient(float progress)
         {
@@ -2565,7 +2565,7 @@ namespace MagnumOpus.Common.Systems
                 Color noteColor = GetEnigmaGradient(progress);
                 
                 var note = new MusicNoteParticle(position, velocity, noteColor, 
-                    Main.rand.NextFloat(0.45f, 0.75f), Main.rand.Next(40, 65));
+                    Main.rand.NextFloat(0.22f, 0.38f), Main.rand.Next(40, 65));
                 MagnumParticleHandler.SpawnParticle(note);
             }
         }
@@ -2707,7 +2707,7 @@ namespace MagnumOpus.Common.Systems
         // =============================
         // FATE THEME
         // Theme: Reality's final symphony, cosmic inevitability, endgame awe
-        // Colors: DARK PRISMATIC - Black → Dark Pink → Bright Red
+        // Colors: DARK PRISMATIC - Black ↁEDark Pink ↁEBright Red
         // Soul: "Reality itself bending" - cosmic darkness pierced by destiny
         // ENDGAME CONTENT - Must be the MOST spectacular effects!
         // =============================
@@ -2720,7 +2720,7 @@ namespace MagnumOpus.Common.Systems
         public static readonly Color FateWhite = new Color(255, 255, 255);
         
         /// <summary>
-        /// Gets a color along the Fate dark prismatic gradient: Black → Pink → Red.
+        /// Gets a color along the Fate dark prismatic gradient: Black ↁEPink ↁERed.
         /// </summary>
         public static Color GetFateGradient(float progress)
         {

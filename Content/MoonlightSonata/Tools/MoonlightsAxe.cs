@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -39,6 +41,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
             
             // Enable reforging
             Item.maxStack = 1;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Fells trees as silently as moonbeams'") { OverrideColor = new Color(140, 100, 200) });
         }
 
         public override void AddRecipes()

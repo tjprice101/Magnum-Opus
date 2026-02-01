@@ -39,4 +39,32 @@ epic orchestral rock metal, shattered clockwork atmosphere, haunting melodic pia
 
 ---
 
+## 🎼 MIDJOURNEY - MUSICAL PROGRESS/ENERGY BARS
+
+### Prompt 1 - Orchestral Grand Staff Bar
+```
+pixel art UI progress bar, horizontal energy meter, ornate golden treble clef and bass clef bookends on each side, decorative music staff lines as border frame, elegant baroque musical flourishes along top and bottom edges, solid pure black (#000000) center fill area, solid dark purple (#1a0a2e) background, 16-bit SNES style, clean crisp pixels, game UI element, transparent background, 200x32 pixels --ar 25:4 --v 6
+```
+
+### Prompt 2 - Symphonic Bell Frame Bar
+```
+pixel art UI progress bar, horizontal energy meter, ornate bronze bell shape silhouettes on left and right caps, decorative eighth notes and quarter notes along border frame, elegant curling musical vine flourishes, solid pure white (#FFFFFF) center fill area, solid deep crimson (#2a0a0a) background, 16-bit retro game style, clean sharp pixels, game UI element, transparent background, 200x32 pixels --ar 25:4 --v 6
+```
+
+### Prompt 3 - Celestial Harp Resonance Bar
+```
+pixel art UI progress bar, horizontal energy meter, ornate silver harp silhouettes as decorative end caps, flowing musical note garland border with stars and crescents, ethereal wing motifs along frame edges, solid pure cyan (#00FFFF) center fill area, solid midnight blue (#0a0a1a) background, 16-bit fantasy RPG style, clean precise pixels, game UI element, transparent background, 200x32 pixels --ar 25:4 --v 6
+```
+
+### Usage Notes
+- **Center fill area**: Solid color for easy selection/removal - replace with particle wave animation
+- **Background**: Solid dark color to cleanly separate from game world
+- **Frame/Border**: Ornate musical decorations remain as overlay
+- **Recommended workflow**: 
+  1. Generate bar → Remove center fill → Keep frame as overlay layer
+  2. Add animated particle wave behind the frame overlay
+  3. Mask particles to bar shape using the background as guide
+
+---
+
 *These prompts are preserved separately from the main Phase 9 documentation.*

@@ -50,6 +50,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Item.noMelee = true;
         }
 
+        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Creates a flaming spiral explosion at cursor location"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "After 3 hits, gain a damage buff and infinite mana for a short time"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "During empowerment, shoots explosive versions that cause lightning strikes"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The serpent's fang strikes with the infinite resonance of the bell'") { OverrideColor = new Color(255, 140, 40) });
+        }
+
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             Vector2 targetPos = Main.MouseWorld;
@@ -170,7 +178,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             }
             
             // === INFINITY SYMBOL GLOW (for "Infinite" theme) ===
-            // When empowered, show ∞ symbol
+            // When empowered, show ∁Esymbol
             if (player.HasBuff(ModContent.BuffType<InfiniteBellEmpoweredBuff>()))
             {
                 // Draw infinity symbol with particles
@@ -515,7 +523,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Vector2 hitDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
             ThemedParticles.LaCampanellaSparks(target.Center, hitDir, 5, 6f);
             
-            // === SIGNATURE FRACTAL FLARE BURST - BLACK → ORANGE ===
+            // === SIGNATURE FRACTAL FLARE BURST - BLACK ↁEORANGE ===
             for (int i = 0; i < 6; i++)
             {
                 float angle = MathHelper.TwoPi * i / 6f;
@@ -626,7 +634,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Player owner = Main.player[Projectile.owner];
             owner.GetModPlayer<InfiniteBellPlayer>().RegisterHit(target.Center);
             
-            // === SIGNATURE FRACTAL FLARE BURST - BLACK → ORANGE ===
+            // === SIGNATURE FRACTAL FLARE BURST - BLACK ↁEORANGE ===
             for (int i = 0; i < 6; i++)
             {
                 float angle = MathHelper.TwoPi * i / 6f;

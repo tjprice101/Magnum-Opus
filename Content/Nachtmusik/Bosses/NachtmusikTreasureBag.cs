@@ -40,6 +40,11 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             Item.expert = true;
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Treasures revealed by moonlit serenade'") { OverrideColor = new Color(100, 80, 160) });
+        }
+
         public override bool CanRightClick()
         {
             return true;

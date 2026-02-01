@@ -245,7 +245,7 @@ namespace MagnumOpus.Content.Winter.Bosses
         {
             SoundEngine.PlaySound(SoundID.Shatter with { Pitch = 0.1f }, NPC.Center);
             
-            // Crystalline frost sparkles (replacing banned HaloRing)
+            // Crystalline frost sparkles 
             for (int i = 0; i < 11; i++)
             {
                 float progress = i / 11f;
@@ -281,7 +281,7 @@ namespace MagnumOpus.Content.Winter.Bosses
                 SoundEngine.PlaySound(SoundID.Shatter, NPC.Center);
                 CustomParticles.GenericFlare(NPC.Center, WinterWhite, 2.4f, 45);
                 
-                // Frost sparkle burst (replacing banned HaloRing)
+                // Frost sparkle burst 
                 for (int i = 0; i < 15; i++)
                 {
                     Color sparkleColor = Color.Lerp(WinterIce, CrystalCyan, i / 15f);
@@ -477,7 +477,7 @@ namespace MagnumOpus.Content.Winter.Bosses
                 CustomParticles.GenericFlare(NPC.Center, FrostBlue, 2.5f, 45);
                 CustomParticles.GenericFlare(NPC.Center, CrystalCyan, 2f, 38);
                 
-                // Frost sparkle burst (replacing banned HaloRing)
+                // Frost sparkle burst 
                 for (int i = 0; i < 18; i++)
                 {
                     Color sparkleColor = Color.Lerp(WinterIce, CrystalCyan, i / 18f);
@@ -867,7 +867,7 @@ namespace MagnumOpus.Content.Winter.Bosses
                         }
                     }
                     
-                    // Cascading frost sparkles (replacing banned HaloRing)
+                    // Cascading frost sparkles 
                     for (int i = 0; i < 12; i++)
                     {
                         Color sparkleColor = Color.Lerp(WinterIce, CrystalCyan, i / 12f);
@@ -942,7 +942,7 @@ namespace MagnumOpus.Content.Winter.Bosses
                     CustomParticles.GenericFlare(NPC.Center, FrostBlue, 2.6f, 40);
                     CustomParticles.GenericFlare(NPC.Center, CrystalCyan, 2.1f, 35);
                     
-                    // Frost sparkle burst (replacing banned HaloRing)
+                    // Frost sparkle burst 
                     for (int i = 0; i < 20; i++)
                     {
                         Color sparkleColor = Color.Lerp(FrostBlue, CrystalCyan, i / 20f);
@@ -1023,7 +1023,7 @@ namespace MagnumOpus.Content.Winter.Bosses
                     CustomParticles.GenericFlare(NPC.Center, WinterWhite, 2.8f + SubPhase * 0.3f, 40);
                     CustomParticles.GenericFlare(NPC.Center, CrystalCyan, 2.3f + SubPhase * 0.25f, 35);
                     
-                    // Frost sparkle burst (replacing banned HaloRing)
+                    // Frost sparkle burst 
                     for (int i = 0; i < 16; i++)
                     {
                         Color sparkleColor = Color.Lerp(WinterIce, GlacialPurple, i / 16f);
@@ -1196,7 +1196,7 @@ namespace MagnumOpus.Content.Winter.Bosses
         public override void OnKill()
         {
             CustomParticles.GenericFlare(NPC.Center, WinterWhite, 2.7f, 48);
-            // Frost sparkle burst (replacing banned HaloRing)
+            // Frost sparkle burst 
             for (int i = 0; i < 14; i++)
             {
                 Color sparkleColor = Color.Lerp(WinterIce, CrystalCyan, i / 14f);

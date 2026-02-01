@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -21,6 +23,11 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonanceEnergies
             Item.value = Item.sellPrice(gold: 2);
             Item.rare = ModContent.RarityType<MoonlightSonataRarity>();
             Item.scale = 0.5f; // 50% smaller display size
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The moon's quiet melody, preserved'") { OverrideColor = new Color(140, 100, 200) });
         }
 
         public override void PostUpdate()

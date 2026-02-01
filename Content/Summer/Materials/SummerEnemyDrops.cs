@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -24,6 +25,11 @@ namespace MagnumOpus.Content.Summer.Materials
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 80);
             Item.rare = ItemRarityID.LightRed;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A fragment of unyielding flame'") { OverrideColor = new Color(255, 140, 50) });
         }
 
         public override void PostUpdate()
@@ -69,6 +75,11 @@ namespace MagnumOpus.Content.Summer.Materials
             Item.rare = ItemRarityID.Yellow;
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The blazing heart of a solar beast'") { OverrideColor = new Color(255, 140, 50) });
+        }
+
         public override void PostUpdate()
         {
             float pulse = (float)System.Math.Sin(Main.GameUpdateCount * 0.1f) * 0.3f + 0.9f;
@@ -100,6 +111,11 @@ namespace MagnumOpus.Content.Summer.Materials
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 40);
             Item.rare = ItemRarityID.Orange;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Tempered in the infernal depths'") { OverrideColor = new Color(255, 140, 50) });
         }
 
         public override void PostUpdate()

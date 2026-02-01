@@ -11,6 +11,7 @@ using MagnumOpus.Content.Autumn.Materials;
 using MagnumOpus.Content.Autumn.Projectiles;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Autumn.Weapons
 {
@@ -63,6 +64,15 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 MagnumParticleHandler.SpawnParticle(aura);
             }
 
+            // Floating autumn melody notes
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.2f, 0.5f));
+                Color noteColor = Color.Lerp(TwilightOrange, TwilightPurple, Main.rand.NextFloat()) * 0.6f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 40);
+            }
+
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.035f) * 0.08f + 0.35f;
             Lighting.AddLight(player.Center, TwilightPurple.ToVector3() * pulse);
         }
@@ -77,9 +87,20 @@ namespace MagnumOpus.Content.Autumn.Weapons
         {
             shotCount++;
 
-            // Muzzle flash
+            // Muzzle flash - layered bloom instead of halo
             CustomParticles.GenericFlare(position, TwilightOrange, 0.5f, 15);
-            CustomParticles.HaloRing(position, TwilightPurple * 0.4f, 0.3f, 12);
+            CustomParticles.GenericFlare(position, TwilightPurple * 0.4f, 0.35f, 12);
+            
+            // Music note on shot
+            ThemedParticles.MusicNote(position, velocity * 0.1f, AutumnGold * 0.8f, 0.7f, 25);
+            
+            // Twilight wisp burst
+            for (int wisp = 0; wisp < 4; wisp++)
+            {
+                float wispAngle = MathHelper.TwoPi * wisp / 4f;
+                Vector2 wispPos = position + wispAngle.ToRotationVector2() * 10f;
+                CustomParticles.GenericFlare(wispPos, TwilightPurple * 0.5f, 0.15f, 9);
+            }
 
             // Particle burst on fire
             for (int i = 0; i < 5; i++)
@@ -98,9 +119,32 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 // Spawn large moon bolt
                 Projectile.NewProjectile(source, position, velocity * 0.9f, ModContent.ProjectileType<HarvestMoonBolt>(), (int)(damage * 1.75f), knockback * 1.5f, player.whoAmI);
 
-                // Extra VFX
+                // Extra VFX - layered bloom instead of halo
                 CustomParticles.GenericFlare(position, MoonSilver, 0.7f, 20);
-                CustomParticles.HaloRing(position, AutumnGold * 0.5f, 0.5f, 15);
+                CustomParticles.GenericFlare(position, AutumnGold * 0.5f, 0.55f, 15);
+                
+                // Music note ring and burst for Harvest Moon
+                ThemedParticles.MusicNoteRing(position, TwilightOrange, 40f, 6);
+                ThemedParticles.MusicNoteBurst(position, MoonSilver, 5, 4f);
+                
+                // Harvest glyphs (Autumn theme)
+                CustomParticles.GlyphBurst(position, TwilightPurple, 4, 3f);
+                
+                // Sparkle accents
+                for (int sparkIdx = 0; sparkIdx < 4; sparkIdx++)
+                {
+                    var sparkle = new SparkleParticle(position + Main.rand.NextVector2Circular(12f, 12f),
+                        Main.rand.NextVector2Circular(2f, 2f), AutumnGold * 0.5f, 0.2f, 16);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
+                
+                // Moon wisp burst
+                for (int wisp = 0; wisp < 5; wisp++)
+                {
+                    float wispAngle = MathHelper.TwoPi * wisp / 5f;
+                    Vector2 wispPos = position + wispAngle.ToRotationVector2() * 15f;
+                    CustomParticles.GenericFlare(wispPos, AutumnGold * 0.6f, 0.22f, 12);
+                }
             }
 
             // Normal bolt

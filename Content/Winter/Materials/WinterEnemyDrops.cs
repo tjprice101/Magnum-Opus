@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -23,6 +24,11 @@ namespace MagnumOpus.Content.Winter.Materials
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 80);
             Item.rare = ItemRarityID.LightRed;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Silence crystallized into form'") { OverrideColor = new Color(150, 200, 255) });
         }
 
         public override void PostUpdate()
@@ -61,6 +67,11 @@ namespace MagnumOpus.Content.Winter.Materials
             Item.rare = ItemRarityID.Cyan;
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The frozen heart of a wandering titan'") { OverrideColor = new Color(150, 200, 255) });
+        }
+
         public override void PostUpdate()
         {
             float pulse = (float)System.Math.Sin(Main.GameUpdateCount * 0.05f) * 0.2f + 0.7f;
@@ -96,6 +107,11 @@ namespace MagnumOpus.Content.Winter.Materials
             Item.rare = ItemRarityID.Cyan;
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A crown of eternal winter's majesty'") { OverrideColor = new Color(150, 200, 255) });
+        }
+
         public override void PostUpdate()
         {
             float shimmer = (float)System.Math.Sin(Main.GameUpdateCount * 0.08f) * 0.15f + 0.65f;
@@ -128,6 +144,11 @@ namespace MagnumOpus.Content.Winter.Materials
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 15);
             Item.rare = ItemRarityID.LightRed;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A fragment of cold that never thaws'") { OverrideColor = new Color(150, 200, 255) });
         }
 
         public override void PostUpdate()

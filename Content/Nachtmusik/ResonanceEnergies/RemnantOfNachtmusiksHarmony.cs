@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -25,6 +26,11 @@ namespace MagnumOpus.Content.Nachtmusik.ResonanceEnergies
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 95);
             Item.rare = ModContent.RarityType<NachtmusikRarity>();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Whispers of a nocturne long past'") { OverrideColor = new Color(100, 80, 160) });
         }
 
         public override void PostUpdate()

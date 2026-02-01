@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -37,7 +39,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
             // Hammer power - significantly stronger than Luminite hammers (100%)
             Item.hammer = 125;            
             // Enable reforging
-            Item.maxStack = 1;        }
+            Item.maxStack = 1;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Each strike resonates with lunar echoes'") { OverrideColor = new Color(140, 100, 200) });
+        }
 
         public override void AddRecipes()
         {

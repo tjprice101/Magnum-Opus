@@ -497,7 +497,7 @@ namespace MagnumOpus.Content.SwanLake.Accessories
     /// </summary>
     public class HomingSwanFeather : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.Leaf;
+        public override string Texture => "MagnumOpus/Assets/Particles/SwanFeather5";
         
         private const float MaxHomingDistance = 500f;
         private const float HomingStrength = 0.18f;
@@ -590,6 +590,15 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 shimmer.noGravity = true;
             }
             
+            // ☁EMUSICAL NOTATION - Rainbow feather melody trail
+            if (Main.rand.NextBool(6))
+            {
+                float noteHue = (Main.GameUpdateCount * 0.01f + Projectile.whoAmI * 0.1f) % 1f;
+                Color noteColor = Main.hslToRgb(noteHue, 1f, 0.85f);
+                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), 
+                    -Projectile.velocity * 0.1f, noteColor, 0.35f, 20);
+            }
+            
             // Rainbow cycling light
             Vector3 lightColor = Main.hslToRgb(hue, 0.8f, 0.6f).ToVector3();
             Lighting.AddLight(Projectile.Center, lightColor * 0.6f);
@@ -638,6 +647,11 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             
             // Fractal burst
             ThemedParticles.SwanLakeFractalGemBurst(Projectile.Center, Color.Black, 0.5f, 4, false);
+            
+            // ☁EMUSICAL FINALE - Rainbow feathered symphony
+            float finaleHue = (Main.GameUpdateCount * 0.02f) % 1f;
+            Color finaleColor = Main.hslToRgb(finaleHue, 1f, 0.85f);
+            ThemedParticles.MusicNoteBurst(Projectile.Center, finaleColor, 6, 4f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -775,6 +789,15 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 iridescent.noGravity = true;
             }
             
+            // ☁EMUSICAL NOTATION - Gentle healing melody trail
+            if (Main.rand.NextBool(10))
+            {
+                float noteHue = (Main.GameUpdateCount * 0.01f + Projectile.whoAmI * 0.2f) % 1f;
+                Color noteColor = Main.hslToRgb(noteHue, 0.4f, 0.9f);
+                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f), 
+                    new Vector2(0, -0.5f), noteColor * 0.8f, 0.25f, 18);
+            }
+            
             // Check for player pickup
             Player owner = Main.player[Projectile.owner];
             if (Vector2.Distance(owner.Center, Projectile.Center) < 50f)
@@ -820,6 +843,9 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                         offset * 0.15f, 0, pearl, 1f);
                     ring.noGravity = true;
                 }
+                
+                // ☁EMUSICAL HEALING - Healing feather symphony
+                ThemedParticles.MusicNoteBurst(Projectile.Center, Color.White, 5, 3.5f);
                 
                 Projectile.Kill();
             }

@@ -46,14 +46,14 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.ChlorophyteBullet;
+        public override string Texture => "MagnumOpus/Assets/Particles/StarBurst2";
 
         public override void AI()
         {
             orbitAngle += 0.12f;
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
 
-            // Trail particles
+            // ☁ELAYERED TRAIL - Glow particles + sparkles for richness
             if (Main.rand.NextBool(2))
             {
                 Vector2 trailPos = Projectile.Center + Main.rand.NextVector2Circular(6f, 6f);
@@ -61,6 +61,10 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 Color trailColor = Color.Lerp(SpringLavender, SpringPink, Main.rand.NextFloat()) * 0.75f;
                 var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.32f, 22, true);
                 MagnumParticleHandler.SpawnParticle(trail);
+                
+                // Sparkle accents for magical shimmer
+                var sparkle = new SparkleParticle(trailPos, trailVel * 1.2f, SpringWhite * 0.6f, 0.25f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
             // Orbiting spark points
@@ -75,11 +79,20 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 }
             }
 
-            // Sparkle dust
+            // Vanilla dust for density
             if (Main.rand.NextBool(4))
             {
                 Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.PinkFairy, -Projectile.velocity * 0.1f, 0, SpringPink, 0.9f);
                 dust.noGravity = true;
+            }
+
+            // ☁EMUSICAL NOTATION - VISIBLE notes in trail! (scale 0.7f+)
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 noteVel = -Projectile.velocity * 0.05f + new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-1f, -0.5f));
+                Color noteColor = Color.Lerp(SpringPink, SpringLavender, Main.rand.NextFloat());
+                // Scale 0.7f makes notes VISIBLE!
+                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), noteVel, noteColor, 0.7f, 40);
             }
 
             // Split after 30 frames
@@ -96,9 +109,17 @@ namespace MagnumOpus.Content.Spring.Projectiles
 
         private void SplitIntoPetals()
         {
-            // Split VFX
+            // Split VFX - layered bloom instead of halo
             CustomParticles.GenericFlare(Projectile.Center, SpringLavender, 0.65f, 18);
-            CustomParticles.HaloRing(Projectile.Center, SpringPink * 0.7f, 0.35f, 15);
+            CustomParticles.GenericFlare(Projectile.Center, SpringPink * 0.7f, 0.45f, 15);
+            
+            // Petal sparkle ring
+            for (int s = 0; s < 4; s++)
+            {
+                float sparkAngle = MathHelper.TwoPi * s / 4f;
+                Vector2 sparkPos = Projectile.Center + sparkAngle.ToRotationVector2() * 15f;
+                CustomParticles.GenericFlare(sparkPos, SpringPink * 0.8f, 0.2f, 12);
+            }
 
             // Spawn 4 homing petals in X pattern
             if (Main.myPlayer == Projectile.owner)
@@ -127,6 +148,28 @@ namespace MagnumOpus.Content.Spring.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // ☁EMUSICAL IMPACT - VISIBLE notes burst! (scale 0.75f)
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 noteVel = angle.ToRotationVector2() * 3f;
+                Color noteColor = Color.Lerp(SpringPink, SpringGreen, i / 6f);
+                ThemedParticles.MusicNote(target.Center, noteVel, noteColor, 0.75f, 35);
+            }
+            
+            // Central flash
+            CustomParticles.GenericFlare(target.Center, SpringWhite, 0.6f, 18);
+            CustomParticles.GenericFlare(target.Center, SpringPink, 0.5f, 15);
+            
+            // Sparkle ring
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 sparkVel = angle.ToRotationVector2() * 3.5f;
+                var sparkle = new SparkleParticle(target.Center, sparkVel, SpringWhite * 0.8f, 0.35f, 20);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
             // Bloom Burst: Critical hits spawn healing particles
             if (hit.Crit)
             {
@@ -154,9 +197,29 @@ namespace MagnumOpus.Content.Spring.Projectiles
         {
             if (hasSplit) return; // Don't do kill VFX if we split
 
-            // Bloom VFX on death
+            // ☁EMUSICAL FINALE - VISIBLE notes scatter! (scale 0.8f)
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 noteVel = angle.ToRotationVector2() * 4f;
+                Color noteColor = Color.Lerp(SpringPink, SpringLavender, i / 8f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.8f, 40);
+            }
+
+            // Bloom VFX on death - layered flares
+            CustomParticles.GenericFlare(Projectile.Center, SpringWhite, 0.65f, 20);
             CustomParticles.GenericFlare(Projectile.Center, SpringLavender, 0.55f, 18);
-            CustomParticles.HaloRing(Projectile.Center, SpringPink * 0.6f, 0.4f, 16);
+            CustomParticles.GenericFlare(Projectile.Center, SpringPink * 0.6f, 0.38f, 14);
+            
+            // Sparkle ring
+            for (int s = 0; s < 6; s++)
+            {
+                float sparkAngle = MathHelper.TwoPi * s / 6f;
+                Vector2 sparkPos = Projectile.Center + sparkAngle.ToRotationVector2() * 15f;
+                var sparkle = new SparkleParticle(sparkPos, sparkAngle.ToRotationVector2() * 2f, 
+                    SpringWhite * 0.7f, 0.3f, 15);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
 
             for (int i = 0; i < 8; i++)
             {
@@ -246,7 +309,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.FlowerPetal;
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle1";
 
         public override void AI()
         {
@@ -277,6 +340,17 @@ namespace MagnumOpus.Content.Spring.Projectiles
             {
                 Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.PinkFairy, Vector2.Zero, 0, SpringPink, 0.7f);
                 dust.noGravity = true;
+            }
+
+            // ☁EMUSICAL NOTATION - Notes trail behind petals! - VISIBLE SCALE 0.7f+
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 noteVel = -Projectile.velocity * 0.04f + new Vector2(0, Main.rand.NextFloat(-0.6f, -0.2f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, SpringPink * 0.9f, 0.7f, 35);
+                
+                // Spring sparkle accent
+                var sparkle = new SparkleParticle(Projectile.Center, noteVel * 0.5f, SpringGreen * 0.4f, 0.22f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
             Lighting.AddLight(Projectile.Center, SpringPink.ToVector3() * 0.35f);
@@ -374,7 +448,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.FlowerPowPetal;
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle3";
 
         public override void AI()
         {
@@ -426,8 +500,17 @@ namespace MagnumOpus.Content.Spring.Projectiles
 
         public override void OnKill(int timeLeft)
         {
+            // Death VFX - layered bloom instead of halo
             CustomParticles.GenericFlare(Projectile.Center, SpringLavender, 0.55f, 18);
-            CustomParticles.HaloRing(Projectile.Center, SpringGreen * 0.5f, 0.35f, 14);
+            CustomParticles.GenericFlare(Projectile.Center, SpringGreen * 0.5f, 0.35f, 14);
+            
+            // Petal sparkle burst
+            for (int s = 0; s < 4; s++)
+            {
+                float sparkAngle = MathHelper.TwoPi * s / 4f;
+                Vector2 sparkPos = Projectile.Center + sparkAngle.ToRotationVector2() * 10f;
+                CustomParticles.GenericFlare(sparkPos, SpringGreen * 0.6f, 0.15f, 10);
+            }
 
             for (int i = 0; i < 6; i++)
             {

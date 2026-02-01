@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -36,10 +37,15 @@ namespace MagnumOpus.Content.Eroica.Tools
             Item.useTurn = true;
 
             // Pickaxe power - stronger than Moonlight (300%)
-            Item.pick = 350; // Can mine La Campanella ore (progression: Moonlight → Eroica → La Campanella → Enigma → Swan Lake → Fate)
+            Item.pick = 350; // Can mine La Campanella ore (progression: Moonlight ↁEEroica ↁELa Campanella ↁEEnigma ↁESwan Lake ↁEFate)
             
             // Enable reforging
             Item.maxStack = 1;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Strikes with the force of a hero's conviction'") { OverrideColor = new Microsoft.Xna.Framework.Color(200, 50, 50) });
         }
 
         public override void AddRecipes()

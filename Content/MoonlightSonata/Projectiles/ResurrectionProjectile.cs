@@ -184,7 +184,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             ThemedParticles.MoonlightImpact(position, 1.2f);
             
             // Resurrection radial burst - ascending ethereal rings
-            // BANNED: GlowingHalos[3] was the concentric ring texture - using [1] and [5] instead
             var outerHalo = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.GlowingHalos[5], position, Vector2.Zero,
                 CustomParticleSystem.MoonlightColors.Silver, 0.9f, 40, 0.008f, true, true).WithScaleVelocity(0.02f);
             CustomParticleSystem.SpawnParticle(outerHalo);

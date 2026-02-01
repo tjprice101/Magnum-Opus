@@ -33,7 +33,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void SetDefaults()
         {
-            Item.damage = 75; // Balanced: ~1125 DPS (75 × 60/4)
+            Item.damage = 75; // Balanced: ~1125 DPS (75 ÁE60/4)
             Item.DamageType = DamageClass.Ranged;
             Item.width = 64;
             Item.height = 28;
@@ -208,7 +208,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             // === HEAT-REACTIVE MUZZLE FLASH ===
             Vector2 muzzlePos = position + velocity.SafeNormalize(Vector2.Zero) * 25f;
             
-            // Color shifts with heat: Pink → Crimson → Gold → White-hot
+            // Color shifts with heat: Pink ↁECrimson ↁEGold ↁEWhite-hot
             Color muzzleColor;
             if (heatProgress < 0.3f)
                 muzzleColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Crimson, heatProgress / 0.3f);
@@ -269,6 +269,13 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
         {
             // Adjust spawn position to gun barrel
             position += velocity.SafeNormalize(Vector2.UnitX * player.direction) * 40f;
+        }
+
+        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Very high fire rate assault rifle with explosive rounds"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Gun heats up visually with sustained fire"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A storm of sakura and steel'") { OverrideColor = new Color(200, 50, 50) });
         }
 
         // Recipe removed - drops from Eroica, God of Valor

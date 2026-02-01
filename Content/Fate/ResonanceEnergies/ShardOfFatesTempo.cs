@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -25,6 +26,11 @@ namespace MagnumOpus.Content.Fate.ResonanceEnergies
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 2);
             Item.rare = ModContent.RarityType<FateRarity>();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A fragment of time's unstoppable march'") { OverrideColor = new Color(180, 40, 80) });
         }
 
         public override void PostUpdate()

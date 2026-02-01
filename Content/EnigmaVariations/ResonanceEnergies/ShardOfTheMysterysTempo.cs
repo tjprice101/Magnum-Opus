@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -25,6 +26,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonanceEnergies
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 1, silver: 50);
             Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Time itself questions its own rhythm'") { OverrideColor = new Color(140, 60, 200) });
         }
 
         public override void PostUpdate()

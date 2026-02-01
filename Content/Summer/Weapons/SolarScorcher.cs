@@ -11,6 +11,7 @@ using MagnumOpus.Content.Summer.Materials;
 using MagnumOpus.Content.Summer.Projectiles;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Summer.Weapons
 {
@@ -117,6 +118,15 @@ namespace MagnumOpus.Content.Summer.Weapons
                 MagnumParticleHandler.SpawnParticle(aura);
             }
 
+            // Floating summer melody notes
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
+                Vector2 noteVel = new Vector2(0, -Main.rand.NextFloat(0.3f, 0.7f));
+                Color noteColor = Color.Lerp(SunGold, SunOrange, Main.rand.NextFloat()) * 0.6f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 40);
+            }
+
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 0.5f;
             Lighting.AddLight(player.Center, SunOrange.ToVector3() * pulse);
         }
@@ -141,6 +151,9 @@ namespace MagnumOpus.Content.Summer.Weapons
             // Muzzle flash
             CustomParticles.GenericFlare(position, SunOrange, 0.45f, 10);
 
+            // Music note on shot
+            ThemedParticles.MusicNote(position, velocity * 0.1f, SunGold * 0.8f, 0.7f, 25);
+
             // Fire stream projectile
             Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
 
@@ -152,9 +165,30 @@ namespace MagnumOpus.Content.Summer.Weapons
                 // Spawn heatwave pulse
                 Projectile.NewProjectile(source, player.Center, Vector2.Zero, ModContent.ProjectileType<HeatwavePulse>(), damage / 2, 0f, player.whoAmI);
                 
-                // VFX
+                // VFX - layered heat bloom instead of halo
                 CustomParticles.GenericFlare(player.Center, SunGold, 0.7f, 18);
-                CustomParticles.HaloRing(player.Center, SunOrange * 0.6f, 0.5f, 16);
+                CustomParticles.GenericFlare(player.Center, SunOrange, 0.55f, 15);
+                CustomParticles.GenericFlare(player.Center, SunOrange * 0.6f, 0.4f, 12);
+                
+                // Heatwave pulse burst
+                for (int ray = 0; ray < 8; ray++)
+                {
+                    float rayAngle = MathHelper.TwoPi * ray / 8f;
+                    Vector2 rayPos = player.Center + rayAngle.ToRotationVector2() * 20f;
+                    CustomParticles.GenericFlare(rayPos, SunOrange * 0.75f, 0.25f, 12);
+                }
+
+                // Music note ring and burst for Heatwave
+                ThemedParticles.MusicNoteRing(player.Center, SunGold, 40f, 6);
+                ThemedParticles.MusicNoteBurst(player.Center, SunOrange, 5, 4f);
+
+                // Sparkle accents
+                for (int i = 0; i < 4; i++)
+                {
+                    var sparkle = new SparkleParticle(player.Center + Main.rand.NextVector2Circular(12f, 12f),
+                        Main.rand.NextVector2Circular(2f, 2f), SunWhite * 0.5f, 0.2f, 16);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
             }
 
             return false;

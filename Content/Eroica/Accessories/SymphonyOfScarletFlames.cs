@@ -72,7 +72,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 float intensity = modPlayer.consecutiveHits / 3f;
                 if (Main.rand.NextFloat() < intensity * 0.4f)
                 {
-                    // Gradient colored buildup: Scarlet → Gold based on stacks
+                    // Gradient colored buildup: Scarlet ↁEGold based on stacks
                     Color buildupColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, intensity);
                     CustomParticles.GenericFlare(player.Center + Main.rand.NextVector2Circular(22f, 22f), 
                         buildupColor, 0.3f + intensity * 0.3f, 14);

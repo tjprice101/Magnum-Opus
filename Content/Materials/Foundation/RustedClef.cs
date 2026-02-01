@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -23,6 +24,11 @@ namespace MagnumOpus.Content.Materials.Foundation
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 30);
             Item.rare = ItemRarityID.Green;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Frozen in time, yet its melody endures'") { OverrideColor = new Color(150, 200, 255) });
         }
 
         public override void PostUpdate()

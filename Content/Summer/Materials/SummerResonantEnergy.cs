@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -24,6 +25,11 @@ namespace MagnumOpus.Content.Summer.Materials
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 5);
             Item.rare = ItemRarityID.Lime;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The burning passion of the longest day'") { OverrideColor = new Color(255, 140, 50) });
         }
 
         public override void PostUpdate()

@@ -13,9 +13,9 @@ namespace MagnumOpus.Common.Systems.VFX
     /// </summary>
     public static class MagnumThemePalettes
     {
-        #region La Campanella - Infernal Bell (Black → Orange → Gold)
+        #region La Campanella - Infernal Bell (Black ↁEOrange ↁEGold)
         
-        /// <summary>La Campanella gradient palette: Deep black → Ember → Orange → Gold</summary>
+        /// <summary>La Campanella gradient palette: Deep black ↁEEmber ↁEOrange ↁEGold</summary>
         public static readonly Color[] LaCampanella = new Color[]
         {
             new Color(20, 15, 20),     // Deep smoky black
@@ -31,14 +31,14 @@ namespace MagnumOpus.Common.Systems.VFX
         public static Color LaCampanellaGold => new Color(255, 200, 50);
         public static Color LaCampanellaYellow => new Color(255, 240, 180);
         
-        /// <summary>Gets a La Campanella gradient color (black → orange → gold)</summary>
+        /// <summary>Gets a La Campanella gradient color (black ↁEorange ↁEgold)</summary>
         public static Color GetLaCampanella(float progress) => VFXUtilities.PaletteLerp(LaCampanella, progress);
         
         #endregion
         
-        #region Eroica - Heroic Symphony (Scarlet → Crimson → Gold)
+        #region Eroica - Heroic Symphony (Scarlet ↁECrimson ↁEGold)
         
-        /// <summary>Eroica gradient palette: Deep scarlet → Crimson → Orange-gold → Bright gold</summary>
+        /// <summary>Eroica gradient palette: Deep scarlet ↁECrimson ↁEOrange-gold ↁEBright gold</summary>
         public static readonly Color[] Eroica = new Color[]
         {
             new Color(100, 20, 20),    // Deep scarlet
@@ -55,14 +55,14 @@ namespace MagnumOpus.Common.Systems.VFX
         public static Color EroicaSakura => new Color(255, 150, 180);
         public static Color EroicaHotCore => new Color(255, 230, 180);
         
-        /// <summary>Gets an Eroica gradient color (scarlet → gold)</summary>
+        /// <summary>Gets an Eroica gradient color (scarlet ↁEgold)</summary>
         public static Color GetEroica(float progress) => VFXUtilities.PaletteLerp(Eroica, progress);
         
         #endregion
         
-        #region Moonlight Sonata - Lunar Mystique (Deep Purple → Light Blue)
+        #region Moonlight Sonata - Lunar Mystique (Deep Purple ↁELight Blue)
         
-        /// <summary>Moonlight Sonata gradient palette: Deep purple → Violet → Lavender → Ice blue</summary>
+        /// <summary>Moonlight Sonata gradient palette: Deep purple ↁEViolet ↁELavender ↁEIce blue</summary>
         public static readonly Color[] MoonlightSonata = new Color[]
         {
             new Color(75, 0, 130),     // Deep purple (indigo)
@@ -79,12 +79,12 @@ namespace MagnumOpus.Common.Systems.VFX
         public static Color MoonlightIceBlue => new Color(135, 206, 250);
         public static Color MoonlightMoonWhite => new Color(240, 235, 255);
         
-        /// <summary>Gets a Moonlight Sonata gradient color (purple → blue)</summary>
+        /// <summary>Gets a Moonlight Sonata gradient color (purple ↁEblue)</summary>
         public static Color GetMoonlightSonata(float progress) => VFXUtilities.PaletteLerp(MoonlightSonata, progress);
         
         #endregion
         
-        #region Swan Lake - Graceful Monochrome (White ↔ Black + Rainbow Shimmer)
+        #region Swan Lake - Graceful Monochrome (White ↁEBlack + Rainbow Shimmer)
         
         /// <summary>Swan Lake monochrome palette</summary>
         public static readonly Color[] SwanLake = new Color[]
@@ -101,7 +101,7 @@ namespace MagnumOpus.Common.Systems.VFX
         public static Color SwanIcyBlue => new Color(180, 220, 255);
         public static Color SwanBlack => new Color(20, 20, 30);
         
-        /// <summary>Gets a Swan Lake gradient color (white → black)</summary>
+        /// <summary>Gets a Swan Lake gradient color (white ↁEblack)</summary>
         public static Color GetSwanLake(float progress) => VFXUtilities.PaletteLerp(SwanLake, progress);
         
         /// <summary>Gets a Swan Lake rainbow shimmer color</summary>
@@ -115,9 +115,9 @@ namespace MagnumOpus.Common.Systems.VFX
         
         #endregion
         
-        #region Enigma Variations - Mysterious Arcane (Black → Purple → Green Flame)
+        #region Enigma Variations - Mysterious Arcane (Black ↁEPurple ↁEGreen Flame)
         
-        /// <summary>Enigma Variations gradient palette: Void black → Deep purple → Eerie green</summary>
+        /// <summary>Enigma Variations gradient palette: Void black ↁEDeep purple ↁEEerie green</summary>
         public static readonly Color[] EnigmaVariations = new Color[]
         {
             new Color(15, 10, 20),     // Void darkness
@@ -133,14 +133,14 @@ namespace MagnumOpus.Common.Systems.VFX
         public static Color EnigmaGreenFlame => new Color(50, 220, 100);
         public static Color EnigmaDarkGreen => new Color(30, 100, 50);
         
-        /// <summary>Gets an Enigma Variations gradient color (black → purple → green)</summary>
+        /// <summary>Gets an Enigma Variations gradient color (black ↁEpurple ↁEgreen)</summary>
         public static Color GetEnigmaVariations(float progress) => VFXUtilities.PaletteLerp(EnigmaVariations, progress);
         
         #endregion
         
-        #region Fate - Celestial Cosmic (Black → Dark Pink → Bright Red + White Stars)
+        #region Fate - Celestial Cosmic (Black ↁEDark Pink ↁEBright Red + White Stars)
         
-        /// <summary>Fate celestial gradient palette: Cosmic void → Dark pink → Bright red</summary>
+        /// <summary>Fate celestial gradient palette: Cosmic void ↁEDark pink ↁEBright red</summary>
         public static readonly Color[] Fate = new Color[]
         {
             new Color(15, 5, 20),      // Cosmic void
@@ -157,7 +157,7 @@ namespace MagnumOpus.Common.Systems.VFX
         public static Color FateWhite => Color.White;
         public static Color FateStarGold => new Color(255, 230, 180);
         
-        /// <summary>Gets a Fate gradient color (black → pink → red)</summary>
+        /// <summary>Gets a Fate gradient color (black ↁEpink ↁEred)</summary>
         public static Color GetFate(float progress) => VFXUtilities.PaletteLerp(Fate, progress);
         
         /// <summary>Gets the cosmic Fate gradient with white star highlight at the end</summary>
@@ -175,7 +175,7 @@ namespace MagnumOpus.Common.Systems.VFX
         
         #endregion
         
-        #region Clair de Lune - Celestial Dreamscape (Night Mist → Pearl)
+        #region Clair de Lune - Celestial Dreamscape (Night Mist ↁEPearl)
         
         /// <summary>Clair de Lune gradient palette</summary>
         public static readonly Color[] ClairDeLune = new Color[]
@@ -197,7 +197,7 @@ namespace MagnumOpus.Common.Systems.VFX
         
         #endregion
         
-        #region Dies Irae - Infernal Wrath (Dark Crimson → Hellfire)
+        #region Dies Irae - Infernal Wrath (Dark Crimson ↁEHellfire)
         
         /// <summary>Dies Irae gradient palette</summary>
         public static readonly Color[] DiesIrae = new Color[]

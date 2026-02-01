@@ -4,6 +4,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 using Terraria.Localization;
+using System.Collections.Generic;
 using MagnumOpus.Common;
 
 namespace MagnumOpus.Content.Fate.CraftingStations
@@ -120,6 +121,15 @@ namespace MagnumOpus.Content.Fate.CraftingStations
             Item.createTile = ModContent.TileType<FatesCosmicAnvilTile>();
             Item.value = Item.sellPrice(gold: 15);
             Item.rare = ModContent.RarityType<FateRarity>();
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Advanced crafting station for Fate-tier equipment"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'An anvil struck by the hammer of creation itself, echoing through eternity'")
+            {
+                OverrideColor = new Color(180, 40, 80)
+            });
         }
 
         public override void AddRecipes()

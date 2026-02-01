@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -23,6 +25,11 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonanceEnergies
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 25);
             Item.rare = ModContent.RarityType<MoonlightSonataRarity>();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Echoes of the nocturne's final notes'") { OverrideColor = new Color(140, 100, 200) });
         }
 
         public override void PostUpdate()

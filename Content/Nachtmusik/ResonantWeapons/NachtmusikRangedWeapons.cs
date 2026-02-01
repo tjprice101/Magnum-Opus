@@ -9,15 +9,16 @@ using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 using MagnumOpus.Content.Nachtmusik.Debuffs;
 using MagnumOpus.Content.Nachtmusik.Projectiles;
 
 namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 {
     /// <summary>
-    /// Constellation Piercer - A bow that fires star-chaining arrows.
-    /// Arrows chain between enemies, marking them with constellations.
-    /// DAMAGE: 520 (chains make it much higher effective DPS)
+    /// Constellation Piercer - A celestial rifle that fires star-chaining energy bolts.
+    /// Bolts chain between enemies, marking them with constellations.
+    /// DAMAGE: 750 (chains make it much higher effective DPS)
     /// </summary>
     public class ConstellationPiercer : ModItem
     {
@@ -25,21 +26,21 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         {
             Item.width = 34;
             Item.height = 66;
-            Item.damage = 520;
+            Item.damage = 750; // POST-FATE RANGED
             Item.DamageType = DamageClass.Ranged;
-            Item.useTime = 14;
-            Item.useAnimation = 14;
+            Item.useTime = 12;
+            Item.useAnimation = 12;
             Item.useStyle = ItemUseStyleID.Shoot;
-            Item.knockBack = 4f;
+            Item.knockBack = 4.5f;
             Item.value = Item.sellPrice(gold: 45);
             Item.rare = ModContent.RarityType<NachtmusikRarity>();
-            Item.UseSound = SoundID.Item5;
+            Item.UseSound = SoundID.Item41 with { Pitch = -0.2f, Volume = 0.9f }; // Gun sound
             Item.autoReuse = true;
             Item.noMelee = true;
             Item.shoot = ModContent.ProjectileType<ConstellationBoltProjectile>();
-            Item.shootSpeed = 18f;
-            Item.useAmmo = AmmoID.Arrow;
-            Item.crit = 20;
+            Item.shootSpeed = 22f;
+            Item.useAmmo = AmmoID.Bullet;
+            Item.crit = 22;
         }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
@@ -64,6 +65,17 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             NachtmusikCosmicVFX.SpawnShatteredStarlightBurst(position + direction * 20f, 6, 5f, 0.4f, false);
             CustomParticles.GenericFlare(position + direction * 15f, NachtmusikCosmicVFX.Gold, 0.5f, 12);
             
+            // Music note on shot
+            ThemedParticles.MusicNote(position + direction * 18f, direction * 2f, new Color(100, 60, 180) * 0.8f, 0.7f, 25);
+            
+            // Star sparkle accents
+            for (int sparkle = 0; sparkle < 3; sparkle++)
+            {
+                var starSparkle = new SparkleParticle(position + direction * 20f + Main.rand.NextVector2Circular(10f, 10f),
+                    direction * 1.5f + Main.rand.NextVector2Circular(1f, 1f), new Color(255, 250, 240) * 0.5f, 0.2f, 16);
+                MagnumParticleHandler.SpawnParticle(starSparkle);
+            }
+            
             return false;
         }
         
@@ -78,6 +90,15 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 MagnumParticleHandler.SpawnParticle(star);
             }
             
+            // Floating nocturnal melody notes
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -Main.rand.NextFloat(0.3f, 0.6f));
+                Color noteColor = Color.Lerp(new Color(100, 60, 180), new Color(80, 100, 200), Main.rand.NextFloat()) * 0.6f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 40);
+            }
+            
             Lighting.AddLight(player.Center, NachtmusikCosmicVFX.Gold.ToVector3() * 0.3f);
         }
         
@@ -86,9 +107,9 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Triple", "Fires three constellation bolts per shot"));
-            tooltips.Add(new TooltipLine(Mod, "Chain", "Arrows chain to up to 4 nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Chain", "Bolts chain to up to 4 nearby enemies"));
             tooltips.Add(new TooltipLine(Mod, "Debuff", "Inflicts Celestial Harmony on all chained targets"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Each arrow draws another star in the sky'")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Each shot etches another star into the cosmos'")
             {
                 OverrideColor = NachtmusikCosmicVFX.Gold
             });
@@ -96,9 +117,9 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
     }
     
     /// <summary>
-    /// Nebula's Whisper - A mystical bow that fires splitting nebula arrows.
-    /// Arrows split on hit, creating a cloud of damage.
-    /// DAMAGE: 480 (splits make effective damage much higher)
+    /// Nebula's Whisper - A cosmic cannon that fires splitting nebula blasts.
+    /// Shots split on hit, creating a cloud of cosmic damage.
+    /// DAMAGE: 680 (splits make effective damage much higher)
     /// </summary>
     public class NebulasWhisper : ModItem
     {
@@ -106,27 +127,31 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         {
             Item.width = 30;
             Item.height = 58;
-            Item.damage = 480;
+            Item.damage = 680; // POST-FATE RANGED
             Item.DamageType = DamageClass.Ranged;
-            Item.useTime = 18;
-            Item.useAnimation = 18;
+            Item.useTime = 16;
+            Item.useAnimation = 16;
             Item.useStyle = ItemUseStyleID.Shoot;
-            Item.knockBack = 3f;
+            Item.knockBack = 3.5f;
             Item.value = Item.sellPrice(gold: 42);
             Item.rare = ModContent.RarityType<NachtmusikRarity>();
-            Item.UseSound = SoundID.Item5;
+            Item.UseSound = SoundID.Item38 with { Pitch = 0.1f, Volume = 0.85f }; // Cosmic gun sound
             Item.autoReuse = true;
             Item.noMelee = true;
             Item.shoot = ModContent.ProjectileType<NebulaArrowProjectile>();
-            Item.shootSpeed = 16f;
-            Item.useAmmo = AmmoID.Arrow;
-            Item.crit = 16;
+            Item.shootSpeed = 20f;
+            Item.useAmmo = AmmoID.Bullet;
+            Item.crit = 18;
         }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             // Fire nebula arrow
             Projectile.NewProjectile(source, position, velocity, ModContent.ProjectileType<NebulaArrowProjectile>(), damage, knockback, player.whoAmI);
+            
+            // Music note on shot
+            Vector2 direction = velocity.SafeNormalize(Vector2.UnitX);
+            ThemedParticles.MusicNote(position + direction * 15f, direction * 1.5f, new Color(100, 60, 180) * 0.8f, 0.7f, 25);
             
             // Nebula cloud muzzle effect
             for (int i = 0; i < 6; i++)
@@ -153,6 +178,20 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 MagnumParticleHandler.SpawnParticle(wisp);
             }
             
+            // Floating nocturnal melody notes - VISIBLE SCALE 0.75f+
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -Main.rand.NextFloat(0.3f, 0.6f));
+                Color noteColor = Color.Lerp(NachtmusikCosmicVFX.NebulaPink, NachtmusikCosmicVFX.Violet, Main.rand.NextFloat()) * 0.7f;
+                float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f * shimmer, 40);
+                
+                // Nebula sparkle companion
+                var sparkle = new SparkleParticle(notePos, noteVel * 0.8f, NachtmusikCosmicVFX.StarWhite * 0.4f, 0.22f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
             Lighting.AddLight(player.Center, NachtmusikCosmicVFX.NebulaPink.ToVector3() * 0.25f);
         }
         
@@ -160,8 +199,8 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Split", "Arrows split into 4 fragments on first hit"));
-            tooltips.Add(new TooltipLine(Mod, "Nebula", "Fragments spread nebula damage across an area"));
+            tooltips.Add(new TooltipLine(Mod, "Split", "Shots split into 4 nebula fragments on first hit"));
+            tooltips.Add(new TooltipLine(Mod, "Nebula", "Fragments spread cosmic damage across an area"));
             tooltips.Add(new TooltipLine(Mod, "Debuff", "Inflicts Celestial Harmony"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'A whisper from the depths of space'")
             {
@@ -171,9 +210,9 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
     }
     
     /// <summary>
-    /// Serenade of Distant Stars - A bow that fires homing star projectiles.
+    /// Serenade of Distant Stars - A cosmic rifle that fires homing star projectiles.
     /// Each shot releases multiple stars that seek out enemies.
-    /// DAMAGE: 390 per star, fires 4-5 stars
+    /// DAMAGE: 580 per star, fires 4-5 stars
     /// </summary>
     public class SerenadeOfDistantStars : ModItem
     {
@@ -183,21 +222,21 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         {
             Item.width = 36;
             Item.height = 70;
-            Item.damage = 390;
+            Item.damage = 580; // POST-FATE RANGED
             Item.DamageType = DamageClass.Ranged;
-            Item.useTime = 22;
-            Item.useAnimation = 22;
+            Item.useTime = 18;
+            Item.useAnimation = 18;
             Item.useStyle = ItemUseStyleID.Shoot;
-            Item.knockBack = 3.5f;
+            Item.knockBack = 4f;
             Item.value = Item.sellPrice(gold: 48);
             Item.rare = ModContent.RarityType<NachtmusikRarity>();
-            Item.UseSound = SoundID.Item5;
+            Item.UseSound = SoundID.Item91 with { Pitch = 0.2f, Volume = 0.8f }; // Cosmic gun sound
             Item.autoReuse = true;
             Item.noMelee = true;
             Item.shoot = ModContent.ProjectileType<SerenadeStarProjectile>();
-            Item.shootSpeed = 14f;
-            Item.useAmmo = AmmoID.Arrow;
-            Item.crit = 18;
+            Item.shootSpeed = 16f;
+            Item.useAmmo = AmmoID.Bullet;
+            Item.crit = 20;
         }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
@@ -225,6 +264,17 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             NachtmusikCosmicVFX.SpawnMusicNoteBurst(position + direction * 30f, 4, 4f);
             NachtmusikCosmicVFX.SpawnShatteredStarlightBurst(position + direction * 18f, 4, 3f, 0.35f, false);
             
+            // Music note ring for serenade effect
+            ThemedParticles.MusicNoteRing(position + direction * 25f, new Color(100, 60, 180), 35f, 6);
+            
+            // Star sparkle accents
+            for (int sparkle = 0; sparkle < 4; sparkle++)
+            {
+                var starSparkle = new SparkleParticle(position + direction * 22f + Main.rand.NextVector2Circular(12f, 12f),
+                    direction * 2f + Main.rand.NextVector2Circular(1.5f, 1.5f), new Color(255, 250, 240) * 0.6f, 0.22f, 18);
+                MagnumParticleHandler.SpawnParticle(starSparkle);
+            }
+            
             // Play a musical sound
             SoundEngine.PlaySound(SoundID.Item25 with { Pitch = 0.3f + Main.rand.NextFloat(-0.1f, 0.1f), Volume = 0.6f }, position);
             
@@ -240,11 +290,16 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 CustomParticles.GenericFlare(starPos, NachtmusikCosmicVFX.StarWhite * 0.6f, 0.15f, 12);
             }
             
-            // Subtle music notes
-            if (Main.rand.NextBool(20))
+            // Subtle music notes - VISIBLE SCALE 0.75f+
+            if (Main.rand.NextBool(16))
             {
                 Vector2 notePos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                ThemedParticles.MusicNote(notePos, new Vector2(0, -0.5f), NachtmusikCosmicVFX.Gold * 0.5f, 0.2f, 20);
+                float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
+                ThemedParticles.MusicNote(notePos, new Vector2(0, -0.5f), NachtmusikCosmicVFX.Gold * 0.6f, 0.75f * shimmer, 25);
+                
+                // Star sparkle accent
+                var sparkle = new SparkleParticle(notePos, new Vector2(0, -0.4f), NachtmusikCosmicVFX.StarWhite * 0.45f, 0.22f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
             Lighting.AddLight(player.Center, NachtmusikCosmicVFX.StarWhite.ToVector3() * 0.35f);

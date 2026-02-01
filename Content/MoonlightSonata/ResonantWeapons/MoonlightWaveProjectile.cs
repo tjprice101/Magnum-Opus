@@ -18,7 +18,7 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
     public class MoonlightWaveProjectile : ModProjectile
     {
         // Custom invisible texture - particle-based projectile
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow4";
         
         public override void SetStaticDefaults()
         {

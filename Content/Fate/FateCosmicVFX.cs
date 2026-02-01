@@ -546,7 +546,7 @@ namespace MagnumOpus.Content.Fate
     /// </summary>
     public class CosmicStarCircleEffect : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle5";
 
         private const int FormationTime = 40;
         private const int ConnectionTime = 20;

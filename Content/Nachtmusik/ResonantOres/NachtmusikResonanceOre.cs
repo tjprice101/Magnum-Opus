@@ -1,6 +1,8 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using MagnumOpus.Common;
 
 namespace MagnumOpus.Content.Nachtmusik.ResonantOres
@@ -34,6 +36,14 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantOres
             Item.consumable = true;
             Item.createTile = ModContent.TileType<NachtmusikResonanceOreTile>();
             Item.placeStyle = 0;
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Celestial ore imbued with the radiance of the night sky'")
+            {
+                OverrideColor = new Color(123, 104, 238)
+            });
         }
     }
 }

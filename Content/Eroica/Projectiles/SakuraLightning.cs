@@ -122,6 +122,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             ThemedParticles.EroicaImpact(Projectile.Center, 2.5f);
             ThemedParticles.SakuraPetals(Projectile.Center, 15, 50f);
             
+            // ★ MUSICAL NOTATION - Heroic chord burst
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(255, 215, 0), 6, 4f);
+            
             // Large scarlet explosion (reduced count)
             for (int i = 0; i < 25; i++)
             {
@@ -149,6 +152,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Enhanced final explosion using ThemedParticles
             ThemedParticles.EroicaBloomBurst(Projectile.Center, 3f);
             ThemedParticles.EroicaShockwave(Projectile.Center, 2f);
+            
+            // ★ MUSICAL FINALE - Hero's symphony
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(200, 50, 50), 8, 5f);
             
             // Final explosion burst (reduced count)
             for (int i = 0; i < 30; i++)

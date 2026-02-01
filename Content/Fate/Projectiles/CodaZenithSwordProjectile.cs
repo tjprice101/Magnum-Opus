@@ -347,6 +347,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
                     -1
                 );
             }
+            
+            // ☁EMUSICAL NOTATION - Zenith cosmic trail
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(weaponColor, new Color(180, 50, 100), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
+            }
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -371,6 +379,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
             
             // Sound
             SoundEngine.PlaySound(SoundID.Item71 with { Volume = 0.6f, Pitch = 0.2f }, target.Center);
+            
+            // ☁EMUSICAL IMPACT - Fate's chord burst
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(180, 50, 100), 5, 3.5f);
         }
         
         public override void OnKill(int timeLeft)
@@ -392,6 +403,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 );
                 MagnumParticleHandler.SpawnParticle(glow);
             }
+            
+            // ☁EMUSICAL FINALE - Cosmic symphony
+            ThemedParticles.MusicNoteBurst(Projectile.Center, Color.White, 6, 4f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -454,19 +468,25 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class CodaHeldSwingProjectile : ModProjectile
     {
-        // Swing speed in radians per frame - completes full 360 during use animation
-        // useAnimation = 18 frames, with extraUpdates = 1 (2 updates per frame)
-        // Total updates = 18 * 2 = 36 updates per swing
-        // Full rotation = 2π radians ≈ 6.283
-        // SwingSpeed = 6.283 / 36 ≈ 0.175 radians per update
-        private const float SwingSpeed = 0.175f;
+        // Swing speed in radians per frame
+        private const float SwingSpeed = 0.12f;
         
-        // Current swing angle
+        // Current swing angle (resets each swing)
         private float SwingAngle
         {
             get => Projectile.ai[0];
             set => Projectile.ai[0] = value;
         }
+        
+        // Starting angle toward cursor
+        private float BaseAngle
+        {
+            get => Projectile.ai[1];
+            set => Projectile.ai[1] = value;
+        }
+        
+        // Track if base angle is initialized
+        private bool initialized = false;
         
         // Orbit radius around player
         private const float OrbitRadius = 65f;
@@ -504,23 +524,38 @@ namespace MagnumOpus.Content.Fate.Projectiles
             Player owner = Main.player[Projectile.owner];
             
             // Check if owner is still using the weapon
-            if (!owner.active || owner.dead || owner.itemAnimation <= 0)
+            // Kill when animation ends (reaches 0 OR reaches 1 which means about to loop)
+            if (!owner.active || owner.dead || owner.itemAnimation <= 1)
             {
                 Projectile.Kill();
                 return;
             }
             
+            // Initialize base angle toward cursor on first frame
+            if (!initialized)
+            {
+                initialized = true;
+                Vector2 toCursor = Main.MouseWorld - owner.Center;
+                BaseAngle = toCursor.ToRotation();
+                SwingAngle = 0f; // Start at 0 offset from base
+            }
+            
             // Keep projectile alive while swinging
             Projectile.timeLeft = 2;
             
-            // Advance swing angle for full 360 rotation
+            // Advance swing angle - limited swing arc (~180 degrees = Pi)
             SwingAngle += SwingSpeed * owner.direction;
+            float maxSwingArc = MathHelper.Pi * 0.8f; // 144 degree swing arc
+            SwingAngle = MathHelper.Clamp(SwingAngle, -maxSwingArc, maxSwingArc);
+            
+            // Calculate actual angle (base + swing offset)
+            float actualAngle = BaseAngle + SwingAngle;
             
             // Position the sword orbiting around player
-            Projectile.Center = owner.Center + SwingAngle.ToRotationVector2() * OrbitRadius;
+            Projectile.Center = owner.Center + actualAngle.ToRotationVector2() * OrbitRadius;
             
-            // Rotate the sword to point outward (tangent to orbit + slight outward angle)
-            Projectile.rotation = SwingAngle + MathHelper.PiOver4 + (owner.direction == 1 ? 0 : MathHelper.PiOver2);
+            // Sword rotation - point outward along the swing arc
+            Projectile.rotation = actualAngle + MathHelper.PiOver4;
             
             // Update trail
             trailIndex = (trailIndex + 1) % trailPositions.Length;
@@ -534,8 +569,8 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Cosmic trail particles - only every 6 frames for smooth trail without spam
             if (Main.GameUpdateCount % 6 == 0)
             {
-                Color trailColor = FateCosmicVFX.GetCosmicGradient((SwingAngle % MathHelper.TwoPi) / MathHelper.TwoPi);
-                var trail = new GlowSparkParticle(tipPos, SwingAngle.ToRotationVector2() * 3f, trailColor * 0.6f, 0.25f, 15);
+                Color trailColor = FateCosmicVFX.GetCosmicGradient(Math.Abs(SwingAngle / MathHelper.Pi));
+                var trail = new GlowSparkParticle(tipPos, actualAngle.ToRotationVector2() * 3f, trailColor * 0.6f, 0.25f, 15);
                 MagnumParticleHandler.SpawnParticle(trail);
             }
             
@@ -555,14 +590,22 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Star sparkles along the arc - occasional (1 in 15)
             if (Main.rand.NextBool(15))
             {
-                Vector2 sparkPos = owner.Center + SwingAngle.ToRotationVector2() * Main.rand.NextFloat(30f, OrbitRadius);
+                Vector2 sparkPos = owner.Center + actualAngle.ToRotationVector2() * Main.rand.NextFloat(30f, OrbitRadius);
                 CustomParticles.GenericFlare(sparkPos, FateCosmicVFX.FateWhite * 0.4f, 0.15f, 8);
             }
             
             // Cosmic cloud energy wisps - sparse (1 in 18)
             if (Main.rand.NextBool(18))
             {
-                FateCosmicVFX.SpawnCosmicCloudTrail(tipPos, SwingAngle.ToRotationVector2() * 1.5f, 0.3f);
+                FateCosmicVFX.SpawnCosmicCloudTrail(tipPos, actualAngle.ToRotationVector2() * 1.5f, 0.3f);
+            }
+            
+            // ☁EMUSICAL NOTATION - Coda swing symphony
+            if (Main.rand.NextBool(8))
+            {
+                Color noteColor = Color.Lerp(new Color(180, 50, 100), new Color(255, 60, 80), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(tipPos, noteVel, noteColor, 0.35f, 35);
             }
             
             // Dynamic lighting at sword
@@ -581,6 +624,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
             CustomParticles.GenericFlare(hitPos, FateCosmicVFX.FateDarkPink, 0.6f, 18);
             CustomParticles.HaloRing(hitPos, FateCosmicVFX.FatePurple, 0.5f, 15);
             CustomParticles.GlyphBurst(hitPos, FateCosmicVFX.FateDarkPink, 4, 4f);
+            
+            // ☁EMUSICAL IMPACT - Fate's chord burst
+            ThemedParticles.MusicNoteBurst(hitPos, new Color(180, 50, 100), 5, 3.5f);
             
             // Cosmic lightning to nearby enemies
             if (Main.rand.NextBool(3))

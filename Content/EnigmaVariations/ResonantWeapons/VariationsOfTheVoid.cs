@@ -149,7 +149,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
         }
         
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs6";
         
         public override bool PreDraw(ref Color lightColor) => false;
         
@@ -494,7 +494,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/StarBurst1";
         
         public override void SetDefaults()
         {
@@ -531,6 +531,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                     Color color = Color.Lerp(EnigmaPurple, EnigmaGreen, (float)i / 6f) * intensity;
                     CustomParticles.GenericFlare(pos, color, 0.5f * intensity, 10);
                 }
+            }
+            
+            // Music note trail - resonance explosion echoes with musical notes
+            if (Main.rand.NextBool(4))
+            {
+                Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreen, Main.rand.NextFloat()) * intensity;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-2f, 2f), -1.5f);
+                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(currentRadius * 0.5f, currentRadius * 0.5f), noteVel, noteColor, 0.4f, 30);
             }
             
             Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * intensity);

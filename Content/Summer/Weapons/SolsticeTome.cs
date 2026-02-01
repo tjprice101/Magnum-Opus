@@ -11,6 +11,7 @@ using MagnumOpus.Content.Summer.Materials;
 using MagnumOpus.Content.Summer.Projectiles;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Summer.Weapons
 {
@@ -91,6 +92,15 @@ namespace MagnumOpus.Content.Summer.Weapons
                 MagnumParticleHandler.SpawnParticle(mote);
             }
 
+            // Floating summer melody notes
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
+                Vector2 noteVel = new Vector2(0, -Main.rand.NextFloat(0.3f, 0.7f));
+                Color noteColor = Color.Lerp(SunGold, SunOrange, Main.rand.NextFloat()) * 0.6f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 40);
+            }
+
             // Charging effect
             if (player.channel && player.CheckMana(Item.mana, false))
             {
@@ -148,10 +158,18 @@ namespace MagnumOpus.Content.Summer.Weapons
             Projectile.NewProjectile(player.GetSource_ItemUse(Item), spawnPos, direction * 20f,
                 ModContent.ProjectileType<SunbeamProjectile>(), Item.damage * 3, Item.knockBack * 2f, player.whoAmI);
             
-            // Release VFX
+            // Release VFX - layered solar bloom instead of halo
             CustomParticles.GenericFlare(spawnPos, Color.White, 1.2f, 25);
             CustomParticles.GenericFlare(spawnPos, SunGold, 0.95f, 22);
-            CustomParticles.HaloRing(spawnPos, SunOrange * 0.7f, 0.6f, 20);
+            CustomParticles.GenericFlare(spawnPos, SunOrange * 0.7f, 0.7f, 18);
+            
+            // Solar corona burst
+            for (int ray = 0; ray < 6; ray++)
+            {
+                float rayAngle = MathHelper.TwoPi * ray / 6f;
+                Vector2 rayPos = spawnPos + rayAngle.ToRotationVector2() * 22f;
+                CustomParticles.GenericFlare(rayPos, SunGold * 0.85f, 0.32f, 14);
+            }
             
             // Radial burst
             for (int i = 0; i < 12; i++)
@@ -161,6 +179,18 @@ namespace MagnumOpus.Content.Summer.Weapons
                 Color burstColor = Color.Lerp(SunGold, SunWhite, (float)i / 12f);
                 var burst = new GenericGlowParticle(spawnPos, burstVel, burstColor * 0.75f, 0.4f, 22, true);
                 MagnumParticleHandler.SpawnParticle(burst);
+            }
+
+            // Music note ring and burst for Sunbeam Charge
+            ThemedParticles.MusicNoteRing(spawnPos, SunGold, 40f, 6);
+            ThemedParticles.MusicNoteBurst(spawnPos, SunOrange, 5, 4f);
+
+            // Sparkle accents
+            for (int i = 0; i < 4; i++)
+            {
+                var sparkle = new SparkleParticle(spawnPos + Main.rand.NextVector2Circular(12f, 12f),
+                    Main.rand.NextVector2Circular(2f, 2f), SunWhite * 0.5f, 0.2f, 16);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
             // Mana cost
@@ -177,6 +207,9 @@ namespace MagnumOpus.Content.Summer.Weapons
 
             // Fire VFX
             CustomParticles.GenericFlare(position, SunGold, 0.45f, 12);
+
+            // Music note on cast
+            ThemedParticles.MusicNote(position, velocity * 0.1f, SunGold * 0.8f, 0.7f, 25);
             
             // Sparkles
             for (int i = 0; i < 3; i++)
@@ -201,9 +234,18 @@ namespace MagnumOpus.Content.Summer.Weapons
                     killCount = 0;
                     blessingTimer = 300; // 5 seconds of bonus damage
                     
-                    // Blessing activation VFX
+                    // Blessing activation VFX - layered bloom instead of halo
                     CustomParticles.GenericFlare(player.Center, SunWhite, 0.9f, 22);
-                    CustomParticles.HaloRing(player.Center, SunGold * 0.7f, 0.55f, 18);
+                    CustomParticles.GenericFlare(player.Center, SunGold, 0.7f, 18);
+                    CustomParticles.GenericFlare(player.Center, SunGold * 0.6f, 0.5f, 15);
+                    
+                    // Blessing sparkle ring
+                    for (int ray = 0; ray < 8; ray++)
+                    {
+                        float rayAngle = MathHelper.TwoPi * ray / 8f;
+                        Vector2 rayPos = player.Center + rayAngle.ToRotationVector2() * 25f;
+                        CustomParticles.GenericFlare(rayPos, SunGold * 0.8f, 0.28f, 14);
+                    }
                     
                     // Burst particles
                     for (int i = 0; i < 8; i++)

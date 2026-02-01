@@ -19,7 +19,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
     public class PyreSlashWave : ModProjectile
     {
         // Custom texture - no vanilla textures allowed
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc5";
         
         private float currentRadius = 0f;
         private const float MaxRadius = 250f;

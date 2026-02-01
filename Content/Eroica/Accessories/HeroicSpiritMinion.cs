@@ -19,7 +19,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
     /// </summary>
     public class HeroicSpiritMinion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc6";
         
         private const int LifeDuration = 300; // 5 seconds
         private int targetNPC = -1;
@@ -383,7 +383,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
     /// </summary>
     public class HeroicSpiritSlash : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc7";
         
         public override void SetStaticDefaults()
         {

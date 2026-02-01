@@ -11,6 +11,7 @@ using MagnumOpus.Content.Spring.Materials;
 using MagnumOpus.Content.Spring.Projectiles;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Spring.Weapons
 {
@@ -64,6 +65,15 @@ namespace MagnumOpus.Content.Spring.Weapons
                 var mote = new GenericGlowParticle(motePos, moteVel, moteColor, 0.2f, 30, true);
                 MagnumParticleHandler.SpawnParticle(mote);
             }
+            
+            // Floating spring melody notes
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
+                Vector2 noteVel = new Vector2(0, -Main.rand.NextFloat(0.3f, 0.7f));
+                Color noteColor = Color.Lerp(SpringYellow, SpringPink, Main.rand.NextFloat()) * 0.6f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 40);
+            }
 
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.1f + 0.4f;
             Lighting.AddLight(player.Center, SpringYellow.ToVector3() * pulse);
@@ -74,9 +84,31 @@ namespace MagnumOpus.Content.Spring.Weapons
             // Apply buff
             player.AddBuff(Item.buffType, 2);
 
-            // Spawn VFX
+            // Spawn VFX - layered flares instead of halo
             CustomParticles.GenericFlare(Main.MouseWorld, SpringYellow, 0.7f, 20);
-            CustomParticles.HaloRing(Main.MouseWorld, SpringGreen * 0.6f, 0.45f, 18);
+            CustomParticles.GenericFlare(Main.MouseWorld, SpringGreen, 0.5f, 18);
+            CustomParticles.GenericFlare(Main.MouseWorld, SpringGreen * 0.6f, 0.35f, 15);
+            
+            // Music note ring and burst for summon
+            ThemedParticles.MusicNoteRing(Main.MouseWorld, SpringYellow, 30f, 6);
+            ThemedParticles.MusicNoteBurst(Main.MouseWorld, SpringPink, 4, 3f);
+            
+            // Sparkle accents
+            for (int i = 0; i < 5; i++)
+            {
+                var sparkle = new SparkleParticle(Main.MouseWorld + Main.rand.NextVector2Circular(15f, 15f),
+                    Main.rand.NextVector2Circular(3f, 3f), SpringWhite * 0.6f, 0.22f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // Flower sparkle burst
+            for (int s = 0; s < 6; s++)
+            {
+                float sparkAngle = MathHelper.TwoPi * s / 6f;
+                Vector2 sparkPos = Main.MouseWorld + sparkAngle.ToRotationVector2() * 20f;
+                Color sparkColor = Color.Lerp(SpringPink, SpringYellow, (float)s / 6f);
+                CustomParticles.GenericFlare(sparkPos, sparkColor * 0.7f, 0.25f, 14);
+            }
             
             // Bloom burst on summon
             for (int i = 0; i < 8; i++)

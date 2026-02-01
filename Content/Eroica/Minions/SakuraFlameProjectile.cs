@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Minions
 {
@@ -14,7 +15,7 @@ namespace MagnumOpus.Content.Eroica.Minions
     /// </summary>
     public class SakuraFlameProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle14";
         
         private float fadeProgress = 0f;
         
@@ -118,6 +119,14 @@ namespace MagnumOpus.Content.Eroica.Minions
             float redComponent = 0.9f + fadeProgress * 0.1f;
             float greenComponent = 0.5f - fadeProgress * 0.3f;
             Lighting.AddLight(Projectile.Center, redComponent * lightIntensity, greenComponent * lightIntensity, 0.1f * lightIntensity);
+            
+            // ☁EMUSICAL NOTATION - Heroic melody trail
+            if (Main.rand.NextBool(8))
+            {
+                Color noteColor = Color.Lerp(new Color(200, 50, 50), new Color(255, 215, 0), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.28f, 30);
+            }
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -168,6 +177,12 @@ namespace MagnumOpus.Content.Eroica.Minions
             
             // Brief lighting flash
             Lighting.AddLight(target.Center, 0.8f, 0.4f, 0.1f);
+            
+            // ☁EMUSICAL IMPACT - Triumphant chord burst
+            if (Main.rand.NextBool(3)) // Not every hit to avoid spam
+            {
+                ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 215, 0), 3, 2.5f);
+            }
         }
         
         public override void OnKill(int timeLeft)

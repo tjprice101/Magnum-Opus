@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
     public class GoliathMoonlightBeam : ModProjectile
     {
         // Custom texture - no vanilla textures allowed
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField6";
         
         private const int MaxRicochets = 10;
         private const float RicochetRange = 500f;

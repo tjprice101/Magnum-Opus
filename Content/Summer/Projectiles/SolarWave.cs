@@ -40,7 +40,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.SolarWhipSwordExplosion;
+        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo4";
 
         public override void AI()
         {
@@ -63,6 +63,22 @@ namespace MagnumOpus.Content.Summer.Projectiles
                 dust.noGravity = true;
             }
 
+            // ☁EMUSICAL NOTATION - VISIBLE notes blaze! (scale 0.7f+)
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 noteVel = -Projectile.velocity * 0.05f + new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), Main.rand.NextFloat(-1f, -0.3f));
+                // Scale 0.7f makes notes VISIBLE!
+                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), noteVel, SunGold, 0.7f, 35);
+            }
+            
+            // Sparkle accents for magical shimmer
+            if (Main.rand.NextBool(4))
+            {
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    -Projectile.velocity * 0.1f, SunWhite * 0.6f, 0.25f, 15);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             // Slowing down slightly
             Projectile.velocity *= 0.98f;
 
@@ -71,7 +87,24 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
         public override void OnKill(int timeLeft)
         {
+            // ☁EMUSICAL FINALE - VISIBLE notes scatter! (scale 0.8f)
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 noteVel = angle.ToRotationVector2() * 3.5f;
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, SunGold, 0.8f, 38);
+            }
+            
+            CustomParticles.GenericFlare(Projectile.Center, SunWhite, 0.6f, 18);
             CustomParticles.GenericFlare(Projectile.Center, SunGold, 0.5f, 16);
+            
+            // Sparkle ring
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                var sparkle = new SparkleParticle(Projectile.Center, angle.ToRotationVector2() * 3f, SunWhite * 0.7f, 0.28f, 16);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
             
             for (int i = 0; i < 6; i++)
             {
@@ -151,7 +184,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.SolarWhipSwordExplosion;
+        public override string Texture => "MagnumOpus/Assets/Particles/StarBurst2";
 
         public override void AI()
         {
@@ -184,6 +217,19 @@ namespace MagnumOpus.Content.Summer.Projectiles
             Dust dust = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f), DustID.SolarFlare, -Projectile.velocity * 0.15f, 0, SunOrange, 1.2f);
             dust.noGravity = true;
 
+            // ☁EMUSICAL NOTATION - Blazing notes orbit the zenith flare! - VISIBLE SCALE 0.75f+
+            if (Main.rand.NextBool(3))
+            {
+                float noteAngle = orbitAngle + Main.rand.NextFloat(MathHelper.TwoPi);
+                Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * 15f;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.2f, -0.4f));
+                ThemedParticles.MusicNote(notePos, noteVel, Color.Lerp(SunGold, SunOrange, Main.rand.NextFloat()), 0.75f, 40);
+                
+                // Solar sparkle
+                var sparkle = new SparkleParticle(notePos, noteVel * 0.5f, SunGold * 0.5f, 0.22f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             // Dynamic lighting
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.2f + 1f;
             Lighting.AddLight(Projectile.Center, SunGold.ToVector3() * pulse * 0.9f);
@@ -191,14 +237,27 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // ☁EMUSICAL IMPACT - Solar symphony explodes on hit!
+            ThemedParticles.MusicNoteBurst(target.Center, SunGold, 10, 5f);
+            ThemedParticles.MusicNoteRing(target.Center, SunOrange, 50f, 6);
+            
             // Apply heavy burning
             target.AddBuff(BuffID.OnFire3, 300);
             target.AddBuff(BuffID.Daybreak, 180);
 
-            // Big impact VFX
+            // Big impact VFX - layered bloom
             CustomParticles.GenericFlare(target.Center, SunWhite, 0.9f, 22);
             CustomParticles.GenericFlare(target.Center, SunGold, 0.75f, 20);
-            CustomParticles.HaloRing(target.Center, SunOrange * 0.7f, 0.5f, 18);
+            CustomParticles.GenericFlare(target.Center, SunOrange * 0.7f, 0.55f, 18);
+            CustomParticles.GenericFlare(target.Center, SunOrange * 0.4f, 0.4f, 15);
+            // Solar ray burst - 6-point star
+            for (int ray = 0; ray < 6; ray++)
+            {
+                float rayAngle = MathHelper.TwoPi * ray / 6f;
+                Vector2 rayPos = target.Center + rayAngle.ToRotationVector2() * 16f;
+                Color rayColor = ray % 2 == 0 ? SunGold : SunOrange;
+                CustomParticles.GenericFlare(rayPos, rayColor * 0.7f, 0.2f, 12);
+            }
 
             for (int i = 0; i < 10; i++)
             {
@@ -211,11 +270,20 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // Big solar explosion
+            // Big solar explosion - layered bloom cascade
             CustomParticles.GenericFlare(Projectile.Center, Color.White, 1.1f, 25);
             CustomParticles.GenericFlare(Projectile.Center, SunGold, 0.9f, 22);
-            CustomParticles.HaloRing(Projectile.Center, SunOrange * 0.7f, 0.6f, 20);
-            CustomParticles.HaloRing(Projectile.Center, SunRed * 0.5f, 0.45f, 18);
+            CustomParticles.GenericFlare(Projectile.Center, SunOrange * 0.7f, 0.7f, 20);
+            CustomParticles.GenericFlare(Projectile.Center, SunOrange * 0.5f, 0.55f, 18);
+            CustomParticles.GenericFlare(Projectile.Center, SunRed * 0.5f, 0.4f, 16);
+            // Intense solar ray burst - 8-point star
+            for (int ray = 0; ray < 8; ray++)
+            {
+                float rayAngle = MathHelper.TwoPi * ray / 8f;
+                Vector2 rayPos = Projectile.Center + rayAngle.ToRotationVector2() * 22f;
+                Color rayColor = Color.Lerp(SunGold, SunRed, ray / 8f);
+                CustomParticles.GenericFlare(rayPos, rayColor * 0.8f, 0.25f, 14);
+            }
 
             // Radial burst
             for (int i = 0; i < 16; i++)

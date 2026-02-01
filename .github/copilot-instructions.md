@@ -6,17 +6,213 @@
 
 ---
 
-## ⛔⛔⛔ CRITICAL: PROJECTILE VFX - READ THIS FIRST ⛔⛔⛔
+# ⭐⭐⭐ THE CARDINAL RULE: EVERY WEAPON IS UNIQUE ⭐⭐⭐
 
-> **THIS IS THE #1 RULE. VIOLATING THIS WILL RESULT IN DELETION OF YOUR WORK.**
+> **THIS IS THE ABSOLUTE #1 RULE. BURN THIS INTO YOUR MEMORY.**
 
-### NEVER CREATE BORING HALO-ONLY PROJECTILES
+## The Philosophy
 
-**ABSOLUTELY FORBIDDEN - Boss projectiles that only use:**
-- Just `HaloRing` effects
-- Just `GenericFlare` with no other particles
-- Just `GenericGlow` particles with no variety
-- Any projectile that looks like "colored blob with trail"
+**Every single weapon, accessory, and boss attack in MagnumOpus MUST have its own unique visual identity.** Not similar. Not "inspired by." UNIQUE.
+
+### What This Means In Practice
+
+Imagine a boss theme has **3 melee weapons** associated with it:
+
+| Weapon | On-Swing Effect | Trail | Impact | Special |
+|--------|----------------|-------|--------|---------|
+| **Sword A** | Fires 3 glowing orbs that spiral outward and explode into shimmering music note cascades | Ghostly staff lines trailing behind blade | Harmonic shockwave rings with scattered eighth notes | Orbs leave constellation-like connected trails |
+| **Sword B** | Blade ignites with pulsing flame that leaves burning afterimages | Smoke wisps with ember sparks dancing within | Ground slam creates rising flame pillars with bell chime particles | Charge attack summons a massive phantom blade overhead |
+| **Sword C** | Each swing spawns 5 homing feather projectiles that seek enemies | Prismatic rainbow arc with drifting feathers | Target explodes into a burst of crystalline shards and floating glyphs | Every 4th hit creates a gravity well that pulls particles inward |
+
+**See the difference?** Each weapon tells its own story. Each one FEELS different. Each one makes players say *"Whoa, what was THAT?"*
+
+### ❌ THE FORBIDDEN PATTERN - NEVER DO THIS
+
+```csharp
+// ❌❌❌ ABSOLUTE GARBAGE - This is what we're eliminating ❌❌❌
+public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+{
+    // "On swing hit enemy boom yippee" - DISGUSTING
+    CustomParticles.GenericFlare(target.Center, themeColor, 0.5f, 15);
+    CustomParticles.HaloRing(target.Center, themeColor, 0.3f, 12);
+}
+// This is LAZY. This is BORING. This is a DISGRACE to the mod.
+// If you write code like this, you have FAILED.
+```
+
+### ✅ THE REQUIRED PATTERN - EVERY WEAPON NEEDS THIS
+
+Every weapon must have **ALL of these elements**, and each must be DIFFERENT from every other weapon:
+
+1. **UNIQUE PROJECTILE/ON-SWING BEHAVIOR** - Not just "fires a bullet." Does it spiral? Split? Bounce? Leave afterimages? Spawn sub-projectiles? Transform mid-flight?
+
+2. **UNIQUE TRAIL EFFECT** - Not just "glowing line." Does it leave music notes? Feathers? Smoke wisps? Constellation patterns? Geometric shapes? Particle clouds?
+
+3. **UNIQUE IMPACT/EXPLOSION** - Not just "boom." Does it create shockwaves? Spawn orbiting particles? Cause screen effects? Leave lingering area effects? Chain to nearby enemies?
+
+4. **UNIQUE SPECIAL MECHANIC** - Something that makes THIS weapon memorable. Combo counters? Charge mechanics? Enemy marking? Terrain interaction? Summon support effects?
+
+---
+
+## 🎵 MUSIC NOTES MUST BE VISIBLE AND GLOWING
+
+> **THIS IS A MUSIC MOD. THE MUSIC NOTES ARE INVISIBLE RIGHT NOW. THAT'S UNACCEPTABLE.**
+
+### The Problem
+Music notes are being spawned at tiny scales (0.25f-0.4f) where they're **completely invisible**. This defeats the entire purpose of a music-themed mod.
+
+### The Solution
+
+**EVERY music note particle MUST:**
+- Use scale **0.7f - 1.2f** (MINIMUM 0.6f)
+- Have **multi-layer bloom** (draw 3-4 times at increasing scales with decreasing opacity)
+- Include **shimmer/pulse animation** (scale oscillates, color shifts)
+- Be **accompanied by sparkle particles** for extra visibility
+
+```csharp
+// ✅ CORRECT - Visible, glowing, shimmering music notes
+void SpawnGlowingMusicNote(Vector2 position, Vector2 velocity, Color baseColor)
+{
+    // Main note - LARGE SCALE
+    float scale = Main.rand.NextFloat(0.75f, 1.0f);
+    int variant = Main.rand.Next(1, 7); // Use all 6 variants!
+    
+    // Bloom layers for glow effect
+    for (int bloom = 0; bloom < 3; bloom++)
+    {
+        float bloomScale = scale * (1f + bloom * 0.4f);
+        float bloomAlpha = 0.6f / (bloom + 1);
+        Color bloomColor = baseColor * bloomAlpha;
+        // Spawn bloom particle
+    }
+    
+    // Sparkle accompaniment
+    for (int i = 0; i < 3; i++)
+    {
+        Vector2 sparkleOffset = Main.rand.NextVector2Circular(8f, 8f);
+        CustomParticles.PrismaticSparkle(position + sparkleOffset, baseColor, 0.4f, Main.rand.Next(1, 16));
+    }
+    
+    // The actual note with shimmer
+    float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.15f;
+    ThemedParticles.MusicNote(position, velocity, baseColor, scale * shimmer, 35, variant);
+}
+```
+
+---
+
+## 🎨 USE ALL AVAILABLE PARTICLE ASSETS - MANDATORY
+
+> **You have been given 80+ custom particle PNGs. USE THEM.**
+
+### Available Particle Categories (USE ALL OF THESE)
+
+| Category | Files | Variants | MUST USE FOR |
+|----------|-------|----------|--------------|
+| **MusicNote** | `MusicNote1-6.png` | 6 | EVERY weapon trail, EVERY impact, EVERY aura |
+| **EnergyFlare** | `EnergyFlare1-7.png` | 7 | Impacts, projectile cores, charge effects |
+| **SoftGlow** | `SoftGlow2-4.png` | 3 | Ambient auras, bloom bases, soft lighting |
+| **GlowingHalo** | `GlowingHalo1-6.png` | 5 | Shockwaves, expansion rings, impact halos |
+| **StarBurst** | `StarBurst1-2.png` | 2 | Explosions, death effects, critical hits |
+| **MagicSparkleField** | `MagicSparkleField1-12.png` | 12 | Magic trails, enchantment effects, auras |
+| **PrismaticSparkle** | `PrismaticSparkle1-15.png` | 15 | EVERYWHERE - add sparkle to everything |
+| **ParticleTrail** | `ParticleTrail1-4.png` | 4 | Projectile trails, movement effects |
+| **SwordArc** | `SwordArc1-9.png` | 9 | Melee swings, slash effects |
+| **SwanFeather** | `SwanFeather1-10.png` | 10 | Swan Lake theme, graceful effects |
+| **EnigmaEye** | `EnigmaEye1-8.png` | 8 | Enigma theme, watching/targeting effects |
+| **Glyphs** | `Glyphs1-12.png` | 12 | Magic circles, enchantments, Fate theme |
+| **ShatteredStarlight** | `ShatteredStarlight.png` | 1 | Shatter effects, broken glass visuals |
+
+### ALSO USE Vanilla Terraria Dust (Required for Visual Density)
+
+```csharp
+// Combine custom particles WITH vanilla dust for maximum visual density
+DustID.MagicMirror      // Magical shimmer
+DustID.Enchanted_Gold   // Golden sparkles
+DustID.Enchanted_Pink   // Pink magical dust
+DustID.PurpleTorch      // Purple flames
+DustID.Electric         // Electric sparks
+DustID.Frost            // Ice crystals
+DustID.FireworkFountain_Yellow // Bright sparks
+DustID.GemAmethyst      // Purple gems
+DustID.GemSapphire      // Blue gems
+DustID.GemRuby          // Red gems
+DustID.GemDiamond       // White sparkle
+DustID.Pixie            // Fairy dust
+DustID.Clentaminator_Purple // Purple spray
+```
+
+### The Particle Mixing Rule
+
+**Every visual effect MUST combine:**
+1. At least **2 different custom particle types** from `Assets/Particles/`
+2. At least **1 vanilla Dust type** for density
+3. At least **1 music-related particle** (MusicNote, staff lines, etc.) where thematic
+4. **Bloom/glow layers** using SoftGlow or additive blending
+
+---
+
+## Weapon Uniqueness Within Themes
+
+### The Boss Weapon Example
+
+When a boss/theme has multiple weapons of the same class, they MUST be radically different:
+
+**Example: Eroica Theme has 3 Swords**
+
+| Sword | Unique Identity |
+|-------|-----------------|
+| **Heroic Anthem** | Swings create expanding sound wave rings made of visible music notes. Every 5th hit plays a chord and releases a burst of sakura petals that home to nearby enemies. Trail leaves golden staff lines in the air. |
+| **Valor's Edge** | Blade charges with each swing, glowing brighter (visible bloom layers). At full charge, next swing releases a massive phantom blade projectile that passes through enemies leaving ember trails. Impact creates rising flame pillars. |
+| **Triumph's Melody** | Each swing spawns 3 small orbiting note projectiles that circle the player. Using special attack releases all accumulated notes as a spiraling barrage. Notes leave prismatic sparkle trails. |
+
+**See how DIFFERENT these are?** Same theme colors. Same general aesthetic. But completely unique mechanics and visuals.
+
+---
+
+## VFX Design Workflow
+
+When creating ANY new content, follow this process:
+
+### Step 1: Catalog Existing Effects
+Before designing, LIST all existing weapons/effects in that theme to ensure no duplication.
+
+### Step 2: Brainstorm Unique Concept
+Design something that has NEVER been done in this mod before. Ask:
+- What particle combinations haven't been used?
+- What movement patterns are fresh?
+- What special mechanics would surprise players?
+
+### Step 3: Select Particle Mix
+Choose specific particles from the catalog:
+- Which MusicNote variants? (1-6)
+- Which EnergyFlare variants? (1-7)
+- Which special theme particles?
+- Which vanilla Dust types?
+
+### Step 4: Design the Layers
+Plan the visual layers:
+- Core effect (main visual)
+- Bloom/glow (multi-layer)
+- Sparkle accents
+- Trail elements
+- Impact explosion
+- Special mechanic visuals
+
+### Step 5: Implement with Visible Music Notes
+Ensure all music notes use scale 0.7f+ with bloom layers.
+
+---
+
+## ⭐⭐⭐ CRITICAL: PROJECTILE VFX - READ THIS FIRST ⭐⭐⭐
+
+> **THIS IS THE #1 RULE. Every projectile must be a visual masterpiece.**
+
+### EVERY PROJECTILE MUST COMBINE MULTIPLE EFFECTS
+
+**Every weapon projectile, particle trail, and visual effect MUST use multiple effects in combination to look pretty and uniquely brilliant.** A single effect type is never enough—layer them, combine them, make them sing together.
+
+**Always combine these elements:**
 
 **EVERY boss projectile MUST have:**
 
@@ -28,14 +224,14 @@
 6. **THEME-SPECIFIC EFFECTS** - Glyphs, music notes, sakura petals, feathers, etc.
 
 ```csharp
-// ❌ ABSOLUTELY FORBIDDEN - Boring halo-only projectile
+// ❌ TOO SIMPLE - Single effect lacks visual impact
 public override void OnKill(int timeLeft)
 {
     CustomParticles.GenericFlare(Projectile.Center, PrimaryColor, 0.5f, 15);
     CustomParticles.HaloRing(Projectile.Center, PrimaryColor, 0.3f, 12);
 }
 
-// ✅ REQUIRED - Rich, layered, unique VFX
+// ✅ BEAUTIFUL - Rich, layered, unique VFX combining multiple effects
 public override void OnKill(int timeLeft)
 {
     // Central flash cascade
@@ -73,14 +269,14 @@ public override void OnKill(int timeLeft)
 - Dynamic lighting that pulses
 
 ```csharp
-// ❌ FORBIDDEN - Lazy trail
+// ❌ TOO SIMPLE - Single-effect trail lacks depth
 if (Main.rand.NextBool(3))
 {
     var trail = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f, PrimaryColor * 0.6f, 0.25f, 15, true);
     MagnumParticleHandler.SpawnParticle(trail);
 }
 
-// ✅ REQUIRED - Rich, layered trail
+// ✅ BEAUTIFUL - Rich, layered trail combining multiple effects
 // Orbiting spark points
 if (Projectile.timeLeft % 6 == 0)
 {
@@ -124,140 +320,196 @@ MagnumOpus is not just a content mod—it is **a symphony made playable**. Every
 
 ### Core Commandments
 
-1. **UNIQUENESS ABOVE ALL** - Each score (Moonlight Sonata, Eroica, La Campanella, etc.) must feel **vastly different** from one another. Never reuse effects across themes. Each weapon deserves its own identity.
+1. **EVERY WEAPON IS UNIQUE** - Within a theme, if there are 3 swords, each sword has COMPLETELY different effects. Different projectiles, different trails, different impacts, different special mechanics. NO SHARING.
 
-2. **PLAYER-DRIVEN AWE** - Effects should be **powerful, awe-inspiring, and make players feel like conductors of destruction**. Players should look at their weapons and think *"This is beautiful."*
+2. **MUSIC NOTES MUST BE VISIBLE** - Scale 0.7f minimum. Multi-layer bloom. Shimmer effects. If players can't see the music notes, you've failed. This is a MUSIC mod.
 
-3. **MUSIC NOTES EVERYWHERE** - This is a music mod! Trails, impacts, auras—**weave music notes and musical symbols into everything**. A melee swing should scatter notes. A projectile should leave a melodic trail. An explosion should burst with symphonic energy.
+3. **USE ALL PARTICLE ASSETS** - You have 80+ custom PNGs. MusicNote (6 variants), EnergyFlare (7 variants), PrismaticSparkle (15 variants), Glyphs (12 variants), etc. USE THEM ALL. Mix and match creatively.
 
-4. **DYNAMIC, LIVING COLORS** - No flat, static colors. Effects should **breathe, pulse, shimmer, and transition**. Use gradients that flow from one hue to another. Make colors feel alive.
+4. **LAYER EVERYTHING** - Single-effect particles are LAZY. Every effect needs: core + bloom layers + sparkle accents + theme particles + vanilla dust for density.
 
-5. **EMBRACE THE SCORE'S SOUL** - Each theme has a story:
-   - **Moonlight Sonata** → The moon's ethereal glow, soft purple mist, silver light
-   - **Eroica** → Heroic triumph, fragile sakura petals, golden-tinged scarlet embers
-   - **La Campanella** → The flaming bell of music, infernal chimes, smoke and fire
-   - **Swan Lake** → Graceful elegance, feathers drifting, monochrome with prismatic edges
-   - **Fate** → CELESTIAL cosmic power, ancient glyphs orbiting, star particles streaming, cosmic clouds billowing like Ark of the Cosmos, reality bending to cosmic will
+5. **THEME COLORS STAY CONSISTENT** - La Campanella is always black/orange/gold. Eroica is always scarlet/gold. But HOW effects work is completely creative and unique per weapon.
 
-6. **CREATIVE FREEDOM** - If you want a sword that **slams into the ground and casts waves of symphonic energy**, DO IT. If you want a gun that **fires into the sky and rains musical notes and flame onto enemies**, BE MY GUEST. But above all—**BE UNIQUE**.
+6. **NO "ON HIT BOOM DONE"** - That pattern is FORBIDDEN. Every impact must be a visual symphony with multiple phases, particle types, and memorable qualities.
 
-### What This Means In Practice
+### The Uniqueness Mandate - EVERY WEAPON DIFFERENT
 
-```csharp
-// ❌ WRONG - Boring, generic, forgettable
-public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-{
-    CustomParticles.GenericFlare(target.Center, Color.Red, 0.5f, 10);
-}
+**Within a single boss/theme, weapons of the same class MUST be radically different:**
 
-// ✅ RIGHT - A symphony of destruction that tells a story
-public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-{
-    // Central impact - the crescendo
-    CustomParticles.GenericFlare(target.Center, EroicaGold, 0.9f, 25);
-    
-    // Sakura petals scatter like a hero's final stand
-    ThemedParticles.SakuraPetals(target.Center, 8, 50f);
-    
-    // Music notes spiral outward - the melody of victory
-    for (int i = 0; i < 6; i++)
-    {
-        float angle = MathHelper.TwoPi * i / 6f + Main.GameUpdateCount * 0.05f;
-        Vector2 notePos = target.Center + angle.ToRotationVector2() * 35f;
-        Color noteColor = Color.Lerp(EroicaScarlet, EroicaGold, (float)i / 6f);
-        ThemedParticles.MusicNote(notePos, angle.ToRotationVector2() * 2f, noteColor, 0.4f, 25);
-    }
-    
-    // Rising embers - the phoenix ascends
-    CustomParticles.ExplosionBurst(target.Center, EroicaCrimson, 12, 6f);
-    
-    // Golden halo - triumphant radiance
-    CustomParticles.HaloRing(target.Center, EroicaGold * 0.8f, 0.6f, 20);
-}
+```
+EROICA THEME - 3 MELEE WEAPONS:
+
+Sword A: "Heroic Crescendo"
+- On swing: Releases expanding sound wave rings made of visible music notes
+- Trail: Golden staff lines that linger in the air
+- Impact: Sakura petal explosion with homing note projectiles
+- Special: Every 5th hit plays a chord and causes screen-wide harmonic pulse
+
+Sword B: "Valiant Flame"  
+- On swing: Blade leaves burning afterimages that deal damage
+- Trail: Ember particles with smoke wisps swirling around them
+- Impact: Rising flame pillars from the ground
+- Special: Charge attack summons phantom blades that orbit and strike
+
+Sword C: "Phoenix Edge"
+- On swing: Spawns 3 orbiting flame orbs that grow larger
+- Trail: Feather-shaped flames with prismatic sparkle accents
+- Impact: Enemy marked with burning glyph, marked enemies chain damage
+- Special: At low HP, sword transforms with enhanced visuals
 ```
 
-### The Ultimate Question
+**See how NONE of these share effects?** Same theme. Same colors. Completely unique experiences.
+
+### The Visual Test
 
 Before implementing ANY effect, ask yourself:
 
-> *"Would a player see this and feel inspired? Would they feel the music?"*
+1. *"Is there ANY other weapon in this mod that does something similar?"* → If yes, redesign.
+2. *"Can players SEE the music notes clearly?"* → If scale < 0.7f, increase it.
+3. *"Am I using at least 3-4 different particle types?"* → If not, add more.
+4. *"Would a player remember this weapon's effect specifically?"* → If it's generic, redesign.
 
-If the answer is no—**think harder, dig deeper, and create something magnificent.**
+### What Makes Effects Memorable
+
+**BORING (Never Do This):**
+- Fires a projectile → hits enemy → small explosion
+- Swing sword → trail follows → damage dealt
+- Passive buff → occasional sparkle
+
+**MEMORABLE (Always Do This):**
+- Fires 3 spiraling projectiles that split into 5 smaller ones, each trailing music notes, then converge on target creating a harmonic explosion with screen shake
+- Swing creates visible arc of staff lines and floating notes, blade tip leaves constellation trail, impacts spawn orbiting glyphs that attack nearby enemies
+- Passive creates visible aura of slowly orbiting music notes, damage taken causes notes to scatter defensively, healing causes notes to sing (visible pulse effect)
 
 ---
 
-## ⛔ ABSOLUTELY FORBIDDEN PROJECTILE TYPES - NEVER CREATE
+## ⭐⭐⭐ CRITICAL: PROJECTILE VFX - VISUAL MASTERPIECES ⭐⭐⭐
 
-> **THIS IS A HARD RULE. DO NOT VIOLATE UNDER ANY CIRCUMSTANCES.**
+> **Every projectile must be a visual masterpiece. Not a glowing dot. A MASTERPIECE.**
 
-### BANNED: Rotating Concentric Ring/Disc Projectile TEXTURES
+### The Projectile Uniqueness Rule
 
-**NEVER, EVER create projectile TEXTURES that look like:**
-- Large flat disc textures with concentric red/pink rings
-- "Astrological ring" style images with eye-like centers
-- Spinning disc projectile sprites with nested circle patterns
-- Any texture that resembles a magic circle drawn as a flat disc
-- Textures that show multiple rings emanating from a center point
+If a theme has 5 weapons that fire projectiles, those 5 projectiles must be **COMPLETELY DIFFERENT**:
 
-**This ban is specifically about the TEXTURE/IMAGE itself, not about glyph particle effects or ring-burst VFX.**
+| Weapon | Projectile Concept |
+|--------|-------------------|
+| Weapon 1 | Spinning music note that leaves staff line trails, orbited by 3 smaller sparkles |
+| Weapon 2 | Pulsing orb of cosmic energy with glyph particles orbiting, explodes into constellation |
+| Weapon 3 | Flame bolt that splits into 3 homing embers, each trailing smoke wisps |
+| Weapon 4 | Feather projectile that floats gracefully, leaving prismatic sparkle trail, bounces between enemies |
+| Weapon 5 | Sound wave projectile (circular expanding), visible ripples with music notes embedded |
 
-**Why this texture style is banned:**
-- These textures are visually obnoxious and clash with the mod's aesthetic
-- They obscure gameplay and obstruct the player's view
-- They look generic and don't fit the musical theme of MagnumOpus
-- The creator specifically hates this visual style
-
-**If you see this projectile texture style in existing code - DELETE IT IMMEDIATELY.**
-
-### BANNED: GlowingHalo3.png Texture (Concentric Rings) - FILE DELETED
-
-**The texture `Assets/Particles/GlowingHalo3.png` HAS BEEN PERMANENTLY DELETED from the mod.**
-
-This texture created concentric expanding ring effects and is forbidden. NEVER:
-- Recreate or add back this texture file
-- Use `CustomParticleSystem.GlowingHalos[2]` (the index is now invalid)
-- Create ANY concentric ring particle textures
-
-**The `RandomHalo()` function excludes index 2 from selection. Only use indices 0, 1, 3, 4, 5.**
+### EVERY Projectile MUST Have:
 
 ```csharp
-// ❌ BANNED - GlowingHalo3 has been DELETED
-CustomParticleSystem.GlowingHalos[2]  // WILL CAUSE ERRORS - file deleted
+// ✅ THE REQUIRED ELEMENTS FOR EVERY PROJECTILE
 
-// ✅ ALLOWED - Use these halo indices instead
-CustomParticleSystem.GlowingHalos[0]  // OK
-CustomParticleSystem.GlowingHalos[1]  // OK  
-CustomParticleSystem.GlowingHalos[3]  // OK (GlowingHalo4.png)
-CustomParticleSystem.GlowingHalos[4]  // OK
-CustomParticleSystem.GlowingHalos[5]  // OK
-CustomParticleSystem.RandomHalo()     // OK - excludes index 2
-```
-
-```csharp
-// ❌ ABSOLUTELY FORBIDDEN - NEVER CREATE ANYTHING LIKE THIS
-public class FateAstrologicalRing : ModProjectile  // BANNED
+public override void AI()
 {
-    // Drawing concentric rings around player as a projectile - FORBIDDEN
-    private void DrawAstrologicalRing() { }
-    private void DrawFullRing() { }
-    private void DrawRingArc() { }
-    // Multiple nested rotating circles as a single projectile - BANNED
-    for (int ring = 0; ring < InnerRings; ring++) { }
+    // 1. CORE VISUAL - The main "body" of the projectile (visible, glowing)
+    float pulse = 1f + (float)Math.Sin(Projectile.timeLeft * 0.1f) * 0.2f;
+    CustomParticles.GenericFlare(Projectile.Center, PrimaryColor, 0.5f * pulse, 8);
+    
+    // 2. ORBITING ELEMENTS - Something that circles the projectile
+    float orbitAngle = Main.GameUpdateCount * 0.08f;
+    for (int i = 0; i < 3; i++)
+    {
+        float angle = orbitAngle + MathHelper.TwoPi * i / 3f;
+        Vector2 orbitPos = Projectile.Center + angle.ToRotationVector2() * 15f;
+        CustomParticles.PrismaticSparkle(orbitPos, AccentColor, 0.35f, Main.rand.Next(1, 16));
+    }
+    
+    // 3. TRAIL PARTICLES - Multiple types, not just one
+    if (Main.rand.NextBool(2))
+    {
+        // Primary trail
+        var trail = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f, 
+            PrimaryColor * 0.7f, 0.3f, 20, true);
+        MagnumParticleHandler.SpawnParticle(trail);
+        
+        // Secondary sparkle trail  
+        CustomParticles.MagicSparkleField(Projectile.Center, SecondaryColor, 0.25f, Main.rand.Next(1, 13));
+    }
+    
+    // 4. MUSIC NOTE TRAIL - This is a music mod! (VISIBLE SCALE)
+    if (Main.rand.NextBool(3))
+    {
+        SpawnGlowingMusicNote(Projectile.Center, -Projectile.velocity * 0.05f, PrimaryColor);
+    }
+    
+    // 5. VANILLA DUST - For visual density
+    Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.MagicMirror, 
+        -Projectile.velocity * 0.2f, 0, PrimaryColor, 0.8f);
+    dust.noGravity = true;
+    
+    // 6. DYNAMIC LIGHTING - Projectiles should glow
+    Lighting.AddLight(Projectile.Center, PrimaryColor.ToVector3() * 0.8f);
 }
 
-// ❌ ANY variation of rotating disc/ring projectile patterns - BANNED
-public void DrawConcentricRings() { }  // NO
-public void SpawnAstrologicalCircle() { }  // NO
-public void CreateMagicCircle() { }  // NO
+public override void OnKill(int timeLeft)
+{
+    // 7. UNIQUE DEATH EFFECT - Not just "explosion"
+    
+    // Central flash cascade (3 layers)
+    CustomParticles.GenericFlare(Projectile.Center, Color.White, 1.0f, 20);
+    CustomParticles.GenericFlare(Projectile.Center, PrimaryColor, 0.8f, 25);
+    CustomParticles.GenericFlare(Projectile.Center, SecondaryColor, 0.6f, 22);
+    
+    // Expanding halo rings (gradient)
+    for (int i = 0; i < 4; i++)
+    {
+        Color ringColor = Color.Lerp(PrimaryColor, SecondaryColor, i / 4f);
+        CustomParticles.HaloRing(Projectile.Center, ringColor, 0.3f + i * 0.15f, 15 + i * 3);
+    }
+    
+    // Music note burst (VISIBLE)
+    for (int i = 0; i < 6; i++)
+    {
+        float angle = MathHelper.TwoPi * i / 6f;
+        Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
+        SpawnGlowingMusicNote(Projectile.Center, noteVel, 
+            Color.Lerp(PrimaryColor, SecondaryColor, i / 6f));
+    }
+    
+    // Sparkle scatter
+    for (int i = 0; i < 12; i++)
+    {
+        Vector2 sparkleVel = Main.rand.NextVector2Circular(8f, 8f);
+        CustomParticles.PrismaticSparkle(Projectile.Center, PrimaryColor, 0.4f, Main.rand.Next(1, 16));
+    }
+    
+    // Glyph accent
+    CustomParticles.GlyphBurst(Projectile.Center, AccentColor, 4, 5f);
+    
+    // Vanilla dust burst
+    for (int i = 0; i < 15; i++)
+    {
+        Vector2 dustVel = Main.rand.NextVector2Circular(10f, 10f);
+        Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.Enchanted_Gold, dustVel, 0, PrimaryColor, 1.2f);
+        dust.noGravity = true;
+    }
+}
 ```
 
-**What IS allowed:**
-- ✅ Glyph particles scattered around effects (CustomParticles.Glyph, CustomParticles.GlyphBurst)
-- ✅ Halo ring particles that expand and fade (CustomParticles.HaloRing)
-- ✅ Explosion burst VFX that emanate outward and dissipate
-- ✅ Musical elements (notes, glyphs, themed particles)
-- ✅ Effects that flow naturally with movement (trails, waves, arcs)
-- ✅ Particles that don't create large stationary visual obstructions
+### Projectile Identity Examples
+
+**La Campanella Projectile - "Infernal Bell Toll"**
+- Core: Pulsing orange orb with black smoke center
+- Orbiting: 4 small flame wisps that leave ember trails
+- Trail: Heavy black smoke + orange sparks + occasional bell-shaped flare
+- Impact: Smoke explosion with rising flame pillar and bell chime visual (expanding ring)
+
+**Moonlight Sonata Projectile - "Lunar Whisper"**
+- Core: Soft purple glow with silver halo
+- Orbiting: Crescent moon shapes that rotate slowly
+- Trail: Purple mist particles + silver sparkles + fading music notes
+- Impact: Gentle bloom explosion, lunar halo expands, soft particle rain
+
+**Fate Projectile - "Cosmic Decree"**
+- Core: Black void center with pink/red energy crackling at edges
+- Orbiting: Ancient glyphs that grow brighter over time
+- Trail: Cosmic cloud nebula + star sparkles + constellation line connections
+- Impact: Reality crack effect, glyph explosion, star scatter, chromatic aberration pulse
 
 ---
 
@@ -400,17 +652,124 @@ float QuadraticBump(float x)
 
 ---
 
+## ⭐⭐⭐ CRITICAL: PARTICLE ASSET DISCOVERY - MANDATORY ⭐⭐⭐
+
+> **BEFORE creating ANY weapon, projectile, or effect, you MUST explore the `Assets/Particles/` folder to discover ALL available particle textures.**
+
+### MANDATORY: Always Explore Available Assets
+
+**When creating new weapons or effects:**
+1. **USE `list_dir` on `Assets/Particles/`** to see ALL available particle textures
+2. **MIX AND MATCH** different particle types - never use just one
+3. **USE VARIANT NUMBERS** - Most particles have 2-15 variants (e.g., `MusicNote1.png` through `MusicNote6.png`)
+4. **BE CREATIVE** - Combine unexpected particle types for unique effects
+5. **UPDATE DOCUMENTATION** - When new particles are added, catalog them below
+
+### Why This Matters
+
+The `Assets/Particles/` folder contains **80+ unique particle textures** across many categories. Using only `GenericFlare` or `SoftGlow` creates boring, repetitive weapons. **Every weapon deserves a unique visual identity.**
+
+```csharp
+// ❌ BORING - Same generic glow on every weapon
+CustomParticles.GenericFlare(pos, color, 0.5f, 15);
+
+// ✅ UNIQUE - Mix of music notes, sparkles, trails, and flares
+// First: Check Assets/Particles/ folder for available textures!
+CustomParticles.MusicNote(pos, vel, color, 0.8f, 20, noteVariant: 3); // Use variant 3
+CustomParticles.PrismaticSparkle(pos, color, 0.5f, sparkleVariant: 7);
+CustomParticles.ParticleTrail(pos, vel, color, 0.4f, trailVariant: 2);
+CustomParticles.EnergyFlare(pos, color, 0.6f, 18, flareVariant: 5);
+```
+
+---
+
 ## Custom Particle System Overview
 
 This mod uses a custom particle system located at `Common/Systems/Particles/`. 
 
-### Core Particle Textures (Assets/Particles/)
+### ⭐ COMPLETE Particle Asset Catalog (Assets/Particles/)
 
-| File | Purpose | Usage |
-|------|---------|-------|
-| `EnergyFlare.png` | Intense, bright burst | Impacts, explosions, boss attacks, dramatic moments |
-| `SoftGlow.png` | Subtle ambient glow | Trails, auras, ambient effects, soft lighting |
-| `MusicNote.png` | Musical note | Thematic musical effects - perfect for this music-themed mod! |
+> **CRITICAL: This list may be incomplete. ALWAYS run `list_dir` on `Assets/Particles/` to find all current assets.**
+
+#### Flares & Glows (Layer these for bloom effects)
+| File Pattern | Variants | Purpose | Recommended Scale |
+|--------------|----------|---------|-------------------|
+| `EnergyFlare1-7.png` | 7 | Intense bright bursts, each with unique shape | 0.4f - 1.2f |
+| `SoftGlow2-4.png` | 3 | Subtle ambient glows, soft edges | 0.3f - 0.8f |
+| `GlowingHalo1-6.png` | 5 | Ring/halo effects for impacts | 0.3f - 1.0f |
+| `StarBurst1-2.png` | 2 | Radial star explosions | 0.5f - 1.5f |
+| `ShatteredStarlight.png` | 1 | Broken star fragments | 0.4f - 1.0f |
+
+#### Music Notes (THIS IS A MUSIC MOD - USE THESE!)
+| File Pattern | Variants | Purpose | Recommended Scale |
+|--------------|----------|---------|-------------------|
+| `MusicNote1-6.png` | 6 | Different musical note shapes | **0.6f - 1.2f** (NOT 0.25f!) |
+
+> ⚠️ **CRITICAL: Music notes at 0.25-0.4f scale are INVISIBLE. Use 0.6f minimum!**
+
+#### Magic & Sparkles (For magical/enchanted effects)
+| File Pattern | Variants | Purpose | Recommended Scale |
+|--------------|----------|---------|-------------------|
+| `MagicSparklField1-12.png` | 12 | Magic sparkle clusters, fields | 0.3f - 0.8f |
+| `PrismaticSparkle1-15.png` | 15 | Rainbow/prismatic sparkle points | 0.3f - 0.7f |
+
+#### Trails (For projectile/movement trails)
+| File Pattern | Variants | Purpose | Recommended Scale |
+|--------------|----------|---------|-------------------|
+| `ParticleTrail1-4.png` | 4 | Elongated trail effects | 0.3f - 0.8f |
+| `SwordArc1-9.png` | 9 | Melee swing arcs/smears | 0.5f - 1.5f |
+
+#### Theme-Specific Particles
+| File Pattern | Variants | Purpose | Recommended Scale |
+|--------------|----------|---------|-------------------|
+| `SwanFeather1-10.png` | 10 | Feathers for Swan Lake theme | 0.4f - 1.0f |
+| `EnigmaEye1-8.png` | 8 | Watching eyes for Enigma theme | 0.4f - 0.8f |
+| `Glyphs1-12.png` | 12 | Arcane symbols for magic effects | 0.3f - 0.7f |
+
+### Creativity Guidelines - MAKE EACH WEAPON UNIQUE
+
+**When designing weapon effects, ask yourself:**
+1. What particle types would make this weapon feel DIFFERENT from others?
+2. Am I using at least 3-4 different particle categories?
+3. Have I explored ALL available variants, not just variant 1?
+4. Are my music notes VISIBLE (scale 0.6f+)?
+5. Does this weapon have its own visual identity?
+
+**Example: Creating a unique magic staff effect**
+```csharp
+// Explore what's available first!
+// Assets/Particles/ contains: MagicSparklField (12 variants), PrismaticSparkle (15 variants),
+// MusicNote (6 variants), Glyphs (12 variants), EnergyFlare (7 variants)...
+
+// Now MIX them creatively:
+public override void AI()
+{
+    // Orbiting glyphs (pick random variant 1-12)
+    if (Timer % 10 == 0)
+        CustomParticles.Glyph(orbitPos, color, 0.5f, glyphIndex: Main.rand.Next(1, 13));
+    
+    // Sparkle field trail (use variant 7 for this weapon's identity)
+    if (Main.rand.NextBool(3))
+        CustomParticles.MagicSparkleField(Projectile.Center, color, 0.4f, variant: 7);
+    
+    // Visible music notes (scale 0.8f, use variant 4)
+    if (Main.rand.NextBool(4))
+        CustomParticles.MusicNote(Projectile.Center, trailVel, color, 0.8f, 25, variant: 4);
+    
+    // Prismatic accents (variant 12 for unique look)
+    CustomParticles.PrismaticSparkle(Projectile.Center, rainbow, 0.5f, variant: 12);
+}
+```
+
+### Maintaining This Catalog
+
+> **IMPORTANT: When you add new particle assets to `Assets/Particles/`, UPDATE this documentation!**
+> 
+> Add new entries to the appropriate category table above, including:
+> - File pattern with variant range
+> - Number of variants
+> - Purpose description  
+> - Recommended scale range
 
 **All textures are WHITE/GRAYSCALE and get tinted at runtime to any color.**
 
@@ -516,89 +875,172 @@ CustomParticles.GlyphAura(entity.Center, color, radius: 40f, count: 2);
 
 ---
 
-## VFX Requirements - THE ART OF MUSICAL DESTRUCTION
+## VFX Requirements - CREATIVE FREEDOM WITH RESPONSIBILITY
 
 > *"Give the weapons the trails, the projectiles, the music notes, the particles, the lighting, the dynamicism, the shaders, the waving of the screen as it distorts—give them every ounce of creativity that you have."*
 
-ALL attacks, projectiles, boss abilities, weapon effects, and enemy spawns MUST use the custom particle system. Never use only vanilla Dust effects alone.
+### The Golden Rules
 
-### Core Principles: RADIANCE, UNIQUENESS, and MUSICAL SOUL
+1. **EVERY WEAPON IS UNIQUE** - No two weapons share effects. Period.
+2. **USE ALL PARTICLE ASSETS** - 80+ custom PNGs. Use them. All of them. Creatively.
+3. **MUSIC NOTES ARE VISIBLE** - Scale 0.7f+, multi-layer bloom, shimmer animation.
+4. **LAYER EFFECTS** - Minimum 3-4 particle types per effect.
+5. **THEME COLORS ONLY** - Consistent palette, but creative implementation.
 
-**Every effect in MagnumOpus should be:**
-1. **RADIANT** - Bold, saturated colors that **shine and glow**. Effects should illuminate the battlefield like a spotlight on a stage.
-2. **UNIQUE** - Each weapon/ability should have a distinct visual identity. No two weapons should look identical.
-3. **MUSICAL** - Incorporate **music notes, staff lines, treble clefs, and musical symbols** wherever thematically appropriate.
-4. **DYNAMIC** - Colors should **flow, pulse, breathe, and transition**. Never static, always alive.
-5. **AWE-INSPIRING** - Players should pause and think *"That was beautiful."*
+### Accessory VFX Requirements (Same Philosophy)
 
-### The Music Note Mandate
+**Accessories follow the SAME uniqueness rule.** If a theme has 5 accessories, each one has completely different visual effects.
 
-**This is a MUSIC MOD.** Music notes should appear:
-- In **melee swing trails** - notes dancing in the blade's wake
-- In **projectile trails** - lingering notes that fade like echoes
-- In **explosion bursts** - notes scattering like a chord struck
-- In **auras and ambient effects** - floating notes orbiting the player
-- In **impact effects** - the crescendo of contact
+**Exception:** Chain accessories or set bonuses that are explicitly designed to work together can share visual language, but even then should have variation.
+
+| Accessory | VFX Concept |
+|-----------|-------------|
+| Accessory A | Orbiting music notes that attack enemies on proc |
+| Accessory B | Passive flame aura that intensifies with damage taken |
+| Accessory C | Feather shield that appears on hit, feathers scatter when broken |
+| Accessory D | Glyph circles that rotate around player, pulse on ability use |
+| Accessory E | Constellation pattern that forms between the player and nearby enemies |
+
+### Boss VFX Requirements (Maximum Creativity)
+
+**Boss attacks must be the MOST visually impressive content in the mod.**
+
+Each boss attack should have:
+1. **UNIQUE TELEGRAPH** - Player knows what's coming, but it looks amazing
+2. **UNIQUE EXECUTION** - The attack itself is visually distinct
+3. **UNIQUE IMPACT** - When it hits, it's spectacular
+4. **PARTICLE VARIETY** - Multiple custom particle types + vanilla dust
+
+**No two boss attacks should look similar.** A boss with 8 attacks needs 8 completely different visual experiences.
+
+### The Music Note Mandate (CRITICAL)
+
+**THIS IS A MUSIC MOD. MUSIC NOTES MUST BE EVERYWHERE AND VISIBLE.**
 
 ```csharp
-// MELEE SWING - Leave music notes in the blade's trail
-public override void MeleeEffects(Player player, Rectangle hitbox)
-{
-    // Every swing should sing
-    if (Main.rand.NextBool(2))
-    {
-        Vector2 notePos = hitbox.Center.ToVector2() + Main.rand.NextVector2Circular(15f, 15f);
-        Vector2 noteVel = (player.direction * Vector2.UnitX).RotatedByRandom(0.5f) * 2f;
-        ThemedParticles.MusicNote(notePos, noteVel, themeColor, 0.35f, 30);
-    }
-}
+// ❌ INVISIBLE - Scale too small
+ThemedParticles.MusicNote(pos, vel, color, 0.25f, 20, variant: 1); // CAN'T SEE THIS
 
-// PROJECTILE TRAIL - Echoes of melody left behind
-public override void AI()
+// ❌ BORING - Only one variant, no glow
+ThemedParticles.MusicNote(pos, vel, color, 0.7f, 20, variant: 1);
+
+// ✅ VISIBLE AND BEAUTIFUL - Proper scale, random variants, bloom layers
+void SpawnGlowingMusicNote(Vector2 position, Vector2 velocity, Color baseColor)
 {
-    // Every 4 frames, leave a note in the air
-    if (Projectile.timeLeft % 4 == 0)
+    float scale = Main.rand.NextFloat(0.7f, 1.0f);
+    int variant = Main.rand.Next(1, 7); // All 6 variants
+    
+    // Shimmer effect
+    float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.15f;
+    scale *= shimmer;
+    
+    // Bloom layers (3 layers for glow)
+    Color bloom1 = baseColor with { A = 0 } * 0.4f;
+    Color bloom2 = baseColor with { A = 0 } * 0.25f;
+    // Draw bloom layers at scale * 1.3f, scale * 1.6f
+    
+    // Sparkle companions
+    for (int i = 0; i < 2; i++)
     {
-        ThemedParticles.MusicNote(Projectile.Center, -Projectile.velocity * 0.1f, themeColor * 0.7f, 0.25f, 25);
+        Vector2 sparkleOffset = Main.rand.NextVector2Circular(10f, 10f);
+        CustomParticles.PrismaticSparkle(position + sparkleOffset, baseColor, 0.3f, Main.rand.Next(1, 16));
     }
+    
+    // The note itself
+    ThemedParticles.MusicNote(position, velocity, baseColor, scale, 35, variant);
 }
 ```
 
-**AVOID:**
-- Generic, copy-pasted effects between weapons
-- Bland, single-color explosions without gradient fading
-- Weapons that feel "silent" - no musical elements
-- Effects that don't match the theme's emotional tone
-- Low-impact, barely-visible particles that fail to inspire
+**EVERY weapon trail, EVERY impact, EVERY aura should include music notes.**
 
-**EMBRACE:**
-- Creative combinations of existing particle systems
-- Theme-appropriate variations that still feel fresh
-- Layered effects (particles + halos + lightning + flares)
-- Color gradients that transition smoothly within theme palettes
-
-### Design Philosophy - UNIQUE FRACTAL EFFECTS
-
-**Every effect should be unique and include fractal-like geometric patterns when possible.** The signature look is demonstrated by Feather's Call's left-click attack:
+### Available Vanilla Dust Types (USE THESE FOR DENSITY)
 
 ```csharp
-// FRACTAL FLARE BURST - the signature geometric look
-for (int i = 0; i < 6; i++)
-{
-    float angle = MathHelper.TwoPi * i / 6f;
-    Vector2 flareOffset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 25f;
-    float hue = (Main.GameUpdateCount * 0.02f + i * 0.16f) % 1f;
-    Color fractalColor = Main.hslToRgb(hue, 1f, 0.85f);
-    CustomParticles.GenericFlare(position + flareOffset, fractalColor, 0.4f, 18);
-}
+// ALWAYS combine custom particles with vanilla dust for visual richness
+
+// Magical/Sparkle
+DustID.MagicMirror          // Shimmering magic
+DustID.Enchanted_Gold       // Golden sparkles  
+DustID.Enchanted_Pink       // Pink magic
+DustID.GemDiamond           // White sparkle
+DustID.Pixie                // Fairy dust
+
+// Colored Flames
+DustID.PurpleTorch          // Purple flames
+DustID.BlueTorch            // Blue flames
+DustID.YellowTorch          // Yellow flames
+DustID.CursedTorch          // Green flames
+
+// Energy/Electric
+DustID.Electric             // Electric sparks
+DustID.Vortex               // Vortex energy
+DustID.SolarFlare           // Solar particles
+
+// Elemental
+DustID.Frost                // Ice crystals
+DustID.Water                // Water droplets
+DustID.Smoke                // Smoke puffs
+
+// Gems (colored sparkles)
+DustID.GemAmethyst          // Purple gems
+DustID.GemSapphire          // Blue gems
+DustID.GemRuby              // Red gems
+DustID.GemEmerald           // Green gems
+DustID.GemTopaz             // Yellow gems
+
+// Special
+DustID.FireworkFountain_Yellow  // Bright fountain sparks
+DustID.Clentaminator_Purple     // Purple spray
+DustID.RainbowMk2               // Rainbow particles
+DustID.Confetti                 // Celebration particles
 ```
 
-**Key principles:**
-- Use radial geometric patterns (6-8 point star bursts)
-- Layer multiple effect types for depth
-- Include mini lightning fractals for high-impact moments
-- Use prismatic/rainbow color cycling where thematically appropriate
-- Combine themed particles with geometric flare arrangements
+### Particle Mixing Formula
+
+**Every visual effect should follow this formula:**
+
+```csharp
+void CreateRichVisualEffect(Vector2 position, Color primaryColor, Color secondaryColor)
+{
+    // LAYER 1: Core effect (custom particle)
+    CustomParticles.GenericFlare(position, primaryColor, 0.8f, 20);
+    
+    // LAYER 2: Bloom/glow (custom particle with alpha removal)
+    CustomParticles.SoftGlow(position, primaryColor with { A = 0 }, 0.6f, 25);
+    
+    // LAYER 3: Theme particle (varies by theme)
+    // La Campanella: HeavySmoke + EnergyFlare
+    // Eroica: SakuraPetals + EnergyFlare
+    // Swan Lake: SwanFeather + PrismaticSparkle
+    // Moonlight: SoftGlow + MagicSparkleField
+    // Enigma: EnigmaEye + Glyphs
+    // Fate: Glyphs + StarSparkle + CosmicCloud
+    
+    // LAYER 4: Music notes (VISIBLE SCALE)
+    SpawnGlowingMusicNote(position, Vector2.Zero, primaryColor);
+    
+    // LAYER 5: Vanilla dust (multiple types)
+    for (int i = 0; i < 8; i++)
+    {
+        Vector2 dustVel = Main.rand.NextVector2Circular(6f, 6f);
+        Dust dust1 = Dust.NewDustPerfect(position, DustID.MagicMirror, dustVel, 0, primaryColor, 1f);
+        dust1.noGravity = true;
+        
+        Dust dust2 = Dust.NewDustPerfect(position, DustID.Enchanted_Gold, dustVel * 0.7f, 0, secondaryColor, 0.8f);
+        dust2.noGravity = true;
+    }
+    
+    // LAYER 6: Sparkle accents
+    for (int i = 0; i < 5; i++)
+    {
+        Vector2 sparklePos = position + Main.rand.NextVector2Circular(20f, 20f);
+        CustomParticles.PrismaticSparkle(sparklePos, primaryColor, 0.35f, Main.rand.Next(1, 16));
+    }
+    
+    // LAYER 7: Dynamic lighting
+    Lighting.AddLight(position, primaryColor.ToVector3() * 1.2f);
+}
+```
 
 ---
 
@@ -814,6 +1256,147 @@ public override string Texture => "Terraria/Images/Buff_" + BuffID.Confused;
 ```
 
 **Never leave a texture path pointing to a non-existent file.** Always fall back to a vanilla texture or existing mod asset.
+
+---
+
+## ⚠️ CRITICAL: ITEM TOOLTIPS - ModifyTooltips MANDATORY
+
+> **THIS IS A CRITICAL RULE. Items without tooltips appear EMPTY to players.**
+
+### The Problem: Empty Tooltips
+
+The localization file (`en-US_Mods.MagnumOpus.hjson`) contains auto-generated `Tooltip: ""` entries for items. **These are placeholders that result in EMPTY tooltips in-game.** The actual tooltips MUST be defined in code using the `ModifyTooltips` method.
+
+### EVERY Item MUST Have ModifyTooltips
+
+**When creating ANY item (weapons, accessories, materials, etc.), you MUST add a `ModifyTooltips` override:**
+
+```csharp
+// ❌ WRONG - Item has NO tooltip method (appears empty in-game)
+public class MyNewAccessory : ModItem
+{
+    public override void SetDefaults()
+    {
+        Item.width = 30;
+        Item.height = 30;
+        Item.accessory = true;
+    }
+    
+    public override void UpdateAccessory(Player player, bool hideVisual)
+    {
+        player.statDefense += 5;
+    }
+    // NO ModifyTooltips = EMPTY TOOLTIP IN-GAME!
+}
+
+// ✅ CORRECT - Item has proper tooltip implementation
+public class MyNewAccessory : ModItem
+{
+    public override void SetDefaults()
+    {
+        Item.width = 30;
+        Item.height = 30;
+        Item.accessory = true;
+    }
+    
+    public override void UpdateAccessory(Player player, bool hideVisual)
+    {
+        player.statDefense += 5;
+    }
+    
+    public override void ModifyTooltips(List<TooltipLine> tooltips)
+    {
+        tooltips.Add(new TooltipLine(Mod, "Effect1", "+5 defense"));
+        tooltips.Add(new TooltipLine(Mod, "Lore", "'A sturdy shield against the darkness'") 
+        { 
+            OverrideColor = new Color(100, 180, 255) 
+        });
+    }
+}
+```
+
+### Required Using Statement
+
+**Add this import at the top of ANY file that uses ModifyTooltips:**
+
+```csharp
+using System.Collections.Generic;
+```
+
+### Tooltip Structure Pattern
+
+**Every item should follow this tooltip pattern:**
+
+```csharp
+public override void ModifyTooltips(List<TooltipLine> tooltips)
+{
+    // Effect lines - describe what the item DOES
+    tooltips.Add(new TooltipLine(Mod, "Effect1", "Primary effect description"));
+    tooltips.Add(new TooltipLine(Mod, "Effect2", "Secondary effect description"));
+    tooltips.Add(new TooltipLine(Mod, "Effect3", "Tertiary effect (if applicable)"));
+    
+    // Lore line - themed flavor text with colored text
+    tooltips.Add(new TooltipLine(Mod, "Lore", "'Poetic flavor text here'") 
+    { 
+        OverrideColor = ThemeColor // Use appropriate theme color
+    });
+}
+```
+
+### Theme Color Reference for Lore Lines
+
+| Theme | Lore Color |
+|-------|------------|
+| Spring | `new Color(255, 180, 200)` - Pink |
+| Summer | `new Color(255, 140, 50)` - Orange |
+| Autumn | `new Color(200, 150, 80)` - Amber |
+| Winter | `new Color(150, 200, 255)` - Ice Blue |
+| Moonlight Sonata | `new Color(140, 100, 200)` - Purple |
+| Eroica | `new Color(200, 50, 50)` - Scarlet |
+| La Campanella | `new Color(255, 140, 40)` - Infernal Orange |
+| Enigma Variations | `new Color(140, 60, 200)` - Void Purple |
+| Swan Lake | `new Color(240, 240, 255)` - Pure White |
+| Fate | `new Color(180, 40, 80)` - Cosmic Crimson |
+
+### Tooltip Checklist for New Items
+
+Before considering an item complete, verify:
+
+- [ ] `using System.Collections.Generic;` is at the top of the file
+- [ ] `ModifyTooltips(List<TooltipLine> tooltips)` method exists
+- [ ] At least one `Effect` line describing what the item does
+- [ ] A `Lore` line with themed colored text
+- [ ] Tooltip text matches actual item functionality (read UpdateAccessory/SetDefaults)
+
+### Common Tooltip Patterns by Item Type
+
+**Accessories:**
+```csharp
+public override void ModifyTooltips(List<TooltipLine> tooltips)
+{
+    tooltips.Add(new TooltipLine(Mod, "Effect1", "Primary bonus (+X stat, etc.)"));
+    tooltips.Add(new TooltipLine(Mod, "Effect2", "Special mechanic description"));
+    tooltips.Add(new TooltipLine(Mod, "Lore", "'Themed flavor text'") { OverrideColor = ThemeColor });
+}
+```
+
+**Weapons:**
+```csharp
+public override void ModifyTooltips(List<TooltipLine> tooltips)
+{
+    tooltips.Add(new TooltipLine(Mod, "Effect1", "Special attack pattern/mechanic"));
+    tooltips.Add(new TooltipLine(Mod, "Effect2", "On-hit effect or bonus damage"));
+    tooltips.Add(new TooltipLine(Mod, "Lore", "'Epic weapon lore'") { OverrideColor = ThemeColor });
+}
+```
+
+**Materials:**
+```csharp
+public override void ModifyTooltips(List<TooltipLine> tooltips)
+{
+    tooltips.Add(new TooltipLine(Mod, "Effect1", "'Material for crafting [Theme] equipment'"));
+}
+```
 
 ---
 

@@ -1671,20 +1671,20 @@ namespace MagnumOpus.Content.Fate.Bosses
                     // 20 cascading cosmic star bursts - the grand rebirth explosion
                     for (int i = 0; i < 20; i++)
                     {
-                        float progress = i / 20f;
+                        float ringProgress = i / 20f;
                         int starsInRing = 8 + i;
                         for (int star = 0; star < starsInRing; star++)
                         {
                             float angle = MathHelper.TwoPi * star / starsInRing + i * 0.18f;
                             Vector2 starPos = NPC.Center + angle.ToRotationVector2() * (40f + i * 22f);
                             Vector2 outVel = angle.ToRotationVector2() * (3f + i * 0.7f);
-                            var starBurst = new StarBurstParticle(starPos, outVel, GetCosmicGradient(progress), 0.4f + i * 0.06f, 25 + i * 4);
+                            var starBurst = new StarBurstParticle(starPos, outVel, GetCosmicGradient(ringProgress), 0.4f + i * 0.06f, 25 + i * 4);
                             MagnumParticleHandler.SpawnParticle(starBurst);
                             
                             // Extra shattered starlight for ultimate spectacle
                             if (star % 2 == 0)
                             {
-                                var shatter = new ShatteredStarlightParticle(starPos, outVel * 0.5f, GetCosmicGradient(progress) * 0.85f, 0.3f, 30 + i * 3);
+                                var shatter = new ShatteredStarlightParticle(starPos, outVel * 0.5f, GetCosmicGradient(ringProgress) * 0.85f, 0.3f, 30 + i * 3);
                                 MagnumParticleHandler.SpawnParticle(shatter);
                             }
                         }
@@ -1746,7 +1746,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                 aggressionLevel = 0.5f;
                 
                 // True form announcement
-                Main.NewText("「 THE TRUE FATE AWAKENS 」", new Color(255, 180, 200));
+                Main.NewText("★ THE TRUE FATE AWAKENS ★", new Color(255, 180, 200));
                 
                 // Intense ambient burst
                 for (int i = 0; i < 12; i++)
@@ -1799,7 +1799,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                 CustomParticles.GenericFlare(NPC.Center, FateDarkPink, 2.5f, 35);
                 CustomParticles.GenericFlare(NPC.Center, FateBrightRed, 2f, 30);
                 
-                // Cascading star burst explosion (replacing banned HaloRing)
+                // Cascading star burst explosion 
                 for (int ring = 0; ring < 16; ring++)
                 {
                     Color ringColor = GetCosmicGradient(ring / 16f);

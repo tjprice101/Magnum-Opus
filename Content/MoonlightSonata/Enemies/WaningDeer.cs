@@ -18,7 +18,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 {
     /// <summary>
     /// Waning Deer - A powerful mini-boss that spawns in snow biomes after Moon Lord.
-    /// Features 5 devastating dark purple → light blue attacks with beams and explosions.
+    /// Features 5 devastating dark purple ↁElight blue attacks with beams and explosions.
     /// The sole source of Shards of Moonlit Tempo.
     /// </summary>
     public class WaningDeer : ModNPC
@@ -1101,6 +1101,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 dust.noGravity = true;
             }
             
+            // ☁EMUSICAL NOTATION - Homing orb melody trail (subtle for enemy)
+            if (Main.rand.NextBool(10))
+            {
+                Color noteColor = Color.Lerp(MoonlightPurple, MoonlightIceBlue, Main.rand.NextFloat()) * 0.6f;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.25f, 28);
+            }
+            
             // Pulsing light
             float pulse = 0.4f + (float)Math.Sin(pulseTimer) * 0.15f;
             Lighting.AddLight(Projectile.Center, MoonlightPurple.ToVector3() * pulse + MoonlightIceBlue.ToVector3() * pulse * 0.5f);
@@ -1153,12 +1161,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 Color flareColor = Color.Lerp(MoonlightIceBlue, MoonlightSilver, (float)i / 6f);
                 EnhancedParticles.BloomFlare(flarePos, flareColor, 0.28f, 14, 2, 0.6f);
             }
+            
+            // ☁EMUSICAL FINALE - Orb's final lunar chord (subtle)
+            ThemedParticles.MusicNoteBurst(Projectile.Center, MoonlightIceBlue * 0.6f, 4, 3f);
         }
         
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[Type].Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             

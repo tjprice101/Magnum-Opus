@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -44,6 +45,11 @@ namespace MagnumOpus.Content.Fate.Tools
             Item.pick = 550;
             
             Item.maxStack = 1;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'It unearths secrets written in the stars'") { OverrideColor = new Color(180, 40, 80) });
         }
 
         public override void AddRecipes()

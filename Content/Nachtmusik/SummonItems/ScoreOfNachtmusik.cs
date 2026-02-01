@@ -3,11 +3,13 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using System.Collections.Generic;
 using MagnumOpus.Content.Nachtmusik.Bosses;
 using MagnumOpus.Content.Nachtmusik.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.Nachtmusik.SummonItems
 {
@@ -126,6 +128,16 @@ namespace MagnumOpus.Content.Nachtmusik.SummonItems
                 Vector2 vel = angle.ToRotationVector2() * 3f + new Vector2(0, -2f);
                 CustomParticles.GenericFlare(player.Center + angle.ToRotationVector2() * 40f, Violet, 0.35f, 15);
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons Nachtmusik, Queen of Radiance"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can only be used at night"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The stars themselves tremble at her approach'")
+            {
+                OverrideColor = new Color(123, 104, 238)
+            });
         }
 
         public override void AddRecipes()

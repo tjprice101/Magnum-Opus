@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -39,6 +40,11 @@ namespace MagnumOpus.Content.SwanLake.Tools
             Item.accessory = true;
             Item.value = Item.buyPrice(platinum: 4);
             Item.rare = ModContent.RarityType<SwanRarity>();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Dance upon the rainbow winds'") { OverrideColor = new Color(240, 240, 255) });
         }
 
         public override void VerticalWingSpeeds(Player player, ref float ascentWhenFalling, ref float ascentWhenRising,

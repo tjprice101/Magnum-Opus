@@ -56,7 +56,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.netImportant = true;
         }
 
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.FlowerPetal;
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow4";
 
         public override bool? CanCutTiles() => false;
         public override bool MinionContactDamage() => true;
@@ -245,9 +245,22 @@ namespace MagnumOpus.Content.Spring.Projectiles
 
         private void SyncBurstAttack(NPC target, int spriteCount)
         {
-            // Big VFX
+            // ☁EMUSICAL BURST - Grand symphony of notes on sync attack!
+            ThemedParticles.MusicNoteBurst(target.Center, SpringYellow, 12, 5f);
+            ThemedParticles.MusicNoteRing(target.Center, SpringPink, 80f, 8);
+            
+            // Big VFX - layered bloom instead of halo
             CustomParticles.GenericFlare(target.Center, SpringPink, 0.9f, 25);
-            CustomParticles.HaloRing(target.Center, SpringYellow * 0.7f, 0.55f, 20);
+            CustomParticles.GenericFlare(target.Center, SpringYellow * 0.7f, 0.65f, 20);
+            CustomParticles.GenericFlare(target.Center, SpringYellow * 0.5f, 0.45f, 16);
+            
+            // Flower sparkle ring
+            for (int s = 0; s < 6; s++)
+            {
+                float sparkAngle = MathHelper.TwoPi * s / 6f;
+                Vector2 sparkPos = target.Center + sparkAngle.ToRotationVector2() * 25f;
+                CustomParticles.GenericFlare(sparkPos, SpringYellow * 0.8f, 0.25f, 14);
+            }
 
             // Ring of petals around target
             int petalCount = 8 + spriteCount * 2;
@@ -293,6 +306,18 @@ namespace MagnumOpus.Content.Spring.Projectiles
 
         private void UpdateAmbientEffects()
         {
+            // ☁EMUSICAL NOTATION - Notes float around the sprite! - VISIBLE SCALE 0.72f+
+            if (Main.rand.NextBool(8))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.5f, -0.5f));
+                Color noteColor = Color.Lerp(SpringPink, SpringYellow, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f), noteVel, noteColor, 0.72f, 40);
+                
+                // Spring sparkle accent
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(12f, 12f), noteVel * 0.5f, SpringYellow * 0.5f, 0.25f, 20);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             // Sparkle trail
             if (Main.rand.NextBool(5))
             {
@@ -377,7 +402,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.FlowerPowPetal;
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow2";
 
         public override void AI()
         {
@@ -390,11 +415,25 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
+            // ☁EMUSICAL NOTATION - Notes scatter from pollen! - VISIBLE SCALE 0.68f+
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), Main.rand.NextFloat(-0.8f, -0.2f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, SpringYellow * 0.9f, 0.68f, 35);
+                
+                // Pollen sparkle
+                var sparkle = new SparkleParticle(Projectile.Center, noteVel * 0.5f, SpringGreen * 0.4f, 0.2f, 16);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, SpringYellow.ToVector3() * 0.3f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // ☁EMUSICAL IMPACT - Notes sing on pollen hit!
+            ThemedParticles.MusicNoteBurst(target.Center, SpringYellow, 5, 2.5f);
+            
             // Spawn pollen cloud
             if (Main.myPlayer == Projectile.owner)
             {
@@ -470,7 +509,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.alpha = 50;
         }
 
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.ToxicCloud;
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow3";
 
         public override void AI()
         {
@@ -521,6 +560,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
     {
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringYellow = new Color(255, 255, 180);
+        private static readonly Color SpringGreen = new Color(144, 238, 144);
 
         public override void SetStaticDefaults()
         {
@@ -542,7 +582,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.FlowerPetal;
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle3";
 
         public override void AI()
         {
@@ -555,11 +595,25 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
+            // ☁EMUSICAL NOTATION - Notes trail behind sync petals! - VISIBLE SCALE 0.7f+
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 noteVel = -Projectile.velocity * 0.03f + new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.6f, -0.1f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, Color.Lerp(SpringPink, SpringYellow, Main.rand.NextFloat()), 0.7f, 35);
+                
+                // Spring sparkle accent
+                var sparkle = new SparkleParticle(Projectile.Center, noteVel * 0.5f, SpringGreen * 0.4f, 0.2f, 16);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, SpringPink.ToVector3() * 0.4f);
         }
 
         public override void OnKill(int timeLeft)
         {
+            // ☁EMUSICAL FINALE - Notes scatter on petal death!
+            ThemedParticles.MusicNoteBurst(Projectile.Center, SpringPink, 6, 3f);
+            
             CustomParticles.GenericFlare(Projectile.Center, SpringPink, 0.5f, 15);
             
             for (int i = 0; i < 5; i++)

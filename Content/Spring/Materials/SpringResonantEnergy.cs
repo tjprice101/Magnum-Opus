@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -24,6 +25,11 @@ namespace MagnumOpus.Content.Spring.Materials
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 5);
             Item.rare = ItemRarityID.Lime;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Pure resonance of rebirth and rejuvenation'") { OverrideColor = new Color(255, 180, 200) });
         }
 
         public override void PostUpdate()

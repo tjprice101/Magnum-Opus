@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class IcicleBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle4";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
@@ -60,6 +60,22 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
+            // ☁EMUSICAL NOTATION - VISIBLE crystal ice melody (scale 0.7f+)
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
+                // Scale 0.7f makes notes VISIBLE!
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, CrystalCyan * 0.65f, 0.7f, 38);
+            }
+            
+            // Prismatic sparkle for ice crystal shimmer
+            if (Main.rand.NextBool(4))
+            {
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(5f, 5f),
+                    -Projectile.velocity * 0.1f, FrostWhite * 0.6f, 0.25f, 15);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, IceBlue.ToVector3() * 0.4f);
         }
 
@@ -74,6 +90,22 @@ namespace MagnumOpus.Content.Winter.Projectiles
             // Impact VFX
             CustomParticles.GenericFlare(target.Center, CrystalCyan, 0.45f, 15);
 
+            // ☁EMUSICAL IMPACT - VISIBLE frost pierce chord (scale 0.75f)
+            for (int n = 0; n < 5; n++)
+            {
+                float angle = MathHelper.TwoPi * n / 5f;
+                Vector2 noteVel = angle.ToRotationVector2() * 3.5f;
+                ThemedParticles.MusicNote(target.Center, noteVel, IceBlue * 0.75f, 0.75f, 35);
+            }
+            
+            // Sparkle burst for icy impact
+            for (int s = 0; s < 5; s++)
+            {
+                float sAngle = MathHelper.TwoPi * s / 5f;
+                var sparkle = new SparkleParticle(target.Center, sAngle.ToRotationVector2() * 3f, FrostWhite * 0.7f, 0.3f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             for (int i = 0; i < 5; i++)
             {
                 Vector2 sparkVel = Main.rand.NextVector2Circular(4f, 4f);
@@ -86,7 +118,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle4").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -120,6 +152,14 @@ namespace MagnumOpus.Content.Winter.Projectiles
         {
             CustomParticles.GenericFlare(Projectile.Center, IceBlue, 0.45f, 16);
 
+            // ☁EMUSICAL FINALE - VISIBLE ice bolt final note (scale 0.8f)
+            for (int n = 0; n < 6; n++)
+            {
+                float angle = MathHelper.TwoPi * n / 6f;
+                Vector2 noteVel = angle.ToRotationVector2() * 3.5f;
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, CrystalCyan * 0.65f, 0.8f, 38);
+            }
+
             for (int i = 0; i < 6; i++)
             {
                 Vector2 burstVel = Main.rand.NextVector2Circular(4f, 4f);
@@ -134,7 +174,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class BlizzardShardProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle14";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
@@ -216,6 +256,18 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 MagnumParticleHandler.SpawnParticle(snow);
             }
 
+            // ☁EMUSICAL NOTATION - Blizzard shard whistle - VISIBLE SCALE 0.72f+
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.2f, -0.4f));
+                Color noteColor = hasTarget ? CrystalCyan * 0.7f : IceBlue * 0.6f;
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.72f, 35);
+                
+                // Frost sparkle accent
+                var sparkle = new SparkleParticle(Projectile.Center, noteVel * 0.5f, FrostWhite * 0.4f, 0.22f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, CrystalCyan.ToVector3() * 0.5f);
         }
 
@@ -228,9 +280,12 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
             // Impact VFX
             CustomParticles.GenericFlare(target.Center, FrostWhite, 0.65f, 20);
-            // Frost sparkle burst (replacing banned HaloRing)
+            // Frost sparkle burst 
             var frostSparkle = new SparkleParticle(target.Center, Vector2.Zero, IceBlue * 0.5f, 0.4f * 0.6f, 16);
             MagnumParticleHandler.SpawnParticle(frostSparkle);
+
+            // ☁EMUSICAL IMPACT - Homing frost resonance
+            ThemedParticles.MusicNoteBurst(target.Center, CrystalCyan * 0.8f, 6, 4f);
 
             for (int i = 0; i < 8; i++)
             {
@@ -244,7 +299,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle14").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -279,9 +334,13 @@ namespace MagnumOpus.Content.Winter.Projectiles
         public override void OnKill(int timeLeft)
         {
             CustomParticles.GenericFlare(Projectile.Center, FrostWhite, 0.6f, 18);
-            // Frost sparkle burst (replacing banned HaloRing)
+            // Frost sparkle burst 
             var frostSparkle = new SparkleParticle(Projectile.Center, Vector2.Zero, IceBlue * 0.5f, 0.35f * 0.6f, 14);
             MagnumParticleHandler.SpawnParticle(frostSparkle);
+
+            // ☁EMUSICAL FINALE - Blizzard dispersal melody
+            ThemedParticles.MusicNoteBurst(Projectile.Center, IceBlue * 0.7f, 7, 4f);
+            ThemedParticles.MusicNoteRing(Projectile.Center, CrystalCyan * 0.5f, 45f, 6);
 
             for (int i = 0; i < 8; i++)
             {
@@ -335,7 +394,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
                 // Freeze VFX
                 CustomParticles.GenericFlare(npc.Center, new Color(100, 255, 255), 0.8f, 25);
-                // Frost sparkle burst (replacing banned HaloRing)
+                // Frost sparkle burst 
                 var frostSparkle = new SparkleParticle(npc.Center, Vector2.Zero, new Color(150, 220, 255), 0.6f * 0.6f, 20);
                 MagnumParticleHandler.SpawnParticle(frostSparkle);
             }

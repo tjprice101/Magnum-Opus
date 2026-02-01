@@ -57,6 +57,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Item.noMelee = true;
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Ultra rapid-fire gun that accelerates with sustained fire"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 20th shot fires a resonant bell blast with homing music notes"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Bullets leave trails of detonating music notes"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The bell's echo shatters through a storm of blazing staccato'") { OverrideColor = new Color(255, 140, 40) });
+        }
+
         public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
         {
             // Convert to fire bullet
@@ -175,13 +183,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             ThemedParticles.LaCampanellaShockwave(muzzlePos, 0.6f);
             ThemedParticles.LaCampanellaMusicNotes(muzzlePos, 8, 40f);
             
-            // === GRADIENT COLOR DEFINITIONS - BLACK → ORANGE ===
+            // === GRADIENT COLOR DEFINITIONS - BLACK ↁEORANGE ===
             Color campanellaBlack = ThemedParticles.CampanellaBlack;
             Color campanellaOrange = ThemedParticles.CampanellaOrange;
             Color campanellaYellow = ThemedParticles.CampanellaYellow;
             Color campanellaGold = ThemedParticles.CampanellaGold;
             
-            // Multiple halo rings with BLACK → ORANGE GRADIENT
+            // Multiple halo rings with BLACK ↁEORANGE GRADIENT
             for (int i = 0; i < 4; i++)
             {
                 float progress = (float)i / 4f;
@@ -189,7 +197,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 CustomParticles.HaloRing(muzzlePos, ringColor, 0.4f + i * 0.15f, 15 + i * 3);
             }
             
-            // Radial flares with BLACK → ORANGE GRADIENT
+            // Radial flares with BLACK ↁEORANGE GRADIENT
             for (int f = 0; f < 10; f++)
             {
                 Vector2 flarePos = muzzlePos + (MathHelper.TwoPi * f / 10).ToRotationVector2() * Main.rand.NextFloat(20f, 40f);
@@ -211,7 +219,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 }
             }
             
-            // Fractal geometric burst - signature pattern with BLACK → ORANGE
+            // Fractal geometric burst - signature pattern with BLACK ↁEORANGE
             for (int i = 0; i < 6; i++)
             {
                 float angle = MathHelper.TwoPi * i / 6f;
@@ -286,6 +294,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 1, 10f);
             }
             
+            // ☁EMUSICAL NOTATION - Fiery music note trail
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(new Color(255, 140, 40), new Color(255, 200, 50), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
+            }
+            
             // === FLAMING DARK SMOKE TRAIL - LIKE SWAN LAKE! ===
             
             // Heavy black smoke trail with golden sparkles
@@ -336,7 +352,10 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         {
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
             
-            // === SIGNATURE FRACTAL FLARE BURST - BLACK → ORANGE ===
+            // ☁EMUSICAL IMPACT - Burst of music notes on hit
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 140, 40), 5, 3.5f);
+            
+            // === SIGNATURE FRACTAL FLARE BURST - BLACK ↁEORANGE ===
             for (int i = 0; i < 6; i++)
             {
                 float angle = MathHelper.TwoPi * i / 6f;
@@ -390,7 +409,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             ThemedParticles.LaCampanellaSparks(position, Main.rand.NextVector2Unit(), 12, 8f);
             ThemedParticles.LaCampanellaMusicNotes(position, 4, 25f);
             
-            // === RADIAL FLARE BURST ON HIT with BLACK → ORANGE GRADIENT ===
+            // === RADIAL FLARE BURST ON HIT with BLACK ↁEORANGE GRADIENT ===
             for (int f = 0; f < 8; f++)
             {
                 Vector2 flarePos = position + (MathHelper.TwoPi * f / 8).ToRotationVector2() * 20f;
@@ -551,6 +570,15 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Item.shootSpeed = 24f; // Faster projectiles
             Item.useAmmo = AmmoID.Bullet;
             Item.noMelee = true;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires high-power bell-infused energy beams at extreme speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every third shot triggers a bellfire barrage of burning music notes"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Leaves behind music note mines that detonate in chain reactions"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Kills create resonant echoes that seek new targets"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Each beam carries the grandeur of a thousand chiming bells'") { OverrideColor = new Color(255, 140, 40) });
         }
 
         public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
@@ -825,6 +853,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 1, 12f);
             }
             
+            // ☁EMUSICAL NOTATION - Beam leaves melodic trail
+            if (Main.rand.NextBool(5))
+            {
+                Color noteColor = Color.Lerp(new Color(255, 140, 40), new Color(218, 165, 32), Main.rand.NextFloat());
+                Vector2 noteVel = -Projectile.velocity * 0.1f + new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.8f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.3f, 30);
+            }
+            
             Lighting.AddLight(Projectile.Center, 0.7f, 0.4f, 0.12f);
         }
 
@@ -861,6 +897,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             ThemedParticles.LaCampanellaSparks(target.Center, hitDir, 15, 8f);
             ThemedParticles.LaCampanellaBloomBurst(target.Center, 0.85f);
             ThemedParticles.LaCampanellaMusicNotes(target.Center, 6, 30f);
+            
+            // ☁EMUSICAL IMPACT - Golden music note burst
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(218, 165, 32), 6, 4f);
             
             // Triple halo rings - cascading
             CustomParticles.HaloRing(target.Center, ThemedParticles.CampanellaYellow, 0.65f, 18);
@@ -900,7 +939,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
-            // === SPECTRAL BEAM TRAIL - BLACK → ORANGE ===
+            // === SPECTRAL BEAM TRAIL - BLACK ↁEORANGE ===
             for (int i = Projectile.oldPos.Length - 1; i >= 0; i--)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
@@ -949,6 +988,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
+            // ☁EMUSICAL FINALE - Golden notes burst on death
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 5, 3.5f);
+            
             ThemedParticles.LaCampanellaBloomBurst(Projectile.Center, 0.5f);
             ThemedParticles.LaCampanellaSparkles(Projectile.Center, 4, 20f);
         }
@@ -984,6 +1026,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             // === BURNING MUSICAL NOTE CUSTOM EFFECTS ===
             ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 1, 15f);
             
+            // ☁EMUSICAL NOTATION - Extra melodic trail for this music-themed projectile
+            if (Main.rand.NextBool(4))
+            {
+                Color noteColor = Color.Lerp(new Color(255, 140, 40), new Color(255, 200, 50), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1.2f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.4f, 40);
+            }
+            
             // Fire spark trail
             if (Main.rand.NextBool(2))
             {
@@ -1007,6 +1057,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         {
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
             
+            // ☁EMUSICAL IMPACT - Notes burst on burning note hit
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 140, 40), 4, 3f);
+            
             // === BLACK SMOKE SPARKLE MAGIC - SIGNATURE HIT EFFECT! ===
             Vector2 hitDir = Main.rand.NextVector2Unit();
             ThemedParticles.LaCampanellaSignatureHit(target.Center, hitDir, 0.5f);
@@ -1018,6 +1071,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
+            // ☁EMUSICAL FINALE - Fiery notes scatter on death
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(255, 200, 50), 5, 3.5f);
+            
             // Death burst
             ThemedParticles.LaCampanellaSparkles(Projectile.Center, 3, 10f);
         }
@@ -1091,8 +1147,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         {
             var descLine = new TooltipLine(Mod, "Description", 
                 "[c/FF6600:Fires 5 HOMING ROCKETS that aggressively seek enemies!]\n" +
-                "[c/FFAA00:If all 5 hit → Spawns 5 MORE homing rockets around target!]\n" +
-                "[c/FFD700:If ALL 10 hit → BELLFIRE CRESCENDO: +10% damage & speed for 30s!]\n" +
+                "[c/FFAA00:If all 5 hit ↁESpawns 5 MORE homing rockets around target!]\n" +
+                "[c/FFD700:If ALL 10 hit ↁEBELLFIRE CRESCENDO: +10% damage & speed for 30s!]\n" +
                 "[c/FF4400:'The symphony of destruction seeks its audience...']");
             tooltips.Add(descLine);
         }
@@ -1535,6 +1591,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 ThemedParticles.LaCampanellaMusicNotes(exhaustPos, 1, 12f);
             }
             
+            // ☁EMUSICAL NOTATION - Extra music notes trailing the rocket
+            if (Main.rand.NextBool(5))
+            {
+                Color noteColor = Color.Lerp(new Color(255, 140, 40), new Color(218, 165, 32), Main.rand.NextFloat());
+                Vector2 noteVel = -Projectile.velocity * 0.12f + new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), -0.6f);
+                ThemedParticles.MusicNote(exhaustPos, noteVel, noteColor, 0.35f, 35);
+            }
+            
             // === BELL ROCKET CUSTOM TRAIL ===
             ThemedParticles.LaCampanellaTrail(exhaustPos, Projectile.velocity);
             
@@ -1573,6 +1637,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // ☁EMUSICAL IMPACT - Rocket impact music burst
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 140, 40), 6, 4f);
+            
             // === BLACK SMOKE SPARKLE MAGIC - SIGNATURE HIT EFFECT! ===
             Vector2 hitDir = Projectile.velocity.SafeNormalize(Vector2.UnitX);
             ThemedParticles.LaCampanellaSignatureHit(target.Center, hitDir, 1.2f);
@@ -1671,6 +1738,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             
             // Music notes explosion
             ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 10, 50f);
+            
+            // ☁EMUSICAL FINALE - Golden note burst on rocket death
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 8, 5f);
             
             // MASSIVE black smoke explosion
             for (int i = 0; i < 15; i++)
@@ -1878,6 +1948,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 ThemedParticles.LaCampanellaMusicNotes(exhaustPos, 1, 15f);
             }
             
+            // ☁EMUSICAL NOTATION - Homing rockets trail music
+            if (Main.rand.NextBool(5))
+            {
+                Color noteColor = Color.Lerp(new Color(255, 140, 40), new Color(255, 200, 50), Main.rand.NextFloat());
+                Vector2 noteVel = -Projectile.velocity * 0.1f + new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), -0.7f);
+                ThemedParticles.MusicNote(exhaustPos, noteVel, noteColor, 0.32f, 32);
+            }
+            
             // Prismatic sparkle
             if (Main.rand.NextBool(5))
             {
@@ -1900,6 +1978,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             ThemedParticles.LaCampanellaImpact(target.Center, 1.2f);
             ThemedParticles.LaCampanellaMusicNotes(target.Center, 8, 40f);
             ThemedParticles.LaCampanellaShockwave(target.Center, 0.8f);
+            
+            // ☁EMUSICAL IMPACT - Homing rocket musical explosion
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 140, 40), 6, 4.5f);
             
             for (int i = 0; i < 4; i++)
             {
@@ -1924,6 +2005,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
+            // ☁EMUSICAL FINALE - Golden notes on homing rocket death
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 5, 3.5f);
+            
             ThemedParticles.LaCampanellaBloomBurst(Projectile.Center, 0.5f);
             ThemedParticles.LaCampanellaSparks(Projectile.Center, Main.rand.NextVector2Unit(), 8, 6f);
         }
@@ -2017,6 +2101,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         {
             Projectile.alpha = Math.Max(0, Projectile.alpha - 5);
             
+            // ☁EMUSICAL NOTATION - Harmonic pulse with rising notes
+            if (Main.rand.NextBool(5))
+            {
+                Color noteColor = Color.Lerp(new Color(255, 140, 40), new Color(255, 200, 50), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
+            }
+            
             // === HARMONIC PULSE TRAIL ===
             ThemedParticles.LaCampanellaTrail(Projectile.Center, Projectile.velocity);
             
@@ -2051,6 +2143,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         {
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
             
+            // ☁EMUSICAL IMPACT - Harmonic burst on hit
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 140, 40), 5, 3.5f);
+            
             // === BLACK SMOKE SPARKLE MAGIC - SIGNATURE HIT EFFECT! ===
             Vector2 hitDir = Main.rand.NextVector2Unit();
             ThemedParticles.LaCampanellaSignatureHit(target.Center, hitDir, 0.5f);
@@ -2070,6 +2165,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
+            // ☁EMUSICAL FINALE - Golden notes on harmonic pulse death
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 6, 4f);
+            
             // === SPARKLE COMBUSTION DEATH BURST ===
             ThemedParticles.LaCampanellaSparkles(Projectile.Center, 10, 18f);
             ThemedParticles.LaCampanellaPrismaticSparkles(Projectile.Center, 5, 0.55f);
@@ -2108,6 +2206,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void AI()
         {
+            // ☁EMUSICAL NOTATION - Grand crescendo wave with scattered notes
+            if (Main.rand.NextBool(4))
+            {
+                Color noteColor = Color.Lerp(new Color(255, 140, 40), new Color(255, 200, 50), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), -1.2f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.4f, 40);
+            }
+            
             // === MASSIVE WAVE EFFECT ===
             // Fire and sound wave with custom particles
             ThemedParticles.LaCampanellaTrail(Projectile.Center, Projectile.velocity);
@@ -2135,6 +2241,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         {
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
             
+            // ☁EMUSICAL IMPACT - Grand crescendo impact burst
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 140, 40), 6, 4f);
+            
             // === BLACK SMOKE SPARKLE MAGIC - SIGNATURE HIT EFFECT! ===
             Vector2 hitDir = Main.rand.NextVector2Unit();
             ThemedParticles.LaCampanellaSignatureHit(target.Center, hitDir, 0.6f);
@@ -2144,6 +2253,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
+            // ☁EMUSICAL FINALE - Golden notes on crescendo wave death
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 5, 3.5f);
+            
             ThemedParticles.LaCampanellaBloomBurst(Projectile.Center, 0.25f);
         }
 
@@ -2226,6 +2338,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Projectile.rotation += 0.2f;
             Projectile.velocity *= 0.98f;
             
+            // ☁EMUSICAL NOTATION - Trailing note with gentle rising notes
+            if (Main.rand.NextBool(5))
+            {
+                Color noteColor = Color.Lerp(new Color(255, 140, 40), new Color(255, 200, 50), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.8f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.3f, 30);
+            }
+            
             // Music note trail
             ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 1, 8f);
             
@@ -2246,6 +2366,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         {
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
             
+            // ☁EMUSICAL IMPACT - Trailing note detonation burst
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 140, 40), 5, 3.5f);
+            
             // Detonation effect
             ThemedParticles.LaCampanellaMusicNotes(target.Center, 5, 25f);
             ThemedParticles.LaCampanellaBloomBurst(target.Center, 0.4f);
@@ -2256,6 +2379,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
+            // ☁EMUSICAL FINALE - Golden notes on trailing note death
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 4, 3f);
+            
             ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 3, 15f);
         }
 
@@ -2291,6 +2417,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
             
+            // ☁EMUSICAL NOTATION - Resonant bell blast with powerful notes
+            if (Main.rand.NextBool(4))
+            {
+                Color noteColor = Color.Lerp(new Color(255, 140, 40), new Color(218, 165, 32), Main.rand.NextFloat());
+                Vector2 noteVel = -Projectile.velocity.SafeNormalize(Vector2.Zero) * 0.5f + new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -0.8f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.45f, 40);
+            }
+            
             // Massive trail with music notes
             ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 2, 15f);
             ThemedParticles.LaCampanellaSparks(Projectile.Center, -Projectile.velocity.SafeNormalize(Vector2.UnitX), 4, 6f);
@@ -2323,6 +2457,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         {
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 3);
             
+            // ☁EMUSICAL IMPACT - Massive resonant bell burst
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 140, 40), 8, 5f);
+            
             // Massive explosion
             ThemedParticles.LaCampanellaImpact(target.Center, 1.5f);
             ThemedParticles.LaCampanellaMusicNotes(target.Center, 10, 40f);
@@ -2339,6 +2476,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
+            // ☁EMUSICAL FINALE - Grand golden notes on resonant blast death
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 8, 5f);
+            
             ThemedParticles.LaCampanellaBloomBurst(Projectile.Center, 0.7f);
             ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 8, 35f);
         }
@@ -2423,6 +2563,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * 12f, homingStrength);
             }
             
+            // ☁EMUSICAL NOTATION - Homing note with chasing trail
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(new Color(255, 140, 40), new Color(255, 200, 50), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), -0.6f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.3f, 30);
+            }
+            
             // Music note trail
             ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 1, 10f);
             
@@ -2443,6 +2591,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         {
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
             
+            // ☁EMUSICAL IMPACT - Homing note impact burst
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 140, 40), 5, 3.5f);
+            
             ThemedParticles.LaCampanellaMusicNotes(target.Center, 4, 20f);
             ThemedParticles.LaCampanellaBloomBurst(target.Center, 0.35f);
             CustomParticles.HaloRing(target.Center, ThemedParticles.CampanellaOrange, 0.25f, 10);
@@ -2452,6 +2603,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
+            // ☁EMUSICAL FINALE - Golden notes on homing note death
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 4, 3f);
+            
             ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 3, 15f);
         }
 
@@ -2489,6 +2643,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Projectile.velocity.Y = (float)Math.Sin(pulseTimer) * 0.3f;
             Projectile.rotation += 0.05f;
             
+            // ☁EMUSICAL NOTATION - Music mine with pulsing note aura
+            if (Main.rand.NextBool(8))
+            {
+                Color noteColor = Color.Lerp(new Color(255, 140, 40), new Color(255, 200, 50), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), -0.5f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.28f, 35);
+            }
+            
             // Music note pulsing effect
             if (Main.rand.NextBool(4))
             {
@@ -2524,6 +2686,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         
         private void Detonate()
         {
+            // ☁EMUSICAL FINALE - Explosive music mine detonation
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 10, 6f);
+            
             // Chain reaction - spawn more music notes
             for (int i = 0; i < 3; i++)
             {
@@ -2682,6 +2847,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 Projectile.rotation += 0.2f;
             }
             
+            // ☁EMUSICAL NOTATION - Orbiting note with swirling trail
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(new Color(255, 140, 40), new Color(255, 200, 50), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.5f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.25f, 28);
+            }
+            
             // Music note trail
             if (Main.rand.NextBool(2))
             {
@@ -2703,6 +2876,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         
         private void Explode()
         {
+            // ☁EMUSICAL FINALE - Orbiting note explosion burst
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 6, 4f);
+            
             ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 5, 25f);
             ThemedParticles.LaCampanellaBloomBurst(Projectile.Center, 0.35f);
             CustomParticles.HaloRing(Projectile.Center, ThemedParticles.CampanellaOrange, 0.25f, 10);
@@ -2729,12 +2905,18 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         {
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
             
+            // ☁EMUSICAL IMPACT - Orbiting note impact burst
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 140, 40), 5, 3.5f);
+            
             ThemedParticles.LaCampanellaMusicNotes(target.Center, 4, 20f);
             ThemedParticles.LaCampanellaBloomBurst(target.Center, 0.3f);
         }
 
         public override void OnKill(int timeLeft)
         {
+            // ☁EMUSICAL FINALE - Golden notes on orbiting note death
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 4, 3f);
+            
             ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 3, 12f);
         }
 

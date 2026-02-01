@@ -75,6 +75,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 sparkle.noGravity = true;
                 sparkle.velocity = Main.rand.NextVector2Circular(2f, 2f);
             }
+            
+            // ☁EMUSICAL NOTATION - Lunar snow melody (subtle for enemy)
+            if (Main.rand.NextBool(12))
+            {
+                Color noteColor = Color.Lerp(new Color(138, 43, 226), new Color(135, 206, 250), Main.rand.NextFloat()) * 0.6f;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), -0.8f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.25f, 25);
+            }
         }
 
         public override void OnKill(int timeLeft)
@@ -90,8 +98,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 Dust snow = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Snow, 0f, 0f, 100, default, 1.2f);
                 snow.noGravity = false;
                 snow.velocity = Main.rand.NextVector2Circular(4f, 4f);
-            }
-
+            }            
+            // ☁EMUSICAL FINALE - Frozen note burst (subtle)
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(135, 206, 250) * 0.5f, 4, 3f);
             Terraria.Audio.SoundEngine.PlaySound(SoundID.Item27, Projectile.Center); // Ice shatter sound
         }
 

@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class PermafrostBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle6";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
@@ -65,6 +65,22 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 CustomParticles.GenericFlare(Projectile.Center, GlacialPurple * 0.5f, 0.18f, 10);
             }
 
+            // ☁EMUSICAL NOTATION - VISIBLE frost crystals sing (scale 0.7f+)
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
+                // Scale 0.7f makes notes VISIBLE!
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, IceBlue * 0.7f, 0.7f, 40);
+            }
+            
+            // Prismatic sparkle for magical shimmer
+            if (Main.rand.NextBool(4))
+            {
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(5f, 5f),
+                    -Projectile.velocity * 0.1f, FrostWhite * 0.5f, 0.22f, 14);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, GlacialPurple.ToVector3() * 0.4f);
         }
 
@@ -75,6 +91,22 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
             // Impact VFX
             CustomParticles.GenericFlare(target.Center, GlacialPurple, 0.45f, 16);
+
+            // ☁EMUSICAL IMPACT - VISIBLE chilling note burst (scale 0.75f)
+            for (int n = 0; n < 5; n++)
+            {
+                float angle = MathHelper.TwoPi * n / 5f;
+                Vector2 noteVel = angle.ToRotationVector2() * 3.5f;
+                ThemedParticles.MusicNote(target.Center, noteVel, IceBlue * 0.8f, 0.75f, 35);
+            }
+            
+            // Sparkle burst for magical impact
+            for (int s = 0; s < 4; s++)
+            {
+                float sAngle = MathHelper.TwoPi * s / 4f;
+                var sparkle = new SparkleParticle(target.Center, sAngle.ToRotationVector2() * 3f, FrostWhite * 0.6f, 0.28f, 16);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
 
             for (int i = 0; i < 5; i++)
             {
@@ -88,7 +120,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle6").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -123,6 +155,14 @@ namespace MagnumOpus.Content.Winter.Projectiles
         {
             CustomParticles.GenericFlare(Projectile.Center, GlacialPurple, 0.45f, 16);
 
+            // ☁EMUSICAL FINALE - VISIBLE frost melody fades (scale 0.8f)
+            for (int n = 0; n < 6; n++)
+            {
+                float angle = MathHelper.TwoPi * n / 6f;
+                Vector2 noteVel = angle.ToRotationVector2() * 3.5f;
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, GlacialPurple * 0.7f, 0.8f, 38);
+            }
+
             for (int i = 0; i < 6; i++)
             {
                 Vector2 burstVel = Main.rand.NextVector2Circular(4f, 4f);
@@ -138,7 +178,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class IceStormProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo1";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
@@ -214,11 +254,24 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 CustomParticles.GenericFlare(Projectile.Center, GlacialPurple * 0.6f, 0.4f + lifeProgress * 0.3f, 12);
             }
 
-            // Frost sparkles (replacing banned HaloRing)
+            // Frost sparkles 
             if (Projectile.timeLeft % 20 == 0)
             {
                 var frostSparkle = new SparkleParticle(Projectile.Center, Vector2.Zero, IceBlue * 0.4f, (currentRadius / 200f) * 0.6f, 25);
                 MagnumParticleHandler.SpawnParticle(frostSparkle);
+            }
+
+            // ☁EMUSICAL NOTATION - Blizzard symphonic swirl - VISIBLE SCALE 0.72f+
+            if (Projectile.timeLeft % 10 == 0)
+            {
+                float noteAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * Main.rand.NextFloat(20f, currentRadius * 0.6f);
+                Vector2 noteVel = (noteAngle + MathHelper.PiOver2).ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
+                ThemedParticles.MusicNote(notePos, noteVel, CrystalCyan * 0.6f, 0.72f, 35);
+                
+                // Storm sparkle accent
+                var sparkle = new SparkleParticle(notePos, noteVel * 0.5f, IceBlue * 0.4f, 0.25f, 20);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
             Lighting.AddLight(Projectile.Center, IceBlue.ToVector3() * (0.8f + lifeProgress * 0.4f));
@@ -242,6 +295,9 @@ namespace MagnumOpus.Content.Winter.Projectiles
             // Impact VFX
             CustomParticles.GenericFlare(target.Center, CrystalCyan, 0.5f, 16);
 
+            // ☁EMUSICAL IMPACT - Ice storm chord
+            ThemedParticles.MusicNoteBurst(target.Center, IceBlue * 0.7f, 4, 3f);
+
             for (int i = 0; i < 4; i++)
             {
                 Vector2 sparkVel = Main.rand.NextVector2Circular(5f, 5f);
@@ -253,7 +309,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo1").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -282,7 +338,12 @@ namespace MagnumOpus.Content.Winter.Projectiles
         {
             // Final explosion
             CustomParticles.GenericFlare(Projectile.Center, FrostWhite, 1.0f, 30);
-            // Frost sparkle burst (replacing banned HaloRing)
+
+            // ☁EMUSICAL FINALE - Grand blizzard crescendo
+            ThemedParticles.MusicNoteBurst(Projectile.Center, CrystalCyan * 0.8f, 10, 5f);
+            ThemedParticles.MusicNoteRing(Projectile.Center, IceBlue * 0.7f, 60f, 8);
+
+            // Frost sparkle burst 
             var frostSparkle1 = new SparkleParticle(Projectile.Center, Vector2.Zero, IceBlue * 0.7f, 0.8f * 0.6f, 25);
             MagnumParticleHandler.SpawnParticle(frostSparkle1);
             var frostSparkle2 = new SparkleParticle(Projectile.Center, Vector2.Zero, CrystalCyan * 0.5f, 0.6f * 0.6f, 20);
@@ -307,10 +368,11 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class StormIcicle : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle9";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
+        private static readonly Color CrystalCyan = new Color(100, 255, 255);
 
         public override void SetStaticDefaults()
         {
@@ -345,6 +407,17 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
+            // ☁EMUSICAL NOTATION - Falling icicle hum - VISIBLE SCALE 0.68f+
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), Main.rand.NextFloat(-1f, -0.3f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, IceBlue * 0.5f, 0.68f, 30);
+                
+                // Tiny frost sparkle
+                var sparkle = new SparkleParticle(Projectile.Center, noteVel * 0.4f, CrystalCyan * 0.4f, 0.18f, 15);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, IceBlue.ToVector3() * 0.25f);
         }
 
@@ -352,12 +425,15 @@ namespace MagnumOpus.Content.Winter.Projectiles
         {
             target.AddBuff(BuffID.Frostburn2, 120);
             CustomParticles.GenericFlare(target.Center, IceBlue, 0.35f, 12);
+
+            // ☁EMUSICAL IMPACT - Icicle shatter note
+            ThemedParticles.MusicNoteBurst(target.Center, IceBlue * 0.6f, 3, 2.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle9").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -385,6 +461,9 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
         public override void OnKill(int timeLeft)
         {
+            // ☁EMUSICAL FINALE - Icicle final note
+            ThemedParticles.MusicNoteBurst(Projectile.Center, IceBlue * 0.5f, 4, 2.5f);
+
             for (int i = 0; i < 4; i++)
             {
                 Vector2 burstVel = Main.rand.NextVector2Circular(3f, 3f);

@@ -357,7 +357,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
         }
         
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs1";
         
         public override bool PreDraw(ref Color lightColor)
         {
@@ -477,6 +477,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 CustomParticles.Glyph(glyphPos, EnigmaGreen * intensity, 0.25f, -1);
             }
             
+            // Music note trail - the dimensional slash sings
+            if (Main.rand.NextBool(6) && intensity > 0.3f)
+            {
+                Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreenFlame, Main.rand.NextFloat()) * intensity;
+                Vector2 noteVel = slashAngle.ToRotationVector2().RotatedByRandom(0.5f) * Main.rand.NextFloat(0.5f, 1.5f);
+                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f), noteVel, noteColor, 0.32f, 30);
+            }
+            
             Lighting.AddLight(Projectile.Center, GetEnigmaGradient(0.5f).ToVector3() * intensity * 0.6f);
         }
         
@@ -575,12 +583,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
         }
         
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs2";
         
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Glyphs2").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = glowTex.Size() / 2f;
             
@@ -618,7 +626,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Texture2D eyeTex = CustomParticleSystem.EnigmaEyes[(int)(lifeProgress * 7) % 8].Value;
             Texture2D glyphTex = CustomParticleSystem.Glyphs[(int)(Main.GameUpdateCount / 6) % 12].Value;
             Texture2D sparkleTex = CustomParticleSystem.PrismaticSparkles[(int)(Main.GameUpdateCount / 5) % 8].Value;
-            Texture2D flareTex = CustomParticleSystem.EnergyFlares[0].Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow4").Value;
             
             // Draw massive glyph ring - expanding outward
             int glyphCount = 16;
@@ -828,6 +836,16 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             if (Main.GameUpdateCount % 4 == 0)
             {
                 CustomParticles.GenericFlare(Projectile.Center, EnigmaBlack, 1f * intensity, 15);
+            }
+            
+            // Music note trail - the paradox collapse echoes with a symphony
+            if (Main.rand.NextBool(4))
+            {
+                Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreenFlame, Main.rand.NextFloat()) * intensity;
+                float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                Vector2 notePos = Projectile.Center + angle.ToRotationVector2() * Main.rand.NextFloat(30f, currentRadius * 0.6f);
+                Vector2 noteVel = (Projectile.Center - notePos).SafeNormalize(Vector2.Zero) * 0.5f + new Vector2(0, -1f);
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.4f, 35);
             }
             
             // Deal damage to all enemies in range

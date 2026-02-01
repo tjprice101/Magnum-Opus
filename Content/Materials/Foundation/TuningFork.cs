@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -37,6 +38,11 @@ namespace MagnumOpus.Content.Materials.Foundation
                 dust.noGravity = true;
                 dust.velocity *= 0.3f;
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "'Still vibrating with perfect pitch after all these years'") { OverrideColor = new Color(180, 180, 200) });
         }
     }
 }

@@ -41,6 +41,11 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Item.expert = true;
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The bell's toll brings fortune'") { OverrideColor = new Color(255, 140, 40) });
+        }
+
         public override bool CanRightClick() => true;
         
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
@@ -241,6 +246,12 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Item.rare = ModContent.RarityType<LaCampanellaRarity>();
         }
 
+        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Material dropped by the Chime of Life"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A fragment still burning with the bell's undying flame'") { OverrideColor = new Color(255, 140, 40) });
+        }
+
         public override void PostUpdate()
         {
             // Fire glow
@@ -280,6 +291,12 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 50);
             Item.rare = ModContent.RarityType<LaCampanellaRarity>();
+        }
+
+        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Material dropped by the Chime of Life"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A shard that pulses with the rhythm of burning tempo'") { OverrideColor = new Color(255, 140, 40) });
         }
 
         public override void PostUpdate()

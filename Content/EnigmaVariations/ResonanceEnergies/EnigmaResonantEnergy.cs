@@ -1,3 +1,5 @@
+using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -20,6 +22,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonanceEnergies
             Item.value = Item.sellPrice(gold: 5);
             Item.rare = ItemRarityID.Lime;
             Item.scale = 0.5f;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Questions crystallized, answers denied'") { OverrideColor = new Color(140, 60, 200) });
         }
 
         public override void PostUpdate()

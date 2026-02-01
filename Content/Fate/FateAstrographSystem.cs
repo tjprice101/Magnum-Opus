@@ -278,7 +278,7 @@ namespace MagnumOpus.Content.Fate
     /// </summary>
     public class AstrographConstellation : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs5";
         
         private const int FormationTime = 45;
         private const int HoldTime = 15;
@@ -435,7 +435,7 @@ namespace MagnumOpus.Content.Fate
             if (!initialized) return false;
             
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D starTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
+            Texture2D starTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Glyphs5").Value;
             Vector2 origin = starTex.Size() / 2f;
             
             int timer = TotalTime - Projectile.timeLeft;

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -20,6 +22,11 @@ namespace MagnumOpus.Content.Fate.ResonanceEnergies
             Item.value = Item.sellPrice(gold: 8);
             Item.rare = ItemRarityID.Red;
             Item.scale = 0.5f;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Destiny's power condensed to its essence'") { OverrideColor = new Color(180, 40, 80) });
         }
 
         public override void PostUpdate()

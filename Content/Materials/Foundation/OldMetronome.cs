@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -23,6 +24,11 @@ namespace MagnumOpus.Content.Materials.Foundation
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 20);
             Item.rare = ItemRarityID.Blue;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Even after all these years, it still keeps perfect time'") { OverrideColor = new Color(180, 140, 100) });
         }
 
         public override void PostUpdate()

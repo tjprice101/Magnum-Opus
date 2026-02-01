@@ -216,7 +216,7 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
             Texture2D eyeTex = CustomParticleSystem.EnigmaEyes[((int)(Main.GameUpdateCount * 0.05f)) % 8].Value;
             Texture2D glyphTex = CustomParticleSystem.RandomGlyph().Value;
             Texture2D sparkleTex = CustomParticleSystem.RandomPrismaticSparkle().Value;
-            Texture2D flareTex = CustomParticleSystem.EnergyFlares[0].Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo2").Value;
             
             // Orbiting glyphs around the phantom
             for (int i = 0; i < 5; i++)
@@ -495,6 +495,15 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
                 MagnumParticleHandler.SpawnParticle(glow);
             }
             
+            // Music note ambient aura - the phantom's melody
+            if (Main.rand.NextBool(15))
+            {
+                Color noteColor = Color.Lerp(new Color(80, 20, 120), new Color(140, 60, 200), Main.rand.NextFloat());
+                Vector2 noteOffset = Main.rand.NextVector2Circular(15f, 15f);
+                Vector2 noteVel = new Vector2(0, -0.8f);
+                ThemedParticles.MusicNote(Projectile.Center + noteOffset, noteVel, noteColor * visibility, 0.28f, 30);
+            }
+            
             Lighting.AddLight(Projectile.Center, EnigmaPurple.ToVector3() * 0.4f * visibility);
         }
         
@@ -539,7 +548,7 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
         
         private List<int> hitEnemies = new List<int>();
         
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs3";
         
         public override void SetStaticDefaults()
         {
@@ -559,7 +568,7 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
             
             Texture2D glyphTex = CustomParticleSystem.RandomGlyph().Value;
             Texture2D sparkleTex = CustomParticleSystem.RandomPrismaticSparkle().Value;
-            Texture2D flareTex = CustomParticleSystem.EnergyFlares[0].Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo4").Value;
             
             // Eerie glyph trail
             for (int i = 0; i < Projectile.oldPos.Length; i++)
@@ -655,6 +664,14 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
                 }
             }
             
+            // Music note trail - the phantom's song
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(new Color(140, 60, 200), new Color(50, 220, 100), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.32f, 30);
+            }
+            
             Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.35f);
         }
         
@@ -748,7 +765,7 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
         private static readonly Color EnigmaGreenFlame = new Color(50, 220, 100);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs4";
         
         public override bool PreDraw(ref Color lightColor)
         {
@@ -767,7 +784,7 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
             Texture2D eyeTex = CustomParticleSystem.EnigmaEyes[((int)(Main.GameUpdateCount * 0.03f)) % 8].Value;
             Texture2D glyphTex = CustomParticleSystem.RandomGlyph().Value;
             Texture2D sparkleTex = CustomParticleSystem.RandomPrismaticSparkle().Value;
-            Texture2D flareTex = CustomParticleSystem.EnergyFlares[0].Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo4").Value;
             
             // Swirling glyphs around the rift
             for (int i = 0; i < 4; i++)
@@ -855,6 +872,15 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
                 MagnumParticleHandler.SpawnParticle(wisp);
             }
             
+            // Music notes swirl in the rift - the phantom's refrain
+            if (Main.rand.NextBool(10))
+            {
+                Color noteColor = Color.Lerp(new Color(80, 20, 120), new Color(140, 60, 200), Main.rand.NextFloat());
+                Vector2 noteOffset = Main.rand.NextVector2Circular(18f, 18f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -0.8f);
+                ThemedParticles.MusicNote(Projectile.Center + noteOffset, noteVel, noteColor * opacity, 0.28f, 30);
+            }
+            
             Lighting.AddLight(Projectile.Center, EnigmaPurple.ToVector3() * 0.25f * opacity);
         }
         
@@ -900,7 +926,7 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
         private const float ZoneRadius = 120f;
         private int damageTimer = 0;
         
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs5";
         
         public override bool PreDraw(ref Color lightColor)
         {
@@ -919,7 +945,7 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
             Texture2D eyeTex = CustomParticleSystem.EnigmaEyes[((int)(Main.GameUpdateCount * 0.02f)) % 8].Value;
             Texture2D glyphTex = CustomParticleSystem.RandomGlyph().Value;
             Texture2D sparkleTex = CustomParticleSystem.RandomPrismaticSparkle().Value;
-            Texture2D flareTex = CustomParticleSystem.EnergyFlares[0].Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo5").Value;
             
             // Outer ring of glyphs - zone boundary
             for (int i = 0; i < 8; i++)
@@ -1049,6 +1075,17 @@ CustomParticles.GlyphCircle(spawnPos, EnigmaPurple, count: 6, radius: 40f, rotat
             if (Main.GameUpdateCount % 6 == 0)
             {
                 CustomParticles.GenericFlare(Projectile.Center, EnigmaBlack * opacity, 0.4f, 12);
+            }
+            
+            // Music notes float within the mystery zone - the zone's whisper
+            if (Main.rand.NextBool(12))
+            {
+                Color noteColor = Color.Lerp(new Color(80, 20, 120), new Color(140, 60, 200), Main.rand.NextFloat());
+                float noteRadius = Main.rand.NextFloat(20f, ZoneRadius * 0.7f);
+                float noteAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * noteRadius;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.6f);
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor * opacity, 0.25f, 35);
             }
             
             Lighting.AddLight(Projectile.Center, EnigmaPurple.ToVector3() * 0.3f * opacity);

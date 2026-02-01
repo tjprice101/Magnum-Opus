@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -25,6 +26,11 @@ namespace MagnumOpus.Content.Eroica.ResonanceEnergies
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 80);
             Item.rare = ModContent.RarityType<EroicaRarity>();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A shard of triumphant glory'") { OverrideColor = new Color(200, 50, 50) });
         }
 
         public override void AddRecipes()

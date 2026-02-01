@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -24,6 +25,11 @@ namespace MagnumOpus.Content.SwanLake.ResonanceEnergies
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 50);
             Item.rare = ItemRarityID.Cyan;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A whisper of grace frozen in crystalline form'") { OverrideColor = new Color(240, 240, 255) });
         }
 
         public override void PostUpdate()

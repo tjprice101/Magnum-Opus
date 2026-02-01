@@ -10,9 +10,9 @@ namespace MagnumOpus.Common.Systems.VFX
     /// Implements patterns from FargosSoulsDLC/Luminance library.
     /// 
     /// Key concepts:
-    /// - QuadraticBump: 0→1→0 curve for edge fadeouts
+    /// - QuadraticBump: 0ↁEↁE curve for edge fadeouts
     /// - InverseLerp: Maps a value from one range to 0-1
-    /// - Convert01To010: Converts 0→1 to 0→1→0
+    /// - Convert01To010: Converts 0ↁE to 0ↁEↁE
     /// - Proper color manipulation for additive blending
     /// </summary>
     public static class VFXUtilities
@@ -20,12 +20,12 @@ namespace MagnumOpus.Common.Systems.VFX
         #region Mathematical Utilities
         
         /// <summary>
-        /// The QuadraticBump function - creates a smooth 0→1→0 curve.
+        /// The QuadraticBump function - creates a smooth 0ↁEↁE curve.
         /// Used everywhere in FargosSoulsDLC shaders for edge-to-center intensity.
         /// 
-        /// Input 0.0 → Output 0.0
-        /// Input 0.5 → Output 1.0 (peak)
-        /// Input 1.0 → Output 0.0
+        /// Input 0.0 ↁEOutput 0.0
+        /// Input 0.5 ↁEOutput 1.0 (peak)
+        /// Input 1.0 ↁEOutput 0.0
         /// </summary>
         /// <param name="x">Input value from 0 to 1</param>
         /// <returns>Smooth bump curve value</returns>
@@ -35,7 +35,7 @@ namespace MagnumOpus.Common.Systems.VFX
         }
         
         /// <summary>
-        /// Converts a 0→1 interpolant to a 0→1→0 interpolant (triangle wave).
+        /// Converts a 0ↁE interpolant to a 0ↁEↁE interpolant (triangle wave).
         /// Perfect for effects that appear, peak, then disappear.
         /// </summary>
         public static float Convert01To010(float interpolant)
@@ -46,7 +46,7 @@ namespace MagnumOpus.Common.Systems.VFX
         }
         
         /// <summary>
-        /// Converts a 0→1 interpolant to a 0→1→0 interpolant using sine.
+        /// Converts a 0ↁE interpolant to a 0ↁEↁE interpolant using sine.
         /// Smoother than Convert01To010.
         /// </summary>
         public static float SineBump(float interpolant)
@@ -76,7 +76,7 @@ namespace MagnumOpus.Common.Systems.VFX
         }
         
         /// <summary>
-        /// Creates a bump interpolant that goes 0→1→0 across specified ranges.
+        /// Creates a bump interpolant that goes 0ↁEↁE across specified ranges.
         /// Useful for "active zone" effects.
         /// 
         /// Example: InverseLerpBump(0.1f, 0.3f, 0.7f, 0.9f, x)
@@ -221,7 +221,7 @@ namespace MagnumOpus.Common.Systems.VFX
         }
         
         /// <summary>
-        /// Creates a 3-color gradient (start → middle → end).
+        /// Creates a 3-color gradient (start ↁEmiddle ↁEend).
         /// </summary>
         public static Color ThreeColorGradient(Color start, Color middle, Color end, float progress)
         {

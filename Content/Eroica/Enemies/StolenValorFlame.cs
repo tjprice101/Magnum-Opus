@@ -13,7 +13,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
     /// </summary>
     public class StolenValorFlame : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow3";
 
         public override void SetStaticDefaults()
         {

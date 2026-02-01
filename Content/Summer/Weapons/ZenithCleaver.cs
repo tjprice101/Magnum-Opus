@@ -11,6 +11,7 @@ using MagnumOpus.Content.Summer.Materials;
 using MagnumOpus.Content.Summer.Projectiles;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Summer.Weapons
 {
@@ -80,6 +81,15 @@ namespace MagnumOpus.Content.Summer.Weapons
                 var shimmer = new GenericGlowParticle(shimmerPos, shimmerVel, SunOrange * 0.4f, 0.25f, 30, true);
                 MagnumParticleHandler.SpawnParticle(shimmer);
             }
+            
+            // Floating summer melody notes
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
+                Vector2 noteVel = new Vector2(0, -Main.rand.NextFloat(0.4f, 0.9f));
+                Color noteColor = Color.Lerp(SunGold, SunOrange, Main.rand.NextFloat()) * 0.65f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 38);
+            }
 
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.15f + 0.7f;
             Lighting.AddLight(player.Center, SunGold.ToVector3() * pulse);
@@ -87,20 +97,35 @@ namespace MagnumOpus.Content.Summer.Weapons
 
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
+            Vector2 hitCenter = hitbox.Center.ToVector2();
+            
             // Swing trail
             if (Main.rand.NextBool(2))
             {
-                Vector2 trailPos = hitbox.Center.ToVector2() + Main.rand.NextVector2Circular(15f, 15f);
+                Vector2 trailPos = hitCenter + Main.rand.NextVector2Circular(15f, 15f);
                 Vector2 trailVel = (player.direction * Vector2.UnitX).RotatedByRandom(0.6f) * Main.rand.NextFloat(2f, 5f);
                 Color trailColor = Color.Lerp(SunGold, SunOrange, Main.rand.NextFloat());
                 var trail = new GenericGlowParticle(trailPos, trailVel, trailColor * 0.8f, 0.35f, 18, true);
                 MagnumParticleHandler.SpawnParticle(trail);
             }
+            
+            // Music notes in swing trail
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 notePos = hitCenter + Main.rand.NextVector2Circular(12f, 12f);
+                Vector2 noteVel = (player.direction * Vector2.UnitX).RotatedByRandom(0.5f) * Main.rand.NextFloat(1f, 3f);
+                Color noteColor = Color.Lerp(SunGold, SunOrange, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor * 0.85f, 0.75f, 28);
+                
+                // Sparkle companion
+                var sparkle = new SparkleParticle(notePos, noteVel * 0.5f, SunWhite * 0.5f, 0.2f, 15);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
 
             // Heat embers
             if (Main.rand.NextBool(3))
             {
-                Dust dust = Dust.NewDustPerfect(hitbox.Center.ToVector2(), DustID.SolarFlare, Main.rand.NextVector2Circular(3f, 3f), 0, SunOrange, 1.1f);
+                Dust dust = Dust.NewDustPerfect(hitCenter, DustID.SolarFlare, Main.rand.NextVector2Circular(3f, 3f), 0, SunOrange, 1.1f);
                 dust.noGravity = true;
             }
         }
@@ -121,10 +146,18 @@ namespace MagnumOpus.Content.Summer.Weapons
             {
                 swingCounter = 0;
 
-                // Massive solar flare
+                // Massive solar flare - layered bloom instead of halo
                 CustomParticles.GenericFlare(spawnPos, Color.White, 1.2f, 25);
                 CustomParticles.GenericFlare(spawnPos, SunGold, 1.0f, 22);
-                CustomParticles.HaloRing(spawnPos, SunOrange * 0.8f, 0.65f, 20);
+                CustomParticles.GenericFlare(spawnPos, SunOrange * 0.8f, 0.75f, 18);
+                
+                // Solar ray burst
+                for (int ray = 0; ray < 8; ray++)
+                {
+                    float rayAngle = MathHelper.TwoPi * ray / 8f;
+                    Vector2 rayPos = spawnPos + rayAngle.ToRotationVector2() * 25f;
+                    CustomParticles.GenericFlare(rayPos, SunGold * 0.9f, 0.35f, 15);
+                }
 
                 // Big solar projectile
                 Projectile.NewProjectile(source, spawnPos, velocity * 1.5f, ModContent.ProjectileType<ZenithFlare>(), damage * 2, knockback * 2f, player.whoAmI);
@@ -146,6 +179,18 @@ namespace MagnumOpus.Content.Summer.Weapons
                     var burst = new GenericGlowParticle(spawnPos, burstVel, burstColor * 0.8f, 0.4f, 25, true);
                     MagnumParticleHandler.SpawnParticle(burst);
                 }
+                
+                // Music note ring and burst for Zenith Strike
+                ThemedParticles.MusicNoteRing(spawnPos, SunGold, 50f, 8);
+                ThemedParticles.MusicNoteBurst(spawnPos, SunOrange, 6, 5f);
+                
+                // Sparkle starburst
+                for (int i = 0; i < 6; i++)
+                {
+                    var sparkle = new SparkleParticle(spawnPos, (MathHelper.TwoPi * i / 6f).ToRotationVector2() * 4f,
+                        SunWhite * 0.7f, 0.3f, 20);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
             }
 
             return false;
@@ -157,9 +202,16 @@ namespace MagnumOpus.Content.Summer.Weapons
             target.AddBuff(BuffID.OnFire3, 180); // Hellfire for 3 seconds
             target.AddBuff(BuffID.Daybreak, 120); // Daybreak stacking
 
-            // Impact VFX
+            // Impact VFX - layered solar bloom instead of halo
             CustomParticles.GenericFlare(target.Center, SunOrange, 0.65f, 18);
-            CustomParticles.HaloRing(target.Center, SunGold * 0.6f, 0.4f, 15);
+            CustomParticles.GenericFlare(target.Center, SunGold * 0.7f, 0.45f, 15);
+            
+            // Heat shimmer sparkles
+            for (int s = 0; s < 4; s++)
+            {
+                Vector2 shimmerPos = target.Center + Main.rand.NextVector2Circular(18f, 18f);
+                CustomParticles.GenericFlare(shimmerPos, SunGold * 0.8f, 0.22f, 12);
+            }
 
             // Ember burst
             for (int i = 0; i < 8; i++)
@@ -168,6 +220,23 @@ namespace MagnumOpus.Content.Summer.Weapons
                 Color emberColor = Color.Lerp(SunGold, SunRed, Main.rand.NextFloat());
                 var ember = new GenericGlowParticle(target.Center, emberVel, emberColor * 0.75f, 0.3f, 20, true);
                 MagnumParticleHandler.SpawnParticle(ember);
+            }
+            
+            // Music notes on impact
+            for (int i = 0; i < 4; i++)
+            {
+                float noteAngle = MathHelper.TwoPi * i / 4f + Main.rand.NextFloat(-0.2f, 0.2f);
+                Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(2f, 3.5f);
+                Color noteColor = Color.Lerp(SunGold, SunOrange, (float)i / 4f);
+                ThemedParticles.MusicNote(target.Center, noteVel, noteColor, 0.7f, 30);
+            }
+            
+            // Sparkle accents
+            for (int i = 0; i < 2; i++)
+            {
+                var sparkle = new SparkleParticle(target.Center + Main.rand.NextVector2Circular(10f, 10f),
+                    Main.rand.NextVector2Circular(2f, 2f), SunWhite * 0.5f, 0.2f, 15);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
         }
 

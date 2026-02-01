@@ -109,6 +109,18 @@ namespace MagnumOpus.Content.SwanLake.Items
         {
             // No recipe - 1% boss drop only
         }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Drains all mana to transform into the Monochromatic Fractal"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Left-click rains tracking prismatic flares with explosions"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Right-click unleashes devastating black and white lightning"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Grants infinite flight while transformed"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Become the swan, and let the melody flow through you'") 
+            { 
+                OverrideColor = new Color(220, 225, 235) 
+            });
+        }
     }
 
     /// <summary>
@@ -574,8 +586,8 @@ namespace MagnumOpus.Content.SwanLake.Items
     /// </summary>
     public class FeathersCallFlare : ModProjectile
     {
-        // Use vanilla texture as base
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.RainbowRodBullet;
+        // Use mod particle texture as base
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle10";
 
         private int FlareType => (int)Projectile.ai[0]; // 0 = white, 1 = black, 2 = rainbow
         private int TargetIndex => (int)Projectile.ai[1];
@@ -644,6 +656,15 @@ namespace MagnumOpus.Content.SwanLake.Items
             {
                 Lighting.AddLight(Projectile.Center, lightIntensity, lightIntensity, lightIntensity);
             }
+            
+            // ☁EMUSICAL NOTATION - Swan Lake graceful melody
+            if (Main.rand.NextBool(6))
+            {
+                float hue = (Main.GameUpdateCount * 0.01f + Main.rand.NextFloat()) % 1f;
+                Color noteColor = Main.hslToRgb(hue, 0.8f, 0.9f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
+            }
         }
 
         public override void OnKill(int timeLeft)
@@ -659,6 +680,11 @@ namespace MagnumOpus.Content.SwanLake.Items
             // Core explosion
             CustomParticles.ExplosionBurst(Projectile.Center, explosionColor, 12, 10f);
             CustomParticles.SwanFeatherBurst(Projectile.Center, 6, 0.4f);
+            
+            // ☁EMUSICAL FINALE - Feathered symphony
+            float finaleHue = (Main.GameUpdateCount * 0.02f) % 1f;
+            Color finaleColor = Main.hslToRgb(finaleHue, 0.9f, 0.85f);
+            ThemedParticles.MusicNoteBurst(Projectile.Center, finaleColor, 6, 4f);
             
             // FRACTAL FLARE BURST - the signature look
             for (int i = 0; i < 6; i++)

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -30,6 +31,11 @@ namespace MagnumOpus.Content.Autumn.Materials
             Item.autoReuse = true;
             Item.consumable = true;
             Item.createTile = -1;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Forged from autumn's final bounty'") { OverrideColor = new Color(200, 150, 80) });
         }
 
         public override void PostUpdate()

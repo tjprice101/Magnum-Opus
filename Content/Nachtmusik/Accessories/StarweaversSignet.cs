@@ -8,6 +8,7 @@ using MagnumOpus.Content.Nachtmusik.ResonanceEnergies;
 using MagnumOpus.Content.Nachtmusik.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Nachtmusik.Accessories
 {
@@ -38,14 +39,14 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             var modPlayer = player.GetModPlayer<StarweaversSignetPlayer>();
             modPlayer.hasStarweaversSignet = true;
 
-            // +22% melee damage
-            player.GetDamage(DamageClass.Melee) += 0.22f;
+            // +38% melee damage - POST-FATE ULTIMATE
+            player.GetDamage(DamageClass.Melee) += 0.38f;
 
-            // +15% melee attack speed
-            player.GetAttackSpeed(DamageClass.Melee) += 0.15f;
+            // +25% melee attack speed - POST-FATE ULTIMATE
+            player.GetAttackSpeed(DamageClass.Melee) += 0.25f;
 
-            // +10% melee crit
-            player.GetCritChance(DamageClass.Melee) += 10;
+            // +18% melee crit - POST-FATE ULTIMATE
+            player.GetCritChance(DamageClass.Melee) += 18;
 
             // Ambient star particles around player
             if (!hideVisual && Main.rand.NextBool(8))
@@ -63,21 +64,30 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                 Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
                 CustomParticles.GenericFlare(sparklePos, Gold * 0.7f, 0.25f, 15);
             }
+
+            // Floating nocturnal melody notes
+            if (!hideVisual && Main.rand.NextBool(10))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(32f, 32f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), -Main.rand.NextFloat(0.3f, 0.5f)); // Rising like night whispers
+                Color noteColor = Color.Lerp(new Color(100, 60, 180), new Color(80, 100, 200), Main.rand.NextFloat()) * 0.55f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 35);
+            }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "MeleeBoost", "+22% melee damage")
+            tooltips.Add(new TooltipLine(Mod, "MeleeBoost", "+38% melee damage")
             {
                 OverrideColor = Gold
             });
 
-            tooltips.Add(new TooltipLine(Mod, "AttackSpeed", "+15% melee attack speed")
+            tooltips.Add(new TooltipLine(Mod, "AttackSpeed", "+25% melee attack speed")
             {
                 OverrideColor = Violet
             });
 
-            tooltips.Add(new TooltipLine(Mod, "CritBoost", "+10% melee critical strike chance")
+            tooltips.Add(new TooltipLine(Mod, "CritBoost", "+18% melee critical strike chance")
             {
                 OverrideColor = StarWhite
             });
@@ -151,6 +161,17 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             CustomParticles.GenericFlare(target.Center, StarWhite, 0.9f, 20);
             CustomParticles.GenericFlare(target.Center, Gold, 0.7f, 18);
             CustomParticles.GenericFlare(target.Center, DeepPurple, 0.5f, 16);
+
+            // Music note burst on starfall impact
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(100, 60, 180), 4, 3.5f);
+
+            // Star sparkle accents
+            for (int i = 0; i < 3; i++)
+            {
+                var sparkle = new SparkleParticle(target.Center + Main.rand.NextVector2Circular(10f, 10f),
+                    Main.rand.NextVector2Circular(2f, 2f), new Color(255, 250, 240) * 0.5f, 0.2f, 15);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
 
             // Starfall streaks from above
             for (int i = 0; i < 5; i++)

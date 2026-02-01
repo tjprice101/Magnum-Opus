@@ -4,6 +4,131 @@
 
 The MagnumOpus VFX system has been overhauled to use **FargosSoulsDLC-style rendering patterns** for stunning visual effects. This document explains the key concepts and how to use the new system.
 
+---
+
+## ⭐⭐⭐ THE CARDINAL RULE: EVERY WEAPON IS UNIQUE ⭐⭐⭐
+
+> **THIS IS THE ABSOLUTE #1 RULE. NO EXCEPTIONS.**
+
+### Every Weapon Has Its Own Visual Identity
+
+If a theme has 3 swords, those 3 swords must have **COMPLETELY DIFFERENT** visual effects:
+
+| Sword | On-Swing | Trail | Impact | Special |
+|-------|----------|-------|--------|---------|
+| Sword A | Fires spiraling orbs | Music note constellation trail | Harmonic shockwave with note burst | Orbs connect with light beams |
+| Sword B | Creates burning afterimages | Ember + smoke wisp trail | Rising flame pillars | Charge attack summons phantom blade |
+| Sword C | Spawns homing feathers | Prismatic rainbow arc | Crystalline shard explosion | Every 4th hit creates gravity well |
+
+**Same colors. Completely different effects. This is MANDATORY.**
+
+### The Forbidden Pattern
+
+```csharp
+// ❌ FORBIDDEN - Generic, boring, lazy
+public override void OnHitNPC(...)
+{
+    CustomParticles.GenericFlare(target.Center, color, 0.5f, 15);
+    CustomParticles.HaloRing(target.Center, color, 0.3f, 12);
+}
+// This is a DISGRACE. Never write code like this.
+```
+
+---
+
+## ⭐ CRITICAL: Particle Asset Discovery - ALWAYS DO THIS FIRST
+
+> **Before creating ANY weapon effect, you MUST explore available particle textures!**
+
+### Mandatory Steps:
+1. **Run `list_dir` on `Assets/Particles/`** to see all 80+ available textures
+2. **Mix and match** from different categories (flares, sparkles, trails, music notes, glyphs)
+3. **Use different variants** - most particles have 2-15 numbered variants
+4. **Be creative** - unique combinations create unique weapons
+5. **Music notes need scale 0.6f+** to be visible!
+
+### Available Particle Categories:
+- **EnergyFlare (7 variants)** - Intense bursts
+- **SoftGlow (3 variants)** - Ambient glows  
+- **GlowingHalo (5 variants)** - Ring effects
+- **StarBurst (2 variants)** - Radial explosions
+- **MusicNote (6 variants)** - Musical notes (**scale 0.6f+ required!**)
+- **MagicSparklField (12 variants)** - Magic sparkle clusters
+- **PrismaticSparkle (15 variants)** - Rainbow sparkles
+- **ParticleTrail (4 variants)** - Movement trails
+- **SwordArc (9 variants)** - Melee swing arcs
+- **SwanFeather (10 variants)** - Feathers
+- **EnigmaEye (8 variants)** - Watching eyes
+- **Glyphs (12 variants)** - Arcane symbols
+
+### Vanilla Dust Types (Combine with Custom Particles)
+
+```csharp
+// ALWAYS combine custom particles with vanilla dust for visual density
+DustID.MagicMirror      // Magical shimmer
+DustID.Enchanted_Gold   // Golden sparkles
+DustID.Enchanted_Pink   // Pink magical dust
+DustID.PurpleTorch      // Purple flames
+DustID.Electric         // Electric sparks
+DustID.Frost            // Ice crystals
+DustID.GemAmethyst      // Purple gems
+DustID.GemSapphire      // Blue gems
+DustID.Pixie            // Fairy dust
+DustID.RainbowMk2       // Rainbow particles
+```
+
+> **See `Assets/Particles/README.md` for complete catalog with scale recommendations.**
+
+---
+
+## 🎵 MUSIC NOTES MUST BE VISIBLE
+
+> **THIS IS A MUSIC MOD. MUSIC NOTES ARE CURRENTLY INVISIBLE. THAT'S UNACCEPTABLE.**
+
+### The Problem
+Music notes spawned at scales 0.25f-0.4f are **completely invisible**. This defeats the purpose of a music-themed mod.
+
+### The Solution
+
+**EVERY music note MUST:**
+- Use scale **0.7f - 1.2f** (MINIMUM 0.6f)
+- Have **multi-layer bloom** (3-4 draws at increasing scales)
+- Include **shimmer animation** (scale pulses)
+- Be **accompanied by sparkles** for visibility
+
+```csharp
+// ✅ CORRECT - Visible, glowing, shimmering music notes
+void SpawnGlowingMusicNote(Vector2 position, Vector2 velocity, Color baseColor)
+{
+    float scale = Main.rand.NextFloat(0.75f, 1.0f);
+    int variant = Main.rand.Next(1, 7); // Use ALL 6 variants
+    
+    // Shimmer
+    float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.15f;
+    scale *= shimmer;
+    
+    // Bloom layers
+    for (int bloom = 0; bloom < 3; bloom++)
+    {
+        float bloomScale = scale * (1f + bloom * 0.4f);
+        float bloomAlpha = 0.5f / (bloom + 1);
+        // Draw bloom particle at bloomScale with bloomAlpha
+    }
+    
+    // Sparkle companions
+    for (int i = 0; i < 2; i++)
+    {
+        Vector2 sparkleOffset = Main.rand.NextVector2Circular(8f, 8f);
+        CustomParticles.PrismaticSparkle(position + sparkleOffset, baseColor, 0.35f, Main.rand.Next(1, 16));
+    }
+    
+    // The note
+    ThemedParticles.MusicNote(position, velocity, baseColor, scale, 35, variant);
+}
+```
+
+---
+
 ## Key Patterns Implemented
 
 ### 1. The `{ A = 0 }` Alpha Removal Pattern

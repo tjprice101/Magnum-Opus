@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -32,6 +33,11 @@ namespace MagnumOpus.Content.LaCampanella.ResonantOres
             Item.consumable = true;
             Item.createTile = ModContent.TileType<LaCampanellaResonanceOreTile>();
             Item.placeStyle = 0;
+        }
+
+        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Ore that hums with the resonance of an ancient bell'") { OverrideColor = new Color(255, 140, 40) });
         }
     }
 }

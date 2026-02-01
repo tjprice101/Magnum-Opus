@@ -28,7 +28,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void SetDefaults()
         {
-            Item.damage = 350; // Balanced: ~1050 DPS (350 × 60/20)
+            Item.damage = 350; // Balanced: ~1050 DPS (350 ÁE60/20)
             Item.DamageType = DamageClass.Melee;
             Item.width = 70;
             Item.height = 70;
@@ -269,6 +269,13 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             
             // Music notes on hit
             CustomParticles.EroicaMusicNotes(target.Center, 3, 20f);
+        }
+
+        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Swings create spectral copies that seek enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Hold right-click to charge a devastating sakura storm"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Petals fall, heroes rise'") { OverrideColor = new Color(200, 50, 50) });
         }
 
         // Recipe removed - drops from Eroica, God of Valor

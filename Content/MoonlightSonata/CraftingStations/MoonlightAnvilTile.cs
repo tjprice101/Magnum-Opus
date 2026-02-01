@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -102,6 +103,15 @@ namespace MagnumOpus.Content.MoonlightSonata.CraftingStations
                 .AddIngredient(ModContent.ItemType<ResonanceEnergies.ResonantCoreOfMoonlightSonata>(), 10)
                 .AddTile(TileID.MythrilAnvil) // Mythril/Orichalcum Anvil
                 .Register();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect", "Used to forge Moonlight Sonata equipment"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'An anvil that rings with lunar harmony'")
+            {
+                OverrideColor = new Color(140, 100, 200)
+            });
         }
     }
 }

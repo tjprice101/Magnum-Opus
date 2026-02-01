@@ -21,7 +21,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class HarvestWraithMinion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs8";
         
         private static readonly Color DecayPurple = new Color(100, 50, 120);
         private static readonly Color WraithGreen = new Color(120, 180, 100);
@@ -201,8 +201,18 @@ namespace MagnumOpus.Content.Autumn.Projectiles
 
             // Toll VFX
             CustomParticles.GenericFlare(Projectile.Center, DecayPurple, 0.7f, 22);
-            CustomParticles.HaloRing(Projectile.Center, WraithGreen * 0.6f, 0.6f, 20);
-            CustomParticles.HaloRing(Projectile.Center, DecayPurple * 0.4f, 0.45f, 18);
+            CustomParticles.GenericFlare(Projectile.Center, WraithGreen, 0.65f, 20);
+            CustomParticles.GenericFlare(Projectile.Center, WraithGreen * 0.6f, 0.5f, 16);
+            CustomParticles.GenericFlare(Projectile.Center, DecayPurple, 0.55f, 18);
+            CustomParticles.GenericFlare(Projectile.Center, DecayPurple * 0.5f, 0.4f, 14);
+            // Death toll wisp burst
+            for (int wisp = 0; wisp < 6; wisp++)
+            {
+                float wispAngle = MathHelper.TwoPi * wisp / 6f;
+                Vector2 wispPos = Projectile.Center + wispAngle.ToRotationVector2() * 18f;
+                Color wispColor = Color.Lerp(WraithGreen, DecayPurple, (float)wisp / 6f) * 0.7f;
+                CustomParticles.GenericFlare(wispPos, wispColor, 0.22f, 12);
+            }
 
             // Radial death energy
             for (int i = 0; i < 12; i++)
@@ -213,6 +223,10 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 var burst = new GenericGlowParticle(Projectile.Center, burstVel, burstColor, 0.32f, 24, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
+
+            // ☁EMUSICAL TOLL - Death toll sounds with spectral chord
+            ThemedParticles.MusicNoteBurst(Projectile.Center, WraithGreen, 12, 6f);
+            ThemedParticles.MusicNoteRing(Projectile.Center, DecayPurple, 55f, 8);
         }
 
         private void IdleMovement(Player owner, int minionIndex, int minionCount)
@@ -251,6 +265,17 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 var wisp = new GenericGlowParticle(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f), wispVel, wispColor, 0.18f, 25, true);
                 MagnumParticleHandler.SpawnParticle(wisp);
             }
+
+            // ☁EMUSICAL NOTATION - Wraith hums spectral melody - VISIBLE SCALE 0.7f+
+            if (Main.rand.NextBool(10))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2f, -0.5f));
+                Color noteColor = Color.Lerp(WraithGreen, DecayPurple, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f), noteVel, noteColor, 0.7f, 32);
+                
+                // Wraith glyph accent
+                CustomParticles.Glyph(Projectile.Center, WraithGreen * 0.35f, 0.18f, -1);
+            }
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -268,13 +293,24 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.2f, 16, true);
                 MagnumParticleHandler.SpawnParticle(spark);
             }
+
+            // ☁EMUSICAL IMPACT - Wraith strike note
+            ThemedParticles.MusicNoteBurst(target.Center, WraithGreen, 5, 3.5f);
         }
 
         public override void OnKill(int timeLeft)
         {
             // Dissipation VFX
             CustomParticles.GenericFlare(Projectile.Center, WraithGreen, 0.55f, 18);
-            CustomParticles.HaloRing(Projectile.Center, DecayPurple * 0.5f, 0.4f, 15);
+            CustomParticles.GenericFlare(Projectile.Center, DecayPurple, 0.5f, 16);
+            CustomParticles.GenericFlare(Projectile.Center, DecayPurple * 0.6f, 0.35f, 12);
+            // Wraith wisp burst
+            for (int wisp = 0; wisp < 4; wisp++)
+            {
+                float wispAngle = MathHelper.TwoPi * wisp / 4f;
+                Vector2 wispPos = Projectile.Center + wispAngle.ToRotationVector2() * 12f;
+                CustomParticles.GenericFlare(wispPos, DecayPurple * 0.7f, 0.18f, 10);
+            }
 
             for (int i = 0; i < 8; i++)
             {
@@ -283,12 +319,15 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 var burst = new GenericGlowParticle(Projectile.Center, burstVel, burstColor, 0.25f, 22, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
+
+            // ☁EMUSICAL FINALE - Wraith departing melody
+            ThemedParticles.MusicNoteBurst(Projectile.Center, DecayPurple, 8, 4f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Glyphs8").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
@@ -331,7 +370,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class SoulHarvestOrb : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle12";
         
         private static readonly Color WraithGreen = new Color(120, 180, 100);
         private static readonly Color SoulWhite = new Color(240, 240, 255);
@@ -389,13 +428,32 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
+            // ☁EMUSICAL NOTATION - Soul orb carries healing melody - VISIBLE SCALE 0.68f+
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 noteVel = new Vector2(0, Main.rand.NextFloat(-1.5f, -0.5f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, SoulWhite * 0.8f, 0.68f, 28);
+                
+                // Soul sparkle
+                var sparkle = new SparkleParticle(Projectile.Center, noteVel * 0.5f, SoulWhite * 0.4f, 0.2f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, WraithGreen.ToVector3() * 0.4f);
         }
 
         public override void OnKill(int timeLeft)
         {
             CustomParticles.GenericFlare(Projectile.Center, SoulWhite, 0.4f, 15);
-            CustomParticles.HaloRing(Projectile.Center, WraithGreen * 0.4f, 0.3f, 12);
+            CustomParticles.GenericFlare(Projectile.Center, WraithGreen, 0.4f, 14);
+            CustomParticles.GenericFlare(Projectile.Center, WraithGreen * 0.6f, 0.28f, 10);
+            // Soul wisp burst
+            for (int wisp = 0; wisp < 4; wisp++)
+            {
+                float wispAngle = MathHelper.TwoPi * wisp / 4f;
+                Vector2 wispPos = Projectile.Center + wispAngle.ToRotationVector2() * 10f;
+                CustomParticles.GenericFlare(wispPos, WraithGreen * 0.7f, 0.15f, 8);
+            }
 
             for (int i = 0; i < 6; i++)
             {
@@ -404,12 +462,15 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 var burst = new GenericGlowParticle(Projectile.Center, burstVel, burstColor, 0.18f, 15, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
+
+            // ☁EMUSICAL FINALE - Soul absorbed with gentle healing note
+            ThemedParticles.MusicNoteBurst(Projectile.Center, SoulWhite, 5, 3f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle12").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 

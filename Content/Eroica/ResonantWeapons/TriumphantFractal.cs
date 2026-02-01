@@ -29,7 +29,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void SetDefaults()
         {
-            Item.damage = 518; // Buffed: ~1244 DPS (518 × 60/25), 15% increase
+            Item.damage = 518; // Buffed: ~1244 DPS (518 ÁE60/25), 15% increase
             Item.DamageType = DamageClass.Magic;
             Item.width = 56;
             Item.height = 56;
@@ -249,6 +249,13 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             Lighting.AddLight(Item.Center, 1f, 0.5f, 0.3f);
             
             return true; // Draw the normal sprite too
+        }
+
+        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires three fractal projectiles in a spread"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Projectiles explode with recursive fractal geometry"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Victory branches infinitely'") { OverrideColor = new Color(200, 50, 50) });
         }
 
         // Recipe removed - drops from Eroica, God of Valor

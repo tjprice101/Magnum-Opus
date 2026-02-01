@@ -389,6 +389,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         private void SpawnAmbientParticles()
         {
+            // ☁EMUSICAL PRESENCE - Infernal bell minion ambient melody
+            if (Main.rand.NextBool(10))
+            {
+                Color noteColor = Color.Lerp(new Color(255, 140, 40), new Color(255, 200, 50), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.25f, 0.25f), -0.6f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.25f, 35);
+            }
+            
             // Rising smoke from the bell
             if (Main.rand.NextBool(4))
             {
@@ -526,7 +534,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
     public class InfernalBellWave : ModProjectile
     {
         // Use a soft glow texture - the wave is particle-based
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare2";
         
         private static readonly Color CampanellaOrange = new Color(255, 100, 0);
         private static readonly Color CampanellaYellow = new Color(255, 200, 50);
@@ -550,6 +558,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         public override void AI()
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
+            
+            // ☁EMUSICAL NOTATION - Infernal bell wave melodic trail
+            if (Main.rand.NextBool(5))
+            {
+                Color noteColor = Color.Lerp(new Color(255, 140, 40), new Color(255, 200, 50), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), -0.8f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.3f, 30);
+            }
             
             // Wave trail particles
             if (Main.rand.NextBool(2))
@@ -591,6 +607,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             // Apply On Fire debuff
             target.AddBuff(BuffID.OnFire, 180);
             
+            // ☁EMUSICAL IMPACT - Infernal bell wave impact burst
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 140, 40), 4, 3f);
+            
             // Hit VFX
             CustomParticles.GenericFlare(target.Center, CampanellaOrange, 0.5f, 12);
             CustomParticles.HaloRing(target.Center, CampanellaYellow * 0.6f, 0.2f, 10);
@@ -608,6 +627,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
+            // ☁EMUSICAL FINALE - Golden notes on bell wave death
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 4, 3f);
+            
             // Death burst
             CustomParticles.GenericFlare(Projectile.Center, CampanellaOrange, 0.5f, 15);
             CustomParticles.HaloRing(Projectile.Center, CampanellaOrange, 0.3f, 12);

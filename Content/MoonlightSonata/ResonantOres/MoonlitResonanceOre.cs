@@ -1,6 +1,7 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using System.Collections.Generic;
 
 namespace MagnumOpus.Content.MoonlightSonata.ResonantOres
 {
@@ -28,6 +29,14 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantOres
             Item.createTile = ModContent.TileType<MoonlitResonanceOreTile>();
             Item.rare = ItemRarityID.Red;
             Item.value = Item.sellPrice(silver: 50);
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Material", "'Ore infused with lunar resonance'")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(140, 100, 200)
+            });
         }
     }
 }

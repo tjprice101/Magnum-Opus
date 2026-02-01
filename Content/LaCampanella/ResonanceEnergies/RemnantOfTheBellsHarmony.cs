@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -25,6 +26,11 @@ namespace MagnumOpus.Content.LaCampanella.ResonanceEnergies
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 55);
             Item.rare = ModContent.RarityType<LaCampanellaRarity>();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Chimes that pierce the veil of silence'") { OverrideColor = new Color(255, 140, 40) });
         }
 
         public override void PostUpdate()

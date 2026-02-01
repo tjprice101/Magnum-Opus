@@ -24,7 +24,7 @@ namespace MagnumOpus.Common.Systems
         public static readonly Color FateCyan = new Color(80, 200, 255);
         
         /// <summary>
-        /// Gets a color along the Fate gradient (Black → Dark Pink → Bright Red → White)
+        /// Gets a color along the Fate gradient (Black ↁEDark Pink ↁEBright Red ↁEWhite)
         /// </summary>
         public static Color GetFateGradient(float progress)
         {
@@ -49,7 +49,7 @@ namespace MagnumOpus.Common.Systems
                 Vector2 flareDirection = (screenPos - screenCenter).SafeNormalize(Vector2.UnitY);
                 float distanceFromCenter = Vector2.Distance(screenPos, screenCenter);
                 
-                Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+                Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
                 Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
                 
                 // Store original blend state

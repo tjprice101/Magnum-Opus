@@ -8,6 +8,7 @@ using MagnumOpus.Content.Nachtmusik.ResonanceEnergies;
 using MagnumOpus.Content.Nachtmusik.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Nachtmusik.Accessories
 {
@@ -38,17 +39,17 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             var modPlayer = player.GetModPlayer<MoonlitSerenadePendantPlayer>();
             modPlayer.hasMoonlitSerenadePendant = true;
 
-            // +20% magic damage
-            player.GetDamage(DamageClass.Magic) += 0.20f;
+            // +35% magic damage - POST-FATE ULTIMATE
+            player.GetDamage(DamageClass.Magic) += 0.35f;
 
-            // +30 mana regeneration
-            player.manaRegenBonus += 30;
+            // +50 mana regeneration - POST-FATE ULTIMATE
+            player.manaRegenBonus += 50;
 
-            // -12% mana cost
-            player.manaCost -= 0.12f;
+            // -20% mana cost - POST-FATE ULTIMATE
+            player.manaCost -= 0.20f;
 
-            // +8% magic crit
-            player.GetCritChance(DamageClass.Magic) += 8;
+            // +15% magic crit - POST-FATE ULTIMATE
+            player.GetCritChance(DamageClass.Magic) += 15;
 
             // Ambient crescent moon particles
             if (!hideVisual && Main.rand.NextBool(10))
@@ -60,33 +61,34 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                 dust.noGravity = true;
             }
 
-            // Occasional music note particle
-            if (!hideVisual && Main.rand.NextBool(25))
+            // Floating nocturnal melody notes
+            if (!hideVisual && Main.rand.NextBool(10))
             {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Color noteColor = Main.rand.NextBool() ? Gold : Violet;
-                CustomParticles.GenericFlare(notePos, noteColor * 0.6f, 0.2f, 18);
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(32f, 32f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), -Main.rand.NextFloat(0.3f, 0.5f)); // Rising like night whispers
+                Color noteColor = Color.Lerp(new Color(100, 60, 180), new Color(80, 100, 200), Main.rand.NextFloat()) * 0.55f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 35);
             }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "MagicBoost", "+20% magic damage")
+            tooltips.Add(new TooltipLine(Mod, "MagicBoost", "+35% magic damage")
             {
                 OverrideColor = Violet
             });
 
-            tooltips.Add(new TooltipLine(Mod, "ManaRegen", "+30 mana regeneration")
+            tooltips.Add(new TooltipLine(Mod, "ManaRegen", "+50 mana regeneration")
             {
                 OverrideColor = Color.Lerp(Violet, StarWhite, 0.5f)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "ManaCost", "-12% mana cost")
+            tooltips.Add(new TooltipLine(Mod, "ManaCost", "-20% mana cost")
             {
                 OverrideColor = DeepPurple
             });
 
-            tooltips.Add(new TooltipLine(Mod, "CritBoost", "+8% magic critical strike chance")
+            tooltips.Add(new TooltipLine(Mod, "CritBoost", "+15% magic critical strike chance")
             {
                 OverrideColor = Gold
             });
@@ -150,6 +152,17 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             CustomParticles.GenericFlare(initialTarget.Center, StarWhite, 0.8f, 18);
             CustomParticles.GenericFlare(initialTarget.Center, Gold, 0.6f, 16);
             CustomParticles.HaloRing(initialTarget.Center, Violet, 0.4f, 15);
+
+            // Music note burst on harmonic wave proc
+            ThemedParticles.MusicNoteBurst(initialTarget.Center, new Color(100, 60, 180), 4, 3.5f);
+
+            // Star sparkle accents
+            for (int i = 0; i < 3; i++)
+            {
+                var sparkle = new SparkleParticle(initialTarget.Center + Main.rand.NextVector2Circular(10f, 10f),
+                    Main.rand.NextVector2Circular(2f, 2f), new Color(255, 250, 240) * 0.5f, 0.2f, 15);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
 
             // Bouncing wave effect
             int maxBounces = 4;

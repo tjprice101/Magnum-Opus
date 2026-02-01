@@ -782,7 +782,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
     /// </summary>
     public class MysterysEndProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle1";
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
@@ -807,6 +807,14 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
                 CustomParticles.GenericGlow(Projectile.Center, trailColor * 0.5f, 0.2f, 15);
             }
             
+            // Subtle music note trail - enemy mystery echoes faintly
+            if (Main.rand.NextBool(10))
+            {
+                Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreen, Main.rand.NextFloat()) * 0.4f;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.8f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.25f, 25);
+            }
+            
             Projectile.rotation = Projectile.velocity.ToRotation();
             Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.3f);
         }
@@ -826,7 +834,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle1").Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             Main.spriteBatch.Draw(glow, pos, null, EnigmaGreen, 0f, glow.Size() / 2, 0.4f, SpriteEffects.None, 0f);
@@ -880,6 +888,14 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
             if (Main.rand.NextBool(8))
             {
                 CustomParticles.EnigmaEyeGaze(Projectile.Center, EnigmaPurple * 0.5f, 0.3f);
+            }
+            
+            // Subtle music note - the gaze hums with mystery
+            if (Main.rand.NextBool(15))
+            {
+                Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreen, Main.rand.NextFloat()) * 0.35f;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.6f);
+                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f), noteVel, noteColor, 0.22f, 28);
             }
             
             // Pulsing glow
@@ -960,6 +976,14 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
                 CustomParticles.Glyph(Projectile.Center, trailColor * 0.4f, 0.2f, glyphIndex);
             }
             
+            // Subtle music note trail - the glyph resonates softly
+            if (Main.rand.NextBool(12))
+            {
+                Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreen, Main.rand.NextFloat()) * 0.35f;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), -0.5f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.22f, 25);
+            }
+            
             Lighting.AddLight(Projectile.Center, EnigmaPurple.ToVector3() * 0.25f);
         }
         
@@ -1026,6 +1050,14 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
                 CustomParticles.Glyph(Projectile.Center, EnigmaPurple * 0.4f, 0.2f, -1);
             }
             
+            // Subtle music note trail - the watching eye hums mysteriously
+            if (Main.rand.NextBool(10))
+            {
+                Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreen, Main.rand.NextFloat()) * 0.4f;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.7f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.24f, 26);
+            }
+            
             Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.3f);
         }
         
@@ -1059,7 +1091,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
     /// </summary>
     public class MysteryVortexZone : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle2";
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
@@ -1101,6 +1133,16 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
                 }
             }
             
+            // Periodic music notes - the vortex sings eerily
+            if (Main.rand.NextBool(8))
+            {
+                float noteAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * Main.rand.NextFloat(20f, 50f);
+                Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreen, Main.rand.NextFloat()) * 0.35f;
+                Vector2 noteVel = (Projectile.Center - notePos).SafeNormalize(Vector2.Zero) * 0.3f + new Vector2(0, -0.5f);
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.26f, 30);
+            }
+            
             Lighting.AddLight(Projectile.Center, EnigmaPurple.ToVector3() * 0.5f);
         }
         
@@ -1111,7 +1153,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle2").Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             // Swirling vortex effect
@@ -1166,6 +1208,14 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
             if (Main.rand.NextBool(6))
             {
                 CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f), EnigmaPurple * 0.5f, 0.2f, -1);
+            }
+            
+            // Music note trail - the revelation eye echoes with mystery's melody
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreen, Main.rand.NextFloat()) * 0.5f;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.3f, 30);
             }
             
             Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.4f);

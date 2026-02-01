@@ -39,6 +39,11 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             Item.expert = true;
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Elegance distilled into material form'") { OverrideColor = new Color(240, 240, 255) });
+        }
+
         public override bool CanRightClick() => true;
         
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)

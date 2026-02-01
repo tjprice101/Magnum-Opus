@@ -39,14 +39,17 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
     {
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/CodaOfAnnihilation";
         
+        // Track for star circle effect
+        private int weaponCycleIndex = 0;
+        
         // Total number of different weapons to cycle through
         private const int TotalWeaponTypes = 14;
         
-        // Counter for which weapon to spawn next
-        private int weaponCycleIndex = 0;
-        
         // Track the held swing projectile
         private int heldSwingProjectile = -1;
+        
+        // Track if we've already spawned a swing this use
+        private bool swingSpawnedThisUse = false;
         
         public override void SetDefaults()
         {
@@ -147,9 +150,24 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         
         public override void HoldItem(Player player)
         {
-            // Spawn held swing projectile when starting to use the weapon
-            if (player.itemAnimation > 0 && player.itemAnimation == player.itemAnimationMax - 1)
+            // Reset spawn flag when animation ends OR when a new animation cycle starts
+            // This allows continuous swinging with autoReuse
+            if (player.itemAnimation <= 0)
             {
+                swingSpawnedThisUse = false;
+                heldSwingProjectile = -1;
+            }
+            // Also reset when animation is at the start of a new cycle (for autoReuse continuity)
+            else if (player.itemAnimation == player.itemAnimationMax - 1)
+            {
+                swingSpawnedThisUse = false;
+            }
+            
+            // Spawn held swing projectile ONCE per animation cycle
+            if (player.itemAnimation > 0 && !swingSpawnedThisUse)
+            {
+                swingSpawnedThisUse = true;
+                
                 // Spawn the visual spinning sword projectile
                 if (Main.myPlayer == player.whoAmI)
                 {

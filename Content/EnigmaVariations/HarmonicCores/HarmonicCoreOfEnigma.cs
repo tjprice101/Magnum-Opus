@@ -50,7 +50,7 @@ namespace MagnumOpus.Content.EnigmaVariations.HarmonicCores
             
             tooltips.Add(new TooltipLine(Mod, "Spacer2", " ") { OverrideColor = Color.Transparent });
             
-            tooltips.Add(new TooltipLine(Mod, "UniqueHeader", "◆ Prismatic Flares")
+            tooltips.Add(new TooltipLine(Mod, "UniqueHeader", "◁EPrismatic Flares")
             {
                 OverrideColor = new Color(150, 255, 200)
             });

@@ -200,6 +200,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
                     CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f), FateCosmicVFX.FatePurple * spectralAlpha, 0.28f, -1);
             }
             
+            // ☁EMUSICAL NOTATION - Cosmic destiny trail
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(new Color(180, 50, 100), new Color(255, 60, 80), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor * spectralAlpha, 0.35f, 35);
+            }
+            
             if (PhaseTimer >= RiseUpTime)
             {
                 CurrentPhase = AttackPhase.SpinAbove;

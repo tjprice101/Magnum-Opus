@@ -117,7 +117,7 @@ namespace MagnumOpus.Common.Systems
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             
@@ -305,7 +305,7 @@ namespace MagnumOpus.Common.Systems
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             
@@ -542,7 +542,7 @@ namespace MagnumOpus.Common.Systems
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             
@@ -677,7 +677,7 @@ namespace MagnumOpus.Common.Systems
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             
@@ -921,7 +921,7 @@ namespace MagnumOpus.Common.Systems
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             
@@ -1082,7 +1082,7 @@ namespace MagnumOpus.Common.Systems
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             

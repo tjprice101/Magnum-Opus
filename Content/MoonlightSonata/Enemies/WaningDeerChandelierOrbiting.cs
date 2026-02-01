@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Enemies
 {
@@ -128,6 +129,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 snow.noGravity = true;
                 snow.velocity = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(0.2f, 0.5f));
             }
+            
+            // ☁EMUSICAL NOTATION - Ethereal chandelier melody (subtle for enemy)
+            if (Main.rand.NextBool(30))
+            {
+                Color noteColor = Color.Lerp(new Color(138, 43, 226), new Color(135, 206, 250), Main.rand.NextFloat()) * 0.7f;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.6f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.22f, 28);
+            }
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -177,6 +186,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             EnhancedThemedParticles.MoonlightBloomBurstEnhanced(Projectile.Center, 0.5f);
             EnhancedParticles.BloomFlare(Projectile.Center, new Color(80, 40, 140), 0.35f, 15, 2, 0.6f);
             EnhancedParticles.BloomFlare(Projectile.Center, new Color(140, 200, 255), 0.3f, 12, 2, 0.5f);
+            
+            // ☁EMUSICAL FINALE - Chandelier's last note (subtle)
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(138, 43, 226) * 0.6f, 3, 2.5f);
         }
     }
 }

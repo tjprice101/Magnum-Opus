@@ -18,7 +18,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
     public class InfernalBellLaser : ModProjectile
     {
         // Custom texture - no vanilla textures allowed
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare3";
         
         public override void SetStaticDefaults()
         {
@@ -124,7 +124,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
     public class ExplosiveBellProjectile : ModProjectile
     {
         // Custom texture - no vanilla textures allowed
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare4";
         
         private float rotationSpeed = 0f;
 
@@ -240,7 +240,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
     public class InfernalGroundFire : ModProjectile
     {
         // Custom texture - no vanilla textures allowed
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare5";
 
         public override void SetDefaults()
         {
@@ -320,7 +320,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             float fade = Projectile.timeLeft > 30 ? 1f : Projectile.timeLeft / 30f;
             
             // The visual is entirely particle-based in AI, so just draw a small core glow
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare5").Value;
             Vector2 origin = glowTex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
@@ -344,7 +344,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
     public class InfernalFireWave : ModProjectile
     {
         // Custom texture - no vanilla textures allowed
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare6";
 
         public override void SetDefaults()
         {
@@ -448,7 +448,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         {
             // Draw as large flame column using glow textures
             float baseHeight = 80f * Projectile.scale;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare6").Value;
             Vector2 origin = glowTex.Size() / 2f;
             
             for (int layer = 0; layer < 5; layer++)
@@ -483,7 +483,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
     public class MassiveInfernalLaser : ModProjectile
     {
         // Custom texture - no vanilla textures allowed
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare7";
         
         private const float MaxLength = 2000f;
         private float currentLength = 0f;
@@ -592,7 +592,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         {
             if (currentLength <= 0) return false;
             
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare7").Value;
             Vector2 origin = glowTex.Size() / 2f;
             Vector2 direction = Projectile.velocity.SafeNormalize(Vector2.UnitX);
             float rotation = direction.ToRotation();

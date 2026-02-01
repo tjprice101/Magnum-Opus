@@ -11,6 +11,7 @@ using MagnumOpus.Content.Winter.Materials;
 using MagnumOpus.Content.Winter.Projectiles;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Winter.Weapons
 {
@@ -95,6 +96,15 @@ namespace MagnumOpus.Content.Winter.Weapons
                 }
             }
 
+            // Floating winter melody notes (drifting like snowflakes)
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), Main.rand.NextFloat(0.1f, 0.5f)); // Gentle downward drift
+                Color noteColor = Color.Lerp(new Color(150, 200, 255), new Color(240, 250, 255), Main.rand.NextFloat()) * 0.6f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 40);
+            }
+
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 0.4f;
             Lighting.AddLight(player.Center, GlacialPurple.ToVector3() * pulse);
         }
@@ -116,13 +126,25 @@ namespace MagnumOpus.Content.Winter.Weapons
 
                 // VFX burst
                 CustomParticles.GenericFlare(spawnPos, FrostWhite, 1.2f, 30);
-                // Frost sparkle burst (replacing banned HaloRing)
+                // Frost sparkle burst 
                 var frostSparkle1 = new SparkleParticle(spawnPos, Vector2.Zero, IceBlue * 0.7f, 0.8f * 0.6f, 22);
                 MagnumParticleHandler.SpawnParticle(frostSparkle1);
                 var frostSparkle2 = new SparkleParticle(spawnPos, Vector2.Zero, CrystalCyan * 0.5f, 0.6f * 0.6f, 18);
                 MagnumParticleHandler.SpawnParticle(frostSparkle2);
                 var frostSparkle3 = new SparkleParticle(spawnPos, Vector2.Zero, GlacialPurple * 0.4f, 0.4f * 0.6f, 15);
                 MagnumParticleHandler.SpawnParticle(frostSparkle3);
+
+                // Music note ring and burst for Ice Storm
+                ThemedParticles.MusicNoteRing(spawnPos, new Color(150, 200, 255), 40f, 6);
+                ThemedParticles.MusicNoteBurst(spawnPos, new Color(240, 250, 255), 5, 4f);
+
+                // Icy sparkle accents
+                for (int j = 0; j < 5; j++)
+                {
+                    var sparkle = new SparkleParticle(spawnPos + Main.rand.NextVector2Circular(15f, 15f),
+                        Main.rand.NextVector2Circular(2f, 2f), new Color(240, 250, 255) * 0.6f, 0.22f, 18);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
 
                 for (int i = 0; i < 16; i++)
                 {
@@ -146,6 +168,9 @@ namespace MagnumOpus.Content.Winter.Weapons
 
             // Muzzle VFX
             CustomParticles.GenericFlare(spawnPos, IceBlue, 0.55f, 16);
+
+            // Music note on cast
+            ThemedParticles.MusicNote(spawnPos, velocity * 0.1f, new Color(180, 230, 255) * 0.8f, 0.7f, 25);
 
             for (int i = 0; i < 6; i++)
             {

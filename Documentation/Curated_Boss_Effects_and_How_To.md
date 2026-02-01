@@ -6,6 +6,115 @@ This document provides a comprehensive deep-dive into all MagnumOpus bosses, the
 
 ---
 
+## ⭐⭐⭐ THE CARDINAL RULE: EVERY ATTACK IS UNIQUE ⭐⭐⭐
+
+> **THIS IS THE ABSOLUTE #1 RULE FOR BOSS DESIGN.**
+
+### Every Boss Attack Must Have Its Own Visual Identity
+
+If a boss has 8 attacks, those 8 attacks must be **COMPLETELY VISUALLY DIFFERENT**:
+
+| Attack | Telegraph | Execution | Impact | Unique Element |
+|--------|-----------|-----------|--------|----------------|
+| Attack 1 | Converging music notes | Radial burst with safe arc | Harmonic shockwave + note scatter | Notes spiral inward during charge |
+| Attack 2 | Warning lines + ground markers | Dash with afterimages | Rising flame pillars along path | Flame trails linger and damage |
+| Attack 3 | Orbiting glyph circle | Laser beam sweep | Chromatic aberration pulse | Beam leaves burning glyphs |
+| Attack 4 | Feathers gathering | Feather storm barrage | Crystalline shard explosion | Feathers home then explode |
+| Attack 5 | Eye formation watching player | Targeted orb volley | Eyes remain watching, then burst | Orbs connect with light beams |
+| Attack 6 | Smoke cloud buildup | Ground slam shockwave | Smoke explosion + ember rain | Ground cracks with fire |
+| Attack 7 | Star constellation forming | Star projectile rain | Constellation connects on impact | Stars leave sparkle trails |
+| Attack 8 | Reality distortion effect | Screen-wide wave attack | Chromatic scatter + reality crack | Brief color inversion |
+
+**EVERY attack tells its own story. EVERY attack is memorable.**
+
+### The Forbidden Pattern for Boss Attacks
+
+```csharp
+// ❌ FORBIDDEN - Generic, boring boss attack
+private void Attack_GenericBurst()
+{
+    // Spawn some projectiles in a circle
+    for (int i = 0; i < 8; i++)
+    {
+        float angle = MathHelper.TwoPi * i / 8f;
+        Vector2 vel = angle.ToRotationVector2() * 10f;
+        Projectile.NewProjectile(NPC.Center, vel, projType, damage, 0f);
+    }
+    // Some generic particles
+    CustomParticles.GenericFlare(NPC.Center, themeColor, 0.5f, 15);
+}
+// This is LAZY. Every attack deserves unique VFX.
+```
+
+---
+
+## 🎵 MUSIC NOTES IN BOSS FIGHTS
+
+> **THIS IS A MUSIC MOD. BOSS ATTACKS MUST INCLUDE VISIBLE MUSIC NOTES.**
+
+### Where Music Notes MUST Appear in Boss Fights:
+
+1. **Attack Telegraphs** - Notes converging during charge-up
+2. **Projectile Trails** - Music notes scattered in wake
+3. **Impact Effects** - Note bursts on hits
+4. **Death Explosions** - Massive note cascade
+5. **Ambient Effects** - Floating notes around boss
+
+### Music Note Scale Requirements (CRITICAL)
+
+```csharp
+// ❌ INVISIBLE - Scale too small
+ThemedParticles.MusicNote(pos, vel, color, 0.25f, 20, 1); // CAN'T SEE THIS
+
+// ✅ VISIBLE - Proper scale with bloom
+float scale = Main.rand.NextFloat(0.7f, 1.0f);
+float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.15f;
+ThemedParticles.MusicNote(pos, vel, color, scale * shimmer, 30, Main.rand.Next(1, 7));
+
+// Add sparkle companions for extra visibility
+CustomParticles.PrismaticSparkle(pos, color, 0.35f, Main.rand.Next(1, 16));
+```
+
+---
+
+## 🎨 USE ALL AVAILABLE PARTICLE ASSETS
+
+> **You have 80+ custom particle PNGs. USE THEM in boss attacks.**
+
+### Required Particle Mix Per Attack
+
+**EVERY boss attack effect MUST combine:**
+1. At least **2 different custom particle types**
+2. At least **1 vanilla Dust type** for density
+3. At least **1 music-related particle** (MusicNote, staff lines)
+4. **Multi-layer bloom** for glow effects
+
+### Available Assets (USE ALL OF THESE)
+
+| Category | Files | Use For |
+|----------|-------|---------|
+| MusicNote (6) | `MusicNote1-6.png` | EVERY attack telegraph, trail, impact |
+| EnergyFlare (7) | `EnergyFlare1-7.png` | Attack cores, charge effects |
+| GlowingHalo (5) | `GlowingHalo1-6.png` | Shockwaves, expansion rings |
+| PrismaticSparkle (15) | `PrismaticSparkle1-15.png` | Sparkle accents everywhere |
+| Glyphs (12) | `Glyphs1-12.png` | Magic circles, enchantment effects |
+| SwanFeather (10) | `SwanFeather1-10.png` | Swan Lake attacks |
+| EnigmaEye (8) | `EnigmaEye1-8.png` | Enigma watching effects |
+| SwordArc (9) | `SwordArc1-9.png` | Melee boss attacks |
+
+### Vanilla Dust for Density
+
+```csharp
+// ALWAYS add vanilla dust to boss attacks
+DustID.MagicMirror      // Magical shimmer
+DustID.Enchanted_Gold   // Golden sparkles
+DustID.PurpleTorch      // Purple flames
+DustID.Electric         // Electric sparks
+DustID.GemAmethyst      // Purple gems
+```
+
+---
+
 ## 🏗️ BOSS ARCHITECTURE FUNDAMENTALS
 
 ### AI State Machine Pattern

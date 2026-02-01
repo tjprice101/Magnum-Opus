@@ -62,7 +62,7 @@ namespace MagnumOpus.Content.MoonlightSonata.HarmonicCores
             
             tooltips.Add(new TooltipLine(Mod, "Spacer2", " ") { OverrideColor = Color.Transparent });
             
-            tooltips.Add(new TooltipLine(Mod, "UniqueHeader", "◆ Lunar Aura")
+            tooltips.Add(new TooltipLine(Mod, "UniqueHeader", "◁ELunar Aura")
             {
                 OverrideColor = new Color(180, 150, 255)
             });

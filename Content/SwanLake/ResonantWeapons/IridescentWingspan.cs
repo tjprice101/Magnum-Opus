@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
@@ -167,7 +168,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             Vector2 arcPos = player.Center + towardsMouse * 35f;
             CustomParticles.SwordArcDoubleHelix(arcPos, towardsMouse * 4f, Color.White, Color.Black, 0.4f);
             
-            // Gradient halo rings - Black → White with rainbow shimmer (80% size)
+            // Gradient halo rings - Black ↁEWhite with rainbow shimmer (80% size)
             for (int ring = 0; ring < 4; ring++)
             {
                 float progress = (float)ring / 4f;
@@ -188,7 +189,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             for (int i = 0; i < 12; i++)
             {
                 float progress = (float)i / 12f;
-                // GRADIENT: Black → White with rainbow shimmer overlay
+                // GRADIENT: Black ↁEWhite with rainbow shimmer overlay
                 Color baseColor = Color.Lerp(new Color(20, 20, 30), Color.White, progress);
                 float hue = (progress + Main.GameUpdateCount * 0.015f) % 1f;
                 Color col = Color.Lerp(baseColor, Main.hslToRgb(hue, 0.5f, 0.85f), 0.25f);
@@ -240,6 +241,17 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             Texture2D texture = TextureAssets.Item[Item.type].Value;
             spriteBatch.Draw(texture, position, frame, drawColor, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
             return false;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires 3 flares in a wing-like spread pattern"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Creates pearlescent rainbow explosions on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Ethereal wings manifest while held"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Wings unfurled, the iridescent light spreads across the sky'") 
+            { 
+                OverrideColor = new Color(220, 225, 235) 
+            });
         }
     }
 
@@ -367,6 +379,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             {
                 CustomParticles.SwanFeatherTrail(Projectile.Center, Projectile.velocity, 0.25f);
             }
+            
+            // ☁EMUSICAL NOTATION - Swan Lake graceful melody
+            if (Main.rand.NextBool(6))
+            {
+                float hue = (Main.GameUpdateCount * 0.01f + Main.rand.NextFloat()) % 1f;
+                Color noteColor = Main.hslToRgb(hue, 0.8f, 0.9f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
+            }
 
             // BRIGHT pulsing light!
             float lightIntensity = isBlack ? 0.5f : 1.0f;
@@ -378,6 +399,11 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
         {
             // Create pearlescent rainbow explosion
             CreateRainbowExplosion();
+            
+            // ☁EMUSICAL FINALE - Feathered symphony
+            float hue = (Main.GameUpdateCount * 0.02f) % 1f;
+            Color finaleColor = Main.hslToRgb(hue, 0.9f, 0.85f);
+            ThemedParticles.MusicNoteBurst(Projectile.Center, finaleColor, 6, 4f);
             
             // Fractal gem burst on death
             ThemedParticles.SwanLakeFractalGemBurst(Projectile.Center, isBlack ? Color.Black : Color.White, 0.6f, 6, false);
@@ -405,6 +431,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             
             // Feather burst on hit
             CustomParticles.SwanFeatherBurst(target.Center, 5, 0.3f);
+            
+            // ☁EMUSICAL IMPACT - Swan's graceful chord
+            ThemedParticles.MusicNoteBurst(target.Center, Color.White, 5, 3.5f);
             
             // Extra sparkles
             ThemedParticles.SwanLakeSparkles(target.Center, 15, 30f);

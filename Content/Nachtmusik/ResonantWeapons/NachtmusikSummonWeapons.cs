@@ -9,6 +9,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 using MagnumOpus.Content.Nachtmusik.Debuffs;
 using MagnumOpus.Content.Nachtmusik.Projectiles;
 
@@ -25,7 +26,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         {
             Item.width = 44;
             Item.height = 44;
-            Item.damage = 520;
+            Item.damage = 720; // POST-FATE SUMMON
             Item.DamageType = DamageClass.Summon;
             Item.mana = 20;
             Item.useTime = 30;
@@ -51,6 +52,18 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             NachtmusikCosmicVFX.SpawnCelestialExplosion(spawnPos, 0.8f);
             NachtmusikCosmicVFX.SpawnConstellationCircle(spawnPos, 40f, 6, 0.35f);
             
+            // Music note ring for summon entrance
+            ThemedParticles.MusicNoteRing(spawnPos, new Color(100, 60, 180), 40f, 6);
+            ThemedParticles.MusicNoteBurst(spawnPos, new Color(80, 100, 200), 5, 3f);
+            
+            // Star sparkle accents
+            for (int sparkle = 0; sparkle < 4; sparkle++)
+            {
+                var starSparkle = new SparkleParticle(spawnPos + Main.rand.NextVector2Circular(15f, 15f),
+                    Main.rand.NextVector2Circular(2f, 2f), new Color(255, 250, 240) * 0.6f, 0.22f, 18);
+                MagnumParticleHandler.SpawnParticle(starSparkle);
+            }
+            
             Projectile.NewProjectile(source, spawnPos, Vector2.Zero, type, damage, knockback, player.whoAmI);
             
             return false;
@@ -64,6 +77,15 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 float angle = Main.GameUpdateCount * 0.05f;
                 Vector2 particlePos = player.Center + angle.ToRotationVector2() * 30f;
                 CustomParticles.GenericFlare(particlePos, NachtmusikCosmicVFX.DeepPurple * 0.6f, 0.2f, 12);
+            }
+            
+            // Floating nocturnal melody notes
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -Main.rand.NextFloat(0.3f, 0.6f));
+                Color noteColor = Color.Lerp(new Color(100, 60, 180), new Color(80, 100, 200), Main.rand.NextFloat()) * 0.6f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 40);
             }
             
             Lighting.AddLight(player.Center, NachtmusikCosmicVFX.DeepPurple.ToVector3() * 0.3f);
@@ -92,7 +114,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         {
             Item.width = 40;
             Item.height = 40;
-            Item.damage = 420;
+            Item.damage = 620; // POST-FATE SUMMON
             Item.DamageType = DamageClass.Summon;
             Item.mana = 18;
             Item.useTime = 30;
@@ -124,6 +146,17 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 CustomParticles.GenericFlare(ringPos, NachtmusikCosmicVFX.Violet, 0.3f, 15);
             }
             
+            // Music note ring for summon entrance
+            ThemedParticles.MusicNoteRing(spawnPos, new Color(100, 60, 180), 45f, 8);
+            
+            // Star sparkle accents
+            for (int sparkle = 0; sparkle < 5; sparkle++)
+            {
+                var starSparkle = new SparkleParticle(spawnPos + Main.rand.NextVector2Circular(18f, 18f),
+                    Main.rand.NextVector2Circular(2f, 2f), new Color(255, 250, 240) * 0.6f, 0.22f, 18);
+                MagnumParticleHandler.SpawnParticle(starSparkle);
+            }
+            
             Projectile.NewProjectile(source, spawnPos, Vector2.Zero, type, damage, knockback, player.whoAmI);
             
             return false;
@@ -131,11 +164,16 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         
         public override void HoldItem(Player player)
         {
-            // Musical notes while holding
-            if (Main.rand.NextBool(12))
+            // Musical notes while holding - VISIBLE SCALE 0.75f+
+            if (Main.rand.NextBool(10))
             {
                 Vector2 notePos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
-                ThemedParticles.MusicNote(notePos, new Vector2(0, -1f), NachtmusikCosmicVFX.Gold * 0.5f, 0.2f, 20);
+                float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
+                ThemedParticles.MusicNote(notePos, new Vector2(0, -1f), NachtmusikCosmicVFX.Gold * 0.6f, 0.75f * shimmer, 25);
+                
+                // Celestial sparkle accent
+                var sparkle = new SparkleParticle(notePos, new Vector2(0, -0.8f), NachtmusikCosmicVFX.StarWhite * 0.45f, 0.24f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
             Lighting.AddLight(player.Center, NachtmusikCosmicVFX.Gold.ToVector3() * 0.3f);
@@ -167,7 +205,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         {
             Item.width = 48;
             Item.height = 48;
-            Item.damage = 550;
+            Item.damage = 780; // POST-FATE ULTIMATE SUMMON
             Item.DamageType = DamageClass.Summon;
             Item.mana = 35;
             Item.useTime = 35;
@@ -202,6 +240,18 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 CustomParticles.GenericFlare(starPos, NachtmusikCosmicVFX.StarWhite, 0.4f, 18);
             }
             
+            // Music note ring and burst for grand entrance
+            ThemedParticles.MusicNoteRing(spawnPos, new Color(100, 60, 180), 55f, 10);
+            ThemedParticles.MusicNoteBurst(spawnPos, new Color(80, 100, 200), 8, 5f);
+            
+            // Star sparkle accents
+            for (int sparkle = 0; sparkle < 7; sparkle++)
+            {
+                var starSparkle = new SparkleParticle(spawnPos + Main.rand.NextVector2Circular(25f, 25f),
+                    Main.rand.NextVector2Circular(3f, 3f), new Color(255, 250, 240) * 0.6f, 0.25f, 20);
+                MagnumParticleHandler.SpawnParticle(starSparkle);
+            }
+            
             MagnumScreenEffects.AddScreenShake(6f);
             
             Projectile.NewProjectile(source, spawnPos, Vector2.Zero, type, damage, knockback, player.whoAmI);
@@ -228,6 +278,15 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             if (Main.rand.NextBool(15))
             {
                 NachtmusikCosmicVFX.SpawnGlyphBurst(player.Center, 1, 2f, 0.2f);
+            }
+            
+            // Floating nocturnal melody notes
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -Main.rand.NextFloat(0.3f, 0.6f));
+                Color noteColor = Color.Lerp(new Color(100, 60, 180), new Color(80, 100, 200), Main.rand.NextFloat()) * 0.6f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 40);
             }
             
             Lighting.AddLight(player.Center, NachtmusikCosmicVFX.Violet.ToVector3() * 0.4f);

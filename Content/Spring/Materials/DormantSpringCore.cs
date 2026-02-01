@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -25,6 +26,11 @@ namespace MagnumOpus.Content.Spring.Materials
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 1);
             Item.rare = ItemRarityID.LightRed;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Latent energy waiting to awaken with the thaw'") { OverrideColor = new Color(255, 180, 200) });
         }
 
         public override void PostUpdate()

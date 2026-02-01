@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -46,6 +47,11 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
             Item.axe = 50; // Tier 4: 250% axe power - between La Campanella (225%) and Swan Lake (300%)
             
             Item.maxStack = 1;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Severs the veil between known and unknown'") { OverrideColor = new Color(140, 60, 200) });
         }
 
         public override void AddRecipes()

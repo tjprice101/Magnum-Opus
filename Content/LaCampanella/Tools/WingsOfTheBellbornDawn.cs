@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -41,6 +42,11 @@ namespace MagnumOpus.Content.LaCampanella.Tools
             Item.accessory = true;
             Item.value = Item.buyPrice(platinum: 3);
             Item.rare = ModContent.RarityType<LaCampanellaRainbowRarity>();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Ride the flames of the eternal chime'") { OverrideColor = new Color(255, 140, 40) });
         }
 
         public override void VerticalWingSpeeds(Player player, ref float ascentWhenFalling, ref float ascentWhenRising,

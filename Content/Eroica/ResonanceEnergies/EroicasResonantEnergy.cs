@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -20,6 +22,11 @@ namespace MagnumOpus.Content.Eroica.ResonanceEnergies
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 2);
             Item.rare = ModContent.RarityType<EroicaRainbowRarity>();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The hero's unyielding spirit'") { OverrideColor = new Color(200, 50, 50) });
         }
 
         public override void PostUpdate()

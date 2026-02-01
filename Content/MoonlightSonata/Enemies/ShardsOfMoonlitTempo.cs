@@ -1,6 +1,7 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using System.Collections.Generic;
 using MagnumOpus.Common;
 
 namespace MagnumOpus.Content.MoonlightSonata.Enemies
@@ -23,6 +24,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 25;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Material", "'Crystallized fragments of a lunar melody'")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(140, 100, 200)
+            });
         }
     }
 }

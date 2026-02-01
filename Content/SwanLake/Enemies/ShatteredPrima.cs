@@ -1182,7 +1182,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Draw orbiting feathers
-            Texture2D featherTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D featherTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwanFeather3").Value;
             foreach (var featherPos in orbitingFeatherPositions)
             {
                 int index = orbitingFeatherPositions.IndexOf(featherPos);
@@ -1296,7 +1296,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
     /// </summary>
     public class PrimaFeatherBlade : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/SwanFeather4";
         
         private bool isWhite => Projectile.ai[0] == 1;
         
@@ -1341,6 +1341,15 @@ namespace MagnumOpus.Content.SwanLake.Enemies
             {
                 Color sparkleColor = Main.hslToRgb(Main.rand.NextFloat(), 0.8f, 0.8f);
                 CustomParticles.PrismaticSparkle(Projectile.Center, sparkleColor, 0.2f);
+            }
+            
+            // ☁EMUSICAL NOTATION - Swan Lake graceful melody
+            if (Main.rand.NextBool(8))
+            {
+                float hue = (Main.GameUpdateCount * 0.01f + Main.rand.NextFloat()) % 1f;
+                Color noteColor = Main.hslToRgb(hue, 0.8f, 0.9f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.3f, 30);
             }
             
             // Light
@@ -1400,6 +1409,11 @@ namespace MagnumOpus.Content.SwanLake.Enemies
             }
             
             CustomParticles.GenericFlare(Projectile.Center, isWhite ? Color.White : new Color(50, 50, 60), 0.4f, 12);
+            
+            // ☁EMUSICAL FINALE - Feathered symphony
+            float hue = (Main.GameUpdateCount * 0.02f) % 1f;
+            Color finaleColor = Main.hslToRgb(hue, 0.9f, 0.85f);
+            ThemedParticles.MusicNoteBurst(Projectile.Center, finaleColor, 4, 3f);
         }
     }
 
@@ -1409,7 +1423,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
     /// </summary>
     public class PrimaSoundWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo4";
         
         private float radius => Projectile.ai[0] + Projectile.localAI[0];
         
@@ -1447,6 +1461,17 @@ namespace MagnumOpus.Content.SwanLake.Enemies
                     Color particleColor = Main.rand.NextBool() ? Color.White * 0.6f : Main.hslToRgb((Main.GameUpdateCount * 0.01f + i * 0.05f) % 1f, 0.8f, 0.8f) * 0.6f;
                     var glow = new GenericGlowParticle(pos, Vector2.Zero, particleColor, 0.2f, 8, true);
                     MagnumParticleHandler.SpawnParticle(glow);
+                }
+                
+                // ☁EMUSICAL NOTATION - Swan Lake graceful melody on sound wave
+                if (Main.rand.NextBool(4))
+                {
+                    float noteAngle = MathHelper.TwoPi * Main.rand.NextFloat();
+                    Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * radius;
+                    float hue = (Main.GameUpdateCount * 0.01f + Main.rand.NextFloat()) % 1f;
+                    Color noteColor = Main.hslToRgb(hue, 0.8f, 0.9f);
+                    Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                    ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.35f, 35);
                 }
             }
             
@@ -1587,6 +1612,15 @@ namespace MagnumOpus.Content.SwanLake.Enemies
                 MagnumParticleHandler.SpawnParticle(shadow);
             }
             
+            // ☁EMUSICAL NOTATION - Swan Lake graceful melody (shadowy variant)
+            if (Main.rand.NextBool(10))
+            {
+                float hue = (Main.GameUpdateCount * 0.01f + Main.rand.NextFloat()) % 1f;
+                Color noteColor = Main.hslToRgb(hue, 0.6f, 0.7f) * 0.7f;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.3f, 30);
+            }
+            
             // Light (darker than Prima)
             Lighting.AddLight(Projectile.Center, 0.2f, 0.2f, 0.3f);
         }
@@ -1637,6 +1671,11 @@ namespace MagnumOpus.Content.SwanLake.Enemies
             }
             
             CustomParticles.HaloRing(Projectile.Center, new Color(30, 30, 40), 0.6f, 20);
+            
+            // ☁EMUSICAL FINALE - Feathered symphony (shadowy variant)
+            float hue = (Main.GameUpdateCount * 0.02f) % 1f;
+            Color finaleColor = Main.hslToRgb(hue, 0.7f, 0.75f) * 0.8f;
+            ThemedParticles.MusicNoteBurst(Projectile.Center, finaleColor, 4, 3f);
         }
     }
 

@@ -42,5 +42,11 @@ namespace MagnumOpus.Content.Eroica.SummonItems
                 .AddTile(ModContent.TileType<MoonlightAnvilTile>())
                 .Register();
         }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect", "Place in the Grand Piano to summon Eroica, God of Valor"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The score of a hero's symphony'") { OverrideColor = new Color(200, 50, 50) });
+        }
     }
 }

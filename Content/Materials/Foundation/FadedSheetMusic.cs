@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -36,6 +37,11 @@ namespace MagnumOpus.Content.Materials.Foundation
                 dust.noGravity = true;
                 dust.velocity *= 0.15f;
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "'Ancient scores with faded but still powerful notation'") { OverrideColor = new Color(200, 180, 150) });
         }
 
         public override void AddRecipes()

@@ -117,7 +117,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
                 CustomParticles.GenericFlare(muzzlePos + offset, flareColor, 0.55f, 20);
             }
             
-            // Gradient halo rings - Black → White with rainbow edge
+            // Gradient halo rings - Black ↁEWhite with rainbow edge
             for (int ring = 0; ring < 4; ring++)
             {
                 float progress = (float)ring / 4f;
@@ -173,6 +173,16 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             Texture2D texture = TextureAssets.Item[Item.type].Value;
             spriteBatch.Draw(texture, position, frame, drawColor, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
             return false;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires tracking black and white bolts"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Hitting the same enemy 3 times causes a prismatic explosion"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The final aria of monochrome light'") 
+            { 
+                OverrideColor = new Color(220, 225, 235) 
+            });
         }
     }
 
@@ -288,6 +298,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             {
                 CustomParticles.SwanFeatherTrail(Projectile.Center, Projectile.velocity, 0.2f);
             }
+            
+            // ☁EMUSICAL NOTATION - Swan Lake graceful melody
+            if (Main.rand.NextBool(6))
+            {
+                float hue = (Main.GameUpdateCount * 0.01f + Main.rand.NextFloat()) % 1f;
+                Color noteColor = Main.hslToRgb(hue, 0.8f, 0.9f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
+            }
 
             // BRIGHT pulsing light!
             float intensity = isBlack ? 0.45f : 0.85f;
@@ -378,6 +397,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             
             // Music notes on hit!
             ThemedParticles.SwanLakeMusicNotes(position, 4, 20f);
+            
+            // ☁EMUSICAL IMPACT - Swan's graceful chord
+            ThemedParticles.MusicNoteBurst(position, Color.White, 4, 3f);
             
             // Small feather burst
             CustomParticles.SwanFeatherBurst(position, 3, 0.25f);
@@ -479,6 +501,11 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
                 Dust r = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowTorch, Main.rand.NextVector2Circular(2.5f, 2.5f), 0, rainbow, 1.1f);
                 r.noGravity = true;
             }
+            
+            // ☁EMUSICAL FINALE - Feathered symphony
+            float finaleHue = (Main.GameUpdateCount * 0.02f) % 1f;
+            Color finaleColor = Main.hslToRgb(finaleHue, 0.9f, 0.85f);
+            ThemedParticles.MusicNoteBurst(Projectile.Center, finaleColor, 5, 3.5f);
         }
         
         public override bool OnTileCollide(Vector2 oldVelocity)

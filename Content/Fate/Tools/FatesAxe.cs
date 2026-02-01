@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -44,6 +45,11 @@ namespace MagnumOpus.Content.Fate.Tools
             Item.axe = 65; // 325% axe power - highest tier, above Swan Lake (300%)
             
             Item.maxStack = 1;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Each swing cleaves through the threads of destiny'") { OverrideColor = new Color(180, 40, 80) });
         }
 
         public override void AddRecipes()

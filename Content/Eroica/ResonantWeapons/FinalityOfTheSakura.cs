@@ -83,7 +83,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             // Spawn position at mouse
             position = Main.MouseWorld;
             
-            // GRADIENT COLORS: Black → Deep Scarlet → Crimson → Gold
+            // GRADIENT COLORS: Black ↁEDeep Scarlet ↁECrimson ↁEGold
             Color eroicaBlack = new Color(30, 20, 25);
             Color eroicaScarlet = new Color(139, 0, 0);
             Color eroicaCrimson = new Color(220, 50, 50);

@@ -1,6 +1,8 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 namespace MagnumOpus.Content.Common.GrandPiano
 {
@@ -31,6 +33,16 @@ namespace MagnumOpus.Content.Common.GrandPiano
             Item.value = Item.sellPrice(gold: 50);
             Item.rare = ItemRarityID.Purple; // Endgame rarity
             Item.createTile = ModContent.TileType<GrandPianoTile>();
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "The mystical Grand Piano of Magnum Opus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Place Score items on it to summon musical bosses"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The instrument through which the symphony of creation is conducted'")
+            {
+                OverrideColor = new Color(200, 180, 255)
+            });
         }
     }
 }

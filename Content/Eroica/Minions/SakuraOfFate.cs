@@ -306,6 +306,13 @@ namespace MagnumOpus.Content.Eroica.Minions
                 crimson.velocity *= 0.3f;
             }
             
+            // ☁EMUSICAL PRESENCE - Heroic aura
+            if (Main.rand.NextBool(15))
+            {
+                Color noteColor = Color.Lerp(new Color(200, 50, 50), new Color(255, 150, 180), Main.rand.NextFloat());
+                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f), new Vector2(0, -0.8f), noteColor, 0.28f, 30);
+            }
+            
             // Orbiting dark flame particles - less frequent
             if (Main.GameUpdateCount % 4 == 0)
             {
@@ -336,6 +343,9 @@ namespace MagnumOpus.Content.Eroica.Minions
             
             // Warm lighting flash
             Lighting.AddLight(target.Center, 0.6f, 0.3f, 0.1f);
+            
+            // ☁EMUSICAL IMPACT - Triumphant chord burst
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 215, 0), 5, 3.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)

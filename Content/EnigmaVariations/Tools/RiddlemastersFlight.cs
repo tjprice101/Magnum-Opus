@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -41,6 +42,11 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
             Item.accessory = true;
             Item.value = Item.buyPrice(platinum: 5);
             Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Soar through the spaces between questions'") { OverrideColor = new Color(140, 60, 200) });
         }
 
         public override void VerticalWingSpeeds(Player player, ref float ascentWhenFalling, ref float ascentWhenRising,

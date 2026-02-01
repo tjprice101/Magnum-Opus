@@ -79,8 +79,8 @@ namespace MagnumOpus.Content.DebugWeapons
     /// </summary>
     public class Debug2RayBeam : ModProjectile
     {
-        // Use soft glow texture for drawing
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        // Use energy flare texture for drawing
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
 
         // Beam parameters
         private const float MaxBeamLength = 1200f;

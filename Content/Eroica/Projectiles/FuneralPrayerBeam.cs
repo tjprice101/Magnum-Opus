@@ -101,6 +101,14 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     DustID.Torch, 0f, 0f, 100, new Color(180, 20, 60), 1.2f);
                 spark.noGravity = true;
             }
+            
+            // ☁EMUSICAL NOTATION - Heroic melody trail
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(new Color(200, 50, 50), new Color(255, 215, 0), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
+            }
 
             Projectile.rotation = Projectile.velocity.ToRotation();
         }
@@ -179,6 +187,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
                 // Sound effect
                 SoundEngine.PlaySound(SoundID.DD2_LightningBugZap, target.position);
+                
+                // ☁EMUSICAL IMPACT - Triumphant chord burst
+                ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 215, 0), 5, 3.5f);
 
                 // Register this beam hit
                 if (!hasHitEnemy && shotId >= 0)

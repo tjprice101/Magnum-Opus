@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -44,6 +45,11 @@ namespace MagnumOpus.Content.Fate.Tools
             Item.hammer = 180; // Highest tier: above Swan Lake (165)
             
             Item.maxStack = 1;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Where it strikes, the walls between worlds shatter'") { OverrideColor = new Color(180, 40, 80) });
         }
 
         public override void AddRecipes()

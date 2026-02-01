@@ -641,6 +641,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
                 Dust wisp = Dust.NewDustPerfect(wispPos, DustID.Shadowflame, new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -2f), 100, default, 1.3f);
                 wisp.noGravity = true;
             }
+            
+            // ☁EMUSICAL PRESENCE - Goliath's lunar melody
+            if (Main.rand.NextBool(12))
+            {
+                Color noteColor = Color.Lerp(new Color(75, 0, 130), new Color(220, 220, 235), Main.rand.NextFloat());
+                Vector2 noteOffset = Main.rand.NextVector2Circular(Projectile.width / 2f, Projectile.height / 2f);
+                ThemedParticles.MusicNote(Projectile.Center + noteOffset, new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f), noteColor, 0.32f, 35);
+            }
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -684,6 +692,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
                 Dust sparkle = Dust.NewDustPerfect(target.Center, DustID.SparksMech, vel, 100, Color.White, 1.3f);
                 sparkle.noGravity = true;
             }
+            
+            // ☁EMUSICAL IMPACT - Goliath's moonlit symphony
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(138, 43, 226), 6, 4f);
             
             // Add lighting on hit
             Lighting.AddLight(target.Center, 0.6f, 0.3f, 0.8f);

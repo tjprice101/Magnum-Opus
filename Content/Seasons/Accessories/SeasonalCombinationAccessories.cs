@@ -13,6 +13,7 @@ using MagnumOpus.Content.Winter.Materials;
 using MagnumOpus.Content.Winter.Accessories;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 using System;
 
 namespace MagnumOpus.Content.Seasons.Accessories
@@ -46,7 +47,7 @@ namespace MagnumOpus.Content.Seasons.Accessories
             player.thorns = 0.8f;
             player.GetModPlayer<ReapersCharmPlayer>().reapersCharmEquipped = true;
             
-            // Dual visual - spring and autumn particles alternating
+            // Dual visual - spring and autumn particles alternating with music notes!
             if (!hideVisual && Main.rand.NextBool(8))
             {
                 bool isSpring = Main.GameUpdateCount % 120 < 60;
@@ -56,14 +57,32 @@ namespace MagnumOpus.Content.Seasons.Accessories
                 {
                     Vector2 vel = new Vector2(Main.rand.NextFloat(-1f, 1f), -Main.rand.NextFloat(0.5f, 1.5f));
                     Color springColor = Color.Lerp(new Color(255, 183, 197), new Color(144, 238, 144), Main.rand.NextFloat());
-                    CustomParticles.GenericGlow(pos, vel, springColor, 0.26f, 26, true);
+                    CustomParticles.GenericGlow(pos, vel, springColor, 0.28f, 26, true);
+                    
+                    // ☁ESPARKLE accent
+                    var sparkle = new SparkleParticle(pos, vel * 0.5f, springColor * 0.5f, 0.2f, 18);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
                 }
                 else
                 {
                     Vector2 vel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(0.5f, 1.5f));
                     Color autumnColor = Color.Lerp(new Color(255, 100, 30), new Color(139, 69, 19), Main.rand.NextFloat());
-                    CustomParticles.GenericGlow(pos, vel, autumnColor, 0.26f, 26, true);
+                    CustomParticles.GenericGlow(pos, vel, autumnColor, 0.28f, 26, true);
+                    
+                    // ☁EGLYPH for autumn decay theme
+                    if (Main.rand.NextBool(3))
+                        CustomParticles.Glyph(pos, autumnColor * 0.6f, 0.3f, -1);
                 }
+            }
+            
+            // ☁EMUSICAL NOTATION - Equinox harmony! - VISIBLE SCALE 0.68f+
+            if (!hideVisual && Main.rand.NextBool(18))
+            {
+                bool isSpring = Main.GameUpdateCount % 120 < 60;
+                Color noteColor = isSpring ? new Color(255, 183, 197) : new Color(255, 100, 30);
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
+                Vector2 noteVel = new Vector2(0, isSpring ? -1.2f : 0.8f);
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor * 0.85f, 0.68f, 28);
             }
             
             // Balanced light
@@ -135,7 +154,7 @@ namespace MagnumOpus.Content.Seasons.Accessories
                 player.GetCritChance(DamageClass.Generic) += 6;
             }
             
-            // Dual visual - fire and ice
+            // Dual visual - fire and ice with music notes!
             if (!hideVisual && Main.rand.NextBool(6))
             {
                 bool isFire = Main.rand.NextBool();
@@ -145,14 +164,32 @@ namespace MagnumOpus.Content.Seasons.Accessories
                 {
                     Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(1f, 2f));
                     Color fireColor = Color.Lerp(new Color(255, 140, 0), new Color(255, 215, 0), Main.rand.NextFloat());
-                    CustomParticles.GenericGlow(pos, vel, fireColor, 0.28f, 22, true);
+                    CustomParticles.GenericGlow(pos, vel, fireColor, 0.3f, 22, true);
+                    
+                    // ☁ESPARKLE accent
+                    var sparkle = new SparkleParticle(pos, vel * 0.5f, fireColor * 0.55f, 0.2f, 16);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
                 }
                 else
                 {
                     Vector2 vel = Main.rand.NextVector2Circular(1f, 1f) + new Vector2(0, 0.5f);
                     Color iceColor = Color.Lerp(new Color(173, 216, 230), new Color(0, 255, 255), Main.rand.NextFloat());
-                    CustomParticles.GenericGlow(pos, vel, iceColor, 0.28f, 24, true);
+                    CustomParticles.GenericGlow(pos, vel, iceColor, 0.3f, 24, true);
+                    
+                    // ☁ESPARKLE accent for ice crystalline effect
+                    var sparkle = new SparkleParticle(pos, vel * 0.4f, iceColor * 0.6f, 0.22f, 18);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
                 }
+            }
+            
+            // ☁EMUSICAL NOTATION - Solstice melody! - VISIBLE SCALE 0.68f+
+            if (!hideVisual && Main.rand.NextBool(16))
+            {
+                bool isFire = Main.rand.NextBool();
+                Color noteColor = isFire ? new Color(255, 140, 0) : new Color(150, 220, 255);
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(22f, 22f);
+                Vector2 noteVel = new Vector2(0, isFire ? -1.5f : 0.8f);
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor * 0.85f, 0.68f, 26);
             }
             
             // Dual colored light
@@ -255,7 +292,27 @@ namespace MagnumOpus.Content.Seasons.Accessories
                         break;
                 }
                 
-                CustomParticles.GenericGlow(pos, vel, seasonColor, 0.3f, 28, true);
+                CustomParticles.GenericGlow(pos, vel, seasonColor, 0.32f, 28, true);
+                
+                // ☁ESPARKLE accent for current season
+                var sparkle = new SparkleParticle(pos, vel * 0.5f, seasonColor * 0.55f, 0.2f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // ☁EMUSICAL NOTATION - Cycling season notes! - VISIBLE SCALE 0.7f+
+            if (!hideVisual && Main.rand.NextBool(14))
+            {
+                int currentSeason = (int)((Main.time / 10000) % 4);
+                Color noteColor = currentSeason switch
+                {
+                    0 => new Color(255, 183, 197), // Spring
+                    1 => new Color(255, 215, 0),   // Summer
+                    2 => new Color(255, 100, 30),  // Autumn
+                    _ => new Color(150, 220, 255)  // Winter
+                };
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(28f, 28f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1.2f);
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor * 0.85f, 0.7f, 28);
             }
             
             // Rainbow cycling light
@@ -367,16 +424,30 @@ namespace MagnumOpus.Content.Seasons.Accessories
                     {
                         float angle = baseAngle + MathHelper.TwoPi * i / 4f;
                         Vector2 orbitPos = player.Center + angle.ToRotationVector2() * 50f;
-                        CustomParticles.GenericFlare(orbitPos, seasonColors[i] * 0.8f, 0.28f, 18);
+                        CustomParticles.GenericFlare(orbitPos, seasonColors[i] * 0.85f, 0.3f, 18);
+                        
+                        // ☁ESPARKLE at orbit points
+                        var sparkle = new SparkleParticle(orbitPos, angle.ToRotationVector2() * 0.5f, seasonColors[i] * 0.6f, 0.2f, 14);
+                        MagnumParticleHandler.SpawnParticle(sparkle);
                     }
                 }
                 
-                // Central musical glow
+                // Central musical glow with layered bloom
                 if (Main.rand.NextBool(10))
                 {
                     float hue = (Main.GameUpdateCount * 0.008f) % 1f;
                     Color musicColor = Main.hslToRgb(hue, 1f, 0.8f);
-                    CustomParticles.GenericFlare(player.Center, musicColor * 0.6f, 0.35f, 22);
+                    CustomParticles.GenericFlare(player.Center, Color.White * 0.5f, 0.4f, 24);
+                    CustomParticles.GenericFlare(player.Center, musicColor * 0.65f, 0.38f, 22);
+                }
+                
+                // ☁EMUSICAL NOTATION - Grand maestro notes! - VISIBLE SCALE 0.72f+
+                if (Main.rand.NextBool(12))
+                {
+                    int seasonIndex = Main.rand.Next(4);
+                    Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                    Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), -1.5f);
+                    ThemedParticles.MusicNote(notePos, noteVel, seasonColors[seasonIndex] * 0.9f, 0.72f, 30);
                 }
                 
                 // Grand light
@@ -417,10 +488,18 @@ namespace MagnumOpus.Content.Seasons.Accessories
                 healAmount = Math.Max(1, Math.Min(healAmount, 15)); // Cap at 15 HP
                 Player.Heal(healAmount);
                 
-                // Grand lifesteal VFX
+                // Grand lifesteal VFX with music note!
                 float hue = Main.rand.NextFloat();
                 Color vfxColor = Main.hslToRgb(hue, 0.8f, 0.7f);
-                CustomParticles.GenericFlare(target.Center, vfxColor, 0.5f, 18);
+                CustomParticles.GenericFlare(target.Center, Color.White * 0.6f, 0.55f, 20);
+                CustomParticles.GenericFlare(target.Center, vfxColor, 0.52f, 18);
+                
+                // ☁ESPARKLE accent
+                var sparkle = new SparkleParticle(target.Center, Main.rand.NextVector2Circular(2f, 2f), vfxColor * 0.6f, 0.22f, 14);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+                
+                // ☁EMUSICAL NOTATION - Lifesteal note! - VISIBLE SCALE 0.7f+
+                ThemedParticles.MusicNote(target.Center, new Vector2(0, -2f), vfxColor * 0.9f, 0.7f, 25);
             }
         }
     }

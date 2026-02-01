@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -120,6 +121,15 @@ namespace MagnumOpus.Content.MoonlightSonata.CraftingStations
                 .AddIngredient(ItemID.AdamantiteForge, 1)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect", "Used to smelt Moonlight Sonata materials"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A forge that burns with ethereal flame'")
+            {
+                OverrideColor = new Color(140, 100, 200)
+            });
         }
     }
 }

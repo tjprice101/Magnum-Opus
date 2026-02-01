@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -60,6 +61,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 Dust sparkle = Dust.NewDustDirect(Projectile.position + new Vector2(0, yPos), Projectile.width, 1, DustID.GoldFlame, 0f, 0f, 0, default, 1.5f);
                 sparkle.noGravity = true;
                 sparkle.velocity = Main.rand.NextVector2Circular(4f, 2f);
+            }
+            
+            // ☁EMUSICAL NOTATION - Heroic melody along beam
+            if (Main.rand.NextBool(8))
+            {
+                float yPos = Main.rand.Next(Projectile.height);
+                Vector2 notePos = Projectile.position + new Vector2(Projectile.width / 2f, yPos);
+                Color noteColor = Color.Lerp(new Color(200, 50, 50), new Color(255, 215, 0), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-0.5f, 0.5f));
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.32f, 30);
             }
         }
 

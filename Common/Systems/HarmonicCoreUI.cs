@@ -83,7 +83,7 @@ namespace MagnumOpus.Common.Systems
             collapseBtn.OnLeftClick += (evt, elem) => { isCollapsed = true; UpdatePanelVisibility(); };
             mainPanel.Append(collapseBtn);
             
-            var collapseX = new UIText("−", 0.7f);
+            var collapseX = new UIText("×", 0.7f);
             collapseX.HAlign = 0.5f;
             collapseX.VAlign = 0.5f;
             collapseX.TextColor = new Color(200, 120, 120);
@@ -199,10 +199,10 @@ namespace MagnumOpus.Common.Systems
                     string enhText = stats.EnhancementLevel > 0 ? $" +{stats.EnhancementLevel}" : "";
                     int dmgPercent = (int)(stats.DamageBonus * 100f);
                     
-                    // Format: "◇ Name [T1] +Enh — +5% Dmg"
+                    // Format: "◁EName [T1] +Enh  E+5% Dmg"
                     // Second line: "  Effect: description"
-                    string line1 = $"◇ {stats.DisplayName} [T{stats.Tier}]{enhText}";
-                    string line2 = $"   → +{dmgPercent}% Damage";
+                    string line1 = $"◁E{stats.DisplayName} [T{stats.Tier}]{enhText}";
+                    string line2 = $"   ↁE+{dmgPercent}% Damage";
                     string line3 = $"   {stats.EffectName}";
                     
                     statsCoreLines[i].SetText($"{line1}\n{line2}\n{line3}");
@@ -219,7 +219,7 @@ namespace MagnumOpus.Common.Systems
             {
                 float totalDmg = player.GetTotalDamageBonus();
                 int totalDmgPercent = (int)(totalDmg * 100f);
-                statsTotalLine.SetText($"◆ Total: +{totalDmgPercent}%% All Damage ◆");
+                statsTotalLine.SetText($"◆ Total: +{totalDmgPercent}% All Damage ◆");
                 statsHeaderText.TextColor = new Color(200, 200, 220);
             }
             else
@@ -569,14 +569,14 @@ namespace MagnumOpus.Common.Systems
                     int nextLevel = enhLevel + 1;
                     float nextDamageBonus = player.GetEnhancedDamageBonus(slotIndex) / (1f + enhLevel * 0.2f) * (1f + nextLevel * 0.2f) * 100f;
                     string nextEffectDesc = HarmonicCoreModPlayer.GetCoreEffectDescWithEnhancement(coreName, nextLevel);
-                    upgradePreview = $"\n\n[Right-click to enhance to +{nextLevel}]\n→ +{(int)nextDamageBonus}%% Damage\n→ {nextEffectDesc}";
+                    upgradePreview = $"\n\n[Right-click to enhance to +{nextLevel}]\nↁE+{(int)nextDamageBonus}%% Damage\nↁE{nextEffectDesc}";
                 }
                 else
                 {
                     upgradePreview = "\n\n[MAX ENHANCEMENT]";
                 }
                 
-                parentUI.SetHoveredSlot(slotIndex, $"{GetDisplayName(coreName)}\n{tierText}\n{damageText}\n◆ {effectName}\n{effectDesc}{upgradePreview}");
+                parentUI.SetHoveredSlot(slotIndex, $"{GetDisplayName(coreName)}\n{tierText}\n{damageText}\n◁E{effectName}\n{effectDesc}{upgradePreview}");
             }
             else
                 parentUI.SetHoveredSlot(slotIndex, "Empty Slot\nLeft-click with core");
@@ -612,7 +612,7 @@ namespace MagnumOpus.Common.Systems
             else
             {
                 Vector2 center = new Vector2(dims.X + dims.Width / 2, dims.Y + 35f);
-                Utils.DrawBorderString(spriteBatch, "◇", center - new Vector2(6, 10), new Color(80, 80, 100), 0.9f);
+                Utils.DrawBorderString(spriteBatch, "○", center - new Vector2(6, 10), new Color(80, 80, 100), 0.9f);
             }
         }
         

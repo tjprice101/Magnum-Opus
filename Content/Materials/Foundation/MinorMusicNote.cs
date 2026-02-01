@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -37,6 +38,11 @@ namespace MagnumOpus.Content.Materials.Foundation
                 dust.noGravity = true;
                 dust.velocity *= 0.2f;
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "'The simplest form of musical magic'") { OverrideColor = new Color(150, 150, 180) });
         }
     }
 }

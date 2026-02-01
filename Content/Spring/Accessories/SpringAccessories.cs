@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using MagnumOpus.Content.Spring.Materials;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Spring.Accessories
 {
@@ -36,6 +37,15 @@ namespace MagnumOpus.Content.Spring.Accessories
                 Vector2 vel = new Vector2(Main.rand.NextFloat(-1f, 1f), -Main.rand.NextFloat(0.5f, 1.5f));
                 Color petalColor = Main.rand.NextBool() ? new Color(255, 183, 197) : new Color(255, 218, 233);
                 CustomParticles.GenericGlow(pos, vel, petalColor, 0.25f, 28, true);
+            }
+            
+            // Floating spring melody notes
+            if (!hideVisual && Main.rand.NextBool(18))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
+                Vector2 noteVel = new Vector2(0, -Main.rand.NextFloat(0.3f, 0.6f));
+                Color noteColor = Color.Lerp(new Color(255, 183, 197), new Color(144, 238, 144), Main.rand.NextFloat()) * 0.55f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 40);
             }
         }
         
@@ -89,6 +99,15 @@ namespace MagnumOpus.Content.Spring.Accessories
                 Vector2 pos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
                 Color glowColor = Color.Lerp(new Color(144, 238, 144), new Color(255, 218, 233), Main.rand.NextFloat());
                 CustomParticles.GenericFlare(pos, glowColor * 0.6f, 0.2f, 18);
+            }
+            
+            // Floating spring melody notes
+            if (!hideVisual && Main.rand.NextBool(20))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(32f, 32f);
+                Vector2 noteVel = new Vector2(0, -Main.rand.NextFloat(0.3f, 0.7f));
+                Color noteColor = new Color(144, 238, 144) * 0.55f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 38);
             }
         }
         
@@ -147,6 +166,19 @@ namespace MagnumOpus.Content.Spring.Accessories
                     Vector2 pos = player.Center - player.velocity * Main.rand.NextFloat(0.2f, 0.5f);
                     Color bloomColor = Main.rand.NextBool() ? new Color(255, 183, 197) : new Color(144, 238, 144);
                     CustomParticles.GenericFlare(pos, bloomColor * 0.7f, 0.22f, 20);
+                }
+                
+                // Music notes while moving fast
+                if (!hideVisual && Main.rand.NextBool(8))
+                {
+                    Vector2 notePos = player.Center - player.velocity * Main.rand.NextFloat(0.3f, 0.6f);
+                    Vector2 noteVel = -player.velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f);
+                    Color noteColor = Color.Lerp(new Color(255, 183, 197), new Color(144, 238, 144), Main.rand.NextFloat()) * 0.7f;
+                    ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 30);
+                    
+                    // Sparkle companion
+                    var sparkle = new SparkleParticle(notePos, noteVel * 0.5f, new Color(255, 255, 255) * 0.4f, 0.18f, 16);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
                 }
             }
             

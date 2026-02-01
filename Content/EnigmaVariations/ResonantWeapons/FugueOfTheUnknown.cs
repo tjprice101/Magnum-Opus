@@ -299,7 +299,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         private int VoiceIndex => (int)Projectile.ai[1];
         private int TargetIndex => (int)Projectile.ai[2];
         
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs7";
         
         public override void SetStaticDefaults()
         {
@@ -330,7 +330,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Texture2D glyphTex = CustomParticleSystem.RandomGlyph().Value;
             Texture2D sparkleTex = CustomParticleSystem.RandomPrismaticSparkle().Value;
             Texture2D eyeTex = CustomParticleSystem.RandomEnigmaEye().Value;
-            Texture2D flareTex = CustomParticleSystem.EnergyFlares[0].Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow3").Value;
             
             // === TRAIL ===
             if (!IsOrbiting && ProjectileID.Sets.TrailCacheLength[Projectile.type] > 0)

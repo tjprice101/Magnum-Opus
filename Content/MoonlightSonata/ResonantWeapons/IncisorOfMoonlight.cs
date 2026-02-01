@@ -255,5 +255,16 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
             
             return true; // Draw the normal sprite too
         }
+
+        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Swings fire sweeping lunar crescent beams"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Hold right-click to charge a lunar storm attack"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Ethereal moonlight aura while held"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A blade forged from crystallized moonlight'")
+            {
+                OverrideColor = new Microsoft.Xna.Framework.Color(140, 100, 200)
+            });
+        }
     }
 }

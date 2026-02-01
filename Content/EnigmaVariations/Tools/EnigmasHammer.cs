@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -46,6 +47,11 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
             Item.hammer = 105; // Tier 4: Between La Campanella (95) and Swan Lake (165)
             
             Item.maxStack = 1;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Breaks apart certainty with each blow'") { OverrideColor = new Color(140, 60, 200) });
         }
 
         public override void AddRecipes()

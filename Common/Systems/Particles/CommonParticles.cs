@@ -655,9 +655,9 @@ namespace MagnumOpus.Common.Systems.Particles
             
             Vector2 drawPos = Position - Main.screenPosition;
             
-            // Draw bloom glow behind
-            float bloomScale = Scale * 2f;
-            spriteBatch.Draw(bloomTexture, drawPos, null, BloomColor * opacity * 0.6f,
+            // Draw bloom glow behind (subtle, not overwhelming)
+            float bloomScale = Scale * 1.4f;
+            spriteBatch.Draw(bloomTexture, drawPos, null, BloomColor * opacity * 0.45f,
                 0f, bloomTexture.Size() / 2f, bloomScale, SpriteEffects.None, 0f);
             
             // Draw note

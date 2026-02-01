@@ -5,6 +5,61 @@
 
 ---
 
+## ⭐⭐⭐ THE CARDINAL RULE: EVERY WEAPON IS UNIQUE ⭐⭐⭐
+
+> **THIS IS THE ABSOLUTE #1 RULE. NO EXCEPTIONS.**
+
+### The Philosophy
+
+**Every single weapon, accessory, and boss attack in MagnumOpus MUST have its own unique visual identity.** Not similar. Not "inspired by." UNIQUE.
+
+**If a boss/theme has 3 melee weapons:**
+- Sword A: Fires 3 glowing orbs that spiral outward and explode into music note cascades
+- Sword B: Blade ignites with pulsing flame that leaves burning afterimages
+- Sword C: Each swing spawns 5 homing feather projectiles
+
+**COMPLETELY DIFFERENT EFFECTS. Same theme colors. Unique identities.**
+
+### The Forbidden Pattern
+
+```csharp
+// ❌ ABSOLUTE GARBAGE - NEVER DO THIS
+public override void OnHitNPC(...)
+{
+    CustomParticles.GenericFlare(target.Center, themeColor, 0.5f, 15);
+    CustomParticles.HaloRing(target.Center, themeColor, 0.3f, 12);
+}
+// "On swing hit enemy boom yippee" is DISGUSTING and a DISGRACE to this mod.
+```
+
+### Music Notes MUST Be Visible
+
+**This is a MUSIC MOD. Music notes are currently invisible. THAT'S UNACCEPTABLE.**
+
+- Scale 0.7f - 1.2f (MINIMUM 0.6f, NOT 0.25f!)
+- Multi-layer bloom for glow
+- Shimmer/pulse animation
+- Accompanied by sparkle particles
+
+### Use ALL Available Particle Assets
+
+**You have 80+ custom particle PNGs. USE THEM ALL CREATIVELY.**
+
+| Category | Variants | USE FOR |
+|----------|----------|---------|
+| MusicNote | 6 | EVERY trail, impact, aura |
+| EnergyFlare | 7 | Impacts, charge effects |
+| PrismaticSparkle | 15 | Sparkle accents EVERYWHERE |
+| Glyphs | 12 | Magic circles, enchantments |
+| SwanFeather | 10 | Swan Lake theme |
+| EnigmaEye | 8 | Enigma watching effects |
+| SwordArc | 9 | Melee swing arcs |
+
+**ALSO combine with vanilla Dust types for density:**
+- DustID.MagicMirror, DustID.Enchanted_Gold, DustID.PurpleTorch, DustID.Electric, etc.
+
+---
+
 # 📋 PHASE OVERVIEW
 
 | Phase | Focus | Asset Count | Priority | Status |
@@ -4604,379 +4659,98 @@ Color ClairDeLuneBrass = new Color(205, 127, 50);       // #CD7F32
 Color ClairDeLuneSilver = new Color(192, 192, 192);     // #C0C0C0
 ```
 
-
-
 ---
 
-## 9.5.2 DIES IRAE - HERALD OF JUDGMENT
+## 9.7 🗡️ MIDJOURNEY - WEAPON SPRITE PROMPTS
 
-**Design Philosophy:** The Herald of Judgment embodies divine wrath and the final reckoning - a terrifying figure wreathed in black flames and blood-red fire. Chains bind the condemned, and piercing white light breaks through the darkness as judgment is delivered.
+### ⛓️ DIES IRAE WEAPONS (Day of Wrath)
 
-#### Boss Sprites
+**Color Palette:** Black (#1A1A1A), Blood Red (#8B0000), Bright Flame (#FF2400), Crimson (#DC143C), White accents
 
-**Dies Irae Phase 1** (72x88)
+#### Dies Irae - Melee Weapon: Apocalypse Reaver
 ```
-Concept art for a side-view idle pixel art sprite of an imposing herald of divine judgment themed around "Dies Irae Executioner's Dawn" made of deep black metal wreathed in blood red flames created by music in the style of Terraria, radiating a powerful judgment aura, music notes surround it, hooded executioner figure with face hidden in shadow except for piercing white eye slits, massive form draped in tattered black robes made of solidified shadow and chain links, hands holding massive book of condemnation with pages of flame, red and black flames constantly pour from beneath the robes, musical discord symbols float around form, broken chains dangle from wrists and shoulders, armor glimpsed beneath robes is black iron with piercing white runes, red flame core visible through chest cavity cracks, detailed boss sprite, silver ornate design like a royal mechanism, full-view --v 7.0
-```
-
-**Dies Irae Phase 2 (Unleashed Wrath)** (80x96)
-```
-Concept art for a side-view idle pixel art sprite of the fully unleashed herald of judgment themed around "Dies Irae Final Condemnation" made of cracked black metal EXPLODING with red fire from within created by music in the style of Terraria, radiating a powerful overwhelming aura, music notes surround it, hood thrown back revealing skull face wreathed in intense blood red flames, chains now actively whipping around form as weapons, the book of condemnation now OPEN with pages made of pure flame projecting judgment glyphs, red and black flames form massive wings of pure fire behind the figure, piercing white light now BLINDING emanating from eye sockets and chest, musical dissonance physically manifests as visible soundwaves, detailed boss sprite, silver ornate design like a royal mechanism, full-view --v 7.0
+pixel art weapon sprite, massive ultra greatsword, terraria style, apocalyptic judgment blade design, thick jagged obsidian black blade with glowing blood red veins pulsing through metal, crimson flame aura emanating from edges, ornate dark iron crossguard shaped like screaming souls, wrapped blood-stained leather grip, pommel is burning skull with flame eyes, chains wrapped around blade near hilt, ominous red glow radiating outward, 64x64 pixels, clean sharp pixels, transparent background, no shadows, side view facing right --ar 1:1 --v 6
 ```
 
-#### Materials
-
-**Dies Irae Resonant Energy** (32x32)
+#### Dies Irae - Ranged Weapon: Hellfire Gatling
 ```
-pixel art crafting material item sprite, smoldering orb of condensed judgment energy, black sphere with cracks showing blood red flame core within, piercing white sparks occasionally escape from cracks, chains seem to wrap around the orb attempting to contain the energy, small dissonant music symbols orbit the sphere, ominous and dangerous appearance, terraria style item, 32x32 pixel base upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art weapon sprite, massive rotary gatling gun, terraria style, infernal judgment cannon design, six spinning barrels made of dark scorched iron with glowing orange heat vents, main body wrapped in black chains with crimson runes, ammunition drum shaped like bound souls, bright flame exhaust ports on sides, ornate skull-faced barrel shroud breathing fire, blood red energy core visible through chassis gaps, 64x64 pixels, clean sharp pixels, transparent background, no shadows, side view facing right --ar 1:1 --v 6
 ```
 
-**Dies Irae Resonant Core** (36x36)
+#### Dies Irae - Magic Weapon: Ragnarok Codex
 ```
-pixel art rare crafting material item sprite, large crystallized flame core of pure judgment, black crystal formation with intense red flame permanently burning within, white lightning-like veins crack across the surface, chain patterns embedded in the crystal structure, more unstable and powerful appearance than resonant energy, dissonant musical notation visible frozen in the crystal, terraria style item, 36x36 pixel base upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 100
-```
-
-**Remnant of Dies Irae's Wrath** (28x28)
-```
-pixel art crafting fragment item sprite, broken shard of the herald's armor or chains, black iron fragment still smoldering with red flame at edges, chain link partially visible attached to the shard, white rune partially visible on one surface, jagged and dangerous looking, embers constantly fall from the piece, remnant of divine wrath, terraria style item, 28x28 pixel base upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art weapon sprite, ancient channeled tome, terraria style, apocalyptic grimoire design, thick bound book with charred black leather covers, glowing crimson sigils and blood runes etched across surface, central eye motif wreathed in orange flames, page edges singed and burning with perpetual ember glow, heavy iron chains binding the covers shut with padlock, dark smoke wisps emanating upward, ominous red light leaking from pages, 48x48 pixels, clean sharp pixels, transparent background, no shadows, three-quarter view --ar 1:1 --v 6
 ```
 
-**Harmonic Core of Dies Irae** (40x40)
+#### Dies Irae - Summon Weapon: Four Horsemen's Sigil
 ```
-pixel art ultimate crafting material item sprite, perfect crystallization of judgment incarnate, large ornate crystal shaped like a broken chain link made of black crystal with blood red flame core and piercing white center, the most terrifying and powerful drop, chains orbit the item eternally, flames lick at the edges without consuming, dissonant musical notation spirals around creating visible soundwaves, this item RADIATES condemnation and power, white sparks constantly discharge, terraria style item, 40x40 pixel base upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 150
-```
-
-**Dies Irae Resonance Ore** (16x16 tileset)
-```
-pixel art ore block tileset, 3x3 variations for seamless tiling, dark charred stone with veins of black crystal containing trapped red flame within, white sparks occasionally visible in largest deposits, chain-link patterns naturally form in some vein sections, ominous and dangerous looking ore, suitable for cave generation near lava, terraria style tile, 16x16 pixel base per tile upscaled, seamless edges, dark background --v 6.1 --ar 1:1 --style raw --s 50
-```
-
-#### Tools
-
-**Judgment's Infernal Drill** (48x48)
-```
-pixel art drill weapon sprite, black iron drill housing wreathed in red flames, drill bit made of black metal with white-hot tip and red flame spiral, chain patterns wrapped around the body, dissonant music notes engraved on housing, flame exhaust vents on sides, piercing white energy core visible through cracked window, terrifying industrial design, terraria style, 48x48 pixel base upscaled, diagonal angle, transparent background --v 6.1 --ar 1:1 --style raw --s 100
-```
-
-**Judgment's Infernal Axe** (46x46)
-```
-pixel art axe weapon sprite, heavy black iron axe blade with blood red flame edge, chains wrapped around blade base, white-hot accent along cutting edge, handle bound in chains with red flame core visible at pommel, dissonant musical notation engraved on blade face, flames trail from the edge, terraria style, 46x46 pixel base upscaled, diagonal angle, transparent background --v 6.1 --ar 1:1 --style raw --s 100
-```
-
-**Judgment's Infernal Hammer** (48x48)
-```
-pixel art hammer weapon sprite, massive black iron hammer head with red flames pouring from cracks, chains wrapped around the head securing it to the handle, white-hot striking face, handle wrapped in flame-resistant bindings with chain accents, dissonant music note embossed on each striking face, terraria style, 48x48 pixel base upscaled, diagonal angle, transparent background --v 6.1 --ar 1:1 --style raw --s 100
+pixel art weapon sprite, summoning scepter, terraria style, apocalyptic herald design, twisted black iron staff with four-pointed star headpiece, each star point holds different horseman symbol (sword, scales, scythe, crown), crimson crystal core pulsing with trapped souls, wrapped in thorny vines dripping blood, base has cloven hoof motif, dark flame aura surrounding top, chains dangling from crossbar, 48x64 pixels, clean sharp pixels, transparent background, no shadows, side view facing right --ar 3:4 --v 6
 ```
 
 ---
 
-### 9.5.3 ODE TO JOY - VERDANT CONDUCTOR
+### 🌿 ODE TO JOY WEAPONS (Hymn of Growth)
 
-**Design Philosophy:** The Verdant Conductor embodies nature's celebration and the joy of life - a beautiful figure wreathed in flowers, vines, and the pure white light of hope. Rose petals and rainbow light accompany every movement.
+**Color Palette:** White (#FFFFFF), Verdant Green (#4CAF50), Rose Pink (#FFB6C1), Golden Pollen (#FFD700)
 
-#### Boss Sprites
-
-**Ode to Joy Phase 1** (64x80)
+#### Ode to Joy - Melee Weapon: Rose Thorn Chainsaw
 ```
-Concept art for a side-view idle pixel art sprite of an ethereal nature spirit conductor made of pure white light wrapped in living verdant growth themed around "Ode to Joy Spring Awakening" made of intertwined white vines and rose stems created by music in the style of Terraria, radiating a powerful life force aura, music notes surround it, elegant feminine form, face serene and joyful made of white flower petals with golden pollen eyes, hair made of flowing white flowers and leaves with rainbow shimmer at tips, dress made of layered rose petals in pure white with pale rainbow gradient edges, hands conducting with vine-wrapped batons that bloom flowers with each gesture, rose vines spiral up from feet wrapping around legs, small butterflies and bees orbit the form, golden pollen particles constantly drift from the figure, verdant green leaves accent the white form, this is BEAUTY and JOY incarnate, detailed boss sprite, silver ornate design like a royal mechanism, full-view --v 7.0
+pixel art weapon sprite, nature chainsaw blade, terraria style, blooming garden weapon design, elegant curved blade with rose thorn teeth along cutting edge, main body wrapped in living green vines with pink rose blooms, golden pollen particles floating around blade, white flower petals embedded in transparent green crystal handle, butterfly wing guard decorations, verdant energy glow emanating from chain mechanism, nature moss growing on metal parts, 64x48 pixels, clean sharp pixels, transparent background, no shadows, side view facing right --ar 4:3 --v 6
 ```
 
-**Ode to Joy Phase 2 (Full Bloom)** (72x88)
+#### Ode to Joy - Ranged Weapon: Pollinator Gatling Bloom
 ```
-Concept art for a side-view idle pixel art sprite of the fully bloomed verdant conductor now ERUPTING with nature's power themed around "Ode to Joy Nature's Symphony" made of pure white form surrounded by MASSIVE flower blooms that have burst from every surface created by music in the style of Terraria, radiating a powerful overwhelming aura, music notes surround it, white rose petals form a constant tornado around the figure, verdant vines now actively reaching outward like tentacles, face expression shifted from serene to ECSTATIC joy, rainbow light now INTENSE pouring from eyes and chest, thorns now visible along the vines as nature shows its protective side, pollen clouds are now THICK and golden, butterflies replaced by SWARMS, the figure has grown larger with the bloom, flower cannon-like structures have formed on shoulders firing petal projectiles, root system now visible anchoring to unseen ground spreading outward, the celebration has become OVERWHELMING, pale rainbow becomes VIVID, detailed boss sprite, silver ornate design like a royal mechanism, full-view --v 7.0
-```
-
-#### Materials
-
-**Ode to Joy Resonant Energy** (32x32)
-```
-pixel art crafting material item sprite, glowing seed of pure joy energy, white spherical seed with verdant green lines spiraling around surface, golden pollen particles drift from the seed, pale rainbow shimmer at edges, small flower bud visible about to bloom from one side, warm and hopeful appearance, embodiment of nature's potential, terraria style item, 32x32 pixel base upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art weapon sprite, botanical rotary gun, terraria style, garden artillery design, six spinning barrels made of hollow flower stems with petal tips, main body shaped like giant sunflower with golden center as ammo drum, verdant green leaf wings as stabilizers, vines wrapping around grip with tiny pink blossoms, white seed projectile chamber visible, butterflies resting on barrel shroud, golden pollen mist trail effect, 64x64 pixels, clean sharp pixels, transparent background, no shadows, side view facing right --ar 1:1 --v 6
 ```
 
-**Ode to Joy Resonant Core** (36x36)
+#### Ode to Joy - Magic Weapon: Symphony of Blooms Harp
 ```
-pixel art rare crafting material item sprite, large crystallized flower bud containing pure joy, white crystal formation shaped like a rose about to bloom, verdant green crystal veins running through, golden light pulsing from within like a heartbeat, pale rainbow refraction at facet edges, more valuable and beautiful than resonant energy, small leaves crystallized at base, terraria style item, 36x36 pixel base upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 100
-```
-
-**Remnant of Ode to Joy's Bloom** (28x28)
-```
-pixel art crafting fragment item sprite, preserved piece of the conductor's bloom, crystallized white rose petal with verdant vine still attached, golden pollen frozen on surface, rainbow shimmer preserved in the crystal structure, beautiful and delicate, a piece of eternal spring, terraria style item, 28x28 pixel base upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art weapon sprite, magical garden harp, terraria style, floral symphony instrument design, elegant curved frame made of intertwined living branches with white bark, strings are glowing golden light beams, rose blooms at each tuning peg, verdant ivy climbing up pillar, pink cherry blossoms falling around frame, base is moss-covered stone with embedded crystals, ethereal green leaf aura, butterflies and bees hovering nearby, 48x64 pixels, clean sharp pixels, transparent background, no shadows, three-quarter view --ar 3:4 --v 6
 ```
 
-**Harmonic Core of Ode to Joy** (40x40)
+#### Ode to Joy - Summon Weapon: Monarch's Garden Scepter
 ```
-pixel art ultimate crafting material item sprite, perfect eternal bloom of crystallized joy, large ornate white rose in full bloom made of crystal with verdant green stem and leaves, golden pollen center glowing intensely, pale rainbow light refracting through every petal, the most beautiful item possible, small crystallized butterflies orbit the bloom, this item RADIATES life and happiness, vines gently wrap around it protectively, terraria style item, 40x40 pixel base upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 150
-```
-
-**Ode to Joy Resonance Ore** (16x16 tileset)
-```
-pixel art ore block tileset, 3x3 variations for seamless tiling, pale stone with veins of white crystal that have small flower shapes growing within, verdant green moss growing around crystal deposits, golden pollen specks visible in largest veins, most beautiful ore type, flowers seem to bloom from the deposits, suitable for surface and shallow cave generation, terraria style tile, 16x16 pixel base per tile upscaled, seamless edges, light background --v 6.1 --ar 1:1 --style raw --s 50
-```
-
-#### Tools
-
-**Garden's Blessing Drill** (48x48)
-```
-pixel art drill weapon sprite, elegant nature-themed drill with white and verdant green housing, drill bit made of crystallized rose thorns spiraling, flower patterns etched along the body, golden pollen energy core visible through crystal window, vine accents wrapping around grip, leaves sprout from seams, beautiful yet functional design, terraria style, 48x48 pixel base upscaled, diagonal angle, transparent background --v 6.1 --ar 1:1 --style raw --s 100
-```
-
-**Garden's Blessing Axe** (46x46)
-```
-pixel art axe weapon sprite, elegant nature axe with white blade shaped like a large petal or leaf, verdant green vine wrapping the blade edge, golden flower accent at the base, living wood handle with small blooming flowers, cutting edge has rainbow shimmer, designed more for pruning than destruction but powerful nonetheless, terraria style, 46x46 pixel base upscaled, diagonal angle, transparent background --v 6.1 --ar 1:1 --style raw --s 100
-```
-
-**Garden's Blessing Hammer** (48x48)
-```
-pixel art hammer weapon sprite, elegant nature hammer with white head shaped like a large seed pod or bulb, verdant green vine accents wrapping around, golden pollen emanates from striking faces, living wood handle with small leaves sprouting, flower pattern embossed on head, designed for planting and building gardens but powerful in combat, terraria style, 48x48 pixel base upscaled, diagonal angle, transparent background --v 6.1 --ar 1:1 --style raw --s 100
+pixel art weapon sprite, nature summoning staff, terraria style, butterfly monarch design, elegant twisted branch shaft with spiral grain pattern, top crowned with giant monarch butterfly with stained glass wings, wings glow with verdant and golden light, pink rose wrapped around shaft with thorns, white crystal orb held in butterfly's legs, trail of smaller butterflies following staff tip, pollen sparkles floating upward, 48x64 pixels, clean sharp pixels, transparent background, no shadows, side view facing right --ar 3:4 --v 6
 ```
 
 ---
 
-### 9.5.4 CLAIR DE LUNE - CLOCKWORK DREAMER
+### ⚙️ CLAIR DE LUNE WEAPONS (Shattered Clockwork)
 
-**Design Philosophy:** The Clockwork Dreamer embodies mechanical precision and moonlit dreams - an intricate automaton powered by crimson moonlight and crystalline gears. Every movement is perfectly timed, every action precisely calculated.
+**Color Palette:** Steel Gray (#3A3A3A), Crimson (#DC143C), Crystal (#E0E0E0), Brass (#CD7F32), Silver (#C0C0C0)
 
-#### Boss Sprites
-
-**Clair de Lune Phase 1** (64x80)
+#### Clair de Lune - Melee Weapon: Clockwork Executioner
 ```
-Concept art for a side-view idle pixel art sprite of an elegant clockwork automaton made of dark gray metal with vibrant crimson energy flowing through crystal tubes themed around "Clair de Lune Temporal Elegance" made of interlocking dark gray gears with crimson lightning created by music in the style of Terraria, radiating a powerful temporal aura, music notes surround it, feminine humanoid form with visible clockwork mechanisms through glass panels, face is beautiful porcelain mask with glowing crimson eyes, hair made of thin silver chains and crystalline strands, dress made of interlocking metal plates like clock armor with crimson fabric glimpsed beneath, visible gears rotate in chest cavity behind glass showing the heart mechanism, hands are articulated brass with glass fingertips showing inner workings, clock faces embedded in various locations showing different times, silver and brass accent trim, moonbeam crystal embedded in forehead, precise elegant movements like a music box dancer, detailed boss sprite, silver ornate design like a royal mechanism, full-view --v 7.0
+pixel art weapon sprite, massive mechanical greatsword, terraria style, shattered time blade design, wide blade made of fractured silver mirror shards reflecting different moments, exposed brass clockwork gears visible inside blade with some spinning, crimson energy pulsing through crack lines, crossguard is broken clock face frozen at midnight, handle wrapped in gray leather with gear-shaped pommel, temporal distortion effect around edges, floating clock fragments nearby, 64x64 pixels, clean sharp pixels, transparent background, no shadows, side view facing right --ar 1:1 --v 6
 ```
 
-**Clair de Lune Phase 2 (Overclocked)** (72x88)
+#### Clair de Lune - Ranged Weapon: Chrono-Disruptor Railgun
 ```
-Concept art for a side-view idle pixel art sprite of the overclocked clockwork automaton with mechanisms now SPINNING WILDLY and crimson energy OVERFLOWING themed around "Clair de Lune Time's End" made of dark gray mechanical form with panels blown open revealing complex inner workings created by music in the style of Terraria, radiating a powerful overwhelming aura, music notes surround it, gears spin so fast they blur, crimson energy now ARCS between components like lightning, glass panels cracked and leaking crimson light, face mask now split revealing mechanical skull beneath with intense crimson eyes, hair-chains now whipping wildly, dress plates now spin independently as weapons, clock faces all showing different times RAPIDLY CHANGING, springs and mechanisms have burst from seams, the heart mechanism now EXPOSED and beating rapidly with crimson pulse, silver and brass now heated and glowing, moonbeam crystal now BLINDING crimson, movement is now FRANTIC and dangerous, still beautiful but UNSTABLE, detailed boss sprite, silver ornate design like a royal mechanism, full-view --v 7.0
-```
-
-#### Materials
-
-**Clair de Lune Resonant Energy** (32x32)
-```
-pixel art crafting material item sprite, small crystalline gear infused with crimson moonlight energy, dark gray metal gear with crimson crystal embedded in center, faint glow emanates from the crystal, tiny clock hand designs on gear teeth, elegant mechanical crafting component, terraria style item, 32x32 pixel base upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art weapon sprite, temporal railgun, terraria style, shattered clockwork cannon design, long sleek barrel made of stacked clock faces of different sizes, exposed brass gears and silver springs in chassis, crimson energy coils wrapped around barrel with lightning arcs, ammunition chamber shows frozen hourglass, targeting sight is monocle with crosshairs, gray iron frame with gear teeth along edges, time ripple distortion at muzzle, 64x48 pixels, clean sharp pixels, transparent background, no shadows, side view facing right --ar 4:3 --v 6
 ```
 
-**Clair de Lune Resonant Core** (36x36)
+#### Clair de Lune - Magic Weapon: Codex of Shattered Chronology
 ```
-pixel art rare crafting material item sprite, large clockwork heart mechanism crystallized, dark gray metal chamber with crimson energy core visible through crystal window, gears frozen mid-rotation around the core, silver spring coiled around base, more complex and valuable than resonant energy, clock hands point to midnight, terraria style item, 36x36 pixel base upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 100
-```
-
-**Remnant of Clair de Lune's Harmony** (28x28)
-```
-pixel art crafting fragment item sprite, broken piece of clockwork mechanism with attached crystal, dark gray gear fragment with crimson crystal shard fused to surface, spring still partially coiled around piece, elegantly broken showing internal complexity, a piece of mechanical dreams, terraria style item, 28x28 pixel base upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+pixel art weapon sprite, temporal grimoire, terraria style, time-fractured tome design, thick book bound in cracked gray leather with exposed brass mechanism spine, cover displays broken clock face with hands frozen, pages are translucent crystal showing past/future text simultaneously, crimson bookmark ribbon with hourglass charm, silver corner reinforcements shaped like gears, temporal energy wisps leaking from pages, floating clock hands orbiting book, 48x48 pixels, clean sharp pixels, transparent background, no shadows, three-quarter view --ar 1:1 --v 6
 ```
 
-**Harmonic Core of Clair de Lune** (40x40)
+#### Clair de Lune - Summon Weapon: Timekeeper's Sigil
 ```
-pixel art ultimate crafting material item sprite, perfect miniature clockwork music box heart, ornate dark gray metal housing with crystal panels showing crimson mechanism within, tiny gears spin perpetually producing faint melody, silver key embedded in top that slowly turns, the most intricate and beautiful clockwork piece, moonlight crystal mounted on top, crimson energy pulses in time with the mechanical heartbeat, small clock faces orbit the item, this RADIATES precision and romantic power, terraria style item, 40x40 pixel base upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 150
-```
-
-**Clair de Lune Resonance Ore** (16x16 tileset)
-```
-pixel art ore block tileset, 3x3 variations for seamless tiling, gray stone with veins of dark metallic ore containing visible tiny gear shapes within, crimson crystal formations grow alongside the metal deposits, silver springs naturally form in some larger deposits, mechanical and crystalline combination, suitable for underground cave generation, terraria style tile, 16x16 pixel base per tile upscaled, seamless edges, dark background --v 6.1 --ar 1:1 --style raw --s 50
-```
-
-#### Tools
-
-**Moonlit Mechanism Drill** (48x48)
-```
-pixel art drill weapon sprite, precision clockwork drill with dark gray metal housing, drill bit made of interlocking gears that spin to cut, crimson crystal energy core visible through glass panel, clock mechanism visible on side, silver and brass trim accents, springs visible in grip mechanism, elegant industrial design, terraria style, 48x48 pixel base upscaled, diagonal angle, transparent background --v 6.1 --ar 1:1 --style raw --s 100
-```
-
-**Moonlit Mechanism Axe** (46x46)
-```
-pixel art axe weapon sprite, precision clockwork axe with dark gray metal blade containing visible rotating gear within, crimson crystal edge that glows when swung, clock hands engraved on blade face, silver spring mechanism at joint, brass trim along handle, each swing advances the internal chronometer, terraria style, 46x46 pixel base upscaled, diagonal angle, transparent background --v 6.1 --ar 1:1 --style raw --s 100
-```
-
-**Moonlit Mechanism Hammer** (48x48)
-```
-pixel art hammer weapon sprite, precision clockwork hammer with dark gray metal head containing pendulum mechanism visible through crystal panel, crimson energy pulses with each swing, clock face on one striking surface, gear pattern on the other, silver spring grip, brass trim throughout, the most precise hammer ever crafted, terraria style, 48x48 pixel base upscaled, diagonal angle, transparent background --v 6.1 --ar 1:1 --style raw --s 100
+pixel art weapon sprite, clockwork summoning scepter, terraria style, temporal automaton caller design, twisted silver and brass shaft with spiraling gear patterns, top holds large suspended hourglass with crimson sand frozen mid-fall, clock hands pointing in all directions from center, floating gear fragments orbiting the hourglass, gray crystal embedded in shaft pulsing with time energy, base is melted grandfather clock pendulum, temporal afterimage echo effect, 48x64 pixels, clean sharp pixels, transparent background, no shadows, side view facing right --ar 3:4 --v 6
 ```
 
 ---
 
-### 9.5.5 Color Implementation Reference
-
-```csharp
-// Nachtmusik (Night's Melody)
-Color NachtmusikDeepPurple = new Color(45, 27, 78);      // #2D1B4E
-Color NachtmusikGold = new Color(255, 215, 0);          // #FFD700
-Color NachtmusikStarWhite = new Color(255, 255, 255);   // #FFFFFF
-Color NachtmusikViolet = new Color(123, 104, 238);      // #7B68EE
-
-// Dies Irae (Day of Wrath)
-Color DiesIraeBlack = new Color(26, 26, 26);            // #1A1A1A
-Color DiesIraeBloodRed = new Color(139, 0, 0);          // #8B0000
-Color DiesIraeBrightFlame = new Color(255, 36, 0);      // #FF2400
-Color DiesIraeWhite = new Color(255, 255, 255);         // #FFFFFF
-Color DiesIraeCrimson = new Color(220, 20, 60);         // #DC143C
-
-// Ode to Joy (Celebration of Nature)
-Color OdeToJoyWhite = new Color(255, 255, 255);         // #FFFFFF
-Color OdeToJoyVerdant = new Color(76, 175, 80);         // #4CAF50
-Color OdeToJoyRosePink = new Color(255, 182, 193);      // #FFB6C1
-Color OdeToJoyGoldenPollen = new Color(255, 215, 0);    // #FFD700
-
-// Clair de Lune (Moonlit Dreams)
-Color ClairDeLuneGray = new Color(58, 58, 58);          // #3A3A3A
-Color ClairDeLuneCrimson = new Color(220, 20, 60);      // #DC143C
-Color ClairDeLuneCrystal = new Color(224, 224, 224);    // #E0E0E0
-Color ClairDeLuneBrass = new Color(205, 127, 50);       // #CD7F32
-Color ClairDeLuneSilver = new Color(192, 192, 192);     // #C0C0C0
-```
+### Usage Notes for Weapon Sprites
+- **Dimensions**: Follow Terraria standard weapon sizes (32x32 to 64x64 depending on weapon class)
+- **Style**: 16-bit pixel art with clean edges, no anti-aliasing on outlines
+- **Transparency**: Always use transparent background for easy import
+- **Orientation**: Side view facing right for consistency with Terraria's item display
+- **Post-processing**: May need manual cleanup of edges and color consistency
 
 ---
 
-## 9.6 Phase 9 Asset Checklist
-
-### Nachtmusik (32 assets)
-```
-MELEE (3 weapons + projectiles):
-[ ] Nocturne's Crescent Scythe (Melee)
-[ ] Stellar Scissor Blades (Melee)
-[ ] Twilight Executioner's Axe (Melee)
-
-RANGED (3 weapons + projectiles):
-[ ] Serenade of the Void (Laser Rifle)
-[ ] Stellar Annihilator (Rocket Launcher)
-[ ] Constellation Railgun (Railgun)
-
-MAGIC (3 weapons + projectiles):
-[ ] Midnight's Requiem (Channeled Staff)
-[ ] Astral Cascade Tome (Cascade Tome)
-[ ] Nocturnal Symphony Harp (Harp)
-
-SUMMON (3 weapons + minions):
-[ ] Constellation Hydra Scepter + Cosmic Hydra Heads
-[ ] Stellar Orchestra Baton + Star Musician Minions
-[ ] Nebula Nursery Globe + Nebula Wisps
-
-ACCESSORIES (5):
-[ ] Starfall Gauntlet (Melee Accessory)
-[ ] Constellation Quiver (Ranged Accessory)
-[ ] Nocturnal Amulet (Mage Accessory)
-[ ] Stellar Conductor's Badge (Summoner Accessory)
-[ ] Serenade's Embrace Ring (Universal Accessory)
-
-WINGS + PARTICLES (4):
-[ ] Serenade of Stars (Wings)
-[ ] Prismatic Star Burst (Particle)
-[ ] Cosmic Music Note Trail (Particle)
-[ ] Shattered Starlight Fragments (Particle)
-```
-
-### Dies Irae (32 assets)
-```
-MELEE (3 weapons + projectiles):
-[ ] Apocalypse Reaver (Ultra Greatsword)
-[ ] Cataclysm Chainblade (Chainblade)
-[ ] Executioner's Verdict (Guillotine Axe)
-
-RANGED (3 weapons + projectiles):
-[ ] Hellfire Gatling (Gatling Gun)
-[ ] Cataclysm Ballista (Siege Crossbow)
-[ ] Judgment Railgun (Railgun)
-
-MAGIC (3 weapons + projectiles):
-[ ] Ragnarok Codex (Channeled Tome)
-[ ] Infernal Pipe Organ (Pipe Organ)
-[ ] Condemnation Cascade (Chain Staff)
-
-SUMMON (3 weapons + minions):
-[ ] Four Horsemen's Sigil + Horsemen Minions
-[ ] Herald's Judgment Bell + Bell Wraith
-[ ] Purgatory Gate Scepter + Damned Souls
-
-ACCESSORIES (5):
-[ ] Chains of Fury Bracers (Melee Accessory)
-[ ] Infernal Bandolier (Ranged Accessory)
-[ ] Requiem's Heart Pendant (Mage Accessory)
-[ ] Conductor's Chains (Summoner Accessory)
-[ ] Ring of Damnation (Universal Accessory)
-
-WINGS + PARTICLES (4):
-[ ] Wings of Judgment (Wings)
-[ ] Chain Burst (Particle)
-[ ] Dissonant Flame (Particle)
-[ ] Wrath Rune Flash (Particle)
-```
-
-### Ode to Joy (32 assets)
-```
-MELEE (3 weapons + projectiles):
-[ ] Rose Thorn Chainsaw (Chainsaw)
-[ ] Floralescence Scissor Blades (Scissor Blades)
-[ ] Garden Scythe of Jubilation (Scythe)
-
-RANGED (3 weapons + projectiles):
-[ ] Pollinator Gatling Bloom (Gatling Gun)
-[ ] Bow of Eternal Spring (Archway Longbow)
-[ ] Jubilation Laser Cannon (Laser Cannon)
-
-MAGIC (3 weapons + projectiles):
-[ ] Chlorophyll Cascade Tome (Channeled Grimoire)
-[ ] Symphony of Blooms Harp (Harp)
-[ ] Harmonic Chime Cathedral (Chime Cathedral)
-
-SUMMON (3 weapons + minions):
-[ ] Monarch's Garden Scepter + Monarch Butterflies
-[ ] Hymnal Treant Staff + Treant Guardians
-[ ] Choir Seedling Crucible + Choir Seedlings
-
-ACCESSORIES (5):
-[ ] Vanguard's Wreath (Melee Accessory)
-[ ] Marksman's Garden (Ranged Accessory)
-[ ] Bloom of Wisdom (Mage Accessory)
-[ ] Conductor's Garland (Summoner Accessory)
-[ ] Ring of Rejoicing (Universal Accessory)
-
-WINGS + PARTICLES (4):
-[ ] Wings of Jubilation (Wings)
-[ ] Petal Burst (Particle)
-[ ] Harmonic Note Sparkle (Particle)
-[ ] Vine Growth Tendril (Particle)
-```
-
-### Clair de Lune (32 assets)
-```
-MELEE (3 weapons + projectiles):
-[ ] Clockwork Executioner (Ultra Greatsword)
-[ ] Time-Shard Scissor Blades (Scissor Blades)
-[ ] Pendulum Guillotine (Guillotine Axe)
-
-RANGED (3 weapons + projectiles):
-[ ] Temporal Gatling (Gatling Gun)
-[ ] Chrono-Disruptor Railgun (Railgun)
-[ ] Hourglass Siege Crossbow (Siege Crossbow)
-
-MAGIC (3 weapons + projectiles):
-[ ] Codex of Shattered Chronology (Channeled Grimoire)
-[ ] Clockwork Pipe Organ (Pipe Organ)
-[ ] Temporal Cascade Staff (Chain Staff)
-
-SUMMON (3 weapons + minions):
-[ ] Timekeeper's Sigil + Time Wraiths
-[ ] Clockwork Heart Scepter + Gear Automatons
-[ ] Temporal Gate Staff + Chrono Sentinels
-
-ACCESSORIES (5):
-[ ] Chronoblade Gauntlet (Melee Accessory)
-[ ] Temporal Scope (Ranged Accessory)
-[ ] Fractured Hourglass Pendant (Mage Accessory)
-[ ] Conductor's Pocket Watch (Summoner Accessory)
-[ ] Ring of Temporal Flux (Universal Accessory)
-
-WINGS + PARTICLES (4):
-[ ] Wings of Shattered Time (Wings)
-[ ] Shattered Glass Shard (Particle)
-[ ] Crimson Lightning Arc (Particle)
-[ ] Clockwork Gear Fragment (Particle)
-```
-
-**TOTAL PHASE 9: 128 unique assets** (32 per theme)
-
----
-
-# �🎭 PHASE NA: ETERNAL SYMPHONY - POST-COMPLETION CONTENT
+# 🎭 PHASE NA: ETERNAL SYMPHONY - POST-COMPLETION CONTENT
 *Endgame activities that keep players engaged after defeating all bosses - TBD Implementation Date*
 
 > **Philosophy:** Once a player has conquered the Fate boss and obtained the ultimate gear, they should still have meaningful reasons to explore, build, and return to the world. Phase NA introduces **perpetual systems** that reward continued play without adding power creep.

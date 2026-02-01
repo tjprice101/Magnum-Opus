@@ -46,7 +46,7 @@ namespace MagnumOpus.Content.LaCampanella.HarmonicCores
             
             tooltips.Add(new TooltipLine(Mod, "Spacer2", " ") { OverrideColor = Color.Transparent });
             
-            tooltips.Add(new TooltipLine(Mod, "UniqueHeader", "◆ Bell's Resonance")
+            tooltips.Add(new TooltipLine(Mod, "UniqueHeader", "◁EBell's Resonance")
             {
                 OverrideColor = new Color(255, 180, 100)
             });

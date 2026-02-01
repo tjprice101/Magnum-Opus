@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -13,7 +14,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
     /// <summary>
     /// Enigma's Pickaxe - A mysterious pickaxe that questions the very stone it breaks.
     /// Features eerie green flame effects and occasional watching eye particles.
-    /// Tier 4 - between La Campanella and Swan Lake (Moonlight → Eroica → La Campanella → Enigma → Swan Lake → Fate)
+    /// Tier 4 - between La Campanella and Swan Lake (Moonlight ↁEEroica ↁELa Campanella ↁEEnigma ↁESwan Lake ↁEFate)
     /// </summary>
     public class EnigmasPickaxe : ModItem
     {
@@ -46,6 +47,11 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
             Item.pick = 450;
             
             Item.maxStack = 1;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Each strike reveals another question'") { OverrideColor = new Color(140, 60, 200) });
         }
 
         public override void AddRecipes()

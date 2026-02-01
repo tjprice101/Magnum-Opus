@@ -90,7 +90,7 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 // Pearlescent feather particles falling with GRADIENT shimmer
                 if (Main.rand.NextBool(15))
                 {
-                    // GRADIENT: Black → White with rainbow shimmer overlay
+                    // GRADIENT: Black ↁEWhite with rainbow shimmer overlay
                     float progress = Main.rand.NextFloat();
                     Color baseColor = Color.Lerp(new Color(20, 20, 30), Color.White, progress);
                     // Add rainbow shimmer
@@ -454,7 +454,7 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 // Pearlescent shimmer accents with GRADIENT
                 for (int i = 0; i < 4; i++)
                 {
-                    // GRADIENT: Black → White with rainbow shimmer
+                    // GRADIENT: Black ↁEWhite with rainbow shimmer
                     float progress = (float)i / 4f;
                     Color baseColor = Color.Lerp(new Color(20, 20, 30), Color.White, progress);
                     float hue = (Main.GameUpdateCount * 0.015f + progress * 0.5f) % 1f;

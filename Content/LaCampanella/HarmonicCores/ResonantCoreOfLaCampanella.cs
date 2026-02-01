@@ -28,6 +28,12 @@ namespace MagnumOpus.Content.LaCampanella.HarmonicCores
             Item.rare = ModContent.RarityType<LaCampanellaRarity>();
         }
 
+        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Refined crystal for crafting powerful La Campanella equipment"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The bell's essence, crystallized into perfect resonance'") { OverrideColor = new Color(255, 140, 40) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()

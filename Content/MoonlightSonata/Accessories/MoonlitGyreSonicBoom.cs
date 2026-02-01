@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
@@ -15,7 +16,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
     public class MoonlitGyreSonicBoom : ModProjectile
     {
         // Custom texture - no vanilla textures allowed
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField8";
         
         private float boomRadius = 0f;
         private const float MaxRadius = 180f;
@@ -120,6 +121,16 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             // === Lighting ===
             float lightIntensity = 1f - progress * 0.4f;
             Lighting.AddLight(Projectile.Center, 0.4f * lightIntensity, 0.2f * lightIntensity, 0.6f * lightIntensity);
+            
+            // ☁EMUSICAL NOTATION - Spiral sonic melody
+            if (Projectile.timeLeft % 5 == 0)
+            {
+                Color noteColor = Color.Lerp(new Color(138, 43, 226), new Color(135, 206, 250), Main.rand.NextFloat());
+                float noteAngle = spiralAngle + Main.rand.NextFloat(MathHelper.TwoPi);
+                Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * boomRadius * 0.5f;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), -1.5f);
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.32f, 30);
+            }
         }
         
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
@@ -152,6 +163,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             
             // Sound on each hit
             SoundEngine.PlaySound(SoundID.Item12 with { Volume = 0.3f, Pitch = 0.6f + enemiesHit * 0.1f }, target.Center);
+            
+            // ☁EMUSICAL IMPACT - Gyre's sonic chord
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(135, 206, 250), 5, 3.5f);
         }
         
         public override bool PreDraw(ref Color lightColor)

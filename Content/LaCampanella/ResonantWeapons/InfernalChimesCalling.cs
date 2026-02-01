@@ -48,6 +48,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Item.buffType = ModContent.BuffType<CampanellaChoirBuff>();
         }
 
+        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons Campanella Choir minions that sing in harmony"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Minions create waves of bell-music flames and apply Resonant Toll"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every few hits triggers a musical shockwave"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The choir rises, their infernal hymn echoing through eternity'") { OverrideColor = new Color(255, 140, 40) });
+        }
+
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             player.AddBuff(Item.buffType, 2);
@@ -73,7 +81,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             ThemedParticles.LaCampanellaHaloBurst(spawnPos, 0.8f);
             ThemedParticles.LaCampanellaPrismaticBurst(spawnPos, 8, 0.8f);
             
-            // === GRADIENT COLOR DEFINITIONS - BLACK → ORANGE ===
+            // === GRADIENT COLOR DEFINITIONS - BLACK ↁEORANGE ===
             Color campanellaOrange = ThemedParticles.CampanellaOrange;
             Color campanellaYellow = ThemedParticles.CampanellaYellow;
             Color campanellaGold = ThemedParticles.CampanellaGold;
@@ -97,7 +105,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 MagnumParticleHandler.SpawnParticle(smoke);
             }
             
-            // === RADIAL FLARE BURST with BLACK → ORANGE GRADIENT ===
+            // === RADIAL FLARE BURST with BLACK ↁEORANGE GRADIENT ===
             for (int f = 0; f < 10; f++)
             {
                 Vector2 flarePos = spawnPos + (MathHelper.TwoPi * f / 10).ToRotationVector2() * Main.rand.NextFloat(25f, 45f);
@@ -118,7 +126,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 }
             }
             
-            // Expanding halo rings with BLACK → ORANGE GRADIENT
+            // Expanding halo rings with BLACK ↁEORANGE GRADIENT
             for (int i = 0; i < 4; i++)
             {
                 float progress = (float)i / 4f;
@@ -126,7 +134,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 CustomParticles.HaloRing(spawnPos, ringColor, 0.35f + i * 0.12f, 14 + i * 3);
             }
             
-            // Fractal geometric burst - signature pattern with BLACK → ORANGE
+            // Fractal geometric burst - signature pattern with BLACK ↁEORANGE
             for (int i = 0; i < 6; i++)
             {
                 float angle = MathHelper.TwoPi * i / 6f;
@@ -567,6 +575,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         private void SpawnAmbientParticles()
         {
+            // ☁EMUSICAL PRESENCE - Choir minion ambient melody
+            if (Main.rand.NextBool(8))
+            {
+                Color noteColor = Color.Lerp(new Color(255, 140, 40), new Color(255, 200, 50), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.8f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.28f, 35);
+            }
+            
             // === BLAZING LA CAMPANELLA MINION AURA ===
             // Fire glow particles orbiting
             if (Main.rand.NextBool(3))
@@ -701,6 +717,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             
             // === FLAMING DARK SMOKE TRAIL - BLAZING WAVE! ===
             
+            // ☁EMUSICAL NOTATION - Choir flame wave melodic trail
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(new Color(255, 140, 40), new Color(255, 200, 50), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), -0.7f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.32f, 32);
+            }
+            
             // Heavy black smoke trail
             if (Main.rand.NextBool(2))
             {
@@ -788,6 +812,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Vector2 hitDir = Main.rand.NextVector2Unit();
             ThemedParticles.LaCampanellaSignatureHit(target.Center, hitDir, 0.75f);
             
+            // ☁EMUSICAL IMPACT - Choir flame wave impact burst
+            ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 140, 40), 5, 3.5f);
+            
             // === PRISMATIC BURST ===
             ThemedParticles.LaCampanellaPrismaticSparkles(target.Center, 5, 0.5f);
             
@@ -830,6 +857,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
+            // ☁EMUSICAL FINALE - Golden notes on choir flame death
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 4, 3f);
+            
             // Death burst
             ThemedParticles.LaCampanellaBloomBurst(Projectile.Center, 0.25f);
             ThemedParticles.LaCampanellaSparkles(Projectile.Center, 3, 15f);

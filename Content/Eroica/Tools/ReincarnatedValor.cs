@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -39,6 +40,11 @@ namespace MagnumOpus.Content.Eroica.Tools
             Item.accessory = true;
             Item.value = Item.buyPrice(platinum: 2);
             Item.rare = ItemRarityID.Expert; // Rainbow rarity
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Rise upon wings forged from legend'") { OverrideColor = new Color(200, 50, 50) });
         }
 
         public override void VerticalWingSpeeds(Player player, ref float ascentWhenFalling, ref float ascentWhenRising,

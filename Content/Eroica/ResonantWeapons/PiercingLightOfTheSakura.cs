@@ -30,7 +30,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void SetDefaults()
         {
-            Item.damage = 155; // Balanced: ~1163 DPS (155 × 60/8)
+            Item.damage = 155; // Balanced: ~1163 DPS (155 ÁE60/8)
             Item.DamageType = DamageClass.Ranged;
             Item.width = 64;
             Item.height = 24;
@@ -53,7 +53,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
         {
             shotCounter++;
             
-            // GRADIENT COLORS: Scarlet → Crimson → Gold
+            // GRADIENT COLORS: Scarlet ↁECrimson ↁEGold
             Color eroicaScarlet = new Color(139, 0, 0);
             Color eroicaCrimson = new Color(220, 50, 50);
             Color eroicaGold = new Color(255, 215, 0);

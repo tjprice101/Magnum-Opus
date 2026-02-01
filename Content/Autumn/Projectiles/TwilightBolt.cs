@@ -16,7 +16,8 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class TwilightBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        // Use a visible energy flare texture for bright projectile
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare3";
         
         private static readonly Color TwilightPurple = new Color(120, 60, 140);
         private static readonly Color TwilightOrange = new Color(255, 120, 60);
@@ -64,6 +65,24 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             Color coreColor = Color.Lerp(TwilightPurple, TwilightOrange, distProgress2);
             CustomParticles.GenericFlare(Projectile.Center, coreColor * 0.35f, 0.2f, 4);
 
+            // ☁EMUSICAL NOTATION - VISIBLE twilight notes (scale 0.7f+)
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2f, -0.5f));
+                Color noteColor = Color.Lerp(TwilightPurple, TwilightOrange, distProgress2);
+                // Scale increases with distance (0.7f to 0.85f)
+                float noteScale = 0.7f + distProgress2 * 0.15f;
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, noteScale, 30);
+            }
+            
+            // Sparkle accents that grow with distance
+            if (Main.rand.NextBool(4))
+            {
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(5f, 5f),
+                    -Projectile.velocity * 0.1f, Color.Lerp(TwilightPurple, AutumnGold, distProgress2) * 0.6f, 0.2f + distProgress2 * 0.1f, 15);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, coreColor.ToVector3() * 0.4f);
         }
 
@@ -99,7 +118,30 @@ namespace MagnumOpus.Content.Autumn.Projectiles
 
                 // Crit VFX
                 CustomParticles.GenericFlare(target.Center, AutumnGold, 0.6f, 18);
-                CustomParticles.HaloRing(target.Center, TwilightOrange * 0.5f, 0.4f, 14);
+                CustomParticles.GenericFlare(target.Center, TwilightOrange, 0.5f, 16);
+                CustomParticles.GenericFlare(target.Center, TwilightOrange * 0.6f, 0.35f, 12);
+                // Twilight wisp burst
+                for (int wisp = 0; wisp < 4; wisp++)
+                {
+                    float wispAngle = MathHelper.TwoPi * wisp / 4f;
+                    Vector2 wispPos = target.Center + wispAngle.ToRotationVector2() * 14f;
+                    CustomParticles.GenericFlare(wispPos, TwilightOrange * 0.7f, 0.18f, 10);
+                }
+
+                // ☁EMUSICAL CRIT - VISIBLE triumphant twilight chord (scale 0.85f)
+                for (int n = 0; n < 8; n++)
+                {
+                    float angle = MathHelper.TwoPi * n / 8f;
+                    Vector2 noteVel = angle.ToRotationVector2() * 4.5f;
+                    ThemedParticles.MusicNote(target.Center, noteVel, AutumnGold, 0.85f, 40);
+                }
+                // Sparkle ring for golden crit
+                for (int s = 0; s < 6; s++)
+                {
+                    float sAngle = MathHelper.TwoPi * s / 6f;
+                    var sparkle = new SparkleParticle(target.Center, sAngle.ToRotationVector2() * 3.5f, AutumnGold * 0.8f, 0.35f, 20);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
             }
 
             // Standard hit VFX
@@ -112,12 +154,28 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.2f, 15, true);
                 MagnumParticleHandler.SpawnParticle(spark);
             }
+
+            // ☁EMUSICAL IMPACT - VISIBLE twilight melody (scale 0.75f)
+            for (int n = 0; n < 5; n++)
+            {
+                float angle = MathHelper.TwoPi * n / 5f;
+                Vector2 noteVel = angle.ToRotationVector2() * 3.5f;
+                ThemedParticles.MusicNote(target.Center, noteVel, TwilightPurple, 0.75f, 32);
+            }
         }
 
         public override void OnKill(int timeLeft)
         {
             CustomParticles.GenericFlare(Projectile.Center, TwilightOrange, 0.4f, 15);
-            CustomParticles.HaloRing(Projectile.Center, TwilightPurple * 0.4f, 0.25f, 12);
+            CustomParticles.GenericFlare(Projectile.Center, TwilightPurple, 0.35f, 14);
+            CustomParticles.GenericFlare(Projectile.Center, TwilightPurple * 0.6f, 0.25f, 10);
+            // Twilight wisp burst
+            for (int wisp = 0; wisp < 4; wisp++)
+            {
+                float wispAngle = MathHelper.TwoPi * wisp / 4f;
+                Vector2 wispPos = Projectile.Center + wispAngle.ToRotationVector2() * 10f;
+                CustomParticles.GenericFlare(wispPos, TwilightPurple * 0.7f, 0.15f, 8);
+            }
 
             for (int i = 0; i < 6; i++)
             {
@@ -126,25 +184,43 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 var burst = new GenericGlowParticle(Projectile.Center, burstVel, burstColor, 0.22f, 16, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
+
+            // ☁EMUSICAL FINALE - Twilight bolt fading note
+            ThemedParticles.MusicNoteBurst(Projectile.Center, TwilightPurple, 6, 3.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.1f + 1f;
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.15f + 1f;
             float distProgress = Math.Min(1f, distanceTraveled / MaxDistanceBonus);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             Color mainColor = Color.Lerp(TwilightPurple, TwilightOrange, distProgress);
-            spriteBatch.Draw(texture, drawPos, null, mainColor * 0.4f, 0f, origin, 0.35f * pulse * (1f + distProgress * 0.3f), SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, mainColor * 0.55f, 0f, origin, 0.2f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, Color.White * 0.6f, 0f, origin, 0.1f * pulse, SpriteEffects.None, 0f);
+            
+            // ✅ BRIGHT MULTI-LAYER BLOOM - Outer glow
+            spriteBatch.Draw(texture, drawPos, null, mainColor with { A = 0 } * 0.35f, 0f, origin, 0.65f * pulse * (1f + distProgress * 0.4f), SpriteEffects.None, 0f);
+            // Middle energy layer
+            spriteBatch.Draw(texture, drawPos, null, mainColor with { A = 0 } * 0.55f, 0f, origin, 0.45f * pulse, SpriteEffects.None, 0f);
+            // Core layer - brighter
+            spriteBatch.Draw(texture, drawPos, null, mainColor with { A = 0 } * 0.75f, 0f, origin, 0.28f * pulse, SpriteEffects.None, 0f);
+            // White-hot center
+            spriteBatch.Draw(texture, drawPos, null, Color.White with { A = 0 } * 0.85f, 0f, origin, 0.15f * pulse, SpriteEffects.None, 0f);
+            
+            // Orbiting spark points for extra visibility
+            float orbitAngle = Main.GameUpdateCount * 0.15f;
+            for (int i = 0; i < 3; i++)
+            {
+                float sparkAngle = orbitAngle + MathHelper.TwoPi * i / 3f;
+                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * (12f + distProgress * 6f);
+                spriteBatch.Draw(texture, sparkPos, null, TwilightOrange with { A = 0 } * 0.6f, 0f, origin, 0.12f * pulse, SpriteEffects.None, 0f);
+            }
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
@@ -158,7 +234,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class HarvestMoonBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo6";
         
         private static readonly Color MoonSilver = new Color(200, 200, 220);
         private static readonly Color MoonGold = new Color(218, 165, 32);
@@ -204,6 +280,18 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             // Core moon glow
             CustomParticles.GenericFlare(Projectile.Center, MoonSilver * 0.4f, 0.35f, 6);
 
+            // ☁EMUSICAL NOTATION - Harvest moon carries lunar melody - VISIBLE SCALE 0.75f+
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-2.5f, -1f));
+                Color noteColor = Color.Lerp(MoonSilver, MoonGold, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.75f, 35);
+                
+                // Lunar sparkle
+                var sparkle = new SparkleParticle(Projectile.Center, noteVel * 0.5f, MoonSilver * 0.4f, 0.22f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
             Lighting.AddLight(Projectile.Center, MoonSilver.ToVector3() * 0.7f);
         }
 
@@ -232,8 +320,17 @@ namespace MagnumOpus.Content.Autumn.Projectiles
         {
             // Heavy VFX
             CustomParticles.GenericFlare(target.Center, MoonSilver, 0.7f, 20);
-            CustomParticles.HaloRing(target.Center, MoonGold * 0.6f, 0.55f, 18);
-            CustomParticles.HaloRing(target.Center, TwilightPurple * 0.4f, 0.35f, 15);
+            CustomParticles.GenericFlare(target.Center, MoonGold, 0.6f, 18);
+            CustomParticles.GenericFlare(target.Center, MoonGold * 0.6f, 0.45f, 14);
+            CustomParticles.GenericFlare(target.Center, TwilightPurple, 0.45f, 16);
+            CustomParticles.GenericFlare(target.Center, TwilightPurple * 0.5f, 0.3f, 12);
+            // Moon wisp burst
+            for (int wisp = 0; wisp < 5; wisp++)
+            {
+                float wispAngle = MathHelper.TwoPi * wisp / 5f;
+                Vector2 wispPos = target.Center + wispAngle.ToRotationVector2() * 16f;
+                CustomParticles.GenericFlare(wispPos, MoonGold * 0.7f, 0.2f, 12);
+            }
 
             for (int i = 0; i < 10; i++)
             {
@@ -242,13 +339,25 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.28f, 20, true);
                 MagnumParticleHandler.SpawnParticle(spark);
             }
+
+            // ☁EMUSICAL IMPACT - Grand harvest moon chord
+            ThemedParticles.MusicNoteBurst(target.Center, MoonGold, 10, 5f);
+            ThemedParticles.MusicNoteRing(target.Center, MoonSilver, 45f, 6);
         }
 
         public override void OnKill(int timeLeft)
         {
             // Moon explosion
             CustomParticles.GenericFlare(Projectile.Center, MoonSilver, 0.65f, 22);
-            CustomParticles.HaloRing(Projectile.Center, MoonGold * 0.5f, 0.5f, 18);
+            CustomParticles.GenericFlare(Projectile.Center, MoonGold, 0.55f, 18);
+            CustomParticles.GenericFlare(Projectile.Center, MoonGold * 0.6f, 0.4f, 14);
+            // Moon wisp burst
+            for (int wisp = 0; wisp < 5; wisp++)
+            {
+                float wispAngle = MathHelper.TwoPi * wisp / 5f;
+                Vector2 wispPos = Projectile.Center + wispAngle.ToRotationVector2() * 14f;
+                CustomParticles.GenericFlare(wispPos, MoonGold * 0.7f, 0.18f, 10);
+            }
 
             for (int i = 0; i < 12; i++)
             {
@@ -258,12 +367,16 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 var burst = new GenericGlowParticle(Projectile.Center, burstVel, burstColor, 0.28f, 22, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
+
+            // ☁EMUSICAL FINALE - Harvest moon finale crescendo
+            ThemedParticles.MusicNoteBurst(Projectile.Center, MoonGold, 12, 5.5f);
+            ThemedParticles.MusicNoteRing(Projectile.Center, MoonSilver, 55f, 8);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo6").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
@@ -290,7 +403,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class HomingLeafShard : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle10";
         
         private static readonly Color AutumnOrange = new Color(255, 140, 50);
         private static readonly Color AutumnRed = new Color(178, 34, 34);
@@ -334,6 +447,16 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
+            // ☁EMUSICAL NOTATION - Leaf shard whispers autumn tune - VISIBLE SCALE 0.68f+
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), Main.rand.NextFloat(-1.5f, -0.5f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, AutumnOrange, 0.68f, 25);
+                
+                // Autumn glyph accent
+                CustomParticles.Glyph(Projectile.Center, AutumnOrange * 0.3f, 0.16f, -1);
+            }
+
             Lighting.AddLight(Projectile.Center, AutumnOrange.ToVector3() * 0.3f);
         }
 
@@ -369,6 +492,9 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.18f, 14, true);
                 MagnumParticleHandler.SpawnParticle(spark);
             }
+
+            // ☁EMUSICAL IMPACT - Leaf shard note
+            ThemedParticles.MusicNoteBurst(target.Center, AutumnGold, 4, 3f);
         }
 
         public override void OnKill(int timeLeft)
@@ -382,12 +508,15 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 var burst = new GenericGlowParticle(Projectile.Center, burstVel, burstColor, 0.15f, 14, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
+
+            // ☁EMUSICAL FINALE - Leaf shard final note
+            ThemedParticles.MusicNoteBurst(Projectile.Center, AutumnOrange, 4, 3f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle10").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 

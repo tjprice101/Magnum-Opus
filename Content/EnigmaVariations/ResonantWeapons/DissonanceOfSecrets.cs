@@ -175,7 +175,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         private int auraDamageTimer = 0;
         private int riddleboltTimer = 0;
         
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnigmaEye8";
         
         public override bool PreDraw(ref Color lightColor)
         {
@@ -337,6 +337,15 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             }
             
             // OPTIMIZED: Ambient trail - removed (was every frame with NextBool(2))
+            
+            // Music notes orbit the growing orb - the riddle sings
+            if (Main.rand.NextBool(8))
+            {
+                Color noteColor = Color.Lerp(new Color(140, 60, 200), new Color(50, 220, 100), Main.rand.NextFloat());
+                Vector2 noteOffset = Main.rand.NextVector2Circular(30f, 30f) * currentScale;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center + noteOffset, noteVel, noteColor, 0.3f * currentScale, 35);
+            }
             
             Lighting.AddLight(Projectile.Center, EnigmaPurple.ToVector3() * 0.6f * currentScale);
         }
@@ -585,7 +594,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         private const float HomingStrength = 0.15f;
         private const float MaxSpeed = 14f;
         
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField4";
         
         public override void SetStaticDefaults()
         {
@@ -688,6 +697,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 var glow = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.08f,
                     trailColor * 0.5f, 0.18f, 10, true);
                 MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            // Music note trail - the riddle's whisper
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(new Color(140, 60, 200), new Color(50, 220, 100), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.28f, 28);
             }
             
             Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.3f);

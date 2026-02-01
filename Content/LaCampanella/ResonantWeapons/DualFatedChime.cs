@@ -53,6 +53,15 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Item.channel = true;
         }
 
+        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Swings like the Zenith, casting spectral blades wreathed in bell-music flames"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Attacks fill a charge bar - right-click to unleash Inferno Waltz"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Inferno Waltz creates a devastating spinning flame dance"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Applies Resonant Toll on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Two fates intertwined in the dance of the eternal chime'") { OverrideColor = new Color(255, 140, 40) });
+        }
+
         public override bool AltFunctionUse(Player player) => chargeBar >= MaxCharge;
 
         public override bool CanUseItem(Player player)
@@ -118,7 +127,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             // Orange/gold bloom on swing
             ThemedParticles.LaCampanellaBloomBurst(player.Center + toMouse * 40f, 0.5f);
             
-            // Gradient halo ring burst - BLACK → ORANGE
+            // Gradient halo ring burst - BLACK ↁEORANGE
             for (int ring = 0; ring < 3; ring++)
             {
                 float progress = (float)ring / 3f;
@@ -138,7 +147,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 }
             }
             
-            // Fire flares spiraling outward with BLACK → ORANGE GRADIENT
+            // Fire flares spiraling outward with BLACK ↁEORANGE GRADIENT
             for (int i = 0; i < 6; i++)
             {
                 float flareAngle = toMouse.ToRotation() + MathHelper.PiOver4 * i;
@@ -148,7 +157,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 CustomParticles.GenericFlare(flarePos, flareColor, 0.45f, 16);
             }
             
-            // Fractal geometric burst with BLACK → ORANGE gradient
+            // Fractal geometric burst with BLACK ↁEORANGE gradient
             for (int i = 0; i < 8; i++)
             {
                 float angle = MathHelper.TwoPi * i / 8f;
@@ -196,7 +205,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Color campanellaGold = ThemedParticles.CampanellaGold;
             Color campanellaBlack = ThemedParticles.CampanellaBlack;
             
-            // Radial flare burst with BLACK → ORANGE GRADIENT
+            // Radial flare burst with BLACK ↁEORANGE GRADIENT
             for (int i = 0; i < 16; i++)
             {
                 float angle = MathHelper.TwoPi * i / 16f;
@@ -218,7 +227,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 }
             }
             
-            // Multiple halo rings with BLACK → ORANGE GRADIENT expanding outward
+            // Multiple halo rings with BLACK ↁEORANGE GRADIENT expanding outward
             for (int ring = 0; ring < 5; ring++)
             {
                 float progress = (float)ring / 5f;
@@ -226,7 +235,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 CustomParticles.HaloRing(player.Center, ringColor, 0.6f + ring * 0.25f, 25 + ring * 5);
             }
             
-            // Massive spark burst with BLACK → ORANGE GRADIENT
+            // Massive spark burst with BLACK ↁEORANGE GRADIENT
             for (int i = 0; i < 24; i++)
             {
                 float angle = MathHelper.TwoPi * i / 24f;
@@ -237,7 +246,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 MagnumParticleHandler.SpawnParticle(spark);
             }
             
-            // Fractal geometric burst - BLACK → ORANGE signature pattern
+            // Fractal geometric burst - BLACK ↁEORANGE signature pattern
             for (int i = 0; i < 8; i++)
             {
                 float angle = MathHelper.TwoPi * i / 8f;
@@ -348,7 +357,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 }
             }
             
-            // Black → Orange gradient glow
+            // Black ↁEOrange gradient glow
             spriteBatch.Draw(texture, position, null, ThemedParticles.CampanellaOrange * 0.5f, rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
             spriteBatch.Draw(texture, position, null, Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, 0.4f) * 0.35f, rotation, origin, scale * pulse * 1.2f, SpriteEffects.None, 0f);
             spriteBatch.Draw(texture, position, null, ThemedParticles.CampanellaBlack * 0.3f, rotation, origin, scale * pulse * 1.1f, SpriteEffects.None, 0f);
@@ -605,7 +614,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             // Use the new comprehensive Zenith hit effect
             ThemedParticles.LaCampanellaZenithHit(target.Center, hitDirection, 1f);
             
-            // === SIGNATURE FRACTAL FLARE BURST - BLACK → ORANGE ===
+            // === SIGNATURE FRACTAL FLARE BURST - BLACK ↁEORANGE ===
             for (int i = 0; i < 6; i++)
             {
                 float angle = MathHelper.TwoPi * i / 6f;

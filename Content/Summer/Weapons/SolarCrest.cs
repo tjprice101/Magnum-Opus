@@ -11,6 +11,7 @@ using MagnumOpus.Content.Summer.Materials;
 using MagnumOpus.Content.Summer.Projectiles;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Summer.Weapons
 {
@@ -65,6 +66,15 @@ namespace MagnumOpus.Content.Summer.Weapons
                 MagnumParticleHandler.SpawnParticle(aura);
             }
 
+            // Floating summer melody notes
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
+                Vector2 noteVel = new Vector2(0, -Main.rand.NextFloat(0.3f, 0.7f));
+                Color noteColor = Color.Lerp(SunGold, SunOrange, Main.rand.NextFloat()) * 0.6f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 40);
+            }
+
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.045f) * 0.12f + 0.5f;
             Lighting.AddLight(player.Center, SunGold.ToVector3() * pulse);
         }
@@ -74,9 +84,33 @@ namespace MagnumOpus.Content.Summer.Weapons
             // Apply buff
             player.AddBuff(Item.buffType, 2);
 
-            // Spawn VFX
+            // Spawn VFX - layered solar bloom instead of halo
             CustomParticles.GenericFlare(Main.MouseWorld, SunGold, 0.75f, 22);
-            CustomParticles.HaloRing(Main.MouseWorld, SunOrange * 0.6f, 0.5f, 18);
+            CustomParticles.GenericFlare(Main.MouseWorld, SunOrange * 0.6f, 0.55f, 18);
+            CustomParticles.GenericFlare(Main.MouseWorld, SunOrange * 0.4f, 0.4f, 15);
+            
+            // Solar ray burst
+            for (int ray = 0; ray < 6; ray++)
+            {
+                float rayAngle = MathHelper.TwoPi * ray / 6f;
+                Vector2 rayPos = Main.MouseWorld + rayAngle.ToRotationVector2() * 20f;
+                CustomParticles.GenericFlare(rayPos, SunOrange * 0.75f, 0.25f, 13);
+            }
+
+            // Music note on summon
+            ThemedParticles.MusicNote(Main.MouseWorld, Vector2.Zero, SunGold * 0.8f, 0.7f, 25);
+
+            // Music note ring and burst for summon effect
+            ThemedParticles.MusicNoteRing(Main.MouseWorld, SunGold, 40f, 6);
+            ThemedParticles.MusicNoteBurst(Main.MouseWorld, SunOrange, 5, 4f);
+
+            // Sparkle accents
+            for (int i = 0; i < 4; i++)
+            {
+                var sparkle = new SparkleParticle(Main.MouseWorld + Main.rand.NextVector2Circular(12f, 12f),
+                    Main.rand.NextVector2Circular(2f, 2f), SunWhite * 0.5f, 0.2f, 16);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
             
             // Solar burst on summon
             for (int i = 0; i < 10; i++)

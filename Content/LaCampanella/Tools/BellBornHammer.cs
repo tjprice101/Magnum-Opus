@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -46,6 +47,11 @@ namespace MagnumOpus.Content.LaCampanella.Tools
             Item.hammer = 95;
             
             Item.maxStack = 1;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Each strike tolls like a flaming bell'") { OverrideColor = new Color(255, 140, 40) });
         }
 
         public override void AddRecipes()

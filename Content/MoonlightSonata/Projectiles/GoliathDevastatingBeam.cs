@@ -19,7 +19,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
     public class GoliathDevastatingBeam : ModProjectile
     {
         // Custom texture - no vanilla textures allowed
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo2";
         
         private const float MaxBeamLength = 2000f;
         private const int BeamDuration = 90; // 1.5 seconds of beam

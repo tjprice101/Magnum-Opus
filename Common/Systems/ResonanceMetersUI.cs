@@ -197,7 +197,7 @@ namespace MagnumOpus.Common.Systems
             Color barColor = Color.Lerp(DefenseShieldBlue * 0.5f, DefenseShieldBlue, percent);
             
             // Shield icon
-            DrawMeterIcon(spriteBatch, position, "◇", DefenseShieldBlue);
+            DrawMeterIcon(spriteBatch, position, "◆", DefenseShieldBlue);
             
             // Background bar
             Vector2 barPos = position + new Vector2(ICON_SIZE + 4, 0);
@@ -254,7 +254,7 @@ namespace MagnumOpus.Common.Systems
         private void DrawConductorMeter(SpriteBatch spriteBatch, Vector2 position, ConductorPlayer player)
         {
             // Conductor baton icon
-            string icon = player.IsConducting ? "♫" : "⚏";
+            string icon = player.IsConducting ? "♫" : "♪";
             Color iconColor = player.IsConducting ? SummonerConductGold : SummonerConductGold * 0.6f;
             DrawMeterIcon(spriteBatch, position, icon, iconColor);
             

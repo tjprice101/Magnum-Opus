@@ -8,6 +8,7 @@ using MagnumOpus.Content.Nachtmusik.ResonanceEnergies;
 using MagnumOpus.Content.Nachtmusik.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Nachtmusik.Accessories
 {
@@ -38,17 +39,17 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             var modPlayer = player.GetModPlayer<RadianceOfTheNightQueenPlayer>();
             modPlayer.hasRadianceOfTheNightQueen = true;
 
-            // +15% all damage
-            player.GetDamage(DamageClass.Generic) += 0.15f;
+            // +25% all damage - POST-FATE ULTIMATE
+            player.GetDamage(DamageClass.Generic) += 0.25f;
 
-            // +8% critical strike chance (all classes)
-            player.GetCritChance(DamageClass.Generic) += 8;
+            // +15% critical strike chance (all classes) - POST-FATE ULTIMATE
+            player.GetCritChance(DamageClass.Generic) += 15;
 
-            // +10% movement speed
-            player.moveSpeed += 0.10f;
+            // +20% movement speed - POST-FATE ULTIMATE
+            player.moveSpeed += 0.20f;
 
-            // +1 minion slot
-            player.maxMinions += 1;
+            // +2 minion slots - POST-FATE ULTIMATE
+            player.maxMinions += 2;
 
             // Ambient radiant particles
             if (!hideVisual && Main.rand.NextBool(8))
@@ -69,26 +70,35 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                 Vector2 orbitPos = player.Center + orbitAngle.ToRotationVector2() * 40f;
                 CustomParticles.GenericFlare(orbitPos, Gold * 0.6f, 0.2f, 12);
             }
+
+            // Floating nocturnal melody notes
+            if (!hideVisual && Main.rand.NextBool(10))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(32f, 32f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), -Main.rand.NextFloat(0.3f, 0.5f)); // Rising like night whispers
+                Color noteColor = Color.Lerp(new Color(100, 60, 180), new Color(80, 100, 200), Main.rand.NextFloat()) * 0.55f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 35);
+            }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "AllDamage", "+15% damage")
+            tooltips.Add(new TooltipLine(Mod, "AllDamage", "+25% damage")
             {
                 OverrideColor = Gold
             });
 
-            tooltips.Add(new TooltipLine(Mod, "AllCrit", "+8% critical strike chance")
+            tooltips.Add(new TooltipLine(Mod, "AllCrit", "+15% critical strike chance")
             {
                 OverrideColor = StarWhite
             });
 
-            tooltips.Add(new TooltipLine(Mod, "MoveSpeed", "+10% movement speed")
+            tooltips.Add(new TooltipLine(Mod, "MoveSpeed", "+20% movement speed")
             {
                 OverrideColor = Violet
             });
 
-            tooltips.Add(new TooltipLine(Mod, "MinionSlot", "+1 max minion")
+            tooltips.Add(new TooltipLine(Mod, "MinionSlot", "+2 max minions")
             {
                 OverrideColor = DeepPurple
             });
@@ -185,6 +195,17 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             CustomParticles.GenericFlare(Player.Center, StarWhite, 1.5f, 25);
             CustomParticles.GenericFlare(Player.Center, Gold, 1.2f, 22);
             CustomParticles.GenericFlare(Player.Center, Violet, 0.9f, 20);
+
+            // Music note burst on radiance nova
+            ThemedParticles.MusicNoteBurst(Player.Center, new Color(100, 60, 180), 6, 5f);
+
+            // Star sparkle accents
+            for (int i = 0; i < 5; i++)
+            {
+                var sparkle = new SparkleParticle(Player.Center + Main.rand.NextVector2Circular(15f, 15f),
+                    Main.rand.NextVector2Circular(3f, 3f), new Color(255, 250, 240) * 0.5f, 0.25f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
 
             // Expanding halo rings
             for (int ring = 0; ring < 6; ring++)

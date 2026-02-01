@@ -184,7 +184,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
         // Eye texture index for mysterious watching effect
         private int eyeTextureIndex = 0;
         
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnigmaEye5";
         
         public override void SetStaticDefaults()
         {
@@ -197,7 +197,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             // Load sparkle and flare textures for dazzling trail
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnigmaEye5").Value;
             Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle" + (1 + (Projectile.whoAmI % 8))).Value;
             Texture2D eyeTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnigmaEye" + (1 + eyeTextureIndex)).Value;
             
@@ -566,7 +566,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
         private int TargetIndex => (int)Projectile.ai[0];
         private int eyeTextureIndex = 0;
         
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnigmaEye6";
         
         public override void SetStaticDefaults()
         {
@@ -579,7 +579,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             // Load sparkle textures for dazzling trail
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnigmaEye6").Value;
             Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle" + (1 + (Projectile.whoAmI % 8))).Value;
             Texture2D eyeTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnigmaEye" + (1 + eyeTextureIndex)).Value;
             
@@ -709,6 +709,14 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
                 CustomParticles.GlyphTrail(Projectile.Center, Projectile.velocity, EnigmaPurple, 0.24f);
             }
             
+            // Music note trail - seeking the answer
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(new Color(140, 60, 200), new Color(50, 220, 100), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.32f, 30);
+            }
+            
             Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.5f);
             Lighting.AddLight(Projectile.Center, EnigmaPurple.ToVector3() * 0.3f);
         }
@@ -819,6 +827,9 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             }
             
             CustomParticles.HaloRing(Projectile.Center, EnigmaGreen * 0.65f, 0.32f, 13);
+            
+            // Music notes finale
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(50, 220, 100), 6, 4f);
         }
     }
     
@@ -837,7 +848,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
         private List<int> hitEnemies = new List<int>();
         private int eyeTextureIndex = 0;
         
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnigmaEye7";
         
         public override void SetStaticDefaults()
         {
@@ -850,7 +861,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             // Load sparkle textures for MEGA dazzling trail
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnigmaEye7").Value;
             Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle" + (1 + (Projectile.whoAmI % 10))).Value;
             Texture2D eyeTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnigmaEye" + (1 + eyeTextureIndex)).Value;
             
@@ -1002,6 +1013,14 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
                 CustomParticles.GlyphTrail(Projectile.Center, Projectile.velocity, EnigmaPurple, 0.3f);
             }
             
+            // Music note trail - the paradox sings
+            if (Main.rand.NextBool(5))
+            {
+                Color noteColor = Color.Lerp(new Color(140, 60, 200), new Color(50, 220, 100), Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.38f, 35);
+            }
+            
             // Green flame particles - every 8 frames
             if (Projectile.timeLeft % 8 == 0)
             {
@@ -1108,6 +1127,9 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             }
             CustomParticles.HaloRing(Projectile.Center, EnigmaGreen, 0.5f, 18);
             CustomParticles.GlyphBurst(Projectile.Center, EnigmaGreen, count: 8, speed: 5f);
+            
+            // Music notes finale - the paradox concludes
+            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(50, 220, 100), 8, 4.5f);
         }
     }
 }

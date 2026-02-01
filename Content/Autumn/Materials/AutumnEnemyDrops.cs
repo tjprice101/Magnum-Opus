@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -23,6 +24,11 @@ namespace MagnumOpus.Content.Autumn.Materials
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 80);
             Item.rare = ItemRarityID.LightRed;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The final verse of life's fleeting song'") { OverrideColor = new Color(200, 150, 80) });
         }
 
         public override void PostUpdate()
@@ -61,6 +67,11 @@ namespace MagnumOpus.Content.Autumn.Materials
             Item.rare = ItemRarityID.LightPurple;
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Dusk's last flight before the endless night'") { OverrideColor = new Color(200, 150, 80) });
+        }
+
         public override void PostUpdate()
         {
             // Twilight purple-orange shimmer
@@ -96,6 +107,11 @@ namespace MagnumOpus.Content.Autumn.Materials
             Item.rare = ItemRarityID.LightPurple;
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A whisper of what once was, and shall never be again'") { OverrideColor = new Color(200, 150, 80) });
+        }
+
         public override void PostUpdate()
         {
             // Eerie death glow
@@ -128,6 +144,11 @@ namespace MagnumOpus.Content.Autumn.Materials
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 20);
             Item.rare = ItemRarityID.Orange;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Crumbling remnants of the harvest moon'") { OverrideColor = new Color(200, 150, 80) });
         }
 
         public override void PostUpdate()

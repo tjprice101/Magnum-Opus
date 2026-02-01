@@ -50,7 +50,7 @@ namespace MagnumOpus.Content.Fate.HarmonicCores
             
             tooltips.Add(new TooltipLine(Mod, "Spacer2", " ") { OverrideColor = Color.Transparent });
             
-            tooltips.Add(new TooltipLine(Mod, "UniqueHeader", "◆ Cosmic Destiny")
+            tooltips.Add(new TooltipLine(Mod, "UniqueHeader", "◁ECosmic Destiny")
             {
                 OverrideColor = new Color(255, 100, 120)
             });
