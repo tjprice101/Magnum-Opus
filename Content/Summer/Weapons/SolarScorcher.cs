@@ -109,25 +109,54 @@ namespace MagnumOpus.Content.Summer.Weapons
                 damageBonus = Math.Max(0f, damageBonus - 0.005f);
             }
 
-            // Ambient heat aura
-            if (Main.rand.NextBool(8))
+            // ========== IRIDESCENT WINGSPAN VFX PATTERN ==========
+            // HEAVY DUST TRAILS - 2+ per frame with fadeIn
+            for (int d = 0; d < 2; d++)
             {
-                Vector2 auraPos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Vector2 auraVel = new Vector2(0, -Main.rand.NextFloat(0.5f, 1.5f));
-                var aura = new GenericGlowParticle(auraPos, auraVel, SunOrange * 0.35f, 0.22f, 25, true);
-                MagnumParticleHandler.SpawnParticle(aura);
+                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(22f, 22f);
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.Torch, new Vector2(0, -Main.rand.NextFloat(0.4f, 1.2f)), 0, SunOrange, Main.rand.NextFloat(1.1f, 1.5f));
+                dust.noGravity = true;
+                dust.fadeIn = 1.4f;
             }
-
-            // Floating summer melody notes
-            if (Main.rand.NextBool(12))
+            
+            // CONTRASTING SPARKLES - different color (white-hot contrast)
+            if (Main.rand.NextBool(2))
             {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
-                Vector2 noteVel = new Vector2(0, -Main.rand.NextFloat(0.3f, 0.7f));
-                Color noteColor = Color.Lerp(SunGold, SunOrange, Main.rand.NextFloat()) * 0.6f;
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 40);
+                Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(28f, 28f);
+                CustomParticles.PrismaticSparkle(sparklePos, SunWhite, Main.rand.NextFloat(0.35f, 0.5f));
             }
-
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 0.5f;
+            
+            // SHIMMER TRAILS - rising heat waves with color cycling
+            if (Main.rand.NextBool(3))
+            {
+                float hue = 0.08f + Main.rand.NextFloat(0.05f); // Gold to orange range
+                Color shimmerColor = Main.hslToRgb(hue, 1f, 0.7f);
+                Vector2 shimmerPos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                Vector2 shimmerVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(0.8f, 1.5f));
+                var shimmer = new GenericGlowParticle(shimmerPos, shimmerVel, shimmerColor * 0.65f, 0.28f, 22, true);
+                MagnumParticleHandler.SpawnParticle(shimmer);
+            }
+            
+            // MUSIC NOTES - visible scale with solar theme
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), -Main.rand.NextFloat(0.6f, 1.4f));
+                Color noteColor = Color.Lerp(SunGold, SunOrange, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, Main.rand.NextFloat(0.85f, 1.1f), 32);
+            }
+            
+            // ORBITING SOLAR FLARES - rotating heat points
+            if (Main.rand.NextBool(4))
+            {
+                float orbitAngle = Main.GameUpdateCount * 0.06f + Main.rand.NextFloat(MathHelper.TwoPi);
+                float orbitRadius = 40f + Main.rand.NextFloat(15f);
+                Vector2 orbitPos = player.Center + orbitAngle.ToRotationVector2() * orbitRadius;
+                CustomParticles.GenericFlare(orbitPos, SunRed * 0.6f, 0.32f, 14);
+            }
+            
+            // Enhanced dynamic lighting
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.15f + 0.65f;
             Lighting.AddLight(player.Center, SunOrange.ToVector3() * pulse);
         }
 
@@ -148,11 +177,24 @@ namespace MagnumOpus.Content.Summer.Weapons
             float spread = MathHelper.ToRadians(Main.rand.NextFloat(-8f, 8f));
             velocity = velocity.RotatedBy(spread);
 
-            // Muzzle flash
-            CustomParticles.GenericFlare(position, SunOrange, 0.45f, 10);
-
-            // Music note on shot
-            ThemedParticles.MusicNote(position, velocity * 0.1f, SunGold * 0.8f, 0.7f, 25);
+            // ========== SPECTACULAR SOLAR SCORCHER MUZZLE FLASH ==========
+            // MULTI-LAYER FLARE - central solar burst
+            CustomParticles.GenericFlare(position, Color.White, 0.55f, 10);
+            CustomParticles.GenericFlare(position, SunGold, 0.45f, 12);
+            CustomParticles.GenericFlare(position, SunOrange * 0.8f, 0.35f, 14);
+            
+            // DIRECTIONAL HEAT SPARKS - along firing direction
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 sparkVel = velocity.SafeNormalize(Vector2.UnitX).RotatedByRandom(0.4f) * Main.rand.NextFloat(4f, 8f);
+                Color sparkColor = Color.Lerp(SunOrange, SunRed, Main.rand.NextFloat());
+                Dust spark = Dust.NewDustPerfect(position, DustID.Torch, sparkVel, 0, sparkColor, 1.3f);
+                spark.noGravity = true;
+                spark.fadeIn = 1.2f;
+            }
+            
+            // CONTRASTING WHITE-HOT SPARKLE
+            CustomParticles.PrismaticSparkle(position, SunWhite, 0.4f);
 
             // Fire stream projectile
             Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
@@ -165,29 +207,45 @@ namespace MagnumOpus.Content.Summer.Weapons
                 // Spawn heatwave pulse
                 Projectile.NewProjectile(source, player.Center, Vector2.Zero, ModContent.ProjectileType<HeatwavePulse>(), damage / 2, 0f, player.whoAmI);
                 
-                // VFX - layered heat bloom instead of halo
-                CustomParticles.GenericFlare(player.Center, SunGold, 0.7f, 18);
-                CustomParticles.GenericFlare(player.Center, SunOrange, 0.55f, 15);
-                CustomParticles.GenericFlare(player.Center, SunOrange * 0.6f, 0.4f, 12);
+                // ========== SPECTACULAR HEATWAVE VFX ==========
+                // CENTRAL SOLAR BURST
+                CustomParticles.GenericFlare(player.Center, Color.White, 0.9f, 18);
+                CustomParticles.GenericFlare(player.Center, SunGold, 0.7f, 20);
                 
-                // Heatwave pulse burst
-                for (int ray = 0; ray < 8; ray++)
+                // 6-LAYER GRADIENT HALO CASCADE - gold to red
+                for (int ring = 0; ring < 6; ring++)
                 {
-                    float rayAngle = MathHelper.TwoPi * ray / 8f;
-                    Vector2 rayPos = player.Center + rayAngle.ToRotationVector2() * 20f;
-                    CustomParticles.GenericFlare(rayPos, SunOrange * 0.75f, 0.25f, 12);
+                    float progress = ring / 6f;
+                    Color ringColor = Color.Lerp(SunGold, SunRed, progress);
+                    float ringScale = 0.35f + ring * 0.12f;
+                    int ringLife = 14 + ring * 3;
+                    CustomParticles.HaloRing(player.Center, ringColor * (0.7f - progress * 0.3f), ringScale, ringLife);
                 }
-
-                // Music note ring and burst for Heatwave
-                ThemedParticles.MusicNoteRing(player.Center, SunGold, 40f, 6);
-                ThemedParticles.MusicNoteBurst(player.Center, SunOrange, 5, 4f);
-
-                // Sparkle accents
+                
+                // RADIAL HEAT DUST BURST
+                for (int i = 0; i < 12; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 12f;
+                    Vector2 dustVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 9f);
+                    Dust heat = Dust.NewDustPerfect(player.Center, DustID.Torch, dustVel, 0, SunOrange, 1.4f);
+                    heat.noGravity = true;
+                    heat.fadeIn = 1.3f;
+                }
+                
+                // MUSIC NOTE RING - solar symphony
                 for (int i = 0; i < 4; i++)
                 {
-                    var sparkle = new SparkleParticle(player.Center + Main.rand.NextVector2Circular(12f, 12f),
-                        Main.rand.NextVector2Circular(2f, 2f), SunWhite * 0.5f, 0.2f, 16);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
+                    float angle = MathHelper.TwoPi * i / 4f + Main.rand.NextFloat(0.2f);
+                    Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
+                    Color noteColor = Color.Lerp(SunGold, SunOrange, Main.rand.NextFloat());
+                    ThemedParticles.MusicNote(player.Center, noteVel, noteColor, 0.9f, 28);
+                }
+                
+                // SPARKLE ACCENTS
+                for (int i = 0; i < 6; i++)
+                {
+                    Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
+                    CustomParticles.PrismaticSparkle(sparklePos, SunWhite, 0.45f);
                 }
             }
 

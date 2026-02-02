@@ -94,95 +94,39 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             // === UnifiedVFX EROICA SUMMON EXPLOSION ===
             UnifiedVFX.Eroica.Explosion(position, 1.4f);
             
-            // Central fractal burst - geometric flares with gradient
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 offset = angle.ToRotationVector2() * 35f;
-                float progress = (float)i / 8f;
-                Color gradientColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
-                CustomParticles.GenericFlare(position + offset, gradientColor, 0.65f, 22);
-            }
-            
-            // Gradient halo rings - dark to bright
-            for (int ring = 0; ring < 5; ring++)
-            {
-                float progress = (float)ring / 5f;
-                Color ringColor = Color.Lerp(eroicaBlack, eroicaCrimson, progress);
-                CustomParticles.HaloRing(position, ringColor, 0.4f + ring * 0.15f, 18 + ring * 3);
-            }
-            
-            // Explosion burst with gradient
-            for (int i = 0; i < 16; i++)
-            {
-                float progress = (float)i / 16f;
-                Color burstColor = Color.Lerp(eroicaScarlet, eroicaGold, progress);
-                CustomParticles.GenericGlow(position, burstColor, 0.4f, 25);
-            }
-            
             // Central white flash
-            CustomParticles.GenericFlare(position, Color.White, 1.0f, 15);
+            CustomParticles.GenericFlare(position, Color.White, 0.9f, 15);
+            
+            // Gradient halo rings - reduced to 2
+            CustomParticles.HaloRing(position, eroicaCrimson, 0.5f, 18);
+            CustomParticles.HaloRing(position, eroicaGold * 0.8f, 0.65f, 22);
             
             // Themed impact
-            ThemedParticles.EroicaImpact(position, 1.5f);
-            ThemedParticles.EroicaHaloBurst(position, 1.2f);
+            ThemedParticles.EroicaImpact(position, 1.2f);
             
-            // 🎵 MUSIC NOTES - The symphony of summoning!
-            ThemedParticles.EroicaMusicNotes(position, 10, 50f);
-            ThemedParticles.EroicaAccidentals(position, 5, 30f);
+            // Music notes - reduced
+            ThemedParticles.EroicaMusicNotes(position, 5, 40f);
             
-            // Spiraling music notes rising upward - triumphant ascension
-            for (int i = 0; i < 6; i++)
+            // Vanilla dust - reduced counts
+            for (int i = 0; i < 16; i++)
             {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 notePos = position + angle.ToRotationVector2() * 25f;
-                Color noteColor = Color.Lerp(eroicaScarlet, eroicaGold, (float)i / 6f);
-                ThemedParticles.MusicNotes(notePos, noteColor, 2, 15f);
-            }
-            
-            // === VANILLA DUST WITH GRADIENT COLORS ===
-            
-            // Outer ring - gradient from black to crimson
-            for (int i = 0; i < 40; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 40f;
-                float progress = (float)i / 40f;
-                Vector2 dustPos = position + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 70f;
-                Vector2 dustVel = (position - dustPos).SafeNormalize(Vector2.Zero) * 5f;
-                Color dustColor = Color.Lerp(eroicaBlack, eroicaCrimson, progress);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.Smoke, dustVel, 200, dustColor, 2.5f);
-                dust.noGravity = true;
-                dust.fadeIn = 1.5f;
-            }
-            
-            // Inner ring - gradient from scarlet to gold
-            for (int i = 0; i < 35; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 35f;
-                float progress = (float)i / 35f;
-                Vector2 dustPos = position + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 50f;
+                float angle = MathHelper.TwoPi * i / 16f;
+                Vector2 dustPos = position + angle.ToRotationVector2() * 50f;
                 Vector2 dustVel = (position - dustPos).SafeNormalize(Vector2.Zero) * 4f;
-                Color dustColor = Color.Lerp(eroicaScarlet, eroicaGold, progress);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.CrimsonTorch, dustVel, 100, dustColor, 2f);
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.CrimsonTorch, dustVel, 100, eroicaCrimson, 1.8f);
                 dust.noGravity = true;
-                dust.fadeIn = 1.3f;
             }
             
-            // Central burst - gradient particles
-            for (int i = 0; i < 30; i++)
+            for (int i = 0; i < 12; i++)
             {
-                float progress = (float)i / 30f;
-                Vector2 dustVel = Main.rand.NextVector2Circular(8f, 8f);
-                Color dustColor = Color.Lerp(eroicaBlack, eroicaCrimson, progress);
-                Dust dust = Dust.NewDustDirect(position, 1, 1, DustID.Smoke, dustVel.X, dustVel.Y, 200, dustColor, 2.5f);
+                Vector2 dustVel = Main.rand.NextVector2Circular(6f, 6f);
+                Dust dust = Dust.NewDustDirect(position, 1, 1, DustID.Smoke, dustVel.X, dustVel.Y, 150, eroicaBlack, 2f);
                 dust.noGravity = true;
-                dust.fadeIn = 1.3f;
             }
             
-            // Dark, ominous summoning sounds
-            SoundEngine.PlaySound(SoundID.Item119 with { Volume = 0.9f, Pitch = -0.4f }, position);
-            SoundEngine.PlaySound(SoundID.Item73 with { Volume = 0.7f, Pitch = -0.3f }, position);
-            SoundEngine.PlaySound(SoundID.NPCDeath6 with { Volume = 0.4f, Pitch = 0.5f }, position);
+            // Summoning sounds - reduced to 2
+            SoundEngine.PlaySound(SoundID.Item119 with { Volume = 0.8f, Pitch = -0.4f }, position);
+            SoundEngine.PlaySound(SoundID.Item73 with { Volume = 0.6f, Pitch = -0.3f }, position);
             
             // Spawn the Sakura of Fate
             Projectile.NewProjectile(source, position, Vector2.Zero, type, damage, knockback, player.whoAmI);
@@ -198,45 +142,24 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             // Position around the held item
             Vector2 itemCenter = player.itemLocation + new Vector2(Item.width * 0.5f * player.direction, -Item.height * 0.3f);
             
-            // Ambient fractal orbit pattern with gradient
-            if (Main.rand.NextBool(5))
+            // Subtle flame glow
+            if (Main.rand.NextBool(8))
             {
-                float baseAngle = Main.GameUpdateCount * 0.03f;
-                for (int i = 0; i < 6; i++)
-                {
-                    float angle = baseAngle + MathHelper.TwoPi * i / 6f;
-                    float radius = 25f + (float)Math.Sin(Main.GameUpdateCount * 0.06f + i * 0.5f) * 8f;
-                    Vector2 flarePos = itemCenter + angle.ToRotationVector2() * radius;
-                    float progress = (float)i / 6f;
-                    Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
-                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.3f, 15);
-                }
-            }
-            
-            // Staff is constantly lit aflame - gradient particles
-            if (Main.rand.NextBool(2))
-            {
-                // Deep crimson glow with gradient to gold
-                if (Main.rand.NextBool(2))
-                {
-                    float progress = Main.rand.NextFloat();
-                    Color crimsonColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress * 0.6f);
-                    CustomParticles.GenericGlow(itemCenter + Main.rand.NextVector2Circular(8f, 8f), crimsonColor, 0.32f, 13);
-                }
+                Color crimsonColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, Main.rand.NextFloat() * 0.5f);
+                CustomParticles.GenericGlow(itemCenter + Main.rand.NextVector2Circular(6f, 6f), crimsonColor, 0.25f, 12);
             }
             
             // Sakura petals
-            if (Main.rand.NextBool(8))
+            if (Main.rand.NextBool(14))
             {
-                ThemedParticles.SakuraPetals(itemCenter, 2, 18f);
+                ThemedParticles.SakuraPetals(itemCenter, 1, 15f);
             }
             
-            // Occasional ember with gradient
-            if (Main.rand.NextBool(5))
+            // Occasional ember
+            if (Main.rand.NextBool(12))
             {
-                float progress = Main.rand.NextFloat();
-                Color emberColor = Color.Lerp(UnifiedVFX.Eroica.Crimson, UnifiedVFX.Eroica.Gold, progress);
-                CustomParticles.GenericFlare(itemCenter, emberColor, 0.38f, 12);
+                Color emberColor = Color.Lerp(UnifiedVFX.Eroica.Crimson, UnifiedVFX.Eroica.Gold, Main.rand.NextFloat());
+                CustomParticles.GenericFlare(itemCenter, emberColor, 0.3f, 10);
             }
         }
         

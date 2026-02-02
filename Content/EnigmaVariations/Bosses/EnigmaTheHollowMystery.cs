@@ -169,8 +169,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
 
         public override void SetDefaults()
         {
-            NPC.width = 540;  // 3x bigger (was 180)
-            NPC.height = 360; // 3x bigger (was 120)
+            // Hitbox = 80% of visual size (245x166 frame × 3.0 scale)
+            NPC.width = 588;
+            NPC.height = 398;
             NPC.damage = BaseDamage;
             NPC.defense = 65;
             NPC.lifeMax = 380000;

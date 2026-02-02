@@ -51,40 +51,26 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             // === UnifiedVFX EROICA AMBIENT AURA ===
             UnifiedVFX.Eroica.Aura(player.Center, 32f, 0.3f);
             
-            // === AMBIENT FRACTAL FLARES - Sakura petal geometric pattern ===
-            if (Main.rand.NextBool(6))
+            // === SUBTLE SAKURA AMBIENT ===
+            if (Main.rand.NextBool(15))
             {
-                // Sakura petal spiral pattern
-                float baseAngle = Main.GameUpdateCount * 0.03f;
-                for (int i = 0; i < 4; i++)
-                {
-                    float angle = baseAngle + MathHelper.TwoPi * i / 4f;
-                    float radius = 35f + (float)Math.Sin(Main.GameUpdateCount * 0.05f + i) * 15f;
-                    Vector2 flarePos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
-                    // Gradient: Sakura pink to Scarlet to Gold
-                    float progress = (float)i / 4f;
-                    Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, progress);
-                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.32f, 17);
-                }
+                float angle = Main.GameUpdateCount * 0.03f;
+                float radius = 30f + (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 10f;
+                Vector2 flarePos = player.Center + angle.ToRotationVector2() * radius;
+                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, 0.4f);
+                CustomParticles.GenericFlare(flarePos, fractalColor, 0.25f, 14);
             }
             
             // Sakura petals floating
-            if (Main.rand.NextBool(7))
+            if (Main.rand.NextBool(12))
             {
-                ThemedParticles.SakuraPetals(player.Center + Main.rand.NextVector2Circular(28f, 28f), 2, 22f);
+                ThemedParticles.SakuraPetals(player.Center + Main.rand.NextVector2Circular(25f, 25f), 1, 20f);
             }
             
-            // Custom particle sakura spirit glow with prismatic sparkles
-            if (Main.rand.NextBool(5))
+            // Occasional prismatic sparkle
+            if (Main.rand.NextBool(15))
             {
-                CustomParticles.EroicaTrailFlare(player.Center + Main.rand.NextVector2Circular(22f, 22f), player.velocity);
-                CustomParticles.PrismaticSparkle(player.Center + Main.rand.NextVector2Circular(30f, 30f), UnifiedVFX.Eroica.Sakura, 0.22f);
-            }
-            
-            // Occasional sakura halo pulse
-            if (Main.rand.NextBool(18))
-            {
-                CustomParticles.HaloRing(player.Center, UnifiedVFX.Eroica.Sakura * 0.65f, 0.38f, 24);
+                CustomParticles.PrismaticSparkle(player.Center + Main.rand.NextVector2Circular(25f, 25f), UnifiedVFX.Eroica.Sakura, 0.2f);
             }
             
             // Heroic gradient light with pulse
@@ -154,6 +140,10 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
+            // === SPECTACULAR SWING SYSTEM - ENDGAME TIER (7-8 layered arcs + sakura effects) ===
+            SpectacularMeleeSwing.OnSwing(player, hitbox, UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, 
+                SpectacularMeleeSwing.SwingTier.Endgame, SpectacularMeleeSwing.WeaponTheme.Eroica);
+            
             // === BLOOMING SAKURA EFFECT ===
             // The blade LITERALLY blooms with petals on every swing - a flower unfurling
             
@@ -229,46 +219,23 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             // === UnifiedVFX EROICA IMPACT ===
             UnifiedVFX.Eroica.Impact(target.Center, 1.2f);
             
-            // === FRACTAL IMPACT BURST - Sakura blossom explosion pattern ===
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 flareOffset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 25f;
-                float progress = (float)i / 6f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, progress);
-                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.55f, 19);
-            }
-            
-            // Gradient halo rings
-            for (int ring = 0; ring < 3; ring++)
-            {
-                float progress = (float)ring / 3f;
-                Color ringColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Scarlet, progress);
-                CustomParticles.HaloRing(target.Center, ringColor, 0.5f + ring * 0.12f, 15 + ring * 3);
-            }
+            // Single impact halo
+            CustomParticles.HaloRing(target.Center, UnifiedVFX.Eroica.Sakura, 0.45f, 15);
             
             // Sakura petals burst
-            ThemedParticles.SakuraPetals(target.Center, 6, 35f);
+            ThemedParticles.SakuraPetals(target.Center, 4, 30f);
             
-            // Create massive scarlet and black explosion on hit
-            for (int i = 0; i < 30; i++)
+            // Reduced dust burst
+            for (int i = 0; i < 12; i++)
             {
                 Dust explosion = Dust.NewDustDirect(target.position, target.width, target.height,
-                    DustID.RedTorch, 0f, 0f, 100, default, 2.5f);
+                    DustID.RedTorch, 0f, 0f, 100, default, 2f);
                 explosion.noGravity = true;
-                explosion.velocity = Main.rand.NextVector2Circular(8f, 8f);
-            }
-
-            for (int i = 0; i < 20; i++)
-            {
-                Dust smoke = Dust.NewDustDirect(target.position, target.width, target.height,
-                    DustID.Smoke, 0f, 0f, 100, Color.Black, 2.0f);
-                smoke.noGravity = true;
-                smoke.velocity = Main.rand.NextVector2Circular(6f, 6f);
+                explosion.velocity = Main.rand.NextVector2Circular(6f, 6f);
             }
             
             // Music notes on hit
-            CustomParticles.EroicaMusicNotes(target.Center, 3, 20f);
+            CustomParticles.EroicaMusicNotes(target.Center, 2, 18f);
             
             // Spawn seeking crystals on every hit - Eroica melee power
             if (Main.rand.NextBool(3)) // 33% chance

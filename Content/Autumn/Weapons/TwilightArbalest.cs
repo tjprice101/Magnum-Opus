@@ -54,26 +54,57 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
         public override void HoldItem(Player player)
         {
-            // Ambient twilight particles
-            if (Main.rand.NextBool(12))
+            // === IRIDESCENT WINGSPAN-STYLE HEAVY DUST TRAILS ===
+            // Heavy twilight dust trail #1
+            float trailProgress1 = Main.rand.NextFloat();
+            Color purpleGradient = Color.Lerp(TwilightPurple, MoonSilver, trailProgress1);
+            Dust heavyPurple = Dust.NewDustDirect(player.position, player.width, player.height, 
+                DustID.PurpleTorch, player.velocity.X * 0.3f, player.velocity.Y * 0.3f, 100, purpleGradient, 1.5f);
+            heavyPurple.noGravity = true;
+            heavyPurple.fadeIn = 1.4f;
+            heavyPurple.velocity = heavyPurple.velocity.RotatedByRandom(0.3f) * Main.rand.NextFloat(1.2f, 1.8f);
+            
+            // Heavy orange dust trail #2
+            float trailProgress2 = Main.rand.NextFloat();
+            Color orangeGradient = Color.Lerp(TwilightOrange, AutumnGold, trailProgress2);
+            Dust heavyOrange = Dust.NewDustDirect(player.position, player.width, player.height, 
+                DustID.OrangeTorch, player.velocity.X * 0.25f, player.velocity.Y * 0.25f, 80, orangeGradient, 1.4f);
+            heavyOrange.noGravity = true;
+            heavyOrange.fadeIn = 1.3f;
+            heavyOrange.velocity = heavyOrange.velocity.RotatedByRandom(0.25f) * Main.rand.NextFloat(1.1f, 1.6f);
+            
+            // === CONTRASTING SPARKLES (every 1-in-2 frames) ===
+            if (Main.rand.NextBool(2))
             {
-                Vector2 auraPos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Vector2 auraVel = new Vector2(0, -Main.rand.NextFloat(0.5f, 1f));
-                Color auraColor = Color.Lerp(TwilightPurple, TwilightOrange, Main.rand.NextFloat()) * 0.35f;
-                var aura = new GenericGlowParticle(auraPos, auraVel, auraColor, 0.18f, 28, true);
-                MagnumParticleHandler.SpawnParticle(aura);
+                Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
+                float sparkleHue = (Main.GameUpdateCount * 0.015f + Main.rand.NextFloat() * 0.3f) % 1f;
+                Color sparkleColor = Color.Lerp(TwilightPurple, Main.hslToRgb(sparkleHue, 0.6f, 0.75f), 0.4f);
+                CustomParticles.PrismaticSparkle(sparklePos, sparkleColor, 0.28f);
+            }
+            
+            // === ORBITING TWILIGHT PARTICLES ===
+            if (Main.rand.NextBool(6))
+            {
+                float orbitAngle = Main.GameUpdateCount * 0.04f;
+                for (int i = 0; i < 3; i++)
+                {
+                    float angle = orbitAngle + MathHelper.TwoPi * i / 3f;
+                    Vector2 orbitPos = player.Center + angle.ToRotationVector2() * (28f + Main.rand.NextFloat(8f));
+                    Color orbitColor = i % 2 == 0 ? TwilightPurple : TwilightOrange;
+                    CustomParticles.GenericFlare(orbitPos, orbitColor * 0.6f, 0.22f, 15);
+                }
+            }
+            
+            // === MUSIC NOTES - the twilight melody ===
+            if (Main.rand.NextBool(15))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(20f, 20f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1.2f);
+                Color noteColor = Color.Lerp(TwilightPurple, TwilightOrange, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.85f, 28);
             }
 
-            // Floating autumn melody notes
-            if (Main.rand.NextBool(12))
-            {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.2f, 0.5f));
-                Color noteColor = Color.Lerp(TwilightOrange, TwilightPurple, Main.rand.NextFloat()) * 0.6f;
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 40);
-            }
-
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.035f) * 0.08f + 0.35f;
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.035f) * 0.12f + 0.55f;
             Lighting.AddLight(player.Center, TwilightPurple.ToVector3() * pulse);
         }
 
@@ -86,29 +117,48 @@ namespace MagnumOpus.Content.Autumn.Weapons
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             shotCount++;
+            Vector2 direction = velocity.SafeNormalize(Vector2.UnitX);
 
-            // Muzzle flash - layered bloom instead of halo
-            CustomParticles.GenericFlare(position, TwilightOrange, 0.5f, 15);
-            CustomParticles.GenericFlare(position, TwilightPurple * 0.4f, 0.35f, 12);
+            // === IRIDESCENT WINGSPAN-STYLE MUZZLE FLASH ===
+            // Multi-layer flare burst
+            CustomParticles.GenericFlare(position, Color.White, 0.55f, 15);
+            CustomParticles.GenericFlare(position, TwilightOrange, 0.45f, 18);
+            CustomParticles.GenericFlare(position, TwilightPurple, 0.35f, 20);
             
-            // Music note on shot
-            ThemedParticles.MusicNote(position, velocity * 0.1f, AutumnGold * 0.8f, 0.7f, 25);
-            
-            // Twilight wisp burst
-            for (int wisp = 0; wisp < 4; wisp++)
+            // === GRADIENT HALO RINGS ===
+            for (int ring = 0; ring < 4; ring++)
             {
-                float wispAngle = MathHelper.TwoPi * wisp / 4f;
-                Vector2 wispPos = position + wispAngle.ToRotationVector2() * 10f;
-                CustomParticles.GenericFlare(wispPos, TwilightPurple * 0.5f, 0.15f, 9);
+                float progress = (float)ring / 4f;
+                Color ringColor = Color.Lerp(TwilightPurple, TwilightOrange, progress);
+                CustomParticles.HaloRing(position, ringColor * 0.7f, 0.25f + ring * 0.1f, 12 + ring * 3);
             }
-
-            // Particle burst on fire
-            for (int i = 0; i < 5; i++)
+            
+            // === HEAVY DUST BURST ===
+            for (int i = 0; i < 8; i++)
             {
-                Vector2 burstVel = velocity.SafeNormalize(Vector2.UnitY) * Main.rand.NextFloat(2f, 5f) + Main.rand.NextVector2Circular(2f, 2f);
-                Color burstColor = Color.Lerp(TwilightPurple, TwilightOrange, Main.rand.NextFloat()) * 0.5f;
-                var burst = new GenericGlowParticle(position, burstVel, burstColor, 0.22f, 16, true);
-                MagnumParticleHandler.SpawnParticle(burst);
+                float progress = (float)i / 8f;
+                Vector2 burstVel = direction.RotatedBy(Main.rand.NextFloat(-0.4f, 0.4f)) * Main.rand.NextFloat(3f, 7f);
+                Color burstColor = Color.Lerp(TwilightPurple, TwilightOrange, progress);
+                Dust burst = Dust.NewDustPerfect(position, DustID.PurpleTorch, burstVel, 100, burstColor, 1.3f);
+                burst.noGravity = true;
+                burst.fadeIn = 1.2f;
+            }
+            
+            // === CONTRASTING SPARKLE RING ===
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 sparklePos = position + angle.ToRotationVector2() * 15f;
+                Color sparkleColor = i % 2 == 0 ? TwilightPurple : TwilightOrange;
+                CustomParticles.PrismaticSparkle(sparklePos, sparkleColor, 0.3f);
+            }
+            
+            // === MUSIC NOTES ON FIRE ===
+            for (int i = 0; i < 3; i++)
+            {
+                Vector2 noteVel = direction.RotatedBy(Main.rand.NextFloat(-0.5f, 0.5f)) * Main.rand.NextFloat(1f, 3f);
+                Color noteColor = Color.Lerp(TwilightPurple, AutumnGold, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(position, noteVel, noteColor, 0.85f, 25);
             }
 
             // Harvest Moon - every 6th shot
@@ -119,31 +169,25 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 // Spawn large moon bolt
                 Projectile.NewProjectile(source, position, velocity * 0.9f, ModContent.ProjectileType<HarvestMoonBolt>(), (int)(damage * 1.75f), knockback * 1.5f, player.whoAmI);
 
-                // Extra VFX - layered bloom instead of halo
-                CustomParticles.GenericFlare(position, MoonSilver, 0.7f, 20);
-                CustomParticles.GenericFlare(position, AutumnGold * 0.5f, 0.55f, 15);
+                // === SPECTACULAR HARVEST MOON VFX ===
+                CustomParticles.GenericFlare(position, Color.White, 0.8f, 20);
+                CustomParticles.GenericFlare(position, MoonSilver, 0.65f, 22);
+                CustomParticles.GenericFlare(position, AutumnGold, 0.5f, 25);
                 
-                // Music note ring and burst for Harvest Moon
-                ThemedParticles.MusicNoteRing(position, TwilightOrange, 40f, 6);
-                ThemedParticles.MusicNoteBurst(position, MoonSilver, 5, 4f);
-                
-                // Harvest glyphs (Autumn theme)
-                CustomParticles.GlyphBurst(position, TwilightPurple, 4, 3f);
-                
-                // Sparkle accents
-                for (int sparkIdx = 0; sparkIdx < 4; sparkIdx++)
+                // Moon halo cascade
+                for (int ring = 0; ring < 6; ring++)
                 {
-                    var sparkle = new SparkleParticle(position + Main.rand.NextVector2Circular(12f, 12f),
-                        Main.rand.NextVector2Circular(2f, 2f), AutumnGold * 0.5f, 0.2f, 16);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
+                    float progress = (float)ring / 6f;
+                    Color moonColor = Color.Lerp(MoonSilver, AutumnGold, progress);
+                    CustomParticles.HaloRing(position, moonColor * 0.8f, 0.35f + ring * 0.12f, 15 + ring * 4);
                 }
                 
-                // Moon wisp burst
-                for (int wisp = 0; wisp < 5; wisp++)
+                // Starburst music notes
+                for (int i = 0; i < 6; i++)
                 {
-                    float wispAngle = MathHelper.TwoPi * wisp / 5f;
-                    Vector2 wispPos = position + wispAngle.ToRotationVector2() * 15f;
-                    CustomParticles.GenericFlare(wispPos, AutumnGold * 0.6f, 0.22f, 12);
+                    float angle = MathHelper.TwoPi * i / 6f;
+                    Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
+                    ThemedParticles.MusicNote(position, noteVel, MoonSilver, 0.9f, 30);
                 }
             }
 

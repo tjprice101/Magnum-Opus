@@ -110,39 +110,68 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
                     UnifiedVFX.MoonlightSonata.LightBlue * 0.6f, 0.4f);
             }
             
-            // Moon phase particles trailing behind
-            if (Main.rand.NextBool(3))
-            {
-                Vector2 offset = -Projectile.velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(20f, 40f);
-                offset += Main.rand.NextVector2Circular(10f, 10f);
-                float hue = Main.rand.NextFloat();
-                Color moonColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, hue);
-                CustomParticles.GenericFlare(Projectile.Center + offset, moonColor * 0.7f, 0.35f, 15);
-            }
+            // === IRIDESCENT WINGSPAN-STYLE HEAVY DUST TRAILS ===
+            // Heavy purple dust trail #1
+            float trailProgress1 = Main.rand.NextFloat();
+            Color purpleGradient = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.MediumPurple, trailProgress1);
+            Vector2 trailOffset1 = Main.rand.NextVector2Circular(Projectile.width * 0.3f, Projectile.height * 0.3f);
+            Dust heavyPurple = Dust.NewDustDirect(Projectile.Center + trailOffset1 - Vector2.One * 4, 8, 8, 
+                DustID.PurpleTorch, -Projectile.velocity.X * 0.15f, -Projectile.velocity.Y * 0.15f, 100, purpleGradient, 1.5f);
+            heavyPurple.noGravity = true;
+            heavyPurple.fadeIn = 1.4f;
             
-            // Prismatic sparkle accents - moonlight glitter
-            if (Main.rand.NextBool(3))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(Projectile.width * 0.3f, Projectile.height * 0.3f);
-                CustomParticles.PrismaticSparkle(Projectile.Center + offset, Color.White, 0.3f);
-            }
-
-            // Purple-blue flame trail particles
+            // Heavy blue dust trail #2
+            float trailProgress2 = Main.rand.NextFloat();
+            Color blueGradient = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.LightBlue, trailProgress2);
+            Vector2 trailOffset2 = Main.rand.NextVector2Circular(Projectile.width * 0.25f, Projectile.height * 0.25f);
+            Dust heavyBlue = Dust.NewDustDirect(Projectile.Center + trailOffset2 - Vector2.One * 4, 8, 8, 
+                DustID.BlueTorch, -Projectile.velocity.X * 0.12f, -Projectile.velocity.Y * 0.12f, 80, blueGradient, 1.4f);
+            heavyBlue.noGravity = true;
+            heavyBlue.fadeIn = 1.3f;
+            
+            // === CONTRASTING SILVER SPARKLES (1-in-2) ===
             if (Main.rand.NextBool(2))
             {
-                Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(Projectile.width * 0.25f, Projectile.height * 0.25f);
-                Dust flame = Dust.NewDustDirect(dustPos - Vector2.One * 4, 8, 8, 
-                    DustID.PurpleTorch, 0f, 0f, 100, default, 1.3f);
-                flame.noGravity = true;
-                flame.velocity = -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f);
+                Vector2 sparkleOffset = Main.rand.NextVector2Circular(Projectile.width * 0.3f, Projectile.height * 0.3f);
+                CustomParticles.PrismaticSparkle(Projectile.Center + sparkleOffset, UnifiedVFX.MoonlightSonata.Silver, 0.35f);
+                
+                Dust silverDust = Dust.NewDustDirect(Projectile.Center + sparkleOffset, 1, 1, DustID.SilverCoin, 0f, 0f, 100, default, 0.8f);
+                silverDust.noGravity = true;
             }
             
-            // Musical notes trailing elegantly
-            if (Main.rand.NextBool(8))
+            // === LUNAR SHIMMER TRAIL (1-in-3) ===
+            if (Main.rand.NextBool(3))
+            {
+                float lunarHue = 0.7f + (Main.GameUpdateCount * 0.015f % 0.15f);
+                Color shimmerColor = Main.hslToRgb(lunarHue, 0.9f, 0.75f);
+                Vector2 shimmerOffset = Main.rand.NextVector2Circular(Projectile.width * 0.25f, Projectile.height * 0.25f);
+                CustomParticles.GenericFlare(Projectile.Center + shimmerOffset, shimmerColor, 0.4f, 12);
+            }
+            
+            // === FREQUENT FLARES (1-in-2) ===
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 flareOffset = Main.rand.NextVector2Circular(Projectile.width * 0.35f, Projectile.height * 0.35f);
+                Color flareColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, Main.rand.NextFloat());
+                CustomParticles.GenericFlare(Projectile.Center + flareOffset, flareColor, 0.4f, 12);
+            }
+            
+            // === PEARLESCENT MOONSTONE EFFECTS (1-in-4) ===
+            if (Main.rand.NextBool(4))
+            {
+                float pearlShift = (Main.GameUpdateCount * 0.02f) % 1f;
+                Color pearlColor = Color.Lerp(Color.Lerp(UnifiedVFX.MoonlightSonata.LightBlue, Color.White, pearlShift), 
+                    UnifiedVFX.MoonlightSonata.MediumPurple, (float)Math.Sin(pearlShift * MathHelper.TwoPi) * 0.3f + 0.3f);
+                Vector2 pearlOffset = Main.rand.NextVector2Circular(Projectile.width * 0.3f, Projectile.height * 0.3f);
+                CustomParticles.GenericFlare(Projectile.Center + pearlOffset, pearlColor * 0.8f, 0.35f, 15);
+            }
+
+            // === MUSIC NOTES (1-in-6) ===
+            if (Main.rand.NextBool(6))
             {
                 Vector2 notePos = Projectile.Center - Projectile.velocity.SafeNormalize(Vector2.Zero) * 20f;
-                ThemedParticles.MusicNote(notePos, Main.rand.NextVector2Circular(1.5f, 1.5f), 
-                    UnifiedVFX.MoonlightSonata.MediumPurple, 0.35f, 40);
+                Color noteColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(notePos, Main.rand.NextVector2Circular(1.5f, 1.5f), noteColor, 0.85f, 40);
             }
 
             // Bright light emission - moon glow
@@ -169,48 +198,49 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
                 );
             }
 
-            // === LUNAR IMPACT BURST ===
-            UnifiedVFX.MoonlightSonata.Impact(target.Center, 1.3f);
+            // === LUNAR IMPACT (Trust UnifiedVFX for core effect) ===
+            UnifiedVFX.MoonlightSonata.Impact(target.Center, 1.0f);
             
-            // Crescent moon explosion
+            // === IRIDESCENT WINGSPAN-STYLE GRADIENT HALO RINGS (4 stacked) ===
+            CustomParticles.HaloRing(target.Center, UnifiedVFX.MoonlightSonata.DarkPurple, 0.5f, 15);
+            CustomParticles.HaloRing(target.Center, UnifiedVFX.MoonlightSonata.MediumPurple, 0.4f, 13);
+            CustomParticles.HaloRing(target.Center, UnifiedVFX.MoonlightSonata.LightBlue, 0.3f, 11);
+            CustomParticles.HaloRing(target.Center, Color.White * 0.85f, 0.2f, 9);
+            
+            // === MUSIC NOTES BURST (6 notes) ===
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(2.5f, 4.5f);
+                Color noteColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(target.Center, noteVel, noteColor, 0.85f, 30);
+            }
+            
+            // === LUNAR SHIMMER FLARE BURST (8 flares) ===
             for (int i = 0; i < 8; i++)
             {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 crescentVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
-                CustomParticles.SwordArcCrescent(target.Center, crescentVel, 
-                    UnifiedVFX.MoonlightSonata.LightBlue, 0.5f);
+                float lunarHue = 0.7f + Main.rand.NextFloat(0.15f);
+                Color shimmerColor = Main.hslToRgb(lunarHue, 0.9f, 0.8f);
+                Vector2 flarePos = target.Center + Main.rand.NextVector2Circular(20f, 20f);
+                CustomParticles.GenericFlare(flarePos, shimmerColor, 0.4f, 15);
             }
             
-            // === SIGNATURE FRACTAL FLARE BURST ===
-            for (int i = 0; i < 8; i++)
+            // === RADIAL DUST EXPLOSION (16 dust particles) ===
+            for (int i = 0; i < 16; i++)
             {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 flareOffset = angle.ToRotationVector2() * 35f;
-                float progress = (float)i / 8f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
-                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.55f, 20);
+                float angle = MathHelper.TwoPi * i / 16f;
+                Vector2 dustVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 7f);
+                
+                Dust purpleDust = Dust.NewDustDirect(target.Center, 1, 1, DustID.PurpleTorch, dustVel.X, dustVel.Y, 100, default, 1.5f);
+                purpleDust.noGravity = true;
+                purpleDust.fadeIn = 1.2f;
             }
             
-            // Expanding halo rings
-            for (int ring = 0; ring < 4; ring++)
+            // === SILVER CONTRASTING SPARKLES (6 sparkles) ===
+            for (int i = 0; i < 6; i++)
             {
-                float progress = (float)ring / 4f;
-                Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, progress);
-                CustomParticles.HaloRing(target.Center, ringColor, 0.4f + ring * 0.12f, 16 + ring * 2);
-            }
-            
-            // Music notes burst on hit
-            ThemedParticles.MoonlightMusicNotes(target.Center, 5, 35f);
-            
-            // Prismatic sparkle impact burst
-            CustomParticles.PrismaticSparkleBurst(target.Center, Color.White, 8);
-            
-            // Purple-blue dust explosion
-            for (int i = 0; i < 15; i++)
-            {
-                Dust dust = Dust.NewDustDirect(target.Center, 1, 1, DustID.PurpleTorch, 0f, 0f, 100, default, 1.4f);
-                dust.noGravity = true;
-                dust.velocity = Main.rand.NextVector2Circular(6f, 6f);
+                Vector2 sparklePos = target.Center + Main.rand.NextVector2Circular(25f, 25f);
+                CustomParticles.PrismaticSparkle(sparklePos, UnifiedVFX.MoonlightSonata.Silver, 0.35f);
             }
             
             // Impact sound
@@ -283,49 +313,57 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // === LUNAR CRESCENT DISSIPATION ===
-            UnifiedVFX.MoonlightSonata.Impact(Projectile.Center, 1.5f);
+            // === LUNAR CRESCENT DISSIPATION (Trust UnifiedVFX for core effect) ===
+            UnifiedVFX.MoonlightSonata.Impact(Projectile.Center, 1.2f);
             
-            // Expanding crescent moons burst
-            for (int i = 0; i < 12; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 12f;
-                Vector2 crescentVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 7f);
-                Color crescentColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, (float)i / 12f);
-                CustomParticles.SwordArcCrescent(Projectile.Center, crescentVel, crescentColor * 0.7f, 0.45f);
-            }
+            // === IRIDESCENT WINGSPAN-STYLE GRADIENT HALO RINGS (4 stacked) ===
+            CustomParticles.HaloRing(Projectile.Center, UnifiedVFX.MoonlightSonata.DarkPurple, 0.6f, 18);
+            CustomParticles.HaloRing(Projectile.Center, UnifiedVFX.MoonlightSonata.MediumPurple, 0.5f, 16);
+            CustomParticles.HaloRing(Projectile.Center, UnifiedVFX.MoonlightSonata.LightBlue, 0.4f, 14);
+            CustomParticles.HaloRing(Projectile.Center, Color.White * 0.9f, 0.3f, 12);
             
-            // === SIGNATURE FRACTAL FLARE BURST ===
+            // === MUSIC NOTES BURST (8 notes) ===
             for (int i = 0; i < 8; i++)
             {
                 float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 flareOffset = angle.ToRotationVector2() * 40f;
-                float progress = (float)i / 8f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
-                CustomParticles.GenericFlare(Projectile.Center + flareOffset, fractalColor, 0.6f, 22);
+                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 5f);
+                Color noteColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.9f, 35);
             }
             
-            // Cascading halo rings
-            for (int ring = 0; ring < 6; ring++)
+            // === LUNAR SHIMMER FLARE BURST (12 flares) ===
+            for (int i = 0; i < 12; i++)
             {
-                float progress = (float)ring / 6f;
-                Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, progress);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.3f + ring * 0.15f, 18 + ring * 3);
+                float lunarHue = 0.7f + Main.rand.NextFloat(0.15f);
+                Color shimmerColor = Main.hslToRgb(lunarHue, 0.9f, 0.8f);
+                Vector2 flarePos = Projectile.Center + Main.rand.NextVector2Circular(30f, 30f);
+                CustomParticles.GenericFlare(flarePos, shimmerColor, 0.5f, 18);
             }
             
-            // Music notes on death
-            ThemedParticles.MoonlightMusicNotes(Projectile.Center, 8, 50f);
-            
-            // Prismatic sparkle explosion
-            CustomParticles.PrismaticSparkleBurst(Projectile.Center, Color.White, 15);
-            
-            // Purple-blue dust finale
+            // === RADIAL DUST EXPLOSION (20 dust particles) ===
             for (int i = 0; i < 20; i++)
             {
-                Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
-                    DustID.PurpleTorch, 0f, 0f, 100, default, 1.5f);
-                dust.noGravity = true;
-                dust.velocity = Main.rand.NextVector2Circular(6f, 6f);
+                float angle = MathHelper.TwoPi * i / 20f;
+                Vector2 dustVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 9f);
+                
+                Dust purpleDust = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.PurpleTorch, dustVel.X, dustVel.Y, 100, default, 1.6f);
+                purpleDust.noGravity = true;
+                purpleDust.fadeIn = 1.3f;
+            }
+            
+            // === SILVER CONTRASTING SPARKLES (8 sparkles) ===
+            for (int i = 0; i < 8; i++)
+            {
+                Vector2 sparklePos = Projectile.Center + Main.rand.NextVector2Circular(35f, 35f);
+                CustomParticles.PrismaticSparkle(sparklePos, UnifiedVFX.MoonlightSonata.Silver, 0.4f);
+            }
+            
+            // === CRYSTAL SHARD BURST (6 crystals) ===
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 crystalVel = Main.rand.NextVector2Circular(5f, 5f);
+                Dust crystal = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.PurpleCrystalShard, crystalVel.X, crystalVel.Y, 100, default, 1.2f);
+                crystal.noGravity = true;
             }
             
             // Dissipation sound

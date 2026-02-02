@@ -9,8 +9,10 @@ using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
+using Terraria.Graphics.Effects;
 using MagnumOpus.Content.Nachtmusik.ResonanceEnergies;
 using MagnumOpus.Content.Nachtmusik.HarmonicCores;
+using MagnumOpus.Content.Nachtmusik.ResonantWeapons;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
@@ -54,21 +56,21 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
         #endregion
         
         #region Constants
-        // POST-FATE BOSS - Must be significantly more aggressive than Fate!
-        private const float BaseSpeed = 28f; // 55% faster than before (was 18)
-        private const int BaseDamage = 240;  // 33% more damage (was 180)
-        private const float EnrageDistance = 900f; // Enrages closer (was 1100)
-        private const float TeleportDistance = 1400f;
-        private const int AttackWindowFrames = 25; // Much shorter windows (was 45)
+        // POST-FATE ULTIMATE BOSS - BEYOND FATE TIER - INSANE DIFFICULTY
+        private const float BaseSpeed = 45f; // BLAZING FAST - 2.5x base movement
+        private const int BaseDamage = 350;  // DEVASTATING damage output
+        private const float EnrageDistance = 700f; // Very aggressive enrage threshold
+        private const float TeleportDistance = 1600f;
+        private const int AttackWindowFrames = 15; // EXTREMELY short attack windows - relentless
         
-        // Projectile speeds - MUCH faster
-        private const float FastProjectileSpeed = 28f; // was 20
-        private const float MediumProjectileSpeed = 20f; // was 14
-        private const float HomingSpeed = 12f; // was 8
+        // Projectile speeds - INSANELY FAST
+        private const float FastProjectileSpeed = 38f; // Lightning fast projectiles
+        private const float MediumProjectileSpeed = 28f; // Standard attacks still deadly fast
+        private const float HomingSpeed = 18f; // Aggressive homing
         
-        // Phase 2 stats multipliers - BRUTAL
-        private const float Phase2DamageMult = 1.5f; // was 1.25
-        private const float Phase2SpeedMult = 1.6f; // was 1.3
+        // Phase 2 stats multipliers - ABSOLUTE NIGHTMARE
+        private const float Phase2DamageMult = 1.9f; // Nearly double damage in Phase 2
+        private const float Phase2SpeedMult = 2.2f; // Over double speed in Phase 2 - CRAZY FAST
         #endregion
         
         #region AI State
@@ -95,6 +97,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             MoonbeamCascade,      // Vertical light rays
             NocturnalSerenade,    // Homing musical notes
             CrescentSlash,        // Crescent-shaped projectiles
+            AuroraVeil,           // NEW: Protective shield that reflects projectiles back
             
             // Phase 2 - Celestial Fury Attacks  
             CosmicTempest,        // Rapid chaotic stars
@@ -102,7 +105,10 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             GalacticJudgment,     // Safe-arc radial burst
             StarfallApocalypse,   // Raining star barrage
             EternalNightmare,     // Multi-phase ultimate
-            CelestialCharge       // High-speed dashes
+            CelestialCharge,      // High-speed dashes
+            SupernovaCollapse,    // NEW: Massive implosion then explosion
+            TwilightReversal,     // NEW: Time-reversal attack that rewinds projectiles
+            QuantumBlink          // NEW: Rapid multi-teleport assault
         }
         
         private BossPhase State
@@ -182,11 +188,12 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
 
         public override void SetDefaults()
         {
-            NPC.width = 120;
-            NPC.height = 140;
+            // Hitbox = 80% of sprite size (270x270)
+            NPC.width = 216;
+            NPC.height = 216;
             NPC.damage = BaseDamage;
-            NPC.defense = 120;
-            NPC.lifeMax = 2500000; // 2.5 million HP (must defeat twice)
+            NPC.defense = 180; // POST-FATE ULTIMATE defense - 29% above Fate (140)
+            NPC.lifeMax = 4000000; // 4 million HP per phase (8 million total - must defeat twice)
             NPC.HitSound = SoundID.NPCHit5;
             NPC.DeathSound = SoundID.NPCDeath7;
             NPC.knockBackResist = 0f;
@@ -245,8 +252,21 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
         private float GetPhaseDamageMult() => isPhase2 ? Phase2DamageMult : 1f;
         #endregion
 
+        // Sky effect tracking
+        private bool skyEffectActivated = false;
+
         public override void AI()
         {
+            // Activate cosmic celestial sky effect when boss spawns
+            if (!skyEffectActivated && !Main.dedServ)
+            {
+                if (SkyManager.Instance["MagnumOpus:NachtmusikCelestialSky"] != null)
+                {
+                    SkyManager.Instance.Activate("MagnumOpus:NachtmusikCelestialSky", NPC.Center);
+                }
+                skyEffectActivated = true;
+            }
+            
             if (!hasRegisteredHealthBar)
             {
                 BossHealthBarUI.RegisterBoss(NPC, BossColorTheme.Nachtmusik);
@@ -443,15 +463,22 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             if (!Main.dedServ)
             {
                 Music = phase2MusicSlot;
+                
+                // ACTIVATE PHASE 2 ENHANCED CELESTIAL SKY - Fading color effects!
+                if (SkyManager.Instance["MagnumOpus:NachtmusikCelestialSky"] is NachtmusikCelestialSky celestialSky)
+                {
+                    celestialSky.ActivatePhase2();
+                    celestialSky.TriggerFlash(1.5f, Gold); // Golden flash on awakening
+                }
             }
             
-            // Increase stats for Phase 2
+            // Increase stats for Phase 2 - DEVASTATING
             NPC.damage = (int)(BaseDamage * Phase2DamageMult);
-            NPC.defense = 140;
+            NPC.defense = 220; // Massively increased defense in Phase 2
             
             if (Main.netMode != NetmodeID.Server)
             {
-                Main.NewText("...but the stars refuse to dim.", Gold);
+                Main.NewText("THE STARS REFUSE TO DIM!", Gold);
             }
         }
         
@@ -486,6 +513,12 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 {
                     SoundEngine.PlaySound(SoundID.Roar with { Pitch = 0.5f, Volume = 1.5f }, NPC.Center);
                     MagnumScreenEffects.AddScreenShake(15f);
+                    
+                    // Dramatic sky flash on Phase 2 dramatic reveal
+                    if (!Main.dedServ && SkyManager.Instance["MagnumOpus:NachtmusikCelestialSky"] is NachtmusikCelestialSky celestialSky)
+                    {
+                        celestialSky.TriggerFlash(2f, StarWhite);
+                    }
                 }
                 
                 // Expanding gold starbursts
@@ -730,22 +763,40 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
         
         private void AI_Phase1_Idle(Player target)
         {
-            // Graceful hovering
-            float hoverHeight = -250f;
-            float waveX = (float)Math.Sin(Timer * 0.015f) * 60f;
-            float waveY = (float)Math.Sin(Timer * 0.02f) * 30f;
+            // GRACEFUL CELESTIAL DANCE - Figure-8 flowing movement
+            float hoverHeight = -280f;
             
-            Vector2 hoverPos = target.Center + new Vector2(waveX, hoverHeight + waveY);
+            // Figure-8 pattern for elegant flow
+            float figure8X = (float)Math.Sin(Timer * 0.012f) * 120f;
+            float figure8Y = (float)Math.Sin(Timer * 0.024f) * 40f; // Double frequency for figure-8
+            
+            // Add gentle vertical bob
+            float breathY = (float)Math.Sin(Timer * 0.03f) * 15f;
+            
+            Vector2 hoverPos = target.Center + new Vector2(figure8X, hoverHeight + figure8Y + breathY);
             Vector2 toHover = hoverPos - NPC.Center;
             
-            if (toHover.Length() > 20f)
+            // Smooth, graceful interpolation
+            if (toHover.Length() > 15f)
             {
                 toHover.Normalize();
-                NPC.velocity = Vector2.Lerp(NPC.velocity, toHover * BaseSpeed * 0.5f, 0.04f);
+                float speed = BaseSpeed * 0.35f; // Slower, more elegant
+                NPC.velocity = Vector2.Lerp(NPC.velocity, toHover * speed, 0.025f); // Smoother lerp
             }
             else
             {
-                NPC.velocity *= 0.95f;
+                NPC.velocity = Vector2.Lerp(NPC.velocity, Vector2.Zero, 0.03f);
+            }
+            
+            // Gentle rotation following movement direction
+            if (NPC.velocity.Length() > 1f)
+            {
+                float targetRotation = NPC.velocity.X * 0.015f; // Subtle tilt
+                NPC.rotation = MathHelper.Lerp(NPC.rotation, targetRotation, 0.02f);
+            }
+            else
+            {
+                NPC.rotation = MathHelper.Lerp(NPC.rotation, 0f, 0.02f);
             }
             
             if (attackCooldown <= 0)
@@ -767,6 +818,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             {
                 pool.Add(AttackPattern.NocturnalSerenade);
                 pool.Add(AttackPattern.CrescentSlash);
+                pool.Add(AttackPattern.AuroraVeil);
             }
             
             pool.Remove(lastAttack);
@@ -797,6 +849,9 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 case AttackPattern.CrescentSlash:
                     Attack_CrescentSlash(target);
                     break;
+                case AttackPattern.AuroraVeil:
+                    Attack_AuroraVeil(target);
+                    break;
             }
         }
         
@@ -806,22 +861,43 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
         
         private void AI_Phase2_Idle(Player target)
         {
-            // More aggressive movement in Phase 2
-            float hoverHeight = -200f;
-            float waveX = (float)Math.Sin(Timer * 0.025f) * 100f;
-            float waveY = (float)Math.Sin(Timer * 0.03f) * 50f;
+            // CELESTIAL FURY DANCE - More intense but still flowing
+            float hoverHeight = -220f;
             
-            Vector2 hoverPos = target.Center + new Vector2(waveX, hoverHeight + waveY);
+            // Spiraling pattern - more aggressive figure-8 with rotation
+            float spiralAngle = Timer * 0.02f;
+            float spiralRadius = 80f + (float)Math.Sin(Timer * 0.015f) * 40f;
+            float spiralX = (float)Math.Cos(spiralAngle) * spiralRadius;
+            float spiralY = (float)Math.Sin(spiralAngle * 2f) * 35f; // Creates infinity pattern
+            
+            // Pulsing approach - gets closer during certain beats
+            float pulseDistance = (float)Math.Sin(Timer * 0.008f) * 60f;
+            hoverHeight += pulseDistance;
+            
+            Vector2 hoverPos = target.Center + new Vector2(spiralX, hoverHeight + spiralY);
             Vector2 toHover = hoverPos - NPC.Center;
             
-            if (toHover.Length() > 30f)
+            // More responsive but still smooth
+            if (toHover.Length() > 20f)
             {
                 toHover.Normalize();
-                NPC.velocity = Vector2.Lerp(NPC.velocity, toHover * BaseSpeed * Phase2SpeedMult * 0.6f, 0.05f);
+                float speed = BaseSpeed * Phase2SpeedMult * 0.4f; // Controlled intensity
+                NPC.velocity = Vector2.Lerp(NPC.velocity, toHover * speed, 0.035f);
             }
             else
             {
-                NPC.velocity *= 0.93f;
+                NPC.velocity = Vector2.Lerp(NPC.velocity, Vector2.Zero, 0.04f);
+            }
+            
+            // Dynamic rotation - follows movement with energy
+            if (NPC.velocity.Length() > 2f)
+            {
+                float targetRotation = NPC.velocity.X * 0.02f; // More pronounced tilt in Phase 2
+                NPC.rotation = MathHelper.Lerp(NPC.rotation, targetRotation, 0.03f);
+            }
+            else
+            {
+                NPC.rotation = MathHelper.Lerp(NPC.rotation, 0f, 0.025f);
             }
             
             if (attackCooldown <= 0)
@@ -843,11 +919,14 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             {
                 pool.Add(AttackPattern.GalacticJudgment);
                 pool.Add(AttackPattern.StarfallApocalypse);
+                pool.Add(AttackPattern.QuantumBlink);
+                pool.Add(AttackPattern.TwilightReversal);
             }
             
             if (difficultyTier >= 2)
             {
                 pool.Add(AttackPattern.EternalNightmare);
+                pool.Add(AttackPattern.SupernovaCollapse);
             }
             
             pool.Remove(lastAttack);
@@ -881,6 +960,15 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 case AttackPattern.CelestialCharge:
                     Attack_CelestialCharge(target);
                     break;
+                case AttackPattern.SupernovaCollapse:
+                    Attack_SupernovaCollapse(target);
+                    break;
+                case AttackPattern.TwilightReversal:
+                    Attack_TwilightReversal(target);
+                    break;
+                case AttackPattern.QuantumBlink:
+                    Attack_QuantumBlink(target);
+                    break;
             }
         }
         
@@ -890,24 +978,54 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
         
         private void AI_Reposition(Player target)
         {
-            Vector2 idealPos = target.Center + new Vector2(
-                (Main.rand.NextBool() ? -1 : 1) * 350f,
-                -280f
-            );
-            
-            Vector2 toIdeal = idealPos - NPC.Center;
-            float speed = BaseSpeed * GetPhaseSpeedMult() * GetAggressionSpeedMult();
-            
-            if (toIdeal.Length() > 50f)
+            // GRACEFUL ARC REPOSITION - Curves elegantly to new position
+            if (Timer == 1)
             {
+                // Pick a position in an arc around the player
+                float angle = Main.rand.NextFloat(-MathHelper.PiOver4, MathHelper.PiOver4) - MathHelper.PiOver2;
+                float distance = Main.rand.NextFloat(300f, 400f);
+                dashTarget = target.Center + angle.ToRotationVector2() * distance;
+            }
+            
+            Vector2 toIdeal = dashTarget - NPC.Center;
+            float distanceToTarget = toIdeal.Length();
+            
+            // Calculate curved path - arc toward target
+            if (distanceToTarget > 40f)
+            {
+                // Speed curve - accelerate then decelerate
+                float progress = Math.Min(Timer / 60f, 1f);
+                float speedCurve = (float)Math.Sin(progress * MathHelper.Pi); // Bell curve
+                float baseSpeed = BaseSpeed * GetPhaseSpeedMult() * 0.6f;
+                float speed = baseSpeed * (0.3f + speedCurve * 0.7f);
+                
                 toIdeal.Normalize();
-                NPC.velocity = Vector2.Lerp(NPC.velocity, toIdeal * speed, 0.08f);
+                NPC.velocity = Vector2.Lerp(NPC.velocity, toIdeal * speed, 0.04f); // Smooth transition
+                
+                // Rotation follows movement gracefully
+                float targetRotation = NPC.velocity.X * 0.012f;
+                NPC.rotation = MathHelper.Lerp(NPC.rotation, targetRotation, 0.02f);
+                
+                // Flowing trail during reposition
+                if (Timer % 6 == 0 && NPC.velocity.Length() > 5f)
+                {
+                    CustomParticles.GenericFlare(NPC.Center - NPC.velocity.SafeNormalize(Vector2.Zero) * 20f, 
+                        isPhase2 ? Gold : Violet, 0.25f, 12);
+                }
             }
             else
             {
-                State = isPhase2 ? BossPhase.Phase2_Idle : BossPhase.Phase1_Idle;
-                Timer = 0;
-                attackCooldown = (int)(AttackWindowFrames * GetAggressionRateMult());
+                // Graceful arrival
+                NPC.velocity = Vector2.Lerp(NPC.velocity, Vector2.Zero, 0.08f);
+                NPC.rotation = MathHelper.Lerp(NPC.rotation, 0f, 0.03f);
+                
+                if (NPC.velocity.Length() < 2f)
+                {
+                    State = isPhase2 ? BossPhase.Phase2_Idle : BossPhase.Phase1_Idle;
+                    Timer = 0;
+                    NPC.rotation = 0f;
+                    attackCooldown = (int)(AttackWindowFrames * GetAggressionRateMult());
+                }
             }
         }
         
@@ -1587,51 +1705,82 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
         }
         
         /// <summary>
-        /// Celestial Charge - High-speed dash attacks - RELENTLESS ASSAULT
+        /// Celestial Charge - Graceful sweeping dash attacks - FLUID DANCE OF LIGHT
         /// </summary>
         private void Attack_CelestialCharge(Player target)
         {
-            int dashes = 5 + difficultyTier * 2; // WAY more dashes
-            int dashTime = 18; // Faster dashes
-            int pauseTime = 12; // Much shorter pause
+            int dashes = 4 + difficultyTier; // Fewer but more deliberate dashes
+            int dashTime = 35; // Longer, more visible dashes
+            int pauseTime = 40; // Longer pause for readability
             
             if (SubPhase < dashes * 2) // Alternating telegraph and dash
             {
                 bool isDashing = SubPhase % 2 == 1;
                 
-                if (!isDashing) // Telegraph - BRIEF
+                if (!isDashing) // Telegraph - GRACEFUL WINDUP
                 {
                     if (Timer == 1)
                     {
-                        dashDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
-                        dashTarget = target.Center + dashDirection * 250f;
+                        // Predict where player will be and arc around them
+                        Vector2 predictedPos = target.Center + target.velocity * 15f;
+                        float angleToTarget = (predictedPos - NPC.Center).ToRotation();
+                        
+                        // Sweep in an arc, not straight line
+                        float sweepOffset = (SubPhase / 2 % 2 == 0 ? 1 : -1) * MathHelper.PiOver4;
+                        dashDirection = (angleToTarget + sweepOffset).ToRotationVector2();
+                        dashTarget = target.Center + dashDirection * 400f;
                     }
                     
-                    NPC.velocity *= 0.85f; // Faster stop
+                    // Graceful deceleration
+                    NPC.velocity = Vector2.Lerp(NPC.velocity, Vector2.Zero, 0.08f);
                     
-                    // Warning line
-                    BossVFXOptimizer.WarningLine(NPC.Center, dashDirection, 600f, 15, WarningType.Danger);
-                    
+                    // Elegant warning arc instead of harsh line
                     float progress = Timer / (float)pauseTime;
-                    BossVFXOptimizer.ConvergingWarning(NPC.Center, 40f, progress, Gold, 5);
+                    for (int i = 0; i < 5; i++)
+                    {
+                        float arcProgress = i / 5f;
+                        Vector2 arcPoint = NPC.Center + dashDirection * (100f + arcProgress * 400f) * progress;
+                        Color arcColor = Color.Lerp(Violet, Gold, arcProgress) * (0.3f + progress * 0.4f);
+                        if (Timer % 3 == 0)
+                            CustomParticles.GenericFlare(arcPoint, arcColor, 0.25f + progress * 0.15f, 10);
+                    }
+                    
+                    // Converging particles around boss - building energy
+                    BossVFXOptimizer.ConvergingWarning(NPC.Center, 60f, progress, Gold, 6);
+                    
+                    // Rotate to face dash direction gracefully
+                    NPC.rotation = MathHelper.Lerp(NPC.rotation, dashDirection.ToRotation(), 0.05f);
                     
                     if (Timer >= pauseTime)
                     {
                         Timer = 0;
                         SubPhase++;
-                        SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f }, NPC.Center);
+                        SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.4f, Volume = 0.8f }, NPC.Center);
                     }
                 }
-                else // Dash - ULTRA FAST
+                else // Dash - GRACEFUL SWEEP
                 {
-                    NPC.velocity = dashDirection * BaseSpeed * Phase2SpeedMult * 3.5f; // BLAZING speed
+                    // Smooth acceleration curve instead of instant max speed
+                    float dashProgress = Timer / (float)dashTime;
+                    float speedCurve = (float)Math.Sin(dashProgress * MathHelper.Pi); // Smooth bell curve
+                    float currentSpeed = BaseSpeed * Phase2SpeedMult * 1.8f * speedCurve;
                     
-                    // Trail particles - denser
+                    NPC.velocity = dashDirection * currentSpeed;
+                    
+                    // Flowing trail particles - elegant ribbons
                     if (Timer % 2 == 0)
                     {
-                        CustomParticles.GenericFlare(NPC.Center, Gold, 0.55f, 10);
-                        CustomParticles.GenericFlare(NPC.Center + Main.rand.NextVector2Circular(25f, 25f), Violet, 0.35f, 8);
-                        CustomParticles.GenericFlare(NPC.Center - dashDirection * 20f, StarWhite, 0.3f, 6);
+                        // Main trail
+                        CustomParticles.GenericFlare(NPC.Center, Gold * 0.8f, 0.45f, 15);
+                        
+                        // Side ribbons
+                        Vector2 perpendicular = dashDirection.RotatedBy(MathHelper.PiOver2);
+                        float ribbonOffset = (float)Math.Sin(Timer * 0.3f) * 30f;
+                        CustomParticles.GenericFlare(NPC.Center + perpendicular * ribbonOffset, Violet * 0.6f, 0.3f, 12);
+                        CustomParticles.GenericFlare(NPC.Center - perpendicular * ribbonOffset, Violet * 0.6f, 0.3f, 12);
+                        
+                        // Starlight trail
+                        CustomParticles.GenericFlare(NPC.Center - dashDirection * 30f, StarWhite * 0.5f, 0.25f, 10);
                     }
                     
                     if (Timer >= dashTime)
@@ -1644,12 +1793,395 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             }
             else
             {
-                NPC.velocity *= 0.85f;
-                if (Timer >= 20)
+                // Graceful recovery - slow drift to stop
+                NPC.velocity = Vector2.Lerp(NPC.velocity, Vector2.Zero, 0.06f);
+                NPC.rotation = MathHelper.Lerp(NPC.rotation, 0f, 0.03f);
+                
+                if (Timer >= 45)
                 {
                     dashCount = 0;
+                    NPC.rotation = 0f;
                     EndAttack();
                 }
+            }
+        }
+        
+        /// <summary>
+        /// Aurora Veil - Creates a protective barrier of light that reflects enemy attacks
+        /// UNIQUE: Boss summons orbiting aurora shields that also fire projectiles
+        /// </summary>
+        private void Attack_AuroraVeil(Player target)
+        {
+            int chargeTime = 30;
+            int activeTime = 180 + difficultyTier * 60; // Long-lasting veil
+            int shieldCount = 6 + difficultyTier * 2;
+            
+            if (SubPhase == 0) // Summon veil
+            {
+                NPC.velocity *= 0.9f;
+                
+                float progress = Timer / (float)chargeTime;
+                BossVFXOptimizer.ConvergingWarning(NPC.Center, 120f, progress, Violet, shieldCount);
+                
+                if (Timer % 3 == 0)
+                {
+                    float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                    CustomParticles.GenericFlare(NPC.Center + angle.ToRotationVector2() * 80f, Violet * 0.7f, 0.4f, 15);
+                }
+                
+                if (Timer >= chargeTime)
+                {
+                    Timer = 0;
+                    SubPhase = 1;
+                    SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.4f }, NPC.Center);
+                    
+                    // Spawn shield burst
+                    CustomParticles.GenericFlare(NPC.Center, StarWhite, 1.2f, 20);
+                    for (int i = 0; i < shieldCount; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / shieldCount;
+                        CustomParticles.HaloRing(NPC.Center + angle.ToRotationVector2() * 60f, Violet, 0.4f, 15);
+                    }
+                }
+            }
+            else if (SubPhase == 1) // Active - shields orbit and fire
+            {
+                // Slow follow
+                Vector2 toTarget = target.Center - NPC.Center;
+                if (toTarget.Length() > 200f)
+                {
+                    toTarget.Normalize();
+                    NPC.velocity = Vector2.Lerp(NPC.velocity, toTarget * BaseSpeed * 0.4f, 0.03f);
+                }
+                else
+                {
+                    NPC.velocity *= 0.95f;
+                }
+                
+                // Orbiting shields visual
+                float orbitAngle = Timer * 0.05f;
+                for (int i = 0; i < shieldCount; i++)
+                {
+                    float angle = orbitAngle + MathHelper.TwoPi * i / shieldCount;
+                    float radius = 100f + (float)Math.Sin(Timer * 0.1f + i) * 20f;
+                    Vector2 shieldPos = NPC.Center + angle.ToRotationVector2() * radius;
+                    
+                    Color shieldColor = Color.Lerp(Violet, Gold, (float)i / shieldCount);
+                    CustomParticles.GenericFlare(shieldPos, shieldColor, 0.35f, 5);
+                    
+                    // Shields fire projectiles periodically
+                    if (Timer % (30 - difficultyTier * 5) == i * 3 && Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        Vector2 fireDir = (target.Center - shieldPos).SafeNormalize(Vector2.UnitX);
+                        BossProjectileHelper.SpawnHostileOrb(shieldPos, fireDir * MediumProjectileSpeed, (int)(60 * GetPhaseDamageMult()), shieldColor, 0.01f);
+                    }
+                }
+                
+                if (Timer >= activeTime)
+                {
+                    Timer = 0;
+                    SubPhase = 2;
+                    
+                    // Veil disperses in explosion
+                    SoundEngine.PlaySound(SoundID.Item14, NPC.Center);
+                    for (int i = 0; i < 12; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / 12f;
+                        CustomParticles.GenericFlare(NPC.Center + angle.ToRotationVector2() * 80f, Violet, 0.6f, 18);
+                    }
+                    CustomParticles.HaloRing(NPC.Center, Gold, 0.8f, 20);
+                }
+            }
+            else
+            {
+                if (Timer >= 30)
+                    EndAttack();
+            }
+        }
+        
+        /// <summary>
+        /// Supernova Collapse - Massive gravity well pulls everything in, then EXPLODES
+        /// UNIQUE: Creates a black hole effect with devastating radial explosion
+        /// </summary>
+        private void Attack_SupernovaCollapse(Player target)
+        {
+            int collapseTime = 90 + difficultyTier * 20;
+            int explosionDelay = 40;
+            float collapseRadius = 350f;
+            
+            if (SubPhase == 0) // Collapse phase - everything gets pulled in
+            {
+                NPC.velocity *= 0.95f;
+                
+                float progress = Timer / (float)collapseTime;
+                float currentRadius = collapseRadius * (1f - progress * 0.7f);
+                
+                // Warning zone
+                BossVFXOptimizer.DangerZoneRing(NPC.Center, currentRadius, (int)(12 + progress * 8));
+                
+                // Swirling particles getting pulled in
+                if (Timer % 2 == 0)
+                {
+                    int spiralCount = 8 + (int)(progress * 12);
+                    for (int i = 0; i < spiralCount; i++)
+                    {
+                        float angle = Timer * 0.1f + MathHelper.TwoPi * i / spiralCount;
+                        float dist = currentRadius * (1f - (Timer % 30) / 30f);
+                        Vector2 pos = NPC.Center + angle.ToRotationVector2() * dist;
+                        Color color = Color.Lerp(DeepPurple, Gold, progress);
+                        CustomParticles.GenericFlare(pos, color, 0.25f + progress * 0.3f, 10);
+                    }
+                }
+                
+                // Growing core
+                if (Timer % 5 == 0)
+                {
+                    CustomParticles.GenericFlare(NPC.Center, Color.Lerp(DeepPurple, StarWhite, progress), 0.4f + progress * 0.8f, 15);
+                }
+                
+                // Announce
+                if (Timer == 1 && Main.netMode != NetmodeID.Server)
+                    Main.NewText("Gravity bends to my will!", Violet);
+                
+                // Screen shake builds
+                if (Timer > collapseTime * 0.5f)
+                    MagnumScreenEffects.AddScreenShake(progress * 8f);
+                
+                if (Timer >= collapseTime)
+                {
+                    Timer = 0;
+                    SubPhase = 1;
+                    SoundEngine.PlaySound(SoundID.Item162 with { Pitch = -0.5f, Volume = 1.5f }, NPC.Center);
+                }
+            }
+            else if (SubPhase == 1) // Brief pause before explosion
+            {
+                // Everything goes dark momentarily
+                float pauseProgress = Timer / (float)explosionDelay;
+                
+                // Pulsing core
+                if (Timer % 4 == 0)
+                {
+                    float pulse = 1f + (float)Math.Sin(Timer * 0.5f) * 0.3f;
+                    CustomParticles.GenericFlare(NPC.Center, StarWhite, 0.8f * pulse, 8);
+                    CustomParticles.GenericFlare(NPC.Center, DeepPurple, 1.2f * pulse, 10);
+                }
+                
+                if (Timer >= explosionDelay)
+                {
+                    Timer = 0;
+                    SubPhase = 2;
+                    
+                    // MASSIVE EXPLOSION
+                    SoundEngine.PlaySound(SoundID.Item14 with { Pitch = -0.8f, Volume = 2f }, NPC.Center);
+                    MagnumScreenEffects.AddScreenShake(25f);
+                    
+                    // Core flash
+                    CustomParticles.GenericFlare(NPC.Center, StarWhite, 2.5f, 30);
+                    CustomParticles.GenericFlare(NPC.Center, Gold, 2.0f, 28);
+                    CustomParticles.GenericFlare(NPC.Center, Violet, 1.8f, 25);
+                    
+                    // Cascading halos
+                    for (int i = 0; i < 8; i++)
+                    {
+                        Color ringColor = Color.Lerp(Gold, Violet, i / 8f);
+                        CustomParticles.HaloRing(NPC.Center, ringColor, 0.5f + i * 0.15f, 20 + i * 3);
+                    }
+                    
+                    // Radial projectile explosion
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        int projectileCount = 24 + difficultyTier * 8;
+                        for (int i = 0; i < projectileCount; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / projectileCount;
+                            float speed = FastProjectileSpeed * 1.2f;
+                            Vector2 vel = angle.ToRotationVector2() * speed;
+                            Color projColor = i % 2 == 0 ? Gold : Violet;
+                            BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel, (int)(90 * GetPhaseDamageMult()), projColor, 8f);
+                        }
+                        
+                        // Secondary wave - slower homing
+                        for (int i = 0; i < projectileCount / 2; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / (projectileCount / 2) + MathHelper.PiOver4;
+                            Vector2 vel = angle.ToRotationVector2() * MediumProjectileSpeed * 0.6f;
+                            BossProjectileHelper.SpawnHostileOrb(NPC.Center, vel, (int)(70 * GetPhaseDamageMult()), StarWhite, 0.03f);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                NPC.velocity *= 0.9f;
+                if (Timer >= 60)
+                    EndAttack();
+            }
+        }
+        
+        /// <summary>
+        /// Twilight Reversal - Spawns projectiles that REVERSE direction mid-flight
+        /// UNIQUE: Projectiles fly outward, pause, then return toward player
+        /// </summary>
+        private void Attack_TwilightReversal(Player target)
+        {
+            int waves = 3 + difficultyTier;
+            int waveDelay = 50 - difficultyTier * 8;
+            int projectilesPerWave = 12 + difficultyTier * 4;
+            
+            if (SubPhase < waves)
+            {
+                if (Timer == 1)
+                {
+                    SoundEngine.PlaySound(SoundID.Item28 with { Pitch = 0.3f }, NPC.Center);
+                    
+                    // Spawn outgoing wave
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        for (int i = 0; i < projectilesPerWave; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / projectilesPerWave + SubPhase * 0.3f;
+                            float speed = MediumProjectileSpeed * 0.8f;
+                            Vector2 vel = angle.ToRotationVector2() * speed;
+                            
+                            // Spawn reversing projectile (uses wave projectile with special behavior)
+                            BossProjectileHelper.SpawnWaveProjectile(NPC.Center, vel, (int)(65 * GetPhaseDamageMult()), 
+                                Color.Lerp(Violet, Gold, (float)i / projectilesPerWave), 6f);
+                        }
+                    }
+                    
+                    // VFX burst
+                    CustomParticles.GenericFlare(NPC.Center, Violet, 0.9f, 20);
+                    for (int i = 0; i < 8; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / 8f;
+                        CustomParticles.HaloRing(NPC.Center + angle.ToRotationVector2() * 30f, Gold, 0.3f, 12);
+                    }
+                    
+                    if (SubPhase == 0 && Main.netMode != NetmodeID.Server)
+                        Main.NewText("Time flows... backward!", Gold);
+                }
+                
+                // Slow hover
+                Vector2 toTarget = target.Center - NPC.Center;
+                if (toTarget.Length() > 300f)
+                {
+                    toTarget.Normalize();
+                    NPC.velocity = Vector2.Lerp(NPC.velocity, toTarget * BaseSpeed * 0.3f, 0.02f);
+                }
+                else
+                {
+                    NPC.velocity *= 0.95f;
+                }
+                
+                // Ambient particles
+                if (Timer % 6 == 0)
+                {
+                    float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                    CustomParticles.GenericFlare(NPC.Center + angle.ToRotationVector2() * 50f, Violet * 0.6f, 0.3f, 12);
+                }
+                
+                if (Timer >= waveDelay)
+                {
+                    Timer = 0;
+                    SubPhase++;
+                }
+            }
+            else
+            {
+                NPC.velocity *= 0.9f;
+                if (Timer >= 40)
+                    EndAttack();
+            }
+        }
+        
+        /// <summary>
+        /// Quantum Blink - RAPID teleportation assault with projectile bursts at each location
+        /// UNIQUE: Boss teleports 8-12 times in rapid succession, firing at each spot
+        /// </summary>
+        private void Attack_QuantumBlink(Player target)
+        {
+            int blinks = 8 + difficultyTier * 3;
+            int teleportTime = 15; // Very fast
+            int attackTime = 10;
+            
+            if (SubPhase < blinks * 2) // Alternating teleport and attack
+            {
+                bool isTeleporting = SubPhase % 2 == 0;
+                
+                if (isTeleporting)
+                {
+                    if (Timer == 1)
+                    {
+                        // Departure VFX
+                        CustomParticles.GenericFlare(NPC.Center, Violet, 0.7f, 12);
+                        for (int i = 0; i < 6; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / 6f;
+                            CustomParticles.GenericFlare(NPC.Center + angle.ToRotationVector2() * 30f, Gold, 0.3f, 10);
+                        }
+                        
+                        // Calculate teleport position - random around player
+                        float teleportAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                        float teleportDist = Main.rand.NextFloat(150f, 350f);
+                        Vector2 newPos = target.Center + teleportAngle.ToRotationVector2() * teleportDist;
+                        
+                        NPC.Center = newPos;
+                        NPC.velocity = Vector2.Zero;
+                        
+                        SoundEngine.PlaySound(SoundID.Item8 with { Pitch = 0.5f, Volume = 0.7f }, NPC.Center);
+                    }
+                    
+                    // Fade in effect
+                    float fadeProgress = Timer / (float)teleportTime;
+                    if (Timer % 2 == 0)
+                    {
+                        CustomParticles.GenericFlare(NPC.Center, StarWhite * fadeProgress, 0.4f, 6);
+                    }
+                    
+                    if (Timer >= teleportTime)
+                    {
+                        Timer = 0;
+                        SubPhase++;
+                    }
+                }
+                else // Attack burst
+                {
+                    if (Timer == 1)
+                    {
+                        // Fire burst of projectiles toward player
+                        if (Main.netMode != NetmodeID.MultiplayerClient)
+                        {
+                            Vector2 toTarget = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
+                            int burstCount = 3 + difficultyTier;
+                            
+                            for (int i = 0; i < burstCount; i++)
+                            {
+                                float spread = (i - burstCount / 2f) * 0.15f;
+                                Vector2 vel = toTarget.RotatedBy(spread) * FastProjectileSpeed;
+                                Color projColor = i % 2 == 0 ? Gold : Violet;
+                                BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel, (int)(70 * GetPhaseDamageMult()), projColor, 12f);
+                            }
+                        }
+                        
+                        // Attack VFX
+                        CustomParticles.GenericFlare(NPC.Center, Gold, 0.6f, 10);
+                        SoundEngine.PlaySound(SoundID.Item12 with { Pitch = 0.3f, Volume = 0.6f }, NPC.Center);
+                    }
+                    
+                    if (Timer >= attackTime)
+                    {
+                        Timer = 0;
+                        SubPhase++;
+                    }
+                }
+            }
+            else
+            {
+                // Final position - brief pause
+                NPC.velocity *= 0.9f;
+                if (Timer >= 30)
+                    EndAttack();
             }
         }
         
@@ -1733,6 +2265,15 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             }
             else if (deathTimer >= 180)
             {
+                // Deactivate sky effect before NPC becomes inactive
+                if (!Main.dedServ)
+                {
+                    if (SkyManager.Instance["MagnumOpus:NachtmusikCelestialSky"] != null)
+                    {
+                        SkyManager.Instance.Deactivate("MagnumOpus:NachtmusikCelestialSky");
+                    }
+                }
+                
                 NPC.life = 0;
                 NPC.HitEffect();
                 NPC.active = false;
@@ -1861,10 +2402,10 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
         
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
-            // Boss bag (Expert/Master)
+            // Expert/Master mode: Treasure Bag
             npcLoot.Add(ItemDropRule.BossBag(ModContent.ItemType<NachtmusikTreasureBag>()));
             
-            // Normal mode drops
+            // Non-Expert drops (only when not in Expert mode)
             LeadingConditionRule notExpert = new LeadingConditionRule(new Conditions.NotExpert());
             
             // Resonant Energy (15-25)
@@ -1879,13 +2420,45 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             // Remnants (30-50)
             notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<RemnantOfNachtmusiksHarmony>(), 1, 30, 50));
             
+            // Shard of Nachtmusik's Tempo (12-20) - key crafting material
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ShardOfNachtmusiksTempo>(), 1, 12, 20));
+            
+            // Random weapon drop in normal mode (1 weapon from pool)
+            notExpert.OnSuccess(ItemDropRule.OneFromOptions(1, 
+                ModContent.ItemType<NocturnalExecutioner>(),
+                ModContent.ItemType<MidnightsCrescendo>(),
+                ModContent.ItemType<TwilightSeverance>(),
+                ModContent.ItemType<ConstellationPiercer>(),
+                ModContent.ItemType<NebulasWhisper>(),
+                ModContent.ItemType<SerenadeOfDistantStars>(),
+                ModContent.ItemType<StarweaversGrimoire>(),
+                ModContent.ItemType<RequiemOfTheCosmos>(),
+                ModContent.ItemType<CelestialChorusBaton>(),
+                ModContent.ItemType<GalacticOverture>(),
+                ModContent.ItemType<ConductorOfConstellations>()
+            ));
+            
             npcLoot.Add(notExpert);
+            
+            // Trophy and mask (drop in all modes)
+            // TODO: Create trophy and mask items
+            // npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<NachtmusikTrophy>(), 10));
+            // npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<NachtmusikMask>(), 7));
         }
         
         public override void OnKill()
         {
             // Mark boss as defeated
             MoonlightSonataSystem.DownedNachtmusik = true;
+            
+            // Deactivate the celestial sky effect
+            if (!Main.dedServ)
+            {
+                if (SkyManager.Instance["MagnumOpus:NachtmusikCelestialSky"] != null)
+                {
+                    SkyManager.Instance.Deactivate("MagnumOpus:NachtmusikCelestialSky");
+                }
+            }
             
             if (Main.netMode == NetmodeID.Server)
             {

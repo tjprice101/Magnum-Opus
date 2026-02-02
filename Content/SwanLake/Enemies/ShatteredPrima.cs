@@ -135,8 +135,9 @@ namespace MagnumOpus.Content.SwanLake.Enemies
         public override void SetDefaults()
         {
             // SWAN LAKE MINI-BOSS STATS - Graceful but deadly
-            NPC.width = 60;
-            NPC.height = 90;
+            // Hitbox = (90/6) × (51/6) × 0.8 = 15 × 8.5 × 0.8 = 12 × 6
+            NPC.width = 12;
+            NPC.height = 6;
             NPC.damage = 140; // Slightly lower than other minibosses
             NPC.defense = 55; // Graceful = less armored
             NPC.lifeMax = 75000; // Mini-boss HP

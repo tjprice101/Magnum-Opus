@@ -112,16 +112,6 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                 ThemedParticles.SakuraPetals(arcPos, 6, 40f);
             }
             
-            // Fractal flare burst with gradient - signature MagnumOpus look
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 flareOffset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * (20f + swingCounter * 8f);
-                float progress = (float)i / 6f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
-                CustomParticles.GenericFlare(arcPos + flareOffset, fractalColor, 0.35f + swingCounter * 0.1f, 16);
-            }
-            
             // Swing particles - reduced for cleaner look
             ThemedParticles.EroicaSparks(arcPos, towardsMouse, 4 + swingCounter, 6f);
             
@@ -139,37 +129,24 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             // === UnifiedVFX EROICA AMBIENT AURA ===
             UnifiedVFX.Eroica.Aura(player.Center, 40f, 0.35f);
             
-            // === AMBIENT FRACTAL FLARES - Celestial star pattern ===
-            if (Main.rand.NextBool(6))
+            // === SUBTLE AMBIENT FLARES ===
+            if (Main.rand.NextBool(15))
             {
-                // Celestial star burst pattern with gradient
-                float baseAngle = Main.GameUpdateCount * 0.025f;
-                for (int i = 0; i < 5; i++)
-                {
-                    float angle = baseAngle + MathHelper.TwoPi * i / 5f;
-                    float radius = 35f + (float)Math.Sin(Main.GameUpdateCount * 0.05f + i * 0.7f) * 12f;
-                    Vector2 flarePos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
-                    // Gradient colors: scarlet to gold
-                    float progress = (float)i / 5f;
-                    Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
-                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.35f, 18);
-                }
+                float angle = Main.GameUpdateCount * 0.025f;
+                float radius = 32f + (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 8f;
+                Vector2 flarePos = player.Center + angle.ToRotationVector2() * radius;
+                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, 0.5f);
+                CustomParticles.GenericFlare(flarePos, fractalColor, 0.28f, 15);
             }
             
             // Sakura petal drift
-            if (Main.rand.NextBool(12))
-                ThemedParticles.SakuraPetals(player.Center, 1, 35f);
+            if (Main.rand.NextBool(14))
+                ThemedParticles.SakuraPetals(player.Center, 1, 30f);
             
-            // Occasional prismatic sparkle - heroic gleam with mini fractals
-            if (Main.rand.NextBool(10))
-            {
-                CustomParticles.PrismaticSparkle(player.Center + Main.rand.NextVector2Circular(28f, 28f), UnifiedVFX.Eroica.Gold, 0.25f);
-            }
-            
-            // Celestial halo pulse
+            // Occasional prismatic sparkle
             if (Main.rand.NextBool(18))
             {
-                CustomParticles.HaloRing(player.Center, UnifiedVFX.Eroica.Gold * 0.5f, 0.35f, 22);
+                CustomParticles.PrismaticSparkle(player.Center + Main.rand.NextVector2Circular(25f, 25f), UnifiedVFX.Eroica.Gold, 0.22f);
             }
             
             // Pulsing heroic light with gradient color
@@ -186,57 +163,117 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             SpectacularMeleeSwing.OnSwing(player, hitbox, UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, 
                 SpectacularMeleeSwing.SwingTier.Endgame, SpectacularMeleeSwing.WeaponTheme.Eroica);
             
-            // Swing trail with occasional sword arc slash
-            if (Main.rand.NextBool(4))
+            // === IRIDESCENT WINGSPAN STYLE - HEAVY DUST TRAILS (2+ per frame) ===
+            for (int i = 0; i < 2; i++)
             {
-                Vector2 swingDir = (hitCenter - player.Center).SafeNormalize(Vector2.UnitX);
-                CustomParticles.SwordArcSlash(hitCenter, swingDir, CustomParticleSystem.EroicaColors.Scarlet * 0.7f, 0.3f, swingDir.ToRotation());
+                // Main heroic trail - Scarlet to Gold gradient
+                float progress = Main.rand.NextFloat();
+                Color dustColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                int dustType = progress < 0.5f ? DustID.RedTorch : DustID.GoldFlame;
+                Dust d = Dust.NewDustPerfect(hitCenter + Main.rand.NextVector2Circular(8f, 8f), dustType,
+                    player.velocity * 0.3f + Main.rand.NextVector2Circular(3f, 3f),
+                    0, dustColor, 1.7f);
+                d.noGravity = true;
+                d.fadeIn = 1.3f;
             }
             
-            // Themed trail particles
+            // === CONTRASTING SPARKLES - Sakura pink against gold ===
+            if (Main.rand.NextBool(2))
+            {
+                Dust sakura = Dust.NewDustPerfect(hitCenter + Main.rand.NextVector2Circular(10f, 10f), DustID.PinkFairy,
+                    player.velocity * 0.2f + Main.rand.NextVector2Circular(2f, 2f),
+                    0, UnifiedVFX.Eroica.Sakura, 1.3f);
+                sakura.noGravity = true;
+            }
+            
+            // === VALOR SHIMMER - Like rainbow but with heroic tones ===
             if (Main.rand.NextBool(3))
             {
-                ThemedParticles.EroicaTrail(hitCenter, player.velocity * 0.25f);
+                // Cycle through valor colors: red -> crimson -> gold -> yellow
+                float valorHue = 0.0f + Main.rand.NextFloat() * 0.12f; // Red-orange-yellow range
+                Color valorShimmer = Main.hslToRgb(valorHue, 1f, 0.65f);
+                Dust v = Dust.NewDustPerfect(hitCenter, DustID.GoldFlame,
+                    player.velocity * 0.2f + Main.rand.NextVector2Circular(1.5f, 1.5f), 0, valorShimmer, 1.4f);
+                v.noGravity = true;
             }
             
-            // Sakura petals in swing arc
-            if (Main.rand.NextBool(5))
+            // === FREQUENT FLARES ===
+            if (Main.rand.NextBool(2))
             {
-                ThemedParticles.SakuraPetals(hitCenter, 1, 20f);
+                float flareProgress = Main.rand.NextFloat();
+                Color flareColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, flareProgress);
+                CustomParticles.GenericFlare(hitCenter + Main.rand.NextVector2Circular(12f, 12f), flareColor, 0.45f, 16);
+            }
+            
+            // Swing trail with occasional sword arc slash
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 swingDir = (hitCenter - player.Center).SafeNormalize(Vector2.UnitX);
+                CustomParticles.SwordArcSlash(hitCenter, swingDir, CustomParticleSystem.EroicaColors.Scarlet * 0.7f, 0.35f, swingDir.ToRotation());
+            }
+            
+            // Sakura petals in swing arc (increased frequency)
+            if (Main.rand.NextBool(3))
+            {
+                ThemedParticles.SakuraPetals(hitCenter, 1, 25f);
+            }
+            
+            // === MUSIC NOTES - The hero's anthem! ===
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(UnifiedVFX.Eroica.Gold, UnifiedVFX.Eroica.Sakura, Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(hitCenter, noteVel, noteColor, 0.35f, 30);
             }
         }
 
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // === UnifiedVFX EROICA IMPACT - Full themed explosion ===
+            // === IRIDESCENT WINGSPAN STYLE - LAYERED IMPACT ===
             UnifiedVFX.Eroica.Impact(target.Center, 1.3f);
             
-            // === FRACTAL IMPACT BURST - Celestial star explosion with gradient ===
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 flareOffset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 32f;
-                float progress = (float)i / 8f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
-                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.55f, 20);
-            }
+            // === MUSIC NOTES BURST! ===
+            ThemedParticles.EroicaMusicNotes(target.Center, 8, 40f);
             
-            // Heroic impact - golden prismatic burst
-            CustomParticles.PrismaticSparkleBurst(target.Center, UnifiedVFX.Eroica.Gold, 8);
-            
-            // Impact halos - layered gradient cascade
+            // === GRADIENT HALO RINGS (3 stacked) ===
             for (int ring = 0; ring < 3; ring++)
             {
                 float progress = (float)ring / 3f;
                 Color ringColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
-                CustomParticles.HaloRing(target.Center, ringColor, 0.5f + ring * 0.15f, 14 + ring * 3);
+                CustomParticles.HaloRing(target.Center, ringColor, 0.4f + ring * 0.12f, 14 + ring * 3);
             }
             
-            // Sakura petal burst on hit
-            ThemedParticles.SakuraPetals(target.Center, 4, 35f);
+            // === VALOR SHIMMER FLARE BURST ===
+            for (int i = 0; i < 10; i++)
+            {
+                float valorHue = 0.0f + (i / 10f) * 0.12f;
+                Color flareColor = Main.hslToRgb(valorHue, 1f, 0.7f);
+                CustomParticles.GenericFlare(target.Center + Main.rand.NextVector2Circular(18f, 18f), flareColor, 0.55f, 22);
+            }
             
-            // Musical accidentals on hit
-            CustomParticles.EroicaMusicNotes(target.Center, 2, 18f);
+            // === RADIAL DUST EXPLOSION ===
+            for (int i = 0; i < 16; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 16f;
+                float progress = (float)i / 16f;
+                Color dustColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
+                int dustType = i % 2 == 0 ? DustID.GoldFlame : DustID.RedTorch;
+                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(5f, 10f);
+                Dust d = Dust.NewDustPerfect(target.Center, dustType, vel, 0, dustColor, 1.7f);
+                d.noGravity = true;
+                d.fadeIn = 1.1f;
+            }
+            
+            // === SAKURA PETAL BURST (enhanced) ===
+            ThemedParticles.SakuraPetals(target.Center, 6, 40f);
+            
+            // === SAKURA SPARKLES ===
+            for (int i = 0; i < 6; i++)
+            {
+                Dust sakura = Dust.NewDustPerfect(target.Center + Main.rand.NextVector2Circular(15f, 15f), DustID.PinkFairy,
+                    Main.rand.NextVector2Circular(5f, 5f), 0, UnifiedVFX.Eroica.Sakura, 1.5f);
+                sakura.noGravity = true;
+            }
             
             // Spawn seeking crystals on crit - Celestial Valor power
             if (hit.Crit)
@@ -250,6 +287,8 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                     player.whoAmI,
                     5);
             }
+            
+            Lighting.AddLight(target.Center, 1.2f, 0.6f, 0.3f);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)

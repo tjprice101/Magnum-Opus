@@ -93,28 +93,24 @@ namespace MagnumOpus.Content.Seasons.Weapons
         public override void HoldItem(Player player)
         {
             // Ambient conductor particles - cycle through all 4 seasons
-            if (Main.rand.NextBool(12))
+            if (Main.rand.NextBool(18))
             {
                 int seasonIndex = (int)(Main.GameUpdateCount / 60) % 4;
                 Color seasonColor = seasonIndex switch { 0 => SpringPink, 1 => SummerGold, 2 => AutumnOrange, _ => WinterBlue };
                 Vector2 particlePos = player.Center + new Vector2(player.direction * 18f, -6f) + Main.rand.NextVector2Circular(10f, 10f);
-                Vector2 particleVel = new Vector2(0, Main.rand.NextFloat(-2f, -0.5f));
-                var particle = new GenericGlowParticle(particlePos, particleVel, seasonColor * 0.45f, 0.2f, 18, true);
+                Vector2 particleVel = new Vector2(0, Main.rand.NextFloat(-1.5f, -0.4f));
+                var particle = new GenericGlowParticle(particlePos, particleVel, seasonColor * 0.35f, 0.18f, 16, true);
                 MagnumParticleHandler.SpawnParticle(particle);
-                
-                // ☁ESPARKLE accent
-                var sparkle = new SparkleParticle(particlePos, particleVel * 0.5f, seasonColor * 0.5f, 0.18f, 14);
-                MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            // ☁EMUSICAL NOTATION - Conductor's notes! - VISIBLE SCALE 0.68f+
-            if (Main.rand.NextBool(16))
+            // Musical notation - visible scale 0.7f+
+            if (Main.rand.NextBool(25))
             {
                 int seasonIndex = (int)(Main.GameUpdateCount / 60) % 4;
                 Color noteColor = seasonIndex switch { 0 => SpringPink, 1 => SummerGold, 2 => AutumnOrange, _ => WinterBlue };
                 Vector2 notePos = player.Center + new Vector2(player.direction * 22f, -10f) + Main.rand.NextVector2Circular(6f, 6f);
-                Vector2 noteVel = new Vector2(player.direction * 0.5f, -1.2f);
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor * 0.85f, 0.75f, 26);
+                Vector2 noteVel = new Vector2(player.direction * 0.5f, -1f);
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor * 0.8f, 0.7f, 24);
             }
 
             // Check for Harmony Resonance (all 4 seasons present)
@@ -130,8 +126,8 @@ namespace MagnumOpus.Content.Seasons.Weapons
                 }
             }
 
-            // Harmony Resonance visual when all 4 seasons present - with sparkles!
-            if (hasSpring && hasSummer && hasAutumn && hasWinter && Main.rand.NextBool(8))
+            // Harmony Resonance visual when all 4 seasons present
+            if (hasSpring && hasSummer && hasAutumn && hasWinter && Main.rand.NextBool(12))
             {
                 float angle = Main.GameUpdateCount * 0.03f;
                 for (int i = 0; i < 4; i++)
@@ -139,20 +135,8 @@ namespace MagnumOpus.Content.Seasons.Weapons
                     float harmonyAngle = angle + MathHelper.PiOver2 * i;
                     Vector2 harmonyPos = player.Center + harmonyAngle.ToRotationVector2() * 35f;
                     Color harmonyColor = i switch { 0 => SpringPink, 1 => SummerGold, 2 => AutumnOrange, _ => WinterBlue };
-                    var harmonyParticle = new GenericGlowParticle(harmonyPos, Vector2.Zero, harmonyColor * 0.4f, 0.22f, 15, true);
+                    var harmonyParticle = new GenericGlowParticle(harmonyPos, Vector2.Zero, harmonyColor * 0.35f, 0.18f, 12, true);
                     MagnumParticleHandler.SpawnParticle(harmonyParticle);
-                    
-                    // ☁ESPARKLE at harmony points
-                    var sparkle = new SparkleParticle(harmonyPos, Vector2.Zero, harmonyColor * 0.5f, 0.2f, 12);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
-                }
-                
-                // ☁EMUSICAL NOTATION - Harmony note at center! - VISIBLE SCALE 0.7f+
-                if (Main.rand.NextBool(3))
-                {
-                    int noteIndex = Main.rand.Next(4);
-                    Color noteColor = noteIndex switch { 0 => SpringPink, 1 => SummerGold, 2 => AutumnOrange, _ => WinterBlue };
-                    ThemedParticles.MusicNote(player.Center, new Vector2(0, -1.5f), noteColor, 0.7f, 28);
                 }
             }
         }
@@ -181,45 +165,29 @@ namespace MagnumOpus.Content.Seasons.Weapons
                             proj.netUpdate = true;
                             minionCount++;
 
-                            // Coordination VFX on each minion with sparkles
+                            // Coordination VFX on each minion
                             Color minionColor = proj.type == ModContent.ProjectileType<Projectiles.SpringSpiritMinion>() ? SpringPink :
                                                proj.type == ModContent.ProjectileType<Projectiles.SummerSpiritMinion>() ? SummerGold :
                                                proj.type == ModContent.ProjectileType<Projectiles.AutumnSpiritMinion>() ? AutumnOrange : WinterBlue;
-                            CustomParticles.GenericFlare(proj.Center, Color.White * 0.7f, 0.55f, 18);
-                            CustomParticles.GenericFlare(proj.Center, minionColor, 0.52f, 16);
-                            CustomParticles.HaloRing(proj.Center, minionColor * 0.55f, 0.35f, 14);
-                            
-                            // ☁ESPARKLE accent
-                            var sparkle = new SparkleParticle(proj.Center, Main.rand.NextVector2Circular(2f, 2f), minionColor * 0.6f, 0.2f, 14);
-                            MagnumParticleHandler.SpawnParticle(sparkle);
+                            CustomParticles.GenericFlare(proj.Center, minionColor, 0.5f, 15);
+                            CustomParticles.HaloRing(proj.Center, minionColor * 0.5f, 0.3f, 12);
                         }
                     }
                 }
 
                 if (minionCount > 0)
                 {
-                    // Grand coordination burst at player - layered bloom with music notes!
-                    CustomParticles.GenericFlare(player.Center, Color.White, 0.9f, 24);
-                    CustomParticles.GenericFlare(player.Center, Color.White * 0.7f, 0.7f, 20);
-                    for (int i = 0; i < 4; i++)
-                    {
-                        Color burstColor = i switch { 0 => SpringPink, 1 => SummerGold, 2 => AutumnOrange, _ => WinterBlue };
-                        CustomParticles.HaloRing(player.Center, burstColor * 0.45f, 0.28f + i * 0.12f, 16 + i * 2);
-                        
-                        // ☁ESPARKLE at each color position
-                        float sparkleAngle = MathHelper.PiOver2 * i;
-                        Vector2 sparklePos = player.Center + sparkleAngle.ToRotationVector2() * 20f;
-                        var sparkle = new SparkleParticle(sparklePos, sparkleAngle.ToRotationVector2() * 2f, burstColor * 0.6f, 0.22f, 16);
-                        MagnumParticleHandler.SpawnParticle(sparkle);
-                    }
+                    // Grand coordination burst at player
+                    CustomParticles.GenericFlare(player.Center, Color.White, 0.8f, 22);
+                    CustomParticles.HaloRing(player.Center, Color.White * 0.5f, 0.4f, 16);
                     
-                    // ☁EMUSICAL NOTATION - Symphony coordination notes! - VISIBLE SCALE 0.72f+
+                    // Musical notation - 4 notes
                     for (int n = 0; n < 4; n++)
                     {
-                        float noteAngle = MathHelper.PiOver2 * n + Main.rand.NextFloat(-0.3f, 0.3f);
-                        Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(2f, 3.5f);
+                        float noteAngle = MathHelper.PiOver2 * n;
+                        Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(2f, 3f);
                         Color noteColor = n switch { 0 => SpringPink, 1 => SummerGold, 2 => AutumnOrange, _ => WinterBlue };
-                        ThemedParticles.MusicNote(player.Center, noteVel, noteColor, 0.72f, 30);
+                        ThemedParticles.MusicNote(player.Center, noteVel, noteColor, 0.7f, 28);
                     }
 
                     SoundEngine.PlaySound(SoundID.Item4, player.Center);
@@ -287,55 +255,34 @@ namespace MagnumOpus.Content.Seasons.Weapons
                 ModContent.ProjectileType<Projectiles.WinterSpiritMinion>()
             };
 
-            // Grand summon VFX - all 4 colors in a spectacular burst with music notes!
-            CustomParticles.GenericFlare(spawnPos, Color.White, 1.2f, 28);
-            CustomParticles.GenericFlare(spawnPos, Color.White * 0.8f, 0.9f, 24);
+            // Grand summon VFX - all 4 colors
+            CustomParticles.GenericFlare(spawnPos, Color.White, 1.0f, 24);
             for (int s = 0; s < 4; s++)
             {
                 float angle = MathHelper.PiOver2 * s;
                 Vector2 seasonSpawnPos = spawnPos + angle.ToRotationVector2() * 35f;
                 
-                CustomParticles.GenericFlare(seasonSpawnPos, Color.White * 0.7f, 0.7f, 22);
-                CustomParticles.GenericFlare(seasonSpawnPos, seasonColors[s], 0.68f, 20);
-                CustomParticles.HaloRing(seasonSpawnPos, seasonColors[s] * 0.55f, 0.42f, 16);
+                CustomParticles.GenericFlare(seasonSpawnPos, seasonColors[s], 0.6f, 18);
+                CustomParticles.HaloRing(seasonSpawnPos, seasonColors[s] * 0.5f, 0.35f, 14);
 
-                for (int i = 0; i < 8; i++)
+                for (int i = 0; i < 4; i++)
                 {
-                    float burstAngle = MathHelper.TwoPi * i / 8f;
-                    Vector2 burstVel = burstAngle.ToRotationVector2() * Main.rand.NextFloat(3f, 5f);
-                    var burst = new GenericGlowParticle(seasonSpawnPos, burstVel, seasonColors[s] * 0.55f, 0.25f, 16, true);
+                    float burstAngle = MathHelper.TwoPi * i / 4f;
+                    Vector2 burstVel = burstAngle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
+                    var burst = new GenericGlowParticle(seasonSpawnPos, burstVel, seasonColors[s] * 0.5f, 0.2f, 14, true);
                     MagnumParticleHandler.SpawnParticle(burst);
-                    
-                    // ☁ESPARKLE accents
-                    if (i % 2 == 0)
-                    {
-                        var sparkle = new SparkleParticle(seasonSpawnPos, burstVel * 0.6f, seasonColors[s] * 0.6f, 0.2f, 14);
-                        MagnumParticleHandler.SpawnParticle(sparkle);
-                    }
                 }
                 
-                // ☁EMUSICAL NOTATION - Season note on summon! - VISIBLE SCALE 0.72f+
-                Vector2 noteVel = new Vector2(0, -2f).RotatedBy(Main.rand.NextFloat(-0.3f, 0.3f));
-                ThemedParticles.MusicNote(seasonSpawnPos, noteVel, seasonColors[s], 0.72f, 30);
+                // Musical notation - season note on summon
+                Vector2 noteVel = new Vector2(0, -1.5f).RotatedBy(Main.rand.NextFloat(-0.2f, 0.2f));
+                ThemedParticles.MusicNote(seasonSpawnPos, noteVel, seasonColors[s], 0.7f, 26);
 
                 // Spawn the spirit
                 Projectile.NewProjectile(source, seasonSpawnPos, Vector2.Zero, minionTypes[s], damage, knockback, player.whoAmI);
             }
 
-            // Harmony burst at center with sparkles and music notes
-            for (int i = 0; i < 4; i++)
-            {
-                CustomParticles.HaloRing(spawnPos, seasonColors[i] * 0.4f, 0.28f + i * 0.14f, 14 + i * 3);
-                
-                // ☁ESPARKLE at harmony points
-                float sparkleAngle = MathHelper.PiOver2 * i;
-                Vector2 sparklePos = spawnPos + sparkleAngle.ToRotationVector2() * 15f;
-                var sparkle = new SparkleParticle(sparklePos, sparkleAngle.ToRotationVector2() * 1.5f, seasonColors[i] * 0.55f, 0.2f, 14);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-            
-            // ☁EMUSICAL NOTATION - Central harmony note! - VISIBLE SCALE 0.75f+
-            ThemedParticles.MusicNote(spawnPos, new Vector2(0, -2f), Color.White * 0.9f, 0.75f, 32);
+            // Harmony burst at center
+            CustomParticles.HaloRing(spawnPos, Color.White * 0.4f, 0.45f, 16);
 
             SoundEngine.PlaySound(SoundID.Item44 with { Volume = 1.2f }, spawnPos);
 

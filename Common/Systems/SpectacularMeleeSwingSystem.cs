@@ -508,6 +508,19 @@ namespace MagnumOpus.Common.Systems
                         Dust.NewDustPerfect(frostPos, DustID.Frost, Main.rand.NextVector2Circular(2f, 2f), 0, default, 0.8f);
                     }
                     break;
+                
+                case WeaponTheme.Seasons:
+                    // Combined seasonal effects - cycling through all four
+                    int seasonPhase = (int)(Main.GameUpdateCount / 30) % 4;
+                    Color[] seasonColors = { new Color(255, 183, 197), new Color(255, 215, 0), new Color(255, 140, 50), new Color(150, 220, 255) };
+                    if (Main.rand.NextBool((int)(4 / intensity)))
+                    {
+                        Vector2 seasonPos = center + Main.rand.NextVector2Circular(22f, 22f);
+                        var seasonParticle = new GenericGlowParticle(seasonPos, direction * 0.3f,
+                            seasonColors[seasonPhase] * 0.6f, 0.22f, 25, true);
+                        MagnumParticleHandler.SpawnParticle(seasonParticle);
+                    }
+                    break;
                     
                 case WeaponTheme.Eroica:
                     // Sakura petals + golden embers
@@ -748,6 +761,7 @@ namespace MagnumOpus.Common.Systems
             Summer,
             Autumn,
             Winter,
+            Seasons, // Combined Four Seasons
             Eroica,
             LaCampanella,
             MoonlightSonata,

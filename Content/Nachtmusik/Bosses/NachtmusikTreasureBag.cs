@@ -52,25 +52,27 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
 
         public override void ModifyItemLoot(ItemLoot itemLoot)
         {
-            // Resonant Energy (20-30) - guaranteed
-            itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<NachtmusikResonantEnergy>(), 1, 20, 30));
+            // Resonant Energy (25-35) - guaranteed (higher than Fate)
+            itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<NachtmusikResonantEnergy>(), 1, 25, 35));
             
-            // Resonant Core (10-15) - guaranteed
-            itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<NachtmusikResonantCore>(), 1, 10, 15));
+            // Resonant Core (12-18) - guaranteed (higher than Fate)
+            itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<NachtmusikResonantCore>(), 1, 12, 18));
             
-            // Harmonic Core (1-2) - guaranteed
-            itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<HarmonicCoreOfNachtmusik>(), 1, 1, 2));
+            // Harmonic Core (2-3) - guaranteed (higher than Fate)
+            itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<HarmonicCoreOfNachtmusik>(), 1, 2, 3));
             
-            // Remnants (40-60) - guaranteed
-            itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<RemnantOfNachtmusiksHarmony>(), 1, 40, 60));
+            // Remnants (50-70) - guaranteed (higher than Fate)
+            itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<RemnantOfNachtmusiksHarmony>(), 1, 50, 70));
+            
+            // Shard of Nachtmusik's Tempo (18-28) - guaranteed (equivalent to Fate's Shard)
+            itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<ShardOfNachtmusiksTempo>(), 1, 18, 28));
             
             // ==================== RESONANT WEAPONS ====================
             // Drop 3 random weapons from the weapon pool (no duplicates)
             itemLoot.Add(new NachtmusikTreasureBagWeaponRule());
             
-            // Expert-exclusive accessory (100%)
-            // TODO: Add StarweaversSignet or create new Expert accessory
-            // itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<NachtmusikExpertAccessory>(), 1));
+            // Expert-exclusive accessory - Radiance of the Night Queen
+            itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<Accessories.RadianceOfTheNightQueen>(), 1));
             
             // Money
             itemLoot.Add(ItemDropRule.CoinsBasedOnNPCValue(ModContent.NPCType<NachtmusikQueenOfRadiance>()));

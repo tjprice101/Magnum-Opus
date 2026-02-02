@@ -58,40 +58,59 @@ namespace MagnumOpus.Content.Spring.Weapons
             // Passive Regeneration: +2 life regen while holding
             player.lifeRegen += 2;
 
-            // Ethereal spring aura
-            if (Main.rand.NextBool(6))
+            // ========== IRIDESCENT WINGSPAN VFX PATTERN ==========
+            // HEAVY DUST TRAILS - 2+ per frame with fadeIn (lavender/green magic)
+            for (int d = 0; d < 2; d++)
             {
-                float angle = Main.GameUpdateCount * 0.025f;
-                for (int i = 0; i < 2; i++)
-                {
-                    float orbAngle = angle + MathHelper.Pi * i;
-                    float radius = 32f + (float)Math.Sin(Main.GameUpdateCount * 0.04f + i) * 8f;
-                    Vector2 orbPos = player.Center + orbAngle.ToRotationVector2() * radius;
-                    Color orbColor = Color.Lerp(SpringPink, SpringLavender, Main.rand.NextFloat());
-                    CustomParticles.GenericFlare(orbPos, orbColor * 0.6f, 0.28f, 15);
-                }
-            }
-
-            // Floating motes
-            if (Main.rand.NextBool(10))
-            {
-                Vector2 motePos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                Vector2 moteVel = new Vector2(0, -Main.rand.NextFloat(0.3f, 0.8f));
-                var mote = new GenericGlowParticle(motePos, moteVel, SpringGreen * 0.5f, 0.22f, 35, true);
-                MagnumParticleHandler.SpawnParticle(mote);
+                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(26f, 26f);
+                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.GreenTorch;
+                Color dustColor = Main.rand.NextBool() ? SpringLavender : SpringGreen;
+                Dust dust = Dust.NewDustPerfect(dustPos, dustType, new Vector2(0, -Main.rand.NextFloat(0.4f, 1.1f)), 0, dustColor, Main.rand.NextFloat(1.0f, 1.4f));
+                dust.noGravity = true;
+                dust.fadeIn = 1.4f;
             }
             
-            // Floating spring melody notes
-            if (Main.rand.NextBool(12))
+            // CONTRASTING SPARKLES - white/pink contrast
+            if (Main.rand.NextBool(2))
             {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
-                Vector2 noteVel = new Vector2(0, -Main.rand.NextFloat(0.3f, 0.7f));
-                Color noteColor = Color.Lerp(SpringLavender, SpringGreen, Main.rand.NextFloat()) * 0.65f;
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 42);
+                Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                Color sparkleColor = Main.rand.NextBool() ? SpringWhite : SpringPink;
+                CustomParticles.PrismaticSparkle(sparklePos, sparkleColor, Main.rand.NextFloat(0.33f, 0.5f));
+            }
+            
+            // SHIMMER TRAILS - floating vernal motes with color cycling
+            if (Main.rand.NextBool(3))
+            {
+                float hue = 0.28f + Main.rand.NextFloat(0.08f); // Green-lavender range
+                Color shimmerColor = Main.hslToRgb(hue, 0.6f, 0.75f);
+                Vector2 shimmerPos = player.Center + Main.rand.NextVector2Circular(28f, 28f);
+                Vector2 shimmerVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), -Main.rand.NextFloat(0.5f, 1.2f));
+                var shimmer = new GenericGlowParticle(shimmerPos, shimmerVel, shimmerColor * 0.58f, 0.26f, 24, true);
+                MagnumParticleHandler.SpawnParticle(shimmer);
+            }
+            
+            // MUSIC NOTES - visible scale with vernal theme
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(34f, 34f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(0.4f, 1.0f));
+                Color noteColor = Color.Lerp(SpringLavender, SpringPink, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, Main.rand.NextFloat(0.85f, 1.0f), 28);
+            }
+            
+            // ORBITING MAGIC MOTES - vernal wisdom
+            if (Main.rand.NextBool(4))
+            {
+                float orbitAngle = Main.GameUpdateCount * 0.045f + Main.rand.NextFloat(MathHelper.TwoPi);
+                float orbitRadius = 40f + Main.rand.NextFloat(14f);
+                Vector2 orbitPos = player.Center + orbitAngle.ToRotationVector2() * orbitRadius;
+                Color orbitColor = Color.Lerp(SpringLavender, SpringGreen, Main.rand.NextFloat()) * 0.5f;
+                var mote = new GenericGlowParticle(orbitPos, Vector2.Zero, orbitColor, 0.2f, 14, true);
+                MagnumParticleHandler.SpawnParticle(mote);
             }
 
-            // Soft lighting
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 0.5f;
+            // Enhanced dynamic lighting
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.12f + 0.58f;
             Lighting.AddLight(player.Center, SpringLavender.ToVector3() * pulse);
         }
 
@@ -99,20 +118,30 @@ namespace MagnumOpus.Content.Spring.Weapons
         {
             castCounter++;
 
-            // Cast VFX
-            CustomParticles.GenericFlare(position, SpringLavender, 0.6f, 18);
+            // ========== ENHANCED VERNAL CAST VFX ==========
+            // MULTI-LAYER CAST FLASH
+            CustomParticles.GenericFlare(position, Color.White * 0.7f, 0.45f, 10);
+            CustomParticles.GenericFlare(position, SpringLavender, 0.38f, 12);
             
-            // Music note on cast
-            ThemedParticles.MusicNote(position, velocity * 0.12f, SpringLavender * 0.8f, 0.7f, 28);
-            
-            // Magic sparkles on cast
-            for (int i = 0; i < 5; i++)
+            // MAGIC SPARKLE BURST - directional
+            for (int i = 0; i < 4; i++)
             {
-                Vector2 sparklePos = position + Main.rand.NextVector2Circular(15f, 15f);
-                Vector2 sparkleVel = velocity * 0.1f + Main.rand.NextVector2Circular(2f, 2f);
+                Vector2 sparklePos = position + Main.rand.NextVector2Circular(12f, 12f);
+                Vector2 sparkleVel = velocity * 0.1f + Main.rand.NextVector2Circular(1.5f, 1.5f);
                 Color sparkleColor = Color.Lerp(SpringPink, SpringLavender, Main.rand.NextFloat());
-                var sparkle = new GenericGlowParticle(sparklePos, sparkleVel, sparkleColor * 0.7f, 0.3f, 20, true);
+                var sparkle = new GenericGlowParticle(sparklePos, sparkleVel, sparkleColor * 0.6f, 0.24f, 17, true);
                 MagnumParticleHandler.SpawnParticle(sparkle);
+                
+                // Heavy magic dust
+                Dust dust = Dust.NewDustPerfect(sparklePos, DustID.PurpleTorch, sparkleVel * 1.5f, 0, SpringLavender, 1.1f);
+                dust.noGravity = true;
+                dust.fadeIn = 1.2f;
+            }
+            
+            // OCCASIONAL SPARKLE ACCENT
+            if (Main.rand.NextBool(2))
+            {
+                CustomParticles.PrismaticSparkle(position, SpringWhite, 0.36f);
             }
 
             // Nature's Blessing: Every 6th cast fires homing flower volley
@@ -120,30 +149,46 @@ namespace MagnumOpus.Content.Spring.Weapons
             {
                 castCounter = 0;
                 
-                // Big burst VFX - layered flares instead of halo
-                CustomParticles.GenericFlare(position, Color.White, 0.8f, 20);
-                CustomParticles.GenericFlare(position, SpringGreen, 0.6f, 18);
-                CustomParticles.GenericFlare(position, SpringGreen * 0.6f, 0.45f, 15);
+                // ========== SPECTACULAR NATURE'S BLESSING VFX ==========
+                // CENTRAL BLESSING FLARE
+                CustomParticles.GenericFlare(position, Color.White, 0.85f, 18);
+                CustomParticles.GenericFlare(position, SpringGreen, 0.7f, 20);
                 
-                // Music note ring and burst for Nature's Blessing
-                ThemedParticles.MusicNoteRing(position, SpringGreen, 35f, 6);
-                ThemedParticles.MusicNoteBurst(position, SpringLavender, 5, 4f);
-                
-                // Sparkle accents
-                for (int i = 0; i < 4; i++)
+                // 5-LAYER GRADIENT HALO CASCADE - green to lavender blessing
+                for (int ring = 0; ring < 5; ring++)
                 {
-                    var sparkle = new SparkleParticle(position + Main.rand.NextVector2Circular(12f, 12f),
-                        velocity * 0.05f + Main.rand.NextVector2Circular(2f, 2f), SpringWhite * 0.6f, 0.2f, 16);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
+                    float progress = ring / 5f;
+                    Color ringColor = Color.Lerp(SpringGreen, SpringLavender, progress);
+                    float ringScale = 0.35f + ring * 0.11f;
+                    int ringLife = 14 + ring * 3;
+                    CustomParticles.HaloRing(position, ringColor * (0.68f - progress * 0.25f), ringScale, ringLife);
                 }
                 
-                // Nature sparkle burst
-                for (int s = 0; s < 8; s++)
+                // RADIAL MAGIC DUST BURST
+                for (int i = 0; i < 10; i++)
                 {
-                    float sparkAngle = MathHelper.TwoPi * s / 8f;
-                    Vector2 sparkPos = position + sparkAngle.ToRotationVector2() * 22f;
-                    Color sparkColor = Color.Lerp(SpringPink, SpringLavender, (float)s / 8f);
-                    CustomParticles.GenericFlare(sparkPos, sparkColor * 0.7f, 0.22f, 13);
+                    float angle = MathHelper.TwoPi * i / 10f;
+                    Vector2 dustVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 7f);
+                    int dustType = Main.rand.NextBool() ? DustID.GreenTorch : DustID.PurpleTorch;
+                    Dust magic = Dust.NewDustPerfect(position, dustType, dustVel, 0, SpringGreen, 1.3f);
+                    magic.noGravity = true;
+                    magic.fadeIn = 1.3f;
+                }
+                
+                // MUSIC NOTE BLOOM - vernal chorus
+                for (int i = 0; i < 4; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 4f + Main.rand.NextFloat(0.2f);
+                    Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
+                    Color noteColor = Color.Lerp(SpringLavender, SpringPink, Main.rand.NextFloat(0.4f));
+                    ThemedParticles.MusicNote(position, noteVel, noteColor, 0.9f, 26);
+                }
+                
+                // SPARKLE CORONA
+                for (int i = 0; i < 6; i++)
+                {
+                    Vector2 sparklePos = position + Main.rand.NextVector2Circular(35f, 35f);
+                    CustomParticles.PrismaticSparkle(sparklePos, SpringWhite, 0.42f);
                 }
                 
                 // Fire 5 homing flower projectiles

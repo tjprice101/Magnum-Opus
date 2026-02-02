@@ -53,36 +53,17 @@ namespace MagnumOpus.Content.Winter.Weapons
 
         public override void HoldItem(Player player)
         {
-            // Ambient frost particles
-            if (Main.rand.NextBool(8))
+            // Subtle frost particles
+            if (Main.rand.NextBool(25))
             {
-                Vector2 auraPos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                Vector2 auraVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-0.5f, 0.5f));
-                Color auraColor = Color.Lerp(IceBlue, FrostWhite, Main.rand.NextFloat()) * 0.4f;
-                var aura = new GenericGlowParticle(auraPos, auraVel, auraColor, 0.22f, 30, true);
+                Vector2 auraPos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
+                Vector2 auraVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-0.3f, 0.3f));
+                Color auraColor = Color.Lerp(IceBlue, FrostWhite, Main.rand.NextFloat()) * 0.35f;
+                var aura = new GenericGlowParticle(auraPos, auraVel, auraColor, 0.18f, 25, true);
                 MagnumParticleHandler.SpawnParticle(aura);
             }
 
-            // Falling snowflakes
-            if (Main.rand.NextBool(12))
-            {
-                Vector2 snowPos = player.Center + new Vector2(Main.rand.NextFloat(-50f, 50f), -40f);
-                Vector2 snowVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(1f, 2f));
-                Color snowColor = FrostWhite * 0.5f;
-                var snow = new GenericGlowParticle(snowPos, snowVel, snowColor, 0.15f, 45, true);
-                MagnumParticleHandler.SpawnParticle(snow);
-            }
-
-            // Floating winter melody notes (drifting like snowflakes)
-            if (Main.rand.NextBool(12))
-            {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), Main.rand.NextFloat(0.1f, 0.5f)); // Gentle downward drift
-                Color noteColor = Color.Lerp(new Color(150, 200, 255), new Color(240, 250, 255), Main.rand.NextFloat()) * 0.6f;
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 40);
-            }
-
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.1f + 0.45f;
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.08f + 0.35f;
             Lighting.AddLight(player.Center, IceBlue.ToVector3() * pulse);
         }
 
@@ -112,34 +93,15 @@ namespace MagnumOpus.Content.Winter.Weapons
                 Projectile.NewProjectile(source, player.Center, velocity * 1.2f, type, (int)(damage * 1.5f), knockback, player.whoAmI);
 
                 // VFX burst
-                CustomParticles.GenericFlare(player.Center, FrostWhite, 1.0f, 25);
-                // Frost sparkle burst 
-                var frostSparkle1 = new SparkleParticle(player.Center, Vector2.Zero, IceBlue * 0.7f, 0.7f * 0.6f, 20);
-                MagnumParticleHandler.SpawnParticle(frostSparkle1);
-                var frostSparkle2 = new SparkleParticle(player.Center, Vector2.Zero, CrystalCyan * 0.5f, 0.5f * 0.6f, 18);
-                MagnumParticleHandler.SpawnParticle(frostSparkle2);
-                var frostSparkle3 = new SparkleParticle(player.Center, Vector2.Zero, DeepBlue * 0.4f, 0.35f * 0.6f, 15);
-                MagnumParticleHandler.SpawnParticle(frostSparkle3);
-
-                // Music note ring and burst for Avalanche Strike
-                ThemedParticles.MusicNoteRing(player.Center, new Color(150, 200, 255), 40f, 6);
-                ThemedParticles.MusicNoteBurst(player.Center, new Color(240, 250, 255), 5, 4f);
-
-                // Icy sparkle accents
-                for (int j = 0; j < 5; j++)
+                CustomParticles.GenericFlare(player.Center, FrostWhite, 0.7f, 18);
+                CustomParticles.HaloRing(player.Center, IceBlue, 0.4f, 15);
+                
+                // Simple ice burst
+                for (int i = 0; i < 5; i++)
                 {
-                    var sparkle = new SparkleParticle(player.Center + Main.rand.NextVector2Circular(15f, 15f),
-                        Main.rand.NextVector2Circular(2f, 2f), new Color(240, 250, 255) * 0.6f, 0.22f, 18);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
-                }
-
-                // Ice crystal explosion
-                for (int i = 0; i < 14; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 14f;
-                    Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(6f, 10f);
-                    Color burstColor = Color.Lerp(IceBlue, FrostWhite, (float)i / 14f) * 0.7f;
-                    var burst = new GenericGlowParticle(player.Center, burstVel, burstColor, 0.38f, 26, true);
+                    Vector2 burstVel = Main.rand.NextVector2Circular(6f, 6f);
+                    Color burstColor = Color.Lerp(IceBlue, FrostWhite, Main.rand.NextFloat()) * 0.5f;
+                    var burst = new GenericGlowParticle(player.Center, burstVel, burstColor, 0.25f, 18, true);
                     MagnumParticleHandler.SpawnParticle(burst);
                 }
             }
@@ -155,32 +117,81 @@ namespace MagnumOpus.Content.Winter.Weapons
             SpectacularMeleeSwing.OnSwing(player, hitbox, IceBlue, CrystalCyan, 
                 SpectacularMeleeSwing.SwingTier.High, SpectacularMeleeSwing.WeaponTheme.Winter);
             
+            // === IRIDESCENT WINGSPAN-STYLE HEAVY DUST TRAILS ===
+            // Heavy ice blue dust trail #1
+            float trailProgress1 = Main.rand.NextFloat();
+            Color iceGradient = Color.Lerp(IceBlue, CrystalCyan, trailProgress1);
+            Dust heavyIce = Dust.NewDustDirect(new Vector2(hitbox.X, hitbox.Y), hitbox.Width, hitbox.Height, 
+                DustID.IceTorch, player.velocity.X * 0.3f, player.velocity.Y * 0.3f, 100, iceGradient, 1.5f);
+            heavyIce.noGravity = true;
+            heavyIce.fadeIn = 1.4f;
+            heavyIce.velocity = heavyIce.velocity.RotatedByRandom(0.3f) * Main.rand.NextFloat(1.2f, 1.8f);
+            
+            // Heavy frost white dust trail #2
+            float trailProgress2 = Main.rand.NextFloat();
+            Color frostGradient = Color.Lerp(FrostWhite, IceBlue, trailProgress2);
+            Dust heavyFrost = Dust.NewDustDirect(new Vector2(hitbox.X, hitbox.Y), hitbox.Width, hitbox.Height, 
+                DustID.Frost, player.velocity.X * 0.25f, player.velocity.Y * 0.25f, 80, frostGradient, 1.4f);
+            heavyFrost.noGravity = true;
+            heavyFrost.fadeIn = 1.3f;
+            heavyFrost.velocity = heavyFrost.velocity.RotatedByRandom(0.4f) * Main.rand.NextFloat(1.0f, 1.6f);
+            
+            // === CONTRASTING CRYSTAL SPARKLES (1-in-2) ===
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 sparklePos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                CustomParticles.PrismaticSparkle(sparklePos, CrystalCyan, 0.35f);
+                
+                Dust crystalDust = Dust.NewDustDirect(sparklePos, 1, 1, DustID.BlueCrystalShard, 0f, 0f, 100, default, 0.9f);
+                crystalDust.noGravity = true;
+                crystalDust.velocity = Main.rand.NextVector2Circular(2f, 2f);
+            }
+            
+            // === FROST SHIMMER TRAIL (Main.hslToRgb in cyan-blue range) (1-in-3) ===
+            if (Main.rand.NextBool(3))
+            {
+                // Frost shimmer - cycling through cyan to blue hues (0.5-0.65 hue range)
+                float frostHue = 0.5f + (Main.GameUpdateCount * 0.015f % 0.15f);
+                Color shimmerColor = Main.hslToRgb(frostHue, 0.85f, 0.8f);
+                Vector2 shimmerPos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                CustomParticles.GenericFlare(shimmerPos, shimmerColor, 0.4f, 12);
+            }
+            
+            // === PEARLESCENT ICE EFFECTS (1-in-4) ===
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 pearlPos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                float pearlShift = (Main.GameUpdateCount * 0.02f) % 1f;
+                Color pearlColor = Color.Lerp(Color.Lerp(CrystalCyan, FrostWhite, pearlShift), 
+                    IceBlue, (float)Math.Sin(pearlShift * MathHelper.TwoPi) * 0.3f + 0.3f);
+                CustomParticles.GenericFlare(pearlPos, pearlColor * 0.85f, 0.32f, 15);
+            }
+            
+            // === FREQUENT FLARES (1-in-2) ===
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 flarePos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                Color flareColor = Color.Lerp(IceBlue, CrystalCyan, Main.rand.NextFloat());
+                CustomParticles.GenericFlare(flarePos, flareColor, 0.35f, 10);
+            }
+            
             // Frost trail particles - crystalline shards
             if (Main.rand.NextBool(2))
             {
                 Vector2 trailPos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
                 Vector2 trailVel = player.velocity * 0.2f + Main.rand.NextVector2Circular(2f, 2f);
-                Color trailColor = Color.Lerp(IceBlue, FrostWhite, Main.rand.NextFloat()) * 0.55f;
-                var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.3f, 20, true);
+                Color trailColor = Color.Lerp(IceBlue, FrostWhite, Main.rand.NextFloat()) * 0.6f;
+                var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.35f, 22, true);
                 MagnumParticleHandler.SpawnParticle(trail);
             }
             
-            // Music notes - haunting winter melody
-            if (Main.rand.NextBool(4))
+            // === MUSIC NOTES (1-in-6) ===
+            if (Main.rand.NextBool(6))
             {
                 Vector2 notePos = hitCenter + Main.rand.NextVector2Circular(10f, 10f);
-                Vector2 noteVel = (player.direction * Vector2.UnitX).RotatedByRandom(0.5f) * Main.rand.NextFloat(1f, 2.5f);
-                noteVel.Y += Main.rand.NextFloat(0.5f, 1f); // Drift downward like snow
-                Color noteColor = Color.Lerp(IceBlue, FrostWhite, Main.rand.NextFloat());
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor * 0.8f, 0.75f, 30);
-            }
-            
-            // Snowflake dust
-            if (Main.rand.NextBool(3))
-            {
-                Dust frost = Dust.NewDustPerfect(hitCenter + Main.rand.NextVector2Circular(15f, 15f), 
-                    DustID.Frost, Main.rand.NextVector2Circular(2f, 2f), 0, FrostWhite, 1.0f);
-                frost.noGravity = true;
+                Vector2 noteVel = (player.direction * Vector2.UnitX).RotatedByRandom(0.5f) * Main.rand.NextFloat(1.5f, 3f);
+                Color noteColor = Color.Lerp(IceBlue, CrystalCyan, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.85f, 32);
             }
         }
 
@@ -197,38 +208,69 @@ namespace MagnumOpus.Content.Winter.Weapons
                     player.GetSource_OnHit(target), target.Center, (target.Center - player.Center).SafeNormalize(Vector2.Zero) * 5f, 
                     (int)(damageDone * 0.35f), hit.Knockback, player.whoAmI, 5);
                 
-                // Freeze VFX
-                CustomParticles.GenericFlare(target.Center, CrystalCyan, 0.75f, 22);
-                // Frost sparkle burst 
-                var frostSparkle = new SparkleParticle(target.Center, Vector2.Zero, IceBlue * 0.7f, 0.55f * 0.6f, 18);
-                MagnumParticleHandler.SpawnParticle(frostSparkle);
-
-                // Music note burst for freeze effect
-                ThemedParticles.MusicNoteBurst(target.Center, new Color(180, 230, 255), 4, 3f);
-
-                // Ice crystal burst
-                for (int i = 0; i < 10; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 10f;
-                    Vector2 crystalVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 7f);
-                    Color crystalColor = Color.Lerp(CrystalCyan, FrostWhite, Main.rand.NextFloat()) * 0.7f;
-                    var crystal = new GenericGlowParticle(target.Center, crystalVel, crystalColor, 0.3f, 22, true);
-                    MagnumParticleHandler.SpawnParticle(crystal);
-                }
+                // Freeze VFX - enhanced
+                CustomParticles.GenericFlare(target.Center, CrystalCyan, 0.7f, 20);
+                CustomParticles.GenericFlare(target.Center, FrostWhite, 0.55f, 16);
             }
 
             // Always apply Frostburn
             target.AddBuff(BuffID.Frostburn2, 240);
 
-            // Standard hit VFX
-            CustomParticles.GenericFlare(target.Center, IceBlue, 0.55f, 16);
+            // === IRIDESCENT WINGSPAN-STYLE GRADIENT HALO RINGS (4 stacked) ===
+            CustomParticles.HaloRing(target.Center, DeepBlue, 0.55f, 16);
+            CustomParticles.HaloRing(target.Center, IceBlue, 0.45f, 14);
+            CustomParticles.HaloRing(target.Center, CrystalCyan, 0.35f, 12);
+            CustomParticles.HaloRing(target.Center, FrostWhite * 0.9f, 0.25f, 10);
             
+            // Impact flare
+            CustomParticles.GenericFlare(target.Center, IceBlue, 0.6f, 18);
+            
+            // === FROST SHIMMER FLARE BURST (10 flares) ===
+            for (int i = 0; i < 10; i++)
+            {
+                float frostHue = 0.5f + Main.rand.NextFloat(0.15f);
+                Color shimmerColor = Main.hslToRgb(frostHue, 0.85f, 0.8f);
+                Vector2 flarePos = target.Center + Main.rand.NextVector2Circular(22f, 22f);
+                CustomParticles.GenericFlare(flarePos, shimmerColor, 0.42f, 16);
+            }
+            
+            // === RADIAL DUST EXPLOSION (16 dust particles) ===
+            for (int i = 0; i < 16; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 16f;
+                Vector2 dustVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 7f);
+                
+                Dust iceDust = Dust.NewDustDirect(target.Center, 1, 1, DustID.IceTorch, dustVel.X, dustVel.Y, 100, default, 1.4f);
+                iceDust.noGravity = true;
+                iceDust.fadeIn = 1.2f;
+            }
+            
+            // === CONTRASTING CRYSTAL SPARKLES (6 sparkles) ===
             for (int i = 0; i < 6; i++)
             {
+                Vector2 sparklePos = target.Center + Main.rand.NextVector2Circular(28f, 28f);
+                CustomParticles.PrismaticSparkle(sparklePos, CrystalCyan, 0.38f);
+                
+                Dust crystalDust = Dust.NewDustDirect(sparklePos, 1, 1, DustID.BlueCrystalShard, 0f, 0f, 80, default, 1.0f);
+                crystalDust.noGravity = true;
+            }
+            
+            // Ice shard burst
+            for (int i = 0; i < 8; i++)
+            {
                 Vector2 sparkVel = Main.rand.NextVector2Circular(5f, 5f);
-                Color sparkColor = Color.Lerp(IceBlue, FrostWhite, Main.rand.NextFloat()) * 0.5f;
-                var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.25f, 18, true);
+                Color sparkColor = Color.Lerp(IceBlue, FrostWhite, Main.rand.NextFloat()) * 0.6f;
+                var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.32f, 20, true);
                 MagnumParticleHandler.SpawnParticle(spark);
+            }
+            
+            // === MUSIC NOTES BURST (6 notes) ===
+            for (int i = 0; i < 6; i++)
+            {
+                float noteAngle = MathHelper.TwoPi * i / 6f;
+                Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(2.5f, 4f);
+                Color noteColor = Color.Lerp(IceBlue, CrystalCyan, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(target.Center, noteVel, noteColor, 0.9f, 32);
             }
         }
 

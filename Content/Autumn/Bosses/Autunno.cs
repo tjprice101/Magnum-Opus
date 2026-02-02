@@ -131,8 +131,9 @@ namespace MagnumOpus.Content.Autumn.Bosses
 
         public override void SetDefaults()
         {
-            NPC.width = 105;
-            NPC.height = 125;
+            // Hitbox = 80% of sprite size (459x540)
+            NPC.width = 367;
+            NPC.height = 432;
             NPC.damage = BaseDamage;
             NPC.defense = 30; // Post-Wall of Flesh tier
             NPC.lifeMax = 32000; // Post-Wall of Flesh tier (comparable to Queen Slime 18k, pre-mech boss tier)

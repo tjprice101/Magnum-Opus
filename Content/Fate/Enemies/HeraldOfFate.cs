@@ -129,8 +129,9 @@ namespace MagnumOpus.Content.Fate.Enemies
         {
             // FATE MINI-BOSS STATS - STRONGER than Swan Lake (950k boss, 170 damage)
             // This is endgame content - terrifying power
-            NPC.width = 100;
-            NPC.height = 100;
+            // Hitbox = 292 × 164 × 0.8 = 233 × 131 (single frame sprite)
+            NPC.width = 233;
+            NPC.height = 131;
             NPC.damage = 220; // Higher than Swan Lake boss (170)
             NPC.defense = 85; // Solid defense
             NPC.lifeMax = 85000; // Mini-boss HP - higher than Enigma's 45k

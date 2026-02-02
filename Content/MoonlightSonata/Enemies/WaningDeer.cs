@@ -118,8 +118,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
         public override void SetDefaults()
         {
             // Mini-boss stats - significantly stronger
-            NPC.width = 205;
-            NPC.height = 169;
+            // Hitbox = (681/6) × (561/6) × 0.8 = 113.5 × 93.5 × 0.8 = 90 × 74
+            NPC.width = 90;
+            NPC.height = 74;
             NPC.damage = 120;
             NPC.defense = 65;
             NPC.lifeMax = 85000; // Mini-boss HP

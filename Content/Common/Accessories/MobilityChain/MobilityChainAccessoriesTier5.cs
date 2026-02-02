@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -68,6 +69,18 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+20% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+1.5 max run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+1.0 jump speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Night vision and +5% damage at night"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Fire and ice immunity"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Semi-transparent at 100+ momentum, reducing enemy aggro"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The moon's gentle light guides those who walk between worlds'") { OverrideColor = new Color(140, 100, 200) });
+        }
+        
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -130,6 +143,19 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                 dust.scale = 0.7f;
                 dust.color = new Color(200, 80, 80);
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+22% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+1.7 max run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+1.2 jump speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Grants Shield of Cthulhu dash"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Fire and ice immunity"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "+8 defense at 60+ momentum"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "Consume 80 momentum for a powerful dash attack"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Heroes charge forward, never retreating'") { OverrideColor = new Color(200, 80, 80) });
         }
         
         public override void AddRecipes()
@@ -198,6 +224,19 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+24% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+1.9 max run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+1.4 jump speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Grants Shield of Cthulhu dash"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Complete fire and lava immunity"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "+8% damage at 70+ momentum"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "Create an impact crater on landing at 100+ momentum, dealing AoE damage"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The bell tolls for those who stand in your path'") { OverrideColor = new Color(255, 140, 40) });
+        }
+        
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -263,6 +302,19 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                 dust.scale = 0.5f;
                 dust.color = new Color(140, 60, 200);
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+26% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+2.1 max run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+1.6 jump speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Grants Shield of Cthulhu dash"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Full fire, lava, and confusion immunity"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Black belt dodge chance at 80+ momentum"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "Consume 100 momentum to teleport 12.5 tiles"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Reality bends for those who question its nature'") { OverrideColor = new Color(140, 60, 200) });
         }
         
         public override void AddRecipes()
@@ -344,6 +396,20 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                 shimmer.scale = 0.5f;
                 shimmer.color = rainbowColor;
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+28% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+2.3 max run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+1.8 jump speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "+100 wing flight time"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "All previous immunities plus black belt dodge"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Greatly reduced enemy aggro"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "50% slower momentum decay"));
+            tooltips.Add(new TooltipLine(Mod, "Effect9", "Infinite flight at maximum momentum"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Glide eternally upon wings of grace and light'") { OverrideColor = new Color(240, 245, 255) });
         }
         
         public override void AddRecipes()
@@ -440,6 +506,20 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                     glyph.scale = 0.5f;
                 }
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 150)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+30% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+2.5 max run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+2.0 jump speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "+150 wing flight time"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "+10% damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "All immunities including slow"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "Black belt dodge and reduced aggro"));
+            tooltips.Add(new TooltipLine(Mod, "Effect9", "At 150 momentum, nearby enemies are slowed by 20%"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Destiny itself cannot outrun the wearer'") { OverrideColor = new Color(180, 40, 80) });
         }
         
         public override void AddRecipes()

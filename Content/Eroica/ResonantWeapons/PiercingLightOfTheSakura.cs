@@ -91,27 +91,12 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                 // Special firing effect with gradient burst
                 SoundEngine.PlaySound(SoundID.Item125 with { Pitch = 0.3f, Volume = 0.8f }, position);
                 
-                // Fractal geometric burst with gradient
-                for (int i = 0; i < 8; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 8f;
-                    Vector2 offset = angle.ToRotationVector2() * 25f;
-                    float progress = (float)i / 8f;
-                    Color gradientColor = Color.Lerp(eroicaScarlet, eroicaGold, progress);
-                    CustomParticles.GenericFlare(position + offset, gradientColor, 0.5f, 18);
-                }
+                // Single halo burst
+                CustomParticles.HaloRing(position, eroicaGold, 0.5f, 16);
                 
-                // Gradient explosion burst
-                for (int i = 0; i < 12; i++)
-                {
-                    float progress = (float)i / 12f;
-                    Color burstColor = Color.Lerp(eroicaCrimson, eroicaGold, progress);
-                    CustomParticles.GenericGlow(position, burstColor, 0.4f, 20);
-                }
-                
-                // 🎵 MUSIC NOTES - The heroic fanfare!
-                ThemedParticles.EroicaMusicNotes(position, 6, 35f);
-                ThemedParticles.SakuraPetals(position, 4, 30f);
+                // Music notes and petals - reduced
+                ThemedParticles.EroicaMusicNotes(position, 3, 28f);
+                ThemedParticles.SakuraPetals(position, 3, 25f);
                 
                 // Central white flash and themed effects
                 CustomParticles.GenericFlare(position, Color.White, 0.8f, 12);

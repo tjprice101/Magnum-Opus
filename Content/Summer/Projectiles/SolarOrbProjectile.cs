@@ -19,6 +19,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
         private static readonly Color SunGold = new Color(255, 215, 0);
         private static readonly Color SunOrange = new Color(255, 140, 0);
         private static readonly Color SunWhite = new Color(255, 250, 240);
+        private static readonly Color SunRed = new Color(255, 80, 40);
 
         public override void SetStaticDefaults()
         {
@@ -43,41 +44,73 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
         public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo4";
 
+        private float orbitTimer = 0f;
+
         public override void AI()
         {
             Projectile.rotation += 0.15f;
+            orbitTimer += 0.12f;
 
-            // ☁ELAYERED TRAIL - Glow + sparkle for richness
+            // === VFX VARIATION #13: SOLAR CORONA ORBIT ===
+            // Fiery wisps orbit the orb like a sun's corona
+            if (Main.GameUpdateCount % 4 == 0)
+            {
+                for (int c = 0; c < 4; c++)
+                {
+                    float coronaAngle = orbitTimer + MathHelper.TwoPi * c / 4f;
+                    float coronaRadius = 12f + (float)Math.Sin(Main.GameUpdateCount * 0.15f + c) * 3f;
+                    Vector2 coronaPos = Projectile.Center + coronaAngle.ToRotationVector2() * coronaRadius;
+                    Vector2 coronaVel = coronaAngle.ToRotationVector2().RotatedBy(MathHelper.PiOver2) * 0.8f;
+                    Color coronaColor = Color.Lerp(SunGold, SunRed, (float)c / 4f) * 0.6f;
+                    var corona = new GenericGlowParticle(coronaPos, coronaVel, coronaColor, 0.2f, 12, true);
+                    MagnumParticleHandler.SpawnParticle(corona);
+                }
+            }
+
+            // === VFX VARIATION #14: RADIANT PULSE RINGS ===
+            // Expanding rings pulse outward periodically
+            if (Main.GameUpdateCount % 15 == 0)
+            {
+                for (int r = 0; r < 6; r++)
+                {
+                    float ringAngle = MathHelper.TwoPi * r / 6f;
+                    Vector2 ringVel = ringAngle.ToRotationVector2() * 3.5f;
+                    Color ringColor = Color.Lerp(SunGold, SunOrange, (float)r / 6f) * 0.5f;
+                    var ring = new GenericGlowParticle(Projectile.Center, ringVel, ringColor, 0.18f, 16, true);
+                    MagnumParticleHandler.SpawnParticle(ring);
+                }
+            }
+
+            // Layered trail with sparkles
             if (Main.rand.NextBool(2))
             {
-                Vector2 trailPos = Projectile.Center + Main.rand.NextVector2Circular(5f, 5f);
-                Vector2 trailVel = -Projectile.velocity * 0.08f + Main.rand.NextVector2Circular(1.5f, 1.5f);
-                Color trailColor = Color.Lerp(SunGold, SunOrange, Main.rand.NextFloat()) * 0.65f;
-                var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.28f, 18, true);
+                Vector2 trailPos = Projectile.Center + Main.rand.NextVector2Circular(6f, 6f);
+                Vector2 trailVel = -Projectile.velocity * 0.09f + Main.rand.NextVector2Circular(1.8f, 1.8f);
+                Color trailColor = Color.Lerp(SunGold, SunOrange, Main.rand.NextFloat()) * 0.7f;
+                var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.3f, 20, true);
                 MagnumParticleHandler.SpawnParticle(trail);
                 
                 // Sparkle accents for magical shimmer
-                var sparkle = new SparkleParticle(trailPos, trailVel * 1.2f, SunWhite * 0.5f, 0.22f, 14);
+                var sparkle = new SparkleParticle(trailPos, trailVel * 1.3f, SunWhite * 0.55f, 0.24f, 16);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
             // Fire dust
             if (Main.rand.NextBool(4))
             {
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.SolarFlare, -Projectile.velocity * 0.1f, 0, SunOrange, 0.9f);
+                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.SolarFlare, -Projectile.velocity * 0.12f, 0, SunOrange, 1.0f);
                 dust.noGravity = true;
             }
 
-            // ☁EMUSICAL NOTATION - VISIBLE notes blaze! (scale 0.7f+)
+            // Musical notes blaze - VISIBLE (scale 0.78f)
             if (Main.rand.NextBool(5))
             {
-                Vector2 noteVel = -Projectile.velocity * 0.04f + new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), Main.rand.NextFloat(-1f, -0.3f));
+                Vector2 noteVel = -Projectile.velocity * 0.05f + new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.2f, -0.4f));
                 Color noteColor = Color.Lerp(SunGold, SunOrange, Main.rand.NextFloat());
-                // Scale 0.7f makes notes VISIBLE!
-                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f), noteVel, noteColor, 0.7f, 38);
+                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), noteVel, noteColor, 0.78f, 40);
             }
 
-            Lighting.AddLight(Projectile.Center, SunGold.ToVector3() * 0.45f);
+            Lighting.AddLight(Projectile.Center, SunGold.ToVector3() * 0.5f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)

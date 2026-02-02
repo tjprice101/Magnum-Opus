@@ -164,8 +164,9 @@ namespace MagnumOpus.Content.SwanLake.Bosses
 
         public override void SetDefaults()
         {
-            NPC.width = 168; // 20% larger hitbox
-            NPC.height = 216;
+            // Hitbox = 80% of visual size (474x554 frame × 0.96 scale)
+            NPC.width = 364;
+            NPC.height = 425;
             NPC.damage = 170; // Tier 4 damage (Campanella 130, Fate ~220)
             NPC.defense = 110; // Tier 4 defense (Campanella 70, Fate ~150)
             NPC.lifeMax = 950000; // 950k HP - Tier 4 (Campanella 650k, Fate ~1.5M)

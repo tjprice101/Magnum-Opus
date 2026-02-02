@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -43,6 +44,15 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             overflowPlayer.hasMoonlitOverflowStar = true;
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Includes all seasonal overflow effects"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -120 mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "At exactly 0 mana: your next spell costs 0 mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Precision timing rewards the patient mage"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The moon hangs motionless at the edge of silence'") { OverrideColor = new Color(140, 100, 200) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -85,6 +95,15 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             overflowPlayer.hasHeroicArcaneSurge = true;
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Includes all previous overflow effects"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -120 mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Entering negative mana triggers 1 second of invincibility"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "30 second cooldown between invincibility triggers"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A hero's courage shines brightest at the brink of exhaustion'") { OverrideColor = new Color(200, 80, 80) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -128,6 +147,14 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             overflowPlayer.hasInfernalManaInferno = true;
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Includes all previous overflow effects"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -120 mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "While in negative mana: leave a fire trail that damages enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The bell tolls for those who dance with the inferno'") { OverrideColor = new Color(255, 140, 40) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -172,6 +199,15 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             overflowPlayer.hasEnigmasNegativeSpace = true;
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Includes all previous overflow effects"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -150 mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "At -100 mana or below: spells hit enemies twice"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "While below -100 mana: take 5% of max HP per second"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'In the negative space between questions, answers multiply'") { OverrideColor = new Color(140, 60, 200) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -217,6 +253,15 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             overflowPlayer.hasSwansBalancedFlow = true;
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Includes all previous overflow effects"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -150 mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Recovering from negative mana grants 'Grace' buff"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Grace: +20% damage for 5 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The swan finds balance in the space between falling and flight'") { OverrideColor = new Color(240, 245, 255) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -263,6 +308,15 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             overflowPlayer.hasFatesCosmicReservoir = true;
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Includes all previous overflow effects"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -200 mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "At -150 mana or below: spells bend reality"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Reality-bent spells can hit enemies through walls"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Destiny itself bows to those who master the cosmic void'") { OverrideColor = new Color(180, 40, 80) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()

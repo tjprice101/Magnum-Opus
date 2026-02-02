@@ -17,6 +17,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringWhite = new Color(255, 250, 250);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
+        private static readonly Color SpringLavender = new Color(200, 162, 200);
 
         private bool hasSplit = false;
         private float[] orbitAngles = new float[5];
@@ -52,32 +53,80 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 orbitAngles[i] += 0.08f + i * 0.015f;
             }
 
-            // LAYERED TRAIL - Glow particles + sparkles for visual richness
+            // === VFX VARIATION #1: ORBITING MUSIC NOTE CONSTELLATION ===
+            // Music notes orbit the arrow in a beautiful spiral pattern
+            if (Main.GameUpdateCount % 6 == 0)
+            {
+                for (int n = 0; n < 3; n++)
+                {
+                    float noteOrbitAngle = arrowRotation * 2f + MathHelper.TwoPi * n / 3f;
+                    float noteOrbitRadius = 18f + (float)Math.Sin(Main.GameUpdateCount * 0.1f + n) * 4f;
+                    Vector2 noteOrbitPos = Projectile.Center + noteOrbitAngle.ToRotationVector2() * noteOrbitRadius;
+                    Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.8f, -0.3f));
+                    Color noteColor = Color.Lerp(SpringPink, SpringLavender, (float)n / 3f);
+                    ThemedParticles.MusicNote(noteOrbitPos, noteVel, noteColor, 0.78f, 28);
+                }
+            }
+
+            // === VFX VARIATION #2: CAMERA GLINT/LENS FLARE ===
+            // Bright sparkle flashes that catch the eye
+            if (Main.rand.NextBool(8))
+            {
+                float glintAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                Vector2 glintPos = Projectile.Center + glintAngle.ToRotationVector2() * Main.rand.NextFloat(3f, 10f);
+                CustomParticles.GenericFlare(glintPos, Color.White, 0.55f, 6);
+                CustomParticles.GenericFlare(glintPos, SpringPink, 0.4f, 8);
+            }
+
+            // === VFX VARIATION #3: SPIRAL PARTICLE TRAIL ===
+            // Particles spiral outward from the arrow path
             if (Main.rand.NextBool(2))
             {
-                Vector2 trailPos = Projectile.Center + Main.rand.NextVector2Circular(4f, 4f);
-                Color trailColor = Color.Lerp(SpringPink, SpringWhite, Main.rand.NextFloat()) * 0.7f;
-                var trail = new GenericGlowParticle(trailPos, -Projectile.velocity * 0.1f, trailColor, 0.3f, 20, true);
+                float spiralAngle = Main.GameUpdateCount * 0.25f;
+                Vector2 spiralOffset = spiralAngle.ToRotationVector2() * 8f;
+                Vector2 trailPos = Projectile.Center + spiralOffset + Main.rand.NextVector2Circular(2f, 2f);
+                Vector2 trailVel = -Projectile.velocity * 0.08f + spiralAngle.ToRotationVector2() * 1.5f;
+                Color trailColor = Color.Lerp(SpringPink, SpringWhite, Main.rand.NextFloat()) * 0.75f;
+                var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.32f, 22, true);
                 MagnumParticleHandler.SpawnParticle(trail);
                 
-                // Add sparkle accents
-                var sparkle = new SparkleParticle(trailPos, -Projectile.velocity * 0.15f, SpringWhite * 0.6f, 0.25f, 15);
+                // Sparkle accent in spiral
+                var sparkle = new SparkleParticle(trailPos, trailVel * 0.5f, SpringWhite * 0.7f, 0.28f, 16);
                 MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // === VFX VARIATION #4: AMBIENT PETAL MOTES ===
+            // Tiny floating particles surround the projectile
+            if (Main.rand.NextBool(4))
+            {
+                float moteAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                float moteRadius = Main.rand.NextFloat(12f, 22f);
+                Vector2 motePos = Projectile.Center + moteAngle.ToRotationVector2() * moteRadius;
+                Vector2 moteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1f, 0.5f));
+                Color moteColor = Color.Lerp(SpringGreen, SpringPink, Main.rand.NextFloat()) * 0.5f;
+                var mote = new GenericGlowParticle(motePos, moteVel, moteColor, 0.15f, 25, true);
+                MagnumParticleHandler.SpawnParticle(mote);
             }
             
             // Vanilla dust for density
             if (Main.rand.NextBool(3))
             {
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.PinkFairy, -Projectile.velocity * 0.15f, 80, SpringPink, 0.7f);
+                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.PinkFairy, -Projectile.velocity * 0.15f, 80, SpringPink, 0.85f);
                 dust.noGravity = true;
             }
 
-            // MUSICAL NOTATION - VISIBLE notes dance! (scale 0.7f+)
-            if (Main.rand.NextBool(4))
+            // === VFX VARIATION #5: RHYTHMIC PULSE PARTICLES ===
+            // Particles emit in waves tied to visual rhythm
+            if (Main.GameUpdateCount % 12 == 0)
             {
-                Vector2 noteVel = -Projectile.velocity * 0.05f + new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), Main.rand.NextFloat(-1.2f, -0.4f));
-                Color noteColor = Color.Lerp(SpringPink, SpringGreen, Main.rand.NextFloat());
-                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f), noteVel, noteColor, 0.7f, 35);
+                for (int p = 0; p < 4; p++)
+                {
+                    float pulseAngle = MathHelper.TwoPi * p / 4f + Main.GameUpdateCount * 0.05f;
+                    Vector2 pulseVel = pulseAngle.ToRotationVector2() * 2.5f;
+                    Color pulseColor = Color.Lerp(SpringPink, SpringLavender, (float)p / 4f) * 0.6f;
+                    var pulseParticle = new GenericGlowParticle(Projectile.Center, pulseVel, pulseColor, 0.22f, 18, true);
+                    MagnumParticleHandler.SpawnParticle(pulseParticle);
+                }
             }
 
             // Split into petals after 40 frames of flight if not hit anything

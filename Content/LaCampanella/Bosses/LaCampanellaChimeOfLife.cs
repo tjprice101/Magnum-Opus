@@ -160,8 +160,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
         public override void SetDefaults()
         {
-            NPC.width = 200;
-            NPC.height = 300;
+            // Hitbox = 80% of frame size (678x454 frame)
+            NPC.width = 542;
+            NPC.height = 363;
             NPC.damage = BaseDamage;
             NPC.defense = 75;
             NPC.lifeMax = 400000;

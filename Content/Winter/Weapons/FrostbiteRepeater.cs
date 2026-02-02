@@ -52,26 +52,57 @@ namespace MagnumOpus.Content.Winter.Weapons
 
         public override void HoldItem(Player player)
         {
-            // Frost aura
-            if (Main.rand.NextBool(10))
+            // ========== IRIDESCENT WINGSPAN VFX PATTERN ==========
+            // HEAVY DUST TRAILS - 2+ per frame with fadeIn (ice/frost dust)
+            for (int d = 0; d < 2; d++)
             {
-                Vector2 auraPos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                Vector2 auraVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-0.5f, 0.5f));
-                Color auraColor = Color.Lerp(IceBlue, CrystalCyan, Main.rand.NextFloat()) * 0.35f;
-                var aura = new GenericGlowParticle(auraPos, auraVel, auraColor, 0.18f, 25, true);
-                MagnumParticleHandler.SpawnParticle(aura);
+                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(26f, 26f);
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.IceTorch, Main.rand.NextVector2Circular(0.4f, 0.4f) + new Vector2(0, -0.3f), 0, IceBlue, Main.rand.NextFloat(1.0f, 1.4f));
+                dust.noGravity = true;
+                dust.fadeIn = 1.4f;
+            }
+            
+            // CONTRASTING SPARKLES - bright white/cyan crystalline
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(28f, 28f);
+                Color sparkleColor = Main.rand.NextBool() ? FrostWhite : CrystalCyan;
+                CustomParticles.PrismaticSparkle(sparklePos, sparkleColor, Main.rand.NextFloat(0.35f, 0.52f));
+            }
+            
+            // SHIMMER TRAILS - drifting frost motes with color cycling
+            if (Main.rand.NextBool(3))
+            {
+                float hue = 0.53f + Main.rand.NextFloat(0.06f); // Ice blue range
+                Color shimmerColor = Main.hslToRgb(hue, 0.6f, 0.8f);
+                Vector2 shimmerPos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                Vector2 shimmerVel = Main.rand.NextVector2Circular(0.5f, 0.5f);
+                var shimmer = new GenericGlowParticle(shimmerPos, shimmerVel, shimmerColor * 0.55f, 0.26f, 22, true);
+                MagnumParticleHandler.SpawnParticle(shimmer);
+            }
+            
+            // MUSIC NOTES - visible scale with frost theme
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(34f, 34f);
+                Vector2 noteVel = Main.rand.NextVector2Circular(0.6f, 0.6f) + new Vector2(0, -0.3f);
+                Color noteColor = Color.Lerp(IceBlue, FrostWhite, Main.rand.NextFloat(0.4f));
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, Main.rand.NextFloat(0.85f, 1.0f), 28);
+            }
+            
+            // ORBITING ICE MOTES - crystalline aura
+            if (Main.rand.NextBool(4))
+            {
+                float orbitAngle = Main.GameUpdateCount * 0.045f + Main.rand.NextFloat(MathHelper.TwoPi);
+                float orbitRadius = 38f + Main.rand.NextFloat(14f);
+                Vector2 orbitPos = player.Center + orbitAngle.ToRotationVector2() * orbitRadius;
+                Color orbitColor = Color.Lerp(IceBlue, CrystalCyan, Main.rand.NextFloat()) * 0.5f;
+                var mote = new GenericGlowParticle(orbitPos, Vector2.Zero, orbitColor, 0.2f, 14, true);
+                MagnumParticleHandler.SpawnParticle(mote);
             }
 
-            // Floating winter melody notes (drifting like snowflakes)
-            if (Main.rand.NextBool(12))
-            {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), Main.rand.NextFloat(0.1f, 0.5f)); // Gentle downward drift
-                Color noteColor = Color.Lerp(new Color(150, 200, 255), new Color(240, 250, 255), Main.rand.NextFloat()) * 0.6f;
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 40);
-            }
-
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.08f + 0.35f;
+            // Enhanced dynamic lighting
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.12f + 0.55f;
             Lighting.AddLight(player.Center, IceBlue.ToVector3() * pulse);
         }
 
@@ -114,36 +145,63 @@ namespace MagnumOpus.Content.Winter.Weapons
                         (int)(damage * 0.7f), knockback * 0.6f, player.whoAmI);
                 }
 
-                // Barrage VFX
-                CustomParticles.GenericFlare(muzzlePos, FrostWhite, 0.85f, 22);
-                // Frost sparkle burst 
-                var frostSparkle = new SparkleParticle(muzzlePos, Vector2.Zero, IceBlue * 0.6f, 0.5f * 0.6f, 18);
-                MagnumParticleHandler.SpawnParticle(frostSparkle);
-
-                // Music note ring and burst for blizzard barrage
-                ThemedParticles.MusicNoteRing(muzzlePos, new Color(150, 200, 255), 40f, 6);
-                ThemedParticles.MusicNoteBurst(muzzlePos, new Color(240, 250, 255), 5, 4f);
-
-                // Icy sparkle accents
-                for (int j = 0; j < 5; j++)
+                // ========== BLIZZARD BARRAGE SPECTACULAR VFX ==========
+                // MULTI-LAYER FLARES - white core → ice → cyan
+                CustomParticles.GenericFlare(muzzlePos, FrostWhite, 1.0f, 22);
+                CustomParticles.GenericFlare(muzzlePos, IceBlue, 0.75f, 20);
+                CustomParticles.GenericFlare(muzzlePos, CrystalCyan, 0.55f, 18);
+                
+                // GRADIENT HALO CASCADE - 6 layers IceBlue → DeepBlue
+                for (int i = 0; i < 6; i++)
                 {
-                    var sparkle = new SparkleParticle(muzzlePos + Main.rand.NextVector2Circular(15f, 15f),
-                        Main.rand.NextVector2Circular(2f, 2f), new Color(240, 250, 255) * 0.6f, 0.22f, 18);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
+                    float progress = i / 5f;
+                    Color haloColor = Color.Lerp(IceBlue, DeepBlue, progress);
+                    float haloScale = 0.32f + i * 0.1f;
+                    int haloLife = 14 + i * 2;
+                    CustomParticles.HaloRing(muzzlePos, haloColor * (0.7f - progress * 0.3f), haloScale, haloLife);
                 }
-
-                for (int i = 0; i < 10; i++)
+                
+                // RADIAL ICE DUST BURST
+                for (int i = 0; i < 12; i++)
                 {
-                    float angle = velocity.ToRotation() + MathHelper.ToRadians(Main.rand.NextFloat(-30f, 30f));
+                    float angle = MathHelper.TwoPi * i / 12f;
                     Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
-                    Color burstColor = Color.Lerp(IceBlue, CrystalCyan, Main.rand.NextFloat()) * 0.5f;
+                    Dust iceDust = Dust.NewDustPerfect(muzzlePos, DustID.IceTorch, burstVel, 0, IceBlue, Main.rand.NextFloat(1.1f, 1.5f));
+                    iceDust.noGravity = true;
+                    iceDust.fadeIn = 1.3f;
+                }
+                
+                // DIRECTIONAL FROST STREAM
+                for (int i = 0; i < 8; i++)
+                {
+                    float spreadAngle = velocity.ToRotation() + MathHelper.ToRadians(Main.rand.NextFloat(-30f, 30f));
+                    Vector2 burstVel = spreadAngle.ToRotationVector2() * Main.rand.NextFloat(5f, 10f);
+                    Color burstColor = Color.Lerp(IceBlue, CrystalCyan, Main.rand.NextFloat()) * 0.55f;
                     var burst = new GenericGlowParticle(muzzlePos, burstVel, burstColor, 0.28f, 18, true);
                     MagnumParticleHandler.SpawnParticle(burst);
+                }
+                
+                // MUSIC NOTE STARBURST
+                for (int i = 0; i < 4; i++)
+                {
+                    float noteAngle = MathHelper.TwoPi * i / 4f + Main.rand.NextFloat(0.3f);
+                    Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(1.5f, 3f);
+                    Color noteColor = Color.Lerp(FrostWhite, IceBlue, Main.rand.NextFloat(0.4f));
+                    ThemedParticles.MusicNote(muzzlePos, noteVel, noteColor, Main.rand.NextFloat(0.88f, 1.05f), 26);
+                }
+                
+                // SPARKLE CORONA
+                for (int i = 0; i < 6; i++)
+                {
+                    Vector2 sparklePos = muzzlePos + Main.rand.NextVector2Circular(24f, 24f);
+                    Color sparkleColor = Main.rand.NextBool() ? FrostWhite : CrystalCyan;
+                    CustomParticles.PrismaticSparkle(sparklePos, sparkleColor, Main.rand.NextFloat(0.4f, 0.6f));
                 }
 
                 return false;
             }
 
+            // ========== NORMAL VOLLEY SPECTACULAR VFX ==========
             // Normal shot - 3 icicle volley
             for (int i = -1; i <= 1; i++)
             {
@@ -153,19 +211,37 @@ namespace MagnumOpus.Content.Winter.Weapons
                     damage, knockback, player.whoAmI);
             }
 
-            // Muzzle VFX
-            CustomParticles.GenericFlare(muzzlePos, IceBlue, 0.55f, 15);
-
-            // Music note on shot
-            ThemedParticles.MusicNote(muzzlePos, velocity * 0.1f, new Color(180, 230, 255) * 0.8f, 0.7f, 25);
-
-            for (int i = 0; i < 5; i++)
+            // MULTI-LAYER MUZZLE FLASH
+            CustomParticles.GenericFlare(muzzlePos, FrostWhite, 0.7f, 16);
+            CustomParticles.GenericFlare(muzzlePos, IceBlue, 0.5f, 14);
+            
+            // GRADIENT HALO RINGS - 4 layer cascade
+            for (int i = 0; i < 4; i++)
             {
-                Vector2 sparkVel = velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(3f, 7f) + Main.rand.NextVector2Circular(2f, 2f);
-                Color sparkColor = Color.Lerp(IceBlue, FrostWhite, Main.rand.NextFloat()) * 0.45f;
-                var spark = new GenericGlowParticle(muzzlePos, sparkVel, sparkColor, 0.22f, 14, true);
+                float progress = i / 3f;
+                Color haloColor = Color.Lerp(IceBlue, DeepBlue, progress);
+                CustomParticles.HaloRing(muzzlePos, haloColor * (0.6f - progress * 0.2f), 0.22f + i * 0.08f, 12 + i * 2);
+            }
+            
+            // DIRECTIONAL FROST SPARKS
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 sparkVel = velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(4f, 9f) + Main.rand.NextVector2Circular(2.5f, 2.5f);
+                Color sparkColor = Color.Lerp(IceBlue, FrostWhite, Main.rand.NextFloat()) * 0.55f;
+                var spark = new GenericGlowParticle(muzzlePos, sparkVel, sparkColor, 0.25f, 16, true);
                 MagnumParticleHandler.SpawnParticle(spark);
             }
+            
+            // MUSIC NOTE ACCENT
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 noteVel = velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(1f, 2f);
+                Color noteColor = Color.Lerp(IceBlue, FrostWhite, Main.rand.NextFloat(0.4f));
+                ThemedParticles.MusicNote(muzzlePos, noteVel, noteColor, Main.rand.NextFloat(0.85f, 0.95f), 22);
+            }
+            
+            // CONTRASTING SPARKLE
+            CustomParticles.PrismaticSparkle(muzzlePos + Main.rand.NextVector2Circular(12f, 12f), CrystalCyan, Main.rand.NextFloat(0.35f, 0.5f));
 
             return false;
         }

@@ -46,37 +46,73 @@ namespace MagnumOpus.Content.Winter.Projectiles
             Projectile.localNPCHitCooldown = 10;
         }
 
+        private float iceOrbitAngle = 0f;
+
         public override void AI()
         {
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
+            iceOrbitAngle += 0.1f;
 
-            // Ice crystal trail
+            // === VFX: CRYSTALLINE SHARD ORBIT ===
+            // Small ice crystals orbit the bolt
+            if (Main.GameUpdateCount % 4 == 0)
+            {
+                for (int c = 0; c < 3; c++)
+                {
+                    float crystalAngle = iceOrbitAngle + MathHelper.TwoPi * c / 3f;
+                    float crystalRadius = 10f + (float)Math.Sin(Main.GameUpdateCount * 0.12f + c) * 3f;
+                    Vector2 crystalPos = Projectile.Center + crystalAngle.ToRotationVector2() * crystalRadius;
+                    Color crystalColor = Color.Lerp(IceBlue, CrystalCyan, (float)c / 3f) * 0.55f;
+                    CustomParticles.GenericFlare(crystalPos, crystalColor, 0.16f, 8);
+                }
+            }
+
+            // === VFX: SNOWFLAKE PARTICLE STREAM ===
+            // Snowflakes drift off the icicle
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 snowOffset = Main.rand.NextVector2Circular(8f, 8f);
+                Vector2 snowVel = new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(0.5f, 2f));
+                Color snowColor = FrostWhite * 0.5f;
+                var snow = new GenericGlowParticle(Projectile.Center + snowOffset, snowVel, snowColor, 0.14f, 30, true);
+                MagnumParticleHandler.SpawnParticle(snow);
+            }
+
+            // Ice crystal trail - enhanced
             if (Main.rand.NextBool(2))
             {
-                Vector2 trailPos = Projectile.Center + Main.rand.NextVector2Circular(6f, 6f);
-                Vector2 trailVel = -Projectile.velocity * 0.08f + Main.rand.NextVector2Circular(1f, 1f);
-                Color trailColor = Color.Lerp(IceBlue, CrystalCyan, Main.rand.NextFloat()) * 0.5f;
-                var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.22f, 15, true);
+                Vector2 trailPos = Projectile.Center + Main.rand.NextVector2Circular(7f, 7f);
+                Vector2 trailVel = -Projectile.velocity * 0.09f + Main.rand.NextVector2Circular(1.2f, 1.2f);
+                Color trailColor = Color.Lerp(IceBlue, CrystalCyan, Main.rand.NextFloat()) * 0.55f;
+                var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.24f, 18, true);
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
-            // ☁EMUSICAL NOTATION - VISIBLE crystal ice melody (scale 0.7f+)
+            // === VFX: FROST GLINT SPARKLES ===
+            // Bright sparkles like ice catching light
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 glintPos = Projectile.Center + Main.rand.NextVector2Circular(5f, 5f);
+                CustomParticles.GenericFlare(glintPos, Color.White, 0.45f, 5);
+                CustomParticles.GenericFlare(glintPos, CrystalCyan, 0.32f, 7);
+            }
+
+            // Crystal ice melody - VISIBLE (scale 0.75f)
             if (Main.rand.NextBool(5))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
-                // Scale 0.7f makes notes VISIBLE!
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, CrystalCyan * 0.65f, 0.7f, 38);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, CrystalCyan * 0.7f, 0.75f, 40);
             }
             
             // Prismatic sparkle for ice crystal shimmer
             if (Main.rand.NextBool(4))
             {
-                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(5f, 5f),
-                    -Projectile.velocity * 0.1f, FrostWhite * 0.6f, 0.25f, 15);
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    -Projectile.velocity * 0.12f, FrostWhite * 0.65f, 0.27f, 16);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
-            Lighting.AddLight(Projectile.Center, IceBlue.ToVector3() * 0.4f);
+            Lighting.AddLight(Projectile.Center, IceBlue.ToVector3() * 0.45f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)

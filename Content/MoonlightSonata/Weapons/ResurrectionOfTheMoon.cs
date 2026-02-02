@@ -229,68 +229,30 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
             Vector2 muzzlePos = position + velocity.SafeNormalize(Vector2.Zero) * 45f;
             Vector2 direction = velocity.SafeNormalize(Vector2.UnitX);
             
-            // === CALAMITY-INSPIRED DEVASTATING MUZZLE FLASH ===
+            // === POWERFUL MUZZLE FLASH (Sniper deserves impact, but cleaner) ===
             
-            // Phase 1: Central white explosion
-            CustomParticles.GenericFlare(muzzlePos, Color.White, 1.2f, 22);
-            CustomParticles.GenericFlare(muzzlePos, UnifiedVFX.MoonlightSonata.Silver, 0.9f, 20);
+            // Central flash
+            CustomParticles.GenericFlare(muzzlePos, Color.White, 0.9f, 18);
+            CustomParticles.GenericFlare(muzzlePos, UnifiedVFX.MoonlightSonata.Silver, 0.7f, 16);
             
-            // Phase 2: UnifiedVFX explosion (without screen shake)
-            ThemedParticles.MoonlightShockwave(muzzlePos, 1.0f);
+            // Shockwave
+            ThemedParticles.MoonlightShockwave(muzzlePos, 0.8f);
             
-            // Phase 3: Spiral galaxy fractal burst
-            for (int arm = 0; arm < 6; arm++)
+            // Single halo
+            CustomParticles.HaloRing(muzzlePos, UnifiedVFX.MoonlightSonata.MediumPurple, 0.5f, 18);
+            
+            // Directional sparks (reduced)
+            for (int i = 0; i < 8; i++)
             {
-                float armAngle = MathHelper.TwoPi * arm / 6f;
-                for (int point = 0; point < 4; point++)
-                {
-                    float spiralAngle = armAngle + point * 0.35f;
-                    float spiralRadius = 12f + point * 14f;
-                    Vector2 spiralPos = muzzlePos + spiralAngle.ToRotationVector2() * spiralRadius;
-                    float progress = (arm * 4 + point) / 24f;
-                    Color galaxyColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
-                    CustomParticles.GenericFlare(spiralPos, galaxyColor, 0.45f + point * 0.08f, 16 + point * 2);
-                }
-            }
-            
-            // Phase 4: Layered halo cascade
-            for (int ring = 0; ring < 5; ring++)
-            {
-                float ringProgress = (float)ring / 5f;
-                Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.Silver, ringProgress);
-                CustomParticles.HaloRing(muzzlePos, ringColor, 0.35f + ring * 0.15f, 14 + ring * 4);
-            }
-            
-            // Phase 5: Directional muzzle flash particles
-            for (int i = 0; i < 18; i++)
-            {
-                Vector2 flashVel = direction.RotatedByRandom(0.5f) * Main.rand.NextFloat(6f, 14f);
-                float progress = (float)i / 18f;
-                Color flashColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
+                Vector2 flashVel = direction.RotatedByRandom(0.4f) * Main.rand.NextFloat(5f, 10f);
+                Color flashColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.LightBlue, (float)i / 8f);
                 
-                var flash = new GenericGlowParticle(muzzlePos, flashVel, flashColor, 0.4f, 20, true);
+                var flash = new GenericGlowParticle(muzzlePos, flashVel, flashColor, 0.35f, 18, true);
                 MagnumParticleHandler.SpawnParticle(flash);
             }
             
-            // Phase 6: Music notes burst - the lunar sonata fires
-            ThemedParticles.MoonlightMusicNotes(muzzlePos, 10, 50f);
-            
-            // Phase 7: Music notes trail along shot direction
-            for (int i = 0; i < 5; i++)
-            {
-                Vector2 noteOffset = direction * (25f + i * 18f);
-                float noteProgress = (float)i / 5f;
-                Color noteColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, noteProgress);
-                ThemedParticles.MusicNote(muzzlePos + noteOffset, direction * 1.5f, noteColor, 0.3f, 22);
-            }
-            
-            // Phase 8: Lightning fractals shooting from muzzle
-            for (int i = 0; i < 3; i++)
-            {
-                float lightningAngle = direction.ToRotation() + MathHelper.ToRadians((i - 1) * 25f);
-                Vector2 lightningEnd = muzzlePos + lightningAngle.ToRotationVector2() * 70f;
-                MagnumVFX.DrawMoonlightLightning(muzzlePos, lightningEnd, 8, 22f, 2, 0.45f);
-            }
+            // Music notes burst
+            ThemedParticles.MoonlightMusicNotes(muzzlePos, 5, 35f);
             
             // Phase 9: Recoil dust behind player
             Vector2 recoilPos = player.Center - direction * 20f;

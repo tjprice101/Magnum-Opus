@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -44,6 +45,14 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                 dust.scale = 0.5f;
                 dust.color = new Color(255, 220, 100);
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+8% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+0.3 max run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The first step toward transcending mortal limits'") { OverrideColor = new Color(150, 200, 100) });
         }
         
         public override void AddRecipes()
@@ -96,6 +105,17 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                 dust.scale = 0.7f;
                 dust.color = new Color(255, 180, 200);
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+10% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+0.5 max run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Enhanced jump height and auto jump"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "+10% speed at 50+ momentum"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Double jump resets at 80+ momentum"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring winds carry those who embrace the changing seasons'") { OverrideColor = new Color(150, 200, 100) });
         }
         
         public override void AddRecipes()
@@ -154,6 +174,17 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+12% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+0.7 max run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Enhanced jump height and auto jump"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Fire immunity at 70+ momentum"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Leave a fire trail that damages enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Summer's fury blazes beneath every step'") { OverrideColor = new Color(150, 200, 100) });
+        }
+        
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -206,6 +237,18 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                 dust.scale = 0.6f;
                 dust.color = new Color(180, 120, 200);
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+14% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+0.9 max run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Enhanced jump height and auto jump"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Fire immunity"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Phase through enemies at 80+ momentum"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Reduced contact damage while phasing"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Autumn's spirits guide the worthy through shadow'") { OverrideColor = new Color(150, 200, 100) });
         }
         
         public override void AddRecipes()
@@ -267,6 +310,19 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                 dust.scale = 0.7f;
                 dust.color = new Color(150, 200, 255);
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+16% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+1.1 max run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+0.5 jump speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Enhanced jump height and auto jump"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Fire immunity"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "+5 defense at 90+ momentum"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "Leave an ice trail and perform ice dash at 100 momentum"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Winter's embrace hardens the soul against all adversity'") { OverrideColor = new Color(150, 200, 100) });
         }
         
         public override void AddRecipes()
@@ -343,6 +399,18 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                 dust.scale = 0.8f;
                 dust.color = seasonColor;
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 120)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+18% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+1.3 max run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+0.8 jump speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Enhanced jump height and auto jump"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Fire and ice immunity"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Seasonal trail effects cycle with time"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Four seasons dance as one beneath your feet'") { OverrideColor = new Color(150, 200, 100) });
         }
         
         public override void AddRecipes()

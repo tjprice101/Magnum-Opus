@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -47,6 +48,14 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+2 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Grants 10% of max HP as an absorbent shield"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Shield regenerates after 5 seconds of not taking damage"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A crystalline ward attuned to the rhythm of life'") { OverrideColor = new Color(150, 200, 100) });
+        }
+        
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -93,6 +102,15 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                 dust.scale = 0.5f;
                 dust.color = new Color(255, 180, 200);
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+4 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+2 life regeneration"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Grants 15% of max HP as an absorbent shield"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "When shield breaks, releases healing petals that restore 10 HP to nearby allies"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring's gentle embrace, warding off winter's last chill'") { OverrideColor = new Color(150, 200, 100) });
         }
         
         public override void AddRecipes()
@@ -145,6 +163,15 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+6 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Immunity to fire and burning"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Grants 20% of max HP as an absorbent shield"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "When shield breaks, releases a fire nova that damages nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Forged in the heart of summer's blazing sun'") { OverrideColor = new Color(150, 200, 100) });
+        }
+        
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -192,6 +219,14 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                 dust.scale = 0.6f;
                 dust.color = new Color(200, 150, 80);
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+8 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "15% of melee damage taken is reflected back to attackers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Grants 25% of max HP as an absorbent shield"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Autumn's thorns protect the harvest from all who would pillage'") { OverrideColor = new Color(150, 200, 100) });
         }
         
         public override void AddRecipes()
@@ -243,6 +278,15 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                 dust.scale = 0.5f;
                 dust.color = new Color(150, 200, 255);
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+10 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Immunity to frostburn, chill, and frozen"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Grants 30% of max HP as an absorbent shield"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "When shield breaks, freezes nearby attackers for 1 second"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Winter's crystalline heart, unbreakable and eternal'") { OverrideColor = new Color(150, 200, 100) });
         }
         
         public override void AddRecipes()
@@ -330,6 +374,17 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                 2 => DustID.AmberBolt,
                 _ => DustID.IceTorch
             };
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+14 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Immunity to fire, burning, frostburn, chill, and frozen"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+3 life regeneration"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "15% of melee damage taken is reflected back to attackers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Grants 35% of max HP as an absorbent shield"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Shield break effect cycles with the seasons: healing petals, fire nova, thorns burst, or freeze"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The four seasons dance in eternal harmony within this bulwark'") { OverrideColor = new Color(150, 200, 100) });
         }
         
         public override void AddRecipes()

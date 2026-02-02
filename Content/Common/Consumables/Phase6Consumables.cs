@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -48,6 +49,12 @@ namespace MagnumOpus.Content.Common.Consumables
             Item.material = true;
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Crafting material for MagnumOpus potions"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A fragment of crystallized musical energy'") { OverrideColor = new Color(150, 200, 150) });
+        }
+
         public override void AddRecipes()
         {
             // Can be crafted from any theme's materials
@@ -79,6 +86,12 @@ namespace MagnumOpus.Content.Common.Consumables
             Item.UseSound = SoundID.Item3;
             Item.buffType = ModContent.BuffType<MinorResonanceBuff>();
             Item.buffTime = 60 * 60 * 8; // 8 minutes
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+10% all damage for 8 minutes"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A gentle harmonic boost to awaken your combat potential'") { OverrideColor = new Color(150, 180, 255) });
         }
 
         public override void AddRecipes()
@@ -136,6 +149,13 @@ namespace MagnumOpus.Content.Common.Consumables
             Item.UseSound = SoundID.Item3;
             Item.buffType = ModContent.BuffType<HarmonicElixirBuff>();
             Item.buffTime = 60 * 60 * 8; // 8 minutes
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% all damage for 8 minutes"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+10% critical strike chance"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The symphony of battle crescendos within you'") { OverrideColor = new Color(200, 180, 255) });
         }
 
         public override void AddRecipes()
@@ -199,6 +219,13 @@ namespace MagnumOpus.Content.Common.Consumables
             Item.UseSound = SoundID.Item3;
             Item.buffType = ModContent.BuffType<SeasonalDraughtBuff>();
             Item.buffTime = 60 * 60 * 10; // 10 minutes
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+25% seasonal accessory bonuses for 10 minutes"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Enhances Spring, Summer, Autumn, and Winter gear"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Drink deep of nature's eternal cycle'") { OverrideColor = new Color(180, 220, 150) });
         }
 
         public override void AddRecipes()
@@ -286,6 +313,14 @@ namespace MagnumOpus.Content.Common.Consumables
             Item.buffTime = 60 * 60 * 10; // 10 minutes
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+35% all damage for 10 minutes"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+20% critical strike chance"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+15% attack speed"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Conduct the symphony of destruction with masterful precision'") { OverrideColor = new Color(255, 220, 150) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -370,6 +405,14 @@ namespace MagnumOpus.Content.Common.Consumables
             }
         }
 
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Displays real-time combat analysis"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Shows damage per second (DPS) calculations"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Tracks your damage output for optimization"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Every note of combat, measured and analyzed'") { OverrideColor = new Color(255, 230, 150) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -436,6 +479,13 @@ namespace MagnumOpus.Content.Common.Consumables
             Item.value = Item.sellPrice(gold: 50);
             Item.rare = ModContent.RarityType<FateRarity>();
             Item.UseSound = SoundID.Item119;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Permanently grants +5% all damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can only be used once per character"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The cosmos acknowledges your worth'") { OverrideColor = FateColors.DarkPink });
         }
 
         public override bool? UseItem(Player player)
@@ -507,6 +557,14 @@ namespace MagnumOpus.Content.Common.Consumables
             Item.value = Item.sellPrice(platinum: 1);
             Item.rare = ModContent.RarityType<FateRarity>();
             Item.UseSound = SoundID.Item119;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Permanently grants +10% all damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can only be used once per character"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Requires Coda of Absolute Harmony to drop"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The eternal echo of a completed symphony'") { OverrideColor = FateColors.White });
         }
 
         public override bool? UseItem(Player player)
@@ -594,6 +652,15 @@ namespace MagnumOpus.Content.Common.Consumables
             Item.value = Item.sellPrice(gold: 20);
             Item.rare = ModContent.RarityType<FateRarity>();
             Item.UseSound = SoundID.Item3;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+50% all damage for 15 minutes"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+30% critical strike chance"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+25% attack speed"));
+            tooltips.Add(new TooltipLine(Mod, "Cooldown", "Can only be used once per in-game day") { OverrideColor = Color.Gray });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Drink the distilled essence of the cosmos itself'") { OverrideColor = FateColors.Crimson });
         }
 
         public override bool CanUseItem(Player player)
@@ -733,6 +800,23 @@ namespace MagnumOpus.Content.Common.Consumables
             Item.value = Item.sellPrice(gold: 25);
             Item.rare = ModContent.RarityType<FateRarity>();
             Item.UseSound = SoundID.Item119;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Player player = Main.LocalPlayer;
+            var modPlayer = player.GetModPlayer<CrystallizedHarmonyPlayer>();
+            int currentUses = modPlayer.crystallizedHarmonyUses;
+            int remaining = MaxUses - currentUses;
+            
+            tooltips.Add(new TooltipLine(Mod, "Effect1", $"Permanently grants +{HealthPerUse} max health"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Transforms one heart into a rainbow-shimmering heart"));
+            tooltips.Add(new TooltipLine(Mod, "Progress", $"Hearts transformed: {currentUses}/{MaxUses}") { OverrideColor = currentUses >= MaxUses ? Color.Gold : Color.White });
+            if (remaining > 0)
+                tooltips.Add(new TooltipLine(Mod, "Remaining", $"Can be used {remaining} more time(s)") { OverrideColor = new Color(150, 255, 150) });
+            else
+                tooltips.Add(new TooltipLine(Mod, "Maxed", "All hearts fully transformed!") { OverrideColor = Color.Gold });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Each heartbeat resonates with the music of existence'") { OverrideColor = new Color(255, 150, 200) });
         }
 
         public override bool CanUseItem(Player player)
@@ -920,6 +1004,23 @@ namespace MagnumOpus.Content.Common.Consumables
             Item.value = Item.sellPrice(gold: 25);
             Item.rare = ModContent.RarityType<FateRarity>();
             Item.UseSound = SoundID.Item119;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Player player = Main.LocalPlayer;
+            var modPlayer = player.GetModPlayer<ArcaneHarmonicPrismPlayer>();
+            int currentUses = modPlayer.arcaneHarmonicPrismUses;
+            int remaining = MaxUses - currentUses;
+            
+            tooltips.Add(new TooltipLine(Mod, "Effect1", $"Permanently grants +{ManaPerUse} max mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Transforms one mana star into an arcane-shimmering star"));
+            tooltips.Add(new TooltipLine(Mod, "Progress", $"Mana stars transformed: {currentUses}/{MaxUses}") { OverrideColor = currentUses >= MaxUses ? Color.Gold : Color.White });
+            if (remaining > 0)
+                tooltips.Add(new TooltipLine(Mod, "Remaining", $"Can be used {remaining} more time(s)") { OverrideColor = new Color(150, 200, 255) });
+            else
+                tooltips.Add(new TooltipLine(Mod, "Maxed", "All mana stars fully transformed!") { OverrideColor = Color.Gold });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The cosmos hums with magical potential awaiting release'") { OverrideColor = new Color(150, 180, 255) });
         }
 
         public override bool CanUseItem(Player player)

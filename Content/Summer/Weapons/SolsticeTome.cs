@@ -69,36 +69,51 @@ namespace MagnumOpus.Content.Summer.Weapons
                 player.GetDamage(DamageClass.Magic) += 0.15f; // +15% damage during blessing
             }
 
-            // Ethereal solar aura
-            if (Main.rand.NextBool(6))
+            // ========== IRIDESCENT WINGSPAN VFX PATTERN ==========
+            // HEAVY DUST TRAILS - 2+ per frame with fadeIn
+            for (int d = 0; d < 2; d++)
             {
-                float angle = Main.GameUpdateCount * 0.03f;
-                for (int i = 0; i < 2; i++)
-                {
-                    float orbAngle = angle + MathHelper.Pi * i;
-                    float radius = 35f + (float)Math.Sin(Main.GameUpdateCount * 0.05f + i) * 8f;
-                    Vector2 orbPos = player.Center + orbAngle.ToRotationVector2() * radius;
-                    Color orbColor = Color.Lerp(SunGold, SunOrange, Main.rand.NextFloat());
-                    CustomParticles.GenericFlare(orbPos, orbColor * 0.55f, 0.28f, 14);
-                }
+                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(24f, 24f);
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.GoldFlame, new Vector2(0, -Main.rand.NextFloat(0.5f, 1.3f)), 0, SunGold, Main.rand.NextFloat(1.0f, 1.4f));
+                dust.noGravity = true;
+                dust.fadeIn = 1.4f;
             }
-
-            // Rising light motes
-            if (Main.rand.NextBool(10))
+            
+            // CONTRASTING SPARKLES - white brilliance
+            if (Main.rand.NextBool(2))
             {
-                Vector2 motePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Vector2 moteVel = new Vector2(0, -Main.rand.NextFloat(0.8f, 2f));
-                var mote = new GenericGlowParticle(motePos, moteVel, SunGold * 0.4f, 0.22f, 28, true);
+                Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                CustomParticles.PrismaticSparkle(sparklePos, SunWhite, Main.rand.NextFloat(0.35f, 0.5f));
+            }
+            
+            // SHIMMER TRAILS - solar motes with color cycling
+            if (Main.rand.NextBool(3))
+            {
+                float hue = 0.1f + Main.rand.NextFloat(0.06f); // Gold range
+                Color shimmerColor = Main.hslToRgb(hue, 1f, 0.75f);
+                Vector2 shimmerPos = player.Center + Main.rand.NextVector2Circular(28f, 28f);
+                Vector2 shimmerVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(0.6f, 1.4f));
+                var shimmer = new GenericGlowParticle(shimmerPos, shimmerVel, shimmerColor * 0.6f, 0.26f, 24, true);
+                MagnumParticleHandler.SpawnParticle(shimmer);
+            }
+            
+            // MUSIC NOTES - visible scale with solstice theme
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(32f, 32f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.6f, 0.6f), -Main.rand.NextFloat(0.5f, 1.2f));
+                Color noteColor = Color.Lerp(SunGold, SunWhite, Main.rand.NextFloat(0.3f));
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, Main.rand.NextFloat(0.85f, 1.05f), 30);
+            }
+            
+            // ORBITING LIGHT MOTES - solar wisdom
+            if (Main.rand.NextBool(4))
+            {
+                float orbitAngle = Main.GameUpdateCount * 0.05f + Main.rand.NextFloat(MathHelper.TwoPi);
+                float orbitRadius = 38f + Main.rand.NextFloat(12f);
+                Vector2 orbitPos = player.Center + orbitAngle.ToRotationVector2() * orbitRadius;
+                var mote = new GenericGlowParticle(orbitPos, Vector2.Zero, SunGold * 0.5f, 0.22f, 15, true);
                 MagnumParticleHandler.SpawnParticle(mote);
-            }
-
-            // Floating summer melody notes
-            if (Main.rand.NextBool(12))
-            {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
-                Vector2 noteVel = new Vector2(0, -Main.rand.NextFloat(0.3f, 0.7f));
-                Color noteColor = Color.Lerp(SunGold, SunOrange, Main.rand.NextFloat()) * 0.6f;
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 40);
             }
 
             // Charging effect
@@ -111,25 +126,40 @@ namespace MagnumOpus.Content.Summer.Weapons
                 }
                 chargeTime++;
                 
-                // Charge particles converging
+                // ========== ENHANCED CHARGE PARTICLES ==========
                 if (chargeTime > 20 && chargeTime % 5 == 0)
                 {
                     float chargeProgress = Math.Min(1f, (chargeTime - 20) / 60f);
-                    int particleCount = (int)(4 + chargeProgress * 8);
+                    int particleCount = (int)(6 + chargeProgress * 10);
                     
                     for (int i = 0; i < particleCount; i++)
                     {
                         float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                        float dist = 80f * (1f - chargeProgress * 0.5f);
+                        float dist = 100f * (1f - chargeProgress * 0.6f);
                         Vector2 particlePos = player.Center + angle.ToRotationVector2() * dist;
-                        Vector2 particleVel = (player.Center - particlePos).SafeNormalize(Vector2.Zero) * (4f + chargeProgress * 3f);
+                        Vector2 particleVel = (player.Center - particlePos).SafeNormalize(Vector2.Zero) * (5f + chargeProgress * 4f);
                         Color particleColor = Color.Lerp(SunGold, SunWhite, chargeProgress);
-                        var particle = new GenericGlowParticle(particlePos, particleVel, particleColor * 0.7f, 0.3f + chargeProgress * 0.2f, 15, true);
+                        var particle = new GenericGlowParticle(particlePos, particleVel, particleColor * 0.75f, 0.32f + chargeProgress * 0.2f, 15, true);
                         MagnumParticleHandler.SpawnParticle(particle);
+                        
+                        // Heavy dust trails during charge
+                        Dust dust = Dust.NewDustPerfect(particlePos, DustID.GoldFlame, particleVel * 0.6f, 0, SunGold, 1.2f);
+                        dust.noGravity = true;
+                        dust.fadeIn = 1.3f;
                     }
                     
-                    // Core glow
-                    CustomParticles.GenericFlare(player.Center, SunGold * (0.3f + chargeProgress * 0.5f), 0.4f + chargeProgress * 0.4f, 8);
+                    // Core glow intensifying
+                    CustomParticles.GenericFlare(player.Center, SunGold * (0.4f + chargeProgress * 0.5f), 0.45f + chargeProgress * 0.4f, 10);
+                    
+                    // Sparkle ring at full charge
+                    if (chargeProgress > 0.8f)
+                    {
+                        for (int i = 0; i < 3; i++)
+                        {
+                            Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(20f, 20f);
+                            CustomParticles.PrismaticSparkle(sparklePos, SunWhite, 0.4f);
+                        }
+                    }
                 }
             }
             else if (isCharging)
@@ -158,39 +188,54 @@ namespace MagnumOpus.Content.Summer.Weapons
             Projectile.NewProjectile(player.GetSource_ItemUse(Item), spawnPos, direction * 20f,
                 ModContent.ProjectileType<SunbeamProjectile>(), Item.damage * 3, Item.knockBack * 2f, player.whoAmI);
             
-            // Release VFX - layered solar bloom instead of halo
-            CustomParticles.GenericFlare(spawnPos, Color.White, 1.2f, 25);
-            CustomParticles.GenericFlare(spawnPos, SunGold, 0.95f, 22);
-            CustomParticles.GenericFlare(spawnPos, SunOrange * 0.7f, 0.7f, 18);
+            // ========== SPECTACULAR SUNBEAM RELEASE VFX ==========
+            // MULTI-LAYER CENTRAL FLARE - blinding solar burst
+            CustomParticles.GenericFlare(spawnPos, Color.White, 1.0f, 20);
+            CustomParticles.GenericFlare(spawnPos, SunGold, 0.8f, 22);
+            CustomParticles.GenericFlare(spawnPos, SunOrange * 0.9f, 0.6f, 24);
             
-            // Solar corona burst
-            for (int ray = 0; ray < 6; ray++)
+            // 6-LAYER GRADIENT HALO CASCADE - white to gold to orange
+            for (int ring = 0; ring < 6; ring++)
             {
-                float rayAngle = MathHelper.TwoPi * ray / 6f;
-                Vector2 rayPos = spawnPos + rayAngle.ToRotationVector2() * 22f;
-                CustomParticles.GenericFlare(rayPos, SunGold * 0.85f, 0.32f, 14);
+                float progress = ring / 6f;
+                Color ringColor = Color.Lerp(SunWhite, SunOrange, progress);
+                float ringScale = 0.4f + ring * 0.14f;
+                int ringLife = 16 + ring * 3;
+                CustomParticles.HaloRing(spawnPos, ringColor * (0.75f - progress * 0.3f), ringScale, ringLife);
             }
             
-            // Radial burst
-            for (int i = 0; i < 12; i++)
+            // RADIAL SOLAR DUST BURST
+            for (int i = 0; i < 14; i++)
             {
-                float angle = MathHelper.TwoPi * i / 12f;
-                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
-                Color burstColor = Color.Lerp(SunGold, SunWhite, (float)i / 12f);
-                var burst = new GenericGlowParticle(spawnPos, burstVel, burstColor * 0.75f, 0.4f, 22, true);
-                MagnumParticleHandler.SpawnParticle(burst);
+                float angle = MathHelper.TwoPi * i / 14f;
+                Vector2 dustVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 10f);
+                Dust sun = Dust.NewDustPerfect(spawnPos, DustID.GoldFlame, dustVel, 0, SunGold, 1.5f);
+                sun.noGravity = true;
+                sun.fadeIn = 1.4f;
             }
-
-            // Music note ring and burst for Sunbeam Charge
-            ThemedParticles.MusicNoteRing(spawnPos, SunGold, 40f, 6);
-            ThemedParticles.MusicNoteBurst(spawnPos, SunOrange, 5, 4f);
-
-            // Sparkle accents
-            for (int i = 0; i < 4; i++)
+            
+            // DIRECTIONAL BEAM SPARKS - along firing direction
+            for (int i = 0; i < 6; i++)
             {
-                var sparkle = new SparkleParticle(spawnPos + Main.rand.NextVector2Circular(12f, 12f),
-                    Main.rand.NextVector2Circular(2f, 2f), SunWhite * 0.5f, 0.2f, 16);
-                MagnumParticleHandler.SpawnParticle(sparkle);
+                Vector2 beamSparkVel = direction.RotatedByRandom(0.3f) * Main.rand.NextFloat(8f, 14f);
+                var beamSpark = new GenericGlowParticle(spawnPos, beamSparkVel, SunWhite * 0.8f, 0.35f, 20, true);
+                MagnumParticleHandler.SpawnParticle(beamSpark);
+            }
+            
+            // MUSIC NOTE STARBURST - solar symphony release
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f + Main.rand.NextFloat(0.15f);
+                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 5f);
+                Color noteColor = Color.Lerp(SunGold, SunWhite, Main.rand.NextFloat(0.4f));
+                ThemedParticles.MusicNote(spawnPos, noteVel, noteColor, 0.95f, 30);
+            }
+            
+            // SPARKLE CORONA
+            for (int i = 0; i < 8; i++)
+            {
+                Vector2 sparklePos = spawnPos + Main.rand.NextVector2Circular(45f, 45f);
+                CustomParticles.PrismaticSparkle(sparklePos, SunWhite, 0.5f);
             }
             
             // Mana cost
@@ -205,19 +250,24 @@ namespace MagnumOpus.Content.Summer.Weapons
             Vector2 offset = Main.rand.NextVector2Circular(3f, 3f);
             Projectile.NewProjectile(source, position, velocity + offset, type, damage, knockback, player.whoAmI);
 
-            // Fire VFX
-            CustomParticles.GenericFlare(position, SunGold, 0.45f, 12);
-
-            // Music note on cast
-            ThemedParticles.MusicNote(position, velocity * 0.1f, SunGold * 0.8f, 0.7f, 25);
+            // ========== ENHANCED SOLAR BARRAGE CAST VFX ==========
+            // Multi-layer cast flash
+            CustomParticles.GenericFlare(position, Color.White * 0.8f, 0.4f, 10);
+            CustomParticles.GenericFlare(position, SunGold, 0.35f, 12);
             
-            // Sparkles
+            // Directional solar sparks
             for (int i = 0; i < 3; i++)
             {
-                Vector2 sparklePos = position + Main.rand.NextVector2Circular(10f, 10f);
-                Vector2 sparkleVel = velocity * 0.15f + Main.rand.NextVector2Circular(2f, 2f);
-                var sparkle = new GenericGlowParticle(sparklePos, sparkleVel, SunOrange * 0.6f, 0.25f, 15, true);
-                MagnumParticleHandler.SpawnParticle(sparkle);
+                Vector2 sparkVel = velocity.SafeNormalize(Vector2.UnitX).RotatedByRandom(0.5f) * Main.rand.NextFloat(3f, 6f);
+                Dust spark = Dust.NewDustPerfect(position, DustID.GoldFlame, sparkVel, 0, SunGold, 1.1f);
+                spark.noGravity = true;
+                spark.fadeIn = 1.2f;
+            }
+            
+            // Occasional sparkle accent
+            if (Main.rand.NextBool(3))
+            {
+                CustomParticles.PrismaticSparkle(position, SunWhite, 0.35f);
             }
 
             return false;
@@ -234,26 +284,42 @@ namespace MagnumOpus.Content.Summer.Weapons
                     killCount = 0;
                     blessingTimer = 300; // 5 seconds of bonus damage
                     
-                    // Blessing activation VFX - layered bloom instead of halo
-                    CustomParticles.GenericFlare(player.Center, SunWhite, 0.9f, 22);
-                    CustomParticles.GenericFlare(player.Center, SunGold, 0.7f, 18);
-                    CustomParticles.GenericFlare(player.Center, SunGold * 0.6f, 0.5f, 15);
+                    // ========== SPECTACULAR SOLSTICE BLESSING VFX ==========
+                    // CENTRAL BLESSING FLARE - divine radiance
+                    CustomParticles.GenericFlare(player.Center, Color.White, 0.9f, 20);
+                    CustomParticles.GenericFlare(player.Center, SunGold, 0.7f, 22);
                     
-                    // Blessing sparkle ring
-                    for (int ray = 0; ray < 8; ray++)
+                    // 5-LAYER GRADIENT HALO CASCADE - blessing aura
+                    for (int ring = 0; ring < 5; ring++)
                     {
-                        float rayAngle = MathHelper.TwoPi * ray / 8f;
-                        Vector2 rayPos = player.Center + rayAngle.ToRotationVector2() * 25f;
-                        CustomParticles.GenericFlare(rayPos, SunGold * 0.8f, 0.28f, 14);
+                        float progress = ring / 5f;
+                        Color ringColor = Color.Lerp(SunWhite, SunGold, progress);
+                        float ringScale = 0.35f + ring * 0.12f;
+                        int ringLife = 14 + ring * 3;
+                        CustomParticles.HaloRing(player.Center, ringColor * (0.7f - progress * 0.25f), ringScale, ringLife);
                     }
                     
-                    // Burst particles
-                    for (int i = 0; i < 8; i++)
+                    // RISING BLESSING DUST
+                    for (int i = 0; i < 10; i++)
                     {
-                        float angle = MathHelper.TwoPi * i / 8f;
-                        Vector2 burstVel = angle.ToRotationVector2() * 5f;
-                        var burst = new GenericGlowParticle(player.Center, burstVel, SunGold * 0.8f, 0.35f, 25, true);
-                        MagnumParticleHandler.SpawnParticle(burst);
+                        Vector2 dustVel = new Vector2(Main.rand.NextFloat(-2f, 2f), -Main.rand.NextFloat(3f, 6f));
+                        Dust blessing = Dust.NewDustPerfect(player.Center + Main.rand.NextVector2Circular(30f, 15f), DustID.GoldFlame, dustVel, 0, SunGold, 1.3f);
+                        blessing.noGravity = true;
+                        blessing.fadeIn = 1.4f;
+                    }
+                    
+                    // MUSIC NOTE ASCENSION - blessing song
+                    for (int i = 0; i < 4; i++)
+                    {
+                        Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), -Main.rand.NextFloat(2f, 4f));
+                        ThemedParticles.MusicNote(player.Center + Main.rand.NextVector2Circular(25f, 10f), noteVel, SunGold, 0.9f, 32);
+                    }
+                    
+                    // SPARKLE CORONA
+                    for (int i = 0; i < 6; i++)
+                    {
+                        Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(45f, 45f);
+                        CustomParticles.PrismaticSparkle(sparklePos, SunWhite, 0.45f);
                     }
                 }
             }

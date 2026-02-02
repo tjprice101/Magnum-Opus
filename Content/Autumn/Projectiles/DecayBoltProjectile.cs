@@ -39,34 +39,63 @@ namespace MagnumOpus.Content.Autumn.Projectiles
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // Decay trail
+            // === VFX VARIATION #18: ENTROPIC SPIRAL TRAIL ===
+            // Decaying energy spirals behind in a vortex pattern
             if (Main.rand.NextBool(2))
             {
-                Vector2 trailVel = -Projectile.velocity * 0.12f + Main.rand.NextVector2Circular(1.5f, 1.5f);
-                Color trailColor = Color.Lerp(DecayPurple, DeathGreen, Main.rand.NextFloat()) * 0.5f;
-                var trail = new GenericGlowParticle(Projectile.Center, trailVel, trailColor, 0.28f, 20, true);
+                float spiralAngle = Main.GameUpdateCount * 0.2f;
+                Vector2 spiralOffset = spiralAngle.ToRotationVector2() * 7f;
+                Vector2 trailVel = -Projectile.velocity * 0.1f + spiralAngle.ToRotationVector2() * 1.2f;
+                Color trailColor = Color.Lerp(DecayPurple, DeathGreen, Main.rand.NextFloat()) * 0.55f;
+                var trail = new GenericGlowParticle(Projectile.Center + spiralOffset, trailVel, trailColor, 0.3f, 22, true);
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
-            // ☁EMUSICAL NOTATION - VISIBLE decaying notes drift up (scale 0.7f+)
+            // === VFX VARIATION #19: ARCANE GLYPH ORBIT ===
+            // Mystical glyphs orbit the bolt
+            if (Main.GameUpdateCount % 10 == 0)
+            {
+                float glyphAngle = Main.GameUpdateCount * 0.08f;
+                for (int g = 0; g < 2; g++)
+                {
+                    float thisGlyphAngle = glyphAngle + MathHelper.Pi * g;
+                    Vector2 glyphPos = Projectile.Center + thisGlyphAngle.ToRotationVector2() * 14f;
+                    CustomParticles.Glyph(glyphPos, DecayPurple * 0.7f, 0.28f, Main.rand.Next(1, 13));
+                }
+            }
+
+            // === VFX VARIATION #20: DEATH MOTE CLOUD ===
+            // Tiny floating motes of decay surround the projectile
+            if (Main.rand.NextBool(3))
+            {
+                float moteAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                float moteRadius = Main.rand.NextFloat(10f, 20f);
+                Vector2 motePos = Projectile.Center + moteAngle.ToRotationVector2() * moteRadius;
+                Vector2 moteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.5f, -0.3f));
+                Color moteColor = Color.Lerp(DecayPurple, DeathGreen, Main.rand.NextFloat()) * 0.4f;
+                var mote = new GenericGlowParticle(motePos, moteVel, moteColor, 0.14f, 28, true);
+                MagnumParticleHandler.SpawnParticle(mote);
+            }
+
+            // Decaying notes - VISIBLE (scale 0.75f)
             if (Main.rand.NextBool(5))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2.5f, -1f));
                 Color noteColor = Color.Lerp(DecayPurple, DeathGreen, Main.rand.NextFloat());
-                // Scale 0.7f makes notes VISIBLE!
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.7f, 35);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.75f, 38);
             }
             
-            // Glyph accents for arcane decay feel
+            // Additional glyph accents
             if (Main.rand.NextBool(8))
             {
-                CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), DecayPurple * 0.6f, 0.35f, Main.rand.Next(1, 13));
+                CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f), DecayPurple * 0.65f, 0.38f, Main.rand.Next(1, 13));
             }
 
-            // Core glow
-            CustomParticles.GenericFlare(Projectile.Center, DecayPurple * 0.35f, 0.22f, 5);
+            // Core glow - pulsing
+            float corePulse = 0.35f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.08f;
+            CustomParticles.GenericFlare(Projectile.Center, DecayPurple * corePulse, 0.24f, 6);
 
-            Lighting.AddLight(Projectile.Center, DecayPurple.ToVector3() * 0.45f);
+            Lighting.AddLight(Projectile.Center, DecayPurple.ToVector3() * 0.5f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)

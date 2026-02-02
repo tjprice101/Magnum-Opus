@@ -217,43 +217,17 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             else
                 muzzleColor = Color.Lerp(UnifiedVFX.Eroica.Gold, Color.White, (heatProgress - 0.6f) / 0.4f);
             
-            // Scale and intensity increase with heat
-            float flashScale = 0.5f + heatProgress * 0.4f;
-            int flashCount = 5 + (int)(heatProgress * 4);
+            // Central muzzle flash - scales with heat
+            float flashScale = 0.4f + heatProgress * 0.3f;
+            CustomParticles.GenericFlare(muzzlePos, muzzleColor, flashScale, 8);
             
-            // Geometric muzzle flash that grows with heat
-            for (int i = 0; i < flashCount; i++)
-            {
-                float angle = MathHelper.TwoPi * i / flashCount + velocity.ToRotation();
-                float radius = 12f + heatProgress * 8f;
-                Vector2 flareOffset = angle.ToRotationVector2() * radius;
-                float progress = (float)i / flashCount;
-                Color fractalColor = Color.Lerp(muzzleColor, UnifiedVFX.Eroica.Sakura, progress * 0.5f);
-                CustomParticles.GenericFlare(muzzlePos + flareOffset, fractalColor, flashScale * 0.7f, 12);
-            }
+            // Halo only when hot
+            if (heatProgress > 0.4f)
+                CustomParticles.HaloRing(muzzlePos, muzzleColor * 0.7f, 0.2f + heatProgress * 0.15f, 8);
             
-            // Central flash
-            CustomParticles.GenericFlare(muzzlePos, muzzleColor, flashScale, 10);
-            CustomParticles.HaloRing(muzzlePos, muzzleColor * 0.8f, 0.2f + heatProgress * 0.2f, 10);
-            
-            // === OVERHEATED BONUS EFFECTS ===
-            if (heatProgress > 0.7f)
-            {
-                // Extra flame burst when overheated
-                CustomParticles.ExplosionBurst(muzzlePos, UnifiedVFX.Eroica.Gold, 4, 3f);
-                
-                // Smoke from overheated barrel
-                if (Main.rand.NextBool(3))
-                {
-                    var smoke = new HeavySmokeParticle(muzzlePos, velocity.SafeNormalize(Vector2.Zero) * 2f, 
-                        Color.Gray * 0.5f, Main.rand.Next(15, 25), 0.2f, 0.4f, 0.015f, false);
-                    MagnumParticleHandler.SpawnParticle(smoke);
-                }
-            }
-            
-            // Sakura petals burst (less when overheated - they're burning!)
-            if (Main.rand.NextBool(heatProgress > 0.5f ? 5 : 3))
-                ThemedParticles.SakuraPetals(muzzlePos, 2, 18f);
+            // Sakura petals - occasional
+            if (Main.rand.NextBool(6))
+                ThemedParticles.SakuraPetals(muzzlePos, 1, 15f);
             
             // Music notes more frequently
             if (Main.rand.NextBool(4))

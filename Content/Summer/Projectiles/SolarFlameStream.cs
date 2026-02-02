@@ -53,36 +53,65 @@ namespace MagnumOpus.Content.Summer.Projectiles
             Projectile.scale = 0.8f + lifeProgress * 0.4f - lifeProgress * lifeProgress * 0.5f;
             Projectile.alpha = (int)(100 + lifeProgress * 155);
 
-            // Fire particles
+            // === VFX VARIATION #10: BLAZING EMBER WAKE ===
+            // Fire particles with dynamic ember sparks
             if (Main.rand.NextBool(2))
             {
-                Vector2 firePos = Projectile.Center + Main.rand.NextVector2Circular(8f, 8f);
-                Vector2 fireVel = -Projectile.velocity * 0.05f + Main.rand.NextVector2Circular(2f, 2f);
-                Color fireColor = Color.Lerp(SunOrange, SunRed, Main.rand.NextFloat()) * 0.6f;
-                var fire = new GenericGlowParticle(firePos, fireVel, fireColor, 0.3f, 15, true);
+                Vector2 firePos = Projectile.Center + Main.rand.NextVector2Circular(10f, 10f);
+                Vector2 fireVel = -Projectile.velocity * 0.06f + Main.rand.NextVector2Circular(2.5f, 2.5f);
+                fireVel.Y -= Main.rand.NextFloat(0.5f, 1.5f); // Embers rise
+                Color fireColor = Color.Lerp(SunOrange, SunRed, Main.rand.NextFloat()) * 0.65f;
+                var fire = new GenericGlowParticle(firePos, fireVel, fireColor, 0.32f, 18, true);
                 MagnumParticleHandler.SpawnParticle(fire);
+            }
+
+            // === VFX VARIATION #11: HEAT SHIMMER DISTORTION ===
+            // Subtle wavy particles that simulate heat distortion
+            if (Main.rand.NextBool(4))
+            {
+                float shimmerAngle = Main.GameUpdateCount * 0.3f + Main.rand.NextFloat() * MathHelper.TwoPi;
+                Vector2 shimmerOffset = shimmerAngle.ToRotationVector2() * 6f;
+                Vector2 shimmerPos = Projectile.Center + shimmerOffset;
+                Vector2 shimmerVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-2f, -0.5f));
+                Color shimmerColor = SunWhite * 0.35f;
+                var shimmer = new GenericGlowParticle(shimmerPos, shimmerVel, shimmerColor, 0.18f, 22, true);
+                MagnumParticleHandler.SpawnParticle(shimmer);
             }
 
             // Fire dust
             if (Main.rand.NextBool(3))
             {
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.Torch, -Projectile.velocity * 0.1f, 0, SunOrange, 1.2f);
+                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.Torch, -Projectile.velocity * 0.12f + new Vector2(0, -1f), 0, SunOrange, 1.3f);
                 dust.noGravity = true;
             }
 
-            // ☁EMUSICAL NOTATION - VISIBLE notes dance in flames! (scale 0.7f)
+            // === VFX VARIATION #12: FLARE BURST ACCENTS ===
+            // Periodic bright flare bursts along the flame path
+            if (Main.GameUpdateCount % 8 == 0)
+            {
+                CustomParticles.GenericFlare(Projectile.Center, SunGold, 0.4f, 8);
+                // Radial mini-flares
+                for (int f = 0; f < 3; f++)
+                {
+                    float flareAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                    Vector2 flarePos = Projectile.Center + flareAngle.ToRotationVector2() * 8f;
+                    CustomParticles.GenericFlare(flarePos, SunOrange * 0.7f, 0.22f, 6);
+                }
+            }
+
+            // Musical fire notes - VISIBLE (scale 0.75f)
             if (Main.rand.NextBool(5))
             {
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), Main.rand.NextFloat(-1.2f, -0.3f));
-                // Scale 0.7f makes notes VISIBLE!
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, Color.Lerp(SunOrange, SunGold, Main.rand.NextFloat()), 0.7f, 30);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.5f, -0.5f));
+                Color noteColor = Color.Lerp(SunOrange, SunGold, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.75f, 32);
             }
             
-            // Sparkle accents
-            if (Main.rand.NextBool(4))
+            // Sparkle accents - enhanced
+            if (Main.rand.NextBool(3))
             {
-                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
-                    Main.rand.NextVector2Circular(1f, 1f), SunWhite * 0.5f, 0.2f, 12);
+                Vector2 sparklePos = Projectile.Center + Main.rand.NextVector2Circular(8f, 8f);
+                var sparkle = new SparkleParticle(sparklePos, Main.rand.NextVector2Circular(1.5f, 1.5f), SunWhite * 0.55f, 0.24f, 14);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
@@ -90,7 +119,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             Projectile.velocity *= 0.97f;
 
             float alpha = 1f - (float)Projectile.alpha / 255f;
-            Lighting.AddLight(Projectile.Center, SunOrange.ToVector3() * 0.5f * alpha);
+            Lighting.AddLight(Projectile.Center, SunOrange.ToVector3() * 0.55f * alpha);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)

@@ -75,75 +75,115 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                     ModContent.ProjectileType<BlazingMusicalWave>(), (int)(damage * 0.6f), knockback * 0.5f, player.whoAmI);
             }
             
-            // === GUTURAL CHAINSAW BELL SOUND STACK ===
-            SoundEngine.PlaySound(SoundID.Item35 with { Pitch = Main.rand.NextFloat(0.1f, 0.5f), Volume = 0.55f }, player.Center);
-            SoundEngine.PlaySound(SoundID.Item34 with { Pitch = Main.rand.NextFloat(0.2f, 0.5f), Volume = 0.35f }, player.Center);
-            SoundEngine.PlaySound(SoundID.Item1 with { Pitch = 0.4f, Volume = 0.4f }, player.Center);
-            SoundEngine.PlaySound(SoundID.DD2_BetsyFireballShot with { Pitch = 0.3f, Volume = 0.2f }, player.Center);
+            // === CLEAN SOUND DESIGN - 2 complementary sounds ===
+            SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.3f, Volume = 0.5f }, player.Center);
+            SoundEngine.PlaySound(SoundID.DD2_BetsyFireballShot with { Pitch = 0.3f, Volume = 0.25f }, player.Center);
             
-            // === UnifiedVFX LA CAMPANELLA THRUST EFFECT ===
+            // === CLEAN THRUST VFX - SWAN LAKE STYLE ===
             Vector2 thrustPos = player.Center + toMouse * 40f;
-            UnifiedVFX.LaCampanella.SwingAura(thrustPos, toMouse, 0.9f);
             
-            // === MASSIVE THRUST PARTICLES WITH CUSTOM SYSTEM ===
-            ThemedParticles.LaCampanellaSparks(thrustPos, toMouse, 12, 9f);
-            ThemedParticles.LaCampanellaBloomBurst(thrustPos, 0.55f);
-            ThemedParticles.LaCampanellaMusicNotes(thrustPos, 4, 28f);
+            // Core impact with UnifiedVFX
+            UnifiedVFX.LaCampanella.SwingAura(thrustPos, toMouse, 0.8f);
             
-            // === FLARE TRAIL ALONG THRUST ===
-            ThemedParticles.LaCampanellaCrescentWave(thrustPos, toMouse, 0.6f);
-            for (int f = 0; f < 5; f++)
-            {
-                Vector2 flarePos = player.Center + toMouse * (20f + f * 18f);
-                Color flareColor = Main.rand.Next(3) switch { 0 => ThemedParticles.CampanellaYellow, 1 => ThemedParticles.CampanellaOrange, _ => ThemedParticles.CampanellaGold };
-                CustomParticles.GenericFlare(flarePos + Main.rand.NextVector2Circular(5f, 5f), flareColor, 0.4f + f * 0.08f, 14);
-            }
+            // Clean spark burst (reduced from 12 to 6)
+            ThemedParticles.LaCampanellaSparks(thrustPos, toMouse, 6, 7f);
             
-            // === PRISMATIC SPARKLES ===
-            ThemedParticles.LaCampanellaPrismaticSparkles(thrustPos, 5, 0.5f);
+            // Music notes - the musical identity
+            ThemedParticles.LaCampanellaMusicNotes(thrustPos, 3, 25f);
             
-            // Halo ring at thrust point
-            CustomParticles.HaloRing(thrustPos, ThemedParticles.CampanellaOrange, 0.35f, 12);
-            CustomParticles.HaloRing(thrustPos, ThemedParticles.CampanellaYellow, 0.25f, 10);
-            
-            // Flares along thrust direction
+            // Single gradient flare trail along thrust
             for (int i = 0; i < 4; i++)
             {
-                Vector2 flarePos = player.Center + toMouse * (25f + i * 15f);
-                Color flareColor = Main.rand.NextBool() ? ThemedParticles.CampanellaOrange : ThemedParticles.CampanellaGold;
-                CustomParticles.GenericFlare(flarePos, flareColor, 0.3f + i * 0.05f, 12);
+                Vector2 flarePos = player.Center + toMouse * (20f + i * 15f);
+                float progress = (float)i / 4f;
+                Color flareColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaGold, progress);
+                CustomParticles.GenericFlare(flarePos, flareColor, 0.35f + i * 0.05f, 12);
             }
             
-            // Fire glow particles
-            for (int i = 0; i < 5; i++)
-            {
-                Color color = Main.rand.NextBool() ? ThemedParticles.CampanellaOrange : ThemedParticles.CampanellaYellow;
-                var glow = new GenericGlowParticle(thrustPos + Main.rand.NextVector2Circular(15f, 15f),
-                    toMouse * Main.rand.NextFloat(3f, 6f) + Main.rand.NextVector2Circular(2f, 2f),
-                    color, Main.rand.NextFloat(0.3f, 0.5f), Main.rand.Next(10, 18), true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
+            // Single halo ring
+            CustomParticles.HaloRing(thrustPos, ThemedParticles.CampanellaOrange, 0.3f, 12);
             
-            // Screen shake
-            // REMOVED: Screen shake disabled for La Campanella weapons
-            // player.GetModPlayer<ScreenShakePlayer>()?.AddShake(3f, 5);
-            
-            Lighting.AddLight(thrustPos, 0.9f, 0.45f, 0.12f);
+            Lighting.AddLight(thrustPos, 0.8f, 0.4f, 0.1f);
             
             return false;
         }
 
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
+            Vector2 hitCenter = hitbox.Center.ToVector2();
+            
+            // === IRIDESCENT WINGSPAN-STYLE VFX (La Campanella Theme) ===
+            
+            // HEAVY DUST TRAILS - orange/gold infernal fire (2+ per frame)
+            for (int d = 0; d < 2; d++)
+            {
+                Vector2 dustPos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                Dust dust1 = Dust.NewDustPerfect(dustPos, DustID.Torch, player.velocity * 0.3f + Main.rand.NextVector2Circular(2f, 2f), 0, ThemedParticles.CampanellaOrange, 1.2f);
+                dust1.noGravity = true;
+                dust1.fadeIn = 1.4f;
+                
+                Dust dust2 = Dust.NewDustPerfect(dustPos + Main.rand.NextVector2Circular(5f, 5f), DustID.GoldCoin, player.velocity * 0.2f, 0, ThemedParticles.CampanellaGold, 0.95f);
+                dust2.noGravity = true;
+                dust2.fadeIn = 1.3f;
+            }
+            
+            // CONTRASTING SPARKLES - golden bell sparkles (1-in-2)
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 sparklePos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                var sparkle = new SparkleParticle(sparklePos, player.velocity * 0.15f + Main.rand.NextVector2Circular(1f, 1f), ThemedParticles.CampanellaGold, 0.5f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // INFERNAL SHIMMER TRAILS - cycling orange to gold hues via hslToRgb (1-in-3)
             if (Main.rand.NextBool(3))
             {
-                Vector2 hitCenter = hitbox.Center.ToVector2();
-                Color color = Main.rand.NextBool() ? new Color(255, 100, 0) : new Color(255, 180, 50);
-                
-                Dust flame = Dust.NewDustPerfect(hitCenter + Main.rand.NextVector2Circular(10f, 10f),
-                    DustID.Torch, Main.rand.NextVector2Circular(2f, 2f), 100, color, 1.5f);
-                flame.noGravity = true;
+                Vector2 shimmerPos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                // Infernal hues: 0.06-0.12 (orange-gold range)
+                float hue = Main.rand.NextFloat(0.06f, 0.12f);
+                Color shimmerColor = Main.hslToRgb(hue, 1f, 0.6f);
+                var shimmer = new GenericGlowParticle(shimmerPos, player.velocity * 0.25f + Main.rand.NextVector2Circular(1.5f, 1.5f), shimmerColor, 0.35f, 22, true);
+                MagnumParticleHandler.SpawnParticle(shimmer);
             }
+            
+            // PEARLESCENT FLAME EFFECTS - color shifting ember (1-in-4)
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 pearlPos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                float colorShift = (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.5f + 0.5f;
+                Color pearlColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaGold, colorShift) * 0.7f;
+                var pearl = new GenericGlowParticle(pearlPos, player.velocity * 0.2f + new Vector2(0, -0.9f), pearlColor, 0.32f, 20, true);
+                MagnumParticleHandler.SpawnParticle(pearl);
+            }
+            
+            // FREQUENT FLARES - infernal glow (1-in-2)
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 flarePos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                Color flareColor = Color.Lerp(ThemedParticles.CampanellaOrange, Color.White, Main.rand.NextFloat() * 0.3f);
+                CustomParticles.GenericFlare(flarePos, flareColor, Main.rand.NextFloat(0.25f, 0.4f), 14);
+            }
+            
+            // SMOKE WISP PARTICLES - infernal smoke (1-in-4)
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 smokePos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                var smoke = new HeavySmokeParticle(smokePos, player.velocity * 0.1f + new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(0.5f, 1.2f)),
+                    ThemedParticles.CampanellaBlack * 0.5f, Main.rand.Next(18, 30), 0.25f, 0.5f, 0.015f, false);
+                MagnumParticleHandler.SpawnParticle(smoke);
+            }
+            
+            // MUSIC NOTES - bell melody (1-in-6)
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 notePos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                Vector2 noteVel = player.velocity * 0.1f + new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2f, -0.5f));
+                ThemedParticles.MusicNote(notePos, noteVel, ThemedParticles.CampanellaGold, 0.85f, 28);
+            }
+            
+            // PULSING LIGHT
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.15f + 0.55f;
+            Lighting.AddLight(hitCenter, ThemedParticles.CampanellaOrange.ToVector3() * pulse);
         }
 
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
@@ -155,61 +195,24 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             var cyclonePlayer = player.GetModPlayer<ChimeCyclonePlayer>();
             cyclonePlayer.AddHit(target);
             
-            // === UnifiedVFX LA CAMPANELLA IMPACT ===
+            // === CLEAN IMPACT VFX - SWAN LAKE STYLE ===
             Vector2 hitDir = (target.Center - player.Center).SafeNormalize(Vector2.UnitX);
-            UnifiedVFX.LaCampanella.Impact(target.Center, 1.1f);
             
-            // === BLACK SMOKE SPARKLE MAGIC - SIGNATURE HIT EFFECT! ===
-            ThemedParticles.LaCampanellaSignatureHit(target.Center, hitDir, 0.95f);
+            // Core impact - UnifiedVFX handles the heavy lifting
+            UnifiedVFX.LaCampanella.Impact(target.Center, 0.9f);
             
-            // === MASSIVE IMPACT EFFECTS WITH SWORD ARCS ===
-            ThemedParticles.LaCampanellaSparks(target.Center, hitDir, 10, 7f);
-            ThemedParticles.LaCampanellaBloomBurst(target.Center, 0.55f);
-            ThemedParticles.LaCampanellaMusicNotes(target.Center, 4, 25f);
+            // Signature hit effect (smoke + sparkle combo)
+            ThemedParticles.LaCampanellaSignatureHit(target.Center, hitDir, 0.7f);
             
-            // === RADIAL FLARE BURST ON HIT ===
-            for (int f = 0; f < 6; f++)
-            {
-                Vector2 flarePos = target.Center + (MathHelper.TwoPi * f / 6).ToRotationVector2() * 18f;
-                Color flareColor = Main.rand.Next(3) switch { 0 => ThemedParticles.CampanellaYellow, 1 => ThemedParticles.CampanellaOrange, _ => ThemedParticles.CampanellaGold };
-                CustomParticles.GenericFlare(flarePos, flareColor, 0.45f, 14);
-            }
+            // Music notes - musical identity
+            ThemedParticles.LaCampanellaMusicNotes(target.Center, 3, 22f);
             
-            // === PRISMATIC SPARKLES ON HIT ===
-            ThemedParticles.LaCampanellaPrismaticSparkles(target.Center, 4, 0.5f);
+            // Single clean halo ring with gradient
+            CustomParticles.HaloRing(target.Center, Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, 0.6f), 0.35f, 14);
             
-            // Halo rings on hit
-            CustomParticles.HaloRing(target.Center, ThemedParticles.CampanellaOrange, 0.45f, 15);
-            CustomParticles.HaloRing(target.Center, Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, 0.5f), 0.35f, 13);
-            CustomParticles.HaloRing(target.Center, ThemedParticles.CampanellaBlack, 0.25f, 10);
+            Lighting.AddLight(target.Center, 0.7f, 0.35f, 0.1f);
             
-            // Flares around impact with BLACK ↁEORANGE gradient
-            for (int i = 0; i < 4; i++)
-            {
-                float progress = (float)i / 4f;
-                Color flareColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, progress);
-                CustomParticles.GenericFlare(target.Center + Main.rand.NextVector2Circular(20f, 20f), flareColor, 0.35f, 12);
-            }
-            
-            // === GLYPH IMPACT - ARCANE RESONANCE ===
-            if (CustomParticleSystem.TexturesLoaded)
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    float glyphAngle = MathHelper.TwoPi * i / 4f + Main.GameUpdateCount * 0.05f;
-                    Vector2 glyphPos = target.Center + glyphAngle.ToRotationVector2() * 28f;
-                    Color glyphColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, (float)i / 4f) * 0.65f;
-                    CustomParticles.Glyph(glyphPos, glyphColor, 0.24f, -1);
-                }
-            }
-            
-            // Screen shake on hit
-            // REMOVED: Screen shake disabled for La Campanella weapons
-            // player.GetModPlayer<ScreenShakePlayer>()?.AddShake(2f, 4);
-            
-            Lighting.AddLight(target.Center, 0.8f, 0.4f, 0.1f);
-            
-            // Spawn seeking crystals on crit - Infernal Bell power
+            // Spawn seeking crystals on crit
             if (hit.Crit)
             {
                 SeekingCrystalHelper.SpawnLaCampanellaCrystals(
@@ -225,22 +228,19 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void HoldItem(Player player)
         {
-            // === UnifiedVFX LA CAMPANELLA AURA ===
-            UnifiedVFX.LaCampanella.Aura(player.Center, 30f, 0.3f);
+            // === CLEAN HOLD AURA - SUBTLE BUT PRESENT ===
+            UnifiedVFX.LaCampanella.Aura(player.Center, 28f, 0.25f);
             
-            // === SIGNATURE HOLD AURA - VIBRANT PARTICLES WHILE HELD! ===
-            ThemedParticles.LaCampanellaHoldAura(player.Center, 0.85f);
-            
-            // Ambient fire particles
-            if (Main.rand.NextBool(10))
+            // Ambient fire particles (subtle)
+            if (Main.rand.NextBool(12))
             {
-                ThemedParticles.LaCampanellaAura(player.Center, 28f);
+                ThemedParticles.LaCampanellaAura(player.Center, 25f);
             }
             
             // Gradient light
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.9f;
             Vector3 lightColor = Color.Lerp(UnifiedVFX.LaCampanella.Black, UnifiedVFX.LaCampanella.Orange, 0.6f).ToVector3();
-            Lighting.AddLight(player.Center, lightColor * pulse * 0.55f);
+            Lighting.AddLight(player.Center, lightColor * pulse * 0.45f);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)

@@ -132,8 +132,9 @@ namespace MagnumOpus.Content.Winter.Bosses
 
         public override void SetDefaults()
         {
-            NPC.width = 115;
-            NPC.height = 130;
+            // Hitbox = 80% of sprite size (540x457)
+            NPC.width = 432;
+            NPC.height = 365;
             NPC.damage = BaseDamage;
             NPC.defense = 45; // Post-Mechanical Bosses tier
             NPC.lifeMax = 65000; // Post-Mechanical Bosses tier (comparable to Plantera 30k, Duke Fishron 50k)

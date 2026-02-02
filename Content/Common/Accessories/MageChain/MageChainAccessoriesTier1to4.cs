@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -33,6 +34,14 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             // +50% mana regen while in overflow is handled by the OverflowPlayer
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables Mana Overflow: cast spells into negative mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -20 mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "While in negative mana: -25% magic damage, +50% mana regeneration"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The first step into the void between notes'") { OverrideColor = new Color(150, 200, 100) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -65,6 +74,14 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             overflowPlayer.hasSpringArcaneConduit = true;
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables Mana Overflow: cast spells into negative mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -40 mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "While in negative mana: spells leave healing petal trails"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring's renewal flows even through emptiness'") { OverrideColor = new Color(150, 200, 100) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -99,6 +116,14 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             overflowPlayer.hasSolarManaCrucible = true;
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables Mana Overflow: cast spells into negative mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -60 mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "While in negative mana: spells inflict 'Sunburn' debuff on enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Summer's heat burns brightest in the depths of absence'") { OverrideColor = new Color(150, 200, 100) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -134,6 +159,14 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             overflowPlayer.hasHarvestSoulVessel = true;
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables Mana Overflow: cast spells into negative mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -80 mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Killing enemies while in negative mana restores +15 mana instantly"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Autumn reaps what spring has sown, even from the void'") { OverrideColor = new Color(150, 200, 100) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -170,6 +203,14 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             overflowPlayer.hasPermafrostVoidHeart = true;
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables Mana Overflow: cast spells into negative mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -100 mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "While in negative mana: spells deal +15% damage"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Winter's heart beats coldest where mana cannot reach'") { OverrideColor = new Color(150, 200, 100) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -207,6 +248,14 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             overflowPlayer.hasVivaldisHarmonicCore = true;
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables Mana Overflow: cast spells into negative mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -120 mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Recovering from negative mana releases a seasonal burst of energy"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Four seasons dance as one within the spaces between sound'") { OverrideColor = new Color(150, 200, 100) });
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()

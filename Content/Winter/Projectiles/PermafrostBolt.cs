@@ -23,6 +23,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
         private static readonly Color FrostWhite = new Color(240, 250, 255);
         private static readonly Color GlacialPurple = new Color(120, 130, 200);
         private static readonly Color CrystalCyan = new Color(100, 255, 255);
+        private static readonly Color DeepBlue = new Color(60, 90, 180);
 
         public override void SetStaticDefaults()
         {
@@ -45,43 +46,74 @@ namespace MagnumOpus.Content.Winter.Projectiles
             Projectile.extraUpdates = 1;
         }
 
+        private float frostOrbitAngle = 0f;
+
         public override void AI()
         {
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
+            frostOrbitAngle += 0.12f;
 
-            // Magic frost trail
+            // === VFX: GLACIAL AURORA TRAIL ===
+            // Shimmering aurora-like particles trail behind
             if (Main.rand.NextBool(2))
             {
-                Vector2 trailPos = Projectile.Center + Main.rand.NextVector2Circular(6f, 6f);
-                Vector2 trailVel = -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(1.5f, 1.5f);
-                Color trailColor = Color.Lerp(GlacialPurple, IceBlue, Main.rand.NextFloat()) * 0.5f;
-                var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.22f, 16, true);
+                float auroraHue = (Main.GameUpdateCount * 0.01f + Main.rand.NextFloat() * 0.2f) % 0.3f + 0.5f; // Blue-purple range
+                Vector2 trailPos = Projectile.Center + Main.rand.NextVector2Circular(7f, 7f);
+                Vector2 trailVel = -Projectile.velocity * 0.11f + Main.rand.NextVector2Circular(1.8f, 1.8f);
+                Color trailColor = Color.Lerp(GlacialPurple, IceBlue, Main.rand.NextFloat()) * 0.55f;
+                var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.24f, 18, true);
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
-            // Arcane rune sparkles
-            if (Main.rand.NextBool(6))
+            // === VFX: ARCANE FROST RUNES ===
+            // Magical runes orbit the frost bolt
+            if (Main.GameUpdateCount % 8 == 0)
             {
-                CustomParticles.GenericFlare(Projectile.Center, GlacialPurple * 0.5f, 0.18f, 10);
+                for (int r = 0; r < 2; r++)
+                {
+                    float runeAngle = frostOrbitAngle + MathHelper.Pi * r;
+                    float runeRadius = 12f + (float)Math.Sin(Main.GameUpdateCount * 0.1f + r) * 3f;
+                    Vector2 runePos = Projectile.Center + runeAngle.ToRotationVector2() * runeRadius;
+                    Color runeColor = r == 0 ? GlacialPurple * 0.6f : DeepBlue * 0.55f;
+                    CustomParticles.GenericFlare(runePos, runeColor, 0.2f, 10);
+                }
             }
 
-            // ☁EMUSICAL NOTATION - VISIBLE frost crystals sing (scale 0.7f+)
+            // === VFX: FROST MIST CLOUD ===
+            // Cold mist surrounds the bolt
+            if (Main.rand.NextBool(3))
+            {
+                float mistAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                float mistRadius = Main.rand.NextFloat(8f, 16f);
+                Vector2 mistPos = Projectile.Center + mistAngle.ToRotationVector2() * mistRadius;
+                Vector2 mistVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-0.3f, 0.8f));
+                Color mistColor = FrostWhite * 0.35f;
+                var mist = new GenericGlowParticle(mistPos, mistVel, mistColor, 0.15f, 25, true);
+                MagnumParticleHandler.SpawnParticle(mist);
+            }
+
+            // Arcane rune sparkles - enhanced
+            if (Main.rand.NextBool(5))
+            {
+                CustomParticles.GenericFlare(Projectile.Center, GlacialPurple * 0.55f, 0.2f, 12);
+            }
+
+            // Frost crystals sing - VISIBLE (scale 0.78f)
             if (Main.rand.NextBool(5))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
-                // Scale 0.7f makes notes VISIBLE!
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, IceBlue * 0.7f, 0.7f, 40);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, IceBlue * 0.75f, 0.78f, 42);
             }
             
-            // Prismatic sparkle for magical shimmer
-            if (Main.rand.NextBool(4))
+            // Prismatic sparkle for magical shimmer - enhanced
+            if (Main.rand.NextBool(3))
             {
-                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(5f, 5f),
-                    -Projectile.velocity * 0.1f, FrostWhite * 0.5f, 0.22f, 14);
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    -Projectile.velocity * 0.12f, FrostWhite * 0.55f, 0.25f, 16);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
-            Lighting.AddLight(Projectile.Center, GlacialPurple.ToVector3() * 0.4f);
+            Lighting.AddLight(Projectile.Center, GlacialPurple.ToVector3() * 0.45f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)

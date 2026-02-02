@@ -132,6 +132,65 @@ namespace MagnumOpus.Content.Spring.Weapons
             SpectacularMeleeSwing.OnSwing(player, hitbox, SpringPink, SpringGreen, 
                 SpectacularMeleeSwing.SwingTier.Basic, SpectacularMeleeSwing.WeaponTheme.Spring);
 
+            // === IRIDESCENT WINGSPAN-STYLE HEAVY DUST TRAILS ===
+            // Heavy pink dust trail #1
+            float trailProgress1 = Main.rand.NextFloat();
+            Color pinkGradient = Color.Lerp(SpringPink, SpringWhite, trailProgress1);
+            Dust heavyPink = Dust.NewDustDirect(new Vector2(hitbox.X, hitbox.Y), hitbox.Width, hitbox.Height, 
+                DustID.PinkFairy, player.velocity.X * 0.3f, player.velocity.Y * 0.3f, 100, pinkGradient, 1.4f);
+            heavyPink.noGravity = true;
+            heavyPink.fadeIn = 1.4f;
+            heavyPink.velocity = heavyPink.velocity.RotatedByRandom(0.3f) * Main.rand.NextFloat(1.2f, 1.8f);
+            
+            // Heavy green dust trail #2
+            float trailProgress2 = Main.rand.NextFloat();
+            Color greenGradient = Color.Lerp(SpringGreen, SpringWhite, trailProgress2);
+            Dust heavyGreen = Dust.NewDustDirect(new Vector2(hitbox.X, hitbox.Y), hitbox.Width, hitbox.Height, 
+                DustID.GreenFairy, player.velocity.X * 0.25f, player.velocity.Y * 0.25f, 80, greenGradient, 1.3f);
+            heavyGreen.noGravity = true;
+            heavyGreen.fadeIn = 1.3f;
+            heavyGreen.velocity = heavyGreen.velocity.RotatedByRandom(0.4f) * Main.rand.NextFloat(1.0f, 1.6f);
+            
+            // === CONTRASTING WHITE SPARKLES (1-in-2) ===
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 sparklePos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                CustomParticles.PrismaticSparkle(sparklePos, SpringWhite, 0.3f);
+                
+                Dust whiteDust = Dust.NewDustDirect(sparklePos, 1, 1, DustID.WhiteTorch, 0f, 0f, 100, default, 0.8f);
+                whiteDust.noGravity = true;
+                whiteDust.velocity = Main.rand.NextVector2Circular(2f, 2f);
+            }
+            
+            // === SPRING SHIMMER TRAIL (Main.hslToRgb in pink-green range) (1-in-3) ===
+            if (Main.rand.NextBool(3))
+            {
+                // Spring shimmer - cycling through pink to green hues (0.85-1.0 and 0.25-0.35 hue range)
+                float springHue = Main.rand.NextBool() ? (0.85f + (Main.GameUpdateCount * 0.015f % 0.15f)) : (0.25f + (Main.GameUpdateCount * 0.015f % 0.1f));
+                springHue = springHue % 1f;
+                Color shimmerColor = Main.hslToRgb(springHue, 0.8f, 0.75f);
+                Vector2 shimmerPos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                CustomParticles.GenericFlare(shimmerPos, shimmerColor, 0.35f, 12);
+            }
+            
+            // === PEARLESCENT BLOSSOM EFFECTS (1-in-4) ===
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 pearlPos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                float pearlShift = (Main.GameUpdateCount * 0.02f) % 1f;
+                Color pearlColor = Color.Lerp(Color.Lerp(SpringPink, SpringWhite, pearlShift), 
+                    SpringGreen, (float)Math.Sin(pearlShift * MathHelper.TwoPi) * 0.3f + 0.3f);
+                CustomParticles.GenericFlare(pearlPos, pearlColor * 0.8f, 0.28f, 15);
+            }
+            
+            // === FREQUENT FLARES (1-in-2) ===
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 flarePos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                Color flareColor = Color.Lerp(SpringPink, SpringGreen, Main.rand.NextFloat());
+                CustomParticles.GenericFlare(flarePos, flareColor, 0.32f, 10);
+            }
+
             // Cherry blossom petal trail - dense and beautiful
             for (int i = 0; i < 3; i++)
             {
@@ -143,30 +202,13 @@ namespace MagnumOpus.Content.Spring.Weapons
                 MagnumParticleHandler.SpawnParticle(petal);
             }
 
-            // Sparkle accents
-            if (Main.rand.NextBool(3))
-            {
-                Vector2 sparklePos = hitCenter + Main.rand.NextVector2Circular(20f, 20f);
-                CustomParticles.GenericFlare(sparklePos, SpringWhite, 0.3f, 12);
-            }            
-            // Music notes in swing trail
-            if (Main.rand.NextBool(3))
+            // === MUSIC NOTES (1-in-6) ===
+            if (Main.rand.NextBool(6))
             {
                 Vector2 notePos = hitCenter + Main.rand.NextVector2Circular(8f, 8f);
                 Vector2 noteVel = (player.direction * Vector2.UnitX).RotatedByRandom(0.5f) * Main.rand.NextFloat(1f, 2.5f);
                 Color noteColor = Color.Lerp(SpringPink, SpringGreen, Main.rand.NextFloat());
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor * 0.85f, 0.75f, 30);
-                
-                // Sparkle companion
-                var sparkle = new SparkleParticle(notePos, noteVel * 0.5f, SpringWhite * 0.5f, 0.2f, 16);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-            // Light green nature energy trails
-            if (Main.rand.NextBool(4))
-            {
-                Vector2 trailPos = hitCenter + Main.rand.NextVector2Circular(15f, 15f);
-                var greenTrail = new GenericGlowParticle(trailPos, -player.velocity * 0.1f, SpringGreen * 0.6f, 0.25f, 20, true);
-                MagnumParticleHandler.SpawnParticle(greenTrail);
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor * 0.9f, 0.8f, 32);
             }
         }
 
@@ -174,15 +216,40 @@ namespace MagnumOpus.Content.Spring.Weapons
         {
             hitCounter++;
 
-            // Impact VFX - petal burst with sparkles
-            CustomParticles.GenericFlare(target.Center, SpringPink, 0.6f, 18);
-            CustomParticles.GenericFlare(target.Center, SpringWhite * 0.7f, 0.4f, 12);
+            // === IRIDESCENT WINGSPAN-STYLE GRADIENT HALO RINGS (3 stacked) ===
+            CustomParticles.HaloRing(target.Center, SpringPink, 0.45f, 14);
+            CustomParticles.HaloRing(target.Center, SpringWhite, 0.35f, 12);
+            CustomParticles.HaloRing(target.Center, SpringGreen, 0.25f, 10);
             
-            // Sparkle accents instead of halo
-            for (int s = 0; s < 4; s++)
+            // Impact VFX - petal burst with flares
+            CustomParticles.GenericFlare(target.Center, SpringPink, 0.6f, 18);
+            CustomParticles.GenericFlare(target.Center, SpringWhite * 0.8f, 0.45f, 14);
+            
+            // === SPRING SHIMMER FLARE BURST (8 flares) ===
+            for (int i = 0; i < 8; i++)
             {
-                Vector2 sparkleOffset = Main.rand.NextVector2Circular(15f, 15f);
-                CustomParticles.GenericFlare(target.Center + sparkleOffset, CherryBlossom * 0.8f, 0.2f, 10);
+                float springHue = Main.rand.NextBool() ? (0.9f + Main.rand.NextFloat(0.1f)) % 1f : 0.28f + Main.rand.NextFloat(0.07f);
+                Color shimmerColor = Main.hslToRgb(springHue, 0.8f, 0.8f);
+                Vector2 flarePos = target.Center + Main.rand.NextVector2Circular(18f, 18f);
+                CustomParticles.GenericFlare(flarePos, shimmerColor, 0.35f, 14);
+            }
+            
+            // === RADIAL DUST EXPLOSION (12 dust particles) ===
+            for (int i = 0; i < 12; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 12f;
+                Vector2 dustVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
+                
+                Dust pinkDust = Dust.NewDustDirect(target.Center, 1, 1, DustID.PinkFairy, dustVel.X, dustVel.Y, 100, default, 1.3f);
+                pinkDust.noGravity = true;
+                pinkDust.fadeIn = 1.2f;
+            }
+            
+            // === CONTRASTING WHITE SPARKLES (4 sparkles) ===
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 sparklePos = target.Center + Main.rand.NextVector2Circular(22f, 22f);
+                CustomParticles.PrismaticSparkle(sparklePos, SpringWhite, 0.3f);
             }
             
             // Scatter petals on hit
@@ -191,25 +258,21 @@ namespace MagnumOpus.Content.Spring.Weapons
                 float angle = MathHelper.TwoPi * i / 6f;
                 Vector2 petalVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
                 Color petalColor = Color.Lerp(SpringPink, SpringWhite, Main.rand.NextFloat());
-                var petal = new GenericGlowParticle(target.Center, petalVel, petalColor, 0.3f, 25, true);
+                var petal = new GenericGlowParticle(target.Center, petalVel, petalColor, 0.35f, 28, true);
                 MagnumParticleHandler.SpawnParticle(petal);
             }
             
-            // Music notes spiral outward on impact
+            // === MUSIC NOTES BURST (4 notes) ===
             for (int i = 0; i < 4; i++)
             {
-                float noteAngle = MathHelper.TwoPi * i / 4f + Main.rand.NextFloat(-0.2f, 0.2f);
+                float noteAngle = MathHelper.TwoPi * i / 4f;
                 Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(2f, 3.5f);
-                Color noteColor = Color.Lerp(SpringPink, SpringGreen, (float)i / 4f);
-                ThemedParticles.MusicNote(target.Center, noteVel, noteColor, 0.7f, 32);
+                Color noteColor = Color.Lerp(SpringPink, SpringGreen, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(target.Center, noteVel, noteColor, 0.85f, 30);
             }
-            
-            // Sparkle accents on impact
-            for (int i = 0; i < 2; i++)
             {
-                var sparkle = new SparkleParticle(target.Center + Main.rand.NextVector2Circular(10f, 10f),
-                    Main.rand.NextVector2Circular(2f, 2f), SpringWhite * 0.6f, 0.22f, 16);
-                MagnumParticleHandler.SpawnParticle(sparkle);
+                Vector2 noteVel = Main.rand.NextVector2Circular(2f, 2f);
+                ThemedParticles.MusicNote(target.Center, noteVel, SpringPink * 0.8f, 0.65f, 25);
             }
 
             // Renewal Strike: Every 5th hit heals 8 HP
@@ -218,30 +281,17 @@ namespace MagnumOpus.Content.Spring.Weapons
                 hitCounter = 0;
                 player.Heal(8);
                 
-                // Healing VFX - layered bloom instead of halo
-                CustomParticles.GenericFlare(player.Center, Color.White, 0.9f, 22);
-                CustomParticles.GenericFlare(player.Center, SpringGreen, 0.8f, 25);
-                CustomParticles.GenericFlare(player.Center, SpringGreen * 0.6f, 0.5f, 18);
+                // Simple healing VFX - EARLY GAME
+                CustomParticles.GenericFlare(player.Center, SpringGreen, 0.5f, 18);
                 
-                // Healing sparkle ring
-                for (int s = 0; s < 6; s++)
+                // Few rising particles
+                for (int i = 0; i < 3; i++)
                 {
-                    float sparkleAngle = MathHelper.TwoPi * s / 6f;
-                    Vector2 sparklePos = player.Center + sparkleAngle.ToRotationVector2() * 20f;
-                    CustomParticles.GenericFlare(sparklePos, SpringGreen * 0.9f, 0.3f, 15);
-                }
-                
-                // Green healing particles rising
-                for (int i = 0; i < 8; i++)
-                {
-                    Vector2 healPos = player.Center + Main.rand.NextVector2Circular(20f, 20f);
-                    Vector2 healVel = new Vector2(Main.rand.NextFloat(-1f, 1f), -Main.rand.NextFloat(2f, 4f));
-                    var healParticle = new GenericGlowParticle(healPos, healVel, SpringGreen, 0.4f, 30, true);
+                    Vector2 healPos = player.Center + Main.rand.NextVector2Circular(15f, 15f);
+                    Vector2 healVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(1.5f, 2.5f));
+                    var healParticle = new GenericGlowParticle(healPos, healVel, SpringGreen * 0.7f, 0.25f, 22, true);
                     MagnumParticleHandler.SpawnParticle(healParticle);
                 }
-                
-                // Healing music note ring
-                ThemedParticles.MusicNoteRing(player.Center, SpringGreen, 35f, 6);
                 
                 CombatText.NewText(player.Hitbox, SpringGreen, "Renewal!");
             }
@@ -254,46 +304,18 @@ namespace MagnumOpus.Content.Spring.Weapons
                     player.GetSource_OnHit(target), target.Center, (target.Center - player.Center).SafeNormalize(Vector2.Zero) * 4f, 
                     (int)(damageDone * 0.4f), hit.Knockback, player.whoAmI, 4);
                 
-                // Massive petal explosion
-                CustomParticles.GenericFlare(target.Center, Color.White, 1.0f, 20);
-                CustomParticles.GenericFlare(target.Center, SpringPink, 0.8f, 18);
+                // Simple crit flash - EARLY GAME
+                CustomParticles.GenericFlare(target.Center, SpringPink, 0.6f, 16);
+                CustomParticles.HaloRing(target.Center, SpringGreen * 0.5f, 0.35f, 14);
                 
-                // Cascading bloom flares instead of halo rings
-                for (int ring = 0; ring < 4; ring++)
+                // Modest petal burst
+                for (int i = 0; i < 5; i++)
                 {
-                    Color ringColor = Color.Lerp(SpringPink, SpringGreen, ring / 4f);
-                    float ringScale = 0.5f + ring * 0.15f;
-                    CustomParticles.GenericFlare(target.Center, ringColor * 0.7f, ringScale, 15 + ring * 3);
-                    
-                    // Scattered sparkles at ring radius
-                    for (int s = 0; s < 3; s++)
-                    {
-                        float sparkAngle = MathHelper.TwoPi * s / 3f + ring * 0.5f;
-                        Vector2 sparkPos = target.Center + sparkAngle.ToRotationVector2() * (25f + ring * 12f);
-                        CustomParticles.GenericFlare(sparkPos, ringColor * 0.8f, 0.25f, 12 + ring * 2);
-                    }
-                }
-                
-                // Petal explosion burst
-                for (int i = 0; i < 12; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 12f;
-                    Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
-                    Color burstColor = Color.Lerp(SpringPink, SpringWhite, Main.rand.NextFloat());
-                    var burst = new GenericGlowParticle(target.Center, burstVel, burstColor, 0.4f, 30, true);
+                    float angle = MathHelper.TwoPi * i / 5f;
+                    Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 5f);
+                    Color burstColor = Color.Lerp(SpringPink, SpringGreen, Main.rand.NextFloat()) * 0.6f;
+                    var burst = new GenericGlowParticle(target.Center, burstVel, burstColor, 0.25f, 20, true);
                     MagnumParticleHandler.SpawnParticle(burst);
-                }
-                
-                // Music note ring and burst for Spring Bloom
-                ThemedParticles.MusicNoteRing(target.Center, SpringPink, 50f, 8);
-                ThemedParticles.MusicNoteBurst(target.Center, SpringGreen, 6, 5f);
-                
-                // Sparkle starburst
-                for (int i = 0; i < 8; i++)
-                {
-                    var sparkle = new SparkleParticle(target.Center, (MathHelper.TwoPi * i / 8f).ToRotationVector2() * 4f,
-                        SpringWhite * 0.7f, 0.28f, 22);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
                 }
 
                 // Deal AoE damage (50% of hit damage)

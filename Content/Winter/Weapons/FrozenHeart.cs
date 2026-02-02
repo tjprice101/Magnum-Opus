@@ -52,26 +52,57 @@ namespace MagnumOpus.Content.Winter.Weapons
 
         public override void HoldItem(Player player)
         {
-            // Frozen heart pulse effect
-            if (Main.rand.NextBool(10))
+            // ========== IRIDESCENT WINGSPAN VFX PATTERN ==========
+            // HEAVY DUST TRAILS - 2+ per frame (deep blue/ice dust)
+            for (int d = 0; d < 2; d++)
             {
-                Vector2 heartPos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                Vector2 heartVel = new Vector2(0, Main.rand.NextFloat(-1f, -0.3f));
-                Color heartColor = Color.Lerp(DeepBlue, IceBlue, Main.rand.NextFloat()) * 0.35f;
-                var heart = new GenericGlowParticle(heartPos, heartVel, heartColor, 0.2f, 28, true);
-                MagnumParticleHandler.SpawnParticle(heart);
+                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(26f, 26f);
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.IceTorch, Main.rand.NextVector2Circular(0.45f, 0.45f) + new Vector2(0, -0.35f), 0, DeepBlue, Main.rand.NextFloat(0.95f, 1.3f));
+                dust.noGravity = true;
+                dust.fadeIn = 1.4f;
+            }
+            
+            // CONTRASTING SPARKLES - bright white/cyan crystalline
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(28f, 28f);
+                Color sparkleColor = Main.rand.NextBool() ? FrostWhite : CrystalCyan;
+                CustomParticles.PrismaticSparkle(sparklePos, sparkleColor, Main.rand.NextFloat(0.35f, 0.5f));
+            }
+            
+            // SHIMMER TRAILS - icy motes rising with color cycling
+            if (Main.rand.NextBool(3))
+            {
+                float hue = 0.58f + Main.rand.NextFloat(0.05f); // Deep blue range
+                Color shimmerColor = Main.hslToRgb(hue, 0.6f, 0.7f);
+                Vector2 shimmerPos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                Vector2 shimmerVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.6f, -0.2f));
+                var shimmer = new GenericGlowParticle(shimmerPos, shimmerVel, shimmerColor * 0.5f, 0.24f, 20, true);
+                MagnumParticleHandler.SpawnParticle(shimmer);
+            }
+            
+            // MUSIC NOTES - visible scale with heart-beat sync
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(34f, 34f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-0.7f, -0.2f));
+                Color noteColor = Color.Lerp(DeepBlue, IceBlue, Main.rand.NextFloat(0.5f));
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, Main.rand.NextFloat(0.85f, 1.0f), 26);
+            }
+            
+            // ORBITING ICE MOTES - crystalline heart aura
+            if (Main.rand.NextBool(4))
+            {
+                float orbitAngle = Main.GameUpdateCount * 0.04f + Main.rand.NextFloat(MathHelper.TwoPi);
+                float orbitRadius = 36f + Main.rand.NextFloat(14f);
+                Vector2 orbitPos = player.Center + orbitAngle.ToRotationVector2() * orbitRadius;
+                Color orbitColor = Color.Lerp(DeepBlue, IceBlue, Main.rand.NextFloat()) * 0.5f;
+                var mote = new GenericGlowParticle(orbitPos, Vector2.Zero, orbitColor, 0.2f, 14, true);
+                MagnumParticleHandler.SpawnParticle(mote);
             }
 
-            // Floating winter melody notes (drifting like snowflakes)
-            if (Main.rand.NextBool(12))
-            {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), Main.rand.NextFloat(0.1f, 0.5f)); // Gentle downward drift
-                Color noteColor = Color.Lerp(new Color(150, 200, 255), new Color(240, 250, 255), Main.rand.NextFloat()) * 0.6f;
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 40);
-            }
-
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.1f + 0.35f;
+            // Enhanced dynamic heartbeat lighting
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.12f + 0.5f;
             Lighting.AddLight(player.Center, DeepBlue.ToVector3() * pulse);
         }
 
@@ -81,38 +112,61 @@ namespace MagnumOpus.Content.Winter.Weapons
             player.AddBuff(Item.buffType, 2);
 
             // Spawn sentinel around player
-            float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
-            Vector2 spawnPos = player.Center + angle.ToRotationVector2() * 60f;
+            float spawnAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+            Vector2 spawnPos = player.Center + spawnAngle.ToRotationVector2() * 60f;
 
             Projectile.NewProjectile(source, spawnPos, Vector2.Zero, type, damage, knockback, player.whoAmI);
 
-            // Summon VFX
-            CustomParticles.GenericFlare(spawnPos, FrostWhite, 0.85f, 25);
-            // Frost sparkle burst 
-            var frostSparkle1 = new SparkleParticle(spawnPos, Vector2.Zero, IceBlue * 0.6f, 0.55f * 0.6f, 20);
-            MagnumParticleHandler.SpawnParticle(frostSparkle1);
-            var frostSparkle2 = new SparkleParticle(spawnPos, Vector2.Zero, DeepBlue * 0.4f, 0.4f * 0.6f, 16);
-            MagnumParticleHandler.SpawnParticle(frostSparkle2);
-
-            // Music note ring and burst for summon
-            ThemedParticles.MusicNoteRing(spawnPos, new Color(150, 200, 255), 40f, 6);
-            ThemedParticles.MusicNoteBurst(spawnPos, new Color(240, 250, 255), 5, 4f);
-
-            // Icy sparkle accents
-            for (int j = 0; j < 5; j++)
+            // ========== SENTINEL SUMMONING SPECTACULAR VFX ==========
+            // MULTI-LAYER FLARES - white core → ice → deep blue
+            CustomParticles.GenericFlare(spawnPos, FrostWhite, 1.0f, 24);
+            CustomParticles.GenericFlare(spawnPos, IceBlue, 0.75f, 22);
+            CustomParticles.GenericFlare(spawnPos, DeepBlue, 0.55f, 20);
+            
+            // GRADIENT HALO CASCADE - 6 layers IceBlue → DeepBlue
+            for (int i = 0; i < 6; i++)
             {
-                var sparkle = new SparkleParticle(spawnPos + Main.rand.NextVector2Circular(15f, 15f),
-                    Main.rand.NextVector2Circular(2f, 2f), new Color(240, 250, 255) * 0.6f, 0.22f, 18);
-                MagnumParticleHandler.SpawnParticle(sparkle);
+                float progress = i / 5f;
+                Color haloColor = Color.Lerp(IceBlue, DeepBlue, progress);
+                float haloScale = 0.35f + i * 0.1f;
+                int haloLife = 14 + i * 2;
+                CustomParticles.HaloRing(spawnPos, haloColor * (0.7f - progress * 0.3f), haloScale, haloLife);
             }
-
-            for (int i = 0; i < 10; i++)
+            
+            // RADIAL ICE DUST BURST - frozen materialization
+            for (int i = 0; i < 14; i++)
             {
-                float sparkAngle = MathHelper.TwoPi * i / 10f;
-                Vector2 sparkVel = sparkAngle.ToRotationVector2() * Main.rand.NextFloat(4f, 7f);
-                Color sparkColor = Color.Lerp(IceBlue, CrystalCyan, (float)i / 10f) * 0.55f;
-                var spark = new GenericGlowParticle(spawnPos, sparkVel, sparkColor, 0.28f, 20, true);
+                float angle = MathHelper.TwoPi * i / 14f;
+                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
+                Dust iceDust = Dust.NewDustPerfect(spawnPos, DustID.IceTorch, burstVel, 0, DeepBlue, Main.rand.NextFloat(1.1f, 1.5f));
+                iceDust.noGravity = true;
+                iceDust.fadeIn = 1.3f;
+            }
+            
+            // GLOW PARTICLE CORONA
+            for (int i = 0; i < 8; i++)
+            {
+                Vector2 sparkVel = Main.rand.NextVector2Circular(7f, 7f);
+                Color sparkColor = Color.Lerp(IceBlue, CrystalCyan, Main.rand.NextFloat()) * 0.55f;
+                var spark = new GenericGlowParticle(spawnPos, sparkVel, sparkColor, 0.26f, 18, true);
                 MagnumParticleHandler.SpawnParticle(spark);
+            }
+            
+            // MUSIC NOTE CHORUS - summoning harmony
+            for (int i = 0; i < 4; i++)
+            {
+                float noteAngle = MathHelper.TwoPi * i / 4f + Main.rand.NextFloat(0.3f);
+                Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(1.2f, 2.8f);
+                Color noteColor = Color.Lerp(DeepBlue, IceBlue, Main.rand.NextFloat(0.5f));
+                ThemedParticles.MusicNote(spawnPos, noteVel, noteColor, Main.rand.NextFloat(0.88f, 1.05f), 26);
+            }
+            
+            // SPARKLE RING - crystalline emergence
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 sparklePos = spawnPos + Main.rand.NextVector2Circular(22f, 22f);
+                Color sparkleColor = Main.rand.NextBool() ? FrostWhite : CrystalCyan;
+                CustomParticles.PrismaticSparkle(sparklePos, sparkleColor, Main.rand.NextFloat(0.4f, 0.58f));
             }
 
             return false;

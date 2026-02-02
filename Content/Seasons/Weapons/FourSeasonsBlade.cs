@@ -101,48 +101,27 @@ namespace MagnumOpus.Content.Seasons.Weapons
             Color primaryColor = GetCurrentSeasonColor();
             Color secondaryColor = GetCurrentSeasonSecondary();
 
-            if (Main.rand.NextBool(6))
+            if (Main.rand.NextBool(15))
             {
                 float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
-                float radius = Main.rand.NextFloat(35f, 55f);
+                float radius = Main.rand.NextFloat(35f, 50f);
                 Vector2 particlePos = player.Center + angle.ToRotationVector2() * radius;
-                Vector2 particleVel = angle.ToRotationVector2() * Main.rand.NextFloat(1f, 2f);
-                Color particleColor = Color.Lerp(primaryColor, secondaryColor, Main.rand.NextFloat()) * 0.4f;
-                var particle = new GenericGlowParticle(particlePos, particleVel, particleColor, 0.25f, 25, true);
+                Vector2 particleVel = angle.ToRotationVector2() * Main.rand.NextFloat(1f, 1.5f);
+                Color particleColor = Color.Lerp(primaryColor, secondaryColor, Main.rand.NextFloat()) * 0.35f;
+                var particle = new GenericGlowParticle(particlePos, particleVel, particleColor, 0.22f, 22, true);
                 MagnumParticleHandler.SpawnParticle(particle);
-                
-                // ☁ESPARKLE ACCENT
-                var sparkle = new SparkleParticle(particlePos, particleVel * 0.5f, secondaryColor * 0.5f, 0.25f, 20);
-                MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
-            // ☁EMUSICAL NOTATION - Seasonal melody orbits the blade! - VISIBLE SCALE 0.7f+
-            if (Main.rand.NextBool(10))
+            // Musical notation - visible scale 0.7f+
+            if (Main.rand.NextBool(20))
             {
                 float noteAngle = Main.GameUpdateCount * 0.04f + Main.rand.NextFloat(MathHelper.TwoPi);
-                Vector2 notePos = player.Center + noteAngle.ToRotationVector2() * 45f;
-                Vector2 noteVel = new Vector2(0, Main.rand.NextFloat(-1.2f, -0.4f));
-                ThemedParticles.MusicNote(notePos, noteVel, primaryColor, 0.7f, 35);
+                Vector2 notePos = player.Center + noteAngle.ToRotationVector2() * 40f;
+                Vector2 noteVel = new Vector2(0, Main.rand.NextFloat(-1f, -0.4f));
+                ThemedParticles.MusicNote(notePos, noteVel, primaryColor, 0.7f, 30);
             }
 
-            // Rainbow seasonal orbit with flares
-            if (Main.rand.NextBool(12))
-            {
-                float orbitAngle = Main.GameUpdateCount * 0.03f;
-                for (int i = 0; i < 4; i++)
-                {
-                    float angle = orbitAngle + MathHelper.PiOver2 * i;
-                    Vector2 orbitPos = player.Center + angle.ToRotationVector2() * 40f;
-                    Color seasonColor = i switch { 0 => SpringPink, 1 => SummerGold, 2 => AutumnOrange, _ => WinterBlue };
-                    CustomParticles.GenericFlare(orbitPos, seasonColor * 0.4f, 0.25f, 12);
-                    
-                    // ☁ESPARKLE at each orbit point
-                    var sparkle = new SparkleParticle(orbitPos, Vector2.Zero, seasonColor * 0.6f, 0.2f, 10);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
-                }
-            }
-
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.15f + 0.5f;
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.12f + 0.45f;
             Lighting.AddLight(player.Center, primaryColor.ToVector3() * pulse);
         }
 
@@ -217,29 +196,29 @@ namespace MagnumOpus.Content.Seasons.Weapons
             }
 
             // Massive VFX burst
-            CustomParticles.GenericFlare(position, Color.White, 1.8f, 40);
-            CustomParticles.GenericFlare(position, Color.White * 0.8f, 1.4f, 35);
+            CustomParticles.GenericFlare(position, Color.White, 1.5f, 35);
+            CustomParticles.GenericFlare(position, Color.White * 0.7f, 1.1f, 30);
             
-            // ☁EMUSICAL CRESCENDO - Grand note explosion! - VISIBLE SCALE 0.8f+
-            for (int n = 0; n < 8; n++)
+            // Musical crescendo - grand note explosion! Visible scale 0.8f+
+            for (int n = 0; n < 4; n++)
             {
-                float noteAngle = MathHelper.TwoPi * n / 8f;
-                Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
-                Color noteColor = (n % 4) switch { 0 => SpringPink, 1 => SummerGold, 2 => AutumnOrange, _ => WinterBlue };
-                ThemedParticles.MusicNote(position, noteVel, noteColor, 0.8f, 40);
+                float noteAngle = MathHelper.TwoPi * n / 4f;
+                Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(3f, 5f);
+                Color noteColor = n switch { 0 => SpringPink, 1 => SummerGold, 2 => AutumnOrange, _ => WinterBlue };
+                ThemedParticles.MusicNote(position, noteVel, noteColor, 0.8f, 35);
             }
             
             // Multi-season halo cascade
-            CustomParticles.HaloRing(position, SpringPink * 0.7f, 0.9f, 28);
-            CustomParticles.HaloRing(position, SummerGold * 0.6f, 0.75f, 25);
-            CustomParticles.HaloRing(position, AutumnOrange * 0.55f, 0.6f, 22);
-            CustomParticles.HaloRing(position, WinterBlue * 0.5f, 0.45f, 20);
+            CustomParticles.HaloRing(position, SpringPink * 0.6f, 0.7f, 24);
+            CustomParticles.HaloRing(position, SummerGold * 0.5f, 0.55f, 21);
+            CustomParticles.HaloRing(position, AutumnOrange * 0.45f, 0.45f, 18);
+            CustomParticles.HaloRing(position, WinterBlue * 0.4f, 0.35f, 16);
 
-            // Seasonal burst particles with sparkle accents
-            for (int i = 0; i < 20; i++)
+            // Seasonal burst particles
+            for (int i = 0; i < 10; i++)
             {
-                float angle = MathHelper.TwoPi * i / 20f;
-                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(8f, 14f);
+                float angle = MathHelper.TwoPi * i / 10f;
+                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(7f, 11f);
                 Color burstColor = (i % 4) switch
                 {
                     0 => SpringPink,
@@ -247,49 +226,48 @@ namespace MagnumOpus.Content.Seasons.Weapons
                     2 => AutumnOrange,
                     _ => WinterBlue
                 };
-                var burst = new GenericGlowParticle(position, burstVel, burstColor * 0.65f, 0.45f, 28, true);
+                var burst = new GenericGlowParticle(position, burstVel, burstColor * 0.55f, 0.38f, 24, true);
                 MagnumParticleHandler.SpawnParticle(burst);
-                
-                // ☁ESPARKLE accent every 4th particle
-                if (i % 4 == 0)
-                {
-                    var sparkle = new SparkleParticle(position, burstVel * 0.7f, burstColor * 0.7f, 0.3f, 22);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
-                }
             }
 
             // Screen effects
-            MagnumScreenEffects.AddScreenShake(10f);
+            MagnumScreenEffects.AddScreenShake(6f);
         }
 
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
             Color primaryColor = GetCurrentSeasonColor();
             Color secondaryColor = GetCurrentSeasonSecondary();
+            Vector2 hitCenter = hitbox.Center.ToVector2();
 
-            // Seasonal trail particles
-            if (Main.rand.NextBool(2))
+            // === SPECTACULAR SWORD ARC SYSTEM - Endgame tier for combined seasonal blade ===
+            SpectacularMeleeSwing.OnSwing(player, hitbox, primaryColor, secondaryColor, 
+                SpectacularMeleeSwing.SwingTier.Endgame, SpectacularMeleeSwing.WeaponTheme.Seasons);
+
+            // Clean, flowing seasonal trail - fewer but more vibrant particles
+            if (Main.rand.NextBool(3))
             {
-                Vector2 trailPos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
-                Vector2 trailVel = player.velocity * 0.2f + Main.rand.NextVector2Circular(2f, 2f);
-                Color trailColor = Color.Lerp(primaryColor, secondaryColor, Main.rand.NextFloat()) * 0.55f;
-                var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.3f, 18, true);
+                Vector2 trailPos = hitCenter + Main.rand.NextVector2Circular(10f, 10f);
+                Vector2 trailVel = player.velocity * 0.15f + Main.rand.NextVector2Circular(1.5f, 1.5f);
+                Color trailColor = Color.Lerp(primaryColor, secondaryColor, Main.rand.NextFloat()) * 0.7f;
+                var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.28f, 16, true);
                 MagnumParticleHandler.SpawnParticle(trail);
-                
-                // ☁ESPARKLE trail accent
-                if (Main.rand.NextBool(3))
-                {
-                    var sparkle = new SparkleParticle(trailPos, trailVel * 0.5f, secondaryColor * 0.5f, 0.22f, 15);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
-                }
             }
             
-            // ☁EMUSICAL NOTATION - Notes dance in the blade's wake! - VISIBLE SCALE 0.68f+
-            if (Main.rand.NextBool(4))
+            // Single clean sparkle accent per swing
+            if (Main.rand.NextBool(5))
             {
-                Vector2 notePos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2f, -0.5f));
-                ThemedParticles.MusicNote(notePos, noteVel, primaryColor * 0.8f, 0.75f, 28);
+                Vector2 sparklePos = hitCenter + Main.rand.NextVector2Circular(15f, 15f);
+                var sparkle = new SparkleParticle(sparklePos, Vector2.Zero, secondaryColor * 0.6f, 0.22f, 12);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // Music notes - elegant, single notes floating in the blade's wake
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 notePos = hitCenter + Main.rand.NextVector2Circular(8f, 8f);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), Main.rand.NextFloat(-1.5f, -0.5f));
+                ThemedParticles.MusicNote(notePos, noteVel, primaryColor * 0.85f, 0.7f, 30);
             }
         }
 

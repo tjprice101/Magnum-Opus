@@ -94,30 +94,17 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             Vector2 hitCenter = hitbox.Center.ToVector2();
             
-            // === SPECTACULAR SWING SYSTEM - ENDGAME TIER (7-8 layered arcs + void effects) ===
+            // === SPECTACULAR SWING SYSTEM - ENDGAME TIER ===
             SpectacularMeleeSwing.OnSwing(player, hitbox, EnigmaPurple, EnigmaGreen, 
                 SpectacularMeleeSwing.SwingTier.Endgame, SpectacularMeleeSwing.WeaponTheme.Enigma);
             
-            // Swing trail when not channeling - void energy wisps
-            if (Main.rand.NextBool(3))
+            // Subtle swing trail
+            if (Main.rand.NextBool(8))
             {
                 Vector2 pos = new Vector2(
                     Main.rand.Next(hitbox.Left, hitbox.Right),
                     Main.rand.Next(hitbox.Top, hitbox.Bottom));
-                CustomParticles.GenericFlare(pos, GetEnigmaGradient(Main.rand.NextFloat()) * 0.7f, 0.35f, 12);
-            }
-            
-            // Watching eyes trailing the swing
-            if (Main.rand.NextBool(6))
-            {
-                Vector2 eyePos = hitCenter + Main.rand.NextVector2Circular(15f, 15f);
-                CustomParticles.EnigmaEyeGaze(eyePos, EnigmaPurple, 0.35f, player.direction * Vector2.UnitX);
-            }
-            
-            // Mystery glyphs in swing
-            if (Main.rand.NextBool(5))
-            {
-                CustomParticles.GlyphTrail(hitCenter, -player.velocity * 0.2f, EnigmaPurple, 0.3f);
+                CustomParticles.GenericFlare(pos, GetEnigmaGradient(Main.rand.NextFloat()) * 0.6f, 0.3f, 10);
             }
         }
         
@@ -325,42 +312,109 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 _ => EnigmaPurple
             };
             
-            if (Main.GameUpdateCount % 3 == 0)
+            // === IRIDESCENT WINGSPAN VFX PATTERN - BEAM SEGMENTS ===
+            for (int i = 0; i < segments; i++)
             {
-                for (int i = 0; i < segments; i++)
-                {
-                    float t = (float)i / segments;
-                    Vector2 basePos = Vector2.Lerp(start, end, t);
-                    
-                    // Distortion wave
-                    float distortionAmount = 6f * beamIntensity * (float)Math.Sin(Main.GameUpdateCount * 0.2f + t * 8f + beamIndex * 2f);
-                    Vector2 perpendicular = direction.RotatedBy(MathHelper.PiOver2);
-                    Vector2 distortedPos = basePos + perpendicular * distortionAmount;
-                    
-                    Color beamColor = Color.Lerp(beamBaseColor, EnigmaGreen, t) * beamIntensity;
-                    CustomParticles.GenericFlare(distortedPos, beamColor, 0.3f + beamIntensity * 0.2f, 10);
-                    
-                    // Glyphs along beam
-                    if (i % 4 == beamIndex)
-                    {
-                        CustomParticles.Glyph(distortedPos, EnigmaPurple * beamIntensity * 0.6f, 0.2f, -1);
-                    }
-                }
-            }
-            
-            // Beam end flare
-            if (Main.GameUpdateCount % 4 == 0)
-            {
-                CustomParticles.GenericFlare(end, EnigmaGreen * beamIntensity, 0.5f, 12);
+                float t = (float)i / segments;
+                Vector2 basePos = Vector2.Lerp(start, end, t);
                 
-                if (isAligned)
+                // Distortion wave
+                float distortionAmount = 6f * beamIntensity * (float)Math.Sin(Main.GameUpdateCount * 0.2f + t * 8f + beamIndex * 2f);
+                Vector2 perpendicular = direction.RotatedBy(MathHelper.PiOver2);
+                Vector2 distortedPos = basePos + perpendicular * distortionAmount;
+                
+                // Heavy dust trails along beam (2+ per segment)
+                for (int d = 0; d < 2; d++)
                 {
-                    // Extra intensity when aligned
-                    CustomParticles.GenericFlare(end, EnigmaGreen * 0.8f, 0.35f, 8);
+                    Vector2 dustOffset = Main.rand.NextVector2Circular(6f, 6f);
+                    Dust dust = Dust.NewDustPerfect(distortedPos + dustOffset, DustID.PurpleTorch, 
+                        -direction * Main.rand.NextFloat(1f, 3f), 0, beamBaseColor, 1.1f * beamIntensity);
+                    dust.noGravity = true;
+                    dust.fadeIn = 1.4f;
                 }
+                
+                // Contrasting sparkles (1-in-2)
+                if (Main.rand.NextBool(2))
+                {
+                    Color sparkleColor = beamIndex == 1 ? EnigmaPurple : EnigmaGreen;
+                    var sparkle = new SparkleParticle(distortedPos, perpendicular * Main.rand.NextFloat(-1f, 1f), 
+                        sparkleColor * beamIntensity, 0.4f, 18);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
+                
+                // Shimmer effect (1-in-3) - void spectrum hue cycling
+                if (Main.rand.NextBool(3))
+                {
+                    float shimmerHue = 0.28f + Main.rand.NextFloat(0.17f) + t * 0.1f;
+                    Color shimmerColor = Main.hslToRgb(shimmerHue, 0.9f, 0.65f) * beamIntensity;
+                    var shimmer = new GenericGlowParticle(distortedPos, perpendicular * Main.rand.NextFloat(-0.5f, 0.5f),
+                        shimmerColor, 0.25f, 15, true);
+                    MagnumParticleHandler.SpawnParticle(shimmer);
+                }
+                
+                // Pearlescent void effect (1-in-4)
+                if (Main.rand.NextBool(4))
+                {
+                    float pearlShift = (float)Math.Sin(Main.GameUpdateCount * 0.08f + t * 3f) * 0.5f + 0.5f;
+                    Color pearlColor = Color.Lerp(EnigmaPurple, EnigmaGreen, pearlShift) * 0.7f * beamIntensity;
+                    var pearl = new GenericGlowParticle(distortedPos, Vector2.Zero, pearlColor, 0.3f, 12, true);
+                    MagnumParticleHandler.SpawnParticle(pearl);
+                }
+                
+                // Flares along beam (1-in-2)
+                if (Main.rand.NextBool(2))
+                {
+                    Color beamColor = Color.Lerp(beamBaseColor, EnigmaGreen, t) * beamIntensity;
+                    CustomParticles.GenericFlare(distortedPos, beamColor, 0.35f + beamIntensity * 0.2f, 10);
+                }
+                
+                // Glyphs along beam (enhanced)
+                if (i % 4 == beamIndex)
+                {
+                    CustomParticles.Glyph(distortedPos, EnigmaPurple * beamIntensity * 0.7f, 0.25f, -1);
+                }
+                
+                // Music notes along beam (1-in-6) - VISIBLE SCALE
+                if (Main.rand.NextBool(6))
+                {
+                    Color noteColor = Color.Lerp(beamBaseColor, EnigmaGreen, t) * beamIntensity;
+                    Vector2 noteVel = perpendicular * Main.rand.NextFloat(-1f, 1f);
+                    ThemedParticles.MusicNote(distortedPos, noteVel, noteColor, 0.85f + Main.rand.NextFloat(0.2f), 25);
+                }
+                
+                // Pulsing light along beam
+                float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.12f + t * 4f) * 0.15f;
+                Lighting.AddLight(distortedPos, beamBaseColor.ToVector3() * beamIntensity * 0.4f * pulse);
             }
             
-            Lighting.AddLight(end, beamBaseColor.ToVector3() * beamIntensity * 0.5f);
+            // === BEAM END EFFECTS (ENHANCED) ===
+            // Heavy dust burst at endpoint
+            for (int d = 0; d < 3; d++)
+            {
+                Vector2 burstVel = Main.rand.NextVector2Circular(4f, 4f);
+                Dust dust = Dust.NewDustPerfect(end, DustID.CursedTorch, burstVel, 0, EnigmaGreen, 1.3f * beamIntensity);
+                dust.noGravity = true;
+                dust.fadeIn = 1.4f;
+            }
+            
+            // Bright flare at end
+            CustomParticles.GenericFlare(end, EnigmaGreen * beamIntensity, 0.6f, 12);
+            CustomParticles.GenericFlare(end, beamBaseColor * beamIntensity * 0.7f, 0.45f, 10);
+            
+            if (isAligned)
+            {
+                // Extra aligned beam intensity
+                CustomParticles.GenericFlare(end, EnigmaGreen * 0.9f, 0.5f, 8);
+                
+                // Sparkle burst at aligned beam end
+                var sparkle = new SparkleParticle(end, Main.rand.NextVector2Circular(2f, 2f), 
+                    EnigmaPurple, 0.5f, 20);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // Pulsing light at beam end
+            float endPulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f + beamIndex) * 0.2f;
+            Lighting.AddLight(end, beamBaseColor.ToVector3() * beamIntensity * 0.6f * endPulse);
         }
         
         private void DrawResonanceEffect(Vector2 center, Vector2 direction, float convergenceProgress)
@@ -371,37 +425,105 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             
             float pulse = (float)Math.Sin(alignedTime * 0.1f) * 0.3f + 0.7f;
             
+            // === IRIDESCENT WINGSPAN VFX PATTERN - RESONANCE CENTER ===
+            
+            // Heavy dust vortex at resonance point (2+ per frame)
+            for (int d = 0; d < 3; d++)
+            {
+                float angle = alignedTime * 0.12f + MathHelper.TwoPi * d / 3f;
+                Vector2 dustVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
+                Dust dust = Dust.NewDustPerfect(resonancePoint + Main.rand.NextVector2Circular(20f, 20f), 
+                    DustID.PurpleTorch, dustVel, 0, EnigmaPurple, 1.3f * pulse);
+                dust.noGravity = true;
+                dust.fadeIn = 1.4f;
+            }
+            
+            // Contrasting sparkle burst (1-in-2)
+            if (Main.rand.NextBool(2))
+            {
+                Color sparkleColor = Main.rand.NextBool() ? EnigmaGreen : EnigmaPurple;
+                var sparkle = new SparkleParticle(resonancePoint + Main.rand.NextVector2Circular(25f, 25f),
+                    Main.rand.NextVector2Circular(2f, 2f), sparkleColor, 0.55f * pulse, 22);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // Shimmer void spectrum effect (1-in-3)
+            if (Main.rand.NextBool(3))
+            {
+                float shimmerHue = 0.28f + Main.rand.NextFloat(0.17f);
+                Color shimmerColor = Main.hslToRgb(shimmerHue, 0.95f, 0.7f) * pulse;
+                Vector2 shimmerOffset = Main.rand.NextVector2Circular(30f, 30f);
+                var shimmer = new GenericGlowParticle(resonancePoint + shimmerOffset, Vector2.Zero,
+                    shimmerColor, 0.35f, 18, true);
+                MagnumParticleHandler.SpawnParticle(shimmer);
+            }
+            
+            // Pearlescent void effect (1-in-4)
+            if (Main.rand.NextBool(4))
+            {
+                float pearlShift = (float)Math.Sin(alignedTime * 0.08f) * 0.5f + 0.5f;
+                Color pearlColor = Color.Lerp(EnigmaPurple, EnigmaGreen, pearlShift) * 0.75f * pulse;
+                var pearl = new GenericGlowParticle(resonancePoint + Main.rand.NextVector2Circular(15f, 15f),
+                    Vector2.Zero, pearlColor, 0.4f, 15, true);
+                MagnumParticleHandler.SpawnParticle(pearl);
+            }
+            
+            // Central resonance flares (1-in-2)
+            if (Main.rand.NextBool(2))
+            {
+                CustomParticles.GenericFlare(resonancePoint, EnigmaGreen, 0.85f * pulse, 15);
+                CustomParticles.GenericFlare(resonancePoint, EnigmaPurple * 0.8f, 0.55f * pulse, 12);
+            }
+            
+            // Expanding gradient halo rings
             if (Main.GameUpdateCount % 2 == 0)
             {
-                // Central resonance flare
-                CustomParticles.GenericFlare(resonancePoint, EnigmaGreen, 0.8f * pulse, 15);
-                CustomParticles.GenericFlare(resonancePoint, EnigmaPurple * 0.8f, 0.5f * pulse, 12);
-                
-                // Expanding halo
-                CustomParticles.HaloRing(resonancePoint, EnigmaPurple * 0.7f, 0.4f * pulse, 14);
-                
-                // Orbiting glyphs at resonance point
-                for (int i = 0; i < 3; i++)
+                for (int ring = 0; ring < 3; ring++)
                 {
-                    float angle = alignedTime * 0.08f + MathHelper.TwoPi * i / 3f;
-                    Vector2 glyphPos = resonancePoint + angle.ToRotationVector2() * 30f;
-                    CustomParticles.Glyph(glyphPos, EnigmaGreen * 0.8f, 0.3f, -1);
+                    float ringProgress = (float)ring / 3f;
+                    Color ringColor = Color.Lerp(EnigmaPurple, EnigmaGreen, ringProgress) * 0.6f * pulse;
+                    CustomParticles.HaloRing(resonancePoint, ringColor, (0.3f + ring * 0.15f) * pulse, 12 + ring * 2);
                 }
             }
             
-            // Music notes burst periodically while aligned
-            if (alignedTime % 30 == 0)
+            // Orbiting glyphs at resonance point (enhanced)
+            for (int i = 0; i < 4; i++)
             {
-                ThemedParticles.EnigmaMusicNotes(resonancePoint, 4, 40f);
+                float angle = alignedTime * 0.08f + MathHelper.TwoPi * i / 4f;
+                Vector2 glyphPos = resonancePoint + angle.ToRotationVector2() * 35f;
+                CustomParticles.Glyph(glyphPos, EnigmaGreen * 0.85f, 0.35f, -1);
             }
             
-            // Eye appears at resonance point occasionally
-            if (alignedTime % 45 == 0)
+            // Music notes - VISIBLE SCALE (1-in-6)
+            if (Main.rand.NextBool(6))
             {
-                CustomParticles.EnigmaEyeGaze(resonancePoint, EnigmaPurple * 0.8f, 0.5f, direction);
+                Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreen, Main.rand.NextFloat()) * pulse;
+                Vector2 noteVel = Main.rand.NextVector2Circular(2f, 2f);
+                ThemedParticles.MusicNote(resonancePoint + Main.rand.NextVector2Circular(20f, 20f), noteVel, 
+                    noteColor, 0.9f + Main.rand.NextFloat(0.25f), 30);
             }
             
-            Lighting.AddLight(resonancePoint, EnigmaGreen.ToVector3() * pulse);
+            // Music notes burst periodically while aligned (enhanced)
+            if (alignedTime % 25 == 0)
+            {
+                for (int n = 0; n < 5; n++)
+                {
+                    float noteAngle = MathHelper.TwoPi * n / 5f;
+                    Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
+                    Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreen, (float)n / 5f);
+                    ThemedParticles.MusicNote(resonancePoint, noteVel, noteColor, 0.95f, 35);
+                }
+            }
+            
+            // Eye appears at resonance point (enhanced)
+            if (alignedTime % 40 == 0)
+            {
+                CustomParticles.EnigmaEyeGaze(resonancePoint, EnigmaPurple * 0.85f, 0.55f, direction);
+            }
+            
+            // Pulsing light
+            float lightPulse = 1f + (float)Math.Sin(alignedTime * 0.12f) * 0.2f;
+            Lighting.AddLight(resonancePoint, EnigmaGreen.ToVector3() * pulse * lightPulse * 0.8f);
         }
         
         private void DealBeamDamage(Vector2 start, Vector2 end, Vector2 direction, int beamIndex)
@@ -553,27 +675,116 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Projectile.height = (int)(currentRadius * 2);
             Projectile.Center = Projectile.position + new Vector2(Projectile.width / 2f, Projectile.height / 2f);
             
-            // Particle effects during explosion
-            if (Main.GameUpdateCount % 2 == 0)
+            // === IRIDESCENT WINGSPAN VFX PATTERN - VOID EXPLOSION ===
+            
+            // Heavy dust vortex (scaled to explosion size)
+            int dustCount = (int)(3 + lifeProgress * 4);
+            for (int d = 0; d < dustCount; d++)
             {
-                for (int i = 0; i < 6; i++)
+                float angle = Main.rand.NextFloat(MathHelper.TwoPi);
+                float dist = currentRadius * Main.rand.NextFloat(0.5f, 1f);
+                Vector2 dustPos = Projectile.Center + angle.ToRotationVector2() * dist;
+                Vector2 dustVel = (angle + MathHelper.PiOver2).ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, dustVel, 0, EnigmaPurple, 1.3f * intensity);
+                dust.noGravity = true;
+                dust.fadeIn = 1.4f;
+            }
+            
+            // Additional cursed dust for green accent
+            for (int d = 0; d < 2; d++)
+            {
+                Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(currentRadius * 0.7f, currentRadius * 0.7f);
+                Vector2 dustVel = Main.rand.NextVector2Circular(3f, 3f);
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.CursedTorch, dustVel, 0, EnigmaGreen, 1.2f * intensity);
+                dust.noGravity = true;
+                dust.fadeIn = 1.4f;
+            }
+            
+            // Contrasting sparkles (1-in-2)
+            if (Main.rand.NextBool(2))
+            {
+                Color sparkleColor = Main.rand.NextBool() ? EnigmaGreen : EnigmaPurple;
+                Vector2 sparklePos = Projectile.Center + Main.rand.NextVector2Circular(currentRadius * 0.8f, currentRadius * 0.8f);
+                var sparkle = new SparkleParticle(sparklePos, Main.rand.NextVector2Circular(3f, 3f), 
+                    sparkleColor * intensity, 0.5f, 20);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // Shimmer void spectrum (1-in-3)
+            if (Main.rand.NextBool(3))
+            {
+                float shimmerHue = 0.28f + Main.rand.NextFloat(0.17f);
+                Color shimmerColor = Main.hslToRgb(shimmerHue, 0.95f, 0.7f) * intensity;
+                Vector2 shimmerPos = Projectile.Center + Main.rand.NextVector2Circular(currentRadius * 0.6f, currentRadius * 0.6f);
+                var shimmer = new GenericGlowParticle(shimmerPos, Main.rand.NextVector2Circular(1f, 1f),
+                    shimmerColor, 0.35f, 15, true);
+                MagnumParticleHandler.SpawnParticle(shimmer);
+            }
+            
+            // Pearlescent void effect (1-in-4)
+            if (Main.rand.NextBool(4))
+            {
+                float pearlShift = (float)Math.Sin(Main.GameUpdateCount * 0.1f + lifeProgress * 5f) * 0.5f + 0.5f;
+                Color pearlColor = Color.Lerp(EnigmaPurple, EnigmaGreen, pearlShift) * 0.7f * intensity;
+                Vector2 pearlPos = Projectile.Center + Main.rand.NextVector2Circular(currentRadius * 0.5f, currentRadius * 0.5f);
+                var pearl = new GenericGlowParticle(pearlPos, Vector2.Zero, pearlColor, 0.4f, 14, true);
+                MagnumParticleHandler.SpawnParticle(pearl);
+            }
+            
+            // Expanding ring flares (enhanced)
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f + lifeProgress * 2f;
+                Vector2 pos = Projectile.Center + angle.ToRotationVector2() * currentRadius * 0.85f;
+                Color color = Color.Lerp(EnigmaPurple, EnigmaGreen, (float)i / 8f) * intensity;
+                
+                // Main flare
+                if (Main.rand.NextBool(2))
+                    CustomParticles.GenericFlare(pos, color, 0.55f * intensity, 12);
+                
+                // Glyph at edge
+                if (i % 2 == 0)
+                    CustomParticles.Glyph(pos, EnigmaPurple * 0.7f * intensity, 0.3f, -1);
+            }
+            
+            // Central flares
+            if (Main.rand.NextBool(2))
+            {
+                CustomParticles.GenericFlare(Projectile.Center, EnigmaGreen * intensity, 0.7f, 14);
+                CustomParticles.GenericFlare(Projectile.Center, EnigmaPurple * 0.8f * intensity, 0.5f, 12);
+            }
+            
+            // Gradient halo rings
+            if (Main.GameUpdateCount % 3 == 0)
+            {
+                for (int ring = 0; ring < 3; ring++)
                 {
-                    float angle = MathHelper.TwoPi * i / 6f + lifeProgress * 2f;
-                    Vector2 pos = Projectile.Center + angle.ToRotationVector2() * currentRadius * 0.8f;
-                    Color color = Color.Lerp(EnigmaPurple, EnigmaGreen, (float)i / 6f) * intensity;
-                    CustomParticles.GenericFlare(pos, color, 0.5f * intensity, 10);
+                    float ringProgress = (float)ring / 3f;
+                    Color ringColor = Color.Lerp(EnigmaPurple, EnigmaGreen, ringProgress) * 0.5f * intensity;
+                    CustomParticles.HaloRing(Projectile.Center, ringColor, (0.4f + ring * 0.15f) * intensity, 14 + ring * 2);
                 }
             }
             
-            // Music note trail - resonance explosion echoes with musical notes
+            // Music notes - VISIBLE SCALE (1-in-4 for explosion intensity)
             if (Main.rand.NextBool(4))
             {
                 Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreen, Main.rand.NextFloat()) * intensity;
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-2f, 2f), -1.5f);
-                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(currentRadius * 0.5f, currentRadius * 0.5f), noteVel, noteColor, 0.4f, 30);
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-3f, 3f), Main.rand.NextFloat(-3f, 1f));
+                Vector2 notePos = Projectile.Center + Main.rand.NextVector2Circular(currentRadius * 0.6f, currentRadius * 0.6f);
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.9f + Main.rand.NextFloat(0.25f), 30);
             }
             
-            Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * intensity);
+            // Enigma eyes watching outward
+            if (Main.rand.NextBool(8))
+            {
+                float eyeAngle = Main.rand.NextFloat(MathHelper.TwoPi);
+                Vector2 eyePos = Projectile.Center + eyeAngle.ToRotationVector2() * currentRadius * 0.7f;
+                CustomParticles.EnigmaEyeGaze(eyePos, EnigmaPurple * 0.7f * intensity, 0.4f, eyeAngle.ToRotationVector2());
+            }
+            
+            // Pulsing light
+            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.15f;
+            Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * intensity * pulse * 0.9f);
         }
         
         public override bool PreDraw(ref Color lightColor) => false;

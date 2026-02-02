@@ -161,29 +161,24 @@ namespace MagnumOpus.Content.Seasons.Weapons
                     }
 
                     // Crescendo VFX burst with music notes
-                    CustomParticles.GenericFlare(player.Center, Color.White, 1.1f, 25);
-                    CustomParticles.GenericFlare(player.Center, Color.White * 0.8f, 0.85f, 22);
+                    CustomParticles.GenericFlare(player.Center, Color.White, 0.9f, 22);
+                    CustomParticles.HaloRing(player.Center, Color.White * 0.5f, 0.45f, 18);
                     
-                    // ☁EMUSICAL CRESCENDO - Grand note explosion! - VISIBLE SCALE 0.75f+
-                    for (int n = 0; n < 6; n++)
+                    // Musical crescendo notes - visible scale 0.72f+
+                    for (int n = 0; n < 4; n++)
                     {
-                        float noteAngle = MathHelper.TwoPi * n / 6f;
-                        Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
-                        Color noteColor = (n % 4) switch { 0 => SpringPink, 1 => SummerGold, 2 => AutumnOrange, _ => WinterBlue };
-                        ThemedParticles.MusicNote(player.Center, noteVel, noteColor, 0.75f, 35);
+                        float noteAngle = MathHelper.TwoPi * n / 4f;
+                        Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(2f, 3.5f);
+                        Color noteColor = n switch { 0 => SpringPink, 1 => SummerGold, 2 => AutumnOrange, _ => WinterBlue };
+                        ThemedParticles.MusicNote(player.Center, noteVel, noteColor, 0.72f, 30);
                     }
                     
                     for (int i = 0; i < 4; i++)
                     {
                         Color burstColor = i switch { 0 => SpringPink, 1 => SummerGold, 2 => AutumnOrange, _ => WinterBlue };
-                        float burstAngle = MathHelper.PiOver2 * i + Main.rand.NextFloat(-0.3f, 0.3f);
-                        CustomParticles.GenericFlare(player.Center + burstAngle.ToRotationVector2() * 25f, burstColor, 0.6f, 18);
-                        
-                        // ☁ESPARKLE at each burst point
-                        var sparkle = new SparkleParticle(player.Center + burstAngle.ToRotationVector2() * 30f, burstAngle.ToRotationVector2() * 2f, burstColor * 0.7f, 0.25f, 16);
-                        MagnumParticleHandler.SpawnParticle(sparkle);
+                        float burstAngle = MathHelper.PiOver2 * i + Main.rand.NextFloat(-0.2f, 0.2f);
+                        CustomParticles.GenericFlare(player.Center + burstAngle.ToRotationVector2() * 20f, burstColor, 0.5f, 15);
                     }
-                    CustomParticles.HaloRing(player.Center, Color.White * 0.6f, 0.55f, 20);
 
                     SoundEngine.PlaySound(SoundID.Item29, player.Center);
                 }
@@ -197,27 +192,22 @@ namespace MagnumOpus.Content.Seasons.Weapons
             }
 
             // Ambient seasonal particles when held
-            if (Main.rand.NextBool(10))
-            {
-                Color seasonColor = seasonIndex switch { 0 => SpringPink, 1 => SummerGold, 2 => AutumnOrange, _ => WinterBlue };
-                float angle = Main.GameUpdateCount * 0.04f;
-                Vector2 particlePos = player.Center + new Vector2(player.direction * 20f, -8f) + Main.rand.NextVector2Circular(12f, 12f);
-                Vector2 particleVel = new Vector2(0, Main.rand.NextFloat(-2f, -0.5f));
-                var particle = new GenericGlowParticle(particlePos, particleVel, seasonColor * 0.35f, 0.2f, 20, true);
-                MagnumParticleHandler.SpawnParticle(particle);
-                
-                // ☁ESPARKLE accent
-                var sparkle = new SparkleParticle(particlePos, particleVel * 0.5f, seasonColor * 0.5f, 0.18f, 15);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-            
-            // ☁EMUSICAL NOTATION - Gentle ambient notes! - VISIBLE SCALE 0.68f+
             if (Main.rand.NextBool(18))
             {
+                Color seasonColor = seasonIndex switch { 0 => SpringPink, 1 => SummerGold, 2 => AutumnOrange, _ => WinterBlue };
+                Vector2 particlePos = player.Center + new Vector2(player.direction * 18f, -6f) + Main.rand.NextVector2Circular(10f, 10f);
+                Vector2 particleVel = new Vector2(0, Main.rand.NextFloat(-1.5f, -0.4f));
+                var particle = new GenericGlowParticle(particlePos, particleVel, seasonColor * 0.3f, 0.18f, 16, true);
+                MagnumParticleHandler.SpawnParticle(particle);
+            }
+            
+            // Musical notation - visible scale 0.7f+
+            if (Main.rand.NextBool(25))
+            {
                 Color noteColor = seasonIndex switch { 0 => SpringPink, 1 => SummerGold, 2 => AutumnOrange, _ => WinterBlue };
-                Vector2 notePos = player.Center + new Vector2(player.direction * 25f, -10f) + Main.rand.NextVector2Circular(8f, 8f);
-                Vector2 noteVel = new Vector2(0, -1f);
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor * 0.8f, 0.75f, 28);
+                Vector2 notePos = player.Center + new Vector2(player.direction * 22f, -8f) + Main.rand.NextVector2Circular(6f, 6f);
+                Vector2 noteVel = new Vector2(0, -0.8f);
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor * 0.8f, 0.7f, 24);
             }
         }
 

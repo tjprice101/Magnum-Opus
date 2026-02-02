@@ -136,8 +136,9 @@ namespace MagnumOpus.Content.Spring.Bosses
 
         public override void SetDefaults()
         {
-            NPC.width = 100;
-            NPC.height = 120;
+            // Hitbox = 80% of sprite size (300x188)
+            NPC.width = 240;
+            NPC.height = 150;
             NPC.damage = BaseDamage;
             NPC.defense = 15; // Post-Eye of Cthulhu tier
             NPC.lifeMax = 8000; // Post-Eye of Cthulhu tier (comparable to Skeletron 4.4k in Classic)

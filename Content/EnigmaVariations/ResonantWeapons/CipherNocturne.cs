@@ -88,8 +88,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             {
                 Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
                 
-                // Music notes on beam start - a haunting tune of mystery
-                ThemedParticles.EnigmaMusicNotes(position, 6, 35f);
+                // Subtle music notes on beam start
+                ThemedParticles.EnigmaMusicNotes(position, 3, 30f);
             }
             return false;
         }
@@ -261,6 +261,61 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                         CustomParticles.Glyph(distortedPos, EnigmaPurple * beamIntensity, 0.22f, -1);
                     }
                 }
+            }
+            
+            // === IRIDESCENT WINGSPAN STYLE - HEAVY DUST TRAILS (2+ per frame at beam end) ===
+            for (int i = 0; i < 2; i++)
+            {
+                // Main enigma trail - Purple to Green gradient
+                float progress = Main.rand.NextFloat();
+                Color dustColor = GetEnigmaGradient(progress);
+                int dustType = progress < 0.5f ? DustID.PurpleTorch : DustID.GreenTorch;
+                Dust d = Dust.NewDustPerfect(end + Main.rand.NextVector2Circular(8f, 8f), dustType,
+                    Main.rand.NextVector2Circular(3f, 3f),
+                    progress < 0.3f ? 80 : 0, dustColor * beamIntensity, 1.6f);
+                d.noGravity = true;
+                d.fadeIn = 1.3f;
+            }
+            
+            // === CONTRASTING SPARKLES - Green flame against void black ===
+            if (Main.rand.NextBool(2))
+            {
+                Dust green = Dust.NewDustPerfect(end + Main.rand.NextVector2Circular(10f, 10f), DustID.GreenTorch,
+                    Main.rand.NextVector2Circular(2f, 2f),
+                    0, EnigmaGreenFlame * beamIntensity, 1.4f);
+                green.noGravity = true;
+            }
+            
+            // === VOID SHIMMER TRAIL - Cycling through enigma colors ===
+            if (Main.rand.NextBool(3))
+            {
+                // Cycle through void colors: purple -> deep purple -> green
+                float voidPhase = (Main.GameUpdateCount * 0.015f + Main.rand.NextFloat()) % 1f;
+                Color voidShimmer = GetEnigmaGradient(voidPhase);
+                Dust v = Dust.NewDustPerfect(end, DustID.PurpleTorch,
+                    Main.rand.NextVector2Circular(2f, 2f), 0, voidShimmer * beamIntensity, 1.4f);
+                v.noGravity = true;
+            }
+            
+            // === FREQUENT FLARES at beam end ===
+            if (Main.rand.NextBool(2))
+            {
+                Color flareColor = GetEnigmaGradient(Main.rand.NextFloat());
+                CustomParticles.GenericFlare(end + Main.rand.NextVector2Circular(12f, 12f), flareColor * beamIntensity, 0.5f, 16);
+            }
+            
+            // === ENIGMA EYE watching ===
+            if (Main.rand.NextBool(8))
+            {
+                CustomParticles.EnigmaEyeGaze(end + Main.rand.NextVector2Circular(20f, 20f), EnigmaPurple * beamIntensity, 0.35f);
+            }
+            
+            // === MUSIC NOTES - The enigma's riddle ===
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = GetEnigmaGradient(Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(end, noteVel, noteColor * beamIntensity, 0.35f, 35);
             }
             
             // End point unraveling effect - reduced from 6 to 4 particles, every 6 frames

@@ -162,8 +162,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         public override void SetDefaults()
         {
-            NPC.width = 100;
-            NPC.height = 120;
+            // Hitbox = 80% of visual size (269x174 frame × 0.65 scale)
+            NPC.width = 140;
+            NPC.height = 90;
             NPC.damage = BaseDamage;
             NPC.defense = 80;
             NPC.lifeMax = 450000;

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -45,6 +46,14 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Conducted minions deal +20% damage for 3 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "15 second cooldown"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The first step in mastering the orchestra'") { OverrideColor = new Color(150, 200, 100) });
+        }
+        
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -80,6 +89,15 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             {
                 conductor.TryConduct();
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Conducted minions deal +20% damage for 3 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "12 second cooldown"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions heal you 1 HP per hit during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring awakens the conductor within'") { OverrideColor = new Color(150, 200, 100) });
         }
         
         public override void AddRecipes()
@@ -123,6 +141,16 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             {
                 conductor.TryConduct();
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Conducted minions deal +20% damage for 3 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "10 second cooldown"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions heal you 1 HP per hit during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives 'Performed' debuff: -5 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The summer sun empowers your command'") { OverrideColor = new Color(150, 200, 100) });
         }
         
         public override void AddRecipes()
@@ -170,6 +198,16 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Conducted minions deal +30% damage during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Conducted minions heal you 1 HP per hit during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Focused target receives 'Performed' debuff: -5 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Killing conducted target extends focus duration by 2 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Command the beasts of the harvest'") { OverrideColor = new Color(150, 200, 100) });
+        }
+        
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -215,6 +253,18 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Conducted minions deal +30% damage during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "8 second cooldown"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions heal you 1 HP per hit during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives 'Performed' debuff: -5 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Conducted target is slowed by 25%"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Killing conducted target extends focus duration by 2 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Winter's chill commands absolute obedience'") { OverrideColor = new Color(150, 200, 100) });
+        }
+        
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -255,6 +305,19 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             {
                 conductor.TryConduct();
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Double-tap Conduct to Scatter: spread minions to all nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Conducted minions deal +30% damage during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "8 second cooldown"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Conducted minions heal you 1 HP per hit during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Focused target receives 'Performed' debuff: -5 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Conducted target is slowed by 25%"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "Killing conducted target extends focus duration by 2 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The four seasons unite under your baton'") { OverrideColor = new Color(150, 200, 100) });
         }
         
         public override void AddRecipes()

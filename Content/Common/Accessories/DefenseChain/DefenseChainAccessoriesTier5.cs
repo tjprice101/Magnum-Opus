@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -71,6 +72,19 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+18 defense (+23 at night)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Immunity to fire, burning, frostburn, chill, and frozen"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+4 life regeneration"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "15% of melee damage taken is reflected back to attackers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Grants night vision"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "+5% damage at night"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Grants 36% of max HP as an absorbent shield"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "When shield breaks, grants 2 seconds of invisibility"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Under the moon's gentle gaze, even shadows become guardians'") { OverrideColor = new Color(140, 100, 200) });
+        }
+        
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -132,6 +146,18 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                 dust.scale = 0.6f;
                 dust.color = new Color(200, 80, 80);
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Immunity to fire, burning, frostburn, chill, and frozen"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+5 life regeneration"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "18% of melee damage taken is reflected back to attackers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "+5% damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Grants 38% of max HP as an absorbent shield"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "When shield breaks, grants +15% damage for 5 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The hero's valor burns brightest in the crucible of battle'") { OverrideColor = new Color(200, 80, 80) });
         }
         
         public override void AddRecipes()
@@ -199,6 +225,19 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+24 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Immunity to fire, burning, hellfire, frostburn, chill, and frozen"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Immunity to lava"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+6 life regeneration"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "20% of melee damage taken is reflected back to attackers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "+8% damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Grants 40% of max HP as an absorbent shield"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "When shield breaks, releases a massive bell shockwave that damages and staggers enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'When the infernal bell tolls, even demons cower'") { OverrideColor = new Color(255, 140, 40) });
+        }
+        
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -263,6 +302,19 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                 dust.scale = 0.5f;
                 dust.color = new Color(140, 60, 200);
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+26 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Immunity to fire, burning, hellfire, frostburn, chill, frozen, and confusion"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Immunity to lava"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+7 life regeneration"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "20% of melee damage taken is reflected back to attackers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Grants Black Belt dodge chance"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Grants 45% of max HP as an absorbent shield"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "10% chance to phase through attacks entirely"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The void asks no questions, yet answers all with silence'") { OverrideColor = new Color(140, 60, 200) });
         }
         
         public override void AddRecipes()
@@ -345,6 +397,20 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                 shimmer.scale = 0.4f;
                 shimmer.color = rainbowColor;
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+30 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Immunity to fire, burning, hellfire, frostburn, chill, frozen, and confusion"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Immunity to lava"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+8 life regeneration"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "22% of melee damage taken is reflected back to attackers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Grants Black Belt dodge chance"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Reduced enemy aggression"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "Grants 50% of max HP as an absorbent shield"));
+            tooltips.Add(new TooltipLine(Mod, "Effect9", "While shield is at full capacity, gain +5% dodge chance"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'In grace there is immortality, in elegance there is eternity'") { OverrideColor = new Color(240, 245, 255) });
         }
         
         public override void AddRecipes()
@@ -439,6 +505,20 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                     glyph.scale = 0.4f;
                 }
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+35 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Immunity to fire, burning, hellfire, frostburn, chill, frozen, confusion, and slow"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Immunity to lava"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+10 life regeneration"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "25% of melee damage taken is reflected back to attackers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Grants Black Belt dodge chance"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "+10% damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "Grants 60% of max HP as an absorbent shield"));
+            tooltips.Add(new TooltipLine(Mod, "Effect9", "When shield breaks, triggers 'Last Stand' - 3 seconds of invincibility (2 minute cooldown)"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Destiny itself bends to shield its chosen champion'") { OverrideColor = new Color(180, 40, 80) });
         }
         
         public override void AddRecipes()

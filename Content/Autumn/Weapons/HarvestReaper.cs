@@ -55,36 +55,17 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
         public override void HoldItem(Player player)
         {
-            // Ambient decay particles
-            if (Main.rand.NextBool(10))
+            // Sparse decay particles - EARLY GAME: subtle
+            if (Main.rand.NextBool(25))
             {
-                Vector2 auraPos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                Vector2 auraVel = new Vector2(Main.rand.NextFloat(-1f, 1f), -Main.rand.NextFloat(0.5f, 1.5f));
-                Color auraColor = Color.Lerp(AutumnOrange, DecayPurple, Main.rand.NextFloat()) * 0.4f;
-                var aura = new GenericGlowParticle(auraPos, auraVel, auraColor, 0.2f, 30, true);
+                Vector2 auraPos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
+                Vector2 auraVel = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), -Main.rand.NextFloat(0.4f, 1.0f));
+                Color auraColor = Color.Lerp(AutumnOrange, DecayPurple, Main.rand.NextFloat()) * 0.3f;
+                var aura = new GenericGlowParticle(auraPos, auraVel, auraColor, 0.15f, 25, true);
                 MagnumParticleHandler.SpawnParticle(aura);
             }
 
-            // Falling leaf particles
-            if (Main.rand.NextBool(15))
-            {
-                Vector2 leafPos = player.Center + new Vector2(Main.rand.NextFloat(-60f, 60f), -40f);
-                Vector2 leafVel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(1f, 3f));
-                Color leafColor = Main.rand.NextBool() ? AutumnOrange : AutumnRed;
-                var leaf = new GenericGlowParticle(leafPos, leafVel, leafColor * 0.5f, 0.22f, 45, true);
-                MagnumParticleHandler.SpawnParticle(leaf);
-            }
-
-            // Floating autumn melody notes
-            if (Main.rand.NextBool(12))
-            {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.2f, 0.5f));
-                Color noteColor = Color.Lerp(AutumnOrange, AutumnBrown, Main.rand.NextFloat()) * 0.6f;
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 40);
-            }
-
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.1f + 0.4f;
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.08f + 0.35f;
             Lighting.AddLight(player.Center, AutumnOrange.ToVector3() * pulse);
         }
 
@@ -113,42 +94,17 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 // Spawn crescent wave
                 Projectile.NewProjectile(source, player.Center, velocity * 1.5f, type, (int)(damage * 1.6f), knockback, player.whoAmI);
 
-                // VFX burst - layered decay bloom instead of halo
-                CustomParticles.GenericFlare(player.Center, AutumnGold, 0.9f, 22);
-                CustomParticles.GenericFlare(player.Center, AutumnOrange, 0.7f, 18);
-                CustomParticles.GenericFlare(player.Center, DecayPurple * 0.6f, 0.5f, 15);
+                // Simple Twilight Slash VFX - EARLY GAME
+                CustomParticles.GenericFlare(player.Center, AutumnGold, 0.5f, 15);
+                CustomParticles.HaloRing(player.Center, DecayPurple * 0.4f, 0.35f, 12);
                 
-                // Music note ring and burst for special ability
-                ThemedParticles.MusicNoteRing(player.Center, AutumnOrange, 40f, 6);
-                ThemedParticles.MusicNoteBurst(player.Center, AutumnBrown, 5, 4f);
-                
-                // Harvest glyphs (Autumn decay theme)
-                CustomParticles.GlyphBurst(player.Center, AutumnBrown, 4, 3f);
-                
-                // Sparkle accents
-                for (int sparkIdx = 0; sparkIdx < 4; sparkIdx++)
+                // Small radial burst
+                for (int i = 0; i < 5; i++)
                 {
-                    var sparkle = new SparkleParticle(player.Center + Main.rand.NextVector2Circular(12f, 12f),
-                        Main.rand.NextVector2Circular(2f, 2f), AutumnGold * 0.5f, 0.2f, 16);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
-                }
-                
-                // Decay wisp burst
-                for (int wisp = 0; wisp < 6; wisp++)
-                {
-                    float wispAngle = MathHelper.TwoPi * wisp / 6f;
-                    Vector2 wispPos = player.Center + wispAngle.ToRotationVector2() * 22f;
-                    Color wispColor = Color.Lerp(AutumnOrange, DecayPurple, (float)wisp / 6f);
-                    CustomParticles.GenericFlare(wispPos, wispColor * 0.75f, 0.28f, 14);
-                }
-
-                // Radial decay particles
-                for (int i = 0; i < 12; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 12f;
-                    Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 9f);
-                    Color burstColor = Color.Lerp(AutumnOrange, DecayPurple, (float)i / 12f) * 0.7f;
-                    var burst = new GenericGlowParticle(player.Center, burstVel, burstColor, 0.35f, 25, true);
+                    float angle = MathHelper.TwoPi * i / 5f;
+                    Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 6f);
+                    Color burstColor = Color.Lerp(AutumnOrange, DecayPurple, (float)i / 5f) * 0.5f;
+                    var burst = new GenericGlowParticle(player.Center, burstVel, burstColor, 0.25f, 18, true);
                     MagnumParticleHandler.SpawnParticle(burst);
                 }
             }
@@ -164,34 +120,79 @@ namespace MagnumOpus.Content.Autumn.Weapons
             SpectacularMeleeSwing.OnSwing(player, hitbox, AutumnOrange, DecayPurple, 
                 SpectacularMeleeSwing.SwingTier.Mid, SpectacularMeleeSwing.WeaponTheme.Autumn);
             
-            // Trail particles - decay wisps
+            // === IRIDESCENT WINGSPAN-STYLE VFX (Autumn Theme) ===
+            
+            // HEAVY DUST TRAILS - orange/brown autumn gradient (2+ per frame)
+            for (int d = 0; d < 2; d++)
+            {
+                Vector2 dustPos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                Dust dust1 = Dust.NewDustPerfect(dustPos, DustID.Torch, player.velocity * 0.3f + Main.rand.NextVector2Circular(2f, 2f), 0, AutumnOrange, 1.1f);
+                dust1.noGravity = true;
+                dust1.fadeIn = 1.4f;
+                
+                Dust dust2 = Dust.NewDustPerfect(dustPos + Main.rand.NextVector2Circular(5f, 5f), DustID.GoldCoin, player.velocity * 0.2f, 0, AutumnGold, 0.9f);
+                dust2.noGravity = true;
+                dust2.fadeIn = 1.3f;
+            }
+            
+            // CONTRASTING SPARKLES - harvest gold sparkles (1-in-2)
             if (Main.rand.NextBool(2))
             {
-                Vector2 trailPos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
-                Vector2 trailVel = player.velocity * 0.3f + Main.rand.NextVector2Circular(2f, 2f);
-                Color trailColor = Color.Lerp(AutumnOrange, AutumnRed, Main.rand.NextFloat()) * 0.5f;
-                var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.28f, 18, true);
-                MagnumParticleHandler.SpawnParticle(trail);
+                Vector2 sparklePos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                var sparkle = new SparkleParticle(sparklePos, player.velocity * 0.15f + Main.rand.NextVector2Circular(1f, 1f), AutumnGold, 0.5f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            // Music notes - melancholy autumn melody
+            // AUTUMN SHIMMER TRAILS - cycling orange to brown hues via hslToRgb (1-in-3)
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 shimmerPos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                // Autumn hues: 0.08-0.12 (orange-gold range)
+                float hue = Main.rand.NextFloat(0.08f, 0.12f);
+                Color shimmerColor = Main.hslToRgb(hue, 0.9f, 0.65f);
+                var shimmer = new GenericGlowParticle(shimmerPos, player.velocity * 0.25f + Main.rand.NextVector2Circular(1.5f, 1.5f), shimmerColor, 0.35f, 22, true);
+                MagnumParticleHandler.SpawnParticle(shimmer);
+            }
+            
+            // PEARLESCENT HARVEST EFFECTS - color shifting amber (1-in-4)
             if (Main.rand.NextBool(4))
             {
-                Vector2 notePos = hitCenter + Main.rand.NextVector2Circular(10f, 10f);
-                Vector2 noteVel = (player.direction * Vector2.UnitX).RotatedByRandom(0.5f) * Main.rand.NextFloat(1f, 2.5f);
-                Color noteColor = Color.Lerp(AutumnOrange, AutumnBrown, Main.rand.NextFloat());
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor * 0.8f, 0.75f, 28);
+                Vector2 pearlPos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                float colorShift = (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.5f + 0.5f;
+                Color pearlColor = Color.Lerp(AutumnOrange, AutumnGold, colorShift) * 0.7f;
+                var pearl = new GenericGlowParticle(pearlPos, player.velocity * 0.2f + new Vector2(0, -0.8f), pearlColor, 0.32f, 20, true);
+                MagnumParticleHandler.SpawnParticle(pearl);
             }
             
-            // Falling leaves along swing
-            if (Main.rand.NextBool(5))
+            // FREQUENT FLARES - autumn glow flares (1-in-2)
+            if (Main.rand.NextBool(2))
             {
-                Vector2 leafPos = hitCenter + Main.rand.NextVector2Circular(15f, 15f);
-                Vector2 leafVel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(1f, 3f));
+                Vector2 flarePos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                Color flareColor = Color.Lerp(AutumnOrange, AutumnRed, Main.rand.NextFloat());
+                CustomParticles.GenericFlare(flarePos, flareColor, Main.rand.NextFloat(0.25f, 0.4f), 14);
+            }
+            
+            // FALLING LEAF PARTICLES - autumn leaf drift (1-in-3)
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 leafPos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                Vector2 leafVel = player.velocity * 0.1f + new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-0.5f, 1f));
                 Color leafColor = Main.rand.NextBool() ? AutumnOrange : AutumnRed;
-                var leaf = new GenericGlowParticle(leafPos, leafVel, leafColor * 0.6f, 0.25f, 30, true);
+                var leaf = new GenericGlowParticle(leafPos, leafVel, leafColor * 0.65f, 0.28f, 30, true);
                 MagnumParticleHandler.SpawnParticle(leaf);
             }
+            
+            // MUSIC NOTES - harvest melody (1-in-6)
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 notePos = new Vector2(hitbox.X + Main.rand.Next(hitbox.Width), hitbox.Y + Main.rand.Next(hitbox.Height));
+                Vector2 noteVel = player.velocity * 0.1f + new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2f, -0.5f));
+                ThemedParticles.MusicNote(notePos, noteVel, AutumnGold, 0.85f, 28);
+            }
+            
+            // PULSING LIGHT
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.15f + 0.55f;
+            Lighting.AddLight(hitCenter, AutumnOrange.ToVector3() * pulse);
         }
 
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
@@ -210,60 +211,76 @@ namespace MagnumOpus.Content.Autumn.Weapons
                     player.GetSource_OnHit(target), target.Center, (target.Center - player.Center).SafeNormalize(Vector2.Zero) * 4f, 
                     (int)(damageDone * 0.4f), hit.Knockback, player.whoAmI, 5);
                 
-                // Decay burst VFX - layered bloom instead of halo
-                CustomParticles.GenericFlare(target.Center, DecayPurple, 0.65f, 18);
-                CustomParticles.GenericFlare(target.Center, DecayPurple * 0.6f, 0.45f, 15);
+                // DECAY SPECIAL VFX
+                CustomParticles.GenericFlare(target.Center, DecayPurple, 0.6f, 18);
+                CustomParticles.HaloRing(target.Center, DecayPurple * 0.6f, 0.45f, 16);
                 
-                // Music note burst for decay proc
-                ThemedParticles.MusicNoteBurst(target.Center, AutumnBrown, 4, 3f);
-                
-                // Decay glyphs (harvest theme)
-                CustomParticles.GlyphBurst(target.Center, DecayPurple, 3, 2.5f);
-                
-                // Sparkle accents
-                for (int sparkIdx = 0; sparkIdx < 3; sparkIdx++)
-                {
-                    var sparkle = new SparkleParticle(target.Center + Main.rand.NextVector2Circular(10f, 10f),
-                        Main.rand.NextVector2Circular(2f, 2f), AutumnGold * 0.4f, 0.18f, 14);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
-                }
-                
-                // Decay wisps around impact
-                for (int wisp = 0; wisp < 4; wisp++)
-                {
-                    float wispAngle = MathHelper.TwoPi * wisp / 4f;
-                    Vector2 wispPos = target.Center + wispAngle.ToRotationVector2() * 15f;
-                    CustomParticles.GenericFlare(wispPos, DecayPurple * 0.7f, 0.22f, 12);
-                }
-
+                // Decay burst
                 for (int i = 0; i < 8; i++)
                 {
                     float angle = MathHelper.TwoPi * i / 8f;
                     Vector2 decayVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 7f);
                     Color decayColor = Color.Lerp(DecayPurple, AutumnBrown, Main.rand.NextFloat()) * 0.6f;
-                    var decay = new GenericGlowParticle(target.Center, decayVel, decayColor, 0.28f, 20, true);
+                    var decay = new GenericGlowParticle(target.Center, decayVel, decayColor, 0.3f, 20, true);
                     MagnumParticleHandler.SpawnParticle(decay);
                 }
             }
 
-            // Standard hit VFX
-            CustomParticles.GenericFlare(target.Center, AutumnOrange, 0.5f, 15);
+            // === IRIDESCENT WINGSPAN-STYLE IMPACT VFX ===
             
-            for (int i = 0; i < 6; i++)
+            // GRADIENT HALO RINGS (4 stacked, outer to inner)
+            for (int h = 0; h < 4; h++)
             {
-                Vector2 sparkVel = Main.rand.NextVector2Circular(5f, 5f);
-                Color sparkColor = Color.Lerp(AutumnOrange, AutumnRed, Main.rand.NextFloat()) * 0.5f;
-                var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.22f, 16, true);
-                MagnumParticleHandler.SpawnParticle(spark);
+                float progress = h / 4f;
+                Color haloColor = Color.Lerp(AutumnOrange, DecayPurple, progress);
+                float haloScale = 0.45f - h * 0.08f;
+                int haloLife = 16 - h * 2;
+                CustomParticles.HaloRing(target.Center, haloColor * (0.7f - progress * 0.2f), haloScale, haloLife);
+            }
+            
+            // AUTUMN SHIMMER FLARES - radial burst
+            for (int i = 0; i < 10; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 10f;
+                Vector2 flarePos = target.Center + angle.ToRotationVector2() * Main.rand.NextFloat(8f, 20f);
+                float hue = Main.rand.NextFloat(0.06f, 0.14f); // Orange-amber range
+                Color flareColor = Main.hslToRgb(hue, 0.85f, 0.6f);
+                CustomParticles.GenericFlare(flarePos, flareColor, Main.rand.NextFloat(0.25f, 0.4f), 14);
+            }
+            
+            // RADIAL DUST BURST
+            for (int d = 0; d < 14; d++)
+            {
+                Vector2 dustVel = Main.rand.NextVector2Circular(6f, 6f);
+                Dust dust = Dust.NewDustPerfect(target.Center, Main.rand.NextBool() ? DustID.Torch : DustID.GoldCoin, dustVel, 0, Color.White, 1.1f);
+                dust.noGravity = true;
+                dust.fadeIn = 1.3f;
+            }
+            
+            // HARVEST GOLD SPARKLES
+            for (int s = 0; s < 5; s++)
+            {
+                Vector2 sparklePos = target.Center + Main.rand.NextVector2Circular(15f, 15f);
+                var sparkle = new SparkleParticle(sparklePos, Main.rand.NextVector2Circular(3f, 3f), AutumnGold, 0.45f, 16);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
-            // Falling leaves on hit
-            for (int i = 0; i < 3; i++)
+            // FALLING LEAVES ON HIT
+            for (int i = 0; i < 6; i++)
             {
-                Vector2 leafVel = new Vector2(Main.rand.NextFloat(-3f, 3f), -Main.rand.NextFloat(2f, 5f));
+                Vector2 leafVel = new Vector2(Main.rand.NextFloat(-4f, 4f), -Main.rand.NextFloat(2f, 5f));
                 Color leafColor = Main.rand.NextBool() ? AutumnOrange : AutumnRed;
-                var leaf = new GenericGlowParticle(target.Center, leafVel, leafColor * 0.6f, 0.2f, 35, true);
+                var leaf = new GenericGlowParticle(target.Center, leafVel, leafColor * 0.7f, 0.28f, 35, true);
                 MagnumParticleHandler.SpawnParticle(leaf);
+            }
+            
+            // MUSIC NOTES BURST
+            for (int n = 0; n < 5; n++)
+            {
+                float angle = MathHelper.TwoPi * n / 5f + Main.rand.NextFloat(-0.3f, 0.3f);
+                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
+                Color noteColor = Color.Lerp(AutumnOrange, AutumnGold, Main.rand.NextFloat());
+                ThemedParticles.MusicNote(target.Center, noteVel, noteColor, 0.75f, 25);
             }
 
             // Soul Harvest - kills generate healing wisps
@@ -284,40 +301,16 @@ namespace MagnumOpus.Content.Autumn.Weapons
                     );
                 }
 
-                // Death VFX - layered bloom instead of halo
-                CustomParticles.GenericFlare(target.Center, AutumnGold, 0.7f, 20);
-                CustomParticles.GenericFlare(target.Center, DecayPurple, 0.55f, 18);
-                CustomParticles.GenericFlare(target.Center, DecayPurple * 0.6f, 0.4f, 14);
-                
-                // Music note ring for soul harvest
-                ThemedParticles.MusicNoteRing(target.Center, AutumnOrange, 35f, 5);
-                ThemedParticles.MusicNoteBurst(target.Center, AutumnGold, 4, 3.5f);
-                
-                // Harvest glyphs for soul reaping
-                CustomParticles.GlyphBurst(target.Center, AutumnBrown, 5, 4f);
-                
-                // Sparkle accents
-                for (int sparkIdx = 0; sparkIdx < 5; sparkIdx++)
-                {
-                    var sparkle = new SparkleParticle(target.Center + Main.rand.NextVector2Circular(15f, 15f),
-                        Main.rand.NextVector2Circular(3f, 3f), AutumnGold * 0.6f, 0.22f, 18);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
-                }
-                
-                // Soul wisp burst
-                for (int wisp = 0; wisp < 5; wisp++)
-                {
-                    float wispAngle = MathHelper.TwoPi * wisp / 5f;
-                    Vector2 wispPos = target.Center + wispAngle.ToRotationVector2() * 18f;
-                    CustomParticles.GenericFlare(wispPos, DecayPurple * 0.7f, 0.22f, 12);
-                }
+                // Simple Soul Harvest VFX - EARLY GAME
+                CustomParticles.GenericFlare(target.Center, AutumnGold, 0.5f, 16);
+                CustomParticles.HaloRing(target.Center, DecayPurple * 0.4f, 0.35f, 12);
 
                 // Soul release particles
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 5; i++)
                 {
-                    Vector2 soulVel = Main.rand.NextVector2Circular(6f, 6f) + new Vector2(0, -2f);
-                    Color soulColor = Color.Lerp(AutumnGold, Color.White, Main.rand.NextFloat()) * 0.7f;
-                    var soul = new GenericGlowParticle(target.Center, soulVel, soulColor, 0.3f, 30, true);
+                    Vector2 soulVel = Main.rand.NextVector2Circular(4f, 4f) + new Vector2(0, -1.5f);
+                    Color soulColor = Color.Lerp(AutumnGold, Color.White, Main.rand.NextFloat()) * 0.5f;
+                    var soul = new GenericGlowParticle(target.Center, soulVel, soulColor, 0.22f, 22, true);
                     MagnumParticleHandler.SpawnParticle(soul);
                 }
             }

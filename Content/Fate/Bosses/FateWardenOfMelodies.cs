@@ -168,8 +168,9 @@ namespace MagnumOpus.Content.Fate.Bosses
 
         public override void SetDefaults()
         {
-            NPC.width = 180;
-            NPC.height = 200;
+            // Hitbox = 80% of sprite size (600x336)
+            NPC.width = 480;
+            NPC.height = 268;
             NPC.damage = BaseDamage;
             NPC.defense = 140;      // ENDGAME defense - higher than Swan Lake (110)
             NPC.lifeMax = 3000000;   // ENDGAME BOSS - 3 million HP (must defeat TWICE due to True Form)

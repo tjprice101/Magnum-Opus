@@ -74,19 +74,17 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             // Always spawn the flaming spiral at cursor
             Projectile.NewProjectile(source, targetPos, Vector2.Zero, type, damage, knockback, player.whoAmI);
             
-            // === EPIC CAST SOUND STACK ===
+            // === CAST SOUNDS (2 max) ===
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 0.7f }, targetPos);
             SoundEngine.PlaySound(SoundID.Item35 with { Pitch = Main.rand.NextFloat(-0.1f, 0.3f), Volume = 0.5f }, targetPos);
-            SoundEngine.PlaySound(SoundID.DD2_BetsyFireballShot with { Pitch = 0.3f, Volume = 0.35f }, targetPos);
             
             // === BLACK TO ORANGE FLAMING SPIRAL SPAWN EFFECTS ===
             Color campanellaBlack = ThemedParticles.CampanellaBlack;
-            Color campanellaOrange = ThemedParticles.CampanellaOrange;
             
-            // === UnifiedVFX LA CAMPANELLA IMPACT ===
+            // === UnifiedVFX LA CAMPANELLA IMPACT (handles core VFX) ===
             UnifiedVFX.LaCampanella.Impact(targetPos, 1.3f);
             
-            // === UNIQUE: FANG BITE MARK PATTERN ===
+            // === UNIQUE: FANG BITE MARK PATTERN (keep this - it's unique!) ===
             // Two crescent "fangs" bite down at the target location
             for (int fang = 0; fang < 2; fang++)
             {
@@ -108,32 +106,17 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 }
             }
             
-            // Black to orange gradient spiral burst
-            for (int i = 0; i < 12; i++)
+            // Light smoke burst (reduced to 3)
+            for (int i = 0; i < 3; i++)
             {
-                float progress = (float)i / 12f;
-                float angle = MathHelper.TwoPi * i / 12f;
-                Vector2 flarePos = targetPos + angle.ToRotationVector2() * Main.rand.NextFloat(25f, 45f);
-                Color flareColor = Color.Lerp(UnifiedVFX.LaCampanella.Black, UnifiedVFX.LaCampanella.Orange, progress);
-                CustomParticles.GenericFlare(flarePos, flareColor, 0.55f, 19);
-            }
-            
-            // Heavy smoke burst
-            for (int i = 0; i < 6; i++)
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(4f, 4f);
-                var smoke = new HeavySmokeParticle(targetPos + Main.rand.NextVector2Circular(20f, 20f),
-                    vel, campanellaBlack, Main.rand.Next(30, 50), Main.rand.NextFloat(0.3f, 0.5f), 0.5f, 0.02f, false);
+                Vector2 vel = Main.rand.NextVector2Circular(3f, 3f);
+                var smoke = new HeavySmokeParticle(targetPos + Main.rand.NextVector2Circular(15f, 15f),
+                    vel, campanellaBlack, Main.rand.Next(25, 40), Main.rand.NextFloat(0.25f, 0.4f), 0.4f, 0.02f, false);
                 MagnumParticleHandler.SpawnParticle(smoke);
             }
             
-            // Halo rings - black to orange gradient
-            for (int ring = 0; ring < 4; ring++)
-            {
-                float progress = (float)ring / 4f;
-                Color ringColor = Color.Lerp(campanellaBlack, campanellaOrange, progress);
-                CustomParticles.HaloRing(targetPos, ringColor, 0.4f + ring * 0.12f, 15 + ring * 3);
-            }
+            // Single halo ring
+            CustomParticles.HaloRing(targetPos, ThemedParticles.CampanellaOrange, 0.45f, 16);
             
             // Screen shake
             // REMOVED: Screen shake disabled for La Campanella weapons
@@ -146,85 +129,61 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void HoldItem(Player player)
         {
-            // === UNIQUE: SERPENT FANG AURA ===
-            // The "Fang" emerges - serpentine fire that coils around the player
-            
-            // === COILING SERPENT FLAMES ===
-            // Two "fangs" of fire orbit in opposite spirals
+            // === SUBTLE SERPENT FANG AURA ===
+            // Two "fangs" of fire orbit in opposite spirals (reduced intensity)
             float time = Main.GameUpdateCount * 0.04f;
             for (int fang = 0; fang < 2; fang++)
             {
-                float baseAngle = time + fang * MathHelper.Pi; // Opposite sides
-                float spiralRadius = 25f + (float)Math.Sin(time * 2f + fang * 1.5f) * 8f;
+                float baseAngle = time + fang * MathHelper.Pi;
+                float spiralRadius = 22f + (float)Math.Sin(time * 2f + fang * 1.5f) * 6f;
                 
-                // Create serpentine wave pattern
-                for (int segment = 0; segment < 5; segment++)
+                // Create serpentine wave pattern (reduced segments)
+                for (int segment = 0; segment < 3; segment++)
                 {
                     float segmentAngle = baseAngle - segment * 0.3f;
                     float segmentRadius = spiralRadius - segment * 3f;
                     Vector2 segmentPos = player.Center + segmentAngle.ToRotationVector2() * segmentRadius;
                     
-                    // Gradient from tip (bright orange) to tail (black)
-                    float segmentProgress = segment / 4f;
+                    float segmentProgress = segment / 2f;
                     Color fangColor = Color.Lerp(UnifiedVFX.LaCampanella.Orange, UnifiedVFX.LaCampanella.Black, segmentProgress);
-                    float segmentScale = 0.25f - segment * 0.04f;
+                    float segmentScale = 0.18f - segment * 0.04f;
                     
-                    if (Main.rand.NextBool(3))
+                    if (Main.rand.NextBool(5))
                     {
-                        var segment_ = new GenericGlowParticle(segmentPos, Vector2.Zero, fangColor, segmentScale, 8, true);
+                        var segment_ = new GenericGlowParticle(segmentPos, Vector2.Zero, fangColor, segmentScale, 6, true);
                         MagnumParticleHandler.SpawnParticle(segment_);
                     }
                 }
             }
             
-            // === INFINITY SYMBOL GLOW (for "Infinite" theme) ===
-            // When empowered, show ∁Esymbol
+            // === INFINITY SYMBOL GLOW (empowered only, reduced) ===
             if (player.HasBuff(ModContent.BuffType<InfiniteBellEmpoweredBuff>()))
             {
-                // Draw infinity symbol with particles
-                for (int i = 0; i < 12; i++)
+                for (int i = 0; i < 8; i++)
                 {
-                    float t = i / 12f * MathHelper.TwoPi;
-                    // Parametric infinity symbol: x = cos(t), y = sin(t)*cos(t)
-                    float x = (float)Math.Cos(t + time * 0.5f) * 20f;
-                    float y = (float)Math.Sin(t + time * 0.5f) * (float)Math.Cos(t + time * 0.5f) * 15f;
-                    Vector2 infinityPos = player.Center + new Vector2(x, y - 40f); // Above player
+                    float t = i / 8f * MathHelper.TwoPi;
+                    float x = (float)Math.Cos(t + time * 0.5f) * 18f;
+                    float y = (float)Math.Sin(t + time * 0.5f) * (float)Math.Cos(t + time * 0.5f) * 12f;
+                    Vector2 infinityPos = player.Center + new Vector2(x, y - 35f);
                     
                     Color infinityColor = Color.Lerp(UnifiedVFX.LaCampanella.Orange, Color.White, 0.5f);
-                    CustomParticles.GenericFlare(infinityPos, infinityColor * 0.7f, 0.18f, 5);
+                    CustomParticles.GenericFlare(infinityPos, infinityColor * 0.5f, 0.15f, 4);
                 }
             }
             
-            // === VENOM DRIP EFFECT ===
-            // Occasional "venom" drips from the fang tips
-            if (Main.rand.NextBool(15))
+            // Rare venom drip effect
+            if (Main.rand.NextBool(20))
             {
-                Vector2 dripPos = player.Center + Main.rand.NextVector2CircularEdge(28f, 28f);
-                Vector2 dripVel = new Vector2(0, Main.rand.NextFloat(1.5f, 3f)); // Falls down
-                Color venomColor = Color.Lerp(UnifiedVFX.LaCampanella.Orange, new Color(255, 200, 50), Main.rand.NextFloat(0.5f));
-                var drip = new GenericGlowParticle(dripPos, dripVel, venomColor, 0.12f, 20, true);
+                Vector2 dripPos = player.Center + Main.rand.NextVector2CircularEdge(25f, 25f);
+                Vector2 dripVel = new Vector2(0, Main.rand.NextFloat(1.5f, 2.5f));
+                Color venomColor = UnifiedVFX.LaCampanella.Orange;
+                var drip = new GenericGlowParticle(dripPos, dripVel, venomColor, 0.1f, 15, true);
                 MagnumParticleHandler.SpawnParticle(drip);
             }
             
-            // Smoke wisps (original)
-            if (Main.rand.NextBool(12))
-            {
-                var smoke = new HeavySmokeParticle(player.Center + Main.rand.NextVector2Circular(20f, 20f),
-                    new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -0.8f), UnifiedVFX.LaCampanella.Black,
-                    Main.rand.Next(25, 40), Main.rand.NextFloat(0.14f, 0.22f), 0.32f, 0.016f, false);
-                MagnumParticleHandler.SpawnParticle(smoke);
-            }
-            
-            // === MUSIC NOTES ===
-            if (Main.rand.NextBool(20))
-            {
-                ThemedParticles.LaCampanellaMusicNotes(player.Center, 1, 25f);
-            }
-            
-            // Gradient light
+            // Subtle light
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.9f;
-            Vector3 lightColor = Color.Lerp(UnifiedVFX.LaCampanella.Black, UnifiedVFX.LaCampanella.Orange, 0.5f).ToVector3();
-            Lighting.AddLight(player.Center, lightColor * pulse * 0.5f);
+            Lighting.AddLight(player.Center, 0.4f * pulse, 0.2f * pulse, 0.06f * pulse);
         }
 
         public override void ModifyManaCost(Player player, ref float reduce, ref float mult)
@@ -311,65 +270,30 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Player.AddBuff(ModContent.BuffType<InfiniteBellDamageBuff>(), 5 * 60); // 5 seconds damage
             Player.AddBuff(ModContent.BuffType<InfiniteBellEmpoweredBuff>(), 10 * 60); // 10 seconds empowered (infinite mana + explosive shots)
             
-            // === MASSIVE EMPOWERMENT ACTIVATION VFX ===
+            // === EMPOWERMENT ACTIVATION VFX (cleaned) ===
             Color campanellaBlack = ThemedParticles.CampanellaBlack;
             Color campanellaOrange = ThemedParticles.CampanellaOrange;
-            Color campanellaRed = ThemedParticles.CampanellaRed;
             
-            // Epic sounds
-            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.2f, Volume = 1f }, Player.Center);
-            SoundEngine.PlaySound(SoundID.Item45 with { Pitch = 0.4f, Volume = 0.7f }, Player.Center);
-            SoundEngine.PlaySound(SoundID.DD2_BetsyFireballImpact with { Pitch = 0.2f, Volume = 0.6f }, Player.Center);
+            // 2 sounds max
+            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.2f, Volume = 0.9f }, Player.Center);
+            SoundEngine.PlaySound(SoundID.Item45 with { Pitch = 0.4f, Volume = 0.6f }, Player.Center);
             
-            // Grand impact effects
-            ThemedParticles.LaCampanellaImpact(Player.Center, 2f);
-            ThemedParticles.LaCampanellaShockwave(Player.Center, 1.5f);
-            ThemedParticles.LaCampanellaBellChime(Player.Center, 1.5f);
+            // UnifiedVFX handles core impact
+            UnifiedVFX.LaCampanella.Impact(Player.Center, 1.6f);
             
-            // Massive black to orange gradient burst
-            for (int i = 0; i < 16; i++)
+            // Heavy smoke (reduced to 3)
+            for (int i = 0; i < 3; i++)
             {
-                float progress = (float)i / 16f;
-                float angle = MathHelper.TwoPi * i / 16f;
-                Vector2 flarePos = Player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(40f, 70f);
-                Color flareColor = Color.Lerp(campanellaBlack, campanellaOrange, progress);
-                CustomParticles.GenericFlare(flarePos, flareColor, 0.7f, 25);
-            }
-            
-            // Inner red/orange burst
-            for (int i = 0; i < 10; i++)
-            {
-                float progress = (float)i / 10f;
-                float angle = MathHelper.TwoPi * i / 10f;
-                Vector2 flarePos = Player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(20f, 40f);
-                Color flareColor = Color.Lerp(campanellaOrange, campanellaRed, progress);
-                CustomParticles.GenericFlare(flarePos, flareColor, 0.55f, 20);
-            }
-            
-            // Heavy smoke explosion
-            for (int i = 0; i < 12; i++)
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(6f, 6f);
-                float progress = (float)i / 12f;
-                Color smokeColor = Color.Lerp(campanellaBlack, new Color(40, 25, 15), progress);
-                var smoke = new HeavySmokeParticle(Player.Center + Main.rand.NextVector2Circular(30f, 30f),
-                    vel, smokeColor, Main.rand.Next(40, 60), Main.rand.NextFloat(0.4f, 0.6f), 0.55f, 0.02f, false);
+                Vector2 vel = Main.rand.NextVector2Circular(5f, 5f);
+                var smoke = new HeavySmokeParticle(Player.Center + Main.rand.NextVector2Circular(25f, 25f),
+                    vel, campanellaBlack, Main.rand.Next(35, 55), Main.rand.NextFloat(0.35f, 0.55f), 0.5f, 0.02f, false);
                 MagnumParticleHandler.SpawnParticle(smoke);
             }
             
-            // Multiple halo rings - black to orange
-            for (int ring = 0; ring < 6; ring++)
-            {
-                float progress = (float)ring / 6f;
-                Color ringColor = Color.Lerp(campanellaBlack, campanellaOrange, progress);
-                CustomParticles.HaloRing(Player.Center, ringColor, 0.5f + ring * 0.2f, 20 + ring * 5);
-            }
+            // Single halo ring
+            CustomParticles.HaloRing(Player.Center, campanellaOrange, 0.6f, 20);
             
-            // Screen shake
-            // REMOVED: Screen shake disabled for La Campanella weapons
-            // Player.GetModPlayer<ScreenShakePlayer>()?.AddShake(12f, 25);
-            
-            Lighting.AddLight(Player.Center, 2f, 1f, 0.3f);
+            Lighting.AddLight(Player.Center, 1.8f, 0.9f, 0.25f);
         }
     }
 
@@ -460,51 +384,65 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         {
             Color campanellaBlack = ThemedParticles.CampanellaBlack;
             Color campanellaOrange = ThemedParticles.CampanellaOrange;
-            Color campanellaRed = ThemedParticles.CampanellaRed;
+            Color campanellaGold = ThemedParticles.CampanellaGold;
             
-            // === EPIC EXPLOSION SOUNDS ===
+            // 2 sounds max
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 0.6f }, Projectile.Center);
-            SoundEngine.PlaySound(SoundID.DD2_BetsyFireballImpact with { Pitch = 0.1f, Volume = 0.5f }, Projectile.Center);
+            SoundEngine.PlaySound(SoundID.DD2_BetsyFireballImpact with { Pitch = 0.1f, Volume = 0.4f }, Projectile.Center);
             
-            // Impact effects
-            ThemedParticles.LaCampanellaImpact(Projectile.Center, 1.3f);
-            ThemedParticles.LaCampanellaShockwave(Projectile.Center, 1f);
+            // === IRIDESCENT WINGSPAN STYLE IMPACT ===
+            UnifiedVFX.LaCampanella.Impact(Projectile.Center, 1.2f);
             
-            // Black to orange explosion burst
-            for (int i = 0; i < 14; i++)
-            {
-                float progress = (float)i / 14f;
-                float angle = MathHelper.TwoPi * i / 14f;
-                Vector2 flarePos = Projectile.Center + angle.ToRotationVector2() * Main.rand.NextFloat(30f, 55f);
-                Color flareColor = Color.Lerp(campanellaBlack, campanellaOrange, progress);
-                CustomParticles.GenericFlare(flarePos, flareColor, 0.55f, 20);
-            }
+            // === MUSIC NOTES BURST! ===
+            ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 8, 40f);
             
-            // Heavy smoke burst
-            for (int i = 0; i < 8; i++)
+            // === HEAVY SMOKE BURST ===
+            for (int i = 0; i < 5; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(5f, 5f) + new Vector2(0, -1.5f);
-                var smoke = new HeavySmokeParticle(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f),
-                    vel, campanellaBlack, Main.rand.Next(35, 55), Main.rand.NextFloat(0.35f, 0.55f), 0.5f, 0.02f, false);
+                var smoke = new HeavySmokeParticle(Projectile.Center + Main.rand.NextVector2Circular(18f, 18f),
+                    vel, campanellaBlack, Main.rand.Next(35, 50), Main.rand.NextFloat(0.35f, 0.5f), 0.5f, 0.02f, false);
                 MagnumParticleHandler.SpawnParticle(smoke);
             }
             
-            // Spark burst
-            CustomParticles.ExplosionBurst(Projectile.Center, campanellaOrange, 16, 8f);
-            
-            // Halo rings
-            for (int ring = 0; ring < 4; ring++)
+            // === GRADIENT HALO RINGS (3 stacked) ===
+            for (int ring = 0; ring < 3; ring++)
             {
-                float progress = (float)ring / 4f;
-                Color ringColor = Color.Lerp(campanellaBlack, campanellaOrange, progress);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.4f + ring * 0.12f, 15 + ring * 4);
+                float progress = (float)ring / 3f;
+                Color ringColor = Color.Lerp(campanellaOrange, campanellaGold, progress);
+                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.4f + ring * 0.12f, 14 + ring * 3);
             }
             
-            // REMOVED: Screen shake disabled for La Campanella weapons
-            // Player owner = Main.player[Projectile.owner];
-            // owner.GetModPlayer<ScreenShakePlayer>()?.AddShake(5f, 10);
+            // === FIRE SHIMMER FLARE BURST ===
+            for (int i = 0; i < 10; i++)
+            {
+                float fireHue = 0.02f + (i / 10f) * 0.08f;
+                Color flareColor = Main.hslToRgb(fireHue, 1f, 0.7f);
+                CustomParticles.GenericFlare(Projectile.Center + Main.rand.NextVector2Circular(16f, 16f), flareColor, 0.55f, 20);
+            }
             
-            Lighting.AddLight(Projectile.Center, 1.5f, 0.75f, 0.25f);
+            // === RADIAL DUST EXPLOSION ===
+            for (int i = 0; i < 16; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 16f;
+                float progress = (float)i / 16f;
+                Color dustColor = Color.Lerp(campanellaBlack, campanellaOrange, progress);
+                int dustType = i % 2 == 0 ? DustID.OrangeTorch : DustID.Smoke;
+                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(5f, 10f);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, dustType, vel, i % 2 == 1 ? 80 : 0, dustColor, 1.7f);
+                d.noGravity = true;
+                d.fadeIn = 1.1f;
+            }
+            
+            // === GOLD SPARKLES ===
+            for (int i = 0; i < 6; i++)
+            {
+                Dust gold = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(12f, 12f), DustID.Enchanted_Gold,
+                    Main.rand.NextVector2Circular(4f, 4f), 0, campanellaGold, 1.4f);
+                gold.noGravity = true;
+            }
+            
+            Lighting.AddLight(Projectile.Center, 1.4f, 0.7f, 0.25f);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -530,50 +468,27 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Player owner = Main.player[Projectile.owner];
             owner.GetModPlayer<InfiniteBellPlayer>().RegisterHit(target.Center);
             
-            // Hit VFX
-            Color campanellaBlack = ThemedParticles.CampanellaBlack;
+            // Hit VFX (cleaned)
             Color campanellaOrange = ThemedParticles.CampanellaOrange;
             
             Vector2 hitDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
-            ThemedParticles.LaCampanellaSparks(target.Center, hitDir, 5, 6f);
+            ThemedParticles.LaCampanellaSparks(target.Center, hitDir, 4, 5f);
             
-            // === SIGNATURE FRACTAL FLARE BURST - BLACK ↁEORANGE ===
-            for (int i = 0; i < 6; i++)
+            // Music notes (reduced to 2)
+            ThemedParticles.LaCampanellaMusicNotes(target.Center, 2, 20f);
+            
+            // Smoke puff (reduced to 2)
+            for (int i = 0; i < 2; i++)
             {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
-                float progress = (float)i / 6f;
-                Color fractalColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, progress);
-                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.45f, 18);
-            }
-            
-            // === GLYPH IMPACT - SPIRAL PROJECTILE ===
-            if (CustomParticleSystem.TexturesLoaded)
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    float glyphAngle = MathHelper.TwoPi * i / 4f + Main.GameUpdateCount * 0.05f;
-                    Vector2 glyphPos = target.Center + glyphAngle.ToRotationVector2() * 28f;
-                    Color glyphColor = Color.Lerp(campanellaBlack, campanellaOrange, (float)i / 4f) * 0.65f;
-                    CustomParticles.Glyph(glyphPos, glyphColor, 0.25f, -1);
-                }
-            }
-            
-            // Music notes on hit
-            ThemedParticles.LaCampanellaMusicNotes(target.Center, 3, 25f);
-            
-            // Smoke puff
-            for (int i = 0; i < 3; i++)
-            {
-                var smoke = new HeavySmokeParticle(target.Center + Main.rand.NextVector2Circular(10f, 10f),
-                    Main.rand.NextVector2Circular(2f, 2f), campanellaBlack,
-                    Main.rand.Next(20, 35), Main.rand.NextFloat(0.2f, 0.35f), 0.4f, 0.02f, false);
+                var smoke = new HeavySmokeParticle(target.Center + Main.rand.NextVector2Circular(8f, 8f),
+                    Main.rand.NextVector2Circular(1.5f, 1.5f), ThemedParticles.CampanellaBlack,
+                    Main.rand.Next(18, 30), Main.rand.NextFloat(0.18f, 0.3f), 0.35f, 0.02f, false);
                 MagnumParticleHandler.SpawnParticle(smoke);
             }
             
-            SoundEngine.PlaySound(SoundID.Item35 with { Pitch = Main.rand.NextFloat(0.2f, 0.6f), Volume = 0.4f }, target.Center);
+            SoundEngine.PlaySound(SoundID.Item35 with { Pitch = Main.rand.NextFloat(0.2f, 0.6f), Volume = 0.35f }, target.Center);
             
-            Lighting.AddLight(target.Center, 0.8f, 0.4f, 0.12f);
+            Lighting.AddLight(target.Center, 0.6f, 0.3f, 0.1f);
         }
         
         public override bool PreDraw(ref Color lightColor) => false; // Pure particle visual
@@ -610,33 +525,77 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             
             Color campanellaBlack = ThemedParticles.CampanellaBlack;
             Color campanellaOrange = ThemedParticles.CampanellaOrange;
+            Color campanellaGold = ThemedParticles.CampanellaGold;
             
-            // === BLACK TO ORANGE FLAME TRAIL ===
-            if (Main.rand.NextBool(2))
+            // === IRIDESCENT WINGSPAN STYLE - HEAVY DUST TRAILS (2+ per frame) ===
+            for (int i = 0; i < 2; i++)
             {
+                // Main flame trail - Black to Orange gradient
                 float progress = Main.rand.NextFloat();
-                Color trailColor = Color.Lerp(campanellaBlack, campanellaOrange, progress);
-                var glow = new GenericGlowParticle(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
-                    -Projectile.velocity * 0.1f, trailColor, Main.rand.NextFloat(0.25f, 0.4f), Main.rand.Next(12, 20), true);
-                MagnumParticleHandler.SpawnParticle(glow);
+                Color dustColor = Color.Lerp(campanellaBlack, campanellaOrange, progress);
+                int dustType = progress < 0.5f ? DustID.Torch : DustID.OrangeTorch;
+                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(5f, 5f), dustType,
+                    -Projectile.velocity * 0.2f + Main.rand.NextVector2Circular(2f, 2f),
+                    progress < 0.3f ? 80 : 0, dustColor, 1.8f);
+                d.noGravity = true;
+                d.fadeIn = 1.4f;
             }
             
-            // Heavy smoke trail
+            // === CONTRASTING SPARKLES - Gold highlights against black smoke ===
+            if (Main.rand.NextBool(2))
+            {
+                Dust gold = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f), DustID.Enchanted_Gold,
+                    -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(1.5f, 1.5f),
+                    0, campanellaGold, 1.4f);
+                gold.noGravity = true;
+            }
+            
+            // === FIRE SHIMMER TRAIL - Like rainbow but with flame tones ===
             if (Main.rand.NextBool(3))
             {
+                // Cycle through fire colors: red -> orange -> yellow -> gold
+                float fireHue = 0.02f + Main.rand.NextFloat() * 0.08f; // 0.02-0.10 hue range (red-orange-yellow)
+                Color fireShimmer = Main.hslToRgb(fireHue, 1f, 0.65f);
+                Dust r = Dust.NewDustPerfect(Projectile.Center, DustID.Torch,
+                    -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(1f, 1f), 0, fireShimmer, 1.5f);
+                r.noGravity = true;
+            }
+            
+            // === EMBER SHIMMER - Like pearlescent but with warm tones ===
+            if (Main.rand.NextBool(4))
+            {
+                Color ember = Main.rand.NextBool() ? new Color(255, 180, 100) : new Color(255, 140, 60);
+                CustomParticles.GenericFlare(Projectile.Center, ember, 0.35f, 15);
+            }
+            
+            // === FREQUENT FLARES (1 in 2) ===
+            if (Main.rand.NextBool(2))
+            {
+                float flareProgress = Main.rand.NextFloat();
+                Color flareColor = Color.Lerp(campanellaOrange, campanellaGold, flareProgress);
+                CustomParticles.GenericFlare(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), flareColor, 0.5f, 18);
+            }
+            
+            // === HEAVY SMOKE TRAIL ===
+            if (Main.rand.NextBool(2))
+            {
                 var smoke = new HeavySmokeParticle(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
-                    -Projectile.velocity * 0.05f, campanellaBlack,
-                    Main.rand.Next(20, 35), Main.rand.NextFloat(0.2f, 0.35f), 0.4f, 0.02f, false);
+                    -Projectile.velocity * 0.08f + new Vector2(0, -0.5f), campanellaBlack,
+                    Main.rand.Next(20, 35), Main.rand.NextFloat(0.25f, 0.4f), 0.45f, 0.02f, false);
                 MagnumParticleHandler.SpawnParticle(smoke);
             }
             
-            // Occasional flares
-            if (Main.rand.NextBool(5))
+            // === MUSIC NOTES - The bell's melody ===
+            if (Main.rand.NextBool(6))
             {
-                CustomParticles.GenericFlare(Projectile.Center, campanellaOrange, 0.35f, 10);
+                Color noteColor = Color.Lerp(campanellaOrange, campanellaGold, Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
             }
             
-            Lighting.AddLight(Projectile.Center, 0.7f, 0.35f, 0.1f);
+            // === PULSING LIGHT ===
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.2f + 1f;
+            Lighting.AddLight(Projectile.Center, 0.9f * pulse, 0.45f * pulse, 0.12f * pulse);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -648,32 +607,10 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Player owner = Main.player[Projectile.owner];
             owner.GetModPlayer<InfiniteBellPlayer>().RegisterHit(target.Center);
             
-            // === SIGNATURE FRACTAL FLARE BURST - BLACK ↁEORANGE ===
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
-                float progress = (float)i / 6f;
-                Color fractalColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, progress);
-                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.45f, 18);
-            }
+            // Music notes (reduced to 2)
+            ThemedParticles.LaCampanellaMusicNotes(target.Center, 2, 20f);
             
-            // === GLYPH IMPACT - ARCANE EXPLOSIVE ===
-            if (CustomParticleSystem.TexturesLoaded)
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    float glyphAngle = MathHelper.TwoPi * i / 4f + Main.GameUpdateCount * 0.04f;
-                    Vector2 glyphPos = target.Center + glyphAngle.ToRotationVector2() * 30f;
-                    Color glyphColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, (float)i / 4f) * 0.6f;
-                    CustomParticles.Glyph(glyphPos, glyphColor, 0.26f, -1);
-                }
-            }
-            
-            // Music notes on hit
-            ThemedParticles.LaCampanellaMusicNotes(target.Center, 4, 30f);
-            
-            // === MASSIVE EXPLOSION WITH LIGHTNING ===
+            // === EXPLOSION WITH LIGHTNING ===
             SpawnExplosionWithLightning(target.Center);
         }
         
@@ -686,30 +623,22 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         {
             Color campanellaBlack = ThemedParticles.CampanellaBlack;
             Color campanellaOrange = ThemedParticles.CampanellaOrange;
+            Color campanellaGold = ThemedParticles.CampanellaGold;
             Color campanellaRed = ThemedParticles.CampanellaRed;
             
-            // === EPIC EXPLOSION SOUNDS ===
-            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.1f, Volume = 0.8f }, position);
-            SoundEngine.PlaySound(SoundID.DD2_BetsyFireballImpact with { Pitch = -0.1f, Volume = 0.6f }, position);
-            SoundEngine.PlaySound(SoundID.Item94 with { Pitch = 0.3f, Volume = 0.5f }, position); // Thunder/lightning sound
+            // 2 sounds max
+            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.1f, Volume = 0.7f }, position);
+            SoundEngine.PlaySound(SoundID.Item94 with { Pitch = 0.3f, Volume = 0.4f }, position); // Thunder sound
             
-            // Impact effects
-            ThemedParticles.LaCampanellaImpact(position, 1.8f);
-            ThemedParticles.LaCampanellaShockwave(position, 1.3f);
-            ThemedParticles.LaCampanellaBellChime(position, 1.2f);
+            // === IRIDESCENT WINGSPAN STYLE - LAYERED IMPACT ===
+            // UnifiedVFX handles core impact
+            UnifiedVFX.LaCampanella.Impact(position, 1.5f);
             
-            // Black to orange explosion burst
-            for (int i = 0; i < 16; i++)
-            {
-                float progress = (float)i / 16f;
-                float angle = MathHelper.TwoPi * i / 16f;
-                Vector2 flarePos = position + angle.ToRotationVector2() * Main.rand.NextFloat(35f, 60f);
-                Color flareColor = Color.Lerp(campanellaBlack, campanellaOrange, progress);
-                CustomParticles.GenericFlare(flarePos, flareColor, 0.6f, 22);
-            }
+            // === MUSIC NOTES BURST - The bell's chord! ===
+            ThemedParticles.LaCampanellaMusicNotes(position, 10, 44f);
             
-            // Heavy smoke explosion
-            for (int i = 0; i < 10; i++)
+            // === HEAVY SMOKE BURST (enhanced) ===
+            for (int i = 0; i < 5; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(6f, 6f) + new Vector2(0, -2f);
                 var smoke = new HeavySmokeParticle(position + Main.rand.NextVector2Circular(25f, 25f),
@@ -717,39 +646,70 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 MagnumParticleHandler.SpawnParticle(smoke);
             }
             
-            // Spark burst
-            CustomParticles.ExplosionBurst(position, campanellaOrange, 20, 10f);
-            
-            // Halo rings
-            for (int ring = 0; ring < 5; ring++)
+            // === GRADIENT HALO RINGS (Iridescent style - 4 stacked rings!) ===
+            for (int ring = 0; ring < 4; ring++)
             {
-                float progress = (float)ring / 5f;
-                Color ringColor = Color.Lerp(campanellaBlack, campanellaOrange, progress);
-                CustomParticles.HaloRing(position, ringColor, 0.45f + ring * 0.15f, 18 + ring * 4);
+                float progress = (float)ring / 4f;
+                // Fire gradient: Black -> Orange -> Gold -> White-hot
+                Color ringColor;
+                if (progress < 0.33f)
+                    ringColor = Color.Lerp(campanellaBlack, campanellaOrange, progress * 3f);
+                else if (progress < 0.66f)
+                    ringColor = Color.Lerp(campanellaOrange, campanellaGold, (progress - 0.33f) * 3f);
+                else
+                    ringColor = Color.Lerp(campanellaGold, Color.White, (progress - 0.66f) * 3f);
+                    
+                CustomParticles.HaloRing(position, ringColor, 0.35f + ring * 0.15f, 14 + ring * 4);
             }
             
-            // === MASSIVE LIGHTNING STRIKES ===
-            // Draw lightning from sky to explosion point
-            Vector2 skyPoint = position + new Vector2(Main.rand.NextFloat(-100f, 100f), -600f);
-            MagnumVFX.DrawLaCampanellaLightning(skyPoint, position, 20, 80f, 8, 0.6f);
-            
-            // Secondary lightning branches
-            for (int i = 0; i < 3; i++)
+            // === FIRE SHIMMER FLARE BURST (like rainbow burst but fire tones) ===
+            for (int i = 0; i < 12; i++)
             {
-                float branchAngle = Main.rand.NextFloat(MathHelper.TwoPi);
-                Vector2 branchEnd = position + branchAngle.ToRotationVector2() * Main.rand.NextFloat(80f, 150f);
-                MagnumVFX.DrawLaCampanellaLightning(position, branchEnd, 8, 35f, 3, 0.4f);
-                
-                // Small explosion at branch end
-                for (int j = 0; j < 6; j++)
-                {
-                    float progress = (float)j / 6f;
-                    float angle = MathHelper.TwoPi * j / 6f;
-                    Vector2 flarePos = branchEnd + angle.ToRotationVector2() * Main.rand.NextFloat(10f, 20f);
-                    Color flareColor = Color.Lerp(campanellaBlack, campanellaOrange, progress);
-                    CustomParticles.GenericFlare(flarePos, flareColor, 0.35f, 15);
-                }
+                float fireHue = 0.02f + (i / 12f) * 0.1f; // Red to yellow gradient
+                Color flareColor = Main.hslToRgb(fireHue, 1f, 0.7f);
+                CustomParticles.GenericFlare(position + Main.rand.NextVector2Circular(20f, 20f), flareColor, 0.6f, 24);
             }
+            
+            // === BLACK AND ORANGE EXPLOSION DUST (like B/W but fire themed) ===
+            for (int i = 0; i < 20; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 20f;
+                Color dustColor = i % 2 == 0 ? campanellaOrange : campanellaBlack;
+                int dustType = i % 2 == 0 ? DustID.OrangeTorch : DustID.Smoke;
+                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(6f, 12f);
+                Dust d = Dust.NewDustPerfect(position, dustType, vel, i % 2 == 1 ? 100 : 0, dustColor, 1.9f);
+                d.noGravity = true;
+                d.fadeIn = 1.2f;
+            }
+            
+            // === EMBER SPARK EXPLOSION (like rainbow sparks) ===
+            for (int i = 0; i < 24; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 24f;
+                float fireHue = 0.02f + (i / 24f) * 0.08f;
+                Color sparkColor = Main.hslToRgb(fireHue, 1f, 0.65f);
+                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(7f, 14f);
+                Dust spark = Dust.NewDustPerfect(position, DustID.Torch, vel, 0, sparkColor, 1.8f);
+                spark.noGravity = true;
+                spark.fadeIn = 1.2f;
+            }
+            
+            // === GOLD CONTRASTING SPARKLES ===
+            for (int i = 0; i < 8; i++)
+            {
+                Dust gold = Dust.NewDustPerfect(position + Main.rand.NextVector2Circular(15f, 15f), DustID.Enchanted_Gold,
+                    Main.rand.NextVector2Circular(5f, 5f), 0, campanellaGold, 1.6f);
+                gold.noGravity = true;
+            }
+            
+            // === LIGHTNING STRIKE (keep - it's unique!) ===
+            Vector2 skyPoint = position + new Vector2(Main.rand.NextFloat(-80f, 80f), -500f);
+            MagnumVFX.DrawLaCampanellaLightning(skyPoint, position, 16, 70f, 5, 0.5f);
+            
+            // Single secondary branch
+            float branchAngle = Main.rand.NextFloat(MathHelper.TwoPi);
+            Vector2 branchEnd = position + branchAngle.ToRotationVector2() * Main.rand.NextFloat(60f, 120f);
+            MagnumVFX.DrawLaCampanellaLightning(position, branchEnd, 6, 30f, 2, 0.35f);
             
             // Damage nearby enemies with lightning
             float lightningRadius = 200f;
@@ -801,35 +761,59 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = texture.Size() / 2f;
             
-            // Draw trail with black to orange gradient
+            Color campanellaOrange = ThemedParticles.CampanellaOrange;
+            Color campanellaGold = ThemedParticles.CampanellaGold;
+            Color campanellaBlack = ThemedParticles.CampanellaBlack;
+            
+            // === IRIDESCENT WINGSPAN STYLE - GRADIENT TRAIL ===
             for (int i = Projectile.oldPos.Length - 1; i >= 0; i--)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 
                 float progress = 1f - (i / (float)Projectile.oldPos.Length);
-                float trailScale = Projectile.scale * (0.5f + progress * 0.5f);
+                float trailScale = Projectile.scale * (0.4f + progress * 0.6f);
                 Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
                 float trailRotation = Projectile.oldRot[i];
                 
-                Color trailColor = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, progress) * progress * 0.6f;
+                // Fire gradient trail: Black -> Orange -> Gold
+                Color trailColor;
+                if (progress < 0.5f)
+                    trailColor = Color.Lerp(campanellaBlack, campanellaOrange, progress * 2f);
+                else
+                    trailColor = Color.Lerp(campanellaOrange, campanellaGold, (progress - 0.5f) * 2f);
+                trailColor *= progress * 0.7f;
                 
                 Main.EntitySpriteDraw(texture, drawPos, null, trailColor, trailRotation, origin, trailScale * 0.6f, SpriteEffects.None, 0);
             }
             
-            // Additive glow
+            // === MULTI-LAYER ADDITIVE GLOW (Iridescent Wingspan style) ===
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition, null, 
-                ThemedParticles.CampanellaOrange * 0.6f, Projectile.rotation, origin, Projectile.scale * 0.8f, SpriteEffects.None, 0);
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.15f + 1f;
+            Vector2 centerPos = Projectile.Center - Main.screenPosition;
+            
+            // Outer orange glow
+            Main.EntitySpriteDraw(texture, centerPos, null, 
+                campanellaOrange * 0.5f, Projectile.rotation, origin, Projectile.scale * pulse * 1.4f, SpriteEffects.None, 0);
+            // Middle gold glow
+            Main.EntitySpriteDraw(texture, centerPos, null, 
+                campanellaGold * 0.4f, Projectile.rotation, origin, Projectile.scale * pulse * 1.2f, SpriteEffects.None, 0);
+            // Inner black shadow
+            Main.EntitySpriteDraw(texture, centerPos, null, 
+                campanellaBlack * 0.3f, Projectile.rotation, origin, Projectile.scale * pulse * 1.05f, SpriteEffects.None, 0);
+            // White-hot ember shimmer
+            Color emberColor = Color.Lerp(new Color(255, 200, 150), new Color(255, 160, 80), (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.5f + 0.5f);
+            Main.EntitySpriteDraw(texture, centerPos, null, 
+                emberColor * 0.25f, Projectile.rotation, origin, Projectile.scale * pulse * 1.1f, SpriteEffects.None, 0);
             
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Main projectile
-            Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition, null, 
+            Main.EntitySpriteDraw(texture, centerPos, null, 
                 lightColor, Projectile.rotation, origin, Projectile.scale * 0.6f, SpriteEffects.None, 0);
             
             return false;

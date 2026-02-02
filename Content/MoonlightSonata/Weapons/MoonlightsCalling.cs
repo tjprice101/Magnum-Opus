@@ -45,53 +45,19 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
 
         public override void HoldItem(Player player)
         {
-            // === CALAMITY-INSPIRED AMBIENT AURA ===
-            // Orbiting fractal flares with gradient
-            if (Main.rand.NextBool(5))
-            {
-                float baseAngle = Main.GameUpdateCount * 0.03f;
-                for (int i = 0; i < 6; i++)
-                {
-                    float angle = baseAngle + MathHelper.TwoPi * i / 6f;
-                    float radius = 26f + (float)Math.Sin(Main.GameUpdateCount * 0.06f + i * 0.8f) * 10f;
-                    Vector2 flarePos = player.Center + angle.ToRotationVector2() * radius;
-                    float progress = (float)i / 6f;
-                    Color fractalColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
-                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.25f + (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.08f, 14);
-                }
-            }
-            
-            // UnifiedVFX themed aura
-            if (Main.rand.NextBool(8))
-            {
-                UnifiedVFX.MoonlightSonata.Aura(player.Center, 28f, 0.25f);
-            }
-            
-            // Magical tome particles with gradient - flowing glow particles
-            if (Main.rand.NextBool(4))
+            // Subtle ambient aura (Swan Lake benchmark: minimal HoldItem)
+            if (Main.rand.NextBool(15))
             {
                 Vector2 offset = Main.rand.NextVector2Circular(22f, 22f);
-                float progress = Main.rand.NextFloat();
-                Color gradientColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
-                
-                var glow = new GenericGlowParticle(player.Center + offset, Main.rand.NextVector2Circular(0.5f, 0.5f),
-                    gradientColor, 0.22f + progress * 0.1f, 20, true);
-                MagnumParticleHandler.SpawnParticle(glow);
+                Color gradientColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, Main.rand.NextFloat());
+                CustomParticles.PrismaticSparkle(player.Center + offset, gradientColor * 0.5f, 0.18f);
             }
             
-            // Music notes floating around the player - the tome sings
-            if (Main.rand.NextBool(12))
+            // Rare music note
+            if (Main.rand.NextBool(25))
             {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Vector2 noteVel = new Vector2(0, -0.8f).RotatedByRandom(0.5f);
-                Color noteColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, Main.rand.NextFloat());
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.22f, 35);
-            }
-            
-            // Custom particle ethereal glow
-            if (Main.rand.NextBool(8))
-            {
-                CustomParticles.MoonlightFlare(player.Center + Main.rand.NextVector2Circular(18f, 18f), 0.2f);
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
+                ThemedParticles.MusicNote(notePos, new Vector2(0, -0.5f), UnifiedVFX.MoonlightSonata.MediumPurple * 0.6f, 0.2f, 30);
             }
             
             // Pulsing mystical glow
@@ -142,47 +108,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
             
             Vector2 direction = velocity.SafeNormalize(Vector2.UnitX);
             
-            // === CALAMITY-INSPIRED MUZZLE FLASH ===
-            // Phase 1: Central white flash
-            CustomParticles.GenericFlare(position, Color.White * 0.9f, 0.5f, 10);
+            // === GENTLE MUZZLE FLASH (Swan Lake benchmark) ===
+            // Central flash
+            CustomParticles.GenericFlare(position, UnifiedVFX.MoonlightSonata.LightBlue * 0.7f, 0.4f, 12);
             
-            // Phase 2: UnifiedVFX swing aura (adapted for magic cast)
-            UnifiedVFX.MoonlightSonata.SwingAura(position, direction, 0.6f);
+            // Single halo
+            CustomParticles.HaloRing(position, UnifiedVFX.MoonlightSonata.MediumPurple * 0.5f, 0.25f, 12);
             
-            // Phase 3: Fractal geometric burst with gradient
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 flareOffset = angle.ToRotationVector2() * 18f;
-                float progress = (float)i / 8f;
-                Color flashColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
-                CustomParticles.GenericFlare(position + flareOffset, flashColor, 0.32f, 14);
-            }
-            
-            // Phase 4: Gradient halo rings
-            for (int ring = 0; ring < 3; ring++)
-            {
-                float ringProgress = (float)ring / 3f;
-                Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, ringProgress);
-                CustomParticles.HaloRing(position, ringColor, 0.22f + ring * 0.1f, 10 + ring * 3);
-            }
-            
-            // Phase 5: Directional sparks shooting forward
-            for (int i = 0; i < 4; i++)
-            {
-                Vector2 sparkVel = direction.RotatedByRandom(0.4f) * Main.rand.NextFloat(4f, 8f);
-                float progress = (float)i / 4f;
-                Color sparkColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, progress);
-                
-                var spark = new GenericGlowParticle(position, sparkVel, sparkColor, 0.28f, 16, true);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            // Phase 6: Music notes on every cast - the tome sings with each spell
-            ThemedParticles.MoonlightMusicNotes(position, 3, 22f);
-            
-            // Custom particle muzzle flash
-            CustomParticles.MoonlightFlare(position, 0.28f);
+            // Gentle music notes
+            ThemedParticles.MoonlightMusicNotes(position, 2, 18f);
             
             return false;
         }

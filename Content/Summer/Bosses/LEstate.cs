@@ -137,8 +137,9 @@ namespace MagnumOpus.Content.Summer.Bosses
 
         public override void SetDefaults()
         {
-            NPC.width = 110;
-            NPC.height = 130;
+            // Hitbox = 80% of sprite size (540x511)
+            NPC.width = 432;
+            NPC.height = 408;
             NPC.damage = BaseDamage;
             NPC.defense = 25; // Post-Skeletron tier
             NPC.lifeMax = 15000; // Post-Skeletron tier (comparable to Queen Bee 3.4k Classic, WoF 8k Classic)

@@ -75,46 +75,19 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void HoldItem(Player player)
         {
-            // === MYSTERY ORB PREVIEW - ENIGMA HOLD EFFECT ===
-            // Orbiting mini-orbs representing the cascade to come
-            if (Main.rand.NextBool(8))
-            {
-                float angle = Main.GameUpdateCount * 0.03f;
-                for (int i = 0; i < 2; i++)
-                {
-                    float orbAngle = angle + MathHelper.Pi * i;
-                    Vector2 orbPos = player.Center + orbAngle.ToRotationVector2() * 40f;
-                    var orb = new GenericGlowParticle(orbPos, Vector2.Zero, GetEnigmaGradient((float)i / 2f), 0.25f, 15, true);
-                    MagnumParticleHandler.SpawnParticle(orb);
-                }
-            }
-            
-            // Watching eyes peek from the void
+            // === SUBTLE MYSTERY ORB PREVIEW ===
+            // Occasional orbiting mini-orb
             if (Main.rand.NextBool(20))
             {
-                float eyeAngle = Main.rand.NextFloat(MathHelper.TwoPi);
-                Vector2 eyePos = player.Center + eyeAngle.ToRotationVector2() * Main.rand.NextFloat(30f, 50f);
-                CustomParticles.EnigmaEyeGaze(eyePos, EnigmaGreen * 0.6f, 0.2f, (-eyeAngle).ToRotationVector2());
+                float angle = Main.GameUpdateCount * 0.03f;
+                Vector2 orbPos = player.Center + angle.ToRotationVector2() * 40f;
+                var orb = new GenericGlowParticle(orbPos, Vector2.Zero, GetEnigmaGradient(0.5f), 0.2f, 12, true);
+                MagnumParticleHandler.SpawnParticle(orb);
             }
             
-            // Subtle glyph orbit
-            if (Main.rand.NextBool(15))
-            {
-                CustomParticles.Glyph(player.Center + Main.rand.NextVector2Circular(35f, 35f), EnigmaPurple * 0.5f, 0.25f);
-            }
-            
-            // Void particles drawn inward
-            if (Main.rand.NextBool(6))
-            {
-                Vector2 voidPos = player.Center + Main.rand.NextVector2Circular(50f, 50f);
-                Vector2 voidVel = (player.Center - voidPos).SafeNormalize(Vector2.Zero) * 1.5f;
-                var voidParticle = new GenericGlowParticle(voidPos, voidVel, EnigmaBlack, 0.2f, 18, true);
-                MagnumParticleHandler.SpawnParticle(voidParticle);
-            }
-            
-            // Pulsing arcane light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.15f + 0.85f;
-            Lighting.AddLight(player.Center, EnigmaPurple.ToVector3() * pulse * 0.35f);
+            // Subtle arcane light
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.9f;
+            Lighting.AddLight(player.Center, EnigmaPurple.ToVector3() * pulse * 0.3f);
         }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
@@ -122,36 +95,17 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             // Spawn orb
             Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
             
-            // Cast VFX - ENHANCED WITH MULTI-LAYER BLOOM
+            // Cast VFX - clean and focused
             Vector2 castPos = position + velocity.SafeNormalize(Vector2.Zero) * 30f;
             
-            // Glyph circle at cast point
-            CustomParticles.GlyphCircle(castPos, EnigmaPurple, count: 6, radius: 35f, rotationSpeed: 0.08f);
+            // Single glyph circle
+            CustomParticles.GlyphCircle(castPos, EnigmaPurple, count: 4, radius: 30f, rotationSpeed: 0.06f);
             
-            // Fractal burst with enhanced bloom
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 offset = angle.ToRotationVector2() * 30f;
-                EnhancedParticles.BloomFlare(castPos + offset, GetEnigmaGradient((float)i / 8f), 0.5f, 18, 3, 0.85f);
-            }
+            // Central flare
+            EnhancedParticles.BloomFlare(castPos, EnigmaGreen, 0.6f, 18, 3, 0.9f);
             
-            // Central enhanced bloom flare
-            EnhancedParticles.BloomFlare(castPos, EnigmaGreen, 0.75f, 20, 4, 1.0f);
-            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(castPos, 0.6f);
-            
-            // Spiraling sparkle burst on cast - riddles take flight
-            for (int i = 0; i < 8; i++)
-            {
-                float spiralAngle = MathHelper.TwoPi * i / 8f + Main.GameUpdateCount * 0.08f;
-                Vector2 spiralVel = spiralAngle.ToRotationVector2() * (3f + i * 0.5f);
-                var sparkle = new GenericGlowParticle(castPos, spiralVel, 
-                    GetEnigmaGradient((float)i / 8f), 0.4f, 20, true);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-            
-            // Music notes spiral outward - the riddle's melody begins
-            ThemedParticles.EnigmaMusicNoteBurst(castPos, 8, 4f);
+            // Music notes
+            ThemedParticles.EnigmaMusicNoteBurst(castPos, 4, 3f);
             
             return false;
         }
@@ -318,9 +272,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             // OPTIMIZED: Core pulsing - reduced from 5 to 12 frames
             if (Main.GameUpdateCount % 12 == 0)
             {
-                float pulse = 0.55f + (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.15f;
+                float corePulse = 0.55f + (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.15f;
                 CustomParticles.GenericFlare(Projectile.Center, GetEnigmaGradient(growthProgress), 
-                    pulse * currentScale * 0.55f, 14);
+                    corePulse * currentScale * 0.55f, 14);
             }
             
             // OPTIMIZED: Swirling particles - reduced from NextBool(3) to every 12 frames
@@ -336,18 +290,70 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 MagnumParticleHandler.SpawnParticle(glow);
             }
             
-            // OPTIMIZED: Ambient trail - removed (was every frame with NextBool(2))
-            
-            // Music notes orbit the growing orb - the riddle sings
-            if (Main.rand.NextBool(8))
+            // === IRIDESCENT WINGSPAN-STYLE RADIANT TRAIL EFFECTS ===
+            // Heavy dust trails (2+ per frame) - void energy stream
+            for (int d = 0; d < 2; d++)
             {
-                Color noteColor = Color.Lerp(new Color(140, 60, 200), new Color(50, 220, 100), Main.rand.NextFloat());
-                Vector2 noteOffset = Main.rand.NextVector2Circular(30f, 30f) * currentScale;
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
-                ThemedParticles.MusicNote(Projectile.Center + noteOffset, noteVel, noteColor, 0.3f * currentScale, 35);
+                Vector2 dustOffset = Main.rand.NextVector2Circular(10f, 10f) * currentScale;
+                Dust dustPurple = Dust.NewDustPerfect(Projectile.Center + dustOffset, DustID.PurpleTorch, 
+                    -Projectile.velocity * 0.3f + Main.rand.NextVector2Circular(1f, 1f), 0, EnigmaPurple, 1.3f);
+                dustPurple.noGravity = true;
+                dustPurple.fadeIn = 1.4f;
+                
+                Dust dustGreen = Dust.NewDustPerfect(Projectile.Center + dustOffset * 0.5f, DustID.CursedTorch, 
+                    -Projectile.velocity * 0.2f + Main.rand.NextVector2Circular(0.8f, 0.8f), 0, EnigmaGreen, 1.1f);
+                dustGreen.noGravity = true;
+                dustGreen.fadeIn = 1.3f;
             }
             
-            Lighting.AddLight(Projectile.Center, EnigmaPurple.ToVector3() * 0.6f * currentScale);
+            // Contrasting sparkles (1-in-2) - mystery shimmer
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 sparkleOffset = Main.rand.NextVector2Circular(15f, 15f) * currentScale;
+                var sparkle = new SparkleParticle(Projectile.Center + sparkleOffset, 
+                    -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(0.5f, 0.5f), 
+                    EnigmaGreenFlame, 0.45f * currentScale, 20);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // Enigma shimmer trails (1-in-3) - void hue cycling
+            if (Main.rand.NextBool(3))
+            {
+                float hue = Main.rand.NextFloat(0.28f, 0.45f); // Purple-green void range
+                Color shimmerColor = Main.hslToRgb(hue, 0.85f, 0.65f);
+                var shimmer = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.15f, 
+                    shimmerColor, 0.35f * currentScale, 22, true);
+                MagnumParticleHandler.SpawnParticle(shimmer);
+            }
+            
+            // Pearlescent void effect (1-in-4)
+            if (Main.rand.NextBool(4))
+            {
+                float shift = (float)Math.Sin(Main.GameUpdateCount * 0.1f + Projectile.whoAmI) * 0.5f + 0.5f;
+                Color pearlColor = Color.Lerp(EnigmaPurple, EnigmaGreenFlame, shift) * 0.8f;
+                CustomParticles.GenericFlare(Projectile.Center, pearlColor, 0.4f * currentScale, 16);
+            }
+            
+            // Frequent flares (1-in-2) - arcane radiance
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 flareOffset = Main.rand.NextVector2Circular(8f, 8f) * currentScale;
+                CustomParticles.GenericFlare(Projectile.Center + flareOffset, 
+                    GetEnigmaGradient(growthProgress), 0.35f * currentScale, 14);
+            }
+            
+            // Music notes orbit the growing orb - the riddle sings (enhanced scale)
+            if (Main.rand.NextBool(6))
+            {
+                Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreenFlame, Main.rand.NextFloat());
+                Vector2 noteOffset = Main.rand.NextVector2Circular(30f, 30f) * currentScale;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                ThemedParticles.MusicNote(Projectile.Center + noteOffset, noteVel, noteColor, 0.85f * currentScale, 35);
+            }
+            
+            // Pulsing mystery light
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.15f + 0.85f;
+            Lighting.AddLight(Projectile.Center, EnigmaPurple.ToVector3() * 0.7f * currentScale * pulse);
         }
         
         private void DealAuraDamage()

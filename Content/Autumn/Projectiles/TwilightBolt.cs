@@ -55,35 +55,61 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             {
                 Vector2 trailVel = -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f);
                 float distProgress = Math.Min(1f, distanceTraveled / MaxDistanceBonus);
-                Color trailColor = Color.Lerp(TwilightPurple, TwilightOrange, distProgress) * 0.5f;
-                var trail = new GenericGlowParticle(Projectile.Center, trailVel, trailColor, 0.25f, 18, true);
+                Color trailColor = Color.Lerp(TwilightPurple, TwilightOrange, distProgress) * 0.55f;
+                var trail = new GenericGlowParticle(Projectile.Center, trailVel, trailColor, 0.27f, 20, true);
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
-            // Core glow
+            // === VFX VARIATION #15: TWILIGHT GRADIENT SHIFT ===
+            // Colors shift from purple to orange as distance increases
             float distProgress2 = Math.Min(1f, distanceTraveled / MaxDistanceBonus);
             Color coreColor = Color.Lerp(TwilightPurple, TwilightOrange, distProgress2);
-            CustomParticles.GenericFlare(Projectile.Center, coreColor * 0.35f, 0.2f, 4);
+            CustomParticles.GenericFlare(Projectile.Center, coreColor * 0.4f, 0.22f, 5);
 
-            // ☁EMUSICAL NOTATION - VISIBLE twilight notes (scale 0.7f+)
+            // === VFX VARIATION #16: FALLING LEAF PARTICLES ===
+            // Autumn leaves drift down from the bolt's path
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 leafOffset = Main.rand.NextVector2Circular(12f, 12f);
+                Vector2 leafVel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(1.5f, 3.5f));
+                Color leafColor = Main.rand.NextBool() ? TwilightOrange * 0.55f : AutumnGold * 0.5f;
+                var leaf = new GenericGlowParticle(Projectile.Center + leafOffset, leafVel, leafColor, 0.22f, 35, true);
+                MagnumParticleHandler.SpawnParticle(leaf);
+            }
+
+            // === VFX VARIATION #17: DUSK WISPS ===
+            // Mystical wisps orbit and trail behind
+            if (Main.GameUpdateCount % 5 == 0)
+            {
+                float wispAngle = Main.GameUpdateCount * 0.1f;
+                for (int w = 0; w < 2; w++)
+                {
+                    float thisWispAngle = wispAngle + MathHelper.Pi * w;
+                    float wispRadius = 10f + (float)Math.Sin(Main.GameUpdateCount * 0.12f + w) * 4f;
+                    Vector2 wispPos = Projectile.Center + thisWispAngle.ToRotationVector2() * wispRadius;
+                    Color wispColor = w == 0 ? TwilightPurple * 0.65f : TwilightOrange * 0.6f;
+                    CustomParticles.GenericFlare(wispPos, wispColor, 0.18f, 10);
+                }
+            }
+
+            // Twilight notes - scale increases with distance (0.72f to 0.88f)
             if (Main.rand.NextBool(5))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2f, -0.5f));
                 Color noteColor = Color.Lerp(TwilightPurple, TwilightOrange, distProgress2);
-                // Scale increases with distance (0.7f to 0.85f)
-                float noteScale = 0.7f + distProgress2 * 0.15f;
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, noteScale, 30);
+                float noteScale = 0.72f + distProgress2 * 0.16f;
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, noteScale, 32);
             }
             
             // Sparkle accents that grow with distance
-            if (Main.rand.NextBool(4))
+            if (Main.rand.NextBool(3))
             {
-                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(5f, 5f),
-                    -Projectile.velocity * 0.1f, Color.Lerp(TwilightPurple, AutumnGold, distProgress2) * 0.6f, 0.2f + distProgress2 * 0.1f, 15);
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    -Projectile.velocity * 0.12f, Color.Lerp(TwilightPurple, AutumnGold, distProgress2) * 0.65f, 0.22f + distProgress2 * 0.12f, 16);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
-            Lighting.AddLight(Projectile.Center, coreColor.ToVector3() * 0.4f);
+            Lighting.AddLight(Projectile.Center, coreColor.ToVector3() * 0.45f);
         }
 
         public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)

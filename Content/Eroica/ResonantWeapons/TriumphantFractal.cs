@@ -60,158 +60,84 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                 Projectile.NewProjectile(source, position, perturbedVelocity, type, (int)(damage * 1.15f), knockback, player.whoAmI);
             }
 
-            // === TRUE FRACTAL GEOMETRY - RECURSIVE BRANCHING PATTERN ===
-            // This is TRIUMPHANT FRACTAL - it MUST have actual fractal geometry!
+            // === ELEGANT FRACTAL GEOMETRY - Suggested, not overwhelming ===
             
-            // Layer 1: Primary hexagonal burst (6 points)
+            // Primary hexagonal points (6 points, reduced scale)
             float baseRotation = Main.GameUpdateCount * 0.02f;
             for (int i = 0; i < 6; i++)
             {
-                float angle1 = MathHelper.TwoPi * i / 6f + baseRotation;
-                Vector2 point1 = position + angle1.ToRotationVector2() * 50f;
-                CustomParticles.GenericFlare(point1, UnifiedVFX.Eroica.Gold, 0.7f, 25);
-                
-                // Layer 2: Secondary branches from each primary point (3 sub-branches each)
-                for (int j = 0; j < 3; j++)
-                {
-                    float angle2 = angle1 + MathHelper.ToRadians(-40 + j * 40);
-                    Vector2 point2 = point1 + angle2.ToRotationVector2() * 30f;
-                    Color branchColor = Color.Lerp(UnifiedVFX.Eroica.Gold, UnifiedVFX.Eroica.Scarlet, 0.4f);
-                    CustomParticles.GenericFlare(point2, branchColor, 0.5f, 20);
-                    
-                    // Layer 3: Tertiary micro-branches (2 per secondary)
-                    for (int k = 0; k < 2; k++)
-                    {
-                        float angle3 = angle2 + MathHelper.ToRadians(-25 + k * 50);
-                        Vector2 point3 = point2 + angle3.ToRotationVector2() * 18f;
-                        Color microColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Crimson, 0.5f);
-                        CustomParticles.GenericFlare(point3, microColor, 0.3f, 15);
-                    }
-                }
+                float angle = MathHelper.TwoPi * i / 6f + baseRotation;
+                Vector2 point = position + angle.ToRotationVector2() * 40f;
+                float progress = (float)i / 6f;
+                Color pointColor = Color.Lerp(UnifiedVFX.Eroica.Gold, UnifiedVFX.Eroica.Scarlet, progress);
+                CustomParticles.GenericFlare(point, pointColor, 0.45f, 18);
             }
             
-            // Connecting lines between primary points (hexagonal web)
-            for (int i = 0; i < 6; i++)
-            {
-                float angle1 = MathHelper.TwoPi * i / 6f + baseRotation;
-                float angle2 = MathHelper.TwoPi * ((i + 1) % 6) / 6f + baseRotation;
-                Vector2 point1 = position + angle1.ToRotationVector2() * 50f;
-                Vector2 point2 = position + angle2.ToRotationVector2() * 50f;
-                
-                // Draw connecting line as series of flares
-                for (int seg = 0; seg < 5; seg++)
-                {
-                    float lerp = seg / 5f;
-                    Vector2 linePos = Vector2.Lerp(point1, point2, lerp);
-                    Color lineColor = Color.Lerp(UnifiedVFX.Eroica.Gold, UnifiedVFX.Eroica.Scarlet, lerp) * 0.6f;
-                    CustomParticles.GenericFlare(linePos, lineColor, 0.25f, 12);
-                }
-            }
-            
-            // Inner triangular pattern (sacred geometry)
+            // Inner triangular pattern (sacred geometry core)
             for (int i = 0; i < 3; i++)
             {
                 float triAngle = MathHelper.TwoPi * i / 3f + baseRotation + MathHelper.Pi / 6f;
-                Vector2 triPoint = position + triAngle.ToRotationVector2() * 25f;
-                CustomParticles.GenericFlare(triPoint, Color.White, 0.5f, 18);
-                CustomParticles.HaloRing(triPoint, UnifiedVFX.Eroica.Gold * 0.5f, 0.2f, 10);
+                Vector2 triPoint = position + triAngle.ToRotationVector2() * 22f;
+                CustomParticles.GenericFlare(triPoint, Color.White * 0.9f, 0.4f, 15);
             }
             
             // Central burst - the triumphant core
-            CustomParticles.GenericFlare(position, Color.White, 1.0f, 28);
-            CustomParticles.HaloRing(position, UnifiedVFX.Eroica.Gold, 0.8f, 22);
-            CustomParticles.HaloRing(position, UnifiedVFX.Eroica.Scarlet, 0.6f, 18);
+            CustomParticles.GenericFlare(position, Color.White, 0.8f, 22);
+            CustomParticles.HaloRing(position, UnifiedVFX.Eroica.Gold, 0.5f, 18);
             
-            // Sakura petals spiral outward following fractal paths
-            ThemedParticles.SakuraPetals(position, 8, 60f);
-            
-            // Musical notes at each primary fractal point
-            for (int i = 0; i < 6; i++)
-            {
-                float noteAngle = MathHelper.TwoPi * i / 6f + baseRotation;
-                Vector2 notePos = position + noteAngle.ToRotationVector2() * 40f;
-                ThemedParticles.EroicaMusicNotes(notePos, 2, 15f);
-            }
+            // Sakura petals
+            ThemedParticles.SakuraPetals(position, 4, 45f);
             
             // Central music burst
-            ThemedParticles.MusicNoteBurst(position, UnifiedVFX.Eroica.Gold, 8, 4f);
+            ThemedParticles.MusicNoteBurst(position, UnifiedVFX.Eroica.Gold, 4, 3f);
 
             return false;
         }
 
         public override void HoldItem(Player player)
         {
-            // === ROTATING FRACTAL MANDALA - Unique to Triumphant Fractal ===
-            // Unlike other weapons, this creates a constantly evolving geometric pattern
-            
+            // === SUBTLE FRACTAL MANDALA ===
             float time = Main.GameUpdateCount * 0.03f;
             
-            // Outer ring - 8-point star rotating clockwise
-            if (Main.rand.NextBool(4))
+            // Outer ring - 4 points rotating (reduced from 8)
+            if (Main.rand.NextBool(12))
             {
-                for (int i = 0; i < 8; i++)
+                for (int i = 0; i < 4; i++)
                 {
-                    float angle = MathHelper.TwoPi * i / 8f + time;
-                    float radius = 45f + (float)Math.Sin(time * 2f + i) * 8f;
+                    float angle = MathHelper.TwoPi * i / 4f + time;
+                    float radius = 38f + (float)Math.Sin(time * 2f + i) * 6f;
                     Vector2 pos = player.Center + angle.ToRotationVector2() * radius;
-                    Color color = Color.Lerp(UnifiedVFX.Eroica.Gold, UnifiedVFX.Eroica.Scarlet, (float)i / 8f);
-                    CustomParticles.GenericFlare(pos, color, 0.28f, 12);
+                    Color color = Color.Lerp(UnifiedVFX.Eroica.Gold, UnifiedVFX.Eroica.Scarlet, (float)i / 4f);
+                    CustomParticles.GenericFlare(pos, color, 0.22f, 10);
                 }
             }
             
-            // Middle ring - 6-point hexagon rotating counter-clockwise
-            if (Main.rand.NextBool(5))
-            {
-                for (int i = 0; i < 6; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 6f - time * 0.7f;
-                    float radius = 28f;
-                    Vector2 pos = player.Center + angle.ToRotationVector2() * radius;
-                    CustomParticles.GenericFlare(pos, UnifiedVFX.Eroica.Crimson * 0.8f, 0.22f, 10);
-                }
-            }
-            
-            // Inner ring - 3-point triangle (sacred geometry)
-            if (Main.rand.NextBool(6))
+            // Inner triangle (sacred geometry) - kept but less frequent
+            if (Main.rand.NextBool(10))
             {
                 for (int i = 0; i < 3; i++)
                 {
                     float angle = MathHelper.TwoPi * i / 3f + time * 1.5f;
                     Vector2 pos = player.Center + angle.ToRotationVector2() * 15f;
-                    CustomParticles.GenericFlare(pos, Color.White * 0.7f, 0.18f, 8);
+                    CustomParticles.GenericFlare(pos, Color.White * 0.6f, 0.15f, 8);
                 }
             }
             
-            // Occasional fractal branch extension
-            if (Main.rand.NextBool(12))
+            // Occasional fractal branch
+            if (Main.rand.NextBool(15))
             {
                 float branchAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
-                Vector2 branchStart = player.Center + branchAngle.ToRotationVector2() * 20f;
-                
-                // Draw a quick fractal branch
-                for (int depth = 0; depth < 3; depth++)
-                {
-                    Vector2 branchEnd = branchStart + branchAngle.ToRotationVector2() * (15f - depth * 4f);
-                    CustomParticles.GenericFlare(branchEnd, UnifiedVFX.Eroica.Gold * (1f - depth * 0.25f), 0.2f - depth * 0.05f, 10);
-                    branchStart = branchEnd;
-                    branchAngle += Main.rand.NextFloat(-0.5f, 0.5f);
-                }
+                Vector2 branchEnd = player.Center + branchAngle.ToRotationVector2() * 28f;
+                CustomParticles.GenericFlare(branchEnd, UnifiedVFX.Eroica.Gold * 0.7f, 0.18f, 10);
             }
             
             // Sakura petals drifting
-            if (Main.rand.NextBool(18))
-                ThemedParticles.SakuraPetals(player.Center, 1, 50f);
+            if (Main.rand.NextBool(20))
+                ThemedParticles.SakuraPetals(player.Center, 1, 40f);
             
-            // Golden sparkles with prismatic effect
-            if (Main.rand.NextBool(5))
-            {
-                ThemedParticles.EroicaSparkles(player.Center + Main.rand.NextVector2Circular(25f, 25f), 1, 5f);
-                CustomParticles.PrismaticSparkle(player.Center + Main.rand.NextVector2Circular(20f, 20f), UnifiedVFX.Eroica.Gold, 0.28f);
-            }
-            
-            // Heroic halo pulse
-            if (Main.rand.NextBool(25))
-                CustomParticles.HaloRing(player.Center, UnifiedVFX.Eroica.Gold * 0.5f, 0.35f, 22);
+            // Golden sparkle
+            if (Main.rand.NextBool(12))
+                CustomParticles.PrismaticSparkle(player.Center + Main.rand.NextVector2Circular(20f, 20f), UnifiedVFX.Eroica.Gold, 0.22f);
             
             // Lighting aura with pulse
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.1f + 0.9f;

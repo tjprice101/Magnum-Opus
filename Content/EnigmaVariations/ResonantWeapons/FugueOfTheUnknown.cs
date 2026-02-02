@@ -93,43 +93,28 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 }
             }
             
-            // Ambient aura based on voice count
+            // Subtle ambient aura based on voice count
             if (voiceCount > 0)
             {
                 float intensity = (float)voiceCount / 5f;
                 
-                // Orbiting glyphs
-                if (Main.GameUpdateCount % 15 == 0)
+                // Occasional orbiting glyph
+                if (Main.rand.NextBool(30))
                 {
-                    float baseAngle = Main.GameUpdateCount * 0.04f;
-                    for (int i = 0; i < Math.Min(voiceCount, 3); i++)
-                    {
-                        float angle = baseAngle + MathHelper.TwoPi * i / 3f;
-                        float radius = 55f + (float)Math.Sin(Main.GameUpdateCount * 0.08f + i) * 10f;
-                        Vector2 glyphPos = player.Center + angle.ToRotationVector2() * radius;
-                        CustomParticles.Glyph(glyphPos, GetEnigmaGradient(intensity), 0.35f, -1);
-                    }
+                    float angle = Main.GameUpdateCount * 0.04f;
+                    Vector2 glyphPos = player.Center + angle.ToRotationVector2() * 50f;
+                    CustomParticles.Glyph(glyphPos, GetEnigmaGradient(intensity), 0.3f, -1);
                 }
                 
-                // Watching eyes at higher voice counts
-                if (voiceCount >= 3 && Main.GameUpdateCount % 40 == 0)
+                // Subtle music notes
+                if (Main.rand.NextBool(40))
                 {
-                    float eyeAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
-                    Vector2 eyePos = player.Center + eyeAngle.ToRotationVector2() * 65f;
-                    CustomParticles.EnigmaEyeGaze(eyePos, GetEnigmaGradient(intensity), 0.4f, 
-                        (player.Center - eyePos).SafeNormalize(Vector2.UnitX));
-                }
-                
-                // Music notes swirling
-                if (Main.GameUpdateCount % 25 == 0)
-                {
-                    ThemedParticles.EnigmaMusicNotes(player.Center + Main.rand.NextVector2Circular(50f, 50f), 
-                        1 + voiceCount / 2, 25f);
+                    ThemedParticles.EnigmaMusicNotes(player.Center + Main.rand.NextVector2Circular(40f, 40f), 1, 20f);
                 }
                 
                 // Pulsing aura light
-                float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.2f + 0.8f;
-                Lighting.AddLight(player.Center, GetEnigmaGradient(intensity).ToVector3() * intensity * pulse);
+                float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.15f + 0.85f;
+                Lighting.AddLight(player.Center, GetEnigmaGradient(intensity).ToVector3() * intensity * pulse * 0.4f);
             }
         }
         
@@ -215,15 +200,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             
             if (voices.Count == 0) return;
             
-            // Release VFX at player
-            CustomParticles.GenericFlare(player.Center, EnigmaGreen, 0.9f, 25);
-            CustomParticles.GlyphCircle(player.Center, EnigmaPurple, voices.Count + 3, 50f, 0.08f);
+            // Release VFX - clean and focused
+            CustomParticles.GenericFlare(player.Center, EnigmaGreen, 0.7f, 20);
+            CustomParticles.HaloRing(player.Center, EnigmaPurple, 0.4f, 15);
             
-            // Massive music note cascade - the fugue releases!
-            ThemedParticles.EnigmaMusicNoteBurst(player.Center, 12, 6f);
-            
-            // Eye burst watching outward
-            CustomParticles.EnigmaEyeExplosion(player.Center, EnigmaGreen, voices.Count, 4f);
+            // Music notes
+            ThemedParticles.EnigmaMusicNoteBurst(player.Center, 6, 4f);
             
             // Release each voice with staggered timing
             int index = 0;
@@ -475,20 +457,64 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                     }
                 }
                 
-                // Trail particles
-                if (releaseTimer % 3 == 0)
+                // === IRIDESCENT WINGSPAN-STYLE RADIANT TRAIL EFFECTS ===
+                // Heavy dust trails (2+ per frame) - void fugue stream
+                for (int d = 0; d < 2; d++)
                 {
-                    CustomParticles.GenericFlare(Projectile.Center, GetEnigmaGradient((float)VoiceIndex / 5f) * 0.7f, 0.35f, 14);
+                    Vector2 dustOffset = Main.rand.NextVector2Circular(8f, 8f);
+                    Dust dustPurple = Dust.NewDustPerfect(Projectile.Center + dustOffset, DustID.PurpleTorch, 
+                        -Projectile.velocity * 0.25f + Main.rand.NextVector2Circular(1f, 1f), 0, EnigmaPurple, 1.2f);
+                    dustPurple.noGravity = true;
+                    dustPurple.fadeIn = 1.4f;
                     
-                    var trail = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f),
-                        GetEnigmaGradient(Main.rand.NextFloat()) * 0.5f, 0.25f, 16, true);
-                    MagnumParticleHandler.SpawnParticle(trail);
+                    Dust dustGreen = Dust.NewDustPerfect(Projectile.Center + dustOffset * 0.6f, DustID.CursedTorch, 
+                        -Projectile.velocity * 0.2f + Main.rand.NextVector2Circular(0.6f, 0.6f), 0, EnigmaGreen, 1.0f);
+                    dustGreen.noGravity = true;
+                    dustGreen.fadeIn = 1.3f;
                 }
                 
-                // Music note trail
-                if (releaseTimer % 8 == 0)
+                // Contrasting sparkles (1-in-2) - fugue shimmer
+                if (Main.rand.NextBool(2))
                 {
-                    ThemedParticles.EnigmaMusicNotes(Projectile.Center, 1, 12f);
+                    Vector2 sparkleOffset = Main.rand.NextVector2Circular(12f, 12f);
+                    var sparkle = new SparkleParticle(Projectile.Center + sparkleOffset, 
+                        -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(0.5f, 0.5f), 
+                        EnigmaGreen, 0.4f, 18);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
+                
+                // Enigma shimmer trails (1-in-3) - void hue cycling
+                if (Main.rand.NextBool(3))
+                {
+                    float hue = Main.rand.NextFloat(0.28f, 0.45f); // Purple-green void range
+                    Color shimmerColor = Main.hslToRgb(hue, 0.85f, 0.65f);
+                    var shimmer = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.15f, 
+                        shimmerColor, 0.32f, 20, true);
+                    MagnumParticleHandler.SpawnParticle(shimmer);
+                }
+                
+                // Pearlescent void effect (1-in-4)
+                if (Main.rand.NextBool(4))
+                {
+                    float shift = (float)Math.Sin(Main.GameUpdateCount * 0.1f + Projectile.whoAmI) * 0.5f + 0.5f;
+                    Color pearlColor = Color.Lerp(EnigmaPurple, EnigmaGreen, shift) * 0.75f;
+                    CustomParticles.GenericFlare(Projectile.Center, pearlColor, 0.35f, 14);
+                }
+                
+                // Frequent flares (1-in-2) - arcane radiance
+                if (Main.rand.NextBool(2))
+                {
+                    Vector2 flareOffset = Main.rand.NextVector2Circular(6f, 6f);
+                    CustomParticles.GenericFlare(Projectile.Center + flareOffset, 
+                        GetEnigmaGradient((float)VoiceIndex / 5f), 0.3f, 12);
+                }
+                
+                // Music note trail (1-in-6) - the voice sings
+                if (Main.rand.NextBool(6))
+                {
+                    Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreen, Main.rand.NextFloat());
+                    Vector2 noteVel = -Projectile.velocity * 0.05f + new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -0.8f);
+                    ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.85f, 30);
                 }
                 
                 // Timeout after long flight

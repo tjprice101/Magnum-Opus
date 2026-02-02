@@ -97,8 +97,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
         public override void SetDefaults()
         {
             // MINI-BOSS STATS - Massive and tanky
-            NPC.width = 473;
-            NPC.height = 266;
+            // Hitbox = (3780/6) × (2124/6) × 0.8 = 630 × 354 × 0.8 = 504 × 283
+            NPC.width = 504;
+            NPC.height = 283;
             NPC.damage = 200;
             NPC.defense = 100;
             NPC.lifeMax = 90000; // Highest HP mini-boss

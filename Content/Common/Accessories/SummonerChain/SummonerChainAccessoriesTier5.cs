@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -65,6 +66,18 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Double-tap Conduct to Scatter: spread minions to all nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Conducted minions deal +30% damage during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions heal you 1 HP per hit during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives 'Performed' debuff: -5 defense and 25% slow"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Killing conducted target extends focus duration by 2 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Conducting at night: +10% minion damage globally"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The moon rises, and your symphony begins'") { OverrideColor = new Color(140, 100, 200) });
+        }
+        
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -119,6 +132,19 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
                 dust.noGravity = true;
                 dust.scale = 0.7f;
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Double-tap Conduct to Scatter: spread minions to all nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Conducted minions deal +30% damage during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions heal you 1 HP per hit during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives 'Performed' debuff: -5 defense and 25% slow"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Killing conducted target extends focus duration by 2 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Conducting at night: +10% minion damage globally"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "Conduct grants minions 1 second of invincibility"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Rally your troops! Victory awaits!'") { OverrideColor = new Color(200, 80, 80) });
         }
         
         public override void AddRecipes()
@@ -176,6 +202,20 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
                 dust.noGravity = true;
                 dust.scale = 1.0f;
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Double-tap Conduct to Scatter: spread minions to all nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Conducted minions deal +30% damage during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions heal you 1 HP per hit during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives 'Performed' debuff: -5 defense and 25% slow"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Killing conducted target extends focus duration by 2 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Conducting at night: +10% minion damage globally"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "Conduct grants minions 1 second of invincibility"));
+            tooltips.Add(new TooltipLine(Mod, "Effect9", "Conducted minions explode on hit for +50% damage as AoE"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Let the inferno sing through your servants'") { OverrideColor = new Color(255, 140, 40) });
         }
         
         public override void AddRecipes()
@@ -237,6 +277,21 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             }
         }
         
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Double-tap Conduct to Scatter: spread minions to all nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Conducted minions deal +30% damage during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions heal you 1 HP per hit during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives 'Performed' debuff: -5 defense and 25% slow"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Killing conducted target extends focus duration by 2 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Conducting at night: +10% minion damage globally"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "Conduct grants minions 1 second of invincibility"));
+            tooltips.Add(new TooltipLine(Mod, "Effect9", "Conducted minions explode on hit for +50% damage as AoE"));
+            tooltips.Add(new TooltipLine(Mod, "Effect10", "Minions can phase through blocks during Conduct"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The hive knows no boundaries'") { OverrideColor = new Color(140, 60, 200) });
+        }
+        
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -294,6 +349,22 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
                 dust.noGravity = true;
                 dust.scale = 0.9f;
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Double-tap Conduct to Scatter: spread minions to all nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Conducted minions deal +30% damage during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions heal you 1 HP per hit during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives 'Performed' debuff: -5 defense and 25% slow"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Killing conducted target extends focus duration by 2 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Conducting at night: +10% minion damage globally"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "Conduct grants minions 1 second of invincibility"));
+            tooltips.Add(new TooltipLine(Mod, "Effect9", "Conducted minions explode on hit for +50% damage as AoE"));
+            tooltips.Add(new TooltipLine(Mod, "Effect10", "Minions can phase through blocks during Conduct"));
+            tooltips.Add(new TooltipLine(Mod, "Effect11", "Perfect Conduct (full HP): minions deal double damage"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Grace in motion, death in stillness'") { OverrideColor = new Color(240, 245, 255) });
         }
         
         public override void AddRecipes()
@@ -382,6 +453,24 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
                     star.scale = 0.5f;
                 }
             }
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Double-tap Conduct to Scatter: spread minions to all nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "5 second cooldown"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions deal +30% damage during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Conducted minions heal you 1 HP per hit during focus"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Focused target receives 'Performed' debuff: -5 defense and 25% slow"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Killing conducted target extends focus duration by 2 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "Conducting at night: +10% minion damage globally"));
+            tooltips.Add(new TooltipLine(Mod, "Effect9", "Conduct grants minions 1 second of invincibility"));
+            tooltips.Add(new TooltipLine(Mod, "Effect10", "Conducted minions explode on hit for +50% damage as AoE"));
+            tooltips.Add(new TooltipLine(Mod, "Effect11", "Minions can phase through blocks during Conduct"));
+            tooltips.Add(new TooltipLine(Mod, "Effect12", "Perfect Conduct (full HP): minions deal double damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect13", "Hold Conduct for 2 seconds to perform 'Finale': sacrifice all minions for a massive single hit"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The cosmos bends to your final symphony'") { OverrideColor = new Color(180, 40, 80) });
         }
         
         public override void AddRecipes()

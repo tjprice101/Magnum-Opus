@@ -46,55 +46,20 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
 
         public override void HoldItem(Player player)
         {
-            // === AMBIENT FRACTAL FLARES - Lunar geometric pattern ===
-            if (Main.rand.NextBool(6))
-            {
-                // Moon phase orbital pattern
-                float baseAngle = Main.GameUpdateCount * 0.02f;
-                for (int i = 0; i < 4; i++)
-                {
-                    float angle = baseAngle + MathHelper.TwoPi * i / 4f;
-                    float radius = 35f + (float)Math.Sin(Main.GameUpdateCount * 0.035f + i * MathHelper.PiOver2) * 12f;
-                    Vector2 flarePos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
-                    // Moonlight colors: deep purple to silver
-                    float hue = (Main.GameUpdateCount * 0.01f + i * 0.25f) % 1f;
-                    Color fractalColor = Color.Lerp(CustomParticleSystem.MoonlightColors.DeepPurple, CustomParticleSystem.MoonlightColors.Silver, hue);
-                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.32f, 18);
-                }
-            }
-            
-            // Ethereal moonlight particles while holding - increased frequency and variety
-            if (Main.rand.NextBool(3))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(30f, 30f);
-                ThemedParticles.MoonlightAura(player.Center + offset, 22f);
-            }
-            
-            // Custom particle moonlight glow - more frequent with prismatic accents
-            if (Main.rand.NextBool(4))
-            {
-                CustomParticles.MoonlightFlare(player.Center + Main.rand.NextVector2Circular(25f, 25f), 0.35f);
-                CustomParticles.PrismaticSparkle(player.Center + Main.rand.NextVector2Circular(30f, 30f), CustomParticleSystem.MoonlightColors.Lavender, 0.2f);
-            }
-            
-            // Floating sparkle motes around the player
-            if (Main.rand.NextBool(5))
-            {
-                Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                Dust sparkle = Dust.NewDustPerfect(sparklePos, DustID.Enchanted_Pink, 
-                    new Vector2(0, -0.5f) + Main.rand.NextVector2Circular(0.3f, 0.3f), 0, default, 0.9f);
-                sparkle.noGravity = true;
-                sparkle.fadeIn = 1.2f;
-            }
-            
-            // Occasional bright flare pulse with halo
+            // Subtle ambient moonlight aura (Swan Lake benchmark: minimal HoldItem particles)
             if (Main.rand.NextBool(12))
             {
-                CustomParticles.GenericFlare(player.Center, new Color(200, 150, 255), 0.5f, 20);
+                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
+                CustomParticles.PrismaticSparkle(player.Center + offset, CustomParticleSystem.MoonlightColors.Lavender * 0.5f, 0.18f);
             }
-            if (Main.rand.NextBool(25))
+            
+            // Occasional soft dust
+            if (Main.rand.NextBool(15))
             {
-                CustomParticles.HaloRing(player.Center, CustomParticleSystem.MoonlightColors.Lavender * 0.4f, 0.3f, 20);
+                Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                Dust sparkle = Dust.NewDustPerfect(sparklePos, DustID.Enchanted_Pink, 
+                    new Vector2(0, -0.3f), 0, default, 0.7f);
+                sparkle.noGravity = true;
             }
             
             // Soft purple lighting aura - stronger with pulse
@@ -149,6 +114,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
             Vector2 hitCenter = new Vector2(hitbox.X + hitbox.Width / 2, hitbox.Y + hitbox.Height / 2);
+            
+            // === SPECTACULAR SWING SYSTEM - ENDGAME TIER (7-8 layered arcs + lunar effects) ===
+            SpectacularMeleeSwing.OnSwing(player, hitbox, UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, 
+                SpectacularMeleeSwing.SwingTier.Endgame, SpectacularMeleeSwing.WeaponTheme.MoonlightSonata);
             
             // === CALAMITY-INSPIRED CIRCULAR SMEAR TRAIL ===
             // Calculate swing progress for arc effects
@@ -229,49 +198,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
                 );
             }
             
-            // === CALAMITY-INSPIRED MULTI-LAYER IMPACT ===
-            // Phase 1: Central white flash - the moment of contact
-            CustomParticles.GenericFlare(target.Center, Color.White, 0.9f, 22);
-            CustomParticles.GenericFlare(target.Center, UnifiedVFX.MoonlightSonata.LightBlue, 0.7f, 20);
+            // === MOONLIGHT IMPACT (Trust UnifiedVFX for core effect) ===
+            UnifiedVFX.MoonlightSonata.Impact(target.Center, 0.9f);
             
-            // Phase 2: UnifiedVFX themed impact
-            UnifiedVFX.MoonlightSonata.Impact(target.Center, 0.8f);
+            // Single halo accent
+            CustomParticles.HaloRing(target.Center, UnifiedVFX.MoonlightSonata.MediumPurple * 0.5f, 0.35f, 15);
             
-            // Phase 3: Fractal geometric burst - 8-point star with gradient
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 flareOffset = angle.ToRotationVector2() * 32f;
-                float progress = (float)i / 8f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
-                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.5f, 18);
-            }
+            // Gentle music notes
+            ThemedParticles.MoonlightMusicNotes(target.Center, 3, 28f);
             
-            // Phase 4: Gradient halo rings - cascading outward
-            for (int ring = 0; ring < 4; ring++)
-            {
-                float ringProgress = (float)ring / 4f;
-                Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, ringProgress);
-                CustomParticles.HaloRing(target.Center, ringColor, 0.3f + ring * 0.12f, 14 + ring * 4);
-            }
-            
-            // Phase 5: Radial spark spray with gradient
-            for (int i = 0; i < 10; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 10f + Main.rand.NextFloat(-0.2f, 0.2f);
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 10f);
-                float progress = (float)i / 10f;
-                Color sparkColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, progress);
-                
-                var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.35f, 22, true);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            // Phase 6: Music notes burst - the crescendo of impact
-            ThemedParticles.MoonlightMusicNotes(target.Center, 6, 35f);
-            
-            // Phase 7: Dynamic lighting pulse
-            Lighting.AddLight(target.Center, UnifiedVFX.MoonlightSonata.LightBlue.ToVector3() * 1.2f);
+            // Dynamic lighting
+            Lighting.AddLight(target.Center, UnifiedVFX.MoonlightSonata.LightBlue.ToVector3() * 0.8f);
         }
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
@@ -311,61 +248,28 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
                     proj.ai[1] = i * 3;
                 }
                 
-                // === CALAMITY-INSPIRED SPECTACULAR STAR LAUNCH ===
-                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122, position);
+                // === STAR LAUNCH (4th swing special - keep impactful but cleaner) ===
+                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Volume = 0.8f }, position);
                 
-                // Phase 1: Central explosion
-                UnifiedVFX.MoonlightSonata.Explosion(position, 0.9f);
+                // Central explosion
+                UnifiedVFX.MoonlightSonata.Explosion(position, 0.8f);
                 
-                // Phase 2: Fractal geometric burst - spiral galaxy pattern
-                for (int arm = 0; arm < 6; arm++)
+                // Single halo ring
+                CustomParticles.HaloRing(position, UnifiedVFX.MoonlightSonata.MediumPurple, 0.5f, 20);
+                
+                // Music notes burst
+                ThemedParticles.MoonlightMusicNotes(position, 6, 40f);
+                
+                // Gentle spark spray
+                for (int i = 0; i < 6; i++)
                 {
-                    float armAngle = MathHelper.TwoPi * arm / 6f;
-                    for (int point = 0; point < 5; point++)
-                    {
-                        float spiralAngle = armAngle + point * 0.3f;
-                        float spiralRadius = 15f + point * 12f;
-                        Vector2 spiralPos = position + spiralAngle.ToRotationVector2() * spiralRadius;
-                        float progress = (arm * 5 + point) / 30f;
-                        Color galaxyColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
-                        CustomParticles.GenericFlare(spiralPos, galaxyColor, 0.4f + point * 0.06f, 18 + point * 2);
-                    }
-                }
-                
-                // Phase 3: Layered halo cascade
-                for (int ring = 0; ring < 5; ring++)
-                {
-                    float ringProgress = (float)ring / 5f;
-                    Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.Silver, ringProgress);
-                    CustomParticles.HaloRing(position, ringColor, 0.35f + ring * 0.15f, 16 + ring * 4);
-                }
-                
-                // Phase 4: Music notes explosion - the symphony unleashed
-                ThemedParticles.MoonlightMusicNotes(position, 15, 50f);
-                ThemedParticles.MoonlightClef(position, Main.rand.NextBool(), 1.8f);
-                
-                // Phase 5: Radial particle spray
-                for (int i = 0; i < 16; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 16f;
-                    Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(8f, 14f);
-                    float progress = (float)i / 16f;
-                    Color sparkColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
+                    float angle = MathHelper.TwoPi * i / 6f;
+                    Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 9f);
+                    Color sparkColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.LightBlue, (float)i / 6f);
                     
-                    var spark = new GenericGlowParticle(position, sparkVel, sparkColor, 0.4f, 25, true);
+                    var spark = new GenericGlowParticle(position, sparkVel, sparkColor, 0.3f, 20, true);
                     MagnumParticleHandler.SpawnParticle(spark);
                 }
-                
-                // Phase 6: Mini lightning fractals shooting outward
-                for (int i = 0; i < 4; i++)
-                {
-                    float lightningAngle = MathHelper.TwoPi * i / 4f + Main.rand.NextFloat(-0.3f, 0.3f);
-                    Vector2 lightningEnd = position + lightningAngle.ToRotationVector2() * 80f;
-                    MagnumVFX.DrawMoonlightLightning(position, lightningEnd, 6, 20f, 2, 0.4f);
-                }
-                
-                // Phase 7: Central white flash
-                CustomParticles.GenericFlare(position, Color.White, 1.5f, 25);
             }
             
             return false;

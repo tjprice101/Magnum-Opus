@@ -156,3 +156,228 @@ Combine multiple particle types for infernal effects:
 - Skulls + brimstone for death curse
 - Cracks + fire for ground eruption
 - Smoke + ash for aftermath effects
+
+---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DIES IRAE - UNIQUE WEAPON PROMPTS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## Design Philosophy
+
+Dies Irae weapons embody divine judgment and infernal punishment:
+- **Base Materials**: Blackened iron and charred obsidian radiating hellfire heat
+- **Accent Material**: Brass chains, bronze shackles, and brimstone crystals
+- **Energy Effects**: Hellfire flames (orange-red), sulfurous smoke, ember particles
+- **Judgment Elements**: Chains binding and dragging, skulls of the damned, divine scales
+- **Infernal Motifs**: Cracks revealing hellfire beneath, demonic sigils, ash and soot
+- **Atmosphere**: Apocalyptic doom, divine wrath, punishment made manifest
+- **Design Style**: Heavy brutal forms, oppressive weight, burning judgment
+
+---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# MELEE WEAPONS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## PROMPT DI-M1: Requiem's Toll (Executioner's Bell Hammer)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal executioner bell hammer themed around Dies Irae divine judgment in the style of Terraria, made of charred black iron with brass chain accents wrapped around the haft, the massive hammerhead shaped like an ancient church bell with cracks revealing hellfire glow within, chains dangle from the bell rim with skulls attached, the weapon radiates oppressive doom aura with hellfire flames licking from the cracks, brimstone crystals embedded in the handle, demonic sigils engraved on the bell surface, ash and ember particles drift around the head, smoke wisps trail from impact points, the pommel features a screaming skull, heavy brutal design with divine wrath made manifest, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-M2: Chains of Absolution (Living Chain Flail)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal chain flail themed around Dies Irae binding judgment in the style of Terraria, made of blackened iron links with brass shackle accents, the flail head consists of multiple chains coiled into a sphere with screaming skull faces emerging from between links, chains writhe with unholy life radiating punishment aura, hellfire flames burn along the chain lengths, additional chains trail behind ready to bind, each link engraved with damned soul sigils, brimstone chunks caught in the chain mesh, smoke and ash drift from the burning metal, the handle wrapped in charred leather with brass rings, demonic eye embedded in the pommel watches victims, brutal oppressive design of eternal imprisonment, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-M3: Scales of Reckoning (Divine Balance Greatsword)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal greatsword themed around Dies Irae divine judgment scales in the style of Terraria, made of obsidian blade with brass balance scale crossguard, the crossguard forms actual weighing scales with chains holding burning soul orbs, cracks along the obsidian blade reveal hellfire glow within, skulls of the judged embedded in the blade, the weapon radiates apocalyptic doom aura, hellfire flames erupt from the fuller, brimstone crystal pommel, ash particles drift around the tipping scales, demonic sigils trace the blade edge, smoke trails from the burning balance, one scale tips showing eternal guilt, brutal divine design where judgment is passed, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-M4: Penance Rendered (Flagellation Whip-Blade)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal segmented whip sword themed around Dies Irae self-inflicted penance in the style of Terraria, made of charred iron segments connected by brass chain links, each segment features razor edges and embedded brimstone shards, the blade unfurls in a cruel elegant S-curve radiating suffering aura, hellfire flames burn along the jointed segments, the handle wrapped in bloodied leather with brass thorns, skulls decorate the segment connections, cracks in the metal reveal inner hellfire glow, ash and ember particles scatter from movement, demonic sigils of repentance engraved throughout, smoke wisps trail each segment, the pommel a screaming penitent face, brutal flagellant design of punishment embraced, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-M5: Damnation's Edge (Hell-Cracked Battleaxe)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal double-headed battleaxe themed around Dies Irae earth-splitting judgment in the style of Terraria, made of massive obsidian heads with brass binding bands, deep cracks spider-web across both blades revealing hellfire magma within, the weapon radiates ground-breaking doom aura, hellfire flames pour from the fissures like blood, chains wrap the haft connecting to floating brimstone chunks, skulls of the damned mounted on the blade backs, ash and sulfur particles cloud around the axe, demonic sigils burn bright on the binding bands, smoke billows from the cracked stone, the pommel features hell gate motif, brutal earth-rending design where the ground splits to swallow sinners, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-M6: The Final Sermon (Pulpit Blade Polearm)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal polearm themed around Dies Irae wrathful preaching in the style of Terraria, made of charred iron shaft with brass scripture bands, the blade shaped like a burning pulpit lectern with hellfire flame crown, chains dangle from the blade with hanging bells that toll doom, the weapon radiates apocalyptic sermon aura, hellfire text scrolls visible in the flames, brimstone crystal finial, skulls of heretics line the shaft, cracks in the metal reveal inner judgment glow, demonic scripture sigils spiral down the pole, ash and ember particles drift like brimstone rain, smoke rises like incense of damnation, brutal preacher design where the final word is death, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# RANGED WEAPONS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## PROMPT DI-R1: Trumpet of Revelation (Doom Herald Cannon)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal trumpet cannon themed around Dies Irae apocalyptic heralding in the style of Terraria, made of charred brass trumpet bell with blackened iron mechanisms, the flared bell mouth cracks with hellfire glow, chains wrap the barrel connecting to floating skull ammunition, the weapon radiates apocalypse announcement aura, hellfire flames pour from the bell like divine proclamation, brimstone loading mechanism, demonic music notation engraved on the brass, ash and ember particles blast from the muzzle, smoke rings form unholy halos, skull faces emerge from the smoke screaming doom, the stock features damned soul relief carvings, brutal herald design announcing the end of days, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-R2: Arbiter's Sentence (Judge's Gavel Launcher)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal gavel rocket launcher themed around Dies Irae final judgment in the style of Terraria, made of massive obsidian gavel head as the barrel with brass court insignia, the gavel cracks reveal hellfire glow within, chains form the launching rail for skull-headed missiles, the weapon radiates courtroom doom aura, hellfire flames mark guilty targets, brimstone crystals power the mechanism, demonic law sigils cover the striking surface, ash and ember particles scatter on firing, smoke billows like courtroom drama, balance scales hang from brass chains, the handle wrapped in judge's robe leather, brutal magistrate design where all are found guilty, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-R3: Brimstone Rain (Volcanic Artillery Repeater)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal multi-barrel volcanic cannon themed around Dies Irae sulfur punishment in the style of Terraria, made of blackened iron with brass heat vents and brimstone crystal chambers, six rotating barrels glow with molten hellfire heat, chains feed brimstone ammunition from a skull-decorated hopper, the weapon radiates volcanic eruption aura, hellfire flames leak from every vent and crack, molten brimstone drips from barrel mouths, demonic geothermal sigils pulse on the mechanism, ash clouds surround the weapon like volcanic shadow, sulfur smoke creates toxic haze, ember particles rain like falling judgment, brutal eruption design raining hellfire upon the damned, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-R4: The Accuser's Mark (Branding Iron Crossbow)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal branding crossbow themed around Dies Irae marking sinners in the style of Terraria, made of charred iron crossbow with brass brand sigil mechanisms, the bolt tips shaped like burning brand irons glowing hellfire hot, chains connect to floating demonic sigil stamps, the weapon radiates judgment marking aura, hellfire flames heat the bolt tips to searing brightness, brimstone crystal sight, each bolt leaves a branded mark of damnation, demonic accusation glyphs cover the stock, ash and ember particles drift from the heated components, smoke trails like sin made visible, skull faces watch from the limb tips, brutal inquisitor design marking souls for collection, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-R5: Congregation's End (Pew-Splinter Shotgun)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal shotgun themed around Dies Irae church destruction in the style of Terraria, made of charred church pew wood with brass cross accents inverted, the barrel made from fused broken stained glass radiating hellfire light, chains wrap the stock with hanging broken rosary beads, the weapon radiates desecration doom aura, hellfire flames pour from the muzzle like burning congregation, brimstone shrapnel ammunition visible, demonic anti-prayer sigils burn on the wood, ash from burned hymnals drifts around, smoke billows like extinguished faith, skull faces of the congregation embedded in the stock, brutal apostate design ending false hope, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-R6: Sin Collector (Soul Bottle Rifle)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal precision rifle themed around Dies Irae soul harvesting in the style of Terraria, made of blackened iron with brass bottle-shaped magazine containing screaming soul essence, the long barrel features glass viewing tubes showing captured sins swirling within, chains connect to floating empty soul bottles, the weapon radiates soul-rending doom aura, hellfire flames burn the captured essence, brimstone lens scope sees sin, demonic collection sigils label each sin type, ash particles represent expended souls, smoke wisps are escaping screams, skull faces press against the bottle glass, brutal reaper design collecting what is owed, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# MAGIC WEAPONS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## PROMPT DI-G1: Ledger of Transgressions (Accounting Tome)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal floating tome themed around Dies Irae sin accounting in the style of Terraria, made of charred black leather with brass corner chains, the book floats open showing burning pages listing all sins committed, chains wrap the spine with skull bookmarks, the weapon radiates judgment accounting aura, hellfire flames lick the page edges without consuming them, brimstone ink writes automatically, demonic transaction sigils fill the margins, names of the damned appear and burn away, ash particles are consumed sin entries, smoke rises like prayers rejected, the cover features weighing scales and all-seeing eye, brutal bureaucrat design tallying eternal debt, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-G2: Censer of Perdition (Burning Incense Staff)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal censer staff themed around Dies Irae unholy sacrament in the style of Terraria, made of charred iron shaft with brass chain-suspended censer head, the censer swings with hellfire smoke pouring from the pierced metal, chains spiral down the staff with skull thurible accessories, the weapon radiates toxic blessing doom aura, hellfire flames burn sulfurous incense within, brimstone coals never extinguish, demonic prayer sigils engraved on censer surface, ash and ember particles swirl in ritual patterns, poisonous smoke forms unholy shapes, skull faces peer through the censer holes, the handle wrapped in vestment cloth, brutal priest design blessing with damnation, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-G3: Vox Infernum (Damned Choir Organ)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal pipe organ weapon themed around Dies Irae hellish chorus in the style of Terraria, made of blackened organ pipes with brass wind mechanism, multiple pipes of varying sizes glow with hellfire within, chains control the bellows pumping infernal air, the weapon radiates screaming choir doom aura, hellfire flames shoot from each pipe mouth when played, brimstone keys on the keyboard, demonic music notation spirals from the pipes, ash and ember particles dance to the unholy tune, smoke forms screaming faces of the damned chorus, skull organist hands on the keys, brutal musician design where hell itself sings, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-G4: Eclipse of Faith (Extinguished Halo Ring)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal chakram ring themed around Dies Irae fallen divinity in the style of Terraria, made of cracked golden halo metal corrupted to blackened brass, the ring floats spinning with hellfire replacing holy light, chains trail from the ring binding it to the caster, the weapon radiates fallen angel doom aura, hellfire flames burn where grace once shone, brimstone crystals mark where divine gems cracked, demonic corruption sigils spread like infection, feather silhouettes burn to ash around it, smoke trails like extinguished prayers, skull faces of fallen angels emerge from the dark metal, brutal apostate design of heaven's rejection, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-G5: Anathema Proclamation (Excommunication Scroll)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal floating scroll staff themed around Dies Irae church condemnation in the style of Terraria, made of charred parchment on blackened iron scroll rods with brass end caps, the scroll unfurls continuously showing burning excommunication text, chains bind the scroll preventing it from ever closing, the weapon radiates banishment doom aura, hellfire flames trace each condemnation word, brimstone wax seals mark each sentence, demonic authority sigils authenticate the judgment, ash particles are names burned from the book of life, smoke forms pointing accusatory fingers, skull faces of the excommunicated press against the parchment, brutal inquisitor design casting out forever, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-G6: Pyre Kindling (Stake and Flame Wand)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal burning stake wand themed around Dies Irae witch burning in the style of Terraria, made of charred execution stake wood with brass binding rings, the wand tip shaped like a miniature burning pyre with figure silhouette, chains wrap the handle with hanging kindling bundles, the weapon radiates execution pyre doom aura, hellfire flames burn eternal at the tip, brimstone accelerant crystals embedded in the wood, demonic execution sigils burned into the stake, ash and ember particles swirl like rising souls, smoke forms screaming victim faces, skull remains visible in the pyre flames, brutal executioner design where heresy burns, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SUMMON WEAPONS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## PROMPT DI-S1: Hell Warden's Keys (Jailer Staff)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal key ring staff themed around Dies Irae eternal imprisonment in the style of Terraria, made of charred iron shaft with massive brass key ring head holding multiple hell-forged keys, each key opens a different level of damnation with hellfire keyholes, chains dangle with empty shackles seeking prisoners, the weapon radiates eternal jailer doom aura, hellfire flames burn from each keyhole, brimstone lock mechanisms click endlessly, demonic cell number sigils on each key, ash particles drift from opened prison gates, smoke forms grasping prisoner hands, skull-faced jailer motif on the ring, brutal prison design summoning chains to bind, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-S2: Carrion Congregation (Vulture Bishop Staff)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal vulture staff themed around Dies Irae death circling in the style of Terraria, made of charred bone shaft with brass carrion bird perch, multiple skeletal vulture skulls arranged in bishop's mitre formation, hellfire eyes glow in each skull, chains hang with rotting feast offerings, the weapon radiates patient doom aura, hellfire flames smolder in empty eye sockets, brimstone crystals form like hardened blood, demonic feast sigils mark the bone, ash and ember particles are consumed flesh, smoke wisps are final breaths, vulture feathers burn eternally, brutal scavenger design summoning those who feast on the damned, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-S3: The Collection Plate (Tithe Summoner)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal collection plate staff themed around Dies Irae soul tithe in the style of Terraria, made of charred wood shaft with brass offering plate head overflowing with burning coins and soul gems, chains connect to floating empty plates awaiting tribute, the weapon radiates debt collection doom aura, hellfire flames consume the offerings yet they never diminish, brimstone coins minted with damned faces, demonic debt sigils track what is owed, ash particles are defaulted payments, smoke forms grasping collector hands, skull faces of debtors embedded in coins, brutal tax design summoning collectors for what is due, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-S4: Catacomb Conducter (Bone Orchestra Baton)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal conductor's baton themed around Dies Irae death orchestra in the style of Terraria, made of polished femur bone with brass end caps and music stand motif, the tip trails hellfire musical notation, chains connect to floating skeletal instrument pieces, the weapon radiates funeral march doom aura, hellfire flames form musical staffs in the air, brimstone crystals serve as tuning mechanisms, demonic symphony sigils spiral from the tip, ash particles dance to unheard death music, smoke forms skeletal musicians, skull faces of the orchestra emerge from the shadows, brutal maestro design conducting the symphony of the damned, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-S5: Martyrdom's Crown (Thorned Halo Summoner)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal crown of thorns staff themed around Dies Irae suffering sacrifice in the style of Terraria, made of twisted thorn-iron shaft with massive brass crown of thorns head dripping hellfire blood, chains pierce through the thorns with hanging martyr tokens, the weapon radiates willing suffering doom aura, hellfire flames burn from each thorn tip, brimstone crystals form like crystallized tears, demonic passion sigils mark the thorns, ash and ember particles drift like falling blood drops, smoke rises like ascending suffering, skull faces of martyrs peer from within the crown, brutal saint design summoning those who embraced the pain, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```
+
+---
+
+## PROMPT DI-S6: Gravedigger's Commission (Cemetery Staff)
+
+```
+Concept art for a side-view idle pixel art sprite of an insanely unique infernal gravedigger shovel staff themed around Dies Irae burial duty in the style of Terraria, made of charred oak shaft with brass-reinforced obsidian shovel head, the blade edge cracks with hellfire glow from digging hell's graves, chains connect to floating grave markers and tombstones, the weapon radiates burial doom aura, hellfire flames lick the shovel edge, brimstone-rich grave dirt clings to the blade, demonic epitaph sigils appear on floating stones, ash particles are cremation remains, smoke rises from freshly turned hellsoil, skull faces push up through the dirt, brutal undertaker design summoning those who dig for eternity, full-view with clean readable silhouette --ar 16:9 --v 7.0
+```

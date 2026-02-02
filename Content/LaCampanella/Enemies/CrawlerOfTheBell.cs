@@ -105,8 +105,9 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
         public override void SetDefaults()
         {
             // MINI-BOSS STATS - Reduced size by 50%
-            NPC.width = 90;  // Was 180
-            NPC.height = 60; // Was 120
+            // Hitbox = (4380/6) × (3000/6) × 0.5 × 0.8 = 730 × 500 × 0.5 × 0.8 = 292 × 200
+            NPC.width = 292;
+            NPC.height = 200;
             NPC.damage = 150;
             NPC.defense = 70;
             NPC.lifeMax = 55000;

@@ -28,7 +28,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         {
             Item.width = 34;
             Item.height = 66;
-            Item.damage = 750; // POST-FATE RANGED
+            Item.damage = 1150; // POST-FATE ULTIMATE RANGED - 35%+ above Fate tier
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 12;
             Item.useAnimation = 12;
@@ -80,47 +80,27 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 SoundEngine.PlaySound(SoundID.Item25 with { Pitch = 0.4f, Volume = 0.7f }, position);
             }
             
-            // Enhanced muzzle VFX with star burst
-            NachtmusikCosmicVFX.SpawnStarBurstImpact(position + direction * 25f, 0.7f, 2);
-            NachtmusikCosmicVFX.SpawnConstellationCircle(position + direction * 30f, 25f, 4, 0.25f);
-            NachtmusikCosmicVFX.SpawnShatteredStarlightBurst(position + direction * 20f, 6, 5f, 0.4f, false);
-            CustomParticles.GenericFlare(position + direction * 15f, NachtmusikCosmicVFX.Gold, 0.5f, 12);
+            // Muzzle flash - trust star burst for core VFX
+            NachtmusikCosmicVFX.SpawnStarBurstImpact(position + direction * 25f, 0.6f, 2);
+            CustomParticles.GenericFlare(position + direction * 15f, NachtmusikCosmicVFX.Gold, 0.4f, 12);
             
             // Music note on shot
-            ThemedParticles.MusicNote(position + direction * 18f, direction * 2f, new Color(100, 60, 180) * 0.8f, 0.7f, 25);
-            
-            // Star sparkle accents
-            for (int sparkle = 0; sparkle < 3; sparkle++)
-            {
-                var starSparkle = new SparkleParticle(position + direction * 20f + Main.rand.NextVector2Circular(10f, 10f),
-                    direction * 1.5f + Main.rand.NextVector2Circular(1f, 1f), new Color(255, 250, 240) * 0.5f, 0.2f, 16);
-                MagnumParticleHandler.SpawnParticle(starSparkle);
-            }
+            ThemedParticles.MusicNote(position + direction * 18f, direction * 2f, new Color(100, 60, 180) * 0.7f, 0.65f, 20);
             
             return false;
         }
         
         public override void HoldItem(Player player)
         {
-            // Subtle star particles while holding
-            if (Main.rand.NextBool(8))
+            // Sparse ambient music note
+            if (Main.rand.NextBool(25))
             {
-                Vector2 bowTip = player.Center + new Vector2(player.direction * 25f, -5f);
-                var star = new GenericGlowParticle(bowTip + Main.rand.NextVector2Circular(10f, 10f),
-                    new Vector2(0, -0.5f), NachtmusikCosmicVFX.StarWhite * 0.5f, 0.15f, 15, true);
-                MagnumParticleHandler.SpawnParticle(star);
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                Color noteColor = Color.Lerp(new Color(100, 60, 180), new Color(80, 100, 200), Main.rand.NextFloat()) * 0.5f;
+                ThemedParticles.MusicNote(notePos, new Vector2(0, -0.4f), noteColor, 0.6f, 30);
             }
             
-            // Floating nocturnal melody notes
-            if (Main.rand.NextBool(12))
-            {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -Main.rand.NextFloat(0.3f, 0.6f));
-                Color noteColor = Color.Lerp(new Color(100, 60, 180), new Color(80, 100, 200), Main.rand.NextFloat()) * 0.6f;
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 40);
-            }
-            
-            Lighting.AddLight(player.Center, NachtmusikCosmicVFX.Gold.ToVector3() * 0.3f);
+            Lighting.AddLight(player.Center, NachtmusikCosmicVFX.Gold.ToVector3() * 0.2f);
         }
         
         public override Vector2? HoldoutOffset() => new Vector2(-5f, 0f);
@@ -148,7 +128,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         {
             Item.width = 30;
             Item.height = 58;
-            Item.damage = 680; // POST-FATE RANGED
+            Item.damage = 1050; // POST-FATE ULTIMATE RANGED - 40%+ above Fate tier
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 16;
             Item.useAnimation = 16;
@@ -172,15 +152,14 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             
             // Music note on shot
             Vector2 direction = velocity.SafeNormalize(Vector2.UnitX);
-            ThemedParticles.MusicNote(position + direction * 15f, direction * 1.5f, new Color(100, 60, 180) * 0.8f, 0.7f, 25);
+            ThemedParticles.MusicNote(position + direction * 15f, direction * 1.5f, new Color(100, 60, 180) * 0.7f, 0.65f, 20);
             
-            // Nebula cloud muzzle effect
-            for (int i = 0; i < 6; i++)
+            // Sparse nebula cloud muzzle effect
+            for (int i = 0; i < 2; i++)
             {
-                Vector2 offset = Main.rand.NextVector2Circular(15f, 15f);
+                Vector2 offset = Main.rand.NextVector2Circular(12f, 12f);
                 Color nebulaColor = Color.Lerp(NachtmusikCosmicVFX.NebulaPink, NachtmusikCosmicVFX.Violet, Main.rand.NextFloat());
-                var cloud = new GenericGlowParticle(position + offset, velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f),
-                    nebulaColor * 0.5f, 0.25f, 18, true);
+                var cloud = new GenericGlowParticle(position + offset, velocity * 0.08f, nebulaColor * 0.4f, 0.2f, 15, true);
                 MagnumParticleHandler.SpawnParticle(cloud);
             }
             
@@ -189,31 +168,15 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         
         public override void HoldItem(Player player)
         {
-            // Nebula wisps while holding
-            if (Main.rand.NextBool(10))
+            // Sparse ambient music note
+            if (Main.rand.NextBool(25))
             {
-                Vector2 wispPos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Color wispColor = Color.Lerp(NachtmusikCosmicVFX.NebulaPink, NachtmusikCosmicVFX.DeepPurple, Main.rand.NextFloat());
-                var wisp = new GenericGlowParticle(wispPos, Main.rand.NextVector2Circular(0.5f, 0.5f),
-                    wispColor * 0.4f, 0.2f, 20, true);
-                MagnumParticleHandler.SpawnParticle(wisp);
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                Color noteColor = Color.Lerp(NachtmusikCosmicVFX.NebulaPink, NachtmusikCosmicVFX.Violet, Main.rand.NextFloat()) * 0.5f;
+                ThemedParticles.MusicNote(notePos, new Vector2(0, -0.4f), noteColor, 0.65f, 30);
             }
             
-            // Floating nocturnal melody notes - VISIBLE SCALE 0.75f+
-            if (Main.rand.NextBool(12))
-            {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -Main.rand.NextFloat(0.3f, 0.6f));
-                Color noteColor = Color.Lerp(NachtmusikCosmicVFX.NebulaPink, NachtmusikCosmicVFX.Violet, Main.rand.NextFloat()) * 0.7f;
-                float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f * shimmer, 40);
-                
-                // Nebula sparkle companion
-                var sparkle = new SparkleParticle(notePos, noteVel * 0.8f, NachtmusikCosmicVFX.StarWhite * 0.4f, 0.22f, 18);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-            
-            Lighting.AddLight(player.Center, NachtmusikCosmicVFX.NebulaPink.ToVector3() * 0.25f);
+            Lighting.AddLight(player.Center, NachtmusikCosmicVFX.NebulaPink.ToVector3() * 0.2f);
         }
         
         public override Vector2? HoldoutOffset() => new Vector2(-3f, 0f);
@@ -243,7 +206,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         {
             Item.width = 36;
             Item.height = 70;
-            Item.damage = 580; // POST-FATE RANGED
+            Item.damage = 920; // POST-FATE ULTIMATE RANGED - 36%+ above Fate tier
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 18;
             Item.useAnimation = 18;
@@ -278,52 +241,34 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 Projectile.NewProjectile(source, starPos, starVel, ModContent.ProjectileType<SerenadeStarProjectile>(), damage, knockback, player.whoAmI);
             }
             
-            // Enhanced serenade burst VFX with star particles
+            // Serenade burst - trust star burst for core VFX
             Vector2 direction = velocity.SafeNormalize(Vector2.UnitX);
-            NachtmusikCosmicVFX.SpawnStarBurstImpact(position + direction * 25f, 0.6f, 2);
-            CustomParticles.GenericFlare(position + direction * 20f, NachtmusikCosmicVFX.StarWhite, 0.6f, 15);
-            NachtmusikCosmicVFX.SpawnMusicNoteBurst(position + direction * 30f, 4, 4f);
-            NachtmusikCosmicVFX.SpawnShatteredStarlightBurst(position + direction * 18f, 4, 3f, 0.35f, false);
+            NachtmusikCosmicVFX.SpawnStarBurstImpact(position + direction * 25f, 0.5f, 2);
+            CustomParticles.GenericFlare(position + direction * 20f, NachtmusikCosmicVFX.StarWhite, 0.5f, 12);
             
-            // Music note ring for serenade effect
-            ThemedParticles.MusicNoteRing(position + direction * 25f, new Color(100, 60, 180), 35f, 6);
-            
-            // Star sparkle accents
-            for (int sparkle = 0; sparkle < 4; sparkle++)
-            {
-                var starSparkle = new SparkleParticle(position + direction * 22f + Main.rand.NextVector2Circular(12f, 12f),
-                    direction * 2f + Main.rand.NextVector2Circular(1.5f, 1.5f), new Color(255, 250, 240) * 0.6f, 0.22f, 18);
-                MagnumParticleHandler.SpawnParticle(starSparkle);
-            }
-            
-            // Play a musical sound
-            SoundEngine.PlaySound(SoundID.Item25 with { Pitch = 0.3f + Main.rand.NextFloat(-0.1f, 0.1f), Volume = 0.6f }, position);
+            // Music note burst (reduced count)
+            ThemedParticles.MusicNoteBurst(position + direction * 25f, new Color(100, 60, 180), 3, 3f);
             
             return false;
         }
         
         public override void HoldItem(Player player)
         {
-            // Distant star sparkles
-            if (Main.rand.NextBool(12))
+            // Sparse ambient star flare
+            if (Main.rand.NextBool(25))
             {
-                Vector2 starPos = player.Center + Main.rand.NextVector2Circular(50f, 50f);
-                CustomParticles.GenericFlare(starPos, NachtmusikCosmicVFX.StarWhite * 0.6f, 0.15f, 12);
+                Vector2 starPos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
+                CustomParticles.GenericFlare(starPos, NachtmusikCosmicVFX.StarWhite * 0.5f, 0.12f, 10);
             }
             
-            // Subtle music notes - VISIBLE SCALE 0.75f+
-            if (Main.rand.NextBool(16))
+            // Sparse music note
+            if (Main.rand.NextBool(30))
             {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
-                ThemedParticles.MusicNote(notePos, new Vector2(0, -0.5f), NachtmusikCosmicVFX.Gold * 0.6f, 0.75f * shimmer, 25);
-                
-                // Star sparkle accent
-                var sparkle = new SparkleParticle(notePos, new Vector2(0, -0.4f), NachtmusikCosmicVFX.StarWhite * 0.45f, 0.22f, 18);
-                MagnumParticleHandler.SpawnParticle(sparkle);
+                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                ThemedParticles.MusicNote(notePos, new Vector2(0, -0.4f), NachtmusikCosmicVFX.Gold * 0.5f, 0.6f, 25);
             }
             
-            Lighting.AddLight(player.Center, NachtmusikCosmicVFX.StarWhite.ToVector3() * 0.35f);
+            Lighting.AddLight(player.Center, NachtmusikCosmicVFX.StarWhite.ToVector3() * 0.25f);
         }
         
         public override Vector2? HoldoutOffset() => new Vector2(-6f, 0f);

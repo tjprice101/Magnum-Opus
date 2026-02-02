@@ -14,6 +14,7 @@ using MagnumOpus.Content.LaCampanella.ResonantOres;
 using MagnumOpus.Content.EnigmaVariations.ResonantOres;
 using MagnumOpus.Content.Fate.ResonantOres;
 using MagnumOpus.Content.Nachtmusik.ResonantOres;
+using MagnumOpus.Content.DiesIrae.ResonantOres;
 using MagnumOpus.Content.Common.GrandPiano;
 
 namespace MagnumOpus.Common.Systems
@@ -217,7 +218,7 @@ namespace MagnumOpus.Common.Systems
             
             // Spawn Phase 9 theme ores (post-Fate content)
             SpawnNachtmusikResonanceOre();
-            // TODO: SpawnDiesIraeResonanceOre(); - when implemented
+            SpawnDiesIraeResonanceOre();
             // TODO: SpawnOdeToJoyResonanceOre(); - when implemented
             // TODO: SpawnClairDeLuneResonanceOre(); - when implemented
             
@@ -1060,6 +1061,56 @@ namespace MagnumOpus.Common.Systems
                 {
                     // Vein sizes of 15-28 tiles (slightly larger for post-Fate content visibility)
                     int veinSize = Main.rand.Next(15, 29);
+                    
+                    if (SpawnOreVein(x, y, tileType, veinSize))
+                    {
+                        successfulVeins++;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Spawns Dies Irae Resonance Ore in the Underworld.
+        /// This ore spawns after the Fate boss is defeated (post-Fate content).
+        /// Location: Underworld (bottom 200 tiles)
+        /// Vein sizes: 12-25 tiles for fiery ore clusters
+        /// </summary>
+        private static void SpawnDiesIraeResonanceOre()
+        {
+            int tileType = ModContent.TileType<DiesIraeResonanceOreTile>();
+            
+            // Spawn in Underworld (fiery judgment ore in the depths of hell)
+            // Moderate spawn rate - challenging to mine in hell
+            int veinsToSpawn = Main.rand.Next(80, 121); // 80-120 veins
+            int successfulVeins = 0;
+
+            // Underworld bounds (bottom 200 tiles, avoiding lava lakes as much as possible)
+            int underworldTop = Main.maxTilesY - 200;
+            int underworldBottom = Main.maxTilesY - 50; // Stay above absolute bottom
+
+            for (int attempt = 0; attempt < veinsToSpawn * 20 && successfulVeins < veinsToSpawn; attempt++)
+            {
+                // Random position in the Underworld
+                int x = Main.rand.Next(100, Main.maxTilesX - 100);
+                int y = Main.rand.Next(underworldTop, underworldBottom);
+
+                // Check if the area is valid (solid tile, preferably ash/hellstone)
+                Tile tile = Main.tile[x, y];
+                if (tile.HasTile && Main.tileSolid[tile.TileType])
+                {
+                    // Don't replace dungeon bricks, lihzahrd, or containers
+                    if (tile.TileType == TileID.LihzahrdBrick || 
+                        tile.TileType == TileID.LihzahrdAltar ||
+                        tile.TileType == TileID.Containers ||
+                        tile.TileType == TileID.Containers2 ||
+                        tile.TileType == TileID.BlueDungeonBrick ||
+                        tile.TileType == TileID.GreenDungeonBrick ||
+                        tile.TileType == TileID.PinkDungeonBrick)
+                        continue;
+
+                    // Vein sizes of 12-25 tiles (fiery clusters)
+                    int veinSize = Main.rand.Next(12, 26);
                     
                     if (SpawnOreVein(x, y, tileType, veinSize))
                     {

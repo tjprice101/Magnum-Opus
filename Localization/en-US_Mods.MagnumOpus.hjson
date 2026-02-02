@@ -4067,6 +4067,7 @@ Tiles: {
 	MoonlitResonanceOreTile.MapEntry: Moonlit Resonance Ore Tile
 	SwanLakeResonanceOreTile.MapEntry: Swan Lake Resonance Ore Tile
 	NachtmusikResonanceOreTile.MapEntry: Nachtmusik Resonance Ore Tile
+	DiesIraeResonanceOreTile.MapEntry: Dies Irae Resonance Ore Tile
 }
 
 Buffs: {
@@ -4263,6 +4264,21 @@ Buffs: {
 	FrostSentinelBuff: {
 		DisplayName: Frost Sentinel Buff
 		Description: Mods.MagnumOpus.Buffs.FrostSentinelBuff.Description
+	}
+
+	DeathTollingBellBuff: {
+		DisplayName: Death Tolling Bell Buff
+		Description: Mods.MagnumOpus.Buffs.DeathTollingBellBuff.Description
+	}
+
+	HarmonyOfJudgementBuff: {
+		DisplayName: Harmony Of Judgement Buff
+		Description: Mods.MagnumOpus.Buffs.HarmonyOfJudgementBuff.Description
+	}
+
+	WrathfulContractBuff: {
+		DisplayName: Wrathful Contract Buff
+		Description: Mods.MagnumOpus.Buffs.WrathfulContractBuff.Description
 	}
 }
 
@@ -6118,6 +6134,426 @@ Items: {
 		DisplayName: Vivaldis Harmonic Core
 		Tooltip: ""
 	}
+
+	VFX_ClairDeLune_DreamyMist: {
+		DisplayName: V F X_ Clair De Lune_ Dreamy Mist
+		Tooltip: ""
+	}
+
+	VFX_ClairDeLune_ImpressionistNotes: {
+		DisplayName: V F X_ Clair De Lune_ Impressionist Notes
+		Tooltip: ""
+	}
+
+	VFX_ClairDeLune_LunarArcs: {
+		DisplayName: V F X_ Clair De Lune_ Lunar Arcs
+		Tooltip: ""
+	}
+
+	VFX_ClairDeLune_MoonbeamRipples: {
+		DisplayName: V F X_ Clair De Lune_ Moonbeam Ripples
+		Tooltip: ""
+	}
+
+	VFX_ClairDeLune_WaterReflection: {
+		DisplayName: V F X_ Clair De Lune_ Water Reflection
+		Tooltip: ""
+	}
+
+	VFX_DiesIrae_ApocalypseVortex: {
+		DisplayName: V F X_ Dies Irae_ Apocalypse Vortex
+		Tooltip: ""
+	}
+
+	VFX_DiesIrae_BrimstoneEmbers: {
+		DisplayName: V F X_ Dies Irae_ Brimstone Embers
+		Tooltip: ""
+	}
+
+	VFX_DiesIrae_JudgmentArcs: {
+		DisplayName: V F X_ Dies Irae_ Judgment Arcs
+		Tooltip: ""
+	}
+
+	VFX_DiesIrae_RequiemNotes: {
+		DisplayName: V F X_ Dies Irae_ Requiem Notes
+		Tooltip: ""
+	}
+
+	VFX_DiesIrae_WrathFlames: {
+		DisplayName: V F X_ Dies Irae_ Wrath Flames
+		Tooltip: ""
+	}
+
+	VFX_Enigma_ArcaneGlyphs: {
+		DisplayName: V F X_ Enigma_ Arcane Glyphs
+		Tooltip: ""
+	}
+
+	VFX_Enigma_GreenFlameSlash: {
+		DisplayName: V F X_ Enigma_ Green Flame Slash
+		Tooltip: ""
+	}
+
+	VFX_Enigma_MysteryNotes: {
+		DisplayName: V F X_ Enigma_ Mystery Notes
+		Tooltip: ""
+	}
+
+	VFX_Enigma_VoidTendrils: {
+		DisplayName: V F X_ Enigma_ Void Tendrils
+		Tooltip: ""
+	}
+
+	VFX_Enigma_WatchingEyes: {
+		DisplayName: V F X_ Enigma_ Watching Eyes
+		Tooltip: ""
+	}
+
+	VFX_Eroica_HeroicArcs: {
+		DisplayName: V F X_ Eroica_ Heroic Arcs
+		Tooltip: ""
+	}
+
+	VFX_Eroica_SakuraDrift: {
+		DisplayName: V F X_ Eroica_ Sakura Drift
+		Tooltip: ""
+	}
+
+	VFX_Eroica_SymphonyNotes: {
+		DisplayName: V F X_ Eroica_ Symphony Notes
+		Tooltip: ""
+	}
+
+	VFX_Eroica_TriumphSparks: {
+		DisplayName: V F X_ Eroica_ Triumph Sparks
+		Tooltip: ""
+	}
+
+	VFX_Eroica_ValorCrescent: {
+		DisplayName: V F X_ Eroica_ Valor Crescent
+		Tooltip: ""
+	}
+
+	VFX_Fate_CelestialNotes: {
+		DisplayName: V F X_ Fate_ Celestial Notes
+		Tooltip: ""
+	}
+
+	VFX_Fate_CosmicClouds: {
+		DisplayName: V F X_ Fate_ Cosmic Clouds
+		Tooltip: ""
+	}
+
+	VFX_Fate_GlyphOrbit: {
+		DisplayName: V F X_ Fate_ Glyph Orbit
+		Tooltip: ""
+	}
+
+	VFX_Fate_RealitySlash: {
+		DisplayName: V F X_ Fate_ Reality Slash
+		Tooltip: ""
+	}
+
+	VFX_Fate_StarStream: {
+		DisplayName: V F X_ Fate_ Star Stream
+		Tooltip: ""
+	}
+
+	VFX_Campanella_BellArcs: {
+		DisplayName: V F X_ Campanella_ Bell Arcs
+		Tooltip: ""
+	}
+
+	VFX_Campanella_CrescentFlame: {
+		DisplayName: V F X_ Campanella_ Crescent Flame
+		Tooltip: ""
+	}
+
+	VFX_Campanella_EmberSpray: {
+		DisplayName: V F X_ Campanella_ Ember Spray
+		Tooltip: ""
+	}
+
+	VFX_Campanella_MusicNotes: {
+		DisplayName: V F X_ Campanella_ Music Notes
+		Tooltip: ""
+	}
+
+	VFX_Campanella_SmokeTrail: {
+		DisplayName: V F X_ Campanella_ Smoke Trail
+		Tooltip: ""
+	}
+
+	VFX_Moonlight_CrescentMoon: {
+		DisplayName: V F X_ Moonlight_ Crescent Moon
+		Tooltip: ""
+	}
+
+	VFX_Moonlight_LunarMist: {
+		DisplayName: V F X_ Moonlight_ Lunar Mist
+		Tooltip: ""
+	}
+
+	VFX_Moonlight_LunarVortex: {
+		DisplayName: V F X_ Moonlight_ Lunar Vortex
+		Tooltip: ""
+	}
+
+	VFX_Moonlight_NocturneNotes: {
+		DisplayName: V F X_ Moonlight_ Nocturne Notes
+		Tooltip: ""
+	}
+
+	VFX_Moonlight_StarlightTrail: {
+		DisplayName: V F X_ Moonlight_ Starlight Trail
+		Tooltip: ""
+	}
+
+	VFX_Nachtmusik_EveningWaltz: {
+		DisplayName: V F X_ Nachtmusik_ Evening Waltz
+		Tooltip: ""
+	}
+
+	VFX_Nachtmusik_MoonlitArcs: {
+		DisplayName: V F X_ Nachtmusik_ Moonlit Arcs
+		Tooltip: ""
+	}
+
+	VFX_Nachtmusik_NightBreeze: {
+		DisplayName: V F X_ Nachtmusik_ Night Breeze
+		Tooltip: ""
+	}
+
+	VFX_Nachtmusik_NocturneNotes: {
+		DisplayName: V F X_ Nachtmusik_ Nocturne Notes
+		Tooltip: ""
+	}
+
+	VFX_Nachtmusik_StarlightSerenade: {
+		DisplayName: V F X_ Nachtmusik_ Starlight Serenade
+		Tooltip: ""
+	}
+
+	VFX_Seasons_AutumnHarvest: {
+		DisplayName: V F X_ Seasons_ Autumn Harvest
+		Tooltip: ""
+	}
+
+	VFX_Seasons_SeasonalCycle: {
+		DisplayName: V F X_ Seasons_ Seasonal Cycle
+		Tooltip: ""
+	}
+
+	VFX_Seasons_SpringBlossom: {
+		DisplayName: V F X_ Seasons_ Spring Blossom
+		Tooltip: ""
+	}
+
+	VFX_Seasons_SummerBlaze: {
+		DisplayName: V F X_ Seasons_ Summer Blaze
+		Tooltip: ""
+	}
+
+	VFX_Seasons_WinterFrost: {
+		DisplayName: V F X_ Seasons_ Winter Frost
+		Tooltip: ""
+	}
+
+	VFX_SwanLake_BalletNotes: {
+		DisplayName: V F X_ Swan Lake_ Ballet Notes
+		Tooltip: ""
+	}
+
+	VFX_SwanLake_DoubleHelix: {
+		DisplayName: V F X_ Swan Lake_ Double Helix
+		Tooltip: ""
+	}
+
+	VFX_SwanLake_FeatherWaltz: {
+		DisplayName: V F X_ Swan Lake_ Feather Waltz
+		Tooltip: ""
+	}
+
+	VFX_SwanLake_MonochromeArcs: {
+		DisplayName: V F X_ Swan Lake_ Monochrome Arcs
+		Tooltip: ""
+	}
+
+	VFX_SwanLake_PrismaticShimmer: {
+		DisplayName: V F X_ Swan Lake_ Prismatic Shimmer
+		Tooltip: ""
+	}
+
+	ChainOfFinalJudgment: {
+		DisplayName: Chain Of Final Judgment
+		Tooltip: ""
+	}
+
+	EmberOfTheCondemned: {
+		DisplayName: Ember Of The Condemned
+		Tooltip: ""
+	}
+
+	RequiemsShackle: {
+		DisplayName: Requiems Shackle
+		Tooltip: ""
+	}
+
+	SealOfDamnation: {
+		DisplayName: Seal Of Damnation
+		Tooltip: ""
+	}
+
+	DiesIraeTreasureBag: {
+		DisplayName: Dies Irae Treasure Bag
+		Tooltip: ""
+	}
+
+	HarmonicCoreOfDiesIrae: {
+		DisplayName: Harmonic Core Of Dies Irae
+		Tooltip: ""
+	}
+
+	DiesIraeResonantEnergy: {
+		DisplayName: Dies Irae Resonant Energy
+		Tooltip: ""
+	}
+
+	RemnantOfDiesIraesWrath: {
+		DisplayName: Remnant Of Dies Iraes Wrath
+		Tooltip: ""
+	}
+
+	ResonantCoreOfDiesIrae: {
+		DisplayName: Resonant Core Of Dies Irae
+		Tooltip: ""
+	}
+
+	DiesIraeResonanceOre: {
+		DisplayName: Dies Irae Resonance Ore
+		Tooltip: ""
+	}
+
+	ArbitersSentence: {
+		DisplayName: Arbiters Sentence
+		Tooltip: ""
+	}
+
+	ChainOfJudgment: {
+		DisplayName: Chain Of Judgment
+		Tooltip: ""
+	}
+
+	DamnationsCannon: {
+		DisplayName: Damnations Cannon
+		Tooltip: ""
+	}
+
+	DeathTollingBell: {
+		DisplayName: Death Tolling Bell
+		Tooltip: ""
+	}
+
+	EclipseOfWrath: {
+		DisplayName: Eclipse Of Wrath
+		Tooltip: ""
+	}
+
+	ExecutionersVerdict: {
+		DisplayName: Executioners Verdict
+		Tooltip: ""
+	}
+
+	GrimoireOfCondemnation: {
+		DisplayName: Grimoire Of Condemnation
+		Tooltip: ""
+	}
+
+	HarmonyOfJudgement: {
+		DisplayName: Harmony Of Judgement
+		Tooltip: ""
+	}
+
+	SinCollector: {
+		DisplayName: Sin Collector
+		Tooltip: ""
+	}
+
+	StaffOfFinalJudgement: {
+		DisplayName: Staff Of Final Judgement
+		Tooltip: ""
+	}
+
+	WrathfulContract: {
+		DisplayName: Wrathful Contract
+		Tooltip: ""
+	}
+
+	WrathsCleaver: {
+		DisplayName: Wraths Cleaver
+		Tooltip: ""
+	}
+
+	ScoreOfDiesIrae: {
+		DisplayName: Score Of Dies Irae
+		Tooltip: ""
+	}
+
+	WingsOfDamnation: {
+		DisplayName: Wings Of Damnation
+		Tooltip: ""
+	}
+
+	WrathsAxe: {
+		DisplayName: Wraths Axe
+		Tooltip: ""
+	}
+
+	WrathsDrill: {
+		DisplayName: Wraths Drill
+		Tooltip: ""
+	}
+
+	WrathsHammer: {
+		DisplayName: Wraths Hammer
+		Tooltip: ""
+	}
+
+	WrathsPickaxe: {
+		DisplayName: Wraths Pickaxe
+		Tooltip: ""
+	}
+
+	ConstellationQuiver: {
+		DisplayName: Constellation Quiver
+		Tooltip: ""
+	}
+
+	ShardOfNachtmusiksTempo: {
+		DisplayName: Shard Of Nachtmusiks Tempo
+		Tooltip: ""
+	}
+
+	NightsMelodyAxe: {
+		DisplayName: Nights Melody Axe
+		Tooltip: ""
+	}
+
+	NightsMelodyHammer: {
+		DisplayName: Nights Melody Hammer
+		Tooltip: ""
+	}
+
+	NightsMelodyPickaxe: {
+		DisplayName: Nights Melody Pickaxe
+		Tooltip: ""
+	}
+
+	SerenadeOfStars: {
+		DisplayName: Serenade Of Stars
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -6144,6 +6580,7 @@ NPCs: {
 	ShatteredPrima.DisplayName: Shattered Prima
 	LInverno.DisplayName: L Inverno
 	NachtmusikQueenOfRadiance.DisplayName: Nachtmusik Queen Of Radiance
+	DiesIraeHeraldOfJudgement.DisplayName: Dies Irae Herald Of Judgement
 }
 
 Prefixes.ResonantScarPrefix.DisplayName: Resonance Scarred
@@ -6403,4 +6840,75 @@ Projectiles: {
 	StormIcicle.DisplayName: Storm Icicle
 	NebulaStarfallProjectile.DisplayName: Nebula Starfall Projectile
 	SeekingCrystalProjectile.DisplayName: Seeking Crystal Projectile
+	ClairProj_MoonbeamSparkle.DisplayName: Clair Proj_ Moonbeam Sparkle
+	ClairProj_MoonlitNotes.DisplayName: Clair Proj_ Moonlit Notes
+	ClairProj_MoonlitRipple.DisplayName: Clair Proj_ Moonlit Ripple
+	ClairProj_ReflectionCrescent.DisplayName: Clair Proj_ Reflection Crescent
+	ClairProj_SereneArc.DisplayName: Clair Proj_ Serene Arc
+	DiesIraeProj_DamnationCrescent.DisplayName: Dies Irae Proj_ Damnation Crescent
+	DiesIraeProj_InfernoEmber.DisplayName: Dies Irae Proj_ Inferno Ember
+	DiesIraeProj_JudgmentArc.DisplayName: Dies Irae Proj_ Judgment Arc
+	DiesIraeProj_RequiemNotes.DisplayName: Dies Irae Proj_ Requiem Notes
+	DiesIraeProj_WrathSmoke.DisplayName: Dies Irae Proj_ Wrath Smoke
+	EnigmaProj_GlyphOrbit.DisplayName: Enigma Proj_ Glyph Orbit
+	EnigmaProj_GreenFlame.DisplayName: Enigma Proj_ Green Flame
+	EnigmaProj_MysteryNotes.DisplayName: Enigma Proj_ Mystery Notes
+	EnigmaProj_VoidSwirl.DisplayName: Enigma Proj_ Void Swirl
+	EnigmaProj_WatchingEye.DisplayName: Enigma Proj_ Watching Eye
+	EroicaProj_HeroicArcs.DisplayName: Eroica Proj_ Heroic Arcs
+	EroicaProj_SakuraDrift.DisplayName: Eroica Proj_ Sakura Drift
+	EroicaProj_SymphonyNotes.DisplayName: Eroica Proj_ Symphony Notes
+	EroicaProj_TriumphSparks.DisplayName: Eroica Proj_ Triumph Sparks
+	EroicaProj_ValorCrescent.DisplayName: Eroica Proj_ Valor Crescent
+	FateProj_CelestialNotes.DisplayName: Fate Proj_ Celestial Notes
+	FateProj_CosmicCloud.DisplayName: Fate Proj_ Cosmic Cloud
+	FateProj_GlyphOrbit.DisplayName: Fate Proj_ Glyph Orbit
+	FateProj_RealityCrescent.DisplayName: Fate Proj_ Reality Crescent
+	FateProj_StarStream.DisplayName: Fate Proj_ Star Stream
+	CampanellaProj_BellArc.DisplayName: Campanella Proj_ Bell Arc
+	CampanellaProj_CrescentFlame.DisplayName: Campanella Proj_ Crescent Flame
+	CampanellaProj_EmberSpray.DisplayName: Campanella Proj_ Ember Spray
+	CampanellaProj_MusicNotes.DisplayName: Campanella Proj_ Music Notes
+	CampanellaProj_SmokeTrail.DisplayName: Campanella Proj_ Smoke Trail
+	MoonlightProj_LunarCrescent.DisplayName: Moonlight Proj_ Lunar Crescent
+	MoonlightProj_LunarMist.DisplayName: Moonlight Proj_ Lunar Mist
+	MoonlightProj_MoonbeamArc.DisplayName: Moonlight Proj_ Moonbeam Arc
+	MoonlightProj_NocturneNotes.DisplayName: Moonlight Proj_ Nocturne Notes
+	MoonlightProj_StellarSparkle.DisplayName: Moonlight Proj_ Stellar Sparkle
+	NachtmusikProj_NightCrescent.DisplayName: Nachtmusik Proj_ Night Crescent
+	NachtmusikProj_NocturneNotes.DisplayName: Nachtmusik Proj_ Nocturne Notes
+	NachtmusikProj_SerenadeArc.DisplayName: Nachtmusik Proj_ Serenade Arc
+	NachtmusikProj_StarlightMist.DisplayName: Nachtmusik Proj_ Starlight Mist
+	NachtmusikProj_TwinklingStar.DisplayName: Nachtmusik Proj_ Twinkling Star
+	SeasonsProj_AutumnHarvest.DisplayName: Seasons Proj_ Autumn Harvest
+	SeasonsProj_SeasonalCycle.DisplayName: Seasons Proj_ Seasonal Cycle
+	SeasonsProj_SpringBlossom.DisplayName: Seasons Proj_ Spring Blossom
+	SeasonsProj_SummerBlaze.DisplayName: Seasons Proj_ Summer Blaze
+	SeasonsProj_WinterFrost.DisplayName: Seasons Proj_ Winter Frost
+	SwanLakeProj_BalletNotes.DisplayName: Swan Lake Proj_ Ballet Notes
+	SwanLakeProj_ContrastRipple.DisplayName: Swan Lake Proj_ Contrast Ripple
+	SwanLakeProj_FeatherDrift.DisplayName: Swan Lake Proj_ Feather Drift
+	SwanLakeProj_GracefulCrescent.DisplayName: Swan Lake Proj_ Graceful Crescent
+	SwanLakeProj_PrismaticArc.DisplayName: Swan Lake Proj_ Prismatic Arc
+	BlazingMusicShard.DisplayName: Blazing Music Shard
+	CrystallizedFlameProjectile.DisplayName: Crystallized Flame Projectile
+	EclipseOrb.DisplayName: Eclipse Orb
+	FloatingIgnition.DisplayName: Floating Ignition
+	IgnitedWrathBall.DisplayName: Ignited Wrath Ball
+	IgnitedWrathBolt.DisplayName: Ignited Wrath Bolt
+	JudgmentChainProjectile.DisplayName: Judgment Chain Projectile
+	JudgmentFlame.DisplayName: Judgment Flame
+	OrbitingShrapnel.DisplayName: Orbiting Shrapnel
+	SinBullet.DisplayName: Sin Bullet
+	SpectralVerdictSword.DisplayName: Spectral Verdict Sword
+	SpinningCleaverCopy.DisplayName: Spinning Cleaver Copy
+	WrathShard.DisplayName: Wrath Shard
+	WrathWaveProjectile.DisplayName: Wrath Wave Projectile
+	BellTollWave.DisplayName: Bell Toll Wave
+	DeathTollingBellMinion.DisplayName: Death Tolling Bell Minion
+	HarmonyOfJudgementMinion.DisplayName: Harmony Of Judgement Minion
+	JudgementRay.DisplayName: Judgement Ray
+	WrathFireball.DisplayName: Wrath Fireball
+	WrathfulContractMinion.DisplayName: Wrathful Contract Minion
+	WrathsDrillProjectile.DisplayName: Wraths Drill Projectile
 }

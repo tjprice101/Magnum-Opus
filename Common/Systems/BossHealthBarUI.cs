@@ -643,7 +643,8 @@ namespace MagnumOpus.Common.Systems
         Summer,      // Gold and orange (blazing)
         Autumn,      // Brown and dark orange (decay)
         Winter,      // White and deep blue (frozen)
-        Nachtmusik   // Deep purple and gold (celestial)
+        Nachtmusik,  // Deep purple and gold (celestial)
+        DiesIrae     // Blood red and ember orange (hellfire)
     }
     
     /// <summary>

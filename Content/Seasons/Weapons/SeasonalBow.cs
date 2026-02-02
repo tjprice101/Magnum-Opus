@@ -80,27 +80,23 @@ namespace MagnumOpus.Content.Seasons.Weapons
         {
             Color primaryColor = GetCurrentSeasonColor();
 
-            if (Main.rand.NextBool(8))
+            if (Main.rand.NextBool(18))
             {
-                Vector2 particlePos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                Vector2 particleVel = Main.rand.NextVector2Circular(1f, 1f);
-                var particle = new GenericGlowParticle(particlePos, particleVel, primaryColor * 0.4f, 0.25f, 22, true);
+                Vector2 particlePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
+                Vector2 particleVel = Main.rand.NextVector2Circular(0.8f, 0.8f);
+                var particle = new GenericGlowParticle(particlePos, particleVel, primaryColor * 0.35f, 0.2f, 18, true);
                 MagnumParticleHandler.SpawnParticle(particle);
-                
-                // ☁ESPARKLE accent
-                var sparkle = new SparkleParticle(particlePos, particleVel * 0.5f, primaryColor * 0.5f, 0.2f, 16);
-                MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            // ☁EMUSICAL NOTATION - Ambient notes! - VISIBLE SCALE 0.68f+
-            if (Main.rand.NextBool(15))
+            // Musical notation - visible scale 0.7f+
+            if (Main.rand.NextBool(25))
             {
-                Vector2 notePos = player.Center + new Vector2(player.direction * 25f, -12f) + Main.rand.NextVector2Circular(8f, 8f);
-                Vector2 noteVel = new Vector2(0, -1.2f);
-                ThemedParticles.MusicNote(notePos, noteVel, primaryColor * 0.8f, 0.75f, 26);
+                Vector2 notePos = player.Center + new Vector2(player.direction * 22f, -10f) + Main.rand.NextVector2Circular(6f, 6f);
+                Vector2 noteVel = new Vector2(0, -1f);
+                ThemedParticles.MusicNote(notePos, noteVel, primaryColor * 0.8f, 0.7f, 22);
             }
 
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 0.4f;
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.08f + 0.35f;
             Lighting.AddLight(player.Center, primaryColor.ToVector3() * pulse);
         }
 
@@ -139,27 +135,24 @@ namespace MagnumOpus.Content.Seasons.Weapons
                         damage, knockback, player.whoAmI, i);
                 }
 
-                // Volley VFX - Layered bloom and music notes!
-                CustomParticles.GenericFlare(muzzlePos, Color.White, 1.2f, 28);
-                CustomParticles.GenericFlare(muzzlePos, Color.White * 0.8f, 0.9f, 24);
-                CustomParticles.HaloRing(muzzlePos, SpringPink * 0.55f, 0.6f, 20);
-                CustomParticles.HaloRing(muzzlePos, SummerGold * 0.5f, 0.5f, 18);
-                CustomParticles.HaloRing(muzzlePos, AutumnOrange * 0.45f, 0.4f, 16);
-                CustomParticles.HaloRing(muzzlePos, WinterBlue * 0.45f, 0.3f, 14);
+                // Volley VFX - Layered bloom and music notes
+                CustomParticles.GenericFlare(muzzlePos, Color.White, 0.9f, 22);
+                CustomParticles.HaloRing(muzzlePos, SpringPink * 0.5f, 0.5f, 18);
+                CustomParticles.HaloRing(muzzlePos, SummerGold * 0.4f, 0.4f, 16);
                 
-                // ☁EMUSICAL NOTATION - Grand volley note burst! - VISIBLE SCALE 0.75f+
-                for (int n = 0; n < 5; n++)
+                // Musical notation - volley note burst! Visible scale 0.72f+
+                for (int n = 0; n < 3; n++)
                 {
-                    float noteAngle = velocity.ToRotation() + MathHelper.ToRadians(-30f + n * 15f);
-                    Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
+                    float noteAngle = velocity.ToRotation() + MathHelper.ToRadians(-20f + n * 20f);
+                    Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(2f, 3.5f);
                     Color noteColor = (n % 4) switch { 0 => SpringPink, 1 => SummerGold, 2 => AutumnOrange, _ => WinterBlue };
-                    ThemedParticles.MusicNote(muzzlePos, noteVel, noteColor, 0.75f, 32);
+                    ThemedParticles.MusicNote(muzzlePos, noteVel, noteColor, 0.72f, 28);
                 }
 
-                for (int i = 0; i < 12; i++)
+                for (int i = 0; i < 6; i++)
                 {
-                    float angle = velocity.ToRotation() + MathHelper.ToRadians(Main.rand.NextFloat(-25f, 25f));
-                    Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 10f);
+                    float angle = velocity.ToRotation() + MathHelper.ToRadians(Main.rand.NextFloat(-22f, 22f));
+                    Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
                     Color burstColor = (i % 4) switch
                     {
                         0 => SpringPink,
@@ -167,15 +160,8 @@ namespace MagnumOpus.Content.Seasons.Weapons
                         2 => AutumnOrange,
                         _ => WinterBlue
                     };
-                    var burst = new GenericGlowParticle(muzzlePos, burstVel, burstColor * 0.5f, 0.3f, 18, true);
+                    var burst = new GenericGlowParticle(muzzlePos, burstVel, burstColor * 0.45f, 0.25f, 15, true);
                     MagnumParticleHandler.SpawnParticle(burst);
-                    
-                    // ☁ESPARKLE accents
-                    if (i % 2 == 0)
-                    {
-                        var sparkle = new SparkleParticle(muzzlePos, burstVel * 0.7f, burstColor * 0.6f, 0.22f, 16);
-                        MagnumParticleHandler.SpawnParticle(sparkle);
-                    }
                 }
 
                 return false;

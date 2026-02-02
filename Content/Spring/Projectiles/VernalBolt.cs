@@ -53,46 +53,85 @@ namespace MagnumOpus.Content.Spring.Projectiles
             orbitAngle += 0.12f;
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
 
-            // ☁ELAYERED TRAIL - Glow particles + sparkles for richness
+            // === VFX VARIATION #6: FLOWING SINE-WAVE TRAIL ===
+            // Particles follow a sinusoidal wave pattern behind the projectile
             if (Main.rand.NextBool(2))
             {
-                Vector2 trailPos = Projectile.Center + Main.rand.NextVector2Circular(6f, 6f);
-                Vector2 trailVel = -Projectile.velocity * 0.08f + Main.rand.NextVector2Circular(1.5f, 1.5f);
+                float sineOffset = (float)Math.Sin(Main.GameUpdateCount * 0.2f) * 8f;
+                Vector2 perpendicular = Projectile.velocity.SafeNormalize(Vector2.Zero).RotatedBy(MathHelper.PiOver2);
+                Vector2 trailPos = Projectile.Center + perpendicular * sineOffset + Main.rand.NextVector2Circular(3f, 3f);
+                Vector2 trailVel = -Projectile.velocity * 0.08f + perpendicular * (float)Math.Cos(Main.GameUpdateCount * 0.2f) * 1.5f;
                 Color trailColor = Color.Lerp(SpringLavender, SpringPink, Main.rand.NextFloat()) * 0.75f;
-                var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.32f, 22, true);
+                var trail = new GenericGlowParticle(trailPos, trailVel, trailColor, 0.34f, 24, true);
                 MagnumParticleHandler.SpawnParticle(trail);
                 
                 // Sparkle accents for magical shimmer
-                var sparkle = new SparkleParticle(trailPos, trailVel * 1.2f, SpringWhite * 0.6f, 0.25f, 18);
+                var sparkle = new SparkleParticle(trailPos, trailVel * 1.2f, SpringWhite * 0.65f, 0.27f, 20);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
-            // Orbiting spark points
-            if (Projectile.timeLeft % 6 == 0)
+            // === VFX VARIATION #7: HELIX DOUBLE-TRAIL ===
+            // Two intertwined particle streams spiral around the bolt
+            if (Main.GameUpdateCount % 3 == 0)
             {
-                for (int i = 0; i < 2; i++)
+                for (int h = 0; h < 2; h++)
                 {
-                    float sparkAngle = orbitAngle + MathHelper.Pi * i;
-                    Vector2 sparkPos = Projectile.Center + sparkAngle.ToRotationVector2() * 12f;
-                    Color sparkColor = i == 0 ? SpringPink : SpringGreen;
-                    CustomParticles.GenericFlare(sparkPos, sparkColor * 0.6f, 0.22f, 10);
+                    float helixAngle = orbitAngle * 1.5f + MathHelper.Pi * h;
+                    float helixRadius = 10f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 3f;
+                    Vector2 helixPos = Projectile.Center + helixAngle.ToRotationVector2() * helixRadius;
+                    Color helixColor = h == 0 ? SpringPink * 0.7f : SpringGreen * 0.7f;
+                    var helix = new GenericGlowParticle(helixPos, -Projectile.velocity * 0.1f, helixColor, 0.2f, 18, true);
+                    MagnumParticleHandler.SpawnParticle(helix);
+                }
+            }
+
+            // === VFX VARIATION #8: STARDUST COMET TAIL ===
+            // Sparkling dust particles stream behind like a comet
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 dustOffset = Main.rand.NextVector2Circular(8f, 8f);
+                Vector2 dustVel = -Projectile.velocity * Main.rand.NextFloat(0.15f, 0.3f) + Main.rand.NextVector2Circular(1f, 1f);
+                Color dustColor = Color.Lerp(SpringWhite, SpringLavender, Main.rand.NextFloat()) * 0.55f;
+                var dust = new GenericGlowParticle(Projectile.Center + dustOffset, dustVel, dustColor, 0.16f, 28, true);
+                MagnumParticleHandler.SpawnParticle(dust);
+                
+                // Tiny sparkle dust
+                var sparkDust = new SparkleParticle(Projectile.Center + dustOffset * 0.5f, dustVel * 0.8f, SpringWhite * 0.5f, 0.18f, 16);
+                MagnumParticleHandler.SpawnParticle(sparkDust);
+            }
+
+            // Orbiting spark points - enhanced with glow
+            if (Projectile.timeLeft % 5 == 0)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    float sparkAngle = orbitAngle + MathHelper.TwoPi * i / 3f;
+                    Vector2 sparkPos = Projectile.Center + sparkAngle.ToRotationVector2() * 14f;
+                    Color sparkColor = Color.Lerp(SpringPink, SpringGreen, (float)i / 3f);
+                    CustomParticles.GenericFlare(sparkPos, sparkColor * 0.65f, 0.24f, 8);
                 }
             }
 
             // Vanilla dust for density
             if (Main.rand.NextBool(4))
             {
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.PinkFairy, -Projectile.velocity * 0.1f, 0, SpringPink, 0.9f);
+                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.PinkFairy, -Projectile.velocity * 0.1f, 0, SpringPink, 0.95f);
                 dust.noGravity = true;
             }
 
-            // ☁EMUSICAL NOTATION - VISIBLE notes in trail! (scale 0.7f+)
-            if (Main.rand.NextBool(5))
+            // === VFX VARIATION #9: ORBITING MUSIC NOTE RING ===
+            // Music notes orbit in a steady ring formation
+            if (Main.GameUpdateCount % 8 == 0)
             {
-                Vector2 noteVel = -Projectile.velocity * 0.05f + new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-1f, -0.5f));
-                Color noteColor = Color.Lerp(SpringPink, SpringLavender, Main.rand.NextFloat());
-                // Scale 0.7f makes notes VISIBLE!
-                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), noteVel, noteColor, 0.7f, 40);
+                float noteRingAngle = Main.GameUpdateCount * 0.08f;
+                for (int n = 0; n < 2; n++)
+                {
+                    float noteAngle = noteRingAngle + MathHelper.Pi * n;
+                    Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * 16f;
+                    Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), Main.rand.NextFloat(-0.8f, -0.3f));
+                    Color noteColor = Color.Lerp(SpringPink, SpringLavender, (float)n / 2f);
+                    ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 32);
+                }
             }
 
             // Split after 30 frames
@@ -104,7 +143,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
 
             // Dynamic lighting
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.15f + 0.85f;
-            Lighting.AddLight(Projectile.Center, SpringLavender.ToVector3() * pulse * 0.6f);
+            Lighting.AddLight(Projectile.Center, SpringLavender.ToVector3() * pulse * 0.65f);
         }
 
         private void SplitIntoPetals()

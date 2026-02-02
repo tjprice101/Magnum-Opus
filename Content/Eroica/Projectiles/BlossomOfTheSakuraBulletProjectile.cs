@@ -95,24 +95,76 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 Projectile.velocity = (Projectile.velocity * 30f + direction * 12f) / 31f;
             }
 
-            // Red and black fire trail
-            Dust flame = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                DustID.RedTorch, 0f, 0f, 100, default, 1.2f);
-            flame.noGravity = true;
-            flame.velocity *= 0.3f;
+            // === IRIDESCENT WINGSPAN-STYLE TRAIL VFX ===
+            
+            // HEAVY DUST TRAILS - scarlet/crimson fire (2+ per frame)
+            for (int d = 0; d < 2; d++)
+            {
+                Dust flame = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(4f, 4f), 
+                    DustID.RedTorch, -Projectile.velocity * 0.2f + Main.rand.NextVector2Circular(1f, 1f), 0, default, 1.2f);
+                flame.noGravity = true;
+                flame.fadeIn = 1.4f;
+                
+                Dust glow = Dust.NewDustPerfect(Projectile.Center, DustID.GoldCoin, 
+                    -Projectile.velocity * 0.15f, 0, Color.White, 0.9f);
+                glow.noGravity = true;
+                glow.fadeIn = 1.3f;
+            }
+            
+            // CONTRASTING SPARKLES - gold sparkles (1-in-2)
+            if (Main.rand.NextBool(2))
+            {
+                var sparkle = new SparkleParticle(Projectile.Center, -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(0.5f, 0.5f), 
+                    UnifiedVFX.Eroica.Gold, 0.4f, 15);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // EROICA SHIMMER TRAILS - cycling crimson to gold hues (1-in-3)
+            if (Main.rand.NextBool(3))
+            {
+                // Eroica hues: 0.0-0.08 (red to orange-gold range)
+                float hue = Main.rand.NextFloat(0.0f, 0.08f);
+                Color shimmerColor = Main.hslToRgb(hue, 1f, 0.6f);
+                var shimmer = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(1f, 1f), 
+                    shimmerColor, 0.3f, 18, true);
+                MagnumParticleHandler.SpawnParticle(shimmer);
+            }
+            
+            // PEARLESCENT SAKURA EFFECTS - color shifting pink/crimson (1-in-4)
+            if (Main.rand.NextBool(4))
+            {
+                float colorShift = (float)System.Math.Sin(Main.GameUpdateCount * 0.2f) * 0.5f + 0.5f;
+                Color pearlColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, colorShift) * 0.65f;
+                var pearl = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f, pearlColor, 0.25f, 16, true);
+                MagnumParticleHandler.SpawnParticle(pearl);
+            }
+            
+            // FREQUENT FLARES - scarlet glow (1-in-3)
+            if (Main.rand.NextBool(3))
+            {
+                Color flareColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Crimson, Main.rand.NextFloat());
+                CustomParticles.GenericFlare(Projectile.Center, flareColor, Main.rand.NextFloat(0.2f, 0.35f), 10);
+            }
             
             // Custom particle trail
             CustomParticles.EroicaTrail(Projectile.Center, Projectile.velocity, 0.25f);
 
+            // Black smoke wisps (1-in-3)
             if (Main.rand.NextBool(3))
             {
-                Dust smoke = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.Smoke, 0f, 0f, 100, Color.Black, 0.8f);
-                smoke.noGravity = true;
-                smoke.velocity *= 0.2f;
+                var smoke = new HeavySmokeParticle(Projectile.Center, -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(0.5f, 0.5f),
+                    Color.Black * 0.5f, Main.rand.Next(15, 25), 0.2f, 0.4f, 0.02f, false);
+                MagnumParticleHandler.SpawnParticle(smoke);
+            }
+            
+            // MUSIC NOTES - Eroica melody (1-in-8)
+            if (Main.rand.NextBool(8))
+            {
+                Vector2 noteVel = -Projectile.velocity * 0.05f + new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1f, 0f));
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, UnifiedVFX.Eroica.Gold, 0.75f, 22);
             }
 
-            Lighting.AddLight(Projectile.Center, 0.6f, 0.1f, 0.1f);
+            Lighting.AddLight(Projectile.Center, 0.6f, 0.2f, 0.15f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)

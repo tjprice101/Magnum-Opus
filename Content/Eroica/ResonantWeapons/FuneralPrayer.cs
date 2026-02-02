@@ -57,41 +57,27 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             // === UnifiedVFX EROICA AMBIENT AURA ===
             UnifiedVFX.Eroica.Aura(player.Center, 32f, 0.28f);
             
-            // === AMBIENT FRACTAL FLARES - Dark funeral flame geometric pattern ===
-            if (Main.rand.NextBool(6))
+            // === SUBTLE AMBIENT FLAMES ===
+            if (Main.rand.NextBool(14))
             {
-                // Orbiting dark flames in spiral pattern
-                float baseAngle = Main.GameUpdateCount * 0.025f;
-                for (int i = 0; i < 5; i++)
-                {
-                    float angle = baseAngle + MathHelper.TwoPi * i / 5f;
-                    float radius = 30f + (float)Math.Sin(Main.GameUpdateCount * 0.04f + i * 0.8f) * 12f;
-                    Vector2 flarePos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
-                    // Gradient: Dark crimson to gold
-                    float progress = (float)i / 5f;
-                    Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress * 0.6f + 0.2f);
-                    CustomParticles.GenericFlare(flarePos, fractalColor, 0.3f, 17);
-                }
+                float angle = Main.GameUpdateCount * 0.025f;
+                float radius = 28f + (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 8f;
+                Vector2 flarePos = player.Center + angle.ToRotationVector2() * radius;
+                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, 0.4f);
+                CustomParticles.GenericFlare(flarePos, fractalColor, 0.25f, 14);
             }
             
-            // Custom particle dark flames with prismatic accents
-            if (Main.rand.NextBool(4))
+            // Occasional dark flame glow
+            if (Main.rand.NextBool(10))
             {
-                float progress = Main.rand.NextFloat();
-                Color flameColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
-                CustomParticles.GenericGlow(player.Center + Main.rand.NextVector2Circular(20f, 20f), flameColor, 0.28f, 15);
+                Color flameColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, Main.rand.NextFloat());
+                CustomParticles.GenericGlow(player.Center + Main.rand.NextVector2Circular(18f, 18f), flameColor, 0.22f, 12);
             }
             
             // Sakura petals
-            if (Main.rand.NextBool(8))
+            if (Main.rand.NextBool(14))
             {
-                ThemedParticles.SakuraPetals(player.Center + Main.rand.NextVector2Circular(22f, 22f), 2, 20f);
-            }
-            
-            // Occasional dark halo pulse
-            if (Main.rand.NextBool(20))
-            {
-                CustomParticles.HaloRing(player.Center, UnifiedVFX.Eroica.Scarlet * 0.55f, 0.32f, 20);
+                ThemedParticles.SakuraPetals(player.Center + Main.rand.NextVector2Circular(20f, 20f), 1, 18f);
             }
             
             // Soft heroic gradient lighting with pulse
@@ -164,27 +150,11 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             Vector2 castPos = player.Center + towardsCursor * 30f;
             UnifiedVFX.Eroica.Impact(castPos, 1.2f);
             
-            // === FRACTAL BEAM BURST - Funeral prayer geometric pattern ===
-            for (int i = 0; i < 5; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 5f;
-                Vector2 flareOffset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 25f;
-                float progress = (float)i / 5f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
-                CustomParticles.GenericFlare(castPos + flareOffset, fractalColor, 0.5f, 19);
-            }
+            // Single halo ring
+            CustomParticles.HaloRing(castPos, UnifiedVFX.Eroica.Gold, 0.45f, 15);
             
-            // Gradient halo rings
-            for (int ring = 0; ring < 3; ring++)
-            {
-                float progress = (float)ring / 3f;
-                Color ringColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
-                CustomParticles.HaloRing(castPos, ringColor, 0.45f + ring * 0.1f, 15 + ring * 2);
-            }
-            
-            // Musical burst on cast!
-            ThemedParticles.EroicaMusicNotes(player.Center, 6, 30f);
-            ThemedParticles.EroicaAccidentals(player.Center, 3, 20f);
+            // Musical burst on cast - reduced
+            ThemedParticles.EroicaMusicNotes(player.Center, 3, 25f);
             
             // Muzzle flash effect - subtle flare with glow and prismatic burst
             CustomParticles.EroicaFlare(player.Center, 0.5f);
