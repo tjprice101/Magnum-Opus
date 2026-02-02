@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.DataStructures;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 
 namespace MagnumOpus.Content.Summer.Projectiles
 {
@@ -476,6 +477,10 @@ namespace MagnumOpus.Content.Summer.Projectiles
                 var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.22f, 16, true);
                 MagnumParticleHandler.SpawnParticle(spark);
             }
+            
+            // Dynamic summer blaze impact
+            SummerImpact(target.Center, 1f);
+            DramaticImpact(target.Center, SunGold, SunOrange, 0.45f, 20);
         }
 
         public override void OnKill(int timeLeft)
@@ -610,6 +615,10 @@ namespace MagnumOpus.Content.Summer.Projectiles
                 var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.32f, 20, true);
                 MagnumParticleHandler.SpawnParticle(spark);
             }
+            
+            // Dynamic summer zenith impact (larger scale for powerful attack)
+            SummerImpact(target.Center, 1.3f);
+            DramaticImpact(target.Center, SunWhite, SunGold, 0.6f, 25);
         }
 
         public override void OnKill(int timeLeft)

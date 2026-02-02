@@ -9,6 +9,9 @@ using Terraria.DataStructures;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 
+// Dynamic particle effects for aesthetically pleasing animations
+using static MagnumOpus.Common.Systems.DynamicParticleEffects;
+
 namespace MagnumOpus.Content.Winter.Projectiles
 {
     /// <summary>
@@ -113,6 +116,16 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
+            // === DYNAMIC PARTICLE EFFECTS - Arcane frost aura ===
+            if (Main.GameUpdateCount % 7 == 0)
+            {
+                PulsingGlow(Projectile.Center, Vector2.Zero, GlacialPurple, IceBlue, 0.24f, 18, 0.1f, 0.18f);
+            }
+            if (Main.rand.NextBool(5))
+            {
+                TwinklingSparks(Projectile.Center, FrostWhite, 2, 10f, 0.18f, 20);
+            }
+
             Lighting.AddLight(Projectile.Center, GlacialPurple.ToVector3() * 0.45f);
         }
 
@@ -147,6 +160,10 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.2f, 14, true);
                 MagnumParticleHandler.SpawnParticle(spark);
             }
+
+            // === DYNAMIC PARTICLE EFFECTS - Winter theme impact ===
+            WinterImpact(target.Center, 0.85f);
+            DramaticImpact(target.Center, GlacialPurple, IceBlue, 0.45f, 18);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -201,6 +218,10 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 var burst = new GenericGlowParticle(Projectile.Center, burstVel, IceBlue * 0.5f, 0.2f, 14, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
+
+            // === DYNAMIC PARTICLE EFFECTS - Magical death burst ===
+            MagicalImpact(Projectile.Center, GlacialPurple, IceBlue, 0.55f);
+            SpiralBurst(Projectile.Center, FrostWhite, IceBlue, 6, 0.2f, 4f, 0.3f, 18);
         }
     }
 

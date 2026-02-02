@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 
 namespace MagnumOpus.Content.Seasons.Projectiles
 {
@@ -178,6 +179,10 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             // Music note chord
             ThemedParticles.MusicNoteBurst(target.Center, SpringPink * 0.75f, 5, 3.5f);
             
+            // === DYNAMIC: Spring Theme Impact ===
+            SpringImpact(target.Center, 1f);
+            DramaticImpact(target.Center, SpringPink, SpringGreen, 0.5f, 20);
+            
             // === SEEKING CRYSTALS - Spring blossom burst ===
             if (Main.rand.NextBool(3))
             {
@@ -337,6 +342,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
             // ☁EMUSICAL IMPACT - Petal whisper
             ThemedParticles.MusicNoteBurst(target.Center, SpringPink * 0.65f, 3, 2.5f);
+            
+            // === DYNAMIC: Spring Petal Impact (smaller scale) ===
+            SpringImpact(target.Center, 0.6f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -494,6 +502,10 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             }
 
             ThemedParticles.MusicNoteBurst(target.Center, SummerGold * 0.75f, 6, 4f);
+            
+            // === DYNAMIC: Summer Theme Impact ===
+            SummerImpact(target.Center, 1f);
+            DramaticImpact(target.Center, SummerGold, SummerOrange, 0.5f, 20);
             
             // === SEEKING CRYSTALS - Summer blazing burst ===
             if (Main.rand.NextBool(3))
@@ -654,6 +666,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
             // ☁EMUSICAL IMPACT - Pillar chime
             ThemedParticles.MusicNoteBurst(target.Center, SummerOrange * 0.6f, 3, 2.5f);
+            
+            // === DYNAMIC: Summer Pillar Impact (smaller scale) ===
+            SummerImpact(target.Center, 0.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -796,6 +811,10 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
             // MUSICAL IMPACT - Autumn harvest chord
             ThemedParticles.MusicNoteBurst(target.Center, AutumnOrange * 0.75f, 5, 3.5f);
+            
+            // === DYNAMIC: Autumn Theme Impact ===
+            AutumnImpact(target.Center, 1f);
+            DramaticImpact(target.Center, AutumnOrange, AutumnGold, 0.5f, 20);
             
             // === SEEKING CRYSTALS - Autumn harvest burst ===
             if (Main.rand.NextBool(3))
@@ -976,6 +995,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
             // MUSICAL IMPACT - Decay siphon note
             ThemedParticles.MusicNoteBurst(target.Center, AutumnGold * 0.55f, 2, 2f);
+            
+            // === DYNAMIC: Autumn Decay Field Impact (smaller scale) ===
+            AutumnImpact(target.Center, 0.4f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -1159,6 +1181,10 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
             // MUSICAL IMPACT - Winter shatter symphony
             ThemedParticles.MusicNoteBurst(target.Center, WinterCyan * 0.75f, 6, 4f);
+            
+            // === DYNAMIC: Winter Theme Impact ===
+            WinterImpact(target.Center, 1f);
+            DramaticImpact(target.Center, WinterBlue, WinterCyan, 0.5f, 20);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -1331,6 +1357,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
             // MUSICAL IMPACT - Ice shard ping
             ThemedParticles.MusicNoteBurst(target.Center, WinterCyan * 0.6f, 3, 2.5f);
+            
+            // === DYNAMIC: Winter Ice Shard Impact (smaller scale) ===
+            WinterImpact(target.Center, 0.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)

@@ -6,6 +6,19 @@ The MagnumOpus VFX system has been overhauled to use **FargosSoulsDLC-style rend
 
 ---
 
+## 🚨🚨🚨 CRITICAL: READ TRUE_VFX_STANDARDS.md FIRST 🚨🚨🚨
+
+> **Before implementing ANY visual effect, read [TRUE_VFX_STANDARDS.md](TRUE_VFX_STANDARDS.md).**
+>
+> That document explains what we've been doing WRONG and how to fix it:
+> - Projectiles must have **layered spinning flares**, not single static flares
+> - Trails must be **dense** (2+ dust per frame) with **color oscillation**
+> - Music notes must **orbit projectiles**, not spawn randomly
+> - SwordArc textures must be used for **melee waves**
+> - Impacts must be **glimmer cascades**, not simple puffs
+
+---
+
 ## ⭐⭐⭐ THE CARDINAL RULE: EVERY WEAPON IS UNIQUE ⭐⭐⭐
 
 > **THIS IS THE ABSOLUTE #1 RULE. NO EXCEPTIONS.**

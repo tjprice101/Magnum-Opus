@@ -9,6 +9,7 @@ using Terraria.DataStructures;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Winter.Weapons;
+using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 
 namespace MagnumOpus.Content.Winter.Projectiles
 {
@@ -338,6 +339,10 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
             // ☁EMUSICAL IMPACT - Sentinel strike note
             ThemedParticles.MusicNoteBurst(target.Center, IceBlue * 0.65f, 4, 3f);
+            
+            // Dynamic winter frost impact
+            WinterImpact(target.Center, 1f);
+            DramaticImpact(target.Center, IceBlue, FrostWhite, 0.45f, 20);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -493,6 +498,9 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
             // ☁EMUSICAL IMPACT - Frost bolt impact note
             ThemedParticles.MusicNoteBurst(target.Center, IceBlue * 0.6f, 4, 3f);
+            
+            // Dynamic winter frost bolt impact
+            WinterImpact(target.Center, 0.55f);
         }
 
         public override bool PreDraw(ref Color lightColor)

@@ -6,6 +6,20 @@ This document provides a comprehensive deep-dive into all MagnumOpus bosses, the
 
 ---
 
+## 🚨🚨🚨 CRITICAL: VFX STANDARDS - READ FIRST 🚨🚨🚨
+
+> **Before implementing ANY boss attack or projectile VFX, read [TRUE_VFX_STANDARDS.md](Guides/TRUE_VFX_STANDARDS.md).**
+>
+> **The Gold Standard: Iridescent Wingspan**
+> - PreDraw: **4+ layered flares spinning** at different speeds
+> - Trail: **Dense dust** (2+ per frame, scale 1.5f+) with **contrasting sparkles**
+> - Colors: **Oscillate** using Main.hslToRgb
+> - Music notes: **Orbit projectiles** (scale 0.7f+, not 0.25f!)
+> - Impact: **Glimmer cascade** with expanding rings and radial sparkle bursts
+> - Melee: **Use SwordArc textures** for wave effects
+
+---
+
 ## ⭐⭐⭐ THE CARDINAL RULE: EVERY ATTACK IS UNIQUE ⭐⭐⭐
 
 > **THIS IS THE ABSOLUTE #1 RULE FOR BOSS DESIGN.**

@@ -5,6 +5,20 @@ Use this guide when creating new content or enhancing existing content with visu
 
 ---
 
+## 🚨🚨🚨 CRITICAL: READ TRUE_VFX_STANDARDS.md FIRST 🚨🚨🚨
+
+> **Before using ANY of the systems in this guide, read [TRUE_VFX_STANDARDS.md](TRUE_VFX_STANDARDS.md).**
+>
+> That document explains the QUALITY STANDARDS for all effects:
+> - Projectiles need **layered spinning flares**, not single static flares
+> - Trails need to be **dense** (2+ dust per frame, scale 1.5f+)
+> - Music notes must **orbit projectiles** at scale 0.7f+
+> - Impacts must be **glimmer cascades**, not simple puffs
+> - **SwordArc textures** must be used for melee wave effects
+> - Colors must **oscillate** using Main.hslToRgb
+
+---
+
 ## Table of Contents
 
 1. [Overview](#overview)

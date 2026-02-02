@@ -8,6 +8,9 @@ using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 
+// Dynamic particle effects for aesthetically pleasing animations
+using static MagnumOpus.Common.Systems.DynamicParticleEffects;
+
 namespace MagnumOpus.Content.Summer.Projectiles
 {
     /// <summary>
@@ -82,6 +85,16 @@ namespace MagnumOpus.Content.Summer.Projectiles
             // Slowing down slightly
             Projectile.velocity *= 0.98f;
 
+            // === DYNAMIC PARTICLE EFFECTS - Solar wave aura ===
+            if (Main.GameUpdateCount % 5 == 0)
+            {
+                PulsingGlow(Projectile.Center, Vector2.Zero, SunGold, SunOrange, 0.3f, 18, 0.14f, 0.24f);
+            }
+            if (Main.rand.NextBool(4))
+            {
+                TwinklingSparks(Projectile.Center, SunWhite, 2, 12f, 0.2f, 20);
+            }
+
             Lighting.AddLight(Projectile.Center, SunGold.ToVector3() * 0.5f);
         }
 
@@ -113,6 +126,10 @@ namespace MagnumOpus.Content.Summer.Projectiles
                 var burst = new GenericGlowParticle(Projectile.Center, burstVel, burstColor * 0.65f, 0.26f, 18, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
+
+            // === DYNAMIC PARTICLE EFFECTS - Solar finale ===
+            MagicalImpact(Projectile.Center, SunGold, SunOrange, 0.55f);
+            SpiralBurst(Projectile.Center, SunWhite, SunGold, 6, 0.2f, 4f, 0.3f, 18);
         }
 
         public override bool PreDraw(ref Color lightColor)

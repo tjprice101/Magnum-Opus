@@ -8,6 +8,9 @@ using Terraria.DataStructures;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 
+// Dynamic particle effects for aesthetically pleasing animations
+using static MagnumOpus.Common.Systems.DynamicParticleEffects;
+
 namespace MagnumOpus.Content.Autumn.Projectiles
 {
     /// <summary>
@@ -109,6 +112,17 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
+            // === DYNAMIC PARTICLE EFFECTS - Twilight aura (intensity grows with distance) ===
+            if (Main.GameUpdateCount % 6 == 0)
+            {
+                float intensityMod = 1f + distProgress2 * 0.3f;
+                PulsingGlow(Projectile.Center, Vector2.Zero, TwilightPurple, TwilightOrange, 0.26f * intensityMod, 18, 0.12f, 0.22f);
+            }
+            if (Main.rand.NextBool(4))
+            {
+                TwinklingSparks(Projectile.Center, AutumnGold, 2, 10f, 0.18f + distProgress2 * 0.06f, 18);
+            }
+
             Lighting.AddLight(Projectile.Center, coreColor.ToVector3() * 0.45f);
         }
 
@@ -188,6 +202,10 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 Vector2 noteVel = angle.ToRotationVector2() * 3.5f;
                 ThemedParticles.MusicNote(target.Center, noteVel, TwilightPurple, 0.75f, 32);
             }
+
+            // === DYNAMIC PARTICLE EFFECTS - Autumn twilight impact ===
+            AutumnImpact(target.Center, 1f);
+            DramaticImpact(target.Center, TwilightPurple, TwilightOrange, 0.48f, 20);
         }
 
         public override void OnKill(int timeLeft)

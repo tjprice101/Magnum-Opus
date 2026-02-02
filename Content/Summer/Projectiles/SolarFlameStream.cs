@@ -8,6 +8,9 @@ using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 
+// Dynamic particle effects for aesthetically pleasing animations
+using static MagnumOpus.Common.Systems.DynamicParticleEffects;
+
 namespace MagnumOpus.Content.Summer.Projectiles
 {
     /// <summary>
@@ -118,6 +121,16 @@ namespace MagnumOpus.Content.Summer.Projectiles
             // Slow down slightly
             Projectile.velocity *= 0.97f;
 
+            // === DYNAMIC PARTICLE EFFECTS - Blazing solar aura ===
+            if (Main.GameUpdateCount % 5 == 0)
+            {
+                PulsingGlow(Projectile.Center, Vector2.Zero, SunOrange, SunGold, 0.28f, 16, 0.12f, 0.22f);
+            }
+            if (Main.rand.NextBool(4))
+            {
+                TwinklingSparks(Projectile.Center, SunWhite, 2, 10f, 0.2f, 18);
+            }
+
             float alpha = 1f - (float)Projectile.alpha / 255f;
             Lighting.AddLight(Projectile.Center, SunOrange.ToVector3() * 0.55f * alpha);
         }
@@ -135,6 +148,10 @@ namespace MagnumOpus.Content.Summer.Projectiles
             // Apply burning
             target.AddBuff(BuffID.OnFire3, 120);
             target.AddBuff(BuffID.Daybreak, 60);
+
+            // === DYNAMIC PARTICLE EFFECTS - Summer flame impact ===
+            SummerImpact(target.Center, 0.9f);
+            DramaticImpact(target.Center, SunOrange, SunGold, 0.45f, 18);
         }
 
         public override void OnKill(int timeLeft)
@@ -147,6 +164,10 @@ namespace MagnumOpus.Content.Summer.Projectiles
                 var burst = new GenericGlowParticle(Projectile.Center, burstVel, burstColor, 0.22f, 15, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
+
+            // === DYNAMIC PARTICLE EFFECTS - Solar dissipation ===
+            MagicalImpact(Projectile.Center, SunOrange, SunGold, 0.45f);
+            SpiralBurst(Projectile.Center, SunWhite, SunGold, 5, 0.18f, 3.5f, 0.25f, 16);
         }
 
         public override bool PreDraw(ref Color lightColor)

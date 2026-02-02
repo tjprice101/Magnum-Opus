@@ -10,6 +10,9 @@ using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 
+// Dynamic particle effects for aesthetically pleasing animations
+using static MagnumOpus.Common.Systems.DynamicParticleEffects;
+
 namespace MagnumOpus.Content.Winter.Projectiles
 {
     /// <summary>
@@ -102,6 +105,16 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 }
             }
 
+            // === DYNAMIC PARTICLE EFFECTS - Cascading frost wave ===
+            if (Main.GameUpdateCount % 5 == 0)
+            {
+                PulsingGlow(Projectile.Center, Vector2.Zero, IceBlue, CrystalCyan, 0.32f * Projectile.scale, 20, 0.14f, 0.24f);
+            }
+            if (Main.rand.NextBool(3))
+            {
+                TwinklingSparks(Projectile.Center, FrostWhite, 3, 14f, 0.22f * Projectile.scale, 24);
+            }
+
             Lighting.AddLight(Projectile.Center, IceBlue.ToVector3() * 0.7f * Projectile.scale);
         }
 
@@ -127,6 +140,10 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 var burst = new GenericGlowParticle(target.Center, burstVel, burstColor, 0.3f, 20, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
+
+            // === DYNAMIC PARTICLE EFFECTS - Avalanche crush impact ===
+            WinterImpact(target.Center, 1.1f);
+            DramaticImpact(target.Center, CrystalCyan, IceBlue, 0.55f, 22);
         }
 
         public override bool PreDraw(ref Color lightColor)

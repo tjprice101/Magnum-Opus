@@ -8,6 +8,9 @@ using Terraria.DataStructures;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 
+// Dynamic particle effects for aesthetically pleasing animations
+using static MagnumOpus.Common.Systems.DynamicParticleEffects;
+
 namespace MagnumOpus.Content.Autumn.Projectiles
 {
     /// <summary>
@@ -77,6 +80,16 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 CustomParticles.Glyph(Projectile.Center, DecayPurple * 0.3f, 0.18f, -1);
             }
 
+            // === DYNAMIC PARTICLE EFFECTS - Decay crescent aura ===
+            if (Main.GameUpdateCount % 5 == 0)
+            {
+                PulsingGlow(Projectile.Center, Vector2.Zero, AutumnOrange, DecayPurple, 0.32f, 20, 0.14f, 0.24f);
+            }
+            if (Main.rand.NextBool(3))
+            {
+                SpiralVortex(Projectile.Center, AutumnGold, AutumnOrange, 3, 15f, 0.04f, 2f, 0.18f, 16);
+            }
+
             Lighting.AddLight(Projectile.Center, AutumnOrange.ToVector3() * 0.7f);
         }
 
@@ -107,6 +120,10 @@ namespace MagnumOpus.Content.Autumn.Projectiles
 
             // ☁EMUSICAL IMPACT - Harvest crescent slash chord
             ThemedParticles.MusicNoteBurst(target.Center, AutumnGold, 7, 4f);
+
+            // === DYNAMIC PARTICLE EFFECTS - Autumn decay impact ===
+            AutumnImpact(target.Center, 1f);
+            DramaticImpact(target.Center, AutumnOrange, DecayPurple, 0.5f, 20);
         }
 
         public override void OnKill(int timeLeft)
@@ -135,6 +152,10 @@ namespace MagnumOpus.Content.Autumn.Projectiles
 
             // ☁EMUSICAL FINALE - Crescent wave final note
             ThemedParticles.MusicNoteBurst(Projectile.Center, AutumnOrange, 8, 4.5f);
+
+            // === DYNAMIC PARTICLE EFFECTS - Decay dissipation ===
+            MagicalImpact(Projectile.Center, AutumnOrange, DecayPurple, 0.55f);
+            SpiralBurst(Projectile.Center, AutumnGold, AutumnOrange, 7, 0.22f, 4.5f, 0.3f, 20);
         }
 
         public override bool PreDraw(ref Color lightColor)

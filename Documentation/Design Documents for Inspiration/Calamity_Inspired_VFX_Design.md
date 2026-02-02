@@ -4,7 +4,21 @@
 > **Purpose**: This document outlines the design and implementation strategy for bringing Calamity-tier visual effects into MagnumOpus, specifically focusing on massive laser beams, cosmic constellation effects, melee smear trails, and chromatic aberration distortions.
 
 ---
+## 🚨🚨🚨 CRITICAL: READ TRUE_VFX_STANDARDS.md FIRST 🚨🚨🚨
 
+> **Before implementing ANY effects from this document, read [../Guides/TRUE_VFX_STANDARDS.md](../Guides/TRUE_VFX_STANDARDS.md).**
+>
+> **The Gold Standard: Iridescent Wingspan**
+> - PreDraw: **4+ layered flares spinning** at different speeds
+> - Trail: **Dense dust** (2+ per frame, scale 1.5f+) with **contrasting sparkles**
+> - Colors: **Oscillate** using Main.hslToRgb
+> - Music notes: **Orbit projectiles** (scale 0.7f+, not 0.25f!)
+> - Impact: **Glimmer cascade** with expanding rings and radial sparkle bursts
+> - Melee: **Use SwordArc textures** for wave effects
+>
+> The techniques in this document should SUPPLEMENT those standards, not replace them.
+
+---
 ## Table of Contents
 
 1. [Massive Sweeping Laser Beams](#1-massive-sweeping-laser-beams)

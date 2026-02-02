@@ -7,6 +7,9 @@ using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 
+// Dynamic particle effects for aesthetically pleasing animations
+using static MagnumOpus.Common.Systems.DynamicParticleEffects;
+
 namespace MagnumOpus.Content.Spring.Projectiles
 {
     /// <summary>
@@ -128,6 +131,20 @@ namespace MagnumOpus.Content.Spring.Projectiles
                     MagnumParticleHandler.SpawnParticle(pulseParticle);
                 }
             }
+            
+            // === DYNAMIC PARTICLE EFFECTS - Pulsing glow and twinkling sparks ===
+            if (Main.GameUpdateCount % 5 == 0)
+            {
+                PulsingGlow(Projectile.Center, Vector2.Zero, SpringPink, SpringLavender, 0.28f, 20, 0.14f, 0.22f);
+            }
+            if (Main.rand.NextBool(4))
+            {
+                TwinklingSparks(Projectile.Center, SpringWhite, 2, 15f, 0.22f, 25);
+            }
+            if (Main.GameUpdateCount % 35 == 0)
+            {
+                ConcentricOrbits(Projectile.Center, SpringPink, SpringGreen, 3, 4, 14f, 6f, 0.02f, 0.18f, 35);
+            }
 
             // Split into petals after 40 frames of flight if not hit anything
             if (!hasSplit && Projectile.timeLeft <= 140)
@@ -198,6 +215,10 @@ namespace MagnumOpus.Content.Spring.Projectiles
             {
                 SplitIntoPetals();
             }
+            
+            // === DYNAMIC PARTICLE EFFECTS - Spring impact ===
+            SpringImpact(target.Center, 1f);
+            DramaticImpact(target.Center, SpringWhite, SpringPink, 0.55f, 20);
 
             // Pollination: 15% chance to spawn healing flower
             if (Main.rand.NextFloat() < 0.15f)
@@ -283,6 +304,10 @@ namespace MagnumOpus.Content.Spring.Projectiles
             
             // VISIBLE farewell note (scale 0.75f)
             ThemedParticles.MusicNote(Projectile.Center, new Vector2(0, -1f), SpringPink, 0.75f, 35);
+            
+            // === DYNAMIC PARTICLE EFFECTS - Magical death effect ===
+            MagicalImpact(Projectile.Center, SpringPink, SpringLavender, 0.6f);
+            SpiralBurst(Projectile.Center, SpringPink, SpringGreen, 5, 0.15f, 3f, 0.28f, 24);
         }
     }
 
@@ -390,6 +415,10 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 Vector2 noteVel = angle.ToRotationVector2() * 2.5f;
                 ThemedParticles.MusicNote(target.Center, noteVel, SpringPink, 0.75f, 30);
             }
+            
+            // === DYNAMIC PARTICLE EFFECTS - Spring impact ===
+            SpringImpact(target.Center, 0.9f);
+            TwinklingSparks(target.Center, SpringWhite, 4, 22f, 0.28f, 22);
             
             // Life leech - heal player on kill
             if (target.life <= 0)

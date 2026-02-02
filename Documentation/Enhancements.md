@@ -5,6 +5,23 @@
 
 ---
 
+## 🚨🚨🚨 CRITICAL: VFX STANDARDS - READ FIRST 🚨🚨🚨
+
+> **Before implementing ANY weapon or visual effect, read [TRUE_VFX_STANDARDS.md](Guides/TRUE_VFX_STANDARDS.md).**
+>
+> **The #1 Problem**: We've been making lazy projectiles. "Slapping a flare" on PreDraw is NOT enough.
+>
+> **What GOOD looks like (Iridescent Wingspan):**
+> - PreDraw has **4+ layered flares spinning** at different speeds
+> - Trail has **dense dust** (2+ particles per frame, scale 1.5f+)
+> - Trail has **contrasting sparkles** (1-in-2 frequency)
+> - Colors **oscillate** using Main.hslToRgb
+> - Music notes **orbit the projectile** (scale 0.7f+)
+> - Impact is a **glimmer cascade** with expanding rings and radial bursts
+> - **SwordArc textures** are used for melee wave effects
+
+---
+
 ## ⭐⭐⭐ THE CARDINAL RULE: EVERY WEAPON IS UNIQUE ⭐⭐⭐
 
 > **THIS IS THE ABSOLUTE #1 RULE. NO EXCEPTIONS.**

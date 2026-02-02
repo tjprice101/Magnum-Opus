@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 
 namespace MagnumOpus.Content.Seasons.Projectiles
 {
@@ -212,6 +213,10 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
             // ☁EMUSICAL IMPACT - Spring spirit healing harmony
             ThemedParticles.MusicNoteBurst(target.Center, SpringPink * 0.7f, 4, 3f);
+            
+            // Dynamic spring bloom impact
+            SpringImpact(target.Center, 0.9f);
+            DramaticImpact(target.Center, SpringPink, SpringGreen, 0.4f, 18);
         }
 
         private NPC FindTarget(Player owner)
@@ -348,6 +353,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
             // ☁EMUSICAL IMPACT - Petal bolt chime
             ThemedParticles.MusicNoteBurst(target.Center, SpringPink * 0.6f, 2, 2f);
+            
+            // Dynamic spring petal impact
+            SpringImpact(target.Center, 0.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -536,6 +544,10 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
             // ☁EMUSICAL IMPACT - Summer spirit solar fanfare
             ThemedParticles.MusicNoteBurst(target.Center, SummerGold * 0.75f, 5, 3.5f);
+            
+            // Dynamic summer blaze impact
+            SummerImpact(target.Center, 1f);
+            DramaticImpact(target.Center, SummerGold, SummerOrange, 0.45f, 20);
         }
 
         private NPC FindTarget(Player owner)
@@ -658,6 +670,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
             // ☁EMUSICAL IMPACT - Solar bolt flare
             ThemedParticles.MusicNoteBurst(target.Center, SummerGold * 0.65f, 3, 2.5f);
+            
+            // Dynamic summer solar bolt impact
+            SummerImpact(target.Center, 0.55f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -868,6 +883,10 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             
             // Decay Glyph burst on impact
             CustomParticles.GlyphBurst(target.Center, AutumnRed * 0.5f, 3, 2.5f);
+            
+            // Dynamic autumn decay impact
+            AutumnImpact(target.Center, 0.9f);
+            DramaticImpact(target.Center, AutumnOrange, AutumnRed, 0.42f, 18);
         }
 
         private NPC FindTarget(Player owner)
@@ -1148,6 +1167,10 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             // ☁EMUSICAL IMPACT - Winter spirit crystalline chime - VISIBLE SCALE 0.72f+
             ThemedParticles.MusicNoteBurst(target.Center, WinterBlue * 0.75f, 5, 3.5f);
             
+            // Dynamic winter frost impact
+            WinterImpact(target.Center, 1f);
+            DramaticImpact(target.Center, WinterBlue, WinterWhite, 0.45f, 20);
+            
             // Frost sparkle burst on impact
             for (int j = 0; j < 4; j++)
             {
@@ -1292,6 +1315,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             // Frost sparkle on impact
             var sparkle = new SparkleParticle(target.Center, Main.rand.NextVector2Circular(2f, 2f), WinterBlue * 0.5f, 0.25f, 15);
             MagnumParticleHandler.SpawnParticle(sparkle);
+            
+            // Dynamic winter ice impact
+            WinterImpact(target.Center, 0.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)

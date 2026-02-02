@@ -1,5 +1,19 @@
 # Exo-Tier Endgame Weapons - VFX Design Document
 
+## 🚨🚨🚨 CRITICAL: READ TRUE_VFX_STANDARDS.md FIRST 🚨🚨🚨
+
+> **Before implementing ANY effects from this document, read [../Guides/TRUE_VFX_STANDARDS.md](../Guides/TRUE_VFX_STANDARDS.md).**
+>
+> The Ark of the Cosmos patterns in this document are EXACTLY what we should be doing:
+> - **Curved, flowing trails** with sine-wave movement
+> - **Dense particle trails** littering the air with sparkles
+> - **Color oscillation** through gradients
+> - **Constellation connections** linking projectiles
+>
+> Use Iridescent Wingspan as the MagnumOpus gold standard implementation.
+
+---
+
 ## Overview
 
 Calamity's endgame Exo-tier weapons feature some of the most sophisticated visual effects in modded Terraria:

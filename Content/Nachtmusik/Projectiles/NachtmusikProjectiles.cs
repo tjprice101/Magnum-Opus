@@ -10,6 +10,9 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Nachtmusik.Debuffs;
 
+// Dynamic particle effects for aesthetically pleasing animations
+using static MagnumOpus.Common.Systems.DynamicParticleEffects;
+
 namespace MagnumOpus.Content.Nachtmusik.Projectiles
 {
     #region Melee Projectiles
@@ -17,10 +20,15 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// <summary>
     /// Nocturnal Executioner's massive spectral blade projectile.
     /// Homes toward enemies and explodes on contact.
+    /// TRUE_VFX_STANDARDS: Layered spinning flares, orbiting music notes, hslToRgb oscillation
     /// </summary>
     public class NocturnalBladeProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles/Glyphs10";
+        
+        // Nachtmusik hue range - violet/purple spectrum (0.75-0.85)
+        private const float HueMin = 0.75f;
+        private const float HueMax = 0.85f;
         
         private float orbitAngle;
         
@@ -58,66 +66,147 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                 Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * 18f, 0.06f);
             }
             
-            // Trail VFX
-            if (Projectile.timeLeft % 2 == 0)
+            // === DENSE DUST TRAIL - 2+ per frame GUARANTEED (TRUE_VFX_STANDARDS) ===
+            for (int i = 0; i < 2; i++)
             {
-                NachtmusikCosmicVFX.SpawnCelestialCloudTrail(Projectile.Center, Projectile.velocity, 0.6f);
+                Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(6f, 6f);
+                Vector2 dustVel = -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(1.5f, 1.5f);
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, dustVel, 0, default, 1.5f);
+                dust.noGravity = true;
+                dust.fadeIn = 1.2f;
             }
             
-            // Orbiting star particles
-            if (Projectile.timeLeft % 6 == 0)
+            // === CONTRASTING SPARKLES - 1-in-2 ===
+            if (Main.rand.NextBool(2))
+            {
+                Dust gold = Dust.NewDustPerfect(Projectile.Center, DustID.Enchanted_Gold, -Projectile.velocity * 0.1f, 0, NachtmusikCosmicVFX.Gold, 1.3f);
+                gold.noGravity = true;
+            }
+            
+            // === FREQUENT FLARES with hslToRgb oscillation - 1-in-2 ===
+            if (Main.rand.NextBool(2))
+            {
+                float hue = HueMin + Main.rand.NextFloat() * (HueMax - HueMin);
+                Color oscillatedColor = Main.hslToRgb(hue, 0.88f, 0.72f);
+                Vector2 flarePos = Projectile.Center + Main.rand.NextVector2Circular(8f, 8f);
+                CustomParticles.GenericFlare(flarePos, oscillatedColor, 0.42f, 16);
+            }
+            
+            // === GLOW TRAIL with gradient ===
+            if (Main.rand.NextBool(2))
+            {
+                float hue = HueMin + Main.rand.NextFloat() * (HueMax - HueMin);
+                Color trailColor = Main.hslToRgb(hue, 0.85f, 0.68f);
+                var trail = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f),
+                    trailColor * 0.7f, 0.28f, 18, true);
+                MagnumParticleHandler.SpawnParticle(trail);
+            }
+            
+            // === 3 ORBITING MUSIC NOTES - LOCKED TO PROJECTILE (TRUE_VFX_STANDARDS) ===
+            float noteOrbitAngle = Main.GameUpdateCount * 0.08f;
+            if (Main.rand.NextBool(8))
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    float sparkAngle = orbitAngle + MathHelper.TwoPi * i / 3f;
-                    Vector2 sparkPos = Projectile.Center + sparkAngle.ToRotationVector2() * 16f;
-                    CustomParticles.GenericFlare(sparkPos, NachtmusikCosmicVFX.Gold, 0.25f, 10);
+                    float noteAngle = noteOrbitAngle + MathHelper.TwoPi * i / 3f;
+                    Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * 18f;
+                    Vector2 noteVel = Projectile.velocity * 0.85f + noteAngle.ToRotationVector2() * 0.5f;
+                    float noteHue = HueMin + (i / 3f) * (HueMax - HueMin);
+                    Color noteColor = Main.hslToRgb(noteHue, 0.9f, 0.75f);
+                    ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.78f, 32);
                 }
             }
             
-            // Sparkle dust trail
-            if (Main.rand.NextBool(2))
-            {
-                Color trailColor = NachtmusikCosmicVFX.GetCelestialGradient(Main.rand.NextFloat());
-                var trail = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f),
-                    trailColor * 0.7f, 0.25f, 18, true);
-                MagnumParticleHandler.SpawnParticle(trail);
-                
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.PurpleTorch, -Projectile.velocity * 0.3f, 0, default, 0.9f);
-                dust.noGravity = true;
-            }
-            
-            // 笘・MUSICAL NOTATION - Nachtmusik celestial melody (VISIBLE SCALE 0.75f+)
-            if (Main.rand.NextBool(6))
-            {
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, NachtmusikCosmicVFX.Gold, 0.75f, 35);
-            }
-            
-            // 笘・SPARKLE ACCENT - Celestial shimmer
+            // === SPARKLE ACCENT ===
             if (Main.rand.NextBool(4))
             {
-                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), -Projectile.velocity * 0.1f, NachtmusikCosmicVFX.StarWhite, 0.35f, 20);
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), -Projectile.velocity * 0.1f, NachtmusikCosmicVFX.StarWhite, 0.38f, 20);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.Violet.ToVector3() * 0.6f);
+            // === DYNAMIC PARTICLE EFFECTS - Celestial Pulsing Core ===
+            if (Main.GameUpdateCount % 5 == 0)
+            {
+                PulsingGlow(Projectile.Center, Vector2.Zero, NachtmusikCosmicVFX.Violet, NachtmusikCosmicVFX.Gold, 0.3f, 22, 0.16f, 0.25f);
+            }
+            
+            // === DYNAMIC: Concentric cosmic orbits for celestial aura ===
+            if (Main.GameUpdateCount % 35 == 0)
+            {
+                ConcentricOrbits(Projectile.Center, NachtmusikCosmicVFX.Violet, NachtmusikCosmicVFX.Gold, 2, 3, 12f, 8f, 0.1f, 0.18f, 26);
+            }
+            
+            // === DYNAMIC: Twinkling cosmic sparkles ===
+            if (Main.rand.NextBool(6))
+            {
+                TwinklingSparks(Projectile.Center, NachtmusikCosmicVFX.StarWhite, 2, 10f, 0.22f, 20);
+            }
+
+            // === 4-ELEMENT CELESTIAL ORBIT ===
+            if (Projectile.timeLeft % 4 == 0)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    float sparkAngle = orbitAngle + MathHelper.TwoPi * i / 4f;
+                    Vector2 sparkPos = Projectile.Center + sparkAngle.ToRotationVector2() * 16f;
+                    float sparkHue = HueMin + (i / 4f) * (HueMax - HueMin);
+                    Color sparkColor = Main.hslToRgb(sparkHue, 0.88f, 0.78f);
+                    CustomParticles.GenericFlare(sparkPos, sparkColor, 0.28f, 12);
+                }
+            }
+            
+            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.Violet.ToVector3() * 0.8f);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Apply Celestial Harmony debuff
             target.AddBuff(ModContent.BuffType<CelestialHarmony>(), 480);
             target.GetGlobalNPC<CelestialHarmonyNPC>().AddStack(target, 2);
             
-            // Impact VFX with star burst
-            NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, 1.2f);
+            // === 3-LAYER FLASH CASCADE ===
+            CustomParticles.GenericFlare(target.Center, Color.White, 0.7f, 22);
+            CustomParticles.GenericFlare(target.Center, NachtmusikCosmicVFX.Gold, 0.55f, 20);
+            CustomParticles.GenericFlare(target.Center, NachtmusikCosmicVFX.Violet, 0.45f, 18);
+            
+            // === 6 MUSIC NOTES WITH hslToRgb GRADIENT ===
+            for (int n = 0; n < 6; n++)
+            {
+                float angle = MathHelper.TwoPi * n / 6f + Main.rand.NextFloat(-0.2f, 0.2f);
+                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 5f);
+                float noteHue = HueMin + (n / 6f) * (HueMax - HueMin);
+                Color noteColor = Main.hslToRgb(noteHue, 0.88f, 0.72f);
+                ThemedParticles.MusicNote(target.Center, noteVel, noteColor, 0.8f, 35);
+            }
+            
+            // === STARBURST IMPACT ===
             NachtmusikCosmicVFX.SpawnStarBurstImpact(target.Center, 0.8f, 2);
             
-            // 笘・MUSICAL IMPACT - Celestial chord burst
-            ThemedParticles.MusicNoteBurst(target.Center, NachtmusikCosmicVFX.Gold, 5, 3.5f);
+            // === DYNAMIC IMPACT: Nachtmusik Celestial Theme ===
+            NachtmusikImpact(target.Center, 1f);
             
-            // === SEEKING CRYSTALS - Celestial burst ===
+            // === DYNAMIC: Celestial burst with spiraling particles ===
+            CelestialBurst(target.Center, 0.9f);
+            
+            // === 3 HALO RINGS ===
+            for (int ring = 0; ring < 3; ring++)
+            {
+                float ringHue = HueMin + (ring / 3f) * (HueMax - HueMin);
+                Color ringColor = Main.hslToRgb(ringHue, 0.82f, 0.7f);
+                CustomParticles.HaloRing(target.Center, ringColor, 0.35f + ring * 0.12f, 15 + ring * 2);
+            }
+            
+            // === 8 SPARKLE BURST ===
+            for (int s = 0; s < 8; s++)
+            {
+                float angle = MathHelper.TwoPi * s / 8f;
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 7f);
+                float sparkHue = HueMin + (s / 8f) * (HueMax - HueMin);
+                Color sparkColor = Main.hslToRgb(sparkHue, 0.85f, 0.75f);
+                var sparkle = new SparkleParticle(target.Center, sparkVel, sparkColor, 0.35f, 20);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // === SEEKING CRYSTALS ===
             if (Main.rand.NextBool(3))
             {
                 SeekingCrystalHelper.SpawnNachtmusikCrystals(
@@ -134,37 +223,149 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override void OnKill(int timeLeft)
         {
-            // Death explosion with shattered starlight
-            NachtmusikCosmicVFX.SpawnCelestialProjectileDeath(Projectile.Center, 0.9f);
-            SoundEngine.PlaySound(SoundID.Item62 with { Pitch = 0.3f, Volume = 0.7f }, Projectile.Center);
+            // === 4-LAYER CENTRAL GLIMMER CASCADE ===
+            for (int layer = 0; layer < 4; layer++)
+            {
+                float layerScale = 0.45f + layer * 0.15f;
+                float layerAlpha = 0.85f - layer * 0.15f;
+                float layerHue = HueMin + (layer / 4f) * (HueMax - HueMin);
+                Color layerColor = Color.Lerp(Color.White, Main.hslToRgb(layerHue, 0.88f, 0.75f), layer / 4f);
+                CustomParticles.GenericFlare(Projectile.Center, layerColor * layerAlpha, layerScale, 20 - layer * 2);
+            }
             
-            // 笘・MUSICAL FINALE - Starlight symphony
-            ThemedParticles.MusicNoteBurst(Projectile.Center, NachtmusikCosmicVFX.Violet, 6, 4f);
+            // === 4 EXPANDING HALO RINGS ===
+            for (int ring = 0; ring < 4; ring++)
+            {
+                float ringHue = HueMin + (ring / 4f) * (HueMax - HueMin);
+                Color ringColor = Main.hslToRgb(ringHue, 0.82f, 0.68f);
+                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.35f + ring * 0.12f, 15 + ring * 3);
+            }
+            
+            // === 8 MUSIC NOTES FINALE ===
+            for (int n = 0; n < 8; n++)
+            {
+                float angle = MathHelper.TwoPi * n / 8f;
+                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(3.5f, 6f);
+                float noteHue = HueMin + (n / 8f) * (HueMax - HueMin);
+                Color noteColor = Main.hslToRgb(noteHue, 0.9f, 0.75f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.82f, 38);
+            }
+            
+            // === 10 SPARKLE BURST ===
+            for (int s = 0; s < 10; s++)
+            {
+                float angle = MathHelper.TwoPi * s / 10f;
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
+                float sparkHue = HueMin + (s / 10f) * (HueMax - HueMin);
+                Color sparkColor = Main.hslToRgb(sparkHue, 0.85f, 0.72f);
+                var sparkle = new SparkleParticle(Projectile.Center, sparkVel, sparkColor, 0.38f, 22);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // === 10 GLOW BURST ===
+            for (int i = 0; i < 10; i++)
+            {
+                Vector2 burstVel = Main.rand.NextVector2Circular(6f, 6f);
+                float burstHue = HueMin + Main.rand.NextFloat() * (HueMax - HueMin);
+                Color burstColor = Main.hslToRgb(burstHue, 0.82f, 0.65f);
+                var burst = new GenericGlowParticle(Projectile.Center, burstVel, burstColor * 0.7f, 0.32f, 22, true);
+                MagnumParticleHandler.SpawnParticle(burst);
+            }
+            
+            SoundEngine.PlaySound(SoundID.Item62 with { Pitch = 0.3f, Volume = 0.7f }, Projectile.Center);
+            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.Gold.ToVector3() * 1.3f);
         }
         
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Glyphs10").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             Vector2 origin = tex.Size() / 2f;
+            Vector2 flareOrigin = flareTex.Size() / 2f;
+            Vector2 flareOrigin2 = flareTex2.Size() / 2f;
+            Vector2 glowOrigin = softGlow.Size() / 2f;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
-            // Draw trail
+            float time = Main.GameUpdateCount * 0.055f;
+            float pulse = 1f + (float)Math.Sin(time * 2.5f) * 0.18f;
+            float shimmer = 1f + (float)Math.Sin(time * 3f + Projectile.whoAmI) * 0.12f;
+            
+            // Colors with alpha removed (Fargos pattern)
+            Color violetBloom = NachtmusikCosmicVFX.Violet with { A = 0 };
+            Color goldBloom = NachtmusikCosmicVFX.Gold with { A = 0 };
+            Color whiteBloom = Color.White with { A = 0 };
+            Color deepPurpleBloom = NachtmusikCosmicVFX.DeepPurple with { A = 0 };
+            
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // === BRILLIANT TRAIL WITH hslToRgb GRADIENT ===
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 float progress = (float)i / Projectile.oldPos.Length;
-                Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                Color trailColor = NachtmusikCosmicVFX.GetCelestialGradient(progress) * (1f - progress) * 0.6f;
-                float scale = 0.5f * (1f - progress * 0.6f);
-                sb.Draw(tex, drawPos, null, trailColor, Projectile.oldRot[i], origin, scale, SpriteEffects.None, 0f);
+                float fadeOut = 1f - progress;
+                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                
+                float trailHue = HueMin + progress * (HueMax - HueMin);
+                Color trailGradient = Main.hslToRgb(trailHue, 0.85f, 0.7f) with { A = 0 };
+                
+                float outerScale = 0.55f * fadeOut * pulse;
+                sb.Draw(tex, trailPos, null, trailGradient * 0.4f * fadeOut, Projectile.oldRot[i], origin, outerScale, SpriteEffects.None, 0f);
+                float innerScale = 0.35f * fadeOut;
+                sb.Draw(tex, trailPos, null, whiteBloom * 0.5f * fadeOut, Projectile.oldRot[i], origin, innerScale, SpriteEffects.None, 0f);
             }
             
-            // Draw core
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f + 0.9f;
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, NachtmusikCosmicVFX.DeepPurple * 0.4f, 0f, origin, 0.7f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, NachtmusikCosmicVFX.Violet * 0.6f, 0f, origin, 0.5f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, NachtmusikCosmicVFX.Gold * 0.7f, 0f, origin, 0.35f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, NachtmusikCosmicVFX.StarWhite * 0.9f, 0f, origin, 0.2f * pulse, SpriteEffects.None, 0f);
+            // === 6-LAYER SPINNING FLARES (TRUE_VFX_STANDARDS) ===
+            // Layer 1: Soft glow base
+            sb.Draw(softGlow, drawPos, null, deepPurpleBloom * 0.3f, 0f, glowOrigin, 0.85f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 2: First flare spinning clockwise
+            float hue2 = HueMin + 0.2f * (HueMax - HueMin);
+            Color layer2Color = Main.hslToRgb(hue2, 0.88f, 0.72f) with { A = 0 };
+            sb.Draw(flareTex, drawPos, null, layer2Color * 0.55f, time, flareOrigin, 0.38f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 3: Second flare spinning counter-clockwise
+            float hue3 = HueMin + 0.5f * (HueMax - HueMin);
+            Color layer3Color = Main.hslToRgb(hue3, 0.85f, 0.68f) with { A = 0 };
+            sb.Draw(flareTex2, drawPos, null, layer3Color * 0.5f, -time * 0.75f, flareOrigin2, 0.32f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 4: Third flare different speed
+            float hue4 = HueMin + 0.8f * (HueMax - HueMin);
+            Color layer4Color = Main.hslToRgb(hue4, 0.9f, 0.75f) with { A = 0 };
+            sb.Draw(flareTex, drawPos, null, layer4Color * 0.58f, time * 1.35f, flareOrigin, 0.28f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 5: Gold glow
+            sb.Draw(flareTex2, drawPos, null, goldBloom * 0.6f, -time * 0.5f, flareOrigin2, 0.22f * shimmer, SpriteEffects.None, 0f);
+            
+            // Layer 6: White-hot core
+            sb.Draw(flareTex, drawPos, null, whiteBloom * 0.75f, 0f, flareOrigin, 0.14f, SpriteEffects.None, 0f);
+            
+            // === MAIN GLYPH LAYERS ===
+            sb.Draw(tex, drawPos, null, violetBloom * 0.45f, Projectile.rotation, origin, 0.65f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(tex, drawPos, null, goldBloom * 0.6f, Projectile.rotation, origin, 0.45f * shimmer, SpriteEffects.None, 0f);
+            sb.Draw(tex, drawPos, null, whiteBloom * 0.8f, Projectile.rotation, origin, 0.25f, SpriteEffects.None, 0f);
+            
+            // === 4 ORBITING SPARK POINTS ===
+            float sparkOrbitAngle = time * 1.4f;
+            for (int i = 0; i < 4; i++)
+            {
+                float sparkAngle = sparkOrbitAngle + MathHelper.TwoPi * i / 4f;
+                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * 22f;
+                float sparkHue = HueMin + (i / 4f) * (HueMax - HueMin);
+                Color sparkColor = Main.hslToRgb(sparkHue, 0.88f, 0.78f) with { A = 0 };
+                sb.Draw(flareTex, sparkPos, null, sparkColor * 0.55f, 0f, flareOrigin, 0.1f * pulse, SpriteEffects.None, 0f);
+            }
+            
+            // === CENTER GLOW ===
+            sb.Draw(softGlow, drawPos, null, violetBloom * 0.5f, 0f, glowOrigin, 0.55f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(softGlow, drawPos, null, whiteBloom * 0.35f, 0f, glowOrigin, 0.28f, SpriteEffects.None, 0f);
+            
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -193,12 +394,24 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// <summary>
     /// Midnight's Crescendo's crescendo wave projectile.
     /// Expands as it travels, dealing more damage at larger sizes.
+    /// TRUE_VFX_STANDARDS: Layered spinning flares, orbiting music notes, hslToRgb oscillation
     /// </summary>
     public class CrescendoWaveProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles/SwordArc7";
         
+        // Nachtmusik hue range - violet/purple spectrum (0.75-0.85)
+        private const float HueMin = 0.75f;
+        private const float HueMax = 0.85f;
+        
         private float growthFactor = 1f;
+        private float orbitAngle = 0f;
+        
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
         
         public override void SetDefaults()
         {
@@ -217,8 +430,9 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         public override void AI()
         {
             // Grow over time
-            growthFactor = 1f + (120 - Projectile.timeLeft) / 60f; // Grows up to 3x
+            growthFactor = 1f + (120 - Projectile.timeLeft) / 60f;
             Projectile.scale = growthFactor;
+            orbitAngle += 0.1f;
             
             // Slow down as it grows
             Projectile.velocity *= 0.985f;
@@ -226,34 +440,87 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             // Rotation
             Projectile.rotation += 0.08f;
             
-            // Trail VFX
+            // === DENSE DUST TRAIL - 2+ per frame GUARANTEED (TRUE_VFX_STANDARDS) ===
+            for (int i = 0; i < 2; i++)
+            {
+                Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(18f * growthFactor, 18f * growthFactor);
+                Vector2 dustVel = Main.rand.NextVector2Circular(2f, 2f);
+                float dustHue = HueMin + Main.rand.NextFloat() * (HueMax - HueMin);
+                Color dustColor = Main.hslToRgb(dustHue, 0.85f, 0.7f);
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, dustVel, 0, dustColor, 1.4f * growthFactor);
+                dust.noGravity = true;
+                dust.fadeIn = 1.2f;
+            }
+            
+            // === CONTRASTING SPARKLES - 1-in-2 ===
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 sparkPos = Projectile.Center + Main.rand.NextVector2Circular(15f * growthFactor, 15f * growthFactor);
+                Dust gold = Dust.NewDustPerfect(sparkPos, DustID.Enchanted_Gold, Main.rand.NextVector2Circular(1.5f, 1.5f), 0, NachtmusikCosmicVFX.Gold, 1.2f);
+                gold.noGravity = true;
+            }
+            
+            // === FREQUENT FLARES with hslToRgb oscillation - 1-in-2 ===
+            if (Main.rand.NextBool(2))
+            {
+                float hue = HueMin + Main.rand.NextFloat() * (HueMax - HueMin);
+                Color oscillatedColor = Main.hslToRgb(hue, 0.88f, 0.72f);
+                Vector2 flarePos = Projectile.Center + Main.rand.NextVector2Circular(20f * growthFactor, 20f * growthFactor);
+                CustomParticles.GenericFlare(flarePos, oscillatedColor, 0.35f * growthFactor, 14);
+            }
+            
+            // === GLOW TRAIL with gradient ===
             if (Main.rand.NextBool(2))
             {
                 Vector2 offset = Main.rand.NextVector2Circular(20f * growthFactor, 20f * growthFactor);
-                Color trailColor = NachtmusikCosmicVFX.GetCelestialGradient(Main.rand.NextFloat());
+                float hue = HueMin + Main.rand.NextFloat() * (HueMax - HueMin);
+                Color trailColor = Main.hslToRgb(hue, 0.85f, 0.68f);
                 var trail = new GenericGlowParticle(Projectile.Center + offset, Main.rand.NextVector2Circular(2f, 2f),
-                    trailColor * 0.5f, 0.25f * growthFactor, 15, true);
+                    trailColor * 0.6f, 0.28f * growthFactor, 18, true);
                 MagnumParticleHandler.SpawnParticle(trail);
             }
             
-            // Music notes spinning around (VISIBLE SCALE 0.75f+)
+            // === 3 ORBITING MUSIC NOTES - LOCKED TO PROJECTILE (TRUE_VFX_STANDARDS) ===
+            float noteOrbitAngle = Main.GameUpdateCount * 0.08f;
             if (Projectile.timeLeft % 8 == 0)
             {
-                float noteAngle = Projectile.rotation * 2f;
-                Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * 25f * growthFactor;
-                ThemedParticles.MusicNote(notePos, noteAngle.ToRotationVector2() * 2f, NachtmusikCosmicVFX.Gold, 0.75f, 20);
-                
-                // 笘・SPARKLE ACCENT - Crescendo shimmer
-                var sparkle = new SparkleParticle(notePos, Main.rand.NextVector2Circular(2f, 2f), NachtmusikCosmicVFX.Violet, 0.3f, 18);
+                for (int i = 0; i < 3; i++)
+                {
+                    float noteAngle = noteOrbitAngle + MathHelper.TwoPi * i / 3f;
+                    Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * (22f * growthFactor);
+                    Vector2 noteVel = noteAngle.ToRotationVector2() * 2.5f;
+                    float noteHue = HueMin + (i / 3f) * (HueMax - HueMin);
+                    Color noteColor = Main.hslToRgb(noteHue, 0.9f, 0.75f);
+                    ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.78f, 28);
+                }
+            }
+            
+            // === SPARKLE ACCENT ===
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 sparklePos = Projectile.Center + Main.rand.NextVector2Circular(18f * growthFactor, 18f * growthFactor);
+                var sparkle = new SparkleParticle(sparklePos, Main.rand.NextVector2Circular(2f, 2f), NachtmusikCosmicVFX.StarWhite, 0.35f, 18);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.Violet.ToVector3() * 0.8f * growthFactor);
+            // === 5-ELEMENT CRESCENDO ORBIT ===
+            if (Projectile.timeLeft % 5 == 0)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    float sparkAngle = orbitAngle + MathHelper.TwoPi * i / 5f;
+                    Vector2 sparkPos = Projectile.Center + sparkAngle.ToRotationVector2() * (15f * growthFactor);
+                    float sparkHue = HueMin + (i / 5f) * (HueMax - HueMin);
+                    Color sparkColor = Main.hslToRgb(sparkHue, 0.88f, 0.78f);
+                    CustomParticles.GenericFlare(sparkPos, sparkColor, 0.25f * growthFactor, 12);
+                }
+            }
+            
+            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.Violet.ToVector3() * 0.9f * growthFactor);
         }
         
         public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
-            // More damage at larger sizes
             modifiers.FinalDamage *= growthFactor;
         }
         
@@ -262,13 +529,45 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             target.AddBuff(ModContent.BuffType<CelestialHarmony>(), 360);
             target.GetGlobalNPC<CelestialHarmonyNPC>().AddStack(target, 1);
             
-            NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, 0.8f * growthFactor);
-            NachtmusikCosmicVFX.SpawnStarBurstImpact(target.Center, 0.5f * growthFactor, 2);
+            // === 3-LAYER FLASH CASCADE ===
+            CustomParticles.GenericFlare(target.Center, Color.White, 0.65f * growthFactor, 20);
+            CustomParticles.GenericFlare(target.Center, NachtmusikCosmicVFX.Gold, 0.5f * growthFactor, 18);
+            CustomParticles.GenericFlare(target.Center, NachtmusikCosmicVFX.Violet, 0.4f * growthFactor, 16);
             
-            // 笘・MUSICAL IMPACT - Crescendo chord burst
-            ThemedParticles.MusicNoteBurst(target.Center, NachtmusikCosmicVFX.Gold, 4, 3f);
+            // === 5 MUSIC NOTES WITH hslToRgb GRADIENT ===
+            for (int n = 0; n < 5; n++)
+            {
+                float angle = MathHelper.TwoPi * n / 5f + Main.rand.NextFloat(-0.2f, 0.2f);
+                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(2.5f, 4.5f);
+                float noteHue = HueMin + (n / 5f) * (HueMax - HueMin);
+                Color noteColor = Main.hslToRgb(noteHue, 0.88f, 0.72f);
+                ThemedParticles.MusicNote(target.Center, noteVel, noteColor, 0.78f, 32);
+            }
             
-            // === SEEKING CRYSTALS - Crescendo burst ===
+            // === 2 HALO RINGS ===
+            for (int ring = 0; ring < 2; ring++)
+            {
+                float ringHue = HueMin + (ring / 2f) * (HueMax - HueMin);
+                Color ringColor = Main.hslToRgb(ringHue, 0.82f, 0.7f);
+                CustomParticles.HaloRing(target.Center, ringColor, (0.35f + ring * 0.12f) * growthFactor, 14 + ring * 2);
+            }
+            
+            // === 6 SPARKLE BURST ===
+            for (int s = 0; s < 6; s++)
+            {
+                float angle = MathHelper.TwoPi * s / 6f;
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(3.5f, 6f);
+                float sparkHue = HueMin + (s / 6f) * (HueMax - HueMin);
+                Color sparkColor = Main.hslToRgb(sparkHue, 0.85f, 0.75f);
+                var sparkle = new SparkleParticle(target.Center, sparkVel, sparkColor, 0.32f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // === DYNAMIC: Nachtmusik Celestial Theme ===
+            NachtmusikImpact(target.Center, 0.9f * growthFactor);
+            DramaticImpact(target.Center, NachtmusikCosmicVFX.Violet, NachtmusikCosmicVFX.Gold, 0.45f * growthFactor, 18);
+            
+            // === SEEKING CRYSTALS ===
             if (Main.rand.NextBool(4))
             {
                 SeekingCrystalHelper.SpawnNachtmusikCrystals(
@@ -285,59 +584,155 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override void OnKill(int timeLeft)
         {
-            NachtmusikCosmicVFX.SpawnCelestialProjectileDeath(Projectile.Center, growthFactor * 0.8f);
-            NachtmusikCosmicVFX.SpawnMusicNoteBurst(Projectile.Center, 8, 5f * growthFactor);
+            // === 4-LAYER CENTRAL GLIMMER CASCADE ===
+            for (int layer = 0; layer < 4; layer++)
+            {
+                float layerScale = (0.4f + layer * 0.12f) * growthFactor;
+                float layerAlpha = 0.82f - layer * 0.15f;
+                float layerHue = HueMin + (layer / 4f) * (HueMax - HueMin);
+                Color layerColor = Color.Lerp(Color.White, Main.hslToRgb(layerHue, 0.88f, 0.75f), layer / 4f);
+                CustomParticles.GenericFlare(Projectile.Center, layerColor * layerAlpha, layerScale, 18 - layer * 2);
+            }
+            
+            // === 3 EXPANDING HALO RINGS ===
+            for (int ring = 0; ring < 3; ring++)
+            {
+                float ringHue = HueMin + (ring / 3f) * (HueMax - HueMin);
+                Color ringColor = Main.hslToRgb(ringHue, 0.82f, 0.68f);
+                CustomParticles.HaloRing(Projectile.Center, ringColor, (0.35f + ring * 0.12f) * growthFactor, 15 + ring * 3);
+            }
+            
+            // === 8 MUSIC NOTES FINALE ===
+            for (int n = 0; n < 8; n++)
+            {
+                float angle = MathHelper.TwoPi * n / 8f;
+                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 5.5f) * growthFactor;
+                float noteHue = HueMin + (n / 8f) * (HueMax - HueMin);
+                Color noteColor = Main.hslToRgb(noteHue, 0.9f, 0.75f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.8f, 35);
+            }
+            
+            // === 8 SPARKLE + 8 GLOW BURST ===
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 7f) * growthFactor;
+                float burstHue = HueMin + (i / 8f) * (HueMax - HueMin);
+                Color burstColor = Main.hslToRgb(burstHue, 0.85f, 0.72f);
+                
+                var sparkle = new SparkleParticle(Projectile.Center, burstVel, burstColor, 0.35f, 20);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+                
+                var glow = new GenericGlowParticle(Projectile.Center, burstVel * 0.8f, burstColor * 0.7f, 0.3f, 22, true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.Gold.ToVector3() * 1.2f * growthFactor);
         }
         
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwordArc7").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             Vector2 origin = tex.Size() / 2f;
+            Vector2 flareOrigin = flareTex.Size() / 2f;
+            Vector2 flareOrigin2 = flareTex2.Size() / 2f;
+            Vector2 glowOrigin = softGlow.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.15f + 0.85f;
+            float time = Main.GameUpdateCount * 0.055f;
+            float pulse = (float)Math.Sin(time * 2.2f) * 0.18f + 1f;
             float scale = growthFactor * pulse;
             
-            // === RADIANT TRANSPARENT MULTI-LAYER BLOOM SLASHES ===
-            // Using { A = 0 } pattern for proper additive blending - much more transparent and ethereal
+            // Colors with alpha removed (Fargos pattern)
+            Color violetBloom = NachtmusikCosmicVFX.Violet with { A = 0 };
+            Color goldBloom = NachtmusikCosmicVFX.Gold with { A = 0 };
+            Color whiteBloom = Color.White with { A = 0 };
+            Color deepPurpleBloom = NachtmusikCosmicVFX.DeepPurple with { A = 0 };
             
-            // Outermost ethereal glow - very transparent, large, soft
-            Color outerGlow = NachtmusikCosmicVFX.DeepPurple with { A = 0 } * 0.18f;
-            sb.Draw(tex, drawPos, null, outerGlow, Projectile.rotation, origin, scale * 1.5f, SpriteEffects.None, 0f);
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            // Second outer layer - purple bloom
-            Color purpleBloom = NachtmusikCosmicVFX.Violet with { A = 0 } * 0.22f;
-            sb.Draw(tex, drawPos, null, purpleBloom, Projectile.rotation * 0.95f, origin, scale * 1.3f, SpriteEffects.None, 0f);
-            
-            // Middle glow layer - vibrant violet
-            Color midGlow = NachtmusikCosmicVFX.Violet with { A = 0 } * 0.28f;
-            sb.Draw(tex, drawPos, null, midGlow, Projectile.rotation * 0.85f, origin, scale * 1.1f, SpriteEffects.None, 0f);
-            
-            // Inner gold layer - warm celestial glow
-            Color goldGlow = NachtmusikCosmicVFX.Gold with { A = 0 } * 0.35f;
-            sb.Draw(tex, drawPos, null, goldGlow, Projectile.rotation * 0.7f, origin, scale * 0.85f, SpriteEffects.None, 0f);
-            
-            // Bright core layer - intense star white
-            Color coreGlow = NachtmusikCosmicVFX.StarWhite with { A = 0 } * 0.45f;
-            sb.Draw(tex, drawPos, null, coreGlow, Projectile.rotation * 0.5f, origin, scale * 0.6f, SpriteEffects.None, 0f);
-            
-            // White-hot center - maximum brightness
-            Color innerWhite = Color.White with { A = 0 } * 0.55f;
-            sb.Draw(tex, drawPos, null, innerWhite, Projectile.rotation * 0.3f, origin, scale * 0.35f, SpriteEffects.None, 0f);
-            
-            // === EXTRA SPARKLE LAYER - Star points along the arc ===
-            if (Main.rand.NextBool(3))
+            // === BRILLIANT TRAIL WITH hslToRgb GRADIENT ===
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
-                for (int i = 0; i < 3; i++)
-                {
-                    float sparkleAngle = Projectile.rotation + MathHelper.TwoPi * i / 3f;
-                    Vector2 sparkleOffset = sparkleAngle.ToRotationVector2() * 15f * scale;
-                    var sparkle = new SparkleParticle(Projectile.Center + sparkleOffset + Main.rand.NextVector2Circular(8f, 8f),
-                        Main.rand.NextVector2Circular(1f, 1f), NachtmusikCosmicVFX.StarWhite * 0.8f, 0.25f, 12);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
-                }
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                float progress = (float)i / Projectile.oldPos.Length;
+                float fadeOut = 1f - progress;
+                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                
+                float trailHue = HueMin + progress * (HueMax - HueMin);
+                Color trailGradient = Main.hslToRgb(trailHue, 0.85f, 0.7f) with { A = 0 };
+                
+                float outerScale = scale * 1.2f * fadeOut;
+                sb.Draw(tex, trailPos, null, trailGradient * 0.35f * fadeOut, Projectile.oldRot[i], origin, outerScale, SpriteEffects.None, 0f);
+                float innerScale = scale * 0.7f * fadeOut;
+                sb.Draw(tex, trailPos, null, whiteBloom * 0.45f * fadeOut, Projectile.oldRot[i], origin, innerScale, SpriteEffects.None, 0f);
             }
+            
+            // === 6-LAYER SPINNING FLARES (TRUE_VFX_STANDARDS) ===
+            // Layer 1: Soft glow base
+            sb.Draw(softGlow, drawPos, null, deepPurpleBloom * 0.25f, 0f, glowOrigin, 0.9f * scale, SpriteEffects.None, 0f);
+            
+            // Layer 2: First flare spinning clockwise
+            float hue2 = HueMin + 0.2f * (HueMax - HueMin);
+            Color layer2Color = Main.hslToRgb(hue2, 0.88f, 0.72f) with { A = 0 };
+            sb.Draw(flareTex, drawPos, null, layer2Color * 0.5f, time, flareOrigin, 0.35f * scale, SpriteEffects.None, 0f);
+            
+            // Layer 3: Second flare spinning counter-clockwise
+            float hue3 = HueMin + 0.5f * (HueMax - HueMin);
+            Color layer3Color = Main.hslToRgb(hue3, 0.85f, 0.68f) with { A = 0 };
+            sb.Draw(flareTex2, drawPos, null, layer3Color * 0.48f, -time * 0.75f, flareOrigin2, 0.3f * scale, SpriteEffects.None, 0f);
+            
+            // Layer 4: Third flare different speed
+            float hue4 = HueMin + 0.8f * (HueMax - HueMin);
+            Color layer4Color = Main.hslToRgb(hue4, 0.9f, 0.75f) with { A = 0 };
+            sb.Draw(flareTex, drawPos, null, layer4Color * 0.55f, time * 1.35f, flareOrigin, 0.25f * scale, SpriteEffects.None, 0f);
+            
+            // Layer 5: Gold glow
+            sb.Draw(flareTex2, drawPos, null, goldBloom * 0.58f, -time * 0.5f, flareOrigin2, 0.2f * scale, SpriteEffects.None, 0f);
+            
+            // Layer 6: White-hot core
+            sb.Draw(flareTex, drawPos, null, whiteBloom * 0.7f, 0f, flareOrigin, 0.12f * scale, SpriteEffects.None, 0f);
+            
+            // === MAIN ARC LAYERS ===
+            // Outermost ethereal glow
+            sb.Draw(tex, drawPos, null, deepPurpleBloom * 0.2f, Projectile.rotation, origin, scale * 1.5f, SpriteEffects.None, 0f);
+            
+            // Purple bloom layer
+            sb.Draw(tex, drawPos, null, violetBloom * 0.28f, Projectile.rotation * 0.95f, origin, scale * 1.3f, SpriteEffects.None, 0f);
+            
+            // Middle glow layer
+            sb.Draw(tex, drawPos, null, violetBloom * 0.35f, Projectile.rotation * 0.85f, origin, scale * 1.1f, SpriteEffects.None, 0f);
+            
+            // Inner gold layer
+            sb.Draw(tex, drawPos, null, goldBloom * 0.42f, Projectile.rotation * 0.7f, origin, scale * 0.85f, SpriteEffects.None, 0f);
+            
+            // Bright core layer
+            sb.Draw(tex, drawPos, null, whiteBloom * 0.52f, Projectile.rotation * 0.5f, origin, scale * 0.6f, SpriteEffects.None, 0f);
+            
+            // White-hot center
+            sb.Draw(tex, drawPos, null, whiteBloom * 0.65f, Projectile.rotation * 0.3f, origin, scale * 0.35f, SpriteEffects.None, 0f);
+            
+            // === 4 ORBITING SPARK POINTS ===
+            float sparkOrbitAngle = time * 1.3f;
+            for (int i = 0; i < 4; i++)
+            {
+                float sparkAngle = sparkOrbitAngle + MathHelper.TwoPi * i / 4f;
+                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * (18f * scale);
+                float sparkHue = HueMin + (i / 4f) * (HueMax - HueMin);
+                Color sparkColor = Main.hslToRgb(sparkHue, 0.88f, 0.78f) with { A = 0 };
+                sb.Draw(flareTex, sparkPos, null, sparkColor * 0.5f, 0f, flareOrigin, 0.1f * scale, SpriteEffects.None, 0f);
+            }
+            
+            // === CENTER GLOW ===
+            sb.Draw(softGlow, drawPos, null, violetBloom * 0.45f, 0f, glowOrigin, 0.55f * scale, SpriteEffects.None, 0f);
+            
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -349,10 +744,15 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     
     /// <summary>
     /// Constellation Piercer's star bolt that chains to nearby enemies.
+    /// TRUE_VFX_STANDARDS: Layered spinning flares, orbiting music notes, hslToRgb oscillation
     /// </summary>
     public class ConstellationBoltProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles/StarBurst1";
+        
+        // Nachtmusik hue range - violet/purple spectrum (0.75-0.85)
+        private const float HueMin = 0.75f;
+        private const float HueMax = 0.85f;
         
         private int chainCount = 0;
         private const int MaxChains = 4;
@@ -360,7 +760,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 8;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
         
@@ -384,31 +784,84 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         {
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
             
-            // Light trail
-            NachtmusikCosmicVFX.SpawnRadiantBeamTrail(Projectile.Center, Projectile.velocity, 0.5f);
-            
-            // Star sparkles
-            if (Main.rand.NextBool(3))
+            // === DENSE DUST TRAIL - 2+ per frame GUARANTEED (TRUE_VFX_STANDARDS) ===
+            for (int i = 0; i < 2; i++)
             {
-                Dust star = Dust.NewDustPerfect(Projectile.Center, DustID.GoldFlame, -Projectile.velocity * 0.2f, 0, default, 0.8f);
-                star.noGravity = true;
+                Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(6f, 6f);
+                Vector2 dustVel = -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(1.5f, 1.5f);
+                float dustHue = HueMin + Main.rand.NextFloat() * (HueMax - HueMin);
+                Color dustColor = Main.hslToRgb(dustHue, 0.88f, 0.72f);
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, dustVel, 0, dustColor, 1.35f);
+                dust.noGravity = true;
+                dust.fadeIn = 1.2f;
             }
             
-            // 笘・MUSICAL NOTATION - Constellation melody (VISIBLE SCALE 0.7f+)
-            if (Main.rand.NextBool(6))
+            // === CONTRASTING SPARKLES - 1-in-2 ===
+            if (Main.rand.NextBool(2))
             {
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, NachtmusikCosmicVFX.StarWhite, 0.7f, 30);
+                Vector2 sparkPos = Projectile.Center + Main.rand.NextVector2Circular(5f, 5f);
+                Dust gold = Dust.NewDustPerfect(sparkPos, DustID.Enchanted_Gold, -Projectile.velocity * 0.1f, 0, NachtmusikCosmicVFX.Gold, 1.15f);
+                gold.noGravity = true;
             }
             
-            // 笘・SPARKLE ACCENT - Star twinkle
-            if (Main.rand.NextBool(5))
+            // === FREQUENT FLARES with hslToRgb oscillation - 1-in-2 ===
+            if (Main.rand.NextBool(2))
             {
-                var sparkle = new SparkleParticle(Projectile.Center, -Projectile.velocity * 0.05f, NachtmusikCosmicVFX.Gold, 0.25f, 15);
+                float hue = HueMin + Main.rand.NextFloat() * (HueMax - HueMin);
+                Color oscillatedColor = Main.hslToRgb(hue, 0.9f, 0.75f);
+                Vector2 flarePos = Projectile.Center + Main.rand.NextVector2Circular(8f, 8f);
+                CustomParticles.GenericFlare(flarePos, oscillatedColor, 0.32f, 14);
+            }
+            
+            // === GLOW TRAIL with gradient ===
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(8f, 8f);
+                float hue = HueMin + Main.rand.NextFloat() * (HueMax - HueMin);
+                Color trailColor = Main.hslToRgb(hue, 0.85f, 0.68f);
+                var trail = new GenericGlowParticle(Projectile.Center + offset, -Projectile.velocity * 0.08f,
+                    trailColor * 0.6f, 0.24f, 16, true);
+                MagnumParticleHandler.SpawnParticle(trail);
+            }
+            
+            // === 3 ORBITING MUSIC NOTES - LOCKED TO PROJECTILE (TRUE_VFX_STANDARDS) ===
+            float noteOrbitAngle = Main.GameUpdateCount * 0.1f;
+            if (Projectile.timeLeft % 6 == 0)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    float noteAngle = noteOrbitAngle + MathHelper.TwoPi * i / 3f;
+                    Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * 14f;
+                    Vector2 noteVel = noteAngle.ToRotationVector2() * 2f + Projectile.velocity * 0.3f;
+                    float noteHue = HueMin + (i / 3f) * (HueMax - HueMin);
+                    Color noteColor = Main.hslToRgb(noteHue, 0.9f, 0.78f);
+                    ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.75f, 28);
+                }
+            }
+            
+            // === SPARKLE ACCENT - Star twinkle ===
+            if (Main.rand.NextBool(4))
+            {
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f), 
+                    -Projectile.velocity * 0.05f, NachtmusikCosmicVFX.StarWhite, 0.3f, 16);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.Gold.ToVector3() * 0.5f);
+            // === 4-ELEMENT CONSTELLATION ORBIT ===
+            if (Projectile.timeLeft % 5 == 0)
+            {
+                float orbitAngle = Main.GameUpdateCount * 0.06f;
+                for (int i = 0; i < 4; i++)
+                {
+                    float sparkAngle = orbitAngle + MathHelper.TwoPi * i / 4f;
+                    Vector2 sparkPos = Projectile.Center + sparkAngle.ToRotationVector2() * 12f;
+                    float sparkHue = HueMin + (i / 4f) * (HueMax - HueMin);
+                    Color sparkColor = Main.hslToRgb(sparkHue, 0.88f, 0.78f);
+                    CustomParticles.GenericFlare(sparkPos, sparkColor, 0.2f, 10);
+                }
+            }
+            
+            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.Gold.ToVector3() * 0.7f);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -416,10 +869,43 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             target.AddBuff(ModContent.BuffType<CelestialHarmony>(), 300);
             target.GetGlobalNPC<CelestialHarmonyNPC>().AddStack(target, 1);
             
-            NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, 0.7f);
+            // === 3-LAYER FLASH CASCADE ===
+            CustomParticles.GenericFlare(target.Center, Color.White, 0.55f, 18);
+            CustomParticles.GenericFlare(target.Center, NachtmusikCosmicVFX.Gold, 0.45f, 16);
+            CustomParticles.GenericFlare(target.Center, NachtmusikCosmicVFX.Violet, 0.35f, 14);
             
-            // 笘・MUSICAL IMPACT - Constellation chord
-            ThemedParticles.MusicNoteBurst(target.Center, NachtmusikCosmicVFX.Gold, 4, 3f);
+            // === 5 MUSIC NOTES WITH hslToRgb GRADIENT ===
+            for (int n = 0; n < 5; n++)
+            {
+                float angle = MathHelper.TwoPi * n / 5f + Main.rand.NextFloat(-0.2f, 0.2f);
+                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(2.5f, 4.5f);
+                float noteHue = HueMin + (n / 5f) * (HueMax - HueMin);
+                Color noteColor = Main.hslToRgb(noteHue, 0.88f, 0.75f);
+                ThemedParticles.MusicNote(target.Center, noteVel, noteColor, 0.75f, 30);
+            }
+            
+            // === 2 HALO RINGS ===
+            for (int ring = 0; ring < 2; ring++)
+            {
+                float ringHue = HueMin + (ring / 2f) * (HueMax - HueMin);
+                Color ringColor = Main.hslToRgb(ringHue, 0.82f, 0.7f);
+                CustomParticles.HaloRing(target.Center, ringColor, 0.3f + ring * 0.1f, 14 + ring * 2);
+            }
+            
+            // === 6 SPARKLE BURST ===
+            for (int s = 0; s < 6; s++)
+            {
+                float angle = MathHelper.TwoPi * s / 6f;
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 5.5f);
+                float sparkHue = HueMin + (s / 6f) * (HueMax - HueMin);
+                Color sparkColor = Main.hslToRgb(sparkHue, 0.85f, 0.75f);
+                var sparkle = new SparkleParticle(target.Center, sparkVel, sparkColor, 0.3f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // === DYNAMIC: Nachtmusik Celestial Theme ===
+            NachtmusikImpact(target.Center, 0.85f);
+            DramaticImpact(target.Center, NachtmusikCosmicVFX.Gold, NachtmusikCosmicVFX.Violet, 0.4f, 16);
             
             hitEnemies.Add(target.whoAmI);
             
@@ -434,11 +920,13 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                     Projectile.velocity = toNext * Projectile.velocity.Length() * 0.95f;
                     Projectile.Center = target.Center;
                     
-                    // Chain lightning VFX
-                    for (int i = 0; i < 6; i++)
+                    // === CHAIN LIGHTNING VFX ===
+                    for (int i = 0; i < 8; i++)
                     {
-                        Vector2 linePos = Vector2.Lerp(target.Center, target.Center + toNext * 50f, i / 6f);
-                        var line = new GenericGlowParticle(linePos, Vector2.Zero, NachtmusikCosmicVFX.Gold, 0.2f, 10, true);
+                        Vector2 linePos = Vector2.Lerp(target.Center, target.Center + toNext * 60f, i / 8f);
+                        float lineHue = HueMin + (i / 8f) * (HueMax - HueMin);
+                        Color lineColor = Main.hslToRgb(lineHue, 0.88f, 0.75f);
+                        var line = new GenericGlowParticle(linePos, Vector2.Zero, lineColor * 0.8f, 0.22f, 12, true);
                         MagnumParticleHandler.SpawnParticle(line);
                     }
                 }
@@ -447,31 +935,145 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override void OnKill(int timeLeft)
         {
-            NachtmusikCosmicVFX.SpawnCelestialImpact(Projectile.Center, 0.6f);
+            // === 4-LAYER CENTRAL GLIMMER CASCADE ===
+            for (int layer = 0; layer < 4; layer++)
+            {
+                float layerScale = 0.35f + layer * 0.1f;
+                float layerAlpha = 0.8f - layer * 0.15f;
+                float layerHue = HueMin + (layer / 4f) * (HueMax - HueMin);
+                Color layerColor = Color.Lerp(Color.White, Main.hslToRgb(layerHue, 0.88f, 0.75f), layer / 4f);
+                CustomParticles.GenericFlare(Projectile.Center, layerColor * layerAlpha, layerScale, 16 - layer * 2);
+            }
             
-            // 笘・MUSICAL FINALE - Starlight finale
-            ThemedParticles.MusicNoteBurst(Projectile.Center, NachtmusikCosmicVFX.Violet, 5, 3.5f);
+            // === 3 EXPANDING HALO RINGS ===
+            for (int ring = 0; ring < 3; ring++)
+            {
+                float ringHue = HueMin + (ring / 3f) * (HueMax - HueMin);
+                Color ringColor = Main.hslToRgb(ringHue, 0.82f, 0.68f);
+                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.3f + ring * 0.1f, 14 + ring * 3);
+            }
+            
+            // === 6 MUSIC NOTES FINALE ===
+            for (int n = 0; n < 6; n++)
+            {
+                float angle = MathHelper.TwoPi * n / 6f;
+                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(2.5f, 5f);
+                float noteHue = HueMin + (n / 6f) * (HueMax - HueMin);
+                Color noteColor = Main.hslToRgb(noteHue, 0.9f, 0.75f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.78f, 32);
+            }
+            
+            // === 8 SPARKLE + 8 GLOW BURST ===
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
+                float burstHue = HueMin + (i / 8f) * (HueMax - HueMin);
+                Color burstColor = Main.hslToRgb(burstHue, 0.85f, 0.72f);
+                
+                var sparkle = new SparkleParticle(Projectile.Center, burstVel, burstColor, 0.32f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+                
+                var glow = new GenericGlowParticle(Projectile.Center, burstVel * 0.75f, burstColor * 0.7f, 0.28f, 20, true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.Gold.ToVector3() * 1f);
         }
         
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/StarBurst1").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             Vector2 origin = tex.Size() / 2f;
+            Vector2 flareOrigin = flareTex.Size() / 2f;
+            Vector2 flareOrigin2 = flareTex2.Size() / 2f;
+            Vector2 glowOrigin = softGlow.Size() / 2f;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
-            // Trail
+            float time = Main.GameUpdateCount * 0.06f;
+            float pulse = 1f + (float)Math.Sin(time * 2.5f) * 0.15f;
+            
+            // Colors with alpha removed (Fargos pattern)
+            Color violetBloom = NachtmusikCosmicVFX.Violet with { A = 0 };
+            Color goldBloom = NachtmusikCosmicVFX.Gold with { A = 0 };
+            Color whiteBloom = Color.White with { A = 0 };
+            Color deepPurpleBloom = NachtmusikCosmicVFX.DeepPurple with { A = 0 };
+            
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // === BRILLIANT TRAIL WITH hslToRgb GRADIENT ===
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 float progress = (float)i / Projectile.oldPos.Length;
-                Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                Color trailColor = Color.Lerp(NachtmusikCosmicVFX.Gold, NachtmusikCosmicVFX.StarWhite, progress) * (1f - progress) * 0.5f;
-                sb.Draw(tex, drawPos, null, trailColor, 0f, origin, 0.3f * (1f - progress * 0.5f), SpriteEffects.None, 0f);
+                float fadeOut = 1f - progress;
+                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                
+                float trailHue = HueMin + progress * (HueMax - HueMin);
+                Color trailGradient = Main.hslToRgb(trailHue, 0.85f, 0.72f) with { A = 0 };
+                
+                float outerScale = 0.4f * fadeOut * pulse;
+                sb.Draw(tex, trailPos, null, trailGradient * 0.4f * fadeOut, 0f, origin, outerScale, SpriteEffects.None, 0f);
+                float innerScale = 0.22f * fadeOut * pulse;
+                sb.Draw(tex, trailPos, null, goldBloom * 0.5f * fadeOut, 0f, origin, innerScale, SpriteEffects.None, 0f);
             }
             
-            // Core
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, NachtmusikCosmicVFX.Gold * 0.7f, 0f, origin, 0.4f, SpriteEffects.None, 0f);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, NachtmusikCosmicVFX.StarWhite * 0.9f, 0f, origin, 0.25f, SpriteEffects.None, 0f);
+            // === 6-LAYER SPINNING FLARES (TRUE_VFX_STANDARDS) ===
+            // Layer 1: Soft glow base
+            sb.Draw(softGlow, drawPos, null, deepPurpleBloom * 0.28f, 0f, glowOrigin, 0.55f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 2: First flare spinning clockwise
+            float hue2 = HueMin + 0.2f * (HueMax - HueMin);
+            Color layer2Color = Main.hslToRgb(hue2, 0.88f, 0.72f) with { A = 0 };
+            sb.Draw(flareTex, drawPos, null, layer2Color * 0.52f, time, flareOrigin, 0.3f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 3: Second flare spinning counter-clockwise
+            float hue3 = HueMin + 0.5f * (HueMax - HueMin);
+            Color layer3Color = Main.hslToRgb(hue3, 0.85f, 0.68f) with { A = 0 };
+            sb.Draw(flareTex2, drawPos, null, layer3Color * 0.48f, -time * 0.8f, flareOrigin2, 0.25f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 4: Third flare different speed
+            float hue4 = HueMin + 0.8f * (HueMax - HueMin);
+            Color layer4Color = Main.hslToRgb(hue4, 0.9f, 0.75f) with { A = 0 };
+            sb.Draw(flareTex, drawPos, null, layer4Color * 0.55f, time * 1.4f, flareOrigin, 0.2f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 5: Gold glow
+            sb.Draw(flareTex2, drawPos, null, goldBloom * 0.6f, -time * 0.55f, flareOrigin2, 0.16f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 6: White-hot core
+            sb.Draw(flareTex, drawPos, null, whiteBloom * 0.72f, 0f, flareOrigin, 0.1f * pulse, SpriteEffects.None, 0f);
+            
+            // === MAIN STAR LAYERS ===
+            // Outer ethereal layer
+            sb.Draw(tex, drawPos, null, deepPurpleBloom * 0.22f, 0f, origin, 0.6f * pulse, SpriteEffects.None, 0f);
+            
+            // Middle violet layer
+            sb.Draw(tex, drawPos, null, violetBloom * 0.35f, 0f, origin, 0.45f * pulse, SpriteEffects.None, 0f);
+            
+            // Inner gold layer
+            sb.Draw(tex, drawPos, null, goldBloom * 0.5f, 0f, origin, 0.32f * pulse, SpriteEffects.None, 0f);
+            
+            // White-hot core
+            sb.Draw(tex, drawPos, null, whiteBloom * 0.65f, 0f, origin, 0.2f * pulse, SpriteEffects.None, 0f);
+            
+            // === 4 ORBITING SPARK POINTS ===
+            float sparkOrbitAngle = time * 1.4f;
+            for (int i = 0; i < 4; i++)
+            {
+                float sparkAngle = sparkOrbitAngle + MathHelper.TwoPi * i / 4f;
+                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * (14f * pulse);
+                float sparkHue = HueMin + (i / 4f) * (HueMax - HueMin);
+                Color sparkColor = Main.hslToRgb(sparkHue, 0.88f, 0.78f) with { A = 0 };
+                sb.Draw(flareTex, sparkPos, null, sparkColor * 0.55f, 0f, flareOrigin, 0.08f * pulse, SpriteEffects.None, 0f);
+            }
+            
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -646,6 +1248,10 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                 Color haloColor = Color.Lerp(NebulaCore, NebulaOuter, i / 4f);
                 CustomParticles.HaloRing(target.Center, haloColor * (0.6f - i * 0.1f), 0.3f + i * 0.15f, 15 + i * 3);
             }
+            
+            // === DYNAMIC: Nachtmusik Celestial Theme ===
+            NachtmusikImpact(target.Center, 1.1f);
+            DramaticImpact(target.Center, NebulaCore, StarMote, 0.5f, 20);
         }
         
         public override void OnKill(int timeLeft)
@@ -798,14 +1404,24 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     
     /// <summary>
     /// Serenade of Distant Stars' homing star projectile.
+    /// TRUE_VFX_STANDARDS: 6-layer spinning flares, dense dust, orbiting music notes, hslToRgb oscillation
     /// </summary>
     public class SerenadeStarProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle13";
         
+        // TRUE_VFX_STANDARDS: Hue range for Nachtmusik violet/purple spectrum
+        private const float HueMin = 0.75f;
+        private const float HueMax = 0.85f;
+        
+        // Serenade star colors - starlight theme
+        private static readonly Color StarCore = new Color(255, 255, 220);
+        private static readonly Color StarGold = new Color(255, 230, 160);
+        private static readonly Color StarViolet = new Color(180, 140, 255);
+        
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 12;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
         
@@ -836,39 +1452,127 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                 }
             }
             
-            // Star trail
+            // ===== TRUE_VFX_STANDARDS: DENSE DUST TRAIL (2+ per frame guaranteed) =====
+            for (int i = 0; i < 2; i++)
+            {
+                Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(6f, 6f);
+                Vector2 dustVel = -Projectile.velocity * 0.12f + Main.rand.NextVector2Circular(1.2f, 1.2f);
+                
+                Dust main = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, dustVel, 0, StarViolet, 1.4f);
+                main.noGravity = true;
+                main.fadeIn = 1.2f;
+            }
+            
+            // Contrasting sparkle dust (1-in-2)
             if (Main.rand.NextBool(2))
             {
-                var star = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f,
-                    NachtmusikCosmicVFX.StarWhite * 0.6f, 0.2f, 15, true);
-                MagnumParticleHandler.SpawnParticle(star);
+                Dust contrast = Dust.NewDustPerfect(Projectile.Center, DustID.Enchanted_Gold, 
+                    -Projectile.velocity * 0.08f + Main.rand.NextVector2Circular(0.8f, 0.8f), 0, StarGold, 1.1f);
+                contrast.noGravity = true;
             }
             
-            // 笘・MUSICAL NOTATION - Serenade melody (VISIBLE SCALE 0.75f+)
-            if (Main.rand.NextBool(5))
+            // ===== TRUE_VFX_STANDARDS: COLOR OSCILLATION with hslToRgb =====
+            if (Main.rand.NextBool(3))
             {
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.6f, 0.6f), -1.2f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, NachtmusikCosmicVFX.Gold, 0.75f, 35);
+                float hue = HueMin + (Main.rand.NextFloat() * (HueMax - HueMin));
+                Color oscillatingColor = Main.hslToRgb(hue, 0.85f, 0.75f);
+                Vector2 flarePos = Projectile.Center + Main.rand.NextVector2Circular(8f, 8f);
+                CustomParticles.GenericFlare(flarePos, oscillatingColor, 0.35f, 14);
             }
             
-            // 笘・SPARKLE ACCENT - Distant star twinkle
-            if (Main.rand.NextBool(4))
+            // ===== TRUE_VFX_STANDARDS: ORBITING MUSIC NOTES LOCKED TO PROJECTILE =====
+            float orbitAngle = Main.GameUpdateCount * 0.1f;
+            if (Main.rand.NextBool(6))
             {
-                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f), Main.rand.NextVector2Circular(1f, 1f), NachtmusikCosmicVFX.StarWhite, 0.3f, 20);
+                for (int n = 0; n < 3; n++)
+                {
+                    float noteAngle = orbitAngle + MathHelper.TwoPi * n / 3f;
+                    Vector2 noteOffset = noteAngle.ToRotationVector2() * 14f;
+                    Vector2 notePos = Projectile.Center + noteOffset;
+                    Vector2 noteVel = Projectile.velocity * 0.85f + noteAngle.ToRotationVector2() * 0.4f;
+                    
+                    float noteHue = HueMin + ((n / 3f) * (HueMax - HueMin));
+                    Color noteColor = Main.hslToRgb(noteHue, 0.9f, 0.8f);
+                    ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.78f, 32);
+                    
+                    var sparkle = new SparkleParticle(notePos, noteVel * 0.3f, StarCore * 0.6f, 0.22f, 16);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
+            }
+            
+            // ===== ORBITING STAR MOTES - 4-point constellation =====
+            float moteAngle = Main.GameUpdateCount * 0.07f;
+            float moteRadius = 12f + (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 4f;
+            if (Projectile.timeLeft % 5 == 0)
+            {
+                for (int m = 0; m < 4; m++)
+                {
+                    float angle = moteAngle + MathHelper.TwoPi * m / 4f;
+                    Vector2 motePos = Projectile.Center + angle.ToRotationVector2() * moteRadius;
+                    float moteHue = HueMin + ((m / 4f + Main.GameUpdateCount * 0.005f) % 1f) * (HueMax - HueMin);
+                    Color moteColor = Main.hslToRgb(moteHue, 0.9f, 0.85f);
+                    CustomParticles.GenericFlare(motePos, moteColor, 0.2f, 10);
+                }
+            }
+            
+            // Glow particles for trailing
+            if (Main.rand.NextBool(2))
+            {
+                float hue = HueMin + Main.rand.NextFloat() * (HueMax - HueMin);
+                Color trailColor = Main.hslToRgb(hue, 0.8f, 0.7f);
+                var glow = new GenericGlowParticle(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f), 
+                    -Projectile.velocity * 0.1f, trailColor * 0.65f, 0.22f, 16, true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            // Sparkle accents
+            if (Main.rand.NextBool(3))
+            {
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f), 
+                    Main.rand.NextVector2Circular(1.2f, 1.2f), StarCore, 0.32f, 18);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.StarWhite.ToVector3() * 0.6f);
+            Lighting.AddLight(Projectile.Center, StarCore.ToVector3() * 0.8f);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(ModContent.BuffType<CelestialHarmony>(), 360);
             target.GetGlobalNPC<CelestialHarmonyNPC>().AddStack(target, 1);
-            NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, 0.9f);
             
-            // 笘・MUSICAL IMPACT - Serenade chord burst
-            ThemedParticles.MusicNoteBurst(target.Center, NachtmusikCosmicVFX.StarWhite, 5, 3.5f);
+            // ===== TRUE_VFX_STANDARDS: 3-LAYER FLASH CASCADE =====
+            CustomParticles.GenericFlare(target.Center, Color.White, 1.0f, 22);
+            CustomParticles.GenericFlare(target.Center, StarCore, 0.8f, 20);
+            CustomParticles.GenericFlare(target.Center, StarViolet, 0.6f, 18);
+            
+            // ===== MUSIC NOTES WITH GRADIENT =====
+            for (int i = 0; i < 5; i++)
+            {
+                float noteProgress = i / 5f;
+                float noteHue = HueMin + noteProgress * (HueMax - HueMin);
+                Color noteColor = Main.hslToRgb(noteHue, 0.9f, 0.8f);
+                float noteAngle = MathHelper.TwoPi * i / 5f;
+                Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(2.5f, 4.5f);
+                ThemedParticles.MusicNote(target.Center, noteVel, noteColor, 0.8f, 30);
+            }
+            
+            // ===== HALO RINGS (2 layers) =====
+            CustomParticles.HaloRing(target.Center, StarCore * 0.7f, 0.4f, 16);
+            CustomParticles.HaloRing(target.Center, StarViolet * 0.5f, 0.3f, 14);
+            
+            // ===== SPARKLE BURST (6 radial) =====
+            for (int s = 0; s < 6; s++)
+            {
+                float sparkleAngle = MathHelper.TwoPi * s / 6f;
+                Vector2 sparkleVel = sparkleAngle.ToRotationVector2() * Main.rand.NextFloat(3f, 5.5f);
+                var sparkle = new SparkleParticle(target.Center, sparkleVel, StarCore, 0.38f, 22);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // === DYNAMIC: Nachtmusik Celestial Theme ===
+            NachtmusikImpact(target.Center, 0.95f);
+            DramaticImpact(target.Center, StarCore, StarViolet, 0.48f, 20);
             
             // === SEEKING CRYSTALS - Star burst ===
             if (Main.rand.NextBool(4))
@@ -887,32 +1591,118 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override void OnKill(int timeLeft)
         {
-            NachtmusikCosmicVFX.SpawnCelestialExplosion(Projectile.Center, 0.6f);
+            // ===== TRUE_VFX_STANDARDS: GLIMMER CASCADE (4 layers) =====
+            for (int layer = 0; layer < 4; layer++)
+            {
+                float layerScale = 0.4f + layer * 0.15f;
+                float layerAlpha = 0.85f - layer * 0.15f;
+                float layerHue = HueMin + (layer / 4f) * (HueMax - HueMin);
+                Color layerColor = Color.Lerp(Color.White, Main.hslToRgb(layerHue, 0.9f, 0.8f), layer / 4f);
+                CustomParticles.GenericFlare(Projectile.Center, layerColor * layerAlpha, layerScale, 20 - layer * 2);
+            }
             
-            // 笘・MUSICAL FINALE - Distant star symphony
-            ThemedParticles.MusicNoteBurst(Projectile.Center, NachtmusikCosmicVFX.Gold, 6, 4f);
+            // ===== EXPANDING HALO RINGS (3 layers) =====
+            for (int ring = 0; ring < 3; ring++)
+            {
+                float ringHue = HueMin + (ring / 3f) * (HueMax - HueMin);
+                Color ringColor = Main.hslToRgb(ringHue, 0.85f, 0.75f);
+                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.35f + ring * 0.12f, 14 + ring * 3);
+            }
+            
+            // ===== MUSIC NOTE FINALE (8 notes) =====
+            for (int n = 0; n < 8; n++)
+            {
+                float noteAngle = MathHelper.TwoPi * n / 8f;
+                Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(3f, 5.5f);
+                float noteHue = HueMin + (n / 8f) * (HueMax - HueMin);
+                Color noteColor = Main.hslToRgb(noteHue, 0.9f, 0.8f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.82f, 32);
+            }
+            
+            // ===== SPARKLE + GLOW BURST (8 radial) =====
+            for (int s = 0; s < 8; s++)
+            {
+                float burstAngle = MathHelper.TwoPi * s / 8f;
+                Vector2 burstVel = burstAngle.ToRotationVector2() * Main.rand.NextFloat(3.5f, 6f);
+                float burstHue = HueMin + (s / 8f) * (HueMax - HueMin);
+                Color burstColor = Main.hslToRgb(burstHue, 0.85f, 0.75f);
+                
+                var sparkle = new SparkleParticle(Projectile.Center, burstVel, StarCore, 0.4f, 24);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+                
+                var glow = new GenericGlowParticle(Projectile.Center, burstVel * 0.7f, burstColor * 0.6f, 0.28f, 20, true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            // Dust explosion for density
+            for (int d = 0; d < 12; d++)
+            {
+                Vector2 dustVel = Main.rand.NextVector2Circular(5f, 5f);
+                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.PurpleTorch, dustVel, 0, StarViolet, 1.3f);
+                dust.noGravity = true;
+            }
+            
+            Lighting.AddLight(Projectile.Center, StarCore.ToVector3() * 1.2f);
         }
         
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle13").Value;
-            Vector2 origin = tex.Size() / 2f;
             
-            // Star trail
+            // ===== TRUE_VFX_STANDARDS: Load multiple flare textures =====
+            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D sparkle = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle13").Value;
+            
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            float time = Main.GameUpdateCount * 0.05f;
+            float pulse = 1f + (float)Math.Sin(time * 2.2f) * 0.15f;
+            
+            // ===== STAR TRAIL with hslToRgb gradient =====
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 float progress = (float)i / Projectile.oldPos.Length;
-                Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                Color trailColor = NachtmusikCosmicVFX.GetCelestialGradient(progress) * (1f - progress) * 0.5f;
-                sb.Draw(tex, drawPos, null, trailColor, Projectile.oldRot[i], origin, 0.35f * (1f - progress * 0.5f), SpriteEffects.None, 0f);
+                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                
+                float trailHue = HueMin + progress * (HueMax - HueMin);
+                Color trailColor = Main.hslToRgb(trailHue, 0.85f, 0.7f) * (1f - progress) * 0.6f;
+                float trailScale = 0.35f * (1f - progress * 0.5f);
+                
+                sb.Draw(sparkle, trailPos, null, trailColor with { A = 0 }, Projectile.oldRot[i], sparkle.Size() / 2f, trailScale, SpriteEffects.None, 0f);
             }
             
-            // Star core
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.2f) * 0.15f + 0.85f;
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, NachtmusikCosmicVFX.Gold * 0.5f, Projectile.rotation, origin, 0.5f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, NachtmusikCosmicVFX.StarWhite * 0.9f, Projectile.rotation * 0.5f, origin, 0.3f * pulse, SpriteEffects.None, 0f);
+            // ===== TRUE_VFX_STANDARDS: 6-LAYER SPINNING FLARES =====
+            // Layer 1: Soft glow base (large, dim)
+            sb.Draw(softGlow, drawPos, null, (StarViolet * 0.35f) with { A = 0 }, 0f, softGlow.Size() / 2f, 0.6f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 2: Outer flare (spinning clockwise)
+            sb.Draw(flare1, drawPos, null, (StarViolet * 0.5f) with { A = 0 }, time, flare1.Size() / 2f, 0.45f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 3: Second flare (spinning counter-clockwise)
+            sb.Draw(flare2, drawPos, null, (StarGold * 0.55f) with { A = 0 }, -time * 0.75f, flare2.Size() / 2f, 0.38f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 4: Third flare (faster spin)
+            sb.Draw(flare1, drawPos, null, (StarViolet * 0.6f) with { A = 0 }, time * 1.4f, flare1.Size() / 2f, 0.3f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 5: Inner glow
+            sb.Draw(flare2, drawPos, null, (StarGold * 0.7f) with { A = 0 }, -time * 0.5f, flare2.Size() / 2f, 0.22f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 6: White-hot core
+            sb.Draw(flare1, drawPos, null, (Color.White * 0.85f) with { A = 0 }, 0f, flare1.Size() / 2f, 0.12f * pulse, SpriteEffects.None, 0f);
+            
+            // ===== ORBITING SPARK POINTS (4 points) =====
+            float orbitAngle = Main.GameUpdateCount * 0.08f;
+            float orbitRadius = 12f + (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 3f;
+            for (int p = 0; p < 4; p++)
+            {
+                float sparkAngle = orbitAngle + MathHelper.TwoPi * p / 4f;
+                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * orbitRadius;
+                float sparkHue = HueMin + ((p / 4f + Main.GameUpdateCount * 0.006f) % 1f) * (HueMax - HueMin);
+                Color sparkColor = Main.hslToRgb(sparkHue, 0.9f, 0.85f);
+                sb.Draw(sparkle, sparkPos, null, sparkColor with { A = 0 }, sparkAngle * 2f, sparkle.Size() / 2f, 0.12f * pulse, SpriteEffects.None, 0f);
+            }
             
             return false;
         }
@@ -944,13 +1734,29 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     
     /// <summary>
     /// Starweaver's Grimoire's cosmic orb projectile.
+    /// TRUE_VFX_STANDARDS: 6-layer spinning flares, dense dust, orbiting music notes, hslToRgb oscillation
     /// Creates mini-explosions along its path.
     /// </summary>
     public class StarweaverOrbProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField8";
         
+        // TRUE_VFX_STANDARDS: Hue range for Nachtmusik violet/purple spectrum
+        private const float HueMin = 0.75f;
+        private const float HueMax = 0.85f;
+        
+        // Starweaver orb colors
+        private static readonly Color OrbCore = new Color(255, 255, 230);
+        private static readonly Color OrbViolet = new Color(160, 100, 220);
+        private static readonly Color OrbGold = new Color(255, 220, 140);
+        
         private int explosionTimer = 0;
+        
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
         
         public override void SetDefaults()
         {
@@ -979,16 +1785,84 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                 Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * 12f, 0.04f);
             }
             
-            // Periodic mini-explosions
+            // ===== TRUE_VFX_STANDARDS: DENSE DUST TRAIL (2+ per frame guaranteed) =====
+            for (int i = 0; i < 2; i++)
+            {
+                Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(8f, 8f);
+                Vector2 dustVel = -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(1.5f, 1.5f);
+                
+                Dust main = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, dustVel, 0, OrbViolet, 1.5f);
+                main.noGravity = true;
+                main.fadeIn = 1.3f;
+            }
+            
+            // Contrasting sparkle dust (1-in-2)
+            if (Main.rand.NextBool(2))
+            {
+                Dust contrast = Dust.NewDustPerfect(Projectile.Center, DustID.Enchanted_Gold, 
+                    -Projectile.velocity * 0.08f + Main.rand.NextVector2Circular(1f, 1f), 0, OrbGold, 1.2f);
+                contrast.noGravity = true;
+            }
+            
+            // ===== TRUE_VFX_STANDARDS: COLOR OSCILLATION with hslToRgb =====
+            if (Main.rand.NextBool(2))
+            {
+                float hue = HueMin + (Main.rand.NextFloat() * (HueMax - HueMin));
+                Color oscillatingColor = Main.hslToRgb(hue, 0.9f, 0.75f);
+                Vector2 flarePos = Projectile.Center + Main.rand.NextVector2Circular(12f, 12f);
+                CustomParticles.GenericFlare(flarePos, oscillatingColor, 0.38f, 14);
+            }
+            
+            // ===== TRUE_VFX_STANDARDS: ORBITING MUSIC NOTES LOCKED TO PROJECTILE =====
+            float orbitAngle = Main.GameUpdateCount * 0.09f;
+            if (Main.rand.NextBool(6))
+            {
+                for (int n = 0; n < 3; n++)
+                {
+                    float noteAngle = orbitAngle + MathHelper.TwoPi * n / 3f;
+                    Vector2 noteOffset = noteAngle.ToRotationVector2() * 16f;
+                    Vector2 notePos = Projectile.Center + noteOffset;
+                    Vector2 noteVel = Projectile.velocity * 0.8f + noteAngle.ToRotationVector2() * 0.5f;
+                    
+                    float noteHue = HueMin + ((n / 3f) * (HueMax - HueMin));
+                    Color noteColor = Main.hslToRgb(noteHue, 0.9f, 0.8f);
+                    ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.8f, 34);
+                    
+                    var sparkle = new SparkleParticle(notePos, noteVel * 0.3f, OrbCore * 0.6f, 0.24f, 18);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
+            }
+            
+            // ===== ORBITING MAGIC MOTES - 5-point arcane orbit =====
+            float moteAngle = Main.GameUpdateCount * 0.07f;
+            float moteRadius = 15f + (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 5f;
+            if (Projectile.timeLeft % 4 == 0)
+            {
+                for (int m = 0; m < 5; m++)
+                {
+                    float angle = moteAngle + MathHelper.TwoPi * m / 5f;
+                    Vector2 motePos = Projectile.Center + angle.ToRotationVector2() * moteRadius;
+                    float moteHue = HueMin + ((m / 5f + Main.GameUpdateCount * 0.004f) % 1f) * (HueMax - HueMin);
+                    Color moteColor = Main.hslToRgb(moteHue, 0.85f, 0.8f);
+                    CustomParticles.GenericFlare(motePos, moteColor, 0.22f, 12);
+                }
+            }
+            
+            // Periodic mini-explosions (enhanced)
             if (explosionTimer % 20 == 0)
             {
-                // Mini star burst
-                for (int i = 0; i < 6; i++)
+                // Mini star burst with gradient
+                for (int i = 0; i < 8; i++)
                 {
-                    float angle = MathHelper.TwoPi * i / 6f;
-                    Vector2 burstPos = Projectile.Center + angle.ToRotationVector2() * 20f;
-                    CustomParticles.GenericFlare(burstPos, NachtmusikCosmicVFX.Violet, 0.3f, 12);
+                    float angle = MathHelper.TwoPi * i / 8f;
+                    Vector2 burstPos = Projectile.Center + angle.ToRotationVector2() * 22f;
+                    float burstHue = HueMin + (i / 8f) * (HueMax - HueMin);
+                    Color burstColor = Main.hslToRgb(burstHue, 0.9f, 0.75f);
+                    CustomParticles.GenericFlare(burstPos, burstColor, 0.35f, 14);
                 }
+                
+                // Halo ring on explosion
+                CustomParticles.HaloRing(Projectile.Center, OrbViolet * 0.6f, 0.35f, 12);
                 
                 // Damage enemies in radius
                 for (int i = 0; i < Main.maxNPCs; i++)
@@ -1001,65 +1875,183 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                 }
             }
             
-            // Ambient particles
+            // Glow particle trail
             if (Main.rand.NextBool(2))
             {
-                Color orbColor = NachtmusikCosmicVFX.GetCelestialGradient(Main.rand.NextFloat());
-                var particle = new GenericGlowParticle(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f),
-                    Main.rand.NextVector2Circular(1f, 1f), orbColor * 0.6f, 0.2f, 15, true);
-                MagnumParticleHandler.SpawnParticle(particle);
+                float hue = HueMin + Main.rand.NextFloat() * (HueMax - HueMin);
+                Color trailColor = Main.hslToRgb(hue, 0.85f, 0.7f);
+                var glow = new GenericGlowParticle(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f),
+                    Main.rand.NextVector2Circular(1.2f, 1.2f), trailColor * 0.6f, 0.24f, 16, true);
+                MagnumParticleHandler.SpawnParticle(glow);
             }
             
-            // 笘・MUSICAL NOTATION - Starweaver cosmic melody (VISIBLE SCALE 0.72f+)
-            if (Main.rand.NextBool(8))
+            // Sparkle accents
+            if (Main.rand.NextBool(3))
             {
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), -0.9f);
-                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f), noteVel, NachtmusikCosmicVFX.Violet, 0.72f, 30);
-            }
-            
-            // 笘・SPARKLE ACCENT - Cosmic weave shimmer
-            if (Main.rand.NextBool(6))
-            {
-                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(12f, 12f), Main.rand.NextVector2Circular(1.5f, 1.5f), NachtmusikCosmicVFX.Gold, 0.25f, 16);
+                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(12f, 12f), 
+                    Main.rand.NextVector2Circular(1.5f, 1.5f), OrbGold, 0.28f, 18);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.Violet.ToVector3() * 0.7f);
+            Lighting.AddLight(Projectile.Center, OrbViolet.ToVector3() * 0.9f);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(ModContent.BuffType<CelestialHarmony>(), 420);
             target.GetGlobalNPC<CelestialHarmonyNPC>().AddStack(target, 2);
-            NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, 1f);
             
-            // 笘・MUSICAL IMPACT - Cosmic grimoire chord
-            ThemedParticles.MusicNoteBurst(target.Center, NachtmusikCosmicVFX.Violet, 5, 3.5f);
+            // ===== TRUE_VFX_STANDARDS: 3-LAYER FLASH CASCADE =====
+            CustomParticles.GenericFlare(target.Center, Color.White, 1.1f, 22);
+            CustomParticles.GenericFlare(target.Center, OrbCore, 0.85f, 20);
+            CustomParticles.GenericFlare(target.Center, OrbViolet, 0.65f, 18);
+            
+            // ===== MUSIC NOTES WITH GRADIENT =====
+            for (int i = 0; i < 6; i++)
+            {
+                float noteProgress = i / 6f;
+                float noteHue = HueMin + noteProgress * (HueMax - HueMin);
+                Color noteColor = Main.hslToRgb(noteHue, 0.9f, 0.8f);
+                float noteAngle = MathHelper.TwoPi * i / 6f;
+                Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(2.8f, 4.8f);
+                ThemedParticles.MusicNote(target.Center, noteVel, noteColor, 0.82f, 32);
+            }
+            
+            // ===== HALO RINGS (2 layers) =====
+            CustomParticles.HaloRing(target.Center, OrbCore * 0.7f, 0.45f, 18);
+            CustomParticles.HaloRing(target.Center, OrbViolet * 0.55f, 0.35f, 15);
+            
+            // ===== SPARKLE BURST (8 radial) =====
+            for (int s = 0; s < 8; s++)
+            {
+                float sparkleAngle = MathHelper.TwoPi * s / 8f;
+                Vector2 sparkleVel = sparkleAngle.ToRotationVector2() * Main.rand.NextFloat(3.5f, 6f);
+                var sparkle = new SparkleParticle(target.Center, sparkleVel, OrbCore, 0.4f, 24);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+            
+            // === DYNAMIC: Nachtmusik Celestial Theme ===
+            NachtmusikImpact(target.Center, 1.15f);
+            DramaticImpact(target.Center, OrbCore, OrbViolet, 0.55f, 22);
         }
         
         public override void OnKill(int timeLeft)
         {
-            NachtmusikCosmicVFX.SpawnCelestialExplosion(Projectile.Center, 1.2f);
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 0.7f }, Projectile.Center);
             
-            // 笘・MUSICAL FINALE - Starweaver grand finale
-            ThemedParticles.MusicNoteBurst(Projectile.Center, NachtmusikCosmicVFX.Gold, 7, 4.5f);
+            // ===== TRUE_VFX_STANDARDS: GLIMMER CASCADE (4 layers) =====
+            for (int layer = 0; layer < 4; layer++)
+            {
+                float layerScale = 0.45f + layer * 0.18f;
+                float layerAlpha = 0.9f - layer * 0.15f;
+                float layerHue = HueMin + (layer / 4f) * (HueMax - HueMin);
+                Color layerColor = Color.Lerp(Color.White, Main.hslToRgb(layerHue, 0.9f, 0.8f), layer / 4f);
+                CustomParticles.GenericFlare(Projectile.Center, layerColor * layerAlpha, layerScale, 22 - layer * 2);
+            }
+            
+            // ===== EXPANDING HALO RINGS (3 layers) =====
+            for (int ring = 0; ring < 3; ring++)
+            {
+                float ringHue = HueMin + (ring / 3f) * (HueMax - HueMin);
+                Color ringColor = Main.hslToRgb(ringHue, 0.85f, 0.75f);
+                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.4f + ring * 0.15f, 16 + ring * 3);
+            }
+            
+            // ===== MUSIC NOTE FINALE (10 notes) =====
+            for (int n = 0; n < 10; n++)
+            {
+                float noteAngle = MathHelper.TwoPi * n / 10f;
+                Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(3.5f, 6f);
+                float noteHue = HueMin + (n / 10f) * (HueMax - HueMin);
+                Color noteColor = Main.hslToRgb(noteHue, 0.9f, 0.8f);
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.85f, 35);
+            }
+            
+            // ===== SPARKLE + GLOW BURST (10 radial) =====
+            for (int s = 0; s < 10; s++)
+            {
+                float burstAngle = MathHelper.TwoPi * s / 10f;
+                Vector2 burstVel = burstAngle.ToRotationVector2() * Main.rand.NextFloat(4f, 7f);
+                float burstHue = HueMin + (s / 10f) * (HueMax - HueMin);
+                Color burstColor = Main.hslToRgb(burstHue, 0.85f, 0.75f);
+                
+                var sparkle = new SparkleParticle(Projectile.Center, burstVel, OrbCore, 0.42f, 26);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+                
+                var glow = new GenericGlowParticle(Projectile.Center, burstVel * 0.7f, burstColor * 0.6f, 0.3f, 22, true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+            
+            // Dust explosion for density
+            for (int d = 0; d < 15; d++)
+            {
+                Vector2 dustVel = Main.rand.NextVector2Circular(6f, 6f);
+                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.PurpleTorch, dustVel, 0, OrbViolet, 1.4f);
+                dust.noGravity = true;
+            }
+            
+            Lighting.AddLight(Projectile.Center, OrbCore.ToVector3() * 1.5f);
         }
         
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField8").Value;
-            Vector2 origin = tex.Size() / 2f;
+            
+            // ===== TRUE_VFX_STANDARDS: Load multiple flare textures =====
+            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D magicField = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField8").Value;
+            
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            float time = Main.GameUpdateCount * 0.05f;
+            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.18f;
             
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.2f + 0.8f;
+            // ===== ORB TRAIL with hslToRgb gradient =====
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                float progress = (float)i / Projectile.oldPos.Length;
+                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                
+                float trailHue = HueMin + progress * (HueMax - HueMin);
+                Color trailColor = Main.hslToRgb(trailHue, 0.85f, 0.7f) * (1f - progress) * 0.55f;
+                float trailScale = 0.4f * (1f - progress * 0.6f);
+                
+                sb.Draw(magicField, trailPos, null, trailColor with { A = 0 }, Projectile.oldRot[i] * 0.5f, magicField.Size() / 2f, trailScale, SpriteEffects.None, 0f);
+            }
             
-            // Multi-layer orb
-            sb.Draw(tex, drawPos, null, NachtmusikCosmicVFX.DeepPurple * 0.4f, Projectile.rotation, origin, 0.8f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, NachtmusikCosmicVFX.Violet * 0.6f, -Projectile.rotation * 0.5f, origin, 0.55f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, NachtmusikCosmicVFX.Gold * 0.7f, Projectile.rotation * 0.3f, origin, 0.35f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, NachtmusikCosmicVFX.StarWhite, 0f, origin, 0.2f * pulse, SpriteEffects.None, 0f);
+            // ===== TRUE_VFX_STANDARDS: 6-LAYER SPINNING FLARES =====
+            // Layer 1: Soft glow base (large, dim)
+            sb.Draw(softGlow, drawPos, null, (OrbViolet * 0.35f) with { A = 0 }, 0f, softGlow.Size() / 2f, 0.7f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 2: Magic field outer (spinning clockwise)
+            sb.Draw(magicField, drawPos, null, (NachtmusikCosmicVFX.DeepPurple * 0.45f) with { A = 0 }, Projectile.rotation, magicField.Size() / 2f, 0.6f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 3: Flare layer (spinning counter-clockwise)
+            sb.Draw(flare1, drawPos, null, (OrbViolet * 0.55f) with { A = 0 }, time, flare1.Size() / 2f, 0.48f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 4: Magic field mid (different rotation)
+            sb.Draw(magicField, drawPos, null, (OrbViolet * 0.6f) with { A = 0 }, -Projectile.rotation * 0.5f, magicField.Size() / 2f, 0.42f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 5: Flare inner
+            sb.Draw(flare2, drawPos, null, (OrbGold * 0.7f) with { A = 0 }, -time * 0.6f, flare2.Size() / 2f, 0.32f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 6: White-hot core
+            sb.Draw(flare1, drawPos, null, (Color.White * 0.85f) with { A = 0 }, 0f, flare1.Size() / 2f, 0.15f * pulse, SpriteEffects.None, 0f);
+            
+            // ===== ORBITING SPARK POINTS (5 points) =====
+            float orbitAngle = Main.GameUpdateCount * 0.07f;
+            float orbitRadius = 14f + (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 4f;
+            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle5").Value;
+            for (int p = 0; p < 5; p++)
+            {
+                float sparkAngle = orbitAngle + MathHelper.TwoPi * p / 5f;
+                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * orbitRadius;
+                float sparkHue = HueMin + ((p / 5f + Main.GameUpdateCount * 0.005f) % 1f) * (HueMax - HueMin);
+                Color sparkColor = Main.hslToRgb(sparkHue, 0.9f, 0.85f);
+                sb.Draw(sparkleTex, sparkPos, null, sparkColor with { A = 0 }, sparkAngle * 2f, sparkleTex.Size() / 2f, 0.14f * pulse, SpriteEffects.None, 0f);
+            }
             
             return false;
         }
@@ -1226,6 +2218,10 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             
             // Music chord impact
             ThemedParticles.MusicNoteBurst(target.Center, CosmicMid, 4, 3f);
+            
+            // === DYNAMIC: Nachtmusik Celestial Theme ===
+            NachtmusikImpact(target.Center, 0.9f);
+            DramaticImpact(target.Center, CosmicCore, CosmicMid, 0.45f, 16);
         }
         
         public override void OnKill(int timeLeft)
@@ -1426,6 +2422,10 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                 
                 // 笘・MUSICAL IMPACT - Dimension sever chord
                 ThemedParticles.MusicNoteBurst(target.Center, NachtmusikCosmicVFX.Gold, 5, 3.5f);
+                
+                // === DYNAMIC: Nachtmusik Celestial Theme (Dimension Sever) ===
+                NachtmusikImpact(target.Center, 1.1f);
+                DramaticImpact(target.Center, NachtmusikCosmicVFX.Gold, NachtmusikCosmicVFX.Violet, 0.55f, 20);
             }
             else
             {
@@ -1433,6 +2433,10 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                 
                 // 笘・MUSICAL IMPACT - Twilight chord
                 ThemedParticles.MusicNoteBurst(target.Center, NachtmusikCosmicVFX.Violet, 3, 2.5f);
+                
+                // === DYNAMIC: Nachtmusik Celestial Theme (Normal) ===
+                NachtmusikImpact(target.Center, 0.75f);
+                DramaticImpact(target.Center, NachtmusikCosmicVFX.Violet, NachtmusikCosmicVFX.Gold, 0.35f, 15);
             }
         }
         

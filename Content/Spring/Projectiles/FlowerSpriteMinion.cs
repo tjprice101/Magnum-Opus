@@ -9,6 +9,7 @@ using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Spring.Weapons;
+using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 
 namespace MagnumOpus.Content.Spring.Projectiles
 {
@@ -379,6 +380,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
     /// </summary>
     public class PollenBolt : ModProjectile
     {
+        private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringYellow = new Color(255, 255, 180);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
 
@@ -433,6 +435,10 @@ namespace MagnumOpus.Content.Spring.Projectiles
         {
             // ☁EMUSICAL IMPACT - Notes sing on pollen hit!
             ThemedParticles.MusicNoteBurst(target.Center, SpringYellow, 5, 2.5f);
+            
+            // Dynamic spring bloom impact
+            SpringImpact(target.Center, 0.85f);
+            DramaticImpact(target.Center, SpringPink, SpringGreen, 0.4f, 18);
             
             // Spawn pollen cloud
             if (Main.myPlayer == Projectile.owner)

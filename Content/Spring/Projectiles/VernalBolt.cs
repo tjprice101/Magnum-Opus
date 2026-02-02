@@ -8,6 +8,9 @@ using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 
+// Dynamic particle effects for aesthetically pleasing animations
+using static MagnumOpus.Common.Systems.DynamicParticleEffects;
+
 namespace MagnumOpus.Content.Spring.Projectiles
 {
     /// <summary>
@@ -134,6 +137,26 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 }
             }
 
+            // === DYNAMIC PARTICLE EFFECTS - Pulsing Bloom Core ===
+            // Creates a living, breathing glow at the projectile center
+            if (Main.GameUpdateCount % 6 == 0)
+            {
+                PulsingGlow(Projectile.Center, Vector2.Zero, SpringPink, SpringLavender, 0.35f, 25, 0.15f, 0.28f);
+            }
+
+            // === DYNAMIC PARTICLE EFFECTS - Twinkling Spring Sparkles ===
+            if (Main.rand.NextBool(5))
+            {
+                TwinklingSparks(Projectile.Center, SpringWhite, 2, 12f, 0.25f, 22);
+            }
+
+            // === DYNAMIC PARTICLE EFFECTS - Concentric Orbit Aura ===
+            // Spawns layered orbiting particles around the bolt for magical aura
+            if (Main.GameUpdateCount % 40 == 0)
+            {
+                ConcentricOrbits(Projectile.Center, SpringPink, SpringGreen, 2, 3, 10f, 8f, 0.12f, 0.18f, 28);
+            }
+
             // Split after 30 frames
             if (!hasSplit && Projectile.timeLeft <= 210)
             {
@@ -196,6 +219,12 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 ThemedParticles.MusicNote(target.Center, noteVel, noteColor, 0.75f, 35);
             }
             
+            // === DYNAMIC IMPACT: Spring Theme Magical Burst ===
+            SpringImpact(target.Center, 1f);
+            
+            // === DYNAMIC: Spiral bloom burst for dramatic effect ===
+            SpiralBurst(target.Center, SpringPink, SpringGreen, 8, 0.15f, 4f, 0.3f, 25);
+            
             // Central flash
             CustomParticles.GenericFlare(target.Center, SpringWhite, 0.6f, 18);
             CustomParticles.GenericFlare(target.Center, SpringPink, 0.5f, 15);
@@ -244,6 +273,12 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 Color noteColor = Color.Lerp(SpringPink, SpringLavender, i / 8f);
                 ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.8f, 40);
             }
+            
+            // === DYNAMIC: Magical Impact with pulsing bloom cascade ===
+            MagicalImpact(Projectile.Center, SpringPink, SpringGreen, 0.85f);
+            
+            // === DYNAMIC: Dramatic flare finale ===
+            DramaticImpact(Projectile.Center, SpringWhite, SpringLavender, 0.6f, 22);
 
             // Bloom VFX on death - layered flares
             CustomParticles.GenericFlare(Projectile.Center, SpringWhite, 0.65f, 20);

@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.DataStructures;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 
 namespace MagnumOpus.Content.Autumn.Projectiles
 {
@@ -296,6 +297,10 @@ namespace MagnumOpus.Content.Autumn.Projectiles
 
             // ☁EMUSICAL IMPACT - Wraith strike note
             ThemedParticles.MusicNoteBurst(target.Center, WraithGreen, 5, 3.5f);
+            
+            // Dynamic autumn decay impact
+            AutumnImpact(target.Center, 0.9f);
+            DramaticImpact(target.Center, WraithGreen, DecayPurple, 0.42f, 18);
         }
 
         public override void OnKill(int timeLeft)
