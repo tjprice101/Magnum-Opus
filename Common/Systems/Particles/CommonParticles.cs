@@ -1127,5 +1127,358 @@ namespace MagnumOpus.Common.Systems.Particles
         }
     }
     
+    /// <summary>
+    /// Specialized vine rose particle for Ode to Joy theme.
+    /// Uses the three custom vine textures: VineWithNoRoses, VineWithRoseOnTop, VineWithTwoRoses
+    /// </summary>
+    public class VineRoseParticle : Particle
+    {
+        public override string Texture => "BloomCircle"; // Fallback only
+        public override bool UseAdditiveBlend => true;
+        public override bool SetLifetime => true;
+        public override bool UseCustomDraw => true;
+        
+        public enum VineType
+        {
+            NoRoses,
+            RoseOnTop,
+            TwoRoses
+        }
+        
+        private VineType _vineType;
+        private Color BaseColor;
+        private Color AccentColor;
+        private float OriginalScale;
+        private float opacity;
+        private float Spin;
+        private static Texture2D[] _vineTextures;
+        
+        /// <summary>
+        /// Creates a vine rose particle with the specified type.
+        /// </summary>
+        /// <param name="position">Spawn position</param>
+        /// <param name="velocity">Movement velocity</param>
+        /// <param name="vineType">Which vine texture to use (NoRoses, RoseOnTop, or TwoRoses)</param>
+        /// <param name="color">Primary tint color (vine color)</param>
+        /// <param name="accentColor">Accent color for the rose highlight</param>
+        /// <param name="scale">Base scale</param>
+        /// <param name="lifetime">Lifetime in frames</param>
+        /// <param name="rotation">Initial rotation</param>
+        /// <param name="spin">Rotation speed per frame</param>
+        public VineRoseParticle(Vector2 position, Vector2 velocity, VineType vineType, Color color, Color accentColor, float scale, int lifetime, float rotation = 0f, float spin = 0f)
+        {
+            Position = position;
+            Velocity = velocity;
+            _vineType = vineType;
+            BaseColor = color;
+            AccentColor = accentColor;
+            OriginalScale = scale;
+            Scale = scale;
+            Lifetime = lifetime;
+            Rotation = rotation;
+            Spin = spin;
+            opacity = 1f;
+            
+            // Lazy load textures
+            LoadTexturesIfNeeded();
+        }
+        
+        private static void LoadTexturesIfNeeded()
+        {
+            if (_vineTextures == null)
+            {
+                _vineTextures = new Texture2D[3];
+            }
+            
+            if (_vineTextures[0] == null)
+            {
+                try
+                {
+                    _vineTextures[0] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/VineWithNoRoses", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                    _vineTextures[1] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/VineWithRoseOnTop", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                    _vineTextures[2] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/VineWithTwoRoses", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                }
+                catch
+                {
+                    // Fallback if textures don't exist yet
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Creates a vine particle with a random type.
+        /// </summary>
+        public static VineRoseParticle CreateRandom(Vector2 position, Vector2 velocity, Color vineColor, Color roseColor, float scale, int lifetime, float rotation = 0f, float spin = 0f)
+        {
+            VineType type = Main.rand.Next(3) switch
+            {
+                0 => VineType.NoRoses,
+                1 => VineType.RoseOnTop,
+                _ => VineType.TwoRoses
+            };
+            return new VineRoseParticle(position, velocity, type, vineColor, roseColor, scale, lifetime, rotation, spin);
+        }
+        
+        public override void Update()
+        {
+            // Smooth fade out with growth effect
+            float progress = LifetimeCompletion;
+            
+            // Fade in quickly, then fade out
+            if (progress < 0.2f)
+                opacity = progress / 0.2f;
+            else
+                opacity = 1f - ((progress - 0.2f) / 0.8f);
+            
+            // Vine growth effect - starts smaller, grows, then shrinks
+            float growthCurve = (float)Math.Sin(progress * Math.PI);
+            Scale = OriginalScale * (0.7f + growthCurve * 0.5f);
+            
+            Rotation += Spin;
+            Velocity *= 0.96f;
+            
+            // Lighting with vine green tint
+            if (opacity > 0.2f)
+            {
+                float lightIntensity = opacity * 0.5f;
+                Color lightColor = Color.Lerp(BaseColor, AccentColor, 0.3f);
+                Lighting.AddLight(Position, lightColor.R / 255f * lightIntensity, lightColor.G / 255f * lightIntensity, lightColor.B / 255f * lightIntensity);
+            }
+        }
+        
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            LoadTexturesIfNeeded();
+            
+            int textureIndex = _vineType switch
+            {
+                VineType.NoRoses => 0,
+                VineType.RoseOnTop => 1,
+                VineType.TwoRoses => 2,
+                _ => 0
+            };
+            
+            Texture2D texture = _vineTextures?[textureIndex];
+            if (texture == null) return;
+            
+            Vector2 drawPos = Position - Main.screenPosition;
+            Vector2 origin = texture.Size() / 2f;
+            
+            // FARGOS PATTERN: Remove alpha for proper additive blending
+            Color vineBloom = BaseColor with { A = 0 };
+            Color roseBloom = AccentColor with { A = 0 };
+            
+            // Outer soft bloom (vine colored)
+            Texture2D bloomTex = ParticleTextureHelper.GetTexture("BloomCircle");
+            spriteBatch.Draw(bloomTex, drawPos, null, vineBloom * opacity * 0.2f,
+                0f, bloomTex.Size() / 2f, Scale * 3f, SpriteEffects.None, 0f);
+            
+            // Rose accent bloom (for vine types with roses)
+            if (_vineType != VineType.NoRoses)
+            {
+                spriteBatch.Draw(bloomTex, drawPos, null, roseBloom * opacity * 0.3f,
+                    0f, bloomTex.Size() / 2f, Scale * 2f, SpriteEffects.None, 0f);
+            }
+            
+            // Multi-layer bloom stack for the vine texture
+            // Layer 1: Large outer glow (vine color)
+            spriteBatch.Draw(texture, drawPos, null, vineBloom * opacity * 0.3f,
+                Rotation, origin, Scale * 1.5f, SpriteEffects.None, 0f);
+            
+            // Layer 2: Medium glow (vine color)
+            spriteBatch.Draw(texture, drawPos, null, vineBloom * opacity * 0.5f,
+                Rotation, origin, Scale * 1.2f, SpriteEffects.None, 0f);
+            
+            // Layer 3: Core texture (white tinted)
+            Color coreColor = Color.Lerp(BaseColor, Color.White, 0.5f);
+            spriteBatch.Draw(texture, drawPos, null, coreColor * opacity * 0.9f,
+                Rotation, origin, Scale, SpriteEffects.None, 0f);
+            
+            // White highlight sparkle at center
+            spriteBatch.Draw(bloomTex, drawPos, null, Color.White with { A = 0 } * opacity * 0.35f,
+                0f, bloomTex.Size() / 2f, Scale * 0.35f, SpriteEffects.None, 0f);
+        }
+    }
+    
+    /// <summary>
+    /// Rose bud particle for Ode to Joy theme explosions and impacts.
+    /// Uses the RosesBud.png texture for beautiful rose bloom effects.
+    /// Perfect for projectile impacts, explosion centers, and boss death effects.
+    /// </summary>
+    public class RoseBudParticle : Particle
+    {
+        public override string Texture => "BloomCircle"; // Fallback only
+        public override bool UseAdditiveBlend => true;
+        public override bool SetLifetime => true;
+        public override bool UseCustomDraw => true;
+        
+        private Color BaseColor;
+        private Color AccentColor;
+        private float OriginalScale;
+        private float opacity;
+        private float Spin;
+        private bool _isBloomPhase; // For opening/blooming animation
+        private static Texture2D _roseBudTexture;
+        
+        /// <summary>
+        /// Creates a rose bud particle.
+        /// </summary>
+        /// <param name="position">Spawn position</param>
+        /// <param name="velocity">Movement velocity</param>
+        /// <param name="color">Primary tint color (petal color)</param>
+        /// <param name="accentColor">Accent color for the glow</param>
+        /// <param name="scale">Base scale</param>
+        /// <param name="lifetime">Lifetime in frames</param>
+        /// <param name="rotation">Initial rotation</param>
+        /// <param name="spin">Rotation speed per frame</param>
+        /// <param name="bloomPhase">If true, starts small and blooms open; if false, starts full and fades</param>
+        public RoseBudParticle(Vector2 position, Vector2 velocity, Color color, Color accentColor, float scale, int lifetime, float rotation = 0f, float spin = 0f, bool bloomPhase = false)
+        {
+            Position = position;
+            Velocity = velocity;
+            BaseColor = color;
+            AccentColor = accentColor;
+            OriginalScale = scale;
+            Scale = scale;
+            Lifetime = lifetime;
+            Rotation = rotation;
+            Spin = spin;
+            _isBloomPhase = bloomPhase;
+            opacity = 1f;
+            
+            LoadTextureIfNeeded();
+        }
+        
+        private static void LoadTextureIfNeeded()
+        {
+            if (_roseBudTexture == null)
+            {
+                try
+                {
+                    _roseBudTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/RosesBud", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                }
+                catch
+                {
+                    // Fallback if texture doesn't exist yet
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Creates a rose bud with random initial rotation and spin.
+        /// </summary>
+        public static RoseBudParticle CreateRandom(Vector2 position, Vector2 velocity, Color petalColor, Color glowColor, float scale, int lifetime, bool bloomPhase = false)
+        {
+            float rotation = Main.rand.NextFloat() * MathHelper.TwoPi;
+            float spin = Main.rand.NextFloat(-0.08f, 0.08f);
+            return new RoseBudParticle(position, velocity, petalColor, glowColor, scale, lifetime, rotation, spin, bloomPhase);
+        }
+        
+        /// <summary>
+        /// Creates a rose bud burst of multiple particles.
+        /// </summary>
+        public static void SpawnBurst(Vector2 position, int count, float speed, Color petalColor, Color glowColor, float scale, int lifetime)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float angle = MathHelper.TwoPi * i / count + Main.rand.NextFloat(-0.2f, 0.2f);
+                float burstSpeed = speed * Main.rand.NextFloat(0.7f, 1.3f);
+                Vector2 vel = angle.ToRotationVector2() * burstSpeed;
+                
+                var roseBud = CreateRandom(position, vel, petalColor, glowColor, scale * Main.rand.NextFloat(0.8f, 1.2f), lifetime);
+                MagnumParticleHandler.SpawnParticle(roseBud);
+            }
+        }
+        
+        public override void Update()
+        {
+            float progress = LifetimeCompletion;
+            
+            if (_isBloomPhase)
+            {
+                // Bloom animation: starts small, grows, holds, then fades
+                if (progress < 0.3f)
+                {
+                    Scale = OriginalScale * (progress / 0.3f);
+                    opacity = progress / 0.3f;
+                }
+                else if (progress < 0.7f)
+                {
+                    Scale = OriginalScale;
+                    opacity = 1f;
+                }
+                else
+                {
+                    Scale = OriginalScale * (1f - (progress - 0.7f) / 0.3f);
+                    opacity = 1f - (progress - 0.7f) / 0.3f;
+                }
+            }
+            else
+            {
+                // Standard fade: fade in quickly, then fade out
+                if (progress < 0.15f)
+                    opacity = progress / 0.15f;
+                else
+                    opacity = 1f - ((progress - 0.15f) / 0.85f);
+                
+                // Gentle scale pulse
+                Scale = OriginalScale * (1f + (float)Math.Sin(progress * Math.PI * 2) * 0.1f);
+            }
+            
+            Rotation += Spin;
+            Velocity *= 0.97f;
+            
+            // Petal lighting
+            if (opacity > 0.2f)
+            {
+                float lightIntensity = opacity * 0.6f;
+                Color lightColor = Color.Lerp(BaseColor, AccentColor, 0.4f);
+                Lighting.AddLight(Position, lightColor.R / 255f * lightIntensity, lightColor.G / 255f * lightIntensity, lightColor.B / 255f * lightIntensity);
+            }
+        }
+        
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            LoadTextureIfNeeded();
+            
+            Texture2D texture = _roseBudTexture;
+            if (texture == null) return;
+            
+            Vector2 drawPos = Position - Main.screenPosition;
+            Vector2 origin = texture.Size() / 2f;
+            
+            // FARGOS PATTERN: Remove alpha for proper additive blending
+            Color petalBloom = BaseColor with { A = 0 };
+            Color accentBloom = AccentColor with { A = 0 };
+            
+            // Outer soft glow (accent color)
+            Texture2D bloomTex = ParticleTextureHelper.GetTexture("BloomCircle");
+            spriteBatch.Draw(bloomTex, drawPos, null, accentBloom * opacity * 0.25f,
+                0f, bloomTex.Size() / 2f, Scale * 3.5f, SpriteEffects.None, 0f);
+            
+            // Secondary glow (petal color)
+            spriteBatch.Draw(bloomTex, drawPos, null, petalBloom * opacity * 0.35f,
+                0f, bloomTex.Size() / 2f, Scale * 2.5f, SpriteEffects.None, 0f);
+            
+            // Multi-layer bloom stack for the rose texture
+            // Layer 1: Large outer glow
+            spriteBatch.Draw(texture, drawPos, null, accentBloom * opacity * 0.3f,
+                Rotation, origin, Scale * 1.6f, SpriteEffects.None, 0f);
+            
+            // Layer 2: Medium glow (petal color)
+            spriteBatch.Draw(texture, drawPos, null, petalBloom * opacity * 0.5f,
+                Rotation, origin, Scale * 1.3f, SpriteEffects.None, 0f);
+            
+            // Layer 3: Core texture (bright pink tinted)
+            Color coreColor = Color.Lerp(BaseColor, Color.White, 0.6f);
+            spriteBatch.Draw(texture, drawPos, null, coreColor * opacity * 0.95f,
+                Rotation, origin, Scale, SpriteEffects.None, 0f);
+            
+            // White highlight sparkle at center
+            spriteBatch.Draw(bloomTex, drawPos, null, Color.White with { A = 0 } * opacity * 0.45f,
+                0f, bloomTex.Size() / 2f, Scale * 0.4f, SpriteEffects.None, 0f);
+        }
+    }
+    
     #endregion
 }

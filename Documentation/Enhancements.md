@@ -4656,17 +4656,17 @@ Concept art for a side-view idle pixel art sprite of ancient celestial magnifice
 
 **Petal Burst** (32x32, 16 variations)
 ```
-solid white pale rainbow rose petal particle sprite sheet, 16 variations, delicate metal rose petals with chromatic iridescent shimmer, soft white glow with chromatic tints, small chromatic vine variants included, varying sizes and rotation angles, smooth organic edges, grayscale only for in-game color tinting, suitable for chromatic rose magic effects, 32x32 pixels upscaled, transparent background --v 6.1 --ar 16:9 --style raw --s 75
+white metal rose petal particle sprite sheet, 16 variations in 4x4 grid, pure white and grayscale ornate metal flower petals on transparent background, includes: single metal petal flat view, metal petal curved with edge detail, metal petal with filigree pattern, metal petal curling inward, metal petal unfurling outward, cluster of three metal petals, metal petal fragment broken, large ornate metal petal, small delicate metal petal, metal petal with tiny rose bud center, metal petal trailing motion blur, metal petal spinning rotation, windswept metal petal diagonal, scattered metal petals group, metal petal with subtle gear texture, metal petal dissolving to sparkles, each petal has ornate metalwork quality with organic curves, suitable for botanical metal rose magic effects, 32x32 pixel sprites upscaled, no color pure white only, centered, black background --v 6.1 --ar 1:1 --style raw --s 75
 ```
 
 **Harmonic Note Sparkle** (32x32, 12 variations)
 ```
-solid white musical note particle sprite sheet, 12 variations, chromatic iridescent music notes with soft white glow, quarter eighth and whole notes, small metal rose accent variants in white, chromatic vine trail elements in white, varying brightness from subtle to radiant, grayscale only for in-game color tinting, suitable for hymn weapon effects, 32x32 pixels upscaled, transparent background --v 6.1 --ar 16:9 --style raw --s 75
+white musical note with rose accent sprite sheet, 12 variations in 4x3 grid, pure white and grayscale ornate music notes on transparent background, includes: quarter note with tiny rose at head, eighth note with petal trail, whole note as rose bloom shape, half note with vine stem, beamed eighth notes with leaf decoration, treble clef with rose vine wrapped, bass clef with thorn accent, musical rest with petal falling, note cluster chord with rose center, glowing radiant note bright, subtle dim note soft, note dissolving into petals, each note combines musical and botanical elements elegantly, suitable for hymn weapon trail impact effects, 32x32 pixel sprites upscaled, no color pure luminosity, centered, black background --v 6.1 --ar 4:3 --style raw --s 75
 ```
 
 **Vine Growth Tendril** (32x32, 8 variations)
 ```
-solid white chromatic vine tendril particle sprite sheet, 8 variations, metal vine shapes with white metal roses and chromatic iridescent buds, small metal leaves sprouting in white, soft chromatic energy at growth tips, varying curl patterns and lengths, organic flowing shapes with metallic sheen, grayscale only for in-game color tinting, suitable for summon and growth effects, 32x32 pixels upscaled, transparent background --v 6.1 --ar 16:9 --style raw --s 75
+white metal vine tendril sprite sheet, 8 variations in 4x2 grid, pure white and grayscale ornate metal vines on transparent background, includes: simple vine with curl tip reaching, vine with small metal rose bud at end, vine with tiny metal leaves attached, vine segment with thorns visible, thick woody vine with ornate texture, thin delicate tendril spiraling, vine branching fork shape, vine with blooming rose tip opening, each vine has metallic filigree quality with organic flowing curves, suitable for summoning binding growth magic effects, 64x32 pixel sprites upscaled, no color pure white only, horizontal orientations, black background --v 6.1 --ar 2:1 --style raw --s 75
 ```
 
 ---
