@@ -611,9 +611,33 @@ namespace MagnumOpus.Common.Systems
                     color1 = new Color(20, 20, 30);
                     color2 = Main.hslToRgb(hue, 0.85f, 0.75f);
                     break;
+                case BossColorTheme.Spring:
+                    color1 = new Color(144, 238, 144);  // Light green (renewal)
+                    color2 = new Color(255, 182, 193);  // Pink blossoms
+                    break;
+                case BossColorTheme.Summer:
+                    color1 = new Color(255, 215, 0);    // Golden sun
+                    color2 = new Color(255, 140, 50);   // Blazing orange
+                    break;
+                case BossColorTheme.Autumn:
+                    color1 = new Color(165, 99, 50);    // Brown decay
+                    color2 = new Color(210, 105, 30);   // Dark orange leaves
+                    break;
+                case BossColorTheme.Winter:
+                    color1 = new Color(240, 248, 255);  // Frost white
+                    color2 = new Color(65, 105, 225);   // Deep blue cold
+                    break;
+                case BossColorTheme.DiesIrae:
+                    color1 = new Color(139, 0, 0);      // Blood red
+                    color2 = new Color(255, 100, 30);   // Ember orange hellfire
+                    break;
                 case BossColorTheme.Nachtmusik:
                     color1 = new Color(45, 27, 78);    // Deep purple
                     color2 = new Color(255, 215, 0);   // Gold
+                    break;
+                case BossColorTheme.OdeToJoy:
+                    color1 = new Color(255, 182, 193);  // Rose pink
+                    color2 = new Color(255, 215, 0);    // Golden pollen
                     break;
                 default:
                     color1 = Color.White;
@@ -644,7 +668,8 @@ namespace MagnumOpus.Common.Systems
         Autumn,      // Brown and dark orange (decay)
         Winter,      // White and deep blue (frozen)
         Nachtmusik,  // Deep purple and gold (celestial)
-        DiesIrae     // Blood red and ember orange (hellfire)
+        DiesIrae,    // Blood red and ember orange (hellfire)
+        OdeToJoy     // Rose pink and golden yellow (floral)
     }
     
     /// <summary>

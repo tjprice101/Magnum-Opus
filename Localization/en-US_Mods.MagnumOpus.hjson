@@ -4068,6 +4068,8 @@ Tiles: {
 	SwanLakeResonanceOreTile.MapEntry: Swan Lake Resonance Ore Tile
 	NachtmusikResonanceOreTile.MapEntry: Nachtmusik Resonance Ore Tile
 	DiesIraeResonanceOreTile.MapEntry: Dies Irae Resonance Ore Tile
+	ClairDeLuneResonanceOreTile.MapEntry: Clair De Lune Resonance Ore Tile
+	OdeToJoyResonanceOreTile.MapEntry: Ode To Joy Resonance Ore Tile
 }
 
 Buffs: {
@@ -4279,6 +4281,46 @@ Buffs: {
 	WrathfulContractBuff: {
 		DisplayName: Wrathful Contract Buff
 		Description: Mods.MagnumOpus.Buffs.WrathfulContractBuff.Description
+	}
+
+	TemporalClarityBuff: {
+		DisplayName: Temporal Clarity Buff
+		Description: Mods.MagnumOpus.Buffs.TemporalClarityBuff.Description
+	}
+
+	AutomatonsTuningForkBuff: {
+		DisplayName: Automatons Tuning Fork Buff
+		Description: Mods.MagnumOpus.Buffs.AutomatonsTuningForkBuff.Description
+	}
+
+	GearDrivenArbiterBuff: {
+		DisplayName: Gear Driven Arbiter Buff
+		Description: Mods.MagnumOpus.Buffs.GearDrivenArbiterBuff.Description
+	}
+
+	LunarPhylacteryBuff: {
+		DisplayName: Lunar Phylactery Buff
+		Description: Mods.MagnumOpus.Buffs.LunarPhylacteryBuff.Description
+	}
+
+	TemporalJudgmentDebuff: {
+		DisplayName: Temporal Judgment Debuff
+		Description: Mods.MagnumOpus.Buffs.TemporalJudgmentDebuff.Description
+	}
+
+	JoyousFountainBuff: {
+		DisplayName: Joyous Fountain Buff
+		Description: Mods.MagnumOpus.Buffs.JoyousFountainBuff.Description
+	}
+
+	StandingOvationBuff: {
+		DisplayName: Standing Ovation Buff
+		Description: Mods.MagnumOpus.Buffs.StandingOvationBuff.Description
+	}
+
+	TriumphantChorusBuff: {
+		DisplayName: Triumphant Chorus Buff
+		Description: Mods.MagnumOpus.Buffs.TriumphantChorusBuff.Description
 	}
 }
 
@@ -6554,6 +6596,256 @@ Items: {
 		DisplayName: Serenade Of Stars
 		Tooltip: ""
 	}
+
+	ClockworkTargetingModule: {
+		DisplayName: Clockwork Targeting Module
+		Tooltip: ""
+	}
+
+	ConductorsTemporalBaton: {
+		DisplayName: Conductors Temporal Baton
+		Tooltip: ""
+	}
+
+	ResonantChronosphere: {
+		DisplayName: Resonant Chronosphere
+		Tooltip: ""
+	}
+
+	TemporalWrathGauntlet: {
+		DisplayName: Temporal Wrath Gauntlet
+		Tooltip: ""
+	}
+
+	HarmonicCoreOfClairDeLune: {
+		DisplayName: Harmonic Core Of Clair De Lune
+		Tooltip: ""
+	}
+
+	ClairDeLuneResonantEnergy: {
+		DisplayName: Clair De Lune Resonant Energy
+		Tooltip: ""
+	}
+
+	RemnantOfClairDeLunesHarmony: {
+		DisplayName: Remnant Of Clair De Lunes Harmony
+		Tooltip: ""
+	}
+
+	ResonantCoreOfClairDeLune: {
+		DisplayName: Resonant Core Of Clair De Lune
+		Tooltip: ""
+	}
+
+	ClairDeLuneResonanceOre: {
+		DisplayName: Clair De Lune Resonance Ore
+		Tooltip: ""
+	}
+
+	ChronologistsExcavator: {
+		DisplayName: Chronologists Excavator
+		Tooltip: ""
+	}
+
+	ClockworkExcavationDrill: {
+		DisplayName: Clockwork Excavation Drill
+		Tooltip: ""
+	}
+
+	HammerOfBrokenHours: {
+		DisplayName: Hammer Of Broken Hours
+		Tooltip: ""
+	}
+
+	TemporalCleaver: {
+		DisplayName: Temporal Cleaver
+		Tooltip: ""
+	}
+
+	WingsOfShatteredTime: {
+		DisplayName: Wings Of Shattered Time
+		Tooltip: ""
+	}
+
+	ClockworkGrimoire: {
+		DisplayName: Clockwork Grimoire
+		Tooltip: ""
+	}
+
+	OrreryOfDreams: {
+		DisplayName: Orrery Of Dreams
+		Tooltip: ""
+	}
+
+	RequiemOfTime: {
+		DisplayName: Requiem Of Time
+		Tooltip: ""
+	}
+
+	Chronologicality: {
+		DisplayName: Chronologicality
+		Tooltip: ""
+	}
+
+	ClockworkHarmony: {
+		DisplayName: Clockwork Harmony
+		Tooltip: ""
+	}
+
+	TemporalPiercer: {
+		DisplayName: Temporal Piercer
+		Tooltip: ""
+	}
+
+	CogAndHammer: {
+		DisplayName: Cog And Hammer
+		Tooltip: ""
+	}
+
+	MidnightMechanism: {
+		DisplayName: Midnight Mechanism
+		Tooltip: ""
+	}
+
+	StarfallWhisper: {
+		DisplayName: Starfall Whisper
+		Tooltip: ""
+	}
+
+	AutomatonsTuningFork: {
+		DisplayName: Automatons Tuning Fork
+		Tooltip: ""
+	}
+
+	GearDrivenArbiter: {
+		DisplayName: Gear Driven Arbiter
+		Tooltip: ""
+	}
+
+	LunarPhylactery: {
+		DisplayName: Lunar Phylactery
+		Tooltip: ""
+	}
+
+	ConductorsCorsage: {
+		DisplayName: Conductors Corsage
+		Tooltip: ""
+	}
+
+	SymphonyOfBlossoms: {
+		DisplayName: Symphony Of Blossoms
+		Tooltip: ""
+	}
+
+	TheFloweringCoda: {
+		DisplayName: The Flowering Coda
+		Tooltip: ""
+	}
+
+	TheVerdantRefrain: {
+		DisplayName: The Verdant Refrain
+		Tooltip: ""
+	}
+
+	HarmonicCoreOfOdeToJoy: {
+		DisplayName: Harmonic Core Of Ode To Joy
+		Tooltip: ""
+	}
+
+	OdeToJoyResonantEnergy: {
+		DisplayName: Ode To Joy Resonant Energy
+		Tooltip: ""
+	}
+
+	RemnantOfOdeToJoysBloom: {
+		DisplayName: Remnant Of Ode To Joys Bloom
+		Tooltip: ""
+	}
+
+	ResonantCoreOfOdeToJoy: {
+		DisplayName: Resonant Core Of Ode To Joy
+		Tooltip: ""
+	}
+
+	OdeToJoyResonanceOre: {
+		DisplayName: Ode To Joy Resonance Ore
+		Tooltip: ""
+	}
+
+	JoysAxe: {
+		DisplayName: Joys Axe
+		Tooltip: ""
+	}
+
+	JoysDrill: {
+		DisplayName: Joys Drill
+		Tooltip: ""
+	}
+
+	JoysHammer: {
+		DisplayName: Joys Hammer
+		Tooltip: ""
+	}
+
+	AnthemOfGlory: {
+		DisplayName: Anthem Of Glory
+		Tooltip: ""
+	}
+
+	ElysianVerdict: {
+		DisplayName: Elysian Verdict
+		Tooltip: ""
+	}
+
+	HymnOfTheVictorious: {
+		DisplayName: Hymn Of The Victorious
+		Tooltip: ""
+	}
+
+	RoseThornChainsaw: {
+		DisplayName: Rose Thorn Chainsaw
+		Tooltip: ""
+	}
+
+	TheGardenersFury: {
+		DisplayName: The Gardeners Fury
+		Tooltip: ""
+	}
+
+	ThornboundReckoning: {
+		DisplayName: Thornbound Reckoning
+		Tooltip: ""
+	}
+
+	PetalStormCannon: {
+		DisplayName: Petal Storm Cannon
+		Tooltip: ""
+	}
+
+	ThePollinator: {
+		DisplayName: The Pollinator
+		Tooltip: ""
+	}
+
+	ThornSprayRepeater: {
+		DisplayName: Thorn Spray Repeater
+		Tooltip: ""
+	}
+
+	FountainOfJoyousHarmony: {
+		DisplayName: Fountain Of Joyous Harmony
+		Tooltip: ""
+	}
+
+	TheStandingOvation: {
+		DisplayName: The Standing Ovation
+		Tooltip: ""
+	}
+
+	TriumphantChorus: {
+		DisplayName: Triumphant Chorus
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -6581,6 +6873,7 @@ NPCs: {
 	LInverno.DisplayName: L Inverno
 	NachtmusikQueenOfRadiance.DisplayName: Nachtmusik Queen Of Radiance
 	DiesIraeHeraldOfJudgement.DisplayName: Dies Irae Herald Of Judgement
+	OdeToJoyChromaticRoseConductor.DisplayName: Ode To Joy Chromatic Rose Conductor
 }
 
 Prefixes.ResonantScarPrefix.DisplayName: Resonance Scarred
@@ -6911,4 +7204,67 @@ Projectiles: {
 	WrathFireball.DisplayName: Wrath Fireball
 	WrathfulContractMinion.DisplayName: Wrathful Contract Minion
 	WrathsDrillProjectile.DisplayName: Wraths Drill Projectile
+	ClockworkTargetingBolt.DisplayName: Clockwork Targeting Bolt
+	TemporalEchoProjectile.DisplayName: Temporal Echo Projectile
+	ClockworkDrillProjectile.DisplayName: Clockwork Drill Projectile
+	CosmicLaserProjectile.DisplayName: Cosmic Laser Projectile
+	GrimoireCrystalProjectile.DisplayName: Grimoire Crystal Projectile
+	GrimoireGearProjectile.DisplayName: Grimoire Gear Projectile
+	GrimoireLightningProjectile.DisplayName: Grimoire Lightning Projectile
+	GrimoireTimeFractureProjectile.DisplayName: Grimoire Time Fracture Projectile
+	OrreryBeamProjectile.DisplayName: Orrery Beam Projectile
+	OrreryControllerProjectile.DisplayName: Orrery Controller Projectile
+	OrreryOrbitProjectile.DisplayName: Orrery Orbit Projectile
+	TemporalSlashProjectile.DisplayName: Temporal Slash Projectile
+	TimeFreezeSweepProjectile.DisplayName: Time Freeze Sweep Projectile
+	ChronologicalityProjectile.DisplayName: Chronologicality Projectile
+	GearWaveProjectile.DisplayName: Gear Wave Projectile
+	SynchronizedGearExplosion.DisplayName: Synchronized Gear Explosion
+	TemporalPiercerProjectile.DisplayName: Temporal Piercer Projectile
+	TemporalRiftProjectile.DisplayName: Temporal Rift Projectile
+	TimeFractureExplosion.DisplayName: Time Fracture Explosion
+	ClockworkBombProjectile.DisplayName: Clockwork Bomb Projectile
+	GearShrapnelProjectile.DisplayName: Gear Shrapnel Projectile
+	MechanismBoltProjectile.DisplayName: Mechanism Bolt Projectile
+	StarfallBoltProjectile.DisplayName: Starfall Bolt Projectile
+	StarfallCrystalProjectile.DisplayName: Starfall Crystal Projectile
+	StarfallRiftProjectile.DisplayName: Starfall Rift Projectile
+	SynchronizedGearBoltProjectile.DisplayName: Synchronized Gear Bolt Projectile
+	TemporalSingularityProjectile.DisplayName: Temporal Singularity Projectile
+	ArbiterGearProjectile.DisplayName: Arbiter Gear Projectile
+	AutomatonsTuningForkMinionProjectile.DisplayName: Automatons Tuning Fork Minion Projectile
+	GearDrivenArbiterMinionProjectile.DisplayName: Gear Driven Arbiter Minion Projectile
+	LunarPhylacteryMinionProjectile.DisplayName: Lunar Phylactery Minion Projectile
+	PhylacteryBeamProjectile.DisplayName: Phylactery Beam Projectile
+	BlossomWaveProjectile.DisplayName: Blossom Wave Projectile
+	ChainsawThornSegment.DisplayName: Chainsaw Thorn Segment
+	GloryBeamProjectile.DisplayName: Glory Beam Projectile
+	PetalStormProjectile.DisplayName: Petal Storm Projectile
+	SmallPetalProjectile.DisplayName: Small Petal Projectile
+	ThornProjectile.DisplayName: Thorn Projectile
+	JoysDrillProjectile.DisplayName: Joys Drill Projectile
+	ElysianExplosionProjectile.DisplayName: Elysian Explosion Projectile
+	ElysianOrbProjectile.DisplayName: Elysian Orb Projectile
+	GloryShardProjectile.DisplayName: Glory Shard Projectile
+	OdeToJoyGloryBeamProjectile.DisplayName: Ode To Joy Glory Beam Projectile
+	SymphonicExplosionProjectile.DisplayName: Symphonic Explosion Projectile
+	VictoriousNoteProjectile.DisplayName: Victorious Note Projectile
+	VineMissileProjectile.DisplayName: Vine Missile Projectile
+	BloomExplosionProjectile.DisplayName: Bloom Explosion Projectile
+	GardenerFuryProjectile.DisplayName: Gardener Fury Projectile
+	RoseThornChainsawProjectile.DisplayName: Rose Thorn Chainsaw Projectile
+	ThornChainProjectile.DisplayName: Thorn Chain Projectile
+	VineWaveProjectile.DisplayName: Vine Wave Projectile
+	LingeringPetalStorm.DisplayName: Lingering Petal Storm
+	OdeToJoyHomingPetalProjectile.DisplayName: Ode To Joy Homing Petal Projectile
+	PetalBombProjectile.DisplayName: Petal Bomb Projectile
+	PollenSeedProjectile.DisplayName: Pollen Seed Projectile
+	ThornBoltProjectile.DisplayName: Thorn Bolt Projectile
+	FountainWaterProjectile.DisplayName: Fountain Water Projectile
+	GrandFinaleProjectile.DisplayName: Grand Finale Projectile
+	HarmonicBlastProjectile.DisplayName: Harmonic Blast Projectile
+	JoyousFountainMinion.DisplayName: Joyous Fountain Minion
+	JoyWaveProjectile.DisplayName: Joy Wave Projectile
+	StandingOvationMinion.DisplayName: Standing Ovation Minion
+	TriumphantChorusMinion.DisplayName: Triumphant Chorus Minion
 }

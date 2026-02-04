@@ -269,15 +269,13 @@ namespace MagnumOpus.Common.Systems
                 activeParticles.Add(particle);
         }
         
-        public static Asset<Texture2D> RandomFlare() => EnergyFlares[Main.rand.Next(7)];
-        public static Asset<Texture2D> RandomGlow() => SoftGlows[Main.rand.Next(4)];
+        public static Asset<Texture2D> RandomFlare() => EnergyFlares[Main.rand.Next(2)];  // 2 flares: EnergyFlare, EnergyFlare4
+        public static Asset<Texture2D> RandomGlow() => SoftGlows[Main.rand.Next(3)];  // 3 glows: SoftGlow2-4
         public static Asset<Texture2D> RandomNote() => MusicNotes[Main.rand.Next(6)];
-        // Index 2 is excluded (uses fallback texture)
-        // Only use indices 0, 1, 3, 4, 5
+        // GlowingHalos has 5 elements: indices 0-4 (Halo1, Halo2, Halo4, Halo5, Halo6)
         public static Asset<Texture2D> RandomHalo()
         {
-            int[] allowedIndices = { 0, 1, 3, 4, 5 };
-            return GlowingHalos[allowedIndices[Main.rand.Next(allowedIndices.Length)]];
+            return GlowingHalos[Main.rand.Next(5)];  // 5 halos available
         }
         public static Asset<Texture2D> RandomTrail() => ParticleTrails[Main.rand.Next(4)];
         public static Asset<Texture2D> RandomSparkleField() => MagicSparkleFields[Main.rand.Next(7)];  // 7 elements now
@@ -605,7 +603,7 @@ namespace MagnumOpus.Common.Systems
         public static void SwanLakeFlare(Vector2 pos, float scale = 0.5f)
         {
             if (!CustomParticleSystem.TexturesLoaded) return;
-            var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.SoftGlows[3], pos, Vector2.Zero,
+            var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.SoftGlows[2], pos, Vector2.Zero,
                 CustomParticleSystem.SwanLakeColors.Random(), scale, 25, 0f, true, false);
             CustomParticleSystem.SpawnParticle(p);
         }
@@ -643,7 +641,7 @@ namespace MagnumOpus.Common.Systems
         public static void DiesIraeImpactBurst(Vector2 pos, int count = 8)
         {
             if (!CustomParticleSystem.TexturesLoaded) return;
-            var center = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[2], pos, Vector2.Zero,
+            var center = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[1], pos, Vector2.Zero,
                 CustomParticleSystem.DiesIraeColors.Hellfire, 0.6f, 25, 0.02f, true, true);
             CustomParticleSystem.SpawnParticle(center);
             for (int i = 0; i < count; i++)
@@ -735,7 +733,7 @@ namespace MagnumOpus.Common.Systems
         public static void LaCampanellaImpactBurst(Vector2 pos, int count = 8)
         {
             if (!CustomParticleSystem.TexturesLoaded) return;
-            var center = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[3], pos, Vector2.Zero,
+            var center = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[0], pos, Vector2.Zero,
                 CustomParticleSystem.LaCampanellaColors.Chime, 0.55f, 25, 0.015f, true, true);
             CustomParticleSystem.SpawnParticle(center);
             for (int i = 0; i < count; i++)
@@ -782,7 +780,7 @@ namespace MagnumOpus.Common.Systems
         public static void FateImpactBurst(Vector2 pos, int count = 8)
         {
             if (!CustomParticleSystem.TexturesLoaded) return;
-            var center = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[4], pos, Vector2.Zero,
+            var center = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[1], pos, Vector2.Zero,
                 CustomParticleSystem.FateColors.Starlight, 0.5f, 28, 0.012f, true, true);
             CustomParticleSystem.SpawnParticle(center);
             for (int i = 0; i < count; i++)
@@ -952,7 +950,7 @@ namespace MagnumOpus.Common.Systems
             if (!CustomParticleSystem.TexturesLoaded) return;
             var col = Color.Lerp(CustomParticleSystem.SwanLakeColors.PureWhite, CustomParticleSystem.SwanLakeColors.IcyBlue, Main.rand.NextFloat(0.3f));
             col = Color.Lerp(col, Color.White, 0.3f);
-            var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.GlowingHalos[5], pos, Vector2.Zero,
+            var p = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.GlowingHalos[4], pos, Vector2.Zero,
                 col, scale * (0.9f + Main.rand.NextFloat(0.3f)), 45, 0.005f, true, true)
                 .WithScaleVelocity(0.025f);
             CustomParticleSystem.SpawnParticle(p);

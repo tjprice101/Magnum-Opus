@@ -4,7 +4,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
-using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 
 namespace MagnumOpus.Content.OdeToJoy.HarmonicCores

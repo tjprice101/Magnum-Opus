@@ -75,10 +75,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
             Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
             
             // Muzzle flash VFX - enhanced chromatic petal burst
-            OdeToJoyProjectiles.ChromaticRosePetalBurst(muzzlePos, 6, 4f, 0.45f, false);
+            OdeToJoyVFX.ChromaticRosePetalBurst(muzzlePos, 6, 4f, 0.45f, false);
             
             // Harmonic note sparkle with music notes
-            OdeToJoyProjectiles.HarmonicNoteSparkle(muzzlePos, 4, 3f, 0.4f, false);
+            OdeToJoyVFX.HarmonicNoteSparkle(muzzlePos, 4, 3f, 0.4f, false);
             
             // Every 4th shot fires a burst of 3 seeds
             if (shotCounter >= 4)
@@ -93,7 +93,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
                     Projectile.NewProjectile(source, position, spreadVel, type, damage * 3 / 4, knockback / 2, player.whoAmI);
                 }
                 
-                OdeToJoyProjectiles.OdeToJoySignatureExplosion(muzzlePos, 0.65f);
+                OdeToJoyVFX.OdeToJoySignatureExplosion(muzzlePos, 0.65f);
             }
             
             return false;
@@ -146,7 +146,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
     /// </summary>
     public class PollenSeedProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare3";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
 
         private float homingStrength = 0.02f;
 
@@ -245,7 +245,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
                     Projectile.GetSource_FromThis(),
                     Projectile.Center,
                     petalVel,
-                    ModContent.ProjectileType<HomingPetalProjectile>(),
+                    ModContent.ProjectileType<OdeToJoyHomingPetalProjectile>(),
                     Projectile.damage / 3,
                     Projectile.knockBack / 3,
                     Projectile.owner
@@ -254,7 +254,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
             
             // Use the Chromatic Rose Petal Burst AND Harmonic Note Sparkle together!
             OdeToJoyVFX.ChromaticRosePetalBurst(Projectile.Center, 12, 6f, 0.8f, true);
-            OdeToJoyProjectiles.HarmonicNoteSparkle(Projectile.Center, 10, 5f, 0.6f, true);
+            OdeToJoyVFX.HarmonicNoteSparkle(Projectile.Center, 10, 5f, 0.6f, true);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -283,9 +283,9 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
     }
 
     /// <summary>
-    /// Homing Petal Projectile - Spawned from pollen seeds
+    /// Homing Petal Projectile - Spawned from pollen seeds (Ode to Joy Ranged variant)
     /// </summary>
-    public class HomingPetalProjectile : ModProjectile
+    public class OdeToJoyHomingPetalProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Content/OdeToJoy/Projectiles/SmallPetalProjectile";
 
@@ -421,7 +421,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
             Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
             
             // Massive muzzle flash - chromatic petal burst
-            OdeToJoyProjectiles.ChromaticRosePetalBurst(muzzlePos, 10, 6f, 0.85f, true);
+            OdeToJoyVFX.ChromaticRosePetalBurst(muzzlePos, 10, 6f, 0.85f, true);
             
             // Petal burst
             for (int i = 0; i < 8; i++)
@@ -432,7 +432,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
             }
             
             // Music note burst with harmonic sparkle
-            OdeToJoyProjectiles.HarmonicNoteSparkle(muzzlePos, 6, 4f, 0.7f, false);
+            OdeToJoyVFX.HarmonicNoteSparkle(muzzlePos, 6, 4f, 0.7f, false);
             
             return false;
         }
@@ -526,7 +526,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
             );
             
             // Explosion VFX - SIGNATURE EXPLOSION
-            OdeToJoyProjectiles.OdeToJoySignatureExplosion(Projectile.Center, 1.0f);
+            OdeToJoyVFX.OdeToJoySignatureExplosion(Projectile.Center, 1.0f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -628,7 +628,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(BuffID.Poisoned, 60);
-            OdeToJoyProjectiles.ChromaticRosePetalBurst(target.Center, 4, 2f, 0.35f, false);
+            OdeToJoyVFX.ChromaticRosePetalBurst(target.Center, 4, 2f, 0.35f, false);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -694,7 +694,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
             
             // Small muzzle flash - chromatic vine burst
             Vector2 muzzlePos = position + velocity.SafeNormalize(Vector2.UnitX) * 30f;
-            OdeToJoyProjectiles.ChromaticVineGrowthBurst(muzzlePos, 2, 3f, 0.3f, false);
+            OdeToJoyVFX.ChromaticVineGrowthBurst(muzzlePos, 2, 3f, 0.3f, false);
             
             return false;
         }
@@ -846,8 +846,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
             }
             
             // Chromatic explosion based on thorn count
-            OdeToJoyProjectiles.HarmonicNoteSparkle(Projectile.Center, 5 + thornCount, 4f, 0.45f + thornCount * 0.08f, true);
-            OdeToJoyProjectiles.ChromaticRosePetalBurst(Projectile.Center, 6 + thornCount, 4f, 0.5f + thornCount * 0.1f, false);
+            OdeToJoyVFX.HarmonicNoteSparkle(Projectile.Center, 5 + thornCount, 4f, 0.45f + thornCount * 0.08f, true);
+            OdeToJoyVFX.ChromaticRosePetalBurst(Projectile.Center, 6 + thornCount, 4f, 0.5f + thornCount * 0.1f, false);
             
             Projectile.Kill();
         }
@@ -856,7 +856,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
         {
             if (!stuck)
             {
-                OdeToJoyProjectiles.ChromaticVineGrowthBurst(Projectile.Center, 2, 2f, 0.25f, false);
+                OdeToJoyVFX.ChromaticVineGrowthBurst(Projectile.Center, 2, 2f, 0.25f, false);
             }
         }
     }

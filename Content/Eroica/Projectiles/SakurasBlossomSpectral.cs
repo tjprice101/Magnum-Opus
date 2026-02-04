@@ -130,11 +130,11 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Ethereal sakura bloom using SoftGlows[1] (bloom) and EnergyFlares[4] (soft spark)
+            // Ethereal sakura bloom using SoftGlows[1] (bloom) and EnergyFlares[1] (soft spark)
             var softGlow = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.SoftGlows[1], Projectile.Center, Vector2.Zero,
                 new Color(255, 150, 180), 1.0f, 35, 0f, true, false);
             CustomParticleSystem.SpawnParticle(softGlow);
-            var softFlare = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[4], Projectile.Center, Vector2.Zero,
+            var softFlare = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[1], Projectile.Center, Vector2.Zero,
                 new Color(255, 200, 220), 0.7f, 25, 0.01f, true, true);
             CustomParticleSystem.SpawnParticle(softFlare);
             CustomParticles.SwanLakeFlare(Projectile.Center, 0.5f); // Iridescent shimmer

@@ -16,7 +16,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
     /// </summary>
     public class EternalMoonWave : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_0"; // Invisible base texture
+        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc2"; // Particle-based rendering
 
         public override void SetStaticDefaults()
         {

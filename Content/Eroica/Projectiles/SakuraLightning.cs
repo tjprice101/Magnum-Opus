@@ -16,8 +16,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     /// </summary>
     public class SakuraLightning : ModProjectile
     {
-        // Override texture to use vanilla since we draw with particles
-        public override string Texture => "Terraria/Images/Projectile_0";
+        // Override texture to use particle asset since we draw with particles
+        public override string Texture => "MagnumOpus/Assets/Particles/LightningBurst"; // Particle-based rendering
         
         private bool initialized = false;
         private float spiralAngle = 0f;

@@ -63,7 +63,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             Vector2 spawnPos = Main.MouseWorld;
             
             // Enhanced entrance VFX - chromatic signature explosion
-            OdeToJoyProjectiles.OdeToJoySignatureExplosion(spawnPos, 1.0f);
+            OdeToJoyVFX.OdeToJoySignatureExplosion(spawnPos, 1.0f);
             
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 0.8f }, spawnPos);
             
@@ -100,6 +100,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
     /// </summary>
     public class StandingOvationBuff : ModBuff
     {
+        public override string Texture => "Terraria/Images/Buff_" + BuffID.Pygmies;
+
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;
@@ -209,7 +211,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
                     );
                     
                     SoundEngine.PlaySound(SoundID.Item29 with { Volume = 0.6f, Pitch = 0.4f }, Projectile.Center);
-                    OdeToJoyProjectiles.HarmonicNoteSparkle(Projectile.Center, 6, 4f, 0.5f, false);
+                    OdeToJoyVFX.HarmonicNoteSparkle(Projectile.Center, 6, 4f, 0.5f, false);
                 }
             }
             else
@@ -518,6 +520,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
     /// </summary>
     public class JoyousFountainBuff : ModBuff
     {
+        public override string Texture => "Terraria/Images/Buff_" + BuffID.RainbowWhipNPCDebuff;
+
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;
@@ -767,12 +771,12 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(BuffID.Wet, 180);
-            OdeToJoyProjectiles.ChromaticRosePetalBurst(target.Center, 6, 3f, 0.4f, false);
+            OdeToJoyVFX.ChromaticRosePetalBurst(target.Center, 6, 3f, 0.4f, false);
         }
 
         public override void OnKill(int timeLeft)
         {
-            OdeToJoyProjectiles.ChromaticVineGrowthBurst(Projectile.Center, 3, 3f, 0.35f, false);
+            OdeToJoyVFX.ChromaticVineGrowthBurst(Projectile.Center, 3, 3f, 0.35f, false);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -845,7 +849,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             Vector2 spawnPos = Main.MouseWorld;
             
             // Grand entrance VFX - FULL SIGNATURE EXPLOSION
-            OdeToJoyProjectiles.OdeToJoySignatureExplosion(spawnPos, 1.3f);
+            OdeToJoyVFX.OdeToJoySignatureExplosion(spawnPos, 1.3f);
             
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 1.0f }, spawnPos);
             
@@ -883,6 +887,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
     /// </summary>
     public class TriumphantChorusBuff : ModBuff
     {
+        public override string Texture => "Terraria/Images/Buff_" + BuffID.Ravens;
+
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;
@@ -1150,7 +1156,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
     /// </summary>
     public class HarmonicBlastProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare2";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare4";
 
         public override void SetDefaults()
         {
@@ -1191,12 +1197,12 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(BuffID.Confused, 90);
-            OdeToJoyProjectiles.ChromaticRosePetalBurst(target.Center, 6, 4f, 0.4f, false);
+            OdeToJoyVFX.ChromaticRosePetalBurst(target.Center, 6, 4f, 0.4f, false);
         }
 
         public override void OnKill(int timeLeft)
         {
-            OdeToJoyProjectiles.HarmonicNoteSparkle(Projectile.Center, 5, 3f, 0.5f, false);
+            OdeToJoyVFX.HarmonicNoteSparkle(Projectile.Center, 5, 3f, 0.5f, false);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -1292,13 +1298,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
         {
             target.AddBuff(BuffID.Confused, 180);
             target.AddBuff(BuffID.OnFire, 180);
-            OdeToJoyProjectiles.HarmonicNoteSparkle(target.Center, 8, 5f, 0.7f, true);
+            OdeToJoyVFX.HarmonicNoteSparkle(target.Center, 8, 5f, 0.7f, true);
         }
 
         public override void OnKill(int timeLeft)
         {
             // Signature explosion on death
-            OdeToJoyProjectiles.OdeToJoySignatureExplosion(Projectile.Center, 0.9f);
+            OdeToJoyVFX.OdeToJoySignatureExplosion(Projectile.Center, 0.9f);
         }
 
         public override bool PreDraw(ref Color lightColor)

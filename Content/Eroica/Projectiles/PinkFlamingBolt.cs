@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     /// </summary>
     public class PinkFlamingBolt : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_0";
+        public override string Texture => "MagnumOpus/Assets/Particles/FlamingWispProjectileSmall"; // Particle-based rendering
 
         private float pulseTimer = 0f;
 

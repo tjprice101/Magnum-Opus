@@ -15,6 +15,8 @@ using MagnumOpus.Content.EnigmaVariations.ResonantOres;
 using MagnumOpus.Content.Fate.ResonantOres;
 using MagnumOpus.Content.Nachtmusik.ResonantOres;
 using MagnumOpus.Content.DiesIrae.ResonantOres;
+using MagnumOpus.Content.OdeToJoy.ResonantOres;
+using MagnumOpus.Content.ClairDeLune.ResonantOres;
 using MagnumOpus.Content.Common.GrandPiano;
 
 namespace MagnumOpus.Common.Systems
@@ -216,13 +218,33 @@ namespace MagnumOpus.Common.Systems
 
             FateBossKilledOnce = true;
             
-            // Spawn Phase 9 theme ores (post-Fate content)
-            SpawnNachtmusikResonanceOre();
-            SpawnDiesIraeResonanceOre();
-            // TODO: SpawnOdeToJoyResonanceOre(); - when implemented
-            // TODO: SpawnClairDeLuneResonanceOre(); - when implemented
+            // Spawn ALL Phase 9 theme ores at once (Nachtmusik → Clair de Lune)
+            // All ores spawn simultaneously when Fate is defeated
+            SpawnNachtmusikResonanceOre();      // Underground
+            SpawnDiesIraeResonanceOre();        // Underworld
+            SpawnOdeToJoyResonanceOre();        // The Hallow
+            SpawnClairDeLuneResonanceOre();     // Sky/Clouds
             
             DisplayFateShatteredMessages();
+
+            if (Main.netMode == NetmodeID.Server)
+            {
+                NetMessage.SendData(MessageID.WorldData);
+            }
+        }
+
+        public static void OnFirstOdeToJoyBossKill()
+        {
+            if (DownedOdeToJoy)
+                return;
+
+            DownedOdeToJoy = true;
+            
+            // Note: Clair de Lune ore now spawns with all Phase 9 ores on Fate boss kill
+            // This method is kept for Ode to Joy boss-specific effects
+            
+            // Display message
+            DisplayOdeToJoyDefeatedMessages();
 
             if (Main.netMode == NetmodeID.Server)
             {
@@ -242,6 +264,18 @@ namespace MagnumOpus.Common.Systems
             {
                 NetMessage.SendData(MessageID.WorldData);
             }
+        }
+
+        private static void DisplayOdeToJoyDefeatedMessages()
+        {
+            if (Main.netMode == NetmodeID.MultiplayerClient)
+                return;
+
+            // Clair de Lune - Temporal clockwork theme (Sky)
+            DisplayMessage("The symphony of joy fades...Time itself fractures in response...", 
+                new Color(220, 180, 180));
+            DisplayMessage("Clair de Lune's Resonance Energy crystallizes in the skies above, encased in clouds of shattered time...", 
+                new Color(150, 150, 180));
         }
 
         private static void DisplayMessage(string message, Color color)
@@ -1119,5 +1153,224 @@ namespace MagnumOpus.Common.Systems
                 }
             }
         }
+
+        /// <summary>
+        /// Spawns Ode to Joy Resonance Ore in the Hallow biome.
+        /// This ore spawns after the Fate boss is defeated (post-Fate content).
+        /// Location: Underground Hallow (Pearlstone, Pearlsand, Crystal Shards areas)
+        /// Vein sizes: 12-22 tiles for celebratory crystal clusters
+        /// Theme: Joy and celebration - nature's radiant blessing
+        /// </summary>
+        private static void SpawnOdeToJoyResonanceOre()
+        {
+            int tileType = ModContent.TileType<OdeToJoyResonanceOreTile>();
+            
+            // Spawn in the Hallow (joyful celebration ore in the blessed lands)
+            // Good spawn rate - the Hallow is usually reasonably sized
+            int veinsToSpawn = Main.rand.Next(90, 131); // 90-130 veins
+            int successfulVeins = 0;
+
+            // Underground Hallow bounds (below surface, in the main world layers)
+            int hallowTop = (int)Main.worldSurface;
+            int hallowBottom = Main.maxTilesY - 250; // Stay above underworld
+
+            for (int attempt = 0; attempt < veinsToSpawn * 25 && successfulVeins < veinsToSpawn; attempt++)
+            {
+                // Random position in the world
+                int x = Main.rand.Next(100, Main.maxTilesX - 100);
+                int y = Main.rand.Next(hallowTop, hallowBottom);
+
+                // Check if we're in the Hallow
+                Tile tile = Main.tile[x, y];
+                if (tile.HasTile && Main.tileSolid[tile.TileType])
+                {
+                    // Only spawn in Hallow tiles (Pearlstone, Pearlsand, Crystal Shards, etc.)
+                    bool isHallowTile = tile.TileType == TileID.Pearlstone ||
+                                        tile.TileType == TileID.Pearlsand ||
+                                        tile.TileType == TileID.HallowedGrass ||
+                                        tile.TileType == TileID.HallowedIce ||
+                                        tile.TileType == TileID.HallowSandstone ||
+                                        tile.TileType == TileID.HallowHardenedSand;
+                    
+                    if (!isHallowTile)
+                        continue;
+
+                    // Don't replace dungeon bricks, lihzahrd, or containers
+                    if (tile.TileType == TileID.LihzahrdBrick || 
+                        tile.TileType == TileID.LihzahrdAltar ||
+                        tile.TileType == TileID.Containers ||
+                        tile.TileType == TileID.Containers2 ||
+                        tile.TileType == TileID.BlueDungeonBrick ||
+                        tile.TileType == TileID.GreenDungeonBrick ||
+                        tile.TileType == TileID.PinkDungeonBrick)
+                        continue;
+
+                    // Vein sizes of 12-22 tiles (celebratory clusters)
+                    int veinSize = Main.rand.Next(12, 23);
+                    
+                    if (SpawnOreVein(x, y, tileType, veinSize))
+                    {
+                        successfulVeins++;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Spawns Clair de Lune Resonance Ore in cloud pods in the sky.
+        /// This ore spawns after the Ode to Joy boss is defeated (FINAL BOSS tier).
+        /// Location: Space/Sky layer, in pods of 5-8 ore surrounded by 1-2 layers of cloud blocks.
+        /// Theme: Temporal clockwork ore crystallized in the heavens, encased in clouds.
+        /// </summary>
+        private static void SpawnClairDeLuneResonanceOre()
+        {
+            int tileType = ModContent.TileType<ClairDeLuneResonanceOreTile>();
+            
+            // Spawn cloud pods containing Clair de Lune ore in the sky
+            // "somewhat common" - 120-180 pods for good availability
+            int podsToSpawn = Main.rand.Next(120, 181);
+            int successfulPods = 0;
+
+            // Sky layer bounds
+            int skyTop = 50;
+            int skyBottom = (int)(Main.worldSurface * 0.35); // Upper third of world to surface
+
+            for (int attempt = 0; attempt < podsToSpawn * 30 && successfulPods < podsToSpawn; attempt++)
+            {
+                // Random position in the sky
+                int centerX = Main.rand.Next(100, Main.maxTilesX - 100);
+                int centerY = Main.rand.Next(skyTop, skyBottom);
+
+                // Skip if too close to other pods (minimum 40 tile spacing)
+                bool tooClose = false;
+                for (int checkX = centerX - 40; checkX <= centerX + 40 && !tooClose; checkX++)
+                {
+                    for (int checkY = centerY - 40; checkY <= centerY + 40 && !tooClose; checkY++)
+                    {
+                        if (checkX < 0 || checkX >= Main.maxTilesX || checkY < 0 || checkY >= Main.maxTilesY)
+                            continue;
+                        if (Main.tile[checkX, checkY].TileType == (ushort)tileType)
+                            tooClose = true;
+                    }
+                }
+                if (tooClose) continue;
+
+                // Create a cloud pod with ore core
+                if (SpawnCloudOrePod(centerX, centerY, tileType))
+                {
+                    successfulPods++;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Creates a single cloud pod containing Clair de Lune ore.
+        /// Structure: 5-8 ore blocks in center, surrounded by 1-2 layers of cloud blocks.
+        /// </summary>
+        private static bool SpawnCloudOrePod(int centerX, int centerY, int oreTileType)
+        {
+            // Pod size: 5-8 ore blocks in the core
+            int oreCount = Main.rand.Next(5, 9);
+            
+            // Cloud layer thickness: 1-2 blocks
+            int cloudLayers = Main.rand.Next(1, 3);
+            
+            // Calculate pod radius based on ore count (rough approximation)
+            int coreRadius = (int)Math.Ceiling(Math.Sqrt(oreCount) / 1.5) + 1;
+            int totalRadius = coreRadius + cloudLayers + 1;
+            
+            // Check bounds
+            if (centerX - totalRadius < 0 || centerX + totalRadius >= Main.maxTilesX ||
+                centerY - totalRadius < 0 || centerY + totalRadius >= Main.maxTilesY)
+                return false;
+
+            // First, clear the area and place cloud shell
+            for (int x = centerX - totalRadius; x <= centerX + totalRadius; x++)
+            {
+                for (int y = centerY - totalRadius; y <= centerY + totalRadius; y++)
+                {
+                    float dist = Vector2.Distance(new Vector2(x, y), new Vector2(centerX, centerY));
+                    
+                    if (dist <= totalRadius)
+                    {
+                        Tile tile = Main.tile[x, y];
+                        
+                        // Clear any existing tiles in the pod area
+                        tile.HasTile = false;
+                        tile.WallType = WallID.None;
+                        tile.LiquidAmount = 0;
+                        
+                        // Place cloud blocks in the outer shell
+                        if (dist > coreRadius && dist <= totalRadius)
+                        {
+                            tile.HasTile = true;
+                            tile.TileType = TileID.Cloud;
+                        }
+                    }
+                }
+            }
+
+            // Now place ore in the core (scattered pattern for visual interest)
+            int orePlaced = 0;
+            List<Point> orePositions = new List<Point>();
+            
+            // Generate positions for ore blocks in the core
+            for (int attempt = 0; attempt < oreCount * 4 && orePlaced < oreCount; attempt++)
+            {
+                int offsetX = Main.rand.Next(-coreRadius, coreRadius + 1);
+                int offsetY = Main.rand.Next(-coreRadius, coreRadius + 1);
+                int oreX = centerX + offsetX;
+                int oreY = centerY + offsetY;
+                
+                float dist = Vector2.Distance(new Vector2(oreX, oreY), new Vector2(centerX, centerY));
+                
+                // Only place in core area
+                if (dist <= coreRadius)
+                {
+                    Point pos = new Point(oreX, oreY);
+                    if (!orePositions.Contains(pos))
+                    {
+                        Tile tile = Main.tile[oreX, oreY];
+                        tile.HasTile = true;
+                        tile.TileType = (ushort)oreTileType;
+                        orePositions.Add(pos);
+                        orePlaced++;
+                    }
+                }
+            }
+
+            // If we didn't place enough ore, fill remaining core with ore
+            if (orePlaced < 5)
+            {
+                for (int x = centerX - coreRadius; x <= centerX + coreRadius && orePlaced < 5; x++)
+                {
+                    for (int y = centerY - coreRadius; y <= centerY + coreRadius && orePlaced < 5; y++)
+                    {
+                        float dist = Vector2.Distance(new Vector2(x, y), new Vector2(centerX, centerY));
+                        if (dist <= coreRadius - 0.5f)
+                        {
+                            Point pos = new Point(x, y);
+                            if (!orePositions.Contains(pos))
+                            {
+                                Tile tile = Main.tile[x, y];
+                                tile.HasTile = true;
+                                tile.TileType = (ushort)oreTileType;
+                                orePositions.Add(pos);
+                                orePlaced++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Network sync
+            if (Main.netMode == NetmodeID.Server)
+            {
+                NetMessage.SendTileSquare(-1, centerX, centerY, totalRadius * 2 + 1);
+            }
+
+            return orePlaced >= 5;
+        }
     }
 }
+

@@ -16,7 +16,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     /// </summary>
     public class FuneralPrayerBeam : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_0"; // Invisible - particle-based
+        public override string Texture => "MagnumOpus/Assets/Particles/LightningStreak"; // Particle-based rendering
 
         private int targetNPC = -1;
         private Vector2 beamEnd;

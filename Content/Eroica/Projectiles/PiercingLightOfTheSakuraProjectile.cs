@@ -119,11 +119,11 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             if (Main.netMode == NetmodeID.MultiplayerClient) return;
             
-            // Sakura lightning flash using EnergyFlares[0] (main flash) and EnergyFlares[5] (spark)
+            // Sakura lightning flash using EnergyFlares[0] (main flash) and EnergyFlares[1] (spark)
             var pinkFlash = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[0], position, Vector2.Zero,
                 new Color(255, 180, 200), 1.4f, 25, 0.02f, true, true);
             CustomParticleSystem.SpawnParticle(pinkFlash);
-            var whiteFlash = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[5], position, Vector2.Zero,
+            var whiteFlash = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[1], position, Vector2.Zero,
                 new Color(255, 255, 220), 0.9f, 15, 0.015f, true, true);
             CustomParticleSystem.SpawnParticle(whiteFlash);
             CustomParticles.MoonlightHalo(position, 0.8f); // Ethereal silver undertone

@@ -1512,7 +1512,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            HarmonicNoteSparkle(target.Center, 7, 4f, 0.55f, true);
+            OdeToJoyVFX.HarmonicNoteSparkle(target.Center, 7, 4f, 0.55f, true);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -1549,7 +1549,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
     /// </summary>
     public class ThornProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare3";
+        public override string Texture => "MagnumOpus/Assets/Particles/VineWithRoseOnTop";
         
         public override void SetDefaults()
         {
@@ -1569,19 +1569,19 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
             
             // Enhanced vine trail with chromatic effect
             if (Main.rand.NextBool(3))
-                ChromaticVineGrowthBurst(Projectile.Center, 1, 2f, 0.25f, false);
+                OdeToJoyVFX.ChromaticVineGrowthBurst(Projectile.Center, 1, 2f, 0.25f, false);
             
             Lighting.AddLight(Projectile.Center, OdeToJoyColors.VerdantGreen.ToVector3() * 0.4f);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            ChromaticRosePetalBurst(target.Center, 5, 3f, 0.4f, false);
+            OdeToJoyVFX.ChromaticRosePetalBurst(target.Center, 5, 3f, 0.4f, false);
         }
         
         public override void OnKill(int timeLeft)
         {
-            ChromaticRosePetalBurst(Projectile.Center, 8, 5f, 0.5f, true);
+            OdeToJoyVFX.ChromaticRosePetalBurst(Projectile.Center, 8, 5f, 0.5f, true);
             SoundEngine.PlaySound(SoundID.Grass, Projectile.Center);
         }
         
@@ -1613,7 +1613,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
     /// </summary>
     public class PetalStormProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare5";
+        public override string Texture => "MagnumOpus/Assets/Particles/FlareSparkle";
         
         private float homingStrength = 0.05f;
         
@@ -1662,7 +1662,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            HarmonicNoteSparkle(target.Center, 8, 5f, 0.7f, true);
+            OdeToJoyVFX.HarmonicNoteSparkle(target.Center, 8, 5f, 0.7f, true);
         }
         
         public override void OnKill(int timeLeft)
@@ -1677,7 +1677,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
                     ModContent.ProjectileType<SmallPetalProjectile>(), Projectile.damage / 3, 1f, Projectile.owner);
             }
             
-            OdeToJoySignatureExplosion(Projectile.Center, 0.7f);
+            OdeToJoyVFX.OdeToJoySignatureExplosion(Projectile.Center, 0.7f);
             SoundEngine.PlaySound(SoundID.Item27, Projectile.Center);
         }
         
@@ -1732,7 +1732,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
     /// </summary>
     public class SmallPetalProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare2";
+        public override string Texture => "MagnumOpus/Assets/Particles/RosesBud";
         
         public override void SetDefaults()
         {
@@ -1763,7 +1763,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            ChromaticRosePetalBurst(target.Center, 5, 3f, 0.35f, false);
+            OdeToJoyVFX.ChromaticRosePetalBurst(target.Center, 5, 3f, 0.35f, false);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -1853,8 +1853,8 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            HarmonicNoteSparkle(target.Center, 8, 5f, 0.65f, true);
-            ChromaticRosePetalBurst(target.Center, 6, 4f, 0.5f, false);
+            OdeToJoyVFX.HarmonicNoteSparkle(target.Center, 8, 5f, 0.65f, true);
+            OdeToJoyVFX.ChromaticRosePetalBurst(target.Center, 6, 4f, 0.5f, false);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -1888,7 +1888,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
     /// </summary>
     public class ChainsawThornSegment : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare3";
+        public override string Texture => "MagnumOpus/Assets/Particles/VineWithRoseOnTop";
         
         public int ParentProjectile
         {
@@ -1923,7 +1923,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
             // VFX trail - enhanced vine growth
             if (Main.rand.NextBool(3))
             {
-                ChromaticVineGrowthBurst(Projectile.Center, 1, 2f, 0.25f, false);
+                OdeToJoyVFX.ChromaticVineGrowthBurst(Projectile.Center, 1, 2f, 0.25f, false);
             }
             
             Lighting.AddLight(Projectile.Center, OdeToJoyColors.VerdantGreen.ToVector3() * 0.4f);
@@ -1931,7 +1931,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            ChromaticRosePetalBurst(target.Center, 4, 3f, 0.35f, false);
+            OdeToJoyVFX.ChromaticRosePetalBurst(target.Center, 4, 3f, 0.35f, false);
         }
         
         public override bool PreDraw(ref Color lightColor)

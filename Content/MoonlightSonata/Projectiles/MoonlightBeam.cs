@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
     /// </summary>
     public class MoonlightBeam : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_0"; // Invisible base
+        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow3"; // Particle-based rendering
 
         private int bounceCount = 0;
         private const int MaxBounces = 5;

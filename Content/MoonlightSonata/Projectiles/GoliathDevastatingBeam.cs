@@ -253,8 +253,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             var purpleFlare = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[1], position, Vector2.Zero,
                 new Color(200, 150, 255), 1.8f, 45, 0.015f, true, true);
             CustomParticleSystem.SpawnParticle(purpleFlare);
-            // Use EnergyFlares[4] for secondary blue flash
-            var blueFlare = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[4], position, Vector2.Zero,
+            // Use EnergyFlares[1] for secondary blue flash
+            var blueFlare = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[1], position, Vector2.Zero,
                 new Color(140, 200, 255), 1.2f, 35, 0.02f, true, true);
             CustomParticleSystem.SpawnParticle(blueFlare);
             CustomParticles.ExplosionBurst(position, new Color(120, 80, 180), 20, 9f);

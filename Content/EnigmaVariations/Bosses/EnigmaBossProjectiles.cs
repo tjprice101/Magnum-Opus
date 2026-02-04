@@ -229,7 +229,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
     /// </summary>
     public class EnigmaVoidWeb : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnigmaEye2";
+        public override string Texture => "MagnumOpus/Assets/Particles/ActivatedEnigmaEye";
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);

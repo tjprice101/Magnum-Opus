@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     /// </summary>
     public class FuneralPrayerRicochetBeam : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_0"; // Invisible - particle-based
+        public override string Texture => "MagnumOpus/Assets/Particles/LightningStreak"; // Particle-based rendering
 
         private int currentTarget = -1;
         private List<int> hitEnemies = new List<int>();
@@ -186,9 +186,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             target.SimpleStrikeNPC(Projectile.damage, 0, false, 0f, null, false, 0f, true);
             target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 360); // 6 seconds for ricochet
 
-            // Sharp ricochet flash using EnergyFlares[3] (sharp burst)
+            // Sharp ricochet flash using EnergyFlares[0] (sharp burst)
             CustomParticles.EroicaFlare(target.Center, 0.6f);
-            var ricochetFlare = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[3], target.Center, Vector2.Zero,
+            var ricochetFlare = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[0], target.Center, Vector2.Zero,
                 new Color(255, 100, 50), 0.5f, 15, 0.02f, true, true);
             CustomParticleSystem.SpawnParticle(ricochetFlare);
             CustomParticles.ExplosionBurst(target.Center, new Color(255, 120, 80), 6, 4f);

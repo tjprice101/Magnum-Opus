@@ -138,7 +138,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Magic
     /// </summary>
     public class VictoriousNoteProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/MusicNote1";
+        public override string Texture => "MagnumOpus/Assets/Particles/MusicNote";
 
         private float orbitAngle;
         private int phase = 0; // 0 = orbit, 1 = launch
@@ -572,7 +572,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Magic
                 Projectile.owner
             );
             
-            OdeToJoyProjectiles.OdeToJoySignatureExplosion(Projectile.Center, 1.2f);
+            OdeToJoyVFX.OdeToJoySignatureExplosion(Projectile.Center, 1.2f);
             
             Projectile.Kill();
         }
@@ -823,7 +823,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Magic
                 SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.4f }, player.Center);
                 
                 Projectile.NewProjectile(source, position, velocity * 1.5f,
-                    ModContent.ProjectileType<GloryBeamProjectile>(), damage * 3, knockback * 2, player.whoAmI);
+                    ModContent.ProjectileType<OdeToJoyGloryBeamProjectile>(), damage * 3, knockback * 2, player.whoAmI);
                 
                 OdeToJoyVFX.OdeToJoySignatureExplosion(muzzlePos, 0.9f);
             }
@@ -848,7 +848,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Magic
     /// </summary>
     public class GloryShardProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare5";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare4";
 
         private bool hasChained = false;
 
@@ -979,9 +979,9 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Magic
     }
 
     /// <summary>
-    /// Glory Beam Projectile - Massive piercing beam
+    /// Glory Beam Projectile - Massive piercing beam (Magic Weapon variant)
     /// </summary>
-    public class GloryBeamProjectile : ModProjectile
+    public class OdeToJoyGloryBeamProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles/ParticleTrail1";
 
@@ -1048,13 +1048,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Magic
         {
             target.AddBuff(BuffID.OnFire, 300);
             target.AddBuff(BuffID.Confused, 120);
-            OdeToJoyProjectiles.HarmonicNoteSparkle(target.Center, 8, 5f, 0.65f, true);
+            OdeToJoyVFX.HarmonicNoteSparkle(target.Center, 8, 5f, 0.65f, true);
         }
 
         public override void OnKill(int timeLeft)
         {
             // Signature explosion for projectile death
-            OdeToJoyProjectiles.OdeToJoySignatureExplosion(Projectile.Center, 0.85f);
+            OdeToJoyVFX.OdeToJoySignatureExplosion(Projectile.Center, 0.85f);
         }
 
         public override bool PreDraw(ref Color lightColor)

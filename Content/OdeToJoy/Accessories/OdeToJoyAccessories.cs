@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using System.Linq;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -8,7 +9,7 @@ using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 using MagnumOpus.Content.OdeToJoy.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Content.OdeToJoy.Projectiles;
-using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.OdeToJoy.Accessories
 {
@@ -195,7 +196,6 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                 if (Main.rand.NextBool(4))
                 {
                     OdeToJoyVFX.ChromaticVineGrowthBurst(proj.Center, 2, 2f, 0.35f, false);
-                }
                 }
             }
         }
