@@ -182,7 +182,8 @@ namespace MagnumOpus.Content.Eroica.Pets
             if (Main.rand.NextBool(20))
             {
                 Color noteColor = Color.Lerp(new Color(200, 50, 50), new Color(255, 150, 180), Main.rand.NextFloat());
-                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(12f, 12f), new Vector2(0, -0.6f), noteColor, 0.22f, 28);
+                float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
+                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(12f, 12f), new Vector2(0, -0.6f), noteColor, 0.7f * shimmer, 28);
             }
         }
 

@@ -443,6 +443,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         
         private void AI_Grounded(Player target)
         {
+            // === PHASE 10 MUSICAL VFX: Infernal Tremolo - Constant Burning Passion ===
+            Phase10Integration.LaCampanella.InfernalTremolo(NPC.Center);
+            
             float targetX = target.Center.X;
             float moveSpeed = BaseSpeed * (1f + difficultyTier * 0.2f);
             
@@ -1349,6 +1352,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         /// </summary>
         private void Attack_RhythmicToll(Player target)
         {
+            // === PHASE 10 MUSICAL VFX: Bell Chime Resonance - Rhythmic Tolling ===
+            Phase10Integration.LaCampanella.BellChimeResonance(NPC.Center, (int)Timer);
+            
             // 4 phases of symmetric patterns, each with increasing complexity
             int phaseDuration = 35 - difficultyTier * 4;
             int totalPhases = 4 + difficultyTier;
@@ -1636,6 +1642,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             {
                 // === CHARGE PHASE: Converging flames ===
                 NPC.velocity *= 0.95f;
+                
+                // === PHASE 10 MUSICAL VFX: Infernal Judgment Building ===
+                float chargeProgress = Timer / (float)chargeTime;
+                Phase10Integration.LaCampanella.InfernalJudgmentVFX(NPC.Center, chargeProgress);
                 
                 if (Timer == 1)
                 {
@@ -2049,6 +2059,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             
             if (deathTimer >= 200)
             {
+                // === PHASE 10 MUSICAL VFX: Death Finale - Infernal Coda ===
+                Phase10Integration.Universal.DeathFinale(NPC.Center, CampanellaOrange, CampanellaGold);
+                
                 MagnumScreenEffects.AddScreenShake(35f);
                 SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with { Pitch = -0.5f, Volume = 2f }, NPC.Center);
                 

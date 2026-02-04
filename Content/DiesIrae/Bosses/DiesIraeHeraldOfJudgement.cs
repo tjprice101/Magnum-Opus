@@ -364,6 +364,12 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 NPC.velocity *= 0.92f;
             }
             
+            // === PHASE 10 MUSICAL VFX: Beat Synced Rhythm - Herald's Wrath ===
+            if (Timer % 32 == 0)
+            {
+                Phase10Integration.Universal.BeatSyncedRhythm(NPC.Center, EmberOrange, 110f, Timer);
+            }
+            
             if (attackCooldown <= 0 && Timer >= AttackWindowFrames)
             {
                 SelectNextAttack(target);
@@ -1054,6 +1060,9 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 float progress = (float)Timer / chargeTime;
                 DiesIraeVFX.ChargeUp(NPC.Center, progress, 2f);
                 
+                // === PHASE 10 MUSICAL VFX: Crescendo Charge Up - Final Judgment Building ===
+                Phase10Integration.Universal.CrescendoChargeUp(NPC.Center, HellfireGold, progress);
+                
                 // Safe zone indicator
                 if (Timer > chargeTime / 2 && Timer % 4 == 0)
                 {
@@ -1318,6 +1327,9 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 
                 // MASSIVE death explosion
                 DiesIraeVFX.DeathExplosion(NPC.Center, 2f);
+                
+                // === PHASE 10 MUSICAL VFX: Death Finale - The Herald Falls ===
+                Phase10Integration.Universal.DeathFinale(NPC.Center, BloodRed, EmberOrange);
             }
             
             if (deathTimer >= 180)

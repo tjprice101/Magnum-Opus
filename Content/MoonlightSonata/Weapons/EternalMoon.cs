@@ -147,12 +147,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
             }
             
             // === MUSIC NOTE INTEGRATION - THE SINGING BLADE ===
-            // Scatter music notes along the swing arc
-            if (Main.rand.NextBool(3))
+            // Scatter music notes along the swing arc - VISIBLE SCALE 0.8f+
+            if (Main.rand.NextBool(2))
             {
                 Vector2 noteVel = (player.direction * Vector2.UnitX).RotatedByRandom(0.8f) * Main.rand.NextFloat(1.5f, 3f);
                 Color noteColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, Main.rand.NextFloat());
-                ThemedParticles.MusicNote(hitCenter, noteVel, noteColor, 0.3f, 28);
+                float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
+                ThemedParticles.MusicNote(hitCenter, noteVel, noteColor * 0.9f, 0.85f * shimmer, 35);
+                
+                // Sparkle companion for visibility
+                CustomParticles.PrismaticSparkle(hitCenter + Main.rand.NextVector2Circular(5f, 5f), 
+                    UnifiedVFX.MoonlightSonata.Silver * 0.5f, 0.2f);
             }
             
             // Crystal shimmers along swing arc - prismatic moonlight gems

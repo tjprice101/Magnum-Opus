@@ -43,24 +43,69 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
 
         public override void HoldItem(Player player)
         {
-            // Subtle ambient glow (Swan Lake benchmark: minimal HoldItem)
-            if (Main.rand.NextBool(15))
+            // === ENHANCED LUNAR SUMMONER AURA ===
+            
+            // Orbiting lunar motes (1-in-6)
+            if (Main.rand.NextBool(6))
             {
-                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
+                float orbitAngle = Main.GameUpdateCount * 0.04f;
+                for (int i = 0; i < 3; i++)
+                {
+                    float angle = orbitAngle + MathHelper.TwoPi * i / 3f;
+                    float radius = 30f + (float)Math.Sin(Main.GameUpdateCount * 0.05f + i * 0.7f) * 6f;
+                    Vector2 orbitPos = player.Center + angle.ToRotationVector2() * radius;
+                    float progress = (float)i / 3f;
+                    Color orbitColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
+                    CustomParticles.GenericFlare(orbitPos, orbitColor * 0.6f, 0.25f, 12);
+                }
+            }
+            
+            // Prismatic sparkle aura (1-in-4)
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(28f, 28f);
                 Color gradientColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.LightBlue, Main.rand.NextFloat());
-                CustomParticles.PrismaticSparkle(player.Center + offset, gradientColor * 0.5f, 0.18f);
+                CustomParticles.PrismaticSparkle(player.Center + offset, gradientColor * 0.6f, 0.22f);
+                
+                // Sparkle companion
+                var sparkle = new SparkleParticle(player.Center + offset, Main.rand.NextVector2Circular(0.5f, 0.5f), 
+                    UnifiedVFX.MoonlightSonata.Silver * 0.4f, 0.18f, 20);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            // Rare music note
-            if (Main.rand.NextBool(20))
+            // VISIBLE ORBITING MUSIC NOTES (1-in-8, scale 0.75f+)
+            if (Main.rand.NextBool(8))
             {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(22f, 22f);
-                ThemedParticles.MusicNote(notePos, new Vector2(0, -0.6f), UnifiedVFX.MoonlightSonata.MediumPurple * 0.6f, 0.2f, 30);
+                float noteOrbit = Main.GameUpdateCount * 0.06f;
+                float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
+                
+                for (int i = 0; i < 2; i++)
+                {
+                    float noteAngle = noteOrbit + MathHelper.Pi * i;
+                    Vector2 notePos = player.Center + noteAngle.ToRotationVector2() * 22f;
+                    Vector2 noteVel = new Vector2(0, -0.5f);
+                    Color noteColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.LightBlue, (float)i / 2f);
+                    ThemedParticles.MusicNote(notePos, noteVel, noteColor * 0.85f, 0.75f * shimmer, 35);
+                    
+                    // Sparkle companion for visibility
+                    CustomParticles.PrismaticSparkle(notePos + Main.rand.NextVector2Circular(4f, 4f), 
+                        UnifiedVFX.MoonlightSonata.Silver * 0.4f, 0.15f);
+                }
             }
             
-            // Soft mystical glow - pulsing
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.12f + 0.9f;
-            Lighting.AddLight(player.Center, 0.32f * pulse, 0.28f * pulse, 0.55f * pulse);
+            // Dense lunar dust (1-in-3)
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, 
+                    Main.rand.NextVector2Circular(0.8f, 0.8f), 80, default, 1.1f);
+                dust.noGravity = true;
+                dust.fadeIn = 1.2f;
+            }
+            
+            // Soft mystical glow - pulsing (brighter)
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.15f + 0.95f;
+            Lighting.AddLight(player.Center, 0.45f * pulse, 0.4f * pulse, 0.7f * pulse);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)

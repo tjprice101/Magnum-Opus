@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -70,7 +71,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 Vector2 notePos = Projectile.position + new Vector2(Projectile.width / 2f, yPos);
                 Color noteColor = Color.Lerp(new Color(200, 50, 50), new Color(255, 215, 0), Main.rand.NextFloat());
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-0.5f, 0.5f));
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.32f, 30);
+                float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.8f * shimmer, 30);
             }
         }
 

@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -218,7 +219,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                 Vector2 noteVel = -Projectile.velocity.SafeNormalize(Vector2.Zero) * 1.5f;
                 noteVel = noteVel.RotatedByRandom(0.4f);
                 Color noteColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.LightBlue, Main.rand.NextFloat());
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.3f, 25);
+                float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.75f * shimmer, 25);
             }
             
             // Lighting with pulsing intensity

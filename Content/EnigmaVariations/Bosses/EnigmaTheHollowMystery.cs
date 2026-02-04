@@ -422,6 +422,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         private void AI_Stalking(Player target)
         {
+            // === PHASE 10 MUSICAL VFX: Mysterious Trill - Unsettling Presence ===
+            Phase10Integration.Enigma.MysteriousTrill(NPC.Center, (int)Timer);
+            
             float distance = Vector2.Distance(NPC.Center, target.Center);
             float horizontalDist = Math.Abs(NPC.Center.X - target.Center.X);
             
@@ -1535,6 +1538,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         /// </summary>
         private void Attack_ParadoxWeb(Player target)
         {
+            // === PHASE 10 MUSICAL VFX: Paradox Syncopation - Off-Beat Confusion ===
+            Phase10Integration.Enigma.ParadoxSyncopation(NPC.Center, 140); // ~140 BPM
+            
             int strands = 6 + difficultyTier * 2; // Web strands
             int webWaves = 4 + difficultyTier;
             int waveDelay = 25 - difficultyTier * 3;
@@ -1861,6 +1867,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 // === CHARGE PHASE: Converging void particles ===
                 NPC.velocity *= 0.95f;
                 
+                // === PHASE 10 MUSICAL VFX: Paradox Judgment Building ===
+                float chargeProgress = Timer / (float)chargeTime;
+                Phase10Integration.Enigma.ParadoxJudgmentVFX(NPC.Center, chargeProgress);
+                
                 if (Timer == 1)
                 {
                     SoundEngine.PlaySound(SoundID.Item8 with { Pitch = -0.4f, Volume = 1.3f }, NPC.Center);
@@ -1984,6 +1994,18 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         /// </summary>
         private void Attack_VoidLaserWeb(Player target)
         {
+            // === PHASE 10 MUSICAL VFX: Void Harmonics - Dissonant Laser Web ===
+            if (SubPhase == 1 && voidLaserAngles != null && voidLaserAngles.Length > 1)
+            {
+                // Draw void harmonics between laser angles
+                for (int i = 0; i < voidLaserAngles.Length - 1; i += 2)
+                {
+                    Vector2 start = NPC.Center + voidLaserAngles[i].ToRotationVector2() * 200f;
+                    Vector2 end = NPC.Center + voidLaserAngles[i + 1].ToRotationVector2() * 200f;
+                    Phase10Integration.Enigma.VoidHarmonics(start, end);
+                }
+            }
+            
             // DIFFICULTY: More lasers, faster sweep
             int laserCount = 7 + difficultyTier * 2; // More lasers (was 6+2)
             int sweepDuration = 50 - difficultyTier * 7; // Faster (was 96-12)
@@ -3071,6 +3093,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             
             if (deathTimer >= 180)
             {
+                // === PHASE 10 MUSICAL VFX: Death Finale - Enigmatic Coda ===
+                Phase10Integration.Universal.DeathFinale(NPC.Center, EnigmaPurple, EnigmaGreen);
+                
                 MagnumScreenEffects.AddScreenShake(30f);
                 SoundEngine.PlaySound(SoundID.NPCDeath52 with { Pitch = -0.5f, Volume = 1.8f }, NPC.Center);
                 

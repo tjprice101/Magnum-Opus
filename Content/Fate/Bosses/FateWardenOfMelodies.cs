@@ -491,6 +491,10 @@ namespace MagnumOpus.Content.Fate.Bosses
         
         private void AI_Idle(Player target)
         {
+            // === PHASE 10 MUSICAL VFX: Cosmic Chord Progression - Celestial Presence ===
+            int chordNumber = ((int)Timer / 60) % 7; // Cycle through chord progressions
+            Phase10Integration.Fate.CosmicChordProgression(NPC.Center, chordNumber);
+            
             // Hover near player
             float hoverHeight = -280f - (float)Math.Sin(Timer * 0.03f) * 30f;
             float waveX = (float)Math.Sin(Timer * 0.025f) * 60f;
@@ -957,6 +961,10 @@ namespace MagnumOpus.Content.Fate.Bosses
         /// </summary>
         private void Attack_ConstellationStrike(Player target)
         {
+            // === PHASE 10 MUSICAL VFX: Reality Tempo Distortion - Time Warping Intensity ===
+            float intensity = SubPhase == 2 ? 1f : 0.5f; // Full intensity during strike phase
+            Phase10Integration.Fate.RealityTempoDistortion(NPC.Center, intensity);
+            
             int starCount = 5 + difficultyTier;
             int placeTime = (int)((50 - difficultyTier * 5) * GetAggressionRateMult());
             
@@ -1139,6 +1147,10 @@ namespace MagnumOpus.Content.Fate.Bosses
             {
                 // Charge phase
                 NPC.velocity *= 0.93f;
+                
+                // === PHASE 10 MUSICAL VFX: Cosmic Judgment Building ===
+                float chargeProgress = Timer / (float)chargeTime;
+                Phase10Integration.Fate.CosmicJudgmentVFX(NPC.Center, chargeProgress);
                 
                 if (Timer == 1)
                 {
@@ -1854,6 +1866,9 @@ namespace MagnumOpus.Content.Fate.Bosses
                     var spark = new GenericGlowParticle(NPC.Center, vel, GetCosmicGradient((float)i / 30f), 0.5f, 35, true);
                     MagnumParticleHandler.SpawnParticle(spark);
                 }
+                
+                // === PHASE 10 MUSICAL VFX: Death Finale - Cosmic Celestial Symphony Ends ===
+                Phase10Integration.Universal.DeathFinale(NPC.Center, FateWhite, FateDarkPink);
             }
             
             if (deathTimer >= 180)

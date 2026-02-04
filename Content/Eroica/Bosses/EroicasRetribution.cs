@@ -734,6 +734,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     BossVFXOptimizer.ConvergingWarning(NPC.Center, 60f, Timer / (float)telegraphTime, EroicaGold, 6);
                 }
                 
+                // PHASE 10: Musical crescendo buildup during charge
+                Phase10BossVFX.CrescendoDangerRings(NPC.Center, EroicaGold, Timer / (float)telegraphTime);
+                
                 if (Timer >= telegraphTime)
                 {
                     Timer = 0;
@@ -751,6 +754,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     SoundEngine.PlaySound(SoundID.DD2_BetsyFlameBreath with { Pitch = 0.2f }, NPC.Center);
                     BossVFXOptimizer.AttackReleaseBurst(NPC.Center, EroicaGold, EroicaScarlet, 0.8f);
                     
+                    // PHASE 10: Fortissimo attack release flash
+                    Phase10BossVFX.FortissimoFlashWarning(NPC.Center, EroicaGold, 1f);
+                    
                     // Spawn side projectiles on dash start for pressure
                     if (Main.netMode != NetmodeID.MultiplayerClient && difficultyTier >= 1)
                     {
@@ -766,6 +772,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     BossVFXOptimizer.ProjectileTrail(NPC.Center, NPC.velocity, EroicaGold);
                     BossVFXOptimizer.OptimizedThemedParticles(NPC.Center - NPC.velocity * 0.2f, "sakura", 2, 15f);
                 }
+                
+                // PHASE 10: Heroic fanfare VFX during dash
+                Phase10Integration.Eroica.DashFanfare(NPC.Center, NPC.velocity);
                 
                 if (Timer >= dashDuration)
                 {
@@ -799,6 +808,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 
                 // Deceleration trail particles
                 BossVFXOptimizer.DecelerationTrail(NPC.Center, NPC.velocity, EroicaGold, decelProgress);
+                
+                // PHASE 10: Diminuendo fade-out
+                Phase10BossVFX.DiminuendoFade(NPC.Center, EroicaGold, 1f - decelProgress);
                 
                 if (Timer >= 14)
                 {
@@ -869,6 +881,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     
                     BossVFXOptimizer.AttackReleaseBurst(NPC.Center, EroicaGold, EroicaScarlet, 0.7f);
                     SoundEngine.PlaySound(SoundID.Item12 with { Pitch = 0.1f }, NPC.Center);
+                    
+                    // PHASE 10: Musical barrage enhancement
+                    Phase10Integration.Eroica.MarchingBarrage(NPC.Center, Timer);
                 }
                 
                 if (Timer >= waveDelay)
@@ -1320,6 +1335,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     BossVFXOptimizer.ConvergingWarning(NPC.Center, 200f, progress, EroicaGold, 8);
                 }
                 
+                // PHASE 10: Musical chord buildup during charge
+                Phase10BossVFX.ChordBuildupConvergence(NPC.Center, new[] { EroicaGold, EroicaScarlet, Color.White }, progress);
+                
                 // SAFE ZONE INDICATOR - show player where to go (earlier and clearer)
                 if (Timer > chargeTime / 3)
                 {
@@ -1350,6 +1368,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     SoundEngine.PlaySound(SoundID.Item122 with { Volume = 1.5f }, NPC.Center);
                     
                     BossVFXOptimizer.AttackReleaseBurst(NPC.Center, EroicaGold, EroicaScarlet, 1.2f);
+                    
+                    // PHASE 10: Heroic judgment signature VFX
+                    Phase10Integration.Eroica.HeroesJudgmentVFX(NPC.Center, SubPhase / (float)waveCount, SubPhase);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
@@ -1393,6 +1414,12 @@ namespace MagnumOpus.Content.Eroica.Bosses
             }
             else
             {
+                // PHASE 10: Coda finale for signature attack conclusion
+                if (Timer == 1)
+                {
+                    Phase10BossVFX.CodaFinale(NPC.Center, EroicaGold, EroicaScarlet, 1.5f);
+                }
+                
                 if (Timer >= 20) // Shorter recovery (was 40)
                 {
                     EndAttack();
@@ -1593,6 +1620,13 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 CustomParticles.GenericFlare(burstPos, Color.Lerp(EroicaGold, Color.White, progress), 0.5f + progress * 0.5f, 15);
                 CustomParticles.HaloRing(burstPos, EroicaGold, 0.3f + progress * 0.3f, 12);
                 ThemedParticles.SakuraPetals(burstPos, (int)(4 + progress * 12), 60f);
+                
+                // PHASE 10: Musical death buildup
+                Phase10BossVFX.CrescendoDangerRings(NPC.Center, EroicaGold, progress);
+                if (progress > 0.5f)
+                {
+                    Phase10BossVFX.FermataHoldIndicator(NPC.Center, EroicaScarlet, progress - 0.5f);
+                }
             }
             
             if (deathTimer >= 180)
@@ -1615,6 +1649,11 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 }
                 
                 ThemedParticles.SakuraPetals(NPC.Center, 60, 200f);
+                
+                // PHASE 10: Grand musical finale
+                Phase10Integration.Universal.DeathFinale(NPC.Center, EroicaGold, EroicaScarlet);
+                Phase10BossVFX.CodaFinale(NPC.Center, EroicaGold, EroicaScarlet, 2f);
+                Phase10BossVFX.TuttiFullEnsemble(NPC.Center, new[] { EroicaGold, EroicaScarlet, Color.White }, 2f);
                 
                 // Death dialogue
                 BossDialogueSystem.Eroica.OnDeath();

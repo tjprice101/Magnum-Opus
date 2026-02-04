@@ -604,7 +604,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
                 float hue = (Main.GameUpdateCount * 0.01f + Main.rand.NextFloat()) % 1f;
                 Color noteColor = Main.hslToRgb(hue, 0.8f, 0.9f);
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
+                float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.8f * shimmer, 35);
             }
 
             // BRIGHT pulsing light!

@@ -328,6 +328,12 @@ namespace MagnumOpus.Content.Winter.Bosses
             {
                 SelectNextAttack(target);
             }
+            
+            // === PHASE 10 MUSICAL VFX: Beat Synced Rhythm - Winter's Frozen Tempo ===
+            if (Timer % 36 == 0)
+            {
+                Phase10Integration.Universal.BeatSyncedRhythm(NPC.Center, FrostBlue, 100f, Timer);
+            }
         }
         
         private void SelectNextAttack(Player target)
@@ -515,6 +521,9 @@ namespace MagnumOpus.Content.Winter.Bosses
                 
                 SpawnIceBurst(NPC.Center, 60, 18f);
                 MagnumScreenEffects.AddScreenShake(24f);
+                
+                // === PHASE 10 MUSICAL VFX: Death Finale - Winter's Silent End ===
+                Phase10Integration.Universal.DeathFinale(NPC.Center, WinterWhite, FrostBlue);
                 
                 NPC.life = 0;
                 NPC.checkDead();
@@ -859,6 +868,9 @@ namespace MagnumOpus.Content.Winter.Bosses
                 
                 if (Timer > chargeTime * 0.7f)
                     MagnumScreenEffects.AddScreenShake(progress * 5f);
+                
+                // === PHASE 10 MUSICAL VFX: Crescendo Charge Up - Winter's Judgment Building ===
+                Phase10Integration.Universal.CrescendoChargeUp(NPC.Center, CrystalCyan, progress);
                 
                 if (Timer >= chargeTime)
                 {

@@ -529,7 +529,267 @@ Before considering a weapon complete, verify:
 
 ---
 
-## 🎯 FINAL WORDS
+## � COMPLETE PARTICLE ASSET CATALOG (Assets/Particles/)
+
+> **ALL 110+ particle textures available for use. MIX AND MATCH for unique effects!**
+
+### Flares & Energy Effects
+| File | Purpose | Recommended Scale |
+|------|---------|-------------------|
+| `EnergyFlare.png` | Intense bright bursts | 0.4f - 1.2f |
+| `EnergyFlare4.png` | Alternate flare shape | 0.4f - 1.2f |
+| `FlareSparkle.png` | Small bright sparkle | 0.3f - 0.6f |
+| `FlareSpikeBurst.png` | Spike-shaped burst | 0.5f - 1.0f |
+| `GlintSparkleFlare.png` | Glinting highlight | 0.2f - 0.5f |
+| `GlintTwilightSparkleFlare.png` | Twilight glint | 0.2f - 0.5f |
+| `SmallBurst.png` | Mini burst effect | 0.3f - 0.8f |
+| `SmallBurstFlare.png` | Flare with burst | 0.3f - 0.8f |
+| `SparkleBurst.png` | Sparkle explosion | 0.4f - 1.0f |
+| `ThinSparkleFlare.png` | Narrow sparkle | 0.2f - 0.5f |
+
+### Soft Glows & Halos
+| File | Purpose | Recommended Scale |
+|------|---------|-------------------|
+| `SoftGlow2.png` | Ambient soft glow | 0.3f - 0.8f |
+| `SoftGlow3.png` | Medium soft glow | 0.3f - 0.8f |
+| `SoftGlow4.png` | Large soft glow | 0.3f - 0.8f |
+| `GlowingHalo1.png` | Ring/halo effect | 0.3f - 1.0f |
+| `GlowingHalo2.png` | Alternate halo | 0.3f - 1.0f |
+| `GlowingHalo4.png` | Glowing ring | 0.3f - 1.0f |
+| `GlowingHalo5.png` | Bright halo | 0.3f - 1.0f |
+| `GlowingHalo6.png` | Large halo | 0.3f - 1.0f |
+
+### Music Notes (MUSIC MOD - USE HEAVILY!)
+| File | Purpose | Recommended Scale |
+|------|---------|-------------------|
+| `MusicNote.png` | Standard music note | **0.6f - 1.2f** |
+| `MusicNoteWithSlashes.png` | Note with accents | **0.6f - 1.2f** |
+| `CursiveMusicNote.png` | Elegant cursive note | **0.6f - 1.2f** |
+| `QuarterNote.png` | Quarter note shape | **0.6f - 1.2f** |
+| `TallMusicNote.png` | Vertical note | **0.6f - 1.2f** |
+| `WholeNote.png` | Whole note (circle) | **0.6f - 1.2f** |
+
+### Stars & Sparkles
+| File | Purpose | Recommended Scale |
+|------|---------|-------------------|
+| `Star.png` | Basic star shape | 0.3f - 0.8f |
+| `StarBurst1.png` | Radial star explosion | 0.5f - 1.5f |
+| `StarBurst2.png` | Alternate starburst | 0.5f - 1.5f |
+| `StarryStarburst.png` | Multi-star burst | 0.4f - 1.2f |
+| `CircularStarRing.png` | Ring of stars | 0.4f - 1.0f |
+| `ConstellationStyleSparkle.png` | Constellation point | 0.2f - 0.5f |
+| `ShatteredStarlight.png` | Broken star fragments | 0.4f - 1.0f |
+| `TwilightSparkle.png` | Twilight shimmer | 0.2f - 0.5f |
+| `TwinkleSparkle.png` | Twinkling point | 0.2f - 0.5f |
+| `SmallTwilightSparkle.png` | Tiny twilight | 0.15f - 0.4f |
+
+### Prismatic & Magic Sparkles (15 variants!)
+| File | Purpose | Recommended Scale |
+|------|---------|-------------------|
+| `PrismaticSparkle11.png` | Rainbow sparkle | 0.3f - 0.7f |
+| `PrismaticSparkle13.png` | Alternate prismatic | 0.3f - 0.7f |
+| `PrismaticSparkle14.png` | Bright prismatic | 0.3f - 0.7f |
+| `MagicSparklField4-12.png` | Magic sparkle clusters (9 variants) | 0.3f - 0.8f |
+| `ManySparklesInCLuster.png` | Cluster of sparkles | 0.4f - 1.0f |
+
+### Sword Arcs & Slashes (USE FOR MELEE!)
+| File | Purpose | Recommended Scale |
+|------|---------|-------------------|
+| `SwordArc1.png` | Melee swing arc | 0.5f - 1.5f |
+| `SwordArc2.png` | Alternate arc | 0.5f - 1.5f |
+| `SwordArc3.png` | Third arc variant | 0.5f - 1.5f |
+| `SwordArc6.png` | Wide arc | 0.5f - 1.5f |
+| `SwordArc8.png` | Narrow arc | 0.5f - 1.5f |
+| `SwordArcSlashWave.png` | Wave slash effect | 0.5f - 1.5f |
+| `SimpleArcSwordSlash.png` | Simple slash | 0.4f - 1.2f |
+| `CurvedSwordSlash.png` | Curved slash | 0.4f - 1.2f |
+| `FlamingArcSwordSlash.png` | Fiery slash | 0.5f - 1.5f |
+
+### Trails
+| File | Purpose | Recommended Scale |
+|------|---------|-------------------|
+| `ParticleTrail1.png` | Elongated trail | 0.3f - 0.8f |
+| `ParticleTrail2.png` | Medium trail | 0.3f - 0.8f |
+| `ParticleTrail3.png` | Fading trail | 0.3f - 0.8f |
+| `ParticleTrail4.png` | Wispy trail | 0.3f - 0.8f |
+
+### Swan Feathers (10 variants for Swan Lake!)
+| File | Purpose | Recommended Scale |
+|------|---------|-------------------|
+| `SwanFeather1-10.png` | Feathers for Swan Lake theme | 0.4f - 1.0f |
+
+### Enigma Eyes (8 variants for Enigma!)
+| File | Purpose | Recommended Scale |
+|------|---------|-------------------|
+| `EnigmaEye1.png` | Basic enigma eye | 0.4f - 0.8f |
+| `ActivatedEnigmaEye.png` | Activated/glowing eye | 0.4f - 0.8f |
+| `BurstingEye.png` | Eye burst effect | 0.4f - 0.8f |
+| `CircularEnigmaEye.png` | Circular eye shape | 0.4f - 0.8f |
+| `GodEye.png` | Divine eye | 0.5f - 1.0f |
+| `LargeEye.png` | Large watching eye | 0.5f - 1.0f |
+| `SpikeyEye.png` | Spiked eye | 0.4f - 0.8f |
+| `TriangularEye.png` | Triangle eye | 0.4f - 0.8f |
+
+### Glyphs & Symbols (12 variants for magic!)
+| File | Purpose | Recommended Scale |
+|------|---------|-------------------|
+| `Glyphs1-12.png` | Arcane symbols | 0.3f - 0.7f |
+
+### Flames & Fire
+| File | Purpose | Recommended Scale |
+|------|---------|-------------------|
+| `Impact.png` | Impact explosion | 0.4f - 1.0f |
+| `FlameImpactExplosion.png` | Flame burst | 0.5f - 1.2f |
+| `LargeFlameImpactExplosion.png` | Large flame burst | 0.6f - 1.5f |
+| `FlameWispImpactExplosion.png` | Wispy flame | 0.4f - 1.0f |
+| `FlamingWispProjectileSmall.png` | Small flame projectile | 0.3f - 0.8f |
+| `TallFlamingWispProjectile.png` | Tall flame wisp | 0.4f - 1.0f |
+
+### Lightning & Energy
+| File | Purpose | Recommended Scale |
+|------|---------|-------------------|
+| `LightningBurst.png` | Lightning explosion | 0.5f - 1.2f |
+| `LightningBurstThick.png` | Thick lightning | 0.5f - 1.2f |
+| `LightningStreak.png` | Lightning bolt | 0.4f - 1.0f |
+
+### Crystals & Shards
+| File | Purpose | Recommended Scale |
+|------|---------|-------------------|
+| `MediumCrystalShard.png` | Crystal fragment | 0.3f - 0.8f |
+| `SmallCrystalShard.png` | Small crystal | 0.2f - 0.6f |
+
+### Nature & Organic
+| File | Purpose | Recommended Scale |
+|------|---------|-------------------|
+| `RosesBud.png` | Rose flower | 0.3f - 0.8f |
+| `VineWithNoRoses.png` | Plain vine | 0.4f - 1.0f |
+| `VineWithRoseOnTop.png` | Vine with rose | 0.4f - 1.0f |
+| `VineWithTwoRoses.png` | Vine with roses | 0.4f - 1.0f |
+| `CrescentSparkleMoon.png` | Crescent moon | 0.3f - 0.8f |
+
+### Miscellaneous
+| File | Purpose | Recommended Scale |
+|------|---------|-------------------|
+| `ClockworkGearLarge.png` | Large gear | 0.4f - 1.0f |
+| `ClockworkGearSmall.png` | Small gear | 0.3f - 0.7f |
+| `CrossParticleBlack.png` | Black cross | 0.3f - 0.7f |
+| `CrossParticleWhite.png` | White cross | 0.3f - 0.7f |
+| `BarrageOfGlintsAndSparkles.png` | Sparkle cluster | 0.4f - 1.0f |
+
+---
+
+## 🎼 PHASE 10: MUSICAL VFX INTEGRATION
+
+> **Use Phase10Integration for boss attacks. Use the weapon VFX patterns below for weapons.**
+
+### Theme-Specific Helper Classes
+
+All Phase 10 musical VFX is accessed through `Phase10Integration`:
+
+```csharp
+using MagnumOpus.Common.Systems;
+
+// EROICA (Heroic, Triumphant)
+Phase10Integration.Eroica.DashFanfare(position, velocity);
+Phase10Integration.Eroica.HeroicImpact(position, intensity);
+Phase10Integration.Eroica.MarchingBarrage(position, timer);
+Phase10Integration.Eroica.SakuraCrescendo(position, chargeProgress);
+Phase10Integration.Eroica.HeroesJudgmentVFX(position, progress, waveNumber);
+
+// SWAN LAKE (Graceful, Prismatic)
+Phase10Integration.SwanLake.BalletGrace(position, velocity, timer);
+Phase10Integration.SwanLake.DyingSwanMelancholy(position, hpPercent);
+Phase10Integration.SwanLake.ChromaticSurge(position, progress);
+Phase10Integration.SwanLake.MonochromaticApocalypseVFX(position, rotationAngle, intensity);
+
+// ENIGMA (Mysterious, Void)
+Phase10Integration.Enigma.MysteriousTrill(position, timer);
+Phase10Integration.Enigma.ParadoxSyncopation(position, bpm);
+Phase10Integration.Enigma.VoidHarmonics(start, end);
+Phase10Integration.Enigma.ParadoxJudgmentVFX(position, progress);
+
+// LA CAMPANELLA (Infernal, Bell-like)
+Phase10Integration.LaCampanella.BellChimeResonance(position, timer);
+Phase10Integration.LaCampanella.InfernalTremolo(position);
+Phase10Integration.LaCampanella.InfernalJudgmentVFX(position, chargeProgress);
+
+// FATE (Cosmic, Celestial)
+Phase10Integration.Fate.CosmicChordProgression(position, chordNumber);
+Phase10Integration.Fate.RealityTempoDistortion(position, intensity);
+Phase10Integration.Fate.ConstellationArpeggio(position, noteIndex, totalNotes);
+Phase10Integration.Fate.CosmicJudgmentVFX(position, progress);
+
+// UNIVERSAL (Theme-agnostic)
+Phase10Integration.Universal.MusicalProjectileTrail(position, velocity, color, noteColor);
+Phase10Integration.Universal.CrescendoChargeUp(position, color, progress);
+Phase10Integration.Universal.DramaticImpact(position, primaryColor, secondaryColor, intensity);
+Phase10Integration.Universal.BeatSyncedRhythm(position, color, bpm);
+Phase10Integration.Universal.DeathFinale(position, colors, intensity);
+```
+
+### Musical Projectile Trail Formula
+
+**Every projectile should use this pattern for musical trails:**
+
+```csharp
+public override void AI()
+{
+    // === PHASE 10 MUSICAL TRAIL ===
+    Phase10Integration.Universal.MusicalProjectileTrail(
+        Projectile.Center, 
+        Projectile.velocity, 
+        themeColor, 
+        noteColor
+    );
+    
+    // === ORBITING MUSIC NOTES (1-in-6) ===
+    if (Main.rand.NextBool(6))
+    {
+        float orbitAngle = Main.GameUpdateCount * 0.08f;
+        for (int i = 0; i < 3; i++)
+        {
+            float noteAngle = orbitAngle + MathHelper.TwoPi * i / 3f;
+            Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * 15f;
+            ThemedParticles.[Theme]MusicNotes(notePos, 1, 8f);
+        }
+    }
+    
+    // === THEME-SPECIFIC ACCENTS ===
+    // Add glyphs (Enigma/Fate), feathers (Swan), petals (Eroica), smoke (Campanella), etc.
+}
+```
+
+### Musical Impact Formula
+
+**Every impact/hit should use this pattern:**
+
+```csharp
+public override void OnKill(int timeLeft)
+{
+    // === PHASE 10 DRAMATIC IMPACT ===
+    Phase10Integration.Universal.DramaticImpact(
+        Projectile.Center,
+        primaryColor,
+        secondaryColor,
+        1f // intensity
+    );
+    
+    // === MUSIC NOTE CHORD BURST ===
+    for (int i = 0; i < 6; i++)
+    {
+        float angle = MathHelper.TwoPi * i / 6f;
+        Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
+        ThemedParticles.[Theme]MusicNotes(Projectile.Center, 1, 10f);
+    }
+    
+    // === THEME-SPECIFIC FINALE ===
+    // Add CodaFinale (boss deaths), ChordResolution (impacts), etc.
+}
+```
+
+---
+
+## �🎯 FINAL WORDS
 
 **The weapons look great statically. But when you USE them, they fall apart.**
 

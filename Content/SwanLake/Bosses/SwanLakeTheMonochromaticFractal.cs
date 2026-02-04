@@ -653,6 +653,10 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             // Crystalline tears fall during the tragic finale
             if (currentMood == BossMood.DyingSwan && Main.rand.NextBool(4))
             {
+                // === PHASE 10 MUSICAL VFX: Dying Swan Melancholy ===
+                float hpPercent = (float)NPC.life / NPC.lifeMax;
+                Phase10Integration.SwanLake.DyingSwanMelancholy(NPC.Center, hpPercent);
+                
                 Vector2 tearStart = NPC.Center + new Vector2(Main.rand.NextFloat(-30f, 30f), -20f);
                 Vector2 tearVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(1.5f, 2.5f));
                 
@@ -778,6 +782,10 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             {
                 NPC.velocity *= 0.85f;
             }
+            
+            // === PHASE 10 MUSICAL VFX: Ballet Grace Movement ===
+            // Add waltz-time musical accents to elegant hover movement
+            Phase10Integration.SwanLake.BalletGrace(NPC.Center, NPC.velocity, (int)Timer);
             
             // Spawn trail particles while moving fast - mood affects intensity
             if (NPC.velocity.Length() > 8f && Main.rand.NextBool(currentMood == BossMood.DyingSwan ? 1 : 2))
@@ -1533,6 +1541,10 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             }
             
             beamRotationAngle += rotationSpeed;
+            
+            // === PHASE 10 MUSICAL VFX: Monochromatic Apocalypse - Counterpoint/Fugue ===
+            float intensity = Timer < 42 ? 0.5f : (Timer < 84 ? 0.75f : 1f);
+            Phase10Integration.SwanLake.MonochromaticApocalypseVFX(NPC.Center, beamRotationAngle, intensity);
             
             // Draw the primary beam
             DrawPrismaticBeam(NPC.Center, beamRotationAngle, beamLength);
@@ -2657,6 +2669,10 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             
             if (AttackPhase < surgeWaves)
             {
+                // === PHASE 10 MUSICAL VFX: Chromatic Scale Surge ===
+                float surgeProgress = AttackPhase / (float)surgeWaves;
+                Phase10Integration.SwanLake.ChromaticSurge(NPC.Center, surgeProgress);
+                
                 if (Timer == 1)
                 {
                     EroicaScreenShake.MediumShake(NPC.Center);
@@ -3693,6 +3709,9 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             // Actually die at the end
             if (deathTimer >= DeathAnimationDuration)
             {
+                // === PHASE 10 MUSICAL VFX: Death Finale - Full Coda ===
+                Phase10Integration.Universal.DeathFinale(NPC.Center, Color.White, new Color(30, 30, 40));
+                
                 // Death dialogue
                 BossDialogueSystem.SwanLake.OnDeath();
                 BossDialogueSystem.CleanupDialogue(NPC.whoAmI);

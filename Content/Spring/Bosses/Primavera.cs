@@ -544,6 +544,12 @@ namespace MagnumOpus.Content.Spring.Bosses
             {
                 SpawnPetalParticle(NPC.Center + Main.rand.NextVector2Circular(50f, 50f));
             }
+            
+            // === PHASE 10 MUSICAL VFX: Crescendo Charge Up - Spring's Musical Preparation ===
+            if (Timer % 30 == 0)
+            {
+                Phase10Integration.Universal.CrescendoChargeUp(NPC.Center, SpringPink, 0.5f);
+            }
         }
         
         private void AI_Dying(Player target)
@@ -587,6 +593,9 @@ namespace MagnumOpus.Content.Spring.Bosses
                 
                 SpawnPetalBurst(NPC.Center, 50, 15f);
                 MagnumScreenEffects.AddScreenShake(20f);
+                
+                // === PHASE 10 MUSICAL VFX: Death Finale - Spring's Swan Song ===
+                Phase10Integration.Universal.DeathFinale(NPC.Center, SpringWhite, SpringPink);
                 
                 NPC.life = 0;
                 NPC.checkDead();
@@ -943,6 +952,9 @@ namespace MagnumOpus.Content.Spring.Bosses
                 
                 if (Timer > chargeTime * 0.7f)
                     MagnumScreenEffects.AddScreenShake(progress * 4f);
+                
+                // === PHASE 10 MUSICAL VFX: Crescendo Charge Up - Blooming Judgment Building ===
+                Phase10Integration.Universal.CrescendoChargeUp(NPC.Center, SpringPink, progress);
                 
                 if (Timer >= chargeTime)
                 {

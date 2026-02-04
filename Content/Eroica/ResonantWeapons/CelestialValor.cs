@@ -218,12 +218,13 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
                 ThemedParticles.SakuraPetals(hitCenter, 1, 25f);
             }
             
-            // === MUSIC NOTES - The hero's anthem! ===
-            if (Main.rand.NextBool(6))
+            // === MUSIC NOTES - The hero's anthem! (VISIBLE SCALE 0.8f+) ===
+            if (Main.rand.NextBool(4))
             {
                 Color noteColor = Color.Lerp(UnifiedVFX.Eroica.Gold, UnifiedVFX.Eroica.Sakura, Main.rand.NextFloat());
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
-                ThemedParticles.MusicNote(hitCenter, noteVel, noteColor, 0.35f, 30);
+                float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
+                ThemedParticles.MusicNote(hitCenter, noteVel, noteColor, 0.8f * shimmer, 30);
             }
         }
 

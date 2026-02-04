@@ -114,7 +114,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 Vector2 noteVel = -Projectile.velocity.SafeNormalize(Vector2.Zero) * 1.5f;
                 noteVel = noteVel.RotatedByRandom(0.4f);
                 Color noteColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, Main.rand.NextFloat());
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.28f, 22);
+                float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.75f * shimmer, 22);
             }
             
             // Shimmer effect (reduced - ThemedParticles handles additional visuals)

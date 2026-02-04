@@ -318,6 +318,12 @@ namespace MagnumOpus.Content.Autumn.Bosses
             {
                 SelectNextAttack(target);
             }
+            
+            // === PHASE 10 MUSICAL VFX: Beat Synced Rhythm - Autumn's Melancholic Tempo ===
+            if (Timer % 30 == 0)
+            {
+                Phase10Integration.Universal.BeatSyncedRhythm(NPC.Center, FadingGold, 120f, Timer);
+            }
         }
         
         private void SelectNextAttack(Player target)
@@ -496,6 +502,9 @@ namespace MagnumOpus.Content.Autumn.Bosses
                 
                 SpawnLeafBurst(NPC.Center, 55, 16f);
                 MagnumScreenEffects.AddScreenShake(22f);
+                
+                // === PHASE 10 MUSICAL VFX: Death Finale - Autumn's Final Requiem ===
+                Phase10Integration.Universal.DeathFinale(NPC.Center, AutumnWhite, FadingGold);
                 
                 NPC.life = 0;
                 NPC.checkDead();
@@ -840,6 +849,9 @@ namespace MagnumOpus.Content.Autumn.Bosses
                 
                 if (Timer > chargeTime * 0.7f)
                     MagnumScreenEffects.AddScreenShake(progress * 4.5f);
+                
+                // === PHASE 10 MUSICAL VFX: Crescendo Charge Up - Autumnal Judgment Building ===
+                Phase10Integration.Universal.CrescendoChargeUp(NPC.Center, FadingGold, progress);
                 
                 if (Timer >= chargeTime)
                 {

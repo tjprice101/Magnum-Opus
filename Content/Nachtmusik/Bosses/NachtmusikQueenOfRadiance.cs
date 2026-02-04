@@ -799,6 +799,12 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 NPC.rotation = MathHelper.Lerp(NPC.rotation, 0f, 0.02f);
             }
             
+            // === PHASE 10 MUSICAL VFX: Beat Synced Rhythm - Celestial Waltz ===
+            if (Timer % 40 == 0)
+            {
+                Phase10Integration.Universal.BeatSyncedRhythm(NPC.Center, Violet, 90f, Timer);
+            }
+            
             if (attackCooldown <= 0)
             {
                 SelectPhase1Attack(target);
@@ -1629,6 +1635,10 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 }
                 
                 float progress = Timer / 60f;
+                
+                // === PHASE 10 MUSICAL VFX: Crescendo Charge Up - Eternal Night Building ===
+                Phase10Integration.Universal.CrescendoChargeUp(NPC.Center, Gold, progress);
+                
                 BossVFXOptimizer.ConvergingWarning(NPC.Center, 200f, progress, DeepPurple, 12);
                 
                 if (Timer % 5 == 0)
@@ -2239,6 +2249,9 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 
                 // Massive star explosion
                 CustomParticles.GenericFlare(NPC.Center, StarWhite, 3.0f, 40);
+                
+                // === PHASE 10 MUSICAL VFX: Death Finale - Celestial Queen's Final Note ===
+                Phase10Integration.Universal.DeathFinale(NPC.Center, StarWhite, Gold);
                 
                 for (int ring = 0; ring < 20; ring++)
                 {

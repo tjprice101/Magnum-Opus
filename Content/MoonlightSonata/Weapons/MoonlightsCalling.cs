@@ -45,24 +45,69 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
 
         public override void HoldItem(Player player)
         {
-            // Subtle ambient aura (Swan Lake benchmark: minimal HoldItem)
-            if (Main.rand.NextBool(15))
+            float time = Main.GameUpdateCount * 0.04f;
+            float pulse = (float)Math.Sin(time * 1.5f) * 0.12f + 0.88f;
+            
+            // === ORBITING LUNAR MOTES - Like tiny moons around the player ===
+            if (Main.rand.NextBool(6))
+            {
+                float orbitAngle = time + Main.rand.NextFloat(MathHelper.TwoPi);
+                float radius = 25f + (float)Math.Sin(time * 2f + Main.rand.NextFloat()) * 8f;
+                Vector2 orbitPos = player.Center + orbitAngle.ToRotationVector2() * radius;
+                
+                // Gradient from dark purple core to light blue edge
+                float hueShift = (time * 0.02f) % 0.15f;
+                Color moteColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, 
+                    ((float)Math.Sin(orbitAngle * 2f) + 1f) * 0.5f);
+                
+                CustomParticles.GenericFlare(orbitPos, moteColor * 0.7f, 0.25f * pulse, 12);
+            }
+            
+            // === PRISMATIC SPARKLE TRAIL ===
+            if (Main.rand.NextBool(8))
             {
                 Vector2 offset = Main.rand.NextVector2Circular(22f, 22f);
                 Color gradientColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, Main.rand.NextFloat());
-                CustomParticles.PrismaticSparkle(player.Center + offset, gradientColor * 0.5f, 0.18f);
+                CustomParticles.PrismaticSparkle(player.Center + offset, gradientColor * 0.6f, 0.22f);
+                
+                // Accompanying sparkle
+                var sparkle = new SparkleParticle(player.Center + offset, Vector2.Zero, UnifiedVFX.MoonlightSonata.Silver * 0.4f, 0.15f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            // Rare music note
-            if (Main.rand.NextBool(25))
+            // === VISIBLE ORBITING MUSIC NOTES - Scale 0.75f+ ===
+            if (Main.rand.NextBool(10))
             {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
-                ThemedParticles.MusicNote(notePos, new Vector2(0, -0.5f), UnifiedVFX.MoonlightSonata.MediumPurple * 0.6f, 0.2f, 30);
+                float noteOrbitAngle = time * 0.8f;
+                for (int i = 0; i < 2; i++)
+                {
+                    float noteAngle = noteOrbitAngle + MathHelper.TwoPi * i / 2f;
+                    Vector2 notePos = player.Center + noteAngle.ToRotationVector2() * 30f;
+                    Vector2 noteVel = new Vector2(0, -Main.rand.NextFloat(0.4f, 0.8f));
+                    
+                    // VISIBLE scale with shimmer
+                    float shimmer = 1f + (float)Math.Sin(time * 3f + i) * 0.12f;
+                    Color noteColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, i * 0.4f);
+                    ThemedParticles.MusicNote(notePos, noteVel, noteColor * 0.85f, 0.75f * shimmer, 40);
+                    
+                    // Sparkle companion for visibility
+                    CustomParticles.PrismaticSparkle(notePos + Main.rand.NextVector2Circular(5f, 5f), 
+                        UnifiedVFX.MoonlightSonata.Silver * 0.5f, 0.18f);
+                }
             }
             
-            // Pulsing mystical glow
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.9f;
-            Lighting.AddLight(player.Center, 0.35f * pulse, 0.22f * pulse, 0.5f * pulse);
+            // === DENSE DUST AURA - Iridescent Wingspan style ===
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(20f, 20f);
+                Color dustColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, Main.rand.NextFloat());
+                Dust d = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, Main.rand.NextVector2Circular(0.8f, 0.8f), 100, dustColor, 1.1f);
+                d.noGravity = true;
+                d.fadeIn = 1.2f;
+            }
+            
+            // Pulsing mystical glow - brighter
+            Lighting.AddLight(player.Center, 0.45f * pulse, 0.28f * pulse, 0.65f * pulse);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
@@ -108,15 +153,50 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
             
             Vector2 direction = velocity.SafeNormalize(Vector2.UnitX);
             
-            // === GENTLE MUZZLE FLASH (Swan Lake benchmark) ===
-            // Central flash
-            CustomParticles.GenericFlare(position, UnifiedVFX.MoonlightSonata.LightBlue * 0.7f, 0.4f, 12);
+            // === PHASE 10 ENHANCED MUZZLE FLASH ===
+            // Layered central flash (Iridescent Wingspan style)
+            CustomParticles.GenericFlare(position, Color.White * 0.6f, 0.5f, 15);
+            CustomParticles.GenericFlare(position, UnifiedVFX.MoonlightSonata.LightBlue * 0.8f, 0.42f, 14);
+            CustomParticles.GenericFlare(position, UnifiedVFX.MoonlightSonata.DarkPurple * 0.6f, 0.35f, 12);
             
-            // Single halo
-            CustomParticles.HaloRing(position, UnifiedVFX.MoonlightSonata.MediumPurple * 0.5f, 0.25f, 12);
+            // Cascading halo rings with gradient
+            for (int i = 0; i < 3; i++)
+            {
+                Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, i / 3f);
+                CustomParticles.HaloRing(position, ringColor * (0.5f - i * 0.1f), 0.22f + i * 0.08f, 10 + i * 2);
+            }
             
-            // Gentle music notes
-            ThemedParticles.MoonlightMusicNotes(position, 2, 18f);
+            // === VISIBLE MUSIC NOTES - Scale 0.8f ===
+            for (int i = 0; i < 3; i++)
+            {
+                float angle = direction.ToRotation() + Main.rand.NextFloat(-0.5f, 0.5f);
+                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
+                Color noteColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, i / 3f);
+                ThemedParticles.MusicNote(position + direction * 10f, noteVel, noteColor * 0.9f, 0.8f, 35);
+            }
+            
+            // Directional spark burst
+            for (int i = 0; i < 5; i++)
+            {
+                float sparkAngle = direction.ToRotation() + Main.rand.NextFloat(-0.4f, 0.4f);
+                Vector2 sparkVel = sparkAngle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
+                Color sparkColor = Color.Lerp(UnifiedVFX.MoonlightSonata.LightBlue, Color.White, Main.rand.NextFloat(0.3f));
+                var spark = new SparkleParticle(position, sparkVel, sparkColor, 0.3f, 18);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+            
+            // Dense dust burst
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 dustVel = direction * 3f + Main.rand.NextVector2Circular(2f, 2f);
+                Dust d = Dust.NewDustPerfect(position, DustID.PurpleTorch, dustVel, 80, default, 1.4f);
+                d.noGravity = true;
+                d.fadeIn = 1.2f;
+            }
+            
+            // Phase10 dramatic impact for shot firing
+            Phase10Integration.Universal.DramaticImpact(position, UnifiedVFX.MoonlightSonata.DarkPurple, 
+                UnifiedVFX.MoonlightSonata.LightBlue, 0.4f);
             
             return false;
         }

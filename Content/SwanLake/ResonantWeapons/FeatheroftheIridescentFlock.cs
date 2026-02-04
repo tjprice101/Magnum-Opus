@@ -426,12 +426,13 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             }
             
             // ☁EMUSICAL NOTATION - Swan Lake graceful melody
-            if (Main.rand.NextBool(8))
+            if (Main.rand.NextBool(6))
             {
                 float hue = (Main.GameUpdateCount * 0.01f + Main.rand.NextFloat()) % 1f;
                 Color noteColor = Main.hslToRgb(hue, 0.8f, 0.9f);
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.3f, 30);
+                float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.8f * shimmer, 30);
             }
         }
 
@@ -763,12 +764,13 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             }
             
             // ☁EMUSICAL NOTATION - Swan Lake graceful melody
-            if (Main.rand.NextBool(5))
+            if (Main.rand.NextBool(4))
             {
                 float hue = (Main.GameUpdateCount * 0.01f + Main.rand.NextFloat()) % 1f;
                 Color noteColor = Main.hslToRgb(hue, 0.8f, 0.9f);
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
+                float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
+                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.85f * shimmer, 35);
             }
 
             // BRIGHT rainbow lighting - cycles through spectrum
@@ -1046,7 +1048,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
                 float noteHue = (Main.GameUpdateCount * 0.01f + Main.rand.NextFloat()) % 1f;
                 Color noteColor = Main.hslToRgb(noteHue, 0.8f, 0.9f);
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.35f, 35);
+                float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
+                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.8f * shimmer, 35);
             }
 
             // Explosive hit at target location periodically - MORE OFTEN

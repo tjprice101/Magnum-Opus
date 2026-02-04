@@ -610,6 +610,12 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 NPC.velocity *= 0.95f;
             }
             
+            // === PHASE 10 MUSICAL VFX: Ambient Crescendo - Rose Garden's Rhythm ===
+            if (Timer % 30 == 0)
+            {
+                Phase10Integration.Universal.CrescendoChargeUp(NPC.Center, RosePink, 0.4f);
+            }
+            
             if (attackCooldown <= 0)
             {
                 SelectNextAttack(target);
@@ -1000,6 +1006,9 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 
                 float progress = (float)Timer / chargeTime;
                 
+                // === PHASE 10 MUSICAL VFX: Crescendo Charge Up - Garden's Harmony Building ===
+                Phase10Integration.Universal.CrescendoChargeUp(NPC.Center, GoldenPollen, progress);
+                
                 // Converging rose petals
                 BossVFXOptimizer.ConvergingWarning(NPC.Center, 150f, progress, RosePink, 10);
                 
@@ -1222,6 +1231,9 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 // FINAL EXPLOSION
                 OdeToJoyVFX.DeathExplosion(NPC.Center, 2.5f);
                 MagnumScreenEffects.AddScreenShake(25f);
+                
+                // === PHASE 10 MUSICAL VFX: Death Finale - The Garden's Final Song ===
+                Phase10Integration.Universal.DeathFinale(NPC.Center, WhiteBloom, RosePink);
                 
                 if (Main.netMode != NetmodeID.Server)
                 {

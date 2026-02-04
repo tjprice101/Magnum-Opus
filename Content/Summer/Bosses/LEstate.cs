@@ -538,6 +538,12 @@ namespace MagnumOpus.Content.Summer.Bosses
             {
                 SpawnFlameParticle(NPC.Center + Main.rand.NextVector2Circular(50f, 50f));
             }
+            
+            // === PHASE 10 MUSICAL VFX: Beat Synced Rhythm - Summer's Blazing Tempo ===
+            if (Timer % 24 == 0)
+            {
+                Phase10Integration.Universal.BeatSyncedRhythm(NPC.Center, SummerOrange, 150f, Timer);
+            }
         }
         
         private void AI_Dying(Player target)
@@ -579,6 +585,9 @@ namespace MagnumOpus.Content.Summer.Bosses
                 
                 SpawnSolarBurst(NPC.Center, 60, 18f);
                 MagnumScreenEffects.AddScreenShake(25f);
+                
+                // === PHASE 10 MUSICAL VFX: Death Finale - Summer's Solar Symphony Ends ===
+                Phase10Integration.Universal.DeathFinale(NPC.Center, SummerWhite, SolarGold);
                 
                 NPC.life = 0;
                 NPC.checkDead();
@@ -953,6 +962,9 @@ namespace MagnumOpus.Content.Summer.Bosses
                 
                 if (Timer > chargeTime * 0.7f)
                     MagnumScreenEffects.AddScreenShake(progress * 5f);
+                
+                // === PHASE 10 MUSICAL VFX: Crescendo Charge Up - Summer Solstice Building ===
+                Phase10Integration.Universal.CrescendoChargeUp(NPC.Center, SolarGold, progress);
                 
                 if (Timer >= chargeTime)
                 {
