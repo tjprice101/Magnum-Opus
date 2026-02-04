@@ -257,14 +257,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // Final explosion
-            for (int i = 0; i < 20; i++)
-            {
-                Dust explosion = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.RedTorch, 0f, 0f, 100, default, 2.5f);
-                explosion.noGravity = true;
-                explosion.velocity = Main.rand.NextVector2Circular(5f, 5f);
-            }
+            // Sharp crimson spark for ricochet beam
+            DynamicParticleEffects.EroicaDeathCrimsonSpark(Projectile.Center, 0.8f);
         }
     }
 }

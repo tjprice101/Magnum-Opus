@@ -118,25 +118,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // === ENHANCED DEATH BURST WITH BLOOM ===
-            EnhancedParticles.BloomFlare(Projectile.Center, ThemedParticles.MoonlightLightPurple, 0.55f, 18, 3, 0.9f);
-            
-            // Enhanced bloom burst
-            EnhancedThemedParticles.MoonlightBloomBurstEnhanced(Projectile.Center, 0.8f);
-            
-            // Enhanced musical death burst with bloom
-            EnhancedThemedParticles.MoonlightMusicNotesEnhanced(Projectile.Center, 5, 30f);
-            
-            // Dissipation particles
-            for (int i = 0; i < 10; i++)
-            {
-                Vector2 velocity = Main.rand.NextVector2Circular(4f, 4f);
-                float progress = (float)i / 10f;
-                Color deathColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
-                
-                var deathParticle = new GenericGlowParticle(Projectile.Center, velocity, deathColor, 0.28f, 18, true);
-                MagnumParticleHandler.SpawnParticle(deathParticle);
-            }
+            // Simplified eternal wave death - soft sparkle effect
+            DynamicParticleEffects.MoonlightDeathTwilightSparkle(Projectile.Center, 0.9f);
         }
 
         public override bool PreDraw(ref Color lightColor)

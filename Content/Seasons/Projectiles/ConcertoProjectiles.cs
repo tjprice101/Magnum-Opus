@@ -18,7 +18,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     public class SpringVerseProjectile : ModProjectile
     {
         // Use MagicSparklField for unique floral core
-        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField3";
+        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField6";
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
@@ -181,6 +181,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             
             // === DYNAMIC: Spring Theme Impact ===
             SpringImpact(target.Center, 1f);
+            SpringPetalBloom(target.Center, 1.2f); // Unique petal bloom effect
             DramaticImpact(target.Center, SpringPink, SpringGreen, 0.5f, 20);
             
             // === SEEKING CRYSTALS - Spring blossom burst ===
@@ -201,9 +202,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D coreTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField3").Value;
+            Texture2D coreTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField6").Value;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow3").Value;
-            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle2").Value;
+            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle13").Value;
             Vector2 coreOrigin = coreTex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 sparkleOrigin = sparkleTex.Size() / 2f;
@@ -286,7 +287,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class VersePetalProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle1";
+        public override string Texture => "MagnumOpus/Assets/Particles/Star";
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringPetalCore = new Color(255, 220, 230);
@@ -345,12 +346,13 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             
             // === DYNAMIC: Spring Petal Impact (smaller scale) ===
             SpringImpact(target.Center, 0.6f);
+            SpringVerdantTrail(target.Center, Projectile.velocity, 0.5f); // Unique verdant trail
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle1").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Star").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -505,6 +507,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             
             // === DYNAMIC: Summer Theme Impact ===
             SummerImpact(target.Center, 1f);
+            SummerSolarFlare(target.Center, 1.3f); // Unique solar flare explosion
             DramaticImpact(target.Center, SummerGold, SummerOrange, 0.5f, 20);
             
             // === SEEKING CRYSTALS - Summer blazing burst ===
@@ -527,7 +530,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             Texture2D coreTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/StarBurst1").Value;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle6").Value;
+            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/TwilightSparkle").Value;
             Vector2 coreOrigin = coreTex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 sparkleOrigin = sparkleTex.Size() / 2f;
@@ -669,6 +672,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             
             // === DYNAMIC: Summer Pillar Impact (smaller scale) ===
             SummerImpact(target.Center, 0.5f);
+            SummerHeatWave(target.Center, 0.6f); // Unique heat wave
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -814,6 +818,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             
             // === DYNAMIC: Autumn Theme Impact ===
             AutumnImpact(target.Center, 1f);
+            AutumnLeafCascade(target.Center, 1.1f); // Unique leaf cascade
             DramaticImpact(target.Center, AutumnOrange, AutumnGold, 0.5f, 20);
             
             // === SEEKING CRYSTALS - Autumn harvest burst ===
@@ -838,7 +843,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             // Load textures - using unique autumn textures
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow3").Value;
             Texture2D coreTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo4").Value;
-            Texture2D leafTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle5").Value;
+            Texture2D leafTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/ManySparklesInCLuster").Value;
             
             Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 coreOrigin = coreTex.Size() / 2f;
@@ -998,6 +1003,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             
             // === DYNAMIC: Autumn Decay Field Impact (smaller scale) ===
             AutumnImpact(target.Center, 0.4f);
+            AutumnDecaySpiral(target.Center, 0.5f); // Unique decay spiral
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -1007,7 +1013,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             // Load textures
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             Texture2D haloTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo2").Value;
-            Texture2D leafTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle5").Value;
+            Texture2D leafTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/ConstellationStyleSparkle").Value;
             
             Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 haloOrigin = haloTex.Size() / 2f;
@@ -1184,6 +1190,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             
             // === DYNAMIC: Winter Theme Impact ===
             WinterImpact(target.Center, 1f);
+            WinterCrystallineShatter(target.Center, 1.2f); // Unique crystalline shatter
             DramaticImpact(target.Center, WinterBlue, WinterCyan, 0.5f, 20);
         }
 
@@ -1194,7 +1201,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             // Load textures - unique ice/frost textures
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow4").Value;
             Texture2D coreTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/StarBurst2").Value;
-            Texture2D shardTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle3").Value;
+            Texture2D shardTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SmallTwilightSparkle").Value;
             
             Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 coreOrigin = coreTex.Size() / 2f;
@@ -1292,7 +1299,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class FinaleIceShardProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle3";
+        public override string Texture => "MagnumOpus/Assets/Particles/SmallTwilightSparkle";
         
         private static readonly Color WinterBlue = new Color(150, 220, 255);
         private static readonly Color WinterCyan = new Color(180, 240, 255);
@@ -1360,6 +1367,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             
             // === DYNAMIC: Winter Ice Shard Impact (smaller scale) ===
             WinterImpact(target.Center, 0.5f);
+            WinterBlizzardVeil(target.Center, 0.4f); // Unique frost mist
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -1367,7 +1375,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            Texture2D shardTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle3").Value;
+            Texture2D shardTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SmallTwilightSparkle").Value;
             
             Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 shardOrigin = shardTex.Size() / 2f;

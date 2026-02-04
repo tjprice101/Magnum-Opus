@@ -75,19 +75,130 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void HoldItem(Player player)
         {
-            // === SUBTLE MYSTERY ORB PREVIEW ===
-            // Occasional orbiting mini-orb
-            if (Main.rand.NextBool(20))
+            // === ENHANCED MYSTERY ORB PREVIEW ===
+            // Orbiting mini-orbs with eyes watching outward
+            float baseAngle = Main.GameUpdateCount * 0.025f;
+            
+            // === LAYER 1: Three orbiting mini mystery orbs ===
+            if (Main.rand.NextBool(8))
             {
-                float angle = Main.GameUpdateCount * 0.03f;
-                Vector2 orbPos = player.Center + angle.ToRotationVector2() * 40f;
-                var orb = new GenericGlowParticle(orbPos, Vector2.Zero, GetEnigmaGradient(0.5f), 0.2f, 12, true);
-                MagnumParticleHandler.SpawnParticle(orb);
+                for (int i = 0; i < 3; i++)
+                {
+                    float angle = baseAngle + MathHelper.TwoPi * i / 3f;
+                    float radius = 35f + (float)Math.Sin(Main.GameUpdateCount * 0.04f + i * 1.2f) * 8f;
+                    Vector2 orbPos = player.Center + angle.ToRotationVector2() * radius;
+                    float progress = (i / 3f + Main.GameUpdateCount * 0.01f) % 1f;
+                    var orb = new GenericGlowParticle(orbPos, Vector2.Zero, GetEnigmaGradient(progress), 0.22f, 14, true);
+                    MagnumParticleHandler.SpawnParticle(orb);
+                }
             }
             
-            // Subtle arcane light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.9f;
-            Lighting.AddLight(player.Center, EnigmaPurple.ToVector3() * pulse * 0.3f);
+            // === LAYER 2: Watching eye particles ===
+            if (Main.rand.NextBool(25))
+            {
+                float eyeAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                Vector2 eyePos = player.Center + eyeAngle.ToRotationVector2() * Main.rand.NextFloat(28f, 50f);
+                CustomParticles.EnigmaEyeGaze(eyePos, EnigmaPurple * 0.8f, 0.35f, null);
+            }
+            
+            // === LAYER 3: Glyph accents ===
+            if (Main.rand.NextBool(30))
+            {
+                Vector2 glyphOffset = Main.rand.NextVector2Circular(40f, 40f);
+                CustomParticles.Glyph(player.Center + glyphOffset, GetEnigmaGradient(Main.rand.NextFloat()), 0.25f, -1);
+            }
+            
+            // === LAYER 4: Green flame wisps ===
+            if (Main.rand.NextBool(18))
+            {
+                Vector2 flamePos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
+                Vector2 flameVel = new Vector2(0, -1.5f) + Main.rand.NextVector2Circular(0.5f, 0.5f);
+                var flame = new GenericGlowParticle(flamePos, flameVel, EnigmaGreen * 0.6f, 0.2f, 18, true);
+                MagnumParticleHandler.SpawnParticle(flame);
+            }
+            
+            // === LAYER 5: Music notes (this is a music mod!) ===
+            if (Main.rand.NextBool(35))
+            {
+                ThemedParticles.EnigmaMusicNotes(player.Center, 1, 35f);
+            }
+            
+            // Pulsing arcane light with color shift
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.15f + 0.85f;
+            float hueShift = (Main.GameUpdateCount * 0.008f) % 1f;
+            Color lightColor = Color.Lerp(EnigmaPurple, EnigmaGreen, hueShift * 0.4f);
+            Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse * 0.4f);
+        }
+        
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            // === ENIGMA MYSTERY GLOW EFFECT ===
+            Texture2D texture = Terraria.GameContent.TextureAssets.Item[Item.type].Value;
+            Vector2 drawPos = Item.Center - Main.screenPosition;
+            Vector2 origin = texture.Size() / 2f;
+            
+            float time = Main.GameUpdateCount * 0.04f;
+            float pulse = 1f + (float)Math.Sin(time * 1.5f) * 0.12f;
+            
+            // Switch to additive blending for glow
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // === LAYER 1: Outer purple mystery glow ===
+            Color outerGlow = EnigmaPurple * 0.25f;
+            spriteBatch.Draw(texture, drawPos, null, outerGlow, rotation, origin, scale * pulse * 1.4f, SpriteEffects.None, 0f);
+            
+            // === LAYER 2: Mid green flame shimmer ===
+            float greenPulse = (float)Math.Sin(time * 2f + 1f) * 0.1f + 0.9f;
+            Color midGlow = EnigmaGreen * 0.2f * greenPulse;
+            spriteBatch.Draw(texture, drawPos, null, midGlow, rotation + 0.05f, origin, scale * pulse * 1.25f, SpriteEffects.None, 0f);
+            
+            // === LAYER 3: Inner core glow ===
+            Color coreGlow = Color.Lerp(EnigmaPurple, EnigmaGreen, (float)Math.Sin(time) * 0.5f + 0.5f) * 0.35f;
+            spriteBatch.Draw(texture, drawPos, null, coreGlow, rotation, origin, scale * pulse * 1.1f, SpriteEffects.None, 0f);
+            
+            // Return to normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Draw the actual item
+            spriteBatch.Draw(texture, drawPos, null, lightColor, rotation, origin, scale, SpriteEffects.None, 0f);
+            
+            // Emit light
+            Lighting.AddLight(Item.Center, EnigmaPurple.ToVector3() * 0.5f);
+            
+            return false;
+        }
+        
+        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        {
+            // === INVENTORY MYSTERY PULSE ===
+            Texture2D texture = Terraria.GameContent.TextureAssets.Item[Item.type].Value;
+            
+            float time = Main.GameUpdateCount * 0.05f;
+            float pulse = 1f + (float)Math.Sin(time * 1.8f) * 0.08f;
+            
+            // Additive glow layer behind the item
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+            
+            // Purple-green shifting glow
+            float colorShift = (float)Math.Sin(time * 0.8f) * 0.5f + 0.5f;
+            Color glowColor = Color.Lerp(EnigmaPurple, EnigmaGreen, colorShift) * 0.3f;
+            spriteBatch.Draw(texture, position, frame, glowColor, 0f, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            
+            // Return to normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+            
+            // Draw the actual item
+            spriteBatch.Draw(texture, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
+            
+            return false;
         }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
@@ -474,11 +585,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
-            // === MASSIVE REALITY CASCADE ===
-            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 5f, 18);
-            FateRealityDistortion.TriggerInversionPulse(6);
-            
-            TriggerCascadeExplosion();
+            // UNIQUE DEATH: Mystery Unravel - cascading orb unravels spectacularly
+            DynamicParticleEffects.EnigmaDeathMysteryUnravel(Projectile.Center, 1.0f * currentScale);
         }
         
         private void TriggerCascadeExplosion()
@@ -785,27 +893,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
-            // === REALITY WARP ON DEATH ===
-            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 3f, 12);
-            
-            // === ENHANCED BLOOM BURST ===
-            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(Projectile.Center, 0.5f);
-            
-            for (int i = 0; i < 5; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 5f;
-                Vector2 vel = angle.ToRotationVector2() * 3f;
-                
-                // Use EnhancedParticlePool for bloom
-                var particle = EnhancedParticlePool.GetParticle()
-                    .Setup(Projectile.Center, vel, GetEnigmaGradient((float)i / 5f), 0.25f, 12)
-                    .WithBloom(2, 0.7f)
-                    .WithDrag(0.96f);
-                EnhancedParticlePool.SpawnParticle(particle);
-            }
-            
-            // === WATCHING EYE at death point ===
-            CustomParticles.EnigmaEyeGaze(Projectile.Center, EnigmaGreen * 0.7f, 0.35f, Projectile.velocity.SafeNormalize(Vector2.UnitX));
+            // UNIQUE DEATH: Void Implode - riddlebolt collapses into void
+            DynamicParticleEffects.EnigmaDeathVoidImplode(Projectile.Center, 0.6f);
         }
     }
 }

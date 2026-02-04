@@ -319,45 +319,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // === CALAMITY-INSPIRED DEATH EXPLOSION ===
-            // Phase 1: Central flash
-            CustomParticles.GenericFlare(Projectile.Center, Color.White, 0.75f, 20);
-            CustomParticles.GenericFlare(Projectile.Center, UnifiedVFX.MoonlightSonata.LightBlue, 0.6f, 18);
-            
-            // Phase 2: Themed impact
-            ThemedParticles.MoonlightBloomBurst(Projectile.Center, 0.7f);
-            
-            // Phase 3: Fractal burst
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 flareOffset = angle.ToRotationVector2() * 28f;
-                float progress = (float)i / 6f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
-                CustomParticles.GenericFlare(Projectile.Center + flareOffset, fractalColor, 0.4f, 16);
-            }
-            
-            // Phase 4: Gradient halo rings
-            for (int ring = 0; ring < 3; ring++)
-            {
-                float ringProgress = (float)ring / 3f;
-                Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, ringProgress);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.28f + ring * 0.1f, 14 + ring * 4);
-            }
-            
-            // Phase 5: Spark spray
-            for (int i = 0; i < 10; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 10f + Main.rand.NextFloat(-0.2f, 0.2f);
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
-                float progress = (float)i / 10f;
-                Color sparkColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.Silver, progress);
-                
-                var spark = new GenericGlowParticle(Projectile.Center, sparkVel, sparkColor, 0.32f, 18, true);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            // Phase 6: Musical finale
+            // Simplified resurrection finale - grand serenade effect
+            DynamicParticleEffects.MoonlightDeathSerenadeFinale(Projectile.Center, 1.2f);
             ThemedParticles.MoonlightMusicNotes(Projectile.Center, 4, 30f);
         }
 

@@ -176,64 +176,14 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode, Projectile.position);
 
-            // OPTIMIZED TRIUMPHANT FRACTAL EXPLOSION
-            // Use CustomParticleSystem for efficient GPU-accelerated visuals instead of massive dust counts
+            // Grand triumphant finale effect - the big moment
+            DynamicParticleEffects.EroicaDeathTriumphFade(Projectile.Center, 1.8f);
             
-            // Layer 1: Core white-hot flash
-            var coreFlare = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[6], Projectile.Center, Vector2.Zero,
-                new Color(255, 255, 240), 2.2f, 25, 0.025f, true, true);
-            CustomParticleSystem.SpawnParticle(coreFlare);
-            
-            // Layer 2: Expanding golden halo (single optimized halo)
-            var outerHalo = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.GlowingHalos[4], Projectile.Center, Vector2.Zero,
-                CustomParticleSystem.EroicaColors.Gold, 1.2f, 35, 0.018f, true, true).WithScaleVelocity(0.04f);
-            CustomParticleSystem.SpawnParticle(outerHalo);
-            
-            // Layer 3: Optimized burst rays (reduced count for performance)
-            CustomParticles.ExplosionBurst(Projectile.Center, new Color(255, 180, 80), 12, 10f);
-            CustomParticles.ExplosionBurst(Projectile.Center, new Color(200, 40, 40), 10, 7f);
-
-            // Single themed impact effect (handles multiple visuals internally)
-            MagnumVFX.CreateEroicaSparkBurst(Projectile.Center, 8, 120f);
-            ThemedParticles.EroicaImpact(Projectile.Center, 2f);
-            
-            // Warm glowing aftermath (single glow)
-            CustomParticles.GenericGlow(Projectile.Center, new Color(255, 150, 50), 2.2f, 45);
-
-            // OPTIMIZED crimson flames (reduced from 40 to 18)
-            for (int i = 0; i < 18; i++)
-            {
-                Dust explosion = Dust.NewDustDirect(Projectile.position - new Vector2(20, 20),
-                    Projectile.width + 40, Projectile.height + 40,
-                    DustID.CrimsonTorch, 0f, 0f, 100, default, 2.5f);
-                explosion.noGravity = true;
-                explosion.velocity = Main.rand.NextVector2Circular(10f, 10f);
-            }
-
-            // Gold heroic sparks in a ring (reduced from 24 to 12)
-            for (int i = 0; i < 12; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 12f;
-                Vector2 velocity = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 7f;
-                Dust gold = Dust.NewDustPerfect(Projectile.Center, DustID.GoldCoin, velocity, 0, default, 1.5f);
-                gold.noGravity = true;
-            }
-
-            // Optimized smoke (reduced from 40 to 12)
-            for (int i = 0; i < 12; i++)
-            {
-                Dust smoke = Dust.NewDustDirect(Projectile.position - new Vector2(20, 20),
-                    Projectile.width + 40, Projectile.height + 40,
-                    DustID.Smoke, 0f, 0f, 100, Color.Black, 2.0f);
-                smoke.noGravity = true;
-                smoke.velocity = Main.rand.NextVector2Circular(8f, 8f);
-            }
-
-            // Fractal lightning bolts (reduced from 8 to 5 for performance)
+            // Fractal lightning bolts as unique flourish
             for (int i = 0; i < 5; i++)
             {
                 float angle = MathHelper.TwoPi * i / 5f;
-                Vector2 direction = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
+                Vector2 direction = angle.ToRotationVector2();
                 Vector2 lightningEnd = Projectile.Center + direction * Main.rand.NextFloat(80f, 140f);
                 MagnumVFX.DrawFractalLightning(Projectile.Center, lightningEnd, new Color(255, 150, 100), 8, 28f, 1, 0.4f);
             }

@@ -676,12 +676,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // ☁EMUSICAL FINALE - Golden notes on choir flame death
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 4, 3f);
-            
-            // Death burst
-            ThemedParticles.LaCampanellaBloomBurst(Projectile.Center, 0.25f);
-            ThemedParticles.LaCampanellaSparkles(Projectile.Center, 3, 15f);
+            // Choir flame death - ember cascade for summoned fire fade
+            DynamicParticleEffects.CampanellaDeathEmberCascade(Projectile.Center, 0.6f);
         }
 
         public override bool PreDraw(ref Color lightColor) => false; // Pure particle visual

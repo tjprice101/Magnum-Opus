@@ -1119,52 +1119,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
         {
             SoundEngine.PlaySound(SoundID.Item14, Projectile.Center);
             
-            // === UNIQUE DEATH: Moonlight burst ===
-            // Central flash cascade
-            EnhancedParticles.BloomFlare(Projectile.Center, MoonlightSilver, 0.65f, 18, 4, 1f);
-            EnhancedParticles.BloomFlare(Projectile.Center, MoonlightIceBlue, 0.55f, 22, 3, 0.85f);
-            EnhancedParticles.BloomFlare(Projectile.Center, MoonlightPurple, 0.45f, 20, 3, 0.7f);
-            
-            // Sparkle burst
-            for (int i = 0; i < 12; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 12f + orbitAngle;
-                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
-                Color sparkleColor = Color.Lerp(MoonlightPurple, MoonlightIceBlue, (float)i / 12f);
-                
-                var sparkle = new SparkleParticle(Projectile.Center, burstVel, sparkleColor, 0.4f, 25);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-            
-            // Dust explosion
-            for (int i = 0; i < 16; i++)
-            {
-                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
-                Color dustColor = Main.rand.NextBool() ? MoonlightPurple : MoonlightIceBlue;
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, dustType, Main.rand.NextVector2Circular(8f, 8f), 0, dustColor, 1.5f);
-                dust.noGravity = true;
-            }
-            
-            // Glow particle burst
-            for (int i = 0; i < 8; i++)
-            {
-                Color glowColor = Color.Lerp(MoonlightPurple, MoonlightLavender, Main.rand.NextFloat());
-                var glow = new GenericGlowParticle(Projectile.Center, Main.rand.NextVector2Circular(6f, 6f),
-                    glowColor * 0.75f, 0.3f, 22, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-            
-            // Fractal flare points
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 flarePos = Projectile.Center + angle.ToRotationVector2() * 25f;
-                Color flareColor = Color.Lerp(MoonlightIceBlue, MoonlightSilver, (float)i / 6f);
-                EnhancedParticles.BloomFlare(flarePos, flareColor, 0.28f, 14, 2, 0.6f);
-            }
-            
-            // ☁EMUSICAL FINALE - Orb's final lunar chord (subtle)
-            ThemedParticles.MusicNoteBurst(Projectile.Center, MoonlightIceBlue * 0.6f, 4, 3f);
+            // Simplified homing orb death - twilight sparkle (enemy, small)
+            DynamicParticleEffects.MoonlightDeathTwilightSparkle(Projectile.Center, 0.5f);
         }
         
         public override bool PreDraw(ref Color lightColor)

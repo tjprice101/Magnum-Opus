@@ -120,42 +120,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // === UNIQUE DEATH: Heroic flame burst ===
-            // Central flare cascade
-            EnhancedParticles.BloomFlare(Projectile.Center, Color.White, 0.65f, 18, 4, 1f);
-            EnhancedParticles.BloomFlare(Projectile.Center, EroicaGold, 0.55f, 22, 3, 0.85f);
-            EnhancedParticles.BloomFlare(Projectile.Center, EroicaScarlet, 0.45f, 20, 3, 0.7f);
-            
-            // Sakura petals burst
-            ThemedParticles.SakuraPetals(Projectile.Center, 3, 25f);
-            
-            // ☁EMUSICAL FINALE - Hero's symphony
-            ThemedParticles.MusicNoteBurst(Projectile.Center, EroicaScarlet, 6, 4f);
-            
-            // Flame spark explosion
-            for (int i = 0; i < 10; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 10f;
-                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
-                Color burstColor = Color.Lerp(EroicaScarlet, EroicaGold, (float)i / 10f);
-                
-                var spark = new GlowSparkParticle(Projectile.Center, burstVel, false, 22, 0.3f, burstColor, new Vector2(0.04f, 1.8f));
-                MagnumParticleHandler.SpawnParticle(spark);
-                
-                // Fire dust
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.GoldFlame, burstVel * 1.1f, 0, default, 1.5f);
-                dust.noGravity = true;
-            }
-            
-            // Glow particle burst
-            for (int i = 0; i < 6; i++)
-            {
-                Color glowColor = Color.Lerp(EroicaGold, EroicaFlame, Main.rand.NextFloat());
-                var glow = new GenericGlowParticle(Projectile.Center, Main.rand.NextVector2Circular(5f, 5f),
-                    glowColor * 0.75f, 0.28f, 20, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-            
+            // Fierce crimson spark for flame beam
+            DynamicParticleEffects.EroicaDeathCrimsonSpark(Projectile.Center, 0.9f);
             SoundEngine.PlaySound(SoundID.Item10 with { Volume = 0.5f }, Projectile.Center);
         }
 

@@ -197,20 +197,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            for (int i = 0; i < 20; i++)
-            {
-                Dust explosion = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.RedTorch, 0f, 0f, 100, default, 1.5f);
-                explosion.noGravity = true;
-                explosion.velocity = Main.rand.NextVector2Circular(4f, 4f);
-            }
-            
-            for (int i = 0; i < 8; i++)
-            {
-                Dust sparkle = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.SparksMech, 0f, 0f, 0, Color.White, 1.2f);
-                sparkle.noGravity = true;
-                sparkle.velocity = Main.rand.NextVector2Circular(3f, 3f);
-            }
+            // Elegant sakura scatter for spectral blade
+            DynamicParticleEffects.EroicaDeathSakuraScatter(Projectile.Center, 1.0f);
         }
 
         public override bool PreDraw(ref Color lightColor)

@@ -274,47 +274,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // === ENHANCED DEATH EXPLOSION WITH MULTI-LAYER BLOOM ===
-            // Phase 1: Central flash with bloom stacking
-            EnhancedParticles.BloomFlare(Projectile.Center, Color.White, 0.7f, 20, 4, 1.0f);
-            EnhancedParticles.BloomFlare(Projectile.Center, ThemedParticles.MoonlightLightBlue, 0.55f, 18, 3, 0.85f);
-            
-            // Phase 2: Enhanced themed bloom burst
-            EnhancedThemedParticles.MoonlightBloomBurstEnhanced(Projectile.Center, 0.9f);
-            
-            // Phase 3: Fractal burst
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 flareOffset = angle.ToRotationVector2() * 25f;
-                float progress = (float)i / 6f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
-                CustomParticles.GenericFlare(Projectile.Center + flareOffset, fractalColor, 0.4f, 16);
-            }
-            
-            // Phase 4: Gradient halo rings
-            for (int ring = 0; ring < 3; ring++)
-            {
-                float ringProgress = (float)ring / 3f;
-                Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, ringProgress);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.3f + ring * 0.12f, 14 + ring * 4);
-            }
-            
-            // Phase 5: Spark spray
-            for (int i = 0; i < 10; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 10f + Main.rand.NextFloat(-0.2f, 0.2f);
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 9f);
-                float progress = (float)i / 10f;
-                Color sparkColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.Silver, progress);
-                
-                var spark = new GenericGlowParticle(Projectile.Center, sparkVel, sparkColor, 0.35f, 20, true);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            // Phase 6: Musical finale
-            ThemedParticles.MoonlightMusicalImpact(Projectile.Center, 0.6f, false);
-            ThemedParticles.MoonlightMusicNotes(Projectile.Center, 5, 35f);
+            // Simplified moonlight beam death - gentle ascending fade
+            DynamicParticleEffects.MoonlightDeathMoonbeamFade(Projectile.Center, 1.0f);
         }
 
         public override bool PreDraw(ref Color lightColor)

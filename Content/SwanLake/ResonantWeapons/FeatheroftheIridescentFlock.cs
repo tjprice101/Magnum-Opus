@@ -224,7 +224,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
 
     public class IridescentCrystal : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle6";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle11";
 
         private int crystalIndex => (int)Projectile.ai[0];
         private float baseAngleOffset => Projectile.ai[1];
@@ -634,7 +634,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
 
     public class IridescentFlare : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle8";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle14";
 
         private bool isBlack => Projectile.ai[0] == 1;
         private int trailTimer = 0;

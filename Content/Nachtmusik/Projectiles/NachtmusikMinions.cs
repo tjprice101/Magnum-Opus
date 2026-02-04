@@ -358,7 +358,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class MuseNoteProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/MusicNote3";
+        public override string Texture => "MagnumOpus/Assets/Particles/CursiveMusicNote";
         
         public override void SetDefaults()
         {
@@ -437,7 +437,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MusicNote3").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/CursiveMusicNote").Value;
             Vector2 origin = tex.Size() / 2f;
             
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null, NachtmusikCosmicVFX.Gold * 0.7f, Projectile.rotation, origin, 0.3f, SpriteEffects.None, 0f);
@@ -639,7 +639,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class ConductorStarProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle5";
+        public override string Texture => "MagnumOpus/Assets/Particles/Star";
         
         public override void SetStaticDefaults()
         {
@@ -737,7 +737,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle5").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Star").Value;
             Vector2 origin = tex.Size() / 2f;
             
             // Trail

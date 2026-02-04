@@ -97,57 +97,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // === PHASE 1: Central flash - the final chord ===
-            CustomParticles.GenericFlare(Projectile.Center, Color.White, 1.0f, 15);
-            CustomParticles.GenericFlare(Projectile.Center, UnifiedVFX.Eroica.Sakura, 0.75f, 18);
-            
-            // === PHASE 2: UnifiedVFX themed impact ===
-            UnifiedVFX.Eroica.Impact(Projectile.Center, 1.0f);
-            
-            // === PHASE 3: 6-point fractal burst with sakura gradient ===
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                float gradientProgress = (float)i / 6f;
-                
-                Vector2 flareOffset = angle.ToRotationVector2() * 35f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Crimson, gradientProgress);
-                CustomParticles.GenericFlare(Projectile.Center + flareOffset, fractalColor, 0.45f, 15);
-            }
-            
-            // === PHASE 4: Cascading halo rings ===
-            for (int ring = 0; ring < 3; ring++)
-            {
-                float ringProgress = ring / 3f;
-                Color ringColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, ringProgress);
-                CustomParticles.HaloRing(Projectile.Center, ringColor * (1f - ringProgress * 0.2f), 
-                    0.35f + ring * 0.15f, 12 + ring * 4);
-            }
-            
-            // === PHASE 5: Radial spark spray ===
-            for (int i = 0; i < 10; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 10f + Main.rand.NextFloat(-0.15f, 0.15f);
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 10f);
-                float gradientProgress = Main.rand.NextFloat();
-                Color sparkColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, gradientProgress);
-                
-                var spark = new GenericGlowParticle(Projectile.Center, sparkVel, sparkColor, 0.3f, 18, true);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            // === PHASE 6: Sakura petal burst ===
-            ThemedParticles.SakuraPetals(Projectile.Center, 5, 45f);
-            
-            // === PHASE 7: Music note finale ===
-            for (int i = 0; i < 4; i++)
-            {
-                float noteAngle = MathHelper.TwoPi * i / 4f;
-                Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * 20f;
-                Vector2 noteVel = noteAngle.ToRotationVector2() * 2f;
-                Color noteColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, (float)i / 4f);
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.3f, 25);
-            }
+            // Elegant sakura scatter for sakura bolt
+            DynamicParticleEffects.EroicaDeathSakuraScatter(Projectile.Center, 0.9f);
 
             // Sound effect
             Terraria.Audio.SoundEngine.PlaySound(SoundID.Item74, Projectile.position);

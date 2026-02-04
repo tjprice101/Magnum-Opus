@@ -128,49 +128,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // === CALAMITY-INSPIRED DEATH EXPLOSION ===
-            // Phase 1: Central flash
-            CustomParticles.GenericFlare(Projectile.Center, Color.White, 0.8f, 20);
-            CustomParticles.GenericFlare(Projectile.Center, UnifiedVFX.Eroica.Gold, 0.65f, 18);
-            
-            // Phase 2: Themed impact
-            UnifiedVFX.Eroica.Impact(Projectile.Center, 0.9f);
-            ThemedParticles.SakuraPetals(Projectile.Center, 10, 35f);
-            
-            // Phase 3: Fractal burst
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
-                float progress = (float)i / 8f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
-                CustomParticles.GenericFlare(Projectile.Center + flareOffset, fractalColor, 0.5f, 18);
-            }
-            
-            // Phase 4: Gradient halo rings
-            for (int ring = 0; ring < 4; ring++)
-            {
-                float ringProgress = (float)ring / 4f;
-                Color ringColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, ringProgress);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.3f + ring * 0.12f, 14 + ring * 4);
-            }
-            
-            // Phase 5: Spark spray
-            for (int i = 0; i < 12; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 12f + Main.rand.NextFloat(-0.2f, 0.2f);
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 9f);
-                float progress = (float)i / 12f;
-                Color sparkColor = Color.Lerp(UnifiedVFX.Eroica.Crimson, UnifiedVFX.Eroica.Gold, progress);
-                
-                var spark = new GenericGlowParticle(Projectile.Center, sparkVel, sparkColor, 0.35f, 20, true);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            // Phase 6: Musical finale
-            ThemedParticles.EroicaMusicNotes(Projectile.Center, 6, 35f);
-
-            // Sound effect
+            // Warm golden glow for energy projectile
+            DynamicParticleEffects.EroicaDeathGoldenGlow(Projectile.Center, 0.9f);
             Terraria.Audio.SoundEngine.PlaySound(SoundID.Item110, Projectile.position);
         }
 

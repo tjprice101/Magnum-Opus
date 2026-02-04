@@ -777,18 +777,14 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         public override void OnKill(int timeLeft)
         {
-            for (int i = 0; i < 10; i++)
-            {
-                Dust explode = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Torch, 0f, 0f, 100, new Color(200, 40, 40), 1.8f);
-                explode.noGravity = true;
-                explode.velocity = Main.rand.NextVector2Circular(5f, 5f);
-            }
+            // Small enemy projectile death
+            DynamicParticleEffects.EroicaDeathHeroicFlash(Projectile.Center, 0.4f);
         }
     }
 
     public class StolenValorChargeWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/MusicNote6";
+        public override string Texture => "MagnumOpus/Assets/Particles/WholeNote";
 
         public override void SetDefaults()
         {
@@ -825,7 +821,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class StolenValorOrbitalShot : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/MusicNote3";
+        public override string Texture => "MagnumOpus/Assets/Particles/CursiveMusicNote";
 
         public override void SetDefaults()
         {
@@ -855,18 +851,14 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         public override void OnKill(int timeLeft)
         {
-            for (int i = 0; i < 8; i++)
-            {
-                Dust explode = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.GoldFlame, 0f, 0f, 50, default, 1.5f);
-                explode.noGravity = true;
-                explode.velocity = Main.rand.NextVector2Circular(4f, 4f);
-            }
+            // Small enemy orbital shot death
+            DynamicParticleEffects.EroicaDeathGoldenGlow(Projectile.Center, 0.4f);
         }
     }
 
     public class StolenValorCageOrb : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/MusicNote4";
+        public override string Texture => "MagnumOpus/Assets/Particles/QuarterNote";
 
         public override void SetDefaults()
         {
@@ -911,18 +903,14 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         public override void OnKill(int timeLeft)
         {
-            for (int i = 0; i < 12; i++)
-            {
-                Dust explode = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Torch, 0f, 0f, 100, new Color(80, 20, 20), 2f);
-                explode.noGravity = true;
-                explode.velocity = Main.rand.NextVector2Circular(6f, 6f);
-            }
+            // Small enemy cage orb death
+            DynamicParticleEffects.EroicaDeathCrimsonSpark(Projectile.Center, 0.4f);
         }
     }
 
     public class StolenValorTriumphWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/MusicNote5";
+        public override string Texture => "MagnumOpus/Assets/Particles/TallMusicNote";
 
         public override void SetDefaults()
         {

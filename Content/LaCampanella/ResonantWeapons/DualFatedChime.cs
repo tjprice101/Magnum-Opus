@@ -649,22 +649,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // === DEATH EFFECT (cleaned) ===
-            ThemedParticles.LaCampanellaBloomBurst(Projectile.Center, 0.5f);
-            ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 2, 20f);
-            
-            // Spark burst (reduced to 4)
-            for (int i = 0; i < 4; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 4f;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 5f);
-                Color color = Main.rand.NextBool() ? ThemedParticles.CampanellaOrange : ThemedParticles.CampanellaYellow;
-                var spark = new GlowSparkParticle(Projectile.Center, vel, true, 18, 0.35f, color,
-                    new Vector2(0.4f, 1.2f), false, true);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            Lighting.AddLight(Projectile.Center, 0.5f, 0.25f, 0.08f);
+            // Spectral swing death - smoke wisp dissolve for ethereal fade
+            DynamicParticleEffects.CampanellaDeathSmokeWispDissolve(Projectile.Center, Projectile.velocity.SafeNormalize(Vector2.UnitY), 0.5f);
         }
 
         private const float ChargePerHit = 8f;
@@ -815,22 +801,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Player owner = Main.player[Projectile.owner];
             owner.fullRotation = 0f; // Reset rotation
             
-            // Final explosion (cleaned)
-            UnifiedVFX.LaCampanella.Explosion(owner.Center, 1.2f);
-            
-            // Spark burst (reduced to 8)
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 8f);
-                Color color = Main.rand.NextBool() ? ThemedParticles.CampanellaOrange : ThemedParticles.CampanellaYellow;
-                var spark = new GlowSparkParticle(owner.Center, vel, true, 25, 0.5f, color,
-                    new Vector2(0.5f, 1.6f), false, true);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0f, Volume = 0.5f }, owner.Center);
-            Lighting.AddLight(owner.Center, 1.5f, 0.75f, 0.25f);
+            // Inferno waltz end - ring of fire for dance finale
+            DynamicParticleEffects.CampanellaDeathRingOfFire(owner.Center, 1.3f);
         }
 
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
@@ -916,9 +888,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // Small death burst
-            ThemedParticles.LaCampanellaBloomBurst(Projectile.Center, 0.3f);
-            ThemedParticles.LaCampanellaSparkles(Projectile.Center, 4, 15f);
+            // Flame wave death - bell toll shatter for wave dissipation
+            DynamicParticleEffects.CampanellaDeathBellTollShatter(Projectile.Center, 0.4f);
         }
 
         public override bool PreDraw(ref Color lightColor) => false; // Pure particle visual

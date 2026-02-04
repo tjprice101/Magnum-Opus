@@ -26,7 +26,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
         private float[] orbitAngles = new float[5];
         private float arrowRotation;
 
-        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField3";
+        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField4";
 
         public override void SetDefaults()
         {
@@ -240,8 +240,8 @@ namespace MagnumOpus.Content.Spring.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            Texture2D coreTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField3").Value;
-            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle1").Value;
+            Texture2D coreTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField4").Value;
+            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Star").Value;
             
             Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 coreOrigin = coreTex.Size() / 2f;
@@ -321,7 +321,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
         private static readonly Color SpringGreen = new Color(144, 238, 144);
         private float petalSpin;
 
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle5";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle13";
 
         public override void SetDefaults()
         {
@@ -460,7 +460,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle5").Value;
+            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle13").Value;
             
             Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 petalOrigin = petalTex.Size() / 2f;
@@ -586,7 +586,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             
             Texture2D haloTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo4").Value;
-            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle3").Value;
+            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/ManySparklesInCLuster").Value;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             Vector2 haloOrigin = haloTex.Size() / 2f;

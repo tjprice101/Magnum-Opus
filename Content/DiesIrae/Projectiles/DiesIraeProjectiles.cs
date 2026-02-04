@@ -141,7 +141,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         
         /// <summary>
         /// MASSIVE multi-layered fire impact explosion - THE SIGNATURE EFFECT
-        /// Bright white core → Dark red fire → Black smoke
+        /// Bright white core ↁEDark red fire ↁEBlack smoke
         /// </summary>
         public static void FireImpact(Vector2 position, float scale = 1f)
         {
@@ -179,7 +179,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
                 MagnumParticleHandler.SpawnParticle(goldFlare);
             }
             
-            // === EXPANDING HALO RINGS - White → Red → Black gradient ===
+            // === EXPANDING HALO RINGS - White ↁERed ↁEBlack gradient ===
             for (int i = 0; i < 8; i++)
             {
                 float progress = i / 8f;
@@ -268,6 +268,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
                 Color noteColor = Main.rand.NextBool() ? Color.White : DiesIraeColors.HellfireGold;
                 SpawnMusicNote(position, noteVel, noteColor, 0.85f * scale);
             }
+            
+            // === CROSS PARTICLE BURST - Dies Irae Signature! ===
+            CrossParticleBurst(position, (int)(8 * scale), 6f * scale, 0.55f * scale);
             
             // Lighting flash
             Lighting.AddLight(position, Color.White.ToVector3() * scale * 1.5f);
@@ -375,6 +378,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
+            // === CROSS PARTICLE PNGS - The Dies Irae signature! ===
+            CrossParticleTrail(position, velocity, 0.5f * intensity);
+            
             // === MUSIC NOTE (Less frequent but visible) ===
             if (Main.rand.NextBool(10))
             {
@@ -387,7 +393,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         /// </summary>
         public static void ChargeUp(Vector2 position, float progress, float scale = 1f)
         {
-            // Converging particles - White → Red
+            // Converging particles - White ↁERed
             int particleCount = (int)(8 + progress * 12);
             for (int i = 0; i < particleCount; i++)
             {
@@ -493,6 +499,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
                 Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 10f);
                 SpawnMusicNote(position + Main.rand.NextVector2Circular(30f, 30f), noteVel, Color.White, scale);
             }
+            
+            // Phase 4.5: CROSS PARTICLE EXPLOSION - Dies Irae Signature!
+            CrossParticleBurst(position, (int)(16 * scale), 12f * scale, 0.7f * scale);
             
             // Phase 5: Vanilla dust storm
             for (int i = 0; i < 80; i++)
@@ -832,6 +841,255 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
             var center = new GenericGlowParticle(position, Vector2.Zero, DiesIraeColors.EmberOrange * 0.5f, 0.2f * scale, 6, true);
             MagnumParticleHandler.SpawnParticle(center);
         }
+        
+        #region CrossParticle PNG Effects
+        
+        /// <summary>
+        /// Spawns a CrossParticle texture-based particle - THE CORE CROSS EFFECT
+        /// Uses actual PNG textures from Assets/Particles/CrossParticleBlack.png and CrossParticleWhite.png
+        /// </summary>
+        /// <param name="position">Spawn position</param>
+        /// <param name="velocity">Movement velocity</param>
+        /// <param name="useBlack">True for black cross, false for white cross</param>
+        /// <param name="scale">Particle scale</param>
+        /// <param name="rotation">Initial rotation</param>
+        public static void SpawnCrossParticle(Vector2 position, Vector2 velocity, bool useBlack, float scale = 0.6f, float rotation = 0f)
+        {
+            if (!CustomParticleSystem.TexturesLoaded) return;
+            
+            int texIndex = useBlack ? 0 : 1;
+            Texture2D crossTex = CustomParticleSystem.CrossParticles[texIndex]?.Value;
+            if (crossTex == null) return;
+            
+            // The cross particle is a texture-based particle with rotation
+            var cross = new TexturedParticle(
+                position,
+                velocity,
+                crossTex,
+                useBlack ? DiesIraeColors.CharredBlack : Color.White,
+                scale,
+                35,
+                rotation,
+                Main.rand.NextFloat(-0.02f, 0.02f) // Slight spin
+            );
+            MagnumParticleHandler.SpawnParticle(cross);
+            
+            // Add glow layers around the cross
+            Color glowColor = useBlack ? DiesIraeColors.BloodRed : DiesIraeColors.HellfireGold;
+            for (int i = 0; i < 2; i++)
+            {
+                var glow = new GenericGlowParticle(
+                    position + Main.rand.NextVector2Circular(4f, 4f),
+                    velocity * 0.8f,
+                    glowColor * (0.4f - i * 0.1f),
+                    scale * (0.5f + i * 0.2f),
+                    30,
+                    true
+                );
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+        }
+        
+        /// <summary>
+        /// Spawns a burst of cross particles - For impacts and explosions
+        /// </summary>
+        public static void CrossParticleBurst(Vector2 position, int count, float speed, float scale = 0.6f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float angle = MathHelper.TwoPi * i / count + Main.rand.NextFloat(-0.3f, 0.3f);
+                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(speed * 0.7f, speed * 1.3f);
+                bool useBlack = i % 2 == 0; // Alternate black/white
+                float rotation = angle; // Orient outward
+                
+                SpawnCrossParticle(position, vel, useBlack, scale, rotation);
+            }
+            
+            // Central flash
+            CustomParticles.GenericFlare(position, DiesIraeColors.HellfireGold, 0.5f, 15);
+        }
+        
+        /// <summary>
+        /// Spawns cross particles as a trail - For projectile trails
+        /// </summary>
+        public static void CrossParticleTrail(Vector2 position, Vector2 velocity, float scale = 0.5f)
+        {
+            if (Main.rand.NextBool(3))
+            {
+                bool useBlack = Main.rand.NextBool();
+                Vector2 trailVel = -velocity * 0.1f + Main.rand.NextVector2Circular(1.5f, 1.5f);
+                float rotation = velocity.ToRotation();
+                
+                SpawnCrossParticle(position + Main.rand.NextVector2Circular(6f, 6f), trailVel, useBlack, scale, rotation);
+            }
+        }
+        
+        /// <summary>
+        /// Spawns orbiting cross particles around a center point
+        /// </summary>
+        public static void OrbitingCrossParticles(Vector2 center, float radius, int count, float orbitAngle)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float angle = orbitAngle + MathHelper.TwoPi * i / count;
+                Vector2 crossPos = center + angle.ToRotationVector2() * radius;
+                bool useBlack = i % 2 == 0;
+                
+                // Small, slow-moving orbiting crosses
+                Vector2 tangentVel = (angle + MathHelper.PiOver2).ToRotationVector2() * 0.3f;
+                SpawnCrossParticle(crossPos, tangentVel, useBlack, 0.4f, angle);
+            }
+        }
+        
+        #endregion
+        
+        #region Music Note PNG Variants
+        
+        /// <summary>
+        /// Spawns a specific music note variant using actual PNG textures
+        /// Variants: 0=MusicNote, 1=CursiveMusicNote, 2=MusicNoteWithSlashes, 3=QuarterNote, 4=TallMusicNote, 5=WholeNote
+        /// </summary>
+        public static void SpawnMusicNoteVariant(Vector2 position, Vector2 velocity, Color color, float scale, int variant)
+        {
+            if (!CustomParticleSystem.TexturesLoaded) return;
+            
+            variant = Math.Clamp(variant, 0, 5);
+            Texture2D noteTex = CustomParticleSystem.MusicNotes[variant]?.Value;
+            if (noteTex == null) return;
+            
+            // Scale must be visible (0.6f minimum per TRUE_VFX_STANDARDS)
+            scale = Math.Max(scale, 0.6f);
+            float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.15f;
+            scale *= shimmer;
+            
+            // The music note with bloom layers
+            for (int bloom = 0; bloom < 3; bloom++)
+            {
+                float bloomScale = scale * (1f + bloom * 0.3f);
+                float bloomAlpha = 0.6f / (bloom + 1);
+                Color bloomColor = color * bloomAlpha;
+                bloomColor.A = 0;
+                
+                var noteBloom = new TexturedParticle(
+                    position + Main.rand.NextVector2Circular(bloom * 2f, bloom * 2f),
+                    velocity * (1f - bloom * 0.15f),
+                    noteTex,
+                    bloomColor,
+                    bloomScale,
+                    30 + bloom * 5,
+                    velocity.X * 0.01f, // Slight tilt based on velocity
+                    0f
+                );
+                MagnumParticleHandler.SpawnParticle(noteBloom);
+            }
+            
+            // Core note (brightest)
+            var coreNote = new TexturedParticle(
+                position,
+                velocity,
+                noteTex,
+                color,
+                scale,
+                35,
+                0f,
+                0f
+            );
+            MagnumParticleHandler.SpawnParticle(coreNote);
+            
+            // Sparkle companions
+            for (int i = 0; i < 2; i++)
+            {
+                Vector2 sparkleOffset = Main.rand.NextVector2Circular(10f, 10f);
+                var sparkle = new SparkleParticle(
+                    position + sparkleOffset,
+                    velocity * 0.5f + Main.rand.NextVector2Circular(1f, 1f),
+                    Color.Lerp(Color.White, color, 0.4f),
+                    0.35f,
+                    22
+                );
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+        }
+        
+        /// <summary>
+        /// Spawns music notes with weapon-specific variants for unique identity
+        /// </summary>
+        public static void SpawnWeaponSpecificMusicNotes(Vector2 position, Vector2 velocity, Color color, float scale, string weaponType)
+        {
+            // Each weapon type gets a unique combination of music note variants
+            switch (weaponType.ToLower())
+            {
+                case "wrath": // Wrath's Cleaver - TallMusicNote + WholeNote (imposing)
+                    SpawnMusicNoteVariant(position, velocity, color, scale, 4); // TallMusicNote
+                    if (Main.rand.NextBool(2))
+                        SpawnMusicNoteVariant(position + Main.rand.NextVector2Circular(8f, 8f), velocity * 0.7f, color, scale * 0.8f, 5); // WholeNote
+                    break;
+                    
+                case "judgment": // Arbiter's Sentence - CursiveMusicNote + MusicNoteWithSlashes (elegant judgment)
+                    SpawnMusicNoteVariant(position, velocity, color, scale, 1); // CursiveMusicNote
+                    if (Main.rand.NextBool(2))
+                        SpawnMusicNoteVariant(position + Main.rand.NextVector2Circular(8f, 8f), velocity * 0.7f, color, scale * 0.8f, 2); // MusicNoteWithSlashes
+                    break;
+                    
+                case "chain": // Chain of Judgment - QuarterNote pairs (rhythmic chains)
+                    for (int i = 0; i < 2; i++)
+                    {
+                        Vector2 offset = Main.rand.NextVector2Circular(6f, 6f);
+                        SpawnMusicNoteVariant(position + offset, velocity + Main.rand.NextVector2Circular(1f, 1f), color, scale * 0.9f, 3); // QuarterNote
+                    }
+                    break;
+                    
+                case "sin": // Sin Collector - WholeNote + MusicNote (heavy, full notes)
+                    SpawnMusicNoteVariant(position, velocity, color, scale, 5); // WholeNote
+                    if (Main.rand.NextBool(2))
+                        SpawnMusicNoteVariant(position + Main.rand.NextVector2Circular(10f, 10f), velocity * 0.6f, color, scale * 0.7f, 0); // Standard MusicNote
+                    break;
+                    
+                case "damnation": // Damnation's Cannon - All variants cascade (chaotic)
+                    int randomVariant = Main.rand.Next(6);
+                    SpawnMusicNoteVariant(position, velocity, color, scale, randomVariant);
+                    break;
+                    
+                case "grimoire": // Grimoire of Condemnation - CursiveMusicNote (scholarly)
+                    SpawnMusicNoteVariant(position, velocity, color, scale, 1); // CursiveMusicNote
+                    break;
+                    
+                case "staff": // Staff of Final Judgement - TallMusicNote + CursiveMusicNote (commanding)
+                    SpawnMusicNoteVariant(position, velocity, color, scale, 4); // TallMusicNote
+                    if (Main.rand.NextBool(3))
+                        SpawnMusicNoteVariant(position + Main.rand.NextVector2Circular(6f, 6f), velocity * 0.8f, DiesIraeColors.HellfireGold, scale * 0.7f, 1); // CursiveMusicNote
+                    break;
+                    
+                case "eclipse": // Eclipse of Wrath - MusicNoteWithSlashes (slashing)
+                    SpawnMusicNoteVariant(position, velocity, color, scale, 2); // MusicNoteWithSlashes
+                    break;
+                    
+                case "bell": // Death Tolling Bell - WholeNote (bell resonance)
+                    SpawnMusicNoteVariant(position, velocity, color, scale * 1.1f, 5); // WholeNote (larger for bell effect)
+                    break;
+                    
+                case "contract": // Wrathful Contract - All variants in burst (demonic chaos)
+                    for (int i = 0; i < 3; i++)
+                    {
+                        int variant = Main.rand.Next(6);
+                        Vector2 burstVel = velocity + Main.rand.NextVector2Circular(3f, 3f);
+                        SpawnMusicNoteVariant(position + Main.rand.NextVector2Circular(15f, 15f), burstVel, color, scale * Main.rand.NextFloat(0.7f, 1f), variant);
+                    }
+                    break;
+                    
+                case "harmony": // Harmony of Judgement - QuarterNote + CursiveMusicNote (harmonic)
+                    SpawnMusicNoteVariant(position, velocity, color, scale, 3); // QuarterNote
+                    SpawnMusicNoteVariant(position + new Vector2(8f, 0f), velocity, DiesIraeColors.HellfireGold, scale * 0.85f, 1); // CursiveMusicNote
+                    break;
+                    
+                default:
+                    // Default: Standard music note
+                    SpawnMusicNoteVariant(position, velocity, color, scale, 0);
+                    break;
+            }
+        }
+        
+        #endregion
     }
     
     #endregion
@@ -982,8 +1240,8 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
             // Halo ring
             CustomParticles.HaloRing(target.Center, WaveFlame, 0.5f, 16);
             
-            // === DYNAMIC PARTICLE EFFECTS - Dies Irae impact ===
-            DiesIraeImpact(target.Center, 1.2f);
+            // === DYNAMIC PARTICLE EFFECTS - Dies Hellfire Eruption (volcanic slam) ===
+            DiesHellfireEruption(target.Center, 1.2f);
             DramaticImpact(target.Center, DiesIraeColors.InfernalWhite, DiesIraeColors.Crimson, 0.6f, 22);
             
             DiesIraeVFX.FireImpact(target.Center, 0.8f);
@@ -1043,7 +1301,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
@@ -1308,8 +1566,8 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
             // Halo ring
             CustomParticles.HaloRing(target.Center, CrystalFlame, 0.5f, 16);
             
-            // === DYNAMIC PARTICLE EFFECTS - Dies Irae impact ===
-            DiesIraeImpact(target.Center, 1f);
+            // === DYNAMIC PARTICLE EFFECTS - Dies Judgment Vortex (crystallized magic) ===
+            DiesJudgmentVortex(target.Center, 1f);
             SpiralBurst(target.Center, DiesIraeColors.Crimson, DiesIraeColors.HellfireGold, 6, 0.15f, 4f, 0.35f, 24);
         }
         
@@ -1371,7 +1629,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
@@ -1653,7 +1911,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
@@ -1842,6 +2100,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
             }
             
             CustomParticles.HaloRing(target.Center, SwordFlame, 0.4f, 15);
+            
+            // === DYNAMIC PARTICLE EFFECTS - Dies Hellfire Eruption (sword strike) ===
+            DiesHellfireEruption(target.Center, 0.9f);
         }
         
         public override void OnKill(int timeLeft)
@@ -1889,7 +2150,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin = flareTex.Size() / 2f;
@@ -2139,8 +2400,8 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
             CustomParticles.HaloRing(target.Center, ChainFlame, 0.5f, 16);
             CustomParticles.HaloRing(target.Center, ChainBlood, 0.35f, 14);
             
-            // === DYNAMIC PARTICLE EFFECTS - Dies Irae impact with dramatic spiral ===
-            DiesIraeImpact(target.Center, 1.3f);
+            // === DYNAMIC PARTICLE EFFECTS - Dies Wrath Chain Lightning (chain projectile) ===
+            DiesWrathChainLightning(target.Center, Projectile.velocity.SafeNormalize(Vector2.UnitX), 1.3f);
             DramaticImpact(target.Center, DiesIraeColors.InfernalWhite, DiesIraeColors.BloodRed, 0.7f, 26);
             SpiralBurst(target.Center, DiesIraeColors.Crimson, DiesIraeColors.HellfireGold, 8, 0.15f, 5f, 0.4f, 28);
             
@@ -2237,7 +2498,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
@@ -2491,6 +2752,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
             // Halo
             CustomParticles.HaloRing(target.Center, BallFlame, 0.5f, 16);
             
+            // === DYNAMIC PARTICLE EFFECTS - Dies Judgment Vortex (exploding orb) ===
+            DiesJudgmentVortex(target.Center, 1.1f);
+            
             Explode();
         }
         
@@ -2592,7 +2856,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
@@ -2917,6 +3181,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
             
             // Halo
             CustomParticles.HaloRing(target.Center, ShrapnelFlame, 0.35f, 12);
+            
+            // === DYNAMIC PARTICLE EFFECTS - Dies Wrath Chain Lightning (shrapnel impact) ===
+            DiesWrathChainLightning(target.Center, Projectile.velocity.SafeNormalize(Vector2.UnitX), 0.7f);
         }
         
         public override void OnKill(int timeLeft)
@@ -2966,7 +3233,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
@@ -3231,6 +3498,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
             // === HALO RING ===
             CustomParticles.HaloRing(target.Center, FlameEmber, 0.45f, 12);
             
+            // === DYNAMIC PARTICLE EFFECTS - Dies Judgment Vortex (flame spiraling) ===
+            DiesJudgmentVortex(target.Center, 0.85f);
+            
             // Preserved existing impact
             DiesIraeVFX.FireImpact(target.Center, 0.8f);
             SoundEngine.PlaySound(SoundID.DD2_BetsyFireballImpact with { Volume = 0.4f }, target.Center);
@@ -3300,7 +3570,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
             
             // Flare textures for spinning layers
             Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             Vector2 flareOrigin = flareTex.Size() / 2f;
             Vector2 flareOrigin2 = flareTex2.Size() / 2f;
@@ -3562,6 +3832,10 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
             }
             
             DiesIraeVFX.FireImpact(target.Center, 1f);
+            
+            // === DYNAMIC PARTICLE EFFECTS - Dies Wrath Chain Lightning (sin bullet) ===
+            DiesWrathChainLightning(target.Center, Projectile.velocity.SafeNormalize(Vector2.UnitX), 1.1f);
+            
             SoundEngine.PlaySound(SoundID.DD2_LightningBugZap, target.Center);
             
             // === TRUE_VFX_STANDARDS: GRADIENT MUSIC NOTES BURST ===
@@ -3652,7 +3926,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
@@ -3927,6 +4201,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
             // === HALO RING ===
             CustomParticles.HaloRing(target.Center, CleaverFlame, 0.4f, 12);
             
+            // === DYNAMIC PARTICLE EFFECTS - Dies Hellfire Eruption (cleaver strike) ===
+            DiesHellfireEruption(target.Center, 0.7f);
+            
             // Preserved fire impact
             DiesIraeVFX.FireImpact(target.Center, 0.6f);
         }
@@ -3991,7 +4268,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
             
             // Flare textures for spinning layers
             Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             Vector2 flareOrigin = flareTex.Size() / 2f;
             Vector2 flareOrigin2 = flareTex2.Size() / 2f;
@@ -4466,7 +4743,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
@@ -4790,6 +5067,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
             var halo = new BloomRingParticle(target.Center, Vector2.Zero, IgniteFlame * 0.6f, 0.4f, 18);
             MagnumParticleHandler.SpawnParticle(halo);
             
+            // === DYNAMIC PARTICLE EFFECTS - Dies Hellfire Eruption (floating ignition) ===
+            DiesHellfireEruption(target.Center, 0.95f);
+            
             DiesIraeVFX.FireImpact(target.Center, 0.8f);
         }
         
@@ -4856,7 +5136,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
@@ -5181,7 +5461,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
@@ -5450,6 +5730,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
                 DiesIraeVFX.SpawnMusicNote(target.Center, noteVel, noteColor, 0.75f);
             }
             
+            // === DYNAMIC PARTICLE EFFECTS - Dies Wrath Chain Lightning (wrath shard) ===
+            DiesWrathChainLightning(target.Center, Projectile.velocity.SafeNormalize(Vector2.UnitX), 0.6f);
+            
             DiesIraeVFX.FireImpact(target.Center, 0.5f);
         }
         
@@ -5511,7 +5794,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin1 = flare1.Size() / 2f;

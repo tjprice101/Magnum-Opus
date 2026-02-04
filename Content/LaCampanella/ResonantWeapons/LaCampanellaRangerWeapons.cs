@@ -798,11 +798,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // ☁EMUSICAL FINALE - Golden notes burst on death
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 5, 3.5f);
-            
-            ThemedParticles.LaCampanellaBloomBurst(Projectile.Center, 0.5f);
-            ThemedParticles.LaCampanellaSparkles(Projectile.Center, 4, 20f);
+            // UNIQUE: Infernal Pillar - Fire erupts upward (beam energy dissipates upward)
+            DynamicParticleEffects.CampanellaDeathInfernalPillar(Projectile.Center, 0.8f);
         }
     }
 
@@ -881,11 +878,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // ☁EMUSICAL FINALE - Fiery notes scatter on death
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(255, 200, 50), 5, 3.5f);
-            
-            // Death burst
-            ThemedParticles.LaCampanellaSparkles(Projectile.Center, 3, 10f);
+            // UNIQUE: Bell Toll Shatter - Music note shatters into metallic shards
+            DynamicParticleEffects.CampanellaDeathBellTollShatter(Projectile.Center, 0.7f);
         }
 
         public override bool PreDraw(ref Color lightColor) => false; // Pure custom particle visual
@@ -1649,11 +1643,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // ☁EMUSICAL FINALE - Golden notes on homing rocket death
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 5, 3.5f);
-            
-            ThemedParticles.LaCampanellaBloomBurst(Projectile.Center, 0.5f);
-            ThemedParticles.LaCampanellaSparks(Projectile.Center, Main.rand.NextVector2Unit(), 8, 6f);
+            // UNIQUE: Ember Cascade - Rocket explodes in fountain of embers
+            DynamicParticleEffects.CampanellaDeathEmberCascade(Projectile.Center, 0.9f);
         }
 
         public override bool PreDraw(ref Color lightColor) => false; // Pure flaming flare ball - particles only
@@ -1809,17 +1800,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // ☁EMUSICAL FINALE - Golden notes on harmonic pulse death
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 6, 4f);
-            
-            // === SPARKLE COMBUSTION DEATH BURST ===
-            ThemedParticles.LaCampanellaSparkles(Projectile.Center, 10, 18f);
-            ThemedParticles.LaCampanellaPrismaticSparkles(Projectile.Center, 5, 0.55f);
-            for (int s = 0; s < 5; s++)
-            {
-                CustomParticles.PrismaticSparkle(Projectile.Center + Main.rand.NextVector2Circular(12f, 12f), ThemedParticles.CampanellaGold, 0.4f);
-            }
-            CustomParticles.GenericFlare(Projectile.Center, ThemedParticles.CampanellaOrange, 0.35f, 12);
+            // UNIQUE: Ring of Fire - Harmonic pulse expands as circular fire ring
+            DynamicParticleEffects.CampanellaDeathRingOfFire(Projectile.Center, 0.9f);
         }
 
         public override bool PreDraw(ref Color lightColor) => false; // Pure particle visual
@@ -1897,10 +1879,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // ☁EMUSICAL FINALE - Golden notes on crescendo wave death
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 5, 3.5f);
-            
-            ThemedParticles.LaCampanellaBloomBurst(Projectile.Center, 0.25f);
+            // UNIQUE: Virtuosic Finale - Grand crescendo wave ends with dramatic multi-layer explosion
+            DynamicParticleEffects.CampanellaDeathVirtuosicFinale(Projectile.Center, 1.0f);
         }
 
         public override bool PreDraw(ref Color lightColor) => false; // Pure particle visual
@@ -2023,10 +2003,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // ☁EMUSICAL FINALE - Golden notes on trailing note death
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 4, 3f);
-            
-            ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 3, 15f);
+            // UNIQUE: Bell Toll Shatter - Trailing music note shatters into metallic shards
+            DynamicParticleEffects.CampanellaDeathBellTollShatter(Projectile.Center, 0.6f);
         }
 
         public override bool PreDraw(ref Color lightColor) => false;
@@ -2117,11 +2095,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // ☁EMUSICAL FINALE - Grand golden notes on resonant blast death
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 8, 5f);
-            
-            ThemedParticles.LaCampanellaBloomBurst(Projectile.Center, 0.7f);
-            ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 8, 35f);
+            // Resonant blast death - dramatic virtuosic finale with musical burst
+            DynamicParticleEffects.CampanellaDeathVirtuosicFinale(Projectile.Center, 1.1f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -2244,10 +2219,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // ☁EMUSICAL FINALE - Golden notes on homing note death
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 4, 3f);
-            
-            ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 3, 15f);
+            // Homing note death - smoke wisp dissolve for subtle fade
+            DynamicParticleEffects.CampanellaDeathSmokeWispDissolve(Projectile.Center, Projectile.velocity.SafeNormalize(Vector2.UnitY), 0.6f);
         }
 
         public override bool PreDraw(ref Color lightColor) => false;
@@ -2369,8 +2342,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         {
             if (timeLeft > 0) return; // Already detonated
             
-            // Fizzle out effect
-            ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 3, 15f);
+            // Mine fizzle out - ring of fire effect for explosive theme
+            DynamicParticleEffects.CampanellaDeathRingOfFire(Projectile.Center, 0.7f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -2544,10 +2517,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // ☁EMUSICAL FINALE - Golden notes on orbiting note death
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 4, 3f);
-            
-            ThemedParticles.LaCampanellaMusicNotes(Projectile.Center, 3, 12f);
+            // Orbiting note death - bell toll shatter for musical death
+            DynamicParticleEffects.CampanellaDeathBellTollShatter(Projectile.Center, 0.5f);
         }
 
         public override bool PreDraw(ref Color lightColor) => false;

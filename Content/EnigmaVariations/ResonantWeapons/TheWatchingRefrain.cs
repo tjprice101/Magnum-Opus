@@ -788,16 +788,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
-            // === REALITY WARP ON DEATH ===
-            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 3.5f, 12);
-            
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 vel = angle.ToRotationVector2() * 3.5f;
-                var glow = new GenericGlowParticle(Projectile.Center, vel, GetEnigmaGradient((float)i / 6f), 0.28f, 14, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
+            // UNIQUE DEATH: Green Flame Whisper - phantom bolt dissolves into eerie green flames
+            DynamicParticleEffects.EnigmaDeathGreenFlameWhisper(Projectile.Center, 0.7f);
         }
     }
     
@@ -1271,19 +1263,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
-            // === REALITY WARP ON ZONE COLLAPSE ===
-            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 4f, 15);
-            
-            // Zone collapse VFX
-            for (int i = 0; i < 10; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 10f;
-                Vector2 offset = angle.ToRotationVector2() * 40f;
-                CustomParticles.GenericFlare(Projectile.Center + offset, GetEnigmaGradient((float)i / 10f), 0.4f, 16);
-            }
-            
-            CustomParticles.HaloRing(Projectile.Center, EnigmaPurple, 0.5f, 18);
-            CustomParticles.GlyphBurst(Projectile.Center, EnigmaGreen, count: 6, speed: 3f);
+            // UNIQUE DEATH: Mystery Unravel - mystery zone unravels into spiraling void
+            DynamicParticleEffects.EnigmaDeathMysteryUnravel(Projectile.Center, 0.9f);
         }
     }
 }

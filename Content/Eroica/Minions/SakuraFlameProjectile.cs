@@ -201,14 +201,8 @@ namespace MagnumOpus.Content.Eroica.Minions
         
         public override void OnKill(int timeLeft)
         {
-            // Small flame puff on death
-            for (int i = 0; i < 4; i++)
-            {
-                Color flameColor = Main.rand.NextBool() ? new Color(255, 200, 50) : new Color(255, 80, 30);
-                Vector2 vel = Main.rand.NextVector2Circular(2f, 2f);
-                Dust flame = Dust.NewDustPerfect(Projectile.Center, DustID.Torch, vel, 100, flameColor, 1f);
-                flame.noGravity = true;
-            }
+            // Small crisp spark for minion flame
+            DynamicParticleEffects.EroicaDeathCrimsonSpark(Projectile.Center, 0.5f);
         }
     }
 }

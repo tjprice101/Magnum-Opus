@@ -790,7 +790,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
     /// </summary>
     public class CenturionFireTrail : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare6";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
 
         public override void SetDefaults()
         {
@@ -827,7 +827,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
     /// </summary>
     public class CenturionInfernoOrb : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare7";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare4";
 
         public override void SetDefaults()
         {
@@ -935,7 +935,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
     /// </summary>
     public class CenturionGoldenSword : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc4";
+        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc3";
 
         public override void SetDefaults()
         {

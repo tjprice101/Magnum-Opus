@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Enemies
 {
@@ -235,27 +236,8 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         public override void OnKill(int timeLeft)
         {
-            // Dark red and gold death particles
-            for (int i = 0; i < 12; i++)
-            {
-                Dust fade = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Torch, 0f, 0f, 100, Color.DarkRed, 1.2f);
-                fade.noGravity = true;
-                fade.velocity = Main.rand.NextVector2Circular(4f, 4f);
-            }
-
-            for (int i = 0; i < 6; i++)
-            {
-                Dust gold = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.GoldFlame, 0f, 0f, 0, default, 1.0f);
-                gold.noGravity = true;
-                gold.velocity = Main.rand.NextVector2Circular(3f, 3f);
-            }
-
-            // Black smoke
-            for (int i = 0; i < 8; i++)
-            {
-                Dust smoke = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Smoke, 0f, 0f, 150, Color.Black, 1.5f);
-                smoke.velocity = Main.rand.NextVector2Circular(3f, 3f);
-            }
+            // Enemy minion death - smaller golden glow
+            DynamicParticleEffects.EroicaDeathGoldenGlow(Projectile.Center, 0.5f);
         }
     }
 }

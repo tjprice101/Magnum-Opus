@@ -110,20 +110,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // Impact burst
-            for (int i = 0; i < 20; i++)
-            {
-                int dustType;
-                int rand = Main.rand.Next(3);
-                if (rand == 0) dustType = DustID.Shadowflame;
-                else if (rand == 1) dustType = DustID.GoldFlame;
-                else dustType = DustID.CrimsonTorch;
-                
-                Dust burst = Dust.NewDustDirect(Projectile.Center, 1, 1, dustType, 0f, 0f, 100, default, 2f);
-                burst.noGravity = true;
-                burst.velocity = Main.rand.NextVector2Circular(8f, 8f);
-            }
-            
+            // Fierce crimson spark for lightning bolt
+            DynamicParticleEffects.EroicaDeathCrimsonSpark(Projectile.Center, 1.0f);
             SoundEngine.PlaySound(SoundID.Item62 with { Volume = 0.6f }, Projectile.Center);
         }
 

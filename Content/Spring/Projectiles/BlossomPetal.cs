@@ -27,7 +27,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
         private const float HueMin = 0.92f;
         private const float HueMax = 0.98f;
 
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle8";
+        public override string Texture => "MagnumOpus/Assets/Particles/BarrageOfGlintsAndSparkles";
 
         public override void SetStaticDefaults()
         {
@@ -172,7 +172,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             // Load MULTIPLE flare textures for layered spinning effect
             Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
             Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             Vector2 drawPos = Projectile.Center - Main.screenPosition;

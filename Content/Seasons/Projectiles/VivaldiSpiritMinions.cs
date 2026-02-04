@@ -216,6 +216,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             
             // Dynamic spring bloom impact
             SpringImpact(target.Center, 0.9f);
+            SpringPetalBloom(target.Center, 0.8f); // Unique petal bloom
             DramaticImpact(target.Center, SpringPink, SpringGreen, 0.4f, 18);
         }
 
@@ -301,7 +302,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SpiritPetalBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle3";
+        public override string Texture => "MagnumOpus/Assets/Particles/ConstellationStyleSparkle";
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
 
@@ -356,12 +357,13 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             
             // Dynamic spring petal impact
             SpringImpact(target.Center, 0.5f);
+            SpringSunshower(target.Center, 0.4f); // Unique sunlit particles
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle3").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/ConstellationStyleSparkle").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -547,6 +549,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             
             // Dynamic summer blaze impact
             SummerImpact(target.Center, 1f);
+            SummerSolarFlare(target.Center, 0.9f); // Unique solar flare
             DramaticImpact(target.Center, SummerGold, SummerOrange, 0.45f, 20);
         }
 
@@ -673,6 +676,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             
             // Dynamic summer solar bolt impact
             SummerImpact(target.Center, 0.55f);
+            SummerZenithStrike(target.Center, 0.5f); // Unique zenith strike
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -886,6 +890,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             
             // Dynamic autumn decay impact
             AutumnImpact(target.Center, 0.9f);
+            AutumnLeafCascade(target.Center, 0.8f); // Unique leaf cascade
             DramaticImpact(target.Center, AutumnOrange, AutumnRed, 0.42f, 18);
         }
 
@@ -1169,6 +1174,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             
             // Dynamic winter frost impact
             WinterImpact(target.Center, 1f);
+            WinterCrystallineShatter(target.Center, 0.9f); // Unique crystalline shatter
             DramaticImpact(target.Center, WinterBlue, WinterWhite, 0.45f, 20);
             
             // Frost sparkle burst on impact
@@ -1261,7 +1267,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SpiritIceBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle9";
+        public override string Texture => "MagnumOpus/Assets/Particles/TwilightSparkle";
         
         private static readonly Color WinterBlue = new Color(150, 220, 255);
 
@@ -1318,12 +1324,13 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             
             // Dynamic winter ice impact
             WinterImpact(target.Center, 0.5f);
+            WinterBlizzardVeil(target.Center, 0.4f); // Unique blizzard veil
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle9").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/TwilightSparkle").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 

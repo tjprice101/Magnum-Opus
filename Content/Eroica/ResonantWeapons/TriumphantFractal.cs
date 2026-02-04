@@ -183,6 +183,21 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Projectiles explode with recursive fractal geometry"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Victory branches infinitely'") { OverrideColor = new Color(200, 50, 50) });
         }
+        
+        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        {
+            // Subtle golden pulse effect in inventory
+            Texture2D texture = TextureAssets.Item[Item.type].Value;
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 1f;
+            
+            // Draw golden glow behind
+            spriteBatch.Draw(texture, position, frame, UnifiedVFX.Eroica.Gold * 0.2f, 0f, origin, scale * pulse * 1.08f, SpriteEffects.None, 0f);
+            
+            // Draw main item with pulse
+            spriteBatch.Draw(texture, position, frame, drawColor, 0f, origin, scale * pulse, SpriteEffects.None, 0f);
+            
+            return false;
+        }
 
         // Recipe removed - drops from Eroica, God of Valor
         // public override void AddRecipes()

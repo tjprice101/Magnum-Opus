@@ -275,7 +275,7 @@ namespace MagnumOpus.Common.Systems
         private float pulseTimer = 0f;
         private float shimmerPhase = 0f;
         
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle1";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle11";
         
         public void SetColors(Color primary, Color secondary)
         {

@@ -1029,4 +1029,103 @@ namespace MagnumOpus.Common.Systems.Particles
     }
     
     #endregion
+    
+    #region TexturedParticle - Generic texture-based particle
+    
+    /// <summary>
+    /// A generic particle that uses an externally provided texture (like CrossParticle PNGs or MusicNote PNGs).
+    /// Supports rotation, spin, and multi-layer bloom rendering.
+    /// </summary>
+    public class TexturedParticle : Particle
+    {
+        public override string Texture => "BloomCircle"; // Fallback only
+        public override bool UseAdditiveBlend => true;
+        public override bool SetLifetime => true;
+        public override bool UseCustomDraw => true;
+        
+        private Texture2D _customTexture;
+        private Color BaseColor;
+        private float OriginalScale;
+        private float opacity;
+        private float Spin;
+        
+        /// <summary>
+        /// Creates a textured particle with custom texture.
+        /// </summary>
+        /// <param name="position">Spawn position</param>
+        /// <param name="velocity">Movement velocity</param>
+        /// <param name="texture">The custom texture to use</param>
+        /// <param name="color">Tint color</param>
+        /// <param name="scale">Base scale</param>
+        /// <param name="lifetime">Lifetime in frames</param>
+        /// <param name="rotation">Initial rotation</param>
+        /// <param name="spin">Rotation speed per frame</param>
+        public TexturedParticle(Vector2 position, Vector2 velocity, Texture2D texture, Color color, float scale, int lifetime, float rotation = 0f, float spin = 0f)
+        {
+            Position = position;
+            Velocity = velocity;
+            _customTexture = texture;
+            BaseColor = color;
+            OriginalScale = scale;
+            Scale = scale;
+            Lifetime = lifetime;
+            Rotation = rotation;
+            Spin = spin;
+            opacity = 1f;
+        }
+        
+        public override void Update()
+        {
+            // Smooth fade out with slight expansion
+            float progress = LifetimeCompletion;
+            opacity = 1f - (progress * progress);
+            Scale = OriginalScale * (1f + progress * 0.2f); // Slight expansion
+            
+            Rotation += Spin;
+            Velocity *= 0.97f;
+            
+            // Subtle lighting
+            if (opacity > 0.2f)
+            {
+                float lightIntensity = opacity * 0.4f;
+                Lighting.AddLight(Position, BaseColor.R / 255f * lightIntensity, BaseColor.G / 255f * lightIntensity, BaseColor.B / 255f * lightIntensity);
+            }
+        }
+        
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            if (_customTexture == null) return;
+            
+            Vector2 drawPos = Position - Main.screenPosition;
+            Vector2 origin = _customTexture.Size() / 2f;
+            
+            // FARGOS PATTERN: Remove alpha for proper additive blending
+            Color bloomColor = BaseColor with { A = 0 };
+            
+            // Outer bloom layer (large, soft)
+            Texture2D bloomTex = ParticleTextureHelper.GetTexture("BloomCircle");
+            spriteBatch.Draw(bloomTex, drawPos, null, bloomColor * opacity * 0.25f,
+                0f, bloomTex.Size() / 2f, Scale * 2.5f, SpriteEffects.None, 0f);
+            
+            // Multi-layer bloom stack for the texture
+            float[] scales = { 1.4f, 1.15f, 1.0f };
+            float[] opacities = { 0.3f, 0.5f, 0.85f };
+            
+            for (int i = 0; i < 3; i++)
+            {
+                float layerScale = Scale * scales[i];
+                float layerAlpha = opacity * opacities[i];
+                Color layerColor = i < 2 ? bloomColor : BaseColor;
+                
+                spriteBatch.Draw(_customTexture, drawPos, null, layerColor * layerAlpha,
+                    Rotation, origin, layerScale, SpriteEffects.None, 0f);
+            }
+            
+            // White center highlight for visibility
+            spriteBatch.Draw(bloomTex, drawPos, null, Color.White with { A = 0 } * opacity * 0.4f,
+                0f, bloomTex.Size() / 2f, Scale * 0.3f, SpriteEffects.None, 0f);
+        }
+    }
+    
+    #endregion
 }

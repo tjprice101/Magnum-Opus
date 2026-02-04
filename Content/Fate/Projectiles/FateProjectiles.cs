@@ -415,7 +415,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class CosmicSeekerBall : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle1";
+        public override string Texture => "MagnumOpus/Assets/Particles/Star";
 
         public override void SetStaticDefaults()
         {
@@ -513,7 +513,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle1").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Star").Value;
             Vector2 origin = tex.Size() / 2f;
 
             spriteBatch.End();
@@ -948,7 +948,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class PrismaticBeam : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle2";
+        public override string Texture => "MagnumOpus/Assets/Particles/TwilightSparkle";
 
         public ref float BeamSize => ref Projectile.ai[0];
         public ref float ColorProgress => ref Projectile.ai[1];
@@ -1028,7 +1028,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle2").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/TwilightSparkle").Value;
             Vector2 origin = tex.Size() / 2f;
 
             float hue = (ColorProgress + Main.GameUpdateCount * 0.02f) % 1f;

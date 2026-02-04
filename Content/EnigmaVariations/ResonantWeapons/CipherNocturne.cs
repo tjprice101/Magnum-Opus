@@ -690,47 +690,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
-            float scale = IsEnhanced ? 1.5f : 1f;
+            // Beam weapon - use MysteryUnravel (scale varies by enhanced state)
+            float scale = IsEnhanced ? 1.2f : 0.8f;
+            DynamicParticleEffects.EnigmaDeathMysteryUnravel(Projectile.Center, scale);
             
-            // === BEAM COLLAPSE REALITY WARP ===
-            float collapseIntensity = IsEnhanced ? 5f : 3.5f;
-            int collapseLifetime = IsEnhanced ? 18 : 12;
-            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, collapseIntensity, collapseLifetime);
-            if (IsEnhanced)
-                FateRealityDistortion.TriggerInversionPulse(6);
-            
-            // === ENHANCED BLOOM BURST ===
-            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(Projectile.Center, scale);
-            
-            // Final burst with enhanced particles
-            for (int i = 0; i < (IsEnhanced ? 10 : 6); i++)
-            {
-                float angle = MathHelper.TwoPi * i / (IsEnhanced ? 10 : 6);
-                Vector2 vel = angle.ToRotationVector2() * (4f * scale);
-                Color burstColor = GetEnigmaGradient((float)i / (IsEnhanced ? 10 : 6));
-                
-                // Use EnhancedParticlePool for bloom
-                var particle = EnhancedParticlePool.GetParticle()
-                    .Setup(Projectile.Center, vel, burstColor, 0.4f * scale, 18)
-                    .WithBloom(2, 0.8f)
-                    .WithDrag(0.96f);
-                EnhancedParticlePool.SpawnParticle(particle);
-            }
-            
-            // Enhanced halo with bloom
-            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaPurple, 0.5f * scale, 15, 3, 0.9f);
-            
+            // Keep enhanced-only reality distortion effect
             if (IsEnhanced)
             {
-                CustomParticles.GlyphBurst(Projectile.Center, EnigmaGreen, count: 6, speed: 3f);
-                
-                // === WATCHING EYES ===
-                CustomParticles.EnigmaEyeExplosion(Projectile.Center, EnigmaPurple, 6, 4f);
-            }
-            else
-            {
-                // === WATCHING EYE at beam end ===
-                CustomParticles.EnigmaEyeGaze(Projectile.Center, EnigmaGreen * 0.7f, 0.4f, Projectile.velocity.SafeNormalize(Vector2.UnitX));
+                FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 3f, 12);
             }
         }
     }

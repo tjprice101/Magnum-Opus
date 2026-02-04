@@ -534,7 +534,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
     public class InfernalBellWave : ModProjectile
     {
         // Use a soft glow texture - the wave is particle-based
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare2";
+        public override string Texture => "MagnumOpus/Assets/Particles/FlareSpikeBurst";
         
         private static readonly Color CampanellaOrange = new Color(255, 100, 0);
         private static readonly Color CampanellaYellow = new Color(255, 200, 50);
@@ -627,25 +627,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // ☁EMUSICAL FINALE - Golden notes on bell wave death
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 4, 3f);
-            
-            // Death burst
-            CustomParticles.GenericFlare(Projectile.Center, CampanellaOrange, 0.5f, 15);
-            CustomParticles.HaloRing(Projectile.Center, CampanellaOrange, 0.3f, 12);
-            
-            // Dissipating sparks
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
-                Color sparkColor = Color.Lerp(CampanellaOrange, CampanellaYellow, Main.rand.NextFloat());
-                
-                var spark = new GlowSparkParticle(Projectile.Center, sparkVel, sparkColor * 0.6f, 0.2f, 15);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            SoundEngine.PlaySound(SoundID.Item34 with { Pitch = 0.5f, Volume = 0.3f }, Projectile.Center);
+            // Bell minion wave death - infernal pillar for dramatic dissipation
+            DynamicParticleEffects.CampanellaDeathInfernalPillar(Projectile.Center, 0.6f);
         }
 
         public override bool PreDraw(ref Color lightColor)

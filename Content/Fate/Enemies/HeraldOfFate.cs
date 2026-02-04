@@ -1236,7 +1236,7 @@ namespace MagnumOpus.Content.Fate.Enemies
     /// </summary>
     public class StellarBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle7";
+        public override string Texture => "MagnumOpus/Assets/Particles/ShatteredStarlight";
 
         public override void SetDefaults()
         {
@@ -1381,7 +1381,7 @@ namespace MagnumOpus.Content.Fate.Enemies
     /// </summary>
     public class FateSealedShard : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle9";
+        public override string Texture => "MagnumOpus/Assets/Particles/StarryStarburst";
 
         public override void SetDefaults()
         {

@@ -233,6 +233,39 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             
             return true;
         }
+        
+        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        {
+            // === INFERNAL BELL INVENTORY GLOW ===
+            Texture2D texture = TextureAssets.Item[Item.type].Value;
+            
+            float time = Main.GameUpdateCount * 0.06f;
+            float pulse = 1f + (float)Math.Sin(time * 1.8f) * 0.1f;
+            
+            // Additive glow layer
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+            
+            // Black to orange gradient glow (infernal theme)
+            Color outerGlow = ThemedParticles.CampanellaOrange * 0.3f;
+            spriteBatch.Draw(texture, position, frame, outerGlow, 0f, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            
+            // Inner black core shimmer
+            float flicker = Main.rand.NextFloat(0.8f, 1f);
+            Color innerGlow = Color.Lerp(ThemedParticles.CampanellaBlack, ThemedParticles.CampanellaOrange, 0.3f) * 0.25f * flicker;
+            spriteBatch.Draw(texture, position, frame, innerGlow, 0f, origin, scale * pulse * 1.08f, SpriteEffects.None, 0f);
+            
+            // Return to normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+            
+            // Draw the actual item
+            spriteBatch.Draw(texture, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
+            
+            return false;
+        }
     }
 
     /// <summary>
@@ -616,7 +649,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
-            SpawnExplosionWithLightning(Projectile.Center);
+            // Spiral bolt death - virtuosic finale with lightning theme
+            DynamicParticleEffects.CampanellaDeathVirtuosicFinale(Projectile.Center, 0.9f);
         }
         
         private void SpawnExplosionWithLightning(Vector2 position)

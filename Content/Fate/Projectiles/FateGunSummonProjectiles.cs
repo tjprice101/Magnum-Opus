@@ -22,7 +22,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class FateRapidBullet : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle3";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle13";
 
         public static int HitCounter = 0; // Shared between all bullets from same player
         private float pulsePhase = 0f;
@@ -146,7 +146,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle3").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle13").Value;
             Vector2 origin = tex.Size() / 2f;
             
             float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.15f;
@@ -657,7 +657,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class CosmicRocket : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle4";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle14";
         
         private float pulsePhase = 0f;
 
@@ -770,7 +770,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle4").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle14").Value;
             Vector2 origin = tex.Size() / 2f;
             
             float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.12f;

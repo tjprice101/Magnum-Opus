@@ -21,7 +21,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class IcicleBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle4";
+        public override string Texture => "MagnumOpus/Assets/Particles/ConstellationStyleSparkle";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
@@ -220,9 +220,9 @@ namespace MagnumOpus.Content.Winter.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle4").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/ConstellationStyleSparkle").Value;
             Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
@@ -595,7 +595,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle14").Value;
             Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;

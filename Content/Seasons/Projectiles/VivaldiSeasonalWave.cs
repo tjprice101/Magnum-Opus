@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class VivaldiSeasonalWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc5";
+        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc6";
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
@@ -283,10 +283,10 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             // === DYNAMIC: Season-based Impact ===
             switch (SeasonIndex)
             {
-                case 0: SpringImpact(target.Center, 0.9f); break;
-                case 1: SummerImpact(target.Center, 0.9f); break;
-                case 2: AutumnImpact(target.Center, 0.9f); break;
-                case 3: WinterImpact(target.Center, 0.9f); break;
+                case 0: SpringImpact(target.Center, 0.9f); SpringVerdantTrail(target.Center, Projectile.velocity, 0.7f); break;
+                case 1: SummerImpact(target.Center, 0.9f); SummerHeatWave(target.Center, 0.75f); break;
+                case 2: AutumnImpact(target.Center, 0.9f); AutumnDecaySpiral(target.Center, 0.7f); break;
+                case 3: WinterImpact(target.Center, 0.9f); WinterBlizzardVeil(target.Center, 0.75f); break;
             }
             DramaticImpact(target.Center, PrimaryColor, SecondaryColor, 0.45f, 18);
         }
@@ -294,9 +294,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D arcTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwordArc5").Value;
+            Texture2D arcTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwordArc6").Value;
             Texture2D flareTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTexture2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flareTexture2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             Vector2 arcOrigin = arcTexture.Size() / 2f;
             Vector2 flareOrigin = flareTexture.Size() / 2f;

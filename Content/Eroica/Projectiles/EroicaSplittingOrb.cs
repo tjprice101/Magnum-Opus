@@ -177,22 +177,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             }
             else
             {
-                // Final death burst (no more splits)
-                Color burstColor = RecursionDepth == 0 ? EroicaScarlet : EroicaGold;
-                CustomParticles.GenericFlare(Projectile.Center, burstColor, 0.4f, 12);
-                CustomParticles.HaloRing(Projectile.Center, burstColor * 0.7f, 0.2f, 10);
-                
-                // Dust burst
-                for (int i = 0; i < 6; i++)
-                {
-                    int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
-                    Dust dust = Dust.NewDustDirect(Projectile.Center, 1, 1, dustType, 0f, 0f, 100, default, 1.5f);
-                    dust.noGravity = true;
-                    dust.velocity = Main.rand.NextVector2Circular(5f, 5f);
-                }
-                
-                // ☁EMUSICAL FINALE - Hero's symphony
-                ThemedParticles.MusicNoteBurst(Projectile.Center, EroicaScarlet, 6, 4f);
+                // Final death burst - crisp heroic flash
+                DynamicParticleEffects.EroicaDeathHeroicFlash(Projectile.Center, 0.6f + RecursionDepth * 0.2f);
             }
         }
         

@@ -257,64 +257,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // === PHASE 1: Central flash - the final chord ===
-            CustomParticles.GenericFlare(Projectile.Center, Color.White, 1.2f, 18);
-            CustomParticles.GenericFlare(Projectile.Center, UnifiedVFX.Eroica.Gold, 0.9f, 22);
-            
-            // === PHASE 2: UnifiedVFX themed explosion ===
-            UnifiedVFX.Eroica.Impact(Projectile.Center, 1.3f);
-            
-            // === PHASE 3: 8-point fractal burst with gradient ===
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                float gradientProgress = (float)i / 8f;
-                
-                // Outer ring
-                Vector2 outerOffset = angle.ToRotationVector2() * 50f;
-                Color outerColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, gradientProgress);
-                CustomParticles.GenericFlare(Projectile.Center + outerOffset, outerColor, 0.55f, 18);
-                
-                // Inner ring
-                Vector2 innerOffset = angle.ToRotationVector2() * 28f;
-                Color innerColor = Color.Lerp(UnifiedVFX.Eroica.Crimson, UnifiedVFX.Eroica.Sakura, gradientProgress);
-                CustomParticles.GenericFlare(Projectile.Center + innerOffset, innerColor, 0.4f, 15);
-            }
-            
-            // === PHASE 4: Cascading halo rings ===
-            for (int ring = 0; ring < 5; ring++)
-            {
-                float ringProgress = ring / 5f;
-                Color ringColor = Color.Lerp(UnifiedVFX.Eroica.Gold, UnifiedVFX.Eroica.Scarlet, ringProgress);
-                CustomParticles.HaloRing(Projectile.Center, ringColor * (1f - ringProgress * 0.3f), 
-                    0.4f + ring * 0.2f, 14 + ring * 4);
-            }
-            
-            // === PHASE 5: Radial spark spray ===
-            for (int i = 0; i < 16; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 16f + Main.rand.NextFloat(-0.15f, 0.15f);
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(6f, 12f);
-                float gradientProgress = (float)i / 16f;
-                Color sparkColor = Color.Lerp(UnifiedVFX.Eroica.Flame, UnifiedVFX.Eroica.Gold, gradientProgress);
-                
-                var spark = new GenericGlowParticle(Projectile.Center, sparkVel, sparkColor, 0.35f, 22, true);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            // === PHASE 6: Sakura petal finale ===
-            ThemedParticles.SakuraPetals(Projectile.Center, 6, 50f);
-            
-            // === PHASE 7: Music note flourish ===
-            for (int i = 0; i < 5; i++)
-            {
-                float noteAngle = MathHelper.TwoPi * i / 5f;
-                Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * 25f;
-                Vector2 noteVel = noteAngle.ToRotationVector2() * 2.5f;
-                Color noteColor = Color.Lerp(UnifiedVFX.Eroica.Gold, UnifiedVFX.Eroica.Sakura, (float)i / 5f);
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.35f, 28);
-            }
-            
+            // Powerful valor burst for heroic fist
+            DynamicParticleEffects.EroicaDeathValorBurst(Projectile.Center, 1.1f);
             SoundEngine.PlaySound(SoundID.Item14 with { Volume = 0.6f, Pitch = 0f }, Projectile.Center);
         }
 

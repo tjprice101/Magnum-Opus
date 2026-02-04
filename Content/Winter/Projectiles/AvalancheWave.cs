@@ -213,7 +213,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class IceShardProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle7";
+        public override string Texture => "MagnumOpus/Assets/Particles/TwinkleSparkle";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
@@ -284,7 +284,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle7").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/TwinkleSparkle").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 

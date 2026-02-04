@@ -182,13 +182,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 
         public override void OnKill(int timeLeft)
         {
-            // Enhanced fade-out with bloom - purple and light blue
-            EnhancedThemedParticles.MoonlightBloomBurstEnhanced(Projectile.Center, 0.5f);
-            EnhancedParticles.BloomFlare(Projectile.Center, new Color(80, 40, 140), 0.35f, 15, 2, 0.6f);
-            EnhancedParticles.BloomFlare(Projectile.Center, new Color(140, 200, 255), 0.3f, 12, 2, 0.5f);
-            
-            // ☁EMUSICAL FINALE - Chandelier's last note (subtle)
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(138, 43, 226) * 0.6f, 3, 2.5f);
+            // Simplified chandelier death - silver mist dissipation (enemy, small)
+            DynamicParticleEffects.MoonlightDeathSilverMist(Projectile.Center, 0.5f);
         }
     }
 }

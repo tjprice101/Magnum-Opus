@@ -692,7 +692,7 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 
     public class BellTollFlame : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField3";
+        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField6";
 
         private static readonly Color CampanellaOrange = new Color(255, 100, 0);
 
@@ -739,7 +739,7 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField3").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField6").Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             float alpha = 1f - Projectile.alpha / 255f;
 
@@ -853,7 +853,7 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 
     public class SmokeFireball : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField5";
+        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField7";
 
         private static readonly Color CampanellaOrange = new Color(255, 100, 0);
 
@@ -891,7 +891,7 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField5").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField7").Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
 
             Main.spriteBatch.Draw(glow, pos, null, CampanellaOrange, Projectile.rotation, glow.Size() / 2, 0.3f, SpriteEffects.None, 0f);

@@ -632,7 +632,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class BlitzerSalvoProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare2";
+        public override string Texture => "MagnumOpus/Assets/Particles/SmallBurstFlare";
 
         public override void SetDefaults()
         {
@@ -674,7 +674,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class BlitzerLightningBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare3";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare4";
 
         public override void SetDefaults()
         {
@@ -771,7 +771,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
     public class BlitzerHomingSoul : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare5";
+        public override string Texture => "MagnumOpus/Assets/Particles/FlareSpikeBurst";
 
         public override void SetDefaults()
         {

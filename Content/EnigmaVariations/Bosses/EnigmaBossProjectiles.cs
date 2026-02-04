@@ -69,10 +69,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override void OnKill(int timeLeft)
         {
-            // Compact impact - readable
-            UnifiedVFXBloom.EnigmaVariations.ImpactEnhanced(Projectile.Center, 0.25f);
-            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaGreen, 0.2f, 10, 2, 0.5f);
-            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaPurple, 0.15f, 8, 2, 0.4f);
+            // Boss web shot - compact void implode
+            DynamicParticleEffects.EnigmaDeathVoidImplode(Projectile.Center, 0.5f);
             SoundEngine.PlaySound(SoundID.Item10 with { Pitch = 0.3f, Volume = 0.4f }, Projectile.Center);
         }
         
@@ -220,10 +218,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override void OnKill(int timeLeft)
         {
-            // Compact eye death
-            CustomParticles.EnigmaEyeGaze(Projectile.Center, EnigmaGreen, 0.22f, Projectile.rotation.ToRotationVector2());
-            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaGreen, 0.18f, 8, 2, 0.5f);
-            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(Projectile.Center, 0.2f);
+            // Boss homing eye - blink and shatter
+            DynamicParticleEffects.EnigmaDeathEyeBlinkShatter(Projectile.Center, 0.55f);
             SoundEngine.PlaySound(SoundID.Item8 with { Pitch = -0.2f, Volume = 0.4f }, Projectile.Center);
         }
     }

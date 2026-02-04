@@ -2,7 +2,7 @@
 
 > **⭐ CRITICAL FOR AI ASSISTANTS: Always run `list_dir` on this folder to discover ALL available particles before creating weapon effects!**
 
-This folder contains **80+ particle textures** for creating unique, varied visual effects. **DO NOT** use only one or two particle types - mix and match for creative, unique weapon identities!
+This folder contains **97 particle textures** organized by category. Mix and match for unique weapon identities!
 
 ---
 
@@ -11,124 +11,199 @@ This folder contains **80+ particle textures** for creating unique, varied visua
 **Before creating ANY weapon, projectile, or effect:**
 1. Run `list_dir` on `Assets/Particles/` to see all available textures
 2. Choose particles from **at least 3-4 different categories**
-3. Use **different variant numbers** (not always variant 1)
-4. **Be creative** - unexpected combinations create unique weapons
-5. **Music notes must be scale 0.6f+** to be visible!
+3. **Be creative** - unexpected combinations create unique weapons
+4. **Music notes must be scale 0.6f+** to be visible!
 
 ---
 
-## Complete Particle Inventory
+## 📊 Code Array Reference (CustomParticleSystem.cs)
 
-### 🔥 Flares & Energy Bursts
-| File | Variants | Description | Scale Range |
-|------|----------|-------------|-------------|
-| `EnergyFlare.png` | - | Classic energy burst, 4-pointed | 0.4f - 1.2f |
-| `EnergyFlare2.png` | - | Softer bloom burst | 0.4f - 1.0f |
-| `EnergyFlare3.png` | - | Sharp starburst | 0.5f - 1.2f |
-| `EnergyFlare4.png` | - | Asymmetric flare | 0.4f - 1.0f |
-| `EnergyFlare5.png` | - | Multi-point burst | 0.5f - 1.5f |
-| `EnergyFlare6.png` | - | Compact intense core | 0.3f - 0.8f |
-| `EnergyFlare7.png` | - | Wide bloom spread | 0.5f - 1.2f |
+### Quick Reference - Array Index to File Name
+| Array | Index | File Name |
+|-------|-------|-----------|
+| `EnergyFlares[0]` | 0 | `EnergyFlare.png` |
+| `EnergyFlares[1]` | 1 | `EnergyFlare4.png` |
+| `FlareSparkles[0]` | 0 | `FlareSparkle.png` |
+| `FlareSparkles[1]` | 1 | `FlareSpikeBurst.png` |
+| `FlareSparkles[2]` | 2 | `SmallBurstFlare.png` |
+| `FlareSparkles[3]` | 3 | `GlintSparkleFlare.png` |
+| `FlareSparkles[4]` | 4 | `GlintTwilightSparkleFlare.png` |
+| `FlareSparkles[5]` | 5 | `ThinSparkleFlare.png` |
+| `SoftGlows[0-2]` | 0-2 | `SoftGlow2.png`, `SoftGlow3.png`, `SoftGlow4.png` |
+| `MusicNotes[0-5]` | 0-5 | `MusicNote`, `CursiveMusicNote`, `MusicNoteWithSlashes`, `QuarterNote`, `TallMusicNote`, `WholeNote` |
+| `TwilightSparkles[0-2]` | 0-2 | `TwilightSparkle`, `SmallTwilightSparkle`, `TwinkleSparkle` |
+| `SparkleCluster[0-2]` | 0-2 | `ConstellationStyleSparkle`, `BarrageOfGlintsAndSparkles`, `ManySparklesInCLuster` |
+| `Stars[0-6]` | 0-6 | `Star`, `StarBurst1`, `StarBurst2`, `StarryStarburst`, `CircularStarRing`, `CrescentSparkleMoon`, `ShatteredStarlight` |
+| `Impacts[0-2]` | 0-2 | `Impact`, `SmallBurst`, `SparkleBurst` |
+| `FlameImpacts[0-2]` | 0-2 | `FlameImpactExplosion`, `FlameWispImpactExplosion`, `LargeFlameImpactExplosion` |
+| `SwordArcs[0-8]` | 0-8 | `SwordArc1`, `SwordArc2`, `SwordArc3`, `SwordArc6`, `SwordArc8`, `SimpleArcSwordSlash`, `CurvedSwordSlash`, `FlamingArcSwordSlash`, `SwordArcSlashWave` |
+| `GlowingHalos[0-4]` | 0-4 | `GlowingHalo1`, `GlowingHalo2`, `GlowingHalo4`, `GlowingHalo5`, `GlowingHalo6` |
+| `EnigmaEyes[0-7]` | 0-7 | `EnigmaEye1`, `ActivatedEnigmaEye`, `BurstingEye`, `CircularEnigmaEye`, `GodEye`, `LargeEye`, `SpikeyEye`, `TriangularEye` |
+| `Glyphs[0-11]` | 0-11 | `Glyphs1.png` through `Glyphs12.png` |
+| `SwanFeathers[0-9]` | 0-9 | `SwanFeather1.png` through `SwanFeather10.png` |
+| `FlameWisps[0-1]` | 0-1 | `FlamingWispProjectileSmall`, `TallFlamingWispProjectile` |
+| `ParticleTrails[0-3]` | 0-3 | `ParticleTrail1.png` through `ParticleTrail4.png` |
+| `MagicSparkleFields[0-6]` | 0-6 | `MagicSparklField4`, `6`, `7`, `8`, `9`, `10`, `11` |
+| `PrismaticSparkles[0-2]` | 0-2 | `PrismaticSparkle11`, `PrismaticSparkle13`, `PrismaticSparkle14` |
+| `CrossParticles[0-1]` | 0-1 | `CrossParticleBlack`, `CrossParticleWhite` |
 
-### ✨ Soft Glows & Ambient
-| File | Variants | Description | Scale Range |
-|------|----------|-------------|-------------|
-| `SoftGlow2.png` | - | Round soft glow | 0.3f - 0.8f |
-| `SoftGlow3.png` | - | Diffuse ambient | 0.3f - 1.0f |
-| `SoftGlow4.png` | - | Elongated glow | 0.3f - 0.8f |
+---
 
-### 💫 Halos & Rings
-| File | Variants | Description | Scale Range |
-|------|----------|-------------|-------------|
-| `GlowingHalo1.png` | - | Clean ring halo | 0.3f - 1.0f |
-| `GlowingHalo2.png` | - | Thick ring | 0.4f - 1.2f |
-| `GlowingHalo4.png` | - | Thin elegant ring | 0.3f - 0.9f |
-| `GlowingHalo5.png` | - | Double ring | 0.4f - 1.0f |
-| `GlowingHalo6.png` | - | Ornate halo | 0.5f - 1.2f |
+## Complete Particle Inventory (97 files)
 
-### ⭐ Stars & Bursts
-| File | Variants | Description | Scale Range |
-|------|----------|-------------|-------------|
-| `StarBurst1.png` | - | 8-point starburst | 0.5f - 1.5f |
-| `StarBurst2.png` | - | 6-point starburst | 0.5f - 1.5f |
-| `ShatteredStarlight.png` | - | Broken star fragments | 0.4f - 1.0f |
+### 🔥 Flares & Energy Bursts (2)
+| File | Array Reference | Scale Range |
+|------|-----------------|-------------|
+| `EnergyFlare.png` | `EnergyFlares[0]` | 0.4f - 1.2f |
+| `EnergyFlare4.png` | `EnergyFlares[1]` | 0.4f - 1.0f |
 
-### 🎵 Music Notes (THIS IS A MUSIC MOD!)
-| File | Variants | Description | Scale Range |
-|------|----------|-------------|-------------|
-| `MusicNote.png` | - | Quarter note | **0.6f - 1.2f** |
-| `MusicNote2.png` | - | Eighth note | **0.6f - 1.2f** |
-| `MusicNote3.png` | - | Beamed notes | **0.6f - 1.2f** |
-| `MusicNote4.png` | - | Treble clef | **0.7f - 1.4f** |
-| `MusicNote5.png` | - | Half note | **0.6f - 1.2f** |
-| `MusicNote6.png` | - | Whole note | **0.6f - 1.2f** |
+### ⚡ Flare Sparkles (6)
+| File | Array Reference | Scale Range |
+|------|-----------------|-------------|
+| `FlareSparkle.png` | `FlareSparkles[0]` | 0.3f - 0.8f |
+| `FlareSpikeBurst.png` | `FlareSparkles[1]` | 0.4f - 1.0f |
+| `SmallBurstFlare.png` | `FlareSparkles[2]` | 0.3f - 0.7f |
+| `GlintSparkleFlare.png` | `FlareSparkles[3]` | 0.3f - 0.8f |
+| `GlintTwilightSparkleFlare.png` | `FlareSparkles[4]` | 0.3f - 0.8f |
+| `ThinSparkleFlare.png` | `FlareSparkles[5]` | 0.2f - 0.6f |
+
+### ✨ Soft Glows (3)
+| File | Array Reference | Scale Range |
+|------|-----------------|-------------|
+| `SoftGlow2.png` | `SoftGlows[0]` | 0.3f - 0.8f |
+| `SoftGlow3.png` | `SoftGlows[1]` | 0.3f - 1.0f |
+| `SoftGlow4.png` | `SoftGlows[2]` | 0.3f - 0.8f |
+
+### 💫 Halos & Rings (5)
+| File | Array Reference | Scale Range |
+|------|-----------------|-------------|
+| `GlowingHalo1.png` | `GlowingHalos[0]` | 0.3f - 1.0f |
+| `GlowingHalo2.png` | `GlowingHalos[1]` | 0.4f - 1.2f |
+| `GlowingHalo4.png` | `GlowingHalos[2]` | 0.3f - 0.9f |
+| `GlowingHalo5.png` | `GlowingHalos[3]` | 0.4f - 1.0f |
+| `GlowingHalo6.png` | `GlowingHalos[4]` | 0.5f - 1.2f |
+
+### ⭐ Stars & Bursts (7)
+| File | Array Reference | Scale Range |
+|------|-----------------|-------------|
+| `Star.png` | `Stars[0]` | 0.4f - 1.0f |
+| `StarBurst1.png` | `Stars[1]` | 0.5f - 1.5f |
+| `StarBurst2.png` | `Stars[2]` | 0.5f - 1.5f |
+| `StarryStarburst.png` | `Stars[3]` | 0.5f - 1.2f |
+| `CircularStarRing.png` | `Stars[4]` | 0.4f - 1.0f |
+| `CrescentSparkleMoon.png` | `Stars[5]` | 0.5f - 1.0f |
+| `ShatteredStarlight.png` | `Stars[6]` | 0.4f - 1.0f |
+
+### 🎵 Music Notes (6) - **THIS IS A MUSIC MOD!**
+| File | Array Reference | Scale Range |
+|------|-----------------|-------------|
+| `MusicNote.png` | `MusicNotes[0]` | **0.6f - 1.2f** |
+| `CursiveMusicNote.png` | `MusicNotes[1]` | **0.6f - 1.2f** |
+| `MusicNoteWithSlashes.png` | `MusicNotes[2]` | **0.6f - 1.2f** |
+| `QuarterNote.png` | `MusicNotes[3]` | **0.6f - 1.2f** |
+| `TallMusicNote.png` | `MusicNotes[4]` | **0.7f - 1.4f** |
+| `WholeNote.png` | `MusicNotes[5]` | **0.6f - 1.2f** |
 
 > ⚠️ **WARNING: Music notes at scale 0.25-0.4f are INVISIBLE! Use 0.6f minimum!**
 
-### ✨ Magic Sparkle Fields (12 variants!)
-| File | Description | Scale Range |
-|------|-------------|-------------|
-| `MagicSparklField1.png` | Scattered sparkle cluster | 0.3f - 0.8f |
-| `MagicSparklField2.png` | Dense sparkle field | 0.3f - 0.8f |
-| `MagicSparklField3.png` | Vertical sparkle stream | 0.4f - 0.9f |
-| `MagicSparklField4.png` | Horizontal spread | 0.3f - 0.8f |
-| `MagicSparklField5.png` | Circular arrangement | 0.4f - 1.0f |
-| `MagicSparklField6.png` | Random scatter | 0.3f - 0.7f |
-| `MagicSparklField7.png` | Concentrated burst | 0.3f - 0.8f |
-| `MagicSparklField8.png` | Wide dispersion | 0.4f - 1.0f |
-| `MagicSparklField9.png` | Spiral pattern | 0.4f - 0.9f |
-| `MagicSparklField10.png` | Arc arrangement | 0.3f - 0.8f |
-| `MagicSparklField11.png` | Radial pattern | 0.4f - 1.0f |
-| `MagicSparklField12.png` | Dense core field | 0.3f - 0.7f |
+### ✨ Twilight Sparkles (3)
+| File | Array Reference | Scale Range |
+|------|-----------------|-------------|
+| `TwilightSparkle.png` | `TwilightSparkles[0]` | 0.3f - 0.8f |
+| `SmallTwilightSparkle.png` | `TwilightSparkles[1]` | 0.2f - 0.5f |
+| `TwinkleSparkle.png` | `TwilightSparkles[2]` | 0.3f - 0.7f |
 
-### 🌈 Prismatic Sparkles (15 variants!)
-| File Range | Description | Scale Range |
-|------------|-------------|-------------|
-| `PrismaticSparkle1-5.png` | Small sparkle points | 0.3f - 0.6f |
-| `PrismaticSparkle6-10.png` | Medium sparkle shapes | 0.4f - 0.7f |
-| `PrismaticSparkle11-15.png` | Large prismatic bursts | 0.4f - 0.8f |
+### 🌟 Sparkle Clusters (3)
+| File | Array Reference | Scale Range |
+|------|-----------------|-------------|
+| `ConstellationStyleSparkle.png` | `SparkleCluster[0]` | 0.4f - 1.0f |
+| `BarrageOfGlintsAndSparkles.png` | `SparkleCluster[1]` | 0.4f - 0.9f |
+| `ManySparklesInCLuster.png` | `SparkleCluster[2]` | 0.3f - 0.8f |
 
-### 🌊 Trails (4 variants)
-| File | Description | Scale Range |
-|------|-------------|-------------|
-| `ParticleTrail1.png` | Straight elongated trail | 0.3f - 0.8f |
-| `ParticleTrail2.png` | Tapered trail | 0.3f - 0.7f |
-| `ParticleTrail3.png` | Wavy trail | 0.4f - 0.9f |
-| `ParticleTrail4.png` | Fading trail | 0.3f - 0.8f |
+### 💥 Impacts & Explosions (6)
+| File | Array Reference | Scale Range |
+|------|-----------------|-------------|
+| `Impact.png` | `Impacts[0]` | 0.5f - 1.5f |
+| `SmallBurst.png` | `Impacts[1]` | 0.3f - 0.8f |
+| `SparkleBurst.png` | `Impacts[2]` | 0.4f - 1.0f |
+| `FlameImpactExplosion.png` | `FlameImpacts[0]` | 0.5f - 1.2f |
+| `FlameWispImpactExplosion.png` | `FlameImpacts[1]` | 0.4f - 1.0f |
+| `LargeFlameImpactExplosion.png` | `FlameImpacts[2]` | 0.6f - 1.5f |
 
-### ⚔️ Sword Arcs (9 variants!)
-| File | Description | Scale Range |
-|------|-------------|-------------|
-| `SwordArc1.png` | Clean horizontal arc | 0.5f - 1.5f |
-| `SwordArc2.png` | Vertical slash | 0.5f - 1.5f |
-| `SwordArc3.png` | Diagonal sweep | 0.5f - 1.5f |
-| `SwordArc4.png` | Wide arc | 0.6f - 1.8f |
-| `SwordArc5.png` | Tight arc | 0.4f - 1.2f |
-| `SwordArc6.png` | Double arc | 0.5f - 1.5f |
-| `SwordArc7.png` | Curved slash | 0.5f - 1.5f |
-| `SwordArc8.png` | Sharp cut | 0.4f - 1.2f |
-| `SwordArc9.png` | Flowing arc | 0.6f - 1.8f |
+### ⚔️ Sword Arcs (9)
+| File | Array Reference | Scale Range |
+|------|-----------------|-------------|
+| `SwordArc1.png` | `SwordArcs[0]` | 0.5f - 1.5f |
+| `SwordArc2.png` | `SwordArcs[1]` | 0.5f - 1.5f |
+| `SwordArc3.png` | `SwordArcs[2]` | 0.5f - 1.5f |
+| `SwordArc6.png` | `SwordArcs[3]` | 0.5f - 1.5f |
+| `SwordArc8.png` | `SwordArcs[4]` | 0.4f - 1.2f |
+| `SimpleArcSwordSlash.png` | `SwordArcs[5]` | 0.5f - 1.5f |
+| `CurvedSwordSlash.png` | `SwordArcs[6]` | 0.5f - 1.5f |
+| `FlamingArcSwordSlash.png` | `SwordArcs[7]` | 0.5f - 1.5f |
+| `SwordArcSlashWave.png` | `SwordArcs[8]` | 0.6f - 1.8f |
 
-### 🪶 Swan Feathers (10 variants!)
-| File Range | Description | Scale Range |
-|------------|-------------|-------------|
-| `SwanFeather1-3.png` | Small feathers | 0.4f - 0.8f |
-| `SwanFeather4-6.png` | Medium feathers | 0.5f - 1.0f |
-| `SwanFeather7-10.png` | Large elegant feathers | 0.6f - 1.2f |
-
-### 👁️ Enigma Eyes (8 variants)
-| File Range | Description | Scale Range |
-|------------|-------------|-------------|
-| `EnigmaEye1-8.png` | Watching mystical eyes | 0.4f - 0.8f |
+### 👁️ Enigma Eyes (8)
+| File | Array Reference | Scale Range |
+|------|-----------------|-------------|
+| `EnigmaEye1.png` | `EnigmaEyes[0]` | 0.4f - 0.8f |
+| `ActivatedEnigmaEye.png` | `EnigmaEyes[1]` | 0.4f - 0.8f |
+| `BurstingEye.png` | `EnigmaEyes[2]` | 0.5f - 1.0f |
+| `CircularEnigmaEye.png` | `EnigmaEyes[3]` | 0.4f - 0.8f |
+| `GodEye.png` | `EnigmaEyes[4]` | 0.5f - 1.0f |
+| `LargeEye.png` | `EnigmaEyes[5]` | 0.5f - 1.0f |
+| `SpikeyEye.png` | `EnigmaEyes[6]` | 0.4f - 0.8f |
+| `TriangularEye.png` | `EnigmaEyes[7]` | 0.4f - 0.8f |
 
 > **Usage:** Eyes should watch targets meaningfully, not scatter randomly!
 
-### 🔮 Glyphs (12 variants!)
-| File Range | Description | Scale Range |
-|------------|-------------|-------------|
-| `Glyphs1-4.png` | Simple arcane symbols | 0.3f - 0.6f |
-| `Glyphs5-8.png` | Complex runes | 0.4f - 0.7f |
-| `Glyphs9-12.png` | Elaborate magical circles | 0.5f - 0.8f |
+### 🔮 Glyphs (12)
+| File Range | Array Reference | Scale Range |
+|------------|-----------------|-------------|
+| `Glyphs1.png` - `Glyphs12.png` | `Glyphs[0-11]` | 0.3f - 0.8f |
+
+### 🪶 Swan Feathers (10)
+| File Range | Array Reference | Scale Range |
+|------------|-----------------|-------------|
+| `SwanFeather1.png` - `SwanFeather10.png` | `SwanFeathers[0-9]` | 0.4f - 1.2f |
+
+### 🔥 Flame Wisps (2)
+| File | Array Reference | Scale Range |
+|------|-----------------|-------------|
+| `FlamingWispProjectileSmall.png` | `FlameWisps[0]` | 0.4f - 0.8f |
+| `TallFlamingWispProjectile.png` | `FlameWisps[1]` | 0.5f - 1.0f |
+
+### 🌊 Trails (4)
+| File | Array Reference | Scale Range |
+|------|-----------------|-------------|
+| `ParticleTrail1.png` | `ParticleTrails[0]` | 0.3f - 0.8f |
+| `ParticleTrail2.png` | `ParticleTrails[1]` | 0.3f - 0.7f |
+| `ParticleTrail3.png` | `ParticleTrails[2]` | 0.4f - 0.9f |
+| `ParticleTrail4.png` | `ParticleTrails[3]` | 0.3f - 0.8f |
+
+### ✨ Magic Sparkle Fields (7 available, numbered 4,6-11)
+| File | Array Reference | Scale Range |
+|------|-----------------|-------------|
+| `MagicSparklField4.png` | `MagicSparkleFields[0]` | 0.3f - 0.8f |
+| `MagicSparklField6.png` | `MagicSparkleFields[1]` | 0.3f - 0.7f |
+| `MagicSparklField7.png` | `MagicSparkleFields[2]` | 0.3f - 0.8f |
+| `MagicSparklField8.png` | `MagicSparkleFields[3]` | 0.4f - 1.0f |
+| `MagicSparklField9.png` | `MagicSparkleFields[4]` | 0.4f - 0.9f |
+| `MagicSparklField10.png` | `MagicSparkleFields[5]` | 0.3f - 0.8f |
+| `MagicSparklField11.png` | `MagicSparkleFields[6]` | 0.4f - 1.0f |
+
+### 🌈 Prismatic Sparkles (3 available: 11, 13, 14)
+| File | Array Reference | Scale Range |
+|------|-----------------|-------------|
+| `PrismaticSparkle11.png` | `PrismaticSparkles[0]` | 0.4f - 0.8f |
+| `PrismaticSparkle13.png` | `PrismaticSparkles[1]` | 0.4f - 0.8f |
+| `PrismaticSparkle14.png` | `PrismaticSparkles[2]` | 0.4f - 0.8f |
+
+### ➕ Cross Particles (2)
+| File | Array Reference | Scale Range |
+|------|-----------------|-------------|
+| `CrossParticleBlack.png` | `CrossParticles[0]` | 0.4f - 1.0f |
+| `CrossParticleWhite.png` | `CrossParticles[1]` | 0.4f - 1.0f |
 
 ---
 
@@ -143,18 +218,44 @@ CustomParticles.HaloRing(position, color, 0.3f, 12);
 
 ### ✅ RIGHT - Unique visual identity with mixed particles
 ```csharp
-// A magic staff with sparkle fields, visible music notes, and glyphs
+// Example: A cosmic magic staff with constellation sparkles and music notes
 public override void AI()
 {
-    // Magic sparkle field (variant 7 for this weapon)
-    if (Main.rand.NextBool(3))
-        CustomParticles.MagicSparkleField(pos, color, 0.5f, variant: 7);
+    // Constellation sparkle cluster
+    var sparkle = CustomParticleSystem.GetParticle().Setup(
+        CustomParticleSystem.SparkleCluster[0], // ConstellationStyleSparkle
+        Projectile.Center, -Projectile.velocity * 0.1f,
+        themeColor, 0.5f, 20, true);
+    MagnumParticleHandler.SpawnParticle(sparkle);
     
-    // VISIBLE music notes (scale 0.8f, variant 4)
-    if (Main.rand.NextBool(4))
-        CustomParticles.MusicNote(pos, vel, color, 0.8f, 25, variant: 4);
+    // VISIBLE music note (scale 0.8f!)
+    var note = CustomParticleSystem.GetParticle().Setup(
+        CustomParticleSystem.MusicNotes[Main.rand.Next(6)], // Random note variant
+        Projectile.Center, Projectile.velocity * 0.2f,
+        themeColor, 0.8f, 25, true);
+    MagnumParticleHandler.SpawnParticle(note);
     
-    // Orbiting glyphs (random variant 1-12)
+    // Stars for cosmic theme
+    var star = CustomParticleSystem.GetParticle().Setup(
+        CustomParticleSystem.Stars[3], // StarryStarburst
+        Projectile.Center + Main.rand.NextVector2Circular(10f, 10f),
+        Vector2.Zero, Color.White * 0.8f, 0.4f, 15, true);
+    MagnumParticleHandler.SpawnParticle(star);
+}
+```
+
+---
+
+## 📋 PARTICLE SELECTION CHECKLIST
+
+Before implementing any effect, verify:
+
+- [ ] Using particles from **at least 3-4 different categories**
+- [ ] **Music notes are scale 0.6f+** to be visible
+- [ ] **NOT** using only `EnergyFlares` and `SoftGlows`
+- [ ] **Mixed array indices** - not always index [0]
+- [ ] Theme-appropriate particles selected (Swan Feathers for Swan Lake, etc.)
+- [ ] **Vanilla Dust** combined with custom particles for density
     CustomParticles.Glyph(orbitPos, color, 0.5f, variant: Main.rand.Next(1, 13));
     
     // Prismatic accent (variant 12)

@@ -783,7 +783,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
     /// </summary>
     public class MysterysEndProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle1";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle11";
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
@@ -827,15 +827,13 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override void OnKill(int timeLeft)
         {
-            // Enhanced with multi-layer bloom
-            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaGreen, 0.4f, 15, 3, 0.7f);
-            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaPurple, 0.3f, 12, 2, 0.6f);
-            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(Projectile.Center, 0.4f);
+            // Basic enemy projectile - void implode (small scale for enemy)
+            DynamicParticleEffects.EnigmaDeathVoidImplode(Projectile.Center, 0.5f);
         }
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle1").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle11").Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             Main.spriteBatch.Draw(glow, pos, null, EnigmaGreen, 0f, glow.Size() / 2, 0.4f, SpriteEffects.None, 0f);
@@ -915,10 +913,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override void OnKill(int timeLeft)
         {
-            // Enhanced with bloom
-            CustomParticles.EnigmaEyeGaze(Projectile.Center, EnigmaGreen, 0.5f);
-            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaPurple, 0.4f, 15, 3, 0.7f);
-            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(Projectile.Center, 0.35f);
+            // Eye projectile - blinks and shatters
+            DynamicParticleEffects.EnigmaDeathEyeBlinkShatter(Projectile.Center, 0.6f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -995,9 +991,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override void OnKill(int timeLeft)
         {
-            // Enhanced with bloom
-            CustomParticles.GlyphBurst(Projectile.Center, EnigmaGreen, 4, 3f);
-            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaPurple, 0.4f, 15, 3, 0.7f);
+            // Glyph cascade - dissipates with green flame
+            DynamicParticleEffects.EnigmaDeathGreenFlameWhisper(Projectile.Center, 0.5f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -1069,10 +1064,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override void OnKill(int timeLeft)
         {
-            // Enhanced with bloom
-            CustomParticles.EnigmaEyeExplosion(Projectile.Center, EnigmaGreen, 3, 3f);
-            EnhancedParticles.BloomFlare(Projectile.Center, EnigmaPurple, 0.5f, 18, 3, 0.8f);
-            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(Projectile.Center, 0.5f);
+            // Watching eye - blinks and shatters
+            DynamicParticleEffects.EnigmaDeathEyeBlinkShatter(Projectile.Center, 0.55f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -1092,7 +1085,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
     /// </summary>
     public class MysteryVortexZone : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle2";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle14";
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
@@ -1154,7 +1147,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle2").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle14").Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             // Swirling vortex effect
@@ -1229,21 +1222,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override void OnKill(int timeLeft)
         {
-            // Big eye explosion with enhanced bloom
-            CustomParticles.EnigmaEyeExplosion(Projectile.Center, EnigmaGreen, 5, 5f);
-            CustomParticles.GlyphBurst(Projectile.Center, EnigmaPurple, 4, 4f);
-            EnhancedParticles.BloomFlare(Projectile.Center, Color.White, 0.6f, 20, 4, 1f);
-            UnifiedVFXBloom.EnigmaVariations.ImpactEnhanced(Projectile.Center, 1f);
-            
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Color burstColor = Color.Lerp(EnigmaPurple, EnigmaGreen, (float)i / 8f);
-                EnhancedParticles.BloomFlare(Projectile.Center + angle.ToRotationVector2() * 20f, burstColor, 0.35f, 15, 3, 0.75f);
-            }
-            
-            // Music notes cascade
-            EnhancedThemedParticles.EnigmaMusicNotesEnhanced(Projectile.Center, 5, 40f);
+            // Revelation eye - the answer revealed at last
+            DynamicParticleEffects.EnigmaDeathRiddleAnswered(Projectile.Center, 0.9f);
         }
         
         public override bool PreDraw(ref Color lightColor)

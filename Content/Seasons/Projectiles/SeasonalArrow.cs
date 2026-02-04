@@ -320,10 +320,10 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             // === DYNAMIC: Season-based Impact ===
             switch (SeasonIndex)
             {
-                case 0: SpringImpact(target.Center, 1f); break;
-                case 1: SummerImpact(target.Center, 1f); break;
-                case 2: AutumnImpact(target.Center, 1f); break;
-                case 3: WinterImpact(target.Center, 1f); break;
+                case 0: SpringImpact(target.Center, 1f); SpringPetalBloom(target.Center, 1.1f); break;
+                case 1: SummerImpact(target.Center, 1f); SummerSolarFlare(target.Center, 1.2f); break;
+                case 2: AutumnImpact(target.Center, 1f); AutumnLeafCascade(target.Center, 1f); break;
+                case 3: WinterImpact(target.Center, 1f); WinterCrystallineShatter(target.Center, 1.1f); break;
             }
             DramaticImpact(target.Center, PrimaryColor, SecondaryColor, 0.5f, 20);
         }
@@ -333,7 +333,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/ParticleTrail2").Value;
             Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
@@ -473,7 +473,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class HomingPetalProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle5";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle13";
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
@@ -647,15 +647,16 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
             // === DYNAMIC SPRING IMPACT ===
             SpringImpact(target.Center, 0.6f);
+            SpringSunshower(target.Center, 0.5f); // Unique sunlit particles
             DramaticImpact(target.Center, SpringPink, SpringGreen, 0.35f, 15);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle5").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle13").Value;
             Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin1 = flare1.Size() / 2f;
@@ -942,6 +943,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
             // === DYNAMIC SUMMER IMPACT ===
             SummerImpact(target.Center, 0.65f);
+            SummerZenithStrike(target.Center, 0.6f); // Unique zenith strike
             DramaticImpact(target.Center, SummerOrange, SummerGold, 0.4f, 16);
         }
 
@@ -949,7 +951,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D texture2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D texture2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 origin2 = texture2.Size() / 2f;
@@ -1249,6 +1251,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
             // === DYNAMIC AUTUMN IMPACT ===
             AutumnImpact(target.Center, 0.55f);
+            AutumnHarvestMoon(target.Center, 0.5f); // Unique harvest glow
             DramaticImpact(target.Center, AutumnOrange, AutumnGold, 0.35f, 14);
         }
 
@@ -1256,7 +1259,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D texture2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D texture2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 origin2 = texture2.Size() / 2f;

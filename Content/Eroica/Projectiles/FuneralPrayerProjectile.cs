@@ -134,37 +134,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // === ENHANCED FUNERAL PYRE EXPLOSION WITH MULTI-LAYER BLOOM ===
-            // Central flash with proper bloom stacking
-            EnhancedParticles.BloomFlare(Projectile.Center, Color.White, 0.8f, 25, 4, 1.2f);
-            EnhancedParticles.BloomFlare(Projectile.Center, ThemedParticles.EroicaCrimson, 0.7f, 22, 3, 1.0f);
-            
-            // Enhanced Eroica impact with full bloom
-            UnifiedVFXBloom.Eroica.ExplosionEnhanced(Projectile.Center, 1.5f);
-            
-            // Unique funeral pyre burst - dark crimson with scattered embers
-            CustomParticles.ExplosionBurst(Projectile.Center, new Color(120, 20, 20), 16, 7f);
-            
-            // Enhanced music notes finale
-            EnhancedThemedParticles.EroicaMusicNotesEnhanced(Projectile.Center, 6, 40f);
-            
-            // Large fiery explosion (reduced count)
-            for (int i = 0; i < 20; i++)
-            {
-                Dust flame = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.RedTorch, 0f, 0f, 100, default, 2.5f);
-                flame.noGravity = true;
-                flame.velocity = Main.rand.NextVector2Circular(6f, 6f);
-            }
-
-            // Gold sparks
-            for (int i = 0; i < 15; i++)
-            {
-                Dust gold = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.GoldFlame, 0f, 0f, 100, default, 2.0f);
-                gold.noGravity = true;
-                gold.velocity = Main.rand.NextVector2Circular(5f, 5f);
-            }
+            // Powerful valor burst for funeral pyre
+            DynamicParticleEffects.EroicaDeathValorBurst(Projectile.Center, 1.2f);
         }
     }
 }

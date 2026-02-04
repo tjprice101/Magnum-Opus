@@ -20,7 +20,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class PermafrostBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle6";
+        public override string Texture => "MagnumOpus/Assets/Particles/TwilightSparkle";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
@@ -169,7 +169,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle6").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/TwilightSparkle").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -421,7 +421,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class StormIcicle : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle9";
+        public override string Texture => "MagnumOpus/Assets/Particles/SmallTwilightSparkle";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
@@ -486,7 +486,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle9").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SmallTwilightSparkle").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 

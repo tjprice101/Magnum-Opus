@@ -20,7 +20,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     public class TwilightBolt : ModProjectile
     {
         // Use a visible energy flare texture for bright projectile
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare3";
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare4";
         
         private static readonly Color TwilightPurple = new Color(120, 60, 140);
         private static readonly Color TwilightOrange = new Color(255, 120, 60);
@@ -236,7 +236,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
@@ -248,7 +248,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
 
             Color mainColor = Color.Lerp(TwilightPurple, TwilightOrange, distProgress);
             
-            // ✅ BRIGHT MULTI-LAYER BLOOM - Outer glow
+            // ✁EBRIGHT MULTI-LAYER BLOOM - Outer glow
             spriteBatch.Draw(texture, drawPos, null, mainColor with { A = 0 } * 0.35f, 0f, origin, 0.65f * pulse * (1f + distProgress * 0.4f), SpriteEffects.None, 0f);
             // Middle energy layer
             spriteBatch.Draw(texture, drawPos, null, mainColor with { A = 0 } * 0.55f, 0f, origin, 0.45f * pulse, SpriteEffects.None, 0f);
@@ -447,7 +447,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class HomingLeafShard : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle10";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle11";
         
         private static readonly Color AutumnOrange = new Color(255, 140, 50);
         private static readonly Color AutumnRed = new Color(178, 34, 34);
@@ -560,7 +560,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle10").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle11").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 

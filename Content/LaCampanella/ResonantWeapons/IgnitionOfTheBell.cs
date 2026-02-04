@@ -671,11 +671,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // ☁EMUSICAL FINALE - Golden notes on blazing wave death
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 4, 3f);
-            
-            ThemedParticles.LaCampanellaBloomBurst(Projectile.Center, 0.2f);
-            ThemedParticles.LaCampanellaSparkles(Projectile.Center, 3, 12f);
+            // Blazing wave death - infernal pillar eruption
+            DynamicParticleEffects.CampanellaDeathInfernalPillar(Projectile.Center, 0.7f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -968,12 +965,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // ☁EMUSICAL FINALE - Grand golden notes on cyclone dissipation
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(218, 165, 32), 8, 5f);
-            
-            // Final explosion
-            ThemedParticles.LaCampanellaImpact(Projectile.Center, 1.5f);
-            SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.2f, Volume = 0.5f }, Projectile.Center);
+            // Cyclone dissipation - ember cascade explosion
+            DynamicParticleEffects.CampanellaDeathEmberCascade(Projectile.Center, 1.2f);
         }
     }
 }

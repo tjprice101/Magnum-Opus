@@ -534,34 +534,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
-            // === DIMENSIONAL TEAR CLOSING REALITY WARP ===
-            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 2.5f, 12);
-            FateRealityDistortion.TriggerInversionPulse(6);
-            
-            // Eyes watching the dimensional tear close
-            CustomParticles.EnigmaEyeExplosion(Projectile.Center, EnigmaPurple, 4, 3f);
-            
-            // Dimensional tear closes
-            for (int i = 0; i < 10; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 10f;
-                Vector2 vel = angle.ToRotationVector2() * 3f;
-                Color burstColor = GetEnigmaGradient((float)i / 10f);
-                var glow = new GenericGlowParticle(Projectile.Center, vel, burstColor, 0.4f, 18, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-            
-            CustomParticles.HaloRing(Projectile.Center, EnigmaPurple, 0.5f, 15);
-            // Sparkle cascade as tear closes
-            for (int cascade = 0; cascade < 6; cascade++)
-            {
-                float cAngle = MathHelper.TwoPi * cascade / 6f;
-                Vector2 cVel = cAngle.ToRotationVector2() * 3f;
-                Color cColor = GetEnigmaGradient((float)cascade / 6f);
-                var cGlow = new GenericGlowParticle(Projectile.Center, cVel, cColor, 0.4f, 20, true);
-                MagnumParticleHandler.SpawnParticle(cGlow);
-            }
-            CustomParticles.GlyphBurst(Projectile.Center, EnigmaPurple, count: 5, speed: 3f);
+            // UNIQUE DEATH: Paradox Fracture - dimensional slash tears reality
+            DynamicParticleEffects.EnigmaDeathParadoxFracture(Projectile.Center, 0.9f);
         }
     }
     
@@ -982,59 +956,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
-            // === ULTIMATE PARADOX COLLAPSE REALITY WARP - MAXIMUM DISTORTION ===
-            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 4f, 15);
-            FateRealityDistortion.TriggerInversionPulse(6);
-            FateRealityDistortion.TriggerScreenSlice(Projectile.Center - new Vector2(200, 200), Projectile.Center + new Vector2(200, 200), 3f, 12);
-            
-            // === THE ALL-SEEING FINALE - MAXIMUM EYE SPECTACLE ===
-            // Central eye formation watching the collapse
-            CustomParticles.EnigmaEyeFormation(Projectile.Center, EnigmaGreen, count: 6, radius: 80f);
-            // Eyes exploding outward in grand finale
-            CustomParticles.EnigmaEyeExplosion(Projectile.Center, EnigmaPurple, 8, 6f);
-            // Secondary ring of eyes
-            CustomParticles.EnigmaEyeExplosion(Projectile.Center, EnigmaGreen, 6, 4f);
-            
-            // Final collapse burst
-            for (int layer = 0; layer < 4; layer++)
-            {
-                int points = 16 + layer * 4;
-                for (int i = 0; i < points; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / points;
-                    Vector2 vel = angle.ToRotationVector2() * (5f + layer * 3f);
-                    Color burstColor = GetEnigmaGradient((float)(layer * points + i) / (4 * points));
-                    var glow = new GenericGlowParticle(Projectile.Center, vel, burstColor, 0.6f - layer * 0.1f, 25, true);
-                    MagnumParticleHandler.SpawnParticle(glow);
-                }
-            }
-            // Massive dazzling sparkle cascade - the grand finale
-            for (int cascade = 0; cascade < 16; cascade++)
-            {
-                float cascadeAngle = MathHelper.TwoPi * cascade / 16f;
-                Vector2 cascadeVel = cascadeAngle.ToRotationVector2() * Main.rand.NextFloat(6f, 10f);
-                Color cascadeColor = GetEnigmaGradient((float)cascade / 16f);
-                var cascadeGlow = new GenericGlowParticle(Projectile.Center, cascadeVel, cascadeColor, 0.6f, 28, true);
-                MagnumParticleHandler.SpawnParticle(cascadeGlow);
-            }
-            // Secondary sparkle wave
-            for (int wave = 0; wave < 12; wave++)
-            {
-                float waveAngle = MathHelper.TwoPi * wave / 12f + 0.15f;
-                Vector2 waveVel = waveAngle.ToRotationVector2() * Main.rand.NextFloat(4f, 7f);
-                Color waveColor = GetEnigmaGradient((float)wave / 12f) * 0.8f;
-                var waveGlow = new GenericGlowParticle(Projectile.Center, waveVel, waveColor, 0.5f, 25, true);
-                MagnumParticleHandler.SpawnParticle(waveGlow);
-            }
-            // Central prismatic flare
-            CustomParticles.GenericFlare(Projectile.Center, EnigmaGreen, 1.2f, 25);
-            CustomParticles.GenericFlare(Projectile.Center, EnigmaPurple, 0.9f, 22);
-            
-            // Massive glyph explosion
-            CustomParticles.GlyphBurst(Projectile.Center, EnigmaPurple, count: 16, speed: 7f);
-            CustomParticles.GlyphBurst(Projectile.Center, EnigmaGreen, count: 12, speed: 5f);
-            
-            SoundEngine.PlaySound(SoundID.Item14 with { Pitch = -0.4f, Volume = 1.2f }, Projectile.Center);
+            // Ultimate attack - use RiddleAnswered at max scale for grand finale
+            DynamicParticleEffects.EnigmaDeathRiddleAnswered(Projectile.Center, 1.3f);
         }
     }
 }

@@ -200,40 +200,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         private void CreateExplosion()
         {
             SoundEngine.PlaySound(SoundID.Item14, Projectile.position);
-
-            // === ENHANCED SAKURA EXPLOSION WITH MULTI-LAYER BLOOM ===
-            // Central flash with proper bloom stacking
-            EnhancedParticles.BloomFlare(Projectile.Center, Color.White, 0.7f, 25, 4, 1.1f);
-            EnhancedParticles.BloomFlare(Projectile.Center, ThemedParticles.EroicaSakura, 0.6f, 22, 3, 0.9f);
-            
-            // Enhanced Eroica themed impact with full bloom
-            UnifiedVFXBloom.Eroica.ImpactEnhanced(Projectile.Center, 0.9f);
-            
-            // Enhanced sakura petal burst with bloom
-            EnhancedThemedParticles.SakuraPetalsEnhanced(Projectile.Center, 10, 40f);
-            
-            // Enhanced music notes with bloom
-            EnhancedThemedParticles.EroicaMusicNotesEnhanced(Projectile.Center, 4, 28f);
-            
-            // Scarlet red explosion
-            for (int i = 0; i < 25; i++)
-            {
-                Dust explosion = Dust.NewDustDirect(Projectile.position - new Vector2(15, 15),
-                    Projectile.width + 30, Projectile.height + 30,
-                    DustID.RedTorch, 0f, 0f, 100, default, 2.0f);
-                explosion.noGravity = true;
-                explosion.velocity = Main.rand.NextVector2Circular(6f, 6f);
-            }
-
-            // Black smoke explosion
-            for (int i = 0; i < 15; i++)
-            {
-                Dust smoke = Dust.NewDustDirect(Projectile.position - new Vector2(10, 10),
-                    Projectile.width + 20, Projectile.height + 20,
-                    DustID.Smoke, 0f, 0f, 100, Color.Black, 1.5f);
-                smoke.noGravity = true;
-                smoke.velocity = Main.rand.NextVector2Circular(4f, 4f);
-            }
+            // Gentle sakura scatter for the elegant bullet
+            DynamicParticleEffects.EroicaDeathSakuraScatter(Projectile.Center, 1.1f);
         }
 
         public override bool PreDraw(ref Color lightColor)

@@ -534,7 +534,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
     /// </summary>
     public class ZenithFlareProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare2";
+        public override string Texture => "MagnumOpus/Assets/Particles/FlareSpikeBurst";
         
         private static readonly Color SunGold = new Color(255, 215, 0);
         private static readonly Color SunWhite = new Color(255, 250, 240);
@@ -653,7 +653,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare2").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/FlareSpikeBurst").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 

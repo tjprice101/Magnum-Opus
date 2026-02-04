@@ -277,18 +277,10 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // Death burst if killed by time (not wall collision)
+            // Quick heroic flash for celestial projectile
             if (timeLeft > 0)
                 return;
-                
-            for (int i = 0; i < 15; i++)
-            {
-                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
-                Dust burst = Dust.NewDustDirect(Projectile.Center, 1, 1, dustType, 0f, 0f, 100, default, 2f);
-                burst.noGravity = true;
-                burst.velocity = Main.rand.NextVector2Circular(6f, 6f);
-            }
-            
+            DynamicParticleEffects.EroicaDeathHeroicFlash(Projectile.Center, 0.7f);
             SoundEngine.PlaySound(SoundID.Item10 with { Volume = 0.5f }, Projectile.Center);
         }
 

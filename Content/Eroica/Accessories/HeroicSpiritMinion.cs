@@ -383,7 +383,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
     /// </summary>
     public class HeroicSpiritSlash : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc7";
+        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc8";
         
         public override void SetStaticDefaults()
         {

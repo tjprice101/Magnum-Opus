@@ -87,20 +87,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 
         public override void OnKill(int timeLeft)
         {
-            // Enhanced explosion with multi-layer bloom - purple and light blue
-            UnifiedVFXBloom.MoonlightSonata.ImpactEnhanced(Projectile.Center, 0.8f);
-            EnhancedParticles.BloomFlare(Projectile.Center, new Color(80, 40, 140), 0.5f, 18, 3, 0.8f);
-            EnhancedParticles.BloomFlare(Projectile.Center, new Color(140, 200, 255), 0.4f, 15, 3, 0.7f);
-            
-            // Snow burst with dust
-            for (int i = 0; i < 8; i++)
-            {
-                Dust snow = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Snow, 0f, 0f, 100, default, 1.2f);
-                snow.noGravity = false;
-                snow.velocity = Main.rand.NextVector2Circular(4f, 4f);
-            }            
-            // ☁EMUSICAL FINALE - Frozen note burst (subtle)
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(135, 206, 250) * 0.5f, 4, 3f);
+            // Simplified snow projectile death - gentle lunar ripple (enemy, small)
+            DynamicParticleEffects.MoonlightDeathLunarRipple(Projectile.Center, 0.5f);
             Terraria.Audio.SoundEngine.PlaySound(SoundID.Item27, Projectile.Center); // Ice shatter sound
         }
 

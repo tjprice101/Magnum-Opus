@@ -659,17 +659,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
-            // Death burst
-            CustomParticles.GenericFlare(Projectile.Center, EnigmaPurple, 0.6f, 18);
-            CustomParticles.GlyphBurst(Projectile.Center, EnigmaGreen, 4, 3f);
-            
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 vel = angle.ToRotationVector2() * 4f;
-                var glow = new GenericGlowParticle(Projectile.Center, vel, GetEnigmaGradient((float)i / 6f), 0.3f, 16, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
+            // UNIQUE DEATH: Mystery Unravel - fugue voice fades into spiraling void
+            DynamicParticleEffects.EnigmaDeathMysteryUnravel(Projectile.Center, 0.7f);
         }
     }
     

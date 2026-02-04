@@ -318,6 +318,35 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
             
             return true; // Draw the normal sprite too
         }
+        
+        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        {
+            // === MOONLIGHT INVENTORY GLOW ===
+            Texture2D texture = TextureAssets.Item[Item.type].Value;
+            
+            float time = Main.GameUpdateCount * 0.04f;
+            float pulse = 1f + (float)Math.Sin(time * 1.5f) * 0.08f;
+            
+            // Additive glow layer
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+            
+            // Ethereal purple-blue glow
+            Color glowColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, 
+                (float)Math.Sin(time * 0.7f) * 0.5f + 0.5f) * 0.25f;
+            spriteBatch.Draw(texture, position, frame, glowColor, 0f, origin, scale * pulse * 1.12f, SpriteEffects.None, 0f);
+            
+            // Return to normal blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+            
+            // Draw the actual item
+            spriteBatch.Draw(texture, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
+            
+            return false;
+        }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {

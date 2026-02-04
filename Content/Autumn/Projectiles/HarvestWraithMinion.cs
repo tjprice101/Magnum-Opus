@@ -375,7 +375,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class SoulHarvestOrb : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle12";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle13";
         
         private static readonly Color WraithGreen = new Color(120, 180, 100);
         private static readonly Color SoulWhite = new Color(240, 240, 255);
@@ -475,7 +475,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle12").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle13").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 

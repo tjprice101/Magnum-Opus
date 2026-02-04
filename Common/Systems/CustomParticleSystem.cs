@@ -9,44 +9,98 @@ using ReLogic.Content;
 namespace MagnumOpus.Common.Systems
 {
     /// <summary>
-    /// Enhanced custom particle system for MagnumOpus with 94 particle textures:
-    /// - 7 EnergyFlare variants (intense bursts, explosions)
-    /// - 4 SoftGlow variants (trails, auras, ambient)
-    /// - 6 MusicNote variants (thematic musical effects)
-    /// - 6 GlowingHalo variants (radiant auras, boss effects)
-    /// - 4 ParticleTrail variants (motion trails, projectile paths)
-    /// - 12 MagicSparkleField variants (buff indicators, magic auras, enchantments)
-    /// - 15 PrismaticSparkle variants (gem effects, treasure highlights, magic sparkles)
-    /// - 9 SwordArc variants (arcing projectile slashes, energy wave attacks)
-    /// - 10 SwanFeather variants (Swan Lake exclusive - elegant floating feathers)
-    /// - 8 EnigmaEye variants (Enigma theme - mysterious watching eyes, meaningful placement at impacts/targets)
-    /// - 12 Glyph variants (universal arcane symbols - usable for all themes, debuff stacking, magic circles)
+    /// Enhanced custom particle system for MagnumOpus with 90+ particle textures organized by musical/thematic purpose:
+    /// 
+    /// === FLARES & GLOWS (Intense energy, impacts) ===
+    /// - EnergyFlare, EnergyFlare4 (core burst effects)
+    /// - FlareSparkle, FlareSpikeBurst, SmallBurstFlare (accent flares)
+    /// - GlintSparkleFlare, GlintTwilightSparkleFlare, ThinSparkleFlare (subtle shimmers)
+    /// - SoftGlow2-4 (ambient auras, trails)
+    /// 
+    /// === MUSICAL NOTES (This is a MUSIC mod!) ===
+    /// - MusicNote, CursiveMusicNote, MusicNoteWithSlashes (melodic)
+    /// - QuarterNote, TallMusicNote, WholeNote (rhythmic notation)
+    /// 
+    /// === SPARKLES & STARS (Magical brilliance) ===
+    /// - TwilightSparkle, SmallTwilightSparkle, TwinkleSparkle (soft shimmer)
+    /// - ConstellationStyleSparkle, BarrageOfGlintsAndSparkles, ManySparklesInCLuster (clusters)
+    /// - Star, StarBurst1-2, StarryStarburst, CircularStarRing (celestial)
+    /// - CrescentSparkleMoon, ShatteredStarlight (cosmic)
+    /// 
+    /// === IMPACTS & EXPLOSIONS ===
+    /// - Impact, SmallBurst, SparkleBurst (generic bursts)
+    /// - FlameImpactExplosion, FlameWispImpactExplosion, LargeFlameImpactExplosion (fire themed)
+    /// 
+    /// === SWORD ARCS (Melee trails & waves) ===
+    /// - SwordArc1-3, SwordArc6, SwordArc8 (standard slashes)
+    /// - SimpleArcSwordSlash, CurvedSwordSlash, FlamingArcSwordSlash, SwordArcSlashWave (styled arcs)
+    /// 
+    /// === HALOS (Radiant rings, boss effects) ===
+    /// - GlowingHalo1-2, GlowingHalo4-6
+    /// 
+    /// === ENIGMA EYES (Mysterious watching effects) ===
+    /// - EnigmaEye1, ActivatedEnigmaEye, BurstingEye, CircularEnigmaEye
+    /// - GodEye, LargeEye, SpikeyEye, TriangularEye
+    /// 
+    /// === GLYPHS (Arcane symbols, magic circles) ===
+    /// - Glyphs1-12
+    /// 
+    /// === SWAN FEATHERS (Swan Lake exclusive) ===
+    /// - SwanFeather1-10
+    /// 
+    /// === FLAME PROJECTILES (La Campanella style) ===
+    /// - FlamingWispProjectileSmall, TallFlamingWispProjectile
+    /// 
     /// All textures are white/grayscale and tinted at runtime.
     /// </summary>
     public class CustomParticleSystem : ModSystem
     {
-        // EnergyFlare textures (7 variants)
-        public static Asset<Texture2D>[] EnergyFlares { get; private set; } = new Asset<Texture2D>[7];
-        // SoftGlow textures (4 variants)
-        public static Asset<Texture2D>[] SoftGlows { get; private set; } = new Asset<Texture2D>[4];
-        // MusicNote textures (6 variants)
-        public static Asset<Texture2D>[] MusicNotes { get; private set; } = new Asset<Texture2D>[6];
-        // GlowingHalo textures (6 variants)
-        public static Asset<Texture2D>[] GlowingHalos { get; private set; } = new Asset<Texture2D>[6];
-        // ParticleTrail textures (4 variants)
-        public static Asset<Texture2D>[] ParticleTrails { get; private set; } = new Asset<Texture2D>[4];
-        // MagicSparkleField textures (12 variants) - Buff indicators, magic auras, enchantments
-        public static Asset<Texture2D>[] MagicSparkleFields { get; private set; } = new Asset<Texture2D>[12];
-        // PrismaticSparkle textures (15 variants) - Gem effects, treasure highlights, magic sparkles
-        public static Asset<Texture2D>[] PrismaticSparkles { get; private set; } = new Asset<Texture2D>[15];
-        // SwordArc textures (9 variants) - Arcing projectile slashes, energy wave attacks
-        public static Asset<Texture2D>[] SwordArcs { get; private set; } = new Asset<Texture2D>[9];
-        // SwanFeather textures (10 variants) - Swan Lake exclusive feather effects
-        public static Asset<Texture2D>[] SwanFeathers { get; private set; } = new Asset<Texture2D>[10];
-        // EnigmaEye textures (8 variants) - Enigma theme mysterious watching eyes
-        public static Asset<Texture2D>[] EnigmaEyes { get; private set; } = new Asset<Texture2D>[8];
-        // Glyph textures (12 variants) - Universal arcane symbols for all themes
-        public static Asset<Texture2D>[] Glyphs { get; private set; } = new Asset<Texture2D>[12];
+        // === FLARES & GLOWS ===
+        public static Asset<Texture2D>[] EnergyFlares { get; private set; } = new Asset<Texture2D>[2]; // EnergyFlare, EnergyFlare4
+        public static Asset<Texture2D>[] FlareSparkles { get; private set; } = new Asset<Texture2D>[6]; // Various flare types
+        public static Asset<Texture2D>[] SoftGlows { get; private set; } = new Asset<Texture2D>[3]; // SoftGlow2-4
+        
+        // === MUSICAL NOTES ===
+        public static Asset<Texture2D>[] MusicNotes { get; private set; } = new Asset<Texture2D>[6]; // All note variants
+        
+        // === SPARKLES & STARS ===
+        public static Asset<Texture2D>[] TwilightSparkles { get; private set; } = new Asset<Texture2D>[3]; // Twilight variants
+        public static Asset<Texture2D>[] SparkleCluster { get; private set; } = new Asset<Texture2D>[3]; // Cluster variants
+        public static Asset<Texture2D>[] Stars { get; private set; } = new Asset<Texture2D>[7]; // All star types
+        
+        // === IMPACTS & EXPLOSIONS ===
+        public static Asset<Texture2D>[] Impacts { get; private set; } = new Asset<Texture2D>[3]; // Generic impacts
+        public static Asset<Texture2D>[] FlameImpacts { get; private set; } = new Asset<Texture2D>[3]; // Flame explosions
+        
+        // === SWORD ARCS ===
+        public static Asset<Texture2D>[] SwordArcs { get; private set; } = new Asset<Texture2D>[9]; // All arc variants
+        
+        // === HALOS ===
+        public static Asset<Texture2D>[] GlowingHalos { get; private set; } = new Asset<Texture2D>[5]; // Halo1-2, 4-6
+        
+        // === ENIGMA EYES ===
+        public static Asset<Texture2D>[] EnigmaEyes { get; private set; } = new Asset<Texture2D>[8]; // All eye variants
+        
+        // === GLYPHS ===
+        public static Asset<Texture2D>[] Glyphs { get; private set; } = new Asset<Texture2D>[12]; // All glyph variants
+        
+        // === SWAN FEATHERS ===
+        public static Asset<Texture2D>[] SwanFeathers { get; private set; } = new Asset<Texture2D>[10]; // All feather variants
+        
+        // === FLAME PROJECTILES ===
+        public static Asset<Texture2D>[] FlameWisps { get; private set; } = new Asset<Texture2D>[2]; // Flame wisp projectiles
+        
+        // === TRAILS ===
+        public static Asset<Texture2D>[] ParticleTrails { get; private set; } = new Asset<Texture2D>[4]; // Trail1-4
+        
+        // === MAGIC SPARKLE FIELDS ===
+        public static Asset<Texture2D>[] MagicSparkleFields { get; private set; } = new Asset<Texture2D>[7]; // Fields 4,6-12
+        
+        // === PRISMATIC SPARKLES ===
+        public static Asset<Texture2D>[] PrismaticSparkles { get; private set; } = new Asset<Texture2D>[3]; // Sparkle11,13,14
+        
+        // === MISC ===
+        public static Asset<Texture2D>[] CrossParticles { get; private set; } = new Asset<Texture2D>[2]; // Black and White
         
         // Optimized particle pools - increased for particle-heavy boss fights
         private static List<CustomParticle> activeParticles = new List<CustomParticle>(1000);
@@ -59,62 +113,126 @@ namespace MagnumOpus.Common.Systems
         {
             try
             {
-                // Load EnergyFlare variants
-                EnergyFlares[0] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare", AssetRequestMode.ImmediateLoad);
-                for (int i = 1; i < 7; i++)
-                    EnergyFlares[i] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles/EnergyFlare{i + 1}", AssetRequestMode.ImmediateLoad);
+                string basePath = "MagnumOpus/Assets/Particles/";
                 
-                // Load SoftGlow variants
-                SoftGlows[0] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare", AssetRequestMode.ImmediateLoad);
-                for (int i = 1; i < 4; i++)
-                    SoftGlows[i] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles/SoftGlow{i + 1}", AssetRequestMode.ImmediateLoad);
+                // === FLARES & GLOWS ===
+                EnergyFlares[0] = ModContent.Request<Texture2D>(basePath + "EnergyFlare", AssetRequestMode.ImmediateLoad);
+                EnergyFlares[1] = ModContent.Request<Texture2D>(basePath + "EnergyFlare4", AssetRequestMode.ImmediateLoad);
                 
-                // Load MusicNote variants
-                MusicNotes[0] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MusicNote", AssetRequestMode.ImmediateLoad);
-                for (int i = 1; i < 6; i++)
-                    MusicNotes[i] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles/MusicNote{i + 1}", AssetRequestMode.ImmediateLoad);
+                FlareSparkles[0] = ModContent.Request<Texture2D>(basePath + "FlareSparkle", AssetRequestMode.ImmediateLoad);
+                FlareSparkles[1] = ModContent.Request<Texture2D>(basePath + "FlareSpikeBurst", AssetRequestMode.ImmediateLoad);
+                FlareSparkles[2] = ModContent.Request<Texture2D>(basePath + "SmallBurstFlare", AssetRequestMode.ImmediateLoad);
+                FlareSparkles[3] = ModContent.Request<Texture2D>(basePath + "GlintSparkleFlare", AssetRequestMode.ImmediateLoad);
+                FlareSparkles[4] = ModContent.Request<Texture2D>(basePath + "GlintTwilightSparkleFlare", AssetRequestMode.ImmediateLoad);
+                FlareSparkles[5] = ModContent.Request<Texture2D>(basePath + "ThinSparkleFlare", AssetRequestMode.ImmediateLoad);
                 
-                // Load GlowingHalo variants (index 2 uses fallback)
-                // Index mapping: 0=Halo1, 1=Halo2, 2=Fallback, 3=Halo4, 4=Halo5, 5=Halo6
-                GlowingHalos[0] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo1", AssetRequestMode.ImmediateLoad);
-                GlowingHalos[1] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo2", AssetRequestMode.ImmediateLoad);
-                // GlowingHalos[2] - uses fallback to Halo2
-                GlowingHalos[2] = GlowingHalos[1]; // Fallback to Halo2 if code accidentally tries to use index 2
-                GlowingHalos[3] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo4", AssetRequestMode.ImmediateLoad);
-                GlowingHalos[4] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo5", AssetRequestMode.ImmediateLoad);
-                GlowingHalos[5] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo6", AssetRequestMode.ImmediateLoad);
+                SoftGlows[0] = ModContent.Request<Texture2D>(basePath + "SoftGlow2", AssetRequestMode.ImmediateLoad);
+                SoftGlows[1] = ModContent.Request<Texture2D>(basePath + "SoftGlow3", AssetRequestMode.ImmediateLoad);
+                SoftGlows[2] = ModContent.Request<Texture2D>(basePath + "SoftGlow4", AssetRequestMode.ImmediateLoad);
                 
-                // Load ParticleTrail variants
-                for (int i = 0; i < 4; i++)
-                    ParticleTrails[i] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles/ParticleTrail{i + 1}", AssetRequestMode.ImmediateLoad);
+                // === MUSICAL NOTES ===
+                MusicNotes[0] = ModContent.Request<Texture2D>(basePath + "MusicNote", AssetRequestMode.ImmediateLoad);
+                MusicNotes[1] = ModContent.Request<Texture2D>(basePath + "CursiveMusicNote", AssetRequestMode.ImmediateLoad);
+                MusicNotes[2] = ModContent.Request<Texture2D>(basePath + "MusicNoteWithSlashes", AssetRequestMode.ImmediateLoad);
+                MusicNotes[3] = ModContent.Request<Texture2D>(basePath + "QuarterNote", AssetRequestMode.ImmediateLoad);
+                MusicNotes[4] = ModContent.Request<Texture2D>(basePath + "TallMusicNote", AssetRequestMode.ImmediateLoad);
+                MusicNotes[5] = ModContent.Request<Texture2D>(basePath + "WholeNote", AssetRequestMode.ImmediateLoad);
                 
-                // Load MagicSparkleField variants (12 total) - Buff indicators, magic auras
+                // === SPARKLES & STARS ===
+                TwilightSparkles[0] = ModContent.Request<Texture2D>(basePath + "TwilightSparkle", AssetRequestMode.ImmediateLoad);
+                TwilightSparkles[1] = ModContent.Request<Texture2D>(basePath + "SmallTwilightSparkle", AssetRequestMode.ImmediateLoad);
+                TwilightSparkles[2] = ModContent.Request<Texture2D>(basePath + "TwinkleSparkle", AssetRequestMode.ImmediateLoad);
+                
+                SparkleCluster[0] = ModContent.Request<Texture2D>(basePath + "ConstellationStyleSparkle", AssetRequestMode.ImmediateLoad);
+                SparkleCluster[1] = ModContent.Request<Texture2D>(basePath + "BarrageOfGlintsAndSparkles", AssetRequestMode.ImmediateLoad);
+                SparkleCluster[2] = ModContent.Request<Texture2D>(basePath + "ManySparklesInCLuster", AssetRequestMode.ImmediateLoad);
+                
+                Stars[0] = ModContent.Request<Texture2D>(basePath + "Star", AssetRequestMode.ImmediateLoad);
+                Stars[1] = ModContent.Request<Texture2D>(basePath + "StarBurst1", AssetRequestMode.ImmediateLoad);
+                Stars[2] = ModContent.Request<Texture2D>(basePath + "StarBurst2", AssetRequestMode.ImmediateLoad);
+                Stars[3] = ModContent.Request<Texture2D>(basePath + "StarryStarburst", AssetRequestMode.ImmediateLoad);
+                Stars[4] = ModContent.Request<Texture2D>(basePath + "CircularStarRing", AssetRequestMode.ImmediateLoad);
+                Stars[5] = ModContent.Request<Texture2D>(basePath + "CrescentSparkleMoon", AssetRequestMode.ImmediateLoad);
+                Stars[6] = ModContent.Request<Texture2D>(basePath + "ShatteredStarlight", AssetRequestMode.ImmediateLoad);
+                
+                // === IMPACTS & EXPLOSIONS ===
+                Impacts[0] = ModContent.Request<Texture2D>(basePath + "Impact", AssetRequestMode.ImmediateLoad);
+                Impacts[1] = ModContent.Request<Texture2D>(basePath + "SmallBurst", AssetRequestMode.ImmediateLoad);
+                Impacts[2] = ModContent.Request<Texture2D>(basePath + "SparkleBurst", AssetRequestMode.ImmediateLoad);
+                
+                FlameImpacts[0] = ModContent.Request<Texture2D>(basePath + "FlameImpactExplosion", AssetRequestMode.ImmediateLoad);
+                FlameImpacts[1] = ModContent.Request<Texture2D>(basePath + "FlameWispImpactExplosion", AssetRequestMode.ImmediateLoad);
+                FlameImpacts[2] = ModContent.Request<Texture2D>(basePath + "LargeFlameImpactExplosion", AssetRequestMode.ImmediateLoad);
+                
+                // === SWORD ARCS ===
+                SwordArcs[0] = ModContent.Request<Texture2D>(basePath + "SwordArc1", AssetRequestMode.ImmediateLoad);
+                SwordArcs[1] = ModContent.Request<Texture2D>(basePath + "SwordArc2", AssetRequestMode.ImmediateLoad);
+                SwordArcs[2] = ModContent.Request<Texture2D>(basePath + "SwordArc3", AssetRequestMode.ImmediateLoad);
+                SwordArcs[3] = ModContent.Request<Texture2D>(basePath + "SwordArc6", AssetRequestMode.ImmediateLoad);
+                SwordArcs[4] = ModContent.Request<Texture2D>(basePath + "SwordArc8", AssetRequestMode.ImmediateLoad);
+                SwordArcs[5] = ModContent.Request<Texture2D>(basePath + "SimpleArcSwordSlash", AssetRequestMode.ImmediateLoad);
+                SwordArcs[6] = ModContent.Request<Texture2D>(basePath + "CurvedSwordSlash", AssetRequestMode.ImmediateLoad);
+                SwordArcs[7] = ModContent.Request<Texture2D>(basePath + "FlamingArcSwordSlash", AssetRequestMode.ImmediateLoad);
+                SwordArcs[8] = ModContent.Request<Texture2D>(basePath + "SwordArcSlashWave", AssetRequestMode.ImmediateLoad);
+                
+                // === HALOS ===
+                GlowingHalos[0] = ModContent.Request<Texture2D>(basePath + "GlowingHalo1", AssetRequestMode.ImmediateLoad);
+                GlowingHalos[1] = ModContent.Request<Texture2D>(basePath + "GlowingHalo2", AssetRequestMode.ImmediateLoad);
+                GlowingHalos[2] = ModContent.Request<Texture2D>(basePath + "GlowingHalo4", AssetRequestMode.ImmediateLoad);
+                GlowingHalos[3] = ModContent.Request<Texture2D>(basePath + "GlowingHalo5", AssetRequestMode.ImmediateLoad);
+                GlowingHalos[4] = ModContent.Request<Texture2D>(basePath + "GlowingHalo6", AssetRequestMode.ImmediateLoad);
+                
+                // === ENIGMA EYES ===
+                EnigmaEyes[0] = ModContent.Request<Texture2D>(basePath + "EnigmaEye1", AssetRequestMode.ImmediateLoad);
+                EnigmaEyes[1] = ModContent.Request<Texture2D>(basePath + "ActivatedEnigmaEye", AssetRequestMode.ImmediateLoad);
+                EnigmaEyes[2] = ModContent.Request<Texture2D>(basePath + "BurstingEye", AssetRequestMode.ImmediateLoad);
+                EnigmaEyes[3] = ModContent.Request<Texture2D>(basePath + "CircularEnigmaEye", AssetRequestMode.ImmediateLoad);
+                EnigmaEyes[4] = ModContent.Request<Texture2D>(basePath + "GodEye", AssetRequestMode.ImmediateLoad);
+                EnigmaEyes[5] = ModContent.Request<Texture2D>(basePath + "LargeEye", AssetRequestMode.ImmediateLoad);
+                EnigmaEyes[6] = ModContent.Request<Texture2D>(basePath + "SpikeyEye", AssetRequestMode.ImmediateLoad);
+                EnigmaEyes[7] = ModContent.Request<Texture2D>(basePath + "TriangularEye", AssetRequestMode.ImmediateLoad);
+                
+                // === GLYPHS ===
                 for (int i = 0; i < 12; i++)
-                    MagicSparkleFields[i] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles/MagicSparklField{i + 1}", AssetRequestMode.ImmediateLoad);
+                    Glyphs[i] = ModContent.Request<Texture2D>($"{basePath}Glyphs{i + 1}", AssetRequestMode.ImmediateLoad);
                 
-                // Load PrismaticSparkle variants (15 total) - Gem effects, treasure highlights
-                for (int i = 0; i < 15; i++)
-                    PrismaticSparkles[i] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles/PrismaticSparkle{i + 1}", AssetRequestMode.ImmediateLoad);
-                
-                // Load SwordArc variants (9 total) - Arcing projectile slashes
-                for (int i = 0; i < 9; i++)
-                    SwordArcs[i] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles/SwordArc{i + 1}", AssetRequestMode.ImmediateLoad);
-                
-                // Load SwanFeather variants (10 total) - Swan Lake exclusive feathers
+                // === SWAN FEATHERS ===
                 for (int i = 0; i < 10; i++)
-                    SwanFeathers[i] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles/SwanFeather{i + 1}", AssetRequestMode.ImmediateLoad);
+                    SwanFeathers[i] = ModContent.Request<Texture2D>($"{basePath}SwanFeather{i + 1}", AssetRequestMode.ImmediateLoad);
                 
-                // Load EnigmaEye variants (8 total) - Mysterious watching eyes for Enigma theme
-                for (int i = 0; i < 8; i++)
-                    EnigmaEyes[i] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles/EnigmaEye{i + 1}", AssetRequestMode.ImmediateLoad);
+                // === FLAME WISPS ===
+                FlameWisps[0] = ModContent.Request<Texture2D>(basePath + "FlamingWispProjectileSmall", AssetRequestMode.ImmediateLoad);
+                FlameWisps[1] = ModContent.Request<Texture2D>(basePath + "TallFlamingWispProjectile", AssetRequestMode.ImmediateLoad);
                 
-                // Load Glyph variants (12 total) - Universal arcane symbols for all themes
-                for (int i = 0; i < 12; i++)
-                    Glyphs[i] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles/Glyphs{i + 1}", AssetRequestMode.ImmediateLoad);
+                // === TRAILS ===
+                for (int i = 0; i < 4; i++)
+                    ParticleTrails[i] = ModContent.Request<Texture2D>($"{basePath}ParticleTrail{i + 1}", AssetRequestMode.ImmediateLoad);
+                
+                // === MAGIC SPARKLE FIELDS ===
+                MagicSparkleFields[0] = ModContent.Request<Texture2D>(basePath + "MagicSparklField4", AssetRequestMode.ImmediateLoad);
+                MagicSparkleFields[1] = ModContent.Request<Texture2D>(basePath + "MagicSparklField6", AssetRequestMode.ImmediateLoad);
+                MagicSparkleFields[2] = ModContent.Request<Texture2D>(basePath + "MagicSparklField7", AssetRequestMode.ImmediateLoad);
+                MagicSparkleFields[3] = ModContent.Request<Texture2D>(basePath + "MagicSparklField8", AssetRequestMode.ImmediateLoad);
+                MagicSparkleFields[4] = ModContent.Request<Texture2D>(basePath + "MagicSparklField9", AssetRequestMode.ImmediateLoad);
+                MagicSparkleFields[5] = ModContent.Request<Texture2D>(basePath + "MagicSparklField10", AssetRequestMode.ImmediateLoad);
+                MagicSparkleFields[6] = ModContent.Request<Texture2D>(basePath + "MagicSparklField11", AssetRequestMode.ImmediateLoad);
+                
+                // === PRISMATIC SPARKLES ===
+                PrismaticSparkles[0] = ModContent.Request<Texture2D>(basePath + "PrismaticSparkle11", AssetRequestMode.ImmediateLoad);
+                PrismaticSparkles[1] = ModContent.Request<Texture2D>(basePath + "PrismaticSparkle13", AssetRequestMode.ImmediateLoad);
+                PrismaticSparkles[2] = ModContent.Request<Texture2D>(basePath + "PrismaticSparkle14", AssetRequestMode.ImmediateLoad);
+                
+                // === MISC ===
+                CrossParticles[0] = ModContent.Request<Texture2D>(basePath + "CrossParticleBlack", AssetRequestMode.ImmediateLoad);
+                CrossParticles[1] = ModContent.Request<Texture2D>(basePath + "CrossParticleWhite", AssetRequestMode.ImmediateLoad);
                 
                 TexturesLoaded = true;
             }
-            catch { TexturesLoaded = false; }
+            catch (Exception ex)
+            {
+                Mod.Logger.Error($"Failed to load particle textures: {ex.Message}");
+                TexturesLoaded = false;
+            }
         }
         
         public override void Unload()
@@ -162,8 +280,8 @@ namespace MagnumOpus.Common.Systems
             return GlowingHalos[allowedIndices[Main.rand.Next(allowedIndices.Length)]];
         }
         public static Asset<Texture2D> RandomTrail() => ParticleTrails[Main.rand.Next(4)];
-        public static Asset<Texture2D> RandomSparkleField() => MagicSparkleFields[Main.rand.Next(12)];
-        public static Asset<Texture2D> RandomPrismaticSparkle() => PrismaticSparkles[Main.rand.Next(15)];
+        public static Asset<Texture2D> RandomSparkleField() => MagicSparkleFields[Main.rand.Next(7)];  // 7 elements now
+        public static Asset<Texture2D> RandomPrismaticSparkle() => PrismaticSparkles[Main.rand.Next(3)];  // 3 elements now
         public static Asset<Texture2D> RandomSwordArc() => SwordArcs[Main.rand.Next(9)];
         public static Asset<Texture2D> RandomSwanFeather() => SwanFeathers[Main.rand.Next(10)];
         public static Asset<Texture2D> RandomEnigmaEye() => EnigmaEyes[Main.rand.Next(8)];

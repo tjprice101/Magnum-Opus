@@ -209,15 +209,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
         
         public override void OnKill(int timeLeft)
         {
-            // Small death puff
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(2f, 4f);
-                int dustType = Main.rand.NextBool(3) ? DustID.IceTorch : DustID.PurpleTorch;
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, dustType, vel, 80, default, 0.9f);
-                dust.noGravity = true;
-            }
+            // Simplified goliath beam death - quick bright flash
+            DynamicParticleEffects.MoonlightDeathNightfallGlimmer(Projectile.Center, 0.8f);
         }
 
         public override bool PreDraw(ref Color lightColor)

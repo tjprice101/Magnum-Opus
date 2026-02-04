@@ -260,46 +260,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // === CALAMITY-INSPIRED DEATH EXPLOSION ===
-            // Central flash
-            CustomParticles.GenericFlare(Projectile.Center, Color.White * 0.9f, 0.65f, 20);
-            CustomParticles.GenericFlare(Projectile.Center, UnifiedVFX.MoonlightSonata.LightBlue, 0.55f, 18);
-            
-            // Themed bloom burst
-            ThemedParticles.MoonlightBloomBurst(Projectile.Center, 0.7f);
-            
-            // Fractal burst
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 flareOffset = angle.ToRotationVector2() * 25f;
-                float progress = (float)i / 6f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
-                CustomParticles.GenericFlare(Projectile.Center + flareOffset, fractalColor, 0.4f, 16);
-            }
-            
-            // Gradient halo rings
-            for (int ring = 0; ring < 3; ring++)
-            {
-                float ringProgress = (float)ring / 3f;
-                Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, ringProgress);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.25f + ring * 0.1f, 12 + ring * 3);
-            }
-            
-            // Death spark spray
-            for (int i = 0; i < 12; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 12f;
-                Vector2 velocity = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
-                float progress = (float)i / 12f;
-                Color deathColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, progress);
-                
-                var deathSpark = new GenericGlowParticle(Projectile.Center, velocity, deathColor, 0.3f, 18, true);
-                MagnumParticleHandler.SpawnParticle(deathSpark);
-            }
-            
-            // Music notes burst
-            ThemedParticles.MoonlightMusicNotes(Projectile.Center, 4, 25f);
+            // Simplified eternal beam death - misty dissipation
+            DynamicParticleEffects.MoonlightDeathSilverMist(Projectile.Center, 0.9f);
         }
     }
 }

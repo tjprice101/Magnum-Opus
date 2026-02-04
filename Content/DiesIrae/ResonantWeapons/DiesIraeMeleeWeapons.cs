@@ -1,8 +1,10 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
@@ -140,6 +142,66 @@ namespace MagnumOpus.Content.DiesIrae.ResonantWeapons
                 );
                 DiesIraeVFX.SpawnMusicNote(notePos, Vector2.Zero, DiesIraeColors.EmberOrange, 0.8f);
             }
+        }
+        
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            // === HELLFIRE GLOW EFFECT ===
+            Texture2D texture = TextureAssets.Item[Item.type].Value;
+            Vector2 position = Item.Center - Main.screenPosition;
+            Vector2 origin = texture.Size() / 2f;
+            
+            float time = Main.GameUpdateCount * 0.07f;
+            float pulse = 1f + (float)System.Math.Sin(time * 2f) * 0.12f;
+            float flicker = Main.rand.NextFloat(0.9f, 1f);
+            
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Blood red outer glow
+            spriteBatch.Draw(texture, position, null, BloodRed * 0.4f * flicker, rotation, origin, scale * pulse * 1.35f, SpriteEffects.None, 0f);
+            
+            // Ember orange mid glow
+            spriteBatch.Draw(texture, position, null, EmberOrange * 0.35f * flicker, rotation, origin, scale * pulse * 1.2f, SpriteEffects.None, 0f);
+            
+            // Hot core shimmer
+            float shimmer = (float)System.Math.Sin(time * 3f) * 0.5f + 0.5f;
+            spriteBatch.Draw(texture, position, null, Color.Yellow * 0.25f * shimmer, rotation, origin, scale * pulse * 1.08f, SpriteEffects.None, 0f);
+            
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            Lighting.AddLight(Item.Center, 0.8f, 0.4f, 0.1f);
+            
+            return true;
+        }
+        
+        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        {
+            // === HELLFIRE INVENTORY GLOW ===
+            Texture2D texture = TextureAssets.Item[Item.type].Value;
+            
+            float time = Main.GameUpdateCount * 0.06f;
+            float pulse = 1f + (float)System.Math.Sin(time * 2.2f) * 0.1f;
+            float flicker = Main.rand.NextFloat(0.85f, 1f);
+            
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+            
+            // Hellfire gradient glow
+            Color glowColor = Color.Lerp(BloodRed, EmberOrange, (float)System.Math.Sin(time * 0.8f) * 0.5f + 0.5f) * 0.35f * flicker;
+            spriteBatch.Draw(texture, position, frame, glowColor, 0f, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+            
+            spriteBatch.Draw(texture, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
+            
+            return false;
         }
 
         public override void AddRecipes()

@@ -149,32 +149,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // Enhanced final explosion using ThemedParticles
-            ThemedParticles.EroicaBloomBurst(Projectile.Center, 3f);
-            ThemedParticles.EroicaShockwave(Projectile.Center, 2f);
-            
-            // ★ MUSICAL FINALE - Hero's symphony
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(200, 50, 50), 8, 5f);
-            
-            // Final explosion burst (reduced count)
-            for (int i = 0; i < 30; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 30f;
-                float speed = Main.rand.NextFloat(6f, 15f);
-                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * speed;
-                
-                int dustType = Main.rand.NextBool() ? DustID.CrimsonTorch : DustID.GoldFlame;
-                Dust explosion = Dust.NewDustPerfect(Projectile.Center, dustType, vel, 100, default, 2.8f);
-                explosion.noGravity = true;
-                explosion.fadeIn = 1.5f;
-            }
-            
-            // Screen shake
-            if (Main.LocalPlayer.Distance(Projectile.Center) < 400f)
-            {
-                Main.LocalPlayer.velocity += Main.rand.NextVector2Circular(0.8f, 0.8f);
-            }
-            
+            // Triumphant finale for major lightning strike
+            DynamicParticleEffects.EroicaDeathTriumphFade(Projectile.Center, 1.3f);
             SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.2f, Volume = 0.7f }, Projectile.Center);
         }
 

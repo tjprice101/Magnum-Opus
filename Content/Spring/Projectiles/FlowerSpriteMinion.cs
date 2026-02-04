@@ -588,7 +588,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle3";
+        public override string Texture => "MagnumOpus/Assets/Particles/ManySparklesInCLuster";
 
         public override void AI()
         {

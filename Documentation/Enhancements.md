@@ -60,20 +60,102 @@ public override void OnHitNPC(...)
 
 ### Use ALL Available Particle Assets
 
-**You have 80+ custom particle PNGs. USE THEM ALL CREATIVELY.**
+**You have 90+ custom particle PNGs with descriptive names. USE THEM CREATIVELY by theme!**
 
-| Category | Variants | USE FOR |
-|----------|----------|---------|
-| MusicNote | 6 | EVERY trail, impact, aura |
-| EnergyFlare | 7 | Impacts, charge effects |
-| PrismaticSparkle | 15 | Sparkle accents EVERYWHERE |
-| Glyphs | 12 | Magic circles, enchantments |
-| SwanFeather | 10 | Swan Lake theme |
-| EnigmaEye | 8 | Enigma watching effects |
-| SwordArc | 9 | Melee swing arcs |
+#### 🌟 STARS & SPARKLES (Celestial/Magic effects)
+| File Name | Best For |
+|-----------|----------|
+| `Star` | Generic star accents, magical impacts |
+| `StarBurst1`, `StarBurst2` | Explosions, radial bursts |
+| `StarryStarburst` | Intense cosmic explosions |
+| `CircularStarRing` | Orbital effects, halos |
+| `ShatteredStarlight` | Shatter effects, broken glass |
+| `CrescentSparkleMoon` | Lunar/night themes, Nachtmusik |
+
+#### ✨ TWILIGHT & SPARKLES (Magical shimmer)
+| File Name | Best For |
+|-----------|----------|
+| `TwilightSparkle` | Winter/Autumn themes, ethereal trails |
+| `SmallTwilightSparkle` | Subtle accent sparkles |
+| `TwinkleSparkle` | Gentle magical shimmer |
+| `ConstellationStyleSparkle` | Nachtmusik, cosmic patterns |
+| `PrismaticSparkle11`, `13`, `14` | Rainbow/Swan Lake effects |
+| `ManySparklesInCLuster` | Dense sparkle clouds |
+| `BarrageOfGlintsAndSparkles` | Intense sparkle bursts |
+
+#### 🔥 FLARES & ENERGY (Impacts, charges)
+| File Name | Best For |
+|-----------|----------|
+| `EnergyFlare`, `EnergyFlare4` | Generic energy impacts |
+| `FlareSparkle` | Subtle flare accents |
+| `FlareSpikeBurst` | Infernal/La Campanella themes |
+| `SmallBurstFlare` | Small explosion centers |
+| `GlintSparkleFlare` | Shiny reflections |
+| `GlintTwilightSparkleFlare` | Twilight theme flares |
+| `ThinSparkleFlare` | Elegant thin flares |
+
+#### 💫 HALOS & GLOWS (Rings, auras)
+| File Name | Best For |
+|-----------|----------|
+| `GlowingHalo1`, `2`, `4`, `5`, `6` | Shockwaves, expansion rings |
+| `SoftGlow2`, `3`, `4` | Bloom bases, ambient glow |
+
+#### 🎵 MUSIC NOTES (Scale 0.7f+ for visibility!)
+| File Name | Best For |
+|-----------|----------|
+| `MusicNote` | Generic musical accents |
+| `CursiveMusicNote` | Elegant flowing notes |
+| `MusicNoteWithSlashes` | Intense musical effects |
+| `QuarterNote` | Classic quarter note shape |
+| `TallMusicNote` | Elongated vertical notes |
+| `WholeNote` | Full circular notes |
+
+#### 🗡️ SWORD ARCS (Melee swings - USE THESE!)
+| File Name | Best For |
+|-----------|----------|
+| `SwordArc1`, `2`, `3` | Standard slash arcs |
+| `SwordArc6`, `8` | Wide slash effects |
+| `SwordArcSlashWave` | Wave projectile bases |
+| `SimpleArcSwordSlash` | Clean minimal slashes |
+| `CurvedSwordSlash` | Curved arc swings |
+| `FlamingArcSwordSlash` | Fire-themed melee (La Campanella) |
+
+#### 🪶 SWAN FEATHERS (Swan Lake theme)
+| File Name | Best For |
+|-----------|----------|
+| `SwanFeather1` - `SwanFeather10` | All 10 feather variants for variety |
+
+#### 👁️ ENIGMA EYES (Enigma Variations theme)
+| File Name | Best For |
+|-----------|----------|
+| `EnigmaEye1`, `ActivatedEnigmaEye` | Watching/targeting effects |
+| `BurstingEye`, `SpikeyEye` | Intense eye visuals |
+| `CircularEnigmaEye`, `TriangularEye` | Geometric eye patterns |
+| `GodEye`, `LargeEye` | Boss-level eye effects |
+
+#### 🔮 GLYPHS & MAGIC (Arcane symbols)
+| File Name | Best For |
+|-----------|----------|
+| `Glyphs1` - `Glyphs12` | Magic circles, Fate theme, enchantments |
+| `MagicSparklField4`, `6`-`12` | Magic sparkle clusters |
+
+#### 🔥 FLAMES & IMPACTS (Fire/explosion effects)
+| File Name | Best For |
+|-----------|----------|
+| `FlameImpactExplosion` | Fire impacts |
+| `FlameWispImpactExplosion` | Wispy flame bursts |
+| `LargeFlameImpactExplosion` | Large fire explosions |
+| `FlamingWispProjectileSmall` | Fire projectile cores |
+| `TallFlamingWispProjectile` | Elongated flame projectiles |
+| `Impact`, `SmallBurst`, `SparkleBurst` | Generic impacts |
+
+#### 📜 TRAILS (Projectile trails)
+| File Name | Best For |
+|-----------|----------|
+| `ParticleTrail1` - `ParticleTrail4` | All projectile trail variants |
 
 **ALSO combine with vanilla Dust types for density:**
-- DustID.MagicMirror, DustID.Enchanted_Gold, DustID.PurpleTorch, DustID.Electric, etc.
+- `DustID.MagicMirror`, `DustID.Enchanted_Gold`, `DustID.PurpleTorch`, `DustID.Electric`, etc.
 
 ---
 
@@ -3168,6 +3250,85 @@ Concept art for a side-view idle pixel art sprite of an ancient celestial [ITEM 
 
 ---
 
+## 🎆 MIDJOURNEY - DYNAMIC PARTICLE EFFECTS (Phase 9 VFX)
+
+*These particles enhance the unique themed effects created for Nachtmusik, Dies Irae, and Seasonal weapons.*
+*Each theme now has 3 unique dynamic effect types - these textures would enhance the visual variety.*
+
+### Nachtmusik Theme Particles
+
+**Nachtmusik Cosmic Dust Cloud** (64x64 particle texture) - DESIRED
+*Used by: NachtmusikCosmicDustCloud effect*
+```
+pixel art particle texture, swirling cosmic dust cloud, deep purple #2D1B4E base with golden #FFD700 star speckles embedded within, wispy nebula tendrils at edges, soft ethereal glow in center, semi-transparent, celestial mist aesthetic, Terraria style particle, 64x64 pixels, clean edges, transparent background --v 6
+```
+
+**Nachtmusik Starlight Burst** (48x48 particle texture) - DESIRED
+*Used by: NachtmusikStarlightBurst effect*
+```
+pixel art particle texture, radiant star burst explosion, golden #FFD700 core with deep purple #2D1B4E outer rays, 8-point star shape with soft glow halo, sparkle accents at ray tips, celestial explosive energy, Terraria style particle, 48x48 pixels, clean crisp edges, transparent background --v 6
+```
+
+**Nachtmusik Ethereal Wisp** (32x32 particle texture) - DESIRED
+*Used by: NachtmusikEtherealWisp effect*
+```
+pixel art particle texture, ethereal floating wisp, violet #7B68EE translucent body with golden #FFD700 core shimmer, elongated teardrop shape with trailing mist, ghostly night spirit aesthetic, gentle glow, Terraria style particle, 32x32 pixels, transparent background --v 6
+```
+
+### Dies Irae Theme Particles
+
+**Dies Irae Hellfire Plume** (64x64 particle texture) - DESIRED
+*Used by: DiesHellfireEruption effect*
+```
+pixel art particle texture, volcanic hellfire plume, black #1A1A1A smoke base with blood red #8B0000 flames licking through, bright orange #FF2400 ember cores, rising pillar shape, infernal heat shimmer, Terraria style particle, 64x64 pixels, transparent background --v 6
+```
+
+**Dies Irae Chain Lightning** (96x32 particle texture) - DESIRED
+*Used by: DiesWrathChainLightning effect*
+```
+pixel art particle texture, jagged crimson lightning bolt, blood red #8B0000 core with bright flame #FF2400 outer glow, forked branching pattern, electrical energy crackling, hellish storm aesthetic, horizontal orientation, Terraria style particle, 96x32 pixels, transparent background --v 6
+```
+
+**Dies Irae Vortex Core** (48x48 particle texture) - DESIRED
+*Used by: DiesJudgmentVortex effect*
+```
+pixel art particle texture, spiraling vortex of hellfire, black #1A1A1A center void with crimson #DC143C spiral arms, blood red #8B0000 outer ring, swirling infernal maelstrom, judgment energy aesthetic, Terraria style particle, 48x48 pixels, transparent background --v 6
+```
+
+### Seasonal Theme Particles
+
+**Spring Petal Bloom** (48x48 particle texture) - DESIRED
+*Used by: SpringPetalBloom effect*
+```
+pixel art particle texture, blooming cherry blossom burst, soft pink #FFB7C5 petals in circular arrangement, light green #90EE90 leaf accents, golden #FFD700 pollen sparkles at center, fresh spring aesthetic, Terraria style particle, 48x48 pixels, transparent background --v 6
+```
+
+**Summer Solar Flare** (64x64 particle texture) - DESIRED
+*Used by: SummerSolarFlare effect*
+```
+pixel art particle texture, intense solar flare explosion, brilliant gold #FFD700 core with orange #FF8C00 corona rays, white-hot #FFFFFF center, radiating heat waves, blazing summer sun aesthetic, Terraria style particle, 64x64 pixels, transparent background --v 6
+```
+
+**Autumn Leaf Cascade** (48x48 particle texture) - DESIRED
+*Used by: AutumnLeafCascade effect*
+```
+pixel art particle texture, falling autumn leaves cluster, orange #FF8C32 maple leaves with brown #8B5A2B oak leaves mixed, subtle golden #DAA520 glow, scattered arrangement with motion blur, melancholic harvest aesthetic, Terraria style particle, 48x48 pixels, transparent background --v 6
+```
+
+**Winter Crystalline Shatter** (48x48 particle texture) - DESIRED  
+*Used by: WinterCrystallineShatter effect*
+```
+pixel art particle texture, shattering ice crystal explosion, pale blue #ADD8E6 ice shards radiating outward, white #F0F8FF frost dust cloud, crystalline structure fragments, frozen winter aesthetic, sharp angular shapes, Terraria style particle, 48x48 pixels, transparent background --v 6
+```
+
+### Usage Notes - Dynamic Effects
+- These particles enhance the 15 new unique dynamic effects created in DynamicParticleEffects.cs
+- Current implementation uses existing particle textures with color tinting
+- These custom textures would provide more visual variety and thematic accuracy
+- Each particle should be white/grayscale base for runtime color tinting flexibility
+
+---
+
 # 🌙 NACHTMUSIK - Queen of Radiance
 *Theme: Night sky, deep purple #2D1B4E, golden shimmer #FFD700, star white, violet*
 
@@ -3278,6 +3439,24 @@ Magnificent side-view pixel art sprite of an extraordinarily grand celestial dua
 Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive double-headed executioner axe weapon rotated 45 degrees with twin crescents pointing top-right, pristine deep cosmic purple metal forming clean elegant twin blade outline shaft and pommel edges with starlight luminous finish, twin crescent blades interior filled with flowing amorphous golden star energy swirling like twilight judgment with prismatic shimmer waves, wavy harmonic energy flows through stellar core down entire shaft creating visible execution melody currents, deep purple surface decorated with flowing constellation engravings and musical notation, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, commanding twilight judgment radiating, epic powerful sprite art, full axe composition, --ar 16:9 --v 7.0
 ```
 
+**Starfall Sonata** (54x54) - COSMIC CLAYMORE
+*A massive blade forged from crystallized starlight that leaves constellation trails*
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial crystallized starlight claymore weapon rotated 45 degrees with blade pointing top-right, pristine deep purple-black cosmic metal forming clean elegant massive blade outline crossguard and pommel edges with crystallized starlight finish, massive blade interior filled with flowing amorphous trapped galaxy swirling with golden star clusters and violet nebula clouds, wavy harmonic energy flows through constellation patterns etched in gold down entire blade creating visible stellar currents, deep purple surface decorated with flowing music staff lines and celestial notation running blade length, orbiting golden star fragments flowing in graceful spiral around cosmic claymore, burning music symbols drift majestically while embedded starfield pulses with inner nocturnal luminescence, multiple constellation formations trace naturally creating organic stellar patterns, golden energy cascades from pristine cosmic framework, starlight severance cascades from blade edge, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming stellar power radiating, epic powerful sprite art, full claymore composition, --ar 16:9 --v 7.0
+```
+
+**Crescent Moon Executioner** (52x48) - LUNAR GREATAXE
+*A curved axe head shaped like the crescent moon, pulsing with lunar energy*
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial crescent moon greataxe weapon rotated 45 degrees with curved blade pointing top-right, pristine silver-white lunar metal forming clean elegant crescent blade outline handle and counterweight edges with lunar eclipse finish, curved blade interior filled with flowing amorphous silver moonlight energy swirling with deep purple shadow core, wavy harmonic energy flows through moon phase engravings down entire shaft creating visible lunar currents, silver surface decorated with flowing nocturne notation and star maps running blade, orbiting moon dust particles flowing in graceful spiral around lunar greataxe, ethereal glow drifts majestically while crescent blade pulses with inner moonlit luminescence, multiple lunar phase formations cycle naturally creating organic celestial patterns, golden star accents frame the pristine lunar framework, moonlight judgment cascades from crescent edge, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming lunar authority radiating, epic powerful sprite art, full greataxe composition, --ar 16:9 --v 7.0
+```
+
+**Twilight Severance** (50x50) - VOID KATANA
+*A slender blade that cuts through the boundary between day and night*
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial void katana weapon rotated 45 degrees with blade pointing top-right, pristine gradient blade transitioning from deep purple to gold to white forming clean elegant katana outline tsuba and handle edges with twilight boundary finish, slender blade interior filled with flowing amorphous dusk energy swirling between golden sunset and violet starrise, wavy harmonic energy flows through perfectly balanced day-night equilibrium down entire blade creating visible temporal currents, gradient surface decorated with flowing serenade notation and horizon lines running blade, orbiting twilight particles flowing in graceful spiral around void katana, dawn-dusk light drifts majestically while gradient blade pulses with inner eternal twilight luminescence, multiple boundary formations shimmer naturally creating organic liminal patterns, pristine harmony connects day to night through blade framework, dimension severance cascades from edge, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming twilight mastery radiating, epic powerful sprite art, full katana composition, --ar 16:9 --v 7.0
+```
+
 ---
 
 ## 🏹 RANGED WEAPONS
@@ -3297,6 +3476,24 @@ Magnificent side-view pixel art sprite of an extraordinarily grand celestial mas
 Magnificent side-view pixel art sprite of an extraordinarily grand celestial railgun weapon rotated 45 degrees with elongated barrel pointing top-right, pristine deep cosmic purple crystallized metal forming clean elegant barrel outline stock and targeting array with cosmic luminous finish, elongated barrel interior filled with flowing amorphous golden accelerated starlight swirling like focused cosmic beam, wavy harmonic energy flows through constellation-patterned magnetic rails down entire barrel creating visible piercing currents, scope formed like miniature golden galaxy, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, piercing stellar judgment radiating, epic powerful sprite art, full railgun composition, --ar 16:9 --v 7.0
 ```
 
+**Constellation Piercer** (48x42) - STELLAR LONGBOW
+*A bow strung with solidified starlight that fires arrows of pure constellation energy*
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial stellar longbow weapon rotated 45 degrees with limbs pointing top-right, pristine deep purple crystallized night sky forming clean elegant bow outline limbs and grip edges with constellation pierce finish, bow frame interior filled with flowing amorphous golden star points connected by violet energy lines forming actual constellations, wavy harmonic energy flows through starlight bowstring that materializes arrows from pure stellar energy creating visible constellation currents, deep purple surface decorated with flowing astronomical charts and music notation running limbs, orbiting miniature star systems flowing in graceful spiral around stellar longbow, zodiac symbols drift majestically while constellation map pulses with inner nocturnal luminescence, multiple star cluster formations arrange naturally creating organic celestial patterns, golden arrow manifestation charges through pristine night framework, constellation piercing cascades from each shot, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming stellar accuracy radiating, epic powerful sprite art, full longbow composition, --ar 16:9 --v 7.0
+```
+
+**Nebula's Whisper** (46x38) - COSMIC REVOLVER
+*A hand cannon that fires compressed nebula fragments that expand on impact*
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial cosmic revolver weapon rotated 45 degrees with barrel pointing top-right, pristine deep purple metal forming clean elegant revolver outline barrel cylinder and grip edges with nebula compression finish, revolver body interior filled with flowing amorphous multicolored nebula clouds swirling in cylinder chambers like captured gas giants, wavy harmonic energy flows through golden star-shaped hammer and trigger down entire gun creating visible cosmic currents, deep purple surface decorated with flowing spiral galaxy engravings and musical notation along barrel, orbiting nebula dust clouds flowing in graceful spiral around cosmic revolver, prismatic gas wisps drift majestically while chambered nebulae pulse with inner cosmic luminescence, multiple gas cloud formations swirl naturally creating organic nebula patterns, golden mechanisms fire through pristine cosmic framework, nebula expansion cascades from each shot, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming cosmic devastation radiating, epic powerful sprite art, full revolver composition, --ar 16:9 --v 7.0
+```
+
+**Eventide Barrage** (54x48) - STELLAR REPEATER CROSSBOW
+*A rapid-fire crossbow that unleashes a storm of twilight bolts*
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial stellar repeater crossbow weapon rotated 45 degrees with stock pointing right, pristine gradient purple-to-gold metal forming clean elegant repeater crossbow outline magazine and limbs edges with eventide storm finish, crossbow body interior filled with flowing amorphous magazine of pure twilight energy bolts swirling with compressed dusk light, wavy harmonic energy flows through automatic feed mechanism of stellar string down entire weapon creating visible barrage currents, gradient surface decorated with flowing sunset-to-starrise spectrum and rhythm notation along stock, orbiting twilight sparks flowing in graceful spiral around stellar repeater, rapid fire trails drift majestically while bolt magazine pulses with inner eventide luminescence, multiple bolt formations load naturally creating organic storm patterns, golden mechanisms cycle through pristine twilight framework, eventide devastation cascades from repeating fire, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming twilight barrage radiating, epic powerful sprite art, full repeater crossbow composition, --ar 16:9 --v 7.0
+```
+
 ---
 
 ## 📖 MAGIC WEAPONS
@@ -3314,6 +3511,24 @@ Magnificent side-view pixel art sprite of an extraordinarily grand celestial mas
 **Nocturnal Symphony Harp** (44x44)
 ```
 Magnificent side-view pixel art sprite of an extraordinarily grand celestial concert harp weapon, pristine crystallized cosmic purple starlight forming clean elegant massive frame outline strings and resonance chamber with cosmic luminous finish, harp frame interior filled with flowing amorphous golden cosmic energy resonating between strings like symphonic stellar orchestra, wavy harmonic energy flows through each golden string that plays itself creating visible omnidirectional melodic currents, strings vibrate with visible constellation patterns, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming nocturnal symphony radiating, epic powerful sprite art, full harp composition, --ar 16:9 --v 7.0
+```
+
+**Requiem of the Cosmos** (44x52) - VOID GRIMOIRE
+*A tome containing the final songs of dying stars, channels devastating stellar magic*
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial void grimoire weapon rotated 45 degrees with spine facing left, pristine deep purple leather bound with golden star clasps forming clean elegant tome outline cover and spine edges with dying star requiem finish, tome interior filled with flowing amorphous pages of pure darkness with burning golden text describing stellar death throes swirling like cosmic obituaries, wavy harmonic energy flows through supernova bookmarks and black hole spine down entire grimoire creating visible requiem currents, deep purple cover surface decorated with flowing dead constellation maps and funeral music notation, orbiting stellar remnants flowing in graceful spiral around void grimoire, ash of burned stars drifts majestically while dying star text pulses with inner cosmic luminescence, multiple supernova formations bloom naturally within pages creating organic stellar death patterns, golden mourning energy channels through pristine void framework, cosmic requiem cascades from opened pages, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming stellar finality radiating, epic powerful sprite art, full grimoire composition, --ar 16:9 --v 7.0
+```
+
+**Galactic Overture** (40x46) - COSMIC CONDUCTOR'S WAND
+*A wand that orchestrates the very stars, conducting celestial symphonies into being*
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial cosmic conductor's wand weapon rotated 45 degrees with crystal tip pointing upward, pristine golden shaft wrapped in deep purple cosmic ribbons forming clean elegant wand outline body and tip edges with galactic overture finish, wand tip interior filled with flowing amorphous crystallized galaxy fragment swirling with entire captured stellar system, wavy harmonic energy flows through musical staff patterns carved in gold down entire wand creating visible overture currents, golden shaft surface decorated with flowing conductor's notation and tempo markings running length, orbiting miniature planets flowing in graceful spiral around cosmic wand, baton trail stardust drifts majestically while galaxy crystal pulses with inner orchestral luminescence, multiple stellar orchestra formations conduct naturally creating organic symphony patterns, deep purple cosmic energy cascades through pristine golden framework, galactic composition manifests from wand tip, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming cosmic composition radiating, epic powerful sprite art, full wand composition, --ar 16:9 --v 7.0
+```
+
+**Nocturne's Embrace** (48x48) - LUNAR CHANNELING STAFF
+*A staff topped with a captured moon that channels pure lunar sorcery over time*
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial lunar channeling staff weapon rotated 45 degrees with moon orb top pointing upward, pristine silver and deep purple twisted metal forming clean elegant staff outline shaft and base edges with nocturne embrace finish, captured moon orb top interior filled with flowing amorphous actual miniature moon with visible craters and maria swirling with silver-purple lunar magic, wavy harmonic energy flows through moonbeam channels spiraling down entire staff creating visible nocturne currents, twisted metal surface decorated with flowing lullaby notation and lunar calendar markings running shaft, orbiting moon phases flowing in graceful spiral around lunar staff, silver moonbeams radiate majestically while captured moon pulses with inner nocturnal luminescence, multiple lunar cycle formations wax and wane naturally creating organic moon patterns, deep purple magic conduits flow through pristine silver framework, lunar embrace cascades from channeled moon, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming lunar mastery radiating, epic powerful sprite art, full staff composition, --ar 16:9 --v 7.0
 ```
 
 ---
@@ -3348,6 +3563,39 @@ Magnificent side-view pixel art sprite of an extraordinarily grand celestial sno
 **Star Wisps** (Minion) (22x22, 4 frames)
 ```
 Concept art for a side-view idle pixel art sprite of an ancient celestial summon creature themed around "Nachtmusik Star Wisp" made of newborn star creature of golden light with deep purple cosmic trail shaped like musical note with silver accents created by music in the style of Terraria, radiating a powerful cosmic minion aura, music notes surround it, ignited in deep purple-gold celestial flames, tiny orbiting moons and prismatic shimmer float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+```
+
+**Conductor of Constellations** (44x44) - STAR MAP SCEPTER → Spawns Constellation Spirits
+*A scepter that summons sentient constellations to fight, each spirit a different star pattern*
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial star map scepter summoning weapon rotated 45 degrees with map orb top pointing upward, pristine golden scepter shaft studded with deep purple star gems forming clean elegant rod outline body and top edges with conductor's constellation finish, star map orb top interior filled with flowing amorphous actual rotating celestial map with labeled constellations swirling with summoned spirits waiting to emerge, wavy harmonic energy flows through constellation connection points down entire scepter creating visible spirit summoning currents, golden shaft surface decorated with flowing star chart annotations and summoning notation running length, orbiting tiny constellation spirits flowing in graceful spiral around map scepter, stellar map energy cascades majestically while star orb pulses with inner summoning luminescence, multiple spirit formations emerge naturally creating organic constellation patterns, deep purple cosmic energy flows through pristine golden framework, conductor's authority cascades from raised scepter, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming constellation command radiating, epic powerful sprite art, full scepter composition, --ar 16:9 --v 7.0
+```
+
+**Constellation Spirit** (Minion) (20x24, 4 frames)
+```
+Concept art for a side-view idle pixel art sprite of an ancient celestial summon creature themed around "Nachtmusik Constellation Spirit" made of connected star points forming recognizable constellation shape like Orion or Lyra with deep purple cosmic energy filling the pattern with silver star point accents created by music in the style of Terraria, radiating a powerful stellar minion aura, music notes surround it, ignited in golden-white starlight, different constellation shapes visible with prismatic shimmer float around it and are apart of its design, detailed, silver star point design like celestial mechanism, full-view --v 7.0
+```
+
+**Harmony of the Void** (42x48) - BLACK HOLE ORB → Spawns Void Harmonics
+*An orb containing a singing black hole that summons void echoes into reality*
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial black hole orb summoning weapon rotated 45 degrees with event horizon visible, pristine deep purple containment shell with golden stabilizing rings forming clean elegant sphere outline frame and base edges with void harmonic finish, black hole interior filled with flowing amorphous actual miniature black hole with visible accretion disk swirling with captured light singing as it falls in, wavy harmonic energy flows through gravitational lensing effects creating visible void summoning currents, containment shell surface decorated with flowing warning notation and harmonic frequency markings, orbiting light particles flowing in graceful spiral toward black hole, gravitational shimmer cascades majestically while singularity pulses with inner void luminescence, multiple void echo formations emerge naturally from event horizon creating organic harmonic patterns, golden stability rings glow through pristine containment framework, void harmony cascades from singing singularity, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming gravitational symphony radiating, epic powerful sprite art, full orb composition, --ar 16:9 --v 7.0
+```
+
+**Void Harmonic** (Minion) (22x22, 4 frames)
+```
+Concept art for a side-view idle pixel art sprite of an ancient celestial summon creature themed around "Nachtmusik Void Harmonic" made of visible sound wave pattern rendered in deep purple void energy with golden frequency peaks with silver null point accents created by music in the style of Terraria, radiating a powerful gravitational minion aura, music notes surround it, ignited in dark purple-gold cosmic flames, gravitational distortion with prismatic event horizon shimmer float around it and are apart of its design, detailed, silver harmonic design like void mechanism, full-view --v 7.0
+```
+
+**Celestial Chorus Baton** (38x50) - CHOIR BATON → Spawns Celestial Choir
+*A conductor's baton that summons an entire celestial choir of angelic star beings*
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial choir conductor's baton summoning weapon rotated 45 degrees with crystal tip pointing upward, pristine golden baton shaft with deep purple celestial ribbon wrapping forming clean elegant conductor's rod outline body and tip edges with chorus summoning finish, crystal tip interior filled with flowing amorphous captured angelic choir in miniature all singing in harmony with golden halos swirling, wavy harmonic energy flows through musical notation carved into shaft down entire baton creating visible choir summoning currents, golden shaft surface decorated with flowing hymnal text and choir direction markings running length, orbiting tiny angelic figures flowing in graceful formation around baton, choral harmony cascades majestically while crystal pulses with inner celestial luminescence, multiple choir member formations emerge naturally creating organic choral patterns, deep purple ribbon flows through pristine golden framework, celestial hymn cascades from conducted baton, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming divine symphony radiating, epic powerful sprite art, full baton composition, --ar 16:9 --v 7.0
+```
+
+**Celestial Choir Singer** (Minion) (20x26, 4 frames)
+```
+Concept art for a side-view idle pixel art sprite of an ancient celestial summon creature themed around "Nachtmusik Celestial Choir Singer" made of angelic humanoid figure of pure golden starlight with deep purple wings made of solidified music with silver halo accent created by music in the style of Terraria, radiating a powerful divine minion aura, music notes surround it, ignited in golden-white celestial flames, hymnal scrolls with prismatic shimmer float around it and are apart of its design, detailed, silver angelic design like heavenly mechanism, full-view --v 7.0
 ```
 
 ---
@@ -3432,90 +3680,6 @@ Concept art for a side-view idle pixel art sprite of an ancient celestial crysta
 3. Twilight Harmony Brooch
 4. Radiance of the Night Queen
 5. Cosmic Resonance Ring
-
----
-
-## ⚔️ ADDITIONAL WEAPON PROMPTS (Unique Styles)
-
-### Melee Weapons (3 Additional Unique Prompts)
-
-**Starfall Sonata** (54x54) - COSMIC CLAYMORE
-*A massive blade forged from crystallized starlight that leaves constellation trails*
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial crystallized starlight claymore weapon rotated 45 degrees with blade pointing top-right, pristine deep purple-black cosmic metal forming clean elegant massive blade outline crossguard and pommel edges with crystallized starlight finish, massive blade interior filled with flowing amorphous trapped galaxy swirling with golden star clusters and violet nebula clouds, wavy harmonic energy flows through constellation patterns etched in gold down entire blade creating visible stellar currents, deep purple surface decorated with flowing music staff lines and celestial notation running blade length, orbiting golden star fragments flowing in graceful spiral around cosmic claymore, burning music symbols drift majestically while embedded starfield pulses with inner nocturnal luminescence, multiple constellation formations trace naturally creating organic stellar patterns, golden energy cascades from pristine cosmic framework, starlight severance cascades from blade edge, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming stellar power radiating, epic powerful sprite art, full claymore composition, --ar 16:9 --v 7.0
-```
-
-**Crescent Moon Executioner** (52x48) - LUNAR GREATAXE
-*A curved axe head shaped like the crescent moon, pulsing with lunar energy*
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial crescent moon greataxe weapon rotated 45 degrees with curved blade pointing top-right, pristine silver-white lunar metal forming clean elegant crescent blade outline handle and counterweight edges with lunar eclipse finish, curved blade interior filled with flowing amorphous silver moonlight energy swirling with deep purple shadow core, wavy harmonic energy flows through moon phase engravings down entire shaft creating visible lunar currents, silver surface decorated with flowing nocturne notation and star maps running blade, orbiting moon dust particles flowing in graceful spiral around lunar greataxe, ethereal glow drifts majestically while crescent blade pulses with inner moonlit luminescence, multiple lunar phase formations cycle naturally creating organic celestial patterns, golden star accents frame the pristine lunar framework, moonlight judgment cascades from crescent edge, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming lunar authority radiating, epic powerful sprite art, full greataxe composition, --ar 16:9 --v 7.0
-```
-
-**Twilight Severance** (50x50) - VOID KATANA
-*A slender blade that cuts through the boundary between day and night*
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial void katana weapon rotated 45 degrees with blade pointing top-right, pristine gradient blade transitioning from deep purple to gold to white forming clean elegant katana outline tsuba and handle edges with twilight boundary finish, slender blade interior filled with flowing amorphous dusk energy swirling between golden sunset and violet starrise, wavy harmonic energy flows through perfectly balanced day-night equilibrium down entire blade creating visible temporal currents, gradient surface decorated with flowing serenade notation and horizon lines running blade, orbiting twilight particles flowing in graceful spiral around void katana, dawn-dusk light drifts majestically while gradient blade pulses with inner eternal twilight luminescence, multiple boundary formations shimmer naturally creating organic liminal patterns, pristine harmony connects day to night through blade framework, dimension severance cascades from edge, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming twilight mastery radiating, epic powerful sprite art, full katana composition, --ar 16:9 --v 7.0
-```
-
-### Ranged Weapons (3 Additional Unique Prompts)
-
-**Constellation Piercer** (48x42) - STELLAR LONGBOW
-*A bow strung with solidified starlight that fires arrows of pure constellation energy*
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial stellar longbow weapon rotated 45 degrees with limbs pointing top-right, pristine deep purple crystallized night sky forming clean elegant bow outline limbs and grip edges with constellation pierce finish, bow frame interior filled with flowing amorphous golden star points connected by violet energy lines forming actual constellations, wavy harmonic energy flows through starlight bowstring that materializes arrows from pure stellar energy creating visible constellation currents, deep purple surface decorated with flowing astronomical charts and music notation running limbs, orbiting miniature star systems flowing in graceful spiral around stellar longbow, zodiac symbols drift majestically while constellation map pulses with inner nocturnal luminescence, multiple star cluster formations arrange naturally creating organic celestial patterns, golden arrow manifestation charges through pristine night framework, constellation piercing cascades from each shot, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming stellar accuracy radiating, epic powerful sprite art, full longbow composition, --ar 16:9 --v 7.0
-```
-
-**Nebula's Whisper** (46x38) - COSMIC REVOLVER
-*A hand cannon that fires compressed nebula fragments that expand on impact*
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial cosmic revolver weapon rotated 45 degrees with barrel pointing top-right, pristine deep purple metal forming clean elegant revolver outline barrel cylinder and grip edges with nebula compression finish, revolver body interior filled with flowing amorphous multicolored nebula clouds swirling in cylinder chambers like captured gas giants, wavy harmonic energy flows through golden star-shaped hammer and trigger down entire gun creating visible cosmic currents, deep purple surface decorated with flowing spiral galaxy engravings and musical notation along barrel, orbiting nebula dust clouds flowing in graceful spiral around cosmic revolver, prismatic gas wisps drift majestically while chambered nebulae pulse with inner cosmic luminescence, multiple gas cloud formations swirl naturally creating organic nebula patterns, golden mechanisms fire through pristine cosmic framework, nebula expansion cascades from each shot, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming cosmic devastation radiating, epic powerful sprite art, full revolver composition, --ar 16:9 --v 7.0
-```
-
-**Eventide Barrage** (54x48) - STELLAR REPEATER CROSSBOW
-*A rapid-fire crossbow that unleashes a storm of twilight bolts*
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial stellar repeater crossbow weapon rotated 45 degrees with stock pointing right, pristine gradient purple-to-gold metal forming clean elegant repeater crossbow outline magazine and limbs edges with eventide storm finish, crossbow body interior filled with flowing amorphous magazine of pure twilight energy bolts swirling with compressed dusk light, wavy harmonic energy flows through automatic feed mechanism of stellar string down entire weapon creating visible barrage currents, gradient surface decorated with flowing sunset-to-starrise spectrum and rhythm notation along stock, orbiting twilight sparks flowing in graceful spiral around stellar repeater, rapid fire trails drift majestically while bolt magazine pulses with inner eventide luminescence, multiple bolt formations load naturally creating organic storm patterns, golden mechanisms cycle through pristine twilight framework, eventide devastation cascades from repeating fire, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming twilight barrage radiating, epic powerful sprite art, full repeater crossbow composition, --ar 16:9 --v 7.0
-```
-
-### Magic Weapons (3 Additional Unique Prompts)
-
-**Requiem of the Cosmos** (44x52) - VOID GRIMOIRE
-*A tome containing the final songs of dying stars, channels devastating stellar magic*
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial void grimoire weapon rotated 45 degrees with spine facing left, pristine deep purple leather bound with golden star clasps forming clean elegant tome outline cover and spine edges with dying star requiem finish, tome interior filled with flowing amorphous pages of pure darkness with burning golden text describing stellar death throes swirling like cosmic obituaries, wavy harmonic energy flows through supernova bookmarks and black hole spine down entire grimoire creating visible requiem currents, deep purple cover surface decorated with flowing dead constellation maps and funeral music notation, orbiting stellar remnants flowing in graceful spiral around void grimoire, ash of burned stars drifts majestically while dying star text pulses with inner cosmic luminescence, multiple supernova formations bloom naturally within pages creating organic stellar death patterns, golden mourning energy channels through pristine void framework, cosmic requiem cascades from opened pages, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming stellar finality radiating, epic powerful sprite art, full grimoire composition, --ar 16:9 --v 7.0
-```
-
-**Galactic Overture** (40x46) - COSMIC CONDUCTOR'S WAND
-*A wand that orchestrates the very stars, conducting celestial symphonies into being*
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial cosmic conductor's wand weapon rotated 45 degrees with crystal tip pointing upward, pristine golden shaft wrapped in deep purple cosmic ribbons forming clean elegant wand outline body and tip edges with galactic overture finish, wand tip interior filled with flowing amorphous crystallized galaxy fragment swirling with entire captured stellar system, wavy harmonic energy flows through musical staff patterns carved in gold down entire wand creating visible overture currents, golden shaft surface decorated with flowing conductor's notation and tempo markings running length, orbiting miniature planets flowing in graceful spiral around cosmic wand, baton trail stardust drifts majestically while galaxy crystal pulses with inner orchestral luminescence, multiple stellar orchestra formations conduct naturally creating organic symphony patterns, deep purple cosmic energy cascades through pristine golden framework, galactic composition manifests from wand tip, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming cosmic composition radiating, epic powerful sprite art, full wand composition, --ar 16:9 --v 7.0
-```
-
-**Nocturne's Embrace** (48x48) - LUNAR CHANNELING STAFF
-*A staff topped with a captured moon that channels pure lunar sorcery over time*
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial lunar channeling staff weapon rotated 45 degrees with moon orb top pointing upward, pristine silver and deep purple twisted metal forming clean elegant staff outline shaft and base edges with nocturne embrace finish, captured moon orb top interior filled with flowing amorphous actual miniature moon with visible craters and maria swirling with silver-purple lunar magic, wavy harmonic energy flows through moonbeam channels spiraling down entire staff creating visible nocturne currents, twisted metal surface decorated with flowing lullaby notation and lunar calendar markings running shaft, orbiting moon phases flowing in graceful spiral around lunar staff, silver moonbeams radiate majestically while captured moon pulses with inner nocturnal luminescence, multiple lunar cycle formations wax and wane naturally creating organic moon patterns, deep purple magic conduits flow through pristine silver framework, lunar embrace cascades from channeled moon, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming lunar mastery radiating, epic powerful sprite art, full staff composition, --ar 16:9 --v 7.0
-```
-
-### Summon Weapons (3 Additional Unique Prompts)
-
-**Conductor of Constellations** (42x50) - STAR MAP SCEPTER → Spawns Zodiac Spirits
-*A scepter displaying the celestial zodiac, summoning spirit guardians of the star signs*
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial star map scepter weapon rotated 45 degrees with zodiac wheel top pointing upward, pristine deep purple crystal forming clean elegant scepter outline shaft and wheel edges with zodiac summoning finish, rotating zodiac wheel top interior filled with flowing amorphous twelve constellation symbols swirling in golden light on purple cosmic background, wavy harmonic energy flows through star sign channel markers down entire scepter creating visible summoning currents, deep purple crystal surface decorated with flowing astrological notation and ancient star music running shaft, orbiting zodiac symbol particles flowing in graceful spiral around star map scepter, constellation spirits partially manifest majestically while zodiac wheel rotates with inner summoning luminescence, multiple zodiac formations cycle naturally creating organic celestial guardian patterns, golden star connections bridge through pristine purple framework, zodiac spirit summoning cascades from activated wheel, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming zodiac authority radiating, epic powerful sprite art, full scepter composition, --ar 16:9 --v 7.0
-```
-
-**Harmony of the Void** (38x48) - BLACK HOLE ORB → Spawns Void Echoes
-*An orb containing a miniature black hole that spawns gravitational echo minions*
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial black hole orb weapon rotated 45 degrees with void sphere held forward, pristine golden filigree cage containing deep purple-black void forming clean elegant orb outline frame and handle edges with void harmony finish, black hole orb interior filled with flowing amorphous actual miniature black hole with visible accretion disk of golden light swirling into infinite darkness, wavy harmonic energy flows through gravitational lensing effects around orb creating visible void currents, golden cage surface decorated with flowing event horizon notation and void music patterns around sphere, orbiting light being consumed flowing in graceful spiral into black hole orb, reality distortion drifts majestically while contained singularity pulses with inner void luminescence, multiple gravitational formations warp naturally creating organic void patterns, deep purple echo spirits birth from pristine void framework, void echo summoning cascades from gravitational anomaly, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming gravitational mastery radiating, epic powerful sprite art, full orb composition, --ar 16:9 --v 7.0
-```
-
-**Celestial Chorus Baton** (36x44) - CHOIR BATON → Spawns Stellar Choir
-*A conductor's baton that summons a choir of singing star spirits*
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial choir baton weapon rotated 45 degrees with golden tip pointing upward, pristine golden shaft with deep purple cosmic grip forming clean elegant baton outline body and tip edges with celestial chorus finish, baton tip interior filled with flowing amorphous compressed choir harmony visible as golden sound waves emanating from star crystal point, wavy harmonic energy flows through rhythm markings and tempo indicators down entire baton creating visible chorus currents, golden shaft surface decorated with flowing four-part harmony notation and choir positioning running length, orbiting musical notes in golden-purple gradient flowing in graceful spiral around choir baton, visible sound waves drift majestically while tip star pulses with inner chorus luminescence, multiple harmony formations resonate naturally creating organic choir patterns, deep purple grip channels through pristine golden framework, stellar choir summoning cascades from conducted movements, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming harmonic command radiating, epic powerful sprite art, full baton composition, --ar 16:9 --v 7.0
-```
 
 ---
 
@@ -3612,18 +3776,43 @@ TOTAL: 32 assets
 
 ### 🎵 SUNO Music Prompt - Dies Irae Boss Theme
 ```
-epic orchestral doom metal, wrathful requiem atmosphere, crushing melodic guitar dirges over thundering war drums, infernal pipe organ with piercing dissonant choirs, chain-rattling percussion layered beneath heavy down-tuned riffs, dynamic shifts between ominous funeral marches and explosive judgment crescendos, no vocals, instrumental, 140 BPM
+epic orchestral rock metal, apocalyptic requiem serenade atmosphere, soaring melodic guitar leads over thunderous orchestral percussion, haunting pipe organ nocturne motifs with heavy distorted judgment riffs, ethereal choir harmonies layered beneath majestic down-tuned progressions, dynamic shifts between mournful melodic passages and powerful wrathful metal climaxes, no vocals, instrumental, 155 BPM
 ```
 
 ---
 
-## 👑 BOSS SPRITES
+### 🎭 BOSS SPRITES - THREE PHASE DIVINE BOSS FIGHT
 
-**Dies Irae, Herald of Judgment** (140x140+)
-*Summoned with: Score of Dies Irae (crafted from 15 Dies Irae Resonant Energy + 10 Wrath's Verdict Bars + Obsidian x30)*
+*Dies Irae is the God of Judgment's Requiem - an ancient divine arbiter who weighs the souls of all creation. He manifests in three increasingly wrathful forms as his judgment awakens.*
+
+**Summoned with: Score of Dies Irae** (crafted from 15 Dies Irae Resonant Energy + 10 Wrath's Verdict Bars + Obsidian x30)
 *Use in Underworld or during Blood Moon*
+
+---
+
+**PHASE 1: Dies Irae - The Silent Judge** (100x120)
+*"The scales are balanced, yet judgment waits..."*
+*Initial form - serene, contemplative, divine arbiter in solemn meditation*
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial boss entity themed around "Judgment's Wrath" made of imposing black metal armor wreathed in blood red flames interwoven with rattling chains of condemnation and piercing white light accents at joints created by music in the style of Terraria, radiating a powerful aura, music notes surround it, ignited in apocalyptic black and crimson judgment flames, burning chains and wrathful embers and scales of justice float around it and are apart of its design, detailed boss sprite, silver ornate design like a royal mechanism, full-view --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial god boss entity in solemn meditation themed around "Silent God of Judgment's Requiem", imposing masculine divine figure composed of obsidian black metal armor with flowing robes of solidified judgment, serene contemplative face with closed eyes radiating soft blood red and white light, long flowing cape made of rattling chains and musical notation drifting weightlessly, arms crossed gently holding massive ornate scales of justice close to his chest, massive burning halo of interlocking black chains and blood red flames forming divine crown behind his head, spectral judgment wings folded in rest made of condemned souls and frozen verdicts, orbiting constellation of sleeping music notes and tiny dormant gavel icons drifting around his form, soft blood red flames and white divine aura pulsing gently, silver and black ornate divine armor with chain motifs and scale of justice emblems, massive in scale radiating overwhelming contemplative divinity, Terraria legendary boss pixel art aesthetic with maximum ornate detail, silent judgment god, epic divine sprite art, full god composition --ar 5:6 --v 7.0
+```
+
+---
+
+**PHASE 2: Dies Irae - The Awakened Arbiter** (120x140)
+*"The god stirs... all creation trembles before his gaze..."*
+*Awakening form - eyes opening, judgment power surging, reality quaking*
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial god boss entity awakening themed around "Awakened God of Judgment's Requiem", imposing masculine divine figure with eyes now open revealing swirling blood red hellfire galaxies within, composed of obsidian black metal armor and billowing robes of fractured condemnation, expression of ancient wisdom and divine wrath, cape now alive with streaming chains and blazing musical notation, arms outstretched commanding the weight of all souls, scales of justice now floating before his chest with verdicts frozen mid-balance, massive burning halo now spinning with visible blood red flames coursing through every black chain link, judgment wings now spread wide revealing intricate patterns of condemned and redeemed souls frozen in crystalline verdicts, orbiting storm of awakening music notes and spinning scales creating judgment hurricane, intense blood red flames and white divine aura crackling with power, chain fragments and spectral echoes trailing from his form, silver and black ornate divine armor now glowing with activated power, massive in scale radiating overwhelming awakening divinity, reality itself bowing before his presence, Terraria legendary boss pixel art aesthetic with maximum ornate detail, awakening judgment god, epic divine sprite art, full god composition --ar 5:6 --v 7.0
+```
+
+---
+
+**PHASE 3: Dies Irae - Radiant God of Eternal Judgment** (140x160)
+*"BEHOLD THE GOD IN HIS FULL GLORY - ALL OF CREATION ANSWERS TO HIS VERDICT!"*
+*Final divine form - full wrathful power unleashed, reality-shaking presence, overwhelming cosmic deity*
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial god boss entity at full divine power themed around "Radiant God of Judgment's Requiem in Absolute Glory", transcendent masculine divine figure of overwhelming cosmic presence, eyes blazing with infinite blood red hellfire containing the judgment of all souls ever lived, form now semi-translucent revealing the divine mechanisms of condemnation itself within his godly body, composed of pure judgment essence and solidified wrath given form, expression of absolute divine authority and eternal cosmic justice, cape transformed into cascading rivers of chained souls with entire condemnation flowing through obsidian strands, six arms now manifested each holding different judgment artifact (scales, gavel, sword, scroll, hourglass, torch) all burning with verdict, massive black chain halo now a complete solar system of spinning judgment mechanisms and blazing blood red flames forming absolute divine crown that fills the sky, judgment wings now massive and radiant spreading across reality itself made of every verdict ever rendered glittering like infinite burning scrolls, orbiting maelstrom of divine music notes and astronomical judgment mechanisms and broken chains and cascading condemned souls creating reality storm, overwhelming blood red flames and white and gold divine aura that warps the fabric of existence, judgment afterimages showing his past present and future verdicts overlapping, silver and black and gold ornate divine armor now blazing with full divine radiance decorated with every symbol of justice in existence, MASSIVE in scale radiating absolute overwhelming infinite divinity, the very concept of judgment made manifest as god, souls ascending and descending in his presence, Terraria legendary boss pixel art aesthetic with maximum ornate flowing detail, absolute radiant judgment god of eternal requiem, epic divine sprite art masterpiece, full transcendent god composition --ar 4:5 --v 7.0
 ```
 
 ---
@@ -3716,6 +3905,36 @@ Magnificent side-view pixel art sprite of an extraordinarily grand celestial cha
 Magnificent side-view pixel art sprite of an extraordinarily grand celestial curved scythe weapon rotated 45 degrees with wicked blade pointing top-right, pristine deep black metal forming clean elegant blade outline shaft and handle edges with crimson flame luminous finish, curved blade interior filled with flowing amorphous blood red reaper energy swirling like final judgment, wavy harmonic energy flows through crimson channels down entire shaft creating visible execution currents, black surface decorated with flowing chain wrappings and judgment notation running blade, burning music symbols drift majestically while crimson fire pulses with inner death sentence luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, final judgment radiating, epic powerful sprite art, full scythe composition, --ar 16:9 --v 7.0
 ```
 
+**Requiem's Toll** (Executioner's Bell Hammer) (54x54)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial executioner bell hammer weapon rotated 45 degrees with massive bell head pointing top-right, pristine charred black iron forming clean elegant bell hammerhead outline haft and pommel edges with brass chain luminous finish, bell hammerhead interior filled with flowing amorphous blood red hellfire energy swirling like divine wrath with cracks revealing inner inferno, wavy harmonic energy flows through brass chain wrappings down entire haft creating visible judgment toll currents, black iron surface decorated with flowing demonic sigils and brimstone crystal inlays running bell rim, orbiting skull chains and ash particles flowing in graceful spiral around doom bell, burning music symbols drift majestically while crimson hellfire pulses with inner oppressive doom luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, divine wrath radiating, epic powerful sprite art, full bell hammer composition, --ar 16:9 --v 7.0
+```
+
+**Chains of Absolution** (Living Chain Flail) (50x50)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial living chain flail weapon rotated 45 degrees with coiled chain sphere pointing top-right, pristine blackened iron links forming clean elegant chain sphere outline handle and binding edges with brass shackle luminous finish, chain sphere interior filled with flowing amorphous blood red punishment energy swirling like eternal imprisonment with screaming skull faces emerging, wavy harmonic energy flows through writhing chain lengths down entire weapon creating visible binding currents, black iron surface decorated with flowing damned soul sigils and brimstone chunks caught in chain mesh, orbiting trailing chains and hellfire flames flowing in graceful spiral around living flail, burning music symbols drift majestically while crimson fire pulses with inner oppressive imprisonment luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, eternal binding radiating, epic powerful sprite art, full chain flail composition, --ar 16:9 --v 7.0
+```
+
+**Scales of Reckoning** (Divine Balance Greatsword) (56x56)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial divine balance greatsword weapon rotated 45 degrees with obsidian blade pointing top-right, pristine obsidian metal forming clean elegant blade outline crossguard and pommel edges with brass balance scale luminous finish, greatsword crossguard forms actual weighing scales with chains holding burning soul orbs tipping with guilt, blade interior filled with flowing amorphous blood red judgment energy swirling like apocalyptic verdict with hellfire erupting from fuller, wavy harmonic energy flows through scale chains down entire blade creating visible reckoning currents, obsidian surface decorated with flowing demonic sigils and embedded skulls of the judged, orbiting ash particles and tipping scale flames flowing in graceful spiral around judgment blade, burning music symbols drift majestically while crimson hellfire pulses with inner divine judgment luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, eternal reckoning radiating, epic powerful sprite art, full greatsword composition, --ar 16:9 --v 7.0
+```
+
+**Penance Rendered** (Flagellation Whip-Blade) (52x52)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial flagellation whip sword weapon rotated 45 degrees with segmented blade unfurling in cruel S-curve pointing top-right, pristine charred iron segments forming clean elegant blade outline chain links and handle edges with brass thorn luminous finish, segmented blade interior filled with flowing amorphous blood red suffering energy swirling like self-inflicted penance with embedded brimstone shards, wavy harmonic energy flows through jointed segments down entire unfurling blade creating visible penitent currents, charred iron surface decorated with flowing repentance sigils and skull segment connections, orbiting ash and ember particles flowing in graceful spiral around flagellant blade, burning music symbols drift majestically while crimson hellfire pulses with inner suffering luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, penance embraced radiating, epic powerful sprite art, full whip-blade composition, --ar 16:9 --v 7.0
+```
+
+**Damnation's Edge** (Hell-Cracked Battleaxe) (58x58)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial hell-cracked double battleaxe weapon rotated 45 degrees with massive twin obsidian heads pointing top-right, pristine obsidian forming clean elegant double blade outline haft and binding edges with brass band luminous finish, twin axe heads interior filled with flowing amorphous blood red magma energy swirling like earth-splitting judgment with deep cracks revealing hellfire within, wavy harmonic energy flows through chain-wrapped haft down entire weapon creating visible damnation currents, obsidian surface decorated with flowing demonic sigils burning bright on binding bands and mounted skulls of the damned, orbiting ash sulfur clouds and floating brimstone chunks flowing in graceful spiral around cracked battleaxe, burning music symbols drift majestically while crimson hellfire pulses with inner earth-rending luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, ground-splitting damnation radiating, epic powerful sprite art, full battleaxe composition, --ar 16:9 --v 7.0
+```
+
+**The Final Sermon** (Pulpit Blade Polearm) (60x60)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial pulpit blade polearm weapon rotated 45 degrees with burning lectern blade pointing upward, pristine charred iron shaft forming clean elegant blade outline scripture bands and finial edges with brass luminous finish, pulpit blade interior filled with flowing amorphous blood red sermon fire energy swirling like apocalyptic preaching with hellfire text scrolls visible, wavy harmonic energy flows through dangling doom bells down entire shaft creating visible final sermon currents, charred iron surface decorated with flowing scripture sigils spiraling down pole and heretic skulls lining shaft, orbiting ash ember particles drifting like brimstone rain flowing in graceful spiral around preacher polearm, burning music symbols drift majestically while crimson hellfire pulses with inner wrathful sermon luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, final word of death radiating, epic powerful sprite art, full polearm composition, --ar 16:9 --v 7.0
+```
+
 ---
 
 ## 🏹 RANGED WEAPONS
@@ -3735,6 +3954,36 @@ Magnificent side-view pixel art sprite of an extraordinarily grand celestial hea
 Magnificent side-view pixel art sprite of an extraordinarily grand celestial siege cannon weapon rotated 45 degrees with massive barrel pointing top-right, pristine deep black metal forming clean elegant barrel outline frame and grip edges with crimson flame luminous finish, cannon body interior filled with flowing amorphous blood red hellfire energy swirling like damnation incarnate, wavy harmonic energy flows through burning core down entire cannon creating visible annihilation currents, black surface decorated with flowing chain wrappings and condemnation notation along barrel, orbiting burning skulls flowing around cannon, burning music symbols drift majestically while crimson hellfire pulses with inner damnation luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming damnation radiating, epic powerful sprite art, full cannon composition, --ar 16:9 --v 7.0
 ```
 
+**Trumpet of Revelation** (Doom Herald Cannon) (52x52)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial doom herald trumpet cannon weapon rotated 45 degrees with flared bell barrel pointing top-right, pristine charred brass forming clean elegant trumpet bell outline mechanism and stock edges with blackened iron luminous finish, trumpet barrel interior filled with flowing amorphous blood red apocalypse proclamation energy swirling like divine announcement with cracks glowing hellfire, wavy harmonic energy flows through chain-wrapped barrel down entire cannon creating visible revelation currents, brass surface decorated with flowing demonic music notation and damned soul relief carvings on stock, orbiting skull ammunition and smoke ring halos flowing in graceful spiral around herald cannon, burning music symbols drift majestically while crimson hellfire pulses with inner apocalypse announcement luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, end of days heralding radiating, epic powerful sprite art, full trumpet cannon composition, --ar 16:9 --v 7.0
+```
+
+**Arbiter's Sentence** (Judge's Gavel Launcher) (56x56)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial judge gavel rocket launcher weapon rotated 45 degrees with massive obsidian gavel barrel pointing top-right, pristine obsidian gavel head forming clean elegant barrel outline rail and handle edges with brass court insignia luminous finish, gavel barrel interior filled with flowing amorphous blood red courtroom doom energy swirling like final judgment with cracks revealing hellfire, wavy harmonic energy flows through chain launching rail down entire launcher creating visible sentence currents, obsidian surface decorated with flowing demonic law sigils and hanging balance scales on brass chains, orbiting skull-headed missiles and ash particles flowing in graceful spiral around magistrate launcher, burning music symbols drift majestically while crimson hellfire pulses with inner guilty verdict luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, all found guilty radiating, epic powerful sprite art, full gavel launcher composition, --ar 16:9 --v 7.0
+```
+
+**Brimstone Rain** (Volcanic Artillery Repeater) (58x58)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial volcanic artillery repeater weapon rotated 45 degrees with six rotating barrels pointing top-right, pristine blackened iron forming clean elegant multi-barrel outline heat vents and hopper edges with brass vent luminous finish, rotating barrels interior filled with flowing amorphous blood red volcanic eruption energy swirling like sulfur punishment with molten hellfire heat glowing, wavy harmonic energy flows through chain-fed ammunition hopper down entire cannon creating visible brimstone rain currents, blackened iron surface decorated with flowing geothermal sigils and skull-decorated hopper, orbiting ash volcanic clouds and dripping molten brimstone flowing in graceful spiral around eruption cannon, burning music symbols drift majestically while crimson hellfire pulses with inner volcanic damnation luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, hellfire raining radiating, epic powerful sprite art, full artillery repeater composition, --ar 16:9 --v 7.0
+```
+
+**The Accuser's Mark** (Branding Iron Crossbow) (48x48)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial branding iron crossbow weapon rotated 45 degrees with heated limbs pointing top-right, pristine charred iron forming clean elegant crossbow outline stock and brand mechanism edges with brass sigil luminous finish, crossbow body interior filled with flowing amorphous blood red judgment marking energy swirling like sinner branding with bolt tips glowing hellfire hot, wavy harmonic energy flows through floating demonic sigil stamps down entire crossbow creating visible accusation currents, charred iron surface decorated with flowing accusation glyphs and skull faces watching from limb tips, orbiting heated bolt tips and ash particles flowing in graceful spiral around inquisitor crossbow, burning music symbols drift majestically while crimson hellfire pulses with inner marked damnation luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, souls marked for collection radiating, epic powerful sprite art, full branding crossbow composition, --ar 16:9 --v 7.0
+```
+
+**Congregation's End** (Pew-Splinter Shotgun) (46x46)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial desecration shotgun weapon rotated 45 degrees with stained glass barrel pointing top-right, pristine charred church pew wood forming clean elegant barrel outline stock and trigger edges with brass inverted cross luminous finish, shotgun body interior filled with flowing amorphous blood red desecration doom energy swirling like burning congregation with fused stained glass radiating hellfire, wavy harmonic energy flows through chain-wrapped stock with broken rosary beads down entire shotgun creating visible apostasy currents, charred wood surface decorated with flowing anti-prayer sigils and embedded congregation skulls, orbiting burned hymnal ash and brimstone shrapnel flowing in graceful spiral around apostate shotgun, burning music symbols drift majestically while crimson hellfire pulses with inner extinguished faith luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, false hope ending radiating, epic powerful sprite art, full shotgun composition, --ar 16:9 --v 7.0
+```
+
+**Sin Collector** (Soul Bottle Rifle) (50x50)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial soul bottle precision rifle weapon rotated 45 degrees with long barrel pointing top-right, pristine blackened iron forming clean elegant barrel outline scope and bottle magazine edges with brass luminous finish, rifle body interior filled with flowing amorphous blood red soul-rending doom energy swirling like harvested sins with glass viewing tubes showing captured essence, wavy harmonic energy flows through floating empty soul bottles down entire rifle creating visible collection currents, blackened iron surface decorated with flowing collection sigils labeling sin types and skull faces pressing against bottle glass, orbiting escaping scream wisps and ash particles flowing in graceful spiral around reaper rifle, burning music symbols drift majestically while crimson hellfire pulses with inner owed debt luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, what is owed collected radiating, epic powerful sprite art, full soul rifle composition, --ar 16:9 --v 7.0
+```
+
 ---
 
 ## 📖 MAGIC WEAPONS
@@ -3752,6 +4001,36 @@ Magnificent side-view pixel art sprite of an extraordinarily grand celestial sta
 **Infernal Organ Pipes** (38x38)
 ```
 Magnificent side-view pixel art sprite of an extraordinarily grand celestial pipe instrument weapon, pristine deep black metal forming clean elegant pipe outline frame and mouthpiece edges with crimson flame luminous finish, organ pipes interior filled with flowing amorphous blood red sonic fire swirling through each pipe, wavy harmonic energy flows through burning air creating visible doom chord currents, black surface decorated with flowing judgment symbols and musical notation between pipes, burning notes emanate from each pipe tip, burning music symbols drift majestically while crimson fire pulses with inner dissonant luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, doom chord radiating, epic powerful sprite art, full pipe organ composition, --ar 16:9 --v 7.0
+```
+
+**Ledger of Transgressions** (Doom Accountant's Grimoire) (44x44)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial doom accountant grimoire weapon rotated 45 degrees with charred pages spreading open, pristine charred leather binding forming clean elegant book outline clasp and spine edges with brass guilt-counter luminous finish, grimoire interior filled with flowing amorphous blood red recording sin energy swirling like debt scrolling with endless named transgressions, wavy harmonic energy flows through bleeding ink lines down entire book creating visible judgment currents, charred leather surface decorated with flowing sin categorization sigils and embedded soul-debt counters, orbiting escaped soul wisps and ash page fragments flowing in graceful spiral around accounting tome, burning music symbols drift majestically while crimson hellfire pulses with inner tallied damnation luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, all debts owed radiating, epic powerful sprite art, full grimoire composition, --ar 16:9 --v 7.0
+```
+
+**Censer of Perdition** (Hell Smoke Staff) (46x46)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial perdition censer staff weapon rotated 45 degrees with swinging censer head pointing top-right, pristine charred black iron forming clean elegant censer outline chain and staff handle edges with brass damned sigil luminous finish, swinging censer interior filled with flowing amorphous blood red brimstone smoke energy swirling like spiritual corruption with hellfire coals glowing, wavy harmonic energy flows through chain attachments down entire staff creating visible perdition smoke currents, black iron surface decorated with flowing corruption sigils and skull reliefs watching from censer holes, orbiting thick brimstone smoke and corrupted prayer wisps flowing in graceful spiral around damnation censer, burning music symbols drift majestically while crimson hellfire pulses with inner spiritual corruption luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, souls corrupted radiating, epic powerful sprite art, full censer staff composition, --ar 16:9 --v 7.0
+```
+
+**Vox Infernum** (Hellfire Megaphone) (40x40)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial hellfire megaphone weapon rotated 45 degrees with flared bell pointing top-right, pristine charred brass forming clean elegant megaphone outline grip and trigger edges with blackened iron luminous finish, megaphone bell interior filled with flowing amorphous blood red proclamation doom energy swirling like damned sermon with sonic waves radiating, wavy harmonic energy flows through floating demonic scripture down entire megaphone creating visible sermon currents, charred brass surface decorated with flowing sermon verse sigils and skull faces screaming from bell rim, orbiting visible sonic blast waves and ash particles flowing in graceful spiral around voice weapon, burning music symbols drift majestically while crimson hellfire pulses with inner proclaimed damnation luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, hear the judgment radiating, epic powerful sprite art, full megaphone composition, --ar 16:9 --v 7.0
+```
+
+**Eclipse of Faith** (Darkened Sun Orb) (42x42)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial darkened sun orb weapon rotated 45 degrees with corrupted solar sphere floating, pristine charred gold outer corona forming clean elegant orb outline frame and grip edges with blackened iron luminous finish, darkened sun interior filled with flowing amorphous blood red faith-burning energy swirling like celestial corruption with solar flares turned hellfire, wavy harmonic energy flows through floating corrupted prayer beads down entire weapon creating visible eclipse currents, charred gold surface decorated with flowing apostasy sigils and desecration glyphs around corona, orbiting extinguished star motes and ash particles flowing in graceful spiral around dying sun orb, burning music symbols drift majestically while crimson hellfire pulses with inner extinguished faith luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, light abandoned radiating, epic powerful sprite art, full orb composition, --ar 16:9 --v 7.0
+```
+
+**Anathema Proclamation** (Excommunication Scroll) (38x38)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial excommunication scroll weapon rotated 45 degrees with burning scroll unfurling, pristine charred parchment forming clean elegant scroll outline handles and seal edges with brass sigil luminous finish, unfurling scroll interior filled with flowing amorphous blood red excommunication energy swirling like spiritual exile with damning words glowing, wavy harmonic energy flows through floating broken seals down entire scroll creating visible anathema currents, charred parchment surface decorated with flowing excommunication decree sigils and skull watermarks, orbiting torn seal fragments and ash particles flowing in graceful spiral around banishment scroll, burning music symbols drift majestically while crimson hellfire pulses with inner cast-out luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, forever banished radiating, epic powerful sprite art, full scroll composition, --ar 16:9 --v 7.0
+```
+
+**Pyre Kindling** (Burning Stake Wand) (36x36)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial burning stake wand weapon rotated 45 degrees with miniature burning stake top pointing top-right, pristine charred iron forming clean elegant stake outline grip and binding edges with brass chain luminous finish, miniature stake interior filled with flowing amorphous blood red purification fire energy swirling like heretic burning with tied figure silhouette, wavy harmonic energy flows through floating tiny embers down entire wand creating visible purification currents, charred iron surface decorated with flowing purification sigils and skull faces at stake base, orbiting tiny screaming wisps and ash particles flowing in graceful spiral around execution wand, burning music symbols drift majestically while crimson hellfire pulses with inner heretical purification luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, burn the unworthy radiating, epic powerful sprite art, full wand composition, --ar 16:9 --v 7.0
 ```
 
 ---
@@ -3788,6 +4067,66 @@ Magnificent side-view pixel art sprite of an extraordinarily grand celestial bel
 Concept art for a side-view idle pixel art sprite of an ancient celestial summon creature themed around "Dies Irae Doom Bell" made of floating black iron bell with crimson flame clapper with silver accents created by music in the style of Terraria, radiating a powerful doom tolling aura, music notes surround it, ignited in black and blood red judgment flames, sonic waves and burning chains and judgment symbols emanate when tolling float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
 ```
 
+**Hell Warden's Keys** (Prison Ring Staff) (48x48) → Spawns Condemned Spirit
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial prison warden key ring staff weapon rotated 45 degrees with massive key ring top pointing upward, pristine blackened iron keys forming clean elegant key ring outline shaft and grip edges with brass shackle luminous finish, key ring top interior filled with flowing amorphous blood red imprisonment energy swirling like eternal captivity with each key glowing different damned sigil, wavy harmonic energy flows through rattling chains down entire staff creating visible summoning currents, blackened iron surface decorated with flowing prison sigils and cell number engravings, orbiting escaping soul wisps and ash particles flowing in graceful spiral around warden staff, burning music symbols drift majestically while crimson hellfire pulses with inner eternal imprisonment luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, none escape radiating, epic powerful sprite art, full key staff composition, --ar 16:9 --v 7.0
+```
+
+**Condemned Spirit** (Minion) (26x26, 4 frames)
+```
+Concept art for a side-view idle pixel art sprite of an ancient celestial summon creature themed around "Dies Irae Condemned Soul" made of ghostly prisoner figure with shackled wrists and crimson flame eyes with silver accents created by music in the style of Terraria, radiating a powerful imprisoned minion aura, music notes surround it, ignited in black and blood red spectral flames, broken chain links and prison bar shadows float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+```
+
+**Carrion Congregation** (Vulture Swarm Rod) (44x44) → Spawns Doom Vultures
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial doom vulture rod weapon rotated 45 degrees with skull-topped perch pointing upward, pristine charred bone and iron forming clean elegant rod outline grip and cage edges with brass feather luminous finish, skull perch interior filled with flowing amorphous blood red carrion energy swirling like feeding frenzy with multiple vulture skull decorations, wavy harmonic energy flows through floating black feathers down entire rod creating visible summoning currents, charred bone surface decorated with flowing death sigils and bone bead chains, orbiting circling doom feathers and ash particles flowing in graceful spiral around carrion rod, burning music symbols drift majestically while crimson hellfire pulses with inner feeding doom luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, the patient wait radiating, epic powerful sprite art, full rod composition, --ar 16:9 --v 7.0
+```
+
+**Doom Vulture** (Minion) (22x22, 4 frames)
+```
+Concept art for a side-view idle pixel art sprite of an ancient celestial summon creature themed around "Dies Irae Doom Vulture" made of skeletal black vulture with crimson flame eyes and ember-dripping wings with silver accents created by music in the style of Terraria, radiating a powerful carrion minion aura, music notes surround it, ignited in black and blood red infernal flames, falling feathers and circling flight patterns float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+```
+
+**The Collection Plate** (Tithe Altar Tome) (42x42) → Spawns Debt Collectors
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial tithe altar tome weapon rotated 45 degrees with burning collection plate top, pristine charred leather and gold forming clean elegant tome outline clasp and plate edges with brass coin luminous finish, collection plate interior filled with flowing amorphous blood red owed debt energy swirling like unpaid tithes with gold coins melting to blood, wavy harmonic energy flows through floating soul debt IOUs down entire tome creating visible collection currents, charred leather surface decorated with flowing debt sigils and soul-cost ledger entries, orbiting burning coins and ash particles flowing in graceful spiral around tithe tome, burning music symbols drift majestically while crimson hellfire pulses with inner owed debt luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, what is owed collected radiating, epic powerful sprite art, full tome composition, --ar 16:9 --v 7.0
+```
+
+**Debt Collector** (Minion) (24x24, 4 frames)
+```
+Concept art for a side-view idle pixel art sprite of an ancient celestial summon creature themed around "Dies Irae Debt Collector" made of hooded robed figure with crimson flame lantern and gold scales with silver accents created by music in the style of Terraria, radiating a powerful collection minion aura, music notes surround it, ignited in black and blood red infernal flames, floating coins and debt scrolls float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+```
+
+**Catacomb Conductor** (Bone Orchestra Baton) (40x40) → Spawns Skeletal Musicians
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial bone orchestra baton weapon rotated 45 degrees with skull conductor tip pointing top-right, pristine polished bone forming clean elegant baton outline grip and skull edges with brass music stand luminous finish, skull tip interior filled with flowing amorphous blood red death symphony energy swirling like necromantic music with empty eye sockets glowing, wavy harmonic energy flows through floating bone instruments down entire baton creating visible conducting currents, polished bone surface decorated with flowing music notation sigils and vertebrae grip texture, orbiting floating bone instruments and ash particles flowing in graceful spiral around conductor baton, burning music symbols drift majestically while crimson hellfire pulses with inner death symphony luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, dance of the dead radiating, epic powerful sprite art, full baton composition, --ar 16:9 --v 7.0
+```
+
+**Skeletal Musician** (Minion) (24x24, 4 frames)
+```
+Concept art for a side-view idle pixel art sprite of an ancient celestial summon creature themed around "Dies Irae Skeletal Musician" made of animated skeleton holding bone instrument with crimson flame eyes and musical energy with silver accents created by music in the style of Terraria, radiating a powerful undead musician minion aura, music notes surround it, ignited in black and blood red deathly flames, floating music notes and bone dust float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+```
+
+**Martyrdom's Crown** (Thorn Halo Scepter) (46x46) → Spawns Suffering Saints
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial thorn halo scepter weapon rotated 45 degrees with bleeding halo top pointing upward, pristine charred gold and thorns forming clean elegant scepter outline grip and halo edges with brass stigmata luminous finish, thorn halo interior filled with flowing amorphous blood red martyrdom energy swirling like willful suffering with blood drops falling from thorns, wavy harmonic energy flows through floating thorn vines down entire scepter creating visible suffering currents, charred gold surface decorated with flowing martyrdom sigils and wound markings, orbiting blood droplets and thorn fragments flowing in graceful spiral around martyr scepter, burning music symbols drift majestically while crimson hellfire pulses with inner sacred suffering luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, suffering sanctified radiating, epic powerful sprite art, full scepter composition, --ar 16:9 --v 7.0
+```
+
+**Suffering Saint** (Minion) (26x26, 4 frames)
+```
+Concept art for a side-view idle pixel art sprite of an ancient celestial summon creature themed around "Dies Irae Suffering Saint" made of robed figure with thorn crown and crimson flame stigmata wounds with silver accents created by music in the style of Terraria, radiating a powerful martyred minion aura, music notes surround it, ignited in black and blood red sacred flames, floating blood drops and thorn pieces float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+```
+
+**Gravedigger's Commission** (Burial Shovel Staff) (50x50) → Spawns Grave Wardens
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial burial shovel staff weapon rotated 45 degrees with dirt-caked blade pointing top-right, pristine blackened iron and wood forming clean elegant shovel outline shaft and grip edges with brass headstone luminous finish, shovel blade interior filled with flowing amorphous blood red burial energy swirling like eternal rest with grave dirt and bone fragments, wavy harmonic energy flows through floating headstone markers down entire shaft creating visible interment currents, blackened iron surface decorated with flowing death sigils and "RIP" etchings, orbiting grave dirt clods and bone fragments flowing in graceful spiral around burial shovel, burning music symbols drift majestically while crimson hellfire pulses with inner eternal rest luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, six feet under radiating, epic powerful sprite art, full shovel staff composition, --ar 16:9 --v 7.0
+```
+
+**Grave Warden** (Minion) (26x26, 4 frames)
+```
+Concept art for a side-view idle pixel art sprite of an ancient celestial summon creature themed around "Dies Irae Grave Warden" made of hunched robed figure with shovel and lantern with crimson flame eyes with silver accents created by music in the style of Terraria, radiating a powerful burial minion aura, music notes surround it, ignited in black and blood red graveyard flames, floating dirt and grave markers float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+```
+
 ---
 
 ## 💍 CLASS ACCESSORIES
@@ -3821,6 +4160,27 @@ Concept art for a side-view idle pixel art sprite of an ancient celestial black 
 ```
 Concept art for a side-view idle pixel art sprite of an ancient celestial crystal themed around "Dies Irae" made of black obsidian and blood red metal with crimson accents created by music in the style of Terraria, radiating a powerful aura, music notes surround it, ignited in a vibrant blood red and deep black and crimson flames, chains and burning embers and judgment symbols float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
 ```
+
+---
+
+## 🛡️ BUFF ICONS
+
+**Death Tolling Bell Buff** (32x32)
+```
+Concept art for a Terraria buff icon featuring a glowing black iron death bell with crimson flame emanating from within, contained within an ornate gothic frame of burning chains and judgment symbols, the bell at center with doom toll resonance waves, blood red and black metal frame with silver filigree accents, music notes subtly incorporated into frame corners, infernal flames flickering around edges, ornate baroque-style border, pixel art style buff icon, dramatic lighting, haunting bell imagery, detailed intricate frame, centered composition, --v 7.0 --ar 1:1
+```
+
+**Harmony of Judgement Buff** (32x32)
+```
+Concept art for a Terraria buff icon featuring a celestial angelic judge face with burning crimson eyes and golden halo partially corrupted by black flame, contained within an ornate gothic frame of balanced scales and verdict symbols, the judge at center with judgment rays emanating, blood red and black metal frame with gold filigree accents, music notes subtly incorporated into frame corners, infernal flames flickering around edges, ornate baroque-style border, pixel art style buff icon, dramatic lighting, divine judgment imagery, detailed intricate frame, centered composition, --v 7.0 --ar 1:1
+```
+
+**Wrathful Contract Buff** (32x32)
+```
+Concept art for a Terraria buff icon featuring a burning demonic scroll contract with crimson wax seal and black chain bindings, contained within an ornate gothic frame of hellfire and binding runes, the contract at center with soul energy wisps rising, blood red and black metal frame with silver filigree accents, music notes subtly incorporated into frame corners, infernal flames flickering around edges, ornate baroque-style border, pixel art style buff icon, dramatic lighting, demonic pact imagery, detailed intricate frame, centered composition, --v 7.0 --ar 1:1
+```
+
+---
 
 ### 📝 Example Unique Names for Dies Irae Items
 
@@ -3870,138 +4230,6 @@ Concept art for a side-view idle pixel art sprite of an ancient celestial crysta
 3. Chain of Final Judgment
 4. Ember of the Condemned
 5. Requiem's Shackle
-
----
-
-## ⚔️ ADDITIONAL WEAPON PROMPTS (Unique Infernal Styles)
-
-### Melee Weapons (6 Additional Unique Prompts)
-
-**Requiem's Toll** (Executioner's Bell Hammer) (54x54)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial executioner bell hammer weapon rotated 45 degrees with massive bell head pointing top-right, pristine charred black iron forming clean elegant bell hammerhead outline haft and pommel edges with brass chain luminous finish, bell hammerhead interior filled with flowing amorphous blood red hellfire energy swirling like divine wrath with cracks revealing inner inferno, wavy harmonic energy flows through brass chain wrappings down entire haft creating visible judgment toll currents, black iron surface decorated with flowing demonic sigils and brimstone crystal inlays running bell rim, orbiting skull chains and ash particles flowing in graceful spiral around doom bell, burning music symbols drift majestically while crimson hellfire pulses with inner oppressive doom luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, divine wrath radiating, epic powerful sprite art, full bell hammer composition, --ar 16:9 --v 7.0
-```
-
-**Chains of Absolution** (Living Chain Flail) (50x50)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial living chain flail weapon rotated 45 degrees with coiled chain sphere pointing top-right, pristine blackened iron links forming clean elegant chain sphere outline handle and binding edges with brass shackle luminous finish, chain sphere interior filled with flowing amorphous blood red punishment energy swirling like eternal imprisonment with screaming skull faces emerging, wavy harmonic energy flows through writhing chain lengths down entire weapon creating visible binding currents, black iron surface decorated with flowing damned soul sigils and brimstone chunks caught in chain mesh, orbiting trailing chains and hellfire flames flowing in graceful spiral around living flail, burning music symbols drift majestically while crimson fire pulses with inner oppressive imprisonment luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, eternal binding radiating, epic powerful sprite art, full chain flail composition, --ar 16:9 --v 7.0
-```
-
-**Scales of Reckoning** (Divine Balance Greatsword) (56x56)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial divine balance greatsword weapon rotated 45 degrees with obsidian blade pointing top-right, pristine obsidian metal forming clean elegant blade outline crossguard and pommel edges with brass balance scale luminous finish, greatsword crossguard forms actual weighing scales with chains holding burning soul orbs tipping with guilt, blade interior filled with flowing amorphous blood red judgment energy swirling like apocalyptic verdict with hellfire erupting from fuller, wavy harmonic energy flows through scale chains down entire blade creating visible reckoning currents, obsidian surface decorated with flowing demonic sigils and embedded skulls of the judged, orbiting ash particles and tipping scale flames flowing in graceful spiral around judgment blade, burning music symbols drift majestically while crimson hellfire pulses with inner divine judgment luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, eternal reckoning radiating, epic powerful sprite art, full greatsword composition, --ar 16:9 --v 7.0
-```
-
-**Penance Rendered** (Flagellation Whip-Blade) (52x52)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial flagellation whip sword weapon rotated 45 degrees with segmented blade unfurling in cruel S-curve pointing top-right, pristine charred iron segments forming clean elegant blade outline chain links and handle edges with brass thorn luminous finish, segmented blade interior filled with flowing amorphous blood red suffering energy swirling like self-inflicted penance with embedded brimstone shards, wavy harmonic energy flows through jointed segments down entire unfurling blade creating visible penitent currents, charred iron surface decorated with flowing repentance sigils and skull segment connections, orbiting ash and ember particles flowing in graceful spiral around flagellant blade, burning music symbols drift majestically while crimson hellfire pulses with inner suffering luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, penance embraced radiating, epic powerful sprite art, full whip-blade composition, --ar 16:9 --v 7.0
-```
-
-**Damnation's Edge** (Hell-Cracked Battleaxe) (58x58)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial hell-cracked double battleaxe weapon rotated 45 degrees with massive twin obsidian heads pointing top-right, pristine obsidian forming clean elegant double blade outline haft and binding edges with brass band luminous finish, twin axe heads interior filled with flowing amorphous blood red magma energy swirling like earth-splitting judgment with deep cracks revealing hellfire within, wavy harmonic energy flows through chain-wrapped haft down entire weapon creating visible damnation currents, obsidian surface decorated with flowing demonic sigils burning bright on binding bands and mounted skulls of the damned, orbiting ash sulfur clouds and floating brimstone chunks flowing in graceful spiral around cracked battleaxe, burning music symbols drift majestically while crimson hellfire pulses with inner earth-rending luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, ground-splitting damnation radiating, epic powerful sprite art, full battleaxe composition, --ar 16:9 --v 7.0
-```
-
-**The Final Sermon** (Pulpit Blade Polearm) (60x60)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial pulpit blade polearm weapon rotated 45 degrees with burning lectern blade pointing upward, pristine charred iron shaft forming clean elegant blade outline scripture bands and finial edges with brass luminous finish, pulpit blade interior filled with flowing amorphous blood red sermon fire energy swirling like apocalyptic preaching with hellfire text scrolls visible, wavy harmonic energy flows through dangling doom bells down entire shaft creating visible final sermon currents, charred iron surface decorated with flowing scripture sigils spiraling down pole and heretic skulls lining shaft, orbiting ash ember particles drifting like brimstone rain flowing in graceful spiral around preacher polearm, burning music symbols drift majestically while crimson hellfire pulses with inner wrathful sermon luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, final word of death radiating, epic powerful sprite art, full polearm composition, --ar 16:9 --v 7.0
-```
-
-### Ranged Weapons (6 Additional Unique Prompts)
-
-**Trumpet of Revelation** (Doom Herald Cannon) (52x52)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial doom herald trumpet cannon weapon rotated 45 degrees with flared bell barrel pointing top-right, pristine charred brass forming clean elegant trumpet bell outline mechanism and stock edges with blackened iron luminous finish, trumpet barrel interior filled with flowing amorphous blood red apocalypse proclamation energy swirling like divine announcement with cracks glowing hellfire, wavy harmonic energy flows through chain-wrapped barrel down entire cannon creating visible revelation currents, brass surface decorated with flowing demonic music notation and damned soul relief carvings on stock, orbiting skull ammunition and smoke ring halos flowing in graceful spiral around herald cannon, burning music symbols drift majestically while crimson hellfire pulses with inner apocalypse announcement luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, end of days heralding radiating, epic powerful sprite art, full trumpet cannon composition, --ar 16:9 --v 7.0
-```
-
-**Arbiter's Sentence** (Judge's Gavel Launcher) (56x56)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial judge gavel rocket launcher weapon rotated 45 degrees with massive obsidian gavel barrel pointing top-right, pristine obsidian gavel head forming clean elegant barrel outline rail and handle edges with brass court insignia luminous finish, gavel barrel interior filled with flowing amorphous blood red courtroom doom energy swirling like final judgment with cracks revealing hellfire, wavy harmonic energy flows through chain launching rail down entire launcher creating visible sentence currents, obsidian surface decorated with flowing demonic law sigils and hanging balance scales on brass chains, orbiting skull-headed missiles and ash particles flowing in graceful spiral around magistrate launcher, burning music symbols drift majestically while crimson hellfire pulses with inner guilty verdict luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, all found guilty radiating, epic powerful sprite art, full gavel launcher composition, --ar 16:9 --v 7.0
-```
-
-**Brimstone Rain** (Volcanic Artillery Repeater) (58x58)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial volcanic artillery repeater weapon rotated 45 degrees with six rotating barrels pointing top-right, pristine blackened iron forming clean elegant multi-barrel outline heat vents and hopper edges with brass vent luminous finish, rotating barrels interior filled with flowing amorphous blood red volcanic eruption energy swirling like sulfur punishment with molten hellfire heat glowing, wavy harmonic energy flows through chain-fed ammunition hopper down entire cannon creating visible brimstone rain currents, blackened iron surface decorated with flowing geothermal sigils and skull-decorated hopper, orbiting ash volcanic clouds and dripping molten brimstone flowing in graceful spiral around eruption cannon, burning music symbols drift majestically while crimson hellfire pulses with inner volcanic damnation luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, hellfire raining radiating, epic powerful sprite art, full artillery repeater composition, --ar 16:9 --v 7.0
-```
-
-**The Accuser's Mark** (Branding Iron Crossbow) (48x48)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial branding iron crossbow weapon rotated 45 degrees with heated limbs pointing top-right, pristine charred iron forming clean elegant crossbow outline stock and brand mechanism edges with brass sigil luminous finish, crossbow body interior filled with flowing amorphous blood red judgment marking energy swirling like sinner branding with bolt tips glowing hellfire hot, wavy harmonic energy flows through floating demonic sigil stamps down entire crossbow creating visible accusation currents, charred iron surface decorated with flowing accusation glyphs and skull faces watching from limb tips, orbiting heated bolt tips and ash particles flowing in graceful spiral around inquisitor crossbow, burning music symbols drift majestically while crimson hellfire pulses with inner marked damnation luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, souls marked for collection radiating, epic powerful sprite art, full branding crossbow composition, --ar 16:9 --v 7.0
-```
-
-**Congregation's End** (Pew-Splinter Shotgun) (46x46)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial desecration shotgun weapon rotated 45 degrees with stained glass barrel pointing top-right, pristine charred church pew wood forming clean elegant barrel outline stock and trigger edges with brass inverted cross luminous finish, shotgun body interior filled with flowing amorphous blood red desecration doom energy swirling like burning congregation with fused stained glass radiating hellfire, wavy harmonic energy flows through chain-wrapped stock with broken rosary beads down entire shotgun creating visible apostasy currents, charred wood surface decorated with flowing anti-prayer sigils and embedded congregation skulls, orbiting burned hymnal ash and brimstone shrapnel flowing in graceful spiral around apostate shotgun, burning music symbols drift majestically while crimson hellfire pulses with inner extinguished faith luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, false hope ending radiating, epic powerful sprite art, full shotgun composition, --ar 16:9 --v 7.0
-```
-
-**Sin Collector** (Soul Bottle Rifle) (50x50)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial soul bottle precision rifle weapon rotated 45 degrees with long barrel pointing top-right, pristine blackened iron forming clean elegant barrel outline scope and bottle magazine edges with brass luminous finish, rifle body interior filled with flowing amorphous blood red soul-rending doom energy swirling like harvested sins with glass viewing tubes showing captured essence, wavy harmonic energy flows through floating empty soul bottles down entire rifle creating visible collection currents, blackened iron surface decorated with flowing collection sigils labeling sin types and skull faces pressing against bottle glass, orbiting escaping scream wisps and ash particles flowing in graceful spiral around reaper rifle, burning music symbols drift majestically while crimson hellfire pulses with inner owed debt luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, what is owed collected radiating, epic powerful sprite art, full soul rifle composition, --ar 16:9 --v 7.0
-```
-
-### Magic Weapons (6 Additional Unique Prompts)
-
-**Ledger of Transgressions** (Accounting Tome) (36x36)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial sin accounting tome weapon floating with pages open, pristine charred black leather forming clean elegant cover outline spine and corner chains edges with brass luminous finish, tome pages interior filled with flowing amorphous blood red judgment accounting energy swirling like burning sin lists with names appearing and burning away, wavy harmonic energy flows through skull bookmarks and spine chains down entire grimoire creating visible transgression currents, black leather surface decorated with flowing transaction sigils and weighing scales with all-seeing eye on cover, orbiting consumed entry ash and rejected prayer smoke flowing in graceful spiral around bureaucrat tome, burning music symbols drift majestically while crimson hellfire pulses with inner eternal debt luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, tallied damnation radiating, epic powerful sprite art, full accounting tome composition, --ar 16:9 --v 7.0
-```
-
-**Censer of Perdition** (Burning Incense Staff) (52x52)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial burning censer staff weapon rotated 45 degrees with swinging censer head pointing upward, pristine charred iron shaft forming clean elegant staff outline censer and chain suspension edges with brass luminous finish, swinging censer interior filled with flowing amorphous blood red toxic blessing doom energy swirling like unholy sacrament with hellfire smoke pouring through pierced metal, wavy harmonic energy flows through skull thurible accessories spiraling down entire staff creating visible perdition currents, charred iron surface decorated with flowing prayer sigils and never-extinguishing brimstone coals, orbiting ritual pattern particles and poisonous smoke shapes flowing in graceful spiral around priest staff, burning music symbols drift majestically while crimson hellfire pulses with inner damnation blessing luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, blessing with damnation radiating, epic powerful sprite art, full censer staff composition, --ar 16:9 --v 7.0
-```
-
-**Vox Infernum** (Damned Choir Organ) (44x44)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial damned choir pipe organ weapon with multiple pipes of varying sizes, pristine blackened metal forming clean elegant pipe outline frame and bellows edges with brass wind mechanism luminous finish, organ pipes interior filled with flowing amorphous blood red screaming choir doom energy swirling like hellish chorus with hellfire shooting from each mouth, wavy harmonic energy flows through chain-controlled bellows pumping infernal air creating visible damned song currents, blackened metal surface decorated with flowing demonic notation spiraling from pipes and brimstone keys on keyboard, orbiting dancing ash particles and screaming face smoke flowing in graceful spiral around hell organ, burning music symbols drift majestically while crimson hellfire pulses with inner dissonant chorus luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, hell itself singing radiating, epic powerful sprite art, full pipe organ composition, --ar 16:9 --v 7.0
-```
-
-**Eclipse of Faith** (Extinguished Halo Ring) (40x40)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial extinguished halo chakram weapon spinning with hellfire replacing holy light, pristine cracked golden halo metal corrupted to blackened brass forming clean elegant ring outline binding and caster chain edges with corrupted luminous finish, spinning ring interior filled with flowing amorphous blood red fallen angel doom energy swirling like heaven's rejection with demonic corruption sigils spreading, wavy harmonic energy flows through trailing binding chains down entire chakram creating visible apostasy currents, corrupted brass surface decorated with flowing corruption sigils and cracked divine gem marks with brimstone crystals, orbiting burning ash feather silhouettes and extinguished prayer smoke flowing in graceful spiral around fallen halo, burning music symbols drift majestically while crimson hellfire pulses with inner rejected divinity luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, heaven's rejection radiating, epic powerful sprite art, full halo chakram composition, --ar 16:9 --v 7.0
-```
-
-**Anathema Proclamation** (Excommunication Scroll) (48x48)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial excommunication scroll staff weapon rotated 45 degrees with unfurling scroll pointing upward, pristine charred parchment on blackened iron scroll rods forming clean elegant scroll outline rod caps and bindings edges with brass luminous finish, unfurling scroll interior filled with flowing amorphous blood red banishment doom energy swirling like church condemnation with burning excommunication text continuously appearing, wavy harmonic energy flows through binding chains preventing closure down entire staff creating visible anathema currents, charred parchment surface decorated with flowing authority sigils and brimstone wax seals marking each sentence, orbiting burned-from-life names ash and accusatory finger smoke flowing in graceful spiral around inquisitor scroll, burning music symbols drift majestically while crimson hellfire pulses with inner cast-out-forever luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, eternal banishment radiating, epic powerful sprite art, full scroll staff composition, --ar 16:9 --v 7.0
-```
-
-**Pyre Kindling** (Stake and Flame Wand) (38x38)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial burning stake wand weapon rotated 45 degrees with miniature pyre tip pointing upward, pristine charred execution stake wood forming clean elegant wand outline binding rings and tip edges with brass luminous finish, pyre tip interior filled with flowing amorphous blood red execution doom energy swirling like witch burning with figure silhouette visible in eternal flames, wavy harmonic energy flows through chain-wrapped handle with hanging kindling bundles creating visible heresy burning currents, charred wood surface decorated with flowing execution sigils burned into stake and embedded brimstone accelerant crystals, orbiting rising soul swirls and screaming victim face smoke flowing in graceful spiral around executioner wand, burning music symbols drift majestically while crimson hellfire pulses with inner heresy purged luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, heresy burning eternal radiating, epic powerful sprite art, full stake wand composition, --ar 16:9 --v 7.0
-```
-
-### Summon Weapons (6 Additional Unique Prompts)
-
-**Hell Warden's Keys** (Jailer Staff) (54x54)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial hell jailer key ring staff weapon rotated 45 degrees with massive key ring head pointing upward, pristine charred iron shaft forming clean elegant staff outline key ring and shackle edges with brass luminous finish, key ring head interior filled with flowing amorphous blood red eternal imprisonment energy swirling like damnation levels with multiple hell-forged keys for each circle, wavy harmonic energy flows through dangling empty shackles seeking prisoners down entire staff creating visible jailer currents, charred iron surface decorated with flowing cell number sigils and endlessly clicking brimstone lock mechanisms, orbiting opened gate ash and grasping prisoner hand smoke flowing in graceful spiral around warden staff, burning music symbols drift majestically while crimson hellfire pulses with inner chains to bind luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, eternal imprisonment radiating, epic powerful sprite art, full jailer staff composition, --ar 16:9 --v 7.0
-```
-
-**Carrion Congregation** (Vulture Bishop Staff) (52x52)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial vulture bishop staff weapon rotated 45 degrees with skeletal vulture mitre pointing upward, pristine charred bone shaft forming clean elegant staff outline perch and offering edges with brass luminous finish, vulture skull mitre interior filled with flowing amorphous blood red patient doom energy swirling like death circling with hellfire eyes glowing in each skull, wavy harmonic energy flows through hanging rotting feast offerings down entire staff creating visible carrion currents, charred bone surface decorated with flowing feast sigils and hardened blood brimstone crystals, orbiting consumed flesh particles and final breath wisps flowing in graceful spiral around scavenger staff, burning music symbols drift majestically while crimson hellfire pulses with inner feasting on damned luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, patient death circling radiating, epic powerful sprite art, full vulture staff composition, --ar 16:9 --v 7.0
-```
-
-**The Collection Plate** (Tithe Summoner) (50x50)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial soul tithe collection plate staff weapon rotated 45 degrees with overflowing offering plate pointing upward, pristine charred wood shaft forming clean elegant staff outline plate and chain edges with brass luminous finish, offering plate interior filled with flowing amorphous blood red debt collection doom energy swirling like soul tithe with burning coins and soul gems never diminishing, wavy harmonic energy flows through floating empty plates awaiting tribute down entire staff creating visible collection currents, charred wood surface decorated with flowing debt sigils tracking what is owed and damned face brimstone coins, orbiting defaulted payment ash and grasping collector hand smoke flowing in graceful spiral around tax staff, burning music symbols drift majestically while crimson hellfire pulses with inner what is due luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, collectors summoned radiating, epic powerful sprite art, full collection staff composition, --ar 16:9 --v 7.0
-```
-
-**Catacomb Conductor** (Bone Orchestra Baton) (46x46)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial death orchestra bone baton weapon rotated 45 degrees with trailing notation tip pointing upward, pristine polished femur bone forming clean elegant baton outline end caps and music stand edges with brass luminous finish, baton tip interior filled with flowing amorphous blood red funeral march doom energy swirling like death symphony with hellfire musical notation trailing, wavy harmonic energy flows through floating skeletal instrument pieces down entire baton creating visible catacomb currents, polished bone surface decorated with flowing symphony sigils spiraling from tip and brimstone tuning mechanisms, orbiting death music dancing ash and skeletal musician smoke flowing in graceful spiral around maestro baton, burning music symbols drift majestically while crimson hellfire pulses with inner damned symphony luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, symphony of damned conducted radiating, epic powerful sprite art, full orchestra baton composition, --ar 16:9 --v 7.0
-```
-
-**Martyrdom's Crown** (Thorned Halo Summoner) (52x52)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial crown of thorns summoner staff weapon rotated 45 degrees with massive thorned crown head pointing upward, pristine twisted thorn-iron shaft forming clean elegant staff outline crown and martyr token edges with brass luminous finish, thorned crown interior filled with flowing amorphous blood red willing suffering doom energy swirling like sacrifice embraced with hellfire blood dripping, wavy harmonic energy flows through chains piercing thorns with hanging martyr tokens down entire staff creating visible passion currents, thorn-iron surface decorated with flowing passion sigils and crystallized tear brimstone crystals, orbiting falling blood drop particles and ascending suffering smoke flowing in graceful spiral around saint staff, burning music symbols drift majestically while crimson hellfire pulses with inner pain embraced luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, martyrs summoned radiating, epic powerful sprite art, full thorned staff composition, --ar 16:9 --v 7.0
-```
-
-**Gravedigger's Commission** (Cemetery Staff) (54x54)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial gravedigger shovel staff weapon rotated 45 degrees with obsidian shovel head pointing upward, pristine charred oak shaft forming clean elegant staff outline shovel and marker edges with brass-reinforced luminous finish, shovel head interior filled with flowing amorphous blood red burial doom energy swirling like eternal digging with cracks glowing hellfire from hell's graves, wavy harmonic energy flows through floating grave markers and tombstones down entire staff creating visible undertaker currents, charred oak surface decorated with flowing epitaph sigils and clinging brimstone-rich grave dirt, orbiting cremation remain ash and pushing-up skull smoke flowing in graceful spiral around undertaker staff, burning music symbols drift majestically while crimson hellfire pulses with inner digging for eternity luminescence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, those who dig summoned radiating, epic powerful sprite art, full cemetery staff composition, --ar 16:9 --v 7.0
-```
 
 ---
 
@@ -4093,23 +4321,23 @@ TOTAL: 32 assets
 
 ---
 
-# 🌿 ODE TO JOY - Hymn of Growth
-*Theme: Spring celebration, pure white #FFFFFF, verdant green #4CAF50, rose pink #FFB6C1, golden pollen*
+# 🌿 ODE TO JOY - Hymn of Metal Roses
+*Theme: Chromatic elegance, white metal #F0F0F0, black metal #1A1A1A, chromatic iridescent vines, pale rainbow roses*
 
 ### 🎵 SUNO Music Prompt - Ode to Joy Boss Theme
 ```
-epic orchestral progressive metal, triumphant hymn atmosphere, soaring melodic flute and violin over powerful rhythm guitars, angelic choir harmonies with verdant acoustic passages, blooming synth pads layered beneath uplifting power chords, dynamic shifts between gentle nature interludes and explosive joyful crescendos, no vocals, instrumental, 165 BPM
+epic orchestral progressive metal, triumphant hymn atmosphere, soaring melodic flute and violin over powerful rhythm guitars, angelic choir harmonies with chromatic acoustic passages, blooming synth pads layered beneath uplifting power chords, dynamic shifts between gentle metallic interludes and explosive joyful crescendos, no vocals, instrumental, 165 BPM
 ```
 
 ---
 
 ## 9.3.1 👑 BOSS SPRITES
 
-**Ode to Joy, Verdant Conductor** (130x130+)
+**Ode to Joy, Chromatic Rose Conductor** (130x130+)
 *Summoned with: Score of Ode to Joy (crafted from 15 Ode to Joy Resonant Energy + 10 Spring's Melody Bars + Life Fruit)*
 *Use in Jungle or Hallow during daytime*
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial boss entity themed around "Nature's Triumph" made of elegant living plant matter with pure white energy core interwoven with verdant green vines and cascading rainbow flower petals and golden pollen light created by music in the style of Terraria, radiating a powerful aura, music notes surround it, ignited in joyful white and verdant spring flames, butterflies and blooming flowers and life force wisps float around it and are apart of its design, detailed boss sprite, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial boss entity themed around "Metal Rose Symphony" made of elegant white and black metal with chromatic iridescent energy core interwoven with chromatic rainbow vines and cascading pale rainbow rose petals and golden light created by music in the style of Terraria, radiating a powerful aura, music notes surround it, ignited in joyful white and chromatic iridescent flames, butterflies and blooming pale rainbow roses and metallic energy wisps float around it and are apart of its design, detailed boss sprite, black and white metal ornate design like a royal mechanism, full-view --v 7.0
 ```
 
 ---
@@ -4118,7 +4346,7 @@ Concept art for a side-view idle pixel art sprite of an ancient celestial boss e
 
 **Score of Ode to Joy** (32x32)
 ```
-Concept art for a side-view idle pixel art sprite of a burning magical sheet music scroll themed around "Ode to Joy" made of pristine white parchment with glowing verdant green musical notation ignited in joyful white and spring green life flames with golden accents created by music in the style of Terraria, radiating a powerful life-giving summoning aura, music notes bloom off the radiant pages, flower petals and pollen particles drift around it, detailed item sprite, ornate design, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of a burning magical sheet music scroll themed around "Ode to Joy" made of pristine white and black metal parchment with glowing chromatic iridescent musical notation ignited in joyful white and pale rainbow rose flames with golden accents created by music in the style of Terraria, radiating a powerful summoning aura, music notes bloom off the radiant pages, pale rainbow rose petals and chromatic particles drift around it, detailed item sprite, ornate design, full-view --v 7.0
 ```
 
 ---
@@ -4127,7 +4355,7 @@ Concept art for a side-view idle pixel art sprite of a burning magical sheet mus
 
 **Ode to Joy Treasure Bag** (32x32)
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial treasure bag themed around "Ode to Joy" made of pristine white silk fabric tied with verdant green vine ribbon and golden sunflower clasps created by spring life energy in the style of Terraria legendary pixel art aesthetic with maximum ornate flowing detail, radiating powerful joyful loot aura, music notes and flower petals drift from the opening, blooming vine patterns embroidered across the fabric, rainbow musical notation woven into the silk, verdant green and white energy wisps with butterfly silhouettes emanate from within, detailed item sprite, ornate spring design, full-view --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial treasure bag themed around "Ode to Joy" made of pristine white and black metal silk fabric tied with chromatic iridescent vine ribbon and pale rainbow rose clasps created by chromatic energy in the style of Terraria legendary pixel art aesthetic with maximum ornate flowing detail, radiating powerful joyful loot aura, music notes and pale rainbow rose petals drift from the opening, chromatic vine patterns embroidered across the fabric, rainbow musical notation woven into the silk, white and black metal energy wisps with butterfly silhouettes emanate from within, detailed item sprite, ornate chromatic design, full-view --v 7.0
 ```
 
 ---
@@ -4136,22 +4364,22 @@ Magnificent side-view pixel art sprite of an extraordinarily grand celestial tre
 
 ### Ode to Joy Resonant Energy (32x32)
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial energy orb themed around "Ode to Joy" made of pure white sphere with swirling verdant green vine patterns and rainbow petal inclusions with golden accents created by music in the style of Terraria, radiating a powerful joyful aura, music notes surround it, ignited in white and verdant spring flames, golden pollen particles and butterfly silhouettes float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial energy orb themed around "Ode to Joy" made of white and black metal sphere with swirling chromatic iridescent vine patterns and pale rainbow rose petal inclusions with golden accents created by music in the style of Terraria, radiating a powerful joyful aura, music notes surround it, ignited in white and chromatic iridescent flames, golden light particles and butterfly silhouettes float around it and are apart of its design, detailed, black and white metal ornate design like a royal mechanism, full-view --v 7.0
 ```
 
 ### Ode to Joy Resonant Core (36x36)
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial crystalline core themed around "Ode to Joy" made of pure white crystal with verdant green veins and central golden sunflower heart with silver accents created by music in the style of Terraria, radiating a powerful life-giving aura, music notes surround it, ignited in white and verdant spring flames, rainbow petal patterns and vine energy wisps float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial crystalline core themed around "Ode to Joy" made of white and black metal crystal with chromatic iridescent veins and central pale rainbow rose heart with silver accents created by music in the style of Terraria, radiating a powerful chromatic aura, music notes surround it, ignited in white and chromatic iridescent flames, pale rainbow rose patterns and chromatic vine energy wisps float around it and are apart of its design, detailed, black and white metal ornate design like a royal mechanism, full-view --v 7.0
 ```
 
 ### Remnant of Ode to Joy's Bloom (28x28)
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial crystal shard themed around "Ode to Joy" made of jagged pure white crystal chunk with verdant green inclusions and rainbow petal fragments frozen inside with silver accents created by music in the style of Terraria, radiating a powerful fading spring aura, music notes surround it, ignited in white and verdant fading flames, small flower petals and pollen particles float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial crystal shard themed around "Ode to Joy" made of jagged white and black metal crystal chunk with chromatic iridescent inclusions and pale rainbow rose fragments frozen inside with silver accents created by music in the style of Terraria, radiating a powerful fading chromatic aura, music notes surround it, ignited in white and chromatic fading flames, small pale rainbow rose petals and chromatic particles float around it and are apart of its design, detailed, black and white metal ornate design like a royal mechanism, full-view --v 7.0
 ```
 
 ### Harmonic Core of Ode to Joy (40x40)
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial blooming flower crystal themed around "Ode to Joy" made of large ornate crystal shaped like blooming flower of pure white energy with rainbow petal layers and verdant green stem with golden accents created by music in the style of Terraria, radiating a powerful overwhelming spring aura, music notes surround it, ignited in white and verdant prismatic flames, butterfly companions and golden pollen light float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial blooming rose crystal themed around "Ode to Joy" made of large ornate white and black metal crystal shaped like blooming pale rainbow rose with chromatic iridescent petal layers and black metal stem with golden accents created by music in the style of Terraria, radiating a powerful overwhelming chromatic aura, music notes surround it, ignited in white and chromatic prismatic flames, butterfly companions and golden light float around it and are apart of its design, detailed, black and white metal ornate design like a royal mechanism, full-view --v 7.0
 ```
 
 ---
@@ -4160,27 +4388,27 @@ Concept art for a side-view idle pixel art sprite of an ancient celestial bloomi
 
 ### Ode to Joy Resonance Ore (16x16)
 ```
-pixel art ore block tileset, 3x3 variations for seamless tiling, verdant stone with embedded veins of pure white crystal that contain tiny rainbow flower inclusions, the white veins glow softly with golden pollen shimmer, musical note shapes naturally formed by vine patterns in some crystal clusters, butterfly wing iridescence visible in largest vein sections, suitable for cave generation, terraria style tile, 16x16 pixel base per tile upscaled, seamless edges, dark background showing depth --v 6.1 --ar 1:1 --style raw --s 50
+pixel art ore block tileset, 3x3 variations for seamless tiling, dark stone with embedded veins of white and black metal that contain tiny pale rainbow rose inclusions, the metal veins glow softly with chromatic iridescent shimmer, musical note shapes naturally formed by chromatic vine patterns in some metal clusters, butterfly wing iridescence visible in largest vein sections, suitable for cave generation, terraria style tile, 16x16 pixel base per tile upscaled, seamless edges, dark background showing depth --v 6.1 --ar 1:1 --style raw --s 50
 ```
 
 ### Spring's Melody Pickaxe (44x44)
 ```
-Concept art for a side-view idle pixel art sprite of a verdant pickaxe themed around "Ode to Joy Mining Tool" made of pure white crystal pick head with rainbow flower edge and verdant green vine handle wrapped in blooming flowers created by music in the style of Terraria, radiating a joyful harvesting aura, music notes surround it, ignited in white-rainbow spring flames, golden pollen particles and butterfly companions float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --ar 1:1 --v 7.0
+Concept art for a side-view idle pixel art sprite of a chromatic pickaxe themed around "Ode to Joy Mining Tool" made of white and black metal pick head with chromatic iridescent edge and black metal handle wrapped in chromatic vines with pale rainbow roses created by music in the style of Terraria, radiating a joyful harvesting aura, music notes surround it, ignited in white-chromatic iridescent flames, pale rainbow rose petals and butterfly companions float around it and are apart of its design, detailed, black and white metal ornate design like a royal mechanism, full-view --ar 1:1 --v 7.0
 ```
 
 ### Spring's Melody Drill (48x48)
 ```
-Concept art for a side-view idle pixel art sprite of a verdant drill themed around "Ode to Joy Powered Mining" made of pure white metal housing with spinning verdant green vine bit covered in crystallized rainbow petals created by music in the style of Terraria, radiating a joyful excavation aura, music notes surround it, ignited in white-rainbow spring flames, golden pollen exhaust and blooming flower panels float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --ar 1:1 --v 7.0
+Concept art for a side-view idle pixel art sprite of a chromatic drill themed around "Ode to Joy Powered Mining" made of white and black metal housing with spinning chromatic iridescent bit covered in crystallized pale rainbow rose petals created by music in the style of Terraria, radiating a joyful excavation aura, music notes surround it, ignited in white-chromatic iridescent flames, chromatic vine exhaust and blooming pale rainbow rose panels float around it and are apart of its design, detailed, black and white metal ornate design like a royal mechanism, full-view --ar 1:1 --v 7.0
 ```
 
 ### Spring's Melody Axe (42x42)
 ```
-Concept art for a side-view idle pixel art sprite of a verdant axe themed around "Ode to Joy Woodcutting Tool" made of pure white crystal blade with rainbow flower edge inlay and verdant green living wood handle that blooms when swung created by music in the style of Terraria, radiating a joyful harvesting aura, music notes surround it, ignited in white-rainbow spring flames, golden pollen particles and falling petals float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --ar 1:1 --v 7.0
+Concept art for a side-view idle pixel art sprite of a chromatic axe themed around "Ode to Joy Woodcutting Tool" made of white and black metal blade with chromatic iridescent edge inlay and black metal handle wrapped in chromatic vines that bloom pale rainbow roses when swung created by music in the style of Terraria, radiating a joyful harvesting aura, music notes surround it, ignited in white-chromatic iridescent flames, pale rainbow rose petals and falling petals float around it and are apart of its design, detailed, black and white metal ornate design like a royal mechanism, full-view --ar 1:1 --v 7.0
 ```
 
 ### Spring's Melody Hammer (46x46)
 ```
-Concept art for a side-view idle pixel art sprite of a verdant hammer themed around "Ode to Joy Building Tool" made of pure white crystal head with verdant green vine handle wrapped in rainbow flowering vines created by music in the style of Terraria, radiating a joyful construction aura, music notes surround it, ignited in white-rainbow spring flames, golden pollen particles and butterfly trails float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --ar 1:1 --v 7.0
+Concept art for a side-view idle pixel art sprite of a chromatic hammer themed around "Ode to Joy Building Tool" made of white and black metal head with black metal handle wrapped in chromatic iridescent flowering vines with pale rainbow roses created by music in the style of Terraria, radiating a joyful construction aura, music notes surround it, ignited in white-chromatic iridescent flames, pale rainbow rose petals and butterfly trails float around it and are apart of its design, detailed, black and white metal ornate design like a royal mechanism, full-view --ar 1:1 --v 7.0
 ```
 
 ---
@@ -4191,83 +4419,143 @@ Concept art for a side-view idle pixel art sprite of a verdant hammer themed aro
 
 **Rose Thorn Chainsaw** (56x44) - CHAINSAW
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial terrifyingly beautiful chainsaw weapon rotated 45 degrees with chain pointing top-right, pristine living white wood forming clean elegant chainsaw outline body and handle with nature's mechanical wrath finish, chainsaw body interior filled with flowing amorphous flowers blooming while running swirling like violent natural destruction, wavy harmonic energy flows through chain of interlocking crystallized rainbow rose thorns down entire blade creating visible nature's wrath currents, living white wood surface decorated with rainbow thorn dynamics and verdant notation running frame, engine housing is giant sunflower head pulsing with golden pollen exhaust, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming violent nature radiating, epic powerful sprite art, full chainsaw composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial terrifyingly beautiful chainsaw weapon rotated 45 degrees with chain pointing top-right, pristine white and black metal forming clean elegant chainsaw outline body and handle with metallic chromatic finish, chainsaw body interior filled with flowing amorphous pale rainbow roses blooming while running swirling like violent chromatic destruction, wavy harmonic energy flows through chain of interlocking crystallized chromatic iridescent rose thorns down entire blade creating visible chromatic wrath currents, white and black metal surface decorated with chromatic vine dynamics and iridescent notation running frame, engine housing is giant pale rainbow rose head pulsing with chromatic petal exhaust, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming violent chromatic beauty radiating, epic powerful sprite art, full chainsaw composition, --ar 16:9 --v 7.0
 ```
 
 **Floralescence Scissor Blades** (58x58) - DUAL SCISSOR BLADES
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive dual scissor blades weapon rotated 45 degrees with blades pointing top-right, pristine crystallized flower petals forming clean elegant dual blade outline pivot and handles with petal severance finish, two giant scissor blade interior filled with flowing amorphous razor sharp crystallized petal energy swirling like beautiful deadly garden, wavy harmonic energy flows through golden pollen chain connecting blades down entire scissors creating visible severance currents, one blade pure white with rainbow edge gradient other verdant green with golden veins, enormous blooming rose pivot point pulses with inner deadly luminescence, butterfly wing guards at handles, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming beautiful deadliness radiating, epic powerful sprite art, full dual scissor composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive dual scissor blades weapon rotated 45 degrees with blades pointing top-right, pristine white and black metal forming clean elegant dual blade outline pivot and handles with chromatic severance finish, two giant scissor blade interior filled with flowing amorphous razor sharp crystallized pale rainbow rose petal energy swirling like beautiful deadly garden, wavy harmonic energy flows through chromatic iridescent chain connecting blades down entire scissors creating visible severance currents, one blade white metal with chromatic edge gradient other black metal with iridescent veins, enormous blooming pale rainbow rose pivot point pulses with inner deadly luminescence, butterfly wing guards at handles, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming beautiful deadliness radiating, epic powerful sprite art, full dual scissor composition, --ar 16:9 --v 7.0
 ```
 
 **Garden Scythe of Jubilation** (54x56) - WAR SCYTHE
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive war scythe weapon rotated 45 degrees with curved blade pointing top-right, pristine white crystal forming clean elegant scythe outline shaft and blade with jubilant harvest finish, enormous curved blade interior filled with flowing amorphous rainbow petal energy swirling like joyful harvest with flowers blooming along cutting edge, wavy harmonic energy flows through living vines spiraling down entire shaft creating visible jubilation currents, white crystal surface decorated with flowing musical notation dynamics and harvest patterns running shaft length, butterfly motifs along blade spine, golden pollen trail emanating from tip, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming joyful harvest radiating, epic powerful sprite art, full war scythe composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive war scythe weapon rotated 45 degrees with curved blade pointing top-right, pristine white and black metal forming clean elegant scythe outline shaft and blade with jubilant chromatic finish, enormous curved blade interior filled with flowing amorphous chromatic iridescent petal energy swirling like joyful harvest with pale rainbow roses blooming along cutting edge, wavy harmonic energy flows through chromatic vines spiraling down entire shaft creating visible jubilation currents, white and black metal surface decorated with flowing musical notation dynamics and chromatic patterns running shaft length, butterfly motifs along blade spine, pale rainbow rose petal trail emanating from tip, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming joyful harvest radiating, epic powerful sprite art, full war scythe composition, --ar 16:9 --v 7.0
+```
+
+**Hymn of Blossoming** (Metal Rose Greatsword) (54x54)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial metal rose greatsword weapon rotated 45 degrees with blade pointing top-right, pristine white and black metal woven together forming clean elegant massive blade outline body and chromatic vine guard edges with golden chromatic luminous finish, blade interior filled with flowing amorphous blooming pale rainbow roses and crystallized chromatic dew swirling like chromatic celebration, wavy harmonic energy flows through chromatic iridescent trails down entire blade creating visible joyful growth currents, metal surface decorated with flowing musical notation and constantly drifting pale rainbow rose petals in joyful spirals, orbiting butterflies and chromatic sparks flowing in graceful spiral around metal greatsword, golden light glows majestically while chromatic iridescent radiance pulses with inner luminescence, multiple pale rainbow rose formations bloom naturally creating organic chromatic patterns, black metal wrapped handle with intertwined chromatic vine branches forming crossguard, chromatic celebration cascades from pristine metal framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, chromatic euphoria radiating, epic powerful sprite art, full metal greatsword composition, --ar 16:9 --v 7.0
+```
+
+**Spring's Triumphant Edge** (Victory Wreath Blade) (52x52)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial victory wreath blade weapon rotated 45 degrees with blade pointing top-right, pristine white and black metal forming clean elegant blade outline pale rainbow rose wreath guard and chromatic trophy pommel edges with prismatic iridescent luminous finish, blade interior filled with flowing amorphous golden victory light and pale rainbow rose crown decorations swirling like triumphant celebration, wavy harmonic energy flows through golden victory ribbons trailing from hilt down entire blade creating visible championship currents, metal surface decorated with flowing musical notation and woven chromatic vine leaves throughout, orbiting butterflies carrying tiny celebration banners flowing in graceful spiral around victory blade, champagne sparkle effervescence drifts majestically while chromatic iridescent edge pulses with inner triumph luminescence, multiple pale rainbow rose crown formations bloom naturally creating organic ceremonial patterns, trophy cup pommel overflows with pale rainbow roses, chromatic victory celebration cascades from pristine metal framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, championship euphoria radiating, epic powerful sprite art, full victory blade composition, --ar 16:9 --v 7.0
+```
+
+**Jubilant Cleaver** (Festival Dance Scimitar) (50x50)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial festival dance scimitar weapon rotated 45 degrees with curved blade pointing top-right, pristine white and black metal that hums when swung forming clean elegant curved blade outline clasped dancing hands guard edges with carnival chromatic finish, curved blade interior filled with flowing amorphous dancing figure silhouettes in chromatic inlay and festival ribbon trails swirling like community celebration, wavy harmonic energy flows through festival ribbons of chromatic iridescent colors trailing from pommel down entire scimitar creating visible carnival joy currents, metal surface decorated with flowing musical notes that spray from blade and tiny chiming bells along spine, orbiting lantern glow warmth and dancing butterflies flowing in graceful spiral around festival blade, pale rainbow rose confetti bursts majestically while carnival warmth pulses with inner community luminescence, multiple dancing figure formations move naturally creating organic festival patterns, chromatic vine wrapped handle with clasped dancing hands guard, togetherness celebration cascades from pristine metal framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, carnival joy radiating, epic powerful sprite art, full festival scimitar composition, --ar 16:9 --v 7.0
 ```
 
 ### Ranged Weapons (3)
 
 **Pollinator Gatling Bloom** (62x48) - GATLING GUN
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial six-barreled gatling gun weapon rotated 45 degrees with barrels pointing top-right, pristine six different flower species forming clean elegant rotating barrel outline body and grip with death pollination finish, six flower barrels interior filled with flowing amorphous rainbow pollen swirling like overwhelming natural artillery, wavy harmonic energy flows through vine chain ammunition down entire gatling creating visible pollination currents, rose lily sunflower orchid tulip cherry blossom barrel variations, trumpet flower cooling vents pulse with artillery power, floating butterfly targeting system, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming artillery nature radiating, epic powerful sprite art, full gatling composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial six-barreled gatling gun weapon rotated 45 degrees with barrels pointing top-right, pristine white and black metal six different pale rainbow rose barrels forming clean elegant rotating barrel outline body and grip with chromatic pollination finish, six metal rose barrels interior filled with flowing amorphous chromatic iridescent pollen swirling like overwhelming chromatic artillery, wavy harmonic energy flows through chromatic vine chain ammunition down entire gatling creating visible pollination currents, six different pale rainbow rose barrel variations each a different pastel shade, white and black metal cooling vents pulse with artillery power, floating butterfly targeting system, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming artillery chromatic beauty radiating, epic powerful sprite art, full gatling composition, --ar 16:9 --v 7.0
 ```
 
 **Bow of Eternal Spring** (52x56) - ARCHWAY LONGBOW
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive living archway longbow weapon rotated 45 degrees with limbs pointing top-right, pristine intertwined cherry blossom pink and wisteria purple flowering branches forming clean elegant archway bow outline meeting in explosion of white roses with eternal rebirth finish, massive bow interior filled with flowing amorphous pure concentrated rainbow light swirling like weaponized spring energy, wavy harmonic energy flows through permanent rainbow arc frame creating visible rebirth currents, cherry blossom and wisteria branches meet through pristine white rose framework, nesting songbirds orbit the bow, rainbow light bowstring resonates with eternal power, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming eternal rebirth radiating, epic powerful sprite art, full archway bow composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive metal archway longbow weapon rotated 45 degrees with limbs pointing top-right, pristine intertwined white and black metal flowering branches forming clean elegant archway bow outline meeting in explosion of pale rainbow roses with eternal chromatic rebirth finish, massive bow interior filled with flowing amorphous pure concentrated chromatic iridescent light swirling like weaponized chromatic energy, wavy harmonic energy flows through permanent chromatic arc frame creating visible rebirth currents, white and black metal branches meet through pristine pale rainbow rose framework, nesting songbirds orbit the bow, chromatic iridescent light bowstring resonates with eternal power, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming eternal chromatic rebirth radiating, epic powerful sprite art, full archway bow composition, --ar 16:9 --v 7.0
 ```
 
 **Jubilation Laser Cannon** (54x46) - LASER RIFLE
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial heavy laser cannon weapon rotated 45 degrees with barrel pointing top-right, pristine pure white crystal forming clean elegant cannon outline stock and barrel with jubilant annihilation finish, cannon body interior filled with flowing amorphous concentrated rainbow light swirling like overwhelming joy made weapon, wavy harmonic energy flows through flowering vine conduits down entire cannon creating visible jubilation currents, white crystal surface decorated with flowing petal patterns dynamics and joyful notation running barrel length, large bloom crystal lens at muzzle, orbiting butterfly energy focuses the beam, golden pollen exhaust vents, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming joyful annihilation radiating, epic powerful sprite art, full laser cannon composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial heavy laser cannon weapon rotated 45 degrees with barrel pointing top-right, pristine white and black metal forming clean elegant cannon outline stock and barrel with jubilant chromatic annihilation finish, cannon body interior filled with flowing amorphous concentrated chromatic iridescent light swirling like overwhelming joy made weapon, wavy harmonic energy flows through chromatic vine conduits down entire cannon creating visible jubilation currents, white and black metal surface decorated with flowing pale rainbow rose patterns dynamics and joyful notation running barrel length, large chromatic bloom crystal lens at muzzle, orbiting butterfly energy focuses the beam, pale rainbow rose petal exhaust vents, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming joyful chromatic annihilation radiating, epic powerful sprite art, full laser cannon composition, --ar 16:9 --v 7.0
+```
+
+**Pollinator's Bow** (Metal Rose Garden Longbow) (46x46)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial metal rose garden longbow weapon rotated 45 degrees with chromatic vine limbs pointing upward, pristine white and black metal branches grown into bow shape forming clean elegant bow outline pale rainbow rose tips and chromatic grip edges with pollination luminous finish, bow limbs interior filled with flowing amorphous chromatic iridescent dewdrop bowstring and metal rose stem arrows swirling like chromatic harmony, wavy harmonic energy flows through chromatic pollen trajectory trails down entire bow creating visible pollination currents, metal branch surface decorated with flowing chromatic accents with golden light glow and songbird nests in upper limb, orbiting butterflies and chromatic sparks flowing in graceful spiral around pollinator bow, pale rainbow rose petals scatter majestically while golden chromatic warmth pulses with inner ecosystem luminescence, multiple pale rainbow rose formations open naturally creating organic symbiosis patterns, chromatic vine wrapped grip with metal rose arrows that bloom on impact, chromatic celebration cascades from pristine metal branch framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, pollination chromatic harmony radiating, epic powerful sprite art, full garden longbow composition, --ar 16:9 --v 7.0
+```
+
+**Garden's Crescendo** (Symphonic Seed Launcher) (52x52)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial symphonic seed launcher weapon rotated 45 degrees with pale rainbow rose trumpet bells pointing top-right, pristine intertwined white and black metal horns and chromatic vines forming clean elegant launcher outline cornucopia magazine and bellows edges with chromatic symphony luminous finish, pale rainbow rose trumpet bells interior filled with flowing amorphous launching seeds accompanied by harmonic tones and musical notes made of chromatic rose petals swirling like chromatic growth symphony, wavy harmonic energy flows through chromatic vine tendrils forming musical notation in air down entire launcher creating visible chromatic symphony currents, metal and chromatic vine surface decorated with flowing pastoral scene reliefs and butterflies carrying tiny instruments, orbiting songbird choir perching along barrel flowing in graceful spiral around symphonic launcher, festival lights twinkle majestically while cornucopia radiance pulses with inner orchestral luminescence, multiple seed formations launch naturally creating organic garden concert patterns, magazine overflows with glowing chromatic seeds, chromatic concert cascades from pristine metal chromatic vine framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, chromatic growth symphony radiating, epic powerful sprite art, full seed launcher composition, --ar 16:9 --v 7.0
+```
+
+**Verdant Barrage** (Celebration Cannon) (54x54)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial celebration party cannon weapon rotated 45 degrees with white and black metal barrel pointing top-right, pristine white and black metal wrapped in chromatic iridescent vines forming clean elegant cannon outline hopper and parade float stock edges with festival chromatic luminous finish, cannon barrel interior filled with flowing amorphous pale rainbow rose petal confetti and chromatic sparkle bursts swirling like explosive celebration, wavy harmonic energy flows through chromatic streamers trailing from barrel down entire cannon creating visible festival currents, metal surface decorated with flowing musical fanfare notes around muzzle and lanterns bunting decorating every surface, orbiting butterflies emerging from each blast flowing in graceful spiral around celebration cannon, popping champagne cork sparks drift majestically while parade float radiance pulses with inner festival luminescence, multiple confetti formations burst naturally creating organic celebration patterns, hopper overflows with celebration supplies and pale rainbow rose petals, parade joy cascades from pristine metal chromatic vine framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, explosive chromatic celebration radiating, epic powerful sprite art, full party cannon composition, --ar 16:9 --v 7.0
 ```
 
 ### Magic Weapons (3)
 
 **Chlorophyll Cascade Tome** (48x56) - CHANNELED GRIMOIRE
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive living grimoire weapon rotated 45 degrees with spine facing left, pristine pressed rainbow flower petals in crystal resin forming clean elegant massive tome outline cover and binding with nature's own spellbook finish, tome interior filled with flowing amorphous giant leaf pages swirling like overwhelming life magic with pulsing vine spine, wavy harmonic energy flows through spells written in golden pollen that rearranges creating visible cascade currents, crystal resin surface decorated with crystallized dewdrop clasps containing tiny fairies, permanent rainbow emanates from between pages, butterflies constantly emerging from opened tome, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming life magic radiating, epic powerful sprite art, full tome composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive metal rose grimoire weapon rotated 45 degrees with spine facing left, pristine white and black metal covers with pressed pale rainbow rose petals in crystal resin forming clean elegant massive tome outline cover and binding with chromatic spellbook finish, tome interior filled with flowing amorphous giant chromatic vine pages swirling like overwhelming chromatic magic with pulsing chromatic vine spine, wavy harmonic energy flows through spells written in chromatic iridescent ink that rearranges creating visible cascade currents, crystal resin surface decorated with crystallized dewdrop clasps containing tiny chromatic fairies, permanent chromatic iridescent light emanates from between pages, butterflies constantly emerging from opened tome, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming chromatic magic radiating, epic powerful sprite art, full tome composition, --ar 16:9 --v 7.0
 ```
 
 **Symphony of Blooms Harp** (44x48) - MAGICAL HARP
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial ornate magical harp weapon rotated 45 degrees with frame pointing upward, pristine white living wood forming clean elegant harp outline frame and base with symphonic bloom finish, harp strings interior filled with flowing amorphous rainbow light swirling like musical energy made visible with flowers blooming on each string, wavy harmonic energy flows through vine-wrapped frame creating visible symphony currents, white living wood surface decorated with flowing rose and lily carvings dynamics and musical notation running frame, each string a different rainbow color, butterflies dance between strings, golden pollen resonates from strummed notes, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming symphonic bloom radiating, epic powerful sprite art, full harp composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial ornate magical harp weapon rotated 45 degrees with frame pointing upward, pristine white and black metal forming clean elegant harp outline frame and base with symphonic chromatic bloom finish, harp strings interior filled with flowing amorphous chromatic iridescent light swirling like musical energy made visible with pale rainbow roses blooming on each string, wavy harmonic energy flows through chromatic vine-wrapped frame creating visible symphony currents, white and black metal surface decorated with flowing pale rainbow rose and chromatic vine carvings dynamics and musical notation running frame, each string a different chromatic iridescent color, butterflies dance between strings, pale rainbow rose petals resonate from strummed notes, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming symphonic chromatic bloom radiating, epic powerful sprite art, full harp composition, --ar 16:9 --v 7.0
 ```
 
 **Harmonic Chime Cathedral** (42x52) - FLOATING CHIMES
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial floating wind chime cathedral weapon, pristine pure white crystal framework forming clean elegant multi-tiered chime outline tubes and mounting with harmonic resonance finish, multiple tiers of pale rainbow crystal tubes interior filled with flowing amorphous harmonic resonance swirling like musical power made physical, wavy harmonic energy flows through living vines connecting tiers creating visible cathedral harmony currents, white crystal surface decorated with flowing floral engravings and musical notation, each tier produces different harmonics, flowers bloom at chime tops, golden pollen descends from resonating tubes, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming cathedral harmony radiating, epic powerful sprite art, full chime cathedral composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial floating wind chime cathedral weapon, pristine white and black metal framework forming clean elegant multi-tiered chime outline tubes and mounting with harmonic chromatic resonance finish, multiple tiers of chromatic iridescent crystal tubes interior filled with flowing amorphous harmonic resonance swirling like musical power made physical, wavy harmonic energy flows through chromatic vines connecting tiers creating visible cathedral harmony currents, white and black metal surface decorated with flowing pale rainbow rose engravings and musical notation, each tier produces different chromatic harmonics, pale rainbow roses bloom at chime tops, chromatic iridescent light descends from resonating tubes, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming cathedral chromatic harmony radiating, epic powerful sprite art, full chime cathedral composition, --ar 16:9 --v 7.0
+```
+
+**Aria of Renewal** (Metal Rose Birdsong Staff) (48x48)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial metal rose birdsong staff weapon rotated 45 degrees with multiple bird perches pointing upward, pristine white and black metal branch staff forming clean elegant staff outline perches and nest crooks edges with dawn chorus chromatic luminous finish, staff top interior filled with flowing amorphous tiny songbirds made of chromatic iridescent light perching and singing creating visible music and golden sunrise glow swirling like morning renewal, wavy harmonic energy flows through musical notes floating upward from birdsong down entire staff creating visible dawn symphony currents, metal branch surface decorated with flowing dewdrops on chromatic vine decorations and nests with glowing chromatic eggs nestled in crooks, orbiting pale rainbow rose petals of every pastel color and resting butterflies flowing in graceful spiral around birdsong staff, pale rainbow rose buds open majestically while golden sunrise radiance pulses with inner renewal luminescence, multiple songbird formations sing naturally creating organic dawn chorus patterns, grip wrapped in chromatic vines, dawn symphony cascades from pristine white and black metal branch framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, morning chromatic renewal radiating, epic powerful sprite art, full birdsong staff composition, --ar 16:9 --v 7.0
+```
+
+**Blooming Grimoire** (Metal Rose Tome) (36x36)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial metal rose tome weapon floating with crystal pages turning, pristine white and black metal covers with pressed pale rainbow roses under crystal pages forming clean elegant tome outline spine and chromatic vine clasp edges with botanical chromatic wisdom luminous finish, floating tome interior filled with flowing amorphous blooming illustrations appearing on turning pages and pale rainbow roses growing from spine swirling like chromatic botanical knowledge, wavy harmonic energy flows through chromatic pollen sparkles drifting from turning pages down entire grimoire creating visible botanical currents, metal cover surface decorated with flowing butterfly bookmarks and chromatic vines along binding with tiny blooming pale rainbow rose buds, orbiting chromatic seeds falling and taking root flowing in graceful spiral around metal rose tome, musical notation as pale rainbow rose arrangements on pages glows majestically while soft chromatic iridescent botanical radiance pulses with inner wisdom luminescence, multiple pale rainbow rose formations bloom naturally creating organic naturalist patterns, chromatic vine opening flower clasp, chromatic wisdom cascades from pristine metal framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, botanical chromatic euphoria radiating, epic powerful sprite art, full metal rose tome composition, --ar 16:9 --v 7.0
+```
+
+**Euphoric Cascade** (Fountain of Joy Wand) (38x38)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial fountain of joy wand weapon rotated 45 degrees with cascading tip pointing upward, pristine white and black metal crystallized in wand form forming clean elegant wand outline chromatic vine stem handle and basin base edges with overflowing chromatic happiness luminous finish, crystallized metal wand interior filled with flowing amorphous liquid joy cascading from tip in eternal upward fountain and pale rainbow roses frozen mid-bloom within swirling like bubbling euphoria, wavy harmonic energy flows through chromatic iridescent refractions dancing through metal crystal down entire wand creating visible euphoria currents, metal crystal surface decorated with flowing fish made of chromatic light swimming and chromatic lily pads pale rainbow roses floating on cascade, orbiting butterflies drinking from spray and musical water droplet notes flowing in graceful spiral around fountain wand, wishing coin sparkles drift majestically while chromatic refraction radiance pulses with inner happiness luminescence, multiple water bloom formations cascade naturally creating organic fountain patterns, chromatic vine stem wrapped handle with basin base, pure chromatic happiness cascades from pristine metal crystal framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overflowing chromatic joy radiating, epic powerful sprite art, full fountain wand composition, --ar 16:9 --v 7.0
 ```
 
 ### Summon Weapons (3) + Companions
 
 **Monarch's Garden Scepter** (40x52) - Spawns Garden Paradise
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial ornate summoning scepter weapon rotated 45 degrees with crystal sphere top pointing upward, pristine intertwined golden and silver vines forming clean elegant scepter outline shaft and base with garden dimension gateway finish, crystal sphere top interior filled with flowing amorphous miniature floating garden swirling like paradise summoning with tiny rainbow contained within, wavy harmonic energy flows through perpetually falling golden pollen down entire shaft creating visible paradise currents, butterflies attempting to enter sphere, extending roots drift from base, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming paradise summoning radiating, epic powerful sprite art, full scepter composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial ornate summoning scepter weapon rotated 45 degrees with crystal sphere top pointing upward, pristine intertwined white and black metal vines forming clean elegant scepter outline shaft and base with chromatic garden dimension gateway finish, crystal sphere top interior filled with flowing amorphous miniature floating metal rose garden swirling like paradise summoning with tiny chromatic rainbow contained within, wavy harmonic energy flows through perpetually falling pale rainbow rose petals down entire shaft creating visible paradise currents, butterflies attempting to enter sphere, chromatic vine roots drift from base, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming chromatic paradise summoning radiating, epic powerful sprite art, full scepter composition, --ar 16:9 --v 7.0
 ```
 
 **Garden Paradise** (Summon Companion) (32x32 per frame, 4 frames)
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial summon creature themed around "Ode to Joy Garden Paradise" made of floating miniature garden island with pure white flowers and rainbow waterfall and silver accents created by music in the style of Terraria, radiating a powerful paradise aura, music notes surround it, tiny trees and verdant growth and orbiting butterflies and golden pollen falling and rainbow light emanating and small woodland creatures float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial summon creature themed around "Ode to Joy Garden Paradise" made of floating miniature metal garden island with white and black metal flowers and chromatic iridescent waterfall and silver accents created by music in the style of Terraria, radiating a powerful paradise aura, music notes surround it, tiny metal rose trees and chromatic growth and orbiting butterflies and pale rainbow rose petals falling and chromatic iridescent light emanating and small metallic creatures float around it and are apart of its design, detailed, black and white metal ornate design like a royal mechanism, full-view --v 7.0
 ```
 
 **Hymnal Treant Staff** (52x56) - Spawns Living Treant
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive living staff weapon rotated 45 degrees with treant face top pointing upward, pristine white living wood forming clean elegant staff outline shaft and base with treant summoning finish, staff top is actual treant face interior filled with flowing amorphous verdant life energy swirling like ancient nature spirit, wavy harmonic energy flows through roots extending from base creating visible ancient currents, living wood surface decorated with flowing bark patterns and treant expressions and musical notation, flowering vines spiral around shaft, face awakens when summoning, golden pollen emanates from mouth, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming treant authority radiating, epic poweI rful sprite art, full staff composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive metal treant staff weapon rotated 45 degrees with treant face top pointing upward, pristine white and black metal forming clean elegant staff outline shaft and base with treant summoning finish, staff top is actual metal treant face interior filled with flowing amorphous chromatic iridescent life energy swirling like ancient chromatic spirit, wavy harmonic energy flows through chromatic vine roots extending from base creating visible ancient currents, metal surface decorated with flowing bark patterns and treant expressions and musical notation, chromatic flowering vines spiral around shaft, face awakens when summoning, pale rainbow rose petals emanate from mouth, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming treant chromatic authority radiating, epic powerful sprite art, full staff composition, --ar 16:9 --v 7.0
 ```
 
 **Living Treant** (Summon Companion) (36x40 per frame, 4 frames)
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial summon creature themed around "Ode to Joy Living Treant" made of massive walking tree with pure white bark and rainbow flower crown and silver accents created by music in the style of Terraria, radiating a powerful ancient forest aura, music notes surround it, verdant moss body and reaching branch arms and massive root feet and singing bird companions and golden pollen breath and prismatic dewdrop eyes float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial summon creature themed around "Ode to Joy Living Treant" made of massive walking metal tree with white and black metal bark and pale rainbow rose crown and chromatic accents created by music in the style of Terraria, radiating a powerful ancient chromatic forest aura, music notes surround it, chromatic moss body and reaching metal branch arms and massive metal root feet and singing bird companions and chromatic breath and prismatic dewdrop eyes float around it and are apart of its design, detailed, black and white metal ornate design like a royal mechanism, full-view --v 7.0
 ```
 
 **Choir Seedling Crucible** (46x50) - Spawns Seedling Choir
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial ornate cauldron crucible weapon rotated 45 degrees with opening facing upward, pristine white crystal forming clean elegant crucible outline bowl and base with seedling genesis finish, crucible interior filled with flowing amorphous rainbow life essence swirling like seedling nursery with tiny sprouts emerging constantly, wavy harmonic energy flows through verdant rune engravings around bowl creating visible genesis currents, white crystal surface decorated with flowing growth patterns and musical notation, multiple tiny seedlings peek over rim singing, golden pollen mist rises from essence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming seedling genesis radiating, epic powerful sprite art, full crucible composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial ornate cauldron crucible weapon rotated 45 degrees with opening facing upward, pristine white and black metal forming clean elegant crucible outline bowl and base with chromatic seedling genesis finish, crucible interior filled with flowing amorphous chromatic iridescent life essence swirling like seedling nursery with tiny metal sprouts emerging constantly, wavy harmonic energy flows through chromatic rune engravings around bowl creating visible genesis currents, white and black metal surface decorated with flowing chromatic growth patterns and musical notation, multiple tiny metal seedlings peek over rim singing, pale rainbow rose petal mist rises from essence, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming seedling chromatic genesis radiating, epic powerful sprite art, full crucible composition, --ar 16:9 --v 7.0
 ```
 
 **Seedling Choir** (Summon Companion) (20x20 per frame, 4 frames each, 4 variants)
 ```
-Concept art for a side-view idle pixel art sprite of ancient celestial summon creatures themed around "Ode to Joy Seedling Choir" made of group of tiny seed creatures with sprouting pure white flowers and vine limbs and silver accents created by music in the style of Terraria, four variations with different flower types, radiating a powerful singing seedling aura, music notes surround them, pale rainbow inner glow and verdant root feet and different poses singing harmony and tiny blooms and rainbow sparkles float around them and are apart of their design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of ancient celestial summon creatures themed around "Ode to Joy Seedling Choir" made of group of tiny metal seed creatures with sprouting pale rainbow roses and chromatic vine limbs and silver accents created by music in the style of Terraria, four variations with different pale rainbow rose types, radiating a powerful singing seedling aura, music notes surround them, chromatic inner glow and metal root feet and different poses singing harmony and tiny pale rainbow blooms and chromatic sparkles float around them and are apart of their design, detailed, black and white metal ornate design like a royal mechanism, full-view --v 7.0
+```
+
+**Conductor of the Garden** (Maestro's Baton) (44x44)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial maestro baton weapon rotated 45 degrees with pale rainbow rose-tipped end pointing upward, pristine white and black metal wand with musical notation chromatic vine spirals forming clean elegant baton outline tip and chromatic vine grip edges with orchestral chromatic harmony luminous finish, pale rainbow rose-tipped baton interior filled with flowing amorphous visible music trailing from tip summoning chromatic nature performers and butterflies dancing to conductor movements swirling like chromatic nature orchestra, wavy harmonic energy flows through musical notes forming summoned minions themselves down entire baton creating visible harmony currents, metal wand surface decorated with flowing chromatic rose sprites awaiting direction and songbird section leaders with butterfly ensemble in formation, orbiting fireflies providing stage lighting flowing in graceful spiral around maestro baton, soft chromatic vine wrapped grip with gemstone button accents glows majestically while orchestral radiance pulses with inner unity luminescence, multiple pale rainbow rose minion formations await naturally creating organic conductor patterns, chromatic nature unified in song cascades from pristine metal framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, orchestral chromatic harmony radiating, epic powerful sprite art, full maestro baton composition, --ar 16:9 --v 7.0
+```
+
+**Petals of Elation** (Metal Rose Crown Scepter) (50x50)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial metal rose crown scepter weapon rotated 45 degrees with blooming crown head pointing upward, pristine white and black metal scepter topped with ever-blooming pale rainbow rose crown forming clean elegant scepter outline shaft and garland decorations edges with royal chromatic garden luminous finish, pale rainbow rose crown head interior filled with flowing amorphous drifting petals becoming dancing minion sprites and tiny crown-wearing metal rose spirits swirling like coronation celebration, wavy harmonic energy flows through musical fanfares heralding each summon down entire scepter creating visible royal currents, metal scepter surface decorated with flowing festival garland ribbons and dewdrop gems adorning crown with butterfly feathers, orbiting butterflies forming loyal court flowing in graceful spiral around metal rose crown scepter, chromatic pollen sparkles like royal glitter drift majestically while crown radiance pulses with inner coronation luminescence, multiple metal rose spirit formations serve naturally creating organic royal court patterns, court of chromatic spring summoned cascades from pristine metal framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, royal chromatic garden celebration radiating, epic powerful sprite art, full metal rose scepter composition, --ar 16:9 --v 7.0
+```
+
+**Spring's Choir Wand** (Harmonic Growth Staff) (48x48)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial harmonic growth staff weapon rotated 45 degrees with tuning fork head pointing upward, pristine intertwined white and black metal branches forming tuning fork shape forming clean elegant staff outline fork tines and musical metal grip edges with singing chromatic growth luminous finish, tuning fork head interior filled with flowing amorphous singing pale rainbow rose spirit chorus summoned by striking and visible sound waves causing pale rainbow roses to bloom swirling like harmonic chromatic growth, wavy harmonic energy flows through chorus singing in visible musical notation down entire staff creating visible harmony currents, metal flowering branch surface decorated with flowing butterflies carrying tiny lyric scrolls and chromatic seed pearls decorating fork tines with glowing stored song orbs, orbiting each branch representing different voice part flowing in graceful spiral around choir staff, musical score pages pressed into metal grip glow majestically while harmonic radiance pulses with inner choirmaster luminescence, multiple singing pale rainbow rose formations bloom naturally creating organic choir patterns, harmony grows from chromatic earth cascades from pristine metal flowering branch framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, singing chromatic growth harmony radiating, epic powerful sprite art, full choir staff composition, --ar 16:9 --v 7.0
 ```
 
 ### Class Accessories (5)
@@ -4275,36 +4563,36 @@ Concept art for a side-view idle pixel art sprite of ancient celestial summon cr
 **Vanguard's Wreath** (Melee) (32x32)
 *Melee attacks heal on hit*
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial flower wreath accessory themed around "Ode to Joy Melee Healing" made of pure white flower wreath worn on arm with pale rainbow blooms and living vines and silver accents created by music in the style of Terraria, radiating a powerful vanguard healing aura, music notes surround it, ignited in white-rainbow joyful flames, verdant leaves interwoven and prismatic rainbow energy at flower centers and musical note petals and small vine tendrils and blooming flowers float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial metal rose wreath accessory themed around "Ode to Joy Melee Healing" made of white and black metal rose wreath worn on arm with pale rainbow rose blooms and chromatic vines and silver accents created by music in the style of Terraria, radiating a powerful vanguard healing aura, music notes surround it, ignited in white-chromatic joyful flames, metal leaves interwoven and chromatic iridescent energy at rose centers and musical note petals and small chromatic vine tendrils and blooming pale rainbow roses float around it and are apart of its design, detailed, black and white metal ornate design like a royal mechanism, full-view --v 7.0
 ```
 
 **Marksman's Garden** (Ranged) (34x34)
 *Arrows spawn flowers on impact*
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial quiver accessory themed around "Ode to Joy Ranged Blooming" made of pure white quiver overgrown with flowering vines with pale rainbow-tipped arrows and silver accents created by music in the style of Terraria, radiating a powerful blooming hunter aura, music notes surround it, ignited in white-rainbow harmonic flames, verdant moss covering and prismatic rainbow pollen floating and musical staff vine pattern and small blooms and floating pollen float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial quiver accessory themed around "Ode to Joy Ranged Blooming" made of white and black metal quiver overgrown with chromatic flowering vines with pale rainbow rose-tipped arrows and silver accents created by music in the style of Terraria, radiating a powerful blooming hunter aura, music notes surround it, ignited in white-chromatic harmonic flames, metal covering and chromatic iridescent pollen floating and musical staff chromatic vine pattern and small pale rainbow rose blooms and floating chromatic petals float around it and are apart of its design, detailed, black and white metal ornate design like a royal mechanism, full-view --v 7.0
 ```
 
 **Bloom of Wisdom** (Mage) (30x30)
 *Spells leave healing trails*
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial flower pendant accessory themed around "Ode to Joy Magic Wisdom" made of large pure white flower pendant with pale rainbow center gem and living vine chain and silver accents created by music in the style of Terraria, radiating a powerful blooming wisdom aura, music notes surround it, ignited in white-rainbow joyful flames, small leaves and musical treble clef clasp and prismatic rainbow aura emanating and musical notes in petal arrangement and verdant growth float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial metal rose pendant accessory themed around "Ode to Joy Magic Wisdom" made of large white and black metal rose pendant with chromatic iridescent center gem and chromatic vine chain and silver accents created by music in the style of Terraria, radiating a powerful blooming wisdom aura, music notes surround it, ignited in white-chromatic joyful flames, small metal leaves and musical treble clef clasp and chromatic iridescent aura emanating and musical notes in petal arrangement and pale rainbow rose petals float around it and are apart of its design, detailed, black and white metal ornate design like a royal mechanism, full-view --v 7.0
 ```
 
 **Conductor's Garland** (Summoner) (32x32)
 *Minions regenerate health*
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial flower crown garland accessory themed around "Ode to Joy Summoner Regeneration" made of circular pure white flower crown with pale rainbow blooms and living vines and silver accents created by music in the style of Terraria, radiating a powerful regenerating summoner aura, music notes surround it, ignited in white-rainbow harmonic flames, verdant leaves woven throughout and prismatic rainbow sparkles at flower centers and musical notes formed by vine patterns and elegant floral patterns and rainbow sparkles float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial metal rose crown garland accessory themed around "Ode to Joy Summoner Regeneration" made of circular white and black metal rose crown with pale rainbow rose blooms and chromatic vines and silver accents created by music in the style of Terraria, radiating a powerful regenerating summoner aura, music notes surround it, ignited in white-chromatic harmonic flames, metal leaves woven throughout and chromatic iridescent sparkles at rose centers and musical notes formed by chromatic vine patterns and elegant floral patterns and chromatic sparkles float around it and are apart of its design, detailed, black and white metal ornate design like a royal mechanism, full-view --v 7.0
 ```
 
 **Ring of Rejoicing** (Universal) (24x24)
 *+10% all damage, passive regen*
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial ring accessory themed around "Ode to Joy Universal Rejoicing" made of pure white vine ring with small pale rainbow flower bloom and verdant green band of living growth and silver accents created by music in the style of Terraria, radiating a powerful rejoicing power aura, music notes surround it, ignited in white-rainbow joyful flames, prismatic rainbow gem at center and musical note engraving on band and tiny sprouting leaves and rainbow shimmer float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial ring accessory themed around "Ode to Joy Universal Rejoicing" made of white and black metal vine ring with small pale rainbow rose bloom and chromatic band of chromatic growth and silver accents created by music in the style of Terraria, radiating a powerful rejoicing power aura, music notes surround it, ignited in white-chromatic joyful flames, chromatic iridescent gem at center and musical note engraving on band and tiny sprouting chromatic leaves and chromatic shimmer float around it and are apart of its design, detailed, black and white metal ornate design like a royal mechanism, full-view --v 7.0
 ```
 
 **Universal Accessory Prompt**
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial crystal themed around "Ode to Joy" made of pure white and verdant green metal with golden pollen accents created by music in the style of Terraria, radiating a powerful aura, music notes surround it, ignited in a vibrant white and verdant green and pale rainbow flames, blooming flowers and floating petals and verdant vines float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial crystal themed around "Ode to Joy" made of white and black metal with chromatic iridescent vine accents created by music in the style of Terraria, radiating a powerful aura, music notes surround it, ignited in a vibrant white and chromatic iridescent and pale rainbow flames, blooming pale rainbow roses and floating chromatic petals and chromatic vines float around it and are apart of its design, detailed, black and white metal ornate design like a royal mechanism, full-view --v 7.0
 ```
 
 ### 📝 Example Unique Names for Ode to Joy Items
@@ -4356,103 +4644,29 @@ Concept art for a side-view idle pixel art sprite of an ancient celestial crysta
 4. Wreath of Harmonic Growth
 5. Blossom of the Eternal Hymn
 
----
-
-## ⚔️ ADDITIONAL WEAPON PROMPTS (Unique Verdant Celebration Styles)
-
-### Melee Weapons (3 Additional Unique Prompts)
-
-**Hymn of Blossoming** (Living Flower Greatsword) (54x54)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial living flower greatsword weapon rotated 45 degrees with blade pointing top-right, pristine living vines woven together forming clean elegant massive blade outline body and flowering guard edges with golden spring luminous finish, blade interior filled with flowing amorphous blooming flowers and crystallized morning dew swirling like spring celebration, wavy harmonic energy flows through pollen trails down entire blade creating visible joyful growth currents, living vine surface decorated with flowing musical notation and constantly drifting petals in joyful spirals, orbiting butterflies and bees flowing in graceful spiral around flower greatsword, golden light glows majestically while soft green radiance pulses with inner life-giving luminescence, multiple flowering formations bloom naturally creating organic verdant patterns, moss-wrapped handle with intertwined flowering branches forming crossguard, spring celebration cascades from pristine vine framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, life-giving euphoria radiating, epic powerful sprite art, full living greatsword composition, --ar 16:9 --v 7.0
-```
-
-**Spring's Triumphant Edge** (Victory Wreath Blade) (52x52)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial victory wreath blade weapon rotated 45 degrees with blade pointing top-right, pristine crystallized spring sunlight forming clean elegant blade outline laurel wreath guard and trophy pommel edges with prismatic rainbow luminous finish, blade interior filled with flowing amorphous golden victory light and flower crown decorations swirling like triumphant celebration, wavy harmonic energy flows through golden victory ribbons trailing from hilt down entire blade creating visible championship currents, crystallized sunlight surface decorated with flowing musical notation and woven olive laurel leaves throughout, orbiting butterflies carrying tiny celebration banners flowing in graceful spiral around victory blade, champagne sparkle effervescence drifts majestically while prismatic rainbow edge pulses with inner triumph luminescence, multiple flower crown formations bloom naturally creating organic ceremonial patterns, trophy cup pommel overflows with flowers, life victory celebration cascades from pristine crystal framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, championship euphoria radiating, epic powerful sprite art, full victory blade composition, --ar 16:9 --v 7.0
-```
-
-**Jubilant Cleaver** (Festival Dance Scimitar) (50x50)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial festival dance scimitar weapon rotated 45 degrees with curved blade pointing top-right, pristine singing crystal that hums when swung forming clean elegant curved blade outline clasped dancing hands guard edges with carnival luminous finish, curved blade interior filled with flowing amorphous dancing figure silhouettes in silver inlay and festival ribbon trails swirling like community celebration, wavy harmonic energy flows through festival ribbons of every spring color trailing from pommel down entire scimitar creating visible carnival joy currents, singing crystal surface decorated with flowing musical notes that spray from blade and tiny chiming bells along spine, orbiting lantern glow warmth and dancing butterflies flowing in graceful spiral around festival blade, flower confetti bursts majestically while carnival warmth pulses with inner community luminescence, multiple dancing figure formations move naturally creating organic festival patterns, flower-wrapped handle with clasped dancing hands guard, togetherness celebration cascades from pristine crystal framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, carnival joy radiating, epic powerful sprite art, full festival scimitar composition, --ar 16:9 --v 7.0
-```
-
-### Ranged Weapons (3 Additional Unique Prompts)
-
-**Pollinator's Bow** (Living Garden Longbow) (46x46)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial living garden longbow weapon rotated 45 degrees with flowering limbs pointing upward, pristine two flowering branches grown into bow shape forming clean elegant bow outline blossom tips and moss grip edges with pollination luminous finish, bow limbs interior filled with flowing amorphous spider silk dewdrop bowstring and living flower stem arrows swirling like nature harmony, wavy harmonic energy flows through pollen trajectory trails down entire bow creating visible pollination currents, flowering branch surface decorated with flowing honeycomb accents with golden honey glow and songbird nests in upper limb, orbiting butterflies and bees flowing in graceful spiral around pollinator bow, seeds scatter majestically while golden honey warmth pulses with inner ecosystem luminescence, multiple bloom formations open naturally creating organic symbiosis patterns, soft petal moss wrapped grip with living flower arrows that bloom on impact, nature celebration cascades from pristine living branch framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, pollination harmony radiating, epic powerful sprite art, full garden longbow composition, --ar 16:9 --v 7.0
-```
-
-**Garden's Crescendo** (Symphonic Seed Launcher) (52x52)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial symphonic seed launcher weapon rotated 45 degrees with flower trumpet bells pointing top-right, pristine intertwined brass horns and living vines forming clean elegant launcher outline cornucopia magazine and bellows edges with spring symphony luminous finish, flower trumpet bells interior filled with flowing amorphous launching seeds accompanied by harmonic tones and musical notes made of flower petals swirling like growth symphony, wavy harmonic energy flows through vine tendrils forming musical notation in air down entire launcher creating visible spring symphony currents, brass and vine surface decorated with flowing pastoral scene reliefs and butterflies carrying tiny instruments, orbiting songbird choir perching along barrel flowing in graceful spiral around symphonic launcher, festival lights twinkle majestically while cornucopia radiance pulses with inner orchestral luminescence, multiple seed formations launch naturally creating organic garden concert patterns, magazine overflows with glowing seeds, nature concert cascades from pristine brass vine framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, growth symphony radiating, epic powerful sprite art, full seed launcher composition, --ar 16:9 --v 7.0
-```
-
-**Verdant Barrage** (Celebration Cannon) (54x54)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial celebration party cannon weapon rotated 45 degrees with flowering bronze barrel pointing top-right, pristine flowering bronze wrapped in living ivy and morning glory vines forming clean elegant cannon outline hopper and parade float stock edges with festival firework luminous finish, cannon barrel interior filled with flowing amorphous flower petal confetti and harmonic sparkle bursts swirling like explosive celebration, wavy harmonic energy flows through rainbow streamers trailing from barrel down entire cannon creating visible festival currents, flowering bronze surface decorated with flowing musical fanfare notes around muzzle and lanterns bunting decorating every surface, orbiting butterflies emerging from each blast flowing in graceful spiral around celebration cannon, popping champagne cork sparks drift majestically while parade float radiance pulses with inner festival luminescence, multiple confetti formations burst naturally creating organic celebration patterns, hopper overflows with celebration supplies, parade joy cascades from pristine bronze vine framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, explosive celebration radiating, epic powerful sprite art, full party cannon composition, --ar 16:9 --v 7.0
-```
-
-### Magic Weapons (3 Additional Unique Prompts)
-
-**Aria of Renewal** (Birdsong Staff) (48x48)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial birdsong staff weapon rotated 45 degrees with multiple bird perches pointing upward, pristine silver branch staff forming clean elegant staff outline perches and nest crooks edges with dawn chorus luminous finish, staff top interior filled with flowing amorphous tiny songbirds made of light perching and singing creating visible music and golden sunrise glow swirling like morning renewal, wavy harmonic energy flows through musical notes floating upward from birdsong down entire staff creating visible dawn symphony currents, silver branch surface decorated with flowing dewdrops on delicate leaf decorations and nests with glowing eggs nestled in crooks, orbiting feathers of every spring color and resting butterflies flowing in graceful spiral around birdsong staff, flower buds open majestically while golden sunrise radiance pulses with inner renewal luminescence, multiple songbird formations sing naturally creating organic dawn chorus patterns, grip wrapped in down feathers, dawn symphony cascades from pristine silver branch framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, morning renewal radiating, epic powerful sprite art, full birdsong staff composition, --ar 16:9 --v 7.0
-```
-
-**Blooming Grimoire** (Living Flower Tome) (36x36)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial living flower tome weapon floating with crystal pages turning, pristine bark covers with pressed flowers under crystal pages forming clean elegant tome outline spine and living clasp edges with botanical wisdom luminous finish, floating tome interior filled with flowing amorphous blooming illustrations appearing on turning pages and flowers growing from spine swirling like botanical knowledge, wavy harmonic energy flows through pollen sparkles drifting from turning pages down entire grimoire creating visible botanical currents, bark cover surface decorated with flowing butterfly bookmarks and vines along binding with tiny blooming buds, orbiting seeds falling and taking root flowing in graceful spiral around living tome, musical notation as flower arrangements on pages glows majestically while soft green botanical radiance pulses with inner wisdom luminescence, multiple flower formations bloom naturally creating organic naturalist patterns, living opening flower clasp, spring wisdom cascades from pristine bark framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, botanical euphoria radiating, epic powerful sprite art, full living tome composition, --ar 16:9 --v 7.0
-```
-
-**Euphoric Cascade** (Fountain of Joy Wand) (38x38)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial fountain of joy wand weapon rotated 45 degrees with cascading tip pointing upward, pristine crystallized spring water in wand form forming clean elegant wand outline lily stem handle and basin base edges with overflowing happiness luminous finish, crystallized water wand interior filled with flowing amorphous liquid joy cascading from tip in eternal upward fountain and flowers frozen mid-bloom within swirling like bubbling euphoria, wavy harmonic energy flows through rainbow refractions dancing through water crystal down entire wand creating visible euphoria currents, spring water crystal surface decorated with flowing fish made of light swimming and lily pads lotus flowers floating on cascade, orbiting butterflies drinking from spray and musical water droplet notes flowing in graceful spiral around fountain wand, wishing coin sparkles drift majestically while rainbow refraction radiance pulses with inner happiness luminescence, multiple water bloom formations cascade naturally creating organic fountain patterns, water lily stem wrapped handle with basin base, pure happiness cascades from pristine crystal framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overflowing joy radiating, epic powerful sprite art, full fountain wand composition, --ar 16:9 --v 7.0
-```
-
-### Summon Weapons (3 Additional Unique Prompts)
-
-**Conductor of the Garden** (Maestro's Baton) (44x44)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial maestro baton weapon rotated 45 degrees with flower-tipped end pointing upward, pristine silver wand with musical notation vine spirals forming clean elegant baton outline tip and moss grip edges with orchestral harmony luminous finish, flower-tipped baton interior filled with flowing amorphous visible music trailing from tip summoning nature performers and butterflies dancing to conductor movements swirling like nature orchestra, wavy harmonic energy flows through musical notes forming summoned minions themselves down entire baton creating visible harmony currents, silver wand surface decorated with flowing flower sprites awaiting direction and songbird section leaders with bee ensemble in formation, orbiting fireflies providing stage lighting flowing in graceful spiral around maestro baton, soft moss wrapped grip with gemstone button accents glows majestically while orchestral radiance pulses with inner unity luminescence, multiple flower minion formations await naturally creating organic conductor patterns, nature unified in song cascades from pristine silver framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, orchestral nature harmony radiating, epic powerful sprite art, full maestro baton composition, --ar 16:9 --v 7.0
-```
-
-**Petals of Elation** (Flower Crown Scepter) (50x50)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial flower crown scepter weapon rotated 45 degrees with blooming crown head pointing upward, pristine golden scepter topped with ever-blooming flower crown forming clean elegant scepter outline shaft and garland decorations edges with royal garden luminous finish, flower crown head interior filled with flowing amorphous drifting petals becoming dancing minion sprites and tiny crown-wearing flower spirits swirling like coronation celebration, wavy harmonic energy flows through musical fanfares heralding each summon down entire scepter creating visible royal currents, golden scepter surface decorated with flowing festival garland ribbons and dewdrop gems adorning crown with birds of paradise feathers, orbiting butterflies forming loyal court flowing in graceful spiral around flower crown scepter, pollen sparkles like royal glitter drift majestically while crown radiance pulses with inner coronation luminescence, multiple flower spirit formations serve naturally creating organic royal court patterns, court of spring summoned cascades from pristine golden framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, royal garden celebration radiating, epic powerful sprite art, full flower scepter composition, --ar 16:9 --v 7.0
-```
-
-**Spring's Choir Wand** (Harmonic Growth Staff) (48x48)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial harmonic growth staff weapon rotated 45 degrees with tuning fork head pointing upward, pristine intertwined flowering branches forming tuning fork shape forming clean elegant staff outline fork tines and musical bark grip edges with singing growth luminous finish, tuning fork head interior filled with flowing amorphous singing flower spirit chorus summoned by striking and visible sound waves causing flowers to bloom swirling like harmonic growth, wavy harmonic energy flows through chorus singing in visible musical notation down entire staff creating visible harmony currents, flowering branch surface decorated with flowing butterflies carrying tiny lyric scrolls and seed pearls decorating fork tines with glowing stored song orbs, orbiting each branch representing different voice part flowing in graceful spiral around choir staff, musical score pages pressed into bark grip glow majestically while harmonic radiance pulses with inner choirmaster luminescence, multiple singing flower formations bloom naturally creating organic choir patterns, harmony grows from earth cascades from pristine flowering branch framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, singing growth harmony radiating, epic powerful sprite art, full choir staff composition, --ar 16:9 --v 7.0
-```
-
----
-
 ### Wings
 
 **Wings of Jubilation** (48x44)
-*Magnificent butterfly wings made of pure white light with pale rainbow veins and flowers*
+*Magnificent butterfly wings made of white and black metal with chromatic iridescent veins and pale rainbow roses*
 ```
-Concept art for a side-view idle pixel art sprite of ancient celestial magnificent butterfly wings accessory themed around "Ode to Joy Jubilant Flight" made of pure white light wings with pale rainbow veins and living flower vines along edges and silver accents created by music in the style of Terraria, radiating a powerful jubilant flight aura, music notes surround it, ignited in white-rainbow harmonic flames, verdant leaves at bases and prismatic rainbow shimmer and musical note patterns and small blooming flowers at tips float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, back view symmetrical, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of ancient celestial magnificent butterfly wings accessory themed around "Ode to Joy Jubilant Flight" made of white and black metal wings with chromatic iridescent veins and chromatic vine patterns along edges with pale rainbow rose accents created by music in the style of Terraria, radiating a powerful jubilant flight aura, music notes surround it, ignited in white-chromatic harmonic flames, metal leaves at bases and chromatic iridescent shimmer and musical note patterns and small pale rainbow rose blooms at tips float around it and are apart of its design, detailed, black and white metal ornate design like a royal mechanism, back view symmetrical, full-view --v 7.0
 ```
 
 ### Unique Particles (3)
 
 **Petal Burst** (32x32, 16 variations)
 ```
-solid white flower petal particle sprite sheet, 16 variations, delicate petals with pure white fill, soft white glow, small leaf variants included in white, varying sizes and rotation angles, smooth organic edges, grayscale only for in-game color tinting, suitable for nature magic effects, 32x32 pixels upscaled, transparent background --v 6.1 --ar 16:9 --style raw --s 75
+solid white pale rainbow rose petal particle sprite sheet, 16 variations, delicate metal rose petals with chromatic iridescent shimmer, soft white glow with chromatic tints, small chromatic vine variants included, varying sizes and rotation angles, smooth organic edges, grayscale only for in-game color tinting, suitable for chromatic rose magic effects, 32x32 pixels upscaled, transparent background --v 6.1 --ar 16:9 --style raw --s 75
 ```
 
 **Harmonic Note Sparkle** (32x32, 12 variations)
 ```
-solid white musical note particle sprite sheet, 12 variations, pure white music notes with soft white glow, quarter eighth and whole notes, small flower accent variants in white, vine trail elements in white, varying brightness from subtle to radiant, grayscale only for in-game color tinting, suitable for hymn weapon effects, 32x32 pixels upscaled, transparent background --v 6.1 --ar 16:9 --style raw --s 75
+solid white musical note particle sprite sheet, 12 variations, chromatic iridescent music notes with soft white glow, quarter eighth and whole notes, small metal rose accent variants in white, chromatic vine trail elements in white, varying brightness from subtle to radiant, grayscale only for in-game color tinting, suitable for hymn weapon effects, 32x32 pixels upscaled, transparent background --v 6.1 --ar 16:9 --style raw --s 75
 ```
 
 **Vine Growth Tendril** (32x32, 8 variations)
 ```
-solid white vine tendril particle sprite sheet, 8 variations, vine shapes with pure white flowers and white buds, small leaves sprouting in white, soft white energy at growth tips, varying curl patterns and lengths, organic flowing shapes, grayscale only for in-game color tinting, suitable for summon and growth effects, 32x32 pixels upscaled, transparent background --v 6.1 --ar 16:9 --style raw --s 75
+solid white chromatic vine tendril particle sprite sheet, 8 variations, metal vine shapes with white metal roses and chromatic iridescent buds, small metal leaves sprouting in white, soft chromatic energy at growth tips, varying curl patterns and lengths, organic flowing shapes with metallic sheen, grayscale only for in-game color tinting, suitable for summon and growth effects, 32x32 pixels upscaled, transparent background --v 6.1 --ar 16:9 --style raw --s 75
 ```
 
 ---
@@ -4463,8 +4677,8 @@ solid white vine tendril particle sprite sheet, 8 variations, vine shapes with p
 
 ```
 BOSS SPRITES (2)
-[ ] Phase 1 - Verdant Conductor (64x80)
-[ ] Phase 2 - Garden of Eternal Spring (72x88)
+[ ] Phase 1 - Chromatic Rose Conductor (64x80)
+[ ] Phase 2 - Garden of Eternal Metal Roses (72x88)
 
 CRAFTING MATERIALS (4)
 [ ] Ode to Joy Resonant Energy
@@ -4474,10 +4688,10 @@ CRAFTING MATERIALS (4)
 
 ORE & TOOLS (5)
 [ ] Ode to Joy Resonance Ore
-[ ] Spring's Melody Pickaxe
-[ ] Spring's Melody Drill
-[ ] Spring's Melody Axe
-[ ] Spring's Melody Hammer
+[ ] Metal Rose Melody Pickaxe
+[ ] Metal Rose Melody Drill
+[ ] Metal Rose Melody Axe
+[ ] Metal Rose Melody Hammer
 
 MELEE (3)
 [ ] Rose Thorn Chainsaw
@@ -4496,7 +4710,7 @@ MAGIC (3)
 
 SUMMON (3 + 3 minions)
 [ ] Monarch's Garden Scepter + Garden Paradise
-[ ] Hymnal Treant Staff + Living Treant
+[ ] Hymnal Treant Staff + Metal Rose Treant
 [ ] Choir Seedling Crucible + Seedling Choir (4)
 
 ACCESSORIES (5)
@@ -4510,9 +4724,9 @@ WINGS (1)
 [ ] Wings of Jubilation
 
 PARTICLES (3)
-[ ] Petal Burst
+[ ] Chromatic Rose Petal Burst
 [ ] Harmonic Note Sparkle
-[ ] Vine Growth Tendril
+[ ] Chromatic Vine Growth Tendril
 
 TOTAL: 32 assets
 ```
@@ -4520,22 +4734,48 @@ TOTAL: 32 assets
 ---
 
 # ⚙️ CLAIR DE LUNE - Shattered Clockwork
-*Theme: Temporal fracture, dark gray #3A3A3A, crimson #DC143C, crystal #E0E0E0, brass #CD7F32*
+*Theme: Temporal fracture, prismatic dark gray metal, clocks and clockwork designs, reddish crimson flames, shattered glass*
+*Colors: Dark gray #3A3A3A, crimson #DC143C, crystal #E0E0E0, brass #CD7F32*
 
 ### 🎵 SUNO Music Prompt - Clair de Lune Boss Theme
 ```
-epic orchestral rock metal, shattered clockwork atmosphere, haunting melodic piano over mechanical percussion rhythms, delicate harpsichord with sudden crushing breakdowns, ticking clock synths layered beneath fractured string melodies, dynamic shifts between frozen time stillness and explosive temporal shattering, no vocals, instrumental, 160 BPM
+epic orchestral rock metal, ethereal temporal serenade atmosphere, soaring melodic piano leads over celestial clockwork harmonies, elegant harpsichord nocturne motifs with heavy distorted temporal riffs, shimmering cosmic synths layered beneath majestic string orchestrations, dynamic shifts between gentle moonlit passages and powerful temporal metal climaxes, no vocals, instrumental, 175 BPM
 ```
 
 ---
 
-### 🎭 BOSS SPRITES
+### 🎭 BOSS SPRITES - THREE PHASE DIVINE BOSS FIGHT
 
-**Clair de Lune, Shattered Timekeeper** (150x150+)
-*Summoned with: Score of Clair de Lune (crafted from 15 Clair de Lune Resonant Energy + 10 Moonlit Mechanism Bars + Magic Mirror)*
+*Clair de Lune is the Goddess of Time's Harmony - a literal radiant divine being who controls the flow of temporal music. She manifests in three increasingly divine forms as her power awakens.*
+
+**Summoned with: Score of Clair de Lune** (crafted from 15 Clair de Lune Resonant Energy + 10 Moonlit Mechanism Bars + Magic Mirror)
 *Use at night in any biome*
+
+---
+
+**PHASE 1: Clair de Lune - The Dreaming Goddess** (100x120)
+*"Time sleeps, and dreams of harmony..."*
+*Initial form - serene, ethereal, floating deity in temporal slumber - already more divine than any mortal has witnessed*
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial boss entity themed around "Time's Fracture" made of elegant clockwork mechanisms of dark gray metal interwoven with vibrant crimson lightning coursing through gears and shattered glass crystals and brass hourglass fragments created by music in the style of Terraria, radiating a powerful aura, music notes surround it, ignited in temporal gray and crimson lightning flames, spinning gears and frozen clock hands and time-shattered glass float around it and are apart of its design, detailed boss sprite, silver ornate design like a royal mechanism, full-view --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial goddess boss entity in peaceful divine slumber themed around "Dreaming Goddess of Time's Harmony", breathtakingly beautiful elegant feminine divine figure composed of prismatic dark gray metal with iridescent clockwork surface and flowing temporal robes of crystallized moonlight and frozen time cascading like liquid silver, impossibly serene sleeping face with closed eyes radiating soft reddish crimson starfire and silver divine light, extraordinarily long flowing hair made of countless frozen clock hands and streaming musical notation drifting weightlessly forming a cosmic river, arms crossed gently cradling an ornate hourglass of immense power close to her luminous heart, massive clockwork halo of interlocking prismatic dark gray gears and blazing reddish crimson flames forming resplendent divine crown spanning behind her celestial head, magnificent translucent temporal wings folded in divine rest made of shattered glass fragments constantly falling like tears and frozen moments glittering like stars, orbiting constellation of sleeping music notes and countless tiny dormant clock faces with shattered glass shards and temporal motes drifting off her divine form, soft reddish crimson flames and silver divine aura pulsing with gentle cosmic heartbeat, brass and prismatic dark gray ornate divine armor decorated with intricate clock face motifs and shattered glass crystalline accents, genuinely massive in scale radiating overwhelming slumbering divinity that dwarfs mortal comprehension, Terraria legendary boss pixel art aesthetic with maximum ornate flowing detail, dreaming temporal goddess of unimaginable beauty, epic divine sprite art, full goddess composition --ar 5:6 --v 7.0
+```
+
+---
+
+**PHASE 2: Clair de Lune - The Awakened Timekeeper** (120x140)
+*"The goddess stirs... time itself trembles and shatters at her divine gaze..."*
+*Awakening form - eyes opening, temporal power surging beyond comprehension, reality fracturing in her presence*
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial goddess boss entity awakening to terrible divine glory themed around "Awakened Goddess of Time's Harmony", breathtakingly elegant feminine divine figure with eyes now open revealing swirling reddish crimson galaxies and collapsing timelines within their infinite depths, composed of prismatic dark gray metal with iridescent clockwork surface and magnificently billowing robes of fractured chronology streaming like liquid starlight, expression of incomprehensible ancient wisdom and absolute divine command, extraordinarily long hair now alive and blazing with countless streaming clock hands and fiery musical notation creating a temporal storm, multiple arms now manifesting as she outstretches commanding the flow of all time across all realities, hourglass now floating before her radiant chest with sand frozen mid-fall in impossible configurations, massive clockwork halo now spinning with tremendous speed as visible reddish crimson flames course through every prismatic dark gray gear creating spiraling light show, magnificent temporal wings now spread impossibly wide revealing intricate fractal patterns of past present and future moments frozen in crystalline shards with shattered glass constantly falling like divine rain, orbiting maelstrom of awakening music notes and countless spinning clock faces creating temporal hurricane of reality-bending power with shattered glass shards streaming off endlessly, intense reddish crimson flames and silver divine aura crackling with power that warps space around her, cascading shattered glass fragments and temporal echoes and afterimages trailing from her divine form, brass and prismatic dark gray ornate divine armor now blazing with fully activated cosmic power, genuinely massive in scale radiating overwhelming awakening divinity that threatens to shatter reality, time itself bending breaking and reforming around her divine presence, Terraria legendary boss pixel art aesthetic with maximum ornate flowing detail, awakening temporal goddess of terrifying beauty, epic divine sprite art, full goddess composition --ar 5:6 --v 7.0
+```
+
+---
+
+**PHASE 3: Clair de Lune - Radiant Goddess of Eternal Harmony** (140x170)
+*"BEHOLD THE GODDESS IN HER FULL TRANSCENDENT GLORY - ALL OF TIME AND REALITY ITSELF BOWS BEFORE HER ETERNAL SONG!"*
+*Final divine form - absolute radiant power unleashed beyond mortal comprehension, reality-annihilating presence, the most overwhelming cosmic deity ever witnessed*
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial goddess boss entity at absolute peak divine power themed around "Radiant Goddess of Time's Harmony in Transcendent Absolute Glory", impossibly transcendent feminine divine figure of overwhelming cosmic presence that threatens to unmake reality by merely existing, eyes blazing with infinite reddish crimson starfire containing the birth death and rebirth of every moment that ever was or will be across infinite timelines, form now semi-translucent revealing the prismatic dark gray clockwork of creation and destruction itself within her universe-spanning divine body, composed of pure temporal essence and solidified harmony and crystallized eternity given impossible form with iridescent clockwork surface that shifts through every color of time, expression of absolute unfathomable divine authority and eternal cosmic love that breaks mortal minds, hair transformed into infinite cascading rivers of time itself with entire timelines and parallel universes flowing through silver strands and shattered glass constantly streaming like cosmic waterfalls, EIGHT arms now manifested each holding different temporal artifact of immeasurable power (hourglass of eternity, metronome of fate, clock of creation, pendulum of doom, sundial of stars, astrolabe of dimensions, mirror of possibility, key of endings) all frozen at the moment between moments, massive prismatic dark gray clockwork halo now a complete GALAXY of spinning temporal gears and blazing reddish crimson flames and orbiting moons forming absolute divine crown that fills the entire sky and beyond, temporal wings now impossibly massive and blindingly radiant spreading across all of reality itself made of every frozen moment in infinite existence glittering like infinite mirrors of infinite shattered glass, orbiting maelstrom of divine music notes and astronomical clock mechanisms and shattered hourglasses and cascading shattered glass and temporal anomalies and frozen screaming moments creating absolute reality storm of incomprehensible scale, overwhelming reddish crimson flames and silver and gold and platinum divine aura that actively warps tears and reweaves the fabric of space-time and causality, temporal afterimages showing infinite past present and future selves overlapping in cosmic dance with shattered glass trailing each infinite form, brass and prismatic dark gray and gold and platinum ornate divine armor now blazing with full absolute divine radiance decorated with every musical notation in every reality, GENUINELY MASSIVE in scale radiating absolute overwhelming infinite transcendent divinity beyond mortal scale or comprehension, the very concept of time and harmony and music and existence made manifest as goddess supreme, reality unraveling reweaving and being reborn in her presence with shattered glass falling like infinite divine tears of cosmic joy and sorrow, Terraria legendary boss pixel art aesthetic with maximum ornate flowing detail pushed to absolute limits, absolute radiant temporal goddess of eternal transcendent harmony supreme, epic divine sprite art masterpiece of impossible beauty and terror, full transcendent goddess composition of ultimate divinity --ar 4:5 --v 7.0
 ```
 
 ---
@@ -4544,7 +4784,7 @@ Concept art for a side-view idle pixel art sprite of an ancient celestial boss e
 
 **Score of Clair de Lune** (32x32)
 ```
-Concept art for a side-view idle pixel art sprite of a burning magical sheet music scroll themed around "Clair de Lune" made of fractured gray parchment with glowing crimson musical notation ignited in temporal gray and crimson lightning flames with brass clockwork accents created by music in the style of Terraria, radiating a powerful time-bending summoning aura, music notes shatter off the fractured pages, clock gears and glass shards drift around it, detailed item sprite, ornate design, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of a burning magical sheet music scroll themed around "Clair de Lune" made of fractured prismatic dark gray parchment with glowing reddish crimson musical notation ignited in temporal reddish flames with brass clockwork gear accents created by music in the style of Terraria, radiating a powerful time-bending summoning aura, music notes shatter off the fractured pages, clock gears and shattered glass shards constantly drift and fall from it, detailed item sprite with prismatic dark gray metal binding, ornate clockwork design, full-view --v 7.0
 ```
 
 ---
@@ -4553,7 +4793,7 @@ Concept art for a side-view idle pixel art sprite of a burning magical sheet mus
 
 **Clair de Lune Treasure Bag** (32x32)
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial treasure bag themed around "Clair de Lune" made of dark gray temporal fabric tied with crimson lightning ribbon and brass clockwork gear clasps created by time-bending energy in the style of Terraria legendary pixel art aesthetic with maximum ornate flowing detail, radiating powerful temporal loot aura, music notes and clock gear fragments drift from the opening, shattered hourglass patterns scattered across the fabric, crimson musical notation ticking across the surface, gray and crimson energy wisps with glass shard particles emanate from within, detailed item sprite, ornate clockwork design, full-view --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial treasure bag themed around "Clair de Lune" made of prismatic dark gray metal fabric with iridescent sheen tied with reddish crimson flame ribbon and brass clockwork gear clasps created by time-bending energy in the style of Terraria legendary pixel art aesthetic with maximum ornate flowing detail, radiating powerful temporal loot aura, music notes and clock gear fragments drift from the opening, shattered glass constantly falls from the bag edges, shattered hourglass patterns scattered across the fabric, reddish crimson musical notation ticking across the prismatic dark gray surface, reddish flames and shattered glass shards emanate from within, detailed item sprite, ornate clockwork design, full-view --v 7.0
 ```
 
 ---
@@ -4562,51 +4802,51 @@ Magnificent side-view pixel art sprite of an extraordinarily grand celestial tre
 
 **Clair de Lune Resonant Energy** (32x32)
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial energy orb themed around "Clair de Lune" made of dark gray sphere with swirling crimson lightning patterns and frozen clock gear fragments with brass accents created by music in the style of Terraria, radiating a powerful temporal aura, music notes surround it, ignited in gray and crimson clockwork flames, glass shard particles and time distortion wisps float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial energy orb themed around "Clair de Lune" made of prismatic dark gray metal sphere with iridescent surface and swirling reddish crimson flame patterns and frozen clock gear fragments with brass accents created by music in the style of Terraria, radiating a powerful temporal aura, music notes surround it, ignited in reddish crimson clockwork flames, shattered glass shards constantly falling off and time distortion wisps float around it and are apart of its design, detailed, prismatic dark gray ornate design like a royal clockwork mechanism, full-view --v 7.0
 ```
 
 **Clair de Lune Resonant Core** (36x36)
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial crystalline core themed around "Clair de Lune" made of dark gray crystal with crimson lightning veins forming clock face pattern and central spinning gear mechanism with brass accents created by music in the style of Terraria, radiating a powerful clockwork aura, music notes surround it, ignited in gray and crimson temporal flames, hourglass patterns and glass shard energy wisps float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial crystalline core themed around "Clair de Lune" made of prismatic dark gray metal crystal with iridescent surface and reddish crimson flame veins forming clock face pattern and central spinning gear mechanism with brass accents created by music in the style of Terraria, radiating a powerful clockwork aura, music notes surround it, ignited in reddish crimson temporal flames, hourglass patterns and shattered glass shards constantly falling off float around it and are apart of its design, detailed, prismatic dark gray ornate design like a royal clockwork mechanism, full-view --v 7.0
 ```
 
 **Remnant of Clair de Lune's Harmony** (28x28)
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial crystal shard themed around "Clair de Lune" made of jagged dark gray crystal chunk with crimson lightning frozen inside and gear fragment inclusions with brass accents created by music in the style of Terraria, radiating a powerful fading temporal aura, music notes surround it, ignited in gray and crimson fading flames, small glass particles and clock hand silhouettes float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial crystal shard themed around "Clair de Lune" made of jagged prismatic dark gray metal crystal chunk with iridescent surface and reddish crimson flames frozen inside and gear fragment inclusions with brass accents created by music in the style of Terraria, radiating a powerful fading temporal aura, music notes surround it, ignited in reddish crimson fading flames, shattered glass particles constantly falling off and clock hand silhouettes float around it and are apart of its design, detailed, prismatic dark gray ornate design like a royal clockwork mechanism, full-view --v 7.0
 ```
 
 **Harmonic Core of Clair de Lune** (40x40)
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial clockwork heart crystal themed around "Clair de Lune" made of large ornate crystal shaped like mechanical clockwork heart of dark gray metal with crimson lightning core and orbiting gear rings with brass accents created by music in the style of Terraria, radiating a powerful overwhelming temporal aura, music notes surround it, ignited in gray and crimson clockwork flames, shattered hourglass fragments and time distortion energy float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial clockwork heart crystal themed around "Clair de Lune" made of large ornate crystal shaped like mechanical clockwork heart of prismatic dark gray metal with iridescent surface and reddish crimson flame core and orbiting gear rings with brass accents created by music in the style of Terraria, radiating a powerful overwhelming temporal aura, music notes surround it, ignited in reddish crimson clockwork flames, shattered glass constantly falling off and shattered hourglass fragments and time distortion energy float around it and are apart of its design, detailed, prismatic dark gray ornate design like a royal clockwork mechanism, full-view --v 7.0
 ```
 
 ---
 
 ### ⛏️ ORE & TOOLS (5)
 
-**Clair de Lune Resonance Ore** (16x16 - Block/Tile)
+**Clair de Lune Resonance Ore** (16x16 tileset) - 4x4 Sheet of different sprites
 ```
-pixel art ore tile sprite, dark gray crystalline ore embedded in stone with crimson lightning veins pulsing through deposits, clockwork gear fragments visible in larger crystal formations, glass-like shard patterns in the ore structure, mechanical ticking energy glow at crystal points, temporal distortion shimmer effect, matches terraria ore tile style, 16x16 pixel base upscaled, no background --v 7.0 --ar 1:1 --style raw --s 50
+pixel art ore block tileset, 4x4 variations for seamless tiling, dark stone with embedded veins of crystallized temporal energy containing frozen clockwork gear inclusions, prismatic dark gray metal base with iridescent sheen and reddish crimson flame veins pulsing through crystal deposits, shattered glass fragments constantly appearing to fall off edges and brass gear pieces visible in larger formations, reddish crimson flames glow softly with temporal shimmer, clock face patterns in some crystal clusters, terraria style tile, 16x16 pixel base per tile upscaled, seamless edges --v 7.0 --ar 1:1 --s 50
 ```
 
 **Moonlit Mechanism Pickaxe** (44x44)
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial pickaxe themed around "Clair de Lune Mining Tool" made of dark gray clockwork head with crimson lightning edge and brass gear handle with pendulum counterweight created by music in the style of Terraria, radiating a temporal mining aura, music notes surround it, ignited in gray-crimson clockwork flames, glass shard particles and frozen time distortions float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --ar 1:1 --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial pickaxe themed around "Clair de Lune Mining Tool" made of prismatic dark gray metal clockwork head with iridescent surface and reddish crimson flame edge and brass gear handle with pendulum counterweight created by music in the style of Terraria, radiating a temporal mining aura, music notes surround it, ignited in reddish crimson clockwork flames, shattered glass shards constantly falling off and frozen time distortions float around it and are apart of its design, detailed, prismatic dark gray ornate design like a royal clockwork mechanism, full-view --ar 1:1 --v 7.0
 ```
 
 **Moonlit Mechanism Drill** (48x48)
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial drill themed around "Clair de Lune Precision Mining" made of spiraling dark gray clockwork bit with crimson lightning core and brass gear housing with clock face display created by music in the style of Terraria, radiating a temporal drilling aura, music notes surround it, ignited in gray-crimson clockwork flames, glass shard particles and spinning gear particles float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --ar 1:1 --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial drill themed around "Clair de Lune Precision Mining" made of spiraling prismatic dark gray metal clockwork bit with iridescent surface and reddish crimson flame core and brass gear housing with clock face display created by music in the style of Terraria, radiating a temporal drilling aura, music notes surround it, ignited in reddish crimson clockwork flames, shattered glass shards constantly falling off and spinning gear particles float around it and are apart of its design, detailed, prismatic dark gray ornate design like a royal clockwork mechanism, full-view --ar 1:1 --v 7.0
 ```
 
 **Moonlit Mechanism Axe** (42x42)
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial axe themed around "Clair de Lune Woodcutting Tool" made of dark gray clockwork blade with crimson lightning edge inlay and brass gear handle with pendulum counterweight created by music in the style of Terraria, radiating a temporal harvesting aura, music notes surround it, ignited in gray-crimson clockwork flames, glass shard particles and frozen time distortions float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --ar 1:1 --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial axe themed around "Clair de Lune Woodcutting Tool" made of prismatic dark gray metal clockwork blade with iridescent surface and reddish crimson flame edge inlay and brass gear handle with pendulum counterweight created by music in the style of Terraria, radiating a temporal harvesting aura, music notes surround it, ignited in reddish crimson clockwork flames, shattered glass shards constantly falling off and frozen time distortions float around it and are apart of its design, detailed, prismatic dark gray ornate design like a royal clockwork mechanism, full-view --ar 1:1 --v 7.0
 ```
 
 **Moonlit Mechanism Hammer** (46x46)
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial hammer themed around "Clair de Lune Building Tool" made of dark gray clockwork head with visible inner mechanisms and brass gear handle with crimson lightning core created by music in the style of Terraria, radiating a temporal construction aura, music notes surround it, ignited in gray-crimson clockwork flames, glass shard particles and clock hand trails float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --ar 1:1 --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial hammer themed around "Clair de Lune Building Tool" made of prismatic dark gray metal clockwork head with iridescent surface and visible inner mechanisms and brass gear handle with reddish crimson flame core created by music in the style of Terraria, radiating a temporal construction aura, music notes surround it, ignited in reddish crimson clockwork flames, shattered glass shards constantly falling off and clock hand trails float around it and are apart of its design, detailed, prismatic dark gray ornate design like a royal clockwork mechanism, full-view --ar 1:1 --v 7.0
 ```
 
 ---
@@ -4616,19 +4856,34 @@ Concept art for a side-view idle pixel art sprite of an ancient celestial hammer
 **Clockwork Executioner** (62x50) - ULTRA GREATSWORD
 *The massive mechanical blade that severs time itself - gears spin along the cutting edge*
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive mechanical executioner blade weapon rotated 45 degrees with blade pointing top-right, pristine dark gray Damascus-pattern metal forming clean elegant massive blade outline body and guard with temporal severance finish, massive blade interior filled with flowing amorphous visible spinning clockwork mechanisms and crimson energy channels swirling like time itself being cut, wavy harmonic energy flows through functioning clock face guard with crimson crystal hands down entire blade creating visible severance currents, dark gray Damascus surface decorated with flowing pendulum grip mechanism dynamics and temporal notation running blade, orbiting steam vents releasing crimson mist flowing in graceful spiral around clockwork executioner, ticking gear sounds drift majestically while functioning clock face pulses with inner clockwork luminescence, multiple mechanism formations spin naturally creating organic executioner patterns, crimson energy channels charge through pristine Damascus framework, time-cutting precision cascades from blade edge, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming temporal severance radiating, epic powerful sprite art, full executioner blade composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive mechanical executioner blade weapon rotated 45 degrees with blade pointing top-right, pristine prismatic dark gray metal Damascus-pattern with iridescent surface forming clean elegant massive blade outline body and guard with temporal severance finish, massive blade interior filled with flowing amorphous visible spinning clockwork mechanisms and reddish crimson flame channels swirling like time itself being cut, wavy harmonic energy flows through functioning clock face guard with reddish crimson crystal hands down entire blade creating visible severance currents, prismatic dark gray Damascus surface decorated with flowing pendulum grip mechanism dynamics and temporal notation running blade, orbiting steam vents releasing reddish flames and shattered glass constantly falling in graceful spiral around clockwork executioner, ticking gear sounds drift majestically while functioning clock face pulses with inner clockwork luminescence, multiple mechanism formations spin naturally creating organic executioner patterns, reddish crimson flames charge through pristine prismatic dark gray framework, time-cutting precision and shattered glass cascade from blade edge, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming temporal severance radiating, epic powerful sprite art, full executioner blade composition, --ar 16:9 --v 7.0
 ```
 
 **Time-Shard Scissor Blades** (58x58) - DUAL SCISSOR BLADES
 *Two interlocking blades of crystallized moments that cut through causality*
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive dual scissor blade weapon rotated 45 degrees with blades pointing top-right, pristine dark gray crystallized time forming clean elegant dual blade outline pivot and handles with causality severance finish, two interlocking blades interior filled with flowing amorphous crimson lightning veins and glass-like temporal shards swirling like reality cutting, wavy harmonic energy flows through golden clockwork chain connecting blades at pivot down entire scissors creating visible scissor currents, dark gray crystallized time surface decorated with flowing one blade past-frozen other future-shattered dynamics and causality notation running blades, orbiting shattered moment fragments flowing in graceful spiral around scissor blades, time paradox sparks drift majestically while golden clockwork pivot pulses with inner temporal luminescence, multiple crystallized moment formations freeze naturally creating organic causality patterns, crimson lightning cuts through pristine time crystal framework connected by golden gears, causality severance cascades from scissor blades, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming reality cutting radiating, epic powerful sprite art, full dual scissor composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive dual scissor blade weapon rotated 45 degrees with blades pointing top-right, pristine prismatic dark gray metal crystallized time with iridescent surface forming clean elegant dual blade outline pivot and handles with causality severance finish, two interlocking blades interior filled with flowing amorphous reddish crimson flame veins and shattered glass temporal shards swirling like reality cutting, wavy harmonic energy flows through golden clockwork chain connecting blades at pivot down entire scissors creating visible scissor currents, prismatic dark gray crystallized time surface decorated with flowing one blade past-frozen other future-shattered dynamics and causality notation running blades, orbiting shattered glass fragments constantly falling in graceful spiral around scissor blades, time paradox sparks and reddish flames drift majestically while golden clockwork pivot pulses with inner temporal luminescence, multiple crystallized moment formations freeze naturally creating organic causality patterns, reddish crimson flames cut through pristine prismatic dark gray framework connected by golden gears, causality severance and shattered glass cascade from scissor blades, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming reality cutting radiating, epic powerful sprite art, full dual scissor composition, --ar 16:9 --v 7.0
 ```
 
 **Pendulum Guillotine** (56x44) - EXECUTIONER'S AXE
 *A massive pendulum blade that swings with the weight of condemned time*
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive pendulum guillotine axe weapon rotated 45 degrees with blade pointing top-right, pristine dark gray metal forming clean elegant guillotine outline blade and frame with temporal execution finish, pendulum blade interior filled with flowing amorphous swinging weight mechanism and crimson lightning edge swirling like final judgment swing, wavy harmonic energy flows through visible clockwork pendulum mechanism in handle down entire guillotine creating visible execution currents, dark gray metal surface decorated with flowing metronome tick marks dynamics and execution notation running frame, orbiting condemned time fragments flowing in graceful spiral around pendulum guillotine, ticking countdown drifts majestically while massive pendulum weight pulses with inner clockwork luminescence, multiple gear formations swing naturally creating organic pendulum patterns, crimson lightning edge charges through pristine dark gray framework, final judgment cascades from swinging blade, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming temporal execution radiating, epic powerful sprite art, full guillotine axe composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive pendulum guillotine axe weapon rotated 45 degrees with blade pointing top-right, pristine prismatic dark gray metal with iridescent surface forming clean elegant guillotine outline blade and frame with temporal execution finish, pendulum blade interior filled with flowing amorphous swinging weight mechanism and reddish crimson flame edge swirling like final judgment swing, wavy harmonic energy flows through visible clockwork pendulum mechanism in handle down entire guillotine creating visible execution currents, prismatic dark gray metal surface decorated with flowing metronome tick marks dynamics and execution notation running frame, orbiting condemned time fragments and shattered glass constantly falling in graceful spiral around pendulum guillotine, ticking countdown and reddish flames drift majestically while massive pendulum weight pulses with inner clockwork luminescence, multiple gear formations swing naturally creating organic pendulum patterns, reddish crimson flame edge charges through pristine prismatic dark gray framework, final judgment and shattered glass cascade from swinging blade, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming temporal execution radiating, epic powerful sprite art, full guillotine axe composition, --ar 16:9 --v 7.0
+```
+
+**Clockwork Reaper** (Temporal Scythe) (56x56)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal clockwork scythe weapon rotated 45 degrees with frozen moonlight blade pointing top-right, pristine prismatic dark gray metal interlocking gears with iridescent surface forming clean elegant shaft outline blade and grip edges with time harvesting luminous finish, scythe blade interior filled with flowing amorphous frozen moonlight and crystallized time with clock hands forming cutting edge pointing to midnight and reddish crimson flames swirling like temporal reaping, wavy harmonic energy flows through shattered glass fragments constantly falling orbiting like frozen moments down entire scythe creating visible reaper currents, prismatic dark gray gear surface decorated with flowing hourglass sand trickling upward defying gravity and stopped pocket watch face guard with gears turning impossible directions, orbiting reddish crimson flames crackling along blade edge and afterimages showing past positions flowing in graceful spiral around temporal scythe, clock chain wrapped grip glows majestically while midnight radiance pulses with inner time-keeper luminescence, multiple gear formations mesh naturally creating organic temporal patterns, moments severed from existence cascade from pristine prismatic dark gray clockwork framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, temporal reaping radiating, epic powerful sprite art, full clockwork scythe composition, --ar 16:9 --v 7.0
+```
+
+**Frozen Moment's Edge** (Stasis Rapier) (48x48)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal stasis rapier weapon rotated 45 degrees with crystallized moonbeam blade pointing top-right, pristine prismatic dark gray metal crystallized moonbeam with iridescent surface forming clean elegant blade outline clockwork gear crossguard and hourglass grip edges with frozen time luminous finish, rapier blade interior filled with flowing amorphous blade frozen mid-ripple as if time stopped during forging and clock faces showing different frozen moments on guard with reddish crimson flames swirling like temporal stasis, wavy harmonic energy flows through reddish crimson flames trapped in frozen arcs down entire rapier creating visible stasis currents, prismatic dark gray crystallized moonbeam surface decorated with flowing blade edge shifting between seconds like glitch and gear mechanisms visible inside transparent blade with backwards musical notation, orbiting shattered glass time shards constantly falling floating motionless flowing in graceful spiral around stasis rapier with reddish flames, miniature hourglass grip with suspended sand glows majestically while frozen radiance pulses with inner duelist luminescence, multiple frozen moment formations suspend naturally creating organic stasis patterns, heartbeat strikes cascade from pristine prismatic dark gray crystal framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, temporal stasis radiating, epic powerful sprite art, full stasis rapier composition, --ar 16:9 --v 7.0
+```
+
+**Temporal Severance** (Twin Clock Hand Blades) (54x54)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal twin blade weapon rotated 45 degrees with clock hand blades pointing top-right, pristine prismatic dark gray metal massive clock hour and minute hands with iridescent surface converted to twin swords forming clean elegant twin blade outline gear chain connection and shared handle edges with time-splitting luminous finish, twin blades interior filled with flowing amorphous longer blade pointing to future shorter to past and broken clock faces shattering reforming with reddish crimson flames swirling like severed time, wavy harmonic energy flows through reddish crimson flames bridging between twin blades down entire weapon creating visible severance currents, prismatic dark gray clock hand surface decorated with flowing each blade edge inscribed with different time zones and gears meshing where blades connect at guard with shattered glass shard trails showing severed timeline branches constantly falling, orbiting musical measures counting different tempos on each blade and reddish flames flowing in graceful spiral around twin blades, perpetual motion mechanism handle glows majestically while paradox radiance pulses with inner time-cutting luminescence, multiple timeline formations sever naturally creating organic paradox patterns, time itself cut in two cascades from pristine prismatic dark gray clock hand framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, temporal severance radiating, epic powerful sprite art, full twin blade composition, --ar 16:9 --v 7.0
 ```
 
 ### Ranged Weapons (3)
@@ -4636,19 +4891,34 @@ Magnificent side-view pixel art sprite of an extraordinarily grand celestial mas
 **Temporal Gatling** (58x52) - GATLING GUN
 *Six clock-face barrels spin endlessly, each firing bullets from a different moment in time*
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial six-barreled clockwork gatling gun weapon rotated 45 degrees with barrels pointing top-right, pristine dark gray metal forming clean elegant gatling outline body and grip with temporal barrage finish, six barrel interior filled with flowing amorphous each barrel a functioning clock face showing different time swirling like overwhelming temporal artillery, wavy harmonic energy flows through ammunition belt of crystallized moment bullets down entire gatling creating visible temporal currents, dark gray metal surface decorated with flowing grandfather clock pendulum stock dynamics and temporal notation running frame, orbiting spent temporal casings flowing in graceful spiral around temporal gatling, frozen moment muzzle flashes drift majestically while six clock face barrels pulse with inner clockwork luminescence, multiple clock hand formations spin naturally creating organic temporal patterns, crimson lightning charges through pristine dark gray framework, bullets from different times cascade from spinning barrels, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming temporal barrage radiating, epic powerful sprite art, full gatling composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial six-barreled clockwork gatling gun weapon rotated 45 degrees with barrels pointing top-right, pristine prismatic dark gray metal with iridescent surface forming clean elegant gatling outline body and grip with temporal barrage finish, six barrel interior filled with flowing amorphous each barrel a functioning clock face showing different time swirling like overwhelming temporal artillery with reddish crimson flames, wavy harmonic energy flows through ammunition belt of crystallized moment bullets down entire gatling creating visible temporal currents, prismatic dark gray metal surface decorated with flowing grandfather clock pendulum stock dynamics and temporal notation running frame, orbiting spent temporal casings and shattered glass constantly falling in graceful spiral around temporal gatling with reddish flame muzzle flashes, frozen moment muzzle flashes drift majestically while six clock face barrels pulse with inner clockwork luminescence, multiple clock hand formations spin naturally creating organic temporal patterns, reddish crimson flames charge through pristine prismatic dark gray framework, bullets from different times cascade from spinning barrels, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming temporal barrage radiating, epic powerful sprite art, full gatling composition, --ar 16:9 --v 7.0
 ```
 
 **Chrono-Disruptor Railgun** (58x40) - RAILGUN
 *A precision weapon that fires concentrated time-freeze shots that halt victims in temporal amber*
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial precision clockwork railgun weapon rotated 45 degrees with barrel pointing top-right, pristine dark gray metal forming clean elegant railgun outline barrel and housing with time freeze precision finish, railgun body interior filled with flowing amorphous temporal compression rails and crystallized moment ammunition swirling like frozen moment targeting, wavy harmonic energy flows through spinning clock face barrel rings down entire railgun creating visible chrono-disruptor currents, dark gray metal surface decorated with flowing grandfather clock pendulum stock dynamics and temporal notation running barrel, orbiting frozen time distortions flowing in graceful spiral around chrono-disruptor, mechanical clicking sounds drift majestically while liquid crimson moonlight magazine pulses with inner clockwork luminescence, multiple barrel ring formations rotate naturally creating organic disruptor patterns, crimson moonlight charges through pristine clockwork framework, time freeze precision cascades from warping barrel, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming temporal precision radiating, epic powerful sprite art, full railgun composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial precision clockwork railgun weapon rotated 45 degrees with barrel pointing top-right, pristine prismatic dark gray metal with iridescent surface forming clean elegant railgun outline barrel and housing with time freeze precision finish, railgun body interior filled with flowing amorphous temporal compression rails and crystallized moment ammunition with reddish crimson flames swirling like frozen moment targeting, wavy harmonic energy flows through spinning clock face barrel rings down entire railgun creating visible chrono-disruptor currents, prismatic dark gray metal surface decorated with flowing grandfather clock pendulum stock dynamics and temporal notation running barrel, orbiting frozen time distortions and shattered glass constantly falling in graceful spiral around chrono-disruptor with reddish flame trails, mechanical clicking sounds drift majestically while liquid crimson moonlight magazine pulses with inner clockwork luminescence, multiple barrel ring formations rotate naturally creating organic disruptor patterns, reddish crimson flames charge through pristine clockwork framework, time freeze precision cascades from warping barrel, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming temporal precision radiating, epic powerful sprite art, full railgun composition, --ar 16:9 --v 7.0
 ```
 
 **Hourglass Siege Crossbow** (52x48) - SIEGE CROSSBOW
 *A massive crossbow that fires bolts of condensed temporal sand that shatter into time-trapping explosions*
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive siege crossbow weapon rotated 45 degrees with prod pointing top-right, pristine dark gray metal forming clean elegant siege crossbow outline frame and stock with temporal siege finish, massive crossbow interior filled with flowing amorphous hourglass bolt chamber and flowing temporal sand ammunition swirling like siege bombardment, wavy harmonic energy flows through crimson lightning string of pure temporal tension down entire siege bow creating visible siege currents, dark gray metal surface decorated with flowing clockwork crank mechanism dynamics and temporal notation running stock, orbiting hourglass bolt heads flowing in graceful spiral around siege crossbow, crystallized time sand trails drift majestically while auto-loading gear mechanism pulses with inner clockwork luminescence, multiple hourglass formations load naturally creating organic siege patterns, crimson temporal energy charges through pristine dark gray framework, time-trapping explosions cascade from bolt impact, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming temporal siege radiating, epic powerful sprite art, full siege crossbow composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive siege crossbow weapon rotated 45 degrees with prod pointing top-right, pristine prismatic dark gray metal with iridescent surface forming clean elegant siege crossbow outline frame and stock with temporal siege finish, massive crossbow interior filled with flowing amorphous hourglass bolt chamber and flowing temporal sand ammunition with reddish crimson flames swirling like siege bombardment, wavy harmonic energy flows through reddish crimson flame string of pure temporal tension down entire siege bow creating visible siege currents, prismatic dark gray metal surface decorated with flowing clockwork crank mechanism dynamics and temporal notation running stock, orbiting hourglass bolt heads and shattered glass constantly falling in graceful spiral around siege crossbow, crystallized time sand trails and reddish flames drift majestically while auto-loading gear mechanism pulses with inner clockwork luminescence, multiple hourglass formations load naturally creating organic siege patterns, reddish crimson flames charge through pristine prismatic dark gray framework, time-trapping explosions cascade from bolt impact, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming temporal siege radiating, epic powerful sprite art, full siege crossbow composition, --ar 16:9 --v 7.0
+```
+
+**Chrono Piercer** (Temporal Sniper Rifle) (56x40)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal sniper rifle weapon rotated 45 degrees with crystalline moonbeam barrel pointing top-right, pristine prismatic dark gray metal clockwork mechanisms with iridescent surface forming clean elegant rifle outline scope and stock edges with precise moment targeting luminous finish, sniper rifle interior filled with flowing amorphous scope showing moments before and after present simultaneously and frozen second bullets shattering on impact with reddish crimson flames swirling like temporal precision, wavy harmonic energy flows through reddish crimson flames charging along barrel with each shot down entire rifle creating visible precision currents, prismatic dark gray clockwork surface decorated with flowing gear-driven bolt action advancing time forward and hourglass magazine feeding moments to fire with shattered glass lens refracting multiple timelines constantly falling, orbiting embedded pocket watches all showing midnight and musical notation crosshairs flowing in graceful spiral around chrono piercer, hourglass magazine glows majestically while precision radiance pulses with inner sniper luminescence, multiple timeline formations aim naturally creating organic precision patterns, time barriers pierced cascade from pristine clockwork framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, temporal precision radiating, epic powerful sprite art, full sniper rifle composition, --ar 16:9 --v 7.0
+```
+
+**Midnight's Echo** (Temporal Repeater) (50x50)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal echo crossbow weapon rotated 45 degrees with moonbeam string pointing top-right, pristine prismatic dark gray metal clockwork repeating mechanism with iridescent surface forming clean elegant crossbow outline string and stock edges with repeating moments luminous finish, crossbow interior filled with flowing amorphous same bolt firing through multiple moments and temporal echoes firing again seconds later with reddish crimson flames swirling like echo loop, wavy harmonic energy flows through reddish crimson flames tracing bolt's repeated paths down entire crossbow creating visible echo currents, prismatic dark gray clockwork mechanism surface decorated with flowing glass shard arrows phasing between present and past and magazine cycling frozen time pearls with clock spring tension mechanism visible, orbiting afterimage bolts visible mid-flight frozen in air and recursive clock within clock grip design and shattered glass constantly falling in graceful spiral around echo crossbow, backwards turning gears and reddish flames glow majestically while echo radiance pulses with inner repeater luminescence, multiple echo formations loop naturally creating organic recursive patterns, every shot fires thrice cascades from pristine moonbeam framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, temporal echoing radiating, epic powerful sprite art, full echo crossbow composition, --ar 16:9 --v 7.0
+```
+
+**Gears of Distant Time** (Temporal Artillery) (58x52)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal gear artillery weapon rotated 45 degrees with clock face barrel pointing top-right, pristine prismatic dark gray metal massive interlocking gears with iridescent surface forming cannon forming clean elegant artillery outline rotating clock barrel and planetarium mounting edges with distant era bombardment luminous finish, cannon interior filled with flowing amorphous compressed time bombs and barrel of rotating clock faces accelerating projectiles through eras with reddish crimson flames swirling like temporal bombardment, wavy harmonic energy flows through reddish crimson flames arcing between gear teeth down entire artillery creating visible bombardment currents, prismatic dark gray massive gear surface decorated with flowing crystallized moments from ancient and future times ammunition and hourglass power core glowing with centuries of stored time with shattered glass exhaust trails constantly falling, orbiting rotating planetarium rings mounting and musical era signatures marking ammunition types and reddish flames flowing in graceful spiral around temporal artillery, clock winding key trigger glows majestically while eras radiance pulses with inner siege luminescence, multiple era formations bombard naturally creating organic siege patterns, present bombarded from all times cascades from pristine gear framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, temporal bombardment radiating, epic powerful sprite art, full artillery composition, --ar 16:9 --v 7.0
 ```
 
 ### Magic Weapons (3)
@@ -4656,19 +4926,34 @@ Magnificent side-view pixel art sprite of an extraordinarily grand celestial mas
 **Codex of Shattered Chronology** (48x58) - CHANNELED GRIMOIRE
 *A massive tome whose pages show every moment that ever was and will be - channeling releases cascades of temporal energy*
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive channeled grimoire weapon rotated 45 degrees with spine facing left, pristine dark gray leather with clockwork binding forming clean elegant massive tome outline cover and binding with all-time knowledge finish, tome interior filled with flowing amorphous pages showing past present future simultaneously swirling like overwhelming chrono-cascade when channeled, wavy harmonic energy flows through crimson lightning bookmark and shattered clock face cover down entire tome creating visible chronology currents, dark gray leather surface decorated with flowing gear inlay spine dynamics and temporal notation on cover, orbiting floating pages showing frozen moments flowing in graceful spiral around channeled grimoire, timeline fragments drift majestically while clockwork clasps pulse with inner temporal luminescence, multiple chrono-cascade formations burst naturally when channeling creating organic shattered patterns, crimson temporal energy pours through pristine leather framework, overwhelming chrono-cascade cascades from open pages, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming shattered chronology radiating, epic powerful sprite art, full channeled grimoire composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial massive channeled grimoire weapon rotated 45 degrees with spine facing left, pristine prismatic dark gray metal and leather with iridescent clockwork binding forming clean elegant massive tome outline cover and binding with all-time knowledge finish, tome interior filled with flowing amorphous pages showing past present future simultaneously with reddish crimson flames swirling like overwhelming chrono-cascade when channeled, wavy harmonic energy flows through reddish crimson flame bookmark and shattered clock face cover down entire tome creating visible chronology currents, prismatic dark gray leather surface decorated with flowing gear inlay spine dynamics and temporal notation on cover, orbiting floating pages showing frozen moments and shattered glass constantly falling in graceful spiral around channeled grimoire, timeline fragments and reddish flames drift majestically while clockwork clasps pulse with inner temporal luminescence, multiple chrono-cascade formations burst naturally when channeling creating organic shattered patterns, reddish crimson flames pour through pristine prismatic dark gray framework, overwhelming chrono-cascade cascades from open pages, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming shattered chronology radiating, epic powerful sprite art, full channeled grimoire composition, --ar 16:9 --v 7.0
 ```
 
 **Clockwork Pipe Organ** (56x48) - FLOATING INSTRUMENT
 *A floating miniature pipe organ that plays the music of time itself - each note fires temporal energy*
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial floating clockwork pipe organ weapon rotated 45 degrees with pipes pointing upward, pristine dark gray metal forming clean elegant miniature pipe organ outline body and keys with temporal symphony finish, pipe organ interior filled with flowing amorphous visible gear mechanisms powering each pipe and crimson lightning resonating through chambers swirling like weaponized time music, wavy harmonic energy flows through self-playing keys operated by clockwork automaton hands down entire organ creating visible symphony currents, dark gray metal surface decorated with flowing ornate clock face decorations dynamics and temporal notation on music stand, orbiting floating gear notes flowing in graceful spiral around pipe organ, visible sound waves drift majestically while automaton hands pulse with inner clockwork luminescence, multiple pipe formations resonate naturally creating organic symphony patterns, crimson temporal blasts fire from pipes through pristine dark gray framework, weaponized time music cascades from every pipe, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming temporal symphony radiating, epic powerful sprite art, full pipe organ composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial floating clockwork pipe organ weapon rotated 45 degrees with pipes pointing upward, pristine prismatic dark gray metal with iridescent surface forming clean elegant miniature pipe organ outline body and keys with temporal symphony finish, pipe organ interior filled with flowing amorphous visible gear mechanisms powering each pipe and reddish crimson flames resonating through chambers swirling like weaponized time music, wavy harmonic energy flows through self-playing keys operated by clockwork automaton hands down entire organ creating visible symphony currents, prismatic dark gray metal surface decorated with flowing ornate clock face decorations dynamics and temporal notation on music stand, orbiting floating gear notes and shattered glass constantly falling in graceful spiral around pipe organ, visible sound waves and reddish flames drift majestically while automaton hands pulse with inner clockwork luminescence, multiple pipe formations resonate naturally creating organic symphony patterns, reddish crimson flame blasts fire from pipes through pristine prismatic dark gray framework, weaponized time music cascades from every pipe, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming temporal symphony radiating, epic powerful sprite art, full pipe organ composition, --ar 16:9 --v 7.0
 ```
 
 **Temporal Cascade Staff** (54x54) - CHAIN STAFF
 *A staff topped with chained hourglasses that release linked temporal explosions*
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial clockwork chain staff weapon rotated 45 degrees with chained hourglasses pointing upward, pristine dark gray metal forming clean elegant staff outline shaft and head with cascading time finish, staff head interior filled with flowing amorphous three connected hourglasses by golden chains with sand flowing between them swirling like linked temporal bursts, wavy harmonic energy flows through exposed clockwork mechanisms down entire shaft creating visible cascade currents, dark gray metal surface decorated with flowing gear inlay dynamics and temporal notation running shaft, orbiting shattered time fragments flowing in graceful spiral around chain staff, crystalline hourglass sand trails drift majestically while chained hourglasses pulse with inner clockwork luminescence, multiple cascade formations link naturally creating organic chain explosion patterns, crimson lightning arcs between hourglasses through pristine dark gray framework, linked temporal explosions cascade from connected hourglasses, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming cascading time radiating, epic powerful sprite art, full chain staff composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial clockwork chain staff weapon rotated 45 degrees with chained hourglasses pointing upward, pristine prismatic dark gray metal with iridescent surface forming clean elegant staff outline shaft and head with cascading time finish, staff head interior filled with flowing amorphous three connected hourglasses by golden chains with reddish crimson flame sand flowing between them swirling like linked temporal bursts, wavy harmonic energy flows through exposed clockwork mechanisms down entire shaft creating visible cascade currents, prismatic dark gray metal surface decorated with flowing gear inlay dynamics and temporal notation running shaft, orbiting shattered time fragments and shattered glass constantly falling in graceful spiral around chain staff with reddish flame trails, crystalline hourglass sand trails and reddish flames drift majestically while chained hourglasses pulse with inner clockwork luminescence, multiple cascade formations link naturally creating organic chain explosion patterns, reddish crimson flames arc between hourglasses through pristine prismatic dark gray framework, linked temporal explosions cascade from connected hourglasses, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming cascading time radiating, epic powerful sprite art, full chain staff composition, --ar 16:9 --v 7.0
+```
+
+**Temporal Nocturne** (Midnight Symphony Staff) (52x52)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial midnight symphony staff weapon rotated 45 degrees with clockwork music box head pointing upward, pristine prismatic dark gray metal crystallized moonbeam shaft with iridescent surface forming clean elegant staff outline music box mechanism and score grip edges with nocturnal symphony luminous finish, music box head interior filled with flowing amorphous visible notes affecting time flow and shattered glass keys playing frozen melodies with reddish crimson flames swirling like midnight symphony, wavy harmonic energy flows through reddish crimson flames forming musical staves in air down entire staff creating visible nocturne currents, prismatic dark gray crystallized moonbeam surface decorated with flowing each note slowing or hastening time locally and hourglass resonance chamber amplifying temporal effects with gears springs driving endless nocturne, orbiting spell effects as visible sound waves distorting time and shattered glass constantly falling in graceful spiral around symphony staff, self-writing music score wrapped grip glows majestically while midnight radiance pulses with inner composer luminescence, multiple note formations cascade naturally creating organic symphony patterns, music of moments conducted cascades from pristine moonbeam framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, nocturnal symphony radiating, epic powerful sprite art, full symphony staff composition, --ar 16:9 --v 7.0
+```
+
+**Grimoire of Shattered Hours** (Temporal Tome) (40x40)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal grimoire weapon floating with shattered glass pages turning, pristine prismatic dark gray metal clock face covers with iridescent surface forming clean elegant tome outline spine and hourglass binding edges with broken time knowledge luminous finish, floating tome interior filled with flowing amorphous shattered glass pages containing frozen moments as spells and pages turning through different eras simultaneously with reddish crimson flames swirling like temporal knowledge, wavy harmonic energy flows through reddish crimson flame bookmarks marking dangerous paradox pages down entire grimoire creating visible knowledge currents, prismatic dark gray clock face cover surface decorated with flowing each page showing different summonable moment and gears embedded in spine advancing readings with shattered moment fragments floating like deadly bookmarks constantly falling, orbiting clock hand page turners moving autonomously and musical notation in temporal cipher and reddish flames flowing in graceful spiral around temporal tome, hourglass binding holding infinite pages glows majestically while scholar radiance pulses with inner lost moment luminescence, multiple era formations catalog naturally creating organic scholar patterns, every moment ever lost cataloged cascades from pristine prismatic dark gray clock face framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, temporal knowledge radiating, epic powerful sprite art, full temporal tome composition, --ar 16:9 --v 7.0
+```
+
+**Lunar Cascade** (Moonphase Channeling Orb) (44x44)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial moonphase channeling orb weapon floating in clockwork armillary sphere, pristine prismatic dark gray metal crystalline sphere with iridescent surface showing all moon phases simultaneously forming clean elegant orb outline gear rings and hourglass base edges with lunar cycle cascade luminous finish, central sphere interior filled with flowing amorphous all moon phases rotating within and each phase granting different temporal powers when aligned with reddish crimson flames swirling like lunar cycle, wavy harmonic energy flows through reddish crimson flames tracing moon phase transitions down entire armillary creating visible cascade currents, prismatic dark gray crystalline sphere surface decorated with flowing shattered glass crescents orbiting and hourglass catching moonbeam time-sand with gears advancing eternal lunar cycle and tidal effect energy rings, orbiting musical phases of moon in silver notation and perpetual calendar mechanism grip and shattered glass constantly falling in graceful spiral around moonphase orb, gear ring bracket glows majestically while lunar radiance pulses with inner astronomer luminescence, multiple phase formations align naturally creating organic lunar patterns, moon's eternal rhythm channeled cascades from pristine prismatic dark gray crystal framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, lunar cascade radiating, epic powerful sprite art, full moonphase orb composition, --ar 16:9 --v 7.0
 ```
 
 ### Summon Weapons (3) + Companions
@@ -4676,37 +4961,52 @@ Magnificent side-view pixel art sprite of an extraordinarily grand celestial clo
 **Timekeeper's Sigil** (44x44) - SIGIL
 *An ancient sigil that summons Time Wraiths - ghostly figures that phase through reality*
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial clockwork sigil weapon rotated 45 degrees with sigil face pointing forward, pristine dark gray metal forming clean elegant circular sigil outline rim and center with temporal summoning finish, sigil interior filled with flowing amorphous ancient clock symbols and crimson lightning patterns swirling like time wraith calling, wavy harmonic energy flows through orbiting shattered time fragments down entire sigil creating visible timekeeper currents, dark gray metal surface decorated with flowing gear rim with twelve symbols dynamics and temporal notation around circle, orbiting phantom energy wisps flowing in graceful spiral around timekeeper's sigil, crystalline time shards drift majestically while ancient clock symbols pulse with inner clockwork luminescence, multiple time wraith formations emerge naturally from sigil creating organic summoning patterns, crimson lightning connects symbols through pristine sigil framework, temporal summoning cascades from activated sigil, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming wraith calling radiating, epic powerful sprite art, full sigil composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial clockwork sigil weapon rotated 45 degrees with sigil face pointing forward, pristine prismatic dark gray metal with iridescent surface forming clean elegant circular sigil outline rim and center with temporal summoning finish, sigil interior filled with flowing amorphous ancient clock symbols and reddish crimson flame patterns swirling like time wraith calling, wavy harmonic energy flows through orbiting shattered time fragments down entire sigil creating visible timekeeper currents, prismatic dark gray metal surface decorated with flowing gear rim with twelve symbols dynamics and temporal notation around circle, orbiting phantom energy wisps and shattered glass constantly falling in graceful spiral around timekeeper's sigil with reddish flames, crystalline time shards and reddish flames drift majestically while ancient clock symbols pulse with inner clockwork luminescence, multiple time wraith formations emerge naturally from sigil creating organic summoning patterns, reddish crimson flames connect symbols through pristine prismatic dark gray sigil framework, temporal summoning cascades from activated sigil, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming wraith calling radiating, epic powerful sprite art, full sigil composition, --ar 16:9 --v 7.0
 ```
 
 **Time Wraith** (Summon Companion) (28x28 per frame, 4 frames)
 *Ghostly clockwork specters that phase through reality to strike*
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial clockwork ghostly wraith minion, pristine translucent dark gray mist with visible internal gear skeleton forming clean elegant wraith outline form and cloak with time wraith finish, wraith body interior filled with flowing amorphous embedded gear skeleton and crimson lightning veins swirling like temporal haunting, wavy harmonic energy flows through hollow clock face head with spinning hands down entire form creating visible wraith currents, dark gray mist surface decorated with flowing phase shifting trails dynamics and temporal silence accents, orbiting flickering time shards and gear fragments flowing in graceful spiral around time wraith, ethereal claw formations drift majestically while hollow clock face pulses with inner temporal luminescence, multiple phase shift formations flicker naturally creating organic haunting patterns, crimson lightning veins pulse through pristine mist framework, temporal clawing cascades from phase-shifted strikes, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming temporal wraith radiating, epic powerful sprite art, full wraith composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial clockwork ghostly wraith minion, pristine translucent prismatic dark gray mist with visible internal gear skeleton and iridescent surface forming clean elegant wraith outline form and cloak with time wraith finish, wraith body interior filled with flowing amorphous embedded gear skeleton and reddish crimson flame veins swirling like temporal haunting, wavy harmonic energy flows through hollow clock face head with spinning hands down entire form creating visible wraith currents, prismatic dark gray mist surface decorated with flowing phase shifting trails dynamics and temporal silence accents, orbiting flickering time shards and gear fragments and shattered glass constantly falling in graceful spiral around time wraith with reddish flames, ethereal claw formations and reddish flames drift majestically while hollow clock face pulses with inner temporal luminescence, multiple phase shift formations flicker naturally creating organic haunting patterns, reddish crimson flame veins pulse through pristine prismatic dark gray mist framework, temporal clawing cascades from phase-shifted strikes, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming temporal wraith radiating, epic powerful sprite art, full wraith composition, --ar 16:9 --v 7.0
 ```
 
 **Clockwork Heart Scepter** (48x48) - SCEPTER
 *Contains a beating mechanical heart that summons Gear Automatons - loyal clockwork soldiers*
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial clockwork scepter weapon rotated 45 degrees with mechanical heart top pointing upward, pristine dark gray metal forming clean elegant scepter outline shaft and head with mechanical genesis finish, beating mechanical heart head interior filled with flowing amorphous visible beating gear heart with crimson lightning arteries swirling like automaton awakening, wavy harmonic energy flows through glass panels revealing heart mechanism down entire scepter creating visible heartbeat currents, dark gray metal surface decorated with flowing gear inlay dynamics and construction notation running shaft, orbiting scattered tiny gears and springs flowing in graceful spiral around clockwork heart scepter, oil droplets drift majestically while beating gear heart pulses with inner genesis luminescence, multiple automaton blueprint formations unfold naturally creating organic construction patterns, crimson lightning arteries pump through pristine mechanical heart framework, automaton awakening cascades from each heartbeat, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming mechanical genesis radiating, epic powerful sprite art, full scepter composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial clockwork scepter weapon rotated 45 degrees with mechanical heart top pointing upward, pristine prismatic dark gray metal with iridescent surface forming clean elegant scepter outline shaft and head with mechanical genesis finish, beating mechanical heart head interior filled with flowing amorphous visible beating gear heart with reddish crimson flame arteries swirling like automaton awakening, wavy harmonic energy flows through glass panels revealing heart mechanism down entire scepter creating visible heartbeat currents, prismatic dark gray metal surface decorated with flowing gear inlay dynamics and construction notation running shaft, orbiting scattered tiny gears and springs and shattered glass constantly falling in graceful spiral around clockwork heart scepter with reddish flames, oil droplets and reddish flames drift majestically while beating gear heart pulses with inner genesis luminescence, multiple automaton blueprint formations unfold naturally creating organic construction patterns, reddish crimson flame arteries pump through pristine prismatic dark gray mechanical heart framework, automaton awakening cascades from each heartbeat, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming mechanical genesis radiating, epic powerful sprite art, full scepter composition, --ar 16:9 --v 7.0
 ```
 
 **Gear Automaton** (Summon Companion) (30x30 per frame, 4 frames)
 *Loyal clockwork soldiers that march with mechanical precision*
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial clockwork automaton soldier minion, pristine dark gray metal forming clean elegant humanoid automaton outline body and limbs with gear automaton finish, automaton body interior filled with flowing amorphous visible gear mechanisms and crimson lightning core swirling like mechanical loyalty, wavy harmonic energy flows through glass chest panel revealing heart gear down entire form creating visible automaton currents, dark gray metal surface decorated with flowing articulated joint mechanisms dynamics and soldier rank markings, orbiting steam vents and ticking gears flowing in graceful spiral around gear automaton, brass trim accents drift majestically while heart gear pulses with inner clockwork luminescence, multiple precision movement formations march naturally creating organic soldier patterns, crimson lightning powers through pristine metal framework, mechanical loyalty cascades from precise strikes, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming clockwork soldier radiating, epic powerful sprite art, full automaton composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial clockwork automaton soldier minion, pristine prismatic dark gray metal with iridescent surface forming clean elegant humanoid automaton outline body and limbs with gear automaton finish, automaton body interior filled with flowing amorphous visible gear mechanisms and reddish crimson flame core swirling like mechanical loyalty, wavy harmonic energy flows through glass chest panel revealing heart gear down entire form creating visible automaton currents, prismatic dark gray metal surface decorated with flowing articulated joint mechanisms dynamics and soldier rank markings, orbiting steam vents and ticking gears and shattered glass constantly falling in graceful spiral around gear automaton with reddish flames, brass trim accents and reddish flames drift majestically while heart gear pulses with inner clockwork luminescence, multiple precision movement formations march naturally creating organic soldier patterns, reddish crimson flames power through pristine prismatic dark gray metal framework, mechanical loyalty cascades from precise strikes, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming clockwork soldier radiating, epic powerful sprite art, full automaton composition, --ar 16:9 --v 7.0
 ```
 
 **Temporal Gate Staff** (50x52) - GATE STAFF
 *Opens portals through time to summon Chrono Sentinels - ancient guardians from past and future*
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial clockwork gate staff weapon rotated 45 degrees with portal ring top pointing upward, pristine dark gray metal forming clean elegant staff outline shaft and ring with temporal gate finish, circular ring head interior filled with flowing amorphous swirling crimson portal energy showing glimpses of other times swirling like timeline gateway, wavy harmonic energy flows through orbiting clock hands circling the ring down entire staff creating visible gate currents, dark gray metal surface decorated with flowing twelve-symbol dial dynamics and temporal notation running shaft, orbiting shattered moment fragments flowing through portal flowing in graceful spiral around temporal gate staff, timeline glimpses drift majestically while portal energy pulses with inner temporal luminescence, multiple chrono sentinel formations step through naturally creating organic summoning patterns, crimson portal energy swirls through pristine ring framework, timeline gateway opens from activated portal, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming temporal gateway radiating, epic powerful sprite art, full gate staff composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial clockwork gate staff weapon rotated 45 degrees with portal ring top pointing upward, pristine prismatic dark gray metal with iridescent surface forming clean elegant staff outline shaft and ring with temporal gate finish, circular ring head interior filled with flowing amorphous swirling reddish crimson flame portal energy showing glimpses of other times swirling like timeline gateway, wavy harmonic energy flows through orbiting clock hands circling the ring down entire staff creating visible gate currents, prismatic dark gray metal surface decorated with flowing twelve-symbol dial dynamics and temporal notation running shaft, orbiting shattered moment fragments and shattered glass constantly falling through portal flowing in graceful spiral around temporal gate staff with reddish flames, timeline glimpses and reddish flames drift majestically while portal energy pulses with inner temporal luminescence, multiple chrono sentinel formations step through naturally creating organic summoning patterns, reddish crimson flame portal energy swirls through pristine prismatic dark gray ring framework, timeline gateway opens from activated portal, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming temporal gateway radiating, epic powerful sprite art, full gate staff composition, --ar 16:9 --v 7.0
 ```
 
 **Chrono Sentinel** (Summon Companion) (32x32 per frame, 4 frames)
 *Ancient guardians pulled from different points in time - each unique in design*
 ```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial clockwork ancient guardian minion, pristine dark gray metal with temporal wear patterns forming clean elegant armored sentinel outline body and armor with chrono sentinel finish, sentinel body interior filled with flowing amorphous ancient gear mechanisms and crimson lightning core swirling like timeless vigilance, wavy harmonic energy flows through ancient clock face visor down entire form creating visible sentinel currents, dark gray metal surface decorated with flowing ancient armor plating dynamics and timeline marking accents, orbiting temporal energy and ancient symbols flowing in graceful spiral around chrono sentinel, crystalline time fragments drift majestically while ancient clock visor pulses with inner temporal luminescence, multiple vigilant stance formations guard naturally creating organic sentinel patterns, crimson lightning empowers through pristine ancient framework, timeless vigilance cascades from guardian strikes, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming ancient guardian radiating, epic powerful sprite art, full sentinel composition, --ar 16:9 --v 7.0
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial clockwork ancient guardian minion, pristine prismatic dark gray metal with iridescent surface and temporal wear patterns forming clean elegant armored sentinel outline body and armor with chrono sentinel finish, sentinel body interior filled with flowing amorphous ancient gear mechanisms and reddish crimson flame core swirling like timeless vigilance, wavy harmonic energy flows through ancient clock face visor down entire form creating visible sentinel currents, prismatic dark gray metal surface decorated with flowing ancient armor plating dynamics and timeline marking accents, orbiting temporal energy and ancient symbols and shattered glass constantly falling in graceful spiral around chrono sentinel with reddish flames, crystalline time fragments and reddish flames drift majestically while ancient clock visor pulses with inner temporal luminescence, multiple vigilant stance formations guard naturally creating organic sentinel patterns, reddish crimson flames empower through pristine prismatic dark gray ancient framework, timeless vigilance cascades from guardian strikes, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, overwhelming ancient guardian radiating, epic powerful sprite art, full sentinel composition, --ar 16:9 --v 7.0
+```
+
+**Conductor of Time** (Temporal Orchestra Baton) (48x48)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal orchestra baton summon weapon rotated 45 degrees with clock hand baton tip pointing upward, pristine prismatic dark gray metal crystallized moonbeam shaft with iridescent surface forming clean elegant baton outline gear grip and hourglass pommel edges with conducted time luminous finish, baton head interior filled with flowing amorphous clock hand baton tip trailing temporal ribbons and summoned minions move in perfect orchestral timing with reddish crimson flames swirling like temporal orchestra, wavy harmonic energy flows through reddish crimson flame baton motions conducting minion attack patterns down entire baton creating visible conductor currents, prismatic dark gray crystallized moonbeam surface decorated with flowing musical score spiraling around shaft controls tempo and gear-driven grip adjusting time signature with shattered glass inlays like frozen music constantly falling, orbiting minions following visible rhythm lines of temporal energy and reddish flames flowing in graceful spiral around temporal baton, maestro stance grip glows majestically while conductor radiance pulses with inner orchestra luminescence, multiple minion formations conduct naturally creating organic symphony patterns, time's orchestra conducted cascades from pristine moonbeam framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, temporal conducting radiating, epic powerful sprite art, full orchestra baton composition, --ar 16:9 --v 7.0
+```
+
+**Gear Spirit Scepter** (Clockwork Soul Staff) (50x50)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial clockwork soul scepter summon weapon rotated 45 degrees with interlocking gear spirit head pointing upward, pristine prismatic dark gray metal clockwork with iridescent surface forming clean elegant scepter outline gear orb head and mechanism shaft edges with mechanical soul luminous finish, scepter head interior filled with flowing amorphous cluster of self-propelling gears forming ghostly shapes and gear spirits meshing together in formations with reddish crimson flames swirling like clockwork soul, wavy harmonic energy flows through reddish crimson flames powering perpetual gear motion down entire scepter creating visible soul currents, prismatic dark gray clockwork surface decorated with flowing soul essence visible in gear teeth patterns and hourglass core feeding temporal energy to spirits with broken clock face head showing spirit realm, orbiting invisible springs driving eternal rotation and musical mechanisms playing autonomous rhythms and shattered glass constantly falling in graceful spiral around soul scepter with reddish flames, gear chain grip glows majestically while spirit radiance pulses with inner clockwork luminescence, multiple spirit formations mesh naturally creating organic soul patterns, mechanical spirits eternal cascade from pristine prismatic dark gray clockwork framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, clockwork soul radiating, epic powerful sprite art, full soul scepter composition, --ar 16:9 --v 7.0
+```
+
+**Midnight Automaton Staff** (Temporal Construct Wand) (52x52)
+```
+Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal automaton staff summon weapon rotated 45 degrees with crystalline moonbeam construct core pointing upward, pristine prismatic dark gray metal with iridescent surface and clockwork joints forming clean elegant staff outline automaton blueprint head and gear shaft edges with midnight construct luminous finish, staff head interior filled with flowing amorphous miniature automaton suspended in crystal and blueprints of temporal constructs visible in glass surfaces with reddish crimson flames swirling like midnight automaton, wavy harmonic energy flows through reddish crimson flames animating summoned automatons down entire staff creating visible construct currents, prismatic dark gray metal surface decorated with flowing automaton assembles itself from summoned gears and hourglass power core feeding creation energy with shattered glass panels showing miniature automaton army constantly falling, orbiting construction diagrams floating around head and musical activation sequences inscribed and reddish flames flowing in graceful spiral around automaton staff, gear winding key grip glows majestically while construct radiance pulses with inner midnight luminescence, multiple automaton formations assemble naturally creating organic army patterns, midnight army assembles cascade from pristine prismatic dark gray clockwork framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, temporal automaton radiating, epic powerful sprite art, full automaton staff composition, --ar 16:9 --v 7.0
 ```
 
 ### Class Accessories (5)
@@ -4714,36 +5014,36 @@ Magnificent side-view pixel art sprite of an extraordinarily grand celestial clo
 **Chronoblade Gauntlet** (Melee) (32x32)
 *Attacks slow enemy movement*
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial gauntlet accessory themed around "Clair de Lune Time-Slowing Strikes" made of dark gray clockwork armor with embedded gear mechanisms and vibrant crimson lightning veins and silver accents created by music in the style of Terraria, radiating a powerful temporal melee aura, music notes surround it, ignited in dark gray-crimson flames, glass-like shards and shattered time crystals float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial gauntlet accessory themed around "Clair de Lune Time-Slowing Strikes" made of prismatic dark gray metal clockwork armor with iridescent surface and embedded gear mechanisms and vibrant reddish crimson flame veins and brass accents created by music in the style of Terraria, radiating a powerful temporal melee aura, music notes surround it, ignited in reddish crimson flames, shattered glass shards constantly falling off and shattered time crystals float around it and are apart of its design, detailed, prismatic dark gray ornate design like a royal clockwork mechanism, full-view --v 7.0
 ```
 
 **Temporal Scope** (Ranged) (30x30)
 *See enemy weak points, +crit*
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial monocle accessory themed around "Clair de Lune Temporal Precision" made of dark gray metal with clockwork focusing mechanisms and vibrant crimson lightning lens and silver accents created by music in the style of Terraria, radiating a powerful temporal targeting aura, music notes surround it, ignited in dark gray-crimson flames, glass-like crystalline frames and shattered moment particles float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial monocle accessory themed around "Clair de Lune Temporal Precision" made of prismatic dark gray metal with iridescent surface and clockwork focusing mechanisms and vibrant reddish crimson flame lens and brass accents created by music in the style of Terraria, radiating a powerful temporal targeting aura, music notes surround it, ignited in reddish crimson flames, shattered glass constantly falling off crystalline frames and shattered moment particles float around it and are apart of its design, detailed, prismatic dark gray ornate design like a royal clockwork mechanism, full-view --v 7.0
 ```
 
 **Fractured Hourglass Pendant** (Mage) (28x28)
 *Spells have chance to freeze time*
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial pendant accessory themed around "Clair de Lune Time-Freezing Magic" made of broken hourglass in dark gray metal frame with vibrant crimson lightning sand frozen mid-fall and silver accents created by music in the style of Terraria, radiating a powerful temporal magic aura, music notes surround it, ignited in dark gray-crimson flames, glass-like shattered crystal and clockwork chain links float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial pendant accessory themed around "Clair de Lune Time-Freezing Magic" made of broken hourglass in prismatic dark gray metal frame with iridescent surface and vibrant reddish crimson flame sand frozen mid-fall and brass accents created by music in the style of Terraria, radiating a powerful temporal magic aura, music notes surround it, ignited in reddish crimson flames, shattered glass constantly falling off and shattered crystal and clockwork chain links float around it and are apart of its design, detailed, prismatic dark gray ornate design like a royal clockwork mechanism, full-view --v 7.0
 ```
 
 **Conductor's Pocket Watch** (Summoner) (32x32)
 *Minions attack in burst windows*
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial pocket watch accessory themed around "Clair de Lune Burst Timing Command" made of ornate dark gray metal with visible clockwork face and vibrant crimson lightning hands and silver accents created by music in the style of Terraria, radiating a powerful temporal command aura, music notes surround it, ignited in dark gray-crimson flames, glass-like crystal cover and shattered time particles float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial pocket watch accessory themed around "Clair de Lune Burst Timing Command" made of ornate prismatic dark gray metal with iridescent surface and visible clockwork face and vibrant reddish crimson flame hands and brass accents created by music in the style of Terraria, radiating a powerful temporal command aura, music notes surround it, ignited in reddish crimson flames, shattered glass constantly falling off crystal cover and shattered time particles float around it and are apart of its design, detailed, prismatic dark gray ornate design like a royal clockwork mechanism, full-view --v 7.0
 ```
 
 **Ring of Temporal Flux** (Universal) (24x24)
 *Dodge attacks via time skip*
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial ring accessory themed around "Clair de Lune Time-Skipping Evasion" made of dark gray metal with miniature gear band design and vibrant crimson lightning gemstone and silver accents created by music in the style of Terraria, radiating a powerful temporal evasion aura, music notes surround it, ignited in dark gray-crimson flames, glass-like crystal inlays and shattered time particles float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial ring accessory themed around "Clair de Lune Time-Skipping Evasion" made of prismatic dark gray metal with iridescent surface and miniature gear band design and vibrant reddish crimson flame gemstone and brass accents created by music in the style of Terraria, radiating a powerful temporal evasion aura, music notes surround it, ignited in reddish crimson flames, shattered glass constantly falling off crystal inlays and shattered time particles float around it and are apart of its design, detailed, prismatic dark gray ornate design like a royal clockwork mechanism, full-view --v 7.0
 ```
 
 **Universal Accessory Prompt**
 ```
-Concept art for a side-view idle pixel art sprite of an ancient celestial crystal themed around "Clair de Lune" made of dark gray clockwork metal and crystal with crimson and brass accents created by music in the style of Terraria, radiating a powerful aura, music notes surround it, ignited in a vibrant dark gray and crimson lightning flames, clockwork gears and shattered glass and temporal particles float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view --v 7.0
+Concept art for a side-view idle pixel art sprite of an ancient celestial crystal themed around "Clair de Lune" made of prismatic dark gray metal clockwork and crystal with iridescent surface and reddish crimson and brass accents created by music in the style of Terraria, radiating a powerful aura, music notes surround it, ignited in vibrant reddish crimson flames, clockwork gears and shattered glass constantly falling off and temporal particles float around it and are apart of its design, detailed, prismatic dark gray ornate design like a royal clockwork mechanism, full-view --v 7.0
 ```
 
 ### 📝 Example Unique Names for Clair de Lune Items
@@ -4797,84 +5097,12 @@ Concept art for a side-view idle pixel art sprite of an ancient celestial crysta
 
 ---
 
-## ⚔️ ADDITIONAL WEAPON PROMPTS (Unique Temporal Clockwork Styles)
-
-### Melee Weapons (3 Additional Unique Prompts)
-
-**Clockwork Reaper** (Temporal Scythe) (56x56)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal clockwork scythe weapon rotated 45 degrees with frozen moonlight blade pointing top-right, pristine interlocking dark silver gears forming clean elegant shaft outline blade and grip edges with time harvesting luminous finish, scythe blade interior filled with flowing amorphous frozen moonlight and crystallized time with clock hands forming cutting edge pointing to midnight swirling like temporal reaping, wavy harmonic energy flows through shattered glass fragments orbiting like frozen moments down entire scythe creating visible reaper currents, dark silver gear surface decorated with flowing hourglass sand trickling upward defying gravity and stopped pocket watch face guard with gears turning impossible directions, orbiting crimson lightning crackling along blade edge and afterimages showing past positions flowing in graceful spiral around temporal scythe, clock chain wrapped grip glows majestically while midnight radiance pulses with inner time-keeper luminescence, multiple gear formations mesh naturally creating organic temporal patterns, moments severed from existence cascade from pristine clockwork framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, temporal reaping radiating, epic powerful sprite art, full clockwork scythe composition, --ar 16:9 --v 7.0
-```
-
-**Frozen Moment's Edge** (Stasis Rapier) (48x48)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal stasis rapier weapon rotated 45 degrees with crystallized moonbeam blade pointing top-right, pristine crystallized moonbeam forming clean elegant blade outline clockwork gear crossguard and hourglass grip edges with frozen time luminous finish, rapier blade interior filled with flowing amorphous blade frozen mid-ripple as if time stopped during forging and clock faces showing different frozen moments on guard swirling like temporal stasis, wavy harmonic energy flows through crimson lightning trapped in frozen arcs down entire rapier creating visible stasis currents, crystallized moonbeam surface decorated with flowing blade edge shifting between seconds like glitch and gear mechanisms visible inside transparent blade with backwards musical notation, orbiting glass-like time shards floating motionless flowing in graceful spiral around stasis rapier, miniature hourglass grip with suspended sand glows majestically while frozen radiance pulses with inner duelist luminescence, multiple frozen moment formations suspend naturally creating organic stasis patterns, heartbeat strikes cascade from pristine crystal framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, temporal stasis radiating, epic powerful sprite art, full stasis rapier composition, --ar 16:9 --v 7.0
-```
-
-**Temporal Severance** (Twin Clock Hand Blades) (54x54)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal twin blade weapon rotated 45 degrees with clock hand blades pointing top-right, pristine massive clock hour and minute hands converted to twin swords forming clean elegant twin blade outline gear chain connection and shared handle edges with time-splitting luminous finish, twin blades interior filled with flowing amorphous longer blade pointing to future shorter to past and broken clock faces shattering reforming swirling like severed time, wavy harmonic energy flows through crimson lightning bridging between twin blades down entire weapon creating visible severance currents, clock hand surface decorated with flowing each blade edge inscribed with different time zones and gears meshing where blades connect at guard with glass shard trails showing severed timeline branches, orbiting musical measures counting different tempos on each blade flowing in graceful spiral around twin blades, perpetual motion mechanism handle glows majestically while paradox radiance pulses with inner time-cutting luminescence, multiple timeline formations sever naturally creating organic paradox patterns, time itself cut in two cascades from pristine clock hand framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, temporal severance radiating, epic powerful sprite art, full twin blade composition, --ar 16:9 --v 7.0
-```
-
-### Ranged Weapons (3 Additional Unique Prompts)
-
-**Chrono Piercer** (Temporal Sniper Rifle) (56x40)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal sniper rifle weapon rotated 45 degrees with crystalline moonbeam barrel pointing top-right, pristine dark silver clockwork mechanisms forming clean elegant rifle outline scope and stock edges with precise moment targeting luminous finish, sniper rifle interior filled with flowing amorphous scope showing moments before and after present simultaneously and frozen second bullets shattering on impact swirling like temporal precision, wavy harmonic energy flows through crimson lightning charging along barrel with each shot down entire rifle creating visible precision currents, dark silver clockwork surface decorated with flowing gear-driven bolt action advancing time forward and hourglass magazine feeding moments to fire with shattered glass lens refracting multiple timelines, orbiting embedded pocket watches all showing midnight and musical notation crosshairs flowing in graceful spiral around chrono piercer, hourglass magazine glows majestically while precision radiance pulses with inner sniper luminescence, multiple timeline formations aim naturally creating organic precision patterns, time barriers pierced cascade from pristine clockwork framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, temporal precision radiating, epic powerful sprite art, full sniper rifle composition, --ar 16:9 --v 7.0
-```
-
-**Midnight's Echo** (Temporal Repeater) (50x50)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal echo crossbow weapon rotated 45 degrees with moonbeam string pointing top-right, pristine clockwork repeating mechanism forming clean elegant crossbow outline string and stock edges with repeating moments luminous finish, crossbow interior filled with flowing amorphous same bolt firing through multiple moments and temporal echoes firing again seconds later swirling like echo loop, wavy harmonic energy flows through crimson lightning tracing bolt's repeated paths down entire crossbow creating visible echo currents, clockwork mechanism surface decorated with flowing glass shard arrows phasing between present and past and magazine cycling frozen time pearls with clock spring tension mechanism visible, orbiting afterimage bolts visible mid-flight frozen in air and recursive clock within clock grip design flowing in graceful spiral around echo crossbow, backwards turning gears glow majestically while echo radiance pulses with inner repeater luminescence, multiple echo formations loop naturally creating organic recursive patterns, every shot fires thrice cascades from pristine moonbeam framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, temporal echoing radiating, epic powerful sprite art, full echo crossbow composition, --ar 16:9 --v 7.0
-```
-
-**Gears of Distant Time** (Temporal Artillery) (58x52)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal gear artillery weapon rotated 45 degrees with clock face barrel pointing top-right, pristine massive interlocking gears forming cannon forming clean elegant artillery outline rotating clock barrel and planetarium mounting edges with distant era bombardment luminous finish, cannon interior filled with flowing amorphous compressed time bombs and barrel of rotating clock faces accelerating projectiles through eras swirling like temporal bombardment, wavy harmonic energy flows through crimson lightning arcing between gear teeth down entire artillery creating visible bombardment currents, massive gear surface decorated with flowing crystallized moments from ancient and future times ammunition and hourglass power core glowing with centuries of stored time with shattered glass exhaust trails, orbiting rotating planetarium rings mounting and musical era signatures marking ammunition types flowing in graceful spiral around temporal artillery, clock winding key trigger glows majestically while eras radiance pulses with inner siege luminescence, multiple era formations bombard naturally creating organic siege patterns, present bombarded from all times cascades from pristine gear framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, temporal bombardment radiating, epic powerful sprite art, full artillery composition, --ar 16:9 --v 7.0
-```
-
-### Magic Weapons (3 Additional Unique Prompts)
-
-**Temporal Nocturne** (Midnight Symphony Staff) (52x52)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial midnight symphony staff weapon rotated 45 degrees with clockwork music box head pointing upward, pristine crystallized moonbeam shaft forming clean elegant staff outline music box mechanism and score grip edges with nocturnal symphony luminous finish, music box head interior filled with flowing amorphous visible notes affecting time flow and glass shard keys playing frozen melodies swirling like midnight symphony, wavy harmonic energy flows through crimson lightning forming musical staves in air down entire staff creating visible nocturne currents, crystallized moonbeam surface decorated with flowing each note slowing or hastening time locally and hourglass resonance chamber amplifying temporal effects with gears springs driving endless nocturne, orbiting spell effects as visible sound waves distorting time flowing in graceful spiral around symphony staff, self-writing music score wrapped grip glows majestically while midnight radiance pulses with inner composer luminescence, multiple note formations cascade naturally creating organic symphony patterns, music of moments conducted cascades from pristine moonbeam framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, nocturnal symphony radiating, epic powerful sprite art, full symphony staff composition, --ar 16:9 --v 7.0
-```
-
-**Grimoire of Shattered Hours** (Temporal Tome) (40x40)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal grimoire weapon floating with glass shard pages turning, pristine clock face covers forming clean elegant tome outline spine and hourglass binding edges with broken time knowledge luminous finish, floating tome interior filled with flowing amorphous glass shard pages containing frozen moments as spells and pages turning through different eras simultaneously swirling like temporal knowledge, wavy harmonic energy flows through crimson lightning bookmarks marking dangerous paradox pages down entire grimoire creating visible knowledge currents, clock face cover surface decorated with flowing each page showing different summonable moment and gears embedded in spine advancing readings with shattered moment fragments floating like deadly bookmarks, orbiting clock hand page turners moving autonomously and musical notation in temporal cipher flowing in graceful spiral around temporal tome, hourglass binding holding infinite pages glows majestically while scholar radiance pulses with inner lost moment luminescence, multiple era formations catalog naturally creating organic scholar patterns, every moment ever lost cataloged cascades from pristine clock face framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, temporal knowledge radiating, epic powerful sprite art, full temporal tome composition, --ar 16:9 --v 7.0
-```
-
-**Lunar Cascade** (Moonphase Channeling Orb) (44x44)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial moonphase channeling orb weapon floating in clockwork armillary sphere, pristine crystalline sphere showing all moon phases simultaneously forming clean elegant orb outline gear rings and hourglass base edges with lunar cycle cascade luminous finish, central sphere interior filled with flowing amorphous all moon phases rotating within and each phase granting different temporal powers when aligned swirling like lunar cycle, wavy harmonic energy flows through crimson lightning tracing moon phase transitions down entire armillary creating visible cascade currents, crystalline sphere surface decorated with flowing glass shard crescents orbiting and hourglass catching moonbeam time-sand with gears advancing eternal lunar cycle and tidal effect energy rings, orbiting musical phases of moon in silver notation and perpetual calendar mechanism grip flowing in graceful spiral around moonphase orb, gear ring bracket glows majestically while lunar radiance pulses with inner astronomer luminescence, multiple phase formations align naturally creating organic lunar patterns, moon's eternal rhythm channeled cascades from pristine crystal framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, lunar cascade radiating, epic powerful sprite art, full moonphase orb composition, --ar 16:9 --v 7.0
-```
-
-### Summon Weapons (3 Additional Unique Prompts)
-
-**Conductor of Time** (Temporal Orchestra Baton) (46x46)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal orchestra baton weapon rotated 45 degrees with clock hand tip pointing upward, pristine silver wand with gear-wrapped shaft forming clean elegant baton outline tip and miniature podium grip edges with temporal symphony luminous finish, clock hand baton interior filled with flowing amorphous conducting gestures summoning temporal automaton musicians from different eras and clockwork musicians from past and future answering call swirling like temporal symphony, wavy harmonic energy flows through crimson lightning trailing from conducting motions down entire baton creating visible conductor currents, silver wand surface decorated with flowing glass shard notes manifesting as orchestra plays and hourglass metronome keeping impossible time signatures with gears synchronizing cross-temporal ensemble, orbiting musical notation forming spectral instrument players and each summon playing instruments manipulating time flow flowing in graceful spiral around orchestra baton, miniature conductor podium grip glows majestically while maestro radiance pulses with inner harmony luminescence, multiple era musician formations play naturally creating organic symphony patterns, all moments unified in harmony cascades from pristine silver framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, temporal symphony radiating, epic powerful sprite art, full orchestra baton composition, --ar 16:9 --v 7.0
-```
-
-**Gear Spirit Scepter** (Clockwork Soul Staff) (50x50)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial clockwork soul staff weapon rotated 45 degrees with crystalline soul core pointing upward, pristine interlocking dark silver gears forming scepter forming clean elegant staff outline core and soul-catching grip edges with mechanical soul luminous finish, gear scepter interior filled with flowing amorphous gears animating into autonomous spirits when commanded and each summoned spirit unique gear configuration swirling like clockwork souls, wavy harmonic energy flows through crimson lightning powering gear spirits movements down entire scepter creating visible soul currents, dark silver gear surface decorated with flowing glass shard eyes peering from gear arrangements and hourglass energy core feeding mechanical souls with living gears detaching reforming as minion shapes, orbiting musical tick-tock heartbeats audible from each spirit and spirits phasing between moments hunting prey flowing in graceful spiral around soul staff, soul-catching mechanism grip glows majestically while artificer radiance pulses with inner life luminescence, multiple gear spirit formations animate naturally creating organic mechanical soul patterns, life given to time itself cascades from pristine gear framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, clockwork soul radiating, epic powerful sprite art, full soul staff composition, --ar 16:9 --v 7.0
-```
-
-**Midnight Automaton Staff** (Temporal Construct Wand) (52x52)
-```
-Magnificent side-view pixel art sprite of an extraordinarily grand celestial temporal construct wand weapon rotated 45 degrees with clock tower finial pointing upward, pristine moonbeam crystal shaft forming clean elegant staff outline finial and winding key grip edges with midnight construct luminous finish, clock tower finial interior filled with flowing amorphous miniature working clockwork and elegant automaton dancers warriors summoned from midnight hour swirling like midnight constructs, wavy harmonic energy flows through crimson lightning animating summoned automatons down entire wand creating visible construct currents, moonbeam crystal surface decorated with flowing glass shard gears visible in each construct chest and automatons moving in precise mechanical ballet with hourglass power sources glowing, orbiting clockwork hearts ticking perfect synchronization and musical chime announcements heralding each summon flowing in graceful spiral around construct wand, winding key mechanism grip glows majestically while toymaker radiance pulses with inner midnight dream luminescence, multiple automaton formations freeze between seconds repositioning instantly creating organic ballet patterns, midnight dreams brought to mechanical life cascades from pristine moonbeam framework, Terraria legendary pixel art aesthetic with maximum ornate flowing detail, midnight construct radiating, epic powerful sprite art, full construct wand composition, --ar 16:9 --v 7.0
-```
-
----
-
 ### Wings
 
 **Wings of Shattered Time** (50x46)
 *Magnificent clockwork gear wings with crimson lightning membranes and glass shards*
 ```
-Concept art for a side-view idle pixel art sprite of ancient celestial wings accessory themed around "Clair de Lune Shattered Time Flight" made of magnificent interlocking dark gray clockwork gears with vibrant crimson lightning membranes and silver accents created by music in the style of Terraria, radiating a powerful temporal flight aura, music notes surround it, ignited in dark gray-crimson flames, glass-like crystalline shards and temporal energy trails float around it and are apart of its design, detailed, silver ornate design like a royal mechanism, full-view back symmetrical --ar 16:9 --v 7.0
+Concept art for a side-view idle pixel art sprite of ancient celestial wings accessory themed around "Clair de Lune Shattered Time Flight" made of magnificent interlocking prismatic dark gray metal clockwork gears with iridescent surface and vibrant reddish crimson flame membranes and brass accents created by music in the style of Terraria, radiating a powerful temporal flight aura, music notes surround it, ignited in reddish crimson flames, shattered glass constantly falling off crystalline edges and temporal energy trails float around it and are apart of its design, detailed, prismatic dark gray ornate design like a royal clockwork mechanism, full-view back symmetrical --ar 16:9 --v 7.0
 ```
 
 ### Unique Particles (3)
@@ -4899,9 +5127,10 @@ solid white clockwork gear fragment particle sprite sheet, 12 variations, mechan
 ### ✅ CLAIR DE LUNE ASSET CHECKLIST
 
 ```
-BOSS SPRITES (2)
-[ ] Clair de Lune Phase 1 - Clockwork Dreamer (64x80)
-[ ] Clair de Lune Phase 2 - Shattered Timekeeper (72x88)
+BOSS SPRITES (3) - THREE PHASE DIVINE GODDESS FIGHT
+[ ] Phase 1: Clair de Lune - The Dreaming Goddess (80x100)
+[ ] Phase 2: Clair de Lune - The Awakened Timekeeper (100x120)
+[ ] Phase 3: Clair de Lune - Radiant Goddess of Eternal Harmony (120x150)
 
 CRAFTING MATERIALS (4)
 [ ] Clair de Lune Resonant Energy (32x32)
@@ -5744,3 +5973,903 @@ TOTAL PHASE NA: ~150+ assets (many are variants/recolors/UI elements)
 *Format: "Concept art for a side-view idle pixel art sprite of [ITEM] in the style of Terraria..."*
 *All recipes include specific quantities and crafting stations*
 *Last Updated: Current Session*
+
+---
+
+# 🎨 MIDJOURNEY PARTICLE EFFECT PROMPTS
+
+> **These prompts generate WHITE/GRAYSCALE particle textures that are TINTED IN CODE to any theme color.**
+> This approach allows ONE particle texture to serve UNLIMITED color variations!
+
+---
+
+## 01 - Soft Glow Particles (Most Versatile)
+
+### Understanding the Goal
+
+Calamity uses WHITE/GRAYSCALE particle textures that are then TINTED IN CODE to any color. This approach allows a single particle sprite to be reused across hundreds of effects by simply changing the Color parameter when drawing. The particles should be:
+
+- Pure white or grayscale (no color information)
+- Transparent backgrounds (PNG with alpha channel)
+- Small resolution (typically 8x8 to 64x64 pixels)
+- Clean, anti-aliased edges that blend well when scaled
+- Centered in the image for proper rotation
+- Varied shapes for different effect types
+
+### MASTER PROMPT: Soft Glow Particles
+
+```
+white particle effect sprite sheet, 8 variations in 2x4 grid layout, pure white soft circular glow particles on transparent background, each particle is a different softness gradient from hard-edged circle to extremely soft gaussian blur falloff, smooth anti-aliased edges, radial gradient from bright white center fading to transparent edges, professional game asset quality, pixel-perfect clean design, suitable for 2D game particle systems, 32x32 pixel sprites upscaled 8x for detail, PNG with alpha transparency, no color only luminosity values, studio lighting reference for glow falloff, each particle variation shows different falloff curves: linear, quadratic, exponential, inverse square, soft gaussian, hard rim, medium blend, feathered edge, flat orthographic view, centered composition, isolated on pure black background for easy extraction, sprite sheet format --v 6.1 --ar 2:1 --style raw --s 50
+```
+
+### Post-Processing Tips
+
+After generating with Midjourney:
+
+1. Remove Background: Use Photoshop/GIMP to ensure pure transparent background
+2. Convert to Grayscale: Remove any color cast, keep only luminosity
+3. Adjust Levels: Ensure full white (255) in brightest areas, pure transparent in darkest
+4. Downscale: Reduce to target resolution (8x8, 16x16, 32x32, 64x64)
+5. Split Sprites: Cut sprite sheet into individual files
+6. Test Tinting: Load in Terraria and test with spriteBatch.Draw() color parameter
+7. Optimize: Use PNG compression, ensure 32-bit RGBA format
+
+### Implementation in Terraria
+
+```csharp
+// Example: Using white particle with color tinting
+Texture2D whiteParticle = ModContent.Request<Texture2D>("YourMod/Particles/SoftGlow").Value;
+
+// Tint to any color at draw time
+Color eroicaRed = new Color(255, 80, 60);
+Color moonlightPurple = new Color(180, 100, 255);
+
+spriteBatch.Draw(whiteParticle, position, null, eroicaRed * 0.8f, 
+    rotation, origin, scale, SpriteEffects.None, 0f);
+```
+
+---
+
+## 02 - Energy Spark/Flare Particles
+
+### MASTER PROMPT: Energy Spark/Flare Particles
+
+```
+white energy spark particle sprite sheet, 12 variations in 3x4 grid, pure white and grayscale only, transparent background, includes: sharp 4-pointed stars, 6-pointed stars, 8-pointed lens flares, soft diamond sparkles, elongated streak sparks, round soft glows with bright cores, small pinpoint highlights, medium soft orbs, large diffuse glows, asymmetric organic sparks, electric arc fragments, plasma wisps, all with smooth anti-aliased edges, radial symmetry where appropriate, professional 2D game particle assets, suitable for magic effects fire sparks lightning electricity, each sprite isolated and centered, 32x32 pixel base resolution upscaled for detail, bright white cores with soft falloff to transparent, no color information pure luminosity only, clean vector-like quality with smooth gradients, game-ready sprite sheet format, black background for extraction --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+### Variations
+
+**4-Point Star Focus:**
+```
+white 4-pointed star spark sprite sheet, 8 variations, pure white grayscale, varying sharpness from razor-thin to soft diffuse, bright center fading outward, suitable for magic sparkle effects, 32x32 pixels upscaled, transparent background, game particle asset --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+**Lens Flare Elements:**
+```
+white lens flare element sprite sheet, 12 variations, pure grayscale, includes: hexagonal bokeh, circular flares, stretched anamorphic flares, rainbow streak elements in white, suitable for impact effects and magical bursts, 64x64 pixels upscaled, transparent background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+**Electric Arc Fragments:**
+```
+white electric arc fragment sprite sheet, 16 variations, pure white lightning bolt segments, jagged forked paths, plasma wisps, crackling energy, suitable for chain lightning projectiles, 32x32 pixels upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+## 03 - Smoke/Cloud/Vapor Particles
+
+### MASTER PROMPT: Smoke/Cloud/Vapor Particles
+
+```
+white smoke cloud particle sprite sheet, 16 variations in 4x4 grid layout, pure white and grayscale smoke puffs on transparent background, organic natural cloud shapes with wispy edges, includes: small tight smoke puffs, large billowing clouds, thin wispy tendrils, dense fog patches, dissipating vapor trails, cotton-like soft clouds, sharp edged stylized smoke, rounded cumulus shapes, stretched motion blur smoke, spiral smoke wisps, layered depth clouds, ethereal mist patches, each particle has soft semi-transparent edges that blend naturally, suitable for 2D game particle systems, 64x64 pixel sprites upscaled, professional game asset quality, varied opacity gradients within each sprite, no hard edges only soft blended boundaries, centered composition for rotation, black background for easy extraction, PNG alpha transparency ready --v 6.1 --ar 1:1 --style raw --s 100
+```
+
+### Variations
+
+**Small Tight Puffs:**
+```
+white small smoke puff sprite sheet, 12 variations, pure grayscale, tight compact smoke clouds, suitable for gun muzzle flash smoke bullet impacts, 32x32 pixels upscaled, soft edges, transparent background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+**Wispy Tendrils:**
+```
+white wispy smoke tendril sprite sheet, 12 variations, pure grayscale, elongated curving smoke wisps, ethereal vapor trails, suitable for magic trails soul effects, 64x32 pixels upscaled, transparent background --v 6.1 --ar 2:1 --style raw --s 100
+```
+
+**Dense Fog Patches:**
+```
+white dense fog patch sprite sheet, 8 variations, pure grayscale, thick opaque fog clouds with soft edges, suitable for area denial obscuring effects, 64x64 pixels upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+## 04 - Geometric Magic Symbols
+
+### MASTER PROMPT: Geometric Magic Symbols
+
+```
+white magic symbol particle sprite sheet, 20 variations in 5x4 grid, pure white geometric shapes on transparent background, includes: simple circles, double circles, triple concentric rings, pentagrams, hexagrams, octagons, runic circles, sacred geometry patterns, spiral symbols, crescent moons, star shapes of varying points 4 5 6 7 8, diamond rhombus shapes, cross patterns, celtic knot fragments, mandala segments, arcane sigils, alchemical symbols simplified, each symbol has clean sharp edges with subtle soft glow aura, professional vector quality, suitable for magic spell effects summoning circles buff indicators, 32x32 pixel base upscaled, no color pure white only, game-ready 2D sprite sheet, each symbol centered and isolated, varies line thickness thin medium bold, black background --v 6.1 --ar 5:4 --style raw --s 50
+```
+
+### Variations
+
+**Summoning Circles:**
+```
+white summoning circle sprite sheet, 12 variations, pure grayscale, ornate magical circles with inner patterns, runic inscriptions around edges, suitable for spell casting area markers, 64x64 pixels upscaled, transparent background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+**Sacred Geometry:**
+```
+white sacred geometry sprite sheet, 16 variations, pure grayscale, flower of life, metatron's cube, sri yantra simplified, vesica piscis, seed of life, suitable for holy magic divine effects, 32x32 pixels upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+**Arcane Sigils:**
+```
+white arcane sigil sprite sheet, 20 variations, pure grayscale, mysterious magical symbols, alchemical notation, hermetic seals simplified, suitable for dark magic curse effects, 32x32 pixels upscaled, transparent background --v 6.1 --ar 5:4 --style raw --s 75
+```
+
+---
+
+## 05 - Impact/Explosion Burst Particles
+
+### MASTER PROMPT: Impact/Explosion Burst Particles
+
+```
+white explosion burst particle sprite sheet, 12 variations in 4x3 grid, pure white and grayscale impact effects on transparent background, includes: radial starburst explosions, circular shockwave rings, expanding impact circles, debris scatter patterns, directional cone blasts, omnidirectional burst rays, soft bloom explosions, hard-edged flash bursts, layered ring explosions, asymmetric organic explosions, speed line impacts, energy nova effects, each with bright white center fading outward, clean anti-aliased edges suitable for scaling, professional game particle assets, motion-implying design with radial symmetry, 64x64 pixel base resolution upscaled, suitable for hit effects explosions spell impacts, no color pure luminosity, centered composition, black background for extraction, PNG alpha ready --v 6.1 --ar 4:3 --style raw --s 75
+```
+
+### Variations
+
+**Radial Starburst:**
+```
+white radial starburst explosion sprite sheet, 8 variations, pure grayscale, rays emanating from center, varying ray counts 8 12 16 24, suitable for super attack impacts, 64x64 pixels upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+**Debris Scatter:**
+```
+white debris scatter pattern sprite sheet, 12 variations, pure grayscale, particles flying outward from center, various scatter densities, suitable for shatter break effects, 64x64 pixels upscaled, transparent background --v 6.1 --ar 3:2 --style raw --s 50
+```
+
+**Energy Nova:**
+```
+white energy nova sprite sheet, 8 variations, pure grayscale, smooth expanding spherical burst, soft bloom with bright core, suitable for magic explosion finale, 64x64 pixels upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 100
+```
+
+---
+
+## 09 - Musical Note Particles (Theme-Specific)
+
+### MASTER PROMPT: Musical Note Particles
+
+```
+white musical notation particle sprite sheet, 24 variations in 6x4 grid, pure white and grayscale musical symbols on transparent background, includes: quarter notes, eighth notes, sixteenth notes, half notes, whole notes, treble clef, bass clef, sharp symbols, flat symbols, natural symbols, rest symbols quarter eighth whole, beamed note pairs, beamed note triplets, musical staff fragments, crescendo decrescendo marks, fermata, accent marks, staccato dots, tied notes, chord clusters, arpeggiated notes, grace notes, each symbol clean sharp vector quality with subtle soft glow aura, professional typography reference, suitable for music-themed game effects, 32x32 pixel base upscaled, no color pure white only, centered composition, black background, PNG alpha ready --v 6.1 --ar 3:2 --style raw --s 50
+```
+
+### Variations
+
+**Notes Only:**
+```
+white musical notes sprite sheet, 16 variations, pure grayscale, quarter eighth sixteenth half whole notes, beamed pairs triplets, various orientations and sizes, suitable for floating music particle effects, 32x32 pixels upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+**Clefs and Symbols:**
+```
+white musical clef symbol sprite sheet, 12 variations, pure grayscale, treble clef bass clef alto clef, sharp flat natural signs, time signatures 4/4 3/4 6/8, suitable for music magic visual accents, 32x32 pixels upscaled, transparent background --v 6.1 --ar 3:2 --style raw --s 50
+```
+
+**Dynamic Markings:**
+```
+white musical dynamics sprite sheet, 12 variations, pure grayscale, pp p mp mf f ff fff, crescendo hairpin, decrescendo hairpin, sforzando accent, suitable for music attack intensity indicators, 32x32 pixels upscaled, transparent background --v 6.1 --ar 3:2 --style raw --s 50
+```
+
+### Piano Key Impact Effects
+
+```
+white piano key impact sprite sheet, 16 variations in 4x4 grid, pure white and grayscale keyboard-inspired effects on transparent background, includes: single key press ripple, octave span wave burst, chord cluster multi-key impact, ascending scale staircase trail, descending scale falling notes, glissando sliding blur trail, key hammer strike impact, string resonance vibration lines, damper pedal sustain glow, soft pedal muted halo, grand piano soundboard wave, upright piano vertical burst, ivory key smooth flash, ebony key sharp flash, broken chord scattered impact, rolled chord spiral effect, each effect captures piano playing dynamics, professional game VFX quality, 64x64 pixel sprites upscaled, suitable for piano-themed weapons music magic, no color pure luminosity for tinting, black background for extraction --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+### Musical Sound Wave Effects
+
+```
+white musical sound wave particle sprite sheet, 20 variations in 5x4 grid, pure white and grayscale audio visualization on transparent background, includes: sine wave smooth oscillation, aggressive sawtooth wave pattern, stacked harmonic overtone waves, musical staff with flowing notes, bass clef emanating sound rings, treble clef radiating energy, piano key ripple wave, violin bow stroke trail, crescendo building wave intensity, decrescendo fading wave, staccato sharp burst pulses, legato smooth connected waves, vibrato oscillating shimmer, musical rest pause void, chord stack vertical wave layers, arpeggio cascading wave steps, fermata sustained glow ring, tempo pulse beat markers, resonance sympathetic wave echo, dissonance chaotic wave interference, professional game VFX for music-themed abilities, 64x64 pixel sprites upscaled, no color pure white luminosity, black background --v 6.1 --ar 5:4 --style raw --s 75
+```
+
+---
+
+## 10 - Feather/Petal/Organic Particles
+
+### MASTER PROMPT: Organic Particles
+
+```
+white organic particle sprite sheet, 16 variations in 4x4 grid, pure white and grayscale natural shapes on transparent background, includes: simple feather shapes, detailed feather with barbs, cherry blossom petals 5-petal, rose petals curved, maple leaf shapes, simple leaves, floating seeds, dandelion fluff, snowflake crystals, water droplets, flower buds, grass blade fragments, vine tendrils, organic curved wisps, butterfly wing fragments, scale/shell fragments, each shape has natural organic curves and soft edges, suitable for nature magic effects elemental particles, 32x32 pixel sprites upscaled, professional game asset quality, no color pure white luminosity only, varied orientations for natural scatter, black background for extraction, PNG alpha transparency --v 6.1 --ar 1:1 --style raw --s 100
+```
+
+### Swan Feather Projectile Trails
+
+```
+white feather projectile trail sprite sheet, 16 variations in 4x4 grid, pure white and grayscale elegant feather effects on transparent background, includes: single floating feather drift, spinning feather spiral descent, feather burst scatter explosion, feather trail ribbon stream, paired swan feathers intertwined, feather quill writing trail, downy soft feather cloud, sharp flight feather projectile, feather dissipating into particles, crystallized ice feather shard, feather with sparkle accents, feather transforming to energy, barb separation scatter effect, rachis spine energy beam, feather vane cutting edge blade, calamus base impact burst, each feather has elegant flowing curves with soft edges, professional game VFX quality, 64x64 pixel sprites upscaled, suitable for swan-themed magic feather projectiles, no color pure white luminosity, black background --v 6.1 --ar 1:1 --style raw --s 100
+```
+
+### Variations
+
+**Cherry Blossom Petals:**
+```
+white cherry blossom petal sprite sheet, 12 variations, pure grayscale, delicate 5-petal sakura flower petals, various curl and fold states, suitable for spring magic Japanese themes, 32x32 pixels upscaled, transparent background --v 6.1 --ar 3:2 --style raw --s 100
+```
+
+**Rose Petals:**
+```
+white rose petal sprite sheet, 12 variations, pure grayscale, curved romantic rose petals, various sizes and orientations, suitable for love magic elegant themes, 32x32 pixels upscaled, transparent background --v 6.1 --ar 3:2 --style raw --s 100
+```
+
+**Elegant Feathers:**
+```
+white elegant feather sprite sheet, 12 variations, pure grayscale, swan feathers peacock plumes, detailed barb structure, suitable for angelic avian themes, 64x32 elongated pixels upscaled, transparent background --v 6.1 --ar 2:1 --style raw --s 100
+```
+
+**Leaves and Vines:**
+```
+white leaf vine sprite sheet, 16 variations, pure grayscale, maple oak ivy leaves, curling vine tendrils, suitable for nature druid magic, 32x32 pixels upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+## 11 - Sword Smear / Swing Trail Textures
+
+### CRITICAL UNDERSTANDING
+
+- The TEXTURE is a FLAT HORIZONTAL BAND - completely straight, NO curve
+- The curve/arc you see in-game comes from CODE rendering, NOT the texture
+- Think of it like a gradient rectangle that gets bent by the game engine
+- The texture is essentially: bright edge → gradient fade → transparent edge
+- All textures should be WHITE/GRAYSCALE on pure black background
+- Resolution: 512x128 or 1024x256 pixels (4:1 aspect ratio)
+
+### WHAT WE WANT:
+A horizontal rectangular strip of light that is:
+- COMPLETELY STRAIGHT (no bend, no curve, no arc)
+- Bright/opaque on one edge (left or top)
+- Fading to transparent on the opposite edge (right or bottom)
+- Like a gradient rectangle, a band of light, a glowing stripe
+
+### UNIVERSAL SUFFIX:
+`--ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500`
+
+### Basic Gradient Band Prompts
+
+**Simple Gradient Band:**
+```
+[YOUR_REFERENCE_URL] flat horizontal gradient band, straight rectangular stripe of light, bright white on left edge fading smoothly to transparent black on right edge, completely straight edges no curve no bend, simple luminous rectangle, soft glow, pure white and grayscale on solid black background, 2D game texture, pixel art style --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+**Glowing Horizontal Stripe:**
+```
+[YOUR_REFERENCE_URL] straight horizontal glowing stripe, flat rectangular light band, intense brightness concentrated at top edge with smooth vertical gradient fading downward to transparent, perfectly straight horizontal lines, no curve, soft ethereal glow, white and gray on black background, 2D sprite texture --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+**Motion Blur Rectangle:**
+```
+[YOUR_REFERENCE_URL] horizontal motion blur texture, flat rectangular gradient, straight horizontal band of blurred light, sharp bright edge on one side dissolving into transparent on other side, completely flat shape like stretched light, no arc no curve, grayscale on black, game asset sprite --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+### Soft Ethereal Bands
+
+**Soft Glow Band:**
+```
+[YOUR_REFERENCE_URL] soft glowing horizontal band, straight flat rectangle of ethereal light, diffuse brightness concentrated in center fading to transparent edges top and bottom, completely horizontal orientation, no bend, gentle luminescence, white to transparent gradient, black background, 2D texture --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+**Feathered Edge Band:**
+```
+[YOUR_REFERENCE_URL] horizontal light stripe with feathered edges, flat straight rectangular band, bright center with soft diffuse falloff to transparent edges, completely horizontal no curve, delicate downy texture at boundaries, white and gray on black, 2D sprite --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+### Intense Energy Bands
+
+**Sharp Core Band:**
+```
+[YOUR_REFERENCE_URL] horizontal light band with sharp bright core, flat straight stripe, intense white line running through center with soft glow surrounding, perfectly horizontal rectangle shape, no bend no arc, gradient fade to transparent edges, grayscale on black background, game texture --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+**Electric Stripe:**
+```
+[YOUR_REFERENCE_URL] flat horizontal electric energy stripe, straight rectangular band of crackling light, bright jagged texture along the band with soft outer glow, completely horizontal shape no curve, energy dispersing at edges, white on black background, 2D pixel art style --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+**Flame Ribbon Band:**
+```
+[YOUR_REFERENCE_URL] horizontal flame texture band, flat straight rectangular stripe of fire light, organic flame licks along the straight edges, bright core with ember particles, no curve in overall shape, gradient to transparent, white and gray on black, game sprite texture --ar 4:1 --v 7.0 --sref [YOUR_REFERENCE_URL] --sw 500
+```
+
+---
+
+## 12 - Profaned Ray / Holy Fire Beam Textures
+
+### IMPORTANT NOTES:
+- All textures should be WHITE or GRAYSCALE on transparent/black background
+- They will be tinted to orange/gold/holy fire colors at runtime
+- Start = where beam originates (mouth/weapon)
+- Mid = repeating body section (tiles seamlessly)
+- End = terminus point (where beam stops)
+
+### UNIVERSAL SUFFIX:
+`, white on pure black background, game asset, transparent PNG, 2D sprite, no text, no watermark --s 250 --style raw`
+
+### STYLE A - Lava Flow
+
+**START (Origin Point) - 1:1:**
+```
+holy fire beam origin point, intense bright core erupting outward, lava-like energy gathering, molten light source, radiant energy burst expanding rightward, circular glow transitioning to beam shape, white on pure black background, game asset, transparent PNG, 2D sprite --ar 1:1 --s 250 --style raw
+```
+
+**MID (Repeating Body) - 4:1:**
+```
+seamless tileable holy fire beam body, flowing lava energy stream, molten light current, undulating heat waves, organic flowing fire texture, horizontal energy flow, edges fade to transparent, seamless horizontal tile, white on pure black background, game asset, transparent PNG, 2D sprite --ar 4:1 --s 250 --style raw
+```
+
+**END (Terminus) - 1:1:**
+```
+holy fire beam terminus, energy dissipating into particles, lava droplets scattering, molten light fading, beam tapering to point with dispersing embers, white on pure black background, game asset, transparent PNG, 2D sprite --ar 1:1 --s 250 --style raw
+```
+
+### STYLE B - Crystal Holy
+
+**START:**
+```
+crystalline holy beam origin, faceted light source, geometric energy gathering point, prismatic core radiating outward, sacred geometry burst, angular light formation expanding rightward, white on pure black background, game asset, transparent PNG, 2D sprite --ar 1:1 --s 250 --style raw
+```
+
+**MID:**
+```
+seamless tileable crystalline beam body, faceted light stream, geometric energy flow, angular shard patterns, prismatic refraction lines, hard edges with soft glow, seamless horizontal tile, white on pure black background, game asset, transparent PNG, 2D sprite --ar 4:1 --s 250 --style raw
+```
+
+**END:**
+```
+crystalline beam terminus, shattering into geometric fragments, prismatic shards dispersing, faceted light dissipating, angular energy breaking apart, white on pure black background, game asset, transparent PNG, 2D sprite --ar 1:1 --s 250 --style raw
+```
+
+### STYLE C - Solar Flare
+
+**START:**
+```
+solar flare beam origin, sun corona burst, intense plasma eruption, solar wind gathering, radiant heat source with prominences, stellar energy expanding rightward, white on pure black background, game asset, transparent PNG, 2D sprite --ar 1:1 --s 250 --style raw
+```
+
+**MID:**
+```
+seamless tileable solar beam body, plasma stream with magnetic field lines, coronal mass ejection flow, swirling solar wind, prominence tendrils, seamless horizontal tile, white on pure black background, game asset, transparent PNG, 2D sprite --ar 4:1 --s 250 --style raw
+```
+
+**END:**
+```
+solar beam terminus, plasma dissipating into space, coronal particles scattering, solar wind fading, stellar energy dispersing into void, white on pure black background, game asset, transparent PNG, 2D sprite --ar 1:1 --s 250 --style raw
+```
+
+### STYLE D - Divine Light
+
+**START:**
+```
+divine holy light origin, heavenly radiance source, sacred beam emanation point, angelic glow core, blessed energy gathering with halo effect, white on pure black background, game asset, transparent PNG, 2D sprite --ar 1:1 --s 250 --style raw
+```
+
+**MID:**
+```
+seamless tileable divine light beam, heavenly energy stream, soft sacred glow, gentle undulating radiance, blessed light flow, ethereal luminescence, seamless horizontal tile, white on pure black background, game asset, transparent PNG, 2D sprite --ar 4:1 --s 250 --style raw
+```
+
+**END:**
+```
+divine light terminus, holy energy ascending, blessed particles rising upward, sacred light fading into heaven, ethereal dissipation with upward drift, white on pure black background, game asset, transparent PNG, 2D sprite --ar 1:1 --s 250 --style raw
+```
+
+---
+
+## 13 - Terraria Block/Tile Spritesheet Generator
+
+### TECHNICAL SPECIFICATIONS
+
+Terraria tile spritesheets follow a VERY SPECIFIC format that tModLoader requires.
+
+**STANDARD TILE SPRITESHEET DIMENSIONS:**
+- Basic Single-Variant: 288 x 270 pixels (18 columns × 15 rows of 16x16 tiles + 2px padding)
+- Multi-Variant (2x2): 576 x 540 pixels (for 4 texture variations)
+- Multi-Variant (3x3): 864 x 810 pixels (for 9 texture variations)
+- Multi-Variant (4x4): 1152 x 1080 pixels (for 16 texture variations)
+
+**CALAMITY'S COMMON SPRITESHEET SIZES:**
+| Size | Dimensions | Purpose |
+|------|------------|---------|
+| 234 x 90 | Single variant ore/stone | Simple blocks |
+| 324 x 90 | 2 horizontal variants | Varied bricks |
+| 450 x 198 | 2x2 variants | Complex natural tiles |
+| 576 x 270 | Large variant set | Detailed blocks |
+| 216 x 72 | Compact single | Glass-like tiles |
+
+### CRITICAL KEYWORDS FOR TERRARIA STYLE:
+- "terraria style pixel art"
+- "16x16 pixel tile"
+- "game sprite asset"
+- "retro 2D game aesthetic"
+- "hand-pixeled texture"
+- "limited color palette"
+- "chunky pixels"
+- "no anti-aliasing"
+- "hard pixel edges"
+- "dithering shading"
+
+### MASTER TEMPLATES
+
+**SIMPLE ORE/STONE BLOCK (234 x 90):**
+```
+[MATERIAL_NAME] ore block tileset, terraria modded content style, 16x16 pixel sprites arranged in spritesheet grid, [PRIMARY_COLOR] crystalline ore deposits embedded in [SECONDARY_COLOR] stone matrix, faceted crystal formations catching light, subtle inner glow, rocky natural texture with [TERTIARY_COLOR] mineral veins, pixel art game asset, retro 2D aesthetic, limited color palette of [COLOR_COUNT] colors, hard pixel edges with dithering for shading, top-down consistent lighting from upper-left, seamless tiling connection system with corners edges and centers, no anti-aliasing, chunky deliberate pixels --ar 13:5 --v 6.1 --style raw
+```
+
+**DECORATIVE BRICK BLOCK (324 x 90):**
+```
+[MATERIAL_NAME] brick wall tileset, terraria modded dungeon aesthetic, 16x16 pixel tile spritesheet, [PRIMARY_COLOR] brick blocks with [SECONDARY_COLOR] mortar lines, weathered ancient stone texture, subtle surface cracks and chips, mysterious [ACCENT_COLOR] runic glow between bricks, pixel art game asset, 2D retro game style, limited palette, dithered shading, hard pixel edges, connection variants for corners edges and full tiles, top-down lighting --ar 18:5 --v 6.1 --style raw
+```
+
+**ORGANIC/NATURAL BLOCK (450 x 198):**
+```
+[MATERIAL_NAME] natural terrain tileset, terraria biome tile style, 16x16 pixel spritesheet with multiple variants, [PRIMARY_COLOR] organic [MATERIAL_TYPE] texture, [SECONDARY_COLOR] highlights and [TERTIARY_COLOR] shadows, natural irregular surface with [DETAIL_ELEMENT], pixel art game asset, retro 2D platformer aesthetic, limited color palette, chunky pixel texture, dithering gradients, seamless tiling with full connection variant set, top-left lighting source --ar 25:11 --v 6.1 --style raw
+```
+
+**GLOWING/MAGICAL BLOCK (324 x 90):**
+```
+[MATERIAL_NAME] magical block tileset, terraria endgame content style, 16x16 pixel sprites, [PRIMARY_COLOR] base material with [GLOW_COLOR] magical energy veins, pulsing ethereal glow emanating from within, [ACCENT_COLOR] arcane runes subtly visible, mysterious otherworldly texture, pixel art game asset, limited palette with glow colors, hard pixels with dithered glow gradients, retro 2D style, tile connection spritesheet format --ar 18:5 --v 6.1 --style raw
+```
+
+### PLACEHOLDER EXAMPLES
+
+**[MATERIAL_NAME]:**
+- Resonant Crystal, Void Stone, Astral Ore, Brimstone Slag
+- Harmonic Quartz, Enigma Shard, Fate Fragment, Celestial Rock
+- Moonlit Crystal, Infernal Ember, Swan Feather Stone
+
+**[PRIMARY_COLOR]:**
+- deep purple, midnight black, crimson red, golden yellow
+- ethereal blue, emerald green, obsidian black, ivory white
+- iridescent rainbow, cosmic violet, fiery orange
+
+---
+
+## 🎼 THEME-SPECIFIC PARTICLE PROMPTS (MagnumOpus Scores)
+
+> **25 unique prompts tailored to each musical theme in the mod.**
+> All WHITE/GRAYSCALE for runtime tinting to theme colors.
+
+---
+
+### 🔔 LA CAMPANELLA (Infernal Bell Theme)
+
+**Prompt 1 - Bell Resonance Rings:**
+```
+white bell resonance wave sprite sheet, 12 variations, pure grayscale concentric rings emanating outward, bell-shaped origin point, sound wave ripples with varying intensities, includes: tight sharp rings, wide diffuse waves, broken/fractured rings, overlapping interference patterns, fading echo rings, suitable for bell chime impact effects, 64x64 pixels upscaled, transparent background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+**Prompt 2 - Infernal Smoke Wisps:**
+```
+white heavy smoke wisp sprite sheet, 16 variations in 4x4 grid, pure grayscale billowing smoke tendrils, dense choking fog, volcanic ash clouds, includes: rising heat distortion wisps, curling smoke fingers, thick smog patches, ember-carrying smoke trails, dissipating ash particles, suitable for infernal fire magic dark themes, 64x64 pixels upscaled, soft organic edges, black background --v 6.1 --ar 1:1 --style raw --s 100
+```
+
+**Prompt 3 - Molten Ember Sparks:**
+```
+white ember spark particle sprite sheet, 20 variations, pure grayscale hot cinder particles, includes: bright core embers with smoke trails, cooling ash flakes, crackling fire sparks, floating volcanic cinders, dying ember glow points, spark scatter patterns, suitable for fire weapon trails infernal effects, 32x32 pixels upscaled, transparent background --v 6.1 --ar 5:4 --style raw --s 75
+```
+
+---
+
+### ⚔️ EROICA (Heroic Triumph Theme)
+
+**Prompt 4 - Sakura Petal Cascade:**
+```
+white cherry blossom petal sprite sheet, 24 variations in 6x4 grid, pure grayscale delicate sakura petals, includes: fresh whole petals, curling edges, folded petals, spinning descent poses, clustered petal groups, wind-blown angles, petal with dewdrop, wilting petals, suitable for heroic Japanese themes triumphant effects, 32x32 pixels upscaled, organic soft edges, black background --v 6.1 --ar 3:2 --style raw --s 100
+```
+
+**Prompt 5 - Heroic Radiance Burst:**
+```
+white heroic light burst sprite sheet, 12 variations, pure grayscale triumphant energy explosions, includes: upward rising light pillars, victorious starburst patterns, crown-shaped radiance, sword-cross light formations, ascending spirit flames, glory halo expansions, suitable for hero ultimate attacks triumph moments, 64x64 pixels upscaled, bright cores fading outward, transparent background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+**Prompt 6 - Battle Standard Ribbons:**
+```
+white flowing ribbon trail sprite sheet, 16 variations, pure grayscale elegant fabric streams, includes: waving banner tails, spiraling ribbon curls, wind-caught flag strips, heroic scarf trails, victory streamer flows, torn battle flag fragments, suitable for heroic melee swing trails charge effects, 64x32 elongated pixels upscaled, flowing organic shapes, black background --v 6.1 --ar 2:1 --style raw --s 100
+```
+
+---
+
+### 🦢 SWAN LAKE (Ballet Elegance Theme)
+
+**Prompt 7 - Prismatic Light Fractals:**
+```
+white prismatic refraction sprite sheet, 16 variations, pure grayscale rainbow light effects without color, includes: light split into spectral bands, crystal refraction patterns, diamond sparkle facets, iridescent shimmer spots, holographic fragment shapes, rainbow arc segments, suitable for monochrome-to-rainbow effects elegant magic, 32x32 pixels upscaled, transparent background --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+**Prompt 8 - Ballet Pirouette Trails:**
+```
+white spinning motion trail sprite sheet, 12 variations, pure grayscale elegant circular motion blurs, includes: tutu spin blur rings, graceful arm arc traces, pointe toe spiral paths, dancing figure-8 patterns, leaping arc trajectories, landing impact ripples, suitable for elegant dance-themed weapon swings graceful movements, 64x64 pixels upscaled, smooth flowing curves, black background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+**Prompt 9 - Crystalline Ice Shards:**
+```
+white ice crystal shard sprite sheet, 20 variations, pure grayscale frozen geometric fragments, includes: sharp icicle points, hexagonal snowflake pieces, cracked ice chunks, frost crystal formations, frozen feather shapes, glacial spike clusters, suitable for swan ice magic winter elegance themes, 32x32 pixels upscaled, hard faceted edges with soft glow, transparent background --v 6.1 --ar 5:4 --style raw --s 75
+```
+
+---
+
+### 🌙 MOONLIGHT SONATA (Lunar Mystical Theme)
+
+**Prompt 10 - Lunar Halo Rings:**
+```
+white moon halo sprite sheet, 12 variations, pure grayscale ethereal lunar rings, includes: soft corona glow circles, crescent moon arcs, full moon aura halos, lunar eclipse edge glow, moonbeam ray fans, selenite crystal rings, suitable for moonlight magic nocturnal spells, 64x64 pixels upscaled, soft diffuse edges, black background --v 6.1 --ar 3:2 --style raw --s 100
+```
+
+**Prompt 11 - Ethereal Mist Wisps:**
+```
+white ethereal mist sprite sheet, 16 variations, pure grayscale ghostly vapor forms, includes: drifting fog tendrils, spectral smoke curls, dream-like haze patches, moonlit cloud wisps, nocturnal breath vapor, fading phantom trails, suitable for mystical night magic ethereal effects, 64x64 pixels upscaled, extremely soft blended edges, transparent background --v 6.1 --ar 1:1 --style raw --s 100
+```
+
+**Prompt 12 - Starlight Dust Particles:**
+```
+white starlight dust sprite sheet, 24 variations, pure grayscale tiny celestial sparkles, includes: twinkling star points, cosmic dust motes, diamond light specks, glittering fairy dust, moonbeam particles, astral glitter scatter, suitable for ambient magic trails celestial effects, 16x16 pixels upscaled, pinpoint bright centers, black background --v 6.1 --ar 3:2 --style raw --s 50
+```
+
+---
+
+### 👁️ ENIGMA VARIATIONS (Void Mystery Theme)
+
+**Prompt 13 - Watching Eye Particles:**
+```
+white mystical eye sprite sheet, 16 variations, pure grayscale arcane watching eyes, includes: single open eye, half-lidded mysterious gaze, cat-slit pupil eye, spiral hypnotic eye, crying eye with tear, closed meditation eye, multiple eye cluster, eye opening animation frames, suitable for enigma void magic mysterious effects, 32x32 pixels upscaled, sharp details with soft glow aura, black background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+**Prompt 14 - Void Rift Tears:**
+```
+white void rift sprite sheet, 12 variations, pure grayscale reality tear effects, includes: jagged dimensional crack, smooth portal opening, spiraling void entrance, fractured space pattern, reality shatter lines, dimension fold creases, suitable for enigma teleportation void magic effects, 64x64 pixels upscaled, sharp edges with ethereal glow, transparent background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+**Prompt 15 - Question Mark Glyphs:**
+```
+white mystery symbol sprite sheet, 20 variations, pure grayscale enigmatic symbols, includes: stylized question marks, unknown rune shapes, cipher symbols, riddle glyphs, paradox icons, uncertainty marks, mystery notation, suitable for enigma theme mysterious magic indicators, 32x32 pixels upscaled, clean vector quality with soft glow, black background --v 6.1 --ar 5:4 --style raw --s 50
+```
+
+---
+
+### ⭐ FATE (Celestial Cosmic Theme)
+
+**Prompt 16 - Constellation Star Patterns:**
+```
+white constellation sprite sheet, 16 variations, pure grayscale star formation patterns, includes: connected star lines, zodiac-inspired shapes, cosmic geometry patterns, fate thread connections, destiny web structures, stellar map fragments, suitable for fate cosmic magic celestial projectiles, 64x64 pixels upscaled, bright star points with faint connecting lines, black background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+**Prompt 17 - Cosmic Nebula Clouds:**
+```
+white nebula cloud sprite sheet, 12 variations, pure grayscale cosmic gas formations, includes: swirling galaxy arm shapes, stellar nursery clouds, cosmic dust billows, supernova remnant wisps, dark matter void patches, interstellar medium textures, suitable for fate celestial trails cosmic explosions, 64x64 pixels upscaled, soft organic edges with bright spots, transparent background --v 6.1 --ar 3:2 --style raw --s 100
+```
+
+**Prompt 18 - Reality Distortion Effects:**
+```
+white reality warp sprite sheet, 12 variations, pure grayscale space-time distortion effects, includes: gravitational lens bending, chromatic aberration bands, time ripple waves, dimensional fold patterns, space compression lines, reality glitch artifacts, suitable for fate endgame cosmic power effects, 64x64 pixels upscaled, sharp geometric distortions, black background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+---
+
+### 💀 DIES IRAE (Wrath/Judgment Theme)
+
+**Prompt 19 - Blood Splatter Particles:**
+```
+white blood splatter sprite sheet, 16 variations, pure grayscale crimson splash effects, includes: impact splatter patterns, dripping blood trails, arterial spray arcs, pooling blood edges, dried blood flakes, blood mist droplets, suitable for dies irae wrath damage effects violent impacts, 32x32 pixels upscaled, organic irregular shapes, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+**Prompt 20 - Hellfire Skull Wisps:**
+```
+white skull wisp sprite sheet, 12 variations, pure grayscale spectral skull shapes, includes: screaming skull face, laughing death head, fading ghost skull, flaming skull outline, cracked skull fragment, skull emerging from smoke, suitable for dies irae death magic judgment effects, 32x32 pixels upscaled, haunting details with ethereal glow, black background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+---
+
+### 🌌 NACHTMUSIK (Starry Night Theme)
+
+**Prompt 21 - Twinkling Star Field:**
+```
+white star field sprite sheet, 20 variations, pure grayscale night sky star patterns, includes: single bright star with rays, star cluster groups, shooting star streaks, pulsing star glow frames, distant galaxy smudges, binary star pairs, suitable for nachtmusik night sky magic ambient effects, 32x32 pixels upscaled, varying brightness levels, black background --v 6.1 --ar 5:4 --style raw --s 50
+```
+
+**Prompt 22 - Midnight Aurora Wisps:**
+```
+white aurora borealis sprite sheet, 12 variations, pure grayscale northern lights shapes, includes: wavy curtain formations, vertical light pillars, rippling aurora bands, dancing light ribbons, fading aurora edges, aurora spiral patterns, suitable for nachtmusik celestial night magic trails, 64x32 elongated pixels upscaled, soft flowing organic shapes, transparent background --v 6.1 --ar 2:1 --style raw --s 100
+```
+
+---
+
+### 🌸 SEASONS (Spring/Summer/Autumn/Winter)
+
+**Prompt 23 - Seasonal Leaf Cycle:**
+```
+white seasonal leaf sprite sheet, 24 variations in 6x4 grid, pure grayscale leaves through seasons, includes: fresh spring buds, full summer leaves, autumn falling leaves, winter bare branches, maple oak birch varieties, wind-blown tumbling poses, decaying leaf edges, frost-touched leaves, suitable for seasonal magic nature themes, 32x32 pixels upscaled, organic natural shapes, black background --v 6.1 --ar 3:2 --style raw --s 100
+```
+
+**Prompt 24 - Weather Effect Particles:**
+```
+white weather particle sprite sheet, 20 variations, pure grayscale atmospheric effects, includes: rain droplets various sizes, snowflake crystals unique shapes, sun ray beams, wind gust lines, fog wisps, lightning bolt fragments, hail stones, pollen dust motes, suitable for seasonal weather magic elemental effects, 32x32 pixels upscaled, varied shapes per weather type, transparent background --v 6.1 --ar 5:4 --style raw --s 75
+```
+
+**Prompt 25 - Floral Bloom Bursts:**
+```
+white flower bloom sprite sheet, 16 variations, pure grayscale floral explosion effects, includes: rose unfurling petals, sunflower ray burst, cherry blossom scatter, dandelion seed dispersal, lotus opening sequence, wildflower pollen burst, suitable for spring summer nature magic bloom effects, 32x32 pixels upscaled, delicate organic details, black background --v 6.1 --ar 1:1 --style raw --s 100
+```
+
+---
+
+### 🎵 UNIVERSAL MUSICAL EFFECTS
+
+**BONUS - Orchestral Energy Waves:**
+```
+white orchestral energy wave sprite sheet, 16 variations, pure grayscale musical power effects, includes: crescendo building wave, fortissimo impact burst, pianissimo gentle ripple, staccato sharp pulse, legato flowing stream, fermata sustained glow, accelerando speed lines, ritardando fading trail, suitable for music-themed weapon attacks spell effects, 64x64 pixels upscaled, dynamic motion-implying shapes, black background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+## 🌟 UNIVERSAL VFX PROMPTS (Use Across All Themes)
+
+> **These prompts work for ANY theme - just tint to theme colors at runtime.**
+
+---
+
+### ⚔️ MELEE SLASH & SWING EFFECTS
+
+**Universal 01 - Sharp Slash Arcs:**
+```
+white melee slash arc sprite sheet, 16 variations in 4x4 grid, pure grayscale sharp cutting trails, includes: thin razor slash, thick heavy cleave, curved katana arc, straight sword cut, diagonal cross slash, horizontal sweep, vertical chop, spinning circular slash, double slash X pattern, triple combo trails, fading afterimage slashes, speed line enhanced cuts, suitable for all melee weapon swing effects, 64x64 pixels upscaled, sharp leading edge with soft fade trail, black background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+**Universal 02 - Heavy Impact Smears:**
+```
+white heavy weapon smear sprite sheet, 12 variations, pure grayscale blunt force trails, includes: hammer overhead smash arc, axe chop trail, mace swing blur, club bash smear, greatword cleave wave, scythe reap curve, polearm thrust streak, ground pound impact, charge attack blur, momentum trail with debris, suitable for heavy melee weapons brutal attacks, 64x64 pixels upscaled, thick bold strokes with motion blur, transparent background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+**Universal 03 - Quick Strike Flashes:**
+```
+white quick strike flash sprite sheet, 20 variations, pure grayscale rapid attack effects, includes: dagger stab flash, rapier thrust point, claw swipe marks, dual blade cross, flurry attack lines, backstab burst, critical hit star, parry deflect spark, riposte counter flash, assassination strike, suitable for fast melee weapons rogue attacks, 32x32 pixels upscaled, sharp instant impact shapes, black background --v 6.1 --ar 5:4 --style raw --s 50
+```
+
+---
+
+### 💨 COSMIC & ETHEREAL SMOKE
+
+**Universal 04 - Cosmic Smoke Nebulae:**
+```
+white cosmic smoke sprite sheet, 16 variations in 4x4 grid, pure grayscale ethereal space smoke, includes: swirling galaxy wisps, nebula gas clouds, cosmic dust billows, astral vapor trails, dimensional mist patches, void smoke tendrils, stellar wind streams, dark matter wisps, cosmic energy exhaust, interstellar fog banks, suitable for cosmic magic teleportation celestial effects, 64x64 pixels upscaled, soft organic edges with bright internal spots, black background --v 6.1 --ar 1:1 --style raw --s 100
+```
+
+**Universal 05 - Ethereal Spirit Wisps:**
+```
+white spirit wisp sprite sheet, 16 variations, pure grayscale ghostly energy forms, includes: floating soul orb, trailing ghost wisp, spectral flame shape, ectoplasm tendril, wandering spirit light, phantom smoke curl, essence dissipation, spirit coalescing, haunting presence glow, astral projection trail, suitable for soul magic spirit summons ethereal effects, 32x32 pixels upscaled, soft glowing cores with fading tails, transparent background --v 6.1 --ar 1:1 --style raw --s 100
+```
+
+**Universal 06 - Dark Void Smoke:**
+```
+white void smoke sprite sheet, 12 variations, pure grayscale corrupted darkness smoke, includes: consuming shadow wisps, reality-eating tendrils, null space fog, entropy clouds, darkness bleeding edges, void leak streams, antimatter vapor, corruption spreading smoke, abyssal mist, nothingness encroaching, suitable for dark magic void corruption evil effects, 64x64 pixels upscaled, irregular unsettling organic shapes, black background --v 6.1 --ar 3:2 --style raw --s 100
+```
+
+---
+
+### ✨ SPARKLES & GLITTER EFFECTS
+
+**Universal 07 - Magic Sparkle Scatter:**
+```
+white magic sparkle sprite sheet, 24 variations in 6x4 grid, pure grayscale enchanted glitter, includes: tiny diamond sparkles, 4-point star twinkles, 6-point hex sparkles, soft round glows, elongated streak sparkles, clustered sparkle groups, fading sparkle trails, pulsing sparkle frames, scattered glitter patterns, dense sparkle clouds, suitable for magic enchantment buff aura effects, 16x16 pixels upscaled, bright pinpoint centers, black background --v 6.1 --ar 3:2 --style raw --s 50
+```
+
+**Universal 08 - Shimmer Highlight Flares:**
+```
+white shimmer flare sprite sheet, 16 variations, pure grayscale lens flare highlights, includes: horizontal lens streak, vertical light pillar, cross flare burst, hexagonal bokeh, circular soft flare, anamorphic stretch, rainbow arc in white, starburst highlight, glint reflection point, chrome shine spot, suitable for item glow weapon shine magical highlights, 32x32 pixels upscaled, bright cores with characteristic flare shapes, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+### 💥 IMPACT & EXPLOSION EFFECTS
+
+**Universal 09 - Shockwave Rings:**
+```
+white shockwave ring sprite sheet, 12 variations, pure grayscale expanding impact rings, includes: thin sharp shockwave, thick pressure wave, distortion ripple ring, ground pound wave, aerial burst ring, double ring expansion, triple cascading rings, broken shockwave segments, fading echo rings, compressed then expanding wave, suitable for impact explosions boss attacks area effects, 64x64 pixels upscaled, clean circular geometry with fade, black background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+**Universal 10 - Debris Scatter Bursts:**
+```
+white debris scatter sprite sheet, 16 variations, pure grayscale shattered fragment patterns, includes: rock chunk scatter, crystal shard burst, metal fragment spray, glass shatter pattern, wood splinter explosion, bone fragment scatter, generic debris cloud, directional debris cone, radial debris ring, settling debris particles, suitable for destruction break shatter effects, 64x64 pixels upscaled, varied fragment sizes and trajectories, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+**Universal 11 - Energy Burst Explosions:**
+```
+white energy burst sprite sheet, 12 variations, pure grayscale magical explosions, includes: spherical energy nova, directional blast cone, imploding then exploding burst, layered ring explosion, asymmetric organic burst, geometric crystalline explosion, soft bloom burst, hard flash burst, sustained explosion frames, dissipating energy cloud, suitable for spell impacts projectile explosions magic attacks, 64x64 pixels upscaled, bright cores with radiating energy, black background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+---
+
+### 🔥 ELEMENTAL ENERGY EFFECTS
+
+**Universal 12 - Fire & Flame Tongues:**
+```
+white flame tongue sprite sheet, 20 variations, pure grayscale fire shapes, includes: small candle flame, medium torch fire, large bonfire flame, flickering flame frames, rising heat wisps, ember-topped flames, aggressive sharp flames, soft rounded flames, wind-bent flames, extinguishing flame sequence, suitable for fire magic burning effects weapon enchants, 32x32 pixels upscaled, organic dancing shapes, transparent background --v 6.1 --ar 5:4 --style raw --s 100
+```
+
+**Universal 13 - Electric Arc Chains:**
+```
+white lightning arc sprite sheet, 16 variations, pure grayscale electrical effects, includes: straight bolt segment, branching fork, chain lightning connection, ball lightning orb, electric spark cluster, arc between two points, crawling surface electricity, dissipating static, sustained arc frames, electrical explosion burst, suitable for lightning magic electric weapons chain attacks, 64x64 pixels upscaled, jagged sharp paths with glow, black background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+**Universal 14 - Frost & Ice Crystals:**
+```
+white frost crystal sprite sheet, 20 variations, pure grayscale ice formations, includes: hexagonal snowflake, sharp icicle spike, frost creep pattern, frozen surface texture, ice shard fragments, crystalline structure, hoarfrost delicate, blizzard ice particles, cracking ice lines, melting ice drips, suitable for ice magic frozen effects winter weapons, 32x32 pixels upscaled, geometric crystalline shapes, transparent background --v 6.1 --ar 5:4 --style raw --s 75
+```
+
+---
+
+### 🌀 TRAILS & MOTION EFFECTS
+
+**Universal 15 - Speed Line Streaks:**
+```
+white speed line sprite sheet, 16 variations, pure grayscale motion blur trails, includes: straight speed lines, curved motion arcs, converging zoom lines, parallel streak sets, tapered velocity trails, dash blur effect, afterimage ghost trail, momentum indicator lines, acceleration streaks, deceleration fade, suitable for dash attacks fast movement charge effects, 64x32 elongated pixels upscaled, sharp leading edges with fade, black background --v 6.1 --ar 2:1 --style raw --s 50
+```
+
+**Universal 16 - Projectile Trail Ribbons:**
+```
+white projectile trail sprite sheet, 12 variations, pure grayscale following ribbon effects, includes: straight bullet trail, curving homing trail, spiral corkscrew trail, wavy sine trail, fading dot trail, solid ribbon trail, particle scatter trail, energy stream trail, smoke exhaust trail, light streak trail, suitable for projectile weapons magic missiles arrows, 64x32 elongated pixels upscaled, continuous flowing shapes, transparent background --v 6.1 --ar 2:1 --style raw --s 75
+```
+
+**Universal 17 - Aura & Field Effects:**
+```
+white aura field sprite sheet, 12 variations, pure grayscale surrounding energy effects, includes: soft circular aura, pulsing ring aura, flame-like aura edge, electric crackling aura, particle orbit aura, rising energy aura, compressed tight aura, expanded wide field, layered nested auras, flickering unstable aura, suitable for buff indicators power-up effects character auras, 64x64 pixels upscaled, centered with radiating energy, black background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+### 🎯 HIT INDICATORS & DAMAGE NUMBERS
+
+**Universal 18 - Critical Hit Markers:**
+```
+white critical hit marker sprite sheet, 16 variations, pure grayscale damage emphasis effects, includes: star burst crit, exclamation impact, cross-hair hit, bullseye target, shatter point marker, piercing arrow indicator, skull damage icon, heart break icon, combo number frame, damage splash shape, suitable for critical hits damage feedback combat indicators, 32x32 pixels upscaled, bold impactful shapes, transparent background --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+**Universal 19 - Healing & Buff Particles:**
+```
+white healing particle sprite sheet, 16 variations, pure grayscale restoration effects, includes: rising plus signs, gentle heart shapes, soft cross symbols, restoration sparkles, regeneration swirls, cleansing light rays, buff arrow indicators, shield protection icons, vitality orbs, soothing wave ripples, suitable for healing magic buff application restoration effects, 32x32 pixels upscaled, soft gentle shapes, black background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+### 🌊 ENERGY WAVES & PULSES
+
+**Universal 20 - Radial Energy Pulses:**
+```
+white energy pulse sprite sheet, 12 variations, pure grayscale expanding wave effects, includes: thin radar pulse, thick pressure wave, double pulse rings, heartbeat rhythm pulse, sonar ping ring, magical detection wave, damage pulse expansion, healing pulse spread, alert warning pulse, fading echo pulses, suitable for area attacks detection abilities pulse damage, 64x64 pixels upscaled, clean circular expansion with fade, transparent background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+**Universal 21 - Directional Energy Waves:**
+```
+white directional wave sprite sheet, 12 variations, pure grayscale projected energy, includes: forward arc wave, cone blast wave, beam sweep trail, ground-traveling wave, aerial crescent wave, horizontal slash wave, vertical pillar wave, diagonal cutting wave, spiral outward wave, returning boomerang wave, suitable for ranged melee attacks wave projectiles area denial, 64x64 pixels upscaled, clear directional motion, black background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+---
+
+### ⭕ SUMMONING & PORTAL EFFECTS
+
+**Universal 22 - Summoning Circles:**
+```
+white summoning circle sprite sheet, 12 variations, pure grayscale magic formation effects, includes: simple ring circle, runic inscribed circle, pentagram formation, hexagram star circle, rotating gear circle, layered nested circles, incomplete forming circle, glowing active circle, fading dismissed circle, pulsing sustained circle, suitable for summon magic teleportation spell casting areas, 64x64 pixels upscaled, geometric precision with soft glow, transparent background --v 6.1 --ar 3:2 --style raw --s 50
+```
+
+**Universal 23 - Portal & Rift Effects:**
+```
+white portal effect sprite sheet, 12 variations, pure grayscale dimensional gateway effects, includes: circular portal ring, oval stretched portal, swirling vortex entrance, jagged tear rift, smooth dimensional fold, unstable flickering portal, opening sequence frames, closing sequence frames, active sustained portal, miniature blink portal, suitable for teleportation dimension magic warp effects, 64x64 pixels upscaled, depth-implying spiral or ring shapes, black background --v 6.1 --ar 3:2 --style raw --s 75
+```
+
+---
+
+### 🔮 CHARGE & CHANNELING EFFECTS
+
+**Universal 24 - Charge Build-Up Effects:**
+```
+white charge buildup sprite sheet, 16 variations, pure grayscale gathering energy effects, includes: converging particle streams, tightening spiral inward, growing core intensity, orbiting charge fragments, pulsing intensifying glow, electricity gathering, flames converging, light condensing, unstable overcharge crackling, ready-to-release maximum charge, suitable for charged attacks power building ultimate abilities, 64x64 pixels upscaled, inward motion with growing center, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+**Universal 25 - Channeling Stream Effects:**
+```
+white channeling stream sprite sheet, 12 variations, pure grayscale sustained energy flow, includes: straight beam channel, wavy flowing channel, particle stream channel, lightning chain channel, life drain tendril, energy siphon flow, healing beam stream, damage beam stream, connection tether line, broken interrupted channel, suitable for channeled spells beam weapons drain effects, 64x32 elongated pixels upscaled, continuous flowing connection, black background --v 6.1 --ar 2:1 --style raw --s 75
+```
+
+---
+
+### 🛡️ SHIELDS & DEFENSIVE EFFECTS
+
+**Universal 26 - Musical Staff Shield Barriers (Calamity Sponge Style):**
+```
+white musical staff shield barrier sprite sheet, 12 variations in 3x4 grid, pure grayscale protective energy walls with musical notation, vertical rectangular shields that fade toward center, includes: five-line musical staff barrier with floating notes, treble clef shield emblem with radiating protection, bass clef fortified wall barrier, crescendo building shield layers getting stronger toward edge, staccato sharp-edged segmented barrier, legato smooth flowing connected shield, fermata sustained hold protection dome, forte fortissimo intense bright shield, piano pianissimo soft fading gentle barrier, musical rest pause gap in shield, chord stack vertical layered protection, arpeggio cascading shield segments, suitable for music-themed accessory damage absorption effects defensive barriers, 128x64 pixels upscaled portrait orientation, bright outer edge with musical symbols fading to transparent inner edge, black background --v 6.1 --ar 2:1 --style raw --s 75
+```
+
+**Universal 27 - Harmonic Dome Bubbles:**
+```
+white harmonic protection dome sprite sheet, 12 variations, pure grayscale spherical musical barrier effects, includes: dome surface inscribed with circular musical staff, resonating sound wave sphere ripples, bell-shaped protective dome, orchestral crescendo building dome intensity, floating music notes orbiting dome edge, treble clef crown on dome apex, vibrating tuning fork frequency dome, sustained chord harmonic sphere, symphony of layered protective circles, acoustic wave interference pattern dome, musical rest silent void dome center, tempo pulse rhythmic breathing dome animation, suitable for music-themed invincibility frames damage immunity protective bubbles, 64x64 pixels upscaled, spherical depth with musical notation on bright edge fading to transparent center, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+**Universal 28 - Rhythmic Parry Flash Effects:**
+```
+white rhythmic parry flash sprite sheet, 16 variations in 4x4 grid, pure grayscale musical defensive impact effects, includes: cymbal crash parry burst, drum hit perfect block flash, sharp staccato deflection spark, musical accent mark impact, sforzando sudden forte block burst, bell chime successful parry ring, dissonant chord clash shatter, harmonic resolution counter flash, syncopated off-beat dodge effect, downbeat strong block indicator, rest symbol damage negation, quarter note timing window ring, eighth note quick parry flash, whole note sustained block glow, metronome tick perfect timing burst, conductor baton deflection trail, suitable for music-themed melee combat blocking parrying defensive reactions, 32x32 pixels upscaled, instant musical impact shapes with radial sound wave energy, black background --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+**Universal 29 - Melodic Absorption Layers:**
+```
+white melodic absorption layer sprite sheet, 12 variations, pure grayscale musical protective coating effects, includes: musical staff lines wrapping around as armor, floating note aura damage absorption, sound wave frequency shield coating, harmonic overtone layered protection, melody line flowing barrier skin, bass line foundation solid layer, treble shimmer upper defense layer, chord progression stacking shields, crescendo building thicker layers, decrescendo fading depleted barrier, vibrato wavering unstable shield, sustained note held protection glow, suitable for music-themed damage reduction buffs shield health extra defense layers, 64x64 pixels upscaled, layered musical notation depth with varying opacity, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+**Universal 30 - Orchestral Aura Rings:**
+```
+white orchestral aura ring sprite sheet, 12 variations, pure grayscale musical protective surrounding effects, includes: circular musical staff ring with orbiting notes, treble and bass clef yin-yang protection circle, rotating musical notation ring, sound wave emanation pulse ring, conductor circle baton trail aura, symphony orchestra arrangement ring, solo instrument spotlight aura, ensemble harmony layered rings, tempo marking pulse indicator ring, dynamic marking intensity aura, key signature protection circle, time signature rhythmic ward ring, suitable for music-themed passive defense buffs protective auras damage reduction fields, 64x64 pixels upscaled, centered musical ring formations with player space in middle, black background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+**Universal 31 - Dissonant Shield Shatter:**
+```
+white dissonant shield shatter sprite sheet, 12 variations, pure grayscale musical barrier destruction effects, includes: musical staff lines snapping and scattering, notes exploding outward in chaos, clef symbols cracking and breaking, sound wave disruption interference pattern, discordant chord jarring shatter burst, broken melody fragmented notes flying, silence consuming music void spread, tempo collapse rhythmic breakdown, key change jarring transition break, fermata end final sustained note fade, sheet music tearing effect, instrument string snap recoil burst, suitable for music-themed shield break moments barrier destruction protection ending effects, 64x64 pixels upscaled, dramatic musical notation shattering motion with note fragments, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+**Universal 32 - Directional Sound Guard Effects:**
+```
+white directional sound guard sprite sheet, 16 variations in 4x4 grid, pure grayscale musical angled protection effects, includes: forward facing crescendo wave wall, rear guard diminuendo fade shield, overhead fermata sustained dome, bass foundation underfoot ground shield, left speaker cone directional barrier, right channel audio shield panel, surround sound 360 degree coverage, stereo pair dual side shields, mono focused center guard cone, woofer bass low frequency wide shield, tweeter treble high frequency narrow guard, equalizer frequency band directional bars, volume knob coverage adjustment ring, mute symbol gap indicator, acoustic reflection angle shield, sound absorption directional panel, suitable for music-themed directional blocking positional defense active guarding, 64x64 pixels upscaled, clear directional sound wave orientation with coverage indication, black background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+**Universal 33 - Echo Retaliation Effects:**
+```
+white echo retaliation sprite sheet, 12 variations, pure grayscale musical counter-damage effects, includes: sound wave reflection bouncing back, echo repeat damage pulse outward, reverb sustained retaliation rings, feedback loop screech burst, resonance frequency matching counter, acoustic mirror perfect reflection, dissonant counter-chord attack burst, fortissimo loud retaliation blast, staccato sharp counter-notes firing, accent mark emphasized return strike, cymbal crash counter-attack flash, timpani thunder retaliation boom, suitable for music-themed thorns accessories damage reflection counter-attack effects, 64x64 pixels upscaled, outward-directed aggressive musical sound wave energy, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+**Universal 34 - Silent Rest Immunity Frames:**
+```
+white silent rest immunity sprite sheet, 16 variations in 4x4 grid, pure grayscale musical immunity effects, includes: whole rest complete silence immunity, half rest partial protection state, quarter rest quick dodge frame, eighth rest rapid i-frame flash, musical rest symbols floating around player, silence notation surrounding aura, tacet full immunity indicator, caesura pause break moment, grand pause dramatic immunity, fermata held sustained protection, breath mark brief grace period, ghost note ethereal dodge state, grace note quick immunity flash, tied note extended protection duration, slur connected immunity chain, phrase mark complete immunity arc, suitable for music-themed invincibility frames dodge immunity damage grace periods, 64x64 pixels upscaled, player-surrounding musical rest and silence visual states, black background --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+**Universal 35 - Musical Shield Surface Textures (Tileable):**
+```
+white musical shield surface texture sprite sheet, 9 variations in 3x3 grid, pure grayscale seamless tileable musical shield patterns, includes: repeating musical staff line grid pattern, scattered musical notes tessellation, treble clef repeating motif texture, sound wave frequency pattern overlay, piano key alternating bar pattern, harp string vertical line texture, drum skin circular ripple pattern, sheet music manuscript paper texture, vinyl record groove spiral pattern, suitable for music-themed large shield surfaces barrier walls protective domes tileable textures, 128x128 pixels upscaled seamless tile, consistent musical motif edge matching for tiling, transparent background --v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+## 📋 UNIVERSAL PROMPT QUICK REFERENCE
+
+| Category | Prompts | Best For |
+|----------|---------|----------|
+| **Melee Slashes** | U01-U03 | All sword, axe, dagger weapons |
+| **Cosmic/Ethereal Smoke** | U04-U06 | Magic trails, teleports, dark effects |
+| **Sparkles & Glitter** | U07-U08 | Buffs, enchants, item glow |
+| **Impacts & Explosions** | U09-U11 | All damage effects, projectile hits |
+| **Elemental Energy** | U12-U14 | Fire, lightning, ice themed |
+| **Trails & Motion** | U15-U17 | Projectiles, dashes, auras |
+| **Hit Indicators** | U18-U19 | Damage feedback, healing |
+| **Energy Waves** | U20-U21 | Area attacks, wave projectiles |
+| **Summoning/Portals** | U22-U23 | Teleports, summons, rifts |
+| **Charge/Channel** | U24-U25 | Charged attacks, beam weapons |
+| **Shields & Defense** | U26-U35 | Barriers, parries, immunity, thorns |
+
+---
+
+## 📋 THEME-TO-PARTICLE QUICK REFERENCE
+
+| Theme | Primary Particles | Recommended Prompts |
+|-------|-------------------|---------------------|
+| **La Campanella** | Bell rings, smoke, embers | 1, 2, 3 |
+| **Eroica** | Sakura, radiance, ribbons | 4, 5, 6 |
+| **Swan Lake** | Prismatics, pirouettes, ice | 7, 8, 9 |
+| **Moonlight Sonata** | Lunar halos, mist, stardust | 10, 11, 12 |
+| **Enigma Variations** | Eyes, void rifts, question marks | 13, 14, 15 |
+| **Fate** | Constellations, nebulae, distortion | 16, 17, 18 |
+| **Dies Irae** | Blood, skulls | 19, 20 |
+| **Nachtmusik** | Stars, auroras | 21, 22 |
+| **Seasons** | Leaves, weather, flowers | 23, 24, 25 |
+| **All Themes** | Musical energy waves | BONUS |
+
+---
+
+*End of Midjourney Particle Prompts Section*

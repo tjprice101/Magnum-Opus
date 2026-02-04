@@ -371,16 +371,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
-            // Death burst
-            CustomParticles.GenericFlare(Projectile.Center, EnigmaGreen, 0.45f, 14);
-            
-            for (int i = 0; i < 4; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 4f;
-                Vector2 vel = angle.ToRotationVector2() * 3f;
-                var glow = new GenericGlowParticle(Projectile.Center, vel, GetEnigmaGradient((float)i / 4f), 0.3f, 12, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
+            // UNIQUE DEATH: Void Implode - basic shot collapses into void
+            DynamicParticleEffects.EnigmaDeathVoidImplode(Projectile.Center, 0.6f);
         }
     }
     
@@ -625,18 +617,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void OnKill(int timeLeft)
         {
-            // End burst
-            CustomParticles.GenericFlare(Projectile.Center, EnigmaGreen, 0.55f, 16);
-            
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 vel = angle.ToRotationVector2() * 4f;
-                var glow = new GenericGlowParticle(Projectile.Center, vel, GetEnigmaGradient((float)i / 6f), 0.35f, 14, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-            
-            CustomParticles.GlyphBurst(Projectile.Center, EnigmaPurple, count: 4, speed: 3f);
+            // UNIQUE DEATH: Paradox Fracture - reality cracks at the bolt's end
+            DynamicParticleEffects.EnigmaDeathParadoxFracture(Projectile.Center, 0.9f);
         }
     }
 }

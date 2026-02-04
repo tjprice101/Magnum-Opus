@@ -181,8 +181,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             // === STARBURST IMPACT ===
             NachtmusikCosmicVFX.SpawnStarBurstImpact(target.Center, 0.8f, 2);
             
-            // === DYNAMIC IMPACT: Nachtmusik Celestial Theme ===
-            NachtmusikImpact(target.Center, 1f);
+            // === DYNAMIC IMPACT: STYLE 1 - Constellation Cascade (cosmic blade) ===
+            NachtConstellationCascade(target.Center, 1.1f);
             
             // === DYNAMIC: Celestial burst with spiraling particles ===
             CelestialBurst(target.Center, 0.9f);
@@ -223,57 +223,11 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override void OnKill(int timeLeft)
         {
-            // === 4-LAYER CENTRAL GLIMMER CASCADE ===
-            for (int layer = 0; layer < 4; layer++)
-            {
-                float layerScale = 0.45f + layer * 0.15f;
-                float layerAlpha = 0.85f - layer * 0.15f;
-                float layerHue = HueMin + (layer / 4f) * (HueMax - HueMin);
-                Color layerColor = Color.Lerp(Color.White, Main.hslToRgb(layerHue, 0.88f, 0.75f), layer / 4f);
-                CustomParticles.GenericFlare(Projectile.Center, layerColor * layerAlpha, layerScale, 20 - layer * 2);
-            }
-            
-            // === 4 EXPANDING HALO RINGS ===
-            for (int ring = 0; ring < 4; ring++)
-            {
-                float ringHue = HueMin + (ring / 4f) * (HueMax - HueMin);
-                Color ringColor = Main.hslToRgb(ringHue, 0.82f, 0.68f);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.35f + ring * 0.12f, 15 + ring * 3);
-            }
-            
-            // === 8 MUSIC NOTES FINALE ===
-            for (int n = 0; n < 8; n++)
-            {
-                float angle = MathHelper.TwoPi * n / 8f;
-                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(3.5f, 6f);
-                float noteHue = HueMin + (n / 8f) * (HueMax - HueMin);
-                Color noteColor = Main.hslToRgb(noteHue, 0.9f, 0.75f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.82f, 38);
-            }
-            
-            // === 10 SPARKLE BURST ===
-            for (int s = 0; s < 10; s++)
-            {
-                float angle = MathHelper.TwoPi * s / 10f;
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
-                float sparkHue = HueMin + (s / 10f) * (HueMax - HueMin);
-                Color sparkColor = Main.hslToRgb(sparkHue, 0.85f, 0.72f);
-                var sparkle = new SparkleParticle(Projectile.Center, sparkVel, sparkColor, 0.38f, 22);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-            
-            // === 10 GLOW BURST ===
-            for (int i = 0; i < 10; i++)
-            {
-                Vector2 burstVel = Main.rand.NextVector2Circular(6f, 6f);
-                float burstHue = HueMin + Main.rand.NextFloat() * (HueMax - HueMin);
-                Color burstColor = Main.hslToRgb(burstHue, 0.82f, 0.65f);
-                var burst = new GenericGlowParticle(Projectile.Center, burstVel, burstColor * 0.7f, 0.32f, 22, true);
-                MagnumParticleHandler.SpawnParticle(burst);
-            }
+            // === UNIQUE DEATH STYLE 1: CONSTELLATION IMPLOSION ===
+            // Stars converge to center then explode outward as connected constellation
+            DynamicParticleEffects.NachtDeathConstellation(Projectile.Center, 1.0f);
             
             SoundEngine.PlaySound(SoundID.Item62 with { Pitch = 0.3f, Volume = 0.7f }, Projectile.Center);
-            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.Gold.ToVector3() * 1.3f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -281,7 +235,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Glyphs10").Value;
             Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 flareOrigin = flareTex.Size() / 2f;
@@ -398,7 +352,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class CrescendoWaveProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc7";
+        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc6";
         
         // Nachtmusik hue range - violet/purple spectrum (0.75-0.85)
         private const float HueMin = 0.75f;
@@ -563,8 +517,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            // === DYNAMIC: Nachtmusik Celestial Theme ===
-            NachtmusikImpact(target.Center, 0.9f * growthFactor);
+            // === DYNAMIC IMPACT: STYLE 2 - Crescent Wave (crescendo wave) ===
+            NachtCrescentWave(target.Center, Projectile.velocity.SafeNormalize(Vector2.UnitX), 0.95f * growthFactor);
             DramaticImpact(target.Center, NachtmusikCosmicVFX.Violet, NachtmusikCosmicVFX.Gold, 0.45f * growthFactor, 18);
             
             // === SEEKING CRYSTALS ===
@@ -584,58 +538,19 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override void OnKill(int timeLeft)
         {
-            // === 4-LAYER CENTRAL GLIMMER CASCADE ===
-            for (int layer = 0; layer < 4; layer++)
-            {
-                float layerScale = (0.4f + layer * 0.12f) * growthFactor;
-                float layerAlpha = 0.82f - layer * 0.15f;
-                float layerHue = HueMin + (layer / 4f) * (HueMax - HueMin);
-                Color layerColor = Color.Lerp(Color.White, Main.hslToRgb(layerHue, 0.88f, 0.75f), layer / 4f);
-                CustomParticles.GenericFlare(Projectile.Center, layerColor * layerAlpha, layerScale, 18 - layer * 2);
-            }
+            // === UNIQUE DEATH STYLE 2: CRESCENT SHATTER ===
+            // Crescent moon shape shatters into shards that fly outward in arc pattern
+            DynamicParticleEffects.NachtDeathCrescentShatter(Projectile.Center, Projectile.velocity.SafeNormalize(Vector2.UnitX), growthFactor);
             
-            // === 3 EXPANDING HALO RINGS ===
-            for (int ring = 0; ring < 3; ring++)
-            {
-                float ringHue = HueMin + (ring / 3f) * (HueMax - HueMin);
-                Color ringColor = Main.hslToRgb(ringHue, 0.82f, 0.68f);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, (0.35f + ring * 0.12f) * growthFactor, 15 + ring * 3);
-            }
-            
-            // === 8 MUSIC NOTES FINALE ===
-            for (int n = 0; n < 8; n++)
-            {
-                float angle = MathHelper.TwoPi * n / 8f;
-                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 5.5f) * growthFactor;
-                float noteHue = HueMin + (n / 8f) * (HueMax - HueMin);
-                Color noteColor = Main.hslToRgb(noteHue, 0.9f, 0.75f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.8f, 35);
-            }
-            
-            // === 8 SPARKLE + 8 GLOW BURST ===
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 7f) * growthFactor;
-                float burstHue = HueMin + (i / 8f) * (HueMax - HueMin);
-                Color burstColor = Main.hslToRgb(burstHue, 0.85f, 0.72f);
-                
-                var sparkle = new SparkleParticle(Projectile.Center, burstVel, burstColor, 0.35f, 20);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-                
-                var glow = new GenericGlowParticle(Projectile.Center, burstVel * 0.8f, burstColor * 0.7f, 0.3f, 22, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-            
-            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.Gold.ToVector3() * 1.2f * growthFactor);
+            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.Violet.ToVector3() * 1.1f * growthFactor);
         }
         
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwordArc7").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwordArc6").Value;
             Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 flareOrigin = flareTex.Size() / 2f;
@@ -903,8 +818,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            // === DYNAMIC: Nachtmusik Celestial Theme ===
-            NachtmusikImpact(target.Center, 0.85f);
+            // === DYNAMIC IMPACT: STYLE 1 - Constellation Cascade (star bolt) ===
+            NachtConstellationCascade(target.Center, 0.9f);
             DramaticImpact(target.Center, NachtmusikCosmicVFX.Gold, NachtmusikCosmicVFX.Violet, 0.4f, 16);
             
             hitEnemies.Add(target.whoAmI);
@@ -935,48 +850,9 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override void OnKill(int timeLeft)
         {
-            // === 4-LAYER CENTRAL GLIMMER CASCADE ===
-            for (int layer = 0; layer < 4; layer++)
-            {
-                float layerScale = 0.35f + layer * 0.1f;
-                float layerAlpha = 0.8f - layer * 0.15f;
-                float layerHue = HueMin + (layer / 4f) * (HueMax - HueMin);
-                Color layerColor = Color.Lerp(Color.White, Main.hslToRgb(layerHue, 0.88f, 0.75f), layer / 4f);
-                CustomParticles.GenericFlare(Projectile.Center, layerColor * layerAlpha, layerScale, 16 - layer * 2);
-            }
-            
-            // === 3 EXPANDING HALO RINGS ===
-            for (int ring = 0; ring < 3; ring++)
-            {
-                float ringHue = HueMin + (ring / 3f) * (HueMax - HueMin);
-                Color ringColor = Main.hslToRgb(ringHue, 0.82f, 0.68f);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.3f + ring * 0.1f, 14 + ring * 3);
-            }
-            
-            // === 6 MUSIC NOTES FINALE ===
-            for (int n = 0; n < 6; n++)
-            {
-                float angle = MathHelper.TwoPi * n / 6f;
-                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(2.5f, 5f);
-                float noteHue = HueMin + (n / 6f) * (HueMax - HueMin);
-                Color noteColor = Main.hslToRgb(noteHue, 0.9f, 0.75f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.78f, 32);
-            }
-            
-            // === 8 SPARKLE + 8 GLOW BURST ===
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
-                float burstHue = HueMin + (i / 8f) * (HueMax - HueMin);
-                Color burstColor = Main.hslToRgb(burstHue, 0.85f, 0.72f);
-                
-                var sparkle = new SparkleParticle(Projectile.Center, burstVel, burstColor, 0.32f, 18);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-                
-                var glow = new GenericGlowParticle(Projectile.Center, burstVel * 0.75f, burstColor * 0.7f, 0.28f, 20, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
+            // === UNIQUE DEATH STYLE 1: CONSTELLATION IMPLOSION ===
+            // This chaining bolt uses constellation death - stars connected by threads
+            DynamicParticleEffects.NachtDeathConstellation(Projectile.Center, 0.9f);
             
             Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.Gold.ToVector3() * 1f);
         }
@@ -986,7 +862,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/StarBurst1").Value;
             Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 flareOrigin = flareTex.Size() / 2f;
@@ -1249,25 +1125,16 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                 CustomParticles.HaloRing(target.Center, haloColor * (0.6f - i * 0.1f), 0.3f + i * 0.15f, 15 + i * 3);
             }
             
-            // === DYNAMIC: Nachtmusik Celestial Theme ===
-            NachtmusikImpact(target.Center, 1.1f);
+            // === DYNAMIC IMPACT: STYLE 3 - Serenade Resonance (nebula magic) ===
+            NachtSerenadeResonance(target.Center, 1.15f);
             DramaticImpact(target.Center, NebulaCore, StarMote, 0.5f, 20);
         }
         
         public override void OnKill(int timeLeft)
         {
-            // Nebula dissipation - gas clouds scatter
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 gasVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
-                Color gasColor = Color.Lerp(NebulaCore, NebulaGas, Main.rand.NextFloat());
-                var gas = new GenericGlowParticle(Projectile.Center, gasVel, gasColor * 0.5f, 0.3f, 28, true);
-                MagnumParticleHandler.SpawnParticle(gas);
-            }
-            
-            ThemedParticles.MusicNoteBurst(Projectile.Center, NebulaOuter, 5, 3.5f);
-            CustomParticles.GenericFlare(Projectile.Center, StarMote, 0.6f, 18);
+            // === UNIQUE DEATH STYLE 3: NEBULA BLOOM ===
+            // Soft nebula cloud expands with embedded stars - perfect for ranged
+            DynamicParticleEffects.NachtDeathNebulaBoom(Projectile.Center, 1.0f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -1275,7 +1142,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             Texture2D coreTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/StarBurst2").Value;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow3").Value;
-            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle5").Value;
+            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/TwilightSparkle").Value;
             Vector2 coreOrigin = coreTex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 sparkleOrigin = sparkleTex.Size() / 2f;
@@ -1324,7 +1191,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class NebulaStarfallProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle8";
+        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle14";
         
         private static readonly Color StarCore = new Color(255, 255, 220);
         private static readonly Color StarTrail = new Color(255, 180, 220);
@@ -1365,16 +1232,9 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override void OnKill(int timeLeft)
         {
-            // Ground explosion - star impact crater effect
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
-                var burst = new GenericGlowParticle(Projectile.Center, burstVel, StarTrail * 0.5f, 0.25f, 20, true);
-                MagnumParticleHandler.SpawnParticle(burst);
-            }
-            CustomParticles.GenericFlare(Projectile.Center, StarCore, 0.5f, 15);
-            CustomParticles.HaloRing(Projectile.Center, StarTrail * 0.6f, 0.25f, 12);
+            // === UNIQUE DEATH STYLE 3: NEBULA BLOOM (variant for starfall) ===
+            // Starfall uses nebula bloom but with velocity-aware direction
+            DynamicParticleEffects.NachtDeathNebulaBoom(Projectile.Center, 0.7f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -1570,8 +1430,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            // === DYNAMIC: Nachtmusik Celestial Theme ===
-            NachtmusikImpact(target.Center, 0.95f);
+            // === DYNAMIC IMPACT: STYLE 1 - Constellation Cascade (serenade star) ===
+            NachtConstellationCascade(target.Center, 1f);
             DramaticImpact(target.Center, StarCore, StarViolet, 0.48f, 20);
             
             // === SEEKING CRYSTALS - Star burst ===
@@ -1591,57 +1451,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override void OnKill(int timeLeft)
         {
-            // ===== TRUE_VFX_STANDARDS: GLIMMER CASCADE (4 layers) =====
-            for (int layer = 0; layer < 4; layer++)
-            {
-                float layerScale = 0.4f + layer * 0.15f;
-                float layerAlpha = 0.85f - layer * 0.15f;
-                float layerHue = HueMin + (layer / 4f) * (HueMax - HueMin);
-                Color layerColor = Color.Lerp(Color.White, Main.hslToRgb(layerHue, 0.9f, 0.8f), layer / 4f);
-                CustomParticles.GenericFlare(Projectile.Center, layerColor * layerAlpha, layerScale, 20 - layer * 2);
-            }
-            
-            // ===== EXPANDING HALO RINGS (3 layers) =====
-            for (int ring = 0; ring < 3; ring++)
-            {
-                float ringHue = HueMin + (ring / 3f) * (HueMax - HueMin);
-                Color ringColor = Main.hslToRgb(ringHue, 0.85f, 0.75f);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.35f + ring * 0.12f, 14 + ring * 3);
-            }
-            
-            // ===== MUSIC NOTE FINALE (8 notes) =====
-            for (int n = 0; n < 8; n++)
-            {
-                float noteAngle = MathHelper.TwoPi * n / 8f;
-                Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(3f, 5.5f);
-                float noteHue = HueMin + (n / 8f) * (HueMax - HueMin);
-                Color noteColor = Main.hslToRgb(noteHue, 0.9f, 0.8f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.82f, 32);
-            }
-            
-            // ===== SPARKLE + GLOW BURST (8 radial) =====
-            for (int s = 0; s < 8; s++)
-            {
-                float burstAngle = MathHelper.TwoPi * s / 8f;
-                Vector2 burstVel = burstAngle.ToRotationVector2() * Main.rand.NextFloat(3.5f, 6f);
-                float burstHue = HueMin + (s / 8f) * (HueMax - HueMin);
-                Color burstColor = Main.hslToRgb(burstHue, 0.85f, 0.75f);
-                
-                var sparkle = new SparkleParticle(Projectile.Center, burstVel, StarCore, 0.4f, 24);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-                
-                var glow = new GenericGlowParticle(Projectile.Center, burstVel * 0.7f, burstColor * 0.6f, 0.28f, 20, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-            
-            // Dust explosion for density
-            for (int d = 0; d < 12; d++)
-            {
-                Vector2 dustVel = Main.rand.NextVector2Circular(5f, 5f);
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.PurpleTorch, dustVel, 0, StarViolet, 1.3f);
-                dust.noGravity = true;
-            }
-            
+            // UNIQUE: Serenade Spiral - Musical notes spiral outward elegantly (fits "serenade" theme)
+            DynamicParticleEffects.NachtDeathSerenadeSpiral(Projectile.Center, 1.0f);
             Lighting.AddLight(Projectile.Center, StarCore.ToVector3() * 1.2f);
         }
         
@@ -1651,7 +1462,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             
             // ===== TRUE_VFX_STANDARDS: Load multiple flare textures =====
             Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             Texture2D sparkle = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle13").Value;
             
@@ -1930,8 +1741,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            // === DYNAMIC: Nachtmusik Celestial Theme ===
-            NachtmusikImpact(target.Center, 1.15f);
+            // === DYNAMIC IMPACT: STYLE 3 - Serenade Resonance (starweaver orb) ===
+            NachtSerenadeResonance(target.Center, 1.2f);
             DramaticImpact(target.Center, OrbCore, OrbViolet, 0.55f, 22);
         }
         
@@ -1939,57 +1750,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         {
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 0.7f }, Projectile.Center);
             
-            // ===== TRUE_VFX_STANDARDS: GLIMMER CASCADE (4 layers) =====
-            for (int layer = 0; layer < 4; layer++)
-            {
-                float layerScale = 0.45f + layer * 0.18f;
-                float layerAlpha = 0.9f - layer * 0.15f;
-                float layerHue = HueMin + (layer / 4f) * (HueMax - HueMin);
-                Color layerColor = Color.Lerp(Color.White, Main.hslToRgb(layerHue, 0.9f, 0.8f), layer / 4f);
-                CustomParticles.GenericFlare(Projectile.Center, layerColor * layerAlpha, layerScale, 22 - layer * 2);
-            }
-            
-            // ===== EXPANDING HALO RINGS (3 layers) =====
-            for (int ring = 0; ring < 3; ring++)
-            {
-                float ringHue = HueMin + (ring / 3f) * (HueMax - HueMin);
-                Color ringColor = Main.hslToRgb(ringHue, 0.85f, 0.75f);
-                CustomParticles.HaloRing(Projectile.Center, ringColor, 0.4f + ring * 0.15f, 16 + ring * 3);
-            }
-            
-            // ===== MUSIC NOTE FINALE (10 notes) =====
-            for (int n = 0; n < 10; n++)
-            {
-                float noteAngle = MathHelper.TwoPi * n / 10f;
-                Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(3.5f, 6f);
-                float noteHue = HueMin + (n / 10f) * (HueMax - HueMin);
-                Color noteColor = Main.hslToRgb(noteHue, 0.9f, 0.8f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.85f, 35);
-            }
-            
-            // ===== SPARKLE + GLOW BURST (10 radial) =====
-            for (int s = 0; s < 10; s++)
-            {
-                float burstAngle = MathHelper.TwoPi * s / 10f;
-                Vector2 burstVel = burstAngle.ToRotationVector2() * Main.rand.NextFloat(4f, 7f);
-                float burstHue = HueMin + (s / 10f) * (HueMax - HueMin);
-                Color burstColor = Main.hslToRgb(burstHue, 0.85f, 0.75f);
-                
-                var sparkle = new SparkleParticle(Projectile.Center, burstVel, OrbCore, 0.42f, 26);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-                
-                var glow = new GenericGlowParticle(Projectile.Center, burstVel * 0.7f, burstColor * 0.6f, 0.3f, 22, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-            
-            // Dust explosion for density
-            for (int d = 0; d < 15; d++)
-            {
-                Vector2 dustVel = Main.rand.NextVector2Circular(6f, 6f);
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.PurpleTorch, dustVel, 0, OrbViolet, 1.4f);
-                dust.noGravity = true;
-            }
-            
+            // UNIQUE: Cosmic Nova - Blinding flash with radial light rays (powerful orb deserves dramatic explosion)
+            DynamicParticleEffects.NachtDeathCosmicNova(Projectile.Center, 1.2f);
             Lighting.AddLight(Projectile.Center, OrbCore.ToVector3() * 1.5f);
         }
         
@@ -1999,7 +1761,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             
             // ===== TRUE_VFX_STANDARDS: Load multiple flare textures =====
             Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             Texture2D magicField = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField8").Value;
             
@@ -2043,7 +1805,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             // ===== ORBITING SPARK POINTS (5 points) =====
             float orbitAngle = Main.GameUpdateCount * 0.07f;
             float orbitRadius = 14f + (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 4f;
-            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle5").Value;
+            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/TwinkleSparkle").Value;
             for (int p = 0; p < 5; p++)
             {
                 float sparkAngle = orbitAngle + MathHelper.TwoPi * p / 5f;
@@ -2219,32 +1981,16 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             // Music chord impact
             ThemedParticles.MusicNoteBurst(target.Center, CosmicMid, 4, 3f);
             
-            // === DYNAMIC: Nachtmusik Celestial Theme ===
-            NachtmusikImpact(target.Center, 0.9f);
+            // === DYNAMIC IMPACT: STYLE 2 - Crescent Wave (cosmic requiem beam) ===
+            NachtCrescentWave(target.Center, Projectile.velocity.SafeNormalize(Vector2.UnitX), 0.95f);
             DramaticImpact(target.Center, CosmicCore, CosmicMid, 0.45f, 16);
         }
         
         public override void OnKill(int timeLeft)
         {
-            // COSMIC DISSIPATION - Beam fades into stardust
-            for (int i = 0; i < 10; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 10f;
-                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
-                Color burstColor = Color.Lerp(CosmicMid, GalaxyMote, Main.rand.NextFloat());
-                var burst = new GenericGlowParticle(Projectile.Center, burstVel, burstColor * 0.5f, 0.25f, 22, true);
-                MagnumParticleHandler.SpawnParticle(burst);
-            }
-            
-            // Star sparkle finale
-            for (int i = 0; i < 6; i++)
-            {
-                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f), 
-                    Main.rand.NextVector2Circular(2f, 2f), CosmicCore * 0.7f, 0.3f, 18);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-            
-            ThemedParticles.MusicNoteBurst(Projectile.Center, GalaxyMote, 6, 4f);
+            // UNIQUE: Cosmic Nova - Dramatic beam dissipation with radial light rays (cosmic beam finale)
+            DynamicParticleEffects.NachtDeathCosmicNova(Projectile.Center, 0.9f);
+            Lighting.AddLight(Projectile.Center, CosmicCore.ToVector3() * 1.3f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -2252,7 +1998,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             Texture2D beamTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField7").Value;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle3").Value;
+            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/ConstellationStyleSparkle").Value;
             Vector2 beamOrigin = beamTex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 sparkleOrigin = sparkleTex.Size() / 2f;
@@ -2317,7 +2063,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class TwilightSlashProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc4";
+        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc3";
         
         private bool isDimensionSever => Projectile.ai[0] == 1f;
         
@@ -2423,8 +2169,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                 // 笘・MUSICAL IMPACT - Dimension sever chord
                 ThemedParticles.MusicNoteBurst(target.Center, NachtmusikCosmicVFX.Gold, 5, 3.5f);
                 
-                // === DYNAMIC: Nachtmusik Celestial Theme (Dimension Sever) ===
-                NachtmusikImpact(target.Center, 1.1f);
+                // === DYNAMIC IMPACT: STYLE 2 - Crescent Wave (Dimension Sever) ===
+                NachtCrescentWave(target.Center, Projectile.velocity.SafeNormalize(Vector2.UnitX), 1.2f);
                 DramaticImpact(target.Center, NachtmusikCosmicVFX.Gold, NachtmusikCosmicVFX.Violet, 0.55f, 20);
             }
             else
@@ -2434,34 +2180,23 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                 // 笘・MUSICAL IMPACT - Twilight chord
                 ThemedParticles.MusicNoteBurst(target.Center, NachtmusikCosmicVFX.Violet, 3, 2.5f);
                 
-                // === DYNAMIC: Nachtmusik Celestial Theme (Normal) ===
-                NachtmusikImpact(target.Center, 0.75f);
+                // === DYNAMIC IMPACT: STYLE 2 - Crescent Wave (Normal slash) ===
+                NachtCrescentWave(target.Center, Projectile.velocity.SafeNormalize(Vector2.UnitX), 0.8f);
                 DramaticImpact(target.Center, NachtmusikCosmicVFX.Violet, NachtmusikCosmicVFX.Gold, 0.35f, 15);
             }
         }
         
         public override void OnKill(int timeLeft)
         {
-            if (isDimensionSever)
-            {
-                NachtmusikCosmicVFX.SpawnCelestialExplosion(Projectile.Center, 0.6f);
-                
-                // 笘・MUSICAL FINALE - Dimension sever finale
-                ThemedParticles.MusicNoteBurst(Projectile.Center, NachtmusikCosmicVFX.Gold, 6, 4f);
-            }
-            else
-            {
-                CustomParticles.GenericFlare(Projectile.Center, NachtmusikCosmicVFX.Violet, 0.35f, 12);
-                
-                // 笘・MUSICAL FINALE - Twilight fade
-                ThemedParticles.MusicNoteBurst(Projectile.Center, NachtmusikCosmicVFX.Violet, 4, 3f);
-            }
+            // UNIQUE: Twilight Fade - Elegant dissolve into rising motes (melee slash fades gracefully)
+            DynamicParticleEffects.NachtDeathTwilightFade(Projectile.Center, Projectile.velocity.SafeNormalize(Vector2.UnitX), isDimensionSever ? 1.2f : 0.8f);
+            Lighting.AddLight(Projectile.Center, (isDimensionSever ? NachtmusikCosmicVFX.Gold : NachtmusikCosmicVFX.Violet).ToVector3() * 0.8f);
         }
         
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwordArc4").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwordArc3").Value;
             Vector2 origin = tex.Size() / 2f;
             
             Color coreColor = isDimensionSever ? NachtmusikCosmicVFX.Gold : NachtmusikCosmicVFX.Violet;

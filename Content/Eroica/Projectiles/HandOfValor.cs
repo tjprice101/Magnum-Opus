@@ -96,48 +96,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // === PHASE 1: Central flash ===
-            CustomParticles.GenericFlare(Projectile.Center, Color.White, 0.9f, 15);
-            CustomParticles.GenericFlare(Projectile.Center, UnifiedVFX.Eroica.Gold, 0.7f, 18);
-            
-            // === PHASE 2: UnifiedVFX themed impact ===
-            UnifiedVFX.Eroica.Impact(Projectile.Center, 1.0f);
-            
-            // === PHASE 3: 6-point fractal burst ===
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                float gradientProgress = (float)i / 6f;
-                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, gradientProgress);
-                CustomParticles.GenericFlare(Projectile.Center + flareOffset, fractalColor, 0.4f, 15);
-            }
-            
-            // === PHASE 4: Cascading halo rings ===
-            for (int ring = 0; ring < 3; ring++)
-            {
-                float ringProgress = ring / 3f;
-                Color ringColor = Color.Lerp(UnifiedVFX.Eroica.Gold, UnifiedVFX.Eroica.Crimson, ringProgress);
-                CustomParticles.HaloRing(Projectile.Center, ringColor * (1f - ringProgress * 0.2f), 
-                    0.3f + ring * 0.15f, 12 + ring * 4);
-            }
-            
-            // === PHASE 5: Spark spray ===
-            for (int i = 0; i < 10; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 10f + Main.rand.NextFloat(-0.2f, 0.2f);
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 9f);
-                float gradientProgress = Main.rand.NextFloat();
-                Color sparkColor = Color.Lerp(UnifiedVFX.Eroica.Flame, UnifiedVFX.Eroica.Gold, gradientProgress);
-                
-                var spark = new GenericGlowParticle(Projectile.Center, sparkVel, sparkColor, 0.28f, 18, true);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            // === PHASE 6: Sakura petal burst ===
-            ThemedParticles.SakuraPetals(Projectile.Center, 4, 35f);
-            
-            // === PHASE 7: Music note finale ===
+            // Clean heroic flash for melee fist
+            DynamicParticleEffects.EroicaDeathHeroicFlash(Projectile.Center, 1.0f);
             for (int i = 0; i < 3; i++)
             {
                 float noteAngle = MathHelper.TwoPi * i / 3f;
@@ -192,7 +152,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle12").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle13").Value;
             Vector2 drawOrigin = new Vector2(texture.Width / 2, texture.Height / 2);
             Vector2 glowOrigin = glowTex.Size() / 2f;
             

@@ -167,6 +167,64 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             Lighting.AddLight(player.Center, NachtmusikCosmicVFX.Violet.ToVector3() * 0.25f);
         }
         
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            // === STARWEAVER COSMIC GLOW ===
+            Texture2D texture = Terraria.GameContent.TextureAssets.Item[Item.type].Value;
+            Vector2 position = Item.Center - Main.screenPosition;
+            Vector2 origin = texture.Size() / 2f;
+            
+            float time = Main.GameUpdateCount * 0.05f;
+            float pulse = 1f + (float)Math.Sin(time * 1.5f) * 0.1f;
+            
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Deep purple outer glow
+            spriteBatch.Draw(texture, position, null, NachtmusikCosmicVFX.DeepPurple * 0.35f, rotation, origin, scale * pulse * 1.35f, SpriteEffects.None, 0f);
+            
+            // Violet mid glow
+            spriteBatch.Draw(texture, position, null, NachtmusikCosmicVFX.Violet * 0.3f, rotation, origin, scale * pulse * 1.2f, SpriteEffects.None, 0f);
+            
+            // Star white core shimmer
+            float shimmer = (float)Math.Sin(time * 2.5f) * 0.5f + 0.5f;
+            spriteBatch.Draw(texture, position, null, NachtmusikCosmicVFX.StarWhite * 0.2f * shimmer, rotation, origin, scale * pulse * 1.08f, SpriteEffects.None, 0f);
+            
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            Lighting.AddLight(Item.Center, NachtmusikCosmicVFX.Violet.ToVector3() * 0.5f);
+            
+            return true;
+        }
+        
+        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        {
+            // === STARWEAVER INVENTORY COSMIC PULSE ===
+            Texture2D texture = Terraria.GameContent.TextureAssets.Item[Item.type].Value;
+            
+            float time = Main.GameUpdateCount * 0.04f;
+            float pulse = 1f + (float)Math.Sin(time * 1.8f) * 0.08f;
+            
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+            
+            // Celestial gradient glow
+            Color glowColor = NachtmusikCosmicVFX.GetCelestialGradient((float)Math.Sin(time * 0.6f) * 0.5f + 0.5f) * 0.28f;
+            spriteBatch.Draw(texture, position, frame, glowColor, 0f, origin, scale * pulse * 1.12f, SpriteEffects.None, 0f);
+            
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+            
+            spriteBatch.Draw(texture, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
+            
+            return false;
+        }
+        
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Orb", "Fires cosmic orbs that create mini-explosions along their path"));
@@ -318,6 +376,64 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             }
             
             Lighting.AddLight(player.Center, NachtmusikCosmicVFX.Violet.ToVector3() * (0.25f + intensity * 0.2f));
+        }
+        
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            // === REQUIEM COSMIC GLOW ===
+            Texture2D texture = Terraria.GameContent.TextureAssets.Item[Item.type].Value;
+            Vector2 position = Item.Center - Main.screenPosition;
+            Vector2 origin = texture.Size() / 2f;
+            
+            float time = Main.GameUpdateCount * 0.06f;
+            float pulse = 1f + (float)Math.Sin(time * 1.8f) * 0.12f;
+            
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            // Deep purple outer glow with enhanced intensity
+            spriteBatch.Draw(texture, position, null, NachtmusikCosmicVFX.DeepPurple * 0.4f, rotation, origin, scale * pulse * 1.4f, SpriteEffects.None, 0f);
+            
+            // Violet mid glow
+            spriteBatch.Draw(texture, position, null, NachtmusikCosmicVFX.Violet * 0.35f, rotation, origin, scale * pulse * 1.25f, SpriteEffects.None, 0f);
+            
+            // Star burst core shimmer
+            float shimmer = (float)Math.Sin(time * 3f) * 0.5f + 0.5f;
+            spriteBatch.Draw(texture, position, null, NachtmusikCosmicVFX.StarWhite * 0.25f * shimmer, rotation, origin, scale * pulse * 1.1f, SpriteEffects.None, 0f);
+            
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            Lighting.AddLight(Item.Center, NachtmusikCosmicVFX.Violet.ToVector3() * 0.6f);
+            
+            return true;
+        }
+        
+        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        {
+            // === REQUIEM INVENTORY COSMIC PULSE ===
+            Texture2D texture = Terraria.GameContent.TextureAssets.Item[Item.type].Value;
+            
+            float time = Main.GameUpdateCount * 0.05f;
+            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.1f;
+            
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+            
+            // Celestial gradient glow - enhanced for ultimate weapon
+            Color glowColor = NachtmusikCosmicVFX.GetCelestialGradient((float)Math.Sin(time * 0.7f) * 0.5f + 0.5f) * 0.32f;
+            spriteBatch.Draw(texture, position, frame, glowColor, 0f, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+            
+            spriteBatch.Draw(texture, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
+            
+            return false;
         }
         
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

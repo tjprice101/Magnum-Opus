@@ -531,21 +531,8 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
         
         public override void OnKill(int timeLeft)
         {
-            // === REALITY WARP ON DEATH ===
-            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 3.5f, 12);
-            
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 vel = angle.ToRotationVector2() * 4.5f;
-                var glow = new GenericGlowParticle(Projectile.Center, vel, GetEnigmaGradient((float)i / 8f), 0.32f, 16, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-            
-            CustomParticles.HaloRing(Projectile.Center, EnigmaPurple * 0.7f, 0.38f, 15);
-            
-            // === WATCHING EYES burst outward ===
-            CustomParticles.EnigmaEyeExplosion(Projectile.Center, EnigmaGreen, 4, 3f);
+            // UNIQUE DEATH: Void Implode - seeker bolt collapses into void
+            DynamicParticleEffects.EnigmaDeathVoidImplode(Projectile.Center, 0.7f);
         }
     }
     
@@ -838,21 +825,8 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
         
         public override void OnKill(int timeLeft)
         {
-            // === REALITY WARP ON DEATH ===
-            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 3f, 12);
-            
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 vel = angle.ToRotationVector2() * 4f;
-                var glow = new GenericGlowParticle(Projectile.Center, vel, GetEnigmaGradient((float)i / 6f), 0.3f, 14, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-            
-            CustomParticles.HaloRing(Projectile.Center, EnigmaGreen * 0.65f, 0.32f, 13);
-            
-            // Music notes finale
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(50, 220, 100), 6, 4f);
+            // UNIQUE DEATH: Eye Blink Shatter - homing seeker's eye shatters
+            DynamicParticleEffects.EnigmaDeathEyeBlinkShatter(Projectile.Center, 0.8f);
         }
     }
     
@@ -1148,34 +1122,8 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
         
         public override void OnKill(int timeLeft)
         {
-            // === PARADOX BOLT REALITY WARP ===
-            FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 4.5f, 15);
-            FateRealityDistortion.TriggerInversionPulse(6);
-            
-            // Massive death burst
-            CustomParticles.GenericFlare(Projectile.Center, EnigmaGreen, 0.9f, 25);
-            
-            for (int i = 0; i < 12; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 12f;
-                Vector2 vel = angle.ToRotationVector2() * 6f;
-                var glow = new GenericGlowParticle(Projectile.Center, vel, GetEnigmaGradient((float)i / 12f), 0.45f, 22, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-// Final sparkle nova on projectile death
-            for (int i = 0; i < 10; i++)
-            {
-                float novaAngle = MathHelper.TwoPi * i / 10f;
-                Vector2 novaVel = novaAngle.ToRotationVector2() * (3.5f + Main.rand.NextFloat() * 2f);
-                var nova = new GenericGlowParticle(Projectile.Center, novaVel,
-                    GetEnigmaGradient((float)i / 10f), 0.38f, 22, true);
-                MagnumParticleHandler.SpawnParticle(nova);
-            }
-            CustomParticles.HaloRing(Projectile.Center, EnigmaGreen, 0.5f, 18);
-            CustomParticles.GlyphBurst(Projectile.Center, EnigmaGreen, count: 8, speed: 5f);
-            
-            // Music notes finale - the paradox concludes
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(50, 220, 100), 8, 4.5f);
+            // UNIQUE DEATH: Riddle Answered - the ultimate paradox bolt reveals its answer
+            DynamicParticleEffects.EnigmaDeathRiddleAnswered(Projectile.Center, 1.2f);
         }
     }
 }

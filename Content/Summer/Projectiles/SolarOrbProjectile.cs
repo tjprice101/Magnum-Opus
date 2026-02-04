@@ -308,7 +308,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             // Load MULTIPLE flare textures for layered spinning effect
             Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
             Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare5").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
@@ -679,7 +679,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             // Load MULTIPLE flare textures for layered spinning effect
             Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
             Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
             Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;

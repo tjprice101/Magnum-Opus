@@ -4,6 +4,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Enemies
 {
@@ -113,48 +114,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         public override void OnKill(int timeLeft)
         {
-            // Dramatic explosion effect
             SoundEngine.PlaySound(SoundID.Item14, Projectile.position);
-
-            // Black core explosion
-            for (int i = 0; i < 15; i++)
-            {
-                Dust blackBurst = Dust.NewDustDirect(Projectile.Center - new Vector2(15, 15), 30, 30, DustID.Torch, 0f, 0f, 120, Color.Black, 2.2f);
-                blackBurst.noGravity = true;
-                blackBurst.velocity = Main.rand.NextVector2Circular(8f, 8f);
-                blackBurst.fadeIn = 1.5f;
-            }
-
-            // Red flame burst
-            for (int i = 0; i < 20; i++)
-            {
-                Dust redBurst = Dust.NewDustDirect(Projectile.Center - new Vector2(20, 20), 40, 40, DustID.Torch, 0f, 0f, 100, new Color(200, 0, 0), 1.8f);
-                redBurst.noGravity = true;
-                redBurst.velocity = Main.rand.NextVector2Circular(10f, 10f);
-            }
-
-            // Golden sparkle explosion
-            for (int i = 0; i < 12; i++)
-            {
-                Dust goldBurst = Dust.NewDustDirect(Projectile.Center - new Vector2(12, 12), 24, 24, DustID.GoldFlame, 0f, 0f, 0, Color.Gold, 1.2f);
-                goldBurst.noGravity = true;
-                goldBurst.velocity = Main.rand.NextVector2Circular(6f, 6f);
-            }
-
-            // Enchanted gold shimmer ring
-            for (int i = 0; i < 8; i++)
-            {
-                Dust shimmer = Dust.NewDustDirect(Projectile.Center - new Vector2(10, 10), 20, 20, DustID.Enchanted_Gold, 0f, 0f, 100, default, 1.0f);
-                shimmer.noGravity = true;
-                shimmer.velocity = Main.rand.NextVector2Circular(5f, 5f);
-            }
-
-            // Black smoke cloud
-            for (int i = 0; i < 10; i++)
-            {
-                Dust smoke = Dust.NewDustDirect(Projectile.Center - new Vector2(25, 25), 50, 50, DustID.Smoke, 0f, 0f, 150, new Color(50, 50, 50), 1.8f);
-                smoke.velocity = Main.rand.NextVector2Circular(4f, 4f);
-            }
+            // Enemy flame burst - smaller intensity
+            DynamicParticleEffects.EroicaDeathCrimsonSpark(Projectile.Center, 0.6f);
         }
     }
 }
