@@ -403,23 +403,48 @@ namespace MagnumOpus.Content.Winter.Bosses
         
         private void AI_Reposition(Player target)
         {
+            float duration = 65f;
+            float progress = Timer / duration;
+            
             float idealDist = 320f;
             Vector2 toTarget = (target.Center - NPC.Center);
             float currentDist = toTarget.Length();
             
             if (Math.Abs(currentDist - idealDist) < 70f && Timer > 25)
             {
+                // Ready to attack again
+                BossVFXOptimizer.ReadyToAttackCue(NPC.Center, WinterDeepBlue, 0.7f);
+                
                 State = BossPhase.Idle;
                 Timer = 0;
                 attackCooldown = AttackWindowFrames / 2;
                 return;
             }
             
+            // Smooth movement with easing - bell curve speed
+            float speedCurve = BossAIUtilities.Easing.EaseOutQuad(progress) * BossAIUtilities.Easing.EaseInQuad(1f - progress) * 4f;
+            float speed = 12f * Math.Max(0.3f, speedCurve);
+            
             Vector2 idealDir = currentDist > idealDist ? -toTarget.SafeNormalize(Vector2.Zero) : toTarget.SafeNormalize(Vector2.Zero);
-            NPC.velocity = Vector2.Lerp(NPC.velocity, idealDir * 12f, 0.07f);
+            NPC.velocity = Vector2.Lerp(NPC.velocity, idealDir * speed, 0.07f);
+            
+            // Recovery shimmer - vulnerability indicator (frosty)
+            if (Timer % 4 == 0)
+            {
+                BossVFXOptimizer.RecoveryShimmer(NPC.Center, FrostBlue, 55f, progress);
+            }
+            
+            // Deceleration trail while moving (icy)
+            if (NPC.velocity.Length() > 2f)
+            {
+                BossVFXOptimizer.DecelerationTrail(NPC.Center, NPC.velocity, WinterIce, progress);
+            }
             
             if (Timer > 65)
             {
+                // Ready to attack again
+                BossVFXOptimizer.ReadyToAttackCue(NPC.Center, WinterDeepBlue, 0.7f);
+                
                 State = BossPhase.Idle;
                 Timer = 0;
             }
@@ -1069,6 +1094,9 @@ namespace MagnumOpus.Content.Winter.Bosses
         
         private void EndAttack()
         {
+            // Visual cue: Attack ending - player has a window
+            BossVFXOptimizer.AttackEndCue(NPC.Center, WinterIce, CrystalCyan, 0.8f);
+            
             State = BossPhase.Reposition;
             Timer = 0;
             SubPhase = 0;

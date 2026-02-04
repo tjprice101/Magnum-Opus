@@ -316,6 +316,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
             
             if (AttackTimer >= 18)
             {
+                // Attack ending - visual cue
+                BossVFXOptimizer.AttackEndCue(NPC.Center, EroicaGold, EroicaPink, 0.6f);
+                
                 currentAttack = AttackState.Recovery;
                 AttackTimer = 0;
             }
@@ -401,6 +404,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
             
             if (AttackTimer >= 49)
             {
+                // Attack ending - visual cue
+                BossVFXOptimizer.AttackEndCue(NPC.Center, EroicaGold, EroicaPink, 0.6f);
+                
                 currentAttack = AttackState.Recovery;
                 AttackTimer = 0;
             }
@@ -498,6 +504,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
             
             if (AttackTimer >= 30)
             {
+                // Attack ending - visual cue
+                BossVFXOptimizer.AttackEndCue(NPC.Center, EroicaGold, EroicaPink, 0.6f);
+                
                 currentAttack = AttackState.Recovery;
                 AttackTimer = 0;
             }
@@ -508,15 +517,37 @@ namespace MagnumOpus.Content.Eroica.Bosses
         private void RecoveryBehavior(NPC parentBoss)
         {
             AttackTimer++;
+            float duration = 32f;
+            float progress = AttackTimer / duration;
+            
             glowIntensity = Math.Max(0f, glowIntensity - 0.05f);
             
             float currentOrbitRadius = BaseOrbitRadius + radiusWobble;
             Vector2 orbitPosition = parentBoss.Center + orbitAngle.ToRotationVector2() * currentOrbitRadius;
             Vector2 toOrbit = (orbitPosition - NPC.Center).SafeNormalize(Vector2.Zero);
-            NPC.velocity = Vector2.Lerp(NPC.velocity, toOrbit * 12f, 0.08f);
+            
+            // Smooth movement using easing - bell curve speed
+            float speedCurve = BossAIUtilities.Easing.EaseOutQuad(progress) * BossAIUtilities.Easing.EaseInQuad(1f - progress) * 4f;
+            float speed = 12f * Math.Max(0.3f, speedCurve);
+            NPC.velocity = Vector2.Lerp(NPC.velocity, toOrbit * speed, 0.08f);
+            
+            // Recovery shimmer - vulnerability indicator
+            if (AttackTimer % 4 == 0)
+            {
+                BossVFXOptimizer.RecoveryShimmer(NPC.Center, EroicaPink, 45f, progress);
+            }
+            
+            // Deceleration trail while moving
+            if (NPC.velocity.Length() > 2f)
+            {
+                BossVFXOptimizer.DecelerationTrail(NPC.Center, NPC.velocity, EroicaGold, progress);
+            }
             
             if (AttackTimer >= 32)
             {
+                // Ready to attack again
+                BossVFXOptimizer.ReadyToAttackCue(NPC.Center, EroicaScarlet, 0.5f);
+                
                 currentAttack = AttackState.Orbiting;
                 AttackTimer = 0;
             }

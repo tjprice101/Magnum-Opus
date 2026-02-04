@@ -124,107 +124,79 @@ namespace MagnumOpus.Content.ClairDeLune.Projectiles
         #region Music Notes
         
         /// <summary>
-        /// Spawn MASSIVE glowing music note with clockwork-temporal theme
-        /// Multi-layer bloom with gear and lightning accents
+        /// Spawn glowing music note with clockwork-temporal theme - OPTIMIZED
+        /// Reduced bloom layers for proper sizing
         /// </summary>
-        public static void SpawnMusicNote(Vector2 position, Vector2 velocity, Color baseColor, float scale = 0.85f)
+        public static void SpawnMusicNote(Vector2 position, Vector2 velocity, Color baseColor, float scale = 0.5f)
         {
-            // SCALE UP - Final boss tier notes must be BOLDLY VISIBLE
-            scale = Math.Max(scale, 0.75f);
-            float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.18f) * 0.25f;
+            // Subtle shimmer animation
+            float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.18f) * 0.12f;
             scale *= shimmer;
             
-            int variant = Main.rand.Next(1, 7);
+            // === SINGLE WHITE CORE BLOOM (BloomParticle already draws 4 internal layers) ===
+            Color coreColor = ClairDeLuneColors.BrightWhite * 0.7f;
+            coreColor.A = 0;
+            var coreBloom = new BloomParticle(
+                position, velocity * 0.9f, coreColor,
+                scale * 0.25f, // REDUCED from multi-layer madness
+                25
+            );
+            MagnumParticleHandler.SpawnParticle(coreBloom);
             
-            // === LAYER 1: BLINDING WHITE CORE BLOOM ===
-            for (int bloom = 0; bloom < 5; bloom++)
-            {
-                float bloomScale = scale * (0.35f + bloom * 0.22f);
-                float bloomAlpha = 0.9f / (bloom + 1);
-                Color coreColor = ClairDeLuneColors.BrightWhite * bloomAlpha;
-                coreColor.A = 0;
-                
-                var coreBloom = new BloomParticle(
-                    position + Main.rand.NextVector2Circular(2f, 2f),
-                    velocity * 0.92f,
-                    coreColor,
-                    bloomScale,
-                    32 + bloom * 5
-                );
-                MagnumParticleHandler.SpawnParticle(coreBloom);
-            }
+            // === SINGLE CRIMSON ACCENT BLOOM ===
+            Color crimsonColor = ClairDeLuneColors.Crimson * 0.5f;
+            crimsonColor.A = 0;
+            var crimsonBloom = new BloomParticle(
+                position + Main.rand.NextVector2Circular(2f, 2f),
+                velocity * 0.75f, crimsonColor,
+                scale * 0.2f, // REDUCED
+                22
+            );
+            MagnumParticleHandler.SpawnParticle(crimsonBloom);
             
-            // === LAYER 2: CRIMSON TEMPORAL ENERGY ===
-            for (int bloom = 0; bloom < 4; bloom++)
-            {
-                float bloomScale = scale * (0.5f + bloom * 0.28f);
-                float bloomAlpha = 0.7f / (bloom + 1);
-                Color crimsonColor = ClairDeLuneColors.Crimson * bloomAlpha;
-                crimsonColor.A = 0;
-                
-                var crimsonBloom = new BloomParticle(
-                    position + Main.rand.NextVector2Circular(4f, 4f),
-                    velocity * 0.75f,
-                    crimsonColor,
-                    bloomScale,
-                    30 + bloom * 4
-                );
-                MagnumParticleHandler.SpawnParticle(crimsonBloom);
-            }
+            // === SINGLE BRASS CLOCKWORK ACCENT ===
+            var gear = new GenericGlowParticle(
+                position + Main.rand.NextVector2Circular(5f, 5f),
+                velocity * 0.5f + Main.rand.NextVector2Circular(1f, 1f),
+                ClairDeLuneColors.Brass * 0.5f,
+                scale * 0.2f, // REDUCED
+                20,
+                true
+            );
+            MagnumParticleHandler.SpawnParticle(gear);
             
-            // === LAYER 3: BRASS CLOCKWORK ACCENT ===
-            for (int i = 0; i < 3; i++)
-            {
-                var gear = new GenericGlowParticle(
-                    position + Main.rand.NextVector2Circular(10f, 10f),
-                    velocity * 0.5f + Main.rand.NextVector2Circular(2f, 2f),
-                    ClairDeLuneColors.Brass * 0.6f,
-                    scale * 0.35f,
-                    25,
-                    true
-                );
-                MagnumParticleHandler.SpawnParticle(gear);
-            }
+            // === CRYSTAL SPARKLE (single) ===
+            var sparkle = new SparkleParticle(
+                position + Main.rand.NextVector2Circular(6f, 6f),
+                velocity * 0.6f + Main.rand.NextVector2Circular(1.5f, 1.5f),
+                Color.Lerp(ClairDeLuneColors.Crystal, ClairDeLuneColors.MoonlightSilver, Main.rand.NextFloat(0.3f, 0.8f)),
+                0.3f, // REDUCED
+                22
+            );
+            MagnumParticleHandler.SpawnParticle(sparkle);
             
-            // === LAYER 4: CRYSTAL SPARKLES ===
-            for (int i = 0; i < 4; i++)
-            {
-                Vector2 sparkleOffset = Main.rand.NextVector2Circular(14f, 14f);
-                var sparkle = new SparkleParticle(
-                    position + sparkleOffset,
-                    velocity * 0.6f + Main.rand.NextVector2Circular(2.5f, 2.5f),
-                    Color.Lerp(ClairDeLuneColors.Crystal, ClairDeLuneColors.MoonlightSilver, Main.rand.NextFloat(0.3f, 0.8f)),
-                    0.5f,
-                    28
-                );
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-            
-            // === LAYER 5: LIGHTNING MICRO-ARCS ===
-            if (Main.rand.NextBool(3))
+            // === LIGHTNING MICRO-ARC (occasional) ===
+            if (Main.rand.NextBool(4))
             {
                 var lightning = new GenericGlowParticle(
-                    position + Main.rand.NextVector2Circular(8f, 8f),
-                    velocity * 0.8f + Main.rand.NextVector2Circular(4f, 4f),
+                    position + Main.rand.NextVector2Circular(4f, 4f),
+                    velocity * 0.8f + Main.rand.NextVector2Circular(2f, 2f),
                     ClairDeLuneColors.GetLightningGradient(Main.rand.NextFloat()),
-                    0.3f,
-                    12,
+                    0.18f, // REDUCED
+                    10,
                     true
                 );
                 MagnumParticleHandler.SpawnParticle(lightning);
             }
             
-            // Vanilla dust for extra density - mechanical/electric themed
-            for (int i = 0; i < 3; i++)
-            {
-                Dust dust = Dust.NewDustPerfect(
-                    position + Main.rand.NextVector2Circular(5f, 5f),
-                    DustID.Electric,
-                    velocity + Main.rand.NextVector2Circular(3f, 3f),
-                    0, ClairDeLuneColors.ElectricBlue, 1.6f
-                );
-                dust.noGravity = true;
-            }
+            // Vanilla dust (reduced count)
+            Dust dust = Dust.NewDustPerfect(
+                position + Main.rand.NextVector2Circular(3f, 3f),
+                DustID.Electric,
+                velocity + Main.rand.NextVector2Circular(2f, 2f),
+                0, ClairDeLuneColors.ElectricBlue, 1.2f
+            );
+            dust.noGravity = true;
         }
         
         /// <summary>
@@ -247,55 +219,58 @@ namespace MagnumOpus.Content.ClairDeLune.Projectiles
         
         /// <summary>
         /// Spawn a SPINNING CLOCKWORK GEAR particle
-        /// Uses the custom gear texture with rotation animation
+        /// NOW ACTUALLY USES the custom gear texture with rotation animation!
         /// </summary>
         public static void SpawnClockworkGear(Vector2 position, Vector2 velocity, bool large = false, float scale = 1f)
         {
-            // Multi-layer gear bloom for epic visibility
-            for (int layer = 0; layer < 4; layer++)
-            {
-                float layerScale = scale * (0.8f + layer * 0.15f);
-                float alpha = 0.8f / (layer + 1);
-                Color gearColor = Color.Lerp(ClairDeLuneColors.Brass, ClairDeLuneColors.GearGold, layer / 4f) * alpha;
-                gearColor.A = 0;
-                
-                var gearBloom = new BloomParticle(
-                    position + Main.rand.NextVector2Circular(3f, 3f),
-                    velocity * (0.95f - layer * 0.05f),
-                    gearColor,
-                    layerScale * (large ? 1.4f : 0.9f),
-                    30 + layer * 5
-                );
-                MagnumParticleHandler.SpawnParticle(gearBloom);
-            }
+            // === LOAD AND USE ACTUAL GEAR TEXTURES! ===
+            string texturePath = large ? ClockworkGearLarge : ClockworkGearSmall;
+            Texture2D gearTexture = ModContent.Request<Texture2D>(texturePath, ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
             
-            // Central gear accent
-            var centerGear = new GenericGlowParticle(
+            // Calculate spin speed based on velocity (faster movement = faster spin)
+            float spin = (large ? 0.04f : 0.06f) * (velocity.Length() > 0 ? Math.Sign(velocity.X + velocity.Y) : 1);
+            
+            // Create the ACTUAL gear particle with the gear texture
+            var gearParticle = new TexturedParticle(
                 position,
-                velocity,
+                velocity * 0.9f,
+                gearTexture,
                 ClairDeLuneColors.Brass,
-                scale * (large ? 0.7f : 0.45f),
+                scale * (large ? 0.35f : 0.25f), // PROPER sizing
                 35,
-                true
+                Main.rand.NextFloat(MathHelper.TwoPi), // Random initial rotation
+                spin
             );
-            MagnumParticleHandler.SpawnParticle(centerGear);
+            MagnumParticleHandler.SpawnParticle(gearParticle);
             
-            // Gear sparkles
-            for (int i = 0; i < (large ? 4 : 2); i++)
+            // Single subtle bloom behind the gear
+            Color gearColor = ClairDeLuneColors.GearGold * 0.4f;
+            gearColor.A = 0;
+            var gearBloom = new BloomParticle(
+                position,
+                velocity * 0.85f,
+                gearColor,
+                scale * (large ? 0.2f : 0.15f), // Subtle glow
+                30
+            );
+            MagnumParticleHandler.SpawnParticle(gearBloom);
+            
+            // Occasional sparkle accent
+            if (Main.rand.NextBool(3))
             {
                 var sparkle = new SparkleParticle(
-                    position + Main.rand.NextVector2Circular(8f, 8f),
-                    velocity * 0.5f + Main.rand.NextVector2Circular(2f, 2f),
+                    position + Main.rand.NextVector2Circular(4f, 4f),
+                    velocity * 0.5f + Main.rand.NextVector2Circular(1f, 1f),
                     ClairDeLuneColors.GearGold,
-                    0.35f,
-                    22
+                    0.2f,
+                    18
                 );
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
         }
         
         /// <summary>
-        /// Clockwork gear cascade - Multiple gears erupting in a mechanical burst
+        /// Clockwork gear cascade - Multiple ACTUAL gears erupting in a mechanical burst
         /// </summary>
         public static void ClockworkGearCascade(Vector2 position, int count, float speed, float scale = 1f)
         {
@@ -306,33 +281,28 @@ namespace MagnumOpus.Content.ClairDeLune.Projectiles
                 bool isLarge = i % 3 == 0;
                 float gearScale = scale * Main.rand.NextFloat(0.8f, 1.2f);
                 
-                SpawnClockworkGear(position + Main.rand.NextVector2Circular(10f, 10f), vel, isLarge, gearScale);
+                SpawnClockworkGear(position + Main.rand.NextVector2Circular(6f, 6f), vel, isLarge, gearScale);
             }
             
-            // Central mechanism flash
-            for (int i = 0; i < 3; i++)
-            {
-                float flashScale = scale * (1.2f - i * 0.2f);
-                Color flashColor = Color.Lerp(ClairDeLuneColors.BrightWhite, ClairDeLuneColors.Brass, i / 3f);
-                flashColor.A = 0;
-                
-                var flash = new BloomParticle(position, Vector2.Zero, flashColor * (0.9f / (i + 1)), flashScale, 15 + i * 3);
-                MagnumParticleHandler.SpawnParticle(flash);
-            }
+            // Central mechanism flash (single bloom, not 3)
+            Color flashColor = ClairDeLuneColors.BrightWhite * 0.7f;
+            flashColor.A = 0;
+            var flash = new BloomParticle(position, Vector2.Zero, flashColor, scale * 0.3f, 15);
+            MagnumParticleHandler.SpawnParticle(flash);
             
-            // Gear dust
-            for (int i = 0; i < count; i++)
+            // Gear dust (reduced)
+            for (int i = 0; i < Math.Min(count, 4); i++)
             {
-                Vector2 dustVel = Main.rand.NextVector2Circular(speed * 1.2f, speed * 1.2f);
-                Dust dust = Dust.NewDustPerfect(position, DustID.Enchanted_Gold, dustVel, 0, ClairDeLuneColors.Brass, 1.4f);
+                Vector2 dustVel = Main.rand.NextVector2Circular(speed * 0.8f, speed * 0.8f);
+                Dust dust = Dust.NewDustPerfect(position, DustID.Enchanted_Gold, dustVel, 0, ClairDeLuneColors.Brass, 1.1f);
                 dust.noGravity = true;
             }
         }
         
         /// <summary>
-        /// Orbiting clockwork gears around a point
+        /// Orbiting clockwork gears around a point - NOW WITH ACTUAL GEAR TEXTURES!
         /// </summary>
-        public static void OrbitingGears(Vector2 center, float radius, int gearCount, float rotationOffset = 0f, float scale = 0.8f)
+        public static void OrbitingGears(Vector2 center, float radius, int gearCount, float rotationOffset = 0f, float scale = 0.6f)
         {
             float baseAngle = Main.GameUpdateCount * 0.03f + rotationOffset;
             
@@ -340,31 +310,27 @@ namespace MagnumOpus.Content.ClairDeLune.Projectiles
             {
                 float angle = baseAngle + MathHelper.TwoPi * i / gearCount;
                 Vector2 gearPos = center + angle.ToRotationVector2() * radius;
-                Vector2 tangentVel = (angle + MathHelper.PiOver2).ToRotationVector2() * 0.5f;
+                Vector2 tangentVel = (angle + MathHelper.PiOver2).ToRotationVector2() * 0.3f;
                 
-                // Alternating large and small gears
+                // Alternating large and small gears - NOW USING ACTUAL TEXTURES
                 bool isLarge = i % 2 == 0;
+                string texturePath = isLarge ? ClockworkGearLarge : ClockworkGearSmall;
+                Texture2D gearTexture = ModContent.Request<Texture2D>(texturePath, ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
                 
-                // Gear glow
-                Color gearColor = ClairDeLuneColors.GetGearGradient((float)i / gearCount);
-                gearColor.A = 0;
+                // Spin direction alternates for meshed gear effect
+                float spin = (i % 2 == 0 ? 0.05f : -0.05f);
                 
-                var gearGlow = new BloomParticle(gearPos, tangentVel, gearColor * 0.6f, scale * (isLarge ? 0.5f : 0.35f), 8);
-                MagnumParticleHandler.SpawnParticle(gearGlow);
-                
-                // Gear sparkle trail
-                if (Main.rand.NextBool(3))
-                {
-                    var trail = new GenericGlowParticle(
-                        gearPos + Main.rand.NextVector2Circular(5f, 5f),
-                        tangentVel * 2f,
-                        ClairDeLuneColors.Brass * 0.5f,
-                        0.25f * scale,
-                        15,
-                        true
-                    );
-                    MagnumParticleHandler.SpawnParticle(trail);
-                }
+                var gearParticle = new TexturedParticle(
+                    gearPos,
+                    tangentVel,
+                    gearTexture,
+                    ClairDeLuneColors.GetGearGradient((float)i / gearCount),
+                    scale * (isLarge ? 0.25f : 0.18f),
+                    6, // Short lifetime for orbiting effect
+                    baseAngle + i * 0.5f, // Staggered rotation
+                    spin
+                );
+                MagnumParticleHandler.SpawnParticle(gearParticle);
             }
         }
         
@@ -374,64 +340,59 @@ namespace MagnumOpus.Content.ClairDeLune.Projectiles
         
         /// <summary>
         /// Spawn a LIGHTNING BURST effect - Crackling temporal energy
+        /// REDUCED: BloomParticle already has 4 internal layers, so we only need 1-2 blooms
         /// </summary>
         public static void SpawnLightningBurst(Vector2 position, Vector2 velocity, bool thick = false, float scale = 1f)
         {
-            // Multi-layer electric bloom
-            for (int layer = 0; layer < 5; layer++)
-            {
-                float layerScale = scale * (0.6f + layer * 0.2f);
-                float alpha = 0.85f / (layer + 1);
-                Color lightningColor = ClairDeLuneColors.GetLightningGradient(layer / 5f) * alpha;
-                lightningColor.A = 0;
-                
-                var lightningBloom = new BloomParticle(
-                    position + Main.rand.NextVector2Circular(5f, 5f),
-                    velocity * (0.9f - layer * 0.1f),
-                    lightningColor,
-                    layerScale * (thick ? 1.3f : 0.9f),
-                    18 + layer * 3
-                );
-                MagnumParticleHandler.SpawnParticle(lightningBloom);
-            }
+            // === SINGLE LIGHTNING BLOOM (BloomParticle draws 4 internal layers) ===
+            Color lightningColor = ClairDeLuneColors.ElectricBlue * 0.8f;
+            lightningColor.A = 0;
             
-            // Core electric particle
-            var core = new GenericGlowParticle(
+            var lightningBloom = new BloomParticle(
+                position,
+                velocity * 0.9f,
+                lightningColor,
+                scale * (thick ? 0.3f : 0.2f), // REDUCED scales
+                20
+            );
+            MagnumParticleHandler.SpawnParticle(lightningBloom);
+            
+            // Core electric sparkle
+            var core = new SparkleParticle(
                 position,
                 velocity,
-                ClairDeLuneColors.ElectricBlue,
-                scale * (thick ? 0.6f : 0.4f),
-                20,
-                true
+                ClairDeLuneColors.BrightWhite,
+                scale * (thick ? 0.35f : 0.25f),
+                18
             );
             MagnumParticleHandler.SpawnParticle(core);
             
-            // Branching mini-arcs
-            int arcCount = thick ? 5 : 3;
+            // Branching mini-arcs (reduced count)
+            int arcCount = thick ? 3 : 2;
             for (int i = 0; i < arcCount; i++)
             {
                 float arcAngle = Main.rand.NextFloat(MathHelper.TwoPi);
-                Vector2 arcVel = arcAngle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
+                Vector2 arcVel = arcAngle.ToRotationVector2() * Main.rand.NextFloat(3f, 5f);
                 
                 var arc = new GenericGlowParticle(
-                    position + Main.rand.NextVector2Circular(6f, 6f),
-                    velocity * 0.5f + arcVel,
+                    position + Main.rand.NextVector2Circular(4f, 4f),
+                    velocity * 0.4f + arcVel,
                     ClairDeLuneColors.LightningPurple,
-                    0.25f * scale,
+                    0.15f * scale,
                     10,
                     true
                 );
                 MagnumParticleHandler.SpawnParticle(arc);
             }
             
-            // Electric dust
-            for (int i = 0; i < (thick ? 6 : 3); i++)
+            // Electric dust (reduced)
+            for (int i = 0; i < (thick ? 3 : 2); i++)
             {
                 Dust dust = Dust.NewDustPerfect(
-                    position + Main.rand.NextVector2Circular(8f, 8f),
+                    position + Main.rand.NextVector2Circular(5f, 5f),
                     DustID.Electric,
-                    velocity * 0.7f + Main.rand.NextVector2Circular(5f, 5f),
-                    0, ClairDeLuneColors.ElectricBlue, 1.5f
+                    velocity * 0.5f + Main.rand.NextVector2Circular(3f, 3f),
+                    0, ClairDeLuneColors.ElectricBlue, 1.1f
                 );
                 dust.noGravity = true;
             }
@@ -483,63 +444,53 @@ namespace MagnumOpus.Content.ClairDeLune.Projectiles
         }
         
         /// <summary>
-        /// MASSIVE lightning strike explosion
+        /// MASSIVE lightning strike explosion - REDUCED for proper sizing
         /// </summary>
         public static void LightningStrikeExplosion(Vector2 position, float scale = 1f)
         {
-            // === BLINDING WHITE CORE ===
-            for (int i = 0; i < 6; i++)
-            {
-                float coreScale = scale * (1.5f - i * 0.15f);
-                Color coreColor = ClairDeLuneColors.BrightWhite * (0.95f / (i + 1));
-                coreColor.A = 0;
-                
-                var coreFlare = new BloomParticle(position, Vector2.Zero, coreColor, coreScale, 20 + i * 2);
-                MagnumParticleHandler.SpawnParticle(coreFlare);
-            }
+            // === WHITE CORE (single bloom, not 6!) ===
+            Color coreColor = ClairDeLuneColors.BrightWhite * 0.9f;
+            coreColor.A = 0;
+            var coreFlare = new BloomParticle(position, Vector2.Zero, coreColor, scale * 0.4f, 20);
+            MagnumParticleHandler.SpawnParticle(coreFlare);
             
-            // === LIGHTNING GRADIENT LAYERS ===
-            for (int i = 0; i < 5; i++)
-            {
-                float layerScale = scale * (1.2f - i * 0.12f);
-                Color lightningColor = ClairDeLuneColors.GetLightningGradient(i / 5f);
-                lightningColor.A = 0;
-                
-                var lightningFlare = new BloomParticle(position, Vector2.Zero, lightningColor * (0.85f / (i + 1)), layerScale, 18 + i * 3);
-                MagnumParticleHandler.SpawnParticle(lightningFlare);
-            }
+            // === LIGHTNING ACCENT (single bloom) ===
+            Color lightningColor = ClairDeLuneColors.ElectricBlue * 0.7f;
+            lightningColor.A = 0;
+            var lightningFlare = new BloomParticle(position, Vector2.Zero, lightningColor, scale * 0.35f, 18);
+            MagnumParticleHandler.SpawnParticle(lightningFlare);
             
-            // === RADIAL LIGHTNING ARCS ===
-            int arcCount = (int)(12 * scale);
+            // === RADIAL LIGHTNING ARCS (reduced count) ===
+            int arcCount = (int)(6 * scale);
             for (int i = 0; i < arcCount; i++)
             {
                 float angle = MathHelper.TwoPi * i / arcCount;
-                float arcLength = Main.rand.NextFloat(60f, 120f) * scale;
+                float arcLength = Main.rand.NextFloat(40f, 70f) * scale;
                 Vector2 arcEnd = position + angle.ToRotationVector2() * arcLength;
                 
-                LightningArc(position, arcEnd, 5, 8f * scale, scale * 0.6f);
+                LightningArc(position, arcEnd, 4, 6f * scale, scale * 0.4f);
             }
             
-            // === EXPANDING ELECTRIC RINGS ===
-            for (int i = 0; i < 6; i++)
+            // === EXPANDING ELECTRIC RINGS (reduced from 6 to 3) ===
+            for (int i = 0; i < 3; i++)
             {
-                Color ringColor = ClairDeLuneColors.GetLightningGradient(i / 6f);
+                Color ringColor = ClairDeLuneColors.GetLightningGradient(i / 3f);
                 ringColor.A = 0;
                 
-                var ring = new BloomRingParticle(position, Vector2.Zero, ringColor * 0.75f, (0.3f + i * 0.15f) * scale, 22 + i * 3);
+                var ring = new BloomRingParticle(position, Vector2.Zero, ringColor * 0.6f, (0.2f + i * 0.1f) * scale, 18 + i * 3);
                 MagnumParticleHandler.SpawnParticle(ring);
             }
             
-            // === ELECTRIC DUST STORM ===
-            for (int i = 0; i < (int)(25 * scale); i++)
+            // === ELECTRIC DUST (reduced) ===
+            for (int i = 0; i < (int)(10 * scale); i++)
             {
-                Vector2 vel = Main.rand.NextVector2Circular(15f, 15f) * scale;
-                Dust dust = Dust.NewDustPerfect(position, DustID.Electric, vel, 0, ClairDeLuneColors.ElectricBlue, 1.8f);
+                Vector2 vel = Main.rand.NextVector2Circular(10f, 10f) * scale;
+                Dust dust = Dust.NewDustPerfect(position, DustID.Electric, vel, 0, ClairDeLuneColors.ElectricBlue, 1.3f);
                 dust.noGravity = true;
             }
             
             // Lighting
-            Lighting.AddLight(position, ClairDeLuneColors.ElectricBlue.ToVector3() * scale * 2f);
+            Lighting.AddLight(position, ClairDeLuneColors.ElectricBlue.ToVector3() * scale * 1.5f);
         }
         
         #endregion
@@ -547,119 +498,108 @@ namespace MagnumOpus.Content.ClairDeLune.Projectiles
         #region Crystal Effects
         
         /// <summary>
-        /// Spawn a CRYSTAL SHARD particle
+        /// Spawn a CRYSTAL SHARD particle - REDUCED bloom layers
         /// </summary>
         public static void SpawnCrystalShard(Vector2 position, Vector2 velocity, bool medium = false, float scale = 1f)
         {
-            // Crystal bloom layers
-            for (int layer = 0; layer < 4; layer++)
-            {
-                float layerScale = scale * (0.5f + layer * 0.18f);
-                float alpha = 0.85f / (layer + 1);
-                Color crystalColor = ClairDeLuneColors.GetCrystalGradient(layer / 4f) * alpha;
-                crystalColor.A = 0;
-                
-                var crystalBloom = new BloomParticle(
-                    position + Main.rand.NextVector2Circular(3f, 3f),
-                    velocity * (0.95f - layer * 0.08f),
-                    crystalColor,
-                    layerScale * (medium ? 1.2f : 0.8f),
-                    28 + layer * 4
-                );
-                MagnumParticleHandler.SpawnParticle(crystalBloom);
-            }
+            // === SINGLE CRYSTAL BLOOM (already draws 4 internal layers) ===
+            Color crystalColor = ClairDeLuneColors.Crystal * 0.75f;
+            crystalColor.A = 0;
             
-            // Core shard
-            var core = new GenericGlowParticle(
+            var crystalBloom = new BloomParticle(
+                position,
+                velocity * 0.9f,
+                crystalColor,
+                scale * (medium ? 0.25f : 0.18f), // REDUCED
+                28
+            );
+            MagnumParticleHandler.SpawnParticle(crystalBloom);
+            
+            // Core shard sparkle
+            var core = new SparkleParticle(
                 position,
                 velocity,
-                ClairDeLuneColors.Crystal,
-                scale * (medium ? 0.5f : 0.35f),
-                30,
-                true
+                ClairDeLuneColors.BrightWhite,
+                scale * (medium ? 0.3f : 0.22f),
+                25
             );
             MagnumParticleHandler.SpawnParticle(core);
             
-            // Prismatic sparkles
-            for (int i = 0; i < (medium ? 4 : 2); i++)
+            // Prismatic sparkles (reduced count)
+            for (int i = 0; i < (medium ? 2 : 1); i++)
             {
                 float hue = Main.rand.NextFloat();
                 Color prismColor = Main.hslToRgb(hue, 0.6f, 0.85f);
                 
                 var sparkle = new SparkleParticle(
-                    position + Main.rand.NextVector2Circular(8f, 8f),
-                    velocity * 0.6f + Main.rand.NextVector2Circular(2f, 2f),
+                    position + Main.rand.NextVector2Circular(5f, 5f),
+                    velocity * 0.5f + Main.rand.NextVector2Circular(1.5f, 1.5f),
                     prismColor,
-                    0.35f,
-                    20
+                    0.2f,
+                    18
                 );
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
         }
         
         /// <summary>
-        /// Crystal shatter burst - Time shattering into fragments
+        /// Crystal shatter burst - Time shattering into fragments - REDUCED
         /// </summary>
         public static void CrystalShatterBurst(Vector2 position, int count, float speed, float scale = 1f)
         {
-            for (int i = 0; i < count; i++)
+            // Reduce count for performance
+            int actualCount = Math.Min(count, 8);
+            
+            for (int i = 0; i < actualCount; i++)
             {
-                float angle = MathHelper.TwoPi * i / count + Main.rand.NextFloat(-0.3f, 0.3f);
-                Vector2 vel = angle.ToRotationVector2() * speed * Main.rand.NextFloat(0.6f, 1.4f);
-                bool isMedium = i % 4 == 0;
-                float shardScale = scale * Main.rand.NextFloat(0.7f, 1.3f);
+                float angle = MathHelper.TwoPi * i / actualCount + Main.rand.NextFloat(-0.3f, 0.3f);
+                Vector2 vel = angle.ToRotationVector2() * speed * Main.rand.NextFloat(0.6f, 1.2f);
+                bool isMedium = i % 3 == 0;
+                float shardScale = scale * Main.rand.NextFloat(0.7f, 1.1f);
                 
-                SpawnCrystalShard(position + Main.rand.NextVector2Circular(8f, 8f), vel, isMedium, shardScale);
+                SpawnCrystalShard(position + Main.rand.NextVector2Circular(5f, 5f), vel, isMedium, shardScale);
             }
             
-            // Central crystal flash
-            for (int i = 0; i < 4; i++)
-            {
-                float flashScale = scale * (1.4f - i * 0.2f);
-                Color flashColor = Color.Lerp(ClairDeLuneColors.BrightWhite, ClairDeLuneColors.Crystal, i / 4f);
-                flashColor.A = 0;
-                
-                var flash = new BloomParticle(position, Vector2.Zero, flashColor * (0.9f / (i + 1)), flashScale, 16 + i * 3);
-                MagnumParticleHandler.SpawnParticle(flash);
-            }
+            // Central crystal flash (single bloom, not 4!)
+            Color flashColor = ClairDeLuneColors.BrightWhite * 0.8f;
+            flashColor.A = 0;
+            var flash = new BloomParticle(position, Vector2.Zero, flashColor, scale * 0.3f, 18);
+            MagnumParticleHandler.SpawnParticle(flash);
             
-            // Crystal dust
-            for (int i = 0; i < count; i++)
+            // Crystal dust (reduced)
+            for (int i = 0; i < Math.Min(count, 6); i++)
             {
-                Vector2 dustVel = Main.rand.NextVector2Circular(speed * 1.1f, speed * 1.1f);
-                Dust dust = Dust.NewDustPerfect(position, DustID.GemDiamond, dustVel, 0, ClairDeLuneColors.Crystal, 1.3f);
+                Vector2 dustVel = Main.rand.NextVector2Circular(speed * 0.8f, speed * 0.8f);
+                Dust dust = Dust.NewDustPerfect(position, DustID.GemDiamond, dustVel, 0, ClairDeLuneColors.Crystal, 1.1f);
                 dust.noGravity = true;
             }
         }
         
         /// <summary>
-        /// Prismatic crystal refraction effect
+        /// Prismatic crystal refraction effect - REDUCED
         /// </summary>
         public static void CrystalRefraction(Vector2 position, float scale = 1f)
         {
-            // Rainbow prismatic burst
-            for (int i = 0; i < 12; i++)
+            // Rainbow prismatic burst (reduced from 12 to 6)
+            for (int i = 0; i < 6; i++)
             {
-                float hue = (float)i / 12f;
-                Color prismColor = Main.hslToRgb(hue, 0.8f, 0.8f);
+                float hue = (float)i / 6f;
+                Color prismColor = Main.hslToRgb(hue, 0.7f, 0.8f);
                 prismColor.A = 0;
                 
-                float angle = MathHelper.TwoPi * i / 12f + Main.rand.NextFloat(-0.1f, 0.1f);
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
+                float angle = MathHelper.TwoPi * i / 6f + Main.rand.NextFloat(-0.1f, 0.1f);
+                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 5f);
                 
-                var prism = new BloomParticle(position, vel, prismColor * 0.7f, 0.4f * scale, 25);
+                // Use sparkle instead of bloom for prismatic effect
+                var prism = new SparkleParticle(position, vel, prismColor, 0.25f * scale, 20);
                 MagnumParticleHandler.SpawnParticle(prism);
             }
             
-            // White core flash
-            for (int i = 0; i < 3; i++)
-            {
-                Color whiteCore = ClairDeLuneColors.BrightWhite * (0.9f / (i + 1));
-                whiteCore.A = 0;
-                
-                var core = new BloomParticle(position, Vector2.Zero, whiteCore, (0.8f - i * 0.15f) * scale, 12 + i * 2);
-                MagnumParticleHandler.SpawnParticle(core);
-            }
+            // White core flash (single, not 3!)
+            Color whiteCore = ClairDeLuneColors.BrightWhite * 0.8f;
+            whiteCore.A = 0;
+            var core = new BloomParticle(position, Vector2.Zero, whiteCore, 0.25f * scale, 15);
+            MagnumParticleHandler.SpawnParticle(core);
         }
         
         #endregion
@@ -667,148 +607,127 @@ namespace MagnumOpus.Content.ClairDeLune.Projectiles
         #region Major Impact Effects
         
         /// <summary>
-        /// TEMPORAL IMPACT - THE SIGNATURE CLAIR DE LUNE EFFECT
+        /// TEMPORAL IMPACT - THE SIGNATURE CLAIR DE LUNE EFFECT - REDUCED VERSION
         /// Clockwork gears + Lightning + Crystal shards + Crimson energy
-        /// MUST be the most spectacular impact in the entire mod!
+        /// Now properly sized and not overwhelming the screen!
         /// </summary>
         public static void TemporalImpact(Vector2 position, float scale = 1f)
         {
-            // === PHASE 1: BLINDING WHITE TEMPORAL CORE ===
-            for (int i = 0; i < 6; i++)
-            {
-                float coreScale = scale * (1.6f - i * 0.18f);
-                float alpha = 0.95f / (i + 1);
-                Color coreColor = ClairDeLuneColors.BrightWhite * alpha;
-                coreColor.A = 0;
-                
-                var coreFlare = new BloomParticle(position, Vector2.Zero, coreColor, coreScale, 22 + i * 3);
-                MagnumParticleHandler.SpawnParticle(coreFlare);
-            }
+            // === SINGLE WHITE CORE (not 6!) ===
+            Color coreColor = ClairDeLuneColors.BrightWhite * 0.9f;
+            coreColor.A = 0;
+            var coreFlare = new BloomParticle(position, Vector2.Zero, coreColor, scale * 0.4f, 22);
+            MagnumParticleHandler.SpawnParticle(coreFlare);
             
-            // === PHASE 2: CRIMSON TEMPORAL ENERGY BURST ===
-            for (int i = 0; i < 5; i++)
-            {
-                float crimsonScale = scale * (1.3f - i * 0.12f);
-                Color crimsonColor = Color.Lerp(ClairDeLuneColors.Crimson, ClairDeLuneColors.DeepCrimson, i / 5f);
-                crimsonColor.A = 0;
-                
-                var crimsonFlare = new BloomParticle(position, Vector2.Zero, crimsonColor * (0.85f / (i + 1)), crimsonScale, 20 + i * 3);
-                MagnumParticleHandler.SpawnParticle(crimsonFlare);
-            }
+            // === SINGLE CRIMSON ACCENT (not 5!) ===
+            Color crimsonColor = ClairDeLuneColors.Crimson * 0.8f;
+            crimsonColor.A = 0;
+            var crimsonFlare = new BloomParticle(position, Vector2.Zero, crimsonColor, scale * 0.35f, 20);
+            MagnumParticleHandler.SpawnParticle(crimsonFlare);
             
-            // === PHASE 3: CLOCKWORK GEAR CASCADE ===
-            ClockworkGearCascade(position, (int)(10 * scale), 10f * scale, scale);
+            // === CLOCKWORK GEAR CASCADE (reduced) ===
+            ClockworkGearCascade(position, (int)(6 * scale), 7f * scale, scale * 0.8f);
             
-            // === PHASE 4: CRYSTAL SHATTER BURST ===
-            CrystalShatterBurst(position, (int)(14 * scale), 12f * scale, scale);
+            // === CRYSTAL SHATTER BURST (reduced) ===
+            CrystalShatterBurst(position, (int)(6 * scale), 8f * scale, scale * 0.8f);
             
-            // === PHASE 5: LIGHTNING DISCHARGE ===
-            int lightningArcs = (int)(8 * scale);
+            // === LIGHTNING DISCHARGE (reduced) ===
+            int lightningArcs = (int)(4 * scale);
             for (int i = 0; i < lightningArcs; i++)
             {
                 float angle = MathHelper.TwoPi * i / lightningArcs + Main.rand.NextFloat(-0.2f, 0.2f);
-                float arcLength = Main.rand.NextFloat(50f, 100f) * scale;
+                float arcLength = Main.rand.NextFloat(30f, 60f) * scale;
                 Vector2 arcEnd = position + angle.ToRotationVector2() * arcLength;
                 
-                LightningArc(position, arcEnd, 4, 10f * scale, scale * 0.5f);
+                LightningArc(position, arcEnd, 3, 6f * scale, scale * 0.4f);
             }
             
-            // === EXPANDING TEMPORAL RINGS - Full gradient cycle ===
-            for (int i = 0; i < 10; i++)
+            // === EXPANDING TEMPORAL RINGS (reduced from 10 to 4) ===
+            for (int i = 0; i < 4; i++)
             {
-                float progress = i / 10f;
+                float progress = i / 4f;
                 Color ringColor = ClairDeLuneColors.GetGradient(progress);
                 ringColor.A = 0;
                 
                 var ring = new BloomRingParticle(
                     position, Vector2.Zero,
-                    ringColor * 0.85f,
-                    (0.25f + i * 0.14f) * scale,
-                    24 + i * 3
+                    ringColor * 0.6f,
+                    (0.15f + i * 0.08f) * scale, // REDUCED scales
+                    20 + i * 3
                 );
                 MagnumParticleHandler.SpawnParticle(ring);
             }
             
-            // === RADIAL PARTICLE SPRAY ===
-            int particleCount = (int)(30 * scale);
+            // === RADIAL PARTICLE SPRAY (reduced from 30 to 12) ===
+            int particleCount = (int)(12 * scale);
             for (int i = 0; i < particleCount; i++)
             {
-                float angle = MathHelper.TwoPi * i / particleCount + Main.rand.NextFloat(-0.2f, 0.2f);
-                float speed = Main.rand.NextFloat(8f, 18f) * scale;
+                float angle = MathHelper.TwoPi * i / particleCount;
+                float speed = Main.rand.NextFloat(5f, 10f) * scale;
                 Vector2 vel = angle.ToRotationVector2() * speed;
                 
                 float colorProgress = (float)i / particleCount;
                 Color particleColor = ClairDeLuneColors.GetGradient(colorProgress);
                 
-                var particle = new GenericGlowParticle(position, vel, particleColor, 0.5f * scale, 32, true);
+                // Use sparkle for radial spray instead of glow
+                var particle = new SparkleParticle(position, vel, particleColor, 0.25f * scale, 25);
                 MagnumParticleHandler.SpawnParticle(particle);
             }
             
-            // === VANILLA DUST DENSITY LAYER ===
+            // === VANILLA DUST DENSITY LAYER (reduced) ===
             // Electric dust
-            for (int i = 0; i < (int)(20 * scale); i++)
+            for (int i = 0; i < (int)(8 * scale); i++)
             {
-                Vector2 vel = Main.rand.NextVector2Circular(14f, 14f) * scale;
-                Dust dust = Dust.NewDustPerfect(position, DustID.Electric, vel, 0, ClairDeLuneColors.ElectricBlue, 1.7f);
+                Vector2 vel = Main.rand.NextVector2Circular(8f, 8f) * scale;
+                Dust dust = Dust.NewDustPerfect(position, DustID.Electric, vel, 0, ClairDeLuneColors.ElectricBlue, 1.2f);
                 dust.noGravity = true;
             }
             
             // Gold sparkle dust
-            for (int i = 0; i < (int)(15 * scale); i++)
+            for (int i = 0; i < (int)(6 * scale); i++)
             {
-                Vector2 vel = Main.rand.NextVector2Circular(12f, 12f) * scale;
-                Dust dust = Dust.NewDustPerfect(position, DustID.Enchanted_Gold, vel, 0, ClairDeLuneColors.Brass, 1.5f);
+                Vector2 vel = Main.rand.NextVector2Circular(6f, 6f) * scale;
+                Dust dust = Dust.NewDustPerfect(position, DustID.Enchanted_Gold, vel, 0, ClairDeLuneColors.Brass, 1.1f);
                 dust.noGravity = true;
             }
             
-            // Diamond dust
-            for (int i = 0; i < (int)(12 * scale); i++)
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(10f, 10f) * scale;
-                Dust dust = Dust.NewDustPerfect(position, DustID.GemDiamond, vel, 0, ClairDeLuneColors.Crystal, 1.4f);
-                dust.noGravity = true;
-            }
+            // === MUSIC NOTES (reduced) ===
+            MusicNoteBurst(position, (int)(4 * scale), 4f * scale, 0.7f);
             
-            // === MUSIC NOTES BURST ===
-            MusicNoteBurst(position, (int)(8 * scale), 6f * scale, 0.9f);
-            
-            // === PRISMATIC REFRACTION ===
-            CrystalRefraction(position, scale);
-            
-            // INTENSE LIGHTING
-            Lighting.AddLight(position, ClairDeLuneColors.BrightWhite.ToVector3() * scale * 2.5f);
+            // Lighting (reduced)
+            Lighting.AddLight(position, ClairDeLuneColors.BrightWhite.ToVector3() * scale * 1.2f);
         }
         
         /// <summary>
-        /// Death explosion - MAXIMUM SPECTACLE for kill effects
+        /// Death explosion - Spectacle for kill effects - REDUCED
         /// </summary>
         public static void TemporalDeathExplosion(Vector2 position, float scale = 1.5f)
         {
-            // Use the full impact but even more intense
-            TemporalImpact(position, scale * 1.3f);
+            // Use the full impact (already reduced)
+            TemporalImpact(position, scale);
             
-            // Additional massive lightning strike
-            LightningStrikeExplosion(position, scale);
+            // Additional lightning (uses reduced version)
+            LightningStrikeExplosion(position, scale * 0.8f);
             
-            // Extra clockwork cascade
-            ClockworkGearCascade(position, 16, 14f * scale, scale);
+            // Extra gear cascade (reduced)
+            ClockworkGearCascade(position, 8, 8f * scale, scale * 0.8f);
             
-            // Extra crystal shatter
-            CrystalShatterBurst(position, 20, 16f * scale, scale);
+            // Extra crystal shatter (reduced)
+            CrystalShatterBurst(position, 8, 10f * scale, scale * 0.8f);
             
-            // Massive music note spiral
-            for (int ring = 0; ring < 3; ring++)
+            // Music note spiral (reduced from 3 rings to 2)
+            for (int ring = 0; ring < 2; ring++)
             {
-                float ringRadius = (40f + ring * 30f) * scale;
-                int notesInRing = 6 + ring * 2;
+                float ringRadius = (25f + ring * 20f) * scale;
+                int notesInRing = 4 + ring * 2;
                 
                 for (int i = 0; i < notesInRing; i++)
                 {
                     float angle = MathHelper.TwoPi * i / notesInRing + ring * 0.3f;
                     Vector2 notePos = position + angle.ToRotationVector2() * ringRadius;
-                    Vector2 noteVel = angle.ToRotationVector2() * (4f + ring * 2f);
+                    Vector2 noteVel = angle.ToRotationVector2() * (3f + ring * 1.5f);
                     
-                    SpawnMusicNote(notePos, noteVel, ClairDeLuneColors.GetGradient(Main.rand.NextFloat()), 0.95f * scale);
+                    SpawnMusicNote(notePos, noteVel, ClairDeLuneColors.GetGradient(Main.rand.NextFloat()), 0.7f * scale);
                 }
             }
         }

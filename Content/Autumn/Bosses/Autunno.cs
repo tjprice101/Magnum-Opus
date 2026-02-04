@@ -396,20 +396,40 @@ namespace MagnumOpus.Content.Autumn.Bosses
             float idealDist = 330f;
             Vector2 toTarget = (target.Center - NPC.Center);
             float currentDist = toTarget.Length();
+            float maxTime = 68f;
+            float progress = Timer / maxTime;
             
             if (Math.Abs(currentDist - idealDist) < 75f && Timer > 26)
             {
+                // VFX: Ready to attack cue - warns player aggression is returning
+                BossVFXOptimizer.ReadyToAttackCue(NPC.Center, LeafRed);
+                
                 State = BossPhase.Idle;
                 Timer = 0;
                 attackCooldown = AttackWindowFrames / 2;
                 return;
             }
             
-            Vector2 idealDir = currentDist > idealDist ? -toTarget.SafeNormalize(Vector2.Zero) : toTarget.SafeNormalize(Vector2.Zero);
-            NPC.velocity = Vector2.Lerp(NPC.velocity, idealDir * 13f, 0.075f);
+            // Bell curve speed: accelerate then decelerate smoothly
+            float speedMult = BossAIUtilities.Easing.EaseOutQuad(progress) * BossAIUtilities.Easing.EaseInQuad(1f - progress) * 4f;
+            speedMult = Math.Max(speedMult, 0.15f);
             
-            if (Timer > 68)
+            Vector2 idealDir = currentDist > idealDist ? -toTarget.SafeNormalize(Vector2.Zero) : toTarget.SafeNormalize(Vector2.Zero);
+            NPC.velocity = Vector2.Lerp(NPC.velocity, idealDir * 13f * speedMult, 0.085f);
+            
+            // VFX: Recovery shimmer - player can identify vulnerability
+            if (Timer % 8 == 0)
+                BossVFXOptimizer.RecoveryShimmer(NPC.Center, FadingGold, 60f, progress);
+            
+            // VFX: Deceleration trail during slowdown phase
+            if (progress > 0.5f && Timer % 4 == 0)
+                BossVFXOptimizer.DecelerationTrail(NPC.Center, NPC.velocity, AutumnOrange, progress);
+            
+            if (Timer > maxTime)
             {
+                // VFX: Ready to attack cue
+                BossVFXOptimizer.ReadyToAttackCue(NPC.Center, LeafRed);
+                
                 State = BossPhase.Idle;
                 Timer = 0;
             }
@@ -1015,6 +1035,9 @@ namespace MagnumOpus.Content.Autumn.Bosses
         
         private void EndAttack()
         {
+            // VFX: Attack ending cue - exhale burst with safety ring
+            BossVFXOptimizer.AttackEndCue(NPC.Center, AutumnOrange, FadingGold);
+            
             State = BossPhase.Reposition;
             Timer = 0;
             SubPhase = 0;

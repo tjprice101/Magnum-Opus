@@ -403,6 +403,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
             // Return complete or timeout
             if (distance < 30f || AttackTimer >= 42)
             {
+                // VFX: Attack ending cue
+                BossVFXOptimizer.AttackEndCue(NPC.Center, new Color(255, 200, 80), new Color(200, 50, 50));
+                
                 AttackTimer = 0;
                 currentAttack = AttackState.Orbiting;
                 isGlowing = false;
@@ -494,6 +497,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
             
             if (AttackTimer >= 28)
             {
+                // VFX: Attack ending cue
+                BossVFXOptimizer.AttackEndCue(NPC.Center, new Color(255, 200, 80), new Color(200, 50, 50));
+                
                 AttackTimer = 0;
                 currentAttack = AttackState.Orbiting;
                 isGlowing = false;
@@ -555,6 +561,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
             
             if (AttackTimer >= 35)
             {
+                // VFX: Attack ending cue
+                BossVFXOptimizer.AttackEndCue(NPC.Center, new Color(255, 200, 80), new Color(200, 50, 50));
+                
                 AttackTimer = 0;
                 currentAttack = AttackState.Orbiting;
                 isGlowing = false;
@@ -617,6 +626,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
             
             if (AttackTimer >= 28)
             {
+                // VFX: Attack ending cue
+                BossVFXOptimizer.AttackEndCue(NPC.Center, new Color(255, 200, 80), new Color(200, 50, 50));
+                
                 AttackTimer = 0;
                 currentAttack = AttackState.Orbiting;
                 isGlowing = false;
@@ -784,6 +796,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
             
             if (AttackTimer >= firingDuration + 30)
             {
+                // VFX: Attack ending cue
+                BossVFXOptimizer.AttackEndCue(NPC.Center, new Color(255, 200, 80), new Color(200, 50, 50));
+                
                 AttackTimer = 0;
                 currentAttack = AttackState.Orbiting;
                 isGlowing = false;
@@ -872,6 +887,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
             // Dramatic pause while projectiles split
             if (AttackTimer >= 56)
             {
+                // VFX: Attack ending cue
+                BossVFXOptimizer.AttackEndCue(NPC.Center, new Color(255, 200, 80), new Color(200, 50, 50));
+                
                 AttackTimer = 0;
                 currentAttack = AttackState.Orbiting;
                 isGlowing = false;

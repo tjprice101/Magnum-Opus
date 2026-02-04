@@ -508,6 +508,33 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             NPC.netUpdate = true;
         }
 
+        /// <summary>
+        /// Centralized attack ending helper with visual feedback.
+        /// Spawns attack end cue and transitions to Idle state cleanly.
+        /// </summary>
+        private void EndAttackWithCue()
+        {
+            // Rainbow-themed attack end cue - prismatic exhale effect
+            float rainbowHue = (Main.GameUpdateCount * 0.02f) % 1f;
+            Color primaryColor = Main.hslToRgb(rainbowHue, 0.8f, 0.9f);
+            Color secondaryColor = Main.hslToRgb((rainbowHue + 0.5f) % 1f, 0.7f, 0.8f);
+            
+            BossVFXOptimizer.AttackEndCue(NPC.Center, primaryColor, secondaryColor, 0.6f);
+            
+            // Add feather drift for elegance
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 featherPos = NPC.Center + Main.rand.NextVector2Circular(30f, 30f);
+                Color featherColor = Main.rand.NextBool() ? Color.White : new Color(40, 40, 50);
+                CustomParticles.SwanFeatherDrift(featherPos, featherColor, 0.25f);
+            }
+            
+            Timer = 0;
+            isUsingAttackSprite = false;
+            State = ActionState.Idle;
+            NPC.netUpdate = true;
+        }
+
         private void SpawnAmbientParticles()
         {
             // === PERFORMANCE GATE ===
@@ -1040,9 +1067,7 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             
             if (Timer >= AttackDuration)
             {
-                Timer = 0;
-                State = ActionState.Idle;
-                NPC.netUpdate = true;
+                EndAttackWithCue();
             }
         }
 
@@ -1123,9 +1148,7 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             
             if (Timer >= AttackDuration)
             {
-                Timer = 0;
-                State = ActionState.Idle;
-                NPC.netUpdate = true;
+                EndAttackWithCue();
             }
         }
 

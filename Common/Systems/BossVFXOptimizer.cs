@@ -343,6 +343,130 @@ namespace MagnumOpus.Common.Systems
         
         #endregion
         
+        #region Attack Ending Visual Cues - Signal Recovery to Players
+        
+        /// <summary>
+        /// Spawns visual cue indicating attack has ended and boss is recovering.
+        /// Players can use this window to attack safely.
+        /// </summary>
+        /// <param name="center">Boss center position</param>
+        /// <param name="primaryColor">Theme primary color</param>
+        /// <param name="secondaryColor">Theme secondary color</param>
+        /// <param name="intensity">Effect intensity (0.5-2.0)</param>
+        public static void AttackEndCue(Vector2 center, Color primaryColor, Color secondaryColor, float intensity = 1f)
+        {
+            // "Exhale" burst - signals boss is vulnerable
+            int particleCount = ScaleCount((int)(10 * intensity));
+            for (int i = 0; i < particleCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / particleCount;
+                Vector2 offset = angle.ToRotationVector2() * (25f + Main.rand.NextFloat(15f));
+                float progress = i / (float)particleCount;
+                Color burstColor = Color.Lerp(primaryColor, secondaryColor, progress) * 0.6f;
+                CustomParticles.GenericFlare(center + offset, burstColor, 0.25f * intensity, 18);
+            }
+            
+            // Cooldown shimmer ring - cyan tint indicates safety
+            Color safetyTint = Color.Lerp(primaryColor, Color.Cyan, 0.3f);
+            CustomParticles.HaloRing(center, safetyTint * 0.4f, 0.5f * intensity, 25);
+        }
+        
+        /// <summary>
+        /// Spawns deceleration trail effect showing boss slowing down.
+        /// Call EVERY FRAME during deceleration phase.
+        /// </summary>
+        /// <param name="center">Boss center position</param>
+        /// <param name="velocity">Current velocity (for trail direction)</param>
+        /// <param name="color">Trail color</param>
+        /// <param name="decelerationProgress">Progress 0-1 (more particles at start)</param>
+        public static void DecelerationTrail(Vector2 center, Vector2 velocity, Color color, float decelerationProgress)
+        {
+            if (velocity.LengthSquared() < 4f) return; // Don't spawn if nearly stopped
+            
+            // Spawn chance decreases as we slow down
+            float spawnChance = (1f - decelerationProgress) * 0.6f;
+            if (Main.GameUpdateCount % 2 != 0) return;
+            if (Main.rand.NextFloat() > spawnChance) return;
+            
+            Vector2 trailDir = velocity.SafeNormalize(Vector2.UnitX);
+            Vector2 trailPos = center - trailDir * 20f + Main.rand.NextVector2Circular(8f, 8f);
+            
+            // Fading trail particles
+            float alpha = (1f - decelerationProgress) * 0.5f;
+            CustomParticles.GenericFlare(trailPos, color * alpha, 0.2f, 12);
+        }
+        
+        /// <summary>
+        /// Spawns "ready to attack" cue when boss finishes recovery.
+        /// Sharp flash signals danger resuming.
+        /// </summary>
+        /// <param name="center">Boss center position</param>
+        /// <param name="primaryColor">Theme color</param>
+        /// <param name="intensity">Effect intensity</param>
+        public static void ReadyToAttackCue(Vector2 center, Color primaryColor, float intensity = 1f)
+        {
+            // Sharp central flash
+            CustomParticles.GenericFlare(center, Color.White, 0.8f * intensity, 12);
+            CustomParticles.GenericFlare(center, primaryColor, 0.6f * intensity, 15);
+            
+            // Danger-indicating ring (red tint)
+            Color dangerTint = Color.Lerp(primaryColor, Color.Red, 0.2f);
+            CustomParticles.HaloRing(center, dangerTint * 0.6f, 0.4f * intensity, 18);
+        }
+        
+        /// <summary>
+        /// Creates wind-down effect for charge/dash attacks.
+        /// Trailing wisps that fade as boss slows.
+        /// </summary>
+        /// <param name="center">Boss center position</param>
+        /// <param name="velocity">Current velocity</param>
+        /// <param name="color">Effect color</param>
+        /// <param name="windDownProgress">Progress 0-1</param>
+        public static void WindDownEffect(Vector2 center, Vector2 velocity, Color color, float windDownProgress)
+        {
+            if (Main.GameUpdateCount % 4 != 0) return;
+            
+            float alpha = 1f - windDownProgress;
+            if (alpha < 0.15f) return;
+            
+            Vector2 trailDir = velocity.SafeNormalize(Vector2.UnitX);
+            
+            // Trailing wisps behind movement
+            for (int i = 0; i < 2; i++)
+            {
+                float dist = 30f + i * 20f;
+                Vector2 wispPos = center - trailDir * dist + Main.rand.NextVector2Circular(10f, 10f);
+                CustomParticles.GenericFlare(wispPos, color * alpha * 0.4f, 0.18f, 15);
+            }
+        }
+        
+        /// <summary>
+        /// Creates smooth recovery shimmer around boss during cooldown.
+        /// Signals the boss is in a vulnerable state.
+        /// </summary>
+        /// <param name="center">Boss center position</param>
+        /// <param name="color">Theme color</param>
+        /// <param name="radius">Shimmer radius</param>
+        /// <param name="recoveryProgress">Progress 0-1 through recovery</param>
+        public static void RecoveryShimmer(Vector2 center, Color color, float radius, float recoveryProgress)
+        {
+            if (Main.GameUpdateCount % 6 != 0) return;
+            
+            // Gentle orbiting particles during recovery - cyan safety tint
+            float alpha = 1f - recoveryProgress * 0.5f;
+            Color shimmerColor = Color.Lerp(color, Color.Cyan, 0.2f) * alpha * 0.4f;
+            
+            float angle = Main.GameUpdateCount * 0.05f;
+            for (int i = 0; i < 3; i++)
+            {
+                float particleAngle = angle + MathHelper.TwoPi * i / 3f;
+                Vector2 pos = center + particleAngle.ToRotationVector2() * radius;
+                CustomParticles.GenericFlare(pos, shimmerColor, 0.2f, 10);
+            }
+        }
+        
+        #endregion
+        
         #region Performance Utilities
         
         /// <summary>

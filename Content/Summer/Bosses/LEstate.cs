@@ -449,21 +449,29 @@ namespace MagnumOpus.Content.Summer.Bosses
             isGrounded = NPC.velocity.Y == 0f || NPC.collideY;
             jumpCooldown = Math.Max(0, jumpCooldown - 1);
             
+            float duration = 65f;
+            float progress = Timer / duration;
+            
             float idealDist = 220f;
             float distX = target.Center.X - NPC.Center.X;
             float absDistX = Math.Abs(distX);
             
             if (Math.Abs(absDistX - idealDist) < 90f && Timer > 25)
             {
+                // Ready to attack again
+                BossVFXOptimizer.ReadyToAttackCue(NPC.Center, FlameRed, 0.7f);
+                
                 State = BossPhase.Idle;
                 Timer = 0;
                 attackCooldown = AttackWindowFrames / 2;
                 return;
             }
             
-            // Move toward or away from player
+            // Move toward or away from player with smooth easing
             float dir = absDistX > idealDist ? Math.Sign(distX) : -Math.Sign(distX);
-            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dir * MoveSpeed * 1.3f, 0.12f);
+            float speedCurve = BossAIUtilities.Easing.EaseInOutQuad(Math.Min(1f, progress * 2f));
+            float speed = MoveSpeed * 1.3f * Math.Max(0.4f, speedCurve);
+            NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, dir * speed, 0.12f);
             
             // Jump if needed
             if (isGrounded && jumpCooldown <= 0 && (target.Center.Y < NPC.Center.Y - 60f || Math.Abs(NPC.velocity.X) < 1f))
@@ -473,8 +481,25 @@ namespace MagnumOpus.Content.Summer.Bosses
                 SpawnSolarBurst(NPC.Bottom, 6, 4f);
             }
             
+            // Recovery shimmer - vulnerability indicator
+            if (Timer % 4 == 0)
+            {
+                float shimmerProgress = Timer / 65f;
+                BossVFXOptimizer.RecoveryShimmer(NPC.Center, SolarGold, 55f, shimmerProgress);
+            }
+            
+            // Deceleration trail while moving (fiery)
+            if (Math.Abs(NPC.velocity.X) > 2f)
+            {
+                float trailProgress = Timer / 65f;
+                BossVFXOptimizer.DecelerationTrail(NPC.Center, NPC.velocity, SummerOrange, trailProgress);
+            }
+            
             if (Timer > 65)
             {
+                // Ready to attack again
+                BossVFXOptimizer.ReadyToAttackCue(NPC.Center, FlameRed, 0.7f);
+                
                 State = BossPhase.Idle;
                 Timer = 0;
             }
@@ -1125,6 +1150,9 @@ namespace MagnumOpus.Content.Summer.Bosses
         
         private void EndAttack()
         {
+            // Visual cue: Attack ending - player has a window
+            BossVFXOptimizer.AttackEndCue(NPC.Center, SummerOrange, SolarGold, 0.8f);
+            
             State = BossPhase.Reposition;
             Timer = 0;
             SubPhase = 0;

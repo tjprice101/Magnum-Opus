@@ -645,17 +645,27 @@ namespace MagnumOpus.Content.Eroica.Bosses
             
             if (Math.Abs(currentDist - idealDist) < 100f && Timer > 30)
             {
+                // Spawn ready to attack cue when entering idle
+                BossVFXOptimizer.ReadyToAttackCue(NPC.Center, EroicaGold, 0.7f);
                 Timer = 0;
                 State = BossPhase.Phase2_Idle;
                 attackCooldown = AttackWindowFrames / 2;
                 return;
             }
             
+            // Use smooth easing for repositioning movement
+            float repositionProgress = Timer / 90f;
+            float easedSpeed = BossAIUtilities.Easing.Apply(repositionProgress, 15f, 8f, BossAIUtilities.Easing.EaseOutQuad);
+            
             Vector2 idealDir = currentDist > idealDist ? -toTarget.SafeNormalize(Vector2.Zero) : toTarget.SafeNormalize(Vector2.Zero);
-            NPC.velocity = Vector2.Lerp(NPC.velocity, idealDir * 15f, 0.08f);
+            NPC.velocity = Vector2.Lerp(NPC.velocity, idealDir * easedSpeed, 0.08f);
+            
+            // Recovery shimmer during reposition (signals vulnerability)
+            BossVFXOptimizer.RecoveryShimmer(NPC.Center, EroicaGold, 50f, repositionProgress);
             
             if (Timer > 90)
             {
+                BossVFXOptimizer.ReadyToAttackCue(NPC.Center, EroicaGold, 0.7f);
                 Timer = 0;
                 State = BossPhase.Phase2_Idle;
             }
@@ -782,7 +792,14 @@ namespace MagnumOpus.Content.Eroica.Bosses
             }
             else
             {
-                NPC.velocity *= 0.9f;
+                // Smooth deceleration with visual trail
+                float decelProgress = Timer / 14f;
+                float decelMult = 1f - BossAIUtilities.Easing.EaseOutCubic(decelProgress);
+                NPC.velocity *= 0.9f + decelMult * 0.05f;
+                
+                // Deceleration trail particles
+                BossVFXOptimizer.DecelerationTrail(NPC.Center, NPC.velocity, EroicaGold, decelProgress);
+                
                 if (Timer >= 14)
                 {
                     EndAttack();
@@ -1497,6 +1514,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
         
         private void EndAttack()
         {
+            // Spawn attack ending visual cue - signals to player that attack is over
+            BossVFXOptimizer.AttackEndCue(NPC.Center, EroicaGold, EroicaScarlet, 0.8f);
+            
             Timer = 0;
             SubPhase = 0;
             State = BossPhase.Phase2_Reposition;

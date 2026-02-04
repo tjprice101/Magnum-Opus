@@ -757,7 +757,15 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         
         private void AI_Recovery(Player target)
         {
-            NPC.velocity.X *= 0.92f;
+            // Smooth deceleration using easing curve
+            float recoveryDuration = 21f;
+            float progress = Timer / recoveryDuration;
+            float easedProgress = BossAIUtilities.Easing.EaseOutCubic(progress);
+            
+            // Smooth velocity damping instead of harsh multiplier
+            float dampFactor = MathHelper.Lerp(0.92f, 0.98f, easedProgress);
+            NPC.velocity.X *= dampFactor;
+            
             if (!onGround)
             {
                 NPC.velocity.Y += 0.4f;
@@ -767,8 +775,25 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 NPC.velocity.Y = 0;
             }
             
+            // Recovery shimmer to show vulnerability window
+            if (Timer % 4 == 0 && Timer < 18)
+            {
+                float shimmerProgress = Timer / 21f;
+                BossVFXOptimizer.RecoveryShimmer(NPC.Center, CampanellaGold, 55f, shimmerProgress);
+            }
+            
+            // Deceleration trail while slowing down
+            if (Timer < 12 && Math.Abs(NPC.velocity.X) > 1f)
+            {
+                float trailProgress = Timer / 21f;
+                BossVFXOptimizer.DecelerationTrail(NPC.Center, NPC.velocity, CampanellaOrange, trailProgress);
+            }
+            
             if (Timer >= 21)
             {
+                // Ready to attack cue when recovery ends
+                BossVFXOptimizer.ReadyToAttackCue(NPC.Center, CampanellaOrange, 0.6f);
+                
                 Timer = 0;
                 State = BossPhase.Grounded;
                 attackCooldown = AttackWindowFrames / 2;
@@ -1938,6 +1963,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         
         private void EndAttack()
         {
+            // Spawn attack ending visual cue - infernal exhale effect
+            BossVFXOptimizer.AttackEndCue(NPC.Center, CampanellaOrange, CampanellaGold, 0.8f);
+            
             Timer = 0;
             SubPhase = 0;
             State = BossPhase.Recovery;

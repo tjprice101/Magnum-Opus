@@ -993,9 +993,9 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             // Calculate curved path - arc toward target
             if (distanceToTarget > 40f)
             {
-                // Speed curve - accelerate then decelerate
+                // Speed curve using smooth easing - accelerate then decelerate
                 float progress = Math.Min(Timer / 60f, 1f);
-                float speedCurve = (float)Math.Sin(progress * MathHelper.Pi); // Bell curve
+                float speedCurve = BossAIUtilities.Easing.EaseOutQuad(progress) * BossAIUtilities.Easing.EaseInQuad(1f - progress) * 4f;
                 float baseSpeed = BaseSpeed * GetPhaseSpeedMult() * 0.6f;
                 float speed = baseSpeed * (0.3f + speedCurve * 0.7f);
                 
@@ -1006,6 +1006,13 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 float targetRotation = NPC.velocity.X * 0.012f;
                 NPC.rotation = MathHelper.Lerp(NPC.rotation, targetRotation, 0.02f);
                 
+                // Recovery shimmer during reposition to show vulnerability
+                if (Timer % 5 == 0)
+                {
+                    float shimmerProgress = Timer / 70f;
+                    BossVFXOptimizer.RecoveryShimmer(NPC.Center, isPhase2 ? Gold : Violet, 60f, shimmerProgress);
+                }
+                
                 // Flowing trail during reposition
                 if (Timer % 6 == 0 && NPC.velocity.Length() > 5f)
                 {
@@ -1015,12 +1022,17 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             }
             else
             {
-                // Graceful arrival
-                NPC.velocity = Vector2.Lerp(NPC.velocity, Vector2.Zero, 0.08f);
+                // Graceful arrival with smooth easing
+                float arrivalProgress = Math.Max(0, 1f - distanceToTarget / 40f);
+                float arrivalEase = BossAIUtilities.Easing.EaseOutCubic(arrivalProgress);
+                NPC.velocity = Vector2.Lerp(NPC.velocity, Vector2.Zero, 0.05f + arrivalEase * 0.1f);
                 NPC.rotation = MathHelper.Lerp(NPC.rotation, 0f, 0.03f);
                 
                 if (NPC.velocity.Length() < 2f)
                 {
+                    // Ready to attack cue
+                    BossVFXOptimizer.ReadyToAttackCue(NPC.Center, isPhase2 ? Gold : Violet, 0.5f);
+                    
                     State = isPhase2 ? BossPhase.Phase2_Idle : BossPhase.Phase1_Idle;
                     Timer = 0;
                     NPC.rotation = 0f;
@@ -1054,6 +1066,9 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
         
         private void EndAttack()
         {
+            // Nachtmusik theme attack end cue - celestial gold exhale
+            BossVFXOptimizer.AttackEndCue(NPC.Center, Gold, Violet, 0.7f);
+            
             State = isPhase2 ? BossPhase.Phase2_Reposition : BossPhase.Phase1_Reposition;
             Timer = 0;
             SubPhase = 0;

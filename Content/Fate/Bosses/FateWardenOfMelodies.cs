@@ -591,15 +591,30 @@ namespace MagnumOpus.Content.Fate.Bosses
             
             if (toIdeal.Length() > 50f)
             {
-                NPC.velocity = Vector2.Lerp(NPC.velocity, toIdeal.SafeNormalize(Vector2.Zero) * speed, 0.08f);
+                // Smooth eased movement
+                float progress = Math.Min(Timer / 28f, 1f);
+                float speedMult = BossAIUtilities.Easing.EaseInOutQuad(progress);
+                NPC.velocity = Vector2.Lerp(NPC.velocity, toIdeal.SafeNormalize(Vector2.Zero) * speed * (0.5f + speedMult * 0.5f), 0.08f);
+                
+                // Recovery shimmer during reposition
+                if (Timer % 5 == 0)
+                {
+                    BossVFXOptimizer.RecoveryShimmer(NPC.Center, FateDarkPink, 55f, progress);
+                }
             }
             else
             {
-                NPC.velocity *= 0.92f;
+                // Smooth deceleration using easing
+                float decelProgress = Math.Max(0, (Timer - 20) / 8f);
+                float decelFactor = 0.92f + BossAIUtilities.Easing.EaseOutCubic(decelProgress) * 0.06f;
+                NPC.velocity *= decelFactor;
             }
             
             if (Timer >= 28)
             {
+                // Ready to attack cue
+                BossVFXOptimizer.ReadyToAttackCue(NPC.Center, FatePurple, 0.6f);
+                
                 State = BossPhase.Idle;
                 Timer = 0;
                 attackCooldown = (int)(AttackWindowFrames * GetAggressionRateMult());
@@ -666,6 +681,9 @@ namespace MagnumOpus.Content.Fate.Bosses
         
         private void EndAttack()
         {
+            // Fate theme attack end cue - cosmic celestial exhale
+            BossVFXOptimizer.AttackEndCue(NPC.Center, FateDarkPink, FatePurple, 0.8f);
+            
             Timer = 0;
             SubPhase = 0;
             

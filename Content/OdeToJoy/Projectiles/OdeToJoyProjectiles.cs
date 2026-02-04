@@ -71,81 +71,59 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
         // Layer 4: GOLDEN POLLEN sparkles (joyous celebration)
         
         /// <summary>
-        /// Spawn a MASSIVE glowing music note with intense multi-layer bloom
-        /// Garden-themed with petal accents
+        /// Spawn a glowing music note with proper-sized bloom
+        /// Garden-themed with petal accents - OPTIMIZED for proper sizing
         /// </summary>
-        public static void SpawnMusicNote(Vector2 position, Vector2 velocity, Color baseColor, float scale = 0.8f)
+        public static void SpawnMusicNote(Vector2 position, Vector2 velocity, Color baseColor, float scale = 0.5f)
         {
-            // SCALE UP - Music notes must be VISIBLE
-            scale = Math.Max(scale, 0.7f);
-            float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.2f;
+            // Subtle shimmer animation
+            float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
             scale *= shimmer;
             
-            int variant = Main.rand.Next(1, 7);
+            // === SINGLE CORE BLOOM (BloomParticle already draws 4 internal layers) ===
+            Color coreColor = Color.White * 0.7f;
+            coreColor.A = 0;
+            var coreBloom = new BloomParticle(
+                position,
+                velocity * 0.9f,
+                coreColor,
+                scale * 0.25f, // REDUCED from 0.4f-1.15f range
+                25
+            );
+            MagnumParticleHandler.SpawnParticle(coreBloom);
             
-            // === LAYER 1: BRIGHT WHITE CORE BLOOM ===
-            for (int bloom = 0; bloom < 4; bloom++)
-            {
-                float bloomScale = scale * (0.4f + bloom * 0.25f);
-                float bloomAlpha = 0.8f / (bloom + 1);
-                Color coreColor = Color.White * bloomAlpha;
-                coreColor.A = 0;
-                
-                var coreBloom = new BloomParticle(
-                    position + Main.rand.NextVector2Circular(2f, 2f),
-                    velocity * 0.9f,
-                    coreColor,
-                    bloomScale,
-                    30 + bloom * 5
-                );
-                MagnumParticleHandler.SpawnParticle(coreBloom);
-            }
+            // === PINK ACCENT BLOOM (single layer) ===
+            Color pinkColor = OdeToJoyColors.RosePink * 0.5f;
+            pinkColor.A = 0;
+            var pinkBloom = new BloomParticle(
+                position + Main.rand.NextVector2Circular(2f, 2f),
+                velocity * 0.7f,
+                pinkColor,
+                scale * 0.2f, // REDUCED from 0.6f-1.2f
+                22
+            );
+            MagnumParticleHandler.SpawnParticle(pinkBloom);
             
-            // === LAYER 2: ROSE PINK PETAL GLOW ===
-            for (int bloom = 0; bloom < 3; bloom++)
-            {
-                float bloomScale = scale * (0.6f + bloom * 0.3f);
-                float bloomAlpha = 0.6f / (bloom + 1);
-                Color pinkColor = OdeToJoyColors.RosePink * bloomAlpha;
-                pinkColor.A = 0;
-                
-                var pinkBloom = new BloomParticle(
-                    position + Main.rand.NextVector2Circular(4f, 4f),
-                    velocity * 0.7f,
-                    pinkColor,
-                    bloomScale,
-                    28 + bloom * 4
-                );
-                MagnumParticleHandler.SpawnParticle(pinkBloom);
-            }
+            // === VERDANT GREEN ACCENT (single glow) ===
+            var leaf = new GenericGlowParticle(
+                position + Main.rand.NextVector2Circular(4f, 4f),
+                velocity * 0.4f + Main.rand.NextVector2Circular(1f, 1f),
+                OdeToJoyColors.VerdantGreen * 0.4f,
+                scale * 0.2f, // REDUCED
+                20,
+                true
+            );
+            MagnumParticleHandler.SpawnParticle(leaf);
             
-            // === LAYER 3: VERDANT GREEN ACCENT ===
-            for (int i = 0; i < 2; i++)
-            {
-                var leaf = new GenericGlowParticle(
-                    position + Main.rand.NextVector2Circular(8f, 8f),
-                    velocity * 0.4f + Main.rand.NextVector2Circular(1.5f, 1.5f),
-                    OdeToJoyColors.VerdantGreen * 0.5f,
-                    scale * 0.4f,
-                    25,
-                    true
-                );
-                MagnumParticleHandler.SpawnParticle(leaf);
-            }
-            
-            // === LAYER 4: GOLDEN POLLEN SPARKLES ===
-            for (int i = 0; i < 3; i++)
-            {
-                Vector2 sparkleOffset = Main.rand.NextVector2Circular(12f, 12f);
-                var sparkle = new SparkleParticle(
-                    position + sparkleOffset,
-                    velocity * 0.5f + Main.rand.NextVector2Circular(2f, 2f),
-                    Color.Lerp(OdeToJoyColors.GoldenPollen, OdeToJoyColors.WhiteBloom, Main.rand.NextFloat(0.3f, 0.7f)),
-                    0.45f,
-                    25
-                );
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
+            // === GOLDEN POLLEN SPARKLE (single) ===
+            var sparkle = new SparkleParticle(
+                position + Main.rand.NextVector2Circular(6f, 6f),
+                velocity * 0.5f + Main.rand.NextVector2Circular(1f, 1f),
+                Color.Lerp(OdeToJoyColors.GoldenPollen, OdeToJoyColors.WhiteBloom, Main.rand.NextFloat(0.3f, 0.7f)),
+                0.25f, // REDUCED from 0.45f
+                20
+            );
+            MagnumParticleHandler.SpawnParticle(sparkle);
             
             // Vanilla dust for extra density - flower/nature themed
             for (int i = 0; i < 2; i++)
@@ -156,161 +134,114 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
         }
         
         /// <summary>
-        /// MASSIVE multi-layered blossom impact explosion - THE SIGNATURE EFFECT
-        /// Bright white core → Rose pink petals → Verdant green → Golden pollen burst
+        /// Multi-layered blossom impact explosion - OPTIMIZED for proper sizing
+        /// White core → Rose pink petals → Verdant green → Golden pollen burst
         /// </summary>
         public static void BlossomImpact(Vector2 position, float scale = 1f)
         {
-            // === PHASE 1: BLINDING WHITE BLOOM FLASH ===
-            for (int i = 0; i < 5; i++)
-            {
-                float layerScale = scale * (1.2f - i * 0.15f);
-                float alpha = 0.9f / (i + 1);
-                Color coreWhite = Color.White * alpha;
-                coreWhite.A = 0;
-                
-                var coreFlare = new BloomParticle(position, Vector2.Zero, coreWhite, layerScale, 18 + i * 2);
-                MagnumParticleHandler.SpawnParticle(coreFlare);
-            }
+            // === PHASE 1: WHITE BLOOM FLASH (Single bloom, not 5 layers) ===
+            Color coreWhite = Color.White * 0.8f;
+            coreWhite.A = 0;
+            var coreFlare = new BloomParticle(position, Vector2.Zero, coreWhite, scale * 0.35f, 18);
+            MagnumParticleHandler.SpawnParticle(coreFlare);
             
-            // === PHASE 2: ROSE PINK PETAL BURST ===
+            // === PHASE 2: ROSE PINK PETAL ACCENT (Single bloom) ===
+            Color petalColor = OdeToJoyColors.RosePink * 0.6f;
+            petalColor.A = 0;
+            var petalFlare = new BloomParticle(position, Vector2.Zero, petalColor, scale * 0.3f, 20);
+            MagnumParticleHandler.SpawnParticle(petalFlare);
+            
+            // === PHASE 3: GOLDEN POLLEN GLOW (Single bloom) ===
+            Color goldColor = OdeToJoyColors.GoldenPollen * 0.5f;
+            goldColor.A = 0;
+            var goldFlare = new BloomParticle(position, Vector2.Zero, goldColor, scale * 0.25f, 16);
+            MagnumParticleHandler.SpawnParticle(goldFlare);
+            
+            // === EXPANDING HALO RINGS - 4 gradient rings (reduced from 8) ===
             for (int i = 0; i < 4; i++)
             {
-                float layerScale = scale * (1.0f - i * 0.1f);
-                Color petalColor = Color.Lerp(OdeToJoyColors.RosePink, OdeToJoyColors.PetalPink, i / 4f);
-                petalColor.A = 0;
-                
-                var petalFlare = new BloomParticle(position, Vector2.Zero, petalColor * (0.8f / (i + 1)), layerScale * 0.9f, 20 + i * 3);
-                MagnumParticleHandler.SpawnParticle(petalFlare);
-            }
-            
-            // === PHASE 3: GOLDEN POLLEN RADIANCE ===
-            for (int i = 0; i < 3; i++)
-            {
-                float layerScale = scale * (0.8f - i * 0.15f);
-                Color goldColor = OdeToJoyColors.GoldenPollen * (0.7f / (i + 1));
-                goldColor.A = 0;
-                
-                var goldFlare = new BloomParticle(position, Vector2.Zero, goldColor, layerScale, 16 + i * 2);
-                MagnumParticleHandler.SpawnParticle(goldFlare);
-            }
-            
-            // === EXPANDING HALO RINGS - White → Pink → Green → Gold gradient ===
-            for (int i = 0; i < 8; i++)
-            {
-                float progress = i / 8f;
-                Color haloColor;
-                if (progress < 0.25f)
-                    haloColor = Color.Lerp(Color.White, OdeToJoyColors.RosePink, progress * 4f);
-                else if (progress < 0.5f)
-                    haloColor = Color.Lerp(OdeToJoyColors.RosePink, OdeToJoyColors.VerdantGreen, (progress - 0.25f) * 4f);
-                else if (progress < 0.75f)
-                    haloColor = Color.Lerp(OdeToJoyColors.VerdantGreen, OdeToJoyColors.GoldenPollen, (progress - 0.5f) * 4f);
-                else
-                    haloColor = Color.Lerp(OdeToJoyColors.GoldenPollen, Color.White, (progress - 0.75f) * 4f);
-                
+                float progress = i / 4f;
+                Color haloColor = Color.Lerp(OdeToJoyColors.RosePink, OdeToJoyColors.VerdantGreen, progress);
                 haloColor.A = 0;
-                var halo = new BloomRingParticle(position, Vector2.Zero, haloColor * 0.8f, (0.25f + i * 0.12f) * scale, 20 + i * 2);
+                var halo = new BloomRingParticle(position, Vector2.Zero, haloColor * 0.6f, (0.15f + i * 0.08f) * scale, 18 + i * 2);
                 MagnumParticleHandler.SpawnParticle(halo);
             }
             
-            // === RADIAL PETAL PARTICLE SPRAY ===
-            int petalCount = (int)(20 * scale);
+            // === RADIAL PETAL PARTICLE SPRAY (reduced count) ===
+            int petalCount = (int)(10 * scale);
             for (int i = 0; i < petalCount; i++)
             {
                 float angle = MathHelper.TwoPi * i / petalCount + Main.rand.NextFloat(-0.2f, 0.2f);
-                float speed = Main.rand.NextFloat(6f, 14f) * scale;
+                float speed = Main.rand.NextFloat(4f, 10f) * scale;
                 Vector2 vel = angle.ToRotationVector2() * speed;
-                
-                // Gradient color based on angle
                 float colorProgress = (float)i / petalCount;
                 Color particleColor = OdeToJoyColors.GetPetalGradient(colorProgress);
-                
-                var petal = new GenericGlowParticle(position, vel, particleColor, 0.45f * scale, 28, true);
+                var petal = new GenericGlowParticle(position, vel, particleColor, 0.25f * scale, 22, true);
                 MagnumParticleHandler.SpawnParticle(petal);
             }
             
-            // === VERDANT VINE WISPS ===
-            for (int i = 0; i < 12; i++)
+            // === VERDANT VINE WISPS (reduced from 12 to 6) ===
+            for (int i = 0; i < 6; i++)
             {
-                float angle = MathHelper.TwoPi * i / 12f;
-                Vector2 vineVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 7f) * scale;
-                
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 vineVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f) * scale;
                 var vine = new GenericGlowParticle(
-                    position + Main.rand.NextVector2Circular(10f, 10f),
-                    vineVel,
-                    OdeToJoyColors.VerdantGreen * 0.7f,
-                    0.5f * scale,
-                    35,
-                    true
-                );
+                    position + Main.rand.NextVector2Circular(6f, 6f), vineVel,
+                    OdeToJoyColors.VerdantGreen * 0.5f, 0.3f * scale, 28, true);
                 MagnumParticleHandler.SpawnParticle(vine);
             }
             
-            // === VANILLA DUST DENSITY LAYER ===
-            // Fairy dust (green)
-            for (int i = 0; i < (int)(15 * scale); i++)
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(12f, 12f) * scale;
-                Dust dust = Dust.NewDustPerfect(position, DustID.GreenFairy, vel, 0, default, 1.8f);
-                dust.noGravity = true;
-            }
-            
-            // Pink fairy dust
-            for (int i = 0; i < (int)(12 * scale); i++)
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(10f, 10f) * scale;
-                Dust dust = Dust.NewDustPerfect(position, DustID.PinkFairy, vel, 0, default, 1.5f);
-                dust.noGravity = true;
-            }
-            
-            // Golden sparkle dust
+            // === VANILLA DUST DENSITY LAYER (reduced counts) ===
             for (int i = 0; i < (int)(8 * scale); i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(8f, 8f) * scale;
-                Dust spark = Dust.NewDustPerfect(position, DustID.Enchanted_Gold, vel, 0, OdeToJoyColors.GoldenPollen, 1.2f);
+                Dust dust = Dust.NewDustPerfect(position, DustID.GreenFairy, vel, 0, default, 1.4f);
+                dust.noGravity = true;
+            }
+            for (int i = 0; i < (int)(6 * scale); i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(6f, 6f) * scale;
+                Dust dust = Dust.NewDustPerfect(position, DustID.PinkFairy, vel, 0, default, 1.2f);
+                dust.noGravity = true;
+            }
+            for (int i = 0; i < (int)(4 * scale); i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(5f, 5f) * scale;
+                Dust spark = Dust.NewDustPerfect(position, DustID.Enchanted_Gold, vel, 0, OdeToJoyColors.GoldenPollen, 1.0f);
                 spark.noGravity = true;
             }
             
-            // === MUSIC NOTES BURST ===
-            for (int i = 0; i < (int)(6 * scale); i++)
+            // === MUSIC NOTES BURST (reduced from 6 to 3) ===
+            for (int i = 0; i < (int)(3 * scale); i++)
             {
-                float angle = MathHelper.TwoPi * i / 6f + Main.rand.NextFloat(-0.4f, 0.4f);
-                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 7f);
+                float angle = MathHelper.TwoPi * i / 3f + Main.rand.NextFloat(-0.4f, 0.4f);
+                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
                 Color noteColor = Main.rand.NextBool() ? Color.White : OdeToJoyColors.GoldenPollen;
-                SpawnMusicNote(position, noteVel, noteColor, 0.85f * scale);
+                SpawnMusicNote(position, noteVel, noteColor, 0.5f * scale);
             }
             
-            // === ROSE BUD IMPACT CENTER ===
-            // Central blooming rose buds for the impact focal point
-            int budCount = Math.Max(3, (int)(5 * scale));
+            // === ROSE BUD IMPACT CENTER (reduced count) ===
+            int budCount = Math.Max(2, (int)(3 * scale));
             for (int i = 0; i < budCount; i++)
             {
                 float angle = MathHelper.TwoPi * i / budCount;
-                Vector2 budVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f) * scale;
-                
+                Vector2 budVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f) * scale;
                 var roseBud = RoseBudParticle.CreateRandom(
-                    position + Main.rand.NextVector2Circular(12f, 12f),
-                    budVel,
+                    position + Main.rand.NextVector2Circular(8f, 8f), budVel,
                     Color.Lerp(OdeToJoyColors.RosePink, OdeToJoyColors.WhiteBloom, Main.rand.NextFloat(0.3f)),
-                    OdeToJoyColors.GoldenPollen,
-                    0.45f * scale,
-                    Main.rand.Next(30, 45),
-                    Main.rand.NextBool() // Random bloom vs fade animation
-                );
+                    OdeToJoyColors.GoldenPollen, 0.3f * scale, Main.rand.Next(25, 40), Main.rand.NextBool());
                 MagnumParticleHandler.SpawnParticle(roseBud);
             }
             
-            // === PETAL PARTICLE BURST - Ode to Joy Signature! ===
-            PetalParticleBurst(position, (int)(10 * scale), 8f * scale, 0.5f * scale);
+            // === PETAL PARTICLE BURST - reduced ===
+            PetalParticleBurst(position, (int)(6 * scale), 5f * scale, 0.3f * scale);
             
             // Lighting flash
-            Lighting.AddLight(position, Color.White.ToVector3() * scale * 1.5f);
+            Lighting.AddLight(position, Color.White.ToVector3() * scale * 0.8f);
         }
         
         /// <summary>
-        /// Petal particle burst - Ode to Joy signature effect
-        /// Enhanced with RoseBud particles for gorgeous visual impact
+        /// Petal particle burst - Ode to Joy signature effect - OPTIMIZED
         /// </summary>
         public static void PetalParticleBurst(Vector2 position, int count, float speed, float scale)
         {
@@ -318,87 +249,58 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
             {
                 float angle = MathHelper.TwoPi * i / count + Main.rand.NextFloat(-0.3f, 0.3f);
                 Vector2 vel = angle.ToRotationVector2() * speed * Main.rand.NextFloat(0.7f, 1.3f);
-                
                 Color petalColor = OdeToJoyColors.GetPetalGradient(Main.rand.NextFloat());
-                
                 var petal = new GenericGlowParticle(
-                    position + Main.rand.NextVector2Circular(5f, 5f),
-                    vel,
-                    petalColor,
-                    scale * Main.rand.NextFloat(0.8f, 1.2f),
-                    Main.rand.Next(25, 40),
-                    true
-                );
+                    position + Main.rand.NextVector2Circular(3f, 3f), vel, petalColor,
+                    scale * Main.rand.NextFloat(0.6f, 1f), Main.rand.Next(20, 32), true);
                 MagnumParticleHandler.SpawnParticle(petal);
             }
             
-            // Add a few rose bud accents for extra beauty
-            int roseBudAccents = Math.Max(1, count / 5);
-            for (int i = 0; i < roseBudAccents; i++)
+            // Single rose bud accent for extra beauty
+            if (count >= 4)
             {
-                float angle = MathHelper.TwoPi * i / roseBudAccents + Main.rand.NextFloat(-0.5f, 0.5f);
-                Vector2 budVel = angle.ToRotationVector2() * speed * 0.6f;
-                
+                float angle = Main.rand.NextFloat(MathHelper.TwoPi);
+                Vector2 budVel = angle.ToRotationVector2() * speed * 0.5f;
                 var roseBud = RoseBudParticle.CreateRandom(
-                    position + Main.rand.NextVector2Circular(8f, 8f),
-                    budVel,
-                    OdeToJoyColors.RosePink,
-                    OdeToJoyColors.WhiteBloom,
-                    scale * 0.6f,
-                    Main.rand.Next(25, 40)
-                );
+                    position + Main.rand.NextVector2Circular(4f, 4f), budVel,
+                    OdeToJoyColors.RosePink, OdeToJoyColors.WhiteBloom,
+                    scale * 0.5f, Main.rand.Next(20, 35));
                 MagnumParticleHandler.SpawnParticle(roseBud);
             }
         }
         
         /// <summary>
-        /// ENHANCED petal trail - Multi-layered white/pink/green/gold
+        /// Petal trail effect - OPTIMIZED for proper sizing
         /// </summary>
         public static void PetalTrail(Vector2 position, Vector2 velocity, float intensity = 1f)
         {
-            // === BRIGHT WHITE CORE GLOW ===
-            if (Main.rand.NextBool(2))
+            // === WHITE CORE GLOW (occasional) ===
+            if (Main.rand.NextBool(3))
             {
-                Color coreColor = Color.White * 0.8f;
+                Color coreColor = Color.White * 0.5f;
                 coreColor.A = 0;
-                var core = new GenericGlowParticle(
-                    position,
-                    -velocity * 0.05f,
-                    coreColor,
-                    0.25f * intensity,
-                    12,
-                    true
-                );
+                var core = new GenericGlowParticle(position, -velocity * 0.05f, coreColor, 0.15f * intensity, 10, true);
                 MagnumParticleHandler.SpawnParticle(core);
             }
             
-            // === ROSE PINK PETAL LAYER ===
-            if (Main.rand.NextBool(2))
+            // === ROSE PINK PETAL LAYER (occasional) ===
+            if (Main.rand.NextBool(3))
             {
                 Color petalColor = Color.Lerp(OdeToJoyColors.RosePink, OdeToJoyColors.PetalPink, Main.rand.NextFloat());
                 var petal = new GenericGlowParticle(
-                    position + Main.rand.NextVector2Circular(6f, 6f),
-                    -velocity * 0.12f + Main.rand.NextVector2Circular(1.5f, 1.5f),
-                    petalColor,
-                    0.35f * intensity,
-                    22,
-                    true
-                );
+                    position + Main.rand.NextVector2Circular(3f, 3f),
+                    -velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f),
+                    petalColor, 0.2f * intensity, 18, true);
                 MagnumParticleHandler.SpawnParticle(petal);
             }
             
-            // === VERDANT GREEN ACCENTS ===
-            if (Main.rand.NextBool(3))
+            // === GREEN ACCENTS (rare) ===
+            if (Main.rand.NextBool(5))
             {
-                Color greenColor = OdeToJoyColors.VerdantGreen;
                 var leaf = new GenericGlowParticle(
-                    position + Main.rand.NextVector2Circular(8f, 8f),
-                    -velocity * 0.08f + Main.rand.NextVector2Circular(2f, 2f),
-                    greenColor * 0.8f,
-                    0.3f * intensity,
-                    18,
-                    true
-                );
+                    position + Main.rand.NextVector2Circular(4f, 4f),
+                    -velocity * 0.06f + Main.rand.NextVector2Circular(1f, 1f),
+                    OdeToJoyColors.VerdantGreen * 0.5f, 0.18f * intensity, 15, true);
                 MagnumParticleHandler.SpawnParticle(leaf);
             }
             

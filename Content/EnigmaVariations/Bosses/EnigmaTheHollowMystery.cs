@@ -723,15 +723,39 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         private void AI_Recovery(Player target)
         {
-            NPC.velocity.X *= 0.92f;
+            // Smooth deceleration using easing
+            float recoveryDuration = 18f;
+            float progress = Timer / recoveryDuration;
+            float easedProgress = BossAIUtilities.Easing.EaseOutCubic(progress);
+            
+            // Smooth velocity damping
+            float dampFactor = MathHelper.Lerp(0.92f, 0.98f, easedProgress);
+            NPC.velocity.X *= dampFactor;
             
             // Apply gravity during recovery
             NPC.velocity.Y += 0.4f;
             if (NPC.velocity.Y > 12f) NPC.velocity.Y = 12f;
             ApplyGroundCollision();
             
+            // Recovery shimmer to show vulnerability window
+            if (Timer % 4 == 0 && Timer < 15)
+            {
+                float shimmerProgress = Timer / 18f;
+                BossVFXOptimizer.RecoveryShimmer(NPC.Center, EnigmaPurple, 50f, shimmerProgress);
+            }
+            
+            // Deceleration trail while slowing
+            if (Timer < 10 && Math.Abs(NPC.velocity.X) > 1f)
+            {
+                float decelProgress = Timer / 10f;
+                BossVFXOptimizer.DecelerationTrail(NPC.Center, NPC.velocity, EnigmaGreen, decelProgress);
+            }
+            
             if (Timer >= 18)
             {
+                // Ready to attack cue when recovery ends
+                BossVFXOptimizer.ReadyToAttackCue(NPC.Center, EnigmaPurple, 0.6f);
+                
                 Timer = 0;
                 State = BossPhase.Stalking;
                 attackCooldown = AttackWindowFrames / 2;
@@ -2955,6 +2979,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         private void EndAttack()
         {
+            // Enigma theme attack end cue - mysterious void exhale
+            BossVFXOptimizer.AttackEndCue(NPC.Center, EnigmaPurple, EnigmaGreen, 0.8f);
+            
             Timer = 0;
             SubPhase = 0;
             State = BossPhase.Recovery;

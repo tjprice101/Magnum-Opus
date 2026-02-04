@@ -625,17 +625,35 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
         {
             Vector2 repositionTarget = target.Center + Main.rand.NextVector2CircularEdge(350f, 250f);
             Vector2 toTarget = repositionTarget - NPC.Center;
+            float maxTime = 60f;
+            float progress = Timer / maxTime;
             
-            if (toTarget.Length() > 50f && Timer < 60)
+            if (toTarget.Length() > 50f && Timer < maxTime)
             {
+                // Bell curve speed: accelerate then decelerate smoothly
+                float speedMult = BossAIUtilities.Easing.EaseOutQuad(progress) * BossAIUtilities.Easing.EaseInQuad(1f - progress) * 4f;
+                speedMult = Math.Max(speedMult, 0.15f);
+                
                 toTarget.Normalize();
-                NPC.velocity = Vector2.Lerp(NPC.velocity, toTarget * BaseSpeed * GetPhaseSpeedMult(), 0.1f);
+                float targetSpeed = BaseSpeed * GetPhaseSpeedMult() * speedMult;
+                NPC.velocity = Vector2.Lerp(NPC.velocity, toTarget * targetSpeed, 0.12f);
+                
+                // VFX: Recovery shimmer - player can identify vulnerability
+                if (Timer % 8 == 0)
+                    BossVFXOptimizer.RecoveryShimmer(NPC.Center, ChromaticShift, 60f, progress);
+                
+                // VFX: Deceleration trail during slowdown phase
+                if (progress > 0.5f && Timer % 4 == 0)
+                    BossVFXOptimizer.DecelerationTrail(NPC.Center, NPC.velocity, RosePink, progress);
             }
             else
             {
                 NPC.velocity *= 0.9f;
-                if (NPC.velocity.Length() < 1f || Timer >= 60)
+                if (NPC.velocity.Length() < 1f || Timer >= maxTime)
                 {
+                    // VFX: Ready to attack cue - warns player aggression is returning
+                    BossVFXOptimizer.ReadyToAttackCue(NPC.Center, PetalPink);
+                    
                     State = isPhase2 ? BossPhase.Phase2_Idle : BossPhase.Phase1_Idle;
                     Timer = 0;
                     attackCooldown = (int)(AttackWindowFrames * GetAggressionRateMult());
@@ -761,6 +779,9 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
         private void EndAttack()
         {
             consecutiveAttacks++;
+            
+            // VFX: Attack ending cue - exhale burst with safety ring
+            BossVFXOptimizer.AttackEndCue(NPC.Center, RosePink, GoldenPollen);
             
             if (consecutiveAttacks >= 3)
             {

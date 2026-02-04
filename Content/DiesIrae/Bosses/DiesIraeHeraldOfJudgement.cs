@@ -409,25 +409,51 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
         
         private void AI_Reposition(Player target)
         {
+            float duration = 60f;
+            float progress = Timer / duration;
+            
             if (Timer < 40)
             {
                 Vector2 repositionTarget = target.Center + Main.rand.NextVector2CircularEdge(400f, 400f);
                 Vector2 toReposition = repositionTarget - NPC.Center;
                 
-                float speed = BaseSpeed * 0.5f * GetAggressionSpeedMult();
+                // Smooth bell curve movement: accelerate then decelerate
+                float speedCurve = BossAIUtilities.Easing.EaseOutQuad(progress) * BossAIUtilities.Easing.EaseInQuad(1f - progress) * 4f;
+                float speed = BaseSpeed * 0.5f * GetAggressionSpeedMult() * Math.Max(0.3f, speedCurve);
+                
                 if (toReposition.Length() > 80f)
                 {
                     toReposition.Normalize();
                     NPC.velocity = Vector2.Lerp(NPC.velocity, toReposition * speed, 0.12f);
                 }
+                
+                // Trail particles while moving
+                if (NPC.velocity.Length() > 2f)
+                {
+                    float trailProgress = Timer / 40f;
+                    BossVFXOptimizer.DecelerationTrail(NPC.Center, NPC.velocity, EmberOrange, trailProgress);
+                }
             }
             else
             {
-                NPC.velocity *= 0.9f;
+                // Smooth deceleration using easing
+                float decelProgress = (Timer - 40f) / 20f;
+                float decelMult = 1f - BossAIUtilities.Easing.EaseOutCubic(Math.Min(1f, decelProgress));
+                NPC.velocity *= 0.85f + 0.1f * decelMult;
+            }
+            
+            // Recovery shimmer effect - vulnerability indicator
+            if (Timer % 4 == 0)
+            {
+                float shimmerProgress = Timer / 60f;
+                BossVFXOptimizer.RecoveryShimmer(NPC.Center, Crimson, 55f, shimmerProgress);
             }
             
             if (Timer >= 60)
             {
+                // Ready to attack again - visual warning
+                BossVFXOptimizer.ReadyToAttackCue(NPC.Center, BloodRed, 0.7f);
+                
                 State = BossPhase.Idle;
                 Timer = 0;
                 attackCooldown = (int)(30 * GetAggressionRateMult());
@@ -506,6 +532,9 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
         
         private void EndAttack()
         {
+            // Visual cue: Attack ending - player has a window
+            BossVFXOptimizer.AttackEndCue(NPC.Center, EmberOrange, HellfireGold, 0.9f);
+            
             State = BossPhase.Reposition;
             Timer = 0;
             SubPhase = 0;

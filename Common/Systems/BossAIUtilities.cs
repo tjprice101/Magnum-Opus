@@ -1,8 +1,10 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Common.Systems
 {
@@ -184,6 +186,483 @@ namespace MagnumOpus.Common.Systems
             currentAngle += angularSpeed;
             Vector2 targetPos = center + new Vector2((float)Math.Cos(currentAngle), (float)Math.Sin(currentAngle)) * radius;
             SmoothFlyToward(npc, targetPos, Vector2.Distance(npc.Center, targetPos) * 0.1f + 5f, 8f);
+        }
+        
+        // ============================================================================
+        // EASING FUNCTIONS - Smooth deceleration and acceleration curves
+        // ============================================================================
+        
+        /// <summary>
+        /// Standard easing functions for smooth movement and transitions.
+        /// Use these for velocity curves, attack windups, and cooldown periods.
+        /// </summary>
+        public static class Easing
+        {
+            /// <summary>
+            /// Linear interpolation (no easing).
+            /// t should be 0-1.
+            /// </summary>
+            public static float Linear(float t) => MathHelper.Clamp(t, 0f, 1f);
+            
+            /// <summary>
+            /// Smooth start (slow to fast). Classic quadratic ease-in.
+            /// Perfect for attack charge-ups.
+            /// </summary>
+            public static float EaseInQuad(float t)
+            {
+                t = MathHelper.Clamp(t, 0f, 1f);
+                return t * t;
+            }
+            
+            /// <summary>
+            /// Smooth stop (fast to slow). Classic quadratic ease-out.
+            /// Perfect for boss deceleration after dashes.
+            /// </summary>
+            public static float EaseOutQuad(float t)
+            {
+                t = MathHelper.Clamp(t, 0f, 1f);
+                return 1f - (1f - t) * (1f - t);
+            }
+            
+            /// <summary>
+            /// Smooth start and stop. Classic quadratic ease-in-out.
+            /// Perfect for smooth hovering and repositioning.
+            /// </summary>
+            public static float EaseInOutQuad(float t)
+            {
+                t = MathHelper.Clamp(t, 0f, 1f);
+                return t < 0.5f ? 2f * t * t : 1f - (float)Math.Pow(-2f * t + 2f, 2f) / 2f;
+            }
+            
+            /// <summary>
+            /// Cubic ease-in (stronger acceleration).
+            /// </summary>
+            public static float EaseInCubic(float t)
+            {
+                t = MathHelper.Clamp(t, 0f, 1f);
+                return t * t * t;
+            }
+            
+            /// <summary>
+            /// Cubic ease-out (stronger deceleration).
+            /// Perfect for heavy boss slam landings.
+            /// </summary>
+            public static float EaseOutCubic(float t)
+            {
+                t = MathHelper.Clamp(t, 0f, 1f);
+                return 1f - (float)Math.Pow(1f - t, 3f);
+            }
+            
+            /// <summary>
+            /// Cubic ease-in-out (stronger both ways).
+            /// </summary>
+            public static float EaseInOutCubic(float t)
+            {
+                t = MathHelper.Clamp(t, 0f, 1f);
+                return t < 0.5f ? 4f * t * t * t : 1f - (float)Math.Pow(-2f * t + 2f, 3f) / 2f;
+            }
+            
+            /// <summary>
+            /// Quartic ease-out (very pronounced deceleration).
+            /// Perfect for dramatic dash endings.
+            /// </summary>
+            public static float EaseOutQuart(float t)
+            {
+                t = MathHelper.Clamp(t, 0f, 1f);
+                return 1f - (float)Math.Pow(1f - t, 4f);
+            }
+            
+            /// <summary>
+            /// Exponential ease-out (extremely rapid deceleration at start).
+            /// Perfect for "screeching halt" effects.
+            /// </summary>
+            public static float EaseOutExpo(float t)
+            {
+                t = MathHelper.Clamp(t, 0f, 1f);
+                return t >= 1f ? 1f : 1f - (float)Math.Pow(2f, -10f * t);
+            }
+            
+            /// <summary>
+            /// Elastic ease-out (overshoot and settle).
+            /// Perfect for bouncy landings or spring-like recovery.
+            /// </summary>
+            public static float EaseOutElastic(float t)
+            {
+                t = MathHelper.Clamp(t, 0f, 1f);
+                if (t == 0f || t == 1f) return t;
+                
+                const float c4 = (2f * MathHelper.Pi) / 3f;
+                return (float)Math.Pow(2f, -10f * t) * (float)Math.Sin((t * 10f - 0.75f) * c4) + 1f;
+            }
+            
+            /// <summary>
+            /// Back ease-out (slight overshoot then settle back).
+            /// Perfect for boss positioning that "overshoots" then corrects.
+            /// </summary>
+            public static float EaseOutBack(float t)
+            {
+                t = MathHelper.Clamp(t, 0f, 1f);
+                const float c1 = 1.70158f;
+                const float c3 = c1 + 1f;
+                return 1f + c3 * (float)Math.Pow(t - 1f, 3f) + c1 * (float)Math.Pow(t - 1f, 2f);
+            }
+            
+            /// <summary>
+            /// Bounce ease-out (bouncing effect like dropping a ball).
+            /// Perfect for ground slam recoveries.
+            /// </summary>
+            public static float EaseOutBounce(float t)
+            {
+                t = MathHelper.Clamp(t, 0f, 1f);
+                const float n1 = 7.5625f;
+                const float d1 = 2.75f;
+                
+                if (t < 1f / d1)
+                    return n1 * t * t;
+                else if (t < 2f / d1)
+                    return n1 * (t -= 1.5f / d1) * t + 0.75f;
+                else if (t < 2.5f / d1)
+                    return n1 * (t -= 2.25f / d1) * t + 0.9375f;
+                else
+                    return n1 * (t -= 2.625f / d1) * t + 0.984375f;
+            }
+            
+            /// <summary>
+            /// SmoothStep - Hermite interpolation (0 velocity at endpoints).
+            /// Classic smooth transition.
+            /// </summary>
+            public static float SmoothStep(float t)
+            {
+                t = MathHelper.Clamp(t, 0f, 1f);
+                return t * t * (3f - 2f * t);
+            }
+            
+            /// <summary>
+            /// SmootherStep - Ken Perlin's improved smoothstep (0 acceleration at endpoints too).
+            /// The smoothest transition possible.
+            /// </summary>
+            public static float SmootherStep(float t)
+            {
+                t = MathHelper.Clamp(t, 0f, 1f);
+                return t * t * t * (t * (t * 6f - 15f) + 10f);
+            }
+            
+            /// <summary>
+            /// Sine wave ease-out (natural wave deceleration).
+            /// Perfect for graceful, flowing movement.
+            /// </summary>
+            public static float EaseOutSine(float t)
+            {
+                t = MathHelper.Clamp(t, 0f, 1f);
+                return (float)Math.Sin(t * MathHelper.PiOver2);
+            }
+            
+            /// <summary>
+            /// Sine wave ease-in-out (natural both ways).
+            /// </summary>
+            public static float EaseInOutSine(float t)
+            {
+                t = MathHelper.Clamp(t, 0f, 1f);
+                return -(float)Math.Cos(MathHelper.Pi * t - 1f) / 2f;
+            }
+            
+            /// <summary>
+            /// Apply an easing function to a value range.
+            /// </summary>
+            public static float Apply(float t, float start, float end, Func<float, float> easingFunc)
+            {
+                return MathHelper.Lerp(start, end, easingFunc(t));
+            }
+            
+            /// <summary>
+            /// Apply an easing function to a Vector2 range.
+            /// </summary>
+            public static Vector2 Apply(float t, Vector2 start, Vector2 end, Func<float, float> easingFunc)
+            {
+                return Vector2.Lerp(start, end, easingFunc(t));
+            }
+        }
+        
+        // ============================================================================
+        // SMOOTH DECELERATION MOVEMENT - Using easing curves
+        // ============================================================================
+        
+        /// <summary>
+        /// Smoothly decelerates the NPC using an easing curve.
+        /// Call this every frame during recovery phases.
+        /// </summary>
+        /// <param name="npc">The NPC to decelerate</param>
+        /// <param name="decelerationProgress">Progress 0-1 (0 = full speed, 1 = stopped)</param>
+        /// <param name="easingFunc">Easing function to use (default: EaseOutQuad)</param>
+        public static void SmoothDecelerate(NPC npc, float decelerationProgress, Func<float, float> easingFunc = null)
+        {
+            easingFunc ??= Easing.EaseOutQuad;
+            float speedMultiplier = 1f - easingFunc(decelerationProgress);
+            npc.velocity *= speedMultiplier;
+        }
+        
+        /// <summary>
+        /// Performs a smooth dash with proper acceleration and deceleration.
+        /// Returns the current velocity multiplier.
+        /// </summary>
+        /// <param name="dashProgress">Progress 0-1 through the dash</param>
+        /// <param name="accelDuration">Portion of dash spent accelerating (0-1)</param>
+        /// <param name="decelDuration">Portion of dash spent decelerating (0-1)</param>
+        /// <returns>Velocity multiplier 0-1</returns>
+        public static float GetSmoothDashMultiplier(float dashProgress, float accelDuration = 0.15f, float decelDuration = 0.25f)
+        {
+            dashProgress = MathHelper.Clamp(dashProgress, 0f, 1f);
+            float sustainStart = accelDuration;
+            float sustainEnd = 1f - decelDuration;
+            
+            if (dashProgress < sustainStart)
+            {
+                // Acceleration phase
+                float accelProgress = dashProgress / accelDuration;
+                return Easing.EaseOutQuad(accelProgress);
+            }
+            else if (dashProgress > sustainEnd)
+            {
+                // Deceleration phase
+                float decelProgress = (dashProgress - sustainEnd) / decelDuration;
+                return 1f - Easing.EaseInQuad(decelProgress);
+            }
+            else
+            {
+                // Sustain phase (full speed)
+                return 1f;
+            }
+        }
+        
+        /// <summary>
+        /// Performs a smooth charge attack with proper easing.
+        /// </summary>
+        /// <param name="npc">The NPC performing the charge</param>
+        /// <param name="target">Target position</param>
+        /// <param name="maxSpeed">Maximum charge speed</param>
+        /// <param name="chargeProgress">Progress 0-1 through the charge</param>
+        public static void SmoothCharge(NPC npc, Vector2 target, float maxSpeed, float chargeProgress)
+        {
+            float speedMult = GetSmoothDashMultiplier(chargeProgress, 0.1f, 0.3f);
+            Vector2 direction = npc.SafeDirectionTo(target);
+            npc.velocity = direction * maxSpeed * speedMult;
+        }
+        
+        /// <summary>
+        /// Figure-8 (infinity) movement pattern - elegant, flowing, mesmerizing.
+        /// Perfect for graceful bosses like Nachtmusik, Swan Lake.
+        /// </summary>
+        /// <param name="npc">The NPC to move</param>
+        /// <param name="center">Center of the figure-8</param>
+        /// <param name="width">Horizontal span of the figure-8</param>
+        /// <param name="height">Vertical span of the figure-8</param>
+        /// <param name="timer">Timer value for animation (usually NPC.ai[1])</param>
+        /// <param name="speed">Movement speed multiplier</param>
+        /// <param name="turnResistance">How smoothly to follow path (higher = smoother)</param>
+        public static void Figure8Movement(NPC npc, Vector2 center, float width, float height, float timer, float speed = 1f, float turnResistance = 12f)
+        {
+            // Figure-8 parametric equations: x = sin(t), y = sin(2t) / 2
+            float t = timer * 0.02f * speed;
+            float x = (float)Math.Sin(t) * width;
+            float y = (float)Math.Sin(t * 2f) * height * 0.5f;
+            
+            Vector2 targetPos = center + new Vector2(x, y);
+            SmoothFlyToward(npc, targetPos, Vector2.Distance(npc.Center, targetPos) * 0.15f + 3f, turnResistance);
+        }
+        
+        /// <summary>
+        /// Gentle breathing/bobbing motion overlay.
+        /// Add this on top of other movement for organic feel.
+        /// </summary>
+        /// <param name="timer">Timer value for animation</param>
+        /// <param name="amplitude">How far to bob (default 15f)</param>
+        /// <param name="frequency">How fast to bob (default 0.03f)</param>
+        /// <returns>Vertical offset to add to position</returns>
+        public static float GetBreathOffset(float timer, float amplitude = 15f, float frequency = 0.03f)
+        {
+            return (float)Math.Sin(timer * frequency) * amplitude;
+        }
+        
+        /// <summary>
+        /// Spiral inward or outward movement.
+        /// </summary>
+        /// <param name="npc">The NPC to move</param>
+        /// <param name="center">Center of the spiral</param>
+        /// <param name="timer">Timer value</param>
+        /// <param name="radiusStart">Starting radius</param>
+        /// <param name="radiusEnd">Ending radius</param>
+        /// <param name="progress">Progress 0-1 through the spiral</param>
+        /// <param name="angularSpeed">How fast to rotate</param>
+        public static void SpiralMovement(NPC npc, Vector2 center, float timer, float radiusStart, float radiusEnd, float progress, float angularSpeed = 0.05f)
+        {
+            float currentRadius = MathHelper.Lerp(radiusStart, radiusEnd, Easing.SmoothStep(progress));
+            float angle = timer * angularSpeed;
+            Vector2 targetPos = center + angle.ToRotationVector2() * currentRadius;
+            SmoothFlyToward(npc, targetPos, 15f, 10f);
+        }
+        
+        /// <summary>
+        /// Catmull-Rom spline interpolation for smooth multi-point paths.
+        /// Use this for complex movement paths through multiple waypoints.
+        /// </summary>
+        /// <param name="p0">Point before start</param>
+        /// <param name="p1">Start point</param>
+        /// <param name="p2">End point</param>
+        /// <param name="p3">Point after end</param>
+        /// <param name="t">Progress 0-1 between p1 and p2</param>
+        /// <returns>Interpolated position</returns>
+        public static Vector2 CatmullRom(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float t)
+        {
+            t = MathHelper.Clamp(t, 0f, 1f);
+            float t2 = t * t;
+            float t3 = t2 * t;
+            
+            return 0.5f * (
+                (2f * p1) +
+                (-p0 + p2) * t +
+                (2f * p0 - 5f * p1 + 4f * p2 - p3) * t2 +
+                (-p0 + 3f * p1 - 3f * p2 + p3) * t3
+            );
+        }
+        
+        // ============================================================================
+        // ATTACK ENDING VISUAL CUES - Signal to players that attack is ending
+        // ============================================================================
+        
+        /// <summary>
+        /// Spawns visual cues that signal an attack is ending and recovery is starting.
+        /// Call this at the START of the recovery phase.
+        /// </summary>
+        /// <param name="npc">The boss NPC</param>
+        /// <param name="primaryColor">Theme primary color</param>
+        /// <param name="secondaryColor">Theme secondary color</param>
+        /// <param name="intensity">Effect intensity (0.5-2.0 recommended)</param>
+        public static void SpawnAttackEndingCue(NPC npc, Color primaryColor, Color secondaryColor, float intensity = 1f)
+        {
+            // Exhale burst - particles spreading outward
+            int particleCount = (int)(8 * intensity);
+            for (int i = 0; i < particleCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / particleCount;
+                Vector2 velocity = angle.ToRotationVector2() * (3f + Main.rand.NextFloat(2f)) * intensity;
+                
+                try
+                {
+                    var glow = new GenericGlowParticle(
+                        npc.Center + Main.rand.NextVector2Circular(10f, 10f),
+                        velocity,
+                        Color.Lerp(primaryColor, secondaryColor, i / (float)particleCount) * 0.7f,
+                        0.3f * intensity,
+                        25,
+                        true
+                    );
+                    MagnumParticleHandler.SpawnParticle(glow);
+                }
+                catch { }
+            }
+            
+            // Cooldown shimmer ring
+            try
+            {
+                CustomParticles.HaloRing(npc.Center, primaryColor * 0.5f, 0.4f * intensity, 20);
+            }
+            catch { }
+            
+            // Subtle lighting pulse
+            Lighting.AddLight(npc.Center, primaryColor.ToVector3() * 0.3f * intensity);
+        }
+        
+        /// <summary>
+        /// Spawns deceleration trail particles showing the boss slowing down.
+        /// Call this EVERY FRAME during deceleration.
+        /// </summary>
+        /// <param name="npc">The boss NPC</param>
+        /// <param name="color">Trail color</param>
+        /// <param name="decelerationProgress">Progress 0-1 (more particles at start)</param>
+        public static void SpawnDecelerationTrail(NPC npc, Color color, float decelerationProgress)
+        {
+            if (npc.velocity.LengthSquared() < 1f) return;
+            
+            // Fewer particles as we slow down
+            float spawnChance = (1f - decelerationProgress) * 0.7f;
+            if (Main.rand.NextFloat() > spawnChance) return;
+            
+            // Trail particles behind movement direction
+            Vector2 trailPos = npc.Center - npc.velocity.SafeNormalize(Vector2.Zero) * (npc.width * 0.4f);
+            trailPos += Main.rand.NextVector2Circular(10f, 10f);
+            
+            try
+            {
+                var trail = new GenericGlowParticle(
+                    trailPos,
+                    -npc.velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f),
+                    color * (0.4f + decelerationProgress * 0.3f),
+                    0.25f * (1f - decelerationProgress * 0.5f),
+                    15,
+                    true
+                );
+                MagnumParticleHandler.SpawnParticle(trail);
+            }
+            catch { }
+        }
+        
+        /// <summary>
+        /// Spawns "ready to attack again" visual cue.
+        /// Call this when the boss finishes recovery and is ready to attack.
+        /// </summary>
+        /// <param name="npc">The boss NPC</param>
+        /// <param name="primaryColor">Theme color</param>
+        /// <param name="intensity">Effect intensity</param>
+        public static void SpawnReadyToAttackCue(NPC npc, Color primaryColor, float intensity = 1f)
+        {
+            // Sharp flash indicating ready
+            try
+            {
+                CustomParticles.GenericFlare(npc.Center, primaryColor, 0.6f * intensity, 15);
+                CustomParticles.GenericFlare(npc.Center, Color.White, 0.3f * intensity, 10);
+            }
+            catch { }
+            
+            // Brief aura pulse
+            Lighting.AddLight(npc.Center, primaryColor.ToVector3() * 0.5f * intensity);
+        }
+        
+        /// <summary>
+        /// Creates smooth "wind down" effect for attacks.
+        /// Spawns particles that follow the boss's previous trajectory, fading out.
+        /// </summary>
+        /// <param name="npc">The boss NPC</param>
+        /// <param name="previousVelocity">Velocity before slowing</param>
+        /// <param name="color">Effect color</param>
+        /// <param name="windDownProgress">Progress 0-1 through wind down</param>
+        public static void CreateWindDownEffect(NPC npc, Vector2 previousVelocity, Color color, float windDownProgress)
+        {
+            if (Main.GameUpdateCount % 3 != 0) return;
+            
+            float alpha = 1f - Easing.EaseOutQuad(windDownProgress);
+            if (alpha <= 0.1f) return;
+            
+            // Trailing wisps
+            Vector2 trailDir = previousVelocity.SafeNormalize(Vector2.Zero);
+            for (int i = 0; i < 2; i++)
+            {
+                Vector2 offset = trailDir.RotatedByRandom(0.5f) * Main.rand.NextFloat(20f, 50f);
+                Vector2 pos = npc.Center - offset;
+                
+                try
+                {
+                    var wisp = new GenericGlowParticle(
+                        pos,
+                        -trailDir * 2f + Main.rand.NextVector2Circular(1f, 1f),
+                        color * alpha * 0.5f,
+                        0.2f,
+                        20,
+                        true
+                    );
+                    MagnumParticleHandler.SpawnParticle(wisp);
+                }
+                catch { }
+            }
         }
         
         // ============================================================================
