@@ -484,6 +484,388 @@ namespace MagnumOpus.Common.Systems.VFX
                 _vertices, 0, vertexCount, _indices, 0, triangleCount);
         }
         
+        /// <summary>
+        /// Draws primitives with a custom MagnumOpus shader effect.
+        /// </summary>
+        private static void DrawPrimitivesWithCustomShader(int vertexCount, int triangleCount, Effect customShader, Color primaryColor, Color secondaryColor, float intensity)
+        {
+            GraphicsDevice device = Main.instance.GraphicsDevice;
+            
+            Matrix view = Matrix.CreateLookAt(Vector3.Backward, Vector3.Zero, Vector3.Up);
+            Matrix projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);
+            
+            _basicEffect.View = view;
+            _basicEffect.Projection = projection;
+            _basicEffect.World = Matrix.Identity;
+            
+            if (customShader != null)
+            {
+                // Configure custom shader parameters
+                customShader.Parameters["uColor"]?.SetValue(primaryColor.ToVector3());
+                customShader.Parameters["uSecondaryColor"]?.SetValue(secondaryColor.ToVector3());
+                customShader.Parameters["uIntensity"]?.SetValue(intensity);
+                customShader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly);
+                customShader.Parameters["uOpacity"]?.SetValue(1f);
+                
+                foreach (EffectPass pass in customShader.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList,
+                        _vertices, 0, vertexCount, _indices, 0, triangleCount);
+                }
+            }
+            else
+            {
+                foreach (EffectPass pass in _basicEffect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                }
+                device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList,
+                    _vertices, 0, vertexCount, _indices, 0, triangleCount);
+            }
+        }
+        
+        #endregion
+        
+        #region Custom Shader Trail Rendering
+        
+        /// <summary>
+        /// Renders a trail using MagnumOpus custom shaders.
+        /// Provides enhanced bloom and gradient effects.
+        /// </summary>
+        /// <param name="positions">Array of world positions for the trail</param>
+        /// <param name="settings">Primitive settings for width/color</param>
+        /// <param name="useCustomShader">Whether to use custom HLSL shaders</param>
+        /// <param name="primaryColor">Primary trail color</param>
+        /// <param name="secondaryColor">Secondary/gradient color</param>
+        /// <param name="intensity">Shader intensity multiplier</param>
+        public static void RenderTrailWithShader(
+            Vector2[] positions,
+            PrimitiveSettings settings,
+            Color primaryColor,
+            Color secondaryColor,
+            float intensity = 1f)
+        {
+            if (_basicEffect == null) Initialize();
+            if (positions == null || positions.Length < 2) return;
+            
+            // Get custom trail shader
+            Effect trailShader = Shaders.ShaderLoader.Trail;
+            
+            // Build the trail mesh
+            List<Vector2> smoothedPositions = settings.Smoothen ? 
+                SmoothTrail(new List<Vector2>(positions), positions.Length * 2) : new List<Vector2>(positions);
+            
+            int vertexCount = 0;
+            int indexCount = 0;
+            
+            for (int i = 0; i < smoothedPositions.Count; i++)
+            {
+                float completionRatio = (float)i / (smoothedPositions.Count - 1);
+                
+                float width = settings.WidthFunc?.Invoke(completionRatio) ?? 10f;
+                Color color = settings.ColorFunc?.Invoke(completionRatio) ?? Color.White;
+                Vector2 offset = settings.OffsetFunc?.Invoke(completionRatio) ?? Vector2.Zero;
+                
+                Vector2 position = smoothedPositions[i] + offset - Main.screenPosition;
+                
+                // Calculate perpendicular direction for width
+                Vector2 direction = Vector2.Zero;
+                if (i < smoothedPositions.Count - 1)
+                    direction = smoothedPositions[i + 1] - smoothedPositions[i];
+                else if (i > 0)
+                    direction = smoothedPositions[i] - smoothedPositions[i - 1];
+                
+                direction.Normalize();
+                Vector2 perpendicular = new Vector2(-direction.Y, direction.X);
+                
+                // Add vertices
+                Vector2 leftPos = position - perpendicular * width * 0.5f;
+                Vector2 rightPos = position + perpendicular * width * 0.5f;
+                
+                _vertices[vertexCount] = new VertexPositionColorTexture(
+                    new Vector3(leftPos, 0), color, new Vector2(0, completionRatio));
+                _vertices[vertexCount + 1] = new VertexPositionColorTexture(
+                    new Vector3(rightPos, 0), color, new Vector2(1, completionRatio));
+                
+                // Add indices for triangles
+                if (i < smoothedPositions.Count - 1)
+                {
+                    int baseIndex = vertexCount;
+                    _indices[indexCount++] = (short)baseIndex;
+                    _indices[indexCount++] = (short)(baseIndex + 1);
+                    _indices[indexCount++] = (short)(baseIndex + 2);
+                    
+                    _indices[indexCount++] = (short)(baseIndex + 1);
+                    _indices[indexCount++] = (short)(baseIndex + 3);
+                    _indices[indexCount++] = (short)(baseIndex + 2);
+                }
+                
+                vertexCount += 2;
+            }
+            
+            int triangleCount = indexCount / 3;
+            
+            // Draw with custom shader
+            DrawPrimitivesWithCustomShader(vertexCount, triangleCount, trailShader, primaryColor, secondaryColor, intensity);
+        }
+        
+        /// <summary>
+        /// Renders a multi-pass trail with bloom effect.
+        /// Pass 1: Outer bloom (large, dim)
+        /// Pass 2: Main trail (full color)
+        /// Pass 3: Core glow (small, bright)
+        /// </summary>
+        public static void RenderMultiPassTrail(
+            Vector2[] positions,
+            WidthFunction widthFunc,
+            Color primaryColor,
+            Color secondaryColor,
+            float baseWidth = 20f,
+            float bloomIntensity = 1f)
+        {
+            if (positions == null || positions.Length < 2) return;
+            
+            // Pass 1: Outer bloom (2x width, 30% opacity)
+            var bloomSettings = new PrimitiveSettings(
+                ratio => widthFunc(ratio) * 2f,
+                ratio => Color.Lerp(primaryColor, secondaryColor, ratio) * 0.3f,
+                null, true, null
+            );
+            RenderTrailWithShader(positions, bloomSettings, primaryColor * 0.3f, secondaryColor * 0.3f, bloomIntensity * 0.5f);
+            
+            // Pass 2: Main trail (full width, full color)
+            var mainSettings = new PrimitiveSettings(
+                widthFunc,
+                ratio => Color.Lerp(primaryColor, secondaryColor, ratio),
+                null, true, null
+            );
+            RenderTrailWithShader(positions, mainSettings, primaryColor, secondaryColor, bloomIntensity);
+            
+            // Pass 3: Core glow (0.4x width, white core)
+            var coreSettings = new PrimitiveSettings(
+                ratio => widthFunc(ratio) * 0.4f,
+                ratio => Color.White * 0.8f,
+                null, true, null
+            );
+            RenderTrailWithShader(positions, coreSettings, Color.White * 0.8f, primaryColor * 0.6f, bloomIntensity * 1.2f);
+        }
+        
+        #endregion
+        
+        #region Noise-Scrolling UV Trails (Flowing Energy Ribbons)
+        
+        /// <summary>
+        /// UV scroll speed for noise texture. Creates flowing energy ribbon effect.
+        /// </summary>
+        private static float _noiseScrollOffset = 0f;
+        
+        /// <summary>
+        /// Renders a trail with noise-scrolling UV coordinates for flowing energy effects.
+        /// This creates the signature Calamity-style "flowing ribbon" look.
+        /// </summary>
+        /// <param name="positions">World positions for the trail</param>
+        /// <param name="settings">Base primitive settings</param>
+        /// <param name="noiseTexture">Noise texture for UV scrolling (or null for procedural)</param>
+        /// <param name="scrollSpeed">How fast the UV scrolls along the trail</param>
+        /// <param name="waveAmplitude">How much the trail waves side-to-side</param>
+        /// <param name="waveFrequency">Frequency of the wave oscillation</param>
+        public static void RenderFlowingTrail(
+            Vector2[] positions,
+            PrimitiveSettings settings,
+            Texture2D noiseTexture = null,
+            float scrollSpeed = 3f,
+            float waveAmplitude = 0f,
+            float waveFrequency = 4f)
+        {
+            if (Main.dedServ || positions == null || positions.Length < 2)
+                return;
+            
+            if (_basicEffect == null)
+                Initialize();
+            
+            // Update scroll offset (1/60 = 0.0167 seconds per frame at 60 FPS)
+            const float frameTime = 1f / 60f;
+            _noiseScrollOffset += frameTime * scrollSpeed;
+            if (_noiseScrollOffset > 100f) _noiseScrollOffset -= 100f;
+            
+            // Filter out zero positions
+            List<Vector2> validPositions = new List<Vector2>();
+            foreach (var pos in positions)
+            {
+                if (pos != Vector2.Zero)
+                    validPositions.Add(pos);
+            }
+            
+            if (validPositions.Count < 2) return;
+            
+            // Smooth the trail
+            List<Vector2> finalPositions;
+            if (settings.Smoothen && validPositions.Count >= 4)
+                finalPositions = SmoothTrail(validPositions, validPositions.Count * 2);
+            else
+                finalPositions = validPositions;
+            
+            if (finalPositions.Count < 2) return;
+            
+            // Build vertices with scrolling UVs and wave offset
+            int vertexCount = finalPositions.Count * 2;
+            int indexCount = (finalPositions.Count - 1) * 6;
+            
+            if (vertexCount > MaxVertices || indexCount > MaxIndices)
+                return;
+            
+            for (int i = 0; i < finalPositions.Count; i++)
+            {
+                float completionRatio = (float)i / (finalPositions.Count - 1);
+                float width = settings.WidthFunc?.Invoke(completionRatio) ?? 10f;
+                Color color = settings.ColorFunc?.Invoke(completionRatio) ?? Color.White;
+                
+                // CRITICAL: Remove alpha for proper additive blending
+                color = color.WithoutAlpha();
+                
+                // Calculate perpendicular direction
+                Vector2 direction;
+                if (i == 0)
+                    direction = (finalPositions[1] - finalPositions[0]).SafeNormalize(Vector2.UnitY);
+                else if (i == finalPositions.Count - 1)
+                    direction = (finalPositions[i] - finalPositions[i - 1]).SafeNormalize(Vector2.UnitY);
+                else
+                    direction = (finalPositions[i + 1] - finalPositions[i - 1]).SafeNormalize(Vector2.UnitY);
+                
+                Vector2 perpendicular = new Vector2(-direction.Y, direction.X);
+                Vector2 worldPos = finalPositions[i];
+                
+                // Apply wave offset for flowing ribbon effect
+                if (waveAmplitude > 0)
+                {
+                    float wave = MathF.Sin((completionRatio * waveFrequency + _noiseScrollOffset) * MathHelper.TwoPi);
+                    worldPos += perpendicular * wave * waveAmplitude;
+                }
+                
+                // Apply offset
+                if (settings.OffsetFunc != null)
+                    worldPos += settings.OffsetFunc(completionRatio);
+                
+                // Convert to screen position
+                Vector2 screenPos = worldPos - Main.screenPosition;
+                
+                // SCROLLING UV - the key to flowing energy effect
+                float scrolledU = completionRatio + _noiseScrollOffset;
+                
+                // Create vertices with scrolling UV
+                _vertices[i * 2] = new VertexPositionColorTexture(
+                    new Vector3(screenPos + perpendicular * width * 0.5f, 0),
+                    color,
+                    new Vector2(scrolledU, 0));
+                
+                _vertices[i * 2 + 1] = new VertexPositionColorTexture(
+                    new Vector3(screenPos - perpendicular * width * 0.5f, 0),
+                    color,
+                    new Vector2(scrolledU, 1));
+            }
+            
+            // Build indices
+            int idx = 0;
+            for (int i = 0; i < finalPositions.Count - 1; i++)
+            {
+                int baseVertex = i * 2;
+                _indices[idx++] = (short)baseVertex;
+                _indices[idx++] = (short)(baseVertex + 1);
+                _indices[idx++] = (short)(baseVertex + 2);
+                _indices[idx++] = (short)(baseVertex + 1);
+                _indices[idx++] = (short)(baseVertex + 3);
+                _indices[idx++] = (short)(baseVertex + 2);
+            }
+            
+            // Render with noise texture if available
+            DrawPrimitives(vertexCount, indexCount / 3, settings.Shader);
+        }
+        
+        /// <summary>
+        /// Renders a multi-pass flowing energy ribbon trail.
+        /// Perfect for cosmic weapons, laser beams, and magical effects.
+        /// </summary>
+        public static void RenderFlowingEnergyRibbon(
+            Vector2[] positions,
+            Color primaryColor,
+            Color secondaryColor,
+            float width,
+            float scrollSpeed = 3f,
+            float waveAmplitude = 5f)
+        {
+            // Pass 1: Outer flowing bloom
+            var bloomSettings = new PrimitiveSettings(
+                BloomWidth(LinearTaper(width), 2.5f),
+                completionRatio => 
+                    Color.Lerp(primaryColor, secondaryColor, completionRatio) * 0.25f * (1f - completionRatio),
+                null, true, null
+            );
+            RenderFlowingTrail(positions, bloomSettings, null, scrollSpeed, waveAmplitude * 1.5f);
+            
+            // Pass 2: Main flowing trail
+            var mainSettings = new PrimitiveSettings(
+                LinearTaper(width),
+                completionRatio => 
+                    Color.Lerp(primaryColor, secondaryColor, completionRatio) * (1f - completionRatio),
+                null, true, null
+            );
+            RenderFlowingTrail(positions, mainSettings, null, scrollSpeed * 1.2f, waveAmplitude);
+            
+            // Pass 3: Core glow (faster scroll for energy effect)
+            var coreSettings = new PrimitiveSettings(
+                completionRatio => LinearTaper(width)(completionRatio) * 0.35f,
+                completionRatio => Color.White * 0.85f * (1f - completionRatio * 0.8f),
+                null, true, null
+            );
+            RenderFlowingTrail(positions, coreSettings, null, scrollSpeed * 2f, waveAmplitude * 0.3f);
+        }
+        
+        /// <summary>
+        /// Renders a constellation-style trail with connected star points.
+        /// Perfect for Fate theme cosmic effects.
+        /// </summary>
+        public static void RenderConstellationTrail(
+            Vector2[] positions,
+            Color starColor,
+            Color lineColor,
+            float lineWidth,
+            float starScale = 0.3f)
+        {
+            // Draw connecting lines first (behind stars)
+            var lineSettings = new PrimitiveSettings(
+                completionRatio => lineWidth * (1f - completionRatio * 0.5f),
+                completionRatio => lineColor * 0.6f * (1f - completionRatio),
+                null, true, null
+            );
+            RenderFlowingTrail(positions, lineSettings, null, 1f, 0f);
+            
+            // Draw star points at intervals
+            Texture2D bloomTex = MagnumTextureRegistry.GetBloom();
+            if (bloomTex == null) return;
+            
+            int starInterval = Math.Max(1, positions.Length / 8);
+            for (int i = 0; i < positions.Length; i += starInterval)
+            {
+                if (positions[i] == Vector2.Zero) continue;
+                
+                float completion = (float)i / positions.Length;
+                float scale = starScale * (1f - completion * 0.5f);
+                Color color = Color.Lerp(Color.White, starColor, completion);
+                
+                Vector2 drawPos = positions[i] - Main.screenPosition;
+                Vector2 origin = bloomTex.Size() * 0.5f;
+                
+                // Bloom behind star
+                Main.spriteBatch.Draw(bloomTex, drawPos, null, 
+                    starColor.WithoutAlpha() * 0.4f, 0f, origin, scale * 2f, SpriteEffects.None, 0f);
+                
+                // Star core
+                Main.spriteBatch.Draw(bloomTex, drawPos, null, 
+                    color.WithoutAlpha() * 0.8f, 0f, origin, scale, SpriteEffects.None, 0f);
+            }
+        }
+        
         #endregion
     }
 }

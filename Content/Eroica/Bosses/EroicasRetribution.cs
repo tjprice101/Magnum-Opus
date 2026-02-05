@@ -231,6 +231,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     Timer = 0;
                     phase2Started = true;
                     NPC.dontTakeDamage = false;
+                    
+                    // Activate theme skybox when main fight begins
+                    VFXIntegration.OnBossSpawn("Eroica", NPC.Center);
                 }
             }
             
@@ -326,17 +329,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
             float waveY = (float)Math.Sin(Timer * 0.015f) * 40f;
             
             Vector2 hoverPos = target.Center + new Vector2(waveX, hoverHeight + waveY);
-            Vector2 toHover = hoverPos - NPC.Center;
             
-            if (toHover.Length() > 30f)
-            {
-                toHover.Normalize();
-                NPC.velocity = Vector2.Lerp(NPC.velocity, toHover * 8f, 0.04f);
-            }
-            else
-            {
-                NPC.velocity *= 0.95f;
-            }
+            // NEW: Use FluidBossMovement for smooth hovering
+            VFXIntegration.FluidMoveToward(NPC, hoverPos, 8f, 0.04f, 0.05f);
             
             if (Timer % 180 == 0 && Timer > 60 && Main.netMode != NetmodeID.MultiplayerClient)
             {
@@ -387,6 +382,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
             {
                 MagnumScreenEffects.AddScreenShake(20f);
                 SoundEngine.PlaySound(SoundID.Item122 with { Volume = 1.3f }, NPC.Center);
+                
+                // NEW: Use VFXIntegration for phase transition effects
+                VFXIntegration.OnPhaseTransition("Eroica", NPC.Center);
                 
                 CustomParticles.GenericFlare(NPC.Center, Color.White, 1.5f, 25);
                 for (int i = 0; i < 12; i++)
@@ -465,6 +463,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     State = BossPhase.Enraged;
                     Timer = 0;
                     
+                    // Enhanced enrage VFX
+                    VFXIntegration.OnBossEnrage("Eroica", NPC.Center);
+                    
                     BossDialogueSystem.Eroica.OnEnrage();
                     SoundEngine.PlaySound(SoundID.Roar with { Pitch = 0.5f, Volume = 1.5f }, NPC.Center);
                 }
@@ -536,20 +537,20 @@ namespace MagnumOpus.Content.Eroica.Bosses
         private void AI_Phase2_Idle(Player target)
         {
             // Boss gets closer to player as aggression increases
-            float baseDist = 350f - aggressionLevel * 100f; // 350 ↁE250 as aggression builds
+            float baseDist = 350f - aggressionLevel * 100f; // 350 → 250 as aggression builds
             float hoverDist = baseDist + difficultyTier * 30f;
             Vector2 idealPos = target.Center + new Vector2(NPC.Center.X > target.Center.X ? hoverDist : -hoverDist, -100f);
             
-            Vector2 toIdeal = idealPos - NPC.Center;
-            if (toIdeal.Length() > 50f)
+            // NEW: Use FluidBossMovement for smooth idle movement
+            float speed = BaseSpeed * (1f + difficultyTier * 0.15f) * GetAggressionSpeedMult();
+            float acceleration = 0.06f + aggressionLevel * 0.04f;
+            VFXIntegration.FluidMoveToward(NPC, idealPos, speed, acceleration, 0.1f);
+            
+            // NEW: Use theme cycling colors for ambient particles
+            if (Timer % 20 == 0)
             {
-                toIdeal.Normalize();
-                float speed = BaseSpeed * (1f + difficultyTier * 0.15f) * GetAggressionSpeedMult();
-                NPC.velocity = Vector2.Lerp(NPC.velocity, toIdeal * speed, 0.06f + aggressionLevel * 0.04f);
-            }
-            else
-            {
-                NPC.velocity *= 0.9f;
+                Color cyclingColor = VFXIntegration.GetThemeColor("Eroica", Timer * 0.01f);
+                CustomParticles.GenericFlare(NPC.Center + Main.rand.NextVector2Circular(30f, 30f), cyclingColor, 0.3f, 15);
             }
             
             // Attack cooldown scales with aggression
@@ -719,19 +720,20 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     dashTarget = target.Center + target.velocity * 15f; // More prediction (was 10f)
                     dashDirection = (dashTarget - NPC.Center).SafeNormalize(Vector2.Zero);
                     SoundEngine.PlaySound(SoundID.Item15 with { Pitch = 0.3f }, NPC.Center);
+                    
+                    // NEW: Use TelegraphSystem for persistent threat line
+                    float lineLength = 600f + difficultyTier * 120f;
+                    VFXIntegration.DashAttackTelegraph(NPC.Center, dashDirection, lineLength, telegraphTime, EroicaScarlet);
+                    
+                    // NEW: Also show converging ring via TelegraphSystem
+                    TelegraphSystem.ConvergingRing(NPC.Center, 60f, telegraphTime, EroicaGold);
                 }
                 
-                // WARNING LINE - optimized, shows trajectory clearly
-                if (Timer > 3 && Timer % 2 == 0)
-                {
-                    float lineLength = 600f + difficultyTier * 120f; // Longer warning
-                    BossVFXOptimizer.WarningLine(NPC.Center, dashDirection, lineLength, 12, WarningType.Danger);
-                }
-                
-                // Charging particles - optimized
+                // Charging particles - use RainbowGradientSystem for color cycling
                 if (Timer % 4 == 0)
                 {
-                    BossVFXOptimizer.ConvergingWarning(NPC.Center, 60f, Timer / (float)telegraphTime, EroicaGold, 6);
+                    Color cyclingGold = VFXIntegration.GetThemeColor("Eroica", Timer * 0.05f);
+                    BossVFXOptimizer.ConvergingWarning(NPC.Center, 60f, Timer / (float)telegraphTime, cyclingGold, 6);
                 }
                 
                 // PHASE 10: Musical crescendo buildup during charge
@@ -752,6 +754,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     NPC.velocity = dashDirection * dashSpeed;
                     
                     SoundEngine.PlaySound(SoundID.DD2_BetsyFlameBreath with { Pitch = 0.2f }, NPC.Center);
+                    
+                    // NEW: Use VFXIntegration for attack release
+                    VFXIntegration.AttackRelease("Eroica", NPC.Center, 0.8f);
                     BossVFXOptimizer.AttackReleaseBurst(NPC.Center, EroicaGold, EroicaScarlet, 0.8f);
                     
                     // PHASE 10: Fortissimo attack release flash
@@ -766,10 +771,11 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     }
                 }
                 
-                // Optimized trail particles
+                // Optimized trail particles with color cycling
                 if (Timer % 3 == 0)
                 {
-                    BossVFXOptimizer.ProjectileTrail(NPC.Center, NPC.velocity, EroicaGold);
+                    Color trailColor = VFXIntegration.GetThemeColor("Eroica", Timer * 0.1f);
+                    BossVFXOptimizer.ProjectileTrail(NPC.Center, NPC.velocity, trailColor);
                     BossVFXOptimizer.OptimizedThemedParticles(NPC.Center - NPC.velocity * 0.2f, "sakura", 2, 15f);
                 }
                 
@@ -987,14 +993,19 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 int telegraphTime = 13; // Shorter telegraph (was 25)
                 if (Timer < telegraphTime)
                 {
-                    // WARNING: Show 8-arm pattern clearly
+                    float progress = Timer / (float)telegraphTime;
+                    
+                    // Enhanced WARNING: Show 8-arm pattern with dynamic colors and converging ring
                     if (Timer % 2 == 0)
                     {
                         for (int i = 0; i < 8; i++)
                         {
                             float angle = MathHelper.PiOver4 * i + SubPhase * MathHelper.PiOver4 * 0.5f;
-                            BossVFXOptimizer.WarningLine(NPC.Center, angle.ToRotationVector2(), 400f, 8, WarningType.Danger);
+                            Color armColor = VFXIntegration.GetThemeColor("Eroica", i / 8f);
+                            TelegraphSystem.ThreatLine(NPC.Center, angle.ToRotationVector2(), 400f, 12, armColor);
                         }
+                        // Converging ring as attack builds
+                        TelegraphSystem.ConvergingRing(NPC.Center, 80f * (1f - progress), 8, VFXIntegration.GetThemeColor("Eroica", Timer * 0.05f));
                     }
                 }
                 
@@ -1012,7 +1023,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                         {
                             float speed = baseSpeed + p * 2.5f;
                             Vector2 vel = armAngle.ToRotationVector2() * speed;
-                            Color color = arm % 2 == 0 ? EroicaGold : EroicaScarlet;
+                            Color color = VFXIntegration.GetThemeColor("Eroica", (arm * projectilesPerArm + p) / (8f * projectilesPerArm));
                             
                             // More homing on outer projectiles
                             float homing = p >= projectilesPerArm - 2 ? 0.03f : 0f;
@@ -1020,7 +1031,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                         }
                     }
                     
-                    BossVFXOptimizer.AttackReleaseBurst(NPC.Center, EroicaGold, EroicaScarlet, 0.9f);
+                    VFXIntegration.AttackRelease("Eroica", NPC.Center, 0.9f);
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f }, NPC.Center);
                 }
                 
@@ -1049,20 +1060,22 @@ namespace MagnumOpus.Content.Eroica.Bosses
             float spinSpeed = (0.028f + difficultyTier * 0.008f) * GetAggressionSpeedMult(); // Faster (was 0.02+0.005)
             Vector2 orbitCenter = target.Center;
             float baseRadius = 280f - aggressionLevel * 60f; // Tighter orbit (was 350f-50f)
-            float angle = Timer * spinSpeed;
             
-            Vector2 idealPos = orbitCenter + angle.ToRotationVector2() * baseRadius;
-            Vector2 toIdeal = idealPos - NPC.Center;
-            NPC.velocity = Vector2.Lerp(NPC.velocity, toIdeal.SafeNormalize(Vector2.Zero) * 16f * GetAggressionSpeedMult(), 0.1f);
+            // Use FluidBossMovement for smooth orbiting
+            VFXIntegration.FluidOrbitAround(NPC, orbitCenter, baseRadius, spinSpeed, 0.1f);
             
-            // WARNING: Show next spiral arm direction
+            // WARNING: Show next spiral arm direction with theme colors
             if (Timer % 8 == 0)
             {
                 float nextSpiralAngle = (Timer + 8) * 0.2f;
                 for (int arm = 0; arm < arms; arm++)
                 {
                     float armAngle = nextSpiralAngle + MathHelper.TwoPi * arm / arms;
-                    BossVFXOptimizer.WarningFlare(NPC.Center + armAngle.ToRotationVector2() * 50f, 0.5f, WarningType.Caution);
+                    Color armColor = VFXIntegration.GetThemeColor("Eroica", arm / (float)arms);
+                    Vector2 warnPos = NPC.Center + armAngle.ToRotationVector2() * 50f;
+                    TelegraphSystem.ImpactPoint(warnPos, 15f, 8);
+                    // Add colored particles for visual flair
+                    CustomParticles.GenericFlare(warnPos, armColor * 0.7f, 0.3f, 8);
                 }
             }
             
@@ -1078,23 +1091,28 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     float speed = FastProjectileSpeed + difficultyTier * 4f + aggressionLevel * 5f; // MUCH faster
                     Vector2 vel = armAngle.ToRotationVector2() * speed;
                     
+                    // Use theme gradient for projectile colors
+                    Color projColor = VFXIntegration.GetThemeColor("Eroica", arm / (float)arms);
+                    
                     if (arm % 2 == 0)
                     {
-                        BossProjectileHelper.SpawnWaveProjectile(NPC.Center, vel, 65 + difficultyTier * 5, SakuraPink, 4f);
+                        BossProjectileHelper.SpawnWaveProjectile(NPC.Center, vel, 65 + difficultyTier * 5, projColor, 4f);
                     }
                     else
                     {
-                        BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel * 0.8f, 65 + difficultyTier * 5, EroicaGold, 18f);
+                        BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel * 0.8f, 65 + difficultyTier * 5, projColor, 18f);
                     }
                 }
                 
-                BossVFXOptimizer.OptimizedFlare(NPC.Center, SakuraPink, 0.35f, 8, 2);
+                // Flare with cycling color
+                Color flareColor = VFXIntegration.GetThemeColor("Eroica", Timer * 0.02f);
+                CustomParticles.GenericFlare(NPC.Center, flareColor, 0.35f, 8);
             }
             
             // Optimized ambient petals
             if (Timer % 12 == 0)
             {
-                BossVFXOptimizer.OptimizedThemedParticles(NPC.Center, "sakura", 2, 30f);
+                ThemedParticles.SakuraPetals(NPC.Center, 2, 30f);
             }
             
             if (Timer >= duration)
@@ -1208,13 +1226,14 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 if (Timer == 1)
                 {
                     SoundEngine.PlaySound(SoundID.Item8 with { Pitch = -0.3f }, NPC.Center);
-                    BossVFXOptimizer.OptimizedFlare(NPC.Center, EroicaGold, 0.7f, 12, 1);
+                    CustomParticles.GenericFlare(NPC.Center, EroicaGold, 0.7f, 12);
                 }
                 
-                // Optimized departure particles
+                // Optimized departure particles with theme cycling
                 if (Timer % 4 == 0)
                 {
-                    BossVFXOptimizer.OptimizedFlare(NPC.Center + Main.rand.NextVector2Circular(35f, 35f), EroicaGold, 0.3f, 10, 2);
+                    Color fadeColor = VFXIntegration.GetThemeColor("Eroica", Timer * 0.03f);
+                    CustomParticles.GenericFlare(NPC.Center + Main.rand.NextVector2Circular(35f, 35f), fadeColor, 0.3f, 10);
                 }
                 
                 if (NPC.alpha >= 255)
@@ -1230,19 +1249,21 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 {
                     NPC.alpha = 0;
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 1.2f }, NPC.Center);
-                    BossVFXOptimizer.AttackReleaseBurst(NPC.Center, EroicaGold, EroicaScarlet, 1f);
+                    VFXIntegration.AttackRelease("Eroica", NPC.Center, 1f);
                     
                     dashDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
                 }
                 
-                // WARNING: Clear dive trajectory and impact zone
+                // WARNING: Clear dive trajectory and impact zone with enhanced VFX
                 if (Timer > 2 && Timer < 13) // Shorter warning (was 5-25)
                 {
-                    BossVFXOptimizer.WarningLine(NPC.Center, dashDirection, 600f, 12, WarningType.Imminent);
+                    float progress = (Timer - 2f) / 11f;
+                    Color warningColor = VFXIntegration.GetThemeColor("Eroica", progress);
+                    TelegraphSystem.ThreatLine(NPC.Center, dashDirection, 600f, 12, warningColor);
                     
                     // Show ground impact warning
                     Vector2 impactPos = NPC.Center + dashDirection * 500f;
-                    BossVFXOptimizer.GroundImpactWarning(impactPos, 80f, Timer / 13f);
+                    VFXIntegration.DiveImpactWarning(impactPos, 80f, progress, "Eroica");
                 }
                 
                 if (Timer >= 13) // Shorter telegraph (was 25)
@@ -1261,31 +1282,32 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     SoundEngine.PlaySound(SoundID.DD2_BetsyFlameBreath with { Volume = 1.5f }, NPC.Center);
                 }
                 
-                // Optimized trail particles
+                // Optimized trail particles with cycling colors
                 if (Timer % 3 == 0)
                 {
-                    BossVFXOptimizer.ProjectileTrail(NPC.Center, NPC.velocity, EroicaGold);
-                    BossVFXOptimizer.OptimizedThemedParticles(NPC.Center - NPC.velocity * 0.15f, "sakura", 2, 20f);
+                    Color trailColor = VFXIntegration.GetThemeColor("Eroica", Timer * 0.05f);
+                    CustomParticles.GenericFlare(NPC.Center, trailColor, 0.4f, 10);
+                    ThemedParticles.SakuraPetals(NPC.Center - NPC.velocity * 0.15f, 2, 20f);
                 }
                 
-                // DIFFICULTY: More projectiles during dive
+                // DIFFICULTY: More projectiles during dive with gradient colors
                 if (Timer % 4 == 0 && Main.netMode != NetmodeID.MultiplayerClient)
                 {
                     for (int i = 0; i < 4 + difficultyTier; i++) // More projectiles (was 3)
                     {
                         float angle = MathHelper.TwoPi * i / (4 + difficultyTier) + Timer * 0.25f;
                         Vector2 vel = angle.ToRotationVector2() * (6f + difficultyTier * 2f);
-                        BossProjectileHelper.SpawnHostileOrb(NPC.Center, vel, 75, EroicaCrimson, 0f);
+                        Color projColor = VFXIntegration.GetThemeColor("Eroica", i / (float)(4 + difficultyTier));
+                        BossProjectileHelper.SpawnHostileOrb(NPC.Center, vel, 75, projColor, 0f);
                     }
                 }
                 
                 if (NPC.Center.Y > target.Center.Y + 150f || Timer >= 25) // Faster (was 200f, 40)
                 {
                     MagnumScreenEffects.AddScreenShake(15f);
-                    BossVFXOptimizer.AttackReleaseBurst(NPC.Center, EroicaGold, EroicaScarlet, 1.2f);
-                    BossVFXOptimizer.OptimizedCascadingHalos(NPC.Center, EroicaScarlet, EroicaGold, 5, 0.35f, 12);
+                    VFXIntegration.UltimateAttackRelease("Eroica", NPC.Center, 1.2f);
                     
-                    // GROUND EXPLOSION: Spawn projectiles in all directions
+                    // GROUND EXPLOSION: Spawn projectiles in all directions with gradient
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
                         int groundProjectiles = 8 + difficultyTier * 4;
@@ -1293,7 +1315,8 @@ namespace MagnumOpus.Content.Eroica.Bosses
                         {
                             float angle = MathHelper.TwoPi * i / groundProjectiles;
                             Vector2 vel = angle.ToRotationVector2() * (MediumProjectileSpeed + difficultyTier * 2f);
-                            BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel, 75, EroicaGold, 10f);
+                            Color projColor = VFXIntegration.GetThemeColor("Eroica", i / (float)groundProjectiles);
+                            BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel, 75, projColor, 10f);
                         }
                     }
                     
@@ -1325,33 +1348,39 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 {
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.5f }, NPC.Center);
                     Main.NewText("Witness the Hero's Judgment!", EroicaGold);
+                    
+                    // NEW: Use TelegraphSystem for converging ring with full duration
+                    TelegraphSystem.ConvergingRing(NPC.Center, 200f, chargeTime, EroicaGold);
+                    
+                    // NEW: Activate skybox for dramatic effect
+                    VFXIntegration.SetThemeSkybox("Eroica", 0.7f);
                 }
                 
                 float progress = Timer / (float)chargeTime;
                 
-                // Optimized converging particles
+                // Color cycling particles during charge
                 if (Timer % 4 == 0)
                 {
-                    BossVFXOptimizer.ConvergingWarning(NPC.Center, 200f, progress, EroicaGold, 8);
+                    Color cyclingColor = VFXIntegration.GetThemeColor("Eroica", Timer * 0.03f);
+                    BossVFXOptimizer.ConvergingWarning(NPC.Center, 200f, progress, cyclingColor, 8);
                 }
                 
                 // PHASE 10: Musical chord buildup during charge
                 Phase10BossVFX.ChordBuildupConvergence(NPC.Center, new[] { EroicaGold, EroicaScarlet, Color.White }, progress);
                 
-                // SAFE ZONE INDICATOR - show player where to go (earlier and clearer)
-                if (Timer > chargeTime / 3)
+                // SAFE ZONE INDICATOR - use TelegraphSystem
+                if (Timer == (int)(chargeTime / 3))
                 {
-                    float safeRadius = 90f; // Tighter (was 100f)
-                    BossVFXOptimizer.SafeZoneRing(target.Center, safeRadius, 10);
-                    
-                    // Also show safe arc direction from boss
-                    float safeAngle = (target.Center - NPC.Center).ToRotation();
-                    BossVFXOptimizer.SafeArcIndicator(NPC.Center, safeAngle, MathHelper.ToRadians(25f), 150f, 6);
+                    float safeRadius = 90f;
+                    int safeDuration = chargeTime - (int)(chargeTime / 3);
+                    VFXIntegration.ShowSafeZone(target.Center, safeRadius, safeDuration);
                 }
                 
                 if (Timer > chargeTime * 0.6f)
                 {
                     MagnumScreenEffects.AddScreenShake(progress * 6f);
+                    // NEW: Chromatic aberration builds during charge
+                    VFXIntegration.SetChromaticAberration(progress * 0.3f);
                 }
                 
                 if (Timer >= chargeTime)
@@ -1367,6 +1396,8 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     MagnumScreenEffects.AddScreenShake(18f);
                     SoundEngine.PlaySound(SoundID.Item122 with { Volume = 1.5f }, NPC.Center);
                     
+                    // NEW: Use VFXIntegration for attack release
+                    VFXIntegration.AttackRelease("Eroica", NPC.Center, 1.2f);
                     BossVFXOptimizer.AttackReleaseBurst(NPC.Center, EroicaGold, EroicaScarlet, 1.2f);
                     
                     // PHASE 10: Heroic judgment signature VFX
@@ -1418,6 +1449,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 if (Timer == 1)
                 {
                     Phase10BossVFX.CodaFinale(NPC.Center, EroicaGold, EroicaScarlet, 1.5f);
+                    
+                    // NEW: Reset chromatic aberration
+                    VFXIntegration.SetChromaticAberration(0f);
                 }
                 
                 if (Timer >= 20) // Shorter recovery (was 40)
@@ -1611,15 +1645,26 @@ namespace MagnumOpus.Content.Eroica.Bosses
             deathTimer++;
             NPC.velocity *= 0.95f;
             
+            float progress = deathTimer / 180f;
+            
+            // Enhanced skybox effects during death
+            VFXIntegration.SetChromaticAberration(progress * 0.3f);
+            VFXIntegration.SetVignette(progress * 0.6f);
+            
             if (deathTimer % 8 == 0)
             {
-                float progress = deathTimer / 180f;
                 MagnumScreenEffects.AddScreenShake(4f + progress * 15f);
                 
                 Vector2 burstPos = NPC.Center + Main.rand.NextVector2Circular(50f * (1f - progress * 0.5f), 50f * (1f - progress * 0.5f));
-                CustomParticles.GenericFlare(burstPos, Color.Lerp(EroicaGold, Color.White, progress), 0.5f + progress * 0.5f, 15);
-                CustomParticles.HaloRing(burstPos, EroicaGold, 0.3f + progress * 0.3f, 12);
+                
+                // Use dynamic theme colors
+                Color cycleColor = VFXIntegration.GetThemeColor("Eroica", deathTimer * 0.03f);
+                CustomParticles.GenericFlare(burstPos, Color.Lerp(cycleColor, Color.White, progress), 0.5f + progress * 0.5f, 15);
+                CustomParticles.HaloRing(burstPos, cycleColor, 0.3f + progress * 0.3f, 12);
                 ThemedParticles.SakuraPetals(burstPos, (int)(4 + progress * 12), 60f);
+                
+                // Converging ring as death builds
+                TelegraphSystem.ConvergingRing(NPC.Center, 150f * (1f - progress), 8, cycleColor * 0.6f);
                 
                 // PHASE 10: Musical death buildup
                 Phase10BossVFX.CrescendoDangerRings(NPC.Center, EroicaGold, progress);
@@ -1631,6 +1676,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
             
             if (deathTimer >= 180)
             {
+                // Ultimate death VFX
+                VFXIntegration.OnBossDeath("Eroica", NPC.Center);
+                
                 MagnumScreenEffects.AddScreenShake(30f);
                 SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 2f }, NPC.Center);
                 
@@ -1639,13 +1687,15 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 for (int i = 0; i < 12; i++)
                 {
                     float scale = 0.4f + i * 0.2f;
-                    CustomParticles.HaloRing(NPC.Center, Color.Lerp(EroicaScarlet, EroicaGold, i / 12f), scale, 25 + i * 3);
+                    Color ringColor = VFXIntegration.GetThemeColor("Eroica", i / 12f);
+                    CustomParticles.HaloRing(NPC.Center, ringColor, scale, 25 + i * 3);
                 }
                 
                 for (int i = 0; i < 20; i++)
                 {
                     float angle = MathHelper.TwoPi * i / 20f;
-                    CustomParticles.GenericFlare(NPC.Center + angle.ToRotationVector2() * 100f, EroicaGold, 0.8f, 30);
+                    Color flareColor = VFXIntegration.GetThemeColor("Eroica", i / 20f);
+                    CustomParticles.GenericFlare(NPC.Center + angle.ToRotationVector2() * 100f, flareColor, 0.8f, 30);
                 }
                 
                 ThemedParticles.SakuraPetals(NPC.Center, 60, 200f);
@@ -1654,6 +1704,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 Phase10Integration.Universal.DeathFinale(NPC.Center, EroicaGold, EroicaScarlet);
                 Phase10BossVFX.CodaFinale(NPC.Center, EroicaGold, EroicaScarlet, 2f);
                 Phase10BossVFX.TuttiFullEnsemble(NPC.Center, new[] { EroicaGold, EroicaScarlet, Color.White }, 2f);
+                
+                // Deactivate skybox
+                VFXIntegration.OnBossDespawn();
                 
                 // Death dialogue
                 BossDialogueSystem.Eroica.OnDeath();

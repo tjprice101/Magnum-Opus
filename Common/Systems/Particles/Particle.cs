@@ -123,6 +123,23 @@ namespace MagnumOpus.Common.Systems.Particles
         /// Removes this particle from the handler.
         /// </summary>
         public void Kill() => MagnumParticleHandler.RemoveParticle(this);
+        
+        /// <summary>
+        /// Resets this particle to default values for object pooling.
+        /// Override in subclasses to reset custom fields.
+        /// </summary>
+        public virtual void Reset()
+        {
+            ID = 0;
+            Time = 0;
+            Position = Vector2.Zero;
+            Velocity = Vector2.Zero;
+            Rotation = 0f;
+            Scale = 1f;
+            Color = Color.White;
+            Lifetime = 0;
+            Variant = 0;
+        }
 
         #region Animation Helpers
         /// <summary>

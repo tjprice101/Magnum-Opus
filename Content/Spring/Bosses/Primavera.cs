@@ -197,6 +197,9 @@ namespace MagnumOpus.Content.Spring.Bosses
             float distToTarget = Vector2.Distance(NPC.Center, target.Center);
             if (distToTarget > EnrageDistance && State != BossPhase.Enraged)
             {
+                // === VFX INTEGRATION: Boss enrage ===
+                VFXIntegration.OnBossEnrage("Spring", NPC.Center);
+                
                 State = BossPhase.Enraged;
                 Timer = 0;
             }
@@ -299,6 +302,9 @@ namespace MagnumOpus.Content.Spring.Bosses
             
             if (Timer >= 90)
             {
+                // === VFX INTEGRATION: Boss spawn complete ===
+                VFXIntegration.OnBossSpawn("Spring", NPC.Center);
+                
                 State = BossPhase.Idle;
                 Timer = 0;
             }
@@ -596,6 +602,9 @@ namespace MagnumOpus.Content.Spring.Bosses
                 
                 // === PHASE 10 MUSICAL VFX: Death Finale - Spring's Swan Song ===
                 Phase10Integration.Universal.DeathFinale(NPC.Center, SpringWhite, SpringPink);
+                
+                // === VFX INTEGRATION: Boss death ===
+                VFXIntegration.OnBossDeath("Spring", NPC.Center);
                 
                 NPC.life = 0;
                 NPC.checkDead();
@@ -924,6 +933,12 @@ namespace MagnumOpus.Content.Spring.Bosses
             
             if (SubPhase == 0) // Charge with safe zone indicator
             {
+                // === TELEGRAPH SYSTEM: Show converging ring warning ===
+                if (Timer == 1)
+                {
+                    TelegraphSystem.ConvergingRing(NPC.Center, 300f, chargeTime, SpringPink);
+                }
+                
                 NPC.velocity *= 0.95f;
                 
                 float progress = (float)Timer / chargeTime;

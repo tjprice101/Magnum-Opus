@@ -31,6 +31,13 @@ namespace MagnumOpus.Common.Systems.VFX
         public static Color LaCampanellaGold => new Color(255, 200, 50);
         public static Color LaCampanellaYellow => new Color(255, 240, 180);
         
+        // Aliases for shorter access
+        public static Color CampanellaBlack => LaCampanellaBlack;
+        public static Color CampanellaEmber => LaCampanellaEmber;
+        public static Color CampanellaOrange => LaCampanellaOrange;
+        public static Color CampanellaGold => LaCampanellaGold;
+        public static Color CampanellaYellow => LaCampanellaYellow;
+        
         /// <summary>Gets a La Campanella gradient color (black ↁEorange ↁEgold)</summary>
         public static Color GetLaCampanella(float progress) => VFXUtilities.PaletteLerp(LaCampanella, progress);
         
@@ -78,6 +85,9 @@ namespace MagnumOpus.Common.Systems.VFX
         public static Color MoonlightSilver => new Color(220, 220, 235);
         public static Color MoonlightIceBlue => new Color(135, 206, 250);
         public static Color MoonlightMoonWhite => new Color(240, 235, 255);
+        
+        // Alias for compatibility
+        public static Color MoonlightLightBlue => MoonlightIceBlue;
         
         /// <summary>Gets a Moonlight Sonata gradient color (purple ↁEblue)</summary>
         public static Color GetMoonlightSonata(float progress) => VFXUtilities.PaletteLerp(MoonlightSonata, progress);
@@ -221,6 +231,32 @@ namespace MagnumOpus.Common.Systems.VFX
         #endregion
         
         #region Utility Methods
+        
+        /// <summary>
+        /// Gets a theme's color palette array by name.
+        /// Returns the full gradient array for flexible usage.
+        /// </summary>
+        public static Color[] GetThemePalette(string themeName)
+        {
+            return themeName?.ToLowerInvariant() switch
+            {
+                "lacampanella" or "campanella" => LaCampanella,
+                "eroica" => Eroica,
+                "moonlight" or "moonlightsonata" => MoonlightSonata,
+                "swanlake" or "swan" => SwanLake,
+                "enigma" or "enigmavariations" => EnigmaVariations,
+                "fate" => Fate,
+                "clair" or "clairdelune" => ClairDeLune,
+                "dies" or "diesirae" => DiesIrae,
+                "spring" => new Color[] { new Color(255, 200, 220), new Color(150, 255, 150), new Color(255, 255, 180) },
+                "summer" => new Color[] { new Color(255, 200, 100), new Color(255, 150, 50), new Color(255, 100, 50) },
+                "autumn" => new Color[] { new Color(200, 100, 50), new Color(180, 80, 40), new Color(120, 60, 30) },
+                "winter" => new Color[] { new Color(200, 230, 255), new Color(150, 200, 255), new Color(100, 150, 220) },
+                "nachtmusik" => new Color[] { new Color(20, 20, 60), new Color(60, 60, 120), new Color(100, 100, 180) },
+                "odetojoy" => new Color[] { new Color(255, 220, 100), new Color(255, 180, 80), new Color(255, 240, 200) },
+                _ => new Color[] { Color.White, Color.Gray }
+            };
+        }
         
         /// <summary>
         /// Gets a theme gradient by name.

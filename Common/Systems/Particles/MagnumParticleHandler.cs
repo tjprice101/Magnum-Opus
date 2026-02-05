@@ -27,12 +27,17 @@ namespace MagnumOpus.Common.Systems.Particles
         private static List<Particle> batchedAlphaBlendParticles;
         private static List<Particle> batchedNonPremultipliedParticles;
         private static List<Particle> batchedAdditiveBlendParticles;
+        
+        // High-performance particle pools for each blend mode
+        private static Queue<Particle> particlePool;
+        private const int PoolInitialSize = 500;
+        private const int PoolMaxSize = 2000;
 
         /// <summary>
         /// Maximum number of particles that can exist at once.
-        /// Increased from 500 to 3000 to support dense visual effects during boss fights.
+        /// Calamity uses up to 10,000 particles - we match this for dense visual effects.
         /// </summary>
-        public const int MaxParticles = 3000;
+        public const int MaxParticles = 10000;
         
         /// <summary>
         /// Gets the current number of active particles. Used by BossVFXOptimizer for quality scaling.
@@ -40,22 +45,42 @@ namespace MagnumOpus.Common.Systems.Particles
         public static int ActiveParticleCount => particles?.Count ?? 0;
         
         /// <summary>
+        /// Gets the number of particles in the pool for reuse.
+        /// </summary>
+        public static int PooledParticleCount => particlePool?.Count ?? 0;
+        
+        /// <summary>
+        /// Gets the particle capacity utilization (0-1).
+        /// </summary>
+        public static float CapacityUtilization => (float)ActiveParticleCount / MaxParticles;
+        
+        /// <summary>
         /// Distance threshold for culling particles outside the visible screen area.
         /// Particles beyond this distance from the screen center won't render but still update.
         /// </summary>
-        private const float CullDistance = 2500f;
+        private const float CullDistance = 3000f;
+        
+        /// <summary>
+        /// Whether to use aggressive culling when particle count is high.
+        /// </summary>
+        private static bool useAggressiveCulling = false;
 
         internal static void Load()
         {
-            particles = new List<Particle>();
-            particlesToKill = new List<Particle>();
+            // Pre-allocate lists with generous initial capacity for performance
+            particles = new List<Particle>(MaxParticles / 2);
+            particlesToKill = new List<Particle>(256);
             particleTypes = new Dictionary<Type, int>();
             particleTextures = new Dictionary<int, Texture2D>();
             particleInstances = new List<Particle>();
 
-            batchedAlphaBlendParticles = new List<Particle>();
-            batchedNonPremultipliedParticles = new List<Particle>();
-            batchedAdditiveBlendParticles = new List<Particle>();
+            // Batched rendering lists - pre-allocate for typical usage
+            batchedAlphaBlendParticles = new List<Particle>(1000);
+            batchedNonPremultipliedParticles = new List<Particle>(500);
+            batchedAdditiveBlendParticles = new List<Particle>(3000);
+            
+            // Initialize particle pool for object reuse (reduces GC pressure)
+            particlePool = new Queue<Particle>(PoolInitialSize);
         }
 
         internal static void Unload()
@@ -68,6 +93,7 @@ namespace MagnumOpus.Common.Systems.Particles
             batchedAlphaBlendParticles = null;
             batchedNonPremultipliedParticles = null;
             batchedAdditiveBlendParticles = null;
+            particlePool = null;
         }
 
         /// <summary>
@@ -160,11 +186,30 @@ namespace MagnumOpus.Common.Systems.Particles
 
         /// <summary>
         /// Updates all active particles.
+        /// Uses aggressive culling when particle count exceeds 70% capacity.
         /// </summary>
         public static void Update()
         {
             if (Main.dedServ || particles == null)
                 return;
+
+            // Enable aggressive culling when near capacity
+            useAggressiveCulling = particles.Count > MaxParticles * 0.7f;
+            
+            // If severely overloaded, cull oldest non-important particles
+            if (particles.Count > MaxParticles * 0.9f)
+            {
+                int cullTarget = particles.Count - (int)(MaxParticles * 0.8f);
+                int culled = 0;
+                for (int i = particles.Count - 1; i >= 0 && culled < cullTarget; i--)
+                {
+                    if (!particles[i].Important && particles[i].Time > 5)
+                    {
+                        particlesToKill.Add(particles[i]);
+                        culled++;
+                    }
+                }
+            }
 
             foreach (Particle particle in particles)
             {
@@ -179,12 +224,24 @@ namespace MagnumOpus.Common.Systems.Particles
                 {
                     particlesToKill.Add(particle);
                 }
+                
+                // Aggressive culling: kill off-screen particles faster if overloaded
+                if (useAggressiveCulling && !particle.Important)
+                {
+                    Vector2 screenCenter = Main.screenPosition + new Vector2(Main.screenWidth, Main.screenHeight) * 0.5f;
+                    float distSq = Vector2.DistanceSquared(particle.Position, screenCenter);
+                    if (distSq > CullDistance * CullDistance * 0.5f) // Tighter culling
+                    {
+                        particlesToKill.Add(particle);
+                    }
+                }
             }
 
-            // Remove dead particles
+            // Remove dead particles and return to pool
             foreach (Particle particle in particlesToKill)
             {
                 particles.Remove(particle);
+                ReturnToPool(particle);
             }
             particlesToKill.Clear();
         }
@@ -331,6 +388,80 @@ namespace MagnumOpus.Common.Systems.Particles
         public static void ClearAllParticles()
         {
             particles?.Clear();
+        }
+        
+        /// <summary>
+        /// Clears particles and returns them to the pool for reuse.
+        /// </summary>
+        public static void ClearAllParticlesToPool()
+        {
+            if (particles == null) return;
+            
+            foreach (var particle in particles)
+            {
+                ReturnToPool(particle);
+            }
+            particles.Clear();
+        }
+        
+        /// <summary>
+        /// Returns a particle to the pool for reuse.
+        /// </summary>
+        private static void ReturnToPool(Particle particle)
+        {
+            if (particlePool == null || particlePool.Count >= PoolMaxSize)
+                return;
+                
+            // Reset particle for reuse
+            particle.Reset();
+            particlePool.Enqueue(particle);
+        }
+        
+        /// <summary>
+        /// Gets a particle from the pool if available.
+        /// </summary>
+        /// <typeparam name="T">The particle type to get.</typeparam>
+        /// <returns>A pooled particle or null if none available of that type.</returns>
+        public static T GetPooledParticle<T>() where T : Particle
+        {
+            if (particlePool == null || particlePool.Count == 0)
+                return null;
+                
+            // Try to find a matching type in the pool
+            int count = particlePool.Count;
+            for (int i = 0; i < count; i++)
+            {
+                var particle = particlePool.Dequeue();
+                if (particle is T typedParticle)
+                    return typedParticle;
+                    
+                // Put it back if not the right type
+                particlePool.Enqueue(particle);
+            }
+            
+            return null;
+        }
+        
+        /// <summary>
+        /// Pre-warms the particle pool with instances of common particle types.
+        /// Call this during loading to reduce runtime allocations.
+        /// </summary>
+        public static void PreWarmPool<T>(int count) where T : Particle, new()
+        {
+            if (particlePool == null) return;
+            
+            for (int i = 0; i < count && particlePool.Count < PoolMaxSize; i++)
+            {
+                particlePool.Enqueue(new T());
+            }
+        }
+        
+        /// <summary>
+        /// Gets statistics about the particle system for debugging/profiling.
+        /// </summary>
+        public static (int active, int pooled, float utilization, bool aggressiveCulling) GetStats()
+        {
+            return (ActiveParticleCount, PooledParticleCount, CapacityUtilization, useAggressiveCulling);
         }
 
         /// <summary>

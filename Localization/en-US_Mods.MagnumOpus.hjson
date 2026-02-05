@@ -7267,4 +7267,10 @@ Projectiles: {
 	JoyWaveProjectile.DisplayName: Joy Wave Projectile
 	StandingOvationMinion.DisplayName: Standing Ovation Minion
 	TriumphantChorusMinion.DisplayName: Triumphant Chorus Minion
+	ChromaticScaleSpiral.DisplayName: Chromatic Scale Spiral
+	CrescendoSwell.DisplayName: Crescendo Swell
+	ResonatingTrebleOrb.DisplayName: Resonating Treble Orb
+	SymphonyConductorBaton.DisplayName: Symphony Conductor Baton
+	TempoMetronome.DisplayName: Tempo Metronome
+	VinylRecordDisc.DisplayName: Vinyl Record Disc
 }

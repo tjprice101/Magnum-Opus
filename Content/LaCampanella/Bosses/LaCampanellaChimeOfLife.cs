@@ -369,6 +369,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     Timer = 0;
                     
                     BossDialogueSystem.LaCampanella.OnEnrage();
+                    
+                    // VFX Integration - Boss enrage effects
+                    VFXIntegration.OnBossEnrage("LaCampanella", NPC.Center);
+                    
                     SoundEngine.PlaySound(SoundID.Roar with { Pitch = -0.3f, Volume = 1.5f }, NPC.Center);
                 }
             }
@@ -428,6 +432,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 }
                 
                 BossDialogueSystem.LaCampanella.OnSpawn(NPC.whoAmI);
+                
+                // VFX Integration - Boss spawn effects
+                VFXIntegration.OnBossSpawn("LaCampanella", NPC.Center);
                 
                 // Activate the infernal sky effect
                 if (!Main.dedServ && SkyManager.Instance["MagnumOpus:LaCampanellaSky"] != null)
@@ -1651,6 +1658,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 {
                     SoundEngine.PlaySound(SoundID.Item28 with { Pitch = -0.6f, Volume = 1.3f }, NPC.Center);
                     Main.NewText("THE BELL TOLLS FOR THEE!", CampanellaGold);
+                    
+                    // TelegraphSystem - Converging ring visual warning
+                    TelegraphSystem.ConvergingRing(NPC.Center, 300f, chargeTime, CampanellaOrange);
                 }
                 
                 float progress = Timer / (float)chargeTime;
@@ -1771,6 +1781,11 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     for (int i = 0; i < laserCount; i++)
                     {
                         laserStartAngles[i] = MathHelper.TwoPi * i / laserCount;
+                        
+                        // TelegraphSystem - Show laser paths
+                        float angle = MathHelper.TwoPi * i / laserCount;
+                        Vector2 laserEnd = NPC.Center + angle.ToRotationVector2() * 1200f;
+                        TelegraphSystem.LaserPath(NPC.Center, laserEnd, 25f, 25, CampanellaOrange);
                     }
                 }
                 
@@ -2061,6 +2076,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             {
                 // === PHASE 10 MUSICAL VFX: Death Finale - Infernal Coda ===
                 Phase10Integration.Universal.DeathFinale(NPC.Center, CampanellaOrange, CampanellaGold);
+                
+                // VFX Integration - Boss death effects
+                VFXIntegration.OnBossDeath("LaCampanella", NPC.Center);
                 
                 MagnumScreenEffects.AddScreenShake(35f);
                 SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with { Pitch = -0.5f, Volume = 2f }, NPC.Center);

@@ -197,6 +197,9 @@ namespace MagnumOpus.Content.Summer.Bosses
             float distToTarget = Vector2.Distance(NPC.Center, target.Center);
             if (distToTarget > EnrageDistance && State != BossPhase.Enraged)
             {
+                // === VFX INTEGRATION: Boss enrage ===
+                VFXIntegration.OnBossEnrage("Summer", NPC.Center);
+                
                 State = BossPhase.Enraged;
                 Timer = 0;
             }
@@ -293,6 +296,9 @@ namespace MagnumOpus.Content.Summer.Bosses
             
             if (Timer >= 80)
             {
+                // === VFX INTEGRATION: Boss spawn complete ===
+                VFXIntegration.OnBossSpawn("Summer", NPC.Center);
+                
                 State = BossPhase.Idle;
                 Timer = 0;
             }
@@ -588,6 +594,9 @@ namespace MagnumOpus.Content.Summer.Bosses
                 
                 // === PHASE 10 MUSICAL VFX: Death Finale - Summer's Solar Symphony Ends ===
                 Phase10Integration.Universal.DeathFinale(NPC.Center, SummerWhite, SolarGold);
+                
+                // === VFX INTEGRATION: Boss death ===
+                VFXIntegration.OnBossDeath("Summer", NPC.Center);
                 
                 NPC.life = 0;
                 NPC.checkDead();
@@ -934,6 +943,12 @@ namespace MagnumOpus.Content.Summer.Bosses
             
             if (SubPhase == 0) // Charge with safe zone
             {
+                // === TELEGRAPH SYSTEM: Show converging ring warning ===
+                if (Timer == 1)
+                {
+                    TelegraphSystem.ConvergingRing(NPC.Center, 300f, chargeTime, SummerOrange);
+                }
+                
                 NPC.velocity *= 0.94f;
                 
                 float progress = (float)Timer / chargeTime;

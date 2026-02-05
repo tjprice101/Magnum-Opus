@@ -358,6 +358,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     State = BossPhase.Enraged;
                     Timer = 0;
                     
+                    // === VFX INTEGRATION: Enrage Effect ===
+                    VFXIntegration.OnBossEnrage("Enigma", NPC.Center);
+                    
                     BossDialogueSystem.Enigma.OnEnrage();
                     SoundEngine.PlaySound(SoundID.NPCDeath52 with { Pitch = 0.3f, Volume = 1.5f }, NPC.Center);
                 }
@@ -407,6 +410,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             if (Timer >= 49)
             {
                 BossDialogueSystem.Enigma.OnSpawn(NPC.whoAmI);
+                
+                // === VFX INTEGRATION: Boss Spawn Effect ===
+                VFXIntegration.OnBossSpawn("Enigma", NPC.Center);
                 
                 // Activate the Enigma mystery sky effect
                 if (!Main.dedServ && SkyManager.Instance["MagnumOpus:EnigmaSky"] != null)
@@ -1875,6 +1881,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 {
                     SoundEngine.PlaySound(SoundID.Item8 with { Pitch = -0.4f, Volume = 1.3f }, NPC.Center);
                     Main.NewText("WITNESS THE UNKNOWABLE!", EnigmaPurple);
+                    
+                    // === TELEGRAPH SYSTEM: Set up converging ring warning ===
+                    TelegraphSystem.ConvergingRing(NPC.Center, 300f, chargeTime, EnigmaPurple);
                 }
                 
                 float progress = Timer / (float)chargeTime;
@@ -2022,6 +2031,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     for (int i = 0; i < laserCount; i++)
                     {
                         voidLaserAngles[i] = MathHelper.TwoPi * i / laserCount;
+                        
+                        // === TELEGRAPH SYSTEM: Show laser paths ===
+                        Vector2 laserEnd = NPC.Center + voidLaserAngles[i].ToRotationVector2() * 1500f;
+                        TelegraphSystem.LaserPath(NPC.Center, laserEnd, 30f, 25, EnigmaPurple);
                     }
                 }
                 
@@ -3093,6 +3106,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             
             if (deathTimer >= 180)
             {
+                // === VFX INTEGRATION: Boss Death Effect ===
+                VFXIntegration.OnBossDeath("Enigma", NPC.Center);
+                
                 // === PHASE 10 MUSICAL VFX: Death Finale - Enigmatic Coda ===
                 Phase10Integration.Universal.DeathFinale(NPC.Center, EnigmaPurple, EnigmaGreen);
                 

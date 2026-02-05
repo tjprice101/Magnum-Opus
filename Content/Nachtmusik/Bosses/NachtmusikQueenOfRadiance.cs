@@ -673,6 +673,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 enrageTimer++;
                 if (enrageTimer > 90 && !isEnraged)
                 {
+                    VFXIntegration.OnBossEnrage("Nachtmusik", NPC.Center);
                     isEnraged = true;
                     State = BossPhase.Enraged;
                     Timer = 0;
@@ -747,6 +748,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             
             if (Timer >= 90)
             {
+                VFXIntegration.OnBossSpawn("Nachtmusik", NPC.Center);
                 State = BossPhase.Phase1_Idle;
                 Timer = 0;
                 attackCooldown = AttackWindowFrames;
@@ -1494,6 +1496,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 
                 // Converging cosmic energy
                 BossVFXOptimizer.ConvergingWarning(NPC.Center, 180f, progress, Gold, 10);
+                TelegraphSystem.ConvergingRing(NPC.Center, 300f, chargeTime, Violet);
                 
                 // Safe zone indicator around player
                 if (Timer > chargeTime / 2)
@@ -2252,6 +2255,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 
                 // === PHASE 10 MUSICAL VFX: Death Finale - Celestial Queen's Final Note ===
                 Phase10Integration.Universal.DeathFinale(NPC.Center, StarWhite, Gold);
+                VFXIntegration.OnBossDeath("Nachtmusik", NPC.Center);
                 
                 for (int ring = 0; ring < 20; ring++)
                 {

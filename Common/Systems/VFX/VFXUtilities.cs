@@ -345,6 +345,166 @@ namespace MagnumOpus.Common.Systems.VFX
         
         #endregion
         
+        #region Velocity Stretch & Motion Utilities
+        
+        /// <summary>
+        /// Calculates squash and stretch scale based on velocity magnitude.
+        /// Used for making sprites appear to "stretch" when moving fast.
+        /// </summary>
+        /// <param name="velocity">Current velocity of the entity</param>
+        /// <param name="stretchFactor">How much velocity affects stretch (0.01-0.05 typical)</param>
+        /// <param name="minScale">Minimum Y scale (squash limit)</param>
+        /// <param name="maxStretch">Maximum Y scale (stretch limit)</param>
+        /// <returns>Scale vector (X is inverse of Y for volume preservation)</returns>
+        public static Vector2 GetSquashStretch(Vector2 velocity, float stretchFactor = 0.02f, 
+            float minScale = 0.8f, float maxStretch = 1.5f)
+        {
+            float speed = velocity.Length();
+            float yScale = MathHelper.Clamp(1f + speed * stretchFactor, minScale, maxStretch);
+            // Preserve approximate volume by inverse-scaling X
+            float xScale = 1f / MathF.Sqrt(yScale);
+            return new Vector2(xScale, yScale);
+        }
+        
+        /// <summary>
+        /// Calculates squash and stretch with direction alignment.
+        /// The stretch is applied along the velocity direction.
+        /// </summary>
+        /// <param name="velocity">Current velocity</param>
+        /// <param name="stretchFactor">Stretch intensity</param>
+        /// <param name="maxStretch">Maximum stretch ratio</param>
+        /// <returns>Tuple of (scale, rotation) for drawing</returns>
+        public static (Vector2 scale, float rotation) GetDirectionalStretch(Vector2 velocity, 
+            float stretchFactor = 0.03f, float maxStretch = 1.8f)
+        {
+            float speed = velocity.Length();
+            if (speed < 0.01f)
+                return (Vector2.One, 0f);
+                
+            float rotation = velocity.ToRotation();
+            float yScale = MathHelper.Clamp(1f + speed * stretchFactor, 0.7f, maxStretch);
+            float xScale = 1f / MathF.Sqrt(yScale);
+            
+            return (new Vector2(xScale, yScale), rotation);
+        }
+        
+        /// <summary>
+        /// Gets motion blur sample positions along the velocity direction.
+        /// </summary>
+        /// <param name="position">Current position</param>
+        /// <param name="velocity">Current velocity</param>
+        /// <param name="samples">Number of blur samples</param>
+        /// <param name="spread">How far back to spread samples (0.5 = half velocity)</param>
+        /// <returns>Array of positions for motion blur drawing</returns>
+        public static Vector2[] GetMotionBlurPositions(Vector2 position, Vector2 velocity, 
+            int samples = 4, float spread = 0.5f)
+        {
+            Vector2[] positions = new Vector2[samples];
+            Vector2 offset = velocity * spread / samples;
+            
+            for (int i = 0; i < samples; i++)
+            {
+                positions[i] = position - offset * (i + 1);
+            }
+            
+            return positions;
+        }
+        
+        /// <summary>
+        /// Calculates alpha values for motion blur samples (fading trail).
+        /// </summary>
+        /// <param name="samples">Number of samples</param>
+        /// <param name="falloff">How quickly alpha falls off (1 = linear, 2 = quadratic)</param>
+        /// <returns>Array of alpha values from 1 to 0</returns>
+        public static float[] GetMotionBlurAlphas(int samples, float falloff = 1.5f)
+        {
+            float[] alphas = new float[samples];
+            
+            for (int i = 0; i < samples; i++)
+            {
+                float progress = (float)i / samples;
+                alphas[i] = MathF.Pow(1f - progress, falloff);
+            }
+            
+            return alphas;
+        }
+        
+        /// <summary>
+        /// Interpolates position for sub-pixel smoothing.
+        /// Essential for 144Hz+ smooth rendering.
+        /// </summary>
+        /// <param name="oldPosition">Position from previous frame</param>
+        /// <param name="currentPosition">Current position</param>
+        /// <returns>Interpolated position for smooth rendering</returns>
+        public static Vector2 InterpolatePosition(Vector2 oldPosition, Vector2 currentPosition)
+        {
+            return Vector2.Lerp(oldPosition, currentPosition, InterpolatedRenderer.PartialTicks);
+        }
+        
+        /// <summary>
+        /// Interpolates rotation with proper angle wrapping.
+        /// </summary>
+        public static float InterpolateRotation(float oldRotation, float currentRotation, float amount = 0.5f)
+        {
+            float diff = MathHelper.WrapAngle(currentRotation - oldRotation);
+            return oldRotation + diff * amount;
+        }
+        
+        /// <summary>
+        /// Catmull-Rom spline interpolation for smooth curves through control points.
+        /// Used for flowing trails and organic motion.
+        /// </summary>
+        public static Vector2 CatmullRom(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float t)
+        {
+            float t2 = t * t;
+            float t3 = t2 * t;
+            
+            return 0.5f * (
+                (2f * p1) +
+                (-p0 + p2) * t +
+                (2f * p0 - 5f * p1 + 4f * p2 - p3) * t2 +
+                (-p0 + 3f * p1 - 3f * p2 + p3) * t3
+            );
+        }
+        
+        /// <summary>
+        /// Smooths a trail of positions using Catmull-Rom interpolation.
+        /// Makes jagged trails appear smooth and flowing.
+        /// </summary>
+        public static Vector2[] SmoothTrail(Vector2[] positions, int subdivisions = 2)
+        {
+            if (positions == null || positions.Length < 4)
+                return positions;
+                
+            int newLength = (positions.Length - 3) * subdivisions + positions.Length;
+            Vector2[] smoothed = new Vector2[newLength];
+            int index = 0;
+            
+            for (int i = 0; i < positions.Length - 3; i++)
+            {
+                smoothed[index++] = positions[i + 1];
+                
+                for (int j = 1; j < subdivisions; j++)
+                {
+                    float t = (float)j / subdivisions;
+                    smoothed[index++] = CatmullRom(
+                        positions[i], positions[i + 1], 
+                        positions[i + 2], positions[i + 3], t);
+                }
+            }
+            
+            // Add remaining points
+            for (int i = positions.Length - 2; i < positions.Length; i++)
+            {
+                if (index < smoothed.Length)
+                    smoothed[index++] = positions[i];
+            }
+            
+            return smoothed;
+        }
+        
+        #endregion
+        
         #region Drawing Utilities
         
         /// <summary>

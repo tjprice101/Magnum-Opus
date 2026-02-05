@@ -365,6 +365,10 @@ namespace MagnumOpus.Content.Fate.Bosses
                     State = BossPhase.Enraged;
                     Timer = 0;
                     BossDialogueSystem.Fate.OnEnrage();
+                    
+                    // VFX Integration - Boss enrage effects
+                    VFXIntegration.OnBossEnrage("Fate", NPC.Center);
+                    
                     SoundEngine.PlaySound(SoundID.Roar with { Pitch = 0.6f }, NPC.Center);
                 }
             }
@@ -482,6 +486,9 @@ namespace MagnumOpus.Content.Fate.Bosses
                 {
                     SkyManager.Instance.Activate("MagnumOpus:FateSky");
                 }
+                
+                // VFX Integration - Boss spawn effects
+                VFXIntegration.OnBossSpawn("Fate", NPC.Center);
                 
                 State = BossPhase.Idle;
                 Timer = 0;
@@ -1156,6 +1163,9 @@ namespace MagnumOpus.Content.Fate.Bosses
                 {
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.5f }, NPC.Center);
                     Main.NewText("Witness Universal Judgment!", FateBrightRed);
+                    
+                    // TelegraphSystem - Converging ring visual warning
+                    TelegraphSystem.ConvergingRing(NPC.Center, 300f, chargeTime, FateBrightRed);
                 }
                 
                 float progress = Timer / (float)chargeTime;
@@ -1873,6 +1883,9 @@ namespace MagnumOpus.Content.Fate.Bosses
             
             if (deathTimer >= 180)
             {
+                // VFX Integration - Boss death effects
+                VFXIntegration.OnBossDeath("Fate", NPC.Center);
+                
                 // TRUE death dialogue (after awakening) - pass whether this is the first kill
                 bool isFirstKill = !MoonlightSonataSystem.FateBossKilledOnce;
                 BossDialogueSystem.Fate.OnDeath(isFirstKill);

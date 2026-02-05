@@ -526,6 +526,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 enrageTimer++;
                 if (enrageTimer > 180 && !isEnraged)
                 {
+                    VFXIntegration.OnBossEnrage("OdeToJoy", NPC.Center);
                     isEnraged = true;
                     State = BossPhase.Enraged;
                     
@@ -584,6 +585,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             else
             {
                 NPC.alpha = 0;
+                VFXIntegration.OnBossSpawn("OdeToJoy", NPC.Center);
                 State = BossPhase.Phase1_Idle;
                 Timer = 0;
                 
@@ -1011,6 +1013,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 
                 // Converging rose petals
                 BossVFXOptimizer.ConvergingWarning(NPC.Center, 150f, progress, RosePink, 10);
+                TelegraphSystem.ConvergingRing(NPC.Center, 300f, chargeTime, GoldenPollen);
                 
                 // Safe zone indicator for player
                 if (Timer > chargeTime / 2)
@@ -1234,6 +1237,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 
                 // === PHASE 10 MUSICAL VFX: Death Finale - The Garden's Final Song ===
                 Phase10Integration.Universal.DeathFinale(NPC.Center, WhiteBloom, RosePink);
+                VFXIntegration.OnBossDeath("OdeToJoy", NPC.Center);
                 
                 if (Main.netMode != NetmodeID.Server)
                 {

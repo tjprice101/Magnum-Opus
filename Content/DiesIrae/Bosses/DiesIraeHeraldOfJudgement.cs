@@ -17,6 +17,7 @@ using MagnumOpus.Content.DiesIrae.Projectiles;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.DiesIrae.Bosses
 {
@@ -314,6 +315,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 enrageTimer++;
                 if (enrageTimer > 300) // 5 seconds to return
                 {
+                    VFXIntegration.OnBossEnrage("DiesIrae", NPC.Center);
                     isEnraged = true;
                     State = BossPhase.Enraged;
                     Timer = 0;
@@ -342,6 +344,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             
             if (Timer >= 90)
             {
+                VFXIntegration.OnBossSpawn("DiesIrae", NPC.Center);
                 State = BossPhase.Idle;
                 Timer = 0;
                 attackCooldown = 60;
@@ -1062,6 +1065,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 
                 // === PHASE 10 MUSICAL VFX: Crescendo Charge Up - Final Judgment Building ===
                 Phase10Integration.Universal.CrescendoChargeUp(NPC.Center, HellfireGold, progress);
+                TelegraphSystem.ConvergingRing(NPC.Center, 300f, chargeTime, Crimson);
                 
                 // Safe zone indicator
                 if (Timer > chargeTime / 2 && Timer % 4 == 0)
@@ -1330,6 +1334,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 
                 // === PHASE 10 MUSICAL VFX: Death Finale - The Herald Falls ===
                 Phase10Integration.Universal.DeathFinale(NPC.Center, BloodRed, EmberOrange);
+                VFXIntegration.OnBossDeath("DiesIrae", NPC.Center);
             }
             
             if (deathTimer >= 180)

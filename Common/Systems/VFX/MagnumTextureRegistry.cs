@@ -119,6 +119,25 @@ namespace MagnumOpus.Common.Systems.VFX
             return GetBloom(); // Fallback to soft glow
         }
         
+        /// <summary>
+        /// Single white pixel texture for primitive drawing (lines, rectangles, etc.).
+        /// </summary>
+        private static Texture2D _pixelTexture;
+        
+        /// <summary>
+        /// Gets a 1x1 white pixel texture for line/primitive drawing.
+        /// Used by TelegraphSystem and DynamicSkyboxSystem.
+        /// </summary>
+        public static Texture2D GetPixelTexture()
+        {
+            if (_pixelTexture == null || _pixelTexture.IsDisposed)
+            {
+                _pixelTexture = new Texture2D(Main.graphics.GraphicsDevice, 1, 1);
+                _pixelTexture.SetData(new[] { Microsoft.Xna.Framework.Color.White });
+            }
+            return _pixelTexture;
+        }
+        
         #endregion
     }
 }

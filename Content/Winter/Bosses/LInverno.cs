@@ -193,6 +193,9 @@ namespace MagnumOpus.Content.Winter.Bosses
             float distToTarget = Vector2.Distance(NPC.Center, target.Center);
             if (distToTarget > EnrageDistance && State != BossPhase.Enraged)
             {
+                // === VFX INTEGRATION: Boss enrage ===
+                VFXIntegration.OnBossEnrage("Winter", NPC.Center);
+                
                 State = BossPhase.Enraged;
                 Timer = 0;
             }
@@ -297,6 +300,9 @@ namespace MagnumOpus.Content.Winter.Bosses
             
             if (Timer >= 90)
             {
+                // === VFX INTEGRATION: Boss spawn complete ===
+                VFXIntegration.OnBossSpawn("Winter", NPC.Center);
+                
                 State = BossPhase.Idle;
                 Timer = 0;
             }
@@ -524,6 +530,9 @@ namespace MagnumOpus.Content.Winter.Bosses
                 
                 // === PHASE 10 MUSICAL VFX: Death Finale - Winter's Silent End ===
                 Phase10Integration.Universal.DeathFinale(NPC.Center, WinterWhite, FrostBlue);
+                
+                // === VFX INTEGRATION: Boss death ===
+                VFXIntegration.OnBossDeath("Winter", NPC.Center);
                 
                 NPC.life = 0;
                 NPC.checkDead();
@@ -840,6 +849,12 @@ namespace MagnumOpus.Content.Winter.Bosses
             
             if (SubPhase == 0) // Charge with safe zone
             {
+                // === TELEGRAPH SYSTEM: Show converging ring warning ===
+                if (Timer == 1)
+                {
+                    TelegraphSystem.ConvergingRing(NPC.Center, 300f, chargeTime, WinterIce);
+                }
+                
                 NPC.velocity *= 0.93f;
                 
                 float progress = (float)Timer / chargeTime;

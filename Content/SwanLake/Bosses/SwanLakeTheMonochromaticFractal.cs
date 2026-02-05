@@ -208,6 +208,9 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                 
                 // Spawn dialogue
                 BossDialogueSystem.SwanLake.OnSpawn(NPC.whoAmI);
+                
+                // === VFX INTEGRATION: Boss Spawn Effect ===
+                VFXIntegration.OnBossSpawn("SwanLake", NPC.Center);
             }
             
             NPC.TargetClosest(true);
@@ -415,6 +418,9 @@ namespace MagnumOpus.Content.SwanLake.Bosses
         {
             // Enrage dialogue when player tries to flee
             BossDialogueSystem.SwanLake.OnEnrage();
+            
+            // VFX Integration - Boss enrage effects
+            VFXIntegration.OnBossEnrage("SwanLake", NPC.Center);
             
             // Store old position for visual effects
             Vector2 oldPosition = NPC.Center;
@@ -2370,6 +2376,9 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             {
                 SoundEngine.PlaySound(SoundID.Item165 with { Pitch = 0.4f, Volume = 1.3f }, NPC.Center);
                 
+                // TelegraphSystem - Converging ring visual warning
+                TelegraphSystem.ConvergingRing(NPC.Center, 300f, chargeTime, Color.White);
+                
                 if (Main.netMode != NetmodeID.Server)
                 {
                     string text = currentMood == BossMood.DyingSwan ? "HEAR MY FINAL SONG!" : "LISTEN TO THE SERENADE!";
@@ -2525,6 +2534,11 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                 for (int i = 0; i < laserCount; i++)
                 {
                     serenadeBeamAngles[i] = MathHelper.TwoPi * i / laserCount;
+                    
+                    // TelegraphSystem - Show laser paths
+                    float angle = MathHelper.TwoPi * i / laserCount;
+                    Vector2 laserEnd = NPC.Center + angle.ToRotationVector2() * 1500f;
+                    TelegraphSystem.LaserPath(NPC.Center, laserEnd, 30f, WindupTime, Color.White);
                 }
             }
             
@@ -3711,6 +3725,9 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             {
                 // === PHASE 10 MUSICAL VFX: Death Finale - Full Coda ===
                 Phase10Integration.Universal.DeathFinale(NPC.Center, Color.White, new Color(30, 30, 40));
+                
+                // VFX Integration - Boss death effects
+                VFXIntegration.OnBossDeath("SwanLake", NPC.Center);
                 
                 // Death dialogue
                 BossDialogueSystem.SwanLake.OnDeath();
