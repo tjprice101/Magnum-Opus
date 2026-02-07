@@ -90,11 +90,14 @@ namespace MagnumOpus.Common.Systems.VFX
                 _fallbackGlow.SetData(data);
             }
             
-            // Try to load from CinematicVFX
-            _nebulaWisp = CinematicVFX.NebulaWispNoise ?? _fallbackGlow;
-            _fbmNoise = CinematicVFX.FBMNoise ?? _fallbackGlow;
-            _energyGradient = CinematicVFX.HorizontalEnergyGradient ?? CinematicVFX.HorizontalBlackCore ?? _fallbackGlow;
-            _sparklyNoise = CinematicVFX.SparklyNoise ?? _fallbackGlow;
+            // ============================================
+            // TEXTURE LOOKUPS - NOW USE VFXTextureRegistry
+            // ============================================
+            // Centralized texture management with proper fallbacks.
+            _nebulaWisp = VFXTextureRegistry.Noise.NebulaWisp ?? VFXTextureRegistry.Noise.Smoke ?? _fallbackGlow;
+            _fbmNoise = VFXTextureRegistry.Noise.TileableFBM ?? VFXTextureRegistry.Noise.Smoke ?? _fallbackGlow;
+            _energyGradient = VFXTextureRegistry.LUT.HorizontalEnergy ?? VFXTextureRegistry.LUT.EnergyGradient ?? _fallbackGlow;
+            _sparklyNoise = VFXTextureRegistry.Noise.Sparkly ?? VFXTextureRegistry.Noise.Smoke ?? _fallbackGlow;
         }
         
         #endregion

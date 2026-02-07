@@ -246,11 +246,13 @@ namespace MagnumOpus.Common.Systems.VFX
             Texture2D softTex = MagnumTextureRegistry.GetBloom();
             if (softTex == null) return;
             
-            // Try to get custom noise textures from CinematicVFX (Assets/VFX/Noise/)
-            // These are higher quality than procedural generation
-            Texture2D fbmNoiseTex = CinematicVFX.FBMNoise;      // Complex turbulent noise
-            Texture2D marbleNoiseTex = CinematicVFX.MarbleNoise; // Flowing organic noise
-            Texture2D nebulaWispTex = CinematicVFX.NebulaWispNoise; // Wispy fractal noise
+            // ============================================
+            // TEXTURE LOOKUPS - NOW USE VFXTextureRegistry
+            // ============================================
+            // Centralized texture management with proper fallbacks.
+            Texture2D fbmNoiseTex = VFXTextureRegistry.Noise.TileableFBM;      // Complex turbulent noise
+            Texture2D marbleNoiseTex = VFXTextureRegistry.Noise.Marble;        // Flowing organic noise
+            Texture2D nebulaWispTex = VFXTextureRegistry.Noise.NebulaWisp;     // Wispy fractal noise
             
             // Fallback to procedural if custom textures not loaded
             Texture2D cloudNoiseTex = nebulaWispTex ?? fbmNoiseTex ?? ParticleTextureGenerator.CloudNoise;

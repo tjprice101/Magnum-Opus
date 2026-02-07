@@ -12,7 +12,9 @@ namespace MagnumOpus.Common.Systems.VFX
     /// <summary>
     /// CINEMATIC VFX SYSTEM - Anamorphic Lens Flares, Energy Streaks, Impact Glints
     /// 
-    /// Uses custom noise textures for high-end cinematic effects:
+    /// Uses VFXTextureRegistry for centralized texture management.
+    /// 
+    /// Effects provided:
     /// - Anamorphic horizontal lens flares (boss limit breaks, ultimates)
     /// - Energy streaks on weapon trails (triangle strip mesh mapping)
     /// - Impact glints (single-frame scaled bursts)
@@ -22,52 +24,34 @@ namespace MagnumOpus.Common.Systems.VFX
     /// </summary>
     public static class CinematicVFX
     {
-        #region Texture References
+        #region Texture References (Delegated to VFXTextureRegistry)
         
-        // Custom noise textures from Assets/VFX/Noise/
-        private static Asset<Texture2D> _horizontalEnergyGradient;
-        private static Asset<Texture2D> _horizontalBlackCore;
-        private static Asset<Texture2D> _nebulaWispNoise;
-        private static Asset<Texture2D> _sparklyNoise;
-        private static Asset<Texture2D> _fbmNoise;
-        private static Asset<Texture2D> _marbleNoise;
+        // ============================================
+        // TEXTURE LOOKUPS - NOW USE VFXTextureRegistry
+        // ============================================
+        // These properties delegate to the centralized registry for
+        // proper fallback handling and deduplication.
         
-        // Lazy-loaded texture accessors
-        public static Texture2D HorizontalEnergyGradient => GetTexture(ref _horizontalEnergyGradient, "Assets/VFX/Noise/HorizontalEnergyGradient");
-        public static Texture2D HorizontalBlackCore => GetTexture(ref _horizontalBlackCore, "Assets/VFX/Noise/HorizontalBlackCoreCenterEnergyGradient");
-        public static Texture2D NebulaWispNoise => GetTexture(ref _nebulaWispNoise, "Assets/VFX/Noise/NebulaWispNoise");
-        public static Texture2D SparklyNoise => GetTexture(ref _sparklyNoise, "Assets/VFX/Noise/SparklyNoiseTexture");
-        public static Texture2D FBMNoise => GetTexture(ref _fbmNoise, "Assets/VFX/Noise/TileableFBMNoise");
-        public static Texture2D MarbleNoise => GetTexture(ref _marbleNoise, "Assets/VFX/Noise/TileableMarbleNoise");
+        /// <summary>Horizontal energy gradient for beam effects</summary>
+        public static Texture2D HorizontalEnergyGradient => VFXTextureRegistry.LUT.HorizontalEnergy;
+        
+        /// <summary>Black core gradient for hollow beams</summary>
+        public static Texture2D HorizontalBlackCore => VFXTextureRegistry.LUT.EnergyGradient;
+        
+        /// <summary>Nebula/cosmic wisp noise for Fate/Enigma themes</summary>
+        public static Texture2D NebulaWispNoise => VFXTextureRegistry.Noise.NebulaWisp;
+        
+        /// <summary>Sparkly noise for Eroica/DiesIrae themes</summary>
+        public static Texture2D SparklyNoise => VFXTextureRegistry.Noise.Sparkly;
+        
+        /// <summary>Tileable FBM noise for general procedural effects</summary>
+        public static Texture2D FBMNoise => VFXTextureRegistry.Noise.TileableFBM;
+        
+        /// <summary>Marble/swirl noise for SwanLake/Moonlight themes</summary>
+        public static Texture2D MarbleNoise => VFXTextureRegistry.Noise.Marble;
         
         // Debug flag - set to true to log texture loading issues
         public static bool DebugTextureLoading = false;
-        
-        private static Texture2D GetTexture(ref Asset<Texture2D> asset, string path)
-        {
-            if (asset == null)
-            {
-                try
-                {
-                    string fullPath = "MagnumOpus/" + path;
-                    asset = ModContent.Request<Texture2D>(fullPath, AssetRequestMode.ImmediateLoad);
-                    
-                    if (DebugTextureLoading && asset?.Value != null)
-                    {
-                        ModContent.GetInstance<MagnumOpus>()?.Logger?.Info($"[CinematicVFX] Loaded texture: {fullPath}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    if (DebugTextureLoading)
-                    {
-                        ModContent.GetInstance<MagnumOpus>()?.Logger?.Warn($"[CinematicVFX] Failed to load texture: MagnumOpus/{path} - {ex.Message}");
-                    }
-                    return null;
-                }
-            }
-            return asset?.Value;
-        }
         
         #endregion
         

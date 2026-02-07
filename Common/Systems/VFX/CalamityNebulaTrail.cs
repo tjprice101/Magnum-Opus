@@ -101,15 +101,19 @@ namespace MagnumOpus.Common.Systems.VFX
         
         #endregion
         
-        #region Texture Access
+        #region Texture Access (VFXTextureRegistry)
         
-        // Use CinematicVFX for texture loading (they're all in Assets/VFX/Noise/)
-        private static Texture2D NebulaWispNoise => CinematicVFX.NebulaWispNoise;
-        private static Texture2D FBMNoise => CinematicVFX.FBMNoise;
-        private static Texture2D MarbleNoise => CinematicVFX.MarbleNoise;
-        private static Texture2D EnergyGradient => CinematicVFX.HorizontalEnergyGradient;
-        private static Texture2D BlackCoreGradient => CinematicVFX.HorizontalBlackCore;
-        private static Texture2D SparklyNoise => CinematicVFX.SparklyNoise;
+        // ============================================
+        // TEXTURE LOOKUPS - NOW USE VFXTextureRegistry
+        // ============================================
+        // Centralized texture management with proper fallbacks.
+        
+        private static Texture2D NebulaWispNoise => VFXTextureRegistry.Noise.NebulaWisp ?? VFXTextureRegistry.Noise.Smoke;
+        private static Texture2D FBMNoise => VFXTextureRegistry.Noise.TileableFBM ?? VFXTextureRegistry.Noise.Smoke;
+        private static Texture2D MarbleNoise => VFXTextureRegistry.Noise.Marble ?? VFXTextureRegistry.Noise.Smoke;
+        private static Texture2D EnergyGradient => VFXTextureRegistry.LUT.HorizontalEnergy ?? VFXTextureRegistry.LUT.EnergyGradient;
+        private static Texture2D BlackCoreGradient => VFXTextureRegistry.LUT.EnergyGradient;
+        private static Texture2D SparklyNoise => VFXTextureRegistry.Noise.Sparkly ?? VFXTextureRegistry.Noise.Smoke;
         
         #endregion
         

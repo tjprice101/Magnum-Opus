@@ -7,6 +7,9 @@ using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.Particles;
 using ReLogic.Content;
 
+// VFX Texture Registry for proper noise/LUT/mask texture lookups
+// This replaces the old CinematicVFX texture references with the centralized system
+
 namespace MagnumOpus.Common.Systems.VFX
 {
     /// <summary>
@@ -334,15 +337,30 @@ namespace MagnumOpus.Common.Systems.VFX
             if (_basicEffect == null) Initialize();
             if (_basicEffect == null) return;
             
-            // Get noise textures
-            Texture2D fbmNoise = CinematicVFX.FBMNoise;
-            Texture2D marbleNoise = CinematicVFX.MarbleNoise;
-            Texture2D energyGradient = CinematicVFX.HorizontalEnergyGradient;
-            Texture2D softGlow = MagnumTextureRegistry.GetBloom();
+            // ============================================
+            // TEXTURE LOOKUPS VIA VFXTextureRegistry
+            // ============================================
+            // This uses the centralized texture registry for proper
+            // noise/LUT/mask texture management with fallbacks.
             
-            // Use FBM noise as primary, fallback to marble
-            Texture2D noiseTexture = fbmNoise ?? marbleNoise;
-            Texture2D trailTexture = energyGradient ?? softGlow;
+            // Primary noise for fog/nebula passes (prefer smoke noise for organic flow)
+            Texture2D noiseTexture = VFXTextureRegistry.Noise.Smoke 
+                ?? VFXTextureRegistry.Noise.TileableFBM
+                ?? MagnumTextureRegistry.GetBloom();
+            
+            // Marble noise for mid-layer nebula effect (swirling patterns)
+            Texture2D marbleNoise = VFXTextureRegistry.Noise.Marble 
+                ?? VFXTextureRegistry.Noise.Smoke;
+            
+            // Energy gradient for main trail pass
+            Texture2D trailTexture = VFXTextureRegistry.LUT.HorizontalEnergy 
+                ?? VFXTextureRegistry.LUT.EnergyGradient
+                ?? VFXTextureRegistry.Beam.Streak1
+                ?? MagnumTextureRegistry.GetBloom();
+            
+            // Soft glow for core pass (white-hot center)
+            Texture2D softGlow = VFXTextureRegistry.Mask.RadialGradient 
+                ?? MagnumTextureRegistry.GetBloom();
             
             GraphicsDevice device = Main.instance.GraphicsDevice;
             
@@ -357,9 +375,13 @@ namespace MagnumOpus.Common.Systems.VFX
                 float fadeAlpha = trail.IsFading ? 1f - (trail.FadeTimer / 20f) : 1f;
                 fadeAlpha = Math.Max(0f, fadeAlpha);
                 
-                // === PASS 1: BACKGROUND FOG (Large, soft, uses noise texture) ===
+                // Get theme-specific noise texture for this trail
+                // This allows different themes to have different noise characteristics
+                Texture2D themeNoise = VFXTextureRegistry.GetNoiseForTheme(trail.Theme) ?? noiseTexture;
+                
+                // === PASS 1: BACKGROUND FOG (Large, soft, uses theme-specific noise) ===
                 // ALL PASSES USE ADDITIVE to prevent black blob artifacts
-                RenderTrailPass(device, trail, noiseTexture, 
+                RenderTrailPass(device, trail, themeNoise, 
                     widthMult: 2.5f, 
                     alphaMult: 0.15f * fadeAlpha,
                     useSecondaryColor: true,
@@ -367,7 +389,7 @@ namespace MagnumOpus.Common.Systems.VFX
                     BlendState.Additive);
                 
                 // === PASS 2: MIDGROUND NEBULA (Medium, flowing, marble noise) ===
-                RenderTrailPass(device, trail, marbleNoise ?? noiseTexture, 
+                RenderTrailPass(device, trail, marbleNoise ?? themeNoise, 
                     widthMult: 1.6f, 
                     alphaMult: 0.25f * fadeAlpha,
                     useSecondaryColor: false,
@@ -485,11 +507,17 @@ namespace MagnumOpus.Common.Systems.VFX
                 // Use custom Trail shader with proper uniforms
                 try
                 {
-                    // Set shader parameters
+                    // Set primary shader parameters
                     _trailShader.Parameters["SpriteTexture"]?.SetValue(texture);
                     _trailShader.Parameters["uTime"]?.SetValue(gameTime);
                     _trailShader.Parameters["uOpacity"]?.SetValue(alphaMult);
                     _trailShader.Parameters["uIntensity"]?.SetValue(1.5f); // HDR-like intensity
+                    
+                    // ============================================
+                    // VFXTextureRegistry Integration
+                    // ============================================
+                    // Set additional textures from registry for advanced effects
+                    VFXTextureRegistry.SetShaderTextures(device, _trailShader);
                     
                     // Use trail colors for proper gradient
                     Vector3 primaryVec = useWhiteCore ? Vector3.One : 

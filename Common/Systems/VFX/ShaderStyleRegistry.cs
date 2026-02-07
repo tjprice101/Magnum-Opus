@@ -354,6 +354,29 @@ namespace MagnumOpus.Common.Systems.VFX
                 shader.Parameters["uColor"]?.SetValue(primaryColor.ToVector3());
                 shader.Parameters["uSecondaryColor"]?.SetValue(secondaryColor.ToVector3());
                 shader.Parameters["uRadius"]?.SetValue(radius);
+                
+                // ============================================
+                // VFXTextureRegistry Integration for Screen FX
+                // ============================================
+                // Set mask textures for proper distortion effects
+                // - RippleRing for Ripple and Pulse styles
+                // - EclipseRing for Warp and Tear styles
+                // - Noise for Shatter style
+                switch (style)
+                {
+                    case ScreenStyle.Ripple:
+                    case ScreenStyle.Pulse:
+                        shader.Parameters["uMaskTexture"]?.SetValue(VFXTextureRegistry.Mask.RippleRing);
+                        break;
+                    case ScreenStyle.Warp:
+                    case ScreenStyle.Tear:
+                        shader.Parameters["uMaskTexture"]?.SetValue(VFXTextureRegistry.Mask.EclipseRing);
+                        break;
+                    case ScreenStyle.Shatter:
+                        shader.Parameters["uMaskTexture"]?.SetValue(VFXTextureRegistry.Noise.Smoke);
+                        break;
+                }
+                shader.Parameters["uNoiseTexture"]?.SetValue(VFXTextureRegistry.Noise.Smoke);
 
                 string techniqueName = style switch
                 {
