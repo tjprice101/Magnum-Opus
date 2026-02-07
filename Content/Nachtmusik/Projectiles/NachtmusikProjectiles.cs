@@ -8,6 +8,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Nachtmusik.Debuffs;
 
 // Dynamic particle effects for aesthetically pleasing animations
@@ -232,95 +233,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Glyphs10").Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            Vector2 origin = tex.Size() / 2f;
-            Vector2 flareOrigin = flareTex.Size() / 2f;
-            Vector2 flareOrigin2 = flareTex2.Size() / 2f;
-            Vector2 glowOrigin = softGlow.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            
-            float time = Main.GameUpdateCount * 0.055f;
-            float pulse = 1f + (float)Math.Sin(time * 2.5f) * 0.18f;
-            float shimmer = 1f + (float)Math.Sin(time * 3f + Projectile.whoAmI) * 0.12f;
-            
-            // Colors with alpha removed (Fargos pattern)
-            Color violetBloom = NachtmusikCosmicVFX.Violet with { A = 0 };
-            Color goldBloom = NachtmusikCosmicVFX.Gold with { A = 0 };
-            Color whiteBloom = Color.White with { A = 0 };
-            Color deepPurpleBloom = NachtmusikCosmicVFX.DeepPurple with { A = 0 };
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            // === BRILLIANT TRAIL WITH hslToRgb GRADIENT ===
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                float fadeOut = 1f - progress;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                
-                float trailHue = HueMin + progress * (HueMax - HueMin);
-                Color trailGradient = Main.hslToRgb(trailHue, 0.85f, 0.7f) with { A = 0 };
-                
-                float outerScale = 0.55f * fadeOut * pulse;
-                sb.Draw(tex, trailPos, null, trailGradient * 0.4f * fadeOut, Projectile.oldRot[i], origin, outerScale, SpriteEffects.None, 0f);
-                float innerScale = 0.35f * fadeOut;
-                sb.Draw(tex, trailPos, null, whiteBloom * 0.5f * fadeOut, Projectile.oldRot[i], origin, innerScale, SpriteEffects.None, 0f);
-            }
-            
-            // === 6-LAYER SPINNING FLARES (TRUE_VFX_STANDARDS) ===
-            // Layer 1: Soft glow base
-            sb.Draw(softGlow, drawPos, null, deepPurpleBloom * 0.3f, 0f, glowOrigin, 0.85f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 2: First flare spinning clockwise
-            float hue2 = HueMin + 0.2f * (HueMax - HueMin);
-            Color layer2Color = Main.hslToRgb(hue2, 0.88f, 0.72f) with { A = 0 };
-            sb.Draw(flareTex, drawPos, null, layer2Color * 0.55f, time, flareOrigin, 0.38f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 3: Second flare spinning counter-clockwise
-            float hue3 = HueMin + 0.5f * (HueMax - HueMin);
-            Color layer3Color = Main.hslToRgb(hue3, 0.85f, 0.68f) with { A = 0 };
-            sb.Draw(flareTex2, drawPos, null, layer3Color * 0.5f, -time * 0.75f, flareOrigin2, 0.32f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 4: Third flare different speed
-            float hue4 = HueMin + 0.8f * (HueMax - HueMin);
-            Color layer4Color = Main.hslToRgb(hue4, 0.9f, 0.75f) with { A = 0 };
-            sb.Draw(flareTex, drawPos, null, layer4Color * 0.58f, time * 1.35f, flareOrigin, 0.28f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 5: Gold glow
-            sb.Draw(flareTex2, drawPos, null, goldBloom * 0.6f, -time * 0.5f, flareOrigin2, 0.22f * shimmer, SpriteEffects.None, 0f);
-            
-            // Layer 6: White-hot core
-            sb.Draw(flareTex, drawPos, null, whiteBloom * 0.75f, 0f, flareOrigin, 0.14f, SpriteEffects.None, 0f);
-            
-            // === MAIN GLYPH LAYERS ===
-            sb.Draw(tex, drawPos, null, violetBloom * 0.45f, Projectile.rotation, origin, 0.65f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, goldBloom * 0.6f, Projectile.rotation, origin, 0.45f * shimmer, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, whiteBloom * 0.8f, Projectile.rotation, origin, 0.25f, SpriteEffects.None, 0f);
-            
-            // === 4 ORBITING SPARK POINTS ===
-            float sparkOrbitAngle = time * 1.4f;
-            for (int i = 0; i < 4; i++)
-            {
-                float sparkAngle = sparkOrbitAngle + MathHelper.TwoPi * i / 4f;
-                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * 22f;
-                float sparkHue = HueMin + (i / 4f) * (HueMax - HueMin);
-                Color sparkColor = Main.hslToRgb(sparkHue, 0.88f, 0.78f) with { A = 0 };
-                sb.Draw(flareTex, sparkPos, null, sparkColor * 0.55f, 0f, flareOrigin, 0.1f * pulse, SpriteEffects.None, 0f);
-            }
-            
-            // === CENTER GLOW ===
-            sb.Draw(softGlow, drawPos, null, violetBloom * 0.5f, 0f, glowOrigin, 0.55f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(softGlow, drawPos, null, whiteBloom * 0.35f, 0f, glowOrigin, 0.28f, SpriteEffects.None, 0f);
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
+            // Procedural Nachtmusik rendering - violet/gold cosmic glyph
+            ProceduralProjectileVFX.DrawNachtmusikProjectile(Main.spriteBatch, Projectile, 0.6f);
             return false;
         }
         
@@ -547,108 +461,9 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwordArc6").Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            Vector2 origin = tex.Size() / 2f;
-            Vector2 flareOrigin = flareTex.Size() / 2f;
-            Vector2 flareOrigin2 = flareTex2.Size() / 2f;
-            Vector2 glowOrigin = softGlow.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            
-            float time = Main.GameUpdateCount * 0.055f;
-            float pulse = (float)Math.Sin(time * 2.2f) * 0.18f + 1f;
-            float scale = growthFactor * pulse;
-            
-            // Colors with alpha removed (Fargos pattern)
-            Color violetBloom = NachtmusikCosmicVFX.Violet with { A = 0 };
-            Color goldBloom = NachtmusikCosmicVFX.Gold with { A = 0 };
-            Color whiteBloom = Color.White with { A = 0 };
-            Color deepPurpleBloom = NachtmusikCosmicVFX.DeepPurple with { A = 0 };
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            // === BRILLIANT TRAIL WITH hslToRgb GRADIENT ===
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                float fadeOut = 1f - progress;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                
-                float trailHue = HueMin + progress * (HueMax - HueMin);
-                Color trailGradient = Main.hslToRgb(trailHue, 0.85f, 0.7f) with { A = 0 };
-                
-                float outerScale = scale * 1.2f * fadeOut;
-                sb.Draw(tex, trailPos, null, trailGradient * 0.35f * fadeOut, Projectile.oldRot[i], origin, outerScale, SpriteEffects.None, 0f);
-                float innerScale = scale * 0.7f * fadeOut;
-                sb.Draw(tex, trailPos, null, whiteBloom * 0.45f * fadeOut, Projectile.oldRot[i], origin, innerScale, SpriteEffects.None, 0f);
-            }
-            
-            // === 6-LAYER SPINNING FLARES (TRUE_VFX_STANDARDS) ===
-            // Layer 1: Soft glow base
-            sb.Draw(softGlow, drawPos, null, deepPurpleBloom * 0.25f, 0f, glowOrigin, 0.9f * scale, SpriteEffects.None, 0f);
-            
-            // Layer 2: First flare spinning clockwise
-            float hue2 = HueMin + 0.2f * (HueMax - HueMin);
-            Color layer2Color = Main.hslToRgb(hue2, 0.88f, 0.72f) with { A = 0 };
-            sb.Draw(flareTex, drawPos, null, layer2Color * 0.5f, time, flareOrigin, 0.35f * scale, SpriteEffects.None, 0f);
-            
-            // Layer 3: Second flare spinning counter-clockwise
-            float hue3 = HueMin + 0.5f * (HueMax - HueMin);
-            Color layer3Color = Main.hslToRgb(hue3, 0.85f, 0.68f) with { A = 0 };
-            sb.Draw(flareTex2, drawPos, null, layer3Color * 0.48f, -time * 0.75f, flareOrigin2, 0.3f * scale, SpriteEffects.None, 0f);
-            
-            // Layer 4: Third flare different speed
-            float hue4 = HueMin + 0.8f * (HueMax - HueMin);
-            Color layer4Color = Main.hslToRgb(hue4, 0.9f, 0.75f) with { A = 0 };
-            sb.Draw(flareTex, drawPos, null, layer4Color * 0.55f, time * 1.35f, flareOrigin, 0.25f * scale, SpriteEffects.None, 0f);
-            
-            // Layer 5: Gold glow
-            sb.Draw(flareTex2, drawPos, null, goldBloom * 0.58f, -time * 0.5f, flareOrigin2, 0.2f * scale, SpriteEffects.None, 0f);
-            
-            // Layer 6: White-hot core
-            sb.Draw(flareTex, drawPos, null, whiteBloom * 0.7f, 0f, flareOrigin, 0.12f * scale, SpriteEffects.None, 0f);
-            
-            // === MAIN ARC LAYERS ===
-            // Outermost ethereal glow
-            sb.Draw(tex, drawPos, null, deepPurpleBloom * 0.2f, Projectile.rotation, origin, scale * 1.5f, SpriteEffects.None, 0f);
-            
-            // Purple bloom layer
-            sb.Draw(tex, drawPos, null, violetBloom * 0.28f, Projectile.rotation * 0.95f, origin, scale * 1.3f, SpriteEffects.None, 0f);
-            
-            // Middle glow layer
-            sb.Draw(tex, drawPos, null, violetBloom * 0.35f, Projectile.rotation * 0.85f, origin, scale * 1.1f, SpriteEffects.None, 0f);
-            
-            // Inner gold layer
-            sb.Draw(tex, drawPos, null, goldBloom * 0.42f, Projectile.rotation * 0.7f, origin, scale * 0.85f, SpriteEffects.None, 0f);
-            
-            // Bright core layer
-            sb.Draw(tex, drawPos, null, whiteBloom * 0.52f, Projectile.rotation * 0.5f, origin, scale * 0.6f, SpriteEffects.None, 0f);
-            
-            // White-hot center
-            sb.Draw(tex, drawPos, null, whiteBloom * 0.65f, Projectile.rotation * 0.3f, origin, scale * 0.35f, SpriteEffects.None, 0f);
-            
-            // === 4 ORBITING SPARK POINTS ===
-            float sparkOrbitAngle = time * 1.3f;
-            for (int i = 0; i < 4; i++)
-            {
-                float sparkAngle = sparkOrbitAngle + MathHelper.TwoPi * i / 4f;
-                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * (18f * scale);
-                float sparkHue = HueMin + (i / 4f) * (HueMax - HueMin);
-                Color sparkColor = Main.hslToRgb(sparkHue, 0.88f, 0.78f) with { A = 0 };
-                sb.Draw(flareTex, sparkPos, null, sparkColor * 0.5f, 0f, flareOrigin, 0.1f * scale, SpriteEffects.None, 0f);
-            }
-            
-            // === CENTER GLOW ===
-            sb.Draw(softGlow, drawPos, null, violetBloom * 0.45f, 0f, glowOrigin, 0.55f * scale, SpriteEffects.None, 0f);
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
+            // Procedural Nachtmusik rendering - growing sword arc slash
+            float scale = growthFactor * (1f + (float)Math.Sin(Main.GameUpdateCount * 0.055f * 2.2f) * 0.18f);
+            ProceduralProjectileVFX.DrawNachtmusikProjectile(Main.spriteBatch, Projectile, scale * 0.7f);
             return false;
         }
     }
@@ -859,98 +674,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/StarBurst1").Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            Vector2 origin = tex.Size() / 2f;
-            Vector2 flareOrigin = flareTex.Size() / 2f;
-            Vector2 flareOrigin2 = flareTex2.Size() / 2f;
-            Vector2 glowOrigin = softGlow.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            
-            float time = Main.GameUpdateCount * 0.06f;
-            float pulse = 1f + (float)Math.Sin(time * 2.5f) * 0.15f;
-            
-            // Colors with alpha removed (Fargos pattern)
-            Color violetBloom = NachtmusikCosmicVFX.Violet with { A = 0 };
-            Color goldBloom = NachtmusikCosmicVFX.Gold with { A = 0 };
-            Color whiteBloom = Color.White with { A = 0 };
-            Color deepPurpleBloom = NachtmusikCosmicVFX.DeepPurple with { A = 0 };
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            // === BRILLIANT TRAIL WITH hslToRgb GRADIENT ===
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                float fadeOut = 1f - progress;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                
-                float trailHue = HueMin + progress * (HueMax - HueMin);
-                Color trailGradient = Main.hslToRgb(trailHue, 0.85f, 0.72f) with { A = 0 };
-                
-                float outerScale = 0.4f * fadeOut * pulse;
-                sb.Draw(tex, trailPos, null, trailGradient * 0.4f * fadeOut, 0f, origin, outerScale, SpriteEffects.None, 0f);
-                float innerScale = 0.22f * fadeOut * pulse;
-                sb.Draw(tex, trailPos, null, goldBloom * 0.5f * fadeOut, 0f, origin, innerScale, SpriteEffects.None, 0f);
-            }
-            
-            // === 6-LAYER SPINNING FLARES (TRUE_VFX_STANDARDS) ===
-            // Layer 1: Soft glow base
-            sb.Draw(softGlow, drawPos, null, deepPurpleBloom * 0.28f, 0f, glowOrigin, 0.55f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 2: First flare spinning clockwise
-            float hue2 = HueMin + 0.2f * (HueMax - HueMin);
-            Color layer2Color = Main.hslToRgb(hue2, 0.88f, 0.72f) with { A = 0 };
-            sb.Draw(flareTex, drawPos, null, layer2Color * 0.52f, time, flareOrigin, 0.3f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 3: Second flare spinning counter-clockwise
-            float hue3 = HueMin + 0.5f * (HueMax - HueMin);
-            Color layer3Color = Main.hslToRgb(hue3, 0.85f, 0.68f) with { A = 0 };
-            sb.Draw(flareTex2, drawPos, null, layer3Color * 0.48f, -time * 0.8f, flareOrigin2, 0.25f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 4: Third flare different speed
-            float hue4 = HueMin + 0.8f * (HueMax - HueMin);
-            Color layer4Color = Main.hslToRgb(hue4, 0.9f, 0.75f) with { A = 0 };
-            sb.Draw(flareTex, drawPos, null, layer4Color * 0.55f, time * 1.4f, flareOrigin, 0.2f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 5: Gold glow
-            sb.Draw(flareTex2, drawPos, null, goldBloom * 0.6f, -time * 0.55f, flareOrigin2, 0.16f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 6: White-hot core
-            sb.Draw(flareTex, drawPos, null, whiteBloom * 0.72f, 0f, flareOrigin, 0.1f * pulse, SpriteEffects.None, 0f);
-            
-            // === MAIN STAR LAYERS ===
-            // Outer ethereal layer
-            sb.Draw(tex, drawPos, null, deepPurpleBloom * 0.22f, 0f, origin, 0.6f * pulse, SpriteEffects.None, 0f);
-            
-            // Middle violet layer
-            sb.Draw(tex, drawPos, null, violetBloom * 0.35f, 0f, origin, 0.45f * pulse, SpriteEffects.None, 0f);
-            
-            // Inner gold layer
-            sb.Draw(tex, drawPos, null, goldBloom * 0.5f, 0f, origin, 0.32f * pulse, SpriteEffects.None, 0f);
-            
-            // White-hot core
-            sb.Draw(tex, drawPos, null, whiteBloom * 0.65f, 0f, origin, 0.2f * pulse, SpriteEffects.None, 0f);
-            
-            // === 4 ORBITING SPARK POINTS ===
-            float sparkOrbitAngle = time * 1.4f;
-            for (int i = 0; i < 4; i++)
-            {
-                float sparkAngle = sparkOrbitAngle + MathHelper.TwoPi * i / 4f;
-                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * (14f * pulse);
-                float sparkHue = HueMin + (i / 4f) * (HueMax - HueMin);
-                Color sparkColor = Main.hslToRgb(sparkHue, 0.88f, 0.78f) with { A = 0 };
-                sb.Draw(flareTex, sparkPos, null, sparkColor * 0.55f, 0f, flareOrigin, 0.08f * pulse, SpriteEffects.None, 0f);
-            }
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
+            // Use procedural VFX system - replaces 90+ lines of PNG-based rendering
+            ProceduralProjectileVFX.DrawNachtmusikProjectile(Main.spriteBatch, Projectile, 0.45f);
             return false;
         }
         
@@ -1139,49 +864,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D coreTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/StarBurst2").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow3").Value;
-            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/TwilightSparkle").Value;
-            Vector2 coreOrigin = coreTex.Size() / 2f;
-            Vector2 glowOrigin = glowTex.Size() / 2f;
-            Vector2 sparkleOrigin = sparkleTex.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.15f + 1f;
-            
-            // NEBULA GAS TRAIL - Billowing cloud effect behind projectile
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                
-                // Multiple gas layers per trail point
-                Color gasColor = Color.Lerp(NebulaCore, NebulaGas, progress) * (1f - progress) * 0.4f;
-                float gasScale = (0.5f - progress * 0.3f) * (1f + (float)Math.Sin(i * 0.5f) * 0.2f);
-                sb.Draw(glowTex, trailPos, null, gasColor with { A = 0 }, nebulaRotation + i * 0.3f, glowOrigin, gasScale, SpriteEffects.None, 0f);
-            }
-            
-            // OUTER NEBULA GLOW - Large diffuse halo
-            sb.Draw(glowTex, drawPos, null, (NebulaGas * 0.25f) with { A = 0 }, nebulaRotation, glowOrigin, 0.8f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(glowTex, drawPos, null, (NebulaOuter * 0.35f) with { A = 0 }, -nebulaRotation * 0.7f, glowOrigin, 0.6f * pulse, SpriteEffects.None, 0f);
-            
-            // ORBITING STAR MOTES - Tiny stars circling the core
-            for (int i = 0; i < starMoteAngles.Length; i++)
-            {
-                Vector2 moteOffset = starMoteAngles[i].ToRotationVector2() * starMoteDistances[i];
-                Vector2 motePos = drawPos + moteOffset;
-                float moteScale = 0.12f + (float)Math.Sin(Main.GameUpdateCount * 0.2f + i) * 0.03f;
-                Color moteColor = StarMote * (0.7f + (float)Math.Sin(Main.GameUpdateCount * 0.15f + i * 0.5f) * 0.3f);
-                sb.Draw(sparkleTex, motePos, null, moteColor with { A = 0 }, starMoteAngles[i], sparkleOrigin, moteScale, SpriteEffects.None, 0f);
-            }
-            
-            // NEBULA CORE - Swirling starburst center
-            sb.Draw(coreTex, drawPos, null, (NebulaOuter * 0.5f) with { A = 0 }, nebulaRotation, coreOrigin, 0.35f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(coreTex, drawPos, null, (NebulaCore * 0.7f) with { A = 0 }, -nebulaRotation * 1.3f, coreOrigin, 0.25f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(coreTex, drawPos, null, (StarMote * 0.9f) with { A = 0 }, nebulaRotation * 0.5f, coreOrigin, 0.15f * pulse, SpriteEffects.None, 0f);
-            
+            // Use procedural VFX system - replaces 45+ lines of PNG-based nebula rendering
+            ProceduralProjectileVFX.DrawNachtmusikProjectile(Main.spriteBatch, Projectile, 0.5f);
             return false;
         }
     }
@@ -1239,25 +923,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Vector2 origin = tex.Size() / 2f;
-            
-            // Falling star trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                Color trailColor = Color.Lerp(StarCore, StarTrail, progress) * (1f - progress) * 0.6f;
-                float trailScale = 0.2f * (1f - progress * 0.7f);
-                sb.Draw(tex, trailPos, null, trailColor with { A = 0 }, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
-            }
-            
-            // Star core
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, (StarCore * 0.9f) with { A = 0 }, Projectile.rotation, origin, 0.25f, SpriteEffects.None, 0f);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, Color.White with { A = 0 }, Projectile.rotation, origin, 0.12f, SpriteEffects.None, 0f);
-            
+            // Use procedural VFX system - replaces 20+ lines of PNG-based starfall rendering
+            ProceduralProjectileVFX.DrawNachtmusikProjectile(Main.spriteBatch, Projectile, 0.2f);
             return false;
         }
     }
@@ -1458,63 +1125,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            
-            // ===== TRUE_VFX_STANDARDS: Load multiple flare textures =====
-            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            Texture2D sparkle = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle13").Value;
-            
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float time = Main.GameUpdateCount * 0.05f;
-            float pulse = 1f + (float)Math.Sin(time * 2.2f) * 0.15f;
-            
-            // ===== STAR TRAIL with hslToRgb gradient =====
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                
-                float trailHue = HueMin + progress * (HueMax - HueMin);
-                Color trailColor = Main.hslToRgb(trailHue, 0.85f, 0.7f) * (1f - progress) * 0.6f;
-                float trailScale = 0.35f * (1f - progress * 0.5f);
-                
-                sb.Draw(sparkle, trailPos, null, trailColor with { A = 0 }, Projectile.oldRot[i], sparkle.Size() / 2f, trailScale, SpriteEffects.None, 0f);
-            }
-            
-            // ===== TRUE_VFX_STANDARDS: 6-LAYER SPINNING FLARES =====
-            // Layer 1: Soft glow base (large, dim)
-            sb.Draw(softGlow, drawPos, null, (StarViolet * 0.35f) with { A = 0 }, 0f, softGlow.Size() / 2f, 0.6f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 2: Outer flare (spinning clockwise)
-            sb.Draw(flare1, drawPos, null, (StarViolet * 0.5f) with { A = 0 }, time, flare1.Size() / 2f, 0.45f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 3: Second flare (spinning counter-clockwise)
-            sb.Draw(flare2, drawPos, null, (StarGold * 0.55f) with { A = 0 }, -time * 0.75f, flare2.Size() / 2f, 0.38f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 4: Third flare (faster spin)
-            sb.Draw(flare1, drawPos, null, (StarViolet * 0.6f) with { A = 0 }, time * 1.4f, flare1.Size() / 2f, 0.3f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 5: Inner glow
-            sb.Draw(flare2, drawPos, null, (StarGold * 0.7f) with { A = 0 }, -time * 0.5f, flare2.Size() / 2f, 0.22f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 6: White-hot core
-            sb.Draw(flare1, drawPos, null, (Color.White * 0.85f) with { A = 0 }, 0f, flare1.Size() / 2f, 0.12f * pulse, SpriteEffects.None, 0f);
-            
-            // ===== ORBITING SPARK POINTS (4 points) =====
-            float orbitAngle = Main.GameUpdateCount * 0.08f;
-            float orbitRadius = 12f + (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 3f;
-            for (int p = 0; p < 4; p++)
-            {
-                float sparkAngle = orbitAngle + MathHelper.TwoPi * p / 4f;
-                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * orbitRadius;
-                float sparkHue = HueMin + ((p / 4f + Main.GameUpdateCount * 0.006f) % 1f) * (HueMax - HueMin);
-                Color sparkColor = Main.hslToRgb(sparkHue, 0.9f, 0.85f);
-                sb.Draw(sparkle, sparkPos, null, sparkColor with { A = 0 }, sparkAngle * 2f, sparkle.Size() / 2f, 0.12f * pulse, SpriteEffects.None, 0f);
-            }
-            
+            // Use procedural VFX system - replaces 60+ lines of PNG-based serenade star rendering
+            ProceduralProjectileVFX.DrawNachtmusikProjectile(Main.spriteBatch, Projectile, 0.45f);
             return false;
         }
         
@@ -1757,64 +1369,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            
-            // ===== TRUE_VFX_STANDARDS: Load multiple flare textures =====
-            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            Texture2D magicField = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField8").Value;
-            
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float time = Main.GameUpdateCount * 0.05f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.18f;
-            
-            // ===== ORB TRAIL with hslToRgb gradient =====
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                
-                float trailHue = HueMin + progress * (HueMax - HueMin);
-                Color trailColor = Main.hslToRgb(trailHue, 0.85f, 0.7f) * (1f - progress) * 0.55f;
-                float trailScale = 0.4f * (1f - progress * 0.6f);
-                
-                sb.Draw(magicField, trailPos, null, trailColor with { A = 0 }, Projectile.oldRot[i] * 0.5f, magicField.Size() / 2f, trailScale, SpriteEffects.None, 0f);
-            }
-            
-            // ===== TRUE_VFX_STANDARDS: 6-LAYER SPINNING FLARES =====
-            // Layer 1: Soft glow base (large, dim)
-            sb.Draw(softGlow, drawPos, null, (OrbViolet * 0.35f) with { A = 0 }, 0f, softGlow.Size() / 2f, 0.7f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 2: Magic field outer (spinning clockwise)
-            sb.Draw(magicField, drawPos, null, (NachtmusikCosmicVFX.DeepPurple * 0.45f) with { A = 0 }, Projectile.rotation, magicField.Size() / 2f, 0.6f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 3: Flare layer (spinning counter-clockwise)
-            sb.Draw(flare1, drawPos, null, (OrbViolet * 0.55f) with { A = 0 }, time, flare1.Size() / 2f, 0.48f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 4: Magic field mid (different rotation)
-            sb.Draw(magicField, drawPos, null, (OrbViolet * 0.6f) with { A = 0 }, -Projectile.rotation * 0.5f, magicField.Size() / 2f, 0.42f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 5: Flare inner
-            sb.Draw(flare2, drawPos, null, (OrbGold * 0.7f) with { A = 0 }, -time * 0.6f, flare2.Size() / 2f, 0.32f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 6: White-hot core
-            sb.Draw(flare1, drawPos, null, (Color.White * 0.85f) with { A = 0 }, 0f, flare1.Size() / 2f, 0.15f * pulse, SpriteEffects.None, 0f);
-            
-            // ===== ORBITING SPARK POINTS (5 points) =====
-            float orbitAngle = Main.GameUpdateCount * 0.07f;
-            float orbitRadius = 14f + (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 4f;
-            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/TwinkleSparkle").Value;
-            for (int p = 0; p < 5; p++)
-            {
-                float sparkAngle = orbitAngle + MathHelper.TwoPi * p / 5f;
-                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * orbitRadius;
-                float sparkHue = HueMin + ((p / 5f + Main.GameUpdateCount * 0.005f) % 1f) * (HueMax - HueMin);
-                Color sparkColor = Main.hslToRgb(sparkHue, 0.9f, 0.85f);
-                sb.Draw(sparkleTex, sparkPos, null, sparkColor with { A = 0 }, sparkAngle * 2f, sparkleTex.Size() / 2f, 0.14f * pulse, SpriteEffects.None, 0f);
-            }
-            
+            // Use procedural VFX system - replaces 65+ lines of PNG-based starweaver orb rendering
+            ProceduralProjectileVFX.DrawNachtmusikProjectile(Main.spriteBatch, Projectile, 0.55f);
             return false;
         }
         
@@ -1995,64 +1551,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D beamTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField7").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/ConstellationStyleSparkle").Value;
-            Vector2 beamOrigin = beamTex.Size() / 2f;
-            Vector2 glowOrigin = glowTex.Size() / 2f;
-            Vector2 sparkleOrigin = sparkleTex.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            
-            float pulse = (float)Math.Sin(warpPulse) * 0.12f + 1f;
-            
-            // COSMIC RIVER TRAIL - Flowing beam with constellation connections
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                
-                // Outer void glow
-                Color voidColor = CosmicVoid * (1f - progress) * 0.5f;
-                float voidScale = 0.6f * (1f - progress * 0.5f);
-                sb.Draw(glowTex, trailPos, null, voidColor with { A = 0 }, cosmicRotation + i * 0.2f, glowOrigin, voidScale, SpriteEffects.None, 0f);
-                
-                // Mid cosmic glow
-                Color trailColor = Color.Lerp(CosmicMid, CosmicOuter, progress) * (1f - progress) * 0.6f;
-                float trailScale = 0.4f * (1f - progress * 0.6f);
-                sb.Draw(beamTex, trailPos, null, trailColor with { A = 0 }, Projectile.oldRot[i], beamOrigin, trailScale, SpriteEffects.None, 0f);
-                
-                // Draw constellation lines connecting trail points
-                if (i > 0 && i % 3 == 0 && Projectile.oldPos[i - 3] != Vector2.Zero)
-                {
-                    Vector2 prevPos = Projectile.oldPos[i - 3] + Projectile.Size / 2f - Main.screenPosition;
-                    // Mini sparkle at connection point
-                    Color connectColor = GalaxyMote * (1f - progress) * 0.4f;
-                    sb.Draw(sparkleTex, trailPos, null, connectColor with { A = 0 }, 0f, sparkleOrigin, 0.1f * (1f - progress), SpriteEffects.None, 0f);
-                }
-            }
-            
-            // OUTER COSMIC HALO - Large diffuse glow
-            sb.Draw(glowTex, drawPos, null, (CosmicOuter * 0.3f) with { A = 0 }, cosmicRotation, glowOrigin, 0.7f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(glowTex, drawPos, null, (CosmicMid * 0.4f) with { A = 0 }, -cosmicRotation * 0.6f, glowOrigin, 0.5f * pulse, SpriteEffects.None, 0f);
-            
-            // ORBITING GALAXY MOTES - Tiny spiraling galaxies
-            for (int i = 0; i < galaxyMoteAngles.Length; i++)
-            {
-                float moteRadius = 10f + (float)Math.Sin(Main.GameUpdateCount * 0.15f + i * 0.7f) * 3f;
-                Vector2 moteOffset = galaxyMoteAngles[i].ToRotationVector2() * moteRadius;
-                Vector2 motePos = drawPos + moteOffset;
-                float moteScale = 0.1f + (float)Math.Sin(Main.GameUpdateCount * 0.2f + i) * 0.02f;
-                Color moteColor = GalaxyMote * (0.7f + (float)Math.Sin(Main.GameUpdateCount * 0.12f + i * 0.4f) * 0.3f);
-                sb.Draw(sparkleTex, motePos, null, moteColor with { A = 0 }, galaxyMoteAngles[i] * 2f, sparkleOrigin, moteScale, SpriteEffects.None, 0f);
-            }
-            
-            // BEAM CORE - Layered cosmic energy center
-            sb.Draw(beamTex, drawPos, null, (CosmicOuter * 0.5f) with { A = 0 }, Projectile.rotation + cosmicRotation, beamOrigin, 0.45f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(beamTex, drawPos, null, (CosmicMid * 0.7f) with { A = 0 }, Projectile.rotation - cosmicRotation * 0.5f, beamOrigin, 0.32f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(beamTex, drawPos, null, (CosmicCore * 0.9f) with { A = 0 }, Projectile.rotation, beamOrigin, 0.2f * pulse, SpriteEffects.None, 0f);
-            
+            // Use procedural VFX system - replaces 60+ lines of PNG-based cosmic beam rendering
+            ProceduralProjectileVFX.DrawNachtmusikProjectile(Main.spriteBatch, Projectile, 0.6f);
             return false;
         }
     }
@@ -2195,31 +1695,9 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwordArc3").Value;
-            Vector2 origin = tex.Size() / 2f;
-            
-            Color coreColor = isDimensionSever ? NachtmusikCosmicVFX.Gold : NachtmusikCosmicVFX.Violet;
-            float baseScale = isDimensionSever ? 0.5f : 0.35f;
-            
-            // Slash trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                Color trailColor = Color.Lerp(coreColor, NachtmusikCosmicVFX.DeepPurple, progress) * (1f - progress) * 0.6f;
-                float scale = baseScale * (1f - progress * 0.5f);
-                
-                // Elongated for slash effect
-                sb.Draw(tex, drawPos, null, trailColor, Projectile.oldRot[i], origin, new Vector2(scale * 2f, scale * 0.6f), SpriteEffects.None, 0f);
-            }
-            
-            // Core
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.3f) * 0.1f + 0.9f;
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, coreColor * 0.7f, Projectile.rotation, origin, new Vector2(baseScale * 1.5f * pulse, baseScale * 0.5f * pulse), SpriteEffects.None, 0f);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, NachtmusikCosmicVFX.StarWhite, Projectile.rotation, origin, new Vector2(baseScale * 0.8f * pulse, baseScale * 0.25f * pulse), SpriteEffects.None, 0f);
-            
+            // Use procedural VFX system - replaces 25+ lines of PNG-based slash rendering
+            float scale = isDimensionSever ? 0.55f : 0.4f;
+            ProceduralProjectileVFX.DrawNachtmusikProjectile(Main.spriteBatch, Projectile, scale);
             return false;
         }
     }

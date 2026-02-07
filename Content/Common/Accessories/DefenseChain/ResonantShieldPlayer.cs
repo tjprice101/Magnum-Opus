@@ -43,6 +43,17 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
         public bool HasSwansImmortalGrace { get; set; }      // T5 - 50% shield, +5% dodge at full
         public bool HasFatesCosmicAegis { get; set; }        // T6 - 60% shield, Last Stand invincibility
         
+        // Post-Fate Theme Chain (T7-T10)
+        public bool HasNocturnalGuardiansWard { get; set; }      // T7 - Nachtmusik - 70% shield, stellar constellation
+        public bool HasInfernalRampartOfDiesIrae { get; set; }   // T8 - Dies Irae - 80% shield, hellfire thorns
+        public bool HasJubilantBulwarkOfJoy { get; set; }        // T9 - Ode to Joy - 90% shield, healing on block
+        public bool HasEternalBastionOfTheMoonlight { get; set; } // T10 - Clair de Lune - 100% shield, Temporal Stasis
+        
+        // Post-Fate Fusion Accessories
+        public bool HasStarfallInfernalShield { get; set; }      // Fusion T1 - Nachtmusik + Dies Irae
+        public bool HasTriumphantJubilantAegis { get; set; }     // Fusion T2 - + Ode to Joy
+        public bool HasAegisOfTheEternalBastion { get; set; }    // Ultimate Fusion - + Clair de Lune
+        
         // ========== SHIELD STATE ==========
         public float CurrentShield { get; private set; }
         public float MaxShield => GetMaxShield();
@@ -84,6 +95,16 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
         private static readonly Color SwanWhite = new Color(240, 245, 255);
         private static readonly Color FateCrimson = new Color(180, 40, 80);
         
+        // Post-Fate Theme Colors
+        private static readonly Color NachtmusikPurple = new Color(100, 80, 180);
+        private static readonly Color NachtmusikGold = new Color(255, 215, 140);
+        private static readonly Color DiesIraeCrimson = new Color(200, 50, 50);
+        private static readonly Color DiesIraeOrange = new Color(255, 120, 40);
+        private static readonly Color OdeToJoyWhite = new Color(255, 255, 255);
+        private static readonly Color OdeToJoyIridescent = new Color(220, 200, 255);
+        private static readonly Color ClairDeLuneBrass = new Color(200, 170, 100);
+        private static readonly Color ClairDeLuneCrimson = new Color(180, 80, 100);
+        
         public override void ResetEffects()
         {
             HasResonantBarrierCore = false;
@@ -99,6 +120,17 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             HasSwansImmortalGrace = false;
             HasFatesCosmicAegis = false;
             
+            // Post-Fate T7-T10
+            HasNocturnalGuardiansWard = false;
+            HasInfernalRampartOfDiesIrae = false;
+            HasJubilantBulwarkOfJoy = false;
+            HasEternalBastionOfTheMoonlight = false;
+            
+            // Post-Fate Fusions
+            HasStarfallInfernalShield = false;
+            HasTriumphantJubilantAegis = false;
+            HasAegisOfTheEternalBastion = false;
+            
             thornsActive = false;
         }
         
@@ -110,7 +142,10 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             return HasResonantBarrierCore || HasSpringVitalityShell || HasSolarFlareAegis ||
                    HasHarvestThornedGuard || HasPermafrostCrystalWard || HasVivaldisSeasonalBulwark ||
                    HasMoonlitGuardiansVeil || HasHeroicValorsAegis || HasInfernalBellsFortress ||
-                   HasEnigmasVoidShell || HasSwansImmortalGrace || HasFatesCosmicAegis;
+                   HasEnigmasVoidShell || HasSwansImmortalGrace || HasFatesCosmicAegis ||
+                   HasNocturnalGuardiansWard || HasInfernalRampartOfDiesIrae || HasJubilantBulwarkOfJoy ||
+                   HasEternalBastionOfTheMoonlight || HasStarfallInfernalShield || HasTriumphantJubilantAegis ||
+                   HasAegisOfTheEternalBastion;
         }
         
         /// <summary>
@@ -118,6 +153,26 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
         /// </summary>
         private float GetShieldPercent()
         {
+            // Ultimate Fusion - 120%
+            if (HasAegisOfTheEternalBastion) return 1.20f;      // 120%
+            
+            // Fusion Tier 2 - 95%
+            if (HasTriumphantJubilantAegis) return 0.95f;       // 95%
+            
+            // Fusion Tier 1 and T10 - 85% and 100%
+            if (HasEternalBastionOfTheMoonlight) return 1.00f;  // 100%
+            if (HasStarfallInfernalShield) return 0.85f;        // 85%
+            
+            // T9 - 90%
+            if (HasJubilantBulwarkOfJoy) return 0.90f;          // 90%
+            
+            // T8 - 80%
+            if (HasInfernalRampartOfDiesIrae) return 0.80f;     // 80%
+            
+            // T7 - 70%
+            if (HasNocturnalGuardiansWard) return 0.70f;        // 70%
+            
+            // Fate tier and below (original values)
             if (HasFatesCosmicAegis) return 0.60f;          // 60%
             if (HasSwansImmortalGrace) return 0.50f;        // 50%
             if (HasEnigmasVoidShell) return 0.45f;          // 45%
@@ -148,22 +203,64 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
         {
             float rate = BASE_REGEN_RATE;
             
-            // Moonlit Guardian's Veil: faster regen at night
-            if (HasMoonlitGuardiansVeil && !Main.dayTime)
+            // Post-Fate Ultimate: Maximum regen boost
+            if (HasAegisOfTheEternalBastion)
+            {
+                rate *= 2.0f;
+                if (!Main.dayTime) rate *= 1.3f; // Night bonus
+            }
+            // Eternal Bastion (T10): Very fast regen, bonus when standing still
+            else if (HasEternalBastionOfTheMoonlight)
+            {
+                rate *= 1.8f;
+                if (Player.velocity.Length() < 0.1f) rate *= 1.5f; // Standing still bonus
+            }
+            // Triumphant Jubilant Aegis (Fusion 2): Fast regen with healing
+            else if (HasTriumphantJubilantAegis)
+            {
+                rate *= 1.7f;
+            }
+            // Jubilant Bulwark (T9): Fast regen with celebration
+            else if (HasJubilantBulwarkOfJoy)
+            {
+                rate *= 1.6f;
+            }
+            // Starfall Infernal Shield (Fusion 1): Enhanced regen
+            else if (HasStarfallInfernalShield)
+            {
+                rate *= 1.55f;
+                if (!Main.dayTime) rate *= 1.3f; // Night bonus from Nachtmusik
+            }
+            // Infernal Rampart (T8): Moderate-fast regen
+            else if (HasInfernalRampartOfDiesIrae)
             {
                 rate *= 1.5f;
             }
-            
-            // Swan's Immortal Grace: slightly faster base regen
-            if (HasSwansImmortalGrace)
+            // Nocturnal Guardian's Ward (T7): Boosted at night
+            else if (HasNocturnalGuardiansWard)
             {
-                rate *= 1.2f;
+                rate *= 1.4f;
+                if (!Main.dayTime) rate *= 1.5f; // Night bonus
             }
-            
-            // Fate's Cosmic Aegis: even faster regen
-            if (HasFatesCosmicAegis)
+            else
             {
-                rate *= 1.3f;
+                // Moonlit Guardian's Veil: faster regen at night
+                if (HasMoonlitGuardiansVeil && !Main.dayTime)
+                {
+                    rate *= 1.5f;
+                }
+                
+                // Swan's Immortal Grace: slightly faster base regen
+                if (HasSwansImmortalGrace)
+                {
+                    rate *= 1.2f;
+                }
+                
+                // Fate's Cosmic Aegis: even faster regen
+                if (HasFatesCosmicAegis)
+                {
+                    rate *= 1.3f;
+                }
             }
             
             return rate;

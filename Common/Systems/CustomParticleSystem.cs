@@ -94,7 +94,7 @@ namespace MagnumOpus.Common.Systems
         public static Asset<Texture2D>[] ParticleTrails { get; private set; } = new Asset<Texture2D>[4]; // Trail1-4
         
         // === MAGIC SPARKLE FIELDS ===
-        public static Asset<Texture2D>[] MagicSparkleFields { get; private set; } = new Asset<Texture2D>[7]; // Fields 4,6-12
+        public static Asset<Texture2D>[] MagicSparkleFields { get; private set; } = new Asset<Texture2D>[8]; // Fields 4,6-12
         
         // === PRISMATIC SPARKLES ===
         public static Asset<Texture2D>[] PrismaticSparkles { get; private set; } = new Asset<Texture2D>[3]; // Sparkle11,13,14
@@ -216,6 +216,7 @@ namespace MagnumOpus.Common.Systems
                 MagicSparkleFields[4] = ModContent.Request<Texture2D>(basePath + "MagicSparklField9", AssetRequestMode.ImmediateLoad);
                 MagicSparkleFields[5] = ModContent.Request<Texture2D>(basePath + "MagicSparklField10", AssetRequestMode.ImmediateLoad);
                 MagicSparkleFields[6] = ModContent.Request<Texture2D>(basePath + "MagicSparklField11", AssetRequestMode.ImmediateLoad);
+                MagicSparkleFields[7] = ModContent.Request<Texture2D>(basePath + "MagicSparklField12", AssetRequestMode.ImmediateLoad);
                 
                 // === PRISMATIC SPARKLES ===
                 PrismaticSparkles[0] = ModContent.Request<Texture2D>(basePath + "PrismaticSparkle11", AssetRequestMode.ImmediateLoad);
@@ -278,7 +279,7 @@ namespace MagnumOpus.Common.Systems
             return GlowingHalos[Main.rand.Next(5)];  // 5 halos available
         }
         public static Asset<Texture2D> RandomTrail() => ParticleTrails[Main.rand.Next(4)];
-        public static Asset<Texture2D> RandomSparkleField() => MagicSparkleFields[Main.rand.Next(7)];  // 7 elements now
+        public static Asset<Texture2D> RandomSparkleField() => MagicSparkleFields[Main.rand.Next(8)];  // 8 elements now
         public static Asset<Texture2D> RandomPrismaticSparkle() => PrismaticSparkles[Main.rand.Next(3)];  // 3 elements now
         public static Asset<Texture2D> RandomSwordArc() => SwordArcs[Main.rand.Next(9)];
         public static Asset<Texture2D> RandomSwanFeather() => SwanFeathers[Main.rand.Next(10)];

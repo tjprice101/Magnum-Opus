@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.DataStructures;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 
 namespace MagnumOpus.Content.Summer.Projectiles
@@ -508,23 +509,8 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = texture.Size() / 2f;
-
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.12f + 1f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            spriteBatch.Draw(texture, drawPos, null, SunOrange * 0.35f, 0f, origin, 0.35f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SunGold * 0.5f, 0f, origin, 0.22f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, Color.White * 0.6f, 0f, origin, 0.1f * pulse, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Use procedural Summer VFX for solar flare bloom
+            ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.3f);
             return false;
         }
     }
@@ -652,23 +638,8 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/FlareSpikeBurst").Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = texture.Size() / 2f;
-
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.18f) * 0.15f + 1f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            spriteBatch.Draw(texture, drawPos, null, SunGold * 0.4f, 0f, origin, 0.5f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SunWhite * 0.55f, 0f, origin, 0.32f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, Color.White * 0.7f, 0f, origin, 0.15f * pulse, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Use procedural Summer VFX for zenith flare bloom
+            ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.45f);
             return false;
         }
     }

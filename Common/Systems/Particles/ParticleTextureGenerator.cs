@@ -39,6 +39,14 @@ namespace MagnumOpus.Common.Systems.Particles
         private static Texture2D _musicSharp;
         private static Texture2D _musicFlat;
         
+        // Noise textures for shader-based VFX (fog, trails, distortion)
+        private static Texture2D _perlinNoise;
+        private static Texture2D _voronoiNoise;
+        private static Texture2D _fractalNoise;
+        private static Texture2D _trailNoise;
+        private static Texture2D _distortionNoise;
+        private static Texture2D _cloudNoise;
+        
         // Lazy-initialized properties - textures are created on first access (which happens on main thread during draw)
         public static Texture2D BloomCircle => _bloomCircle ??= GenerateBloomCircle(64);
         public static Texture2D BloomRing => _bloomRing ??= GenerateBloomRing(64, 0.3f, 0.5f);
@@ -62,6 +70,14 @@ namespace MagnumOpus.Common.Systems.Particles
         public static Texture2D MusicStaff => _musicStaff ??= GenerateMusicStaff(64, 32);
         public static Texture2D MusicSharp => _musicSharp ??= GenerateMusicSharp(24);
         public static Texture2D MusicFlat => _musicFlat ??= GenerateMusicFlat(20, 28);
+
+        // Noise texture properties for shader-based VFX
+        public static Texture2D PerlinNoise => _perlinNoise ??= GeneratePerlinNoise(128);
+        public static Texture2D VoronoiNoise => _voronoiNoise ??= GenerateVoronoiNoise(128, 16);
+        public static Texture2D FractalNoise => _fractalNoise ??= GenerateFractalNoise(128, 6);
+        public static Texture2D TrailNoise => _trailNoise ??= GenerateTrailNoise(64, 256);
+        public static Texture2D DistortionNoise => _distortionNoise ??= GenerateDistortionNoise(128);
+        public static Texture2D CloudNoise => _cloudNoise ??= GenerateCloudNoise(128);
 
         public override void Load()
         {
@@ -94,6 +110,12 @@ namespace MagnumOpus.Common.Systems.Particles
             _musicStaff = null;
             _musicSharp = null;
             _musicFlat = null;
+            _perlinNoise = null;
+            _voronoiNoise = null;
+            _fractalNoise = null;
+            _trailNoise = null;
+            _distortionNoise = null;
+            _cloudNoise = null;
         }
 
         /// <summary>
@@ -1087,6 +1109,380 @@ namespace MagnumOpus.Common.Systems.Particles
                     
                     byte a = (byte)(MathHelper.Clamp(alpha, 0f, 1f) * 255);
                     data[y * width + x] = new Color(a, a, a, a);
+                }
+            }
+            
+            texture.SetData(data);
+            return texture;
+        }
+        
+        #endregion
+        
+        #region Noise Texture Generation
+        
+        // Permutation table for Perlin noise (precalculated)
+        private static readonly int[] _perm = new int[512];
+        private static bool _permInitialized = false;
+        
+        private static void InitializePermutation()
+        {
+            if (_permInitialized) return;
+            
+            int[] p = new int[256];
+            for (int i = 0; i < 256; i++) p[i] = i;
+            
+            // Shuffle using a fixed seed for reproducibility
+            Random rand = new Random(12345);
+            for (int i = 255; i > 0; i--)
+            {
+                int j = rand.Next(i + 1);
+                (p[i], p[j]) = (p[j], p[i]);
+            }
+            
+            for (int i = 0; i < 512; i++)
+                _perm[i] = p[i & 255];
+            
+            _permInitialized = true;
+        }
+        
+        private static float Fade(float t) => t * t * t * (t * (t * 6 - 15) + 10);
+        private static float Lerp(float a, float b, float t) => a + t * (b - a);
+        private static float Grad(int hash, float x, float y)
+        {
+            int h = hash & 7;
+            float u = h < 4 ? x : y;
+            float v = h < 4 ? y : x;
+            return ((h & 1) != 0 ? -u : u) + ((h & 2) != 0 ? -2f * v : 2f * v);
+        }
+        
+        /// <summary>
+        /// Sample 2D Perlin noise at given coordinates.
+        /// </summary>
+        private static float SamplePerlin(float x, float y)
+        {
+            InitializePermutation();
+            
+            int xi = (int)Math.Floor(x) & 255;
+            int yi = (int)Math.Floor(y) & 255;
+            float xf = x - (float)Math.Floor(x);
+            float yf = y - (float)Math.Floor(y);
+            
+            float u = Fade(xf);
+            float v = Fade(yf);
+            
+            int aa = _perm[_perm[xi] + yi];
+            int ab = _perm[_perm[xi] + yi + 1];
+            int ba = _perm[_perm[xi + 1] + yi];
+            int bb = _perm[_perm[xi + 1] + yi + 1];
+            
+            float x1 = Lerp(Grad(aa, xf, yf), Grad(ba, xf - 1, yf), u);
+            float x2 = Lerp(Grad(ab, xf, yf - 1), Grad(bb, xf - 1, yf - 1), u);
+            
+            return (Lerp(x1, x2, v) + 1f) * 0.5f; // Normalize to 0-1
+        }
+        
+        /// <summary>
+        /// Generates a seamlessly tileable Perlin noise texture.
+        /// Use for: Fog dissipation, soft cloud patterns, smooth distortion.
+        /// </summary>
+        public static Texture2D GeneratePerlinNoise(int size, float scale = 4f)
+        {
+            Texture2D texture = new Texture2D(Main.graphics.GraphicsDevice, size, size);
+            Color[] data = new Color[size * size];
+            
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    // Sample with wrapping for seamless tiling
+                    float nx = (float)x / size * scale;
+                    float ny = (float)y / size * scale;
+                    
+                    // Seamless tiling using 4-corner blending
+                    float s = (float)x / size;
+                    float t = (float)y / size;
+                    
+                    float n00 = SamplePerlin(nx, ny);
+                    float n10 = SamplePerlin(nx + scale, ny);
+                    float n01 = SamplePerlin(nx, ny + scale);
+                    float n11 = SamplePerlin(nx + scale, ny + scale);
+                    
+                    float nx0 = Lerp(n00, n10, s);
+                    float nx1 = Lerp(n01, n11, s);
+                    float value = Lerp(nx0, nx1, t);
+                    
+                    byte v = (byte)(MathHelper.Clamp(value, 0f, 1f) * 255);
+                    data[y * size + x] = new Color(v, v, v, v);
+                }
+            }
+            
+            texture.SetData(data);
+            return texture;
+        }
+        
+        /// <summary>
+        /// Generates a Voronoi/cellular noise texture.
+        /// Use for: Magic seals, crystalline patterns, scales, cell structures.
+        /// </summary>
+        public static Texture2D GenerateVoronoiNoise(int size, int cellCount = 16)
+        {
+            Texture2D texture = new Texture2D(Main.graphics.GraphicsDevice, size, size);
+            Color[] data = new Color[size * size];
+            
+            // Generate cell centers (with wrapping for seamless tiling)
+            Random rand = new Random(54321);
+            Vector2[] cellCenters = new Vector2[cellCount * 9]; // 3x3 grid for tiling
+            
+            int idx = 0;
+            for (int oy = -1; oy <= 1; oy++)
+            {
+                for (int ox = -1; ox <= 1; ox++)
+                {
+                    for (int i = 0; i < cellCount; i++)
+                    {
+                        if (ox == 0 && oy == 0)
+                        {
+                            cellCenters[idx] = new Vector2(
+                                (float)rand.NextDouble() * size,
+                                (float)rand.NextDouble() * size
+                            );
+                        }
+                        else
+                        {
+                            // Mirror the center cells for tiling
+                            cellCenters[idx] = cellCenters[i] + new Vector2(ox * size, oy * size);
+                        }
+                        idx++;
+                    }
+                }
+            }
+            
+            float maxDist = size / (float)Math.Sqrt(cellCount) * 0.7f;
+            
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    Vector2 pos = new Vector2(x, y);
+                    float minDist = float.MaxValue;
+                    float secondMinDist = float.MaxValue;
+                    
+                    foreach (var center in cellCenters)
+                    {
+                        float dist = Vector2.Distance(pos, center);
+                        if (dist < minDist)
+                        {
+                            secondMinDist = minDist;
+                            minDist = dist;
+                        }
+                        else if (dist < secondMinDist)
+                        {
+                            secondMinDist = dist;
+                        }
+                    }
+                    
+                    // F2 - F1 gives cell borders effect
+                    float edgeDist = (secondMinDist - minDist) / maxDist;
+                    float value = MathHelper.Clamp(edgeDist, 0f, 1f);
+                    
+                    byte v = (byte)(value * 255);
+                    data[y * size + x] = new Color(v, v, v, v);
+                }
+            }
+            
+            texture.SetData(data);
+            return texture;
+        }
+        
+        /// <summary>
+        /// Generates fractal (FBM) noise by layering multiple octaves of Perlin noise.
+        /// Use for: Detailed smoke, nebulae, complex cloud patterns.
+        /// </summary>
+        public static Texture2D GenerateFractalNoise(int size, int octaves = 6, float persistence = 0.5f, float baseScale = 4f)
+        {
+            Texture2D texture = new Texture2D(Main.graphics.GraphicsDevice, size, size);
+            Color[] data = new Color[size * size];
+            
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float value = 0f;
+                    float amplitude = 1f;
+                    float frequency = baseScale;
+                    float maxValue = 0f;
+                    
+                    for (int o = 0; o < octaves; o++)
+                    {
+                        float nx = (float)x / size * frequency;
+                        float ny = (float)y / size * frequency;
+                        
+                        // Seamless tiling
+                        float s = (float)x / size;
+                        float t = (float)y / size;
+                        
+                        float n00 = SamplePerlin(nx, ny);
+                        float n10 = SamplePerlin(nx + frequency, ny);
+                        float n01 = SamplePerlin(nx, ny + frequency);
+                        float n11 = SamplePerlin(nx + frequency, ny + frequency);
+                        
+                        float nx0 = Lerp(n00, n10, s);
+                        float nx1 = Lerp(n01, n11, s);
+                        float sample = Lerp(nx0, nx1, t);
+                        
+                        value += sample * amplitude;
+                        maxValue += amplitude;
+                        amplitude *= persistence;
+                        frequency *= 2f;
+                    }
+                    
+                    value /= maxValue;
+                    byte v = (byte)(MathHelper.Clamp(value, 0f, 1f) * 255);
+                    data[y * size + x] = new Color(v, v, v, v);
+                }
+            }
+            
+            texture.SetData(data);
+            return texture;
+        }
+        
+        /// <summary>
+        /// Generates a trail noise texture for triangle strip mesh trails.
+        /// Horizontal axis = position along trail, Vertical axis = variation.
+        /// Use for: Energy trails, weapon swing trails, projectile trails.
+        /// </summary>
+        public static Texture2D GenerateTrailNoise(int width, int height)
+        {
+            Texture2D texture = new Texture2D(Main.graphics.GraphicsDevice, width, height);
+            Color[] data = new Color[width * height];
+            
+            for (int y = 0; y < height; y++)
+            {
+                float yProgress = (float)y / height;
+                
+                for (int x = 0; x < width; x++)
+                {
+                    float xProgress = (float)x / width;
+                    
+                    // Edge fade (soft edges on sides)
+                    float edgeFade = 1f - Math.Abs(xProgress - 0.5f) * 2f;
+                    edgeFade = (float)Math.Pow(edgeFade, 0.5f);
+                    
+                    // Noise variation along trail
+                    float noise = SamplePerlin(xProgress * 4f, yProgress * 8f);
+                    
+                    // Combine edge fade with noise
+                    float value = edgeFade * (0.6f + noise * 0.4f);
+                    
+                    byte v = (byte)(MathHelper.Clamp(value, 0f, 1f) * 255);
+                    data[y * width + x] = new Color(v, v, v, v);
+                }
+            }
+            
+            texture.SetData(data);
+            return texture;
+        }
+        
+        /// <summary>
+        /// Generates a distortion noise texture for screen effects.
+        /// Two-channel (RG) for X/Y distortion directions.
+        /// Use for: Heat haze, underwater distortion, reality warping.
+        /// </summary>
+        public static Texture2D GenerateDistortionNoise(int size)
+        {
+            Texture2D texture = new Texture2D(Main.graphics.GraphicsDevice, size, size);
+            Color[] data = new Color[size * size];
+            
+            float scale1 = 3f;
+            float scale2 = 5f;
+            
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float nx1 = (float)x / size * scale1;
+                    float ny1 = (float)y / size * scale1;
+                    float nx2 = (float)x / size * scale2;
+                    float ny2 = (float)y / size * scale2;
+                    
+                    // Seamless X distortion
+                    float s = (float)x / size;
+                    float t = (float)y / size;
+                    
+                    float xn00 = SamplePerlin(nx1, ny1);
+                    float xn10 = SamplePerlin(nx1 + scale1, ny1);
+                    float xn01 = SamplePerlin(nx1, ny1 + scale1);
+                    float xn11 = SamplePerlin(nx1 + scale1, ny1 + scale1);
+                    float xnx0 = Lerp(xn00, xn10, s);
+                    float xnx1 = Lerp(xn01, xn11, s);
+                    float xDistort = Lerp(xnx0, xnx1, t);
+                    
+                    // Seamless Y distortion (offset sample point for different pattern)
+                    float yn00 = SamplePerlin(nx2 + 100f, ny2 + 100f);
+                    float yn10 = SamplePerlin(nx2 + scale2 + 100f, ny2 + 100f);
+                    float yn01 = SamplePerlin(nx2 + 100f, ny2 + scale2 + 100f);
+                    float yn11 = SamplePerlin(nx2 + scale2 + 100f, ny2 + scale2 + 100f);
+                    float ynx0 = Lerp(yn00, yn10, s);
+                    float ynx1 = Lerp(yn01, yn11, s);
+                    float yDistort = Lerp(ynx0, ynx1, t);
+                    
+                    byte r = (byte)(xDistort * 255);
+                    byte g = (byte)(yDistort * 255);
+                    data[y * size + x] = new Color(r, g, 128, 255);
+                }
+            }
+            
+            texture.SetData(data);
+            return texture;
+        }
+        
+        /// <summary>
+        /// Generates a cloud noise texture optimized for fog/nebula effects.
+        /// Combines multiple octaves with soft falloff.
+        /// Use for: Fog, cosmic clouds, nebulae, ethereal mist.
+        /// </summary>
+        public static Texture2D GenerateCloudNoise(int size)
+        {
+            Texture2D texture = new Texture2D(Main.graphics.GraphicsDevice, size, size);
+            Color[] data = new Color[size * size];
+            
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float s = (float)x / size;
+                    float t = (float)y / size;
+                    
+                    // Layer 1: Large soft clouds
+                    float scale1 = 2f;
+                    float n1_00 = SamplePerlin(s * scale1, t * scale1);
+                    float n1_10 = SamplePerlin((s + 1) * scale1, t * scale1);
+                    float n1_01 = SamplePerlin(s * scale1, (t + 1) * scale1);
+                    float n1_11 = SamplePerlin((s + 1) * scale1, (t + 1) * scale1);
+                    float cloud1 = Lerp(Lerp(n1_00, n1_10, s), Lerp(n1_01, n1_11, s), t);
+                    
+                    // Layer 2: Medium detail
+                    float scale2 = 4f;
+                    float n2_00 = SamplePerlin(s * scale2 + 50f, t * scale2 + 50f);
+                    float n2_10 = SamplePerlin((s + 1) * scale2 + 50f, t * scale2 + 50f);
+                    float n2_01 = SamplePerlin(s * scale2 + 50f, (t + 1) * scale2 + 50f);
+                    float n2_11 = SamplePerlin((s + 1) * scale2 + 50f, (t + 1) * scale2 + 50f);
+                    float cloud2 = Lerp(Lerp(n2_00, n2_10, s), Lerp(n2_01, n2_11, s), t);
+                    
+                    // Layer 3: Fine wispy detail
+                    float scale3 = 8f;
+                    float n3_00 = SamplePerlin(s * scale3 + 100f, t * scale3 + 100f);
+                    float n3_10 = SamplePerlin((s + 1) * scale3 + 100f, t * scale3 + 100f);
+                    float n3_01 = SamplePerlin(s * scale3 + 100f, (t + 1) * scale3 + 100f);
+                    float n3_11 = SamplePerlin((s + 1) * scale3 + 100f, (t + 1) * scale3 + 100f);
+                    float cloud3 = Lerp(Lerp(n3_00, n3_10, s), Lerp(n3_01, n3_11, s), t);
+                    
+                    // Combine with soft falloff (pow for softer edges)
+                    float combined = cloud1 * 0.5f + cloud2 * 0.35f + cloud3 * 0.15f;
+                    combined = (float)Math.Pow(combined, 0.8f); // Soften
+                    
+                    byte v = (byte)(MathHelper.Clamp(combined, 0f, 1f) * 255);
+                    data[y * size + x] = new Color(v, v, v, v);
                 }
             }
             

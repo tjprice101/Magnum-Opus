@@ -291,55 +291,63 @@ namespace MagnumOpus.Common.Systems.VFX
             
             if (_activeTelegraphs.Count == 0)
                 return;
-                
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, 
-                SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, 
-                null, Main.GameViewMatrix.TransformationMatrix);
             
             try
             {
-                Texture2D pixel = MagnumTextureRegistry.GetPixelTexture();
+                Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, 
+                    SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, 
+                    null, Main.GameViewMatrix.TransformationMatrix);
                 
-                foreach (var telegraph in _activeTelegraphs)
+                try
                 {
-                    float progress = telegraph.Timer / telegraph.Duration;
-                    float alpha = GetAlphaForProgress(progress);
+                    Texture2D pixel = MagnumTextureRegistry.GetPixelTexture();
                     
-                    switch (telegraph.Type)
+                    foreach (var telegraph in _activeTelegraphs)
                     {
-                        case TelegraphType.ThreatLine:
-                            DrawThreatLine(pixel, telegraph, alpha);
-                            break;
-                            
-                        case TelegraphType.DangerZone:
-                            DrawDangerZone(pixel, telegraph, alpha);
-                            break;
-                            
-                        case TelegraphType.SafeZone:
-                            DrawSafeZone(pixel, telegraph, alpha);
-                            break;
-                            
-                        case TelegraphType.ConvergingRing:
-                            DrawConvergingRing(pixel, telegraph, progress, alpha);
-                            break;
-                            
-                        case TelegraphType.LaserPath:
-                            DrawLaserPath(pixel, telegraph, progress, alpha);
-                            break;
-                            
-                        case TelegraphType.ImpactPoint:
-                            DrawImpactPoint(pixel, telegraph, progress, alpha);
-                            break;
-                            
-                        case TelegraphType.SectorCone:
-                            DrawSectorCone(pixel, telegraph, alpha);
-                            break;
+                        float progress = telegraph.Timer / telegraph.Duration;
+                        float alpha = GetAlphaForProgress(progress);
+                        
+                        switch (telegraph.Type)
+                        {
+                            case TelegraphType.ThreatLine:
+                                DrawThreatLine(pixel, telegraph, alpha);
+                                break;
+                                
+                            case TelegraphType.DangerZone:
+                                DrawDangerZone(pixel, telegraph, alpha);
+                                break;
+                                
+                            case TelegraphType.SafeZone:
+                                DrawSafeZone(pixel, telegraph, alpha);
+                                break;
+                                
+                            case TelegraphType.ConvergingRing:
+                                DrawConvergingRing(pixel, telegraph, progress, alpha);
+                                break;
+                                
+                            case TelegraphType.LaserPath:
+                                DrawLaserPath(pixel, telegraph, progress, alpha);
+                                break;
+                                
+                            case TelegraphType.ImpactPoint:
+                                DrawImpactPoint(pixel, telegraph, progress, alpha);
+                                break;
+                                
+                            case TelegraphType.SectorCone:
+                                DrawSectorCone(pixel, telegraph, alpha);
+                                break;
+                        }
                     }
                 }
+                finally
+                {
+                    Main.spriteBatch.End();
+                }
             }
-            finally
+            catch (System.Exception ex)
             {
-                Main.spriteBatch.End();
+                Mod?.Logger.Error($"TelegraphSystem.DrawTelegraphs error: {ex.Message}");
+                try { Main.spriteBatch.End(); } catch { /* Already ended or never started */ }
             }
         }
         

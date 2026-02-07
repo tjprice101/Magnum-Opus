@@ -44,6 +44,12 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         public bool HasSwansEternalGlide { get; set; }      // T5 - Slower decay, infinite flight at max
         public bool HasFatesCosmicVelocity { get; set; }    // T6 - Max 150, time slow at max
         
+        // Post-Fate Chain Extension (T7-T10)
+        public bool HasNocturnalPhantomTreads { get; set; } // T7 - Max 175, star dash, constellation trail
+        public bool HasInfernalMeteorTreads { get; set; }   // T8 - Max 200, meteor dash, burning trail
+        public bool HasJubilantZephyrTreads { get; set; }   // T9 - Max 225, zephyr burst, infinite flight at 175+
+        public bool HasEternalVelocityTreads { get; set; }  // T10 - Max 250, lightspeed mode, time manipulation
+        
         // ========== MOMENTUM STATE ==========
         public float CurrentMomentum { get; private set; }
         public float MaxMomentum => GetMaxMomentum();
@@ -79,6 +85,12 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         private static readonly Color SwanWhite = new Color(240, 245, 255);
         private static readonly Color FateCrimson = new Color(180, 40, 80);
         
+        // Post-Fate theme colors
+        private static readonly Color NocturnalStarlight = new Color(200, 180, 255);
+        private static readonly Color InfernalHellfire = new Color(255, 80, 20);
+        private static readonly Color JubilantZephyr = new Color(150, 255, 180);
+        private static readonly Color EternalTemporal = new Color(200, 160, 120);
+        
         public override void ResetEffects()
         {
             HasVelocityBand = false;
@@ -93,6 +105,12 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             HasEnigmasPhaseShift = false;
             HasSwansEternalGlide = false;
             HasFatesCosmicVelocity = false;
+            
+            // Post-Fate T7-T10
+            HasNocturnalPhantomTreads = false;
+            HasInfernalMeteorTreads = false;
+            HasJubilantZephyrTreads = false;
+            HasEternalVelocityTreads = false;
         }
         
         /// <summary>
@@ -102,13 +120,22 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             HasVelocityBand || HasSpringZephyrBoots || HasSolarBlitzTreads ||
             HasHarvestPhantomStride || HasPermafrostAvalancheStep || HasVivaldisSeasonalSprint ||
             HasMoonlitPhantomsRush || HasHeroicChargeBoots || HasInfernalMeteorStride ||
-            HasEnigmasPhaseShift || HasSwansEternalGlide || HasFatesCosmicVelocity;
+            HasEnigmasPhaseShift || HasSwansEternalGlide || HasFatesCosmicVelocity ||
+            HasNocturnalPhantomTreads || HasInfernalMeteorTreads || HasJubilantZephyrTreads ||
+            HasEternalVelocityTreads;
         
         /// <summary>
         /// Get max momentum based on equipped accessory
         /// </summary>
         private float GetMaxMomentum()
         {
+            // Post-Fate T7-T10
+            if (HasEternalVelocityTreads) return 250f;
+            if (HasJubilantZephyrTreads) return 225f;
+            if (HasInfernalMeteorTreads) return 200f;
+            if (HasNocturnalPhantomTreads) return 175f;
+            
+            // Post-Moon Lord T6
             if (HasFatesCosmicVelocity) return 150f;
             if (HasVivaldisSeasonalSprint || HasMoonlitPhantomsRush || HasHeroicChargeBoots ||
                 HasInfernalMeteorStride || HasEnigmasPhaseShift || HasSwansEternalGlide)
@@ -123,8 +150,16 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         {
             float baseRate = 5f; // 5 per second when standing still
             
-            // Swan's Eternal Glide reduces decay by 50%
-            if (HasSwansEternalGlide || HasFatesCosmicVelocity)
+            // Eternal Velocity Treads: No decay during boss fights
+            if (HasEternalVelocityTreads && Main.CurrentFrameFlags.AnyActiveBossNPC)
+                return 0f;
+            
+            // Jubilant Zephyr Treads and above: 50% slower decay
+            if (HasJubilantZephyrTreads || HasEternalVelocityTreads)
+                baseRate *= 0.5f;
+            // Swan's Eternal Glide and above: 50% slower decay
+            else if (HasSwansEternalGlide || HasFatesCosmicVelocity || 
+                     HasNocturnalPhantomTreads || HasInfernalMeteorTreads)
                 baseRate *= 0.5f;
             
             return baseRate;
@@ -171,12 +206,13 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                 }
             }
             
-            // Check for landing with meteor stride
+            // Check for landing with meteor stride/treads
             if (isFalling && isOnGround)
             {
                 float fallDistance = Player.position.Y - fallStartY;
                 if (fallDistance > 200f && CurrentMomentum >= 100f && impactCooldown <= 0 &&
-                    (HasInfernalMeteorStride || HasEnigmasPhaseShift || HasSwansEternalGlide || HasFatesCosmicVelocity))
+                    (HasInfernalMeteorStride || HasEnigmasPhaseShift || HasSwansEternalGlide || HasFatesCosmicVelocity ||
+                     HasNocturnalPhantomTreads || HasInfernalMeteorTreads || HasJubilantZephyrTreads || HasEternalVelocityTreads))
                 {
                     CreateMeteorImpact();
                     impactCooldown = 60; // 1 second cooldown
@@ -202,7 +238,8 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             if (HasSpringZephyrBoots || HasSolarBlitzTreads || HasHarvestPhantomStride ||
                 HasPermafrostAvalancheStep || HasVivaldisSeasonalSprint || HasMoonlitPhantomsRush ||
                 HasHeroicChargeBoots || HasInfernalMeteorStride || HasEnigmasPhaseShift ||
-                HasSwansEternalGlide || HasFatesCosmicVelocity)
+                HasSwansEternalGlide || HasFatesCosmicVelocity ||
+                HasNocturnalPhantomTreads || HasInfernalMeteorTreads || HasJubilantZephyrTreads || HasEternalVelocityTreads)
             {
                 if (CurrentMomentum >= 50f)
                 {
@@ -230,7 +267,8 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             if ((HasSolarBlitzTreads || HasHarvestPhantomStride || HasPermafrostAvalancheStep ||
                  HasVivaldisSeasonalSprint || HasMoonlitPhantomsRush || HasHeroicChargeBoots ||
                  HasInfernalMeteorStride || HasEnigmasPhaseShift || HasSwansEternalGlide ||
-                 HasFatesCosmicVelocity) && CurrentMomentum >= 70f)
+                 HasFatesCosmicVelocity || HasNocturnalPhantomTreads || HasInfernalMeteorTreads ||
+                 HasJubilantZephyrTreads || HasEternalVelocityTreads) && CurrentMomentum >= 70f)
             {
                 if (fireTrailTimer++ >= 5)
                 {
@@ -242,7 +280,9 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             // Harvest Phantom Stride: Phase through enemies at 80+
             if ((HasHarvestPhantomStride || HasPermafrostAvalancheStep || HasVivaldisSeasonalSprint ||
                  HasMoonlitPhantomsRush || HasHeroicChargeBoots || HasInfernalMeteorStride ||
-                 HasEnigmasPhaseShift || HasSwansEternalGlide || HasFatesCosmicVelocity) && 
+                 HasEnigmasPhaseShift || HasSwansEternalGlide || HasFatesCosmicVelocity ||
+                 HasNocturnalPhantomTreads || HasInfernalMeteorTreads || HasJubilantZephyrTreads ||
+                 HasEternalVelocityTreads) && 
                 CurrentMomentum >= 80f)
             {
                 Player.noKnockback = true;
@@ -252,7 +292,8 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             // Permafrost Avalanche Step: Ice trail at 90+
             if ((HasPermafrostAvalancheStep || HasVivaldisSeasonalSprint || HasMoonlitPhantomsRush ||
                  HasHeroicChargeBoots || HasInfernalMeteorStride || HasEnigmasPhaseShift ||
-                 HasSwansEternalGlide || HasFatesCosmicVelocity) && CurrentMomentum >= 90f)
+                 HasSwansEternalGlide || HasFatesCosmicVelocity || HasNocturnalPhantomTreads ||
+                 HasInfernalMeteorTreads || HasJubilantZephyrTreads || HasEternalVelocityTreads) && CurrentMomentum >= 90f)
             {
                 if (iceTrailTimer++ >= 8)
                 {
@@ -263,21 +304,33 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             
             // Moonlit Phantom's Rush: Semi-transparent at 100+
             if ((HasMoonlitPhantomsRush || HasHeroicChargeBoots || HasInfernalMeteorStride ||
-                 HasEnigmasPhaseShift || HasSwansEternalGlide || HasFatesCosmicVelocity) && 
+                 HasEnigmasPhaseShift || HasSwansEternalGlide || HasFatesCosmicVelocity ||
+                 HasNocturnalPhantomTreads || HasInfernalMeteorTreads || HasJubilantZephyrTreads ||
+                 HasEternalVelocityTreads) && 
                 CurrentMomentum >= 100f)
             {
                 Player.aggro -= 200; // Enemies target player less
                 // Visual transparency handled in draw layer
             }
             
-            // Swan's Eternal Glide: Infinite flight at max momentum
+            // Swan's Eternal Glide or Jubilant Zephyr Treads: Infinite flight at 175+ or max momentum
             if ((HasSwansEternalGlide || HasFatesCosmicVelocity) && CurrentMomentum >= MaxMomentum)
             {
                 Player.wingTime = Player.wingTimeMax;
             }
+            // Jubilant Zephyr Treads and above: Infinite flight at 175+
+            else if ((HasJubilantZephyrTreads || HasEternalVelocityTreads) && CurrentMomentum >= 175f)
+            {
+                Player.wingTime = Player.wingTimeMax;
+            }
             
-            // Fate's Cosmic Velocity: Time slow at 150 momentum
+            // Fate's Cosmic Velocity or Eternal Velocity Treads: Time slow at high momentum
             if (HasFatesCosmicVelocity && CurrentMomentum >= 150f)
+            {
+                ApplyTimeSlowToNearbyEnemies();
+            }
+            // Eternal Velocity Treads: Time slow at 225+
+            else if (HasEternalVelocityTreads && CurrentMomentum >= 225f)
             {
                 ApplyTimeSlowToNearbyEnemies();
             }
@@ -289,7 +342,8 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         public void TryHeroicDash()
         {
             if (!HasHeroicChargeBoots && !HasInfernalMeteorStride && !HasEnigmasPhaseShift &&
-                !HasSwansEternalGlide && !HasFatesCosmicVelocity)
+                !HasSwansEternalGlide && !HasFatesCosmicVelocity && !HasNocturnalPhantomTreads &&
+                !HasInfernalMeteorTreads && !HasJubilantZephyrTreads && !HasEternalVelocityTreads)
                 return;
             
             if (CurrentMomentum < 80f || dashCooldown > 0)
@@ -341,7 +395,9 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         /// </summary>
         public void TryPhaseShift()
         {
-            if (!HasEnigmasPhaseShift && !HasSwansEternalGlide && !HasFatesCosmicVelocity)
+            if (!HasEnigmasPhaseShift && !HasSwansEternalGlide && !HasFatesCosmicVelocity &&
+                !HasNocturnalPhantomTreads && !HasInfernalMeteorTreads && !HasJubilantZephyrTreads &&
+                !HasEternalVelocityTreads)
                 return;
             
             if (CurrentMomentum < 100f || teleportCooldown > 0)
@@ -583,6 +639,13 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         
         private Color GetMomentumColor()
         {
+            // Post-Fate T7-T10
+            if (HasEternalVelocityTreads) return EternalTemporal;
+            if (HasJubilantZephyrTreads) return JubilantZephyr;
+            if (HasInfernalMeteorTreads) return InfernalHellfire;
+            if (HasNocturnalPhantomTreads) return NocturnalStarlight;
+            
+            // Post-Moon Lord T6
             if (HasFatesCosmicVelocity) return FateCrimson;
             if (HasSwansEternalGlide) return SwanWhite;
             if (HasEnigmasPhaseShift) return EnigmaPurple;
@@ -613,10 +676,12 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         
         public override void ModifyHurt(ref Player.HurtModifiers modifiers)
         {
-            // Harvest Phantom Stride: Phase through enemies at 80+ momentum
+            // Harvest Phantom Stride and above: Phase through enemies at 80+ momentum
             if ((HasHarvestPhantomStride || HasPermafrostAvalancheStep || HasVivaldisSeasonalSprint ||
                  HasMoonlitPhantomsRush || HasHeroicChargeBoots || HasInfernalMeteorStride ||
-                 HasEnigmasPhaseShift || HasSwansEternalGlide || HasFatesCosmicVelocity) && 
+                 HasEnigmasPhaseShift || HasSwansEternalGlide || HasFatesCosmicVelocity ||
+                 HasNocturnalPhantomTreads || HasInfernalMeteorTreads || HasJubilantZephyrTreads ||
+                 HasEternalVelocityTreads) && 
                 CurrentMomentum >= 80f)
             {
                 // Reduce contact damage significantly (ghost running)
@@ -626,9 +691,11 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         
         public override void ModifyDrawInfo(ref PlayerDrawSet drawInfo)
         {
-            // Moonlit Phantom's Rush: Semi-transparent at 100+ momentum
+            // Moonlit Phantom's Rush and above: Semi-transparent at 100+ momentum
             if ((HasMoonlitPhantomsRush || HasHeroicChargeBoots || HasInfernalMeteorStride ||
-                 HasEnigmasPhaseShift || HasSwansEternalGlide || HasFatesCosmicVelocity) && 
+                 HasEnigmasPhaseShift || HasSwansEternalGlide || HasFatesCosmicVelocity ||
+                 HasNocturnalPhantomTreads || HasInfernalMeteorTreads || HasJubilantZephyrTreads ||
+                 HasEternalVelocityTreads) && 
                 CurrentMomentum >= 100f)
             {
                 // Make player semi-transparent

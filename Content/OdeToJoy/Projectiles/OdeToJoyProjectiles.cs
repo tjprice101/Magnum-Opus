@@ -9,6 +9,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 // Dynamic particle effects for aesthetically pleasing animations
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
@@ -1419,29 +1420,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = tex.Size() / 2f;
-            
-            float progress = 1f - Projectile.timeLeft / 45f;
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            // Layered glow
-            Color waveColor = Color.Lerp(OdeToJoyColors.RosePink, OdeToJoyColors.WhiteBloom, progress) * (1f - progress * 0.5f);
-            waveColor.A = 0;
-            
-            sb.Draw(tex, drawPos, null, waveColor * 0.6f, Projectile.rotation, origin, 1.2f, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, OdeToJoyColors.VerdantGreen * 0.4f * (1f - progress), Projectile.rotation, origin, 1.4f, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, Color.White * 0.5f * (1f - progress), Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
+            ProceduralProjectileVFX.DrawOdeToJoyPetalProjectile(Main.spriteBatch, Projectile, 0.4f);
             return false;
         }
     }
@@ -1489,23 +1468,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = tex.Size() / 2f;
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            // Verdant glow
-            sb.Draw(tex, drawPos, null, OdeToJoyColors.VerdantGreen * 0.7f, Projectile.rotation, origin, 0.5f, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, Color.White * 0.5f, Projectile.rotation, origin, 0.3f, SpriteEffects.None, 0f);
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
+            ProceduralProjectileVFX.DrawOdeToJoyProjectile(Main.spriteBatch, Projectile, 0.18f);
             return false;
         }
     }
@@ -1605,26 +1568,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = tex.Size() / 2f;
-            
-            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.15f;
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            // Multi-layer bloom
-            sb.Draw(tex, drawPos, null, OdeToJoyColors.RosePink * 0.5f, Projectile.rotation, origin, 0.7f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, OdeToJoyColors.GoldenPollen * 0.4f, Projectile.rotation * 0.7f, origin, 0.5f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, Color.White * 0.6f, Projectile.rotation, origin, 0.35f * pulse, SpriteEffects.None, 0f);
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
+            ProceduralProjectileVFX.DrawOdeToJoyPetalProjectile(Main.spriteBatch, Projectile, 0.25f);
             return false;
         }
     }
@@ -1670,23 +1614,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = tex.Size() / 2f;
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            Color petalColor = OdeToJoyColors.GetPetalGradient(Projectile.timeLeft / 60f);
-            sb.Draw(tex, drawPos, null, petalColor * 0.7f, Projectile.rotation, origin, 0.4f, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, Color.White * 0.5f, Projectile.rotation, origin, 0.25f, SpriteEffects.None, 0f);
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
+            ProceduralProjectileVFX.DrawOdeToJoyPetalProjectile(Main.spriteBatch, Projectile, 0.15f);
             return false;
         }
     }
@@ -1761,26 +1689,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = tex.Size() / 2f;
-            
-            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.2f) * 0.1f;
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            // Intense golden glow
-            sb.Draw(tex, drawPos, null, OdeToJoyColors.GoldenPollen * 0.6f, Projectile.rotation, origin, 0.8f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, OdeToJoyColors.SunlightYellow * 0.5f, Projectile.rotation, origin, 0.6f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, Color.White * 0.7f, Projectile.rotation, origin, 0.4f * pulse, SpriteEffects.None, 0f);
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
+            ProceduralProjectileVFX.DrawOdeToJoyGoldenProjectile(Main.spriteBatch, Projectile, 0.3f);
             return false;
         }
     }
@@ -1838,24 +1747,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = tex.Size() / 2f;
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            // Verdant glow
-            sb.Draw(tex, drawPos, null, OdeToJoyColors.VerdantGreen * 0.7f, Projectile.rotation, origin, 0.45f, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, OdeToJoyColors.LeafGreen * 0.5f, Projectile.rotation * 0.8f, origin, 0.35f, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, Color.White * 0.4f, Projectile.rotation, origin, 0.2f, SpriteEffects.None, 0f);
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
+            ProceduralProjectileVFX.DrawOdeToJoyProjectile(Main.spriteBatch, Projectile, 0.16f);
             return false;
         }
     }

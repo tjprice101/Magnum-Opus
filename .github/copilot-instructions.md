@@ -2,15 +2,209 @@
 
 > **⚡ QUICK START**: For a condensed version of these instructions, see **[COPILOT_QUICK_REFERENCE.md](COPILOT_QUICK_REFERENCE.md)**.
 > 
-> **🔥 CRITICAL VFX GUIDE**: For the TRUE standards on visual effects, see **[TRUE_VFX_STANDARDS.md](../Documentation/Guides/TRUE_VFX_STANDARDS.md)**.
+> **🔥 NEW VFX SYSTEM**: The mod now uses **Calamity-style VFX** with Bézier curves, primitive trails, and shader-enhanced bloom. See **[TRUE_VFX_STANDARDS.md](../Documentation/Guides/TRUE_VFX_STANDARDS.md)**.
 > 
 > This full document contains detailed examples and explanations. The quick reference is recommended for faster lookups.
 
 ---
 
-# 🚨🚨🚨 CRITICAL: STOP MAKING LAZY PROJECTILES 🚨🚨🚨
+# 🎉 NEW: AUTOMATIC CALAMITY-STYLE VFX SYSTEM 🎉
 
-> **READ THIS BEFORE IMPLEMENTING ANY VISUAL EFFECT.**
+> **The mod now has a GLOBAL VFX system that automatically applies effects to all content!**
+
+## What's New
+
+The following systems **automatically apply VFX** to all MagnumOpus content:
+
+1. **`GlobalVFXOverhaul.cs`** - Auto-applies to ALL projectiles:
+   - Primitive trail rendering with multi-pass bloom
+   - Sub-pixel interpolation for 144Hz+ smoothness
+   - Orbiting music notes (3 notes per projectile)
+   - 4-layer additive bloom in PreDraw
+   - Spectacular death effects with 8 halo rings
+
+2. **`GlobalWeaponVFXOverhaul.cs`** - Auto-applies to ALL weapons:
+   - Smooth melee swing arcs with primitive trails
+   - Muzzle flash effects for ranged weapons
+   - Magic channeling circles for magic weapons
+   - Theme-based color detection
+
+3. **`GlobalBossVFXOverhaul.cs`** - Auto-applies to ALL bosses:
+   - Interpolated rendering with 3-layer bloom
+   - Automatic dash trail detection
+   - Boss entrance spectacle (massive screen distortion)
+   - Death spectacle (100 particles, 20 rings, spiral galaxy)
+   - Ambient VFX (orbiting particles, music notes)
+
+4. **`CalamityStyleVFX.cs`** - Central VFX library with:
+   - `SmoothMeleeSwing()` - Primitive trail swing arcs
+   - `ProjectilePrimitiveTrail()` - Multi-pass projectile trails
+   - `BezierHomingPath()` / `SnakingProjectilePath()` - Curved paths
+   - `SpectacularDeath()` - Layered death explosions
+   - `GlimmerCascadeImpact()` - Beautiful hit effects
+   - `BossPhaseTransition()` - 12-ring shockwave effects
+
+## Key Technologies
+
+| Technology | What It Does | File |
+|------------|--------------|------|
+| **Bézier Curves** | Smooth curved projectile paths | `BezierProjectileSystem.cs` |
+| **Primitive Trails** | Multi-pass shader trails with bloom | `EnhancedTrailRenderer.cs` |
+| **Interpolation** | 144Hz+ sub-pixel smoothness | `InterpolatedRenderer.cs` |
+| **Multi-Layer Bloom** | 4-layer additive glow stacking | All global overhaul files |
+| **Screen Effects** | Distortion, sky flash | `ScreenDistortionManager.cs`, `DynamicSkyboxSystem` |
+
+## How It Works
+
+**You don't need to add VFX code to individual weapons/projectiles/bosses anymore!**
+
+The Global systems detect which theme a content item belongs to (via namespace/name) and automatically apply appropriate effects:
+- Theme colors from `MagnumThemePalettes`
+- Theme-appropriate particle types
+- Smooth interpolated rendering
+
+## Manual VFX Calls (For Unique Effects)
+
+If you want to add EXTRA unique effects beyond the automatic ones, use `CalamityStyleVFX`:
+
+```csharp
+using MagnumOpus.Common.Systems.VFX;
+
+// In a weapon's Shoot method - add extra wing effect
+CalamityStyleVFX.EtherealWingEffect(player, "SwanLake", 1.2f);
+
+// In a projectile's AI - add wave effect
+CalamityStyleVFX.WaveProjectileEffect(Projectile.Center, Projectile.velocity, "Eroica", 1f);
+
+// In a boss's attack windup
+CalamityStyleVFX.BossAttackWindup(NPC.Center, progress, "LaCampanella");
+
+// On attack release
+CalamityStyleVFX.BossAttackRelease(NPC.Center, "Fate", 1.5f);
+```
+
+---
+
+# ⚠️⚠️⚠️ MANDATORY: USE EXISTING VFX SYSTEMS ⚠️⚠️⚠️
+
+> **CRITICAL: When creating NEW VFX, you MUST use the existing VFX infrastructure.**
+> **Do NOT load PNG textures directly or spawn raw Dust particles. USE THE SYSTEMS.**
+
+## The VFX System Hierarchy
+
+MagnumOpus has a comprehensive VFX infrastructure. When creating new effects, **ALWAYS** use these systems in order of preference:
+
+### 1. High-Level APIs (Use First)
+
+These provide complete themed effects with one call:
+
+| System | Purpose | Example |
+|--------|---------|---------|
+| `CalamityStyleVFX` | Complete themed effects | `CalamityStyleVFX.SpectacularDeath(pos, "Eroica")` |
+| `UnifiedVFXBloom` | Bloom-enhanced themed effects | `UnifiedVFXBloom.Eroica.ImpactEnhanced(pos, 1.5f)` |
+| `UniversalElementalVFX` | Cross-theme elemental effects | `UniversalElementalVFX.LaCampanellaFlames(pos, vel, 1f)` |
+| `BossArenaVFX` | Persistent boss arena particles | `BossArenaVFX.Activate("Fate", center, 800f, 1f)` |
+
+### 2. Core VFX Renderers (Use When Building Custom Effects)
+
+When you need custom control, use these renderer systems:
+
+| System | Purpose | Key Methods |
+|--------|---------|-------------|
+| `BloomRenderer` | Multi-layer glow rendering | `DrawBloomStack()`, `DrawSimpleBloom()`, `DrawBreathingBloom()`, `DrawPulsingBloom()` |
+| `EnhancedTrailRenderer` | Primitive trail rendering | `RenderMultiPassTrail()`, `PrimitiveSettings`, width/color functions |
+| `InterpolatedRenderer` | 144Hz+ sub-pixel smoothness | `PartialTicks`, `GetInterpolatedCenter()` |
+| `GodRaySystem` | Light ray burst effects | `CreateBurst()` with `GodRayStyle` enum |
+| `ImpactLightRays` | Impact light flares | `SpawnImpactRays()` |
+| `ScreenDistortionManager` | Screen-space effects | `TriggerRipple()`, `TriggerThemeEffect()` |
+
+### 3. Shader Renderers (For Advanced Effects)
+
+For shader-based rendering:
+
+| System | Purpose |
+|--------|---------|
+| `ShaderRenderer` | 12+ shader types with `ShaderScope` pattern |
+| `ProceduralProjectileVFX` | PNG-free procedural projectile rendering |
+
+## ❌ FORBIDDEN PATTERNS - NEVER DO THESE
+
+```csharp
+// ❌ WRONG: Loading PNG textures directly for VFX
+Texture2D myGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
+Main.spriteBatch.Draw(myGlow, pos, null, color, 0f, origin, scale, ...);
+
+// ❌ WRONG: Spawning raw Dust particles
+Dust dust = Dust.NewDustPerfect(pos, DustID.MagicMirror, vel, 0, color, 1.5f);
+dust.noGravity = true;
+
+// ❌ WRONG: Manual bloom stacking without BloomRenderer
+for (int i = 0; i < 4; i++)
+{
+    Main.spriteBatch.Draw(tex, pos, null, color * (0.5f / (i + 1)), ...);
+}
+```
+
+## ✅ CORRECT PATTERNS - ALWAYS USE THESE
+
+```csharp
+// ✅ CORRECT: Use BloomRenderer for glow effects
+BloomRenderer.DrawBloomStack(Main.spriteBatch, position, color, 0.5f, layers: 4, intensity: 1f);
+BloomRenderer.DrawSimpleBloom(Main.spriteBatch, pos, color, scale);
+
+// ✅ CORRECT: Use EnhancedTrailRenderer for trails
+var settings = new EnhancedTrailRenderer.PrimitiveSettings(
+    width: EnhancedTrailRenderer.LinearTaper(baseWidth),
+    color: EnhancedTrailRenderer.GradientColor(startColor, endColor),
+    smoothen: true
+);
+EnhancedTrailRenderer.RenderMultiPassTrail(oldPositions, oldRotations, settings, passes: 3);
+
+// ✅ CORRECT: Use InterpolatedRenderer for smooth rendering
+float partialTicks = InterpolatedRenderer.PartialTicks;
+Vector2 smoothPos = Vector2.Lerp(previousPosition, currentPosition, partialTicks);
+
+// ✅ CORRECT: Use GodRaySystem for light rays
+GodRaySystem.CreateBurst(center, direction, color, rayCount: 8, 
+    length: 100f, width: 10f, lifetime: 30, GodRayStyle.Explosion);
+
+// ✅ CORRECT: Use ImpactLightRays for impact flares
+ImpactLightRays.SpawnImpactRays(position, color, rayCount: 6, baseLength: 60f, lifetime: 20);
+
+// ✅ CORRECT: Use ScreenDistortionManager for screen effects
+ScreenDistortionManager.TriggerRipple(worldPosition, intensity: 0.5f, duration: 20);
+
+// ✅ CORRECT: Use high-level themed APIs
+UniversalElementalVFX.InfernalEruption(pos, primaryColor, secondaryColor, 1.5f, true);
+BossArenaVFX.Activate("LaCampanella", bossCenter, 600f, intensity: 1f);
+```
+
+## New VFX Files (Reference Implementations)
+
+These files demonstrate proper VFX system usage:
+
+| File | Purpose | Uses |
+|------|---------|------|
+| `UniversalElementalVFX.cs` | Universal elemental effects library | BloomRenderer, EnhancedTrailRenderer, GodRaySystem, ImpactLightRays, InterpolatedRenderer, ScreenDistortionManager |
+| `BossArenaVFX.cs` | Persistent boss arena particles | InterpolatedRenderer.PartialTicks, BloomRenderer, parallax depth, PreviousPosition tracking |
+
+## VFX Creation Checklist
+
+Before creating ANY new VFX, verify:
+
+- [ ] **Can an existing high-level API do this?** → Use `CalamityStyleVFX`, `UnifiedVFXBloom`, `UniversalElementalVFX`, or `BossArenaVFX`
+- [ ] **Need custom glow/bloom?** → Use `BloomRenderer.DrawBloomStack()` or `DrawSimpleBloom()`
+- [ ] **Need trails?** → Use `EnhancedTrailRenderer.PrimitiveSettings` with `RenderMultiPassTrail()`
+- [ ] **Need smooth 144Hz+ rendering?** → Use `InterpolatedRenderer.PartialTicks` with `PreviousPosition` tracking
+- [ ] **Need light rays?** → Use `GodRaySystem.CreateBurst()` or `ImpactLightRays.SpawnImpactRays()`
+- [ ] **Need screen effects?** → Use `ScreenDistortionManager.TriggerRipple()`
+- [ ] **Absolutely need custom rendering?** → Build on top of `BloomRenderer` and `InterpolatedRenderer`
+
+---
+
+# 🚨🚨🚨 LEGACY: STOP MAKING LAZY PROJECTILES 🚨🚨🚨
+
+> **Note: The Global VFX systems now handle most of this automatically. This section is kept for reference.**
 
 ## The Problem We Keep Having
 
@@ -72,7 +266,7 @@ public override bool PreDraw(ref Color lightColor)
 {
     // Load MULTIPLE flare textures
     Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-    Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+    Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
     Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
     
     float time = Main.GameUpdateCount * 0.05f;
@@ -192,7 +386,8 @@ public override void OnKill(int timeLeft)
 ## Melee: Use SwordArc Textures!
 
 ```csharp
-// We have SwordArc1-9.png - USE THEM for slash visuals!
+// We have 9 SwordArc textures - USE THEM for slash visuals!
+// SwordArc1, 2, 3, 6, 8 + SwordArcSlashWave, SimpleArcSwordSlash, CurvedSwordSlash, FlamingArcSwordSlash
 public override void MeleeEffects(Player player, Rectangle hitbox)
 {
     // Layer SwordArc textures for wave effects
@@ -322,25 +517,28 @@ void SpawnGlowingMusicNote(Vector2 position, Vector2 velocity, Color baseColor)
 
 ## 🎨 USE ALL AVAILABLE PARTICLE ASSETS - MANDATORY
 
-> **You have been given 80+ custom particle PNGs. USE THEM.**
+> **You have been given 100+ custom particle PNGs. USE THEM.**
 
 ### Available Particle Categories (USE ALL OF THESE)
 
-| Category | Files | Variants | MUST USE FOR |
-|----------|-------|----------|--------------|
-| **MusicNote** | `MusicNote1-6.png` | 6 | EVERY weapon trail, EVERY impact, EVERY aura |
-| **EnergyFlare** | `EnergyFlare1-7.png` | 7 | Impacts, projectile cores, charge effects |
-| **SoftGlow** | `SoftGlow2-4.png` | 3 | Ambient auras, bloom bases, soft lighting |
-| **GlowingHalo** | `GlowingHalo1-6.png` | 5 | Shockwaves, expansion rings, impact halos |
-| **StarBurst** | `StarBurst1-2.png` | 2 | Explosions, death effects, critical hits |
-| **MagicSparkleField** | `MagicSparkleField1-12.png` | 12 | Magic trails, enchantment effects, auras |
-| **PrismaticSparkle** | `PrismaticSparkle1-15.png` | 15 | EVERYWHERE - add sparkle to everything |
+| Category | Files | Count | MUST USE FOR |
+|----------|-------|-------|--------------|
+| **MusicNote** | `MusicNote.png`, `CursiveMusicNote.png`, `MusicNoteWithSlashes.png`, `QuarterNote.png`, `TallMusicNote.png`, `WholeNote.png` | 6 | EVERY weapon trail, EVERY impact, EVERY aura |
+| **EnergyFlare** | `EnergyFlare.png`, `EnergyFlare4.png` | 2 | Impacts, projectile cores, charge effects |
+| **SoftGlow** | `SoftGlow2.png`, `SoftGlow3.png`, `SoftGlow4.png` | 3 | Ambient auras, bloom bases, soft lighting |
+| **GlowingHalo** | `GlowingHalo1.png`, `GlowingHalo2.png`, `GlowingHalo4.png`, `GlowingHalo5.png`, `GlowingHalo6.png` | 5 | Shockwaves, expansion rings, impact halos |
+| **StarBurst** | `StarBurst1.png`, `StarBurst2.png` | 2 | Explosions, death effects, critical hits |
+| **MagicSparkleField** | `MagicSparklField4.png`, `MagicSparklField6-12.png` | 8 | Magic trails, enchantment effects, auras |
+| **PrismaticSparkle** | `PrismaticSparkle11.png`, `PrismaticSparkle13.png`, `PrismaticSparkle14.png` | 3 | Rainbow/sparkle accents |
 | **ParticleTrail** | `ParticleTrail1-4.png` | 4 | Projectile trails, movement effects |
-| **SwordArc** | `SwordArc1-9.png` | 9 | Melee swings, slash effects |
+| **SwordArc** | `SwordArc1.png`, `SwordArc2.png`, `SwordArc3.png`, `SwordArc6.png`, `SwordArc8.png`, `SwordArcSlashWave.png`, `SimpleArcSwordSlash.png`, `CurvedSwordSlash.png`, `FlamingArcSwordSlash.png` | 9 | Melee swings, slash effects |
 | **SwanFeather** | `SwanFeather1-10.png` | 10 | Swan Lake theme, graceful effects |
-| **EnigmaEye** | `EnigmaEye1-8.png` | 8 | Enigma theme, watching/targeting effects |
+| **EnigmaEye** | `EnigmaEye1.png`, `ActivatedEnigmaEye.png`, `BurstingEye.png`, `CircularEnigmaEye.png`, `GodEye.png`, `LargeEye.png`, `SpikeyEye.png`, `TriangularEye.png` | 8 | Enigma theme, watching/targeting effects |
 | **Glyphs** | `Glyphs1-12.png` | 12 | Magic circles, enchantments, Fate theme |
-| **ShatteredStarlight** | `ShatteredStarlight.png` | 1 | Shatter effects, broken glass visuals |
+| **Stars** | `Star.png`, `StarBurst1-2.png`, `StarryStarburst.png`, `CircularStarRing.png`, `ShatteredStarlight.png` | 6 | Star effects, celestial visuals |
+| **FlareSparkle** | `FlareSparkle.png`, `FlareSpikeBurst.png`, `SmallBurstFlare.png`, `GlintSparkleFlare.png`, `GlintTwilightSparkleFlare.png`, `ThinSparkleFlare.png` | 6 | Bright sparkle accents |
+| **FlameImpacts** | `FlameImpactExplosion.png`, `FlameWispImpactExplosion.png`, `LargeFlameImpactExplosion.png` | 3 | Fire explosions, La Campanella theme |
+| **Lightning** | `LightningBurst.png`, `LightningBurstThick.png`, `LightningStreak.png` | 3 | Electrical effects |
 
 ### ALSO USE Vanilla Terraria Dust (Required for Visual Density)
 
@@ -543,7 +741,7 @@ MagnumOpus is not just a content mod—it is **a symphony made playable**. Every
 
 2. **MUSIC NOTES MUST BE VISIBLE** - Scale 0.7f minimum. Multi-layer bloom. Shimmer effects. If players can't see the music notes, you've failed. This is a MUSIC mod.
 
-3. **USE ALL PARTICLE ASSETS** - You have 80+ custom PNGs. MusicNote (6 variants), EnergyFlare (7 variants), PrismaticSparkle (15 variants), Glyphs (12 variants), etc. USE THEM ALL. Mix and match creatively.
+3. **USE ALL PARTICLE ASSETS** - You have 100+ custom PNGs. MusicNote (6 variants), EnergyFlare (2 variants), PrismaticSparkle (3 variants), Glyphs (12 variants), etc. USE THEM ALL. Mix and match creatively.
 
 4. **LAYER EVERYTHING** - Single-effect particles are LAZY. Every effect needs: core + bloom layers + sparkle accents + theme particles + vanilla dust for density.
 
@@ -880,13 +1078,13 @@ float QuadraticBump(float x)
 **When creating new weapons or effects:**
 1. **USE `list_dir` on `Assets/Particles/`** to see ALL available particle textures
 2. **MIX AND MATCH** different particle types - never use just one
-3. **USE VARIANT NUMBERS** - Most particles have 2-15 variants (e.g., `MusicNote1.png` through `MusicNote6.png`)
+3. **USE DIFFERENT VARIANTS** - Music notes have 6 files (MusicNote, CursiveMusicNote, etc.), Glyphs have 12 numbered variants
 4. **BE CREATIVE** - Combine unexpected particle types for unique effects
 5. **UPDATE DOCUMENTATION** - When new particles are added, catalog them below
 
 ### Why This Matters
 
-The `Assets/Particles/` folder contains **80+ unique particle textures** across many categories. Using only `GenericFlare` or `SoftGlow` creates boring, repetitive weapons. **Every weapon deserves a unique visual identity.**
+The `Assets/Particles/` folder contains **100+ unique particle textures** across many categories. Using only `GenericFlare` or `SoftGlow` creates boring, repetitive weapons. **Every weapon deserves a unique visual identity.**
 
 ```csharp
 // ❌ BORING - Same generic glow on every weapon
@@ -913,36 +1111,36 @@ This mod uses a custom particle system located at `Common/Systems/Particles/`.
 #### Flares & Glows (Layer these for bloom effects)
 | File Pattern | Variants | Purpose | Recommended Scale |
 |--------------|----------|---------|-------------------|
-| `EnergyFlare1-7.png` | 7 | Intense bright bursts, each with unique shape | 0.4f - 1.2f |
+| `EnergyFlare.png`, `EnergyFlare4.png` | 2 | Intense bright bursts, each with unique shape | 0.4f - 1.2f |
 | `SoftGlow2-4.png` | 3 | Subtle ambient glows, soft edges | 0.3f - 0.8f |
-| `GlowingHalo1-6.png` | 5 | Ring/halo effects for impacts | 0.3f - 1.0f |
+| `GlowingHalo1.png`, `GlowingHalo2.png`, `GlowingHalo4-6.png` | 5 | Ring/halo effects for impacts | 0.3f - 1.0f |
 | `StarBurst1-2.png` | 2 | Radial star explosions | 0.5f - 1.5f |
 | `ShatteredStarlight.png` | 1 | Broken star fragments | 0.4f - 1.0f |
 
 #### Music Notes (THIS IS A MUSIC MOD - USE THESE!)
 | File Pattern | Variants | Purpose | Recommended Scale |
 |--------------|----------|---------|-------------------|
-| `MusicNote1-6.png` | 6 | Different musical note shapes | **0.6f - 1.2f** (NOT 0.25f!) |
+| `MusicNote.png`, `CursiveMusicNote.png`, `MusicNoteWithSlashes.png`, `QuarterNote.png`, `TallMusicNote.png`, `WholeNote.png` | 6 | Different musical note shapes | **0.6f - 1.2f** (NOT 0.25f!) |
 
 > ⚠️ **CRITICAL: Music notes at 0.25-0.4f scale are INVISIBLE. Use 0.6f minimum!**
 
 #### Magic & Sparkles (For magical/enchanted effects)
 | File Pattern | Variants | Purpose | Recommended Scale |
 |--------------|----------|---------|-------------------|
-| `MagicSparklField1-12.png` | 12 | Magic sparkle clusters, fields | 0.3f - 0.8f |
-| `PrismaticSparkle1-15.png` | 15 | Rainbow/prismatic sparkle points | 0.3f - 0.7f |
+| `MagicSparklField4.png`, `MagicSparklField6-12.png` | 8 | Magic sparkle clusters, fields | 0.3f - 0.8f |
+| `PrismaticSparkle11.png`, `PrismaticSparkle13.png`, `PrismaticSparkle14.png` | 3 | Rainbow/prismatic sparkle points | 0.3f - 0.7f |
 
 #### Trails (For projectile/movement trails)
 | File Pattern | Variants | Purpose | Recommended Scale |
 |--------------|----------|---------|-------------------|
 | `ParticleTrail1-4.png` | 4 | Elongated trail effects | 0.3f - 0.8f |
-| `SwordArc1-9.png` | 9 | Melee swing arcs/smears | 0.5f - 1.5f |
+| `SwordArc1.png`, `SwordArc2.png`, `SwordArc3.png`, `SwordArc6.png`, `SwordArc8.png`, + 4 named variants | 9 | Melee swing arcs/smears | 0.5f - 1.5f |
 
 #### Theme-Specific Particles
 | File Pattern | Variants | Purpose | Recommended Scale |
 |--------------|----------|---------|-------------------|
 | `SwanFeather1-10.png` | 10 | Feathers for Swan Lake theme | 0.4f - 1.0f |
-| `EnigmaEye1-8.png` | 8 | Watching eyes for Enigma theme | 0.4f - 0.8f |
+| `EnigmaEye1.png`, `ActivatedEnigmaEye.png`, `BurstingEye.png`, `CircularEnigmaEye.png`, `GodEye.png`, `LargeEye.png`, `SpikeyEye.png`, `TriangularEye.png` | 8 | Watching eyes for Enigma theme | 0.4f - 0.8f |
 | `Glyphs1-12.png` | 12 | Arcane symbols for magic effects | 0.3f - 0.7f |
 
 ### Creativity Guidelines - MAKE EACH WEAPON UNIQUE
@@ -957,8 +1155,8 @@ This mod uses a custom particle system located at `Common/Systems/Particles/`.
 **Example: Creating a unique magic staff effect**
 ```csharp
 // Explore what's available first!
-// Assets/Particles/ contains: MagicSparklField (12 variants), PrismaticSparkle (15 variants),
-// MusicNote (6 variants), Glyphs (12 variants), EnergyFlare (7 variants)...
+// Assets/Particles/ contains: MagicSparklField (8 variants), PrismaticSparkle (3 variants),
+// MusicNote (6 variants), Glyphs (12 variants), EnergyFlare (2 variants)...
 
 // Now MIX them creatively:
 public override void AI()
@@ -1005,7 +1203,7 @@ public override void AI()
 
 ## Enigma Eyes & Arcane Glyphs - NEW PARTICLE ASSETS
 
-### EnigmaEye Textures (8 variants - Assets/Particles/EnigmaEye1-8.png)
+### EnigmaEye Textures (8 variants: EnigmaEye1.png, ActivatedEnigmaEye.png, BurstingEye.png, CircularEnigmaEye.png, GodEye.png, LargeEye.png, SpikeyEye.png, TriangularEye.png)
 
 **Mysterious watching eyes for the Enigma theme.** These eyes represent the unknown observing, arcane awareness, and reality questioning itself.
 
@@ -1101,7 +1299,7 @@ CustomParticles.GlyphAura(entity.Center, color, radius: 40f, count: 2);
 ### The Golden Rules
 
 1. **EVERY WEAPON IS UNIQUE** - No two weapons share effects. Period.
-2. **USE ALL PARTICLE ASSETS** - 80+ custom PNGs. Use them. All of them. Creatively.
+2. **USE ALL PARTICLE ASSETS** - 100+ custom PNGs. Use them. All of them. Creatively.
 3. **MUSIC NOTES ARE VISIBLE** - Scale 0.7f+, multi-layer bloom, shimmer animation.
 4. **LAYER EFFECTS** - Minimum 3-4 particle types per effect.
 5. **THEME COLORS ONLY** - Consistent palette, but creative implementation.

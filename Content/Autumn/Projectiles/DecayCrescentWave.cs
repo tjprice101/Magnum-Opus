@@ -7,6 +7,7 @@ using Terraria.ModLoader;
 using Terraria.DataStructures;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 // Dynamic particle effects for aesthetically pleasing animations
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
@@ -279,22 +280,8 @@ namespace MagnumOpus.Content.Autumn.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField4").Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = texture.Size() / 2f;
-
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f + Projectile.whoAmI) * 0.15f + 1f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            spriteBatch.Draw(texture, drawPos, null, AutumnGold * 0.35f, 0f, origin, 0.35f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SoulWhite * 0.5f, 0f, origin, 0.2f * pulse, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Use procedural Autumn VFX for soul wisp glow
+            ProceduralProjectileVFX.DrawAutumnProjectile(Main.spriteBatch, Projectile, 0.3f);
             return false;
         }
     }

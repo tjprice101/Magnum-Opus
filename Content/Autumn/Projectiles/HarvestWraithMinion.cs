@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.DataStructures;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 
 namespace MagnumOpus.Content.Autumn.Projectiles
@@ -474,22 +475,8 @@ namespace MagnumOpus.Content.Autumn.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle13").Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = texture.Size() / 2f;
-
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f + Projectile.whoAmI) * 0.15f + 1f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            spriteBatch.Draw(texture, drawPos, null, WraithGreen * 0.35f, 0f, origin, 0.3f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SoulWhite * 0.5f, 0f, origin, 0.18f * pulse, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Use procedural Autumn VFX for soul harvest orb glow
+            ProceduralProjectileVFX.DrawAutumnProjectile(Main.spriteBatch, Projectile, 0.25f);
             return false;
         }
     }

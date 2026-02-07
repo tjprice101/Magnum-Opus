@@ -7,6 +7,7 @@ using Terraria.ModLoader;
 using Terraria.DataStructures;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 // Dynamic particle effects for aesthetically pleasing animations
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
@@ -419,25 +420,8 @@ namespace MagnumOpus.Content.Autumn.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo6").Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = texture.Size() / 2f;
-
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.12f + 1f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Moon layers
-            spriteBatch.Draw(texture, drawPos, null, TwilightPurple * 0.25f, Projectile.rotation, origin, 0.65f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, MoonGold * 0.35f, Projectile.rotation, origin, 0.45f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, MoonSilver * 0.5f, Projectile.rotation, origin, 0.3f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, Color.White * 0.6f, Projectile.rotation, origin, 0.15f * pulse, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Use procedural Autumn VFX for harvest moon bloom effect
+            ProceduralProjectileVFX.DrawAutumnProjectile(Main.spriteBatch, Projectile, 0.55f);
             return false;
         }
     }
@@ -559,22 +543,8 @@ namespace MagnumOpus.Content.Autumn.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle11").Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = texture.Size() / 2f;
-
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f + Projectile.whoAmI) * 0.12f + 1f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            spriteBatch.Draw(texture, drawPos, null, AutumnOrange * 0.4f, Projectile.rotation, origin, 0.25f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, AutumnGold * 0.5f, Projectile.rotation, origin, 0.15f * pulse, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Use procedural Autumn VFX for leaf shard glow
+            ProceduralProjectileVFX.DrawAutumnProjectile(Main.spriteBatch, Projectile, 0.2f);
             return false;
         }
     }

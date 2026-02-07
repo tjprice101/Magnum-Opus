@@ -13,6 +13,7 @@ using MagnumOpus.Content.OdeToJoy.Projectiles;
 using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 using MagnumOpus.Content.OdeToJoy.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
@@ -556,6 +557,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
     /// <summary>
     /// Lingering Petal Storm - Damages enemies over time
     /// </summary>
+    [AllowLargeHitbox("Area damage over time requires large hitbox")]
     public class LingeringPetalStorm : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow2";

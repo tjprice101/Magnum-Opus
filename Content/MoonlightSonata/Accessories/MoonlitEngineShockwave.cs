@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
@@ -13,6 +14,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
     /// Moonlit Engine Shockwave - A devastating AoE shockwave projectile.
     /// Features unique purple, light blue, and white particle combinations.
     /// </summary>
+    [AllowLargeHitbox("Expanding shockwave requires large hitbox for AoE damage")]
     public class MoonlitEngineShockwave : ModProjectile
     {
         // Custom texture - no vanilla textures allowed

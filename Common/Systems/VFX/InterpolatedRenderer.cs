@@ -10,14 +10,14 @@ namespace MagnumOpus.Common.Systems.VFX
     /// <summary>
     /// Sub-pixel interpolation system for buttery-smooth rendering on high refresh rate monitors.
     /// 
-    /// Vanilla Terraria renders at 60 FPS with fixed integer coordinates, causing micro-stutter
-    /// on 144Hz+ displays. This system calculates a partial tick interpolation factor.
+    /// Vanilla Terraria runs game logic at 60 FPS but can render at higher rates.
+    /// This system tracks how far we are between game update ticks (0-1) so we can
+    /// smoothly interpolate positions/rotations for 144Hz+ displays.
     /// 
     /// The Math: Instead of drawing at entity.position, we draw at:
-    /// Vector2 drawPos = Vector2.Lerp(entity.oldPosition, entity.position, partialTicks)
+    /// Vector2 drawPos = Vector2.Lerp(previousPosition, currentPosition, partialTicks)
     /// 
-    /// This allows sprites to appear at "in-between" coordinates based on the exact moment
-    /// the frame is rendered, making movement feel silky smooth.
+    /// Where partialTicks is 0 right after a game update and approaches 1 right before the next.
     /// </summary>
     public static class InterpolatedRenderer
     {
@@ -25,13 +25,14 @@ namespace MagnumOpus.Common.Systems.VFX
         
         // Frame timing for interpolation calculation
         private static Stopwatch _frameTimer = new Stopwatch();
-        private static double _lastFrameTime;
+        private static double _lastGameUpdateTime;
+        private static uint _lastGameUpdateCount;
         private static float _partialTicks = 1f;
         
         /// <summary>
         /// The partial tick value (0-1) representing how far we are between game updates.
-        /// Call UpdatePartialTicks() at the start of each draw frame.
-        /// For simplicity, defaults to 1.0 (use latest position) which is safe and still looks good.
+        /// 0 = just after a game tick, 1 = right before the next tick.
+        /// This is recalculated each render frame in UpdatePartialTicks().
         /// </summary>
         public static float PartialTicks => _partialTicks;
         
@@ -41,35 +42,44 @@ namespace MagnumOpus.Common.Systems.VFX
         public static void Initialize()
         {
             _frameTimer.Start();
-            _lastFrameTime = _frameTimer.Elapsed.TotalMilliseconds;
+            _lastGameUpdateTime = _frameTimer.Elapsed.TotalMilliseconds;
+            _lastGameUpdateCount = Main.GameUpdateCount;
         }
         
         /// <summary>
         /// Updates the partial tick interpolation factor.
         /// Call this at the start of draw operations for accurate interpolation.
+        /// 
+        /// The calculation works by:
+        /// 1. Detecting when a new game update happened (Main.GameUpdateCount changed)
+        /// 2. Recording the time of that game update
+        /// 3. Calculating how much time has passed since then as a fraction of 16.666ms
         /// </summary>
         public static void UpdatePartialTicks()
         {
             if (!_frameTimer.IsRunning)
             {
                 _frameTimer.Start();
-                _lastFrameTime = _frameTimer.Elapsed.TotalMilliseconds;
+                _lastGameUpdateTime = _frameTimer.Elapsed.TotalMilliseconds;
+                _lastGameUpdateCount = Main.GameUpdateCount;
             }
             
             double currentTime = _frameTimer.Elapsed.TotalMilliseconds;
-            double frameTime = currentTime - _lastFrameTime;
-            _lastFrameTime = currentTime;
             
-            // 16.666... ms per frame at 60 FPS
-            const double targetFrameTime = 1000.0 / 60.0;
+            // Check if a new game update has occurred
+            if (Main.GameUpdateCount != _lastGameUpdateCount)
+            {
+                // A new game tick happened - reset the timer
+                _lastGameUpdateTime = currentTime;
+                _lastGameUpdateCount = Main.GameUpdateCount;
+            }
             
-            // Calculate partial ticks as ratio of actual frame time to target
-            // Clamp to 0-1 range for safety
-            _partialTicks = MathHelper.Clamp((float)(frameTime / targetFrameTime), 0f, 1f);
+            // 16.666... ms per game update at 60 ticks per second
+            const double gameTickInterval = 1000.0 / 60.0;
             
-            // If we're running at exactly 60 FPS or slower, use 1.0 (no interpolation needed)
-            if (frameTime >= targetFrameTime * 0.95)
-                _partialTicks = 1f;
+            // Calculate how far we are into the current tick (0-1)
+            double timeSinceUpdate = currentTime - _lastGameUpdateTime;
+            _partialTicks = MathHelper.Clamp((float)(timeSinceUpdate / gameTickInterval), 0f, 1f);
         }
         
         /// <summary>
@@ -165,6 +175,20 @@ namespace MagnumOpus.Common.Systems.VFX
                 return proj?.rotation ?? 0f;
 
             return InterpolateRotation(proj.oldRot[0], proj.rotation);
+        }
+
+        /// <summary>
+        /// Smooth rotation interpolation for NPC entities.
+        /// Uses NPC.rotation directly since NPCs don't have oldRot arrays.
+        /// </summary>
+        public static float GetInterpolatedRotation(NPC npc)
+        {
+            if (npc == null)
+                return 0f;
+            
+            // NPCs don't have oldRot arrays, so just return current rotation
+            // For bosses with rotation tracking, consider caching oldRotation in BossVFXState
+            return npc.rotation;
         }
 
         #endregion

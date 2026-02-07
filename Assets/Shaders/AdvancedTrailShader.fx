@@ -431,7 +431,7 @@ technique FlameTechnique
 {
     pass FlamePass
     {
-        PixelShader = compile ps_3_0 FlameTrail();
+        PixelShader = compile ps_2_0 FlameTrail();
     }
 }
 
@@ -439,7 +439,7 @@ technique IceTechnique
 {
     pass IcePass
     {
-        PixelShader = compile ps_3_0 IceTrail();
+        PixelShader = compile ps_2_0 IceTrail();
     }
 }
 
@@ -447,7 +447,7 @@ technique LightningTechnique
 {
     pass LightningPass
     {
-        PixelShader = compile ps_3_0 LightningTrail();
+        PixelShader = compile ps_2_0 LightningTrail();
     }
 }
 
@@ -455,7 +455,7 @@ technique NatureTechnique
 {
     pass NaturePass
     {
-        PixelShader = compile ps_3_0 NatureTrail();
+        PixelShader = compile ps_2_0 NatureTrail();
     }
 }
 
@@ -463,6 +463,6 @@ technique CosmicTechnique
 {
     pass CosmicPass
     {
-        PixelShader = compile ps_3_0 CosmicTrail();
+        PixelShader = compile ps_2_0 CosmicTrail();
     }
 }

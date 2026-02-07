@@ -81,12 +81,13 @@ namespace MagnumOpus.Common.Systems.VFX
         
         public static Color MoonlightDarkPurple => new Color(75, 0, 130);
         public static Color MoonlightViolet => new Color(138, 43, 226);
+        public static Color MoonlightPurple => new Color(138, 43, 226);  // Alias for Violet
         public static Color MoonlightLavender => new Color(180, 150, 255);
         public static Color MoonlightSilver => new Color(220, 220, 235);
         public static Color MoonlightIceBlue => new Color(135, 206, 250);
         public static Color MoonlightMoonWhite => new Color(240, 235, 255);
         
-        // Alias for compatibility
+        // Aliases for compatibility
         public static Color MoonlightLightBlue => MoonlightIceBlue;
         
         /// <summary>Gets a Moonlight Sonata gradient color (purple ↁEblue)</summary>
@@ -141,6 +142,7 @@ namespace MagnumOpus.Common.Systems.VFX
         public static Color EnigmaDeepPurple => new Color(80, 20, 120);
         public static Color EnigmaPurple => new Color(140, 60, 200);
         public static Color EnigmaGreenFlame => new Color(50, 220, 100);
+        public static Color EnigmaGreen => new Color(50, 220, 100);  // Alias for GreenFlame
         public static Color EnigmaDarkGreen => new Color(30, 100, 50);
         
         /// <summary>Gets an Enigma Variations gradient color (black ↁEpurple ↁEgreen)</summary>
@@ -162,6 +164,7 @@ namespace MagnumOpus.Common.Systems.VFX
         
         public static Color FateBlack => new Color(15, 5, 20);
         public static Color FateDarkPink => new Color(180, 50, 100);
+        public static Color FatePink => new Color(180, 50, 100);  // Alias for DarkPink
         public static Color FatePurple => new Color(120, 30, 140);
         public static Color FateBrightRed => new Color(255, 60, 80);
         public static Color FateWhite => Color.White;

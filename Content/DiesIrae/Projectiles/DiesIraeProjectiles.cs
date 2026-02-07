@@ -65,8 +65,6 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
             float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.2f;
             scale *= shimmer;
             
-            int variant = Main.rand.Next(1, 7);
-            
             // === LAYER 1: BRIGHT WHITE CORE BLOOM ===
             for (int bloom = 0; bloom < 4; bloom++)
             {

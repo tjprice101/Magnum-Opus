@@ -40,67 +40,16 @@ namespace MagnumOpus.Common.Systems
             public Color GlowColor;
         }
 
+        /// <summary>
+        /// DISABLED: Frame tracking for melee smear effect has been disabled.
+        /// The spectral weapon copy drawing system is no longer active.
+        /// Particle/trail effects are handled by GlobalWeaponVFXOverhaul and CalamityStyleVFX.
+        /// </summary>
         public override void PostUpdate()
         {
-            Player player = Player;
-            Item heldItem = player.HeldItem;
-
-            // Check if player is using a MagnumOpus melee weapon
-            bool isSwinging = player.itemAnimation > 0 && IsMagnumMeleeWeapon(heldItem);
-
-            if (isSwinging)
-            {
-                // Calculate the weapon's position and rotation during swing
-                float swingProgress = 1f - (float)player.itemAnimation / player.itemAnimationMax;
-                
-                // Get weapon drawing info
-                Vector2 weaponPos = player.MountedCenter;
-                float rotation = player.itemRotation;
-                
-                // Offset based on swing direction
-                Vector2 offset = (rotation + MathHelper.PiOver4 * player.direction).ToRotationVector2() * (heldItem.width * 0.5f * heldItem.scale);
-                Vector2 smearPos = weaponPos + offset;
-
-                // Determine glow color based on weapon theme (DYNAMIC)
-                Color glowColor = GetWeaponGlowColor(heldItem);
-
-                // Add new smear frame
-                smearFrames.Add(new SmearFrame
-                {
-                    Position = smearPos,
-                    Rotation = rotation,
-                    Scale = heldItem.scale,
-                    Direction = player.direction,
-                    Alpha = 1f,
-                    GlowColor = glowColor
-                });
-
-                // Limit frames
-                while (smearFrames.Count > MaxSmearFrames)
-                {
-                    smearFrames.RemoveAt(0);
-                }
-            }
-            else if (wasSwinging && !isSwinging)
-            {
-                // Clear frames when swing ends (with slight delay for visual continuity)
-            }
-
-            // Fade out existing frames
-            for (int i = smearFrames.Count - 1; i >= 0; i--)
-            {
-                var frame = smearFrames[i];
-                frame.Alpha -= 0.15f;
-                smearFrames[i] = frame;
-
-                if (frame.Alpha <= 0)
-                {
-                    smearFrames.RemoveAt(i);
-                }
-            }
-
-            wasSwinging = isSwinging;
-            lastItemType = heldItem?.type ?? -1;
+            // DISABLED: No longer tracking smear frames as the spectral copy drawing is disabled.
+            // Leaving this empty to prevent unnecessary computation.
+            // The particle/trail VFX are now fully handled by GlobalWeaponVFXOverhaul and CalamityStyleVFX.
         }
 
         /// <summary>
@@ -220,16 +169,36 @@ namespace MagnumOpus.Common.Systems
 
     /// <summary>
     /// Draw layer that renders the melee smear effect
+    /// DISABLED: The spectral weapon copy drawing has been removed.
+    /// Particle/trail effects are now handled by GlobalWeaponVFXOverhaul and CalamityStyleVFX.
     /// </summary>
     public class MeleeSmearDrawLayer : PlayerDrawLayer
     {
         public override Position GetDefaultPosition() => new BeforeParent(Terraria.DataStructures.PlayerDrawLayers.HeldItem);
 
+        /// <summary>
+        /// Get theme-specific stretch intensity for Exoblade-style lengthwise stretch.
+        /// Different themes have subtle variations in how much the weapon stretches during swing.
+        /// </summary>
+        private float GetThemeStretchIntensity(MeleeSmearPlayer.WeaponTheme theme)
+        {
+            return theme switch
+            {
+                MeleeSmearPlayer.WeaponTheme.Fate => 0.35f,        // Cosmic, reality-bending - max stretch
+                MeleeSmearPlayer.WeaponTheme.SwanLake => 0.30f,    // Graceful, elegant - high stretch
+                MeleeSmearPlayer.WeaponTheme.Eroica => 0.28f,      // Heroic, powerful - strong stretch
+                MeleeSmearPlayer.WeaponTheme.LaCampanella => 0.25f, // Infernal, heavy - moderate stretch
+                MeleeSmearPlayer.WeaponTheme.MoonlightSonata => 0.27f, // Mystical, flowing - moderate-high stretch
+                MeleeSmearPlayer.WeaponTheme.Enigma => 0.32f,      // Mysterious, warping - high stretch
+                _ => 0.25f                                          // Default stretch intensity
+            };
+        }
+
         public override bool GetDefaultVisibility(Terraria.DataStructures.PlayerDrawSet drawInfo)
         {
-            Player player = drawInfo.drawPlayer;
-            var smearPlayer = player.GetModPlayer<MeleeSmearPlayer>();
-            return smearPlayer.HasActiveSmear();
+            // DISABLED: No longer drawing spectral weapon copies behind melee swings.
+            // The particle/trail VFX are now handled by GlobalWeaponVFXOverhaul and CalamityStyleVFX.
+            return false;
         }
 
         protected override void Draw(ref Terraria.DataStructures.PlayerDrawSet drawInfo)
@@ -250,6 +219,18 @@ namespace MagnumOpus.Common.Systems
             // Get weapon theme for special effects (DYNAMIC)
             var weaponTheme = smearPlayer.GetWeaponTheme(heldItem);
 
+            // === EXOBLADE-STYLE LENGTHWISE STRETCH ===
+            // Calculate swing progress for the stretch effect
+            // Formula: stretchScale = 1 + sin(swingProgress * PI) * stretchIntensity
+            // This makes the weapon stretch at the middle of the swing and snap back
+            float swingProgress = player.itemAnimationMax > 0 
+                ? 1f - (float)player.itemAnimation / player.itemAnimationMax 
+                : 0f;
+            
+            // Get theme-specific stretch intensity (subtle variations per theme)
+            float stretchIntensity = GetThemeStretchIntensity(weaponTheme);
+            float lengthwiseStretch = 1f + (float)Math.Sin(swingProgress * MathHelper.Pi) * stretchIntensity;
+            
             // Draw smear afterimages (oldest first, so newest is on top)
             // This creates a layered, fluid glow trail effect
             for (int i = 0; i < smearFrames.Count; i++)
@@ -262,7 +243,10 @@ namespace MagnumOpus.Common.Systems
                 float baseAlpha = frame.Alpha * (0.2f + progress * 0.6f);
                 
                 // Scale increases slightly for older frames to create expanding trail feel
-                float scale = frame.Scale * (0.9f + progress * 0.1f);
+                // Apply Exoblade-style lengthwise stretch - newest frames get full stretch
+                float baseScale = frame.Scale * (0.9f + progress * 0.1f);
+                float stretchFactor = 1f + (lengthwiseStretch - 1f) * progress; // Gradual stretch application
+                float scale = baseScale * stretchFactor;
                 
                 // Position relative to player
                 Vector2 drawPos = player.MountedCenter - Main.screenPosition;

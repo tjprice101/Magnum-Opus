@@ -13,6 +13,7 @@ using MagnumOpus.Content.OdeToJoy.Projectiles;
 using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 using MagnumOpus.Content.OdeToJoy.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.Melee
@@ -604,6 +605,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Melee
     /// <summary>
     /// Bloom Explosion - Marks enemies for increased damage
     /// </summary>
+    [AllowLargeHitbox("Bloom explosion requires large hitbox for AoE damage marking")]
     public class BloomExplosionProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";

@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -12,6 +13,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     /// The devastating beam attack fired by Eroica, God of Valor in Phase 2.
     /// Fires straight down at the player after a countdown.
     /// </summary>
+    [AllowLargeHitbox("Boss beam attack requires large hitbox for beam collision")]
     public class EroicasBeam : ModProjectile
     {
         // Use the Energy of Eroica sprite as base

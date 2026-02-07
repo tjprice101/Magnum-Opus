@@ -38,13 +38,24 @@ namespace MagnumOpus.Common.Systems.Shaders
         {
             if (_shaders != null)
             {
-                foreach (var shader in _shaders.Values)
-                {
-                    shader?.Dispose();
-                }
+                // Cache references for main thread disposal
+                var shadersCopy = new List<Effect>(_shaders.Values);
                 _shaders.Clear();
+                _shaders = null;
+                
+                // Queue shader disposal on main thread to avoid ThreadStateException
+                Main.QueueMainThreadAction(() =>
+                {
+                    try
+                    {
+                        foreach (var shader in shadersCopy)
+                        {
+                            shader?.Dispose();
+                        }
+                    }
+                    catch { }
+                });
             }
-            _shaders = null;
             _initialized = false;
         }
 
@@ -56,20 +67,14 @@ namespace MagnumOpus.Common.Systems.Shaders
             if (_initialized || Main.dedServ)
                 return;
 
-            try
-            {
-                LoadShader(TrailShader);
-                LoadShader(BloomShader);
-                LoadShader(ScreenEffects);
-                
-                _initialized = true;
-                ModContent.GetInstance<MagnumOpus>()?.Logger.Info("ShaderLoader: Successfully loaded all shaders.");
-            }
-            catch (Exception ex)
-            {
-                ModContent.GetInstance<MagnumOpus>()?.Logger.Error($"ShaderLoader: Failed to load shaders - {ex.Message}");
-                _initialized = true; // Prevent retry spam
-            }
+            _initialized = true;
+            
+            // === SHADERS DISABLED ===
+            // FNA requires MojoShader-compatible effect files (.fxb format).
+            // Our current XNB shaders were compiled with DirectX HLSL and cause
+            // "MOJOSHADER_compileEffect Error: Not an Effects Framework binary" errors.
+            // VFX systems use particle-based rendering as fallback when shaders unavailable.
+            ModContent.GetInstance<MagnumOpus>()?.Logger.Info("ShaderLoader: Shaders disabled - using particle-based VFX fallback.");
         }
 
         /// <summary>

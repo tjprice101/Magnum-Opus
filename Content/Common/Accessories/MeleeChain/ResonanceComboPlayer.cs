@@ -43,6 +43,17 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         public bool hasSwansPerfectMeasure;     // Graceful hits +2, consume 35 for feather storm
         public bool hasFatesCosmicSymphony;     // Max 60, consume 50 for reality-rending slash
         
+        // ===== POST-FATE TIER 7-10 CHAIN =====
+        public bool hasNocturnalSymphonyBand;   // T7: Max 70, +2 at night, constellation trails at 50+, Starfall Slash at 60
+        public bool hasInfernalFortissimoBandT8;// T8: Max 80, Judgment Burn at 60+, no decay during bosses, Hellfire Crescendo at 70
+        public bool hasJubilantCrescendoBand;   // T9: Max 90, 2% lifesteal at 70+, +5 on kill, Blooming Fury at 80
+        public bool hasEternalResonanceBand;    // T10: Max 100, never decays, temporal echoes at 80+, Temporal Finale at 90
+        
+        // ===== FUSION ACCESSORIES =====
+        public bool hasStarfallJudgmentGauntlet;      // Fusion T1: Nocturnal + Infernal, Max 85
+        public bool hasTriumphantCosmosGauntlet;      // Fusion T2: Starfall + Jubilant, Max 95
+        public bool hasGauntletOfTheEternalSymphony;  // Fusion T3: Triumphant + Eternal, Max 100
+        
         // ===== SPECIAL STATE =====
         public bool consumedResonanceThisFrame; // Prevent multiple consumptions per frame
         private int gracefulTimer;              // Frames since taking damage (for Swan's)
@@ -61,6 +72,12 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         private static readonly Color SwanWhite = new Color(255, 255, 255);
         private static readonly Color FateCrimson = new Color(200, 80, 120);
         
+        // Post-Fate theme colors
+        private static readonly Color NachtmusikGold = new Color(255, 215, 0);
+        private static readonly Color DiesIraeCrimson = new Color(180, 40, 40);
+        private static readonly Color OdeToJoyIridescent = new Color(255, 220, 255);
+        private static readonly Color ClairDeLuneBrass = new Color(205, 170, 125);
+        
         public override void ResetEffects()
         {
             // Reset all accessory flags each frame
@@ -76,6 +93,17 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             hasEnigmasDissonance = false;
             hasSwansPerfectMeasure = false;
             hasFatesCosmicSymphony = false;
+            
+            // Post-Fate T7-T10 flags
+            hasNocturnalSymphonyBand = false;
+            hasInfernalFortissimoBandT8 = false;
+            hasJubilantCrescendoBand = false;
+            hasEternalResonanceBand = false;
+            
+            // Fusion flags
+            hasStarfallJudgmentGauntlet = false;
+            hasTriumphantCosmosGauntlet = false;
+            hasGauntletOfTheEternalSymphony = false;
             
             consumedResonanceThisFrame = false;
         }
@@ -117,7 +145,26 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         private void DetermineMaxResonance()
         {
             // Hierarchy: Higher tier overrides lower tier max
-            if (hasFatesCosmicSymphony)
+            // Ultimate Fusion and T10 Eternal
+            if (hasGauntletOfTheEternalSymphony || hasEternalResonanceBand)
+                maxResonance = 100;
+            // Fusion Tier 2
+            else if (hasTriumphantCosmosGauntlet)
+                maxResonance = 95;
+            // T9 Jubilant
+            else if (hasJubilantCrescendoBand)
+                maxResonance = 90;
+            // Fusion Tier 1
+            else if (hasStarfallJudgmentGauntlet)
+                maxResonance = 85;
+            // T8 Infernal
+            else if (hasInfernalFortissimoBandT8)
+                maxResonance = 80;
+            // T7 Nocturnal
+            else if (hasNocturnalSymphonyBand)
+                maxResonance = 70;
+            // T6 Fate
+            else if (hasFatesCosmicSymphony)
                 maxResonance = 60;
             else if (hasInfernalFortissimo)
                 maxResonance = 50;
@@ -151,15 +198,51 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             // Enigma's Dissonance: Paradox DoT at 45+ stacks
             // (Applied in OnHitNPC instead - on enemies)
             
+            // Decay rate modifiers
+            // Default: 2 seconds
+            decayRate = 120;
+            
             // Moonlit Sonata Band: Slower decay at night
             if (hasMoonlitSonataBand && !Main.dayTime)
             {
                 decayRate = 180; // 3 seconds instead of 2
             }
-            else
+            
+            // Nocturnal Symphony Band: Extra resonance at night handled in OnMeleeHit
+            
+            // T8 Infernal: No decay during boss fights
+            if (hasInfernalFortissimoBandT8 && AnyBossAlive())
             {
-                decayRate = 120; // Default 2 seconds
+                decayRate = int.MaxValue; // Effectively no decay
             }
+            
+            // T10 Eternal and Ultimate Fusion: Resonance never decays
+            if (hasEternalResonanceBand || hasGauntletOfTheEternalSymphony)
+            {
+                decayRate = int.MaxValue; // Never decay
+            }
+            
+            // T9 Jubilant: 2% lifesteal at 70+ stacks (handled in OnHitNPC)
+            
+            // T10 Eternal: Time slow at 100 stacks (applied to nearby enemies)
+            if ((hasEternalResonanceBand || hasGauntletOfTheEternalSymphony) && resonanceStacks >= 100)
+            {
+                // Time slow effect handled in GlobalNPC
+            }
+        }
+        
+        /// <summary>
+        /// Checks if any boss is currently alive.
+        /// </summary>
+        private bool AnyBossAlive()
+        {
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (npc.active && npc.boss)
+                    return true;
+            }
+            return false;
         }
         
         private void HandleDecay()
@@ -186,7 +269,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             gracefulTimer = 0;
         }
         
-        /// <summary>
+            /// <summary>
         /// Called when the player hits an enemy with a melee attack.
         /// Adds resonance stacks based on equipped accessories.
         /// </summary>
@@ -213,6 +296,12 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
                 stackGain += 2;
             }
             
+            // T7 Nocturnal: +2 per hit at night
+            if (hasNocturnalSymphonyBand && !Main.dayTime)
+            {
+                stackGain += 2;
+            }
+            
             // Add stacks
             int oldStacks = resonanceStacks;
             resonanceStacks = Math.Min(resonanceStacks + stackGain, maxResonance);
@@ -225,6 +314,33 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             
             // Check for threshold effects
             CheckThresholdEffects(target);
+        }
+        
+        /// <summary>
+        /// Called when the player kills an enemy. Grants bonus resonance for T9+.
+        /// </summary>
+        public void OnKill(NPC target)
+        {
+            if (!hasResonantRhythmBand || maxResonance <= 0)
+                return;
+            
+            // T9 Jubilant: +5 resonance on kill
+            if (hasJubilantCrescendoBand || hasTriumphantCosmosGauntlet || hasGauntletOfTheEternalSymphony)
+            {
+                int oldStacks = resonanceStacks;
+                resonanceStacks = Math.Min(resonanceStacks + 5, maxResonance);
+                
+                if (resonanceStacks > oldStacks)
+                {
+                    // Special kill VFX
+                    Vector2 pos = target.Center;
+                    for (int i = 0; i < 5; i++)
+                    {
+                        Vector2 vel = Main.rand.NextVector2Circular(3f, 3f) - Vector2.UnitY * 2f;
+                        CustomParticles.GenericFlare(pos + Main.rand.NextVector2Circular(20f, 20f), OdeToJoyIridescent, 0.35f, 20);
+                    }
+                }
+            }
         }
         
         private void SpawnStackGainParticles(int stacksGained)
@@ -291,6 +407,26 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         /// </summary>
         public Color GetResonanceColor()
         {
+            // Ultimate and T10
+            if (hasGauntletOfTheEternalSymphony) return ClairDeLuneBrass;
+            if (hasEternalResonanceBand) return ClairDeLuneBrass;
+            
+            // Fusion Tier 2
+            if (hasTriumphantCosmosGauntlet) return OdeToJoyIridescent;
+            
+            // T9
+            if (hasJubilantCrescendoBand) return OdeToJoyIridescent;
+            
+            // Fusion Tier 1
+            if (hasStarfallJudgmentGauntlet) return Color.Lerp(NachtmusikGold, DiesIraeCrimson, 0.5f);
+            
+            // T8
+            if (hasInfernalFortissimoBandT8) return DiesIraeCrimson;
+            
+            // T7
+            if (hasNocturnalSymphonyBand) return NachtmusikGold;
+            
+            // T6 and earlier
             if (hasFatesCosmicSymphony) return FateCrimson;
             if (hasSwansPerfectMeasure) return SwanWhite;
             if (hasEnigmasDissonance) return EnigmaPurple;

@@ -10,6 +10,7 @@ using Terraria.Audio;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
@@ -313,7 +314,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             Texture2D glyphTex = CustomParticleSystem.Glyphs[(int)(Main.GameUpdateCount / 10) % 12].Value;
-            Texture2D sparkleTex = CustomParticleSystem.PrismaticSparkles[(int)(Main.GameUpdateCount / 8) % 8].Value;
+            Texture2D sparkleTex = CustomParticleSystem.PrismaticSparkles[(int)(Main.GameUpdateCount / 8) % 3].Value;
             
             // Draw glyphs along the slash line - no rectangle beam, just glyphs and sparkles
             Vector2 slashDir = slashAngle.ToRotationVector2();
@@ -539,6 +540,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         }
     }
     
+    [AllowLargeHitbox("Ultimate paradox collapse requires large hitbox for massive AoE")]
     public class ParadoxCollapseUltimate : ModProjectile
     {
         private static readonly Color EnigmaBlack = new Color(15, 10, 20);
@@ -599,7 +601,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             
             Texture2D eyeTex = CustomParticleSystem.EnigmaEyes[(int)(lifeProgress * 7) % 8].Value;
             Texture2D glyphTex = CustomParticleSystem.Glyphs[(int)(Main.GameUpdateCount / 6) % 12].Value;
-            Texture2D sparkleTex = CustomParticleSystem.PrismaticSparkles[(int)(Main.GameUpdateCount / 5) % 8].Value;
+            Texture2D sparkleTex = CustomParticleSystem.PrismaticSparkles[(int)(Main.GameUpdateCount / 5) % 3].Value;
             Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow4").Value;
             
             // Draw massive glyph ring - expanding outward

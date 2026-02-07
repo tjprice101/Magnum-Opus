@@ -46,6 +46,17 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         public bool hasSwansGracefulHunt;       // Perfect shots = Swan Mark (+15% crit)
         public bool hasFatesCosmicVerdict;      // +12% damage, boss bonus loot
         
+        // Post-Fate theme chain (T7-T10)
+        public bool hasNocturnalPredatorsSight; // T7: 12 marks, wall visibility, +5% night damage, star shower
+        public bool hasInfernalExecutionersSight; // T8: 14 marks, burn DoT, +100% death explosion, spread, Judgment Stacks
+        public bool hasJubilantHuntersSight;    // T9: 16 marks, healing orbs, +8% buff on kill, vine slow, Nature's Bounty
+        public bool hasEternalVerdictSight;     // T10: 20 marks, persistent marks, triple hit, linked damage, Temporal Judgment
+        
+        // Fusion accessories
+        public bool hasStarfallExecutionersScope;  // Fusion T1: Nachtmusik + Dies Irae
+        public bool hasTriumphantVerdictScope;     // Fusion T2: + Ode to Joy
+        public bool hasScopeOfTheEternalVerdict;   // Ultimate: + Clair de Lune
+        
         // ===== SPECIAL STATE =====
         /// <summary>Timer for tracking "perfect shot" (no damage taken for 3 seconds)</summary>
         private int perfectShotTimer;
@@ -69,6 +80,12 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         public static readonly Color SwanWhite = new Color(255, 255, 255);
         public static readonly Color FateCrimson = new Color(200, 80, 120);
         
+        // Post-Fate theme colors
+        public static readonly Color NachtmusikGold = new Color(255, 215, 140);
+        public static readonly Color DiesIraeCrimson = new Color(200, 50, 50);
+        public static readonly Color OdeToJoyIridescent = new Color(220, 200, 255);
+        public static readonly Color ClairDeLuneBrass = new Color(200, 170, 100);
+        
         public override void ResetEffects()
         {
             // Reset all accessory flags each frame
@@ -84,6 +101,17 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             hasEnigmasParadoxMark = false;
             hasSwansGracefulHunt = false;
             hasFatesCosmicVerdict = false;
+            
+            // Post-Fate flags
+            hasNocturnalPredatorsSight = false;
+            hasInfernalExecutionersSight = false;
+            hasJubilantHuntersSight = false;
+            hasEternalVerdictSight = false;
+            
+            // Fusion flags
+            hasStarfallExecutionersScope = false;
+            hasTriumphantVerdictScope = false;
+            hasScopeOfTheEternalVerdict = false;
             
             // Reset configuration
             baseMarkDuration = 0;
@@ -166,6 +194,75 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             // Fate's Cosmic Verdict: +12% damage
             if (hasFatesCosmicVerdict)
                 markedDamageBonus = Math.Max(markedDamageBonus, 0.12f);
+            
+            // ===== POST-FATE PROGRESSION (T7-T10) =====
+            
+            // T7: Nocturnal Predator's Sight - 12 marks, +5% night damage (handled by GlobalNPC)
+            if (hasNocturnalPredatorsSight)
+            {
+                maxMarkedEnemies = 12;
+                baseMarkDuration = 1200; // 20 second marks
+                if (!Main.dayTime)
+                    markedDamageBonus = Math.Max(markedDamageBonus, 0.17f); // +12% base + 5% night
+            }
+            
+            // T8: Infernal Executioner's Sight - 14 marks, burn DoT, enhanced explosions
+            if (hasInfernalExecutionersSight)
+            {
+                maxMarkedEnemies = 14;
+                baseMarkDuration = 1500; // 25 second marks
+                markedDamageBonus = Math.Max(markedDamageBonus, 0.15f);
+            }
+            
+            // T9: Jubilant Hunter's Sight - 16 marks, healing orbs, vine slow
+            if (hasJubilantHuntersSight)
+            {
+                maxMarkedEnemies = 16;
+                baseMarkDuration = 1800; // 30 second marks
+                markedDamageBonus = Math.Max(markedDamageBonus, 0.20f);
+                markedSlowsEnemies = true;
+                markSlowPercent = Math.Max(markSlowPercent, 0.20f);
+            }
+            
+            // T10: Eternal Verdict Sight - 20 marks, persistent marks, linked damage
+            if (hasEternalVerdictSight)
+            {
+                maxMarkedEnemies = 20;
+                baseMarkDuration = 2400; // 40 second marks (basically permanent)
+                markedDamageBonus = Math.Max(markedDamageBonus, 0.25f);
+            }
+            
+            // ===== FUSION ACCESSORIES =====
+            
+            // Fusion T1: Starfall Executioner's Scope - combines T7+T8
+            if (hasStarfallExecutionersScope)
+            {
+                maxMarkedEnemies = 14;
+                baseMarkDuration = 1500;
+                markedDamageBonus = Math.Max(markedDamageBonus, 0.18f);
+                if (!Main.dayTime)
+                    markedDamageBonus = Math.Max(markedDamageBonus, 0.25f); // Enhanced night bonus
+            }
+            
+            // Fusion T2: Triumphant Verdict Scope - combines Fusion1+T9
+            if (hasTriumphantVerdictScope)
+            {
+                maxMarkedEnemies = 16;
+                baseMarkDuration = 1800;
+                markedDamageBonus = Math.Max(markedDamageBonus, 0.22f);
+                markedSlowsEnemies = true;
+                markSlowPercent = Math.Max(markSlowPercent, 0.25f);
+            }
+            
+            // Ultimate: Scope of the Eternal Verdict - all combined
+            if (hasScopeOfTheEternalVerdict)
+            {
+                maxMarkedEnemies = 20;
+                baseMarkDuration = 3600; // 60 second marks (eternal)
+                markedDamageBonus = Math.Max(markedDamageBonus, 0.30f);
+                markedSlowsEnemies = true;
+                markSlowPercent = Math.Max(markSlowPercent, 0.30f);
+            }
         }
         
         /// <summary>
@@ -181,6 +278,18 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         /// </summary>
         public Color GetMarkColor()
         {
+            // Ultimate fusion takes priority
+            if (hasScopeOfTheEternalVerdict) return Color.Lerp(ClairDeLuneBrass, OdeToJoyIridescent, (float)Math.Sin(Main.GameUpdateCount * 0.02f) * 0.5f + 0.5f);
+            if (hasTriumphantVerdictScope) return Color.Lerp(DiesIraeCrimson, OdeToJoyIridescent, (float)Math.Sin(Main.GameUpdateCount * 0.025f) * 0.5f + 0.5f);
+            if (hasStarfallExecutionersScope) return Color.Lerp(NachtmusikGold, DiesIraeCrimson, (float)Math.Sin(Main.GameUpdateCount * 0.03f) * 0.5f + 0.5f);
+            
+            // Post-Fate individual tiers
+            if (hasEternalVerdictSight) return ClairDeLuneBrass;
+            if (hasJubilantHuntersSight) return OdeToJoyIridescent;
+            if (hasInfernalExecutionersSight) return DiesIraeCrimson;
+            if (hasNocturnalPredatorsSight) return NachtmusikGold;
+            
+            // Previous tiers
             if (hasFatesCosmicVerdict) return FateCrimson;
             if (hasSwansGracefulHunt) return SwanWhite;
             if (hasEnigmasParadoxMark) return EnigmaPurple;

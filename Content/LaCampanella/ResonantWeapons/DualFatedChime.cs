@@ -11,6 +11,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
@@ -660,6 +661,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
     /// Inferno Waltz - spinning flame dance AOE attack.
     /// Pure particle-based visual - no texture needed, drawn entirely with custom VFX.
     /// </summary>
+    [AllowLargeHitbox("Spinning flame dance AoE requires large hitbox")]
     public class InfernoWaltzProjectile : ModProjectile
     {
         // Pure particle effect - no texture drawn

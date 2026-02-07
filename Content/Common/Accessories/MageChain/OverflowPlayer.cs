@@ -44,6 +44,17 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         public bool hasSwansBalancedFlow;       // Gain "Grace" buff on recovery (+20% damage 5s)
         public bool hasFatesCosmicReservoir;    // -200 overflow, at -150: spells pierce walls
         
+        // Post-Fate theme chain (T7-T10)
+        public bool hasNocturnalHarmonicOverflow;  // T7: -250 overflow, +10% night damage, spell echoes
+        public bool hasInfernalManaCataclysm;      // T8: -300 overflow, DoT conversion, +50% potion healing
+        public bool hasJubilantArcaneCelebration;  // T9: -350 overflow, healing per mana spent, +crit on recovery
+        public bool hasEternalOverflowMastery;     // T10: -400 overflow, no penalty, Temporal Overflow
+        
+        // Post-Fate Fusion chain
+        public bool hasStarfallHarmonicPendant;     // Fusion 1: T7+T8, enhanced night damage
+        public bool hasTriumphantOverflowPendant;   // Fusion 2: +T9, triple theme synergy
+        public bool hasPendantOfTheEternalOverflow; // Ultimate: All four themes combined
+        
         // ===== SPECIAL STATE =====
         public bool zeroManaFreeSpell;          // Next spell is free (Moonlit Overflow Star)
         public int invincibilityCooldown;       // Cooldown for Heroic Arcane Surge
@@ -63,6 +74,12 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         private static readonly Color SwanWhite = new Color(255, 255, 255);
         private static readonly Color FateCrimson = new Color(200, 80, 120);
         
+        // Post-Fate Colors
+        private static readonly Color NachtmusikGold = new Color(255, 215, 140);
+        private static readonly Color DiesIraeCrimson = new Color(200, 50, 50);
+        private static readonly Color OdeToJoyIridescent = new Color(220, 200, 255);
+        private static readonly Color ClairDeLuneBrass = new Color(200, 170, 100);
+        
         public override void ResetEffects()
         {
             // Reset all accessory flags each frame
@@ -78,6 +95,15 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             hasEnigmasNegativeSpace = false;
             hasSwansBalancedFlow = false;
             hasFatesCosmicReservoir = false;
+            
+            // Post-Fate flags
+            hasNocturnalHarmonicOverflow = false;
+            hasInfernalManaCataclysm = false;
+            hasJubilantArcaneCelebration = false;
+            hasEternalOverflowMastery = false;
+            hasStarfallHarmonicPendant = false;
+            hasTriumphantOverflowPendant = false;
+            hasPendantOfTheEternalOverflow = false;
             
             justRecoveredFromOverflow = false;
         }
@@ -160,7 +186,29 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         private void DetermineMaxOverflow()
         {
             // Hierarchy: Higher tier overrides lower tier max
-            if (hasFatesCosmicReservoir)
+            // Post-Fate Ultimate Fusion
+            if (hasPendantOfTheEternalOverflow)
+                maxOverflow = 400;
+            // Post-Fate Fusion Tier 2
+            else if (hasTriumphantOverflowPendant)
+                maxOverflow = 350;
+            // Post-Fate Fusion Tier 1
+            else if (hasStarfallHarmonicPendant)
+                maxOverflow = 300;
+            // Post-Fate T10
+            else if (hasEternalOverflowMastery)
+                maxOverflow = 400;
+            // Post-Fate T9
+            else if (hasJubilantArcaneCelebration)
+                maxOverflow = 350;
+            // Post-Fate T8
+            else if (hasInfernalManaCataclysm)
+                maxOverflow = 300;
+            // Post-Fate T7
+            else if (hasNocturnalHarmonicOverflow)
+                maxOverflow = 250;
+            // Fate tier (T6)
+            else if (hasFatesCosmicReservoir)
                 maxOverflow = 200;
             else if (hasEnigmasNegativeSpace)
                 maxOverflow = 150;
@@ -187,13 +235,17 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         {
             if (!isInOverflow) return;
             
-            // Base effect: -25% magic damage while in overflow (risk!)
-            Player.GetDamage(DamageClass.Magic) -= 0.25f;
-            
-            // Permafrost Void Heart: +15% damage while negative (offsets the penalty!)
-            if (hasPermafrostVoidHeart)
+            // Eternal Overflow Mastery: No damage penalty while in overflow (mastered!)
+            if (!hasEternalOverflowMastery && !hasPendantOfTheEternalOverflow)
             {
-                Player.GetDamage(DamageClass.Magic) += 0.15f;
+                // Base effect: -25% magic damage while in overflow (risk!)
+                Player.GetDamage(DamageClass.Magic) -= 0.25f;
+                
+                // Permafrost Void Heart: +15% damage while negative (offsets the penalty!)
+                if (hasPermafrostVoidHeart)
+                {
+                    Player.GetDamage(DamageClass.Magic) += 0.15f;
+                }
             }
             
             // Visual feedback while in overflow
@@ -396,6 +448,40 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         /// </summary>
         public Color GetOverflowColor()
         {
+            // Post-Fate Ultimate Fusion
+            if (hasPendantOfTheEternalOverflow)
+            {
+                // Prismatic blend of all four Post-Fate themes
+                float t = (Main.GameUpdateCount * 0.015f) % 1f;
+                if (t < 0.25f) return Color.Lerp(NachtmusikGold, DiesIraeCrimson, t * 4f);
+                if (t < 0.5f) return Color.Lerp(DiesIraeCrimson, OdeToJoyIridescent, (t - 0.25f) * 4f);
+                if (t < 0.75f) return Color.Lerp(OdeToJoyIridescent, ClairDeLuneBrass, (t - 0.5f) * 4f);
+                return Color.Lerp(ClairDeLuneBrass, NachtmusikGold, (t - 0.75f) * 4f);
+            }
+            
+            // Post-Fate Fusion Tier 2
+            if (hasTriumphantOverflowPendant)
+            {
+                float t = (Main.GameUpdateCount * 0.02f) % 1f;
+                if (t < 0.33f) return Color.Lerp(NachtmusikGold, DiesIraeCrimson, t * 3f);
+                if (t < 0.67f) return Color.Lerp(DiesIraeCrimson, OdeToJoyIridescent, (t - 0.33f) * 3f);
+                return Color.Lerp(OdeToJoyIridescent, NachtmusikGold, (t - 0.67f) * 3f);
+            }
+            
+            // Post-Fate Fusion Tier 1
+            if (hasStarfallHarmonicPendant)
+                return Color.Lerp(NachtmusikGold, DiesIraeCrimson, (float)Math.Sin(Main.GameUpdateCount * 0.025f) * 0.5f + 0.5f);
+            
+            // Post-Fate T10
+            if (hasEternalOverflowMastery) return ClairDeLuneBrass;
+            // Post-Fate T9
+            if (hasJubilantArcaneCelebration) return OdeToJoyIridescent;
+            // Post-Fate T8
+            if (hasInfernalManaCataclysm) return DiesIraeCrimson;
+            // Post-Fate T7
+            if (hasNocturnalHarmonicOverflow) return NachtmusikGold;
+            
+            // Fate tier (T6)
             if (hasFatesCosmicReservoir) return FateCrimson;
             if (hasSwansBalancedFlow) return SwanWhite;
             if (hasEnigmasNegativeSpace) return EnigmaPurple;

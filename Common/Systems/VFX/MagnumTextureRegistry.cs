@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Common.Systems.VFX
 {
@@ -37,6 +38,20 @@ namespace MagnumOpus.Common.Systems.VFX
         
         #endregion
         
+        #region Cloud/Smoke Textures
+        
+        /// <summary>
+        /// Cloud/smoke texture for fog effects (uses SoftGlow for cloud-like appearance).
+        /// </summary>
+        public static Asset<Texture2D> CloudSmoke { get; private set; }
+        
+        /// <summary>
+        /// Procedurally generated heavy smoke texture with proper cloud shapes.
+        /// </summary>
+        private static Texture2D _heavySmokeTexture;
+        
+        #endregion
+        
         /// <summary>
         /// Whether textures have been loaded.
         /// </summary>
@@ -51,6 +66,7 @@ namespace MagnumOpus.Common.Systems.VFX
             SoftGlow = SafeLoad("MagnumOpus/Assets/Particles/EnergyFlare");
             EnergyFlare = SafeLoad("MagnumOpus/Assets/Particles/EnergyFlare");
             HaloRing = SafeLoad("MagnumOpus/Assets/Particles/GlowingHalo1");
+            CloudSmoke = SafeLoad("MagnumOpus/Assets/Particles/SoftGlow3"); // Softer texture for clouds
             
             TexturesLoaded = true;
         }
@@ -60,6 +76,9 @@ namespace MagnumOpus.Common.Systems.VFX
             SoftGlow = null;
             EnergyFlare = null;
             HaloRing = null;
+            CloudSmoke = null;
+            _heavySmokeTexture?.Dispose();
+            _heavySmokeTexture = null;
             TexturesLoaded = false;
         }
         
@@ -92,6 +111,14 @@ namespace MagnumOpus.Common.Systems.VFX
         }
         
         /// <summary>
+        /// Gets the soft glow texture (alias for GetBloom).
+        /// </summary>
+        public static Texture2D GetSoftGlow()
+        {
+            return GetBloom();
+        }
+        
+        /// <summary>
         /// Gets the energy flare texture.
         /// </summary>
         public static Texture2D GetFlare()
@@ -99,6 +126,14 @@ namespace MagnumOpus.Common.Systems.VFX
             if (EnergyFlare?.IsLoaded == true)
                 return EnergyFlare.Value;
             return GetBloom(); // Fallback to soft glow
+        }
+        
+        /// <summary>
+        /// Gets the energy flare texture (alias).
+        /// </summary>
+        public static Texture2D GetEnergyFlare()
+        {
+            return GetFlare();
         }
         
         /// <summary>
@@ -136,6 +171,31 @@ namespace MagnumOpus.Common.Systems.VFX
                 _pixelTexture.SetData(new[] { Microsoft.Xna.Framework.Color.White });
             }
             return _pixelTexture;
+        }
+        
+        /// <summary>
+        /// Gets the cloud/smoke texture for fog effects.
+        /// Uses a softer texture than the energy flare for proper cloud appearance.
+        /// </summary>
+        public static Texture2D GetCloudSmoke()
+        {
+            if (CloudSmoke?.IsLoaded == true)
+                return CloudSmoke.Value;
+            return GetBloom(); // Fallback to soft glow
+        }
+        
+        /// <summary>
+        /// Gets the procedurally generated heavy smoke texture.
+        /// This creates a proper cloud-like appearance with Perlin noise.
+        /// </summary>
+        public static Texture2D GetHeavySmoke()
+        {
+            if (_heavySmokeTexture == null || _heavySmokeTexture.IsDisposed)
+            {
+                // Get from particle texture generator
+                _heavySmokeTexture = ParticleTextureGenerator.HeavySmoke;
+            }
+            return _heavySmokeTexture ?? GetCloudSmoke();
         }
         
         #endregion

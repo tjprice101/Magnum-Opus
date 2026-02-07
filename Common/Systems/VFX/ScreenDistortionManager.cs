@@ -48,9 +48,20 @@ namespace MagnumOpus.Common.Systems.VFX
         public override void Unload()
         {
             Main.OnResolutionChanged -= OnResolutionChanged;
-            _screenTarget?.Dispose();
+            
+            // Cache reference and null immediately (safe on any thread)
+            var screen = _screenTarget;
             _screenTarget = null;
             _activeDistortions?.Clear();
+            
+            // Queue texture disposal on main thread to avoid ThreadStateException
+            if (screen != null)
+            {
+                Main.QueueMainThreadAction(() =>
+                {
+                    try { screen.Dispose(); } catch { }
+                });
+            }
         }
 
         private void OnResolutionChanged(Vector2 newSize)

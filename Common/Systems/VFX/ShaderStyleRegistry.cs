@@ -152,25 +152,16 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             if (Main.dedServ) return;
 
-            // IMPORTANT: Custom shaders require pre-compiled .xnb files.
-            // tModLoader does NOT auto-compile .fx files - they must be compiled 
-            // externally using MonoGame Content Pipeline (MGCB) or FXC compiler.
+            // DISABLED: Shader loading is currently disabled because tModLoader/FNA requires
+            // shaders compiled with MojoShader, which uses a different bytecode format than
+            // standard MonoGame. The VFX system uses particle-based fallbacks instead.
             // 
-            // Calamity has pre-compiled .xnb shaders in their Effects/ folder.
-            // Until we compile our shaders, we use particle-based VFX fallback.
-            //
-            // To enable shaders later:
-            // 1. Install MonoGame Content Pipeline
-            // 2. Compile .fx files to .xnb using MGCB
-            // 3. Place .xnb files in Assets/Shaders/
-            // 4. Uncomment LoadShaders() call below
-            
+            // When proper FNA-compatible shaders are available, re-enable LoadShaders().
             ShadersLoaded = false;
             _advancedBloomShader = null;
             _advancedScreenShader = null;
             _advancedTrailShader = null;
-            
-            Mod.Logger.Info("ShaderStyleRegistry: Using particle-based VFX (shaders require pre-compiled .xnb files)");
+            Mod.Logger.Info("ShaderStyleRegistry: Using particle-based VFX (shaders disabled for FNA compatibility)");
         }
 
         /// <summary>
@@ -179,46 +170,48 @@ namespace MagnumOpus.Common.Systems.VFX
         /// </summary>
         private void LoadShaders()
         {
-            // Helper to load shader by path (matches Calamity's LoadShader helper)
-            Effect LoadShader(string path) => 
-                Mod.Assets.Request<Effect>($"{ShaderPath}{path}", AssetRequestMode.ImmediateLoad).Value;
+            // Helper to load shader asset by path (tModLoader 1.4.5+ pattern)
+            Asset<Effect> LoadShaderAsset(string path) => 
+                Mod.Assets.Request<Effect>($"{ShaderPath}{path}", AssetRequestMode.ImmediateLoad);
 
-            // Helper to register a shader with GameShaders.Misc
-            void RegisterMiscShader(Effect shader, string passName, string registrationName)
+            // Helper to register a shader with GameShaders.Misc (using Asset<Effect> to avoid obsolete warning)
+            void RegisterMiscShader(Asset<Effect> shaderAsset, string passName, string registrationName)
             {
-                Ref<Effect> shaderRef = new(shader);
-                MiscShaderData shaderData = new(shaderRef, passName);
+                MiscShaderData shaderData = new(shaderAsset, passName);
                 GameShaders.Misc[$"{ShaderPrefix}{registrationName}"] = shaderData;
             }
 
-            // Load Advanced Bloom Shader (5 styles)
-            var bloomShader = LoadShader("AdvancedBloomShader");
-            _advancedBloomShader = bloomShader;
-            RegisterMiscShader(bloomShader, "EtherealPass", "EtherealBloom");
-            RegisterMiscShader(bloomShader, "InfernalPass", "InfernalBloom");
-            RegisterMiscShader(bloomShader, "CelestialPass", "CelestialBloom");
-            RegisterMiscShader(bloomShader, "ChromaticPass", "ChromaticBloom");
-            RegisterMiscShader(bloomShader, "VoidPass", "VoidBloom");
+            // Load Simple Bloom Shader (PS 2.0 compatible)
+            var bloomAsset = LoadShaderAsset("SimpleBloomShader");
+            _advancedBloomShader = bloomAsset.Value;
+            _advancedBloomAsset = bloomAsset;
+            RegisterMiscShader(bloomAsset, "DefaultPass", "DefaultBloom");
+            RegisterMiscShader(bloomAsset, "EtherealPass", "EtherealBloom");
+            RegisterMiscShader(bloomAsset, "InfernalPass", "InfernalBloom");
+            // Note: Celestial, Chromatic, Void bloom styles not available in simplified shader
+            // They will fallback to Default or particle-based effects
 
-            // Load Advanced Screen Shader (5 styles)
-            var screenShader = LoadShader("AdvancedScreenEffectsShader");
-            _advancedScreenShader = screenShader;
-            RegisterMiscShader(screenShader, "RipplePass", "RippleScreen");
-            RegisterMiscShader(screenShader, "ShatterPass", "ShatterScreen");
-            RegisterMiscShader(screenShader, "WarpPass", "WarpScreen");
-            RegisterMiscShader(screenShader, "PulsePass", "PulseScreen");
-            RegisterMiscShader(screenShader, "TearPass", "TearScreen");
+            // Load Simple Screen Shader (PS 2.0 compatible)
+            var screenAsset = LoadShaderAsset("SimpleScreenShader");
+            _advancedScreenShader = screenAsset.Value;
+            _advancedScreenAsset = screenAsset;
+            RegisterMiscShader(screenAsset, "RipplePass", "RippleScreen");
+            RegisterMiscShader(screenAsset, "ShatterPass", "ShatterScreen");
+            RegisterMiscShader(screenAsset, "WarpPass", "WarpScreen");
+            RegisterMiscShader(screenAsset, "PulsePass", "PulseScreen");
+            RegisterMiscShader(screenAsset, "TearPass", "TearScreen");
 
-            // Load Advanced Trail Shader (5 styles)
-            var trailShader = LoadShader("AdvancedTrailShader");
-            _advancedTrailShader = trailShader;
-            RegisterMiscShader(trailShader, "FlamePass", "FlameTrail");
-            RegisterMiscShader(trailShader, "IcePass", "IceTrail");
-            RegisterMiscShader(trailShader, "LightningPass", "LightningTrail");
-            RegisterMiscShader(trailShader, "NaturePass", "NatureTrail");
-            RegisterMiscShader(trailShader, "CosmicPass", "CosmicTrail");
+            // Load Simple Trail Shader (PS 2.0 compatible)
+            var trailAsset = LoadShaderAsset("SimpleTrailShader");
+            _advancedTrailShader = trailAsset.Value;
+            _advancedTrailAsset = trailAsset;
+            RegisterMiscShader(trailAsset, "FlamePass", "FlameTrail");
+            RegisterMiscShader(trailAsset, "IcePass", "IceTrail");
+            RegisterMiscShader(trailAsset, "LightningPass", "LightningTrail");
+            RegisterMiscShader(trailAsset, "NaturePass", "NatureTrail");
+            RegisterMiscShader(trailAsset, "CosmicPass", "CosmicTrail");
 
-            Mod.Logger.Info($"ShaderStyleRegistry: Registered 15 shader passes with GameShaders.Misc");
+            Mod.Logger.Info($"ShaderStyleRegistry: Registered shader passes with GameShaders.Misc (PS 2.0 compatible shaders)");
         }
 
         public override void Unload()

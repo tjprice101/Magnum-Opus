@@ -12,6 +12,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Fate.Debuffs;
 
 namespace MagnumOpus.Content.Fate.Projectiles
@@ -360,19 +361,15 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             Color weaponColor = GetWeaponColor();
+            Color secondaryColor = Color.Lerp(weaponColor, FateCosmicVFX.FateDarkPink, 0.5f);
             
-            // Impact VFX
-            CustomParticles.GenericFlare(target.Center, Color.White, 0.8f, 18);
-            CustomParticles.GenericFlare(target.Center, weaponColor, 0.6f, 15);
-            CustomParticles.HaloRing(target.Center, weaponColor * 0.7f, 0.35f, 15);
+            // === NEW VFX SYSTEM: Impact Light Rays ===
+            // Use the Fate theme for proper themed impact rays
+            ImpactLightRays.SpawnImpactRays(target.Center, "Fate", rayCount: 6, scale: 1.2f, includeMusicNotes: true);
             
-            // Spark burst
-            for (int i = 0; i < 6; i++)
-            {
-                Vector2 sparkVel = Main.rand.NextVector2Circular(6f, 6f);
-                var spark = new GlowSparkParticle(target.Center, sparkVel, weaponColor, 0.3f, 18);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
+            // Additional bloom flare at center
+            CustomParticles.GenericFlare(target.Center, Color.White, 0.7f, 15);
+            CustomParticles.GenericFlare(target.Center, weaponColor, 0.5f, 12);
             
             // Apply Fate debuff - DestinyCollapse
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 180);
@@ -557,6 +554,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Sword rotation - point outward along the swing arc
             Projectile.rotation = actualAngle + MathHelper.PiOver4;
             
+            // === ARK OF THE COSMOS STYLE FOG EFFECT ===
+            // Calculate swing progress (0 to 1) for fog spawning
+            float swingProgress = (SwingAngle + maxSwingArc) / (maxSwingArc * 2f);
+            swingProgress = MathHelper.Clamp(swingProgress, 0f, 1f);
+            
+            // Spawn dense fog along the swing arc every frame
+            WeaponFogVFX.SpawnSwingFog(owner, swingProgress, "Fate", 1.3f);
+            
             // Update trail
             trailIndex = (trailIndex + 1) % trailPositions.Length;
             trailPositions[trailIndex] = Projectile.Center;
@@ -618,11 +623,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Apply Fate debuff
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 300);
             
-            // Impact VFX
+            // === NEW VFX SYSTEM: Impact Light Rays ===
             Vector2 hitPos = target.Center;
-            CustomParticles.GenericFlare(hitPos, FateCosmicVFX.FateWhite, 0.8f, 20);
-            CustomParticles.GenericFlare(hitPos, FateCosmicVFX.FateDarkPink, 0.6f, 18);
-            CustomParticles.HaloRing(hitPos, FateCosmicVFX.FatePurple, 0.5f, 15);
+            
+            // Use the Fate theme for proper themed impact rays
+            ImpactLightRays.SpawnImpactRays(hitPos, "Fate", rayCount: 8, scale: 1.4f, includeMusicNotes: true);
+            
+            // Additional bloom flares
+            CustomParticles.GenericFlare(hitPos, FateCosmicVFX.FateWhite, 0.7f, 18);
             CustomParticles.GlyphBurst(hitPos, FateCosmicVFX.FateDarkPink, 4, 4f);
             
             // ☁EMUSICAL IMPACT - Fate's chord burst

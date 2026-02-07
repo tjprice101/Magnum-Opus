@@ -2,6 +2,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Graphics.Effects;
+using Terraria.Graphics.Shaders;
 
 namespace MagnumOpus.Common.Systems.Shaders
 {
@@ -254,15 +256,27 @@ namespace MagnumOpus.Common.Systems.Shaders
 
         #region Private Helpers
 
+        /// <summary>
+        /// Gets the shader Effect for a given type.
+        /// Now uses MagnumShaderSystem for proper Ref&lt;Effect&gt; handling.
+        /// </summary>
         private static Effect GetShaderForType(ShaderType type)
         {
+            // Use MagnumShaderSystem's properly registered shaders
+            if (!MagnumShaderSystem.ShadersAvailable)
+                return null;
+            
+            // Get shader data from GameShaders.Misc (proper Calamity pattern)
             return type switch
             {
-                ShaderType.Trail or ShaderType.TrailBloom => ShaderLoader.Trail,
-                ShaderType.Bloom or ShaderType.GradientBloom or ShaderType.Flare => ShaderLoader.Bloom,
+                ShaderType.Trail or ShaderType.TrailBloom => 
+                    GameShaders.Misc[MagnumShaderSystem.TrailShader]?.Shader,
+                ShaderType.Bloom or ShaderType.GradientBloom or ShaderType.Flare => 
+                    GameShaders.Misc[MagnumShaderSystem.BloomShader]?.Shader,
                 ShaderType.ChromaticAberration or ShaderType.RadialBlur or ShaderType.Vignette 
                     or ShaderType.ColorFlash or ShaderType.WaveDistortion 
-                    or ShaderType.HeatDistortion or ShaderType.RealityCrack => ShaderLoader.Screen,
+                    or ShaderType.HeatDistortion or ShaderType.RealityCrack => 
+                    Filters.Scene[MagnumShaderSystem.ScreenDistortionShader]?.GetShader()?.Shader,
                 _ => null
             };
         }

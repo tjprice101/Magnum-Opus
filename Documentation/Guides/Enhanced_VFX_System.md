@@ -54,20 +54,20 @@ public override void OnHitNPC(...)
 > **Before creating ANY weapon effect, you MUST explore available particle textures!**
 
 ### Mandatory Steps:
-1. **Run `list_dir` on `Assets/Particles/`** to see all 80+ available textures
+1. **Run `list_dir` on `Assets/Particles/`** to see all 100+ available textures
 2. **Mix and match** from different categories (flares, sparkles, trails, music notes, glyphs)
-3. **Use different variants** - most particles have 2-15 numbered variants
+3. **Use different variants** - particles have various named and numbered variants
 4. **Be creative** - unique combinations create unique weapons
 5. **Music notes need scale 0.6f+** to be visible!
 
 ### Available Particle Categories:
-- **EnergyFlare (7 variants)** - Intense bursts
+- **EnergyFlare (2 variants)** - Intense bursts
 - **SoftGlow (3 variants)** - Ambient glows  
 - **GlowingHalo (5 variants)** - Ring effects
 - **StarBurst (2 variants)** - Radial explosions
 - **MusicNote (6 variants)** - Musical notes (**scale 0.6f+ required!**)
-- **MagicSparklField (12 variants)** - Magic sparkle clusters
-- **PrismaticSparkle (15 variants)** - Rainbow sparkles
+- **MagicSparklField (8 variants)** - Magic sparkle clusters
+- **PrismaticSparkle (3 variants)** - Rainbow sparkles
 - **ParticleTrail (4 variants)** - Movement trails
 - **SwordArc (9 variants)** - Melee swing arcs
 - **SwanFeather (10 variants)** - Feathers
@@ -328,6 +328,12 @@ BloomRenderer.DrawFateBloom(spriteBatch, texture, position, scale, lifetime, max
 | `EnhancedParticle.cs` | Enhanced particle class with bloom support |
 | `EnhancedThemedParticles.cs` | Theme-specific enhanced particle effects |
 | `UnifiedVFXBloom.cs` | Easy API for enhanced bloom effects |
+| `InterpolatedRenderer.cs` | 144Hz+ sub-pixel smoothness via `PartialTicks` |
+| `GodRaySystem.cs` | Light ray bursts via `CreateBurst()` with `GodRayStyle` |
+| `ImpactLightRays.cs` | Impact flares via `SpawnImpactRays()` |
+| `ScreenDistortionManager.cs` | Screen ripple effects via `TriggerRipple()` |
+| `UniversalElementalVFX.cs` | **NEW** - Universal elemental effects (flames, lightning, petals, frost, void, cosmic) |
+| `BossArenaVFX.cs` | **NEW** - Persistent boss arena ambient particles with parallax depth |
 
 ### Updated Existing Files
 

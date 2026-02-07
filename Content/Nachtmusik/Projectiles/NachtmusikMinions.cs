@@ -7,6 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Nachtmusik.Debuffs;
 
 namespace MagnumOpus.Content.Nachtmusik.Projectiles
@@ -436,13 +437,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/CursiveMusicNote").Value;
-            Vector2 origin = tex.Size() / 2f;
-            
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, NachtmusikCosmicVFX.Gold * 0.7f, Projectile.rotation, origin, 0.3f, SpriteEffects.None, 0f);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, NachtmusikCosmicVFX.StarWhite * 0.8f, Projectile.rotation, origin, 0.15f, SpriteEffects.None, 0f);
-            
+            // Procedural Nachtmusik VFX - musical note projectile
+            ProceduralProjectileVFX.DrawNachtmusikProjectile(Main.spriteBatch, Projectile, 0.25f);
             return false;
         }
     }
@@ -736,25 +732,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Star").Value;
-            Vector2 origin = tex.Size() / 2f;
-            
-            // Trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                Color trailColor = NachtmusikCosmicVFX.GetCelestialGradient(progress) * (1f - progress) * 0.5f;
-                sb.Draw(tex, drawPos, null, trailColor, 0f, origin, 0.25f * (1f - progress * 0.4f), SpriteEffects.None, 0f);
-            }
-            
-            // Core
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.2f) * 0.1f + 0.9f;
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, NachtmusikCosmicVFX.Gold * 0.6f, Projectile.rotation, origin, 0.35f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, NachtmusikCosmicVFX.StarWhite * 0.8f, Projectile.rotation, origin, 0.2f * pulse, SpriteEffects.None, 0f);
-            
+            // Procedural Nachtmusik VFX - star projectile
+            ProceduralProjectileVFX.DrawNachtmusikProjectile(Main.spriteBatch, Projectile, 0.3f);
             return false;
         }
         

@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Spring.Weapons;
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 
@@ -462,31 +463,8 @@ namespace MagnumOpus.Content.Spring.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            SpriteBatch spriteBatch = Main.spriteBatch;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Color trailColor = Color.Lerp(SpringYellow, SpringGreen, progress) * (1f - progress) * 0.5f;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                spriteBatch.Draw(texture, trailPos, null, trailColor, Projectile.oldRot[i], origin, 0.4f * (1f - progress * 0.5f), SpriteEffects.None, 0f);
-            }
-
-            spriteBatch.Draw(texture, drawPos, null, SpringYellow * 0.4f, Projectile.rotation, origin, 0.4f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, Color.White * 0.5f, Projectile.rotation, origin, 0.25f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Use procedural VFX system - Spring pollen bolt effect
+            ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.3f);
             return false;
         }
     }
@@ -538,23 +516,9 @@ namespace MagnumOpus.Content.Spring.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
+            // Use procedural VFX system - Spring pollen cloud effect
             float alpha = 1f - (float)Projectile.alpha / 255f;
-
-            SpriteBatch spriteBatch = Main.spriteBatch;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            spriteBatch.Draw(texture, drawPos, null, SpringYellow * 0.3f * alpha, 0f, origin, 0.6f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SpringGreen * 0.25f * alpha, 0f, origin, 0.45f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.5f * alpha);
             return false;
         }
     }
@@ -632,31 +596,8 @@ namespace MagnumOpus.Content.Spring.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            SpriteBatch spriteBatch = Main.spriteBatch;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Color trailColor = Color.Lerp(SpringPink, SpringYellow, progress) * (1f - progress) * 0.5f;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                spriteBatch.Draw(texture, trailPos, null, trailColor, Projectile.oldRot[i], origin, 0.5f * (1f - progress * 0.4f), SpriteEffects.None, 0f);
-            }
-
-            spriteBatch.Draw(texture, drawPos, null, SpringPink * 0.4f, Projectile.rotation, origin, 0.55f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, Color.White * 0.55f, Projectile.rotation, origin, 0.3f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Use procedural VFX system - Spring sync petal effect
+            ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.4f);
             return false;
         }
     }

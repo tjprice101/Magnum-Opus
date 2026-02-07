@@ -512,7 +512,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             
             Texture2D eyeTex = CustomParticleSystem.EnigmaEyes[(int)(lifeProgress * 7) % 8].Value;
             Texture2D glyphTex = CustomParticleSystem.Glyphs[(int)(Main.GameUpdateCount / 8) % 12].Value;
-            Texture2D sparkleTex = CustomParticleSystem.PrismaticSparkles[(int)(Main.GameUpdateCount / 6) % 8].Value;
+            Texture2D sparkleTex = CustomParticleSystem.PrismaticSparkles[(int)(Main.GameUpdateCount / 6) % 3].Value;
             Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
             
             // Draw imploding/exploding glyph ring

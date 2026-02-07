@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 // Dynamic particle effects for aesthetically pleasing animations
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
@@ -167,91 +168,9 @@ namespace MagnumOpus.Content.Spring.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            
-            // Load MULTIPLE flare textures for layered spinning effect
-            Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
-            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 flareOrigin1 = flare1.Size() / 2f;
-            Vector2 flareOrigin2 = flare2.Size() / 2f;
-            Vector2 glowOrigin = softGlow.Size() / 2f;
-
-            float time = Main.GameUpdateCount * 0.05f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.15f;
+            // Use procedural VFX system for Spring theme with cherry blossom effects
             float alpha = 1f - Projectile.alpha / 255f;
-            
-            // Colors with alpha removed for proper additive blending (Fargos pattern)
-            Color pinkBloom = SpringPink with { A = 0 };
-            Color whiteBloom = SpringWhite with { A = 0 };
-            Color greenBloom = SpringGreen with { A = 0 };
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // ═══════════════════════════════════════════════════════════════
-            // TRAIL RENDERING with gradient
-            // ═══════════════════════════════════════════════════════════════
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                
-                float progress = (float)i / Projectile.oldPos.Length;
-                float trailAlpha = (1f - progress) * alpha;
-                float trailScale = 0.4f * (1f - progress * 0.6f);
-                Color trailColor = Color.Lerp(pinkBloom, whiteBloom, progress) * trailAlpha;
-                
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                spriteBatch.Draw(texture, trailPos, null, trailColor * 0.6f, Projectile.oldRot[i], 
-                    origin, trailScale, SpriteEffects.None, 0f);
-            }
-
-            // ═══════════════════════════════════════════════════════════════
-            // 4+ LAYERED SPINNING FLARES (TRUE_VFX_STANDARDS)
-            // ═══════════════════════════════════════════════════════════════
-            
-            // Layer 1: Soft glow base (large, dim)
-            spriteBatch.Draw(softGlow, drawPos, null, pinkBloom * 0.3f * alpha, 0f, 
-                glowOrigin, 0.6f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 2: First flare spinning clockwise
-            spriteBatch.Draw(flare1, drawPos, null, pinkBloom * 0.5f * alpha, time, 
-                flareOrigin1, 0.4f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 3: Second flare spinning counter-clockwise (green accent)
-            spriteBatch.Draw(flare2, drawPos, null, greenBloom * 0.4f * alpha, -time * 0.7f, 
-                flareOrigin2, 0.35f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 4: Third flare different rotation speed
-            spriteBatch.Draw(flare1, drawPos, null, whiteBloom * 0.5f * alpha, time * 1.3f, 
-                flareOrigin1, 0.3f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 5: Bright white core
-            spriteBatch.Draw(texture, drawPos, null, whiteBloom * 0.8f * alpha, Projectile.rotation, 
-                origin, 0.2f, SpriteEffects.None, 0f);
-
-            // ═══════════════════════════════════════════════════════════════
-            // ORBITING SPARK POINTS around the petal
-            // ═══════════════════════════════════════════════════════════════
-            float sparkOrbitAngle = time * 1.5f;
-            for (int i = 0; i < 3; i++)
-            {
-                float sparkAngle = sparkOrbitAngle + MathHelper.TwoPi * i / 3f;
-                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * 10f;
-                Color sparkColor = Color.Lerp(pinkBloom, whiteBloom, i / 3f);
-                spriteBatch.Draw(texture, sparkPos, null, sparkColor * 0.6f * alpha, 0f, 
-                    origin, 0.12f * pulse, SpriteEffects.None, 0f);
-            }
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, alpha);
             return false;
         }
 

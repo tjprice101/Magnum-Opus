@@ -116,34 +116,71 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             if (queue.Count == 0) return;
             
-            // Save current spritebatch state
-            spriteBatch.End();
-            
-            // Begin with additive blending for blooms
-            spriteBatch.Begin(
-                SpriteSortMode.Deferred,
-                BlendState.Additive,
-                SamplerState.LinearClamp,
-                DepthStencilState.None,
-                RasterizerState.CullNone,
-                null,
-                Main.GameViewMatrix.TransformationMatrix);
-            
-            foreach (var bloom in queue)
+            // Try to end current spritebatch state - it may not be active
+            bool endedSuccessfully = false;
+            try
             {
-                DrawBloomByType(spriteBatch, bloom);
+                spriteBatch.End();
+                endedSuccessfully = true;
+            }
+            catch (System.InvalidOperationException)
+            {
+                // SpriteBatch wasn't active - that's okay, we'll start our own
             }
             
-            // Restore to default state
-            spriteBatch.End();
-            spriteBatch.Begin(
-                SpriteSortMode.Deferred,
-                BlendState.AlphaBlend,
-                Main.DefaultSamplerState,
-                DepthStencilState.None,
-                Main.Rasterizer,
-                null,
-                Main.GameViewMatrix.TransformationMatrix);
+            try
+            {
+                // Begin with additive blending for blooms
+                spriteBatch.Begin(
+                    SpriteSortMode.Deferred,
+                    BlendState.Additive,
+                    SamplerState.LinearClamp,
+                    DepthStencilState.None,
+                    RasterizerState.CullNone,
+                    null,
+                    Main.GameViewMatrix.TransformationMatrix);
+                
+                foreach (var bloom in queue)
+                {
+                    DrawBloomByType(spriteBatch, bloom);
+                }
+                
+                // End our additive batch
+                spriteBatch.End();
+                
+                // Only restore if we successfully ended before
+                if (endedSuccessfully)
+                {
+                    spriteBatch.Begin(
+                        SpriteSortMode.Deferred,
+                        BlendState.AlphaBlend,
+                        Main.DefaultSamplerState,
+                        DepthStencilState.None,
+                        Main.Rasterizer,
+                        null,
+                        Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+            catch (System.Exception)
+            {
+                // VFX failed - don't crash the game
+                // Try to restore a valid spritebatch state if possible
+                try
+                {
+                    if (endedSuccessfully)
+                    {
+                        spriteBatch.Begin(
+                            SpriteSortMode.Deferred,
+                            BlendState.AlphaBlend,
+                            Main.DefaultSamplerState,
+                            DepthStencilState.None,
+                            Main.Rasterizer,
+                            null,
+                            Main.GameViewMatrix.TransformationMatrix);
+                    }
+                }
+                catch { }
+            }
         }
         
         /// <summary>

@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 
 namespace MagnumOpus.Content.Seasons.Projectiles
@@ -362,19 +363,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/ConstellationStyleSparkle").Value;
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            spriteBatch.Draw(texture, drawPos, null, SpringPink * 0.55f, Projectile.rotation, origin, 0.22f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Procedural Spring projectile rendering - no PNG loading
+            ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.6f);
             return false;
         }
     }
@@ -681,20 +671,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField7").Value;
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            spriteBatch.Draw(texture, drawPos, null, SummerOrange * 0.45f, Projectile.rotation, origin, 0.3f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SummerGold * 0.65f, Projectile.rotation, origin, 0.2f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Procedural Summer projectile rendering - no PNG loading
+            ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.6f);
             return false;
         }
     }
@@ -1329,19 +1307,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/TwilightSparkle").Value;
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            spriteBatch.Draw(texture, drawPos, null, WinterBlue * 0.55f, Projectile.rotation, origin, 0.2f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Procedural Winter projectile rendering - no PNG loading
+            ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, 0.6f);
             return false;
         }
     }

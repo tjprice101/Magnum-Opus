@@ -579,11 +579,11 @@ shader.SetTexture(MagnumTextureRegistry.CrackedNoise.Value, 2, SamplerState.Line
 
 | Texture | Purpose | Existing? |
 |---------|---------|-----------|
-| SoftGlow.png | Bloom circle | ✅ Yes |
-| EnergyFlare.png | Bright flare | ✅ Yes |
-| MusicNote.png | Musical particles | ✅ Yes |
+| SoftGlow2-4.png | Bloom circle | ✅ Yes |
+| EnergyFlare.png, EnergyFlare4.png | Bright flare (2 variants) | ✅ Yes |
+| MusicNote.png + 5 named variants | Musical particles (6 total) | ✅ Yes |
 | Glyphs1-12.png | Arcane glyphs | ✅ Yes |
-| EnigmaEye1-8.png | Enigma theme eyes | ✅ Yes |
+| EnigmaEye1.png + 7 named variants | Enigma theme eyes (8 total) | ✅ Yes |
 
 ### Textures to Create
 

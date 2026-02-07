@@ -89,8 +89,9 @@ namespace MagnumOpus.Common.Systems
                         proj.SetColors(primaryColor, secondaryColor);
                         proj.HomingStrength = homingStrength;
                         proj.CrystalSize = crystalSize;
-                        // Randomize sparkle variant for each crystal
-                        proj.SparkleVariant = Main.rand.Next(1, 16);
+                        // Randomize sparkle variant for each crystal (only 11, 13, 14 exist)
+                        int[] validSparkles = { 11, 13, 14 };
+                        proj.SparkleVariant = validSparkles[Main.rand.Next(3)];
                     }
                 }
             }
@@ -142,7 +143,9 @@ namespace MagnumOpus.Common.Systems
                     proj.SetColors(primaryColor, secondaryColor);
                     proj.HomingStrength = homingStrength;
                     proj.CrystalSize = crystalSize;
-                    proj.SparkleVariant = Main.rand.Next(1, 16);
+                    // Only textures 11, 13, 14 exist
+                    int[] validSparkles = { 11, 13, 14 };
+                    proj.SparkleVariant = validSparkles[Main.rand.Next(3)];
                 }
             }
             

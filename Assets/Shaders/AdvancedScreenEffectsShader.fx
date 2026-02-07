@@ -324,7 +324,7 @@ technique RippleTechnique
 {
     pass RipplePass
     {
-        PixelShader = compile ps_3_0 RippleDistortion();
+        PixelShader = compile ps_2_0 RippleDistortion();
     }
 }
 
@@ -332,7 +332,7 @@ technique ShatterTechnique
 {
     pass ShatterPass
     {
-        PixelShader = compile ps_3_0 ShatterDistortion();
+        PixelShader = compile ps_2_0 ShatterDistortion();
     }
 }
 
@@ -340,7 +340,7 @@ technique WarpTechnique
 {
     pass WarpPass
     {
-        PixelShader = compile ps_3_0 WarpDistortion();
+        PixelShader = compile ps_2_0 WarpDistortion();
     }
 }
 
@@ -348,7 +348,7 @@ technique PulseTechnique
 {
     pass PulsePass
     {
-        PixelShader = compile ps_3_0 PulseDistortion();
+        PixelShader = compile ps_2_0 PulseDistortion();
     }
 }
 
@@ -356,6 +356,6 @@ technique TearTechnique
 {
     pass TearPass
     {
-        PixelShader = compile ps_3_0 TearDistortion();
+        PixelShader = compile ps_2_0 TearDistortion();
     }
 }

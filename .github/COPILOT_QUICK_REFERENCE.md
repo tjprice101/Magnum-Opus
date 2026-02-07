@@ -6,11 +6,54 @@
 
 ---
 
-## 🚨 THE #1 PROBLEM: LAZY PROJECTILES
+## 🎉 NEW: AUTOMATIC CALAMITY-STYLE VFX SYSTEM 🎉
 
-**"Slapping a flare" on PreDraw is NOT a visual effect. Here's what we need:**
+**The mod now has GLOBAL VFX systems that auto-apply effects to ALL content!**
 
-| ❌ WRONG | ✅ CORRECT |
+| System | What It Does |
+|--------|--------------|
+| `GlobalVFXOverhaul.cs` | Projectiles: Primitive trails, 4-layer bloom, orbiting notes, spectacular deaths |
+| `GlobalWeaponVFXOverhaul.cs` | Weapons: Smooth swing arcs, muzzle flash, magic circles |
+| `GlobalBossVFXOverhaul.cs` | Bosses: Interpolated rendering, dash trails, entrance/death spectacles |
+| `CalamityStyleVFX.cs` | Manual VFX library for unique effects |
+
+### Core Technologies
+
+| Tech | Description |
+|------|-------------|
+| **Bézier Curves** | Curved projectile paths (`BezierProjectileSystem.cs`) |
+| **Primitive Trails** | Multi-pass shader trails with bloom (`EnhancedTrailRenderer.cs`) |
+| **Interpolation** | 144Hz+ sub-pixel smoothness (`InterpolatedRenderer.cs`) |
+| **Multi-Layer Bloom** | 4-layer additive glow stacking (`BloomRenderer.cs`) |
+| **God Rays** | Light ray bursts (`GodRaySystem.cs`) |
+| **Impact Rays** | Impact flares (`ImpactLightRays.cs`) |
+| **Screen Effects** | Screen distortion (`ScreenDistortionManager.cs`) |
+
+### For Unique Effects, Use These Systems:
+
+```csharp
+using MagnumOpus.Common.Systems.VFX;
+
+// High-level APIs
+CalamityStyleVFX.SmoothMeleeSwing(player, "Eroica", swingProgress, direction);
+CalamityStyleVFX.SpectacularDeath(position, "LaCampanella");
+UniversalElementalVFX.LaCampanellaFlames(pos, vel, 1f);  // NEW
+BossArenaVFX.Activate("Fate", center, 800f, 1f);         // NEW
+
+// Core renderers (use these for custom effects)
+BloomRenderer.DrawBloomStack(spriteBatch, pos, color, scale, 4, 1f);
+EnhancedTrailRenderer.RenderMultiPassTrail(positions, rotations, settings, 3);
+GodRaySystem.CreateBurst(center, direction, color, 8, 100f, 10f, 30, GodRayStyle.Explosion);
+ImpactLightRays.SpawnImpactRays(position, color, 6, 60f, 20);
+```
+
+---
+
+## 🚨 LEGACY: THE #1 PROBLEM (NOW AUTO-HANDLED)
+
+**"Slapping a flare" on PreDraw is NOT a visual effect. The Global systems now handle this automatically!**
+
+| ❌ WRONG | ✅ CORRECT (NOW AUTOMATIC) |
 |----------|-----------|
 | Single flare on PreDraw | **Layer 4+ flares** spinning at different speeds |
 | Sparse dust trail | **Dense dust** (2+ per frame, scale 1.5f+) |
@@ -115,17 +158,19 @@ Texture2D arc = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Sword
 
 ## 🎨 USE ALL PARTICLE ASSETS
 
-**You have 80+ custom PNGs. USE THEM.**
+**You have 100+ custom PNGs. USE THEM.**
 
 | Category | Variants | USE FOR |
 |----------|----------|---------|
 | **MusicNote** | 6 | EVERY trail, impact, aura |
-| **EnergyFlare** | 7 | Projectile cores - **LAYER MULTIPLE!** |
-| **PrismaticSparkle** | 15 | Sparkle accents EVERYWHERE |
+| **EnergyFlare** | 2 | Projectile cores - **LAYER MULTIPLE!** |
+| **PrismaticSparkle** | 3 | Sparkle accents |
 | **SwordArc** | 9 | Melee swing effects - **USE THESE!** |
 | **Glyphs** | 12 | Magic circles, Fate theme |
 | **SwanFeather** | 10 | Swan Lake theme |
 | **SoftGlow** | 3 | Bloom bases - layer under flares |
+| **GlowingHalo** | 5 | Shockwaves, expansion rings |
+| **EnigmaEye** | 8 | Enigma watching effects |
 
 **ALSO USE vanilla Dust (DENSE - 2+ per frame!):**
 - `DustID.MagicMirror` - scale 1.5f+

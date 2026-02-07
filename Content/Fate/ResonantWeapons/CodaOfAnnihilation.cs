@@ -183,118 +183,13 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
                 }
             }
             
-            // === COSMIC ASTRALGRAPH ORBIT EFFECT ===
-            // Multiple layered celestial orbits around the player
-            
-            float time = Main.GameUpdateCount * 0.035f;
-            
-            // === LAYER 1: OUTER ASTRALGRAPH RING (6 glyphs orbiting slowly) ===
-            for (int i = 0; i < 6; i++)
-            {
-                float orbitAngle = time * 0.7f + MathHelper.TwoPi * i / 6f;
-                float orbitRadius = 75f + (float)Math.Sin(time * 0.5f + i) * 8f;
-                Vector2 orbitPos = player.Center + orbitAngle.ToRotationVector2() * orbitRadius;
-                
-                // Astralgraph glyph at each orbit point
-                if (Main.GameUpdateCount % 5 == i % 5)
-                {
-                    Color glyphColor = FateCosmicVFX.GetCosmicGradient((float)i / 6f);
-                    CustomParticles.Glyph(orbitPos, glyphColor, 0.45f, -1);
-                }
-                
-                // Sparkle trail behind each astralgraph
-                if (Main.rand.NextBool(3))
-                {
-                    var sparkle = new GenericGlowParticle(
-                        orbitPos + Main.rand.NextVector2Circular(8f, 8f),
-                        -orbitAngle.ToRotationVector2() * 1.5f,
-                        FateCosmicVFX.FateWhite * 0.8f,
-                        0.15f,
-                        18,
-                        true
-                    );
-                    MagnumParticleHandler.SpawnParticle(sparkle);
-                }
-            }
-            
-            // === LAYER 2: INNER STAR RING (4 bright stars orbiting fast in opposite direction) ===
-            for (int i = 0; i < 4; i++)
-            {
-                float innerAngle = -time * 1.2f + MathHelper.TwoPi * i / 4f;
-                float innerRadius = 40f + (float)Math.Cos(time + i * 0.5f) * 5f;
-                Vector2 innerPos = player.Center + innerAngle.ToRotationVector2() * innerRadius;
-                
-                // Bright star flare at each point
-                if (Main.GameUpdateCount % 4 == i)
-                {
-                    CustomParticles.GenericFlare(innerPos, FateCosmicVFX.FateWhite, 0.3f, 10);
-                }
-            }
-            
-            // === LAYER 3: FIGURE-8 COSMIC TRAIL ===
-            if (Main.rand.NextBool(4))
-            {
-                float t = time * 1.5f;
-                float x = (float)Math.Sin(t) * 55f;
-                float y = (float)Math.Sin(t * 2) * 30f;
-                Vector2 figurePos = player.Center + new Vector2(x, y);
-                
-                Color trailColor = Color.Lerp(FateCosmicVFX.FateDarkPink, FateCosmicVFX.FatePurple, 
-                    (float)Math.Sin(time) * 0.5f + 0.5f);
-                var trail = new GenericGlowParticle(figurePos, Main.rand.NextVector2Circular(1f, 1f), 
-                    trailColor * 0.6f, 0.22f, 20, true);
-                MagnumParticleHandler.SpawnParticle(trail);
-            }
-            
-            // === LAYER 4: AMBIENT COSMIC SPARKLES (everywhere around player) ===
-            if (Main.rand.NextBool(3))
-            {
-                Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(85f, 85f);
-                Color sparkleColor = Main.rand.NextBool() ? FateCosmicVFX.FateWhite : 
-                    FateCosmicVFX.GetCosmicGradient(Main.rand.NextFloat());
-                
-                var sparkle = new GenericGlowParticle(sparklePos, Main.rand.NextVector2Circular(0.5f, 0.5f),
-                    sparkleColor, 0.18f, 22, true);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-            
-            // === LAYER 5: CONSTELLATION LINES (faint connecting lines via particles) ===
-            if (Main.GameUpdateCount % 8 == 0)
-            {
-                int p1 = Main.rand.Next(6);
-                int p2 = (p1 + Main.rand.Next(1, 3)) % 6;
-                
-                float angle1 = time * 0.7f + MathHelper.TwoPi * p1 / 6f;
-                float angle2 = time * 0.7f + MathHelper.TwoPi * p2 / 6f;
-                
-                Vector2 pos1 = player.Center + angle1.ToRotationVector2() * 75f;
-                Vector2 pos2 = player.Center + angle2.ToRotationVector2() * 75f;
-                
-                // Spawn particles along the line
-                for (int i = 0; i < 4; i++)
-                {
-                    float lerp = (i + 0.5f) / 4f;
-                    Vector2 linePos = Vector2.Lerp(pos1, pos2, lerp);
-                    var linePart = new GenericGlowParticle(linePos, Vector2.Zero, 
-                        FateCosmicVFX.FatePurple * 0.3f, 0.08f, 12, true);
-                    MagnumParticleHandler.SpawnParticle(linePart);
-                }
-            }
-            
-            // === LAYER 6: COSMIC DUST MOTES (tiny particles drifting upward) ===
-            if (Main.rand.NextBool(5))
-            {
-                Vector2 dustPos = player.Center + new Vector2(Main.rand.NextFloat(-70f, 70f), 
-                    Main.rand.NextFloat(20f, 60f));
-                var dust = new GenericGlowParticle(dustPos, new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.8f),
-                    FateCosmicVFX.FateDarkPink * 0.4f, 0.1f, 35, true);
-                MagnumParticleHandler.SpawnParticle(dust);
-            }
-            
-            // === COSMIC LIGHT AURA ===
+            // Simple cosmic lighting - no particle clutter
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.25f + 0.75f;
-            Lighting.AddLight(player.Center, FateCosmicVFX.FatePurple.ToVector3() * pulse * 0.8f);
-            Lighting.AddLight(player.Center + new Vector2(0, -30), FateCosmicVFX.FateDarkPink.ToVector3() * pulse * 0.4f);
+            Lighting.AddLight(player.Center, FateCosmicVFX.FatePurple.ToVector3() * pulse * 0.6f);
+            
+            // NOTE: Removed excessive orbit effects - GlobalWeaponVFXOverhaul handles swing VFX
+            // The weapon's visual identity comes from its SWING, not its IDLE state
+            // Old astralgraph orbit layers 1-6 removed for cleaner visuals
         }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)

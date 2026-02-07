@@ -2,7 +2,7 @@
 
 > **⭐ CRITICAL FOR AI ASSISTANTS: Always run `list_dir` on this folder to discover ALL available particles before creating weapon effects!**
 
-This folder contains **97 particle textures** organized by category. Mix and match for unique weapon identities!
+This folder contains **106 particle textures** organized by category. Mix and match for unique weapon identities!
 
 ---
 
@@ -43,13 +43,13 @@ This folder contains **97 particle textures** organized by category. Mix and mat
 | `SwanFeathers[0-9]` | 0-9 | `SwanFeather1.png` through `SwanFeather10.png` |
 | `FlameWisps[0-1]` | 0-1 | `FlamingWispProjectileSmall`, `TallFlamingWispProjectile` |
 | `ParticleTrails[0-3]` | 0-3 | `ParticleTrail1.png` through `ParticleTrail4.png` |
-| `MagicSparkleFields[0-6]` | 0-6 | `MagicSparklField4`, `6`, `7`, `8`, `9`, `10`, `11` |
+| `MagicSparkleFields[0-7]` | 0-7 | `MagicSparklField4`, `6`, `7`, `8`, `9`, `10`, `11`, `12` |
 | `PrismaticSparkles[0-2]` | 0-2 | `PrismaticSparkle11`, `PrismaticSparkle13`, `PrismaticSparkle14` |
 | `CrossParticles[0-1]` | 0-1 | `CrossParticleBlack`, `CrossParticleWhite` |
 
 ---
 
-## Complete Particle Inventory (97 files)
+## Complete Particle Inventory (106 files)
 
 ### 🔥 Flares & Energy Bursts (2)
 | File | Array Reference | Scale Range |
@@ -181,7 +181,7 @@ This folder contains **97 particle textures** organized by category. Mix and mat
 | `ParticleTrail3.png` | `ParticleTrails[2]` | 0.4f - 0.9f |
 | `ParticleTrail4.png` | `ParticleTrails[3]` | 0.3f - 0.8f |
 
-### ✨ Magic Sparkle Fields (7 available, numbered 4,6-11)
+### ✨ Magic Sparkle Fields (8 available, numbered 4,6-12)
 | File | Array Reference | Scale Range |
 |------|-----------------|-------------|
 | `MagicSparklField4.png` | `MagicSparkleFields[0]` | 0.3f - 0.8f |
@@ -191,6 +191,7 @@ This folder contains **97 particle textures** organized by category. Mix and mat
 | `MagicSparklField9.png` | `MagicSparkleFields[4]` | 0.4f - 0.9f |
 | `MagicSparklField10.png` | `MagicSparkleFields[5]` | 0.3f - 0.8f |
 | `MagicSparklField11.png` | `MagicSparkleFields[6]` | 0.4f - 1.0f |
+| `MagicSparklField12.png` | `MagicSparkleFields[7]` | 0.4f - 0.9f |
 
 ### 🌈 Prismatic Sparkles (3 available: 11, 13, 14)
 | File | Array Reference | Scale Range |

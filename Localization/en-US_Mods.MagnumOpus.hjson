@@ -6846,6 +6846,201 @@ Items: {
 		DisplayName: Triumphant Chorus
 		Tooltip: ""
 	}
+
+	AegisOfTheEternalBastion: {
+		DisplayName: Aegis Of The Eternal Bastion
+		Tooltip: ""
+	}
+
+	EternalBastionOfTheMoonlight: {
+		DisplayName: Eternal Bastion Of The Moonlight
+		Tooltip: ""
+	}
+
+	InfernalRampartOfDiesIrae: {
+		DisplayName: Infernal Rampart Of Dies Irae
+		Tooltip: ""
+	}
+
+	JubilantBulwarkOfJoy: {
+		DisplayName: Jubilant Bulwark Of Joy
+		Tooltip: ""
+	}
+
+	NocturnalGuardiansWard: {
+		DisplayName: Nocturnal Guardians Ward
+		Tooltip: ""
+	}
+
+	StarfallInfernalShield: {
+		DisplayName: Starfall Infernal Shield
+		Tooltip: ""
+	}
+
+	TriumphantJubilantAegis: {
+		DisplayName: Triumphant Jubilant Aegis
+		Tooltip: ""
+	}
+
+	EternalOverflowMastery: {
+		DisplayName: Eternal Overflow Mastery
+		Tooltip: ""
+	}
+
+	InfernalManaCataclysm: {
+		DisplayName: Infernal Mana Cataclysm
+		Tooltip: ""
+	}
+
+	JubilantArcaneCelebration: {
+		DisplayName: Jubilant Arcane Celebration
+		Tooltip: ""
+	}
+
+	NocturnalHarmonicOverflow: {
+		DisplayName: Nocturnal Harmonic Overflow
+		Tooltip: ""
+	}
+
+	PendantOfTheEternalOverflow: {
+		DisplayName: Pendant Of The Eternal Overflow
+		Tooltip: ""
+	}
+
+	StarfallHarmonicPendant: {
+		DisplayName: Starfall Harmonic Pendant
+		Tooltip: ""
+	}
+
+	TriumphantOverflowPendant: {
+		DisplayName: Triumphant Overflow Pendant
+		Tooltip: ""
+	}
+
+	EternalResonanceBand: {
+		DisplayName: Eternal Resonance Band
+		Tooltip: ""
+	}
+
+	GauntletOfTheEternalSymphony: {
+		DisplayName: Gauntlet Of The Eternal Symphony
+		Tooltip: ""
+	}
+
+	InfernalFortissimoBandT8: {
+		DisplayName: Infernal Fortissimo Band T8
+		Tooltip: ""
+	}
+
+	JubilantCrescendoBand: {
+		DisplayName: Jubilant Crescendo Band
+		Tooltip: ""
+	}
+
+	NocturnalSymphonyBand: {
+		DisplayName: Nocturnal Symphony Band
+		Tooltip: ""
+	}
+
+	StarfallJudgmentGauntlet: {
+		DisplayName: Starfall Judgment Gauntlet
+		Tooltip: ""
+	}
+
+	TriumphantCosmosGauntlet: {
+		DisplayName: Triumphant Cosmos Gauntlet
+		Tooltip: ""
+	}
+
+	EternalVelocityTreads: {
+		DisplayName: Eternal Velocity Treads
+		Tooltip: ""
+	}
+
+	InfernalMeteorTreads: {
+		DisplayName: Infernal Meteor Treads
+		Tooltip: ""
+	}
+
+	JubilantZephyrTreads: {
+		DisplayName: Jubilant Zephyr Treads
+		Tooltip: ""
+	}
+
+	NocturnalPhantomTreads: {
+		DisplayName: Nocturnal Phantom Treads
+		Tooltip: ""
+	}
+
+	EternalVerdictSight: {
+		DisplayName: Eternal Verdict Sight
+		Tooltip: ""
+	}
+
+	InfernalExecutionersSight: {
+		DisplayName: Infernal Executioners Sight
+		Tooltip: ""
+	}
+
+	JubilantHuntersSight: {
+		DisplayName: Jubilant Hunters Sight
+		Tooltip: ""
+	}
+
+	NocturnalPredatorsSight: {
+		DisplayName: Nocturnal Predators Sight
+		Tooltip: ""
+	}
+
+	ScopeOfTheEternalVerdict: {
+		DisplayName: Scope Of The Eternal Verdict
+		Tooltip: ""
+	}
+
+	StarfallExecutionersScope: {
+		DisplayName: Starfall Executioners Scope
+		Tooltip: ""
+	}
+
+	TriumphantVerdictScope: {
+		DisplayName: Triumphant Verdict Scope
+		Tooltip: ""
+	}
+
+	EternalConductorsScepter: {
+		DisplayName: Eternal Conductors Scepter
+		Tooltip: ""
+	}
+
+	InfernalChoirmastersScepter: {
+		DisplayName: Infernal Choirmasters Scepter
+		Tooltip: ""
+	}
+
+	JubilantOrchestrasStaff: {
+		DisplayName: Jubilant Orchestras Staff
+		Tooltip: ""
+	}
+
+	NocturnalMaestrosBaton: {
+		DisplayName: Nocturnal Maestros Baton
+		Tooltip: ""
+	}
+
+	ScepterOfTheEternalConductor: {
+		DisplayName: Scepter Of The Eternal Conductor
+		Tooltip: ""
+	}
+
+	StarfallInfernalBaton: {
+		DisplayName: Starfall Infernal Baton
+		Tooltip: ""
+	}
+
+	TriumphantSymphonyBaton: {
+		DisplayName: Triumphant Symphony Baton
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -7273,4 +7468,10 @@ Projectiles: {
 	SymphonyConductorBaton.DisplayName: Symphony Conductor Baton
 	TempoMetronome.DisplayName: Tempo Metronome
 	VinylRecordDisc.DisplayName: Vinyl Record Disc
+	EnigmaVoidBeamExample.DisplayName: Enigma Void Beam Example
+	EroicaDeathRayExample.DisplayName: Eroica Death Ray Example
+	FateCosmicLaserExample.DisplayName: Fate Cosmic Laser Example
+	LaCampanellaInfernoExample.DisplayName: La Campanella Inferno Example
+	MoonlightSonataRayExample.DisplayName: Moonlight Sonata Ray Example
+	SwanLakePrismExample.DisplayName: Swan Lake Prism Example
 }

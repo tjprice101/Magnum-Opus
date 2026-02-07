@@ -900,6 +900,7 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
         }
     }
 
+    [AllowLargeHitbox("Tall flame pillar requires large hitbox for area denial")]
     public class ChimePillar : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo6";

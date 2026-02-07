@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.Graphics.Shaders;
+using MagnumOpus.Common.Systems.Shaders;
 
 namespace MagnumOpus.Common.Systems.VFX
 {
@@ -224,6 +225,7 @@ namespace MagnumOpus.Common.Systems.VFX
         
         /// <summary>
         /// Renders a trail using the given positions and settings.
+        /// Automatically handles SpriteBatch state management.
         /// </summary>
         /// <param name="positions">Array of world positions</param>
         /// <param name="settings">Trail rendering settings</param>
@@ -236,7 +238,32 @@ namespace MagnumOpus.Common.Systems.VFX
             if (_basicEffect == null)
                 Initialize();
             
-            // Filter out zero positions
+            // End SpriteBatch before doing raw primitive drawing
+            try
+            {
+                Main.spriteBatch.End();
+            }
+            catch { }
+            
+            try
+            {
+                RenderTrailInternal(positions, settings, segmentCount);
+            }
+            finally
+            {
+                // Restart SpriteBatch with default settings
+                Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, 
+                    SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, 
+                    null, Main.GameViewMatrix.TransformationMatrix);
+            }
+        }
+        
+        /// <summary>
+        /// Internal trail rendering that assumes SpriteBatch is already ended.
+        /// </summary>
+        private static void RenderTrailInternal(Vector2[] positions, PrimitiveSettings settings, int segmentCount)
+        {
+            // Optionally smooth the trail
             List<Vector2> validPositions = new List<Vector2>();
             foreach (var pos in positions)
             {
@@ -246,7 +273,6 @@ namespace MagnumOpus.Common.Systems.VFX
             
             if (validPositions.Count < 2) return;
             
-            // Optionally smooth the trail
             List<Vector2> finalPositions;
             if (settings.Smoothen && validPositions.Count >= 4)
                 finalPositions = SmoothTrail(validPositions, segmentCount);
@@ -354,7 +380,7 @@ namespace MagnumOpus.Common.Systems.VFX
         }
         
         /// <summary>
-        /// Renders a themed trail using the theme's color palette.
+        /// Renders a themed trail using the theme's color palette with sub-pixel interpolation.
         /// </summary>
         public static void RenderThemedTrail(Vector2[] positions, string themeName,
             float width, float opacity = 1f, int segmentCount = 50)
@@ -367,9 +393,113 @@ namespace MagnumOpus.Common.Systems.VFX
         }
         
         /// <summary>
-        /// Renders a projectile trail using its oldPos array.
+        /// Renders a themed projectile trail with interpolation for buttery-smooth visuals.
+        /// </summary>
+        public static void RenderThemedProjectileTrail(Projectile projectile, string themeName,
+            float width, float opacity = 1f, int segmentCount = 50)
+        {
+            if (projectile?.oldPos == null || projectile.oldPos.Length < 2)
+                return;
+            
+            // Create interpolated positions for 144Hz+ smoothness
+            Vector2[] interpolatedPositions = new Vector2[projectile.oldPos.Length + 1];
+            
+            // Interpolated current position
+            interpolatedPositions[0] = InterpolatedRenderer.GetInterpolatedCenter(projectile) - projectile.Size * 0.5f;
+            
+            // Copy and smooth old positions
+            for (int i = 0; i < projectile.oldPos.Length; i++)
+            {
+                if (projectile.oldPos[i] == Vector2.Zero)
+                {
+                    interpolatedPositions[i + 1] = Vector2.Zero;
+                }
+                else if (i > 0 && i < projectile.oldPos.Length - 1 && 
+                         projectile.oldPos[i - 1] != Vector2.Zero && 
+                         projectile.oldPos[i + 1] != Vector2.Zero)
+                {
+                    Vector2 smoothed = Vector2.Lerp(projectile.oldPos[i], 
+                        (projectile.oldPos[i - 1] + projectile.oldPos[i + 1]) * 0.5f, 0.12f);
+                    interpolatedPositions[i + 1] = smoothed;
+                }
+                else
+                {
+                    interpolatedPositions[i + 1] = projectile.oldPos[i];
+                }
+            }
+            
+            var widthFunc = LinearTaper(width);
+            var colorFunc = ThemeColor(themeName, opacity);
+            Func<float, Vector2> offset = _ => projectile.Size * 0.5f;
+            
+            RenderMultiPassTrail(interpolatedPositions, widthFunc, colorFunc, 
+                offset: offset, segmentCount: segmentCount);
+        }
+        
+        /// <summary>
+        /// Renders a projectile trail using its oldPos array with sub-pixel interpolation
+        /// for buttery-smooth rendering on 144Hz+ displays.
         /// </summary>
         public static void RenderProjectileTrail(Projectile projectile, 
+            Color startColor, Color endColor, float width,
+            bool multiPass = true, int segmentCount = 50)
+        {
+            if (projectile?.oldPos == null || projectile.oldPos.Length < 2)
+                return;
+            
+            // Create interpolated positions array for smoother trails
+            // The first position is interpolated between old and current for sub-frame smoothness
+            Vector2[] interpolatedPositions = new Vector2[projectile.oldPos.Length + 1];
+            
+            // Position 0: Current interpolated position (for 144Hz+ smoothness)
+            interpolatedPositions[0] = InterpolatedRenderer.GetInterpolatedCenter(projectile) - projectile.Size * 0.5f;
+            
+            // Copy oldPos with slight smoothing between consecutive frames
+            for (int i = 0; i < projectile.oldPos.Length; i++)
+            {
+                if (projectile.oldPos[i] == Vector2.Zero)
+                {
+                    interpolatedPositions[i + 1] = Vector2.Zero;
+                }
+                else
+                {
+                    // Apply Catmull-Rom smoothing for organic trail curves
+                    if (i > 0 && i < projectile.oldPos.Length - 1 && 
+                        projectile.oldPos[i - 1] != Vector2.Zero && 
+                        projectile.oldPos[i + 1] != Vector2.Zero)
+                    {
+                        // Subtle smoothing between adjacent positions
+                        Vector2 smoothed = Vector2.Lerp(projectile.oldPos[i], 
+                            (projectile.oldPos[i - 1] + projectile.oldPos[i + 1]) * 0.5f, 0.15f);
+                        interpolatedPositions[i + 1] = smoothed;
+                    }
+                    else
+                    {
+                        interpolatedPositions[i + 1] = projectile.oldPos[i];
+                    }
+                }
+            }
+            
+            var widthFunc = LinearTaper(width);
+            var colorFunc = GradientColor(startColor, endColor, projectile.Opacity);
+            Func<float, Vector2> offset = _ => projectile.Size * 0.5f;
+            
+            if (multiPass)
+            {
+                RenderMultiPassTrail(interpolatedPositions, widthFunc, colorFunc, 
+                    offset: offset, segmentCount: segmentCount);
+            }
+            else
+            {
+                RenderTrail(interpolatedPositions, new PrimitiveSettings(
+                    widthFunc, colorFunc, offset), segmentCount);
+            }
+        }
+        
+        /// <summary>
+        /// Renders a projectile trail using raw positions without interpolation (for special cases).
+        /// </summary>
+        public static void RenderProjectileTrailRaw(Projectile projectile, 
             Color startColor, Color endColor, float width,
             bool multiPass = true, int segmentCount = 50)
         {
@@ -461,6 +591,18 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             GraphicsDevice device = Main.instance.GraphicsDevice;
             
+            // Save current render states
+            var previousBlendState = device.BlendState;
+            var previousRasterizerState = device.RasterizerState;
+            var previousDepthStencilState = device.DepthStencilState;
+            var previousSamplerState = device.SamplerStates[0];
+            
+            // Set up proper states for additive trail rendering
+            device.BlendState = BlendState.Additive;
+            device.RasterizerState = RasterizerState.CullNone;
+            device.DepthStencilState = DepthStencilState.None;
+            device.SamplerStates[0] = SamplerState.LinearClamp;
+            
             Matrix view = Matrix.CreateLookAt(Vector3.Backward, Vector3.Zero, Vector3.Up);
             Matrix projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);
             
@@ -468,20 +610,31 @@ namespace MagnumOpus.Common.Systems.VFX
             _basicEffect.Projection = projection;
             _basicEffect.World = Matrix.Identity;
             
-            if (shader != null)
+            try
             {
-                shader.Apply();
-            }
-            else
-            {
-                foreach (EffectPass pass in _basicEffect.CurrentTechnique.Passes)
+                if (shader != null)
                 {
-                    pass.Apply();
+                    shader.Apply();
                 }
+                else
+                {
+                    foreach (EffectPass pass in _basicEffect.CurrentTechnique.Passes)
+                    {
+                        pass.Apply();
+                    }
+                }
+                
+                device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, 
+                    _vertices, 0, vertexCount, _indices, 0, triangleCount);
             }
-            
-            device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, 
-                _vertices, 0, vertexCount, _indices, 0, triangleCount);
+            finally
+            {
+                // Restore previous states
+                device.BlendState = previousBlendState;
+                device.RasterizerState = previousRasterizerState;
+                device.DepthStencilState = previousDepthStencilState;
+                device.SamplerStates[0] = previousSamplerState;
+            }
         }
         
         /// <summary>
@@ -491,6 +644,18 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             GraphicsDevice device = Main.instance.GraphicsDevice;
             
+            // Save current render states
+            var previousBlendState = device.BlendState;
+            var previousRasterizerState = device.RasterizerState;
+            var previousDepthStencilState = device.DepthStencilState;
+            var previousSamplerState = device.SamplerStates[0];
+            
+            // Set up proper states for additive trail rendering
+            device.BlendState = BlendState.Additive;
+            device.RasterizerState = RasterizerState.CullNone;
+            device.DepthStencilState = DepthStencilState.None;
+            device.SamplerStates[0] = SamplerState.LinearClamp;
+            
             Matrix view = Matrix.CreateLookAt(Vector3.Backward, Vector3.Zero, Vector3.Up);
             Matrix projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);
             
@@ -498,30 +663,41 @@ namespace MagnumOpus.Common.Systems.VFX
             _basicEffect.Projection = projection;
             _basicEffect.World = Matrix.Identity;
             
-            if (customShader != null)
+            try
             {
-                // Configure custom shader parameters
-                customShader.Parameters["uColor"]?.SetValue(primaryColor.ToVector3());
-                customShader.Parameters["uSecondaryColor"]?.SetValue(secondaryColor.ToVector3());
-                customShader.Parameters["uIntensity"]?.SetValue(intensity);
-                customShader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly);
-                customShader.Parameters["uOpacity"]?.SetValue(1f);
-                
-                foreach (EffectPass pass in customShader.CurrentTechnique.Passes)
+                if (customShader != null)
                 {
-                    pass.Apply();
+                    // Configure custom shader parameters
+                    customShader.Parameters["uColor"]?.SetValue(primaryColor.ToVector3());
+                    customShader.Parameters["uSecondaryColor"]?.SetValue(secondaryColor.ToVector3());
+                    customShader.Parameters["uIntensity"]?.SetValue(intensity);
+                    customShader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly);
+                    customShader.Parameters["uOpacity"]?.SetValue(1f);
+                    
+                    foreach (EffectPass pass in customShader.CurrentTechnique.Passes)
+                    {
+                        pass.Apply();
+                        device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList,
+                            _vertices, 0, vertexCount, _indices, 0, triangleCount);
+                    }
+                }
+                else
+                {
+                    foreach (EffectPass pass in _basicEffect.CurrentTechnique.Passes)
+                    {
+                        pass.Apply();
+                    }
                     device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList,
                         _vertices, 0, vertexCount, _indices, 0, triangleCount);
                 }
             }
-            else
+            finally
             {
-                foreach (EffectPass pass in _basicEffect.CurrentTechnique.Passes)
-                {
-                    pass.Apply();
-                }
-                device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList,
-                    _vertices, 0, vertexCount, _indices, 0, triangleCount);
+                // Restore previous states
+                device.BlendState = previousBlendState;
+                device.RasterizerState = previousRasterizerState;
+                device.DepthStencilState = previousDepthStencilState;
+                device.SamplerStates[0] = previousSamplerState;
             }
         }
         
@@ -549,8 +725,9 @@ namespace MagnumOpus.Common.Systems.VFX
             if (_basicEffect == null) Initialize();
             if (positions == null || positions.Length < 2) return;
             
-            // Get custom trail shader
-            Effect trailShader = Shaders.ShaderLoader.Trail;
+            // Get custom trail shader from MagnumShaderSystem (proper Ref<Effect> pattern)
+            var trailShaderData = MagnumShaderSystem.GetTrailShader(primaryColor, secondaryColor, intensity);
+            Effect trailShader = trailShaderData?.Shader;
             
             // Build the trail mesh
             List<Vector2> smoothedPositions = settings.Smoothen ? 

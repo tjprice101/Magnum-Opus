@@ -45,6 +45,17 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         public bool HasSwansGracefulDirection { get; set; }    // T5 - Full HP double damage
         public bool HasFatesCosmicDominion { get; set; }       // T6 - 5s cooldown + Finale ability
         
+        // ========== POST-FATE ACCESSORY FLAGS (T7-T10) ==========
+        public bool HasNocturnalMaestrosBaton { get; set; }     // T7 - Nachtmusik - Night constellation boost
+        public bool HasInfernalChoirmastersScepter { get; set; } // T8 - Dies Irae - Hellfire burn effects
+        public bool HasJubilantOrchestrasStaff { get; set; }    // T9 - Ode to Joy - Healing conduct
+        public bool HasEternalConductorsScepter { get; set; }   // T10 - Clair de Lune - Temporal mastery
+        
+        // Post-Fate Fusion Accessories
+        public bool HasStarfallInfernalBaton { get; set; }      // Fusion T1: Nachtmusik + Dies Irae
+        public bool HasTriumphantSymphonyBaton { get; set; }    // Fusion T2: Fusion1 + Ode to Joy
+        public bool HasScepterOfTheEternalConductor { get; set; } // Ultimate: All four themes
+        
         // ========== CONDUCT STATE ==========
         public bool IsConducting { get; private set; }
         public int ConductedTargetWhoAmI { get; private set; } = -1;
@@ -79,6 +90,12 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         private static readonly Color SwanWhite = new Color(240, 245, 255);
         private static readonly Color FateCrimson = new Color(180, 40, 80);
         
+        // Post-Fate theme colors
+        private static readonly Color NachtmusikGold = new Color(255, 215, 140);
+        private static readonly Color DiesIraeCrimson = new Color(200, 50, 50);
+        private static readonly Color OdeToJoyIridescent = new Color(220, 200, 255);
+        private static readonly Color ClairDeLuneBrass = new Color(200, 170, 100);
+        
         public override void ResetEffects()
         {
             // Reset all accessory flags each frame
@@ -94,6 +111,15 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             HasEnigmasHivemindLink = false;
             HasSwansGracefulDirection = false;
             HasFatesCosmicDominion = false;
+            
+            // Reset Post-Fate accessory flags
+            HasNocturnalMaestrosBaton = false;
+            HasInfernalChoirmastersScepter = false;
+            HasJubilantOrchestrasStaff = false;
+            HasEternalConductorsScepter = false;
+            HasStarfallInfernalBaton = false;
+            HasTriumphantSymphonyBaton = false;
+            HasScepterOfTheEternalConductor = false;
         }
         
         /// <summary>
@@ -103,17 +129,30 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             HasConductorsWand || HasSpringMaestrosBadge || HasSolarDirectorsCrest ||
             HasHarvestBeastlordsHorn || HasPermafrostCommandersCrown || HasVivaldisOrchestraBaton ||
             HasMoonlitSymphonyWand || HasHeroicGeneralsBaton || HasInfernalChoirMastersRod ||
-            HasEnigmasHivemindLink || HasSwansGracefulDirection || HasFatesCosmicDominion;
+            HasEnigmasHivemindLink || HasSwansGracefulDirection || HasFatesCosmicDominion ||
+            HasNocturnalMaestrosBaton || HasInfernalChoirmastersScepter || HasJubilantOrchestrasStaff ||
+            HasEternalConductorsScepter || HasStarfallInfernalBaton || HasTriumphantSymphonyBaton ||
+            HasScepterOfTheEternalConductor;
         
         /// <summary>
         /// Get the base cooldown based on equipped accessory
         /// </summary>
         public int GetBaseCooldown()
         {
-            if (HasFatesCosmicDominion) return 300;        // 5 seconds
-            if (HasPermafrostCommandersCrown) return 480;  // 8 seconds (also inherited by Vivaldi+)
-            if (HasSolarDirectorsCrest) return 600;        // 10 seconds
-            if (HasSpringMaestrosBadge) return 720;        // 12 seconds
+            // Post-Fate tiers: Ultra-low cooldowns
+            if (HasScepterOfTheEternalConductor) return 180; // 3 seconds (Ultimate)
+            if (HasEternalConductorsScepter) return 240;     // 4 seconds (T10)
+            if (HasTriumphantSymphonyBaton) return 240;      // 4 seconds (Fusion T2)
+            if (HasJubilantOrchestrasStaff) return 270;      // 4.5 seconds (T9)
+            if (HasStarfallInfernalBaton) return 270;        // 4.5 seconds (Fusion T1)
+            if (HasInfernalChoirmastersScepter) return 285;  // 4.75 seconds (T8)
+            if (HasNocturnalMaestrosBaton) return 285;       // 4.75 seconds (T7)
+            
+            // Original tiers
+            if (HasFatesCosmicDominion) return 300;          // 5 seconds
+            if (HasPermafrostCommandersCrown) return 480;    // 8 seconds (also inherited by Vivaldi+)
+            if (HasSolarDirectorsCrest) return 600;          // 10 seconds
+            if (HasSpringMaestrosBadge) return 720;          // 12 seconds
             return 900; // 15 seconds (base tier)
         }
         
@@ -124,23 +163,50 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         {
             float bonus = 0.20f; // Base 20%
             
-            if (HasHarvestBeastlordsHorn || HasPermafrostCommandersCrown || HasVivaldisOrchestraBaton ||
+            // Post-Fate tier bonuses (highest tier first)
+            if (HasScepterOfTheEternalConductor)
+            {
+                bonus = 0.50f; // Ultimate = 50% base
+            }
+            else if (HasEternalConductorsScepter || HasTriumphantSymphonyBaton)
+            {
+                bonus = 0.45f; // T10/Fusion T2 = 45%
+            }
+            else if (HasJubilantOrchestrasStaff || HasStarfallInfernalBaton)
+            {
+                bonus = 0.40f; // T9/Fusion T1 = 40%
+            }
+            else if (HasInfernalChoirmastersScepter)
+            {
+                bonus = 0.38f; // T8 = 38%
+            }
+            else if (HasNocturnalMaestrosBaton)
+            {
+                bonus = 0.35f; // T7 = 35%
+            }
+            else if (HasHarvestBeastlordsHorn || HasPermafrostCommandersCrown || HasVivaldisOrchestraBaton ||
                 HasMoonlitSymphonyWand || HasHeroicGeneralsBaton || HasInfernalChoirMastersRod ||
                 HasEnigmasHivemindLink || HasSwansGracefulDirection || HasFatesCosmicDominion)
             {
                 bonus = 0.30f; // Harvest tier+ = 30%
             }
             
-            // Night bonus from Moonlit Symphony Wand
+            // Night bonus from Moonlit Symphony Wand and all Post-Fate accessories
             if ((HasMoonlitSymphonyWand || HasHeroicGeneralsBaton || HasInfernalChoirMastersRod ||
-                 HasEnigmasHivemindLink || HasSwansGracefulDirection || HasFatesCosmicDominion) &&
+                 HasEnigmasHivemindLink || HasSwansGracefulDirection || HasFatesCosmicDominion ||
+                 HasNocturnalMaestrosBaton || HasInfernalChoirmastersScepter || HasJubilantOrchestrasStaff ||
+                 HasEternalConductorsScepter || HasStarfallInfernalBaton || HasTriumphantSymphonyBaton ||
+                 HasScepterOfTheEternalConductor) &&
                 !Main.dayTime)
             {
                 bonus += 0.10f; // +10% at night
             }
             
-            // Perfect conduct from Swan's Graceful Direction
-            if ((HasSwansGracefulDirection || HasFatesCosmicDominion) && Player.statLife == Player.statLifeMax2)
+            // Perfect conduct from Swan's Graceful Direction and all Post-Fate accessories
+            if ((HasSwansGracefulDirection || HasFatesCosmicDominion ||
+                 HasNocturnalMaestrosBaton || HasInfernalChoirmastersScepter || HasJubilantOrchestrasStaff ||
+                 HasEternalConductorsScepter || HasStarfallInfernalBaton || HasTriumphantSymphonyBaton ||
+                 HasScepterOfTheEternalConductor) && Player.statLife == Player.statLifeMax2)
             {
                 bonus *= 2f; // Double damage at full HP
             }

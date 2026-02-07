@@ -93,7 +93,7 @@ CustomParticles.PrismaticSparkle(pos, color, 0.35f, Main.rand.Next(1, 16));
 
 ## 🎨 USE ALL AVAILABLE PARTICLE ASSETS
 
-> **You have 80+ custom particle PNGs. USE THEM in boss attacks.**
+> **You have 100+ custom particle PNGs. USE THEM in boss attacks.**
 
 ### Required Particle Mix Per Attack
 
@@ -107,14 +107,14 @@ CustomParticles.PrismaticSparkle(pos, color, 0.35f, Main.rand.Next(1, 16));
 
 | Category | Files | Use For |
 |----------|-------|---------|
-| MusicNote (6) | `MusicNote1-6.png` | EVERY attack telegraph, trail, impact |
-| EnergyFlare (7) | `EnergyFlare1-7.png` | Attack cores, charge effects |
-| GlowingHalo (5) | `GlowingHalo1-6.png` | Shockwaves, expansion rings |
-| PrismaticSparkle (15) | `PrismaticSparkle1-15.png` | Sparkle accents everywhere |
+| MusicNote (6) | `MusicNote.png`, `CursiveMusicNote.png`, `MusicNoteWithSlashes.png`, `QuarterNote.png`, `TallMusicNote.png`, `WholeNote.png` | EVERY attack telegraph, trail, impact |
+| EnergyFlare (2) | `EnergyFlare.png`, `EnergyFlare4.png` | Attack cores, charge effects |
+| GlowingHalo (5) | `GlowingHalo1.png`, `GlowingHalo2.png`, `GlowingHalo4.png`, `GlowingHalo5.png`, `GlowingHalo6.png` | Shockwaves, expansion rings |
+| PrismaticSparkle (3) | `PrismaticSparkle11.png`, `PrismaticSparkle13.png`, `PrismaticSparkle14.png` | Sparkle accents |
 | Glyphs (12) | `Glyphs1-12.png` | Magic circles, enchantment effects |
 | SwanFeather (10) | `SwanFeather1-10.png` | Swan Lake attacks |
-| EnigmaEye (8) | `EnigmaEye1-8.png` | Enigma watching effects |
-| SwordArc (9) | `SwordArc1-9.png` | Melee boss attacks |
+| EnigmaEye (8) | `EnigmaEye1.png`, `ActivatedEnigmaEye.png`, `BurstingEye.png`, `CircularEnigmaEye.png`, `GodEye.png`, `LargeEye.png`, `SpikeyEye.png`, `TriangularEye.png` | Enigma watching effects |
+| SwordArc (9) | `SwordArc1.png`, `SwordArc2.png`, `SwordArc3.png`, `SwordArc6.png`, `SwordArc8.png`, + 4 named variants | Melee boss attacks |
 
 ### Vanilla Dust for Density
 

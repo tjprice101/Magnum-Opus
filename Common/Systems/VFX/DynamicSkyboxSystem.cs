@@ -100,9 +100,19 @@ namespace MagnumOpus.Common.Systems.VFX
                 Main.OnResolutionChanged -= OnResolutionChanged;
             }
             
-            _screenBuffer?.Dispose();
+            // Cache reference and null immediately (safe on any thread)
+            var buffer = _screenBuffer;
             _screenBuffer = null;
             _instance = null;
+            
+            // Queue texture disposal on main thread to avoid ThreadStateException
+            if (buffer != null)
+            {
+                Main.QueueMainThreadAction(() =>
+                {
+                    try { buffer.Dispose(); } catch { }
+                });
+            }
         }
         
         private void OnResolutionChanged(Vector2 newSize)

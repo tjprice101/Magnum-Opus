@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 
 namespace MagnumOpus.Content.Seasons.Projectiles
@@ -201,56 +202,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D coreTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField6").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow3").Value;
-            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle13").Value;
-            Vector2 coreOrigin = coreTex.Size() / 2f;
-            Vector2 glowOrigin = glowTex.Size() / 2f;
-            Vector2 sparkleOrigin = sparkleTex.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.12f + 1f;
-
-            // BLOSSOM TRAIL - Petals drifting behind
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                
-                // Pink petal glow
-                Color trailColor = Color.Lerp(SpringPink, SpringPetalCore, progress) * (1f - progress) * 0.45f;
-                float trailScale = 0.35f * (1f - progress * 0.6f);
-                sb.Draw(glowTex, trailPos, null, trailColor with { A = 0 }, blossomRotation + i * 0.25f, glowOrigin, trailScale, SpriteEffects.None, 0f);
-                
-                // Occasional leaf in trail
-                if (i % 4 == 0)
-                {
-                    Color leafColor = SpringLeaf * (1f - progress) * 0.3f;
-                    sb.Draw(sparkleTex, trailPos + new Vector2(3f, 0f), null, leafColor with { A = 0 }, i * 0.5f, sparkleOrigin, 0.1f * (1f - progress), SpriteEffects.None, 0f);
-                }
-            }
-            
-            // OUTER BLOSSOM AURA - Soft pink halo
-            sb.Draw(glowTex, drawPos, null, (SpringPink * 0.3f) with { A = 0 }, blossomRotation, glowOrigin, 0.6f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(glowTex, drawPos, null, (SpringGreen * 0.25f) with { A = 0 }, -blossomRotation * 0.7f, glowOrigin, 0.45f * pulse, SpriteEffects.None, 0f);
-            
-            // ORBITING PETALS - Dancing sakura
-            for (int i = 0; i < petalAngles.Length; i++)
-            {
-                Vector2 petalOffset = petalAngles[i].ToRotationVector2() * petalDistances[i];
-                Vector2 petalPos = drawPos + petalOffset;
-                float petalScale = 0.12f + (float)Math.Sin(Main.GameUpdateCount * 0.15f + i * 0.6f) * 0.03f;
-                Color petalColor = (i % 2 == 0 ? SpringPink : SpringPetalCore) * 0.7f;
-                sb.Draw(sparkleTex, petalPos, null, petalColor with { A = 0 }, petalAngles[i], sparkleOrigin, petalScale, SpriteEffects.None, 0f);
-            }
-            
-            // BLOSSOM CORE - Flower center
-            sb.Draw(coreTex, drawPos, null, (SpringGreen * 0.4f) with { A = 0 }, blossomRotation, coreOrigin, 0.35f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(coreTex, drawPos, null, (SpringPink * 0.6f) with { A = 0 }, -blossomRotation * 1.3f, coreOrigin, 0.25f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(coreTex, drawPos, null, (SpringWhite * 0.85f) with { A = 0 }, blossomRotation * 0.5f, coreOrigin, 0.15f * pulse, SpriteEffects.None, 0f);
-
+            // Procedural Spring rendering - cherry blossom storm aesthetic
+            ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.5f);
             return false;
         }
 
@@ -351,19 +304,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Star").Value;
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            spriteBatch.Draw(texture, drawPos, null, SpringPink * 0.6f, Projectile.rotation, origin, 0.25f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Procedural Spring petal rendering
+            ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.25f);
             return false;
         }
     }
@@ -527,54 +469,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D coreTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/StarBurst1").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/TwilightSparkle").Value;
-            Vector2 coreOrigin = coreTex.Size() / 2f;
-            Vector2 glowOrigin = glowTex.Size() / 2f;
-            Vector2 sparkleOrigin = sparkleTex.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.1f + 1f;
-
-            // HEAT WAVE TRAIL - Blazing fire trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                
-                // Outer heat glow
-                Color heatColor = Color.Lerp(SummerRed, SummerOrange, progress) * (1f - progress) * 0.4f;
-                float heatScale = 0.45f * (1f - progress * 0.5f);
-                sb.Draw(glowTex, trailPos, null, heatColor with { A = 0 }, solarRotation + i * 0.2f, glowOrigin, heatScale, SpriteEffects.None, 0f);
-                
-                // Inner gold core trail
-                Color coreColor = Color.Lerp(SummerGold, SummerYellow, progress) * (1f - progress) * 0.5f;
-                float coreScale = 0.3f * (1f - progress * 0.6f);
-                sb.Draw(coreTex, trailPos, null, coreColor with { A = 0 }, Projectile.oldRot[i], coreOrigin, coreScale, SpriteEffects.None, 0f);
-            }
-            
-            // OUTER CORONA - Large diffuse solar halo
-            sb.Draw(glowTex, drawPos, null, (SummerRed * 0.3f) with { A = 0 }, solarRotation, glowOrigin, 0.65f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(glowTex, drawPos, null, (SummerOrange * 0.4f) with { A = 0 }, -solarRotation * 0.6f, glowOrigin, 0.5f * pulse, SpriteEffects.None, 0f);
-            
-            // ORBITING PROMINENCES - Solar flare arcs
-            for (int i = 0; i < prominenceAngles.Length; i++)
-            {
-                Vector2 promOffset = prominenceAngles[i].ToRotationVector2() * prominenceExtensions[i];
-                Vector2 promPos = drawPos + promOffset;
-                float promScale = 0.14f + (float)Math.Sin(Main.GameUpdateCount * 0.18f + i * 0.7f) * 0.04f;
-                Color promColor = (i % 2 == 0 ? SummerOrange : SummerYellow) * 0.8f;
-                sb.Draw(sparkleTex, promPos, null, promColor with { A = 0 }, prominenceAngles[i], sparkleOrigin, promScale, SpriteEffects.None, 0f);
-            }
-            
-            // SOLAR CORE - Blazing sun center
-            sb.Draw(coreTex, drawPos, null, (SummerOrange * 0.5f) with { A = 0 }, solarRotation, coreOrigin, 0.38f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(coreTex, drawPos, null, (SummerGold * 0.7f) with { A = 0 }, -solarRotation * 1.2f, coreOrigin, 0.28f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(coreTex, drawPos, null, (SummerWhite * 0.9f) with { A = 0 }, solarRotation * 0.5f, coreOrigin, 0.16f * pulse, SpriteEffects.None, 0f);
-
+            // Procedural Summer rendering - blazing sun orb aesthetic
+            ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.55f);
             return false;
         }
 
@@ -677,24 +573,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo4").Value;
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            float lifeProgress = Projectile.timeLeft / 120f;
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.15f + 1f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Vertical pillar (stretch effect)
-            spriteBatch.Draw(texture, drawPos, null, SummerOrange * 0.35f * lifeProgress, 0f, origin, new Vector2(0.4f, 0.9f) * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SummerGold * 0.5f * lifeProgress, 0f, origin, new Vector2(0.25f, 0.7f) * pulse, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Procedural Summer pillar rendering
+            ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.6f);
             return false;
         }
     }
@@ -838,69 +718,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            
-            // Load textures - using unique autumn textures
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow3").Value;
-            Texture2D coreTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo4").Value;
-            Texture2D leafTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/ManySparklesInCLuster").Value;
-            
-            Vector2 glowOrigin = glowTex.Size() / 2f;
-            Vector2 coreOrigin = coreTex.Size() / 2f;
-            Vector2 leafOrigin = leafTex.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            
-            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.1f;
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // FALLING LEAF TRAIL - Leaves drifting behind
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                
-                // Amber glow trail
-                Color trailColor = Color.Lerp(AutumnGold, AutumnDecay, progress) * (1f - progress) * 0.4f;
-                float trailScale = 0.4f * (1f - progress * 0.5f);
-                sb.Draw(glowTex, trailPos, null, trailColor with { A = 0 }, decayRotation + i * 0.3f, glowOrigin, trailScale, SpriteEffects.None, 0f);
-                
-                // Occasional leaf silhouette in trail
-                if (i % 3 == 0)
-                {
-                    Color leafColor = Color.Lerp(AutumnOrange, AutumnBrown, progress) * (1f - progress) * 0.35f;
-                    float leafAngle = i * 0.7f + Main.GameUpdateCount * 0.05f;
-                    sb.Draw(leafTex, trailPos + new Vector2(0, i * 0.5f), null, leafColor with { A = 0 }, leafAngle, leafOrigin, 0.12f * (1f - progress), SpriteEffects.None, 0f);
-                }
-            }
-            
-            // OUTER DECAY AURA - Warm amber haze
-            sb.Draw(glowTex, drawPos, null, (AutumnDecay * 0.3f) with { A = 0 }, decayRotation, glowOrigin, 0.65f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(glowTex, drawPos, null, (AutumnBrown * 0.4f) with { A = 0 }, -decayRotation * 0.7f, glowOrigin, 0.5f * pulse, SpriteEffects.None, 0f);
-            
-            // ORBITING LEAVES - Dancing falling leaves
-            for (int i = 0; i < leafAngles.Length; i++)
-            {
-                Vector2 leafOffset = leafAngles[i].ToRotationVector2() * leafDistances[i];
-                Vector2 leafPos = drawPos + leafOffset;
-                float leafScale = 0.11f + (float)Math.Sin(Main.GameUpdateCount * 0.12f + i * 0.6f) * 0.025f;
-                // Alternate colors: orange, gold, brown, red
-                Color[] leafColors = { AutumnOrange, AutumnGold, AutumnBrown, AutumnRed, AutumnOrange };
-                Color leafColor = leafColors[i % 5] * 0.75f;
-                float leafRot = leafAngles[i] + (float)Math.Sin(Main.GameUpdateCount * 0.1f + i) * 0.5f; // Flutter
-                sb.Draw(leafTex, leafPos, null, leafColor with { A = 0 }, leafRot, leafOrigin, leafScale, SpriteEffects.None, 0f);
-            }
-            
-            // AUTUMN ORB CORE - Layered warm glow
-            sb.Draw(coreTex, drawPos, null, (AutumnBrown * 0.5f) with { A = 0 }, decayRotation, coreOrigin, 0.38f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(coreTex, drawPos, null, (AutumnOrange * 0.7f) with { A = 0 }, -decayRotation * 1.2f, coreOrigin, 0.28f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(coreTex, drawPos, null, (AutumnGold * 0.9f) with { A = 0 }, decayRotation * 0.5f, coreOrigin, 0.16f * pulse, SpriteEffects.None, 0f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Procedural Autumn rendering - decaying orbs with falling leaves aesthetic
+            ProceduralProjectileVFX.DrawAutumnProjectile(Main.spriteBatch, Projectile, 0.5f);
             return false;
         }
 
@@ -1008,46 +827,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            
-            // Load textures
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            Texture2D haloTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo2").Value;
-            Texture2D leafTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/ConstellationStyleSparkle").Value;
-            
-            Vector2 glowOrigin = glowTex.Size() / 2f;
-            Vector2 haloOrigin = haloTex.Size() / 2f;
-            Vector2 leafOrigin = leafTex.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
+            // Procedural Autumn rendering - decay field with fading life energy
             float lifeProgress = Projectile.timeLeft / 90f;
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // DECAY FIELD HALO - Ring of withering
-            sb.Draw(haloTex, drawPos, null, (AutumnDecay * 0.3f * lifeProgress) with { A = 0 }, fieldRotation, haloOrigin, 0.5f, SpriteEffects.None, 0f);
-            sb.Draw(haloTex, drawPos, null, (AutumnBrown * 0.4f * lifeProgress) with { A = 0 }, -fieldRotation * 0.7f, haloOrigin, 0.4f, SpriteEffects.None, 0f);
-            
-            // ORBITING DECAY LEAVES - Slow spin of withered leaves
-            int leafCount = 6;
-            for (int i = 0; i < leafCount; i++)
-            {
-                float leafAngle = fieldRotation * 0.5f + MathHelper.TwoPi * i / leafCount;
-                float leafRadius = 20f + (float)Math.Sin(Main.GameUpdateCount * 0.08f + i) * 3f;
-                Vector2 leafPos = drawPos + leafAngle.ToRotationVector2() * leafRadius;
-                Color[] leafColors = { AutumnOrange, AutumnBrown, AutumnGold, AutumnDecay };
-                Color leafColor = leafColors[i % 4] * 0.5f * lifeProgress;
-                sb.Draw(leafTex, leafPos, null, leafColor with { A = 0 }, leafAngle + i, leafOrigin, 0.1f, SpriteEffects.None, 0f);
-            }
-            
-            // CENTER GLOW - Fading amber heart
-            sb.Draw(glowTex, drawPos, null, (AutumnGold * 0.35f * lifeProgress) with { A = 0 }, 0f, glowOrigin, 0.35f, SpriteEffects.None, 0f);
-            sb.Draw(glowTex, drawPos, null, (AutumnOrange * 0.25f * lifeProgress) with { A = 0 }, 0f, glowOrigin, 0.25f, SpriteEffects.None, 0f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            ProceduralProjectileVFX.DrawAutumnProjectile(Main.spriteBatch, Projectile, 0.4f * lifeProgress);
             return false;
         }
     }
@@ -1196,66 +978,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            
-            // Load textures - unique ice/frost textures
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow4").Value;
-            Texture2D coreTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/StarBurst2").Value;
-            Texture2D shardTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SmallTwilightSparkle").Value;
-            
-            Vector2 glowOrigin = glowTex.Size() / 2f;
-            Vector2 coreOrigin = coreTex.Size() / 2f;
-            Vector2 shardOrigin = shardTex.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            
-            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.1f;
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // FROST TRAIL - Icy mist behind
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                
-                // Icy mist trail
-                Color mistColor = Color.Lerp(WinterCyan, WinterPurple, progress) * (1f - progress) * 0.45f;
-                float mistScale = 0.4f * (1f - progress * 0.5f);
-                sb.Draw(glowTex, trailPos, null, mistColor with { A = 0 }, frostRotation + i * 0.2f, glowOrigin, mistScale, SpriteEffects.None, 0f);
-                
-                // Occasional ice crystal in trail
-                if (i % 3 == 0)
-                {
-                    Color crystalColor = WinterWhite * (1f - progress) * 0.4f;
-                    sb.Draw(shardTex, trailPos, null, crystalColor with { A = 0 }, frostRotation * 2f + i, shardOrigin, 0.1f * (1f - progress), SpriteEffects.None, 0f);
-                }
-            }
-            
-            // OUTER FROST AURA - Icy blue haze
-            sb.Draw(glowTex, drawPos, null, (WinterPurple * 0.3f) with { A = 0 }, frostRotation, glowOrigin, 0.55f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(glowTex, drawPos, null, (WinterCyan * 0.4f) with { A = 0 }, -frostRotation * 0.7f, glowOrigin, 0.42f * pulse, SpriteEffects.None, 0f);
-            
-            // ORBITING ICE SHARDS - Spinning crystals
-            for (int i = 0; i < shardAngles.Length; i++)
-            {
-                Vector2 shardOffset = shardAngles[i].ToRotationVector2() * shardDistances[i];
-                Vector2 shardPos = drawPos + shardOffset;
-                float shardScale = 0.12f + (float)Math.Sin(Main.GameUpdateCount * 0.15f + i * 0.7f) * 0.03f;
-                Color[] shardColors = { WinterWhite, WinterCyan, WinterBlue, WinterPurple };
-                Color shardColor = shardColors[i % 4] * 0.8f;
-                sb.Draw(shardTex, shardPos, null, shardColor with { A = 0 }, shardAngles[i] * 1.5f, shardOrigin, shardScale, SpriteEffects.None, 0f);
-            }
-            
-            // SNOWFLAKE CORE - Layered ice crystal center
-            sb.Draw(coreTex, drawPos, null, (WinterPurple * 0.45f) with { A = 0 }, frostRotation, coreOrigin, 0.35f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(coreTex, drawPos, null, (WinterCyan * 0.65f) with { A = 0 }, -frostRotation * 1.2f, coreOrigin, 0.25f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(coreTex, drawPos, null, (WinterWhite * 0.85f) with { A = 0 }, frostRotation * 0.5f, coreOrigin, 0.15f * pulse, SpriteEffects.None, 0f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Procedural Winter rendering - icy orb with crystalline shimmer
+            ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, 0.5f);
             return false;
         }
 
@@ -1372,36 +1096,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            Texture2D shardTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SmallTwilightSparkle").Value;
-            
-            Vector2 glowOrigin = glowTex.Size() / 2f;
-            Vector2 shardOrigin = shardTex.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // FROST TRAIL - Short icy mist
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                Color trailColor = Color.Lerp(WinterCyan, WinterWhite, progress) * (1f - progress) * 0.4f;
-                sb.Draw(glowTex, trailPos, null, trailColor with { A = 0 }, 0f, glowOrigin, 0.15f * (1f - progress), SpriteEffects.None, 0f);
-            }
-
-            // ICE SHARD - Spinning crystal
-            sb.Draw(glowTex, drawPos, null, (WinterCyan * 0.35f) with { A = 0 }, 0f, glowOrigin, 0.2f, SpriteEffects.None, 0f);
-            sb.Draw(shardTex, drawPos, null, (WinterWhite * 0.8f) with { A = 0 }, spinRotation, shardOrigin, 0.18f, SpriteEffects.None, 0f);
-            sb.Draw(shardTex, drawPos, null, (WinterCyan * 0.6f) with { A = 0 }, -spinRotation * 0.7f, shardOrigin, 0.12f, SpriteEffects.None, 0f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Procedural Winter rendering - small spinning ice shard
+            ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, 0.25f);
             return false;
         }
     }

@@ -8,6 +8,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Eroica.Accessories
 {
@@ -15,6 +16,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
     /// Petal explosion projectile spawned by Symphony of Scarlet Flames on Triumphant Precision.
     /// Deals 300% ranged damage with a beautiful sakura petal explosion and glow effects.
     /// </summary>
+    [AllowLargeHitbox("Sakura petal explosion requires large hitbox for AoE damage")]
     public class PetalExplosion : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField6";

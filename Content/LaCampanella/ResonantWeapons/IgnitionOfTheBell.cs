@@ -11,6 +11,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
@@ -799,6 +800,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
     /// Chime Cyclone - stationary flaming cyclone that deals area damage.
     /// Pure particle-based tornado with bell-flame effects.
     /// </summary>
+    [AllowLargeHitbox("Flaming cyclone requires large hitbox for area damage")]
     public class ChimeCycloneProjectile : ModProjectile
     {
         // Uses weapon texture for loading, drawn entirely as particles

@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
@@ -13,6 +14,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
     /// Moonlit Gyre Sonic Boom - Large spiral dark purple and light blue explosion.
     /// Pierces through 5 enemies with unique visual effects.
     /// </summary>
+    [AllowLargeHitbox("Expanding spiral explosion requires large hitbox for AoE damage")]
     public class MoonlitGyreSonicBoom : ModProjectile
     {
         // Custom texture - no vanilla textures allowed

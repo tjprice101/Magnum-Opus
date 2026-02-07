@@ -9,6 +9,7 @@ using Terraria.DataStructures;
 using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 // Dynamic particle effects for aesthetically pleasing animations
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
@@ -148,37 +149,8 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwordArc3").Value;
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Trail afterimages
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                float trailProgress = (float)i / Projectile.oldPos.Length;
-                float trailAlpha = (1f - trailProgress) * 0.5f;
-                float trailScale = Projectile.scale * (1f - trailProgress * 0.4f);
-                Color trailColor = Color.Lerp(CrystalCyan, DeepBlue, trailProgress) * trailAlpha;
-
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                spriteBatch.Draw(texture, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale * 0.6f, SpriteEffects.None, 0f);
-            }
-
-            // Main projectile glow layers
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.1f + 1f;
-
-            spriteBatch.Draw(texture, drawPos, null, DeepBlue * 0.35f, Projectile.rotation, origin, Projectile.scale * pulse * 1.3f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, IceBlue * 0.45f, Projectile.rotation, origin, Projectile.scale * 1.0f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, CrystalCyan * 0.55f, Projectile.rotation, origin, Projectile.scale * 0.7f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, FrostWhite * 0.7f, Projectile.rotation, origin, Projectile.scale * 0.4f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Use procedural VFX system - Winter avalanche wave effect
+            ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, Projectile.scale * 0.8f);
             return false;
         }
 
@@ -283,30 +255,8 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/TwinkleSparkle").Value;
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                float progress = (float)i / Projectile.oldPos.Length;
-                float alpha = (1f - progress) * 0.4f;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                spriteBatch.Draw(texture, trailPos, null, IceBlue * alpha, Projectile.oldRot[i], origin, 0.25f * (1f - progress * 0.5f), SpriteEffects.None, 0f);
-            }
-
-            // Main glow
-            spriteBatch.Draw(texture, drawPos, null, IceBlue * 0.6f, Projectile.rotation, origin, 0.35f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, FrostWhite * 0.8f, Projectile.rotation, origin, 0.2f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Use procedural VFX system - Winter shard effect
+            ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, 0.22f);
             return false;
         }
 

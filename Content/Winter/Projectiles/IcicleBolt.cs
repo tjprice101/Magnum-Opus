@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.DataStructures;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 // Dynamic particle effects for aesthetically pleasing animations
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
@@ -219,78 +220,10 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/ConstellationStyleSparkle").Value;
-            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            // Use procedural VFX system instead of PNG textures
+            // This replaces loading of: ConstellationStyleSparkle, EnergyFlare, EnergyFlare4, SoftGlow2
+            ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, 1.2f);
             
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 flareOrigin1 = flare1.Size() / 2f;
-            Vector2 flareOrigin2 = flare2.Size() / 2f;
-            Vector2 glowOrigin = softGlow.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            
-            float time = Main.GameUpdateCount * 0.05f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.12f;
-            
-            // Alpha-removed colors for proper additive blending (Fargos pattern)
-            Color cyanBloom = CrystalCyan with { A = 0 };
-            Color blueBloom = IceBlue with { A = 0 };
-            Color deepBloom = DeepFrost with { A = 0 };
-            Color whiteBloom = FrostWhite with { A = 0 };
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // === TRAIL RENDERING with gradient ===
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                
-                float progress = (float)i / Projectile.oldPos.Length;
-                float alpha = (1f - progress) * 0.55f;
-                float trailScale = 0.38f * (1f - progress * 0.5f);
-                
-                float trailHue = HueMin + progress * (HueMax - HueMin);
-                Color trailColor = Main.hslToRgb(trailHue, 0.7f, 0.6f) with { A = 0 };
-
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                spriteBatch.Draw(texture, trailPos, null, trailColor * alpha, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
-            }
-
-            // === LAYER 1: Soft glow base (large, dim) ===
-            spriteBatch.Draw(softGlow, drawPos, null, blueBloom * 0.35f, 0f, glowOrigin, 0.7f * pulse, SpriteEffects.None, 0f);
-
-            // === LAYER 2: Flare spinning clockwise (cyan) ===
-            spriteBatch.Draw(flare1, drawPos, null, cyanBloom * 0.5f, time, flareOrigin1, 0.4f * pulse, SpriteEffects.None, 0f);
-
-            // === LAYER 3: Flare spinning counter-clockwise (deep blue) ===
-            spriteBatch.Draw(flare2, drawPos, null, deepBloom * 0.45f, -time * 0.75f, flareOrigin2, 0.35f * pulse, SpriteEffects.None, 0f);
-
-            // === LAYER 4: Flare at different rotation speed (ice blue) ===
-            spriteBatch.Draw(flare1, drawPos, null, blueBloom * 0.4f, time * 1.3f, flareOrigin1, 0.3f * pulse, SpriteEffects.None, 0f);
-
-            // === LAYER 5: Main projectile glow ===
-            spriteBatch.Draw(texture, drawPos, null, cyanBloom * 0.65f, Projectile.rotation, origin, 0.42f * pulse, SpriteEffects.None, 0f);
-
-            // === LAYER 6: White-hot core ===
-            spriteBatch.Draw(texture, drawPos, null, whiteBloom * 0.85f, Projectile.rotation, origin, 0.2f, SpriteEffects.None, 0f);
-
-            // === ORBITING SPARK POINTS ===
-            float sparkOrbitAngle = time * 1.4f;
-            for (int i = 0; i < 4; i++)
-            {
-                float sparkAngle = sparkOrbitAngle + MathHelper.TwoPi * i / 4f;
-                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * 12f;
-                float sparkHue = HueMin + (i / 4f) * (HueMax - HueMin);
-                Color sparkColor = Main.hslToRgb(sparkHue, 0.8f, 0.75f) with { A = 0 };
-                spriteBatch.Draw(texture, sparkPos, null, sparkColor * 0.7f, 0f, origin, 0.12f * pulse, SpriteEffects.None, 0f);
-            }
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
             return false;
         }
 
@@ -592,84 +525,8 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle14").Value;
-            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 flareOrigin1 = flare1.Size() / 2f;
-            Vector2 flareOrigin2 = flare2.Size() / 2f;
-            Vector2 glowOrigin = softGlow.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            
-            float time = Main.GameUpdateCount * 0.055f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.14f;
-            
-            // Alpha-removed colors (Fargos pattern)
-            Color cyanBloom = CrystalCyan with { A = 0 };
-            Color blueBloom = IceBlue with { A = 0 };
-            Color deepBloom = DeepBlue with { A = 0 };
-            Color stormBloom = StormPurple with { A = 0 };
-            Color whiteBloom = FrostWhite with { A = 0 };
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // === TRAIL RENDERING with gradient (longer trail for homing) ===
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                
-                float progress = (float)i / Projectile.oldPos.Length;
-                float alpha = (1f - progress) * 0.6f;
-                float trailScale = 0.45f * (1f - progress * 0.55f);
-                
-                float trailHue = HueMin + progress * (HueMax - HueMin);
-                Color trailColor = Main.hslToRgb(trailHue, 0.7f, 0.6f) with { A = 0 };
-
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                spriteBatch.Draw(texture, trailPos, null, trailColor * alpha, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
-            }
-
-            // === LAYER 1: Soft glow base (large, storm-colored when homing) ===
-            Color baseGlow = hasTarget ? cyanBloom : deepBloom;
-            spriteBatch.Draw(softGlow, drawPos, null, baseGlow * 0.4f, 0f, glowOrigin, 0.8f * pulse, SpriteEffects.None, 0f);
-
-            // === LAYER 2: Flare spinning clockwise (cyan) ===
-            spriteBatch.Draw(flare1, drawPos, null, cyanBloom * 0.55f, time, flareOrigin1, 0.45f * pulse, SpriteEffects.None, 0f);
-
-            // === LAYER 3: Flare spinning counter-clockwise (storm purple) ===
-            spriteBatch.Draw(flare2, drawPos, null, stormBloom * 0.5f, -time * 0.7f, flareOrigin2, 0.4f * pulse, SpriteEffects.None, 0f);
-
-            // === LAYER 4: Flare at different rotation speed (ice blue) ===
-            spriteBatch.Draw(flare1, drawPos, null, blueBloom * 0.45f, time * 1.4f, flareOrigin1, 0.35f * pulse, SpriteEffects.None, 0f);
-
-            // === LAYER 5: Main projectile glow ===
-            Color mainGlow = hasTarget ? cyanBloom : blueBloom;
-            spriteBatch.Draw(texture, drawPos, null, mainGlow * 0.7f, Projectile.rotation, origin, 0.48f * pulse, SpriteEffects.None, 0f);
-
-            // === LAYER 6: White-hot core ===
-            spriteBatch.Draw(texture, drawPos, null, whiteBloom * 0.9f, Projectile.rotation, origin, 0.22f, SpriteEffects.None, 0f);
-
-            // === ORBITING SPARK POINTS (more when homing) ===
-            float sparkOrbitAngle = time * 1.5f;
-            int sparkCount = hasTarget ? 5 : 4;
-            for (int i = 0; i < sparkCount; i++)
-            {
-                float sparkAngle = sparkOrbitAngle + MathHelper.TwoPi * i / sparkCount;
-                float sparkRadius = hasTarget ? 14f : 12f;
-                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * sparkRadius;
-                float sparkHue = HueMin + (i / (float)sparkCount) * (HueMax - HueMin);
-                Color sparkColor = Main.hslToRgb(sparkHue, 0.85f, 0.78f) with { A = 0 };
-                float sparkScale = hasTarget ? 0.14f : 0.1f;
-                spriteBatch.Draw(texture, sparkPos, null, sparkColor * 0.75f, 0f, origin, sparkScale * pulse, SpriteEffects.None, 0f);
-            }
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Use procedural VFX system for Winter homing projectile
+            ProceduralProjectileVFX.DrawWinterHomingProjectile(Main.spriteBatch, Projectile, hasTarget, 1f);
             return false;
         }
 

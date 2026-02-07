@@ -7,6 +7,7 @@ using Terraria.ModLoader;
 using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 // Dynamic particle effects for aesthetically pleasing animations
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
@@ -303,96 +304,8 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            
-            // Load MULTIPLE flare textures for layered spinning effect
-            Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
-            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 flareOrigin1 = flare1.Size() / 2f;
-            Vector2 flareOrigin2 = flare2.Size() / 2f;
-            Vector2 glowOrigin = softGlow.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            float time = Main.GameUpdateCount * 0.06f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.18f;
-            
-            // Colors with alpha removed for proper additive blending (Fargos pattern)
-            Color goldBloom = SunGold with { A = 0 };
-            Color orangeBloom = SunOrange with { A = 0 };
-            Color whiteBloom = SunWhite with { A = 0 };
-            Color redBloom = SunRed with { A = 0 };
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // ═══════════════════════════════════════════════════════════════
-            // TRAIL RENDERING with gradient
-            // ═══════════════════════════════════════════════════════════════
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                
-                float progress = (float)i / Projectile.oldPos.Length;
-                float trailAlpha = (1f - progress) * 0.6f;
-                float trailScale = 0.4f * (1f - progress * 0.5f);
-                Color trailColor = Color.Lerp(goldBloom, orangeBloom, progress) * trailAlpha;
-                
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                spriteBatch.Draw(texture, trailPos, null, trailColor, Projectile.oldRot[i], 
-                    origin, trailScale, SpriteEffects.None, 0f);
-            }
-
-            // ═══════════════════════════════════════════════════════════════
-            // 4+ LAYERED SPINNING FLARES (TRUE_VFX_STANDARDS)
-            // ═══════════════════════════════════════════════════════════════
-            
-            // Layer 1: Soft glow base (large, dim)
-            spriteBatch.Draw(softGlow, drawPos, null, orangeBloom * 0.35f, 0f, 
-                glowOrigin, 0.7f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 2: First flare spinning clockwise (gold)
-            spriteBatch.Draw(flare1, drawPos, null, goldBloom * 0.55f, time, 
-                flareOrigin1, 0.45f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 3: Second flare spinning counter-clockwise (red accent)
-            spriteBatch.Draw(flare2, drawPos, null, redBloom * 0.4f, -time * 0.8f, 
-                flareOrigin2, 0.4f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 4: Third flare different rotation speed (orange)
-            spriteBatch.Draw(flare1, drawPos, null, orangeBloom * 0.5f, time * 1.4f, 
-                flareOrigin1, 0.35f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 5: Main halo texture
-            spriteBatch.Draw(texture, drawPos, null, goldBloom * 0.6f, Projectile.rotation, 
-                origin, 0.35f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 6: Bright white core
-            spriteBatch.Draw(texture, drawPos, null, whiteBloom * 0.85f, Projectile.rotation, 
-                origin, 0.2f, SpriteEffects.None, 0f);
-
-            // ═══════════════════════════════════════════════════════════════
-            // ORBITING SPARK POINTS around the orb (solar corona visual)
-            // ═══════════════════════════════════════════════════════════════
-            float sparkOrbitAngle = time * 1.8f;
-            for (int i = 0; i < 4; i++)
-            {
-                float sparkAngle = sparkOrbitAngle + MathHelper.TwoPi * i / 4f;
-                float sparkRadius = 12f + (float)Math.Sin(time * 3f + i) * 3f;
-                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * sparkRadius;
-                Color sparkColor = Color.Lerp(goldBloom, redBloom, i / 4f);
-                spriteBatch.Draw(texture, sparkPos, null, sparkColor * 0.65f, 0f, 
-                    origin, 0.12f * pulse, SpriteEffects.None, 0f);
-            }
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Use procedural VFX system for Summer theme with solar corona effects
+            ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 1f);
             return false;
         }
     }
@@ -674,96 +587,8 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            
-            // Load MULTIPLE flare textures for layered spinning effect
-            Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
-            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 flareOrigin1 = flare1.Size() / 2f;
-            Vector2 flareOrigin2 = flare2.Size() / 2f;
-            Vector2 glowOrigin = softGlow.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            float time = Main.GameUpdateCount * 0.08f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.2f;
-            
-            // Colors with alpha removed for proper additive blending (Fargos pattern)
-            Color goldBloom = SunGold with { A = 0 };
-            Color orangeBloom = SunOrange with { A = 0 };
-            Color whiteBloom = SunWhite with { A = 0 };
-            Color redBloom = SunRed with { A = 0 };
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // ═══════════════════════════════════════════════════════════════
-            // TRAIL RENDERING with gradient - Long intense beam trail
-            // ═══════════════════════════════════════════════════════════════
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                
-                float progress = (float)i / Projectile.oldPos.Length;
-                float trailAlpha = (1f - progress) * 0.7f;
-                float trailScale = 0.55f * (1f - progress * 0.4f);
-                Color trailColor = Color.Lerp(whiteBloom, orangeBloom, progress) * trailAlpha;
-                
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                spriteBatch.Draw(texture, trailPos, null, trailColor, Projectile.oldRot[i], 
-                    origin, trailScale, SpriteEffects.None, 0f);
-            }
-
-            // ═══════════════════════════════════════════════════════════════
-            // 5+ LAYERED SPINNING FLARES (TRUE_VFX_STANDARDS)
-            // ═══════════════════════════════════════════════════════════════
-            
-            // Layer 1: Soft glow base (large, dim)
-            spriteBatch.Draw(softGlow, drawPos, null, orangeBloom * 0.4f, 0f, 
-                glowOrigin, 0.85f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 2: First flare spinning clockwise (gold)
-            spriteBatch.Draw(flare1, drawPos, null, goldBloom * 0.6f, time, 
-                flareOrigin1, 0.55f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 3: Second flare spinning counter-clockwise (red accent)
-            spriteBatch.Draw(flare2, drawPos, null, redBloom * 0.45f, -time * 0.75f, 
-                flareOrigin2, 0.5f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 4: Third flare different rotation speed (orange)
-            spriteBatch.Draw(flare1, drawPos, null, orangeBloom * 0.55f, time * 1.5f, 
-                flareOrigin1, 0.45f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 5: Main sparkle texture
-            spriteBatch.Draw(texture, drawPos, null, goldBloom * 0.65f, Projectile.rotation, 
-                origin, 0.55f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 6: Bright white core
-            spriteBatch.Draw(texture, drawPos, null, whiteBloom * 0.9f, Projectile.rotation, 
-                origin, 0.32f, SpriteEffects.None, 0f);
-
-            // ═══════════════════════════════════════════════════════════════
-            // ORBITING SPARK POINTS around the beam (solar flare corona)
-            // ═══════════════════════════════════════════════════════════════
-            float sparkOrbitAngle = time * 2.2f;
-            for (int i = 0; i < 5; i++)
-            {
-                float sparkAngle = sparkOrbitAngle + MathHelper.TwoPi * i / 5f;
-                float sparkRadius = 16f + (float)Math.Sin(time * 3.5f + i) * 4f;
-                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * sparkRadius;
-                Color sparkColor = Color.Lerp(goldBloom, redBloom, (float)i / 5f);
-                spriteBatch.Draw(texture, sparkPos, null, sparkColor * 0.7f, 0f, 
-                    origin, 0.15f * pulse, SpriteEffects.None, 0f);
-            }
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            // Procedural Summer beam with trail rendering - no PNG textures
+            ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.7f);
             return false;
         }
     }

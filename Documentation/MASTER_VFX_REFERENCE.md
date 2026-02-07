@@ -72,7 +72,7 @@ CustomParticles.HaloRing(target.Center, color, 0.3f, 12);
 - **Color oscillation** using `Main.hslToRgb`
 
 ### Rule #5: USE ALL PARTICLE ASSETS
-80+ custom PNGs available - use at least 3-4 per effect:
+100+ custom PNGs available - use at least 3-4 per effect:
 - 2+ custom particle types
 - 1+ vanilla Dust type for density
 - 1+ music-related particle
@@ -91,7 +91,7 @@ CustomParticles.HaloRing(target.Center, color, 0.3f, 12);
 public override bool PreDraw(ref Color lightColor)
 {
     Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-    Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
+    Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
     Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
     
     float time = Main.GameUpdateCount * 0.05f;
@@ -206,17 +206,17 @@ public override void OnKill(int timeLeft)
 
 | Category | Files | Variants | Scale Range | Use For |
 |----------|-------|----------|-------------|---------|
-| **MusicNote** | MusicNote1-6.png | 6 | **0.7f-1.2f** | EVERY trail, impact, aura |
-| **EnergyFlare** | EnergyFlare1-7.png | 7 | 0.4f-1.2f | Projectile cores, layer 4+! |
+| **MusicNote** | MusicNote.png, CursiveMusicNote.png, MusicNoteWithSlashes.png, QuarterNote.png, TallMusicNote.png, WholeNote.png | 6 | **0.7f-1.2f** | EVERY trail, impact, aura |
+| **EnergyFlare** | EnergyFlare.png, EnergyFlare4.png | 2 | 0.4f-1.2f | Projectile cores, layer 4+! |
 | **SoftGlow** | SoftGlow2-4.png | 3 | 0.3f-0.8f | Bloom bases, layer under flares |
-| **GlowingHalo** | GlowingHalo1-6.png | 5 | 0.3f-1.0f | Shockwaves, rings, impacts |
+| **GlowingHalo** | GlowingHalo1.png, GlowingHalo2.png, GlowingHalo4-6.png | 5 | 0.3f-1.0f | Shockwaves, rings, impacts |
 | **StarBurst** | StarBurst1-2.png | 2 | 0.5f-1.5f | Radial explosions |
-| **MagicSparkleField** | MagicSparkleField1-12.png | 12 | 0.3f-0.8f | Magic trails, enchantments |
-| **PrismaticSparkle** | PrismaticSparkle1-15.png | 15 | 0.3f-0.7f | Rainbow sparkles EVERYWHERE |
+| **MagicSparklField** | MagicSparklField4.png, MagicSparklField6-12.png | 8 | 0.3f-0.8f | Magic trails, enchantments |
+| **PrismaticSparkle** | PrismaticSparkle11.png, PrismaticSparkle13.png, PrismaticSparkle14.png | 3 | 0.3f-0.7f | Rainbow sparkles |
 | **ParticleTrail** | ParticleTrail1-4.png | 4 | 0.3f-0.8f | Movement trails |
-| **SwordArc** | SwordArc1-9.png | 9 | 0.5f-1.5f | **Melee swings - USE THESE!** |
+| **SwordArc** | SwordArc1.png, SwordArc2.png, SwordArc3.png, SwordArc6.png, SwordArc8.png + 4 named variants | 9 | 0.5f-1.5f | **Melee swings - USE THESE!** |
 | **SwanFeather** | SwanFeather1-10.png | 10 | 0.4f-1.0f | Swan Lake theme |
-| **EnigmaEye** | EnigmaEye1-8.png | 8 | 0.4f-0.8f | Enigma watching effects |
+| **EnigmaEye** | EnigmaEye1.png + 7 named variants | 8 | 0.4f-0.8f | Enigma watching effects |
 | **Glyphs** | Glyphs1-12.png | 12 | 0.3f-0.7f | Magic circles, Fate theme |
 | **ShatteredStarlight** | ShatteredStarlight.png | 1 | 0.4f-1.0f | Shatter effects |
 

@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Eroica.Accessories
 {
@@ -16,6 +17,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
     /// Deals 400% melee damage in a massive circular area.
     /// Visual: Expanding ring of scarlet/pink flame with sakura petals and custom trail rendering.
     /// </summary>
+    [AllowLargeHitbox("360° sakura slash wave requires large hitbox for full-circle AoE")]
     public class PyreSlashWave : ModProjectile
     {
         // Custom texture - no vanilla textures allowed

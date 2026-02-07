@@ -1,810 +1,491 @@
-# TRUE VFX STANDARDS - The Real Way to Make Weapons Shine
+# CALAMITY-STYLE VFX STANDARDS - Buttery Smooth Visual Effects
 
-> **THIS DOCUMENT SUPERSEDES ALL PREVIOUS VFX DOCUMENTATION.**
+> **THIS DOCUMENT REFLECTS THE NEW AUTOMATIC VFX SYSTEM BASED ON CALAMITY MOD.**
 > 
-> This is what "good" actually looks like. Not generic flares. Not basic orbs. Not copy-pasted PNG projectiles. **Real, layered, dynamic, MUSICAL visual effects.**
+> **IMPORTANT:** Most VFX are now **AUTOMATICALLY APPLIED** by the Global systems.
+> You do NOT need to manually code dust trails, bloom layers, or music notes for most projectiles.
 
 ---
 
-## 🚨 THE CORE PROBLEM (READ THIS FIRST)
+## ✅ THE NEW VFX ARCHITECTURE
 
-### What We've Been Doing Wrong
+### 🔥 KEY INSIGHT: IT'S AUTOMATIC NOW
 
-1. **"Slapping a flare" on a PreDraw** - Drawing a single flare texture is NOT a visual effect. It's lazy.
-2. **Projectiles are translucent orbs** - They hit enemies and "puff away." No impact. No character. No identity.
-3. **Effects are too dim** - Things should GLOW, SHIMMER, SPARKLE. Not fade into the background.
-4. **Effects are sometimes too large** - Bigger is not better. Vanilla weapons prove small but vibrant wins.
-5. **No musical identity** - This is a MUSIC MOD. Where are the music notes orbiting projectiles? Where are the staff lines in trails?
-6. **No trailing curves** - Everything is rigid. Ark of the Cosmos has sine-wave trails that CURVE and FLOW. Ours are static lines.
-7. **Sword arcs unused** - We have 9 premade SwordArc PNGs. They're barely being used for melee weapon swings.
-8. **Wave projectiles are PNG copy-paste** - Real wave effects layer sword arcs with glows, dusts, and blooms.
+The following systems **automatically apply** VFX to all MagnumOpus content:
+
+| System | What It Does | You Don't Need To Code |
+|--------|--------------|------------------------|
+| `GlobalVFXOverhaul.cs` | Auto-applies to ALL projectiles | Primitive trails, multi-layer bloom, orbiting music notes, death effects |
+| `GlobalWeaponVFXOverhaul.cs` | Auto-applies to ALL weapons | Smooth swing arcs, muzzle flash, magic circles |
+| `GlobalBossVFXOverhaul.cs` | Auto-applies to ALL bosses | Interpolated rendering, dash trails, entrance/death spectacles |
+
+### Core Technologies (Used Automatically)
+
+| Technology | File | What It Does |
+|------------|------|--------------|
+| **Sub-Pixel Interpolation** | `InterpolatedRenderer.cs` | 144Hz+ smoothness via `GetInterpolatedCenter()` |
+| **Bézier Curve Paths** | `BezierProjectileSystem.cs` | Curved homing arcs, snaking paths, spiral approaches |
+| **Primitive Trail Rendering** | `EnhancedTrailRenderer.cs` | Multi-pass trails with `PrimitiveSettings` (width/color functions) |
+| **Advanced Trail System** | `AdvancedTrailSystem.cs` | Theme-based trail creation via `CreateThemeTrail()` |
+| **🔥 Ark-Style Swing Trails** | `ArkSwingTrail.cs` | **Triangle strip mesh with UV-mapped noise textures** |
+| **Screen Effects** | `ScreenDistortionManager.cs` | Distortion via `TriggerThemeEffect()` |
+| **Dynamic Skybox** | `DynamicSkyboxSystem.cs` | Sky flashes via `TriggerFlash()` |
+| **Procedural VFX** | `ProceduralProjectileVFX.cs` | PNG-free rendering via `DrawProceduralProjectile()` |
+| **Cinematic VFX** | `CinematicVFX.cs` | Lens flares, energy streaks, impact glints |
 
 ---
 
-## ✅ THE GOLD STANDARD: Iridescent Wingspan
+## 🔥 ARK OF THE COSMOS-STYLE MELEE SWING TRAILS (NEW!)
 
-**This is what a GOOD projectile looks like. Study it. Learn it. Replicate this quality.**
+### The Problem with Discrete Particles
 
-### What Iridescent Wingspan Does RIGHT:
+Spawning fog particles along a swing arc creates **visible gaps and edges**. This doesn't match Calamity's buttery smooth trails.
+
+### The Solution: Triangle Strip Mesh Rendering
+
+`ArkSwingTrail.cs` renders melee swings as **continuous triangle strip meshes** with:
+- UV-mapped noise texture scrolling (not discrete particles!)
+- 4-pass rendering (background fog, midground nebula, main trail, bright core)
+- Proper width tapering along the arc (QuadraticBump)
+- Additive blending for proper glow accumulation
+
+### Automatic Integration
+
+All MagnumOpus melee weapons get Ark-style trails automatically via `ArkSwingTrailGlobalItem`:
 
 ```csharp
-// 1. HEAVY DUST TRAILS - Constant flow, not sparse dots
-for (int i = 0; i < 2; i++)
-{
-    Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(5f, 5f), dustType,
-        -Projectile.velocity * 0.2f + Main.rand.NextVector2Circular(2f, 2f),
-        100, trailColor, 1.8f);  // Scale 1.8f - VISIBLE!
-    d.noGravity = true;
-    d.fadeIn = 1.4f;  // Fades IN, not out immediately
-}
-
-// 2. CONTRASTING SPARKLES - Opposite color for visual pop
-if (Main.rand.NextBool(2))
-{
-    Dust opp = Dust.NewDustPerfect(Projectile.Center, oppositeDustType,
-        -Projectile.velocity * 0.15f, 0, oppositeColor, 1.4f);
-    opp.noGravity = true;
-}
-
-// 3. FREQUENT FLARES - 1-in-2 chance, not 1-in-10
-if (Main.rand.NextBool(2))
-{
-    CustomParticles.GenericFlare(Projectile.Center + offset, trailColor, 0.5f, 18);
-}
-
-// 4. RAINBOW SHIMMER - Color shifts using Main.hslToRgb
-if (Main.rand.NextBool(3))
-{
-    float hue = Main.rand.NextFloat();
-    Color rainbow = Main.hslToRgb(hue, 1f, 0.7f);
-    Dust r = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowTorch, vel, 0, rainbow, 1.5f);
-}
-
-// 5. LAYERED PREDRAW with multiple glow layers
-Main.EntitySpriteDraw(texture, drawPos, null, glowColor * 0.5f, rot, origin, scale * 1.4f, ...);
-Main.EntitySpriteDraw(texture, drawPos, null, glowColor * 0.3f, rot, origin, scale * 1.2f, ...);
-Main.EntitySpriteDraw(texture, drawPos, null, Color.White, rot, origin, scale, ...);
+// Weapons in Content/Eroica/... automatically get scarlet→gold trails
+// Weapons in Content/Fate/... automatically get pink→red cosmic trails
+// Weapons in Content/SwanLake/... automatically get white→rainbow trails
 ```
 
-### The Iridescent Wingspan Formula:
+### Manual API
 
-| Layer | What It Does | Frequency |
-|-------|--------------|-----------|
-| Heavy dust trail | Creates dense visible wake | Every frame, 2+ particles |
-| Contrasting sparkles | Visual contrast and pop | 1-in-2 frames |
-| Frequent flares | Adds brightness and glow | 1-in-2 frames |
-| Rainbow/color shift | Dynamic hue cycling | 1-in-3 frames |
-| Pearlescent shimmer | Extra color variation | 1-in-4 frames |
-| Fractal gem effects | Theme-specific sparkle | 1-in-8 frames |
-| Music notes | Musical identity | 1-in-6 frames |
-| Multi-layer PreDraw | Glowing projectile body | Every frame |
+```csharp
+using MagnumOpus.Common.Systems.VFX;
+
+// During swing (every frame)
+ArkSwingTrail.UpdateSwingTrail(player, bladeLength: 80f, 
+    primaryColor, secondaryColor, width: 35f, theme: "Eroica");
+
+// When swing ends
+ArkSwingTrail.EndSwingTrail(player);
+
+// Instant arc (for weapons that don't update every frame)
+ArkSwingTrail.SpawnSwingArc(player, startAngle, endAngle, 
+    bladeLength, primaryColor, secondaryColor, width, pointCount, theme);
+```
 
 ---
 
-## 🎯 HOW TO BUILD A PROPER PROJECTILE
+## 🎉 WHAT GLOBALVFXOVERHAUL DOES AUTOMATICALLY
 
-### Step 1: The Layered Flare Core
+When you create a projectile in MagnumOpus, `GlobalVFXOverhaul` automatically:
 
-**DO NOT** just draw one flare. Layer multiple flare textures, spinning them slightly:
+```
+✅ Detects the theme from namespace/classname
+✅ Creates a primitive trail with theme colors
+✅ Applies 4-layer additive bloom in PreDraw
+✅ Spawns orbiting music notes (3 notes per projectile)
+✅ Applies sub-pixel interpolation for smooth rendering
+✅ Creates spectacular death effects with 8 halo rings
+✅ Adds dynamic lighting that pulses
+```
+
+### Theme Detection Is Automatic
+
+The system reads your projectile's namespace/classname and applies appropriate colors:
+
+| Namespace Contains | Theme Applied | Colors |
+|-------------------|---------------|--------|
+| `Eroica` | Eroica | Scarlet → Gold, Sakura accents |
+| `Fate` | Fate | Black → Pink → Red, cosmic white |
+| `SwanLake` | SwanLake | White/Black, rainbow shimmer |
+| `MoonlightSonata` | MoonlightSonata | Purple → Ice Blue |
+| `LaCampanella` | LaCampanella | Black smoke → Orange flame |
+| `Enigma` | EnigmaVariations | Void purple → Green flame |
+| `Spring` | Spring | Pink → Green pastels |
+| `Summer` | Summer | Orange → Gold warmth |
+| `Autumn` | Autumn | Amber → Crimson |
+| `Winter` | Winter | Ice Blue → White |
+
+---
+
+## 🚀 HOW TO USE THE NEW SYSTEMS
+
+### For Basic Projectiles: DO NOTHING
+
+If your projectile is in a theme folder (e.g., `Content/Eroica/Projectiles/`), the Global systems handle everything:
 
 ```csharp
+// ✅ THIS IS ALL YOU NEED - GlobalVFXOverhaul handles the rest
+public class MyEroicaProjectile : ModProjectile
+{
+    public override void SetDefaults()
+    {
+        Projectile.width = 16;
+        Projectile.height = 16;
+        Projectile.friendly = true;
+        Projectile.timeLeft = 120;
+        // NO PREDRAW OVERRIDE NEEDED
+        // NO AI DUST SPAWNING NEEDED
+        // NO ONKILL VFX NEEDED
+    }
+}
+```
+
+### For Custom Unique Effects: Use CalamityStyleVFX
+
+When you want effects BEYOND the automatic ones, call `CalamityStyleVFX` directly:
+
+```csharp
+using MagnumOpus.Common.Systems.VFX;
+
+// In a weapon's Shoot method - add extra wing effect
+CalamityStyleVFX.EtherealWingEffect(player, "SwanLake", 1.2f);
+
+// In a projectile's AI - add wave effect
+CalamityStyleVFX.WaveProjectileEffect(Projectile.Center, Projectile.velocity, "Eroica", 1f);
+
+// In a boss's attack windup
+CalamityStyleVFX.BossAttackWindup(NPC.Center, progress, "LaCampanella");
+
+// On attack release
+CalamityStyleVFX.BossAttackRelease(NPC.Center, "Fate", 1.5f);
+
+// Spectacular death explosion
+CalamityStyleVFX.SpectacularDeath(position, "Eroica");
+
+// Boss phase transition
+CalamityStyleVFX.BossPhaseTransition(NPC.Center, "Fate", 1.5f);
+```
+
+### For Melee Weapons: Use MeleeSwingVariation
+
+The system provides preset swing styles:
+
+```csharp
+using MagnumOpus.Common.Systems.VFX;
+
+// In your weapon's UseItem or similar:
+var swingStyle = CalamityStyleVFX.MeleeSwingVariation.Heavy;   // Greatswords, hammers
+var swingStyle = CalamityStyleVFX.MeleeSwingVariation.Swift;   // Rapiers, daggers
+var swingStyle = CalamityStyleVFX.MeleeSwingVariation.Ethereal; // Magical blades
+var swingStyle = CalamityStyleVFX.MeleeSwingVariation.Default;  // Balanced
+
+// Apply the swing effect
+CalamityStyleVFX.SmoothMeleeSwing(player, "Eroica", swingProgress, direction, swingStyle);
+```
+
+### For Curved Projectile Paths: Use BezierProjectileSystem
+
+```csharp
+using MagnumOpus.Common.Systems.VFX;
+
+// Generate homing arc control points
+var (p0, p1, p2) = BezierProjectileSystem.GenerateHomingArc(startPos, targetPos, arcHeight: 100f);
+
+// In AI, evaluate position on curve
+float t = 1f - (Projectile.timeLeft / (float)maxTime);
+Vector2 curvePos = BezierProjectileSystem.QuadraticBezier(p0, p1, p2, t);
+Vector2 tangent = BezierProjectileSystem.QuadraticBezierTangent(p0, p1, p2, t);
+Projectile.Center = curvePos;
+Projectile.rotation = tangent.ToRotation();
+
+// For snaking paths:
+var snakePath = BezierProjectileSystem.GenerateSnakingPath(startPos, targetPos, waveAmplitude: 50f, frequency: 2);
+```
+
+### For Custom Trail Rendering: Use EnhancedTrailRenderer
+
+```csharp
+using MagnumOpus.Common.Systems.VFX;
+
+// Create trail settings with width/color functions
+var settings = new EnhancedTrailRenderer.PrimitiveSettings(
+    width: EnhancedTrailRenderer.LinearTaper(20f),           // Tapers from 20 to 0
+    color: EnhancedTrailRenderer.GradientColor(startColor, endColor),
+    smoothen: true
+);
+
+// Or use preset functions:
+settings.WidthFunc = EnhancedTrailRenderer.QuadraticBumpWidth(20f);  // Thickens in middle
+settings.ColorFunc = EnhancedTrailRenderer.PaletteLerpColor(colorArray); // Gradient through palette
+
+// Render multi-pass trail with bloom
+EnhancedTrailRenderer.RenderMultiPassTrail(
+    Projectile.oldPos,
+    Projectile.oldRot,
+    settings,
+    passes: 3  // Outer bloom, main, core
+);
+```
+
+### For Interpolated Rendering: Use InterpolatedRenderer
+
+```csharp
+using MagnumOpus.Common.Systems.VFX;
+
+// In PreDraw - get smooth interpolated position
 public override bool PreDraw(ref Color lightColor)
 {
-    // Load multiple flare textures
-    Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-    Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare3").Value;
-    Texture2D flare3 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare5").Value;
-    Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+    // Update partial ticks at start of draw
+    InterpolatedRenderer.UpdatePartialTicks();
     
-    Vector2 drawPos = Projectile.Center - Main.screenPosition;
-    float time = Main.GameUpdateCount * 0.05f;
-    float pulse = 1f + (float)Math.Sin(time * 2f) * 0.15f;
+    // Get interpolated position for 144Hz+ smoothness
+    Vector2 smoothPos = InterpolatedRenderer.GetInterpolatedCenter(Projectile);
+    Vector2 drawPos = smoothPos - Main.screenPosition;
     
-    // Switch to additive blending
-    Main.spriteBatch.End();
-    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, ...);
-    
-    // LAYER 1: Soft glow base (large, dim)
-    Main.spriteBatch.Draw(softGlow, drawPos, null, themeColor * 0.3f, 0f, 
-        softGlow.Size() / 2f, 0.8f * pulse, SpriteEffects.None, 0f);
-    
-    // LAYER 2: First flare (spinning clockwise)
-    Main.spriteBatch.Draw(flare1, drawPos, null, themeColor * 0.6f, time, 
-        flare1.Size() / 2f, 0.5f * pulse, SpriteEffects.None, 0f);
-    
-    // LAYER 3: Second flare (spinning counter-clockwise, offset)
-    Main.spriteBatch.Draw(flare2, drawPos, null, secondaryColor * 0.5f, -time * 0.7f, 
-        flare2.Size() / 2f, 0.4f * pulse, SpriteEffects.None, 0f);
-    
-    // LAYER 4: Third flare (different rotation speed)
-    Main.spriteBatch.Draw(flare3, drawPos, null, accentColor * 0.7f, time * 1.3f, 
-        flare3.Size() / 2f, 0.35f * pulse, SpriteEffects.None, 0f);
-    
-    // LAYER 5: Bright white core
-    Main.spriteBatch.Draw(flare1, drawPos, null, Color.White * 0.8f, 0f, 
-        flare1.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
-    
-    Main.spriteBatch.End();
-    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, ...);
-    
-    return false; // Don't draw default sprite
-}
-```
-
-**This creates a SHIMMERING, UNIQUE projectile core instead of a static boring flare.**
-
-### Step 2: The Dense Trail
-
-```csharp
-public override void AI()
-{
-    // DENSE DUST TRAIL - Every single frame!
-    for (int i = 0; i < 2; i++)
-    {
-        Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(6f, 6f);
-        Vector2 dustVel = -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(1.5f, 1.5f);
-        
-        // Main trail dust
-        Dust main = Dust.NewDustPerfect(dustPos, themeDustType, dustVel, 0, themeColor, 1.5f);
-        main.noGravity = true;
-        main.fadeIn = 1.2f;
-    }
-    
-    // CONTRASTING SPARKLE - 1 in 2
-    if (Main.rand.NextBool(2))
-    {
-        Dust contrast = Dust.NewDustPerfect(Projectile.Center, DustID.WhiteTorch, 
-            -Projectile.velocity * 0.1f, 0, Color.White, 1.0f);
-        contrast.noGravity = true;
-    }
-    
-    // FLARES LITTERING THE AIR - 1 in 2
-    if (Main.rand.NextBool(2))
-    {
-        Vector2 flarePos = Projectile.Center + Main.rand.NextVector2Circular(8f, 8f);
-        CustomParticles.GenericFlare(flarePos, themeColor, 0.4f, 15);
-    }
-    
-    // COLOR OSCILLATION - Hue shifts over time
-    if (Main.rand.NextBool(3))
-    {
-        float hue = (Main.GameUpdateCount * 0.02f + Main.rand.NextFloat(0.1f)) % 1f;
-        // Constrain hue to theme range (e.g., pink range: 0.85-0.95)
-        hue = themeHueMin + (hue * (themeHueMax - themeHueMin));
-        Color shiftedColor = Main.hslToRgb(hue, 0.9f, 0.75f);
-        CustomParticles.GenericFlare(Projectile.Center, shiftedColor, 0.35f, 12);
-    }
-}
-```
-
-### Step 3: Orbiting Music Notes
-
-**This is a MUSIC MOD. Music notes should ORBIT the projectile!**
-
-```csharp
-// In AI():
-float orbitAngle = Main.GameUpdateCount * 0.08f;
-float orbitRadius = 15f + (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 5f;
-
-// Spawn orbiting music notes that LOCK TO the projectile
-if (Main.rand.NextBool(8))
-{
-    for (int i = 0; i < 3; i++)
-    {
-        float noteAngle = orbitAngle + MathHelper.TwoPi * i / 3f;
-        Vector2 noteOffset = noteAngle.ToRotationVector2() * orbitRadius;
-        Vector2 notePos = Projectile.Center + noteOffset;
-        
-        // Note velocity matches projectile + slight outward drift
-        Vector2 noteVel = Projectile.velocity * 0.8f + noteAngle.ToRotationVector2() * 0.5f;
-        
-        // VISIBLE SCALE (0.7f+)
-        ThemedParticles.MusicNote(notePos, noteVel, themeColor, 0.75f, 30);
-        
-        // Sparkle companion
-        var sparkle = new SparkleParticle(notePos, noteVel * 0.5f, Color.White * 0.6f, 0.25f, 20);
-        MagnumParticleHandler.SpawnParticle(sparkle);
-    }
-}
-```
-
-### Step 4: The Impact
-
-**Impacts should be GLIMMERS, not puffs.**
-
-```csharp
-public override void OnKill(int timeLeft)
-{
-    // ===== CENTRAL GLIMMER =====
-    // Multiple layered flares spinning
-    for (int layer = 0; layer < 4; layer++)
-    {
-        float layerScale = 0.3f + layer * 0.15f;
-        float layerAlpha = 0.8f - layer * 0.15f;
-        float rotation = layer * MathHelper.PiOver4;
-        Color layerColor = Color.Lerp(Color.White, themeColor, layer / 4f);
-        CustomParticles.GenericFlare(Projectile.Center, layerColor * layerAlpha, layerScale, 18 - layer * 2);
-    }
-    
-    // ===== EXPANDING GLOW RING =====
-    for (int ring = 0; ring < 3; ring++)
-    {
-        Color ringColor = Color.Lerp(themeColor, secondaryColor, ring / 3f);
-        CustomParticles.HaloRing(Projectile.Center, ringColor, 0.3f + ring * 0.12f, 12 + ring * 3);
-    }
-    
-    // ===== RADIAL SPARKLE BURST =====
-    for (int i = 0; i < 12; i++)
-    {
-        float angle = MathHelper.TwoPi * i / 12f;
-        Vector2 sparkleVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
-        Color sparkleColor = Color.Lerp(themeColor, Color.White, i / 12f);
-        
-        var sparkle = new SparkleParticle(Projectile.Center, sparkleVel, sparkleColor, 0.4f, 25);
-        MagnumParticleHandler.SpawnParticle(sparkle);
-    }
-    
-    // ===== DUST EXPLOSION FOR DENSITY =====
-    for (int i = 0; i < 15; i++)
-    {
-        Vector2 dustVel = Main.rand.NextVector2Circular(5f, 5f);
-        Dust d = Dust.NewDustPerfect(Projectile.Center, themeDustType, dustVel, 0, themeColor, 1.3f);
-        d.noGravity = true;
-        d.fadeIn = 1f;
-    }
-    
-    // ===== MUSIC NOTE FINALE =====
-    ThemedParticles.MusicNoteBurst(Projectile.Center, themeColor, 6, 4f);
-    
-    // ===== BRIGHT LIGHTING =====
-    Lighting.AddLight(Projectile.Center, themeColor.ToVector3() * 1.5f);
+    // Draw at interpolated position instead of raw Projectile.Center
+    // ...
 }
 ```
 
 ---
 
-## ⚔️ HOW TO BUILD A PROPER MELEE SWING
+## ⚠️ WHEN TO OVERRIDE THE GLOBAL SYSTEM
 
-### USE THE SWORD ARC ASSETS!
+Only override PreDraw/AI for VFX if you need something **truly unique** that the Global system can't provide:
 
-We have **9 SwordArc PNGs**. USE THEM:
+### ✅ GOOD Reasons to Override:
+- Speed-based intensity scaling (projectile glows brighter as it accelerates)
+- Phase-based rendering (different visuals during approach vs. attack vs. explode)
+- Complex state machines (multi-stage projectiles with different behaviors)
+- Weapon-specific signature effects (the weapon's unique identity)
 
-```csharp
-public override void MeleeEffects(Player player, Rectangle hitbox)
-{
-    // ===== SWORD ARC SLASH EFFECT =====
-    // Use SwordArc textures for the actual slash visual
-    if (swingProgress > 0.2f && swingProgress < 0.8f)
-    {
-        Texture2D arc1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwordArc1").Value;
-        Texture2D arc2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwordArc3").Value;
-        
-        Vector2 arcPos = player.Center + swingDirection * 40f;
-        float arcRot = swingDirection.ToRotation();
-        
-        // Draw layered arcs in PostDraw or use particle system
-        // Arc 1 - main slash
-        // Arc 2 - secondary glow layer (larger, dimmer, offset rotation)
-        // Arc 3 - trailing afterimage
-    }
-    
-    // ===== DENSE DUST TRAIL =====
-    for (int i = 0; i < 3; i++)
-    {
-        Vector2 dustPos = hitbox.Center.ToVector2() + Main.rand.NextVector2Circular(hitbox.Width / 2, hitbox.Height / 2);
-        Dust d = Dust.NewDustPerfect(dustPos, themeDustType, 
-            player.velocity * 0.3f + Main.rand.NextVector2Circular(2f, 2f), 0, themeColor, 1.5f);
-        d.noGravity = true;
-        d.fadeIn = 1.3f;
-    }
-    
-    // ===== SPARKLES FOR SHIMMER =====
-    if (Main.rand.NextBool(2))
-    {
-        Vector2 sparklePos = hitbox.Center.ToVector2() + Main.rand.NextVector2Circular(10f, 10f);
-        var sparkle = new SparkleParticle(sparklePos, Main.rand.NextVector2Circular(2f, 2f), 
-            Color.White * 0.8f, 0.35f, 20);
-        MagnumParticleHandler.SpawnParticle(sparkle);
-    }
-    
-    // ===== FREQUENT FLARES =====
-    if (Main.rand.NextBool(2))
-    {
-        Vector2 flarePos = hitbox.Center.ToVector2() + Main.rand.NextVector2Circular(12f, 12f);
-        CustomParticles.GenericFlare(flarePos, themeColor, 0.4f, 12);
-    }
-    
-    // ===== COLOR OSCILLATION =====
-    if (Main.rand.NextBool(3))
-    {
-        float hue = (Main.GameUpdateCount * 0.02f) % 1f;
-        hue = themeHueMin + hue * (themeHueMax - themeHueMin);
-        Color shiftColor = Main.hslToRgb(hue, 0.85f, 0.75f);
-        CustomParticles.GenericFlare(hitbox.Center.ToVector2(), shiftColor, 0.35f, 10);
-    }
-    
-    // ===== MUSIC NOTES IN SWING =====
-    if (Main.rand.NextBool(5))
-    {
-        Vector2 notePos = hitbox.Center.ToVector2() + Main.rand.NextVector2Circular(15f, 15f);
-        Vector2 noteVel = swingDirection.RotatedByRandom(0.5f) * Main.rand.NextFloat(1f, 3f);
-        ThemedParticles.MusicNote(notePos, noteVel, themeColor * 0.9f, 0.8f, 35);
-    }
-}
-```
-
-### Wave Projectiles (The RIGHT Way)
-
-**DO NOT copy-paste a PNG upward and downward. That's not a wave.**
-
-```csharp
-// A wave projectile should:
-// 1. Use SwordArc textures layered
-// 2. Have a flowing, curved trail
-// 3. Include bloom and glow
-// 4. Have dust for density
-
-public override bool PreDraw(ref Color lightColor)
-{
-    Texture2D arc = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwordArc2").Value;
-    Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow3").Value;
-    
-    Vector2 drawPos = Projectile.Center - Main.screenPosition;
-    float rotation = Projectile.velocity.ToRotation();
-    
-    Main.spriteBatch.End();
-    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, ...);
-    
-    // Glow base
-    Main.spriteBatch.Draw(glow, drawPos, null, themeColor * 0.4f, rotation, 
-        glow.Size() / 2f, 1.2f, SpriteEffects.None, 0f);
-    
-    // Main arc
-    Main.spriteBatch.Draw(arc, drawPos, null, themeColor * 0.9f, rotation, 
-        arc.Size() / 2f, 1f, SpriteEffects.None, 0f);
-    
-    // Bright edge
-    Main.spriteBatch.Draw(arc, drawPos, null, Color.White * 0.6f, rotation, 
-        arc.Size() / 2f, 0.8f, SpriteEffects.None, 0f);
-    
-    // Secondary arc layer (offset)
-    Main.spriteBatch.Draw(arc, drawPos, null, secondaryColor * 0.5f, rotation + 0.1f, 
-        arc.Size() / 2f, 1.1f, SpriteEffects.None, 0f);
-    
-    Main.spriteBatch.End();
-    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, ...);
-    
-    return false;
-}
-
-public override void AI()
-{
-    // Flowing curved trail
-    for (int i = 0; i < 3; i++)
-    {
-        Vector2 trailOffset = Projectile.velocity.SafeNormalize(Vector2.Zero).RotatedBy(MathHelper.PiOver2) 
-            * (float)Math.Sin(Projectile.timeLeft * 0.2f + i) * 8f;
-        Vector2 trailPos = Projectile.Center + trailOffset - Projectile.velocity * (i * 0.2f);
-        
-        Dust d = Dust.NewDustPerfect(trailPos, themeDustType, -Projectile.velocity * 0.1f, 0, themeColor, 1.2f);
-        d.noGravity = true;
-    }
-}
-```
+### ❌ BAD Reasons to Override:
+- Basic trails (GlobalVFXOverhaul handles this)
+- Basic bloom/glow (GlobalVFXOverhaul handles this)
+- Music notes (GlobalVFXOverhaul handles this)
+- Death explosions (GlobalVFXOverhaul handles this)
 
 ---
 
-## 🎵 MUSICAL IDENTITY REQUIREMENTS
+## 🎵 MUSIC NOTE INTEGRATION
 
-### Every Theme Projectile MUST Have:
+Music notes are automatically spawned by GlobalVFXOverhaul, but for custom control:
 
-1. **Orbiting or trailing music notes** - Not random spawn, but INTENTIONAL placement
-2. **Staff line accents** (where appropriate) - Musical bars flowing behind
-3. **Harmonic color shifts** - Colors that oscillate like sound waves
-4. **Impact "chord"** - Death effects that feel like a musical resolve
+```csharp
+// ThemedParticles still works for manual spawning
+ThemedParticles.MusicNoteBurst(position, themeColor, count: 6, speed: 4f);
 
-### Music Note Visibility Rules:
+// Phase10Integration for themed musical effects
+Phase10Integration.Universal.MusicalProjectileTrail(position, velocity, themeColor, noteColor);
+Phase10Integration.Universal.DramaticImpact(position, primaryColor, secondaryColor, intensity);
+Phase10Integration.Universal.DeathFinale(position, colorArray, intensity);
+```
+
+### Music Note Visibility Rules (Still Apply)
 
 | Scale | Visibility | Use Case |
 |-------|------------|----------|
-| 0.25f | INVISIBLE | Never use |
-| 0.4f | Barely visible | Never use |
-| 0.6f | Minimum visible | Only for tiny accents |
-| 0.7f | Good | Standard trail notes |
-| 0.8f | Great | Main projectile notes |
-| 1.0f | Bold | Impact/finale notes |
+| < 0.5f | TOO SMALL | Never use |
+| 0.6f - 0.8f | Visible | Trail notes |
+| 0.8f - 1.0f | Bold | Impact notes |
+| 1.0f+ | Very Bold | Finale notes |
 
 ---
 
-## 🌟 THE ARK OF THE COSMOS INSPIRATION
+## 🌟 SCREEN EFFECTS
 
-### What Makes Ark of the Cosmos Special:
-
-1. **Sine-wave trails** - Projectiles don't fly straight. They CURVE and FLOW.
-2. **Diamond-shaped shards** - Unique projectile shapes, not generic orbs
-3. **Homing with grace** - Seeks enemies but in elegant arcs
-4. **Trail that BENDS** - The trail follows the curved path
-
-### Implementing Curved Trails:
+For dramatic moments, trigger screen effects:
 
 ```csharp
-// Store position history for curved trail
-private Vector2[] positionHistory = new Vector2[15];
-private int historyIndex = 0;
+using MagnumOpus.Common.Systems.VFX;
 
-public override void AI()
+// Screen distortion (ripple effect)
+ScreenDistortionManager.TriggerThemeEffect("Fate", worldPosition, intensity: 0.5f, duration: 20);
+
+// Sky flash (screen-wide color flash)
+DynamicSkyboxSystem.TriggerFlash(Color.White, intensity: 1.2f);
+
+// Combined for boss phase transitions
+CalamityStyleVFX.BossPhaseTransition(bossCenter, "Eroica", scale: 1.5f);
+// Automatically does: distortion + sky flash + particle cascade + screen shake
+```
+
+---
+
+## 📦 ADVANCED TRAIL SYSTEM
+
+For managed trails that persist across frames:
+
+```csharp
+using MagnumOpus.Common.Systems.VFX;
+
+// Create a theme-based trail
+int trailId = AdvancedTrailSystem.CreateThemeTrail(
+    theme: "Fate",
+    width: 22f,
+    maxPoints: 25,
+    intensity: 1f
+);
+
+// Update trail each frame
+AdvancedTrailSystem.UpdateTrail(trailId, Projectile.Center, Projectile.rotation);
+
+// Destroy when done
+AdvancedTrailSystem.DestroyTrail(trailId);
+```
+
+---
+
+## 🎨 PROCEDURAL VFX (PNG-FREE)
+
+For projectiles that should render without texture files:
+
+```csharp
+using MagnumOpus.Common.Systems.VFX;
+
+public override bool PreDraw(ref Color lightColor)
 {
-    // Store position
-    positionHistory[historyIndex] = Projectile.Center;
-    historyIndex = (historyIndex + 1) % positionHistory.Length;
-    
-    // Sine-wave movement (like Ark of the Cosmos)
-    float waveOffset = (float)Math.Sin(Projectile.timeLeft * 0.15f) * 3f;
-    Vector2 perpendicular = Projectile.velocity.SafeNormalize(Vector2.Zero).RotatedBy(MathHelper.PiOver2);
-    Projectile.Center += perpendicular * waveOffset * 0.1f;
-    
-    // Draw curved trail using position history
-    for (int i = 0; i < positionHistory.Length - 1; i++)
-    {
-        int index = (historyIndex + i) % positionHistory.Length;
-        int nextIndex = (historyIndex + i + 1) % positionHistory.Length;
-        
-        if (positionHistory[index] == Vector2.Zero || positionHistory[nextIndex] == Vector2.Zero)
-            continue;
-        
-        float progress = i / (float)positionHistory.Length;
-        Color trailColor = Color.Lerp(themeColor, secondaryColor, progress) * (1f - progress);
-        float trailScale = 0.3f * (1f - progress * 0.7f);
-        
-        // Draw dust at each history point
-        if (Main.rand.NextBool(2))
-        {
-            Dust d = Dust.NewDustPerfect(positionHistory[index], themeDustType, Vector2.Zero, 0, trailColor, trailScale * 3f);
-            d.noGravity = true;
-        }
-    }
-}
-```
-
----
-
-## 🔥 BRIGHTNESS AND SATURATION
-
-### The Problem: Effects Are Too Dim
-
-**Fix: Increase saturation, use brighter base colors, add white highlights**
-
-```csharp
-// ❌ TOO DIM
-Color dimColor = themeColor * 0.3f;
-CustomParticles.GenericFlare(pos, dimColor, 0.2f, 10);
-
-// ✅ BRIGHT AND VIBRANT
-Color brightColor = themeColor; // Full saturation
-CustomParticles.GenericFlare(pos, brightColor, 0.5f, 15);
-CustomParticles.GenericFlare(pos, Color.White * 0.6f, 0.25f, 12); // White highlight layer
-```
-
-### Saturation Guidelines:
-
-| Effect Type | Alpha Multiplier | Scale |
-|-------------|------------------|-------|
-| Trail dust | 0.8f - 1.0f | 1.2f - 1.8f |
-| Flares | 0.5f - 0.8f | 0.3f - 0.5f |
-| Glow layers | 0.3f - 0.5f | 0.8f - 1.4f |
-| White highlights | 0.4f - 0.8f | 0.15f - 0.3f |
-| Impact bursts | 0.7f - 1.0f | 0.4f - 0.6f |
-
----
-
-## 📋 CHECKLIST FOR EVERY WEAPON EFFECT
-
-Before considering a weapon complete, verify:
-
-### Projectiles:
-- [ ] Core uses **multiple layered flares** spinning at different speeds
-- [ ] Trail has **dense dust** (2+ per frame)
-- [ ] Trail has **contrasting sparkles** (1-in-2)
-- [ ] Trail has **frequent flares** littering the air (1-in-2)
-- [ ] Colors **oscillate** using Main.hslToRgb within theme hue range
-- [ ] **Music notes** orbit or trail the projectile (scale 0.7f+)
-- [ ] Impact is a **glimmer**, not a puff (layered flares + rings + sparks)
-- [ ] **Lighting** is bright (1.0f+ intensity)
-
-### Melee Swings:
-- [ ] Uses **SwordArc textures** for slash visuals
-- [ ] Has **dense dust trail** during swing
-- [ ] Has **sparkle shimmer** accents
-- [ ] Has **color oscillation** within theme range
-- [ ] Has **music notes** scattered in swing
-- [ ] Wave projectiles use **layered arcs with glow**, not PNG copy-paste
-
-### Impacts/Explosions:
-- [ ] Central **glimmer** (multiple spinning flares)
-- [ ] **Expanding rings** (3+ layers, gradient colors)
-- [ ] **Radial sparkle burst**
-- [ ] **Dust explosion** for density
-- [ ] **Music note finale**
-- [ ] **Bright lighting** pulse
-
----
-
-## � COMPLETE PARTICLE ASSET CATALOG (Assets/Particles/)
-
-> **ALL 110+ particle textures available for use. MIX AND MATCH for unique effects!**
-
-### Flares & Energy Effects
-| File | Purpose | Recommended Scale |
-|------|---------|-------------------|
-| `EnergyFlare.png` | Intense bright bursts | 0.4f - 1.2f |
-| `EnergyFlare4.png` | Alternate flare shape | 0.4f - 1.2f |
-| `FlareSparkle.png` | Small bright sparkle | 0.3f - 0.6f |
-| `FlareSpikeBurst.png` | Spike-shaped burst | 0.5f - 1.0f |
-| `GlintSparkleFlare.png` | Glinting highlight | 0.2f - 0.5f |
-| `GlintTwilightSparkleFlare.png` | Twilight glint | 0.2f - 0.5f |
-| `SmallBurst.png` | Mini burst effect | 0.3f - 0.8f |
-| `SmallBurstFlare.png` | Flare with burst | 0.3f - 0.8f |
-| `SparkleBurst.png` | Sparkle explosion | 0.4f - 1.0f |
-| `ThinSparkleFlare.png` | Narrow sparkle | 0.2f - 0.5f |
-
-### Soft Glows & Halos
-| File | Purpose | Recommended Scale |
-|------|---------|-------------------|
-| `SoftGlow2.png` | Ambient soft glow | 0.3f - 0.8f |
-| `SoftGlow3.png` | Medium soft glow | 0.3f - 0.8f |
-| `SoftGlow4.png` | Large soft glow | 0.3f - 0.8f |
-| `GlowingHalo1.png` | Ring/halo effect | 0.3f - 1.0f |
-| `GlowingHalo2.png` | Alternate halo | 0.3f - 1.0f |
-| `GlowingHalo4.png` | Glowing ring | 0.3f - 1.0f |
-| `GlowingHalo5.png` | Bright halo | 0.3f - 1.0f |
-| `GlowingHalo6.png` | Large halo | 0.3f - 1.0f |
-
-### Music Notes (MUSIC MOD - USE HEAVILY!)
-| File | Purpose | Recommended Scale |
-|------|---------|-------------------|
-| `MusicNote.png` | Standard music note | **0.6f - 1.2f** |
-| `MusicNoteWithSlashes.png` | Note with accents | **0.6f - 1.2f** |
-| `CursiveMusicNote.png` | Elegant cursive note | **0.6f - 1.2f** |
-| `QuarterNote.png` | Quarter note shape | **0.6f - 1.2f** |
-| `TallMusicNote.png` | Vertical note | **0.6f - 1.2f** |
-| `WholeNote.png` | Whole note (circle) | **0.6f - 1.2f** |
-
-### Stars & Sparkles
-| File | Purpose | Recommended Scale |
-|------|---------|-------------------|
-| `Star.png` | Basic star shape | 0.3f - 0.8f |
-| `StarBurst1.png` | Radial star explosion | 0.5f - 1.5f |
-| `StarBurst2.png` | Alternate starburst | 0.5f - 1.5f |
-| `StarryStarburst.png` | Multi-star burst | 0.4f - 1.2f |
-| `CircularStarRing.png` | Ring of stars | 0.4f - 1.0f |
-| `ConstellationStyleSparkle.png` | Constellation point | 0.2f - 0.5f |
-| `ShatteredStarlight.png` | Broken star fragments | 0.4f - 1.0f |
-| `TwilightSparkle.png` | Twilight shimmer | 0.2f - 0.5f |
-| `TwinkleSparkle.png` | Twinkling point | 0.2f - 0.5f |
-| `SmallTwilightSparkle.png` | Tiny twilight | 0.15f - 0.4f |
-
-### Prismatic & Magic Sparkles (15 variants!)
-| File | Purpose | Recommended Scale |
-|------|---------|-------------------|
-| `PrismaticSparkle11.png` | Rainbow sparkle | 0.3f - 0.7f |
-| `PrismaticSparkle13.png` | Alternate prismatic | 0.3f - 0.7f |
-| `PrismaticSparkle14.png` | Bright prismatic | 0.3f - 0.7f |
-| `MagicSparklField4-12.png` | Magic sparkle clusters (9 variants) | 0.3f - 0.8f |
-| `ManySparklesInCLuster.png` | Cluster of sparkles | 0.4f - 1.0f |
-
-### Sword Arcs & Slashes (USE FOR MELEE!)
-| File | Purpose | Recommended Scale |
-|------|---------|-------------------|
-| `SwordArc1.png` | Melee swing arc | 0.5f - 1.5f |
-| `SwordArc2.png` | Alternate arc | 0.5f - 1.5f |
-| `SwordArc3.png` | Third arc variant | 0.5f - 1.5f |
-| `SwordArc6.png` | Wide arc | 0.5f - 1.5f |
-| `SwordArc8.png` | Narrow arc | 0.5f - 1.5f |
-| `SwordArcSlashWave.png` | Wave slash effect | 0.5f - 1.5f |
-| `SimpleArcSwordSlash.png` | Simple slash | 0.4f - 1.2f |
-| `CurvedSwordSlash.png` | Curved slash | 0.4f - 1.2f |
-| `FlamingArcSwordSlash.png` | Fiery slash | 0.5f - 1.5f |
-
-### Trails
-| File | Purpose | Recommended Scale |
-|------|---------|-------------------|
-| `ParticleTrail1.png` | Elongated trail | 0.3f - 0.8f |
-| `ParticleTrail2.png` | Medium trail | 0.3f - 0.8f |
-| `ParticleTrail3.png` | Fading trail | 0.3f - 0.8f |
-| `ParticleTrail4.png` | Wispy trail | 0.3f - 0.8f |
-
-### Swan Feathers (10 variants for Swan Lake!)
-| File | Purpose | Recommended Scale |
-|------|---------|-------------------|
-| `SwanFeather1-10.png` | Feathers for Swan Lake theme | 0.4f - 1.0f |
-
-### Enigma Eyes (8 variants for Enigma!)
-| File | Purpose | Recommended Scale |
-|------|---------|-------------------|
-| `EnigmaEye1.png` | Basic enigma eye | 0.4f - 0.8f |
-| `ActivatedEnigmaEye.png` | Activated/glowing eye | 0.4f - 0.8f |
-| `BurstingEye.png` | Eye burst effect | 0.4f - 0.8f |
-| `CircularEnigmaEye.png` | Circular eye shape | 0.4f - 0.8f |
-| `GodEye.png` | Divine eye | 0.5f - 1.0f |
-| `LargeEye.png` | Large watching eye | 0.5f - 1.0f |
-| `SpikeyEye.png` | Spiked eye | 0.4f - 0.8f |
-| `TriangularEye.png` | Triangle eye | 0.4f - 0.8f |
-
-### Glyphs & Symbols (12 variants for magic!)
-| File | Purpose | Recommended Scale |
-|------|---------|-------------------|
-| `Glyphs1-12.png` | Arcane symbols | 0.3f - 0.7f |
-
-### Flames & Fire
-| File | Purpose | Recommended Scale |
-|------|---------|-------------------|
-| `Impact.png` | Impact explosion | 0.4f - 1.0f |
-| `FlameImpactExplosion.png` | Flame burst | 0.5f - 1.2f |
-| `LargeFlameImpactExplosion.png` | Large flame burst | 0.6f - 1.5f |
-| `FlameWispImpactExplosion.png` | Wispy flame | 0.4f - 1.0f |
-| `FlamingWispProjectileSmall.png` | Small flame projectile | 0.3f - 0.8f |
-| `TallFlamingWispProjectile.png` | Tall flame wisp | 0.4f - 1.0f |
-
-### Lightning & Energy
-| File | Purpose | Recommended Scale |
-|------|---------|-------------------|
-| `LightningBurst.png` | Lightning explosion | 0.5f - 1.2f |
-| `LightningBurstThick.png` | Thick lightning | 0.5f - 1.2f |
-| `LightningStreak.png` | Lightning bolt | 0.4f - 1.0f |
-
-### Crystals & Shards
-| File | Purpose | Recommended Scale |
-|------|---------|-------------------|
-| `MediumCrystalShard.png` | Crystal fragment | 0.3f - 0.8f |
-| `SmallCrystalShard.png` | Small crystal | 0.2f - 0.6f |
-
-### Nature & Organic
-| File | Purpose | Recommended Scale |
-|------|---------|-------------------|
-| `RosesBud.png` | Rose flower | 0.3f - 0.8f |
-| `VineWithNoRoses.png` | Plain vine | 0.4f - 1.0f |
-| `VineWithRoseOnTop.png` | Vine with rose | 0.4f - 1.0f |
-| `VineWithTwoRoses.png` | Vine with roses | 0.4f - 1.0f |
-| `CrescentSparkleMoon.png` | Crescent moon | 0.3f - 0.8f |
-
-### Miscellaneous
-| File | Purpose | Recommended Scale |
-|------|---------|-------------------|
-| `ClockworkGearLarge.png` | Large gear | 0.4f - 1.0f |
-| `ClockworkGearSmall.png` | Small gear | 0.3f - 0.7f |
-| `CrossParticleBlack.png` | Black cross | 0.3f - 0.7f |
-| `CrossParticleWhite.png` | White cross | 0.3f - 0.7f |
-| `BarrageOfGlintsAndSparkles.png` | Sparkle cluster | 0.4f - 1.0f |
-
----
-
-## 🎼 PHASE 10: MUSICAL VFX INTEGRATION
-
-> **Use Phase10Integration for boss attacks. Use the weapon VFX patterns below for weapons.**
-
-### Theme-Specific Helper Classes
-
-All Phase 10 musical VFX is accessed through `Phase10Integration`:
-
-```csharp
-using MagnumOpus.Common.Systems;
-
-// EROICA (Heroic, Triumphant)
-Phase10Integration.Eroica.DashFanfare(position, velocity);
-Phase10Integration.Eroica.HeroicImpact(position, intensity);
-Phase10Integration.Eroica.MarchingBarrage(position, timer);
-Phase10Integration.Eroica.SakuraCrescendo(position, chargeProgress);
-Phase10Integration.Eroica.HeroesJudgmentVFX(position, progress, waveNumber);
-
-// SWAN LAKE (Graceful, Prismatic)
-Phase10Integration.SwanLake.BalletGrace(position, velocity, timer);
-Phase10Integration.SwanLake.DyingSwanMelancholy(position, hpPercent);
-Phase10Integration.SwanLake.ChromaticSurge(position, progress);
-Phase10Integration.SwanLake.MonochromaticApocalypseVFX(position, rotationAngle, intensity);
-
-// ENIGMA (Mysterious, Void)
-Phase10Integration.Enigma.MysteriousTrill(position, timer);
-Phase10Integration.Enigma.ParadoxSyncopation(position, bpm);
-Phase10Integration.Enigma.VoidHarmonics(start, end);
-Phase10Integration.Enigma.ParadoxJudgmentVFX(position, progress);
-
-// LA CAMPANELLA (Infernal, Bell-like)
-Phase10Integration.LaCampanella.BellChimeResonance(position, timer);
-Phase10Integration.LaCampanella.InfernalTremolo(position);
-Phase10Integration.LaCampanella.InfernalJudgmentVFX(position, chargeProgress);
-
-// FATE (Cosmic, Celestial)
-Phase10Integration.Fate.CosmicChordProgression(position, chordNumber);
-Phase10Integration.Fate.RealityTempoDistortion(position, intensity);
-Phase10Integration.Fate.ConstellationArpeggio(position, noteIndex, totalNotes);
-Phase10Integration.Fate.CosmicJudgmentVFX(position, progress);
-
-// UNIVERSAL (Theme-agnostic)
-Phase10Integration.Universal.MusicalProjectileTrail(position, velocity, color, noteColor);
-Phase10Integration.Universal.CrescendoChargeUp(position, color, progress);
-Phase10Integration.Universal.DramaticImpact(position, primaryColor, secondaryColor, intensity);
-Phase10Integration.Universal.BeatSyncedRhythm(position, color, bpm);
-Phase10Integration.Universal.DeathFinale(position, colors, intensity);
-```
-
-### Musical Projectile Trail Formula
-
-**Every projectile should use this pattern for musical trails:**
-
-```csharp
-public override void AI()
-{
-    // === PHASE 10 MUSICAL TRAIL ===
-    Phase10Integration.Universal.MusicalProjectileTrail(
-        Projectile.Center, 
-        Projectile.velocity, 
-        themeColor, 
-        noteColor
-    );
-    
-    // === ORBITING MUSIC NOTES (1-in-6) ===
-    if (Main.rand.NextBool(6))
-    {
-        float orbitAngle = Main.GameUpdateCount * 0.08f;
-        for (int i = 0; i < 3; i++)
-        {
-            float noteAngle = orbitAngle + MathHelper.TwoPi * i / 3f;
-            Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * 15f;
-            ThemedParticles.[Theme]MusicNotes(notePos, 1, 8f);
-        }
-    }
-    
-    // === THEME-SPECIFIC ACCENTS ===
-    // Add glyphs (Enigma/Fate), feathers (Swan), petals (Eroica), smoke (Campanella), etc.
-}
-```
-
-### Musical Impact Formula
-
-**Every impact/hit should use this pattern:**
-
-```csharp
-public override void OnKill(int timeLeft)
-{
-    // === PHASE 10 DRAMATIC IMPACT ===
-    Phase10Integration.Universal.DramaticImpact(
-        Projectile.Center,
+    // Use procedural rendering instead of textures
+    ProceduralProjectileVFX.DrawProceduralProjectile(
+        Main.spriteBatch,
+        Projectile.Center - Main.screenPosition,
+        Projectile.rotation,
         primaryColor,
         secondaryColor,
-        1f // intensity
+        scale: 1f,
+        "Eroica"  // Theme preset
     );
-    
-    // === MUSIC NOTE CHORD BURST ===
-    for (int i = 0; i < 6; i++)
-    {
-        float angle = MathHelper.TwoPi * i / 6f;
-        Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
-        ThemedParticles.[Theme]MusicNotes(Projectile.Center, 1, 10f);
-    }
-    
-    // === THEME-SPECIFIC FINALE ===
-    // Add CodaFinale (boss deaths), ChordResolution (impacts), etc.
+    return false;
 }
 ```
 
+Available theme presets:
+- `DrawEroicaProjectile`, `DrawFateProjectile`, `DrawSwanLakeProjectile`
+- `DrawMoonlightSonataProjectile`, `DrawLaCampanellaProjectile`, `DrawEnigmaProjectile`
+- `DrawSpringProjectile`, `DrawSummerProjectile`, `DrawAutumnProjectile`, `DrawWinterProjectile`
+
 ---
 
-## �🎯 FINAL WORDS
+## 📋 CHECKLIST: Does My Content Need Custom VFX Code?
 
-**The weapons look great statically. But when you USE them, they fall apart.**
+### For Projectiles:
+- [ ] Is it in a theme folder? → **NO CODE NEEDED**, GlobalVFXOverhaul handles it
+- [ ] Does it need speed-based effects? → Override AI for custom logic
+- [ ] Does it need phase-based rendering? → Override PreDraw with state checks
+- [ ] Does it need curved paths? → Use BezierProjectileSystem in AI
 
-That ends now.
+### For Weapons:
+- [ ] Is it a standard melee/ranged/magic? → **NO CODE NEEDED**, GlobalWeaponVFXOverhaul handles it
+- [ ] Does it need unique swing style? → Use CalamityStyleVFX.SmoothMeleeSwing with custom MeleeSwingVariation
+- [ ] Does it need special shoot effects? → Call CalamityStyleVFX methods in Shoot()
 
-Every projectile should be a **spinning, shimmering, glowing, musically-accompanied visual symphony**.
+### For Bosses:
+- [ ] Basic rendering? → **NO CODE NEEDED**, GlobalBossVFXOverhaul handles it
+- [ ] Attack windups? → Call CalamityStyleVFX.BossAttackWindup()
+- [ ] Attack releases? → Call CalamityStyleVFX.BossAttackRelease()
+- [ ] Phase transitions? → Call CalamityStyleVFX.BossPhaseTransition()
+- [ ] Death explosion? → Call CalamityStyleVFX.SpectacularDeath()
 
-Not a translucent orb that puffs away.
+---
 
-Not a single flare slapped on a PreDraw.
+## 🔧 THEME COLOR PALETTES
 
-Not a rigid, non-flowing trail.
+All themes have defined color arrays in `MagnumThemePalettes`:
 
-**LAYER IT. SPIN IT. SHIMMER IT. MAKE IT MUSICAL. MAKE IT BRIGHT. MAKE IT UNIQUE.**
+```csharp
+using MagnumOpus.Common.Systems.VFX;
 
-Swan Lake is the standard. Iridescent Wingspan is the template. Ark of the Cosmos is the inspiration.
+// Get gradient color for any theme
+Color gradientColor = MagnumThemePalettes.GetThemeColor("Eroica", progress);
 
-Now make every other theme live up to that.
+// Or access palette directly
+Color[] eroicaPalette = MagnumThemePalettes.Eroica; // Scarlet → Crimson → Gold
+Color[] fatePalette = MagnumThemePalettes.Fate;     // Black → Pink → Red → White
+```
+
+| Theme | Palette Progression |
+|-------|-------------------|
+| Eroica | Scarlet → Crimson → Gold |
+| Fate | Black → DarkPink → BrightRed → White |
+| SwanLake | White → Black (rainbow shimmer) |
+| MoonlightSonata | DarkPurple → Violet → LightBlue → Silver |
+| LaCampanella | Black → Orange → Gold |
+| EnigmaVariations | Black → DeepPurple → Purple → GreenFlame |
+
+---
+
+## 🎯 FINAL SUMMARY
+
+### The Old Way (DON'T DO THIS ANYMORE):
+```csharp
+// ❌ OLD: Manual dust spawning in AI
+for (int i = 0; i < 2; i++)
+{
+    Dust d = Dust.NewDustPerfect(Projectile.Center, dustType, vel, 0, color, 1.5f);
+    d.noGravity = true;
+}
+
+// ❌ OLD: Manual flare drawing in PreDraw
+Main.spriteBatch.Draw(flareTex, drawPos, null, color * 0.5f, rot, origin, scale, ...);
+```
+
+### The New Way (DO THIS):
+```csharp
+// ✅ NEW: Let GlobalVFXOverhaul handle it automatically
+// Just define your projectile, the system does the rest
+
+// ✅ NEW: For custom effects, call the VFX systems
+CalamityStyleVFX.SpectacularDeath(position, "Eroica");
+BezierProjectileSystem.QuadraticBezier(p0, p1, p2, t);
+EnhancedTrailRenderer.RenderMultiPassTrail(positions, rotations, settings, 3);
+```
+
+**The systems handle the complexity. You focus on gameplay.**
+
+---
+
+## 📚 FILE REFERENCE
+
+| File | Purpose |
+|------|---------|
+| `Common/Systems/VFX/GlobalVFXOverhaul.cs` | Auto-applies VFX to all projectiles |
+| `Common/Systems/VFX/GlobalWeaponVFXOverhaul.cs` | Auto-applies VFX to all weapons |
+| `Common/Systems/VFX/GlobalBossVFXOverhaul.cs` | Auto-applies VFX to all bosses |
+| `Common/Systems/VFX/CalamityStyleVFX.cs` | Central VFX library with all methods |
+| `Common/Systems/VFX/InterpolatedRenderer.cs` | Sub-pixel interpolation for 144Hz+ |
+| `Common/Systems/VFX/BezierProjectileSystem.cs` | Curved projectile paths |
+| `Common/Systems/VFX/EnhancedTrailRenderer.cs` | Multi-pass primitive trail rendering |
+| `Common/Systems/VFX/AdvancedTrailSystem.cs` | Theme-based trail management |
+| `Common/Systems/VFX/ScreenDistortionManager.cs` | Screen ripple effects |
+| `Common/Systems/VFX/DynamicSkyboxSystem.cs` | Sky flash effects |
+| `Common/Systems/VFX/ProceduralProjectileVFX.cs` | PNG-free procedural rendering |
+| `Common/Systems/VFX/MagnumThemePalettes.cs` | Theme color arrays |
+| `Common/Systems/VFX/BloomRenderer.cs` | Multi-layer bloom stacking: `DrawBloomStack()`, `DrawSimpleBloom()` |
+| `Common/Systems/VFX/GodRaySystem.cs` | Light ray bursts: `CreateBurst()` with `GodRayStyle` |
+| `Common/Systems/VFX/ImpactLightRays.cs` | Impact flares: `SpawnImpactRays()` |
+| `Common/Systems/VFX/UniversalElementalVFX.cs` | **NEW** - Universal elemental effects (flames, lightning, petals, etc.) |
+| `Common/Systems/VFX/BossArenaVFX.cs` | **NEW** - Persistent boss arena ambient particles |
+
+---
+
+## 🕹️ LEGACY: MANUAL VFX PATTERNS (For Reference Only)
+
+> **NOTE:** The patterns below are from the old system. They are kept for reference
+> when you need to understand what the Global systems do internally, or when creating
+> truly unique signature effects that can't use the automatic systems.
+
+### The Gold Standard: Iridescent Wingspan (Legacy Reference)
+
+This weapon's VFX patterns were the inspiration for the automatic systems:
+
+**Key Patterns (Now Automated):**
+- Heavy dust trails (2+ particles per frame, scale 1.5f+)
+- Contrasting sparkles (opposite colors for visual pop)
+- Frequent flares (1-in-2 chance, not 1-in-10)
+- Color oscillation (Main.hslToRgb for dynamic hue shifts)
+- Multi-layer PreDraw (4+ glow layers with different scales/rotations)
+- Orbiting music notes (locked to projectile position)
+
+These patterns are now built into `GlobalVFXOverhaul` and apply automatically.
+
+### When To Study Legacy Patterns
+
+Study the old manual code when:
+1. Creating a signature weapon with truly unique identity
+2. Debugging why automatic VFX aren't appearing correctly
+3. Understanding the math behind the systems
+4. Extending the automatic systems with new features

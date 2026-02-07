@@ -14,6 +14,7 @@ using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 using MagnumOpus.Content.OdeToJoy.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.Magic
 {
@@ -294,6 +295,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Magic
     /// <summary>
     /// Symphonic Explosion - Heals nearby players, damages enemies
     /// </summary>
+    [AllowLargeHitbox("Healing/damage explosion requires large hitbox for AoE effect")]
     public class SymphonicExplosionProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow2";
@@ -695,6 +697,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Magic
     /// <summary>
     /// Elysian Explosion Projectile - AOE damage
     /// </summary>
+    [AllowLargeHitbox("AoE explosion requires large hitbox for area damage")]
     public class ElysianExplosionProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow2";

@@ -74,7 +74,6 @@ namespace MagnumOpus.Common.Systems
             // Simple 1-2 sword arc with basic trail
             if (Main.rand.NextBool(2))
             {
-                int arcVariant = Main.rand.Next(1, 10); // Use any of 9 arcs
                 Vector2 arcVel = direction * Main.rand.NextFloat(2f, 4f);
                 CustomParticles.SwordArcSlash(center, arcVel, primary * 0.9f, 0.4f, direction.ToRotation());
             }
@@ -104,7 +103,6 @@ namespace MagnumOpus.Common.Systems
                 float scale = 0.35f + i * 0.08f;
                 Color arcColor = Color.Lerp(primary, secondary, (float)i / arcCount) * (0.8f - i * 0.1f);
                 
-                int arcVariant = Main.rand.Next(1, 10);
                 CustomParticles.SwordArcSlash(center + arcDir * i * 3f, arcDir * 3f, arcColor, scale, arcDir.ToRotation());
             }
             
