@@ -105,13 +105,13 @@ namespace MagnumOpus.Common.Systems.VFX
                 rayCount: 6, scale: scale * 1.2f);
             
             // Use BloomRenderer for the central bloom
-            Main.spriteBatch.End();
+            try { Main.spriteBatch.End(); } catch { }
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             BloomRenderer.DrawBloomStack(Main.spriteBatch, position, innerColor, outerColor, scale * 1.5f);
             
-            Main.spriteBatch.End();
+            try { Main.spriteBatch.End(); } catch { }
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -150,7 +150,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float partialTicks = InterpolatedRenderer.PartialTicks;
             float time = Main.GlobalTimeWrappedHourly * 3f + partialTicks * 0.05f;
             
-            Main.spriteBatch.End();
+            try { Main.spriteBatch.End(); } catch { }
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -173,7 +173,7 @@ namespace MagnumOpus.Common.Systems.VFX
             BloomRenderer.DrawBreathingBloom(Main.spriteBatch, center, color * 0.5f, 
                 radius / 50f * intensity, 1.5f);
             
-            Main.spriteBatch.End();
+            try { Main.spriteBatch.End(); } catch { }
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -288,7 +288,7 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             if (positions == null || positions.Length < 2) return;
             
-            Main.spriteBatch.End();
+            try { Main.spriteBatch.End(); } catch { }
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -303,7 +303,7 @@ namespace MagnumOpus.Common.Systems.VFX
             // Larger bloom at final target
             BloomRenderer.DrawBloomStack(Main.spriteBatch, positions[positions.Length - 1], color, 0.6f);
             
-            Main.spriteBatch.End();
+            try { Main.spriteBatch.End(); } catch { }
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
@@ -390,13 +390,13 @@ namespace MagnumOpus.Common.Systems.VFX
             );
             
             // Central bloom
-            Main.spriteBatch.End();
+            try { Main.spriteBatch.End(); } catch { }
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             BloomRenderer.DrawBloomStack(Main.spriteBatch, position, colors[0], scale);
             
-            Main.spriteBatch.End();
+            try { Main.spriteBatch.End(); } catch { }
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             

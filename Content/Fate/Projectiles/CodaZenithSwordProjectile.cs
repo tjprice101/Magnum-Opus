@@ -462,6 +462,11 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// <summary>
     /// The held swing projectile that draws the Coda weapon spinning around the player in a full 360.
     /// This handles the visual spinning sword AND deals melee damage.
+    /// 
+    /// CALAMITY-STYLE SMEAR SYSTEM:
+    /// Uses persistent smear particles (TrientCircularSmear, CircularSmearSmokeyVFX) that
+    /// are kept alive by resetting smear.Time = 0 each frame. This creates buttery smooth
+    /// arc effects without edge issues from discrete particle spawning.
     /// </summary>
     public class CodaHeldSwingProjectile : ModProjectile
     {
@@ -492,6 +497,18 @@ namespace MagnumOpus.Content.Fate.Projectiles
         private Vector2[] trailPositions = new Vector2[12];
         private float[] trailRotations = new float[12];
         private int trailIndex = 0;
+        
+        // === CALAMITY-STYLE PERSISTENT SMEAR PARTICLES ===
+        // These are kept alive by resetting Time=0 each frame, creating smooth continuous arcs
+        private Particle _primarySmear;   // Main cosmic arc
+        private Particle _secondarySmear; // Smokey nebula layer
+        private Particle _trientSmear;    // 120° signature arc
+        
+        // === PRIMITIVE TRAIL MESH (TRUE NEBULA FLAME) ===
+        // RibbonTrailSystem creates a triangle strip mesh with CalamityFireShader
+        // This is the ACTUAL Ark of the Cosmos nebula flame effect
+        private int _ribbonId = -1;
+        private Vector2 _previousTipPos;
         
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/CodaOfAnnihilation";
         
@@ -535,6 +552,20 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 Vector2 toCursor = Main.MouseWorld - owner.Center;
                 BaseAngle = toCursor.ToRotation();
                 SwingAngle = 0f; // Start at 0 offset from base
+                
+                // === CREATE PRIMITIVE TRAIL RIBBON ===
+                // This is the TRUE nebula flame effect using triangle strip mesh
+                _ribbonId = RibbonTrailSystem.CreateRibbon(
+                    ownerId: Projectile.whoAmI,
+                    primaryColor: FateCosmicVFX.FateDarkPink,
+                    secondaryColor: FateCosmicVFX.FatePurple,
+                    baseWidth: 35f,
+                    maxPoints: 25,
+                    theme: "Fate"
+                );
+                
+                // Initialize previous tip position
+                _previousTipPos = owner.Center + BaseAngle.ToRotationVector2() * (OrbitRadius + 45f);
             }
             
             // Keep projectile alive while swinging
@@ -554,11 +585,16 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Sword rotation - point outward along the swing arc
             Projectile.rotation = actualAngle + MathHelper.PiOver4;
             
-            // === ARK OF THE COSMOS STYLE FOG EFFECT ===
-            // Calculate swing progress (0 to 1) for fog spawning
+            // Calculate swing progress (0 to 1) for fog and smear effects
             float swingProgress = (SwingAngle + maxSwingArc) / (maxSwingArc * 2f);
             swingProgress = MathHelper.Clamp(swingProgress, 0f, 1f);
             
+            // === CALAMITY-STYLE SMEAR PARTICLE SYSTEM ===
+            // This is the KEY difference - keep smear particles alive by resetting Time=0
+            // Creates buttery smooth arcs without edge issues
+            DoParticleEffects(owner, actualAngle, swingProgress);
+            
+            // === ARK OF THE COSMOS STYLE FOG EFFECT ===
             // Spawn dense fog along the swing arc every frame
             WeaponFogVFX.SpawnSwingFog(owner, swingProgress, "Fate", 1.3f);
             
@@ -570,6 +606,20 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // VFX at sword tip - REDUCED rates to prevent particle spam
             Vector2 tipOffset = Projectile.rotation.ToRotationVector2() * 45f;
             Vector2 tipPos = Projectile.Center + tipOffset;
+            
+            // === UPDATE PRIMITIVE TRAIL RIBBON (TRUE NEBULA FLAME) ===
+            // This feeds the sword tip position into the triangle strip mesh
+            if (_ribbonId >= 0)
+            {
+                Vector2 velocity = tipPos - _previousTipPos;
+                float tipRotation = actualAngle;
+                
+                // Width scales with swing speed for dynamic feel
+                float dynamicWidth = 30f + Math.Abs(SwingSpeed) * 50f;
+                
+                RibbonTrailSystem.UpdateRibbon(_ribbonId, tipPos, velocity, tipRotation, dynamicWidth);
+                _previousTipPos = tipPos;
+            }
             
             // Cosmic trail particles - only every 6 frames for smooth trail without spam
             if (Main.GameUpdateCount % 6 == 0)
@@ -616,6 +666,103 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Dynamic lighting at sword
             Lighting.AddLight(Projectile.Center, FateCosmicVFX.FatePurple.ToVector3() * 0.8f);
             Lighting.AddLight(tipPos, FateCosmicVFX.FateBrightRed.ToVector3() * 0.5f);
+        }
+        
+        /// <summary>
+        /// CALAMITY-STYLE SMEAR PARTICLE EFFECTS
+        /// 
+        /// This is the CRITICAL method that creates the Ark of the Cosmos "nebula flame" effect.
+        /// 
+        /// KEY PATTERN: Instead of spawning new particles each frame (which creates edges),
+        /// we create smear particles ONCE and then keep them alive by resetting Time=0 each frame.
+        /// This produces buttery smooth, continuous arcs without the "discrete particle" look.
+        /// 
+        /// The smear tracks the weapon's rotation and position, following it perfectly.
+        /// When the swing ends and we stop resetting Time, the smear naturally fades out.
+        /// </summary>
+        private void DoParticleEffects(Player owner, float actualAngle, float swingProgress)
+        {
+            // Calculate smear color with HSL cycling (like Ark of the Cosmos)
+            float hueBase = 0.9f; // Pink/red base
+            float hueShift = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.08f;
+            Color smearColor = Main.hslToRgb(hueBase + hueShift, 0.85f, 0.6f);
+            
+            // Secondary color cycles between pink and purple
+            Color secondaryColor = Color.Lerp(FateCosmicVFX.FateDarkPink, FateCosmicVFX.FatePurple, 
+                (float)Math.Sin(Main.GameUpdateCount * 0.03f) * 0.5f + 0.5f);
+            
+            // Opacity scales with swing speed
+            float opacity = MathHelper.Clamp(Math.Abs(SwingSpeed) * 8f, 0.5f, 1f);
+            
+            // Scale the smear based on weapon scale and swing intensity
+            float smearScale = Projectile.scale * 2.2f;
+            
+            // === PRIMARY SMEAR: TrientCircularSmear (120° arc) ===
+            // The signature Ark of the Cosmos effect
+            if (_trientSmear == null)
+            {
+                // First frame: Create the smear particle
+                _trientSmear = new TrientCircularSmear(
+                    owner.Center, 
+                    smearColor * opacity, 
+                    Projectile.rotation, 
+                    smearScale
+                );
+                MagnumParticleHandler.SpawnParticle(_trientSmear);
+            }
+            else
+            {
+                // Subsequent frames: Update and KEEP ALIVE by resetting Time
+                _trientSmear.Rotation = Projectile.rotation - 3f * MathHelper.PiOver4; // Offset for proper alignment
+                _trientSmear.Time = 0; // CRITICAL: This prevents the particle from dying!
+                _trientSmear.Position = owner.Center;
+                _trientSmear.Scale = smearScale;
+                _trientSmear.Color = smearColor * opacity;
+            }
+            
+            // === SECONDARY SMEAR: Smokey nebula layer (larger, softer) ===
+            if (_secondarySmear == null)
+            {
+                _secondarySmear = new CircularSmearSmokeyVFX(
+                    owner.Center,
+                    secondaryColor * opacity * 0.6f,
+                    Projectile.rotation,
+                    smearScale * 1.3f
+                );
+                MagnumParticleHandler.SpawnParticle(_secondarySmear);
+            }
+            else
+            {
+                _secondarySmear.Rotation = Projectile.rotation - 2.5f * MathHelper.PiOver4;
+                _secondarySmear.Time = 0;
+                _secondarySmear.Position = owner.Center;
+                _secondarySmear.Scale = smearScale * 1.3f;
+                _secondarySmear.Color = secondaryColor * opacity * 0.6f;
+            }
+            
+            // === CRITSPARK GLITTER EFFECTS ===
+            // Spawn sparkles along the swing arc with angular velocity
+            if (Main.GameUpdateCount % 3 == 0 && swingProgress > 0.1f && swingProgress < 0.9f)
+            {
+                float glitterDistance = Main.rand.NextFloat(30f, OrbitRadius + 20f);
+                Vector2 glitterPos = owner.Center + actualAngle.ToRotationVector2() * glitterDistance;
+                
+                // Angular velocity creates the "glitter streaking around" effect
+                Vector2 angularVel = actualAngle.ToRotationVector2().RotatedBy(MathHelper.PiOver2 * owner.direction) * 2f;
+                angularVel += Main.rand.NextVector2Circular(0.5f, 0.5f);
+                
+                var glitter = new CritSpark(
+                    glitterPos,
+                    owner.velocity + angularVel,
+                    Main.rand.NextBool(3) ? Color.Turquoise : Color.Coral, // Calamity's signature colors
+                    smearColor,
+                    0.8f + Main.rand.NextFloat(0.4f) * (glitterDistance / OrbitRadius),
+                    10,
+                    0.05f,
+                    3f
+                );
+                MagnumParticleHandler.SpawnParticle(glitter);
+            }
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -713,6 +860,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
         
         public override void OnKill(int timeLeft)
         {
+            // === FADE OUT PRIMITIVE TRAIL RIBBON ===
+            // The nebula flame will naturally fade out instead of abruptly disappearing
+            if (_ribbonId >= 0)
+            {
+                RibbonTrailSystem.FadeRibbon(_ribbonId);
+                _ribbonId = -1;
+            }
+            
             // Final burst of particles when swing ends
             for (int i = 0; i < 8; i++)
             {

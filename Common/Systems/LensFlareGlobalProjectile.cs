@@ -14,6 +14,10 @@ namespace MagnumOpus.Common.Systems
         
         public override void OnKill(Projectile projectile, int timeLeft)
         {
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            if (!VFX.VFXMasterToggle.GlobalSystemsEnabled)
+                return;
+            
             // Only affect our mod's projectiles
             if (projectile.ModProjectile == null || projectile.ModProjectile.Mod != Mod)
                 return;

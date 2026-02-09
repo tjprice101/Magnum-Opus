@@ -568,7 +568,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 Mod.Logger.Warn($"BossEnemyVFXIntegration render error: {ex.Message}");
             }
             
-            Main.spriteBatch.End();
+            try { Main.spriteBatch.End(); } catch { }
         }
         
         private void RenderAuras()

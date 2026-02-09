@@ -6,54 +6,63 @@
 
 ---
 
-## 🎉 NEW: AUTOMATIC CALAMITY-STYLE VFX SYSTEM 🎉
+## 🚨 CRITICAL: PER-WEAPON VFX ARCHITECTURE 🚨
 
-**The mod now has GLOBAL VFX systems that auto-apply effects to ALL content!**
+**ALL GLOBAL VFX SYSTEMS ARE DISABLED. Each weapon implements its OWN unique VFX.**
 
-| System | What It Does |
-|--------|--------------|
-| `GlobalVFXOverhaul.cs` | Projectiles: Primitive trails, 4-layer bloom, orbiting notes, spectacular deaths |
-| `GlobalWeaponVFXOverhaul.cs` | Weapons: Smooth swing arcs, muzzle flash, magic circles |
-| `GlobalBossVFXOverhaul.cs` | Bosses: Interpolated rendering, dash trails, entrance/death spectacles |
-| `CalamityStyleVFX.cs` | Manual VFX library for unique effects |
+| Status | What It Means |
+|--------|---------------|
+| `GlobalVFXOverhaul.cs` | **DISABLED** - Implement projectile VFX in each projectile's .cs file |
+| `GlobalWeaponVFXOverhaul.cs` | **DISABLED** - Implement weapon VFX in each weapon's .cs file |
+| `GlobalBossVFXOverhaul.cs` | **DISABLED** - Implement boss VFX in each boss's .cs file |
+| VFX Utility Classes | **AVAILABLE** - Use as libraries for building per-weapon effects |
 
-### Core Technologies
+### VFX Utilities Still Available:
 
-| Tech | Description |
-|------|-------------|
-| **Bézier Curves** | Curved projectile paths (`BezierProjectileSystem.cs`) |
-| **Primitive Trails** | Multi-pass shader trails with bloom (`EnhancedTrailRenderer.cs`) |
-| **Interpolation** | 144Hz+ sub-pixel smoothness (`InterpolatedRenderer.cs`) |
-| **Multi-Layer Bloom** | 4-layer additive glow stacking (`BloomRenderer.cs`) |
-| **God Rays** | Light ray bursts (`GodRaySystem.cs`) |
-| **Impact Rays** | Impact flares (`ImpactLightRays.cs`) |
-| **Screen Effects** | Screen distortion (`ScreenDistortionManager.cs`) |
+| Utility Class | Purpose |
+|--------------|---------|
+| `BloomRenderer` | Multi-layer glow: `DrawBloomStack()`, `DrawSimpleBloom()` |
+| `EnhancedTrailRenderer` | Primitive trails: `RenderMultiPassTrail()` |
+| `InterpolatedRenderer` | 144Hz+ smoothness: `PartialTicks`, `GetInterpolatedCenter()` |
+| `MagnumThemePalettes` | Theme colors: `GetThemePalette()`, `GetThemeColor()` |
+| `GodRaySystem` | Light rays: `CreateBurst()` |
+| `ImpactLightRays` | Impact flares: `SpawnImpactRays()` |
+| `ScreenDistortionManager` | Screen effects: `TriggerRipple()` |
 
-### For Unique Effects, Use These Systems:
+### Per-Weapon VFX Example:
 
 ```csharp
-using MagnumOpus.Common.Systems.VFX;
+// In YOUR weapon's .cs file - implement VFX directly
+public class MyEpicSword : ModItem
+{
+    public override void UseItemFrame(Player player)
+    {
+        // Spawn particles unique to THIS weapon
+        if (Main.rand.NextBool(2))
+        {
+            Dust d = Dust.NewDustPerfect(player.itemLocation, DustID.MagicMirror, 
+                Vector2.Zero, 0, Color.Gold, 1.5f);
+            d.noGravity = true;
+        }
+    }
+}
 
-// High-level APIs
-CalamityStyleVFX.SmoothMeleeSwing(player, "Eroica", swingProgress, direction);
-CalamityStyleVFX.SpectacularDeath(position, "LaCampanella");
-UniversalElementalVFX.LaCampanellaFlames(pos, vel, 1f);  // NEW
-BossArenaVFX.Activate("Fate", center, 800f, 1f);         // NEW
-
-// Core renderers (use these for custom effects)
-BloomRenderer.DrawBloomStack(spriteBatch, pos, color, scale, 4, 1f);
-EnhancedTrailRenderer.RenderMultiPassTrail(positions, rotations, settings, 3);
-GodRaySystem.CreateBurst(center, direction, color, 8, 100f, 10f, 30, GodRayStyle.Explosion);
-ImpactLightRays.SpawnImpactRays(position, color, 6, 60f, 20);
+// In YOUR projectile's PreDraw - render unique effects
+public override bool PreDraw(ref Color lightColor)
+{
+    BloomRenderer.DrawBloomStack(Main.spriteBatch, drawPos, myColor, 0.5f, 4, 1f);
+    EnhancedTrailRenderer.RenderMultiPassTrail(oldPos, oldRot, settings, 3);
+    return true;
+}
 ```
 
 ---
 
-## 🚨 LEGACY: THE #1 PROBLEM (NOW AUTO-HANDLED)
+## 🚨 THE #1 PROBLEM TO AVOID
 
-**"Slapping a flare" on PreDraw is NOT a visual effect. The Global systems now handle this automatically!**
+**"Slapping a flare" on PreDraw is NOT a visual effect. Each weapon needs UNIQUE, LAYERED effects.**
 
-| ❌ WRONG | ✅ CORRECT (NOW AUTOMATIC) |
+| ❌ WRONG | ✅ CORRECT |
 |----------|-----------|
 | Single flare on PreDraw | **Layer 4+ flares** spinning at different speeds |
 | Sparse dust trail | **Dense dust** (2+ per frame, scale 1.5f+) |

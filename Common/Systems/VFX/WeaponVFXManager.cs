@@ -62,6 +62,13 @@ namespace MagnumOpus.Common.Systems.VFX
         
         public override bool AppliesToEntity(Item entity, bool lateInstantiation)
         {
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            if (!VFXMasterToggle.GlobalSystemsEnabled)
+                return false;
+            
+            // Exclude debug weapons
+            if (VFXExclusionHelper.ShouldExcludeItem(entity)) return false;
+            
             return entity.ModItem?.Mod == ModContent.GetInstance<MagnumOpus>();
         }
         
@@ -158,6 +165,13 @@ namespace MagnumOpus.Common.Systems.VFX
         
         public override bool AppliesToEntity(Projectile entity, bool lateInstantiation)
         {
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            if (!VFXMasterToggle.GlobalSystemsEnabled)
+                return false;
+            
+            // Exclude debug weapons
+            if (VFXExclusionHelper.ShouldExcludeProjectile(entity)) return false;
+            
             return entity.ModProjectile?.Mod == ModContent.GetInstance<MagnumOpus>();
         }
         

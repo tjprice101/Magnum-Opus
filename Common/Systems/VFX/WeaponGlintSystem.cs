@@ -97,7 +97,7 @@ namespace MagnumOpus.Common.Systems.VFX
             if (glintIntensity < 0.1f) return;
             
             // End current batch for additive blending
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -146,7 +146,7 @@ namespace MagnumOpus.Common.Systems.VFX
             }
             
             // Restore alpha blend
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
@@ -177,7 +177,7 @@ namespace MagnumOpus.Common.Systems.VFX
             // Intensity based on position (brightest in middle of blade)
             float positionIntensity = MathF.Sin(glintOffset * MathHelper.Pi);
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -194,7 +194,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 0f
             );
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
@@ -211,7 +211,7 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             EnsureTextures();
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -241,7 +241,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 0f
             );
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }

@@ -265,7 +265,7 @@ namespace MagnumOpus.Common.Systems.VFX
             // NonPremultiplied causes black areas with noise textures.
             
             // PASS 1: BACKGROUND LAYER (large, slow, low opacity) - ADDITIVE
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -338,7 +338,7 @@ namespace MagnumOpus.Common.Systems.VFX
             }
             
             // PASS 3: FOREGROUND GLOW LAYER (additive blending for bright highlights)
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             

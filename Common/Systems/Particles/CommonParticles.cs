@@ -463,6 +463,12 @@ namespace MagnumOpus.Common.Systems.Particles
 
     /// <summary>
     /// Heavy smoke particle with frame animation.
+    /// 
+    /// CALAMITY PATTERN: Galaxia's "flaming smoke" uses TWO layers:
+    /// 1. Base layer:  HeavySmokeParticle(glowing: false, hueShift: 0)    → Normal blend, volumetric
+    /// 2. Glow layer:  HeavySmokeParticle(glowing: true, hueShift: 0.01f) → Additive, color-shifting
+    /// 
+    /// The dual-layer creates the flame-like nebula effect seen on Galaxia swings.
     /// </summary>
     public class HeavySmokeParticle : Particle
     {
@@ -476,8 +482,33 @@ namespace MagnumOpus.Common.Systems.Particles
         private float Opacity;
         private float Spin;
         private bool Glowing;
+        
+        /// <summary>
+        /// Hue shift per frame. Set to ~0.01f for Galaxia-style color animation.
+        /// When non-zero, the color will shift through the hue spectrum over time,
+        /// creating a flame-like shifting effect.
+        /// </summary>
+        private float HueShift;
+        
+        /// <summary>
+        /// Whether to use random start delay for staggered particle spawns.
+        /// </summary>
+        private bool RandomDelay;
 
-        public HeavySmokeParticle(Vector2 position, Vector2 velocity, Color color, int lifetime, float scale, float opacity, float rotationSpeed = 0f, bool glowing = false)
+        /// <summary>
+        /// Creates a heavy smoke particle.
+        /// </summary>
+        /// <param name="position">World position</param>
+        /// <param name="velocity">Movement velocity</param>
+        /// <param name="color">Base color</param>
+        /// <param name="lifetime">Duration in frames</param>
+        /// <param name="scale">Size multiplier</param>
+        /// <param name="opacity">Starting opacity (0-1)</param>
+        /// <param name="rotationSpeed">Spin speed per frame</param>
+        /// <param name="glowing">If true, uses additive blend (glow layer). If false, uses normal blend (base layer).</param>
+        /// <param name="hueShift">Hue shift per frame. Use ~0.01f for Galaxia-style flame animation.</param>
+        /// <param name="randomDelay">If true, starts with random Time offset for staggered fading.</param>
+        public HeavySmokeParticle(Vector2 position, Vector2 velocity, Color color, int lifetime, float scale, float opacity, float rotationSpeed = 0f, bool glowing = false, float hueShift = 0f, bool randomDelay = false)
         {
             Position = position;
             Velocity = velocity;
@@ -487,8 +518,14 @@ namespace MagnumOpus.Common.Systems.Particles
             Opacity = opacity;
             Spin = rotationSpeed;
             Glowing = glowing;
+            HueShift = hueShift;
+            RandomDelay = randomDelay;
             Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
             Variant = Main.rand.Next(6);
+            
+            // Random delay for staggered particle groups
+            if (randomDelay)
+                Time = Main.rand.Next(lifetime / 4);
         }
 
         public override void Update()
@@ -497,14 +534,95 @@ namespace MagnumOpus.Common.Systems.Particles
             Scale *= 1.01f;
             Velocity *= 0.95f;
             Rotation += Spin;
+            
+            // Galaxia-style hue shifting for flame effect
+            if (HueShift != 0)
+            {
+                // Convert current color to HSL, shift hue, convert back
+                Vector3 hsl = Main.rgbToHsl(Color);
+                float newHue = (hsl.X + HueShift) % 1f;
+                if (newHue < 0) newHue += 1f;
+                Color = Main.hslToRgb(newHue, hsl.Y, hsl.Z);
+            }
         }
 
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
             Texture2D tex = ParticleTextureHelper.GetTexture(Texture);
             Rectangle frame = tex.Frame(1, 7, 0, Variant);
-            spriteBatch.Draw(tex, Position - Main.screenPosition, frame, Color * Opacity, 
-                Rotation, frame.Size() / 2f, Scale, SpriteEffects.None, 0f);
+            
+            if (Glowing)
+            {
+                // Glowing layer: Use { A = 0 } pattern for proper additive blending
+                Color drawColor = Color with { A = 0 } * Opacity;
+                spriteBatch.Draw(tex, Position - Main.screenPosition, frame, drawColor, 
+                    Rotation, frame.Size() / 2f, Scale, SpriteEffects.None, 0f);
+            }
+            else
+            {
+                // Base layer: Normal blending for volumetric smoke
+                spriteBatch.Draw(tex, Position - Main.screenPosition, frame, Color * Opacity, 
+                    Rotation, frame.Size() / 2f, Scale, SpriteEffects.None, 0f);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Helper class for spawning Galaxia-style dual-layer smoke effects.
+    /// The flaming smoke effect requires BOTH layers spawned together.
+    /// </summary>
+    public static class DualLayerSmoke
+    {
+        /// <summary>
+        /// Spawns the Galaxia-style dual-layer smoke effect.
+        /// </summary>
+        /// <param name="position">World position</param>
+        /// <param name="velocity">Movement velocity</param>
+        /// <param name="baseColor">Color for base smoke layer</param>
+        /// <param name="glowColor">Color for glow overlay (typically slightly different/brighter)</param>
+        /// <param name="lifetime">Duration in frames (30-50 typical)</param>
+        /// <param name="scale">Size multiplier (0.4-0.8 typical)</param>
+        /// <param name="baseOpacity">Opacity for base layer (0.6-0.9 typical)</param>
+        /// <param name="glowOpacity">Opacity for glow layer (0.3-0.6 typical)</param>
+        /// <param name="hueShift">Hue shift for glow layer (0.008-0.015 typical)</param>
+        public static void Spawn(Vector2 position, Vector2 velocity, Color baseColor, Color glowColor, 
+            int lifetime = 40, float scale = 0.5f, float baseOpacity = 0.75f, float glowOpacity = 0.4f, float hueShift = 0.01f)
+        {
+            // Layer 1: Base smoke (normal blend, no hue shift)
+            var baseSmoke = new HeavySmokeParticle(
+                position, velocity, baseColor, lifetime, scale,
+                baseOpacity, Main.rand.NextFloat(-0.02f, 0.02f), 
+                glowing: false, hueShift: 0f, randomDelay: true);
+            MagnumParticleHandler.SpawnParticle(baseSmoke);
+            
+            // Layer 2: Glow overlay (additive blend, with hue shift)
+            var glowSmoke = new HeavySmokeParticle(
+                position, velocity * 0.9f, glowColor, lifetime, scale * 1.1f,
+                glowOpacity, Main.rand.NextFloat(-0.02f, 0.02f), 
+                glowing: true, hueShift: hueShift, randomDelay: true);
+            MagnumParticleHandler.SpawnParticle(glowSmoke);
+        }
+        
+        /// <summary>
+        /// Spawns dual-layer smoke with theme-based colors.
+        /// </summary>
+        public static void SpawnThemed(Vector2 position, Vector2 velocity, string theme, 
+            int lifetime = 40, float scale = 0.5f, float intensity = 1f)
+        {
+            var (baseColor, glowColor) = theme.ToLower() switch
+            {
+                "phoenix" or "lacampanella" => (new Color(255, 100, 50), new Color(255, 180, 80)),
+                "polaris" or "winter" => (new Color(100, 180, 255), new Color(200, 230, 255)),
+                "aries" or "eroica" => (new Color(200, 80, 100), new Color(255, 150, 180)),
+                "andromeda" or "fate" => (new Color(120, 80, 180), new Color(200, 150, 255)),
+                "swanlake" => (new Color(200, 200, 220), new Color(255, 255, 255)),
+                "enigma" => (new Color(80, 40, 120), new Color(140, 100, 200)),
+                "moonlight" => (new Color(100, 80, 180), new Color(180, 160, 255)),
+                _ => (new Color(150, 100, 200), new Color(220, 180, 255))
+            };
+            
+            Spawn(position, velocity, baseColor, glowColor, lifetime, scale, 
+                0.75f * intensity, 0.4f * intensity, 0.01f);
         }
     }
     

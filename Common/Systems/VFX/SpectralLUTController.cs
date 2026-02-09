@@ -85,16 +85,41 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             _instance = null;
             
-            _spectrumLUT?.Dispose();
-            _fraunhoferLUT?.Dispose();
-            _blackBodyLUT?.Dispose();
-            _chromaticLUT?.Dispose();
+            // Capture references for disposal on main thread
+            var spectrumLUT = _spectrumLUT;
+            var fraunhoferLUT = _fraunhoferLUT;
+            var blackBodyLUT = _blackBodyLUT;
+            var chromaticLUT = _chromaticLUT;
+            var themeLUTs = _themeLUTs;
             
-            foreach (var lut in _themeLUTs.Values)
+            // Clear references immediately
+            _spectrumLUT = null;
+            _fraunhoferLUT = null;
+            _blackBodyLUT = null;
+            _chromaticLUT = null;
+            _themeLUTs = null;
+            
+            // Queue disposal to main thread (Unload can be called from background thread)
+            Main.QueueMainThreadAction(() =>
             {
-                lut?.Dispose();
-            }
-            _themeLUTs?.Clear();
+                try
+                {
+                    spectrumLUT?.Dispose();
+                    fraunhoferLUT?.Dispose();
+                    blackBodyLUT?.Dispose();
+                    chromaticLUT?.Dispose();
+                    
+                    if (themeLUTs != null)
+                    {
+                        foreach (var lut in themeLUTs.Values)
+                        {
+                            lut?.Dispose();
+                        }
+                        themeLUTs.Clear();
+                    }
+                }
+                catch { /* Ignore disposal errors during unload */ }
+            });
         }
         
         private void GenerateAllLUTs()

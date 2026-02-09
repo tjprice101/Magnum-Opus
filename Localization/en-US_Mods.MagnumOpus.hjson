@@ -7041,6 +7041,11 @@ Items: {
 		DisplayName: Triumphant Symphony Baton
 		Tooltip: ""
 	}
+
+	DebugARK: {
+		DisplayName: Debug A R K
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -7474,4 +7479,6 @@ Projectiles: {
 	LaCampanellaInfernoExample.DisplayName: La Campanella Inferno Example
 	MoonlightSonataRayExample.DisplayName: Moonlight Sonata Ray Example
 	SwanLakePrismExample.DisplayName: Swan Lake Prism Example
+	DebugARKConstellationBolt.DisplayName: Debug A R K Constellation Bolt
+	DebugARKSwungBlade.DisplayName: Debug A R K Swung Blade
 }

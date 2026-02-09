@@ -7,6 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Common
 {
@@ -57,6 +58,10 @@ namespace MagnumOpus.Common
         {
             // Only apply to potential melee swing weapons
             if (entity.ModItem == null || entity.ModItem.Mod.Name != "MagnumOpus")
+                return false;
+            
+            // Exclude debug weapons
+            if (VFXExclusionHelper.ShouldExcludeItem(entity))
                 return false;
             
             return true;

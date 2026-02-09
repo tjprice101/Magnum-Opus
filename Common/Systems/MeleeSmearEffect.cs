@@ -444,6 +444,13 @@ namespace MagnumOpus.Common.Systems
     {
         public override bool AppliesToEntity(Item entity, bool lateInstantiation)
         {
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            if (!VFX.VFXMasterToggle.GlobalSystemsEnabled)
+                return false;
+            
+            // Exclude debug weapons
+            if (VFX.VFXExclusionHelper.ShouldExcludeItem(entity)) return false;
+            
             // Only apply to MagnumOpus melee weapons with swing style
             if (entity.ModItem == null) return false;
             if (entity.ModItem.Mod.Name != "MagnumOpus") return false;

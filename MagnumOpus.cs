@@ -1,4 +1,5 @@
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus
@@ -19,6 +20,9 @@ namespace MagnumOpus
         {
             // Shutdown the interpolated renderer
             InterpolatedRenderer.Shutdown();
+            
+            // Clean up smear textures
+            SmearTextureGenerator.Unload();
         }
     }
 }

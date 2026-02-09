@@ -217,7 +217,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float intensity)
         {
             // Switch to additive blending
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(
                 SpriteSortMode.Deferred,
                 BlendState.Additive,
@@ -241,7 +241,7 @@ namespace MagnumOpus.Common.Systems.VFX
             }
             
             // Restore normal blending
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(
                 SpriteSortMode.Deferred,
                 BlendState.AlphaBlend,
@@ -316,7 +316,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float scale = size / (float)Math.Max(glowTex.Width, glowTex.Height);
             
             // Switch to additive for glow
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(
                 SpriteSortMode.Deferred,
                 BlendState.Additive,
@@ -329,7 +329,7 @@ namespace MagnumOpus.Common.Systems.VFX
             spriteBatch.Draw(glowTex, position, null, color, 0f, origin, scale, SpriteEffects.None, 0f);
             
             // Restore normal
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(
                 SpriteSortMode.Deferred,
                 BlendState.AlphaBlend,

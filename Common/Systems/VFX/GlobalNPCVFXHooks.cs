@@ -60,6 +60,11 @@ namespace MagnumOpus.Common.Systems.VFX
         
         public override bool AppliesToEntity(NPC entity, bool lateInstantiation)
         {
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            // Each NPC/boss implements its own unique VFX instead
+            if (!VFXMasterToggle.GlobalSystemsEnabled)
+                return false;
+            
             // Apply to all MagnumOpus NPCs
             return entity.ModNPC?.Mod == ModContent.GetInstance<MagnumOpus>();
         }

@@ -100,38 +100,23 @@ namespace MagnumOpus.Common.Systems.VFX
         /// <summary>
         /// Attempts to load the custom Trail shader from Assets/Shaders/Trail.xnb
         /// Falls back to BasicEffect if shader is unavailable.
+        /// 
+        /// NOTE: Shader loading is DISABLED because tModLoader uses FNA (MojoShader) 
+        /// which requires specially compiled .fxb shaders, not DirectX HLSL .xnb files.
+        /// Our Trail.xnb was compiled for XNA/DirectX and causes "Failed to load asset" errors.
+        /// The BasicEffect fallback provides adequate visual quality.
         /// </summary>
         private static void TryLoadCustomShader()
         {
             if (_shaderLoadAttempted) return;
             _shaderLoadAttempted = true;
             
-            try
-            {
-                // Try to load the compiled Trail.xnb shader
-                // Path: MagnumOpus/Assets/Shaders/Trail (without extension)
-                if (ModContent.HasAsset("MagnumOpus/Assets/Shaders/Trail"))
-                {
-                    _trailShader = ModContent.Request<Effect>(
-                        "MagnumOpus/Assets/Shaders/Trail",
-                        AssetRequestMode.ImmediateLoad
-                    ).Value;
-                    
-                    if (_trailShader != null)
-                    {
-                        _useCustomShader = true;
-                        Main.NewText("[ArkSwingTrail] Custom Trail shader loaded successfully!", 
-                            Microsoft.Xna.Framework.Color.LightGreen);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log but don't crash - will use BasicEffect fallback
-                _useCustomShader = false;
-                Main.NewText($"[ArkSwingTrail] Shader load failed, using fallback: {ex.Message}", 
-                    Microsoft.Xna.Framework.Color.Yellow);
-            }
+            // === SHADERS DISABLED FOR FNA COMPATIBILITY ===
+            // FNA/MojoShader cannot load DirectX-compiled .xnb shader files.
+            // The system uses BasicEffect as fallback which provides good visual quality.
+            // To enable custom shaders, recompile Trail.fx using fxc with /T fx_2_0 for FNA.
+            _useCustomShader = false;
+            _trailShader = null;
         }
         
         #endregion
@@ -601,12 +586,29 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             Clear();
             _trailShader = null; // Don't dispose - managed by ModContent
-            _basicEffect?.Dispose();
+            
+            // Queue BasicEffect disposal to main thread - FNA requires graphics calls on main thread
+            var effectToDispose = _basicEffect;
             _basicEffect = null;
             _shaderLoadAttempted = false;
             _useCustomShader = false;
             _vertices = null;
             _indices = null;
+            
+            if (effectToDispose != null)
+            {
+                Main.QueueMainThreadAction(() =>
+                {
+                    try
+                    {
+                        effectToDispose.Dispose();
+                    }
+                    catch
+                    {
+                        // Ignore disposal errors during unload
+                    }
+                });
+            }
         }
         
         #endregion

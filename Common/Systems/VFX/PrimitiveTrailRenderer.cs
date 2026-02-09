@@ -258,7 +258,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 return;
             
             // End current spritebatch to use custom rendering
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             
             // Use additive blending for glow
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive,
@@ -298,7 +298,7 @@ namespace MagnumOpus.Common.Systems.VFX
             }
             
             // Restore normal spritebatch
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);

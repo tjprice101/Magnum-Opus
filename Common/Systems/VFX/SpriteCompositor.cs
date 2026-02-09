@@ -338,7 +338,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 {
                     if (needsReset)
                     {
-                        spriteBatch.End();
+                        try { spriteBatch.End(); } catch { }
                     }
 
                     currentBlend = layer.BlendState;
@@ -380,7 +380,7 @@ namespace MagnumOpus.Common.Systems.VFX
             // Reset to default blend state
             if (needsReset && currentBlend != BlendState.AlphaBlend)
             {
-                spriteBatch.End();
+                try { spriteBatch.End(); } catch { }
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             }
@@ -433,7 +433,7 @@ namespace MagnumOpus.Common.Systems.VFX
             }
 
             // Layer 3: Breathing glow (additive)
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
@@ -442,7 +442,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 npc.scale * pulse, npc.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
 
             // Return to normal blend state
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
@@ -459,14 +459,14 @@ namespace MagnumOpus.Common.Systems.VFX
             float breath = 1f + (float)Math.Sin(time * breathSpeed) * breathIntensity;
             Color glow = new Color(glowColor.R, glowColor.G, glowColor.B, 0) * glowOpacity;
 
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             spriteBatch.Draw(texture, position, null, glow, rotation, origin, scale * breath, 
                 SpriteEffects.None, 0f);
 
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }

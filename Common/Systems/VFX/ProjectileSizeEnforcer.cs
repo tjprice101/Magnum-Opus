@@ -50,6 +50,10 @@ namespace MagnumOpus.Common.Systems.VFX
 
         public override bool AppliesToEntity(Projectile entity, bool lateInstantiation)
         {
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            if (!VFXMasterToggle.GlobalSystemsEnabled)
+                return false;
+            
             return entity.ModProjectile?.Mod == ModContent.GetInstance<MagnumOpus>();
         }
 

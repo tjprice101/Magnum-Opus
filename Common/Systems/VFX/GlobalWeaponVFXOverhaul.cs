@@ -74,7 +74,19 @@ namespace MagnumOpus.Common.Systems.VFX
 
         public override bool AppliesToEntity(Item entity, bool lateInstantiation)
         {
-            return entity.ModItem?.Mod == ModContent.GetInstance<MagnumOpus>();
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            // Each weapon implements its own unique VFX instead
+            if (!VFXMasterToggle.GlobalSystemsEnabled)
+                return false;
+            
+            if (entity.ModItem?.Mod != ModContent.GetInstance<MagnumOpus>())
+                return false;
+            
+            // EXCLUDE debug weapons - they handle their own VFX
+            if (VFXExclusionHelper.ShouldExcludeItem(entity))
+                return false;
+            
+            return true;
         }
 
         public override void HoldItem(Item item, Player player)

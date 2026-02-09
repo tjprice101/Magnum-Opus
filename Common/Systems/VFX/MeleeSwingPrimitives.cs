@@ -35,9 +35,16 @@ namespace MagnumOpus.Common.Systems.VFX
         
         public override bool AppliesToEntity(Projectile entity, bool lateInstantiation)
         {
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            if (!VFXMasterToggle.GlobalSystemsEnabled)
+                return false;
+            
             // Apply to all melee-type projectiles from MagnumOpus
             if (entity.ModProjectile == null)
                 return false;
+            
+            // Exclude debug weapons
+            if (VFXExclusionHelper.ShouldExcludeProjectile(entity)) return false;
             
             string fullName = entity.ModProjectile.GetType().FullName ?? "";
             
@@ -177,7 +184,7 @@ namespace MagnumOpus.Common.Systems.VFX
             Vector2 origin = glowTex.Size() * 0.5f;
             float pulse = 1f + (float)Math.Sin(Main.GlobalTimeWrappedHourly * 6f) * 0.1f;
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
@@ -192,7 +199,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 spriteBatch.Draw(glowTex, drawPos, null, bloomColor, 0f, origin, scale, SpriteEffects.None, 0f);
             }
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);

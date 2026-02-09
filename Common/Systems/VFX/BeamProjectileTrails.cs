@@ -48,7 +48,14 @@ namespace MagnumOpus.Common.Systems.VFX
         
         public override bool AppliesToEntity(Projectile entity, bool lateInstantiation)
         {
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            if (!VFXMasterToggle.GlobalSystemsEnabled)
+                return false;
+            
             if (entity.ModProjectile == null) return false;
+            
+            // Exclude debug weapons
+            if (VFXExclusionHelper.ShouldExcludeProjectile(entity)) return false;
             
             string fullName = entity.ModProjectile.GetType().FullName ?? "";
             if (!fullName.StartsWith("MagnumOpus.")) return false;
@@ -221,7 +228,7 @@ namespace MagnumOpus.Common.Systems.VFX
             Color headColor = _palette.Length > 0 ? _palette[_palette.Length - 1] : Color.White;
             
             // Save blend state
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -238,7 +245,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 origin, 0.15f * pulse, SpriteEffects.None, 0f);
             
             // Restore blend state
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }

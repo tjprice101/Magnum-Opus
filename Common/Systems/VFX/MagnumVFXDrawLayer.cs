@@ -99,6 +99,11 @@ namespace MagnumOpus.Common.Systems.VFX
             // Draw vanilla projectiles first
             orig(self);
             
+            // === RENDER PRIMITIVE TRAIL RIBBONS (NEBULA FLAME EFFECT) ===
+            // This renders all active RibbonTrailSystem ribbons as triangle strip meshes
+            // Must be called from a draw hook - ribbons are GPU-rendered primitives
+            RibbonTrailSystem.RenderAllRibbons(Main.spriteBatch);
+            
             // Then draw our foreground VFX on top
             if (_queuedForegroundBlooms.Count > 0 && !_isDrawingVFX)
             {

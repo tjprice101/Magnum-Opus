@@ -317,7 +317,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float pulse = 1f + (float)Math.Sin(Main.GlobalTimeWrappedHourly * 5f) * 0.15f;
             
             // End current batch for additive blending
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
@@ -339,7 +339,7 @@ namespace MagnumOpus.Common.Systems.VFX
             }
             
             // Restore normal blending
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);

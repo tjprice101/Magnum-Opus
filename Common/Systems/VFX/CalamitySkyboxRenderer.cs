@@ -182,7 +182,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 DrawFlash(spriteBatch);
             }
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
         }
         
         /// <summary>

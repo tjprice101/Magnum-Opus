@@ -327,7 +327,7 @@ namespace MagnumOpus.Common.Systems.VFX
             // Get the dimension texture based on style
             Texture2D dimensionTex = tear.Style == TearStyle.Void ? _voidTexture : _cosmicTexture;
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             
             // Draw the "other dimension" visible through the tear
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearWrap,
@@ -367,7 +367,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 0f
             );
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             
             // Draw edge glow
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
@@ -430,7 +430,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 );
             }
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }

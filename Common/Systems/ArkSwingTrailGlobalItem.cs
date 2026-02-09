@@ -33,6 +33,14 @@ namespace MagnumOpus.Common.Systems
         
         public override bool AppliesToEntity(Item item, bool lateInstantiation)
         {
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            // Each melee weapon implements its own unique swing trail VFX instead
+            if (!VFX.VFXMasterToggle.GlobalSystemsEnabled)
+                return false;
+            
+            // Exclude debug weapons
+            if (VFX.VFXExclusionHelper.ShouldExcludeItem(item)) return false;
+            
             // Apply to melee weapons
             return item.damage > 0 && item.DamageType == DamageClass.Melee && !item.noMelee;
         }

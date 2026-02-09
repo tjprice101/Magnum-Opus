@@ -497,7 +497,7 @@ namespace MagnumOpus.Common.Systems.VFX
             Texture2D softTex = MagnumTextureRegistry.GetBloom();
             
             // Background pass - NonPremultiplied for soft fog
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.LinearWrap,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -539,7 +539,7 @@ namespace MagnumOpus.Common.Systems.VFX
             }
             
             // Additive pass for glow highlights
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -690,12 +690,7 @@ namespace MagnumOpus.Common.Systems.VFX
         public static void Unload()
         {
             Clear();
-            _horizontalEnergyGradient = null;
-            _horizontalBlackCore = null;
-            _nebulaWispNoise = null;
-            _sparklyNoise = null;
-            _fbmNoise = null;
-            _marbleNoise = null;
+            // Textures are now managed by VFXTextureRegistry, no need to null them here
         }
         
         #endregion

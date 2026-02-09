@@ -44,6 +44,11 @@ namespace MagnumOpus.Common.Systems.VFX
 
         public override bool AppliesToEntity(NPC entity, bool lateInstantiation)
         {
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            // Each boss implements its own unique VFX instead
+            if (!VFXMasterToggle.GlobalSystemsEnabled)
+                return false;
+            
             // Apply to MagnumOpus bosses
             return entity.ModNPC?.Mod == ModContent.GetInstance<MagnumOpus>() && entity.boss;
         }
@@ -550,7 +555,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float pulse = 1f + (float)Math.Sin(time * 2f) * 0.04f; // Reduced pulse intensity
             
             // === SUBTLE OUTER GLOW (Additive, behind sprite) ===
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                              DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -560,7 +565,7 @@ namespace MagnumOpus.Common.Systems.VFX
                             npc.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
             
             // Restore normal blending for boss's own PreDraw
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                              DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
@@ -587,7 +592,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float pulse = 1f + (float)Math.Sin(time * 2f) * 0.04f;
             
             // === SUBTLE INNER GLOW (Additive, on top of sprite) ===
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                              DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -597,7 +602,7 @@ namespace MagnumOpus.Common.Systems.VFX
                             npc.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
             
             // Restore normal blending
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                              DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
@@ -628,7 +633,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float pulse = 1f + (float)Math.Sin(time * 2f) * 0.08f;
             
             // === BLOOM LAYERS (Additive) ===
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                              DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -645,7 +650,7 @@ namespace MagnumOpus.Common.Systems.VFX
             spriteBatch.Draw(texture, drawPos, frame, innerGlow, rotation, origin, npc.scale * pulse * 1.08f, SpriteEffects.None, 0f);
             
             // Restore normal blending
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                              DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             

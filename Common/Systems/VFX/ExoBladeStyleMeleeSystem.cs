@@ -1072,7 +1072,7 @@ namespace MagnumOpus.Common.Systems.VFX
             Color glowColor = Color.White with { A = 0 };
             
             // Draw pulsing glow overlay
-            Main.spriteBatch.End();
+            try { Main.spriteBatch.End(); } catch { }
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
@@ -1088,7 +1088,7 @@ namespace MagnumOpus.Common.Systems.VFX
                     player.direction == 1 ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0f);
             }
             
-            Main.spriteBatch.End();
+            try { Main.spriteBatch.End(); } catch { }
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
@@ -1115,7 +1115,14 @@ namespace MagnumOpus.Common.Systems.VFX
         
         public override bool AppliesToEntity(Item entity, bool lateInstantiation)
         {
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            if (!VFXMasterToggle.GlobalSystemsEnabled)
+                return false;
+            
             if (entity.ModItem == null) return false;
+            
+            // Exclude debug weapons
+            if (VFXExclusionHelper.ShouldExcludeItem(entity)) return false;
             
             string fullName = entity.ModItem.GetType().FullName ?? "";
             if (!fullName.StartsWith("MagnumOpus.")) return false;

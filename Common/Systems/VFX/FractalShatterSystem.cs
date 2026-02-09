@@ -510,7 +510,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 alpha = 1f - (float)effect.Timer / effect.PhaseDuration;
             }
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -543,7 +543,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 );
             }
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }

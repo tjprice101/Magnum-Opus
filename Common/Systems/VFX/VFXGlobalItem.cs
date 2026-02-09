@@ -73,8 +73,16 @@ namespace MagnumOpus.Common.Systems.VFX
 
         public override void MeleeEffects(Item item, Player player, Rectangle hitbox)
         {
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            if (!VFXMasterToggle.GlobalSystemsEnabled)
+                return;
+            
             // Only process MagnumOpus items
             if (item.ModItem == null || !item.ModItem.Mod.Name.Equals("MagnumOpus"))
+                return;
+            
+            // Exclude debug weapons
+            if (VFXExclusionHelper.ShouldExcludeItem(item))
                 return;
 
             // Detect theme

@@ -173,13 +173,25 @@ namespace MagnumOpus.Common.Systems.VFX
 
         #region Lifecycle
         
+        private bool _texturesLoaded = false;
+        private bool _fallbacksNeedGeneration = false;
+        
         public override void Load()
         {
             Instance = this;
             
             if (Main.dedServ) return;
             
-            LoadAllTextures();
+            // Don't load textures here - they need to be loaded on main thread
+            // Use PostSetupContent instead
+        }
+        
+        public override void PostSetupContent()
+        {
+            if (Main.dedServ) return;
+            
+            // PostSetupContent may run on background thread, queue to main thread for texture creation
+            Main.QueueMainThreadAction(LoadAllTextures);
         }
         
         public override void Unload()
@@ -247,7 +259,14 @@ namespace MagnumOpus.Common.Systems.VFX
             Beam.Streak1 = LoadTexture("Assets/VFX/BeamStreak1", CreateFallbackBeam);
             Beam.BloomLine = LoadTexture("Assets/Particles/SoftGlow2", CreateFallbackBeam);
             Beam.TaperedLine = LoadTexture("Assets/Particles/ParticleTrail1", CreateFallbackBeam);
-            Beam.Pixel = CreatePixelTexture();
+            try
+            {
+                Beam.Pixel = CreatePixelTexture();
+            }
+            catch (Exception ex)
+            {
+                Mod.Logger.Warn($"[VFXTextureRegistry] Failed to create pixel texture: {ex.Message}");
+            }
             
             // ==========================================
             // RIBBON TEXTURES
@@ -270,6 +289,7 @@ namespace MagnumOpus.Common.Systems.VFX
         
         /// <summary>
         /// Loads a texture with fallback generation if missing.
+        /// Must be called from main thread for fallback generation to work.
         /// </summary>
         private Texture2D LoadTexture(string path, Func<Texture2D> fallbackGenerator)
         {
@@ -278,6 +298,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 string fullPath = $"MagnumOpus/{path}";
                 if (ModContent.HasAsset(fullPath))
                 {
+                    // Use ImmediateLoad since we're in PostSetupContent (main thread)
                     return ModContent.Request<Texture2D>(fullPath, AssetRequestMode.ImmediateLoad).Value;
                 }
             }
@@ -286,8 +307,16 @@ namespace MagnumOpus.Common.Systems.VFX
                 Mod.Logger.Warn($"[VFXTextureRegistry] Failed to load {path}: {ex.Message}");
             }
             
-            // Generate fallback
-            return fallbackGenerator?.Invoke();
+            // Generate fallback - only safe on main thread
+            try
+            {
+                return fallbackGenerator?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Mod.Logger.Warn($"[VFXTextureRegistry] Failed to create fallback for {path}: {ex.Message}");
+                return null;
+            }
         }
         
         private void LogLoadStatus()
@@ -298,19 +327,32 @@ namespace MagnumOpus.Common.Systems.VFX
             // Count loaded vs fallback textures
             void Check(Texture2D tex, string name)
             {
-                if (tex != null && tex.Width > 4) loaded++;
-                else fallback++;
+                if (tex != null && tex.Width > 4) 
+                {
+                    loaded++;
+                    Mod.Logger.Info($"[VFXTextureRegistry] ✓ {name}: {tex.Width}x{tex.Height}");
+                }
+                else 
+                {
+                    fallback++;
+                    Mod.Logger.Warn($"[VFXTextureRegistry] ✗ {name}: FALLBACK ({(tex == null ? "null" : $"{tex.Width}x{tex.Height}")})");
+                }
             }
             
-            Check(Noise.Smoke, "NoiseSmoke");
-            Check(Noise.TileableFBM, "TileableFBM");
-            Check(Noise.Marble, "Marble");
-            Check(LUT.Rainbow, "RainbowLUT");
-            Check(Beam.Streak1, "BeamStreak1");
-            Check(Mask.EclipseRing, "EclipseRing");
-            Check(Mask.RippleRing, "RippleRing");
+            // Check all noise textures specifically
+            Check(Noise.Smoke, "Noise.Smoke");
+            Check(Noise.TileableFBM, "Noise.TileableFBM");
+            Check(Noise.Marble, "Noise.Marble");
+            Check(Noise.NebulaWisp, "Noise.NebulaWisp");
+            Check(Noise.Sparkly, "Noise.Sparkly");
+            Check(LUT.Rainbow, "LUT.Rainbow");
+            Check(LUT.EnergyGradient, "LUT.EnergyGradient");
+            Check(LUT.HorizontalEnergy, "LUT.HorizontalEnergy");
+            Check(Beam.Streak1, "Beam.Streak1");
+            Check(Mask.EclipseRing, "Mask.EclipseRing");
+            Check(Mask.RippleRing, "Mask.RippleRing");
             
-            Mod.Logger.Info($"[VFXTextureRegistry] Loaded: {loaded} textures, {fallback} using fallbacks");
+            Mod.Logger.Info($"[VFXTextureRegistry] SUMMARY: {loaded} textures loaded, {fallback} using fallbacks");
         }
         
         #endregion
@@ -552,6 +594,28 @@ namespace MagnumOpus.Common.Systems.VFX
         
         #endregion
 
+        #region Public Convenience Methods
+        
+        /// <summary>
+        /// Gets a simple 1x1 white pixel texture for drawing solid shapes.
+        /// Use as base texture when shader does all the work.
+        /// </summary>
+        public static Texture2D GetWhitePixel()
+        {
+            return Beam.Pixel ?? Instance?.CreatePixelTexture();
+        }
+        
+        /// <summary>
+        /// Gets a generic noise texture for procedural effects.
+        /// Falls back through available noise textures.
+        /// </summary>
+        public static Texture2D GetGenericNoise()
+        {
+            return Noise.Smoke ?? Noise.TileableFBM ?? Noise.Marble ?? GetWhitePixel();
+        }
+        
+        #endregion
+        
         #region Shader Integration Helpers
         
         /// <summary>

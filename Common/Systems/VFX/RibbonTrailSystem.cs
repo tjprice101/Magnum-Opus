@@ -172,8 +172,25 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             _instance = null;
             _activeRibbons?.Clear();
-            _basicEffect?.Dispose();
-            _ribbonShader?.Dispose();
+            
+            // Capture references before nulling
+            var basicEffect = _basicEffect;
+            var ribbonShader = _ribbonShader;
+            
+            // Null fields immediately
+            _basicEffect = null;
+            _ribbonShader = null;
+            
+            // Queue disposal to main thread (graphics resources must be disposed on main thread)
+            Main.QueueMainThreadAction(() =>
+            {
+                try
+                {
+                    basicEffect?.Dispose();
+                    ribbonShader?.Dispose();
+                }
+                catch { /* Ignore disposal errors during unload */ }
+            });
         }
         
         private void InitializeRenderingResources()
@@ -400,7 +417,16 @@ namespace MagnumOpus.Common.Systems.VFX
         public static void RenderAllRibbons(SpriteBatch spriteBatch)
         {
             if (_instance == null || Main.dedServ) return;
-            _instance.RenderAllRibbonsInternal(spriteBatch);
+            
+            try
+            {
+                _instance.RenderAllRibbonsInternal(spriteBatch);
+            }
+            catch (Exception ex)
+            {
+                // Silently handle render errors to prevent crashes
+                // Ribbons failing to render is not critical
+            }
         }
         
         private void RenderAllRibbonsInternal(SpriteBatch spriteBatch)
@@ -409,8 +435,9 @@ namespace MagnumOpus.Common.Systems.VFX
             
             var device = Main.instance.GraphicsDevice;
             
-            // End SpriteBatch to switch to primitive rendering
-            spriteBatch.End();
+            // Check if SpriteBatch is active before ending
+            // Use reflection to check internal _begun field, or just skip the End/Begin cycle
+            bool endedSpriteBatch = false;
             
             // Save render state
             var oldBlendState = device.BlendState;
@@ -433,17 +460,6 @@ namespace MagnumOpus.Common.Systems.VFX
             device.BlendState = oldBlendState;
             device.RasterizerState = oldRasterizerState;
             device.SamplerStates[0] = oldSamplerState;
-            
-            // Restart SpriteBatch
-            spriteBatch.Begin(
-                SpriteSortMode.Deferred,
-                BlendState.AlphaBlend,
-                SamplerState.LinearClamp,
-                DepthStencilState.None,
-                RasterizerState.CullNone,
-                null,
-                Main.GameViewMatrix.TransformationMatrix
-            );
         }
         
         /// <summary>

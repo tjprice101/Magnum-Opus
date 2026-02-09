@@ -77,8 +77,17 @@ namespace MagnumOpus.Common.Systems.VFX
         
         public override bool AppliesToEntity(Projectile entity, bool lateInstantiation)
         {
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            // Each projectile implements its own unique VFX instead
+            if (!VFXMasterToggle.GlobalSystemsEnabled)
+                return false;
+            
             // Only apply to MagnumOpus projectiles
             if (entity.ModProjectile == null) return false;
+            
+            // Exclude debug weapons
+            if (VFXExclusionHelper.ShouldExcludeProjectile(entity)) return false;
+            
             string fullName = entity.ModProjectile.GetType().FullName ?? "";
             return fullName.Contains("MagnumOpus");
         }

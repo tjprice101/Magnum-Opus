@@ -268,7 +268,7 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             if (ripple.CurrentRadius < 1f || ripple.Intensity < 0.01f) return;
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearWrap,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -322,7 +322,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 );
             }
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
 using ReLogic.Content;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Common.Systems.VFX
 {
@@ -511,7 +512,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 return;
             
             // Trigger through ScreenDistortionManager
-            ScreenDistortionManager.TriggerRipple(worldPosition, strength, 15);
+            ScreenDistortionManager.TriggerRipple(worldPosition, Color.White, strength, 15);
         }
         
         #endregion

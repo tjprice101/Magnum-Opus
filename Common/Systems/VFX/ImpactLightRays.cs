@@ -253,7 +253,7 @@ namespace MagnumOpus.Common.Systems.VFX
             catch { lerpFactor = 0f; }
             
             // Switch to additive blending
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
@@ -263,7 +263,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 DrawBurstInterpolated(spriteBatch, burst, lerpFactor);
             }
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
@@ -676,7 +676,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             ImpactLightRays.Draw(spriteBatch);
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
         }
         
         public override void OnWorldUnload()

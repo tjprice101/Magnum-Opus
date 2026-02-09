@@ -4,6 +4,7 @@ using ReLogic.Content;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Core;
@@ -111,18 +112,38 @@ namespace MagnumOpus.Common.Systems.Particles
             {
                 if (type.IsSubclassOf(baseType) && !type.IsAbstract && type != baseType)
                 {
+                    // Check if type has a parameterless constructor
+                    var parameterlessConstructor = type.GetConstructor(Type.EmptyTypes);
+                    if (parameterlessConstructor == null)
+                    {
+                        // No parameterless constructor - just register the type ID
+                        // The type will still work when spawned via SpawnParticle with proper constructor
+                        int typeId = particleTypes.Count;
+                        particleTypes[type] = typeId;
+                        particleInstances.Add(null); // Placeholder to keep indices aligned
+                        continue;
+                    }
+
                     int id = particleTypes.Count;
                     particleTypes[type] = id;
 
-                    Particle instance = (Particle)Activator.CreateInstance(type, true);
-                    particleInstances.Add(instance);
-
-                    if (!string.IsNullOrEmpty(instance.Texture))
+                    try
                     {
-                        // Use ParticleTextureHelper to get generated textures or load from assets
-                        Texture2D tex = ParticleTextureHelper.GetTexture(instance.Texture);
-                        if (tex != null)
-                            particleTextures[id] = tex;
+                        Particle instance = (Particle)Activator.CreateInstance(type, true);
+                        particleInstances.Add(instance);
+
+                        if (!string.IsNullOrEmpty(instance.Texture))
+                        {
+                            // Use ParticleTextureHelper to get generated textures or load from assets
+                            Texture2D tex = ParticleTextureHelper.GetTexture(instance.Texture);
+                            if (tex != null)
+                                particleTextures[id] = tex;
+                        }
+                    }
+                    catch
+                    {
+                        // If instantiation fails for any reason, still register the type
+                        particleInstances.Add(null);
                     }
                 }
             }
@@ -255,6 +276,83 @@ namespace MagnumOpus.Common.Systems.Particles
             {
                 particlesToKill.Add(particle);
             }
+        }
+
+        /// <summary>
+        /// Draws all particles as a standalone operation - manages its own spritebatch state.
+        /// Use this when calling from an IL hook where the spritebatch state is unknown.
+        /// </summary>
+        public static void DrawAllParticlesStandalone(SpriteBatch sb)
+        {
+            if (Main.dedServ || particles == null || particles.Count == 0)
+                return;
+
+            // Calculate screen bounds for culling
+            Vector2 screenCenter = Main.screenPosition + new Vector2(Main.screenWidth, Main.screenHeight) * 0.5f;
+            float cullDistSq = CullDistance * CullDistance;
+
+            // Batch particles by blend mode, culling off-screen particles
+            foreach (Particle particle in particles)
+            {
+                if (particle == null)
+                    continue;
+                
+                // Cull particles far outside the screen for performance
+                float distSq = Vector2.DistanceSquared(particle.Position, screenCenter);
+                if (distSq > cullDistSq && !particle.Important)
+                    continue;
+
+                if (particle.UseAdditiveBlend)
+                    batchedAdditiveBlendParticles.Add(particle);
+                else if (particle.UseHalfTransparency)
+                    batchedNonPremultipliedParticles.Add(particle);
+                else
+                    batchedAlphaBlendParticles.Add(particle);
+            }
+
+            // Draw alpha blend particles
+            if (batchedAlphaBlendParticles.Count > 0)
+            {
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                foreach (Particle particle in batchedAlphaBlendParticles)
+                {
+                    DrawParticle(sb, particle);
+                }
+                sb.End();
+            }
+
+            // Draw non-premultiplied (half transparency) particles
+            if (batchedNonPremultipliedParticles.Count > 0)
+            {
+                sb.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, Main.DefaultSamplerState,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                foreach (Particle particle in batchedNonPremultipliedParticles)
+                {
+                    DrawParticle(sb, particle);
+                }
+                sb.End();
+            }
+
+            // Draw additive blend particles (most important for glows!)
+            if (batchedAdditiveBlendParticles.Count > 0)
+            {
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                foreach (Particle particle in batchedAdditiveBlendParticles)
+                {
+                    DrawParticle(sb, particle);
+                }
+                sb.End();
+            }
+
+            // Clear batches
+            batchedAlphaBlendParticles.Clear();
+            batchedNonPremultipliedParticles.Clear();
+            batchedAdditiveBlendParticles.Clear();
         }
 
         /// <summary>

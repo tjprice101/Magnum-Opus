@@ -66,7 +66,7 @@ namespace MagnumOpus.Common.Systems.VFX
             Color accentBloom = accentColor with { A = 0 };
             
             // Begin additive blend mode
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -95,7 +95,7 @@ namespace MagnumOpus.Common.Systems.VFX
             DrawOrbitingPoints(spriteBatch, drawPos, primaryColor, secondaryColor, scale * 12f, 4, time * 1.4f);
             
             // Restore normal blend mode
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
@@ -256,7 +256,7 @@ namespace MagnumOpus.Common.Systems.VFX
             Color primaryColor = hasTarget ? crystalCyan : deepBlue;
             Color secondaryColor = hasTarget ? iceBlue : stormPurple;
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -291,7 +291,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 DrawCoreGlow(spriteBatch, sparkPos, sparkColor * 0.75f, sparkScale * scale * pulse);
             }
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
@@ -312,7 +312,7 @@ namespace MagnumOpus.Common.Systems.VFX
             DrawProceduralProjectile(spriteBatch, projectile, nightBlue, starGold, moonSilver, scale, 8);
             
             // Add extra twinkling stars
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -329,7 +329,7 @@ namespace MagnumOpus.Common.Systems.VFX
                     scale * 8f, 4, twinkleAngle);
             }
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
@@ -374,7 +374,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float time = Main.GameUpdateCount * 0.05f;
             float pulse = 1f + (float)Math.Sin(time * 2f) * 0.12f;
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -401,7 +401,7 @@ namespace MagnumOpus.Common.Systems.VFX
             // White center
             DrawCoreGlow(spriteBatch, drawPos, Color.White with { A = 0 } * 0.9f, scale * 5f);
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
@@ -443,7 +443,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float time = Main.GameUpdateCount * 0.05f;
             float pulse = 1f + (float)Math.Sin(time * 2f) * 0.12f;
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -475,7 +475,7 @@ namespace MagnumOpus.Common.Systems.VFX
             // Cosmic white core
             DrawCoreGlow(spriteBatch, drawPos, cosmicWhite with { A = 0 } * 0.9f, scale * 6f);
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
@@ -506,7 +506,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float pulse = 1f + (float)Math.Sin(time * 2f) * 0.18f;
             
             // More radiant than standard projectile for solar feel
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -528,7 +528,7 @@ namespace MagnumOpus.Common.Systems.VFX
             // Solar corona orbits
             DrawOrbitingPoints(spriteBatch, drawPos, sunGold, sunOrange, scale * 16f, 6, time * 1.2f);
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }

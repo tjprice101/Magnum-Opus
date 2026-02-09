@@ -1,25 +1,27 @@
 # CALAMITY-STYLE VFX STANDARDS - Buttery Smooth Visual Effects
 
-> **THIS DOCUMENT REFLECTS THE NEW AUTOMATIC VFX SYSTEM BASED ON CALAMITY MOD.**
+> **THIS DOCUMENT REFLECTS THE NEW PER-WEAPON VFX ARCHITECTURE.**
 > 
-> **IMPORTANT:** Most VFX are now **AUTOMATICALLY APPLIED** by the Global systems.
-> You do NOT need to manually code dust trails, bloom layers, or music notes for most projectiles.
+> **IMPORTANT:** Global VFX systems are **DISABLED**. Each weapon, projectile, and boss
+> must implement its OWN unique VFX directly in its .cs file, like Calamity's Ark of the Cosmos.
 
 ---
 
 ## ✅ THE NEW VFX ARCHITECTURE
 
-### 🔥 KEY INSIGHT: IT'S AUTOMATIC NOW
+### 🔥 KEY INSIGHT: PER-WEAPON VFX (Like Ark of the Cosmos)
 
-The following systems **automatically apply** VFX to all MagnumOpus content:
+The global VFX systems are **DISABLED** via `VFXMasterToggle.GlobalSystemsEnabled = false`:
 
-| System | What It Does | You Don't Need To Code |
-|--------|--------------|------------------------|
-| `GlobalVFXOverhaul.cs` | Auto-applies to ALL projectiles | Primitive trails, multi-layer bloom, orbiting music notes, death effects |
-| `GlobalWeaponVFXOverhaul.cs` | Auto-applies to ALL weapons | Smooth swing arcs, muzzle flash, magic circles |
-| `GlobalBossVFXOverhaul.cs` | Auto-applies to ALL bosses | Interpolated rendering, dash trails, entrance/death spectacles |
+| System | Status | What To Do Instead |
+|--------|--------|-------------------|
+| `GlobalVFXOverhaul.cs` | **DISABLED** | Implement projectile VFX in each projectile's .cs file |
+| `GlobalWeaponVFXOverhaul.cs` | **DISABLED** | Implement weapon VFX in each weapon's .cs file |
+| `GlobalBossVFXOverhaul.cs` | **DISABLED** | Implement boss VFX in each boss's .cs file |
 
-### Core Technologies (Used Automatically)
+### Core Technologies (Use As Libraries)
+
+These utility classes are still available for building per-weapon VFX:
 
 | Technology | File | What It Does |
 |------------|------|--------------|
@@ -32,72 +34,6 @@ The following systems **automatically apply** VFX to all MagnumOpus content:
 | **Dynamic Skybox** | `DynamicSkyboxSystem.cs` | Sky flashes via `TriggerFlash()` |
 | **Procedural VFX** | `ProceduralProjectileVFX.cs` | PNG-free rendering via `DrawProceduralProjectile()` |
 | **Cinematic VFX** | `CinematicVFX.cs` | Lens flares, energy streaks, impact glints |
-
----
-
-## 🔥 ARK OF THE COSMOS-STYLE MELEE SWING TRAILS (NEW!)
-
-### The Problem with Discrete Particles
-
-Spawning fog particles along a swing arc creates **visible gaps and edges**. This doesn't match Calamity's buttery smooth trails.
-
-### The Solution: Triangle Strip Mesh Rendering
-
-`ArkSwingTrail.cs` renders melee swings as **continuous triangle strip meshes** with:
-- UV-mapped noise texture scrolling (not discrete particles!)
-- 4-pass rendering (background fog, midground nebula, main trail, bright core)
-- Proper width tapering along the arc (QuadraticBump)
-- Additive blending for proper glow accumulation
-
-### Automatic Integration
-
-All MagnumOpus melee weapons get Ark-style trails automatically via `ArkSwingTrailGlobalItem`:
-
-```csharp
-// Weapons in Content/Eroica/... automatically get scarlet→gold trails
-// Weapons in Content/Fate/... automatically get pink→red cosmic trails
-// Weapons in Content/SwanLake/... automatically get white→rainbow trails
-```
-
-### Manual API
-
-```csharp
-using MagnumOpus.Common.Systems.VFX;
-
-// During swing (every frame)
-ArkSwingTrail.UpdateSwingTrail(player, bladeLength: 80f, 
-    primaryColor, secondaryColor, width: 35f, theme: "Eroica");
-
-// When swing ends
-ArkSwingTrail.EndSwingTrail(player);
-
-// Instant arc (for weapons that don't update every frame)
-ArkSwingTrail.SpawnSwingArc(player, startAngle, endAngle, 
-    bladeLength, primaryColor, secondaryColor, width, pointCount, theme);
-```
-
----
-
-## 🎉 WHAT GLOBALVFXOVERHAUL DOES AUTOMATICALLY
-
-When you create a projectile in MagnumOpus, `GlobalVFXOverhaul` automatically:
-
-```
-✅ Detects the theme from namespace/classname
-✅ Creates a primitive trail with theme colors
-✅ Applies 4-layer additive bloom in PreDraw
-✅ Spawns orbiting music notes (3 notes per projectile)
-✅ Applies sub-pixel interpolation for smooth rendering
-✅ Creates spectacular death effects with 8 halo rings
-✅ Adds dynamic lighting that pulses
-```
-
-### Theme Detection Is Automatic
-
-The system reads your projectile's namespace/classname and applies appropriate colors:
-
-| Namespace Contains | Theme Applied | Colors |
-|-------------------|---------------|--------|
 | `Eroica` | Eroica | Scarlet → Gold, Sakura accents |
 | `Fate` | Fate | Black → Pink → Red, cosmic white |
 | `SwanLake` | SwanLake | White/Black, rainbow shimmer |
@@ -111,14 +47,14 @@ The system reads your projectile's namespace/classname and applies appropriate c
 
 ---
 
-## 🚀 HOW TO USE THE NEW SYSTEMS
+## 🚀 HOW TO IMPLEMENT PER-WEAPON VFX
 
-### For Basic Projectiles: DO NOTHING
+### Every Weapon Implements Its Own VFX
 
-If your projectile is in a theme folder (e.g., `Content/Eroica/Projectiles/`), the Global systems handle everything:
+Since global systems are disabled, each weapon's .cs file must contain its own VFX logic:
 
 ```csharp
-// ✅ THIS IS ALL YOU NEED - GlobalVFXOverhaul handles the rest
+// ✅ CORRECT: Implement unique VFX directly in the weapon
 public class MyEroicaProjectile : ModProjectile
 {
     public override void SetDefaults()
@@ -127,9 +63,25 @@ public class MyEroicaProjectile : ModProjectile
         Projectile.height = 16;
         Projectile.friendly = true;
         Projectile.timeLeft = 120;
-        // NO PREDRAW OVERRIDE NEEDED
-        // NO AI DUST SPAWNING NEEDED
-        // NO ONKILL VFX NEEDED
+    }
+    
+    public override void AI()
+    {
+        // Implement YOUR unique trail for THIS projectile
+        if (Main.rand.NextBool(2))
+        {
+            Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Torch, 
+                -Projectile.velocity * 0.2f, 0, Color.Orange, 1.5f);
+            d.noGravity = true;
+        }
+    }
+    
+    public override bool PreDraw(ref Color lightColor)
+    {
+        // Use BloomRenderer for multi-layer glow unique to THIS projectile
+        BloomRenderer.DrawBloomStack(Main.spriteBatch, 
+            Projectile.Center - Main.screenPosition, Color.Orange, 0.5f, 4, 1f);
+        return true;
     }
 }
 ```
@@ -159,105 +111,6 @@ CalamityStyleVFX.SpectacularDeath(position, "Eroica");
 // Boss phase transition
 CalamityStyleVFX.BossPhaseTransition(NPC.Center, "Fate", 1.5f);
 ```
-
-### For Melee Weapons: Use MeleeSwingVariation
-
-The system provides preset swing styles:
-
-```csharp
-using MagnumOpus.Common.Systems.VFX;
-
-// In your weapon's UseItem or similar:
-var swingStyle = CalamityStyleVFX.MeleeSwingVariation.Heavy;   // Greatswords, hammers
-var swingStyle = CalamityStyleVFX.MeleeSwingVariation.Swift;   // Rapiers, daggers
-var swingStyle = CalamityStyleVFX.MeleeSwingVariation.Ethereal; // Magical blades
-var swingStyle = CalamityStyleVFX.MeleeSwingVariation.Default;  // Balanced
-
-// Apply the swing effect
-CalamityStyleVFX.SmoothMeleeSwing(player, "Eroica", swingProgress, direction, swingStyle);
-```
-
-### For Curved Projectile Paths: Use BezierProjectileSystem
-
-```csharp
-using MagnumOpus.Common.Systems.VFX;
-
-// Generate homing arc control points
-var (p0, p1, p2) = BezierProjectileSystem.GenerateHomingArc(startPos, targetPos, arcHeight: 100f);
-
-// In AI, evaluate position on curve
-float t = 1f - (Projectile.timeLeft / (float)maxTime);
-Vector2 curvePos = BezierProjectileSystem.QuadraticBezier(p0, p1, p2, t);
-Vector2 tangent = BezierProjectileSystem.QuadraticBezierTangent(p0, p1, p2, t);
-Projectile.Center = curvePos;
-Projectile.rotation = tangent.ToRotation();
-
-// For snaking paths:
-var snakePath = BezierProjectileSystem.GenerateSnakingPath(startPos, targetPos, waveAmplitude: 50f, frequency: 2);
-```
-
-### For Custom Trail Rendering: Use EnhancedTrailRenderer
-
-```csharp
-using MagnumOpus.Common.Systems.VFX;
-
-// Create trail settings with width/color functions
-var settings = new EnhancedTrailRenderer.PrimitiveSettings(
-    width: EnhancedTrailRenderer.LinearTaper(20f),           // Tapers from 20 to 0
-    color: EnhancedTrailRenderer.GradientColor(startColor, endColor),
-    smoothen: true
-);
-
-// Or use preset functions:
-settings.WidthFunc = EnhancedTrailRenderer.QuadraticBumpWidth(20f);  // Thickens in middle
-settings.ColorFunc = EnhancedTrailRenderer.PaletteLerpColor(colorArray); // Gradient through palette
-
-// Render multi-pass trail with bloom
-EnhancedTrailRenderer.RenderMultiPassTrail(
-    Projectile.oldPos,
-    Projectile.oldRot,
-    settings,
-    passes: 3  // Outer bloom, main, core
-);
-```
-
-### For Interpolated Rendering: Use InterpolatedRenderer
-
-```csharp
-using MagnumOpus.Common.Systems.VFX;
-
-// In PreDraw - get smooth interpolated position
-public override bool PreDraw(ref Color lightColor)
-{
-    // Update partial ticks at start of draw
-    InterpolatedRenderer.UpdatePartialTicks();
-    
-    // Get interpolated position for 144Hz+ smoothness
-    Vector2 smoothPos = InterpolatedRenderer.GetInterpolatedCenter(Projectile);
-    Vector2 drawPos = smoothPos - Main.screenPosition;
-    
-    // Draw at interpolated position instead of raw Projectile.Center
-    // ...
-}
-```
-
----
-
-## ⚠️ WHEN TO OVERRIDE THE GLOBAL SYSTEM
-
-Only override PreDraw/AI for VFX if you need something **truly unique** that the Global system can't provide:
-
-### ✅ GOOD Reasons to Override:
-- Speed-based intensity scaling (projectile glows brighter as it accelerates)
-- Phase-based rendering (different visuals during approach vs. attack vs. explode)
-- Complex state machines (multi-stage projectiles with different behaviors)
-- Weapon-specific signature effects (the weapon's unique identity)
-
-### ❌ BAD Reasons to Override:
-- Basic trails (GlobalVFXOverhaul handles this)
-- Basic bloom/glow (GlobalVFXOverhaul handles this)
-- Music notes (GlobalVFXOverhaul handles this)
-- Death explosions (GlobalVFXOverhaul handles this)
 
 ---
 

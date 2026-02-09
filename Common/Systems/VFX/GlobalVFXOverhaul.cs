@@ -40,8 +40,20 @@ namespace MagnumOpus.Common.Systems.VFX
 
         public override bool AppliesToEntity(Projectile entity, bool lateInstantiation)
         {
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            // Each weapon/projectile implements its own unique VFX instead
+            if (!VFXMasterToggle.GlobalSystemsEnabled)
+                return false;
+            
             // Only apply to MagnumOpus projectiles
-            return entity.ModProjectile?.Mod == ModContent.GetInstance<MagnumOpus>();
+            if (entity.ModProjectile?.Mod != ModContent.GetInstance<MagnumOpus>())
+                return false;
+            
+            // EXCLUDE debug weapons - they handle their own VFX
+            if (VFXExclusionHelper.ShouldExcludeProjectile(entity))
+                return false;
+            
+            return true;
         }
 
         public override void SetDefaults(Projectile projectile)

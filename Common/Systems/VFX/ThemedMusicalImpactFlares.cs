@@ -202,7 +202,7 @@ namespace MagnumOpus.Common.Systems.VFX
             }
             
             // Save blend state
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -225,7 +225,7 @@ namespace MagnumOpus.Common.Systems.VFX
             }
             
             // Restore blend state
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
@@ -507,7 +507,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             ThemedMusicalImpactFlares.Draw(Main.spriteBatch);
             
-            Main.spriteBatch.End();
+            try { Main.spriteBatch.End(); } catch { }
         }
     }
 }

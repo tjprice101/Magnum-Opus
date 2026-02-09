@@ -474,7 +474,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float time = Main.GameUpdateCount * 0.05f;
             float pulse = 1f + (float)Math.Sin(time * 2f) * 0.1f;
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -487,7 +487,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 spriteBatch.Draw(texture, drawPos, frame, bloomColor, rotation + (i % 2 == 0 ? time * 0.2f : 0), origin, proj.scale * scale, SpriteEffects.None, 0f);
             }
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }

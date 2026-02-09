@@ -57,6 +57,10 @@ namespace MagnumOpus.Common.Systems.VFX
     {
         public override void OnKill(Projectile projectile, int timeLeft)
         {
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            if (!VFXMasterToggle.GlobalSystemsEnabled)
+                return;
+            
             // Skip if not friendly or if hostile to player
             if (!projectile.friendly && !projectile.hostile) return;
             
@@ -128,6 +132,10 @@ namespace MagnumOpus.Common.Systems.VFX
     {
         public override void OnKill(NPC npc)
         {
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            if (!VFXMasterToggle.GlobalSystemsEnabled)
+                return;
+            
             // Major boss death lens flare
             if (npc.boss)
             {

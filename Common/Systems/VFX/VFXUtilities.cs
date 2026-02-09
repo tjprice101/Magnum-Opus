@@ -286,7 +286,7 @@ namespace MagnumOpus.Common.Systems.VFX
         /// </summary>
         public static void PrepareForShaders(this SpriteBatch spriteBatch, BlendState blendState = null)
         {
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(
                 SpriteSortMode.Immediate, 
                 blendState ?? BlendState.Additive, 
@@ -302,7 +302,7 @@ namespace MagnumOpus.Common.Systems.VFX
         /// </summary>
         public static void ResetToDefault(this SpriteBatch spriteBatch)
         {
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(
                 SpriteSortMode.Deferred, 
                 BlendState.AlphaBlend, 

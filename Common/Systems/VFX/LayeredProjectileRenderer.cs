@@ -131,7 +131,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float rotation = projectile.rotation;
             float time = Main.GameUpdateCount * 0.1f;
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -211,7 +211,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 DrawOrbitingParticles(spriteBatch, drawPos, fresnelColor, config, time);
             }
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }

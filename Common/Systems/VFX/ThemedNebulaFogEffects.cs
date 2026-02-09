@@ -582,7 +582,7 @@ namespace MagnumOpus.Common.Systems.VFX
             var (primary, secondary, accent) = GetThemeColors(fog.FogType);
             
             // Draw fog layers with theme-specific blend
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearWrap, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -606,7 +606,7 @@ namespace MagnumOpus.Common.Systems.VFX
             // Draw music notes
             DrawFogMusicNotes(spriteBatch, fog, screenPos, noteTextures);
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }

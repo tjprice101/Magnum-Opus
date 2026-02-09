@@ -318,7 +318,7 @@ namespace MagnumOpus.Common.Systems.VFX
             if (cloudTex == null) return;
             
             // End current batch and switch to alpha blending for translucent clouds
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -399,7 +399,7 @@ namespace MagnumOpus.Common.Systems.VFX
             }
             
             // Restore SpriteBatch to additive blending for other effects
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }

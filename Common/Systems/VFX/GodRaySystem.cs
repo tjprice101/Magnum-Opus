@@ -243,7 +243,7 @@ namespace MagnumOpus.Common.Systems.VFX
             if (alpha <= 0.01f) return;
             
             // End current batch for custom rendering
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             
             // === PASS 1: BLOOM LAYER (additive, wide, dim) ===
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
@@ -251,7 +251,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             DrawRays(spriteBatch, burst, 2.0f, alpha * 0.3f, burst.PrimaryColor);
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             
             // === PASS 2: MAIN RAYS ===
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
@@ -259,7 +259,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             DrawRays(spriteBatch, burst, 1.0f, alpha * 0.7f, burst.SecondaryColor);
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             
             // === PASS 3: CORE (thin, bright, white) ===
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
@@ -270,7 +270,7 @@ namespace MagnumOpus.Common.Systems.VFX
             // Draw central glow
             DrawCentralGlow(spriteBatch, burst, alpha);
             
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             
             // Restore alpha blend
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,

@@ -144,6 +144,11 @@ namespace MagnumOpus.Common.Systems.VFX
                 trail.IsActive = false;
             }
         }
+        
+        /// <summary>
+        /// Alias for EndTrail - destroys a trail by ID.
+        /// </summary>
+        public static void DestroyTrail(int trailId) => EndTrail(trailId);
 
         /// <summary>
         /// Gets an existing trail by ID, or null if not found.
@@ -360,7 +365,7 @@ namespace MagnumOpus.Common.Systems.VFX
             // Draw using SpriteBatch with shader
             if (shader != null)
             {
-                spriteBatch.End();
+                try { spriteBatch.End(); } catch { }
                 spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, shader, Main.GameViewMatrix.TransformationMatrix);
             }
@@ -383,7 +388,7 @@ namespace MagnumOpus.Common.Systems.VFX
 
             if (shader != null)
             {
-                spriteBatch.End();
+                try { spriteBatch.End(); } catch { }
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             }

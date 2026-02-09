@@ -407,7 +407,7 @@ namespace MagnumOpus.Common.Systems.VFX
             if (activeParticles.Count == 0) return;
             
             // Switch to additive blending for bloom
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
@@ -418,7 +418,7 @@ namespace MagnumOpus.Common.Systems.VFX
             }
             
             // Restore normal blending
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);

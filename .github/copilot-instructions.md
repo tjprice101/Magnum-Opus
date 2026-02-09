@@ -2,147 +2,154 @@
 
 > **⚡ QUICK START**: For a condensed version of these instructions, see **[COPILOT_QUICK_REFERENCE.md](COPILOT_QUICK_REFERENCE.md)**.
 > 
-> **🔥 NEW VFX SYSTEM**: The mod now uses **Calamity-style VFX** with Bézier curves, primitive trails, and shader-enhanced bloom. See **[TRUE_VFX_STANDARDS.md](../Documentation/Guides/TRUE_VFX_STANDARDS.md)**.
-> 
 > This full document contains detailed examples and explanations. The quick reference is recommended for faster lookups.
 
 ---
 
-# 🎉 NEW: AUTOMATIC CALAMITY-STYLE VFX SYSTEM 🎉
+# 🚨 CRITICAL: PER-WEAPON VFX ARCHITECTURE 🚨
 
-> **The mod now has a GLOBAL VFX system that automatically applies effects to all content!**
+> **ALL GLOBAL VFX SYSTEMS ARE DISABLED.** Each weapon, projectile, and boss MUST implement its own unique VFX directly in its .cs file, like Calamity's Ark of the Cosmos.
 
-## What's New
+## The Architecture Philosophy
 
-The following systems **automatically apply VFX** to all MagnumOpus content:
+**BEFORE (DISABLED):**
+- Global systems automatically applied generic VFX to everything
+- Result: Cookie-cutter effects that all looked the same
 
-1. **`GlobalVFXOverhaul.cs`** - Auto-applies to ALL projectiles:
-   - Primitive trail rendering with multi-pass bloom
-   - Sub-pixel interpolation for 144Hz+ smoothness
-   - Orbiting music notes (3 notes per projectile)
-   - 4-layer additive bloom in PreDraw
-   - Spectacular death effects with 8 halo rings
+**NOW (CURRENT ARCHITECTURE):**
+- Each weapon has its OWN unique VFX code in its .cs file
+- Each projectile renders its OWN trails, bloom, and effects
+- Each boss has its OWN unique VFX tailored to its attacks
+- Result: Every weapon feels unique and memorable
 
-2. **`GlobalWeaponVFXOverhaul.cs`** - Auto-applies to ALL weapons:
-   - Smooth melee swing arcs with primitive trails
-   - Muzzle flash effects for ranged weapons
-   - Magic channeling circles for magic weapons
-   - Theme-based color detection
+## What This Means For You
 
-3. **`GlobalBossVFXOverhaul.cs`** - Auto-applies to ALL bosses:
-   - Interpolated rendering with 3-layer bloom
-   - Automatic dash trail detection
-   - Boss entrance spectacle (massive screen distortion)
-   - Death spectacle (100 particles, 20 rings, spiral galaxy)
-   - Ambient VFX (orbiting particles, music notes)
+1. **NO AUTOMATIC VFX** - Nothing is applied automatically anymore
+2. **IMPLEMENT VFX DIRECTLY** - Each weapon's .cs file contains all its trail, bloom, and effect code
+3. **USE VFX UTILITIES** - The utility classes (BloomRenderer, etc.) are still available as libraries
+4. **UNIQUE IDENTITY** - Every weapon must look and feel completely different
 
-4. **`CalamityStyleVFX.cs`** - Central VFX library with:
-   - `SmoothMeleeSwing()` - Primitive trail swing arcs
-   - `ProjectilePrimitiveTrail()` - Multi-pass projectile trails
-   - `BezierHomingPath()` / `SnakingProjectilePath()` - Curved paths
-   - `SpectacularDeath()` - Layered death explosions
-   - `GlimmerCascadeImpact()` - Beautiful hit effects
-   - `BossPhaseTransition()` - 12-ring shockwave effects
+## VFX Utility Classes Available (Use As Libraries)
 
-## Key Technologies
+These utility classes are available for building per-weapon VFX:
 
-| Technology | What It Does | File |
-|------------|--------------|------|
-| **Bézier Curves** | Smooth curved projectile paths | `BezierProjectileSystem.cs` |
-| **Primitive Trails** | Multi-pass shader trails with bloom | `EnhancedTrailRenderer.cs` |
-| **Interpolation** | 144Hz+ sub-pixel smoothness | `InterpolatedRenderer.cs` |
-| **Multi-Layer Bloom** | 4-layer additive glow stacking | All global overhaul files |
-| **Screen Effects** | Distortion, sky flash | `ScreenDistortionManager.cs`, `DynamicSkyboxSystem` |
+| Utility Class | Purpose | Key Methods |
+|--------------|---------|-------------|
+| `BloomRenderer` | Multi-layer glow rendering | `DrawBloomStack()`, `DrawSimpleBloom()` |
+| `EnhancedTrailRenderer` | Primitive trail rendering | `RenderMultiPassTrail()` with `PrimitiveSettings` |
+| `InterpolatedRenderer` | 144Hz+ sub-pixel smoothness | `PartialTicks`, `GetInterpolatedCenter()` |
+| `MagnumThemePalettes` | Theme color arrays | `GetThemePalette()`, `GetThemeColor()` |
+| `ScreenDistortionManager` | Screen ripple effects | `TriggerRipple()` |
+| `BezierProjectileSystem` | Curved projectile paths | `QuadraticBezier()`, `GenerateHomingArc()` |
 
-## How It Works
+## How To Implement Per-Weapon VFX
 
-**You don't need to add VFX code to individual weapons/projectiles/bosses anymore!**
-
-The Global systems detect which theme a content item belongs to (via namespace/name) and automatically apply appropriate effects:
-- Theme colors from `MagnumThemePalettes`
-- Theme-appropriate particle types
-- Smooth interpolated rendering
-
-## Manual VFX Calls (For Unique Effects)
-
-If you want to add EXTRA unique effects beyond the automatic ones, use `CalamityStyleVFX`:
+### Example 1: Melee Weapon with Unique Trail
 
 ```csharp
-using MagnumOpus.Common.Systems.VFX;
-
-// In a weapon's Shoot method - add extra wing effect
-CalamityStyleVFX.EtherealWingEffect(player, "SwanLake", 1.2f);
-
-// In a projectile's AI - add wave effect
-CalamityStyleVFX.WaveProjectileEffect(Projectile.Center, Projectile.velocity, "Eroica", 1f);
-
-// In a boss's attack windup
-CalamityStyleVFX.BossAttackWindup(NPC.Center, progress, "LaCampanella");
-
-// On attack release
-CalamityStyleVFX.BossAttackRelease(NPC.Center, "Fate", 1.5f);
+public class MyEpicSword : ModItem
+{
+    // Store trail positions for THIS weapon only
+    private Vector2[] trailPositions = new Vector2[20];
+    private float[] trailRotations = new float[20];
+    
+    public override void UseItemFrame(Player player)
+    {
+        // Update trail history
+        for (int i = trailPositions.Length - 1; i > 0; i--)
+        {
+            trailPositions[i] = trailPositions[i - 1];
+            trailRotations[i] = trailRotations[i - 1];
+        }
+        trailPositions[0] = player.itemLocation;
+        trailRotations[0] = player.itemRotation;
+        
+        // Spawn unique particles for THIS weapon
+        if (Main.rand.NextBool(2))
+        {
+            Dust d = Dust.NewDustPerfect(player.itemLocation, DustID.MagicMirror, 
+                Main.rand.NextVector2Circular(2f, 2f), 0, Color.Gold, 1.5f);
+            d.noGravity = true;
+        }
+    }
+}
 ```
 
----
-
-# ⚠️⚠️⚠️ MANDATORY: USE EXISTING VFX SYSTEMS ⚠️⚠️⚠️
-
-> **CRITICAL: When creating NEW VFX, you MUST use the existing VFX infrastructure.**
-> **Do NOT load PNG textures directly or spawn raw Dust particles. USE THE SYSTEMS.**
-
-## The VFX System Hierarchy
-
-MagnumOpus has a comprehensive VFX infrastructure. When creating new effects, **ALWAYS** use these systems in order of preference:
-
-### 1. High-Level APIs (Use First)
-
-These provide complete themed effects with one call:
-
-| System | Purpose | Example |
-|--------|---------|---------|
-| `CalamityStyleVFX` | Complete themed effects | `CalamityStyleVFX.SpectacularDeath(pos, "Eroica")` |
-| `UnifiedVFXBloom` | Bloom-enhanced themed effects | `UnifiedVFXBloom.Eroica.ImpactEnhanced(pos, 1.5f)` |
-| `UniversalElementalVFX` | Cross-theme elemental effects | `UniversalElementalVFX.LaCampanellaFlames(pos, vel, 1f)` |
-| `BossArenaVFX` | Persistent boss arena particles | `BossArenaVFX.Activate("Fate", center, 800f, 1f)` |
-
-### 2. Core VFX Renderers (Use When Building Custom Effects)
-
-When you need custom control, use these renderer systems:
-
-| System | Purpose | Key Methods |
-|--------|---------|-------------|
-| `BloomRenderer` | Multi-layer glow rendering | `DrawBloomStack()`, `DrawSimpleBloom()`, `DrawBreathingBloom()`, `DrawPulsingBloom()` |
-| `EnhancedTrailRenderer` | Primitive trail rendering | `RenderMultiPassTrail()`, `PrimitiveSettings`, width/color functions |
-| `InterpolatedRenderer` | 144Hz+ sub-pixel smoothness | `PartialTicks`, `GetInterpolatedCenter()` |
-| `GodRaySystem` | Light ray burst effects | `CreateBurst()` with `GodRayStyle` enum |
-| `ImpactLightRays` | Impact light flares | `SpawnImpactRays()` |
-| `ScreenDistortionManager` | Screen-space effects | `TriggerRipple()`, `TriggerThemeEffect()` |
-
-### 3. Shader Renderers (For Advanced Effects)
-
-For shader-based rendering:
-
-| System | Purpose |
-|--------|---------|
-| `ShaderRenderer` | 12+ shader types with `ShaderScope` pattern |
-| `ProceduralProjectileVFX` | PNG-free procedural projectile rendering |
-
-## ❌ FORBIDDEN PATTERNS - NEVER DO THESE
+### Example 2: Projectile with Custom PreDraw
 
 ```csharp
-// ❌ WRONG: Loading PNG textures directly for VFX
-Texture2D myGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow").Value;
-Main.spriteBatch.Draw(myGlow, pos, null, color, 0f, origin, scale, ...);
-
-// ❌ WRONG: Spawning raw Dust particles
-Dust dust = Dust.NewDustPerfect(pos, DustID.MagicMirror, vel, 0, color, 1.5f);
-dust.noGravity = true;
-
-// ❌ WRONG: Manual bloom stacking without BloomRenderer
-for (int i = 0; i < 4; i++)
+public class MyUniqueProjectile : ModProjectile
 {
-    Main.spriteBatch.Draw(tex, pos, null, color * (0.5f / (i + 1)), ...);
+    public override bool PreDraw(ref Color lightColor)
+    {
+        SpriteBatch sb = Main.spriteBatch;
+        Vector2 drawPos = Projectile.Center - Main.screenPosition;
+        
+        // Use BloomRenderer for multi-layer glow
+        BloomRenderer.DrawBloomStack(sb, drawPos, Color.Cyan, 0.5f, 
+            layers: 4, intensity: 1f);
+        
+        // Draw trail using EnhancedTrailRenderer
+        var settings = new EnhancedTrailRenderer.PrimitiveSettings(
+            width: EnhancedTrailRenderer.LinearTaper(20f),
+            color: EnhancedTrailRenderer.GradientColor(Color.Cyan, Color.White),
+            smoothen: true
+        );
+        EnhancedTrailRenderer.RenderMultiPassTrail(Projectile.oldPos, 
+            Projectile.oldRot, settings, passes: 3);
+        
+        return true; // Draw normal sprite too
+    }
 }
+```
+
+### Example 3: Boss with Unique Attack VFX
+
+```csharp
+public class MyBoss : ModNPC
+{
+    private void Attack_UniqueSlam()
+    {
+        // Windup - use YOUR own VFX logic
+        if (Timer < 60)
+        {
+            float progress = Timer / 60f;
+            
+            // Converging particles specific to THIS boss
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f + Timer * 0.05f;
+                float radius = 150f * (1f - progress * 0.5f);
+                Vector2 pos = NPC.Center + angle.ToRotationVector2() * radius;
+                
+                Dust d = Dust.NewDustPerfect(pos, DustID.Torch, Vector2.Zero, 0, 
+                    Color.Orange, 1.5f);
+                d.noGravity = true;
+            }
+        }
+        else // Release
+        {
+            // Explosion with bloom
+            BloomRenderer.DrawBloomStack(Main.spriteBatch, NPC.Center - Main.screenPosition,
+                Color.Orange, 2f, layers: 6, intensity: 1.5f);
+            
+            // Screen shake
+            MagnumScreenEffects.AddScreenShake(15f);
+        }
+    }
+}
+```
+
+## VFX System Toggle (For Development)
+
+The global VFX systems are controlled by `VFXMasterToggle.cs`:
+
+```csharp
+// Common/Systems/VFX/VFXMasterToggle.cs
+public static bool GlobalSystemsEnabled = false;  // DISABLED - use per-weapon VFX
+public static bool ScreenShadersEnabled = true;   // Shaders still work
+public static bool SkyEffectsEnabled = true;      // Sky effects still work
+public static bool ParticleRenderingEnabled = true; // Particle system still works
 ```
 
 ## ✅ CORRECT PATTERNS - ALWAYS USE THESE
@@ -204,7 +211,7 @@ Before creating ANY new VFX, verify:
 
 # 🚨🚨🚨 LEGACY: STOP MAKING LAZY PROJECTILES 🚨🚨🚨
 
-> **Note: The Global VFX systems now handle most of this automatically. This section is kept for reference.**
+> **Note: Global VFX systems are DISABLED. Implement unique VFX directly in each weapon's .cs file.**
 
 ## The Problem We Keep Having
 

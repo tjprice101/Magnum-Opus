@@ -379,10 +379,13 @@ namespace MagnumOpus.Common.Systems.VFX
             
             SpriteBatch spriteBatch = Main.spriteBatch;
             
-            // Start the SpriteBatch in additive mode first (we're drawing after DrawProjectiles)
-            _spriteBatchStarted = true;
+            // End any existing SpriteBatch state before starting our own
+            try { spriteBatch.End(); } catch { /* SpriteBatch wasn't active - that's okay */ }
+            
+            // Start the SpriteBatch in additive mode
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearWrap,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            _spriteBatchStarted = true;
             
             foreach (var trail in _trails)
             {
@@ -426,7 +429,7 @@ namespace MagnumOpus.Common.Systems.VFX
             // End the SpriteBatch we started in Render()
             if (_spriteBatchStarted)
             {
-                spriteBatch.End();
+                try { spriteBatch.End(); } catch { }
                 _spriteBatchStarted = false;
             }
         }

@@ -64,6 +64,10 @@ namespace MagnumOpus.Common.Systems.VFX
 
         public override void AI(Projectile projectile)
         {
+            // MASTER TOGGLE: When disabled, this global system does nothing
+            if (!VFXMasterToggle.GlobalSystemsEnabled)
+                return;
+            
             // Only process MagnumOpus projectiles
             if (projectile.ModProjectile == null || !projectile.ModProjectile.Mod.Name.Equals("MagnumOpus"))
                 return;

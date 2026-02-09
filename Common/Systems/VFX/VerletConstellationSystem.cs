@@ -373,7 +373,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float fadeAlpha = 1f - EaseInQuad(Progress);
             
             // End current batch and start additive for glow
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -433,7 +433,7 @@ namespace MagnumOpus.Common.Systems.VFX
             }
             
             // Restore alpha blend
-            spriteBatch.End();
+            try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }

@@ -38,6 +38,7 @@ namespace MagnumOpus.Common.Systems.VFX
         private static BasicEffect _basicEffect;
         private static VertexPositionColorTexture[] _vertices;
         private static short[] _indices;
+        private static bool _debugLogOnce = true; // Reset on world load
         
         private class NebulaTrailData
         {
@@ -93,7 +94,8 @@ namespace MagnumOpus.Common.Systems.VFX
         public static void Unload()
         {
             _trails.Clear();
-            _basicEffect?.Dispose();
+            // Don't dispose BasicEffect here - it causes threading issues during mod unload
+            // The graphics device will clean it up when the game exits
             _basicEffect = null;
             _vertices = null;
             _indices = null;
@@ -424,6 +426,19 @@ namespace MagnumOpus.Common.Systems.VFX
             Texture2D marble = MarbleNoise;
             Texture2D energyGrad = EnergyGradient ?? BlackCoreGradient;
             Texture2D sparkles = SparklyNoise;
+            
+            // DEBUG: Log texture status once
+            if (_debugLogOnce)
+            {
+                _debugLogOnce = false;
+                ModContent.GetInstance<MagnumOpus>()?.Logger?.Info(
+                    $"[CalamityNebulaTrail] Textures: " +
+                    $"NebulaWisp={(nebulaWisp != null ? $"{nebulaWisp.Width}x{nebulaWisp.Height}" : "NULL")}, " +
+                    $"FBM={(fbm != null ? $"{fbm.Width}x{fbm.Height}" : "NULL")}, " +
+                    $"Marble={(marble != null ? $"{marble.Width}x{marble.Height}" : "NULL")}, " +
+                    $"EnergyGrad={(energyGrad != null ? $"{energyGrad.Width}x{energyGrad.Height}" : "NULL")}, " +
+                    $"Sparkles={(sparkles != null ? $"{sparkles.Width}x{sparkles.Height}" : "NULL")}");
+            }
             
             // Fallback if missing hero texture
             Texture2D baseTexture = nebulaWisp ?? fbm ?? marble ?? energyGrad;
