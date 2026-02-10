@@ -97,10 +97,10 @@ namespace MagnumOpus.Common.Systems.Shaders
         /// Initialize and register all shaders.
         /// Uses Asset&lt;Effect&gt; pattern for tModLoader 1.4.5+ compatibility.
         /// 
-        /// NOTE: FNA (used by tModLoader on Windows) requires shaders compiled with 
-        /// a special MojoShader-compatible format. DirectX-compiled XNB shaders will fail.
-        /// Until we have properly compiled FNA shaders, we skip shader loading entirely
-        /// and rely on the particle-based VFX fallback system.
+        /// NOTE: Shader loading is currently DISABLED because there are no compiled
+        /// .xnb shader files. The VFX system will use particle-based fallback rendering
+        /// which still looks great! To enable shaders, compile the .fx files in 
+        /// ShaderSource/ folder using proper FNA-compatible tools.
         /// </summary>
         private void InitializeShaders()
         {
@@ -108,22 +108,76 @@ namespace MagnumOpus.Common.Systems.Shaders
                 return;
             
             _initialized = true;
-            
-            // === SKIP SHADER LOADING ===
-            // FNA requires MojoShader-compatible effect files. Our current XNB shaders
-            // were compiled with DirectX and cause "Not an Effects Framework binary" errors.
-            // Until we can compile shaders properly for FNA, we use particle-based VFX.
             _shadersAvailable = false;
-            Mod.Logger.Info("MagnumShaderSystem: Shaders disabled - using particle-based VFX rendering.");
-            Mod.Logger.Info("MagnumShaderSystem: (Shader compilation for FNA/MojoShader not yet implemented)");
             
-            // The VFX systems (CalamityStyleVFX, GlobalVFXOverhaul, etc.) automatically
-            // fall back to particle-based rendering when ShadersAvailable is false.
+            // DISABLED: Shader loading is disabled until properly compiled .xnb files exist
+            // The VFX system uses particle-based fallback which looks great without shaders
+            Mod.Logger.Info("MagnumShaderSystem: Using particle-based VFX (no compiled shaders).");
+            
+            // NOTE: To enable shaders:
+            // 1. Compile .fx files from ShaderSource/ using FNA-compatible tools
+            // 2. Place compiled .xnb files in Assets/Shaders/
+            // 3. Uncomment the shader loading code below
+            
+            /*
+            // Attempt to load shaders - tModLoader may auto-compile .fx files
+            int loadedCount = 0;
+            
+            // Try loading Trail shader
+            if (TryLoadShader("MagnumOpus/Assets/Shaders/TrailShader", out _trailShaderAsset))
+            {
+                try
+                {
+                    _trailShaderData = new MiscShaderData(_trailShaderAsset, "Pass1");
+                    GameShaders.Misc[TrailShader] = _trailShaderData;
+                    loadedCount++;
+                }
+                catch (Exception ex)
+                {
+                    Mod.Logger.Debug($"MagnumShaderSystem: Trail shader pass setup failed - {ex.Message}");
+                }
+            }
+            
+            // Try loading Bloom shader
+            if (TryLoadShader("MagnumOpus/Assets/Shaders/SimpleBloomShader", out _bloomShaderAsset))
+            {
+                try
+                {
+                    _bloomShaderData = new MiscShaderData(_bloomShaderAsset, "Pass1");
+                    GameShaders.Misc[BloomShader] = _bloomShaderData;
+                    loadedCount++;
+                }
+                catch (Exception ex)
+                {
+                    Mod.Logger.Debug($"MagnumShaderSystem: Bloom shader pass setup failed - {ex.Message}");
+                }
+            }
+            
+            // Try loading Screen shader
+            if (TryLoadShader("MagnumOpus/Assets/Shaders/ScreenEffectsShader", out _screenShaderAsset))
+            {
+                loadedCount++;
+            }
+            
+            // Update availability based on loaded shaders
+            _shadersAvailable = loadedCount > 0;
+            
+            if (_shadersAvailable)
+            {
+                Mod.Logger.Info($"MagnumShaderSystem: Loaded {loadedCount} shader(s) successfully.");
+            }
+            else
+            {
+                Mod.Logger.Info("MagnumShaderSystem: No shaders loaded - using particle-based VFX fallback.");
+                Mod.Logger.Debug("MagnumShaderSystem: (Place compiled .xnb shaders in Assets/Shaders/ or ensure .fx files compile)");
+            }
+            */
         }
         
         /// <summary>
         /// Attempts to load a shader from the given path.
         /// Uses Asset&lt;Effect&gt; for tModLoader 1.4.5+ compatibility.
+        /// Returns false if shader doesn't exist (no compiled .xnb file).
         /// </summary>
         private bool TryLoadShader(string path, out Asset<Effect> shaderAsset)
         {
@@ -131,12 +185,18 @@ namespace MagnumOpus.Common.Systems.Shaders
             
             try
             {
-                // Use ImmediateLoad to ensure shader is ready
-                shaderAsset = ModContent.Request<Effect>(path, AssetRequestMode.ImmediateLoad);
+                // Use AsyncLoad mode which doesn't throw immediately if asset doesn't exist
+                shaderAsset = ModContent.Request<Effect>(path, AssetRequestMode.AsyncLoad);
                 
-                if (shaderAsset?.Value != null)
+                // Check if asset actually exists and can be loaded
+                if (shaderAsset != null && shaderAsset.State != AssetState.NotLoaded)
                 {
-                    return true;
+                    // Wait for it to actually load
+                    shaderAsset.Wait();
+                    if (shaderAsset.Value != null)
+                    {
+                        return true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -145,6 +205,7 @@ namespace MagnumOpus.Common.Systems.Shaders
                 Mod.Logger.Debug($"MagnumShaderSystem: Could not load '{path}' - {ex.Message}");
             }
             
+            shaderAsset = null;
             return false;
         }
         

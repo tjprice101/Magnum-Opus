@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MagnumOpus.Common.Systems.VFX;
 using ReLogic.Content;
 using System;
 using System.Collections.Generic;
@@ -31,14 +32,15 @@ namespace MagnumOpus.Common.Systems.Particles
         
         // High-performance particle pools for each blend mode
         private static Queue<Particle> particlePool;
-        private const int PoolInitialSize = 500;
-        private const int PoolMaxSize = 2000;
+        private const int PoolInitialSize = 200;
+        private const int PoolMaxSize = 500;
 
         /// <summary>
         /// Maximum number of particles that can exist at once.
-        /// Calamity uses up to 10,000 particles - we match this for dense visual effects.
+        /// OPTIMIZED: Reduced from 10,000 to 2,000 for memory efficiency.
+        /// This is still enough for dense visual effects while preventing OOM crashes.
         /// </summary>
-        public const int MaxParticles = 10000;
+        public const int MaxParticles = 2000;
         
         /// <summary>
         /// Gets the current number of active particles. Used by BossVFXOptimizer for quality scaling.
@@ -68,17 +70,17 @@ namespace MagnumOpus.Common.Systems.Particles
 
         internal static void Load()
         {
-            // Pre-allocate lists with generous initial capacity for performance
-            particles = new List<Particle>(MaxParticles / 2);
-            particlesToKill = new List<Particle>(256);
+            // OPTIMIZED: Reduced pre-allocation sizes for memory efficiency
+            particles = new List<Particle>(500);
+            particlesToKill = new List<Particle>(64);
             particleTypes = new Dictionary<Type, int>();
             particleTextures = new Dictionary<int, Texture2D>();
             particleInstances = new List<Particle>();
 
-            // Batched rendering lists - pre-allocate for typical usage
-            batchedAlphaBlendParticles = new List<Particle>(1000);
-            batchedNonPremultipliedParticles = new List<Particle>(500);
-            batchedAdditiveBlendParticles = new List<Particle>(3000);
+            // Batched rendering lists - reduced initial capacity
+            batchedAlphaBlendParticles = new List<Particle>(200);
+            batchedNonPremultipliedParticles = new List<Particle>(100);
+            batchedAdditiveBlendParticles = new List<Particle>(500);
             
             // Initialize particle pool for object reuse (reduces GC pressure)
             particlePool = new Queue<Particle>(PoolInitialSize);
@@ -281,78 +283,85 @@ namespace MagnumOpus.Common.Systems.Particles
         /// <summary>
         /// Draws all particles as a standalone operation - manages its own spritebatch state.
         /// Use this when calling from an IL hook where the spritebatch state is unknown.
+        /// CRITICAL: Uses SpriteBatchScope for safe state management with FancyLighting compatibility.
         /// </summary>
         public static void DrawAllParticlesStandalone(SpriteBatch sb)
         {
             if (Main.dedServ || particles == null || particles.Count == 0)
                 return;
 
-            // Calculate screen bounds for culling
-            Vector2 screenCenter = Main.screenPosition + new Vector2(Main.screenWidth, Main.screenHeight) * 0.5f;
-            float cullDistSq = CullDistance * CullDistance;
-
-            // Batch particles by blend mode, culling off-screen particles
-            foreach (Particle particle in particles)
+            // Use SpriteBatchScope for proper state capture and restoration
+            // This is the Calamity-proven pattern for FancyLighting compatibility
+            using (var scope = sb.Scope())
             {
-                if (particle == null)
-                    continue;
-                
-                // Cull particles far outside the screen for performance
-                float distSq = Vector2.DistanceSquared(particle.Position, screenCenter);
-                if (distSq > cullDistSq && !particle.Important)
-                    continue;
+                // Calculate screen bounds for culling
+                Vector2 screenCenter = Main.screenPosition + new Vector2(Main.screenWidth, Main.screenHeight) * 0.5f;
+                float cullDistSq = CullDistance * CullDistance;
 
-                if (particle.UseAdditiveBlend)
-                    batchedAdditiveBlendParticles.Add(particle);
-                else if (particle.UseHalfTransparency)
-                    batchedNonPremultipliedParticles.Add(particle);
-                else
-                    batchedAlphaBlendParticles.Add(particle);
-            }
-
-            // Draw alpha blend particles
-            if (batchedAlphaBlendParticles.Count > 0)
-            {
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-                foreach (Particle particle in batchedAlphaBlendParticles)
+                // Batch particles by blend mode, culling off-screen particles
+                foreach (Particle particle in particles)
                 {
-                    DrawParticle(sb, particle);
+                    if (particle == null)
+                        continue;
+                    
+                    // Cull particles far outside the screen for performance
+                    float distSq = Vector2.DistanceSquared(particle.Position, screenCenter);
+                    if (distSq > cullDistSq && !particle.Important)
+                        continue;
+
+                    if (particle.UseAdditiveBlend)
+                        batchedAdditiveBlendParticles.Add(particle);
+                    else if (particle.UseHalfTransparency)
+                        batchedNonPremultipliedParticles.Add(particle);
+                    else
+                        batchedAlphaBlendParticles.Add(particle);
                 }
-                sb.End();
-            }
 
-            // Draw non-premultiplied (half transparency) particles
-            if (batchedNonPremultipliedParticles.Count > 0)
-            {
-                sb.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, Main.DefaultSamplerState,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-                foreach (Particle particle in batchedNonPremultipliedParticles)
+                // Draw alpha blend particles
+                if (batchedAlphaBlendParticles.Count > 0)
                 {
-                    DrawParticle(sb, particle);
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                    foreach (Particle particle in batchedAlphaBlendParticles)
+                    {
+                        DrawParticle(sb, particle);
+                    }
+                    sb.End();
                 }
-                sb.End();
-            }
 
-            // Draw additive blend particles (most important for glows!)
-            if (batchedAdditiveBlendParticles.Count > 0)
-            {
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-                foreach (Particle particle in batchedAdditiveBlendParticles)
+                // Draw non-premultiplied (half transparency) particles
+                if (batchedNonPremultipliedParticles.Count > 0)
                 {
-                    DrawParticle(sb, particle);
-                }
-                sb.End();
-            }
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, Main.DefaultSamplerState,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Clear batches
-            batchedAlphaBlendParticles.Clear();
-            batchedNonPremultipliedParticles.Clear();
-            batchedAdditiveBlendParticles.Clear();
+                    foreach (Particle particle in batchedNonPremultipliedParticles)
+                    {
+                        DrawParticle(sb, particle);
+                    }
+                    sb.End();
+                }
+
+                // Draw additive blend particles (most important for glows!)
+                if (batchedAdditiveBlendParticles.Count > 0)
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                    foreach (Particle particle in batchedAdditiveBlendParticles)
+                    {
+                        DrawParticle(sb, particle);
+                    }
+                    sb.End();
+                }
+
+                // Clear batches
+                batchedAlphaBlendParticles.Clear();
+                batchedNonPremultipliedParticles.Clear();
+                batchedAdditiveBlendParticles.Clear();
+            }
+            // SpriteBatchScope.Dispose() automatically restores the original state
         }
 
         /// <summary>

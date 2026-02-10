@@ -7046,6 +7046,16 @@ Items: {
 		DisplayName: Debug A R K
 		Tooltip: ""
 	}
+
+	DebugHEAVY: {
+		DisplayName: Debug H E A V Y
+		Tooltip: ""
+	}
+
+	DebugSWING: {
+		DisplayName: Debug S W I N G
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -7481,4 +7491,6 @@ Projectiles: {
 	SwanLakePrismExample.DisplayName: Swan Lake Prism Example
 	DebugARKConstellationBolt.DisplayName: Debug A R K Constellation Bolt
 	DebugARKSwungBlade.DisplayName: Debug A R K Swung Blade
+	DebugHEAVYSwungBlade.DisplayName: Debug H E A V Y Swung Blade
+	DebugSWINGProj.DisplayName: Debug S W I N G Proj
 }

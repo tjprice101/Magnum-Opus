@@ -9,17 +9,18 @@ using Terraria.ModLoader;
 using Terraria.DataStructures;
 using Terraria.Audio;
 using Terraria.GameContent;
-using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.Metaballs;
 
 namespace MagnumOpus.Content.DebugWeapons
 {
     /// <summary>
-    /// DEBUG WEAPON: Ark of the Cosmos / Galaxia Style Melee VFX Test
+    /// DEBUG WEAPON: Galaxia/Ark of the Cosmos Style Metaball VFX Test
     /// 
-    /// Uses the ACTUAL Calamity pattern:
-    /// 1. A persistent CircularSmear particle that creates the arc trail
-    /// 2. HeavySmokeParticle spawned along blade that drifts away
-    /// 3. The smear particle is kept alive by resetting Time = 0 each frame
+    /// TERRA BLADE GREEN EDITION with proper Calamity-style metaball cosmic cloud effect!
+    /// 
+    /// The metaball system creates smooth, merging blob shapes that use the
+    /// two cosmic layer textures (EmeraldCosmicNebula + ToxicEnergyVortex) to
+    /// create the swirling cosmic energy effect seen in Galaxia.
     /// </summary>
     public class DebugARK : ModItem
     {
@@ -52,68 +53,21 @@ namespace MagnumOpus.Content.DebugWeapons
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Ark of the Cosmos / Galaxia style VFX test"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "CircularSmear particle + HeavySmoke drift"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The cosmos burns with every swing.'") 
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Galaxia/Ark of the Cosmos style METABALL VFX test"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Terra Blade Green - Cosmic cloud metaballs merge together"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Emerald chaos flows through the blade like nebula clouds.'") 
             { 
-                OverrideColor = new Color(255, 140, 60) 
+                OverrideColor = new Color(50, 255, 100) 
             });
         }
     }
 
     /// <summary>
-    /// CircularSmear particle - kept alive by resetting Time = 0 each frame.
-    /// This is the EXACT pattern from Calamity's CircularSmearSmokeyVFX.
-    /// </summary>
-    public class CircularSmearParticle : Particle
-    {
-        public override string Texture => "MagnumOpus/Assets/Particles/CircularSmear";
-        public override bool UseCustomDraw => true;
-        public override bool UseAdditiveBlend => true;
-        public override bool SetLifetime => true;
-        
-        public float Opacity = 1f;
-        
-        public CircularSmearParticle(Vector2 position, Color color, float rotation, float scale)
-        {
-            Position = position;
-            Velocity = Vector2.Zero;
-            Color = color;
-            Scale = scale;
-            Rotation = rotation;
-            Lifetime = 2; // Short lifetime - kept alive by Time = 0 reset
-        }
-        
-        public override void Update()
-        {
-            // Minimal update - position/rotation/scale set externally each frame
-            // Time is auto-incremented by particle handler
-        }
-        
-        public override void CustomDraw(SpriteBatch spriteBatch)
-        {
-            Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
-            if (tex == null) return;
-            
-            Vector2 origin = tex.Size() / 2f;
-            Vector2 drawPos = Position - Main.screenPosition;
-            
-            // Additive blending color (A = 0 for proper additive)
-            Color drawColor = Color;
-            drawColor.A = 0;
-            
-            spriteBatch.Draw(tex, drawPos, null, drawColor * Opacity, Rotation, origin, Scale, SpriteEffects.None, 0f);
-        }
-    }
-
-    /// <summary>
-    /// The swung blade projectile implementing the ACTUAL Galaxia/Ark of the Cosmos pattern.
+    /// The swung blade projectile with METABALL cosmic cloud rendering.
     /// 
-    /// KEY INSIGHT FROM CALAMITY SOURCE:
-    /// - Store a single CircularSmear particle as a class field
-    /// - Each frame, update its Position, Rotation, Scale, Color
-    /// - Reset Time = 0 to keep it alive
-    /// - Spawn HeavySmokeParticle along blade that drifts away
+    /// The PRIMARY effect is now the metaball system - smooth, merging blobs
+    /// of cosmic energy that follow the swing path. Secondary effects are
+    /// minimal to let the metaballs shine.
     /// </summary>
     public class DebugARKSwungBlade : ModProjectile
     {
@@ -127,14 +81,11 @@ namespace MagnumOpus.Content.DebugWeapons
         private ref float Timer => ref Projectile.ai[0];
         private ref float SwingDirection => ref Projectile.ai[1];
 
-        // Fire color ramp
-        private static readonly Color ColorHottest = new Color(255, 255, 220);
-        private static readonly Color ColorHot = new Color(255, 180, 60);
-        private static readonly Color ColorMid = new Color(255, 80, 40);
-        private static readonly Color ColorCool = new Color(180, 40, 80);
-
-        // THE KEY: Persistent smear particle reference
-        private CircularSmearParticle smear = null;
+        // Terra Blade green color palette
+        private static readonly Color ColorNeonGreen = new Color(120, 255, 160);
+        private static readonly Color ColorBrightGreen = new Color(80, 255, 120);
+        private static readonly Color ColorMidGreen = new Color(50, 200, 90);
+        private static readonly Color ColorDarkGreen = new Color(30, 140, 60);
 
         public override void SetDefaults()
         {
@@ -149,10 +100,21 @@ namespace MagnumOpus.Content.DebugWeapons
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 8;
             Projectile.timeLeft = SwingDuration + 5;
+            
+            // Simple trail for blade afterimages
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 12;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
         public override void AI()
         {
+            // Update rotation history manually (held projectile doesn't move)
+            for (int i = Projectile.oldRot.Length - 1; i > 0; i--)
+            {
+                Projectile.oldRot[i] = Projectile.oldRot[i - 1];
+            }
+            Projectile.oldRot[0] = Projectile.rotation;
+            
             // Lock to owner
             Projectile.Center = Owner.Center;
             Owner.heldProj = Projectile.whoAmI;
@@ -187,19 +149,22 @@ namespace MagnumOpus.Content.DebugWeapons
                 Projectile.rotation - MathHelper.PiOver2);
 
             // =====================================================
-            // THE CALAMITY PATTERN: Persistent smear particle
+            // PRIMARY EFFECT: METABALL COSMIC CLOUD
+            // This is the main visual - merging blob particles
             // =====================================================
-            DoSmearParticleEffect();
+            DoMetaballEffect();
 
             // =====================================================
-            // Spawn smoke particles along blade that drift away
+            // SECONDARY: Minimal dust for sparkle accents
             // =====================================================
-            DoSmokeParticles();
+            if (swingProgress > 0.1f && swingProgress < 0.9f && Main.rand.NextBool(3))
+            {
+                SpawnAccentDust();
+            }
 
             // Lighting
             Vector2 bladeDir = Projectile.rotation.ToRotationVector2();
-            Lighting.AddLight(Owner.Center + bladeDir * BladeLength, ColorHot.ToVector3() * 0.9f);
-            Lighting.AddLight(Owner.Center + bladeDir * (BladeLength * 0.5f), ColorMid.ToVector3() * 0.6f);
+            Lighting.AddLight(Owner.Center + bladeDir * BladeLength, ColorBrightGreen.ToVector3() * 0.8f);
 
             // End swing
             if (Timer >= SwingDuration)
@@ -209,134 +174,119 @@ namespace MagnumOpus.Content.DebugWeapons
         }
 
         /// <summary>
-        /// The EXACT pattern from Calamity's Galaxia/ArkOfTheCosmos:
-        /// - If smear is null, create it and spawn via particle handler
-        /// - If smear exists, update its properties and reset Time = 0 to keep alive
+        /// METABALL EFFECT - The primary visual!
+        /// Spawns merging blob particles along the swing path.
+        /// These particles use the TerraMetaball system which renders with
+        /// the two cosmic layer textures for that Galaxia-like swirling effect.
         /// </summary>
-        private void DoSmearParticleEffect()
+        private void DoMetaballEffect()
         {
             float swingProgress = Timer / SwingDuration;
             
-            // Color shifts through swing
-            Color currentColor = Color.Lerp(ColorHot, Color.Chocolate, swingProgress);
-            currentColor *= MathHelper.Clamp((float)Math.Sin(swingProgress * MathHelper.Pi), 0.3f, 1f);
+            // Only spawn during active swing
+            if (swingProgress < 0.08f || swingProgress > 0.92f) return;
             
-            // Opacity based on swing progress (fade in, sustain, fade out)
-            float opacity = (float)Math.Sin(swingProgress * MathHelper.Pi) * 0.6f;
+            // Intensity peaks in middle of swing
+            float intensity = MathHelper.Clamp((float)Math.Sin(swingProgress * MathHelper.Pi), 0f, 1f);
+            intensity = (float)Math.Pow(intensity, 0.5f); // More aggressive intensity
             
-            // Scale pulses slightly
-            float scale = 1.8f + (float)Math.Sin(swingProgress * MathHelper.Pi) * 0.4f;
+            Vector2 bladeDir = Projectile.rotation.ToRotationVector2();
+            Vector2 perpDir = bladeDir.RotatedBy(MathHelper.PiOver2);
             
-            if (smear == null)
+            // Spawn MANY particles for denser, more visible cloud
+            int particleCount = (int)(7 * intensity) + 4;
+            
+            for (int i = 0; i < particleCount; i++)
             {
-                // Create the smear particle
-                smear = new CircularSmearParticle(
-                    Owner.Center, 
-                    currentColor, 
-                    Projectile.rotation + MathHelper.PiOver4, 
-                    scale
-                );
-                smear.Opacity = opacity;
-                MagnumParticleHandler.SpawnParticle(smear);
+                // Position along blade (20% to 110% of length for full coverage)
+                float bladeT = 0.2f + Main.rand.NextFloat(0.9f);
+                Vector2 spawnPos = Owner.Center + bladeDir * (BladeLength * bladeT * Projectile.scale);
+                
+                // Add perpendicular scatter for width
+                spawnPos += perpDir * Main.rand.NextFloat(-30f, 30f);
+                
+                // Add some random scatter
+                spawnPos += Main.rand.NextVector2Circular(12f, 12f);
+                
+                // Velocity - perpendicular to blade in swing direction
+                // This makes the cloud "trail" behind the swing
+                Vector2 velocity = perpDir * SwingDirection * Main.rand.NextFloat(5f, 14f) * intensity;
+                velocity += bladeDir * Main.rand.NextFloat(-4f, 4f);
+                velocity += Owner.velocity * 0.5f;
+                
+                // Size - MUCH LARGER particles for more visible effect
+                // Galaxia uses roughly 80-200 size range
+                float size = Main.rand.NextFloat(80f, 180f) * intensity;
+                
+                // Spawn the metaball particle!
+                TerraMetaball.SpawnParticle(spawnPos, velocity, size);
             }
-            else
+            
+            // Extra LARGE burst at blade tip for emphasis
+            for (int j = 0; j < 2; j++)
             {
-                // Update the smear each frame - THIS IS THE KEY
-                smear.Rotation = Projectile.rotation + MathHelper.PiOver4 + (SwingDirection < 0 ? MathHelper.Pi : 0f);
-                smear.Time = 0; // RESET TIME TO KEEP ALIVE
-                smear.Position = Owner.Center;
-                smear.Scale = scale;
-                smear.Color = currentColor;
-                smear.Opacity = opacity;
+                Vector2 tipPos = Owner.Center + bladeDir * BladeLength * Projectile.scale;
+                tipPos += Main.rand.NextVector2Circular(15f, 15f);
+                
+                Vector2 tipVel = perpDir * SwingDirection * Main.rand.NextFloat(8f, 18f);
+                tipVel += bladeDir * Main.rand.NextFloat(3f, 7f);
+                tipVel += Main.rand.NextVector2Circular(3f, 3f);
+                
+                float tipSize = Main.rand.NextFloat(120f, 200f) * intensity;  // EXTRA LARGE at tip
+                TerraMetaball.SpawnParticle(tipPos, tipVel, tipSize);
+            }
+            
+            // Spawn along the arc that was just traveled for continuous trail
+            if (Timer > 1)
+            {
+                float prevRotation = Projectile.oldRot[1];
+                float arcSpan = Math.Abs(Projectile.rotation - prevRotation);
+                
+                // Spawn MORE particles along the arc for denser trail
+                int arcParticles = Math.Max(2, (int)(arcSpan / 0.08f));
+                for (int i = 0; i < arcParticles; i++)
+                {
+                    float t = (float)i / arcParticles;
+                    float arcRot = MathHelper.Lerp(prevRotation, Projectile.rotation, t);
+                    Vector2 arcDir = arcRot.ToRotationVector2();
+                    
+                    float arcT = 0.4f + Main.rand.NextFloat(0.6f);
+                    Vector2 arcPos = Owner.Center + arcDir * (BladeLength * arcT);
+                    arcPos += Main.rand.NextVector2Circular(15f, 15f);
+                    
+                    Vector2 arcPerp = arcDir.RotatedBy(MathHelper.PiOver2);
+                    Vector2 arcVel = arcPerp * SwingDirection * Main.rand.NextFloat(4f, 12f);
+                    
+                    float arcSize = Main.rand.NextFloat(60f, 120f) * intensity;  // LARGER arc particles
+                    TerraMetaball.SpawnParticle(arcPos, arcVel, arcSize);
+                }
             }
         }
 
         /// <summary>
-        /// Spawn smoke particles along the blade that drift away.
-        /// This creates the "muddy fire" effect as particles linger in the air.
+        /// Minimal accent dust - just a few sparkles to complement the metaballs.
         /// </summary>
-        private void DoSmokeParticles()
-        {
-            float swingProgress = Timer / SwingDuration;
-            
-            // Only spawn during active swing (not at very start/end)
-            if (swingProgress < 0.1f || swingProgress > 0.9f) return;
-            
-            float scaleFactor = MathHelper.Clamp((float)Math.Sin(swingProgress * MathHelper.Pi), 0f, 1f);
-            float smokeOpacity = scaleFactor * 0.4f;
-            
-            // Spawn smoke at multiple points along blade
-            if (Main.rand.NextBool())
-            {
-                for (float i = 0.3f; i <= 1f; i += 0.35f)
-                {
-                    Vector2 smokePos = Owner.Center + 
-                        (Projectile.rotation.ToRotationVector2() * (BladeLength * i * Projectile.scale)) + 
-                        Projectile.rotation.ToRotationVector2().RotatedBy(-MathHelper.PiOver2) * 30f * scaleFactor * Main.rand.NextFloat();
-                    
-                    Vector2 smokeSpeed = Projectile.rotation.ToRotationVector2().RotatedBy(-MathHelper.PiOver2 * SwingDirection) * 20f * scaleFactor + Owner.velocity;
-                    
-                    // Color gradient along blade
-                    Color smokeColor = Color.Lerp(Color.DodgerBlue, Color.MediumVioletRed, i);
-                    
-                    // Spawn the smoke particle
-                    var smoke = new HeavySmokeParticle(
-                        smokePos, 
-                        smokeSpeed, 
-                        smokeColor, 
-                        6 + Main.rand.Next(5), 
-                        scaleFactor * Main.rand.NextFloat(2.5f, 3f), 
-                        smokeOpacity + Main.rand.NextFloat(0f, 0.15f),
-                        0f, 
-                        false
-                    );
-                    MagnumParticleHandler.SpawnParticle(smoke);
-                    
-                    // Occasional golden highlight smoke
-                    if (Main.rand.NextBool(3))
-                    {
-                        var glowSmoke = new HeavySmokeParticle(
-                            smokePos, 
-                            smokeSpeed, 
-                            Main.rand.NextBool(5) ? Color.Gold : Color.Chocolate, 
-                            5, 
-                            scaleFactor * Main.rand.NextFloat(2f, 2.4f), 
-                            smokeOpacity * 2f,
-                            0f, 
-                            true // Glowing
-                        );
-                        MagnumParticleHandler.SpawnParticle(glowSmoke);
-                    }
-                }
-            }
-            
-            // Spawn dust for extra sparkle
-            SpawnDust();
-        }
-
-        private void SpawnDust()
+        private void SpawnAccentDust()
         {
             Vector2 bladeDir = Projectile.rotation.ToRotationVector2();
             
-            int dustCount = Main.rand.Next(2, 4);
-            for (int i = 0; i < dustCount; i++)
+            float t = Main.rand.NextFloat(0.5f, 1f);
+            Vector2 dustPos = Owner.Center + bladeDir * (BladeLength * t);
+            dustPos += Main.rand.NextVector2Circular(15f, 15f);
+            
+            Vector2 vel = -bladeDir * Main.rand.NextFloat(0.5f, 2f);
+            vel.Y -= Main.rand.NextFloat(0.5f, 1f);
+            
+            // Green dust types
+            int dustType = Main.rand.Next(3) switch
             {
-                float t = Main.rand.NextFloat(0.4f, 1f);
-                Vector2 dustPos = Owner.Center + bladeDir * (BladeLength * t);
-                
-                Vector2 perp = bladeDir.RotatedBy(MathHelper.PiOver2);
-                dustPos += perp * Main.rand.NextFloat(-12f, 12f);
-                
-                Vector2 vel = -bladeDir * Main.rand.NextFloat(1f, 3f);
-                vel += perp * Main.rand.NextFloat(-2f, 2f) * SwingDirection;
-                vel.Y -= Main.rand.NextFloat(0.5f, 1.5f);
-                
-                int dustType = Main.rand.NextBool(3) ? DustID.Torch : DustID.SolarFlare;
-                
-                Dust dust = Dust.NewDustPerfect(dustPos, dustType, vel, 0, default, Main.rand.NextFloat(0.8f, 1.4f));
-                dust.noGravity = true;
-                dust.fadeIn = 0.8f;
-            }
+                0 => DustID.TerraBlade,
+                1 => DustID.GreenFairy,
+                _ => DustID.GemEmerald
+            };
+            
+            Dust dust = Dust.NewDustPerfect(dustPos, dustType, vel, 0, default, Main.rand.NextFloat(0.8f, 1.4f));
+            dust.noGravity = true;
         }
 
         private float PiecewiseSwingCurve(float progress)
@@ -361,28 +311,56 @@ namespace MagnumOpus.Content.DebugWeapons
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
+            Texture2D sword = TextureAssets.Item[ItemID.TerraBlade].Value;
+            if (sword == null) return false;
             
-            Texture2D bladeTex = TextureAssets.Item[ItemID.TerraBlade].Value;
-            if (bladeTex == null) return false;
+            Vector2 drawOrigin = new Vector2(0f, sword.Height);
+            Vector2 baseDrawOffset = Owner.Center - Main.screenPosition;
+            float bladeScale = BladeLength / sword.Width;
             
-            Vector2 bladeOrigin = new Vector2(0, bladeTex.Height / 2f);
-            Vector2 drawPos = Owner.Center - Main.screenPosition;
-            float bladeScale = BladeLength / bladeTex.Width;
-            SpriteEffects flip = SwingDirection > 0 ? SpriteEffects.None : SpriteEffects.FlipVertically;
+            // ================================================================
+            // SIMPLIFIED AFTERIMAGES - Let metaballs be the star
+            // ================================================================
+            for (int i = 1; i < Projectile.oldRot.Length; i++)
+            {
+                if (Projectile.oldRot[i] == 0f) continue;
+                
+                float progress = i / (float)Projectile.oldRot.Length;
+                Color trailColor = Color.Lerp(ColorBrightGreen, ColorDarkGreen, progress) * (1f - progress);
+                trailColor *= 0.5f; // Subtle afterimage
+                
+                float trailRot = Projectile.oldRot[i] + MathHelper.PiOver4;
+                float trailScale = bladeScale * (1f - progress * 0.2f);
+                
+                Main.spriteBatch.Draw(sword, baseDrawOffset, null, trailColor, trailRot, 
+                    drawOrigin, trailScale, SpriteEffects.None, 0f);
+            }
             
-            // Glow layers
-            Color layer1 = new Color(255, 100, 50) * 0.2f;
-            sb.Draw(bladeTex, drawPos, null, layer1, Projectile.rotation, bladeOrigin, bladeScale * 1.15f, flip, 0f);
+            // ================================================================
+            // CURRENT BLADE
+            // ================================================================
+            float currentRotation = Projectile.rotation + MathHelper.PiOver4;
+            Main.spriteBatch.Draw(sword, baseDrawOffset, null, lightColor, currentRotation, 
+                drawOrigin, bladeScale, SpriteEffects.None, 0f);
             
-            Color layer2 = new Color(255, 160, 60) * 0.25f;
-            sb.Draw(bladeTex, drawPos, null, layer2, Projectile.rotation, bladeOrigin, bladeScale * 1.08f, flip, 0f);
+            // ================================================================
+            // SIMPLE GLOW - Green additive glow on blade
+            // ================================================================
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, Main.DefaultSamplerState, 
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
-            Color layer3 = new Color(255, 220, 120) * 0.3f;
-            sb.Draw(bladeTex, drawPos, null, layer3, Projectile.rotation, bladeOrigin, bladeScale * 1.03f, flip, 0f);
+            Color glow = ColorBrightGreen with { A = 0 };
+            Main.spriteBatch.Draw(sword, baseDrawOffset, null, glow * 0.4f, currentRotation, 
+                drawOrigin, bladeScale * 1.1f, SpriteEffects.None, 0f);
             
-            // Main blade
-            sb.Draw(bladeTex, drawPos, null, Color.White, Projectile.rotation, bladeOrigin, bladeScale, flip, 0f);
+            Color glow2 = ColorNeonGreen with { A = 0 };
+            Main.spriteBatch.Draw(sword, baseDrawOffset, null, glow2 * 0.25f, currentRotation, 
+                drawOrigin, bladeScale * 1.2f, SpriteEffects.None, 0f);
+            
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, 
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }

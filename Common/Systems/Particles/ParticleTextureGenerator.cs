@@ -542,7 +542,7 @@ namespace MagnumOpus.Common.Systems.Particles
                 "GlowSpark" => GlowSpark,
                 "SoftGlow" => SoftGlow,
                 "Point" => Point,
-                "HeavySmoke" => HeavySmoke,
+                // HeavySmoke removed - use actual HeavySmoke.png (5x6 spritesheet, 30 frames)
                 "SoftLine" => SoftLine,
                 "HardCircle" => HardCircle,
                 "Star4Point" => Star4Point,
