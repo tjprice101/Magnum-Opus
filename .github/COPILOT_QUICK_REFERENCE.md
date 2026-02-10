@@ -8,13 +8,12 @@
 
 ## 🚨 CRITICAL: PER-WEAPON VFX ARCHITECTURE 🚨
 
-**ALL GLOBAL VFX SYSTEMS ARE DISABLED. Each weapon implements its OWN unique VFX.**
+**ALL GLOBAL VFX SYSTEMS ARE DELETED. Each weapon implements its OWN unique VFX.**
 
 | Status | What It Means |
 |--------|---------------|
-| `GlobalVFXOverhaul.cs` | **DISABLED** - Implement projectile VFX in each projectile's .cs file |
-| `GlobalWeaponVFXOverhaul.cs` | **DISABLED** - Implement weapon VFX in each weapon's .cs file |
-| `GlobalBossVFXOverhaul.cs` | **DISABLED** - Implement boss VFX in each boss's .cs file |
+| Global VFX Files | **DELETED** - The entire `VFX/Deprecated/` folder has been removed |
+| Per-Weapon Approach | **REQUIRED** - Implement VFX in each weapon/projectile/boss .cs file |
 | VFX Utility Classes | **AVAILABLE** - Use as libraries for building per-weapon effects |
 
 ### VFX Utilities Still Available:

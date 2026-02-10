@@ -1,49 +1,43 @@
-# CALAMITY-STYLE VFX STANDARDS - Buttery Smooth Visual Effects
+# PER-WEAPON VFX STANDARDS - Calamity-Style Visual Effects
 
-> **THIS DOCUMENT REFLECTS THE NEW PER-WEAPON VFX ARCHITECTURE.**
+> **THIS DOCUMENT REFLECTS THE PER-WEAPON VFX ARCHITECTURE.**
 > 
-> **IMPORTANT:** Global VFX systems are **DISABLED**. Each weapon, projectile, and boss
-> must implement its OWN unique VFX directly in its .cs file, like Calamity's Ark of the Cosmos.
+> **IMPORTANT:** Global VFX systems are **DISABLED** and have been **DELETED**.
+> Each weapon, projectile, and boss must implement its OWN unique VFX directly 
+> in its .cs file, like Calamity's Ark of the Cosmos.
 
 ---
 
-## ✅ THE NEW VFX ARCHITECTURE
+## ✅ THE VFX ARCHITECTURE
 
 ### 🔥 KEY INSIGHT: PER-WEAPON VFX (Like Ark of the Cosmos)
 
-The global VFX systems are **DISABLED** via `VFXMasterToggle.GlobalSystemsEnabled = false`:
+The global VFX systems have been **REMOVED** from the codebase. The philosophy is:
 
-| System | Status | What To Do Instead |
-|--------|--------|-------------------|
-| `GlobalVFXOverhaul.cs` | **DISABLED** | Implement projectile VFX in each projectile's .cs file |
-| `GlobalWeaponVFXOverhaul.cs` | **DISABLED** | Implement weapon VFX in each weapon's .cs file |
-| `GlobalBossVFXOverhaul.cs` | **DISABLED** | Implement boss VFX in each boss's .cs file |
+| Old Approach (DELETED) | New Approach (CURRENT) |
+|------------------------|------------------------|
+| Global systems auto-applied generic VFX | Each weapon has its OWN unique VFX code |
+| Cookie-cutter effects on everything | Every weapon feels unique and memorable |
+| `GlobalVFXOverhaul.cs` (deleted) | Implement in each projectile's .cs file |
+| `GlobalWeaponVFXOverhaul.cs` (deleted) | Implement in each weapon's .cs file |
+| `GlobalBossVFXOverhaul.cs` (deleted) | Implement in each boss's .cs file |
 
-### Core Technologies (Use As Libraries)
+### VFX Utility Classes (Use As Libraries)
 
-These utility classes are still available for building per-weapon VFX:
+These utility classes are available for building per-weapon VFX:
 
 | Technology | File | What It Does |
 |------------|------|--------------|
-| **Sub-Pixel Interpolation** | `InterpolatedRenderer.cs` | 144Hz+ smoothness via `GetInterpolatedCenter()` |
-| **Bézier Curve Paths** | `BezierProjectileSystem.cs` | Curved homing arcs, snaking paths, spiral approaches |
-| **Primitive Trail Rendering** | `EnhancedTrailRenderer.cs` | Multi-pass trails with `PrimitiveSettings` (width/color functions) |
-| **Advanced Trail System** | `AdvancedTrailSystem.cs` | Theme-based trail creation via `CreateThemeTrail()` |
-| **🔥 Ark-Style Swing Trails** | `ArkSwingTrail.cs` | **Triangle strip mesh with UV-mapped noise textures** |
-| **Screen Effects** | `ScreenDistortionManager.cs` | Distortion via `TriggerThemeEffect()` |
-| **Dynamic Skybox** | `DynamicSkyboxSystem.cs` | Sky flashes via `TriggerFlash()` |
-| **Procedural VFX** | `ProceduralProjectileVFX.cs` | PNG-free rendering via `DrawProceduralProjectile()` |
-| **Cinematic VFX** | `CinematicVFX.cs` | Lens flares, energy streaks, impact glints |
-| `Eroica` | Eroica | Scarlet → Gold, Sakura accents |
-| `Fate` | Fate | Black → Pink → Red, cosmic white |
-| `SwanLake` | SwanLake | White/Black, rainbow shimmer |
-| `MoonlightSonata` | MoonlightSonata | Purple → Ice Blue |
-| `LaCampanella` | LaCampanella | Black smoke → Orange flame |
-| `Enigma` | EnigmaVariations | Void purple → Green flame |
-| `Spring` | Spring | Pink → Green pastels |
-| `Summer` | Summer | Orange → Gold warmth |
-| `Autumn` | Autumn | Amber → Crimson |
-| `Winter` | Winter | Ice Blue → White |
+| **Multi-Layer Bloom** | `BloomRenderer.cs` | `DrawBloomStack()`, `DrawSimpleBloom()` |
+| **Primitive Trails** | `EnhancedTrailRenderer.cs` | Multi-pass trails with `PrimitiveSettings` |
+| **Interpolated Rendering** | `InterpolatedRenderer.cs` | 144Hz+ smoothness via `PartialTicks` |
+| **Theme Palettes** | `MagnumThemePalettes.cs` | `GetThemePalette()`, `GetThemeColor()` |
+| **Light Rays** | `GodRaySystem.cs` | `CreateBurst()` with `GodRayStyle` |
+| **Impact Flares** | `ImpactLightRays.cs` | `SpawnImpactRays()` |
+| **Screen Distortion** | `ScreenDistortionManager.cs` | `TriggerRipple()` |
+| **Bézier Paths** | `BezierProjectileSystem.cs` | Curved projectile paths |
+| **Elemental Effects** | `UniversalElementalVFX.cs` | Flames, lightning, petals, frost, void, cosmic |
+| **Boss Arena VFX** | `BossArenaVFX.cs` | Persistent ambient particles with parallax |
 
 ---
 
@@ -51,7 +45,7 @@ These utility classes are still available for building per-weapon VFX:
 
 ### Every Weapon Implements Its Own VFX
 
-Since global systems are disabled, each weapon's .cs file must contain its own VFX logic:
+Each weapon's .cs file must contain its own VFX logic:
 
 ```csharp
 // ✅ CORRECT: Implement unique VFX directly in the weapon
@@ -86,49 +80,65 @@ public class MyEroicaProjectile : ModProjectile
 }
 ```
 
-### For Custom Unique Effects: Use CalamityStyleVFX
-
-When you want effects BEYOND the automatic ones, call `CalamityStyleVFX` directly:
+### Using VFX Utility Classes
 
 ```csharp
 using MagnumOpus.Common.Systems.VFX;
 
-// In a weapon's Shoot method - add extra wing effect
-CalamityStyleVFX.EtherealWingEffect(player, "SwanLake", 1.2f);
+// Bloom effects
+BloomRenderer.DrawBloomStack(spriteBatch, position, color, 0.5f, layers: 4, intensity: 1f);
+BloomRenderer.DrawSimpleBloom(spriteBatch, pos, color, scale);
 
-// In a projectile's AI - add wave effect
-CalamityStyleVFX.WaveProjectileEffect(Projectile.Center, Projectile.velocity, "Eroica", 1f);
+// Primitive trails
+var settings = new EnhancedTrailRenderer.PrimitiveSettings(
+    width: EnhancedTrailRenderer.LinearTaper(20f),
+    color: EnhancedTrailRenderer.GradientColor(startColor, endColor),
+    smoothen: true
+);
+EnhancedTrailRenderer.RenderMultiPassTrail(oldPos, oldRot, settings, passes: 3);
 
-// In a boss's attack windup
-CalamityStyleVFX.BossAttackWindup(NPC.Center, progress, "LaCampanella");
+// Interpolated rendering for 144Hz+
+float partialTicks = InterpolatedRenderer.PartialTicks;
+Vector2 smoothPos = Vector2.Lerp(previousPosition, currentPosition, partialTicks);
 
-// On attack release
-CalamityStyleVFX.BossAttackRelease(NPC.Center, "Fate", 1.5f);
+// Light rays
+GodRaySystem.CreateBurst(center, direction, color, rayCount: 8, 
+    length: 100f, width: 10f, lifetime: 30, GodRayStyle.Explosion);
 
-// Spectacular death explosion
-CalamityStyleVFX.SpectacularDeath(position, "Eroica");
+// Impact flares
+ImpactLightRays.SpawnImpactRays(position, color, rayCount: 6, baseLength: 60f, lifetime: 20);
 
-// Boss phase transition
-CalamityStyleVFX.BossPhaseTransition(NPC.Center, "Fate", 1.5f);
+// Screen effects
+ScreenDistortionManager.TriggerRipple(worldPosition, intensity: 0.5f, duration: 20);
+
+// Universal elemental effects
+UniversalElementalVFX.InfernalEruption(pos, primaryColor, secondaryColor, 1.5f, true);
+
+// Boss arena ambience
+BossArenaVFX.Activate("LaCampanella", bossCenter, 600f, intensity: 1f);
 ```
 
 ---
 
 ## 🎵 MUSIC NOTE INTEGRATION
 
-Music notes are automatically spawned by GlobalVFXOverhaul, but for custom control:
+Music notes must be spawned manually in per-weapon VFX:
 
 ```csharp
-// ThemedParticles still works for manual spawning
+// ThemedParticles for manual spawning
 ThemedParticles.MusicNoteBurst(position, themeColor, count: 6, speed: 4f);
 
-// Phase10Integration for themed musical effects
-Phase10Integration.Universal.MusicalProjectileTrail(position, velocity, themeColor, noteColor);
-Phase10Integration.Universal.DramaticImpact(position, primaryColor, secondaryColor, intensity);
-Phase10Integration.Universal.DeathFinale(position, colorArray, intensity);
+// Orbiting music notes (THE CORRECT WAY)
+float orbitAngle = Main.GameUpdateCount * 0.08f;
+for (int i = 0; i < 3; i++)
+{
+    float noteAngle = orbitAngle + MathHelper.TwoPi * i / 3f;
+    Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * 15f;
+    ThemedParticles.MusicNote(notePos, Projectile.velocity * 0.8f, themeColor, 0.75f, 30);
+}
 ```
 
-### Music Note Visibility Rules (Still Apply)
+### Music Note Visibility Rules
 
 | Scale | Visibility | Use Case |
 |-------|------------|----------|
@@ -147,95 +157,15 @@ For dramatic moments, trigger screen effects:
 using MagnumOpus.Common.Systems.VFX;
 
 // Screen distortion (ripple effect)
-ScreenDistortionManager.TriggerThemeEffect("Fate", worldPosition, intensity: 0.5f, duration: 20);
+ScreenDistortionManager.TriggerRipple(worldPosition, intensity: 0.5f, duration: 20);
 
 // Sky flash (screen-wide color flash)
 DynamicSkyboxSystem.TriggerFlash(Color.White, intensity: 1.2f);
-
-// Combined for boss phase transitions
-CalamityStyleVFX.BossPhaseTransition(bossCenter, "Eroica", scale: 1.5f);
-// Automatically does: distortion + sky flash + particle cascade + screen shake
 ```
 
 ---
 
-## 📦 ADVANCED TRAIL SYSTEM
-
-For managed trails that persist across frames:
-
-```csharp
-using MagnumOpus.Common.Systems.VFX;
-
-// Create a theme-based trail
-int trailId = AdvancedTrailSystem.CreateThemeTrail(
-    theme: "Fate",
-    width: 22f,
-    maxPoints: 25,
-    intensity: 1f
-);
-
-// Update trail each frame
-AdvancedTrailSystem.UpdateTrail(trailId, Projectile.Center, Projectile.rotation);
-
-// Destroy when done
-AdvancedTrailSystem.DestroyTrail(trailId);
-```
-
----
-
-## 🎨 PROCEDURAL VFX (PNG-FREE)
-
-For projectiles that should render without texture files:
-
-```csharp
-using MagnumOpus.Common.Systems.VFX;
-
-public override bool PreDraw(ref Color lightColor)
-{
-    // Use procedural rendering instead of textures
-    ProceduralProjectileVFX.DrawProceduralProjectile(
-        Main.spriteBatch,
-        Projectile.Center - Main.screenPosition,
-        Projectile.rotation,
-        primaryColor,
-        secondaryColor,
-        scale: 1f,
-        "Eroica"  // Theme preset
-    );
-    return false;
-}
-```
-
-Available theme presets:
-- `DrawEroicaProjectile`, `DrawFateProjectile`, `DrawSwanLakeProjectile`
-- `DrawMoonlightSonataProjectile`, `DrawLaCampanellaProjectile`, `DrawEnigmaProjectile`
-- `DrawSpringProjectile`, `DrawSummerProjectile`, `DrawAutumnProjectile`, `DrawWinterProjectile`
-
----
-
-## 📋 CHECKLIST: Does My Content Need Custom VFX Code?
-
-### For Projectiles:
-- [ ] Is it in a theme folder? → **NO CODE NEEDED**, GlobalVFXOverhaul handles it
-- [ ] Does it need speed-based effects? → Override AI for custom logic
-- [ ] Does it need phase-based rendering? → Override PreDraw with state checks
-- [ ] Does it need curved paths? → Use BezierProjectileSystem in AI
-
-### For Weapons:
-- [ ] Is it a standard melee/ranged/magic? → **NO CODE NEEDED**, GlobalWeaponVFXOverhaul handles it
-- [ ] Does it need unique swing style? → Use CalamityStyleVFX.SmoothMeleeSwing with custom MeleeSwingVariation
-- [ ] Does it need special shoot effects? → Call CalamityStyleVFX methods in Shoot()
-
-### For Bosses:
-- [ ] Basic rendering? → **NO CODE NEEDED**, GlobalBossVFXOverhaul handles it
-- [ ] Attack windups? → Call CalamityStyleVFX.BossAttackWindup()
-- [ ] Attack releases? → Call CalamityStyleVFX.BossAttackRelease()
-- [ ] Phase transitions? → Call CalamityStyleVFX.BossPhaseTransition()
-- [ ] Death explosion? → Call CalamityStyleVFX.SpectacularDeath()
-
----
-
-## 🔧 THEME COLOR PALETTES
+## 🎨 THEME COLOR PALETTES
 
 All themes have defined color arrays in `MagnumThemePalettes`:
 
@@ -261,84 +191,87 @@ Color[] fatePalette = MagnumThemePalettes.Fate;     // Black → Pink → Red �
 
 ---
 
-## 🎯 FINAL SUMMARY
+## 📋 CHECKLIST: Per-Weapon VFX Implementation
 
-### The Old Way (DON'T DO THIS ANYMORE):
-```csharp
-// ❌ OLD: Manual dust spawning in AI
-for (int i = 0; i < 2; i++)
-{
-    Dust d = Dust.NewDustPerfect(Projectile.Center, dustType, vel, 0, color, 1.5f);
-    d.noGravity = true;
-}
+### For Projectiles:
+- [ ] Implement unique AI() with dust/particle trail
+- [ ] Implement PreDraw() with BloomRenderer calls
+- [ ] Add theme-appropriate music notes (scale 0.7f+)
+- [ ] Use EnhancedTrailRenderer for persistent trails
+- [ ] Include orbiting elements for visual interest
 
-// ❌ OLD: Manual flare drawing in PreDraw
-Main.spriteBatch.Draw(flareTex, drawPos, null, color * 0.5f, rot, origin, scale, ...);
-```
+### For Weapons:
+- [ ] Implement unique swing effects in UseItemFrame()
+- [ ] Add muzzle flash in Shoot() for ranged
+- [ ] Use SwordArc textures for melee waves
+- [ ] Include theme-appropriate particles
 
-### The New Way (DO THIS):
-```csharp
-// ✅ NEW: Let GlobalVFXOverhaul handle it automatically
-// Just define your projectile, the system does the rest
-
-// ✅ NEW: For custom effects, call the VFX systems
-CalamityStyleVFX.SpectacularDeath(position, "Eroica");
-BezierProjectileSystem.QuadraticBezier(p0, p1, p2, t);
-EnhancedTrailRenderer.RenderMultiPassTrail(positions, rotations, settings, 3);
-```
-
-**The systems handle the complexity. You focus on gameplay.**
+### For Bosses:
+- [ ] Implement unique attack windups with converging particles
+- [ ] Add attack release VFX with bloom cascade
+- [ ] Include phase transition spectacles
+- [ ] Add death explosion finale
 
 ---
 
 ## 📚 FILE REFERENCE
 
+### Core VFX Utilities
+
 | File | Purpose |
 |------|---------|
-| `Common/Systems/VFX/GlobalVFXOverhaul.cs` | Auto-applies VFX to all projectiles |
-| `Common/Systems/VFX/GlobalWeaponVFXOverhaul.cs` | Auto-applies VFX to all weapons |
-| `Common/Systems/VFX/GlobalBossVFXOverhaul.cs` | Auto-applies VFX to all bosses |
-| `Common/Systems/VFX/CalamityStyleVFX.cs` | Central VFX library with all methods |
-| `Common/Systems/VFX/InterpolatedRenderer.cs` | Sub-pixel interpolation for 144Hz+ |
-| `Common/Systems/VFX/BezierProjectileSystem.cs` | Curved projectile paths |
-| `Common/Systems/VFX/EnhancedTrailRenderer.cs` | Multi-pass primitive trail rendering |
-| `Common/Systems/VFX/AdvancedTrailSystem.cs` | Theme-based trail management |
-| `Common/Systems/VFX/ScreenDistortionManager.cs` | Screen ripple effects |
-| `Common/Systems/VFX/DynamicSkyboxSystem.cs` | Sky flash effects |
-| `Common/Systems/VFX/ProceduralProjectileVFX.cs` | PNG-free procedural rendering |
-| `Common/Systems/VFX/MagnumThemePalettes.cs` | Theme color arrays |
-| `Common/Systems/VFX/BloomRenderer.cs` | Multi-layer bloom stacking: `DrawBloomStack()`, `DrawSimpleBloom()` |
-| `Common/Systems/VFX/GodRaySystem.cs` | Light ray bursts: `CreateBurst()` with `GodRayStyle` |
-| `Common/Systems/VFX/ImpactLightRays.cs` | Impact flares: `SpawnImpactRays()` |
-| `Common/Systems/VFX/UniversalElementalVFX.cs` | **NEW** - Universal elemental effects (flames, lightning, petals, etc.) |
-| `Common/Systems/VFX/BossArenaVFX.cs` | **NEW** - Persistent boss arena ambient particles |
+| `Common/Systems/VFX/Core/BloomRenderer.cs` | Multi-layer bloom stacking |
+| `Common/Systems/VFX/Core/InterpolatedRenderer.cs` | Sub-pixel interpolation for 144Hz+ |
+| `Common/Systems/VFX/Core/MagnumThemePalettes.cs` | Theme color arrays |
+| `Common/Systems/VFX/Core/VFXUtilities.cs` | QuadraticBump, PaletteLerp, math utilities |
+| `Common/Systems/VFX/Core/VFXTextureRegistry.cs` | Noise, LUTs, beams, masks |
+
+### Trail Systems
+
+| File | Purpose |
+|------|---------|
+| `Common/Systems/VFX/Trails/EnhancedTrailRenderer.cs` | Multi-pass primitive trails |
+| `Common/Systems/VFX/Trails/PixelatedTrailRenderer.cs` | FargosSoulsDLC-style pixelated trails |
+
+### Effect Systems
+
+| File | Purpose |
+|------|---------|
+| `Common/Systems/VFX/Screen/ScreenDistortionManager.cs` | Screen ripple effects |
+| `Common/Systems/VFX/Screen/DynamicSkyboxSystem.cs` | Sky flash effects |
+| `Common/Systems/VFX/Core/GodRaySystem.cs` | Light ray bursts |
+| `Common/Systems/VFX/Core/ImpactLightRays.cs` | Impact flares |
+| `Common/Systems/VFX/Core/UniversalElementalVFX.cs` | Elemental effects library |
+| `Common/Systems/VFX/Boss/BossArenaVFX.cs` | Boss arena ambient particles |
 
 ---
 
-## 🕹️ LEGACY: MANUAL VFX PATTERNS (For Reference Only)
+## 🕹️ THE GOLD STANDARD: Iridescent Wingspan
 
-> **NOTE:** The patterns below are from the old system. They are kept for reference
-> when you need to understand what the Global systems do internally, or when creating
-> truly unique signature effects that can't use the automatic systems.
+**Study this weapon's VFX patterns for inspiration:**
 
-### The Gold Standard: Iridescent Wingspan (Legacy Reference)
-
-This weapon's VFX patterns were the inspiration for the automatic systems:
-
-**Key Patterns (Now Automated):**
+**Key Patterns (Implement in YOUR weapon):**
 - Heavy dust trails (2+ particles per frame, scale 1.5f+)
 - Contrasting sparkles (opposite colors for visual pop)
 - Frequent flares (1-in-2 chance, not 1-in-10)
 - Color oscillation (Main.hslToRgb for dynamic hue shifts)
 - Multi-layer PreDraw (4+ glow layers with different scales/rotations)
-- Orbiting music notes (locked to projectile position)
+- Orbiting music notes (locked to projectile position, scale 0.7f+)
 
-These patterns are now built into `GlobalVFXOverhaul` and apply automatically.
+```csharp
+// Example: Dense dust trail
+for (int i = 0; i < 2; i++)
+{
+    Dust d = Dust.NewDustPerfect(Projectile.Center, dustType, vel, 100, color, 1.8f);
+    d.noGravity = true;
+    d.fadeIn = 1.4f;
+}
 
-### When To Study Legacy Patterns
+// Example: Multi-layer bloom in PreDraw
+float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.15f;
+spriteBatch.Draw(tex, pos, null, color * 0.5f, rot, origin, scale * 1.4f * pulse, ...);
+spriteBatch.Draw(tex, pos, null, color * 0.3f, rot, origin, scale * 1.2f * pulse, ...);
+spriteBatch.Draw(tex, pos, null, Color.White, rot, origin, scale * pulse, ...);
+```
 
-Study the old manual code when:
-1. Creating a signature weapon with truly unique identity
-2. Debugging why automatic VFX aren't appearing correctly
-3. Understanding the math behind the systems
-4. Extending the automatic systems with new features
+**Every weapon deserves this level of VFX polish.**

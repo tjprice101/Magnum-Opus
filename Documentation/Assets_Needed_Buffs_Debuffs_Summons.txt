@@ -152,17 +152,17 @@ Theme: EROICA
 [X] SakuraOfFateBuff.png - DONE
 
 ================================================================================
-SECTION 5: ORPHANED/DEPRECATED (TO BE REMOVED)
+SECTION 5: ORPHANED/DEPRECATED (COMPLETED)
 ================================================================================
 
 Theme: MOONLIGHT SONATA
 -----------------------
-[DELETE] RazerOfMoonlightsShadow.cs
-[DELETE] RazerOfMoonlightsShadow.png
-[DELETE] RazerOfMoonlightsShadowBuff.cs
-[DELETE] RazerOfMoonlightsShadowBuff.png
+[DELETED] RazerOfMoonlightsShadow.cs - REMOVED
+[DELETED] RazerOfMoonlightsShadow.png - REMOVED
+[DELETED] RazerOfMoonlightsShadowBuff.cs - REMOVED
+[DELETED] RazerOfMoonlightsShadowBuff.png - REMOVED
          Reason: Not used by any weapon, orphaned minion code
-         Note: Goliath is completely independent - safe to delete
+         Status: All 4 files deleted on 2025-01-27
 
 ================================================================================
 SUMMARY
@@ -175,7 +175,7 @@ SUMMON BUFFS NEEDING:      5
 TOTAL ASSETS NEEDED:      16
 
 ALREADY COMPLETE:          4
-TO BE DELETED:             4 files (1 orphaned minion system)
+ORPHANED FILES DELETED:    4 files (1 orphaned minion system)
 
 ================================================================================
 PRIORITY ORDER (Suggested)

@@ -123,7 +123,7 @@
 | Document | Purpose |
 |----------|---------|
 | `Enhancements.md` | Full phase details (historical) |
-| `Custom Shaders and Shading/` | FargosSoulsDLC shader reference |
+| `VFX_MASTERY_RESEARCH_COMPLETE.md` | Consolidated FargosSoulsDLC VFX patterns |
 
 ---
 

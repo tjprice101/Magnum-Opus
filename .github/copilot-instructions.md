@@ -977,7 +977,7 @@ The `Documentation/Design Documents for Inspiration/` folder contains comprehens
 3. **Before adding any VFX**: Read Calamity_Inspired_VFX_Design.md for particle systems, shaders, and visual polish
 4. **When stuck on implementation**: These documents contain code examples and adaptation tips specifically for MagnumOpus
 
-### Key Concepts from These Documents
+### Key Concepts from Design Documents
 
 - **Piecewise Animation (CurveSegment)**: Complex multi-phase animations for swings and dashes
 - **Primitive Trail Rendering**: Shader-based trails using PrimitiveRenderer
@@ -988,53 +988,34 @@ The `Documentation/Design Documents for Inspiration/` folder contains comprehens
 
 ---
 
-## 🎨 ADVANCED VFX REFERENCE - FARGOS SOULS DLC ANALYSIS
+## 🎨 ADVANCED VFX REFERENCE
 
-The `Documentation/Custom Shaders and Shading/` folder contains **comprehensive VFX documentation extracted from FargosSoulsDLC** - one of the most visually impressive Terraria mods. **ALWAYS consult these documents when implementing any visual effects, shaders, particles, or rendering systems.**
+All FargosSoulsDLC VFX patterns have been **CONSOLIDATED** into:
+- **[VFX_MASTERY_RESEARCH_COMPLETE.md](../Documentation/VFX_MASTERY_RESEARCH_COMPLETE.md)** - Comprehensive knowledge base with all VFX patterns
+- **[Enhanced_VFX_System.md](../Documentation/Guides/Enhanced_VFX_System.md)** - MagnumOpus implementation guide
 
-| Document | Contents | When to Use |
-|----------|----------|-------------|
-| [00_FargosSoulsDLC_VFX_Overview.md](../Documentation/Custom%20Shaders%20and%20Shading/00_FargosSoulsDLC_VFX_Overview.md) | Master overview, architecture diagram, quick reference patterns | **START HERE** - Understanding the overall VFX pipeline |
-| [01_Primitive_Trail_Rendering.md](../Documentation/Custom%20Shaders%20and%20Shading/01_Primitive_Trail_Rendering.md) | `IPixelatedPrimitiveRenderer`, `PrimitiveSettings`, width/color functions | Laser beams, weapon trails, projectile trails |
-| [02_Bloom_And_Glow_Effects.md](../Documentation/Custom%20Shaders%20and%20Shading/02_Bloom_And_Glow_Effects.md) | Multi-layer bloom stacking, shine flares, the `with { A = 0 }` pattern | Any glowing effect, impacts, explosions |
-| [03_HLSL_Shader_Reference.md](../Documentation/Custom%20Shaders%20and%20Shading/03_HLSL_Shader_Reference.md) | 40+ shader files with full code: `QuadraticBump`, `PaletteLerp`, pixelation | Custom shaders, advanced rendering |
-| [04_ExoMechs_VFX_Analysis.md](../Documentation/Custom%20Shaders%20and%20Shading/04_ExoMechs_VFX_Analysis.md) | Ares (katanas, tesla, portals), Apollo (plasma), Artemis (lasers), Hades (worm, super laser) | Boss VFX, complex attack visuals |
-| [05_Particle_Systems.md](../Documentation/Custom%20Shaders%20and%20Shading/05_Particle_Systems.md) | `BloomPixelParticle`, `GlowySquareParticle`, `StrongBloom`, metaballs, FastParticle | All particle implementations |
-| [06_Old_Duke_VFX_Analysis.md](../Documentation/Custom%20Shaders%20and%20Shading/06_Old_Duke_VFX_Analysis.md) | Fire particles, bile metaballs, nuclear hurricane, environmental effects | Fire/flame effects, screen filters, environmental VFX |
-| [07_Texture_Registries.md](../Documentation/Custom%20Shaders%20and%20Shading/07_Texture_Registries.md) | `MiscTexturesRegistry`, `NoiseTexturesRegistry`, all texture documentation | Texture management, noise textures for shaders |
-| [08_Color_And_Gradient_Techniques.md](../Documentation/Custom%20Shaders%20and%20Shading/08_Color_And_Gradient_Techniques.md) | `Color.Lerp` patterns, HLSL gradients, HSL manipulation, theme palettes | Color systems, gradients, palette management |
+### 🚀 MAGNUMOPUS VFX SYSTEM (IMPLEMENTATION)
 
-### 🚀 MAGNUMOPUS ENHANCED VFX SYSTEM (IMPLEMENTATION)
-
-The above FargosSoulsDLC patterns have been **IMPLEMENTED** into MagnumOpus's VFX system. **Use this guide for practical implementation:**
+**Use this guide for practical implementation:**
 
 | Document | Contents | When to Use |
 |----------|----------|-------------|
-| [Enhanced_VFX_System.md](../Documentation/Guides/Enhanced_VFX_System.md) | MagnumOpus implementation of FargosSoulsDLC patterns: `{ A = 0 }` alpha removal, multi-layer bloom, theme palettes, EnhancedParticle, UnifiedVFXBloom API | **ALWAYS** - When creating any VFX, particles, bloom effects, or themed visuals in MagnumOpus |
+| [VFX_MASTERY_RESEARCH_COMPLETE.md](../Documentation/VFX_MASTERY_RESEARCH_COMPLETE.md) | Complete VFX knowledge base: MonoGame API, RenderTarget2D, BlendStates, primitive trails, bloom stacking, HLSL patterns, width/color functions, interpolation, screen effects, particle optimization | **ALWAYS** - Master reference for all VFX implementation |
+| [Enhanced_VFX_System.md](../Documentation/Guides/Enhanced_VFX_System.md) | MagnumOpus implementation: `{ A = 0 }` alpha removal, multi-layer bloom, theme palettes, EnhancedParticle, UnifiedVFXBloom API | **ALWAYS** - When creating any VFX, particles, bloom effects, or themed visuals |
 
-**Key files in `Common/Systems/VFX/`:**
+**Key files in `Common/Systems/VFX/Core/`:**
 - `VFXUtilities.cs` - `WithoutAlpha()` extension, math utilities
 - `BloomRenderer.cs` - `DrawMultiLayerBloom()` for easy bloom stacking  
 - `MagnumThemePalettes.cs` - All theme color arrays for gradient lerping
-- `EnhancedParticle.cs` - Particle class with built-in bloom support
-- `UnifiedVFXBloom.cs` - High-level API: `UnifiedVFXBloom.[Theme].BloomImpact()`
+- `VFXTextureRegistry.cs` - Noise textures, LUTs, beams, masks with fallbacks
+- `RenderTargetPool.cs` - Unified render target management (transient/persistent)
+- `InterpolatedRenderer.cs` - 144Hz+ sub-pixel smoothness
 
-### MANDATORY: Read Before Implementing VFX
+**Key files in `Common/Systems/VFX/Trails/`:**
+- `EnhancedTrailRenderer.cs` - Multi-pass primitive trail rendering
+- `PixelatedTrailRenderer.cs` - FargosSoulsDLC-style pixelated trails
 
-**Before implementing ANY of the following, READ the corresponding documents:**
-
-| Task | Required Reading |
-|------|------------------|
-| **Any VFX in MagnumOpus** | [Enhanced_VFX_System.md](../Documentation/Guides/Enhanced_VFX_System.md) - **START HERE** for MagnumOpus-specific implementation |
-| Any glowing/bloom effect | [02_Bloom_And_Glow_Effects.md](../Documentation/Custom%20Shaders%20and%20Shading/02_Bloom_And_Glow_Effects.md) |
-| Trail/beam rendering | [01_Primitive_Trail_Rendering.md](../Documentation/Custom%20Shaders%20and%20Shading/01_Primitive_Trail_Rendering.md) |
-| Custom particle types | [05_Particle_Systems.md](../Documentation/Custom%20Shaders%20and%20Shading/05_Particle_Systems.md) |
-| Boss attack visuals | [04_ExoMechs_VFX_Analysis.md](../Documentation/Custom%20Shaders%20and%20Shading/04_ExoMechs_VFX_Analysis.md) |
-| Fire/flame effects | [06_Old_Duke_VFX_Analysis.md](../Documentation/Custom%20Shaders%20and%20Shading/06_Old_Duke_VFX_Analysis.md) |
-| Color gradients/palettes | [08_Color_And_Gradient_Techniques.md](../Documentation/Custom%20Shaders%20and%20Shading/08_Color_And_Gradient_Techniques.md) |
-| HLSL shaders | [03_HLSL_Shader_Reference.md](../Documentation/Custom%20Shaders%20and%20Shading/03_HLSL_Shader_Reference.md) |
-
-### Critical Patterns from FargosSoulsDLC
+### Critical VFX Patterns
 
 These patterns should be used throughout MagnumOpus:
 
