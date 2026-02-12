@@ -571,7 +571,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 _vertexBuffer[vertexCount] = new VertexPositionColorTexture(
                     new Vector3(topVert.X, topVert.Y, 0),
                     vertexColor,
-                    new Vector3(progress, 0f, 0f)
+                    new Vector2(progress, 0f)
                 );
                 vertexCount++;
                 
@@ -579,7 +579,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 _vertexBuffer[vertexCount] = new VertexPositionColorTexture(
                     new Vector3(bottomVert.X, bottomVert.Y, 0),
                     vertexColor,
-                    new Vector3(progress, 1f, 0f)
+                    new Vector2(progress, 1f)
                 );
                 vertexCount++;
             }

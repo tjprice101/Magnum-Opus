@@ -154,6 +154,183 @@ namespace MagnumOpus.Common.Systems.VFX
             return t * t * t * (t * (t * 6f - 15f) + 10f);
         }
         
+        /// <summary>
+        /// Hermite interpolation - spline with explicit tangents.
+        /// Allows control over the curve's shape at start and end.
+        /// 
+        /// p0 = start position, p1 = end position
+        /// m0 = start tangent (velocity), m1 = end tangent
+        /// t = interpolation parameter (0-1)
+        /// 
+        /// The Hermite basis functions are:
+        ///   h00(t) = 2t³ - 3t² + 1     (position at start)
+        ///   h01(t) = -2t³ + 3t²        (position at end)
+        ///   h10(t) = t³ - 2t² + t      (tangent at start)
+        ///   h11(t) = t³ - t²           (tangent at end)
+        /// </summary>
+        public static float Hermite(float p0, float p1, float m0, float m1, float t)
+        {
+            float t2 = t * t;
+            float t3 = t2 * t;
+            
+            float h00 = 2f * t3 - 3f * t2 + 1f;
+            float h01 = -2f * t3 + 3f * t2;
+            float h10 = t3 - 2f * t2 + t;
+            float h11 = t3 - t2;
+            
+            return h00 * p0 + h10 * m0 + h01 * p1 + h11 * m1;
+        }
+        
+        /// <summary>
+        /// Vector Hermite interpolation with explicit tangents.
+        /// </summary>
+        public static Vector2 HermiteVector(Vector2 p0, Vector2 p1, Vector2 m0, Vector2 m1, float t)
+        {
+            float t2 = t * t;
+            float t3 = t2 * t;
+            
+            float h00 = 2f * t3 - 3f * t2 + 1f;
+            float h01 = -2f * t3 + 3f * t2;
+            float h10 = t3 - 2f * t2 + t;
+            float h11 = t3 - t2;
+            
+            return h00 * p0 + h10 * m0 + h01 * p1 + h11 * m1;
+        }
+        
+        /// <summary>
+        /// Elastic easing - overshoots and oscillates before settling.
+        /// Great for bouncy, springy animations.
+        /// </summary>
+        public static float EaseOutElastic(float t, float amplitude = 1f, float period = 0.3f)
+        {
+            if (t <= 0f) return 0f;
+            if (t >= 1f) return 1f;
+            
+            float s = period / MathHelper.TwoPi * MathF.Asin(1f / amplitude);
+            return amplitude * MathF.Pow(2f, -10f * t) * MathF.Sin((t - s) * MathHelper.TwoPi / period) + 1f;
+        }
+        
+        /// <summary>
+        /// Bounce easing - simulates a bouncing ball.
+        /// </summary>
+        public static float EaseOutBounce(float t)
+        {
+            const float n1 = 7.5625f;
+            const float d1 = 2.75f;
+            
+            if (t < 1f / d1)
+                return n1 * t * t;
+            else if (t < 2f / d1)
+                return n1 * (t -= 1.5f / d1) * t + 0.75f;
+            else if (t < 2.5f / d1)
+                return n1 * (t -= 2.25f / d1) * t + 0.9375f;
+            else
+                return n1 * (t -= 2.625f / d1) * t + 0.984375f;
+        }
+        
+        /// <summary>
+        /// Back easing - overshoots, then returns.
+        /// </summary>
+        public static float EaseOutBack(float t, float overshoot = 1.70158f)
+        {
+            t = t - 1f;
+            return t * t * ((overshoot + 1f) * t + overshoot) + 1f;
+        }
+        
+        /// <summary>
+        /// Exponential easing - starts very slow, then accelerates rapidly.
+        /// </summary>
+        public static float EaseOutExpo(float t)
+        {
+            return t >= 1f ? 1f : 1f - MathF.Pow(2f, -10f * t);
+        }
+        
+        /// <summary>
+        /// Circular easing - follows a circular arc.
+        /// </summary>
+        public static float EaseOutCirc(float t)
+        {
+            return MathF.Sqrt(1f - MathF.Pow(t - 1f, 2f));
+        }
+        
+        /// <summary>
+        /// Applies an easing function in both directions (ease in, then ease out).
+        /// </summary>
+        public static float EaseInOutElastic(float t, float amplitude = 1f, float period = 0.45f)
+        {
+            if (t < 0.5f)
+            {
+                // Ease in
+                t *= 2f;
+                float s = period / MathHelper.TwoPi * MathF.Asin(1f / amplitude);
+                return -0.5f * amplitude * MathF.Pow(2f, 10f * (t - 1f)) * 
+                       MathF.Sin((t - 1f - s) * MathHelper.TwoPi / period);
+            }
+            else
+            {
+                // Ease out
+                t = t * 2f - 1f;
+                float s = period / MathHelper.TwoPi * MathF.Asin(1f / amplitude);
+                return amplitude * MathF.Pow(2f, -10f * t) * 
+                       MathF.Sin((t - s) * MathHelper.TwoPi / period) * 0.5f + 1f;
+            }
+        }
+        
+        /// <summary>
+        /// Spring physics interpolation - simulates damped harmonic oscillation.
+        /// Returns position based on spring physics parameters.
+        /// </summary>
+        /// <param name="t">Time parameter (0 to ~1, can go higher for continued oscillation)</param>
+        /// <param name="frequency">Oscillation frequency (higher = faster bounce)</param>
+        /// <param name="damping">Damping ratio (0 = no damping, 1 = critical damping)</param>
+        public static float SpringInterpolation(float t, float frequency = 8f, float damping = 0.5f)
+        {
+            if (t <= 0f) return 0f;
+            
+            float dampingFactor = MathF.Exp(-damping * t * frequency);
+            float oscillation = MathF.Cos(frequency * MathF.Sqrt(1f - damping * damping) * t);
+            
+            return 1f - dampingFactor * oscillation;
+        }
+        
+        /// <summary>
+        /// Spring physics for Vector2 - interpolates from start to end with spring motion.
+        /// </summary>
+        public static Vector2 SpringLerp(Vector2 start, Vector2 end, float t, 
+            float frequency = 8f, float damping = 0.5f)
+        {
+            float springT = SpringInterpolation(t, frequency, damping);
+            return Vector2.Lerp(start, end, springT);
+        }
+        
+        /// <summary>
+        /// Remap a value from one range to another.
+        /// Useful for converting between different parameter spaces.
+        /// </summary>
+        public static float Remap(float value, float inMin, float inMax, float outMin, float outMax)
+        {
+            float t = InverseLerp(inMin, inMax, value);
+            return MathHelper.Lerp(outMin, outMax, t);
+        }
+        
+        /// <summary>
+        /// Wrap a value to a range (like modulo but handles negatives correctly).
+        /// </summary>
+        public static float Wrap(float value, float min, float max)
+        {
+            float range = max - min;
+            return min + ((((value - min) % range) + range) % range);
+        }
+        
+        /// <summary>
+        /// Ping-pong a value between 0 and max (triangle wave).
+        /// </summary>
+        public static float PingPong(float t, float max)
+        {
+            t = Wrap(t, 0f, max * 2f);
+            return max - MathF.Abs(t - max);
+        }
+        
         #endregion
         
         #region Color Utilities

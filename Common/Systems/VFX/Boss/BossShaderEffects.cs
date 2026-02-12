@@ -5,7 +5,6 @@ using Terraria;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Common.Systems.Particles;
-using Terraria.Graphics.Shaders;
 
 namespace MagnumOpus.Common.Systems.VFX
 {
@@ -112,22 +111,33 @@ namespace MagnumOpus.Common.Systems.VFX
             float pulse = 1f + (float)Math.Sin(time * 2f) * 0.05f * intensity;
             
             // === SHADER-ENHANCED BLOOM LAYERS ===
-            // Use the new MagnumShaderSystem for proper shader handling
-            var bloomShaderData = MagnumShaderSystem.GetBloomShader(primary, intensity);
+            Effect bloomShader = ShaderLoader.Bloom;
             
-            if (MagnumShaderSystem.ShadersAvailable && bloomShaderData != null)
+            if (ShaderLoader.ShadersEnabled && bloomShader != null)
             {
-                // Begin shader batch with proper settings
-                MagnumShaderSystem.BeginShaderBatch(spriteBatch, null, BlendState.Additive);
+                // Configure bloom shader parameters
+                bloomShader.Parameters["uColor"]?.SetValue(primary.ToVector3());
+                bloomShader.Parameters["uSecondaryColor"]?.SetValue(secondary.ToVector3());
+                bloomShader.Parameters["uIntensity"]?.SetValue(intensity);
+                bloomShader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly);
+                bloomShader.Parameters["uOpacity"]?.SetValue(1f);
                 
-                // Apply shader
-                bloomShaderData.Apply();
+                // Begin additive batch with shader
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, bloomShader,
+                    Main.GameViewMatrix.TransformationMatrix);
                 
                 // Draw bloom layers with shader
                 DrawShaderBloomLayers(spriteBatch, texture, drawPos, frame, origin, primary, secondary, rotation, scale, pulse, intensity);
                 
                 // Restore normal batch
-                MagnumShaderSystem.EndShaderBatch(spriteBatch);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null,
+                    Main.GameViewMatrix.TransformationMatrix);
             }
             else
             {
@@ -138,9 +148,8 @@ namespace MagnumOpus.Common.Systems.VFX
         
         /// <summary>
         /// Configures the bloom shader with proper parameters per user guidelines.
-        /// NOTE: This is now handled by MagnumShaderSystem.GetBloomShader()
+        /// NOTE: Now handled inline via ShaderLoader.Bloom parameter setup.
         /// </summary>
-        [Obsolete("Use MagnumShaderSystem.GetBloomShader() instead")]
         private static void ConfigureBloomShader(Effect shader, Color primary, Color secondary, float intensity, Vector2 worldPosition)
         {
             // User guideline: Pass uTime, uWorldPosition, uColor per-frame

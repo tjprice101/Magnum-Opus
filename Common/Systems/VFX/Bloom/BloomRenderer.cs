@@ -374,5 +374,154 @@ namespace MagnumOpus.Common.Systems.VFX
         }
         
         #endregion
+        
+        #region Self-Contained Additive Methods (Manage Their Own SpriteBatch State)
+        
+        /// <summary>
+        /// Draws a bloom stack with GUARANTEED additive blending.
+        /// Handles SpriteBatch state internally - safe to call from anywhere.
+        /// Use this when you're not sure what SpriteBatch state the caller has.
+        /// </summary>
+        public static void DrawBloomStackAdditive(Vector2 worldPosition, Color primaryColor, 
+            float scale = 1f, float opacity = 1f)
+        {
+            SpriteBatch sb = Main.spriteBatch;
+            
+            // End whatever state the SpriteBatch is in
+            try { sb.End(); } catch { }
+            
+            // Begin with additive blending
+            sb.Begin(
+                Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
+                BlendState.Additive,
+                SamplerState.LinearClamp,
+                DepthStencilState.None,
+                RasterizerState.CullNone,
+                null,
+                Main.GameViewMatrix.TransformationMatrix
+            );
+            
+            // Draw the bloom
+            DrawBloomStack(sb, worldPosition, primaryColor, scale, opacity);
+            
+            // Restore standard state
+            sb.End();
+            sb.Begin(
+                Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
+                BlendState.AlphaBlend,
+                SamplerState.LinearClamp,
+                DepthStencilState.None,
+                RasterizerState.CullNone,
+                null,
+                Main.GameViewMatrix.TransformationMatrix
+            );
+        }
+        
+        /// <summary>
+        /// Draws a two-color bloom stack with GUARANTEED additive blending.
+        /// Handles SpriteBatch state internally.
+        /// </summary>
+        public static void DrawBloomStackAdditive(Vector2 worldPosition, 
+            Color outerColor, Color innerColor, float scale = 1f, float opacity = 1f)
+        {
+            SpriteBatch sb = Main.spriteBatch;
+            
+            try { sb.End(); } catch { }
+            
+            sb.Begin(
+                Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
+                BlendState.Additive,
+                SamplerState.LinearClamp,
+                DepthStencilState.None,
+                RasterizerState.CullNone,
+                null,
+                Main.GameViewMatrix.TransformationMatrix
+            );
+            
+            DrawBloomStack(sb, worldPosition, outerColor, innerColor, scale, opacity);
+            
+            sb.End();
+            sb.Begin(
+                Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
+                BlendState.AlphaBlend,
+                SamplerState.LinearClamp,
+                DepthStencilState.None,
+                RasterizerState.CullNone,
+                null,
+                Main.GameViewMatrix.TransformationMatrix
+            );
+        }
+        
+        /// <summary>
+        /// Draws an impact bloom with GUARANTEED additive blending.
+        /// Handles SpriteBatch state internally.
+        /// </summary>
+        public static void DrawImpactBloomAdditive(Vector2 worldPosition, Color color, 
+            float progress, float baseScale = 1f)
+        {
+            SpriteBatch sb = Main.spriteBatch;
+            
+            try { sb.End(); } catch { }
+            
+            sb.Begin(
+                Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
+                BlendState.Additive,
+                SamplerState.LinearClamp,
+                DepthStencilState.None,
+                RasterizerState.CullNone,
+                null,
+                Main.GameViewMatrix.TransformationMatrix
+            );
+            
+            DrawImpactBloom(sb, worldPosition, color, progress, baseScale);
+            
+            sb.End();
+            sb.Begin(
+                Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
+                BlendState.AlphaBlend,
+                SamplerState.LinearClamp,
+                DepthStencilState.None,
+                RasterizerState.CullNone,
+                null,
+                Main.GameViewMatrix.TransformationMatrix
+            );
+        }
+        
+        /// <summary>
+        /// Draws a shine flare with GUARANTEED additive blending.
+        /// Handles SpriteBatch state internally.
+        /// </summary>
+        public static void DrawShineFlareAdditive(Vector2 worldPosition, Color color, 
+            float scale, float rotation = 0f, float opacity = 1f)
+        {
+            SpriteBatch sb = Main.spriteBatch;
+            
+            try { sb.End(); } catch { }
+            
+            sb.Begin(
+                Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
+                BlendState.Additive,
+                SamplerState.LinearClamp,
+                DepthStencilState.None,
+                RasterizerState.CullNone,
+                null,
+                Main.GameViewMatrix.TransformationMatrix
+            );
+            
+            DrawShineFlare(sb, worldPosition, color, scale, rotation, opacity);
+            
+            sb.End();
+            sb.Begin(
+                Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
+                BlendState.AlphaBlend,
+                SamplerState.LinearClamp,
+                DepthStencilState.None,
+                RasterizerState.CullNone,
+                null,
+                Main.GameViewMatrix.TransformationMatrix
+            );
+        }
+        
+        #endregion
     }
 }

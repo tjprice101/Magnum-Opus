@@ -373,7 +373,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             // Move forward
             Projectile.velocity *= 0.95f;
             
-            // === IRIDESCENT WINGSPAN STANDARD: HEAVY DUST TRAILS (2+ per frame) ===
+            // === CALAMITY-STANDARD: HEAVY DUST TRAILS (2+ per frame) ===
             for (int d = 0; d < 2; d++)
             {
                 Dust dust = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(25f, 25f), 
@@ -814,7 +814,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 CustomParticles.GenericFlare(Projectile.Center, EnigmaBlack, 1f * intensity, 15);
             }
             
-            // === IRIDESCENT WINGSPAN STANDARD: HEAVY DUST TRAILS ===
+            // === CALAMITY-STANDARD: HEAVY DUST TRAILS ===
             for (int d = 0; d < 2; d++)
             {
                 Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(currentRadius * 0.3f, currentRadius * 0.3f);

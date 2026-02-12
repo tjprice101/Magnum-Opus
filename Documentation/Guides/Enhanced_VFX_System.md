@@ -6,7 +6,27 @@ The MagnumOpus VFX system has been overhauled to use **FargosSoulsDLC-style rend
 
 ---
 
-## 🚨🚨🚨 CRITICAL: READ TRUE_VFX_STANDARDS.md FIRST 🚨🚨🚨
+## 📖 Related Documentation
+
+| Document | Purpose |
+|----------|----------|
+| **[VFX_CORE_CONCEPTS_PART2.md](../VFX_CORE_CONCEPTS_PART2.md)** | Bezier curves, particle architecture, billboarding, GC optimization |
+| **[HLSL_GRAPHICS_DEEP_DIVE.md](../HLSL_GRAPHICS_DEEP_DIVE.md)** | Comprehensive HLSL language reference, noise functions, SDFs, color grading, tone mapping, performance optimization |
+| **[VFX_MASTERY_RESEARCH_COMPLETE.md](../VFX_MASTERY_RESEARCH_COMPLETE.md)** | Complete VFX knowledge base: MonoGame API, BlendStates, primitive trails, bloom stacking |
+| **[TRUE_VFX_STANDARDS.md](TRUE_VFX_STANDARDS.md)** | Visual effect quality standards, projectile patterns, layered effect requirements |
+
+### Shader Library
+
+| File | Description |
+|------|-------------|
+| `ShaderSource/HLSLLibrary.fxh` | Reusable HLSL utility functions (`#include "HLSLLibrary.fxh"`) |
+| `ShaderSource/AdvancedTrailShader.fx` | 5 trail styles: Flame, Ice, Lightning, Nature, Cosmic |
+| `ShaderSource/AdvancedBloomShader.fx` | 5 bloom styles: Ethereal, Infernal, Celestial, Chromatic, Void |
+| `ShaderSource/AdvancedDistortionShader.fx` | Screen distortions: Ripple, Heat, Chromatic, Eclipse, Reality Tear |
+
+---
+
+## �🚨🚨🚨 CRITICAL: READ TRUE_VFX_STANDARDS.md FIRST 🚨🚨🚨
 
 > **Before implementing ANY visual effect, read [TRUE_VFX_STANDARDS.md](TRUE_VFX_STANDARDS.md).**
 >
@@ -332,8 +352,34 @@ BloomRenderer.DrawFateBloom(spriteBatch, texture, position, scale, lifetime, max
 | `GodRaySystem.cs` | Light ray bursts via `CreateBurst()` with `GodRayStyle` |
 | `ImpactLightRays.cs` | Impact flares via `SpawnImpactRays()` |
 | `ScreenDistortionManager.cs` | Screen ripple effects via `TriggerRipple()` |
-| `UniversalElementalVFX.cs` | **NEW** - Universal elemental effects (flames, lightning, petals, frost, void, cosmic) |
-| `BossArenaVFX.cs` | **NEW** - Persistent boss arena ambient particles with parallax depth |
+| `UniversalElementalVFX.cs` | Universal elemental effects (flames, lightning, petals, frost, void, cosmic) |
+| `BossArenaVFX.cs` | Persistent boss arena ambient particles with parallax depth |
+| `DynamicLightSystem.cs` | Advanced lighting with point/directional/spotlight and cookies |
+| `MultiBeamController.cs` | Synchronized multi-beam with state machine (Idle/Charging/Firing/Dissipating) |
+| `ObjectPool.cs` | Generic object pooling with IPoolable interface and PoolManager |
+| `ParticlePoolSystem.cs` | High-performance particle pooling with preset settings |
+| `FrustumCuller.cs` | Screen visibility testing and hierarchical culling |
+| `BloomPostProcess.cs` | Full-screen bloom post-processing pipeline |
+| `SegmentedBeamRenderer.cs` | Three-part beam architecture (Muzzle/Body/Impact) with wave distortion and corona particles |
+| `TaperCurves.cs` | Width tapering functions: Linear, EaseOut, EaseIn, SmoothStep, Exponential, Bulge, Wave, Bezier |
+| `GlowRenderer.cs` | Multi-layer glow system with theme-specific profiles (LaCampanella, Eroica, Fate, etc.) |
+| `ImpactEffectManager.cs` | Staged impact choreography: Anticipation → Impact → Shockwave → Debris → Aftermath |
+| `ScreenShakeManager.cs` | Camera shake system with multiple decay curves and trauma accumulation |
+| `TileDustSpawner.cs` | Material-based dust spawning with 14 material types and specialized effects |
+
+### Optimization Systems (Common/Systems/VFX/Optimization/)
+
+| File | Purpose |
+|------|---------|
+| `LODManager.cs` | Level of Detail management with distance-based thresholds (High/Medium/Low/VeryLow/Culled) |
+| `LODBeamRenderer.cs` | LOD-aware beam rendering with automatic segment/particle/glow layer adjustment |
+| `AdaptiveLODSystem.cs` | ModSystem managing update frequency for ILODUpdatable objects based on distance |
+| `TextureAtlas.cs` | Texture atlas builder and manager for batch rendering optimization |
+| `BatchedParticleRenderer.cs` | Queue-based particle batching with state-sorted rendering |
+| `VertexBufferPool.cs` | Reusable vertex buffer pool with RingVertexBuffer for zero-allocation updates |
+| `AdaptiveQualityManager.cs` | ModSystem auto-adjusting VFX quality based on frame rate (Ultra/High/Medium/Low/Potato) |
+| `ConditionalEffectRenderer.cs` | Conditional effect rendering based on quality settings and visibility |
+| `PerformanceProfiler.cs` | Custom profiler with timing, call counts, memory tracking, and ProfileScope pattern |
 
 ### Updated Existing Files
 

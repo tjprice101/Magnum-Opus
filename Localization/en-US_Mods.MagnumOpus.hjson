@@ -7042,18 +7042,28 @@ Items: {
 		Tooltip: ""
 	}
 
-	DebugARK: {
-		DisplayName: Debug A R K
+	InfernalCleaverItem: {
+		DisplayName: Infernal Cleaver
 		Tooltip: ""
 	}
 
-	DebugHEAVY: {
-		DisplayName: Debug H E A V Y
+	FrostbiteEdgeItem: {
+		DisplayName: Frostbite Edge
 		Tooltip: ""
 	}
 
-	DebugSWING: {
-		DisplayName: Debug S W I N G
+	CosmicRendBladeItem: {
+		DisplayName: Cosmic Rend Blade
+		Tooltip: ""
+	}
+
+	VerdantCrescendoItem: {
+		DisplayName: Verdant Crescendo
+		Tooltip: ""
+	}
+
+	ArcaneHarmonicsItem: {
+		DisplayName: Arcane Harmonics
 		Tooltip: ""
 	}
 }
@@ -7493,4 +7503,30 @@ Projectiles: {
 	DebugARKSwungBlade.DisplayName: Debug A R K Swung Blade
 	DebugHEAVYSwungBlade.DisplayName: Debug H E A V Y Swung Blade
 	DebugSWINGProj.DisplayName: Debug S W I N G Proj
+	AdaptiveBezierProjectile.DisplayName: Adaptive Bezier Projectile
+	BezierCurveProjectile.DisplayName: Bezier Curve Projectile
+	ChromaticAfterimageProjectile.DisplayName: Chromatic Afterimage Projectile
+	UnifiedTrailProjectile.DisplayName: Unified Trail Projectile
+	VFXPlusBeamCutterProjectile.DisplayName: V F X Plus Beam Cutter Projectile
+	VFXPlusBloomStarProjectile.DisplayName: V F X Plus Bloom Star Projectile
+	VFXPlusGodRayBladeProjectile.DisplayName: V F X Plus God Ray Blade Projectile
+	VFXPlusImpactBladeProjectile.DisplayName: V F X Plus Impact Blade Projectile
+	VFXPlusSwordArcProjectile.DisplayName: V F X Plus Sword Arc Projectile
+	VFXPlusTrailBladeProjectile.DisplayName: V F X Plus Trail Blade Projectile
+	VFXTestAfterimageProjectile.DisplayName: V F X Test Afterimage Projectile
+	VFXTestBezierProjectile.DisplayName: V F X Test Bezier Projectile
+	VFXTestBillboardProjectile.DisplayName: V F X Test Billboard Projectile
+	VFXTestBloomProjectile.DisplayName: V F X Test Bloom Projectile
+	VFXTestChainProjectile.DisplayName: V F X Test Chain Projectile
+	VFXTestDistortionProjectile.DisplayName: V F X Test Distortion Projectile
+	VFXTestLightBeamProjectile.DisplayName: V F X Test Light Beam Projectile
+	VFXTestParticlePoolProjectile.DisplayName: V F X Test Particle Pool Projectile
+	VFXTestPixelTrailProjectile.DisplayName: V F X Test Pixel Trail Projectile
+	VFXTestSmokeProjectile.DisplayName: V F X Test Smoke Projectile
+	VFXTestTrailProjectile.DisplayName: V F X Test Trail Projectile
+	VFXPlusAfterimageKatanaProjectile.DisplayName: V F X Plus Afterimage Katana Projectile
+	VFXPlusConstellationBladeProjectile.DisplayName: V F X Plus Constellation Blade Projectile
+	VFXPlusNebulaStaffProjectile.DisplayName: V F X Plus Nebula Staff Projectile
+	CalamityTrailSlash.DisplayName: Calamity Trail Slash
+	ShaderTestProjectile.DisplayName: Shader Test Projectile
 }

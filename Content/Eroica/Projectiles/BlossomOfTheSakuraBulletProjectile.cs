@@ -95,7 +95,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 Projectile.velocity = (Projectile.velocity * 30f + direction * 12f) / 31f;
             }
 
-            // === IRIDESCENT WINGSPAN-STYLE TRAIL VFX ===
+            // === CALAMITY-STANDARD TRAIL VFX ===
             
             // HEAVY DUST TRAILS - scarlet/crimson fire (2+ per frame)
             for (int d = 0; d < 2; d++)

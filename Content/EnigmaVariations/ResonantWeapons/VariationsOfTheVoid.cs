@@ -312,7 +312,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 _ => EnigmaPurple
             };
             
-            // === IRIDESCENT WINGSPAN VFX PATTERN - BEAM SEGMENTS ===
+            // === CALAMITY-STANDARD VFX PATTERN - BEAM SEGMENTS ===
             for (int i = 0; i < segments; i++)
             {
                 float t = (float)i / segments;
@@ -425,7 +425,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             
             float pulse = (float)Math.Sin(alignedTime * 0.1f) * 0.3f + 0.7f;
             
-            // === IRIDESCENT WINGSPAN VFX PATTERN - RESONANCE CENTER ===
+            // === CALAMITY-STANDARD VFX PATTERN - RESONANCE CENTER ===
             
             // Heavy dust vortex at resonance point (2+ per frame)
             for (int d = 0; d < 3; d++)
@@ -675,7 +675,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Projectile.height = (int)(currentRadius * 2);
             Projectile.Center = Projectile.position + new Vector2(Projectile.width / 2f, Projectile.height / 2f);
             
-            // === IRIDESCENT WINGSPAN VFX PATTERN - VOID EXPLOSION ===
+            // === CALAMITY-STANDARD VFX PATTERN - VOID EXPLOSION ===
             
             // Heavy dust vortex (scaled to explosion size)
             int dustCount = (int)(3 + lifeProgress * 4);

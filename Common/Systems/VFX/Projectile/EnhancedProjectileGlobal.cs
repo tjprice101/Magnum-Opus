@@ -180,7 +180,7 @@ namespace MagnumOpus.Common.Systems.VFX
             // Theme-specific unique trails
             UniqueTrailStyles.SpawnUniqueTrail(projectile.Center, -projectile.velocity * 0.1f, detectedTheme, projectile.DamageType, themePalette);
             
-            // Dense dust trail (Iridescent Wingspan pattern)
+            // Dense dust trail (CALAMITY-STANDARD PATTERN)
             for (int i = 0; i < (int)(2 * config.ParticleDensity); i++)
             {
                 Vector2 dustOffset = Main.rand.NextVector2Circular(6f, 6f);

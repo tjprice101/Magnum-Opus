@@ -404,7 +404,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             // Rotation - faster spinning
             Projectile.rotation += rotationSpeed;
             
-            // === ENHANCED ZENITH-STYLE PARTICLE TRAIL (IRIDESCENT WINGSPAN PATTERN) ===
+            // === ENHANCED ZENITH-STYLE PARTICLE TRAIL (CALAMITY-STANDARD PATTERN) ===
             
             // HEAVY DUST TRAILS - infernal orange/gold (2+ per frame)
             for (int d = 0; d < 2; d++)

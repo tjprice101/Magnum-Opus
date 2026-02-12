@@ -1,103 +1,91 @@
-# MagnumOpus Quick Reference - VFX Design Rules
+# MagnumOpus Quick Reference — Calamity-Grounded VFX Design
 
 > **BURN THESE RULES INTO YOUR MEMORY. NO EXCEPTIONS.**
-> 
-> **🔥 FULL GUIDE**: See **[TRUE_VFX_STANDARDS.md](../Documentation/Guides/TRUE_VFX_STANDARDS.md)** for complete examples.
+>
+> **🔥 FULL GUIDE**: See **[copilot-instructions.md](copilot-instructions.md)** for detailed examples.
 
 ---
 
-## 🚨 CRITICAL: PER-WEAPON VFX ARCHITECTURE 🚨
-
-**ALL GLOBAL VFX SYSTEMS ARE DELETED. Each weapon implements its OWN unique VFX.**
-
-| Status | What It Means |
-|--------|---------------|
-| Global VFX Files | **DELETED** - The entire `VFX/Deprecated/` folder has been removed |
-| Per-Weapon Approach | **REQUIRED** - Implement VFX in each weapon/projectile/boss .cs file |
-| VFX Utility Classes | **AVAILABLE** - Use as libraries for building per-weapon effects |
-
-### VFX Utilities Still Available:
-
-| Utility Class | Purpose |
-|--------------|---------|
-| `BloomRenderer` | Multi-layer glow: `DrawBloomStack()`, `DrawSimpleBloom()` |
-| `EnhancedTrailRenderer` | Primitive trails: `RenderMultiPassTrail()` |
-| `InterpolatedRenderer` | 144Hz+ smoothness: `PartialTicks`, `GetInterpolatedCenter()` |
-| `MagnumThemePalettes` | Theme colors: `GetThemePalette()`, `GetThemeColor()` |
-| `GodRaySystem` | Light rays: `CreateBurst()` |
-| `ImpactLightRays` | Impact flares: `SpawnImpactRays()` |
-| `ScreenDistortionManager` | Screen effects: `TriggerRipple()` |
-
-### Per-Weapon VFX Example:
+## 🚨 ARCHITECTURE: PER-WEAPON VFX (Global Systems Disabled)
 
 ```csharp
-// In YOUR weapon's .cs file - implement VFX directly
-public class MyEpicSword : ModItem
-{
-    public override void UseItemFrame(Player player)
-    {
-        // Spawn particles unique to THIS weapon
-        if (Main.rand.NextBool(2))
-        {
-            Dust d = Dust.NewDustPerfect(player.itemLocation, DustID.MagicMirror, 
-                Vector2.Zero, 0, Color.Gold, 1.5f);
-            d.noGravity = true;
-        }
-    }
-}
+// Common/Systems/VFX/VFXMasterToggle.cs
+public static bool GlobalSystemsEnabled = false;  // DISABLED — use per-weapon VFX
+public static bool ScreenShadersEnabled = true;
+public static bool SkyEffectsEnabled = true;
+public static bool ParticleRenderingEnabled = true;
+```
 
-// In YOUR projectile's PreDraw - render unique effects
-public override bool PreDraw(ref Color lightColor)
-{
-    BloomRenderer.DrawBloomStack(Main.spriteBatch, drawPos, myColor, 0.5f, 4, 1f);
-    EnhancedTrailRenderer.RenderMultiPassTrail(oldPos, oldRot, settings, 3);
-    return true;
-}
+**Each weapon, projectile, and boss implements its OWN unique VFX directly in its .cs file.**
+Utility classes (BloomRenderer, EnhancedTrailRenderer, etc.) are still available as libraries.
+
+---
+
+## ⭐ GOLD STANDARD = CALAMITY MOD SOURCE CODE
+
+> **Study Calamity's source. These weapons are the benchmark, NOT our own production weapons.**
+
+| Calamity Weapon | Why It Matters | Study For |
+|-----------------|----------------|-----------|
+| **Exoblade** | Held-projectile swing, 4-phase combo, `CurveSegment` easing | Melee swing architecture |
+| **Ark of the Cosmos** | Constellation trails, cosmic cloud particles, curved bezier paths | Trail rendering, curved motion |
+| **Galaxia** | Mode-switching combos, per-mode color palettes, sub-projectile spawns | Combo variety, palette systems |
+| **Photoviscerator** | Metaball rendering, multi-pass bloom, `{ A = 0 }` alpha removal | Bloom stacking, additive blending |
+| **Profaned Guardians** | Multi-entity coordination, phase state machines, arena VFX | Boss design, coordinated attacks |
+| **The Oracle** | Primitive trail shaders, width/color functions, shader-based rendering | HLSL trails, GPU rendering |
+
+---
+
+## 🔬 5 CALAMITY PATTERNS THAT MATTER MOST
+
+### 1. Multi-Layer Bloom Stack (`{ A = 0 }` pattern)
+```csharp
+Color c = baseColor with { A = 0 }; // CRITICAL: remove alpha for additive
+sb.Draw(bloom, pos, null, c * 0.30f, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f); // Outer
+sb.Draw(bloom, pos, null, c * 0.50f, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f); // Mid
+sb.Draw(bloom, pos, null, c * 0.70f, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f); // Inner
+sb.Draw(bloom, pos, null, Color.White with { A = 0 } * 0.85f, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f); // Core
+```
+
+### 2. 3-Pass Trail Rendering
+```csharp
+var settings = new EnhancedTrailRenderer.PrimitiveSettings(
+    width: progress => baseWidth * (1f - progress),           // Taper
+    color: progress => Color.Lerp(startColor, endColor, progress) with { A = 0 },
+    smoothen: true
+);
+EnhancedTrailRenderer.RenderMultiPassTrail(oldPositions, oldRotations, settings, passes: 3);
+```
+
+### 3. CurveSegment Piecewise Animation (Swing Arcs)
+```csharp
+new CurveSegment(EasingType.PolyOut, 0f, -1f, 0.25f, 2),     // Windup (breath)
+new CurveSegment(EasingType.PolyIn, 0.25f, -0.75f, 1.65f, 3), // Main swing (note)
+new CurveSegment(EasingType.PolyOut, 0.85f, 0.9f, 0.1f, 2),   // Follow-through (resonance)
+```
+
+### 4. Sub-Pixel Interpolation (144Hz+)
+```csharp
+float partialTicks = InterpolatedRenderer.PartialTicks;
+Vector2 smoothPos = Vector2.Lerp(previousPosition, currentPosition, partialTicks);
+```
+
+### 5. Velocity-Based VFX (Stretch + Spin)
+```csharp
+float speed = Projectile.velocity.Length();
+float stretch = 1f + speed * 0.02f;   // Stretch with speed
+float spin = speed * 0.05f;            // Faster = more spin
 ```
 
 ---
 
-## 🚨 THE #1 PROBLEM TO AVOID
+## 🎵 THIS IS A MUSIC MOD
 
-**"Slapping a flare" on PreDraw is NOT a visual effect. Each weapon needs UNIQUE, LAYERED effects.**
-
-| ❌ WRONG | ✅ CORRECT |
-|----------|-----------|
-| Single flare on PreDraw | **Layer 4+ flares** spinning at different speeds |
-| Sparse dust trail | **Dense dust** (2+ per frame, scale 1.5f+) |
-| No color oscillation | **Main.hslToRgb** for color shimmer |
-| Static music notes | **Orbiting music notes** that lock to projectile |
-| Basic "puff" impact | **Glimmer cascade** with rings + sparkles |
-| Rigid straight trails | **Curved trails** (Ark of the Cosmos style) |
-
----
-
-## ⭐ THE GOLD STANDARD: Iridescent Wingspan
-
-**STUDY THIS WEAPON. COPY ITS PATTERNS.**
-
-```csharp
-// Trail: HEAVY DUST (every frame, 2+ particles, scale 1.8f!)
-for (int i = 0; i < 2; i++)
-{
-    Dust d = Dust.NewDustPerfect(pos, dustType, vel, 100, color, 1.8f);
-    d.noGravity = true;
-    d.fadeIn = 1.4f;
-}
-
-// Sparkles: 1-in-2, not 1-in-10!
-if (Main.rand.NextBool(2))
-    CustomParticles.GenericFlare(pos + offset, color, 0.5f, 18);
-
-// Color shift: Main.hslToRgb
-float hue = Main.rand.NextFloat();
-Color rainbow = Main.hslToRgb(hue, 1f, 0.7f);
-
-// PreDraw: MULTIPLE SPINNING LAYERS
-Main.EntitySpriteDraw(tex, pos, null, color * 0.5f, rot, origin, scale * 1.4f, ...);
-Main.EntitySpriteDraw(tex, pos, null, color * 0.3f, rot, origin, scale * 1.2f, ...);
-Main.EntitySpriteDraw(tex, pos, null, Color.White, rot, origin, scale, ...);
-```
+- Music notes **MUST** be visible: scale **0.7f–1.2f** (never 0.25f)
+- Notes **orbit** projectiles, not spawn randomly
+- Multi-layer bloom on every note
+- Every combo phase is a **movement in a symphony**
+- 6-color palette = **musical dynamics** (pianissimo → sforzando)
 
 ---
 
@@ -189,14 +177,14 @@ Texture2D arc = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Sword
 
 ## 📋 PROJECTILE CHECKLIST
 
-- [ ] PreDraw has **4+ layered flares** spinning
+- [ ] PreDraw has **4+ layered bloom layers** (Calamity bloom stack pattern)
+- [ ] Trail uses **EnhancedTrailRenderer** or **CalamityStyleTrailRenderer**
 - [ ] Trail has **dense dust** (2+ per frame, scale 1.5f+)
-- [ ] Trail has **contrasting sparkles** (1-in-2)
-- [ ] Trail has **flares littering air** (1-in-2)
-- [ ] Colors **oscillate** with Main.hslToRgb
+- [ ] Colors use **palette gradient** via `MagnumThemePalettes`
 - [ ] Music notes **orbit** projectile (scale 0.7f+)
-- [ ] Impact is **glimmer cascade**, not puff
+- [ ] Impact uses **multi-layer bloom cascade**, not single puff
 - [ ] Lighting is **bright** (1.0f+ intensity)
+- [ ] Uses `{ A = 0 }` for all additive blending
 
 ---
 
@@ -215,10 +203,83 @@ Texture2D arc = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Sword
 
 ## ✅ BEFORE IMPLEMENTING, ASK:
 
-1. *"Am I just slapping one flare on PreDraw?"* → **ADD 3+ MORE LAYERS**
-2. *"Is my dust trail sparse?"* → **2+ PARTICLES PER FRAME**
-3. *"Are colors static?"* → **ADD Main.hslToRgb OSCILLATION**
+1. *"Am I using the `{ A = 0 }` pattern for bloom?"* → **YES, ALWAYS**
+2. *"Am I using 4-layer bloom stacks like Calamity?"* → **YES**
+3. *"Are my trails using EnhancedTrailRenderer multi-pass?"* → **3 PASSES MINIMUM**
 4. *"Do music notes randomly spawn?"* → **MAKE THEM ORBIT**
-5. *"Is my impact a puff?"* → **MAKE IT A GLIMMER CASCADE**
-6. *"Am I using SwordArc for melee?"* → **YES YOU SHOULD BE**
+5. *"Is my impact a puff?"* → **MAKE IT A BLOOM CASCADE**
+6. *"Am I studying Calamity's source for reference?"* → **YES YOU SHOULD BE**
+
+---
+
+## 🗡️ MELEE SWING ARCHITECTURE
+
+**ALL melee weapons use held-projectile pattern. NEVER use vanilla `useStyle = Swing`.**
+Every swing is a measure of music — each combo phase a different note in the melody.
+
+### 3-File Structure (MANDATORY)
+```
+WeaponNameItem.cs   → ModItem (channel=true, noMelee=true, noUseGraphic=true)
+WeaponNameSwing.cs  → ModProjectile (IS the swing, draws blade+trail+smear+flare)
+WeaponNameVFX.cs    → Static helper (optional: palette, trail funcs, particle logic)
+```
+
+### Copy From Test Weapons
+```
+Content/TestWeapons/01_InfernalCleaver/  → Fire (TrailStyle.Flame)
+Content/TestWeapons/02_FrostbiteEdge/    → Ice (TrailStyle.Ice)
+Content/TestWeapons/03_CosmicRendBlade/  → Cosmic (TrailStyle.Cosmic)
+Content/TestWeapons/04_VerdantCrescendo/ → Nature (TrailStyle.Nature)
+Content/TestWeapons/05_ArcaneHarmonics/  → Arcane (EnhancedTrailRenderer)
+```
+
+### Combo Phase Requirements
+- **4+ phases** with different CurveSegment arrays (each phase = a movement in the weapon's symphony)
+- **Phase 2**: Spawn sub-projectiles at ~70% progress (blade tip)
+- **Phase 3**: Finisher effects at ~85% (screen shake, ground effects, music note cascade)
+- **Each phase**: Different smear type, scaling damage/intensity
+- **Music notes** scattered from blade tip during swings (scale 0.7f+)
+
+### PreDraw Order (ALWAYS — like reading a score)
+```
+1. Trail (CalamityStyleTrailRenderer.DrawTrailWithBloom) — the sustained harmony
+2. Smear overlay (3-layer additive) — the crescendo blur
+3. Blade sprite (normal + additive glow pass) — the melody
+4. Lens flare (3-layer at tip using Extra[98]) — the staccato accent
+```
+
+### Key Systems
+| System | File | Purpose |
+|--------|------|---------|
+| `CurveSegment` + `PiecewiseAnimation` | `Particle.cs` | Swing arc easing |
+| `CalamityStyleTrailRenderer` | `Trails/CalamityStyleTrailRenderer.cs` | 5 shader trail styles |
+| `EnhancedTrailRenderer` | `Trails/EnhancedTrailRenderer.cs` | Multi-pass primitive trails |
+| `SwingShaderSystem` | `VFX/SwingShaderSystem.cs` | `BeginAdditive()`, `RestoreSpriteBatch()` |
+| `SmearTextureGenerator` | `Particles/SmearParticles.cs` | Procedural fallback textures |
+
+### 6-Color Palette (EVERY melee weapon needs one — its musical scale)
+```csharp
+Color[] Palette = { DarkShadow, DarkMid, Primary, BrightMid, Bright, WhiteHot };
+//                  Pianissimo   Piano   Mezzo    Forte   Fortissimo  Sforzando
+// Interpolate: GetPaletteColor(t) where t = 0 (dark) to 1 (white-hot)
+```
+
+### Standard Palettes
+| Element | [0] Dark | [2] Primary | [5] Brightest |
+|---------|----------|-------------|---------------|
+| 🔥 Fire | (80,10,0) | (255,120,20) | (255,250,220) |
+| ❄️ Ice | (20,40,80) | (80,160,220) | (240,250,255) |
+| 🌌 Cosmic | (40,10,60) | (160,60,200) | (255,220,255) |
+| 🌿 Nature | (20,60,10) | (60,180,70) | (230,250,180) |
+| 🎵 Arcane | (40,10,80) | (140,60,210) | (250,220,255) |
+
+### ✅ BEFORE CREATING MELEE WEAPON, ASK:
+1. *"Am I using the held-projectile pattern?"* → **YES, ALWAYS**
+2. *"Do I have 4+ combo phases?"* → **MINIMUM (like a 4-movement sonata)**
+3. *"Does each phase have different smear type?"* → **YES**
+4. *"Am I spawning sub-projectiles in Phase 2?"* → **AT ~70% PROGRESS**
+5. *"Does Phase 3 have screen shake + finisher?"* → **AT ~85% PROGRESS**
+6. *"Am I drawing trail → smear → blade → flare in order?"* → **ALWAYS**
+7. *"Are music notes visible from the blade tip?"* → **SCALE 0.7f+, YES**
+8. *"Does this weapon sound like a unique musical composition?"* → **EVERY WEAPON IS A DIFFERENT SONG**
 

@@ -256,7 +256,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             if (Projectile.timeLeft % 30 == 0)
                 eyeTextureIndex = Main.rand.Next(8);
             
-            // === IRIDESCENT WINGSPAN-STYLE RADIANT TRAIL EFFECTS ===
+            // === CALAMITY-STANDARD RADIANT TRAIL EFFECTS ===
             // Heavy dust trails (2+ per frame) - void bullet stream
             for (int d = 0; d < 2; d++)
             {
@@ -659,7 +659,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
                 Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredVel, HomingStrength);
             }
             
-            // === IRIDESCENT WINGSPAN-STYLE RADIANT TRAIL EFFECTS ===
+            // === CALAMITY-STANDARD RADIANT TRAIL EFFECTS ===
             // Heavy dust trails (2+ per frame) - void seeker stream
             for (int d = 0; d < 2; d++)
             {
@@ -960,7 +960,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             if (Projectile.timeLeft % 20 == 0)
                 eyeTextureIndex = Main.rand.Next(8);
             
-            // === IRIDESCENT WINGSPAN STANDARD: HEAVY DUST TRAILS (2+ per frame) ===
+            // === CALAMITY-STANDARD: HEAVY DUST TRAILS (2+ per frame) ===
             // Primary void dust - purple torch
             for (int d = 0; d < 2; d++)
             {

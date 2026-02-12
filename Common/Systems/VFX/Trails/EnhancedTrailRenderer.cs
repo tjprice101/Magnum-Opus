@@ -323,12 +323,12 @@ namespace MagnumOpus.Common.Systems.VFX
                 _vertices[i * 2] = new VertexPositionColorTexture(
                     new Vector3(topPos.X, topPos.Y, 0),
                     color,
-                    new Vector3(completionRatio, 0, 0));
+                    new Vector2(completionRatio, 0));
                 
                 _vertices[i * 2 + 1] = new VertexPositionColorTexture(
                     new Vector3(bottomPos.X, bottomPos.Y, 0),
                     color,
-                    new Vector3(completionRatio, 1, 0));
+                    new Vector2(completionRatio, 1));
             }
             
             // Build indices
@@ -641,9 +641,11 @@ namespace MagnumOpus.Common.Systems.VFX
         }
         
         /// <summary>
-        /// Draws primitives with a custom MagnumOpus shader effect.
+        /// Draws primitives with the SimpleTrailShader loaded by ShaderLoader.
+        /// Mirrors CalamityStyleTrailRenderer.DrawWithShader: selects technique,
+        /// binds noise texture to slot 1, sets all uniforms, cleans up.
         /// </summary>
-        private static void DrawPrimitivesWithCustomShader(int vertexCount, int triangleCount, Effect customShader, Color primaryColor, Color secondaryColor, float intensity)
+        private static void DrawPrimitivesWithCustomShader(int vertexCount, int triangleCount, Effect customShader, Color primaryColor, Color secondaryColor, float intensity, int trailStyle = 0)
         {
             GraphicsDevice device = Main.instance.GraphicsDevice;
             
@@ -657,7 +659,7 @@ namespace MagnumOpus.Common.Systems.VFX
             device.BlendState = BlendState.Additive;
             device.RasterizerState = RasterizerState.CullNone;
             device.DepthStencilState = DepthStencilState.None;
-            device.SamplerStates[0] = SamplerState.LinearClamp;
+            device.SamplerStates[0] = SamplerState.LinearWrap;
             
             Matrix view = Matrix.CreateLookAt(Vector3.Backward, Vector3.Zero, Vector3.Up);
             Matrix projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);
@@ -670,19 +672,49 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 if (customShader != null)
                 {
-                    // Configure custom shader parameters
+                    // Select technique based on trail style (matches SimpleTrailShader.fx)
+                    string techniqueName = trailStyle switch
+                    {
+                        0 => "FlameTechnique",
+                        1 => "IceTechnique",
+                        2 => "LightningTechnique",
+                        3 => "NatureTechnique",
+                        4 => "CosmicTechnique",
+                        _ => "FlameTechnique"
+                    };
+                    customShader.CurrentTechnique = customShader.Techniques[techniqueName];
+                    
+                    // Core uniforms
+                    customShader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly);
                     customShader.Parameters["uColor"]?.SetValue(primaryColor.ToVector3());
                     customShader.Parameters["uSecondaryColor"]?.SetValue(secondaryColor.ToVector3());
                     customShader.Parameters["uIntensity"]?.SetValue(intensity);
-                    customShader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly);
                     customShader.Parameters["uOpacity"]?.SetValue(1f);
+                    customShader.Parameters["uProgress"]?.SetValue(0f);
                     
-                    foreach (EffectPass pass in customShader.CurrentTechnique.Passes)
+                    // Overbright and glow
+                    customShader.Parameters["uOverbrightMult"]?.SetValue(Math.Max(1f, intensity));
+                    customShader.Parameters["uGlowThreshold"]?.SetValue(0.4f);
+                    customShader.Parameters["uGlowIntensity"]?.SetValue(1f);
+                    
+                    // Noise texture binding to sampler slot 1
+                    Texture2D noiseTex = ShaderLoader.GetDefaultTrailStyleTexture(trailStyle);
+                    if (noiseTex != null)
                     {
-                        pass.Apply();
-                        device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList,
-                            _vertices, 0, vertexCount, _indices, 0, triangleCount);
+                        device.Textures[1] = noiseTex;
+                        device.SamplerStates[1] = SamplerState.LinearWrap;
+                        customShader.Parameters["uHasSecondaryTex"]?.SetValue(1f);
+                        customShader.Parameters["uSecondaryTexScale"]?.SetValue(1f);
+                        customShader.Parameters["uSecondaryTexScroll"]?.SetValue(0.5f);
                     }
+                    else
+                    {
+                        customShader.Parameters["uHasSecondaryTex"]?.SetValue(0f);
+                    }
+                    
+                    customShader.CurrentTechnique.Passes[0].Apply();
+                    device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList,
+                        _vertices, 0, vertexCount, _indices, 0, triangleCount);
                 }
                 else
                 {
@@ -696,6 +728,9 @@ namespace MagnumOpus.Common.Systems.VFX
             }
             finally
             {
+                // Clean up noise texture slot
+                device.Textures[1] = null;
+                
                 // Restore previous states
                 device.BlendState = previousBlendState;
                 device.RasterizerState = previousRasterizerState;
@@ -709,28 +744,28 @@ namespace MagnumOpus.Common.Systems.VFX
         #region Custom Shader Trail Rendering
         
         /// <summary>
-        /// Renders a trail using MagnumOpus custom shaders.
-        /// Provides enhanced bloom and gradient effects.
+        /// Renders a trail using the SimpleTrailShader via ShaderLoader.
+        /// Provides enhanced bloom and gradient effects with proper noise textures.
         /// </summary>
         /// <param name="positions">Array of world positions for the trail</param>
         /// <param name="settings">Primitive settings for width/color</param>
-        /// <param name="useCustomShader">Whether to use custom HLSL shaders</param>
         /// <param name="primaryColor">Primary trail color</param>
         /// <param name="secondaryColor">Secondary/gradient color</param>
         /// <param name="intensity">Shader intensity multiplier</param>
+        /// <param name="trailStyle">Trail style: 0=Flame, 1=Ice, 2=Lightning, 3=Nature, 4=Cosmic</param>
         public static void RenderTrailWithShader(
             Vector2[] positions,
             PrimitiveSettings settings,
             Color primaryColor,
             Color secondaryColor,
-            float intensity = 1f)
+            float intensity = 1f,
+            int trailStyle = 0)
         {
             if (_basicEffect == null) Initialize();
             if (positions == null || positions.Length < 2) return;
             
-            // Get custom trail shader from MagnumShaderSystem (proper Ref<Effect> pattern)
-            var trailShaderData = MagnumShaderSystem.GetTrailShader(primaryColor, secondaryColor, intensity);
-            Effect trailShader = trailShaderData?.Shader;
+            // Get trail shader from ShaderLoader (replaces dead MagnumShaderSystem)
+            Effect trailShader = ShaderLoader.Trail;
             
             // Build the trail mesh
             List<Vector2> smoothedPositions = settings.Smoothen ? 
@@ -764,9 +799,9 @@ namespace MagnumOpus.Common.Systems.VFX
                 Vector2 rightPos = position + perpendicular * width * 0.5f;
                 
                 _vertices[vertexCount] = new VertexPositionColorTexture(
-                    new Vector3(leftPos.X, leftPos.Y, 0), color, new Vector3(0, completionRatio, 0));
+                    new Vector3(leftPos.X, leftPos.Y, 0), color, new Vector2(0, completionRatio));
                 _vertices[vertexCount + 1] = new VertexPositionColorTexture(
-                    new Vector3(rightPos.X, rightPos.Y, 0), color, new Vector3(1, completionRatio, 0));
+                    new Vector3(rightPos.X, rightPos.Y, 0), color, new Vector2(1, completionRatio));
                 
                 // Add indices for triangles
                 if (i < smoothedPositions.Count - 1)
@@ -787,7 +822,7 @@ namespace MagnumOpus.Common.Systems.VFX
             int triangleCount = indexCount / 3;
             
             // Draw with custom shader
-            DrawPrimitivesWithCustomShader(vertexCount, triangleCount, trailShader, primaryColor, secondaryColor, intensity);
+            DrawPrimitivesWithCustomShader(vertexCount, triangleCount, trailShader, primaryColor, secondaryColor, intensity, trailStyle);
         }
         
         /// <summary>
@@ -796,13 +831,15 @@ namespace MagnumOpus.Common.Systems.VFX
         /// Pass 2: Main trail (full color)
         /// Pass 3: Core glow (small, bright)
         /// </summary>
+        /// <param name="trailStyle">Trail style: 0=Flame, 1=Ice, 2=Lightning, 3=Nature, 4=Cosmic</param>
         public static void RenderMultiPassTrail(
             Vector2[] positions,
             WidthFunction widthFunc,
             Color primaryColor,
             Color secondaryColor,
             float baseWidth = 20f,
-            float bloomIntensity = 1f)
+            float bloomIntensity = 1f,
+            int trailStyle = 0)
         {
             if (positions == null || positions.Length < 2) return;
             
@@ -812,7 +849,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 ratio => Color.Lerp(primaryColor, secondaryColor, ratio) * 0.3f,
                 null, true, null
             );
-            RenderTrailWithShader(positions, bloomSettings, primaryColor * 0.3f, secondaryColor * 0.3f, bloomIntensity * 0.5f);
+            RenderTrailWithShader(positions, bloomSettings, primaryColor * 0.3f, secondaryColor * 0.3f, bloomIntensity * 0.5f, trailStyle);
             
             // Pass 2: Main trail (full width, full color)
             var mainSettings = new PrimitiveSettings(
@@ -820,7 +857,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 ratio => Color.Lerp(primaryColor, secondaryColor, ratio),
                 null, true, null
             );
-            RenderTrailWithShader(positions, mainSettings, primaryColor, secondaryColor, bloomIntensity);
+            RenderTrailWithShader(positions, mainSettings, primaryColor, secondaryColor, bloomIntensity, trailStyle);
             
             // Pass 3: Core glow (0.4x width, white core)
             var coreSettings = new PrimitiveSettings(
@@ -828,7 +865,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 ratio => Color.White * 0.8f,
                 null, true, null
             );
-            RenderTrailWithShader(positions, coreSettings, Color.White * 0.8f, primaryColor * 0.6f, bloomIntensity * 1.2f);
+            RenderTrailWithShader(positions, coreSettings, Color.White * 0.8f, primaryColor * 0.6f, bloomIntensity * 1.2f, trailStyle);
         }
         
         #endregion
@@ -939,12 +976,12 @@ namespace MagnumOpus.Common.Systems.VFX
                 _vertices[i * 2] = new VertexPositionColorTexture(
                     new Vector3(topPos.X, topPos.Y, 0),
                     color,
-                    new Vector3(scrolledU, 0, 0));
+                    new Vector2(scrolledU, 0));
                 
                 _vertices[i * 2 + 1] = new VertexPositionColorTexture(
                     new Vector3(bottomPos.X, bottomPos.Y, 0),
                     color,
-                    new Vector3(scrolledU, 1, 0));
+                    new Vector2(scrolledU, 1));
             }
             
             // Build indices

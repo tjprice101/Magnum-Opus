@@ -29,113 +29,156 @@
 3. **USE VFX UTILITIES** - The utility classes (BloomRenderer, etc.) are still available as libraries
 4. **UNIQUE IDENTITY** - Every weapon must look and feel completely different
 
-## VFX Utility Classes Available (Use As Libraries)
+## ⭐ GOLD STANDARD = CALAMITY MOD SOURCE CODE
 
-These utility classes are available for building per-weapon VFX:
+> **Study Calamity's source. These weapons are the benchmark, NOT our own production weapons.**
+
+| Calamity Weapon | Why It Matters | Study For |
+|-----------------|----------------|-----------|
+| **Exoblade** | Held-projectile swing, 4-phase combo, `CurveSegment` easing | Melee swing architecture |
+| **Ark of the Cosmos** | Constellation trails, cosmic cloud particles, curved bezier paths | Trail rendering, curved motion |
+| **Galaxia** | Mode-switching combos, per-mode color palettes, sub-projectile spawns | Combo variety, palette systems |
+| **Photoviscerator** | Metaball rendering, multi-pass bloom, `{ A = 0 }` alpha removal | Bloom stacking, additive blending |
+| **Profaned Guardians** | Multi-entity coordination, phase state machines, arena VFX | Boss design, coordinated attacks |
+| **The Oracle** | Primitive trail shaders, width/color functions, shader-based rendering | HLSL trails, GPU rendering |
+
+## 🔬 5 CALAMITY PATTERNS THAT MATTER MOST
+
+### 1. Multi-Layer Bloom Stack (`{ A = 0 }` pattern)
+```csharp
+Color c = baseColor with { A = 0 }; // CRITICAL: remove alpha for additive
+sb.Draw(bloom, pos, null, c * 0.30f, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f); // Outer
+sb.Draw(bloom, pos, null, c * 0.50f, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f); // Mid
+sb.Draw(bloom, pos, null, c * 0.70f, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f); // Inner
+sb.Draw(bloom, pos, null, Color.White with { A = 0 } * 0.85f, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f); // Core
+```
+
+### 2. 3-Pass Trail Rendering
+```csharp
+var settings = new EnhancedTrailRenderer.PrimitiveSettings(
+    width: progress => baseWidth * (1f - progress),           // Taper
+    color: progress => Color.Lerp(startColor, endColor, progress) with { A = 0 },
+    smoothen: true
+);
+EnhancedTrailRenderer.RenderMultiPassTrail(oldPositions, oldRotations, settings, passes: 3);
+```
+
+### 3. CurveSegment Piecewise Animation (Swing Arcs)
+```csharp
+new CurveSegment(EasingType.PolyOut, 0f, -1f, 0.25f, 2),     // Windup (breath)
+new CurveSegment(EasingType.PolyIn, 0.25f, -0.75f, 1.65f, 3), // Main swing (note)
+new CurveSegment(EasingType.PolyOut, 0.85f, 0.9f, 0.1f, 2),   // Follow-through (resonance)
+```
+
+### 4. Sub-Pixel Interpolation (144Hz+)
+```csharp
+float partialTicks = InterpolatedRenderer.PartialTicks;
+Vector2 smoothPos = Vector2.Lerp(previousPosition, currentPosition, partialTicks);
+```
+
+### 5. Velocity-Based VFX (Stretch + Spin)
+```csharp
+float speed = Projectile.velocity.Length();
+float stretch = 1f + speed * 0.02f;   // Stretch with speed
+float spin = speed * 0.05f;            // Faster = more spin
+```
+
+## Complete VFX API Reference
+
+### Core Rendering Systems
 
 | Utility Class | Purpose | Key Methods |
 |--------------|---------|-------------|
-| `BloomRenderer` | Multi-layer glow rendering | `DrawBloomStack()`, `DrawSimpleBloom()` |
-| `EnhancedTrailRenderer` | Primitive trail rendering | `RenderMultiPassTrail()` with `PrimitiveSettings` |
+| `BloomRenderer` | Multi-layer glow rendering (Calamity bloom stack pattern) | `DrawBloomStack()`, `DrawSimpleBloom()` |
+| `EnhancedTrailRenderer` | Primitive trail rendering (3-pass minimum) | `RenderMultiPassTrail()` with `PrimitiveSettings` |
+| `CalamityStyleTrailRenderer` | Shader-based elemental trails | `DrawTrailWithBloom()` with `TrailStyle` enum |
 | `InterpolatedRenderer` | 144Hz+ sub-pixel smoothness | `PartialTicks`, `GetInterpolatedCenter()` |
-| `MagnumThemePalettes` | Theme color arrays | `GetThemePalette()`, `GetThemeColor()` |
+
+### Visual Effect Libraries
+
+| Utility Class | Purpose | Key Methods |
+|--------------|---------|-------------|
+| `GodRaySystem` | Light ray bursts | `CreateBurst()` with `GodRayStyle` |
+| `ImpactLightRays` | Impact flares | `SpawnImpactRays()` |
 | `ScreenDistortionManager` | Screen ripple effects | `TriggerRipple()` |
 | `BezierProjectileSystem` | Curved projectile paths | `QuadraticBezier()`, `GenerateHomingArc()` |
 
-## How To Implement Per-Weapon VFX
+### Theme & Color Systems
 
-### Example 1: Melee Weapon with Unique Trail
+| Utility Class | Purpose | Key Methods |
+|--------------|---------|-------------|
+| `MagnumThemePalettes` | Theme color arrays (6-color palettes) | `GetThemePalette()`, `GetThemeColor()` |
+| `UniversalElementalVFX` | Universal elemental effects | `InfernalEruption()`, `FrostShatter()`, etc. |
+| `BossArenaVFX` | Persistent boss arena particles | `Activate()` with parallax depth |
+| `SwingShaderSystem` | SpriteBatch state management | `BeginAdditive()`, `RestoreSpriteBatch()` |
 
-```csharp
-public class MyEpicSword : ModItem
-{
-    // Store trail positions for THIS weapon only
-    private Vector2[] trailPositions = new Vector2[20];
-    private float[] trailRotations = new float[20];
-    
-    public override void UseItemFrame(Player player)
-    {
-        // Update trail history
-        for (int i = trailPositions.Length - 1; i > 0; i--)
-        {
-            trailPositions[i] = trailPositions[i - 1];
-            trailRotations[i] = trailRotations[i - 1];
-        }
-        trailPositions[0] = player.itemLocation;
-        trailRotations[0] = player.itemRotation;
-        
-        // Spawn unique particles for THIS weapon
-        if (Main.rand.NextBool(2))
-        {
-            Dust d = Dust.NewDustPerfect(player.itemLocation, DustID.MagicMirror, 
-                Main.rand.NextVector2Circular(2f, 2f), 0, Color.Gold, 1.5f);
-            d.noGravity = true;
-        }
-    }
-}
-```
+### Optimization Systems
 
-### Example 2: Projectile with Custom PreDraw
+| Utility Class | Purpose | Key Methods |
+|--------------|---------|-------------|
+| `AdaptiveQualityManager` | Auto-adjusts VFX quality by FPS | `CurrentQuality`, `MaxParticles` |
+| `LODManager` | Distance-based detail scaling | `GetLODLevel()`, `GetParticleCount()` |
+| `FrustumCuller` | Screen visibility testing | `IsPointVisible()`, `IsCircleVisible()` |
+| `ConditionalEffectRenderer` | Quality-based rendering gates | `ShouldRenderGlow()`, `ShouldApplyBloom()` |
+
+## How To Implement Per-Weapon VFX (Calamity-Grounded Examples)
+
+### Example 1: Projectile with Calamity Bloom Stack (Exoblade Pattern)
 
 ```csharp
-public class MyUniqueProjectile : ModProjectile
+public class MyProjectile : ModProjectile
 {
     public override bool PreDraw(ref Color lightColor)
     {
         SpriteBatch sb = Main.spriteBatch;
+        Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
         Vector2 drawPos = Projectile.Center - Main.screenPosition;
+        Vector2 origin = bloom.Size() * 0.5f;
         
-        // Use BloomRenderer for multi-layer glow
-        BloomRenderer.DrawBloomStack(sb, drawPos, Color.Cyan, 0.5f, 
-            layers: 4, intensity: 1f);
+        // Calamity bloom stack: { A = 0 } + 4 layers
+        Color c = themeColor with { A = 0 };
+        float pulse = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 6f) * 0.1f;
         
-        // Draw trail using EnhancedTrailRenderer
-        var settings = new EnhancedTrailRenderer.PrimitiveSettings(
-            width: EnhancedTrailRenderer.LinearTaper(20f),
-            color: EnhancedTrailRenderer.GradientColor(Color.Cyan, Color.White),
-            smoothen: true
-        );
-        EnhancedTrailRenderer.RenderMultiPassTrail(Projectile.oldPos, 
-            Projectile.oldRot, settings, passes: 3);
+        sb.End();
+        sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         
-        return true; // Draw normal sprite too
+        sb.Draw(bloom, drawPos, null, c * 0.30f, 0f, origin, 2.0f * pulse, SpriteEffects.None, 0f);
+        sb.Draw(bloom, drawPos, null, c * 0.50f, 0f, origin, 1.4f * pulse, SpriteEffects.None, 0f);
+        sb.Draw(bloom, drawPos, null, c * 0.70f, 0f, origin, 0.9f * pulse, SpriteEffects.None, 0f);
+        sb.Draw(bloom, drawPos, null, Color.White with { A = 0 } * 0.85f, 0f, origin, 0.4f * pulse, SpriteEffects.None, 0f);
+        
+        sb.End();
+        sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+            DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        
+        return true;
     }
 }
 ```
 
-### Example 3: Boss with Unique Attack VFX
+### Example 2: Trail with Calamity Multi-Pass Rendering (Ark of the Cosmos Pattern)
 
 ```csharp
-public class MyBoss : ModNPC
+public class MyTrailedProjectile : ModProjectile
 {
-    private void Attack_UniqueSlam()
+    public override bool PreDraw(ref Color lightColor)
     {
-        // Windup - use YOUR own VFX logic
-        if (Timer < 60)
-        {
-            float progress = Timer / 60f;
-            
-            // Converging particles specific to THIS boss
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f + Timer * 0.05f;
-                float radius = 150f * (1f - progress * 0.5f);
-                Vector2 pos = NPC.Center + angle.ToRotationVector2() * radius;
-                
-                Dust d = Dust.NewDustPerfect(pos, DustID.Torch, Vector2.Zero, 0, 
-                    Color.Orange, 1.5f);
-                d.noGravity = true;
-            }
-        }
-        else // Release
-        {
-            // Explosion with bloom
-            BloomRenderer.DrawBloomStack(Main.spriteBatch, NPC.Center - Main.screenPosition,
-                Color.Orange, 2f, layers: 6, intensity: 1.5f);
-            
-            // Screen shake
-            MagnumScreenEffects.AddScreenShake(15f);
-        }
+        // 3-pass trail with width taper and color gradient
+        var settings = new EnhancedTrailRenderer.PrimitiveSettings(
+            width: progress => 20f * (1f - progress),
+            color: progress => Color.Lerp(themeColor, Color.White, progress) with { A = 0 },
+            smoothen: true
+        );
+        EnhancedTrailRenderer.RenderMultiPassTrail(
+            Projectile.oldPos, Projectile.oldRot, settings, passes: 3);
+        
+        // 4-layer bloom at projectile center
+        BloomRenderer.DrawBloomStack(Main.spriteBatch, 
+            Projectile.Center - Main.screenPosition, themeColor, 0.5f, 
+            layers: 4, intensity: 1f);
+        
+        return true;
     }
 }
 ```
@@ -155,17 +198,27 @@ public static bool ParticleRenderingEnabled = true; // Particle system still wor
 ## ✅ CORRECT PATTERNS - ALWAYS USE THESE
 
 ```csharp
-// ✅ CORRECT: Use BloomRenderer for glow effects
-BloomRenderer.DrawBloomStack(Main.spriteBatch, position, color, 0.5f, layers: 4, intensity: 1f);
-BloomRenderer.DrawSimpleBloom(Main.spriteBatch, pos, color, scale);
+// ✅ CORRECT: Calamity bloom stack with { A = 0 }
+Color c = baseColor with { A = 0 };
+sb.Draw(bloom, pos, null, c * 0.30f, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+sb.Draw(bloom, pos, null, c * 0.50f, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+sb.Draw(bloom, pos, null, c * 0.70f, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+sb.Draw(bloom, pos, null, Color.White with { A = 0 } * 0.85f, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
 
-// ✅ CORRECT: Use EnhancedTrailRenderer for trails
+// ✅ CORRECT: Use BloomRenderer for quick bloom
+BloomRenderer.DrawBloomStack(Main.spriteBatch, position, color, 0.5f, layers: 4, intensity: 1f);
+
+// ✅ CORRECT: Use EnhancedTrailRenderer with 3-pass minimum
 var settings = new EnhancedTrailRenderer.PrimitiveSettings(
-    width: EnhancedTrailRenderer.LinearTaper(baseWidth),
-    color: EnhancedTrailRenderer.GradientColor(startColor, endColor),
+    width: progress => baseWidth * (1f - progress),
+    color: progress => Color.Lerp(startColor, endColor, progress) with { A = 0 },
     smoothen: true
 );
 EnhancedTrailRenderer.RenderMultiPassTrail(oldPositions, oldRotations, settings, passes: 3);
+
+// ✅ CORRECT: Use CalamityStyleTrailRenderer for shader trails
+CalamityStyleTrailRenderer.DrawTrailWithBloom(
+    positions, rotations, TrailStyle.Flame, width, primaryColor, secondaryColor, intensity, bloom);
 
 // ✅ CORRECT: Use InterpolatedRenderer for smooth rendering
 float partialTicks = InterpolatedRenderer.PartialTicks;
@@ -186,152 +239,667 @@ UniversalElementalVFX.InfernalEruption(pos, primaryColor, secondaryColor, 1.5f, 
 BossArenaVFX.Activate("LaCampanella", bossCenter, 600f, intensity: 1f);
 ```
 
-## New VFX Files (Reference Implementations)
-
-These files demonstrate proper VFX system usage:
-
-| File | Purpose | Uses |
-|------|---------|------|
-| `UniversalElementalVFX.cs` | Universal elemental effects library | BloomRenderer, EnhancedTrailRenderer, GodRaySystem, ImpactLightRays, InterpolatedRenderer, ScreenDistortionManager |
-| `BossArenaVFX.cs` | Persistent boss arena particles | InterpolatedRenderer.PartialTicks, BloomRenderer, parallax depth, PreviousPosition tracking |
-
 ## VFX Creation Checklist
 
 Before creating ANY new VFX, verify:
 
-- [ ] **Can an existing high-level API do this?** → Use `CalamityStyleVFX`, `UnifiedVFXBloom`, `UniversalElementalVFX`, or `BossArenaVFX`
-- [ ] **Need custom glow/bloom?** → Use `BloomRenderer.DrawBloomStack()` or `DrawSimpleBloom()`
-- [ ] **Need trails?** → Use `EnhancedTrailRenderer.PrimitiveSettings` with `RenderMultiPassTrail()`
+- [ ] **Am I using the `{ A = 0 }` pattern for ALL additive blending?** → This is the Calamity standard
+- [ ] **Am I using 4-layer bloom stacks?** → Outer (0.30), Mid (0.50), Inner (0.70), Core (0.85)
+- [ ] **Can an existing API do this?** → Use `BloomRenderer`, `CalamityStyleTrailRenderer`, `UniversalElementalVFX`, or `BossArenaVFX`
+- [ ] **Need trails?** → Use `EnhancedTrailRenderer` or `CalamityStyleTrailRenderer` with **3-pass minimum**
 - [ ] **Need smooth 144Hz+ rendering?** → Use `InterpolatedRenderer.PartialTicks` with `PreviousPosition` tracking
 - [ ] **Need light rays?** → Use `GodRaySystem.CreateBurst()` or `ImpactLightRays.SpawnImpactRays()`
 - [ ] **Need screen effects?** → Use `ScreenDistortionManager.TriggerRipple()`
-- [ ] **Absolutely need custom rendering?** → Build on top of `BloomRenderer` and `InterpolatedRenderer`
+- [ ] **Am I studying Calamity source for reference?** → Exoblade, Ark of the Cosmos, Galaxia, Photoviscerator
 
 ---
 
-# 🚨🚨🚨 LEGACY: STOP MAKING LAZY PROJECTILES 🚨🚨🚨
+# �️ CALAMITY-STYLE MELEE SWING SYSTEM — THE CANONICAL PATTERN
 
-> **Note: Global VFX systems are DISABLED. Implement unique VFX directly in each weapon's .cs file.**
+> **ALL melee weapons in MagnumOpus use the held-projectile swing pattern, NOT vanilla `useStyle = Swing`.**
+> This is the same architecture as Calamity's Exoblade, Ark of the Cosmos, and Galaxia.
+> Every swing should feel like performing a measure of music — each phase a different note in the combo's melody.
 
-## The Problem We Keep Having
+## Architecture: 3-File Self-Contained Weapons
 
-**"Slapping a flare" on a PreDraw override is NOT a visual effect.** It's lazy. Here's what's wrong:
+Every melee weapon lives in its own folder with **exactly 3 files**:
 
-1. **Projectiles are translucent orbs that puff away** - No character. No identity. Just generic.
-2. **Effects are too dim** - Things should GLOW, SHIMMER, SPARKLE with BRIGHTNESS.
-3. **No curves or flow** - Ark of the Cosmos has sine-wave trails. Ours are rigid lines.
-4. **SwordArc assets unused** - We have 9 SwordArc PNGs. Use them for melee swings!
-5. **Wave projectiles are PNG copy-paste** - Layer arcs with glows and blooms instead.
-6. **Music notes don't orbit** - They should LOCK TO and ORBIT projectiles, not spawn randomly.
-
-## The Gold Standard: Iridescent Wingspan
-
-**Study this weapon. Copy its patterns. This is what GOOD looks like:**
-
-```csharp
-// Iridescent Wingspan does it RIGHT:
-
-// 1. HEAVY DUST TRAILS - Every frame, 2+ particles, scale 1.8f (VISIBLE!)
-for (int i = 0; i < 2; i++)
-{
-    Dust d = Dust.NewDustPerfect(Projectile.Center, dustType, vel, 100, color, 1.8f);
-    d.noGravity = true;
-    d.fadeIn = 1.4f; // Fades IN, not out!
-}
-
-// 2. CONTRASTING SPARKLES - Opposite colors for visual pop (1-in-2)
-if (Main.rand.NextBool(2))
-{
-    Dust opp = Dust.NewDustPerfect(Projectile.Center, oppositeDustType, vel, 0, oppositeColor, 1.4f);
-}
-
-// 3. FREQUENT FLARES - 1-in-2, not 1-in-10
-if (Main.rand.NextBool(2))
-{
-    CustomParticles.GenericFlare(Projectile.Center + offset, trailColor, 0.5f, 18);
-}
-
-// 4. RAINBOW SHIMMER - Color shifts using Main.hslToRgb
-if (Main.rand.NextBool(3))
-{
-    float hue = Main.rand.NextFloat();
-    Color rainbow = Main.hslToRgb(hue, 1f, 0.7f);
-}
-
-// 5. LAYERED PREDRAW - Multiple glow layers spinning
-Main.EntitySpriteDraw(texture, drawPos, null, glowColor * 0.5f, rot, origin, scale * 1.4f, ...);
-Main.EntitySpriteDraw(texture, drawPos, null, glowColor * 0.3f, rot, origin, scale * 1.2f, ...);
-Main.EntitySpriteDraw(texture, drawPos, null, Color.White, rot, origin, scale, ...);
+```
+Content/[Theme]/Weapons/
+├── WeaponNameItem.cs        ← ModItem (held weapon, spawns swing projectile)
+├── WeaponNameSwing.cs       ← ModProjectile (IS the swing — held projectile pattern)
+└── WeaponNameVFX.cs         ← Static VFX helper (optional: trail, particles, colors)
 ```
 
-## The Proper Projectile Formula
+**No global hooks.** No ModPlayer, no GlobalProjectile, no GlobalItem.
+Each weapon is 100% self-contained. Copy a folder → get a working weapon.
 
-### PreDraw: Layer Multiple Spinning Flares
+### Item Pattern
+```csharp
+public class MyWeaponItem : ModItem
+{
+    public override void SetDefaults()
+    {
+        Item.useStyle = ItemUseStyleID.Swing;  // Required for arm animation
+        Item.noMelee = true;                    // Projectile does damage, not item
+        Item.noUseGraphic = true;               // Hide vanilla sprite (we draw ourselves)
+        Item.channel = true;                     // Enable held-click combos
+        Item.shoot = ModContent.ProjectileType<MyWeaponSwing>();
+        Item.shootSpeed = 1f;
+        // ... other stats
+    }
+}
+```
+
+### Swing Projectile Pattern
+```csharp
+public class MyWeaponSwing : ModProjectile
+{
+    // The swing projectile IS the weapon visually
+    // It draws the blade, trail, smear, and lens flare
+    // It manages combo phases via Projectile.ai[0] = ComboStep
+    // It uses PiecewiseAnimation with CurveSegment for swing arcs
+    // Each combo phase is a movement in the weapon's symphony
+}
+```
+
+## Reference Implementations
+
+The test weapons at `Content/TestWeapons/` are the **gold standard** implementations:
+
+| # | Weapon | Element | Trail System | Combo Phases |
+|---|--------|---------|--------------|-------------|
+| 01 | Infernal Cleaver | 🔥 Fire | `CalamityStyleTrailRenderer.TrailStyle.Flame` | SlowOverhead → FastHorizontal → RisingUppercut → MassiveSlam |
+| 02 | Frostbite Edge | ❄️ Ice | `CalamityStyleTrailRenderer.TrailStyle.Ice` | IcyLunge → FrostSweep → ShatterStrike → GlacialCataclysm |
+| 03 | Cosmic Rend Blade | 🌌 Cosmic | `CalamityStyleTrailRenderer.TrailStyle.Cosmic` | WarpSlash → VoidCleave → RiftTear → DimensionalSeverance |
+| 04 | Verdant Crescendo | 🌿 Nature | `CalamityStyleTrailRenderer.TrailStyle.Nature` | VineWhip → LeafCutter → BranchSweep → BlossomBurst |
+| 05 | Arcane Harmonics | 🎵 Arcane | `EnhancedTrailRenderer` multi-pass | HarmonicPulse → ResonantSlash → ChordStrike → SymphonyFinale |
+
+**When creating a new melee weapon, COPY the closest test weapon folder and modify.**
+
+---
+
+## PiecewiseAnimation System (CurveSegment)
+
+### Location: `Common/Systems/Particles/Particle.cs`
+
+This is the swing arc easing system, identical to Calamity's approach. Each swing arc is composed like a musical phrase — tension, release, and resolution:
+
+```csharp
+// CurveSegment defines a piece of the animation curve
+public struct CurveSegment
+{
+    public EasingType Easing;  // How the segment interpolates
+    public float StartX;       // Progress value where this segment begins (0-1)
+    public float StartY;       // Output value at the start of this segment
+    public float Lift;          // How much the output changes over this segment
+    public int Power;           // Exponent for polynomial easings
+}
+
+// Available easing types:
+public enum EasingType
+{
+    Linear, SineIn, SineOut, SineBump,
+    PolyIn, PolyOut, ExpIn, ExpOut, CircIn, CircOut
+}
+
+// Usage: Define swing arc as piecewise curve
+float angleShift = MaxAngle * PiecewiseAnimation(progress, animCurves);
+float swordRotation = BaseRotation + angleShift * Direction;
+```
+
+### How CurveSegments Define a Swing
+
+A typical 3-segment swing curve — like a musical crescendo:
+
+```csharp
+// Segment 1: Windup (the breath before the note — slow pullback)
+new CurveSegment(EasingType.PolyOut, 0f, -1f, 0.25f, 2),
+// At progress 0.0: output = -1.0 (blade pulled back)
+// Rises slowly by 0.25 with deceleration
+
+// Segment 2: Main swing (the note itself — fast acceleration through)
+new CurveSegment(EasingType.PolyIn, 0.25f, -0.75f, 1.65f, 3),
+// At progress 0.25: output = -0.75
+// Accelerates through 1.65 units (cubic power = snappy)
+
+// Segment 3: Follow-through (the resonance — deceleration/overshoot)
+new CurveSegment(EasingType.PolyOut, 0.85f, 0.9f, 0.1f, 2),
+// At progress 0.85: output = 0.9
+// Slow finish with slight overshoot
+```
+
+### Creating Swing Variety
+
+**Every combo phase MUST feel mechanically different — like movements in a symphony.** Vary these parameters:
+
+| Parameter | Effect | Range |
+|-----------|--------|-------|
+| `MaxAngle` | Total swing arc | `PiOver2 * 1.2` (tight) to `PiOver2 * 2.4` (massive) |
+| `Duration` | Swing speed | `40` (fast slash) to `90` (heavy slam) |
+| `BladeLength` | Visual reach | `140f` (short) to `190f` (massive) |
+| `FlipDirection` | Left/right | Alternate for combo flow |
+| `SquishRange` | Blade squash effect | `0.8f` (heavy squish) to `0.95f` (minimal) |
+| `DamageMultiplier` | Scaling per phase | `0.8f` (quick hit) to `1.5f` (finisher) |
+
+### Standard Combo Phase Template
+
+```csharp
+private struct ComboPhase
+{
+    public CurveSegment[] AnimCurves;
+    public float MaxAngle;
+    public int Duration;
+    public float BladeLength;
+    public bool FlipDirection;
+    public float SquishRange;
+    public float DamageMultiplier;
+}
+
+// 4-phase combo is the STANDARD (can be 3, 5, or 6 for variety)
+// Think of it as a 4-movement sonata: Allegro → Vivace → Andante → Presto
+private static readonly ComboPhase[] AllPhases = {
+    Phase0_QuickOpener,    // First movement: Fast, low damage, gap closer
+    Phase1_MainSlash,      // Second movement: Medium speed, standard damage
+    Phase2_SpecialAttack,  // Third movement: Spawns sub-projectiles at ~70% progress
+    Phase3_Finisher        // Finale: Slow windup, massive damage, screen effects
+};
+```
+
+---
+
+## ComboPhase Special Effects Pattern
+
+### HandleComboSpecials()
+
+Each combo phase can trigger unique sub-projectile spawns at specific swing progress points — like hitting the climax of a musical phrase:
+
+```csharp
+private void HandleComboSpecials()
+{
+    if (hasSpawnedSpecial) return;
+
+    // Phase 2 (~70% progress): Spawn sub-projectiles at blade tip
+    if (ComboStep == 2 && Progression >= 0.7f)
+    {
+        hasSpawnedSpecial = true;
+        if (Main.myPlayer == Projectile.owner) // Client-side spawn
+        {
+            Vector2 tipPos = Owner.MountedCenter + SwordDirection * CurrentPhase.BladeLength;
+            for (int i = 0; i < 5; i++)
+            {
+                float angle = MathHelper.ToRadians(-45 + i * 22);
+                Vector2 vel = (SwordRotation + angle).ToRotationVector2() * Main.rand.NextFloat(8f, 14f);
+                Projectile.NewProjectile(Projectile.GetSource_FromThis(), tipPos, vel,
+                    ModContent.ProjectileType<MySubProjectile>(),
+                    Projectile.damage / 3, 2f, Projectile.owner);
+            }
+        }
+    }
+
+    // Phase 3 (~85% progress): Finisher — the grand finale
+    if (ComboStep == 3 && Progression >= 0.85f)
+    {
+        hasSpawnedSpecial = true;
+        // Screen shake, ground effects, music note cascade, etc.
+    }
+}
+```
+
+### Sub-Projectile Design Rules
+
+- **Phase 2** spawns offensive sub-projectiles (shards, orbs, feathers, music notes)
+- **Phase 3** spawns environmental effects (pillars, explosions, shockwaves, harmonic bursts)
+- Spawn at **blade tip position** (`Owner.MountedCenter + SwordDirection * BladeLength`)
+- Check `Main.myPlayer == Projectile.owner` for multiplayer safety
+- Sub-projectile damage = `Projectile.damage / 3` (shards) or `/ 2` (finisher effects)
+- **EVERY sub-projectile MUST have music-themed VFX** — trailing notes, harmonic sparkles, resonance particles
+
+---
+
+## Trail System Architecture
+
+### CalamityStyleTrailRenderer — Shader-Based Trails
+
+**File:** `Common/Systems/VFX/Trails/CalamityStyleTrailRenderer.cs`
+
+The primary trail system for melee swings. Uses compiled HLSL shaders for each element type. The trail is the visual melody that follows the blade's arc.
+
+```csharp
+// Available trail styles (each has unique HLSL technique):
+public enum TrailStyle
+{
+    Flame,      // Fire: warm gradient, flickering noise, ember particles
+    Ice,        // Ice: cool gradient, crystalline noise, frost particles
+    Lightning,  // Electric: jagged edges, flash pulses, spark particles
+    Nature,     // Plant: organic flow, leaf noise, grass particles
+    Cosmic      // Space: star field, nebula noise, enchanted particles
+}
+
+// Standard usage in PreDraw:
+CalamityStyleTrailRenderer.DrawTrailWithBloom(
+    orderedPositions,     // Vector2[] - blade tip history
+    orderedRotations,     // float[] - blade rotation history
+    TrailStyle.Flame,     // Which shader technique
+    trailWidth,           // Base width (18f-42f, scale with combo step)
+    primaryColor,         // Color - from theme palette
+    secondaryColor,       // Color - gradient end
+    trailIntensity,       // 0.6f-1.0f, scale with combo step
+    bloomMultiplier       // 2.0f-3.5f, how much bloom glow
+);
+```
+
+### EnhancedTrailRenderer — Multi-Pass Primitive Trails
+
+**File:** `Common/Systems/VFX/Trails/EnhancedTrailRenderer.cs`
+
+For non-shader trails (like Arcane Harmonics), uses multi-pass primitive rendering:
+
+```csharp
+// Custom width function (InverseLerp ramp-up, hold, taper-down)
+private static float TrailWidthFunction(float ratio)
+{
+    float rampUp = InverseLerp(0.05f, 0.25f, ratio);
+    float fadeOut = InverseLerp(0.92f, 0.75f, ratio);
+    return rampUp * fadeOut * 22f; // Max width 22
+}
+
+// Custom color function (palette gradient with fade)
+private static Color TrailColorFunction(float ratio)
+{
+    Color c = PaletteLerp(ArcanePalette, ratio * 0.8f);
+    return c * (1f - ratio * 0.6f);
+}
+```
+
+### Trail Position Tracking
+
+**All swing projectiles track blade tip positions in a circular buffer:**
+
+```csharp
+private const int TrailLength = 60;
+private Vector2[] tipPositions = new Vector2[TrailLength];
+private float[] tipRotations = new float[TrailLength];
+private int trailIndex = 0;
+
+// In AI(), every frame:
+Vector2 tipWorld = Owner.MountedCenter + SwordDirection * CurrentPhase.BladeLength;
+tipPositions[trailIndex % TrailLength] = tipWorld;
+tipRotations[trailIndex % TrailLength] = SwordRotation;
+trailIndex++;
+
+// In PreDraw(), build ordered arrays:
+Vector2[] orderedPositions = BuildTrailPositions(); // Most recent first
+float[] orderedRotations = BuildTrailRotations();
+```
+
+---
+
+## Smear Overlay System
+
+### What Smears Are
+
+Smear textures are **circular arc overlays** drawn behind the blade during swings. They provide the "motion blur" / "energy arc" effect that makes swings feel powerful — like the visual sustain of a held note.
+
+### Available Smear Types
+
+| Class | Arc | Best For |
+|-------|-----|----------|
+| `CircularSmearVFX` | 360° full ring | Uppercuts, spinning attacks |
+| `CircularSmearSmokeyVFX` | 360° + 3-layer bloom | Heavy/smoky attacks |
+| `SemiCircularSmearVFX` | 180° half-arc + squish | Standard slashes, most common |
+| `SemiCircularSmearFade` | 180° velocity-rotating fade | Fast slashes with fade trail |
+| `TrientCircularSmear` | 120° + 4-layer cosmic bloom | Finisher slams, special attacks |
+| `CritSpark` | Point spark | Critical hit feedback |
+
+### Smear Selection Per Combo Phase
+
+**Different combo phases should use DIFFERENT smear types for variety — like different instruments in an ensemble:**
+
+```csharp
+// Standard pattern used in InfernalCleaverSwing:
+string smearPath = ComboStep switch
+{
+    2 => "MagnumOpus/.../InfernalCircularSmear",       // Uppercut = full circle
+    3 => "MagnumOpus/.../InfernalTrientSmear",          // Finisher = trient (120°)
+    _ => "MagnumOpus/.../InfernalSemiCircularSmear"     // Normal = semi-circle (180°)
+};
+```
+
+### Smear Drawing Pattern (3-Layer Additive)
+
+```csharp
+private void DrawSmearOverlay(SpriteBatch sb)
+{
+    // Only draw during active swing (10%-92% progression)
+    if (Progression < 0.10f || Progression > 0.92f) return;
+
+    // Scale smear to match blade length
+    float maxDim = Math.Max(smearTex.Width, smearTex.Height);
+    float baseScale = (CurrentPhase.BladeLength * 2.2f) / maxDim;
+
+    // Smooth opacity ramp in/out
+    float swingWindow = MathHelper.Clamp((Progression - 0.10f) / 0.15f, 0f, 1f);
+    float fadeOut = MathHelper.Clamp((0.92f - Progression) / 0.15f, 0f, 1f);
+    float smearAlpha = swingWindow * fadeOut;
+
+    SwingShaderSystem.BeginAdditive(sb);
+
+    // Layer 1: Outer glow (large, dim) — the harmonic overtone
+    sb.Draw(smearTex, pos, null, outerColor * alpha * 0.35f, rotation, origin, scale * 1.1f, flip, 0f);
+
+    // Layer 2: Main smear (primary color) — the fundamental tone
+    sb.Draw(smearTex, pos, null, mainColor * alpha * 0.65f, rotation, origin, scale, flip, 0f);
+
+    // Layer 3: Hot core (bright, smaller) — the sharp attack of the note
+    sb.Draw(smearTex, pos, null, coreColor * alpha * 0.45f, rotation, origin, scale * 0.9f, flip, 0f);
+
+    SwingShaderSystem.RestoreSpriteBatch(sb);
+}
+```
+
+### Smear Texture Requirements
+
+**All smear textures MUST be:**
+- Pure white/grayscale on solid black (#000000) background
+- 256×256 or 512×512 pixels
+- Color tinted at runtime via `GetElementColor(progress)` from the weapon's palette
+- Alpha = 0 for additive blending (`color.A = 0`)
+
+### SmearTextureGenerator Fallbacks
+
+`Common/Systems/Particles/SmearParticles.cs` contains procedural fallback generators if custom textures aren't available:
+- `SmearTextureGenerator.CircularSmear` — 360° ring
+- `SmearTextureGenerator.CircularSmearSmokey` — noise-based smoky ring
+- `SmearTextureGenerator.SemiCircularSmear` — 180° arc
+- `SmearTextureGenerator.TrientCircularSmear` — 120° centered arc
+
+**Prefer custom Midjourney-generated textures over procedural fallbacks for production weapons.**
+
+---
+
+## Color Palette System for Melee Weapons
+
+### Every Weapon Has a 6-Color Palette — Its Own Musical Scale
+
+```csharp
+// Example: Infernal Cleaver FirePalette
+private static readonly Color[] FirePalette = new Color[]
+{
+    new Color(80, 10, 0),       // [0] Pianissimo — shadows, trail end
+    new Color(200, 50, 10),     // [1] Piano — outer glow
+    new Color(255, 120, 20),    // [2] Mezzo — main body
+    new Color(255, 180, 40),    // [3] Forte — hot areas
+    new Color(255, 220, 100),   // [4] Fortissimo — inner glow
+    new Color(255, 250, 220)    // [5] Sforzando — core, flare center
+};
+```
+
+### Palette Interpolation
+
+```csharp
+// Get color from palette at any point (t = 0-1)
+private static Color GetPaletteColor(float t)
+{
+    t = MathHelper.Clamp(t, 0f, 1f);
+    float scaled = t * (Palette.Length - 1);
+    int idx = (int)scaled;
+    int next = Math.Min(idx + 1, Palette.Length - 1);
+    return Color.Lerp(Palette[idx], Palette[next], scaled - idx);
+}
+```
+
+### Standard Palettes Reference
+
+| Weapon | [0] Dark | [1] | [2] Primary | [3] | [4] | [5] Brightest |
+|--------|----------|-----|-------------|-----|-----|---------------|
+| 🔥 Fire | (80,10,0) | (200,50,10) | (255,120,20) | (255,180,40) | (255,220,100) | (255,250,220) |
+| ❄️ Ice | (20,40,80) | (40,80,160) | (80,160,220) | (140,210,245) | (200,235,250) | (240,250,255) |
+| 🌌 Cosmic | (40,10,60) | (80,20,120) | (160,60,200) | (200,120,240) | (230,180,255) | (255,220,255) |
+| 🌿 Nature | (20,60,10) | (40,120,20) | (60,180,70) | (120,210,60) | (180,230,100) | (230,250,180) |
+| 🎵 Arcane | (40,10,80) | (80,30,140) | (140,60,210) | (180,100,230) | (220,140,240) | (250,220,255) |
+
+---
+
+## Lens Flare Pattern
+
+### Every Swing Draws a 3-Layer Lens Flare at the Blade Tip
+
+The lens flare is the bright accent at the end of each swing stroke — like the staccato dot on a musical note:
+
+```csharp
+private void DrawLensFlare(SpriteBatch sb)
+{
+    Texture2D flareTex = Terraria.GameContent.TextureAssets.Extra[98].Value; // Vanilla lens flare
+    Vector2 tipWorld = Owner.MountedCenter + SwordDirection * CurrentPhase.BladeLength;
+    Vector2 tipScreen = tipWorld - Main.screenPosition;
+
+    float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.15f;
+    float baseScale = (0.25f + ComboStep * 0.08f) * pulse; // Grows with combo
+
+    Color flareColor = GetPaletteColor(0.6f + Progression * 0.3f);
+    flareColor.A = 0; // CRITICAL: Remove alpha for additive
+
+    SwingShaderSystem.BeginAdditive(sb);
+
+    // Layer 1: Primary flare (element-colored)
+    sb.Draw(flareTex, tipScreen, null, flareColor * 0.7f, 0f, origin, baseScale, SpriteEffects.None, 0f);
+
+    // Layer 2: Rotated secondary (smaller, dimmer)
+    sb.Draw(flareTex, tipScreen, null, flareColor * 0.4f, MathHelper.PiOver4, origin, baseScale * 0.7f, SpriteEffects.None, 0f);
+
+    // Layer 3: White-hot core (smallest, brightest)
+    sb.Draw(flareTex, tipScreen, null, Color.White * 0.3f, 0f, origin, baseScale * 0.35f, SpriteEffects.None, 0f);
+
+    SwingShaderSystem.RestoreSpriteBatch(sb);
+}
+```
+
+---
+
+## SwingShaderSystem Helper Methods
+
+**File:** `Common/Systems/VFX/SwingShaderSystem.cs`
+
+| Method | Purpose | Usage |
+|--------|---------|-------|
+| `BeginAdditive(sb)` | Switch SpriteBatch to additive blending | Before drawing any glow/bloom/flare |
+| `RestoreSpriteBatch(sb)` | Restore SpriteBatch to normal blending | After finishing glow/bloom/flare draws |
+| `GetExobladeColor(progress)` | Rainbow gradient (Calamity Exoblade style) | For rainbow/prismatic weapons |
+| `ApplySwingShader(sb, rotation, pommel, color)` | Apply swing distortion shader | For shader-enhanced swings |
+
+---
+
+## Complete PreDraw Rendering Order — The Score
+
+**ALWAYS draw in this order in PreDraw — like reading a musical score from bottom to top (background → foreground):**
+
+```
+1. Trail (CalamityStyleTrailRenderer or EnhancedTrailRenderer) — the sustained harmony
+2. Smear overlay (3-layer additive with element colors) — the crescendo blur
+3. Blade sprite (normal draw + additive glow pass) — the melody itself
+4. Lens flare (3-layer additive at blade tip) — the accent/staccato
+```
 
 ```csharp
 public override bool PreDraw(ref Color lightColor)
 {
-    // Load MULTIPLE flare textures
-    Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-    Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-    Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-    
-    float time = Main.GameUpdateCount * 0.05f;
-    float pulse = 1f + (float)Math.Sin(time * 2f) * 0.15f;
-    
-    Main.spriteBatch.End();
-    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, ...);
-    
-    // Layer 1: Soft glow base (large, dim)
-    Main.spriteBatch.Draw(softGlow, drawPos, null, themeColor * 0.3f, 0f, origin, 0.8f * pulse, ...);
-    // Layer 2: Flare spinning clockwise
-    Main.spriteBatch.Draw(flare1, drawPos, null, themeColor * 0.6f, time, origin, 0.5f * pulse, ...);
-    // Layer 3: Flare spinning counter-clockwise
-    Main.spriteBatch.Draw(flare2, drawPos, null, secondaryColor * 0.5f, -time * 0.7f, origin, 0.4f * pulse, ...);
-    // Layer 4: White core
-    Main.spriteBatch.Draw(flare1, drawPos, null, Color.White * 0.8f, 0f, origin, 0.2f, ...);
-    
-    Main.spriteBatch.End();
-    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, ...);
-    return false;
+    SpriteBatch sb = Main.spriteBatch;
+
+    // 1. TRAIL — shader-based element trail (the lingering harmony)
+    CalamityStyleTrailRenderer.DrawTrailWithBloom(
+        positions, rotations, TrailStyle.Flame,
+        width, primaryColor, secondaryColor, intensity, bloom);
+
+    // 2. SMEAR — arc overlay behind blade (the crescendo blur)
+    DrawSmearOverlay(sb);
+
+    // 3. BLADE — sprite + additive glow (the melody)
+    DrawBlade(sb, lightColor);
+
+    // 4. LENS FLARE — glowing tip (the staccato accent)
+    DrawLensFlare(sb);
+
+    return false; // We handle all drawing
 }
 ```
 
-### AI: Dense Trails + Orbiting Music Notes
+---
+
+## Music-Themed VFX Integration for Melee Swings
+
+**THIS IS A MUSIC MOD.** Even melee swings must feel musical:
+
+- **Combo hits should scatter visible music notes** (scale 0.7f+) from the blade tip
+- **Phase transitions can trigger harmonic sparkle bursts** — like changing key signatures
+- **Finisher slams should include a music note cascade** alongside the explosion VFX
+- **Trail colors can oscillate** with `Main.hslToRgb` for a shimmering, resonant feel
+- **Dust particles at scale 1.5f+** every frame during active swing for visual density
+
+```csharp
+// In AI() during active swing:
+if (Main.rand.NextBool(3))
+{
+    Vector2 tipPos = Owner.MountedCenter + SwordDirection * CurrentPhase.BladeLength;
+    SpawnGlowingMusicNote(tipPos, -SwordDirection * 2f, GetPaletteColor(0.5f));
+}
+
+// Dense dust trail every frame:
+for (int i = 0; i < 2; i++)
+{
+    Vector2 dustPos = Owner.MountedCenter + SwordDirection * CurrentPhase.BladeLength * Main.rand.NextFloat(0.5f, 1f);
+    Dust d = Dust.NewDustPerfect(dustPos, DustID.Torch, -SwordDirection * Main.rand.NextFloat(1f, 3f), 0, GetPaletteColor(0.4f), 1.5f);
+    d.noGravity = true;
+}
+```
+
+---
+
+## Melee Swing Creation Checklist
+
+Before implementing ANY new melee weapon, verify:
+
+- [ ] **3-file structure** — Item.cs, Swing.cs, VFX.cs (optional)
+- [ ] **4+ combo phases** — Each with unique CurveSegment arrays (each phase a different musical movement)
+- [ ] **6-color palette** — Dark to white-hot gradient (pianissimo to sforzando)
+- [ ] **Trail system** — CalamityStyleTrailRenderer or EnhancedTrailRenderer
+- [ ] **Smear overlays** — Different smear type per combo phase
+- [ ] **Lens flare** — 3-layer additive at blade tip
+- [ ] **Phase 2 sub-projectiles** — Spawned at ~70% progress
+- [ ] **Phase 3 finisher** — Screen shake + ground effects at ~85% progress
+- [ ] **Dust trail** — Dense, every frame during swing (Torch, Enchanted_Gold, etc.)
+- [ ] **Music notes** — Visible (0.7f+ scale) scattered from blade tip during swings
+- [ ] **Hit effects scale** — More sparks/particles at higher combo steps
+- [ ] **No vanilla projectile sprites** — Custom textures or particle-only
+- [ ] **Networking** — SendExtraAI/ReceiveExtraAI for SwingTime, SquishFactor
+- [ ] **Unique identity** — No two weapons in the same theme share swing effects
+
+---
+
+# 🚨🚨🚨 PROJECTILE VFX: CALAMITY STANDARD 🚨🚨🚨
+
+> **ALL GLOBAL VFX SYSTEMS ARE DISABLED.** Each projectile implements its OWN unique VFX in its .cs file.
+> **The Gold Standard is Calamity Mod source code, NOT our own production weapons.**
+
+## ⭐ GOLD STANDARD = CALAMITY PROJECTILE RENDERING
+
+> **Study these Calamity weapons. They are the benchmark for projectile VFX quality.**
+
+| Calamity Weapon | Why It Matters | Study For |
+|-----------------|----------------|-----------|
+| **Ark of the Cosmos** | Constellation trails, cosmic clouds, curved bezier paths | Trail rendering, curved motion, cosmic particles |
+| **Exoblade** | Dash projectiles, afterimage trails, multi-phase combo spawns | Sub-projectile spawning, velocity-based effects |
+| **Photoviscerator** | Metaball rendering, multi-pass bloom, `{ A = 0 }` alpha removal | Bloom stacking, additive blending mastery |
+| **The Oracle** | Primitive trail shaders, width/color functions, GPU rendering | HLSL trails, shader-based rendering |
+| **Galaxia** | Per-mode sub-projectiles, color palette cycling, constellation chains | Projectile variety, palette systems |
+| **Scarlet Devil** | Afterimage rendering, velocity stretch, spin-based rotation | Motion blur, speed-responsive VFX |
+
+## The Calamity Projectile Rendering Pattern
+
+### PreDraw: 4-Layer Bloom Stack (`{ A = 0 }` Pattern)
+
+```csharp
+public override bool PreDraw(ref Color lightColor)
+{
+    SpriteBatch sb = Main.spriteBatch;
+    Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+    Texture2D flare = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
+    Vector2 drawPos = Projectile.Center - Main.screenPosition;
+    Vector2 bloomOrigin = bloom.Size() * 0.5f;
+    Vector2 flareOrigin = flare.Size() * 0.5f;
+
+    float time = Main.GlobalTimeWrappedHourly;
+    float pulse = 1f + MathF.Sin(time * 6f) * 0.1f;
+
+    // Calamity bloom stack: { A = 0 } + 4 layers
+    Color c = themeColor with { A = 0 };
+
+    sb.End();
+    sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+    // Layer 1: Outer glow (large, soft)
+    sb.Draw(bloom, drawPos, null, c * 0.30f, 0f, bloomOrigin, 0.8f * pulse, SpriteEffects.None, 0f);
+    // Layer 2: Spinning flare (clockwise)
+    sb.Draw(flare, drawPos, null, c * 0.50f, time * 2f, flareOrigin, 0.5f * pulse, SpriteEffects.None, 0f);
+    // Layer 3: Counter-spinning flare
+    sb.Draw(flare, drawPos, null, secondaryColor with { A = 0 } * 0.40f, -time * 1.5f, flareOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
+    // Layer 4: White-hot core
+    sb.Draw(bloom, drawPos, null, Color.White with { A = 0 } * 0.85f, 0f, bloomOrigin, 0.2f * pulse, SpriteEffects.None, 0f);
+
+    sb.End();
+    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+    return false; // We handle all drawing
+}
+```
+
+### AI: Velocity-Based VFX + Dense Trails + Orbiting Music Notes
 
 ```csharp
 public override void AI()
 {
-    // DENSE DUST - 2+ every frame!
+    float speed = Projectile.velocity.Length();
+    float stretch = 1f + speed * 0.02f;   // Calamity velocity-stretch pattern
+    float spin = speed * 0.05f;            // Faster = more spin
+    Projectile.rotation += spin;
+
+    // DENSE DUST - 2+ every frame! (Calamity standard density)
     for (int i = 0; i < 2; i++)
     {
-        Dust d = Dust.NewDustPerfect(Projectile.Center + offset, dustType, vel, 0, color, 1.5f);
+        Vector2 offset = Main.rand.NextVector2Circular(6f, 6f);
+        Vector2 vel = -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(1f, 1f);
+        Dust d = Dust.NewDustPerfect(Projectile.Center + offset, dustType, vel, 0, themeColor, 1.5f);
         d.noGravity = true;
-        d.fadeIn = 1.2f;
+        d.fadeIn = 1.2f; // Fades IN, not out (Calamity pattern)
     }
-    
-    // CONTRASTING SPARKLES - 1-in-2
+
+    // CONTRASTING SPARKLES - 1-in-2 (Calamity dual-color pattern)
     if (Main.rand.NextBool(2))
     {
-        Dust contrast = Dust.NewDustPerfect(Projectile.Center, DustID.WhiteTorch, vel, 0, Color.White, 1.0f);
+        Dust opp = Dust.NewDustPerfect(Projectile.Center, DustID.WhiteTorch,
+            -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(2f, 2f), 0, Color.White, 1.0f);
+        opp.noGravity = true;
     }
-    
-    // FLARES LITTERING THE AIR - 1-in-2
+
+    // FREQUENT FLARES - 1-in-2 (not 1-in-10!)
     if (Main.rand.NextBool(2))
     {
-        CustomParticles.GenericFlare(Projectile.Center + offset, themeColor, 0.4f, 15);
+        Vector2 flareOffset = Main.rand.NextVector2Circular(8f, 8f);
+        CustomParticles.GenericFlare(Projectile.Center + flareOffset, themeColor, 0.4f, 15);
     }
-    
-    // COLOR OSCILLATION - Main.hslToRgb
+
+    // COLOR OSCILLATION - Main.hslToRgb within theme hue range
     if (Main.rand.NextBool(3))
     {
         float hue = (Main.GameUpdateCount * 0.02f) % 1f;
-        hue = themeHueMin + (hue * (themeHueMax - themeHueMin)); // Stay in theme range
+        hue = themeHueMin + (hue * (themeHueMax - themeHueMin));
         Color shifted = Main.hslToRgb(hue, 0.9f, 0.75f);
         CustomParticles.GenericFlare(Projectile.Center, shifted, 0.35f, 12);
     }
-    
-    // ORBITING MUSIC NOTES - Lock to projectile!
+
+    // ORBITING MUSIC NOTES - Lock to projectile! (not random spawns)
     float orbitAngle = Main.GameUpdateCount * 0.08f;
     if (Main.rand.NextBool(8))
     {
@@ -342,49 +910,83 @@ public override void AI()
             ThemedParticles.MusicNote(notePos, Projectile.velocity * 0.8f, themeColor, 0.75f, 30);
         }
     }
+
+    // Dynamic lighting
+    Lighting.AddLight(Projectile.Center, themeColor.ToVector3() * 0.8f);
 }
 ```
 
-### OnKill: Glimmer, Not Puff
+### Trail: EnhancedTrailRenderer 3-Pass Minimum
+
+```csharp
+// In PreDraw, before the bloom stack:
+if (trailRenderer != null)
+{
+    // 3-pass trail with width taper and color gradient (Calamity standard)
+    var settings = new EnhancedTrailRenderer.PrimitiveSettings(
+        width: progress => 20f * (1f - progress),
+        color: progress => Color.Lerp(themeColor, secondaryColor, progress) with { A = 0 },
+        smoothen: true
+    );
+    // Pass 1: Outer glow (wide, dim)
+    EnhancedTrailRenderer.RenderMultiPassTrail(
+        Projectile.oldPos, Projectile.oldRot, settings, passes: 1);
+    // Pass 2: Core trail (standard)
+    settings.WidthFunction = progress => 14f * (1f - progress);
+    EnhancedTrailRenderer.RenderMultiPassTrail(
+        Projectile.oldPos, Projectile.oldRot, settings, passes: 1);
+    // Pass 3: Bright center (narrow, bright)
+    settings.WidthFunction = progress => 8f * (1f - progress);
+    settings.ColorFunction = progress => Color.White with { A = 0 } * (1f - progress);
+    EnhancedTrailRenderer.RenderMultiPassTrail(
+        Projectile.oldPos, Projectile.oldRot, settings, passes: 1);
+}
+```
+
+### OnKill: Calamity-Style Impact Cascade
 
 ```csharp
 public override void OnKill(int timeLeft)
 {
-    // CENTRAL GLIMMER - Multiple spinning flares
-    for (int layer = 0; layer < 4; layer++)
+    // CENTRAL BLOOM STACK - 4 layers (Calamity pattern)
+    Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+    Color c = themeColor with { A = 0 };
+    // (Drawn via SpriteBatch additive pass in PostDraw or via particle system)
+
+    // EXPANDING GLOW RINGS - Gradient cascade
+    for (int ring = 0; ring < 4; ring++)
     {
-        float scale = 0.3f + layer * 0.15f;
-        float alpha = 0.8f - layer * 0.15f;
-        Color color = Color.Lerp(Color.White, themeColor, layer / 4f);
-        CustomParticles.GenericFlare(Projectile.Center, color * alpha, scale, 18 - layer * 2);
-    }
-    
-    // EXPANDING GLOW RINGS
-    for (int ring = 0; ring < 3; ring++)
-    {
-        Color ringColor = Color.Lerp(themeColor, secondaryColor, ring / 3f);
+        Color ringColor = Color.Lerp(themeColor, secondaryColor, ring / 4f);
         CustomParticles.HaloRing(Projectile.Center, ringColor, 0.3f + ring * 0.12f, 12 + ring * 3);
     }
-    
-    // RADIAL SPARKLE BURST
+
+    // RADIAL SPARKLE BURST - 12-point star pattern
     for (int i = 0; i < 12; i++)
     {
         float angle = MathHelper.TwoPi * i / 12f;
         Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
-        var sparkle = new SparkleParticle(Projectile.Center, vel, Color.Lerp(themeColor, Color.White, i / 12f), 0.4f, 25);
+        var sparkle = new SparkleParticle(Projectile.Center, vel,
+            Color.Lerp(themeColor, Color.White, i / 12f), 0.4f, 25);
         MagnumParticleHandler.SpawnParticle(sparkle);
     }
-    
+
     // DUST EXPLOSION FOR DENSITY
     for (int i = 0; i < 15; i++)
     {
-        Dust d = Dust.NewDustPerfect(Projectile.Center, dustType, Main.rand.NextVector2Circular(5f, 5f), 0, themeColor, 1.3f);
+        Dust d = Dust.NewDustPerfect(Projectile.Center, dustType,
+            Main.rand.NextVector2Circular(5f, 5f), 0, themeColor, 1.3f);
         d.noGravity = true;
     }
-    
-    // MUSIC NOTE FINALE
-    ThemedParticles.MusicNoteBurst(Projectile.Center, themeColor, 6, 4f);
-    
+
+    // MUSIC NOTE FINALE - Burst of visible notes
+    for (int i = 0; i < 6; i++)
+    {
+        float angle = MathHelper.TwoPi * i / 6f;
+        Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
+        SpawnGlowingMusicNote(Projectile.Center, noteVel,
+            Color.Lerp(themeColor, secondaryColor, i / 6f));
+    }
+
     // BRIGHT LIGHTING
     Lighting.AddLight(Projectile.Center, themeColor.ToVector3() * 1.5f);
 }
@@ -395,36 +997,51 @@ public override void OnKill(int timeLeft)
 ```csharp
 // We have 9 SwordArc textures - USE THEM for slash visuals!
 // SwordArc1, 2, 3, 6, 8 + SwordArcSlashWave, SimpleArcSwordSlash, CurvedSwordSlash, FlamingArcSwordSlash
-public override void MeleeEffects(Player player, Rectangle hitbox)
-{
-    // Layer SwordArc textures for wave effects
-    // Add dense dust trail during swing
-    // Include sparkle shimmer
-    // Music notes in swing (1-in-5)
-    
-    // DO NOT copy-paste a PNG upward/downward for waves!
-    // Layer arcs with glows and blooms instead!
-}
+// Layer SwordArc textures for wave effects
+// Add dense dust trail during swing
+// Include sparkle shimmer + music notes (1-in-5)
+
+// DO NOT copy-paste a PNG upward/downward for waves!
+// Layer arcs with glows and blooms instead!
 ```
 
 ## Curved Trails (Ark of the Cosmos Style)
 
 ```csharp
-// Store position history
+// Ark of the Cosmos uses bezier curves for flowing projectile paths
+// Store position history for curved trails
 private Vector2[] positionHistory = new Vector2[15];
 
 public override void AI()
 {
-    // Sine-wave movement
+    // Sine-wave movement (Ark of the Cosmos organic flow)
     float waveOffset = (float)Math.Sin(Projectile.timeLeft * 0.15f) * 3f;
     Vector2 perpendicular = Projectile.velocity.SafeNormalize(Vector2.Zero).RotatedBy(MathHelper.PiOver2);
     Projectile.Center += perpendicular * waveOffset * 0.1f;
-    
-    // Store position for curved trail
+
+    // Use BezierProjectileSystem for advanced curved paths
+    // BezierProjectileSystem.QuadraticBezier(start, control, end, t);
+    // BezierProjectileSystem.GenerateHomingArc(current, target, arcHeight);
+
+    // Store position for curved trail rendering
+    Array.Copy(positionHistory, 0, positionHistory, 1, positionHistory.Length - 1);
+    positionHistory[0] = Projectile.Center;
+
     // Draw dust at each history point for flowing trail
+    for (int i = 0; i < positionHistory.Length; i++)
+    {
+        if (positionHistory[i] == Vector2.Zero) continue;
+        if (Main.rand.NextBool(3))
+        {
+            float progress = (float)i / positionHistory.Length;
+            Color trailColor = Color.Lerp(themeColor, secondaryColor, progress) with { A = 0 };
+            Dust d = Dust.NewDustPerfect(positionHistory[i], dustType,
+                Vector2.Zero, 0, trailColor, 1.2f * (1f - progress));
+            d.noGravity = true;
+        }
+    }
 }
 ```
-
 ---
 
 # ⭐⭐⭐ THE CARDINAL RULE: EVERY WEAPON IS UNIQUE ⭐⭐⭐
@@ -992,6 +1609,7 @@ The `Documentation/Design Documents for Inspiration/` folder contains comprehens
 
 All FargosSoulsDLC VFX patterns have been **CONSOLIDATED** into:
 - **[VFX_MASTERY_RESEARCH_COMPLETE.md](../Documentation/VFX_MASTERY_RESEARCH_COMPLETE.md)** - Comprehensive knowledge base with all VFX patterns
+- **[VFX_CORE_CONCEPTS_PART2.md](../Documentation/VFX_CORE_CONCEPTS_PART2.md)** - Bezier curves, particle architecture, billboarding, GC optimization
 - **[Enhanced_VFX_System.md](../Documentation/Guides/Enhanced_VFX_System.md)** - MagnumOpus implementation guide
 
 ### 🚀 MAGNUMOPUS VFX SYSTEM (IMPLEMENTATION)
@@ -1001,6 +1619,7 @@ All FargosSoulsDLC VFX patterns have been **CONSOLIDATED** into:
 | Document | Contents | When to Use |
 |----------|----------|-------------|
 | [VFX_MASTERY_RESEARCH_COMPLETE.md](../Documentation/VFX_MASTERY_RESEARCH_COMPLETE.md) | Complete VFX knowledge base: MonoGame API, RenderTarget2D, BlendStates, primitive trails, bloom stacking, HLSL patterns, width/color functions, interpolation, screen effects, particle optimization | **ALWAYS** - Master reference for all VFX implementation |
+| [VFX_CORE_CONCEPTS_PART2.md](../Documentation/VFX_CORE_CONCEPTS_PART2.md) | Bezier curves, particle pooling architecture, camera-space billboarding, performance profiling, GC allocation avoidance | **ALWAYS** - For curves, particle systems, performance |
 | [Enhanced_VFX_System.md](../Documentation/Guides/Enhanced_VFX_System.md) | MagnumOpus implementation: `{ A = 0 }` alpha removal, multi-layer bloom, theme palettes, EnhancedParticle, UnifiedVFXBloom API | **ALWAYS** - When creating any VFX, particles, bloom effects, or themed visuals |
 
 **Key files in `Common/Systems/VFX/Core/`:**

@@ -234,8 +234,13 @@ namespace MagnumOpus.Common.Systems.Particles
                 }
             }
 
-            foreach (Particle particle in particles)
+            // Use a for loop instead of foreach to tolerate particles being
+            // added to the list during Update() (e.g., particle spawning sub-particles).
+            // We snapshot the count so newly added particles aren't updated this frame.
+            int currentCount = particles.Count;
+            for (int idx = 0; idx < currentCount; idx++)
             {
+                Particle particle = particles[idx];
                 if (particle == null)
                     continue;
 

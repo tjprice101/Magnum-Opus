@@ -7,6 +7,11 @@
 // Style 4: NATURE - Organic vine/petal trail with growth animation
 // Style 5: COSMIC - Starfield/nebula trail with constellation patterns
 // =============================================================================
+//
+// USAGE: Include shared utility library for noise, SDFs, color utilities:
+// #include "HLSLLibrary.fxh"
+// (Uncomment above line after compiling library into your build pipeline)
+// =============================================================================
 
 sampler uImage0 : register(s0);
 sampler uImage1 : register(s1);
@@ -23,6 +28,8 @@ float uStyleParam2;
 
 // =============================================================================
 // UTILITY FUNCTIONS
+// Note: These are duplicated from HLSLLibrary.fxh for standalone compilation.
+// When integrating with the full library, remove these and use #include.
 // =============================================================================
 
 float QuadraticBump(float x)
@@ -65,6 +72,7 @@ float FBM(float2 p, int octaves)
     float amplitude = 0.5;
     float frequency = 1.0;
     
+    [unroll(4)] // Optimization: Unroll for fixed iteration counts
     for (int i = 0; i < octaves; i++)
     {
         value += amplitude * Noise2D(p * frequency);

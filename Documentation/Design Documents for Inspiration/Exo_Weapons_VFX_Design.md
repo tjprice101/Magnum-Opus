@@ -10,7 +10,7 @@
 > - **Color oscillation** through gradients
 > - **Constellation connections** linking projectiles
 >
-> Use Iridescent Wingspan as the MagnumOpus gold standard implementation.
+> **Gold Standard = Calamity Mod Source Code.** Study Exoblade, Ark of the Cosmos, Galaxia, Photoviscerator, The Oracle, and Scarlet Devil.
 
 ---
 

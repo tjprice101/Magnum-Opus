@@ -80,7 +80,7 @@ namespace MagnumOpus.Content.Summer.Weapons
             SpectacularMeleeSwing.OnSwing(player, hitbox, SunGold, SunOrange, 
                 SpectacularMeleeSwing.SwingTier.Mid, SpectacularMeleeSwing.WeaponTheme.Summer);
             
-            // === IRIDESCENT WINGSPAN-STYLE VFX (Summer Theme) ===
+            // === CALAMITY-STANDARD VFX (Summer Theme) ===
             
             // HEAVY DUST TRAILS - golden sun fire gradient (2+ per frame)
             for (int d = 0; d < 2; d++)
@@ -212,7 +212,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                 player.GetSource_OnHit(target), target.Center, (target.Center - player.Center).SafeNormalize(Vector2.Zero) * 4f, 
                 (int)(damageDone * 0.3f), hit.Knockback, player.whoAmI, crystalCount);
 
-            // === IRIDESCENT WINGSPAN-STYLE IMPACT VFX ===
+            // === CALAMITY-STANDARD IMPACT VFX ===
             
             // GRADIENT HALO RINGS (4 stacked, outer to inner)
             for (int h = 0; h < 4; h++)

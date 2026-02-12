@@ -96,7 +96,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
                 }
             }
             
-            // === DENSE DUST AURA - Iridescent Wingspan style ===
+            // === DENSE DUST AURA - CALAMITY-STANDARD ===
             if (Main.rand.NextBool(3))
             {
                 Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(20f, 20f);
@@ -154,7 +154,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
             Vector2 direction = velocity.SafeNormalize(Vector2.UnitX);
             
             // === PHASE 10 ENHANCED MUZZLE FLASH ===
-            // Layered central flash (Iridescent Wingspan style)
+            // Layered central flash (CALAMITY-STANDARD)
             CustomParticles.GenericFlare(position, Color.White * 0.6f, 0.5f, 15);
             CustomParticles.GenericFlare(position, UnifiedVFX.MoonlightSonata.LightBlue * 0.8f, 0.42f, 14);
             CustomParticles.GenericFlare(position, UnifiedVFX.MoonlightSonata.DarkPurple * 0.6f, 0.35f, 12);

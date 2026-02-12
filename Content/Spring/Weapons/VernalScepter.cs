@@ -58,7 +58,7 @@ namespace MagnumOpus.Content.Spring.Weapons
             // Passive Regeneration: +2 life regen while holding
             player.lifeRegen += 2;
 
-            // ========== IRIDESCENT WINGSPAN VFX PATTERN ==========
+            // ========== CALAMITY-STANDARD VFX PATTERN ==========
             // HEAVY DUST TRAILS - 2+ per frame with fadeIn (lavender/green magic)
             for (int d = 0; d < 2; d++)
             {

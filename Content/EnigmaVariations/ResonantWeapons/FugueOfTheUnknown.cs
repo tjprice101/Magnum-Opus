@@ -457,7 +457,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                     }
                 }
                 
-                // === IRIDESCENT WINGSPAN-STYLE RADIANT TRAIL EFFECTS ===
+                // === CALAMITY-STANDARD RADIANT TRAIL EFFECTS ===
                 // Heavy dust trails (2+ per frame) - void fugue stream
                 for (int d = 0; d < 2; d++)
                 {

@@ -113,7 +113,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         {
             Vector2 hitCenter = hitbox.Center.ToVector2();
             
-            // === IRIDESCENT WINGSPAN-STYLE VFX (La Campanella Theme) ===
+            // === CALAMITY-STANDARD VFX (La Campanella Theme) ===
             
             // HEAVY DUST TRAILS - orange/gold infernal fire (2+ per frame)
             for (int d = 0; d < 2; d++)

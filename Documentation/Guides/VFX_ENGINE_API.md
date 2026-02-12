@@ -19,7 +19,8 @@
 7. [Enhanced Trail Renderer](#enhanced-trail-renderer)
 8. [Particle Handler](#particle-handler)
 9. [Bloom Renderer](#bloom-renderer)
-10. [Integration Examples](#integration-examples)
+10. [Radial Scroll System](#radial-scroll-system)
+11. [Integration Examples](#integration-examples)
 
 ---
 
@@ -37,6 +38,7 @@ The MagnumOpus VFX Engine provides Calamity-level visual polish through integrat
 | **EnhancedTrailRenderer** | `EnhancedTrailRenderer.cs` | Flowing energy trails |
 | **MagnumParticleHandler** | `MagnumParticleHandler.cs` | High-performance particle engine |
 | **BloomRenderer** | `BloomRenderer.cs` | Multi-layer bloom effects |
+| **RadialScrollSystem** | `RadialScrollSystem.cs` | Radial scroll orbs, portals, auras |
 
 ---
 
@@ -742,6 +744,110 @@ public class ArcingProjectile : ModProjectile
 
 ---
 
+## RADIAL SCROLL SYSTEM
+
+**File:** `Common/Systems/VFX/Core/RadialScrollSystem.cs`
+
+High-performance radial scrolling effects for orbs, portals, auras, and rotating energy patterns.
+
+### Available Techniques
+
+```csharp
+public enum RadialScrollTechnique
+{
+    TECH_MULTI_LAYER,   // 4-layer outward scroll with vortex core
+    TECH_DISTORTED,     // Perlin noise-based warped scrolling
+    TECH_PULSING,       // Rhythmic expansion/contraction waves
+    TECH_DUAL_PHASE,    // Inner/outer rings scrolling opposite directions
+    TECH_VORTEX         // Spiral inward with converging energy
+}
+```
+
+### Pre-Built Presets
+
+| Preset | Technique | Description |
+|--------|-----------|-------------|
+| `EnergyStar` | MULTI_LAYER | Bright expanding star effect |
+| `Portal` | VORTEX | Spiraling portal with inward pull |
+| `AuraRing` | PULSING | Pulsing aura ring around entities |
+| `Cosmic` | DISTORTED | Cosmic nebula distortion effect |
+| `Singularity` | DUAL_PHASE | Black hole-style dual rotation |
+
+### Static API
+
+```csharp
+// Draw a preset orb effect
+RadialScrollSystem.DrawOrb(
+    position: projectile.Center,
+    size: 50f,
+    time: Main.GlobalTimeWrappedHourly,
+    preset: RadialScrollSystem.EnergyStar
+);
+
+// Draw a portal effect
+RadialScrollSystem.DrawPortal(
+    position: portalCenter,
+    size: 80f,
+    time: Main.GlobalTimeWrappedHourly
+);
+
+// Draw with custom colors
+RadialScrollSystem.DrawOrb(
+    position: center,
+    size: 60f,
+    time: gameTime,
+    preset: RadialScrollSystem.Portal,
+    overridePrimary: Color.Cyan,
+    overrideSecondary: Color.White
+);
+
+// Create custom preset
+var myPreset = new RadialScrollSystem.RadialScrollPreset
+{
+    Technique = RadialScrollTechnique.TECH_PULSING,
+    PrimaryColor = new Color(255, 100, 50),
+    SecondaryColor = new Color(255, 200, 100),
+    CoreColor = Color.White,
+    ScrollSpeed = 0.5f,
+    Intensity = 1.2f,
+    Layers = 4
+};
+RadialScrollSystem.DrawOrb(position, size, time, myPreset);
+```
+
+### Fallback Rendering
+
+The system includes robust fallback rendering for shader-disabled environments:
+
+| Method | Purpose |
+|--------|---------|
+| `DrawFallbackOrb()` | 5-layer bloom with pulsing animation |
+| `DrawFallbackPortal()` | Swirling rings + bloom core |
+
+Fallbacks automatically activate when shaders are unavailable, ensuring visual effects work on all hardware.
+
+### Usage Example - VFXPlus Weapon
+
+```csharp
+public override bool PreDraw(ref Color lightColor)
+{
+    Vector2 drawPos = player.itemLocation;
+    float time = Main.GlobalTimeWrappedHourly;
+    
+    // Draw glowing orb at weapon tip
+    RadialScrollSystem.DrawOrb(
+        drawPos,
+        size: 40f * chargeProgress,
+        time: time,
+        preset: RadialScrollSystem.EnergyStar
+    );
+    
+    return true;
+}
+```
+
+---
+
 ## QUICK REFERENCE
 
 ### Common Patterns
@@ -767,6 +873,12 @@ Color color = RainbowGradientSystem.GetFateCosmic(animationProgress);
 
 // Multi-layer bloom
 BloomRenderer.DrawBloomStack(spriteBatch, texture, position, color with { A = 0 }, scale, 4, 1f);
+
+// Radial scroll orb effects
+RadialScrollSystem.DrawOrb(position, size, time, RadialScrollSystem.EnergyStar);
+
+// Portal effects
+RadialScrollSystem.DrawPortal(position, size, time);
 ```
 
 ---

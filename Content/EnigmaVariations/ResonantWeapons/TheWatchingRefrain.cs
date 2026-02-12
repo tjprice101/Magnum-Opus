@@ -401,7 +401,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         private void DrawMinionVisuals()
         {
-            // === IRIDESCENT WINGSPAN STANDARD: HEAVY DUST TRAILS (2+ per frame) ===
+            // === CALAMITY-STANDARD: HEAVY DUST TRAILS (2+ per frame) ===
             for (int d = 0; d < 2; d++)
             {
                 Dust dust = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f), 
@@ -640,7 +640,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
             
-            // === IRIDESCENT WINGSPAN STANDARD: HEAVY DUST TRAILS (2+ per frame) ===
+            // === CALAMITY-STANDARD: HEAVY DUST TRAILS (2+ per frame) ===
             for (int d = 0; d < 2; d++)
             {
                 Dust dust = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f), 
@@ -878,7 +878,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             float lifeProgress = 1f - (Projectile.timeLeft / 90f);
             float opacity = 1f - lifeProgress * 0.7f;
             
-            // === IRIDESCENT WINGSPAN STANDARD: HEAVY DUST TRAILS (2+ per frame) ===
+            // === CALAMITY-STANDARD: HEAVY DUST TRAILS (2+ per frame) ===
             for (int d = 0; d < 2; d++)
             {
                 Dust dust = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(18f, 18f), 
@@ -1180,7 +1180,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 ThemedParticles.MusicNote(notePos, noteVel, noteColor * opacity, 0.85f + Main.rand.NextFloat(0.15f), 35);
             }
             
-            // === IRIDESCENT WINGSPAN: HEAVY DUST TRAILS ===
+            // === CALAMITY-STANDARD: HEAVY DUST TRAILS ===
             for (int d = 0; d < 2; d++)
             {
                 float dustAngle = Main.rand.NextFloat() * MathHelper.TwoPi;

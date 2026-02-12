@@ -163,7 +163,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
             SpectacularMeleeSwing.OnSwing(player, hitbox, UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, 
                 SpectacularMeleeSwing.SwingTier.Endgame, SpectacularMeleeSwing.WeaponTheme.Eroica);
             
-            // === IRIDESCENT WINGSPAN STYLE - HEAVY DUST TRAILS (2+ per frame) ===
+            // === CALAMITY-STANDARD - HEAVY DUST TRAILS (2+ per frame) ===
             for (int i = 0; i < 2; i++)
             {
                 // Main heroic trail - Scarlet to Gold gradient
@@ -230,7 +230,7 @@ namespace MagnumOpus.Content.Eroica.ResonantWeapons
 
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // === IRIDESCENT WINGSPAN STYLE - LAYERED IMPACT ===
+            // === CALAMITY-STANDARD - LAYERED IMPACT ===
             UnifiedVFX.Eroica.Impact(target.Center, 1.3f);
             
             // === MUSIC NOTES BURST! ===

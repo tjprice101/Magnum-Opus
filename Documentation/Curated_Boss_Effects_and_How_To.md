@@ -10,13 +10,12 @@ This document provides a comprehensive deep-dive into all MagnumOpus bosses, the
 
 > **Before implementing ANY boss attack or projectile VFX, read [TRUE_VFX_STANDARDS.md](Guides/TRUE_VFX_STANDARDS.md).**
 >
-> **The Gold Standard: Iridescent Wingspan**
-> - PreDraw: **4+ layered flares spinning** at different speeds
-> - Trail: **Dense dust** (2+ per frame, scale 1.5f+) with **contrasting sparkles**
-> - Colors: **Oscillate** using Main.hslToRgb
-> - Music notes: **Orbit projectiles** (scale 0.7f+, not 0.25f!)
-> - Impact: **Glimmer cascade** with expanding rings and radial sparkle bursts
-> - Melee: **Use SwordArc textures** for wave effects
+> **Gold Standard = Calamity Mod Source Code** (Exoblade, Ark of the Cosmos, Galaxia, Photoviscerator, The Oracle, Scarlet Devil)
+> - **Multi-Layer Bloom Stack**: `{ A = 0 }` pattern with 4 layers (Outer 0.30, Mid 0.50, Inner 0.70, Core 0.85)
+> - **3-Pass Trail Rendering**: `EnhancedTrailRenderer` or `CalamityStyleTrailRenderer` with width taper and color gradient
+> - **CurveSegment Piecewise Animation**: Multi-phase swing arcs with PolyIn/PolyOut easing
+> - **Sub-Pixel Interpolation**: `InterpolatedRenderer.PartialTicks` for 144Hz+ smoothness
+> - **Velocity-Based VFX**: Stretch + spin scaling with speed
 
 ---
 

@@ -241,6 +241,15 @@ namespace MagnumOpus.Common.Systems.VFX
         /// </summary>
         public static Color[] GetThemePalette(string themeName)
         {
+            return GetPalette(themeName);
+        }
+        
+        /// <summary>
+        /// Gets a theme's color palette array by name (alias for GetThemePalette).
+        /// Returns the full gradient array for flexible usage.
+        /// </summary>
+        public static Color[] GetPalette(string themeName)
+        {
             return themeName?.ToLowerInvariant() switch
             {
                 "lacampanella" or "campanella" => LaCampanella,

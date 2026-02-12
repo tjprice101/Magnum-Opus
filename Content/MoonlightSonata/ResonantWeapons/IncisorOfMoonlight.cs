@@ -66,7 +66,7 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
             SpectacularMeleeSwing.OnSwing(player, hitbox, UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, 
                 SpectacularMeleeSwing.SwingTier.Endgame, SpectacularMeleeSwing.WeaponTheme.MoonlightSonata);
             
-            // === IRIDESCENT WINGSPAN-STYLE HEAVY DUST TRAILS ===
+            // === CALAMITY-STANDARD HEAVY DUST TRAILS ===
             // Heavy purple dust trail #1
             float trailProgress1 = Main.rand.NextFloat();
             Color purpleGradient1 = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.MediumPurple, trailProgress1);
@@ -199,7 +199,7 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
             // === UnifiedVFX MOONLIGHT SONATA IMPACT ===
             UnifiedVFX.MoonlightSonata.Impact(target.Center, 1.0f);
             
-            // === IRIDESCENT WINGSPAN-STYLE GRADIENT HALO RINGS (4 stacked) ===
+            // === CALAMITY-STANDARD GRADIENT HALO RINGS (4 stacked) ===
             CustomParticles.HaloRing(target.Center, UnifiedVFX.MoonlightSonata.DarkPurple, 0.55f, 16);
             CustomParticles.HaloRing(target.Center, UnifiedVFX.MoonlightSonata.MediumPurple, 0.45f, 14);
             CustomParticles.HaloRing(target.Center, UnifiedVFX.MoonlightSonata.LightBlue, 0.35f, 12);

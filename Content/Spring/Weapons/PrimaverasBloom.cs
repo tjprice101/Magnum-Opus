@@ -56,7 +56,7 @@ namespace MagnumOpus.Content.Spring.Weapons
 
         public override void HoldItem(Player player)
         {
-            // ========== IRIDESCENT WINGSPAN VFX PATTERN ==========
+            // ========== CALAMITY-STANDARD VFX PATTERN ==========
             // HEAVY DUST TRAILS - 2+ per frame with fadeIn (spring bloom dust)
             for (int d = 0; d < 2; d++)
             {

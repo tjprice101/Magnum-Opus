@@ -401,7 +401,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 MagnumParticleHandler.SpawnParticle(glow);
             }
             
-            // === IRIDESCENT WINGSPAN-STYLE RADIANT TRAIL EFFECTS ===
+            // === CALAMITY-STANDARD RADIANT TRAIL EFFECTS ===
             // Heavy dust trails (2+ per frame) - void energy stream
             for (int d = 0; d < 2; d++)
             {

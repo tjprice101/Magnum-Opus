@@ -258,25 +258,21 @@ namespace MagnumOpus.Common.Systems.Shaders
 
         /// <summary>
         /// Gets the shader Effect for a given type.
-        /// Now uses MagnumShaderSystem for proper Ref&lt;Effect&gt; handling.
+        /// Uses ShaderLoader for direct Effect references (no GameShaders.Misc indirection).
         /// </summary>
         private static Effect GetShaderForType(ShaderType type)
         {
-            // Use MagnumShaderSystem's properly registered shaders
-            if (!MagnumShaderSystem.ShadersAvailable)
+            if (!ShaderLoader.ShadersEnabled)
                 return null;
             
-            // Get shader data from GameShaders.Misc (proper Calamity pattern)
             return type switch
             {
-                ShaderType.Trail or ShaderType.TrailBloom => 
-                    GameShaders.Misc[MagnumShaderSystem.TrailShader]?.Shader,
-                ShaderType.Bloom or ShaderType.GradientBloom or ShaderType.Flare => 
-                    GameShaders.Misc[MagnumShaderSystem.BloomShader]?.Shader,
+                ShaderType.Trail or ShaderType.TrailBloom => ShaderLoader.Trail,
+                ShaderType.Bloom or ShaderType.GradientBloom or ShaderType.Flare => ShaderLoader.Bloom,
+                // Screen distortion shaders are not yet compiled — return null gracefully
                 ShaderType.ChromaticAberration or ShaderType.RadialBlur or ShaderType.Vignette 
                     or ShaderType.ColorFlash or ShaderType.WaveDistortion 
-                    or ShaderType.HeatDistortion or ShaderType.RealityCrack => 
-                    Filters.Scene[MagnumShaderSystem.ScreenDistortionShader]?.GetShader()?.Shader,
+                    or ShaderType.HeatDistortion or ShaderType.RealityCrack => null,
                 _ => null
             };
         }

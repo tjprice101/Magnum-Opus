@@ -132,7 +132,7 @@ namespace MagnumOpus.Content.Spring.Weapons
             SpectacularMeleeSwing.OnSwing(player, hitbox, SpringPink, SpringGreen, 
                 SpectacularMeleeSwing.SwingTier.Basic, SpectacularMeleeSwing.WeaponTheme.Spring);
 
-            // === IRIDESCENT WINGSPAN-STYLE HEAVY DUST TRAILS ===
+            // === CALAMITY-STANDARD HEAVY DUST TRAILS ===
             // Heavy pink dust trail #1
             float trailProgress1 = Main.rand.NextFloat();
             Color pinkGradient = Color.Lerp(SpringPink, SpringWhite, trailProgress1);
@@ -216,7 +216,7 @@ namespace MagnumOpus.Content.Spring.Weapons
         {
             hitCounter++;
 
-            // === IRIDESCENT WINGSPAN-STYLE GRADIENT HALO RINGS (3 stacked) ===
+            // === CALAMITY-STANDARD GRADIENT HALO RINGS (3 stacked) ===
             CustomParticles.HaloRing(target.Center, SpringPink, 0.45f, 14);
             CustomParticles.HaloRing(target.Center, SpringWhite, 0.35f, 12);
             CustomParticles.HaloRing(target.Center, SpringGreen, 0.25f, 10);

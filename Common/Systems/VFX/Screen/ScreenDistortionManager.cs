@@ -187,6 +187,84 @@ namespace MagnumOpus.Common.Systems.VFX
         }
 
         /// <summary>
+        /// Triggers a heat haze distortion effect. Great for fire/desert themes, explosions, lava.
+        /// Creates a wavy distortion that rises upward.
+        /// </summary>
+        public static void TriggerHeatHaze(Vector2 worldPosition, float intensity = 0.5f, int duration = 60, float radius = 0.3f)
+        {
+            AddDistortion(new ActiveDistortion
+            {
+                Style = ShaderStyleRegistry.ScreenStyle.Ripple, // Reuse ripple with different params
+                WorldPosition = worldPosition,
+                PrimaryColor = new Color(255, 100, 0, 0), // Warm tint
+                SecondaryColor = new Color(255, 50, 0, 0),
+                BaseIntensity = intensity * 0.3f, // Subtle effect
+                Radius = radius,
+                Duration = duration,
+                Timer = 0,
+                EasingFunction = EaseHeatHaze
+            });
+        }
+
+        /// <summary>
+        /// Triggers an expanding shockwave ring effect. Great for impacts, explosions, boss phase transitions.
+        /// </summary>
+        public static void TriggerShockwaveRing(Vector2 worldPosition, Color color, float intensity = 1f, int duration = 20, float maxRadius = 0.6f)
+        {
+            AddDistortion(new ActiveDistortion
+            {
+                Style = ShaderStyleRegistry.ScreenStyle.Pulse,
+                WorldPosition = worldPosition,
+                PrimaryColor = color,
+                SecondaryColor = color,
+                BaseIntensity = intensity,
+                Radius = maxRadius,
+                Duration = duration,
+                Timer = 0,
+                EasingFunction = EaseShockwave
+            });
+        }
+
+        /// <summary>
+        /// Triggers a chromatic aberration burst. Great for powerful hits, glitchy effects, Fate theme.
+        /// Separates RGB channels briefly.
+        /// </summary>
+        public static void TriggerChromaticBurst(Vector2 worldPosition, float intensity = 1f, int duration = 15)
+        {
+            AddDistortion(new ActiveDistortion
+            {
+                Style = ShaderStyleRegistry.ScreenStyle.Shatter,
+                WorldPosition = worldPosition,
+                PrimaryColor = Color.Red,
+                SecondaryColor = Color.Blue,
+                BaseIntensity = intensity * 0.5f, // Subtle so it's not disorienting
+                Radius = 0.8f, // Wide effect
+                Duration = duration,
+                Timer = 0,
+                EasingFunction = EaseOutExpo
+            });
+        }
+
+        /// <summary>
+        /// Triggers a slow, subtle breathing distortion. Great for ambient boss presence effects.
+        /// </summary>
+        public static void TriggerBreathingDistortion(Vector2 worldPosition, Color color, float intensity = 0.3f, int duration = 120)
+        {
+            AddDistortion(new ActiveDistortion
+            {
+                Style = ShaderStyleRegistry.ScreenStyle.Warp,
+                WorldPosition = worldPosition,
+                PrimaryColor = color,
+                SecondaryColor = color,
+                BaseIntensity = intensity,
+                Radius = 0.5f,
+                Duration = duration,
+                Timer = 0,
+                EasingFunction = EaseBreathing
+            });
+        }
+
+        /// <summary>
         /// Triggers the theme-appropriate screen effect for a given theme.
         /// </summary>
         public static void TriggerThemeEffect(string theme, Vector2 worldPosition, float intensity = 1f, int duration = 30, Vector2? secondaryPosition = null)
@@ -341,6 +419,28 @@ namespace MagnumOpus.Common.Systems.VFX
             float phase1 = t < 0.3f ? (float)Math.Sin(t / 0.3f * MathHelper.Pi) : 0f;
             float phase2 = t > 0.4f && t < 0.7f ? (float)Math.Sin((t - 0.4f) / 0.3f * MathHelper.Pi) * 0.6f : 0f;
             return phase1 + phase2;
+        }
+        
+        private static float EaseHeatHaze(float t)
+        {
+            // Oscillating effect that slowly fades - simulates heat wave distortion
+            float wave = (float)Math.Sin(t * MathHelper.TwoPi * 3f) * 0.3f + 0.7f;
+            float fadeOut = 1f - (float)Math.Pow(t, 0.5f);
+            return wave * fadeOut;
+        }
+        
+        private static float EaseShockwave(float t)
+        {
+            // Fast expansion with quick fade - expanding ring effect
+            float expansion = 1f - (float)Math.Pow(1f - t, 3f); // Quick to expand
+            float intensity = (float)Math.Pow(1f - t, 2f); // Fades faster at end
+            return expansion * intensity;
+        }
+        
+        private static float EaseBreathing(float t)
+        {
+            // Slow sine wave breathing pattern
+            return (float)(Math.Sin(t * MathHelper.TwoPi * 2f) * 0.5f + 0.5f) * (1f - t);
         }
 
         #endregion

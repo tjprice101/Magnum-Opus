@@ -120,7 +120,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             SpectacularMeleeSwing.OnSwing(player, hitbox, AutumnOrange, DecayPurple, 
                 SpectacularMeleeSwing.SwingTier.Mid, SpectacularMeleeSwing.WeaponTheme.Autumn);
             
-            // === IRIDESCENT WINGSPAN-STYLE VFX (Autumn Theme) ===
+            // === CALAMITY-STANDARD VFX (Autumn Theme) ===
             
             // HEAVY DUST TRAILS - orange/brown autumn gradient (2+ per frame)
             for (int d = 0; d < 2; d++)
@@ -226,7 +226,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 }
             }
 
-            // === IRIDESCENT WINGSPAN-STYLE IMPACT VFX ===
+            // === CALAMITY-STANDARD IMPACT VFX ===
             
             // GRADIENT HALO RINGS (4 stacked, outer to inner)
             for (int h = 0; h < 4; h++)

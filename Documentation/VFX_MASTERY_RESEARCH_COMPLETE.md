@@ -6,10 +6,55 @@
 > FargosSoulsDLC patterns, and Calamity Mod techniques.
 >
 > **STATUS: ENHANCED** - All core VFX systems have been reviewed and enhanced.
+>
+> ---
+>
+> ## 📖 Related Documentation
+>
+> | Document | Purpose |
+> |----------|---------|
+> | **[VFX_CORE_CONCEPTS_PART2.md](VFX_CORE_CONCEPTS_PART2.md)** | Bezier curves, particle architecture, billboarding, GC optimization |
+> | **[HLSL_GRAPHICS_DEEP_DIVE.md](HLSL_GRAPHICS_DEEP_DIVE.md)** | Complete HLSL language reference, noise functions, SDFs, color grading, tone mapping, performance optimization |
+> | **[Enhanced_VFX_System.md](Guides/Enhanced_VFX_System.md)** | MagnumOpus VFX API usage guide, themed particles, bloom patterns |
+> | **[TRUE_VFX_STANDARDS.md](Guides/TRUE_VFX_STANDARDS.md)** | Visual effect quality standards, projectile patterns |
+>
+> ### Shader Library
+>
+> | File | Description |
+> |------|-------------|
+> | `ShaderSource/HLSLLibrary.fxh` | Reusable HLSL utility functions (noise, SDFs, easing, color utilities) |
+> | `ShaderSource/AdvancedTrailShader.fx` | 5 trail styles: Flame, Ice, Lightning, Nature, Cosmic |
+> | `ShaderSource/AdvancedBloomShader.fx` | 5 bloom styles: Ethereal, Infernal, Celestial, Chromatic, Void |
+> | `ShaderSource/AdvancedDistortionShader.fx` | Screen distortions: Ripple, Heat, Chromatic, Eclipse, Reality Tear |
+> | `ShaderSource/MetaballEdgeShader.fx` | Sobel edge detection with glow and pulse animation |
+>
+> ---
 > 
 > **NEW SYSTEMS CREATED:**
 > - `RenderTargetPool.cs` (Common/Systems/VFX/Core/) - Unified render target management with transient/persistent pooling
 > - `PixelatedTrailRenderer.cs` (Common/Systems/VFX/Trails/) - FargosSoulsDLC-style pixelated trails with render target support
+> - `HLSLLibrary.fxh` (ShaderSource/) - Comprehensive HLSL utility library with noise, SDFs, color utilities, easing functions
+> - `DynamicLightSystem.cs` (Common/Systems/VFX/Core/) - Advanced lighting with point/directional/spotlight lights and light cookies
+> - `MultiBeamController.cs` (Common/Systems/VFX/Core/) - Synchronized multi-beam management with state machine (Idle/Charging/Firing/Dissipating)
+> - `ObjectPool.cs` (Common/Systems/VFX/Core/) - Generic object pooling with IPoolable interface and PoolManager
+> - `ParticlePoolSystem.cs` (Common/Systems/VFX/Core/) - High-performance pooled particle system with ParticleSettings presets
+> - `FrustumCuller.cs` (Common/Systems/VFX/Core/) - Screen visibility testing, spatial partitioning, and hierarchical culling
+> - `BloomPostProcess.cs` (Common/Systems/VFX/Bloom/) - Full-screen bloom post-processing pipeline with render targets
+> - `SegmentedBeamRenderer.cs` (Common/Systems/VFX/Beams/) - Three-part beam architecture (Muzzle/Body/Impact) with wave distortion and corona particles
+> - `TaperCurves.cs` (Common/Systems/VFX/Core/) - Width tapering functions: Linear, EaseOut, EaseIn, SmoothStep, Exponential, Bulge, Wave, Bezier
+> - `GlowRenderer.cs` (Common/Systems/VFX/Bloom/) - Multi-layer glow system with theme-specific profiles (LaCampanella, Eroica, Fate, etc.)
+> - `ImpactEffectManager.cs` (Common/Systems/VFX/Effects/) - Staged impact choreography: Anticipation → Impact → Shockwave → Debris → Aftermath
+> - `ScreenShakeManager.cs` (Common/Systems/VFX/Effects/) - Camera shake system with multiple decay curves and trauma accumulation
+> - `TileDustSpawner.cs` (Common/Systems/VFX/Effects/) - Material-based dust spawning with 14 material types and specialized effects
+> - `LODManager.cs` (Common/Systems/VFX/Optimization/) - Level of Detail management with distance-based rendering thresholds (High/Medium/Low/VeryLow/Culled)
+> - `LODBeamRenderer.cs` (Common/Systems/VFX/Optimization/) - LOD-aware beam rendering with automatic segment/particle/glow layer adjustment
+> - `AdaptiveLODSystem.cs` (Common/Systems/VFX/Optimization/) - ModSystem managing update frequency for ILODUpdatable objects based on camera distance
+> - `TextureAtlas.cs` (Common/Systems/VFX/Optimization/) - Texture atlas builder and manager for batch rendering optimization
+> - `BatchedParticleRenderer.cs` (Common/Systems/VFX/Optimization/) - Queue-based particle batching with state-sorted rendering
+> - `VertexBufferPool.cs` (Common/Systems/VFX/Optimization/) - Reusable vertex buffer pool with RingVertexBuffer for zero-allocation updates
+> - `AdaptiveQualityManager.cs` (Common/Systems/VFX/Optimization/) - ModSystem auto-adjusting VFX quality based on frame rate (Ultra/High/Medium/Low/Potato)
+> - `ConditionalEffectRenderer.cs` (Common/Systems/VFX/Optimization/) - Conditional effect rendering based on quality settings and visibility
+> - `PerformanceProfiler.cs` (Common/Systems/VFX/Optimization/) - Custom profiler with timing, call counts, memory tracking, and ProfileScope pattern
 >
 > **EXISTING SYSTEMS VERIFIED AS COMPREHENSIVE:**
 > - `MagnumParticleHandler.cs` - Object pooling, batched blend modes, { A = 0 } pattern, aggressive culling
@@ -1102,4 +1147,834 @@ Use this as a reference when implementing or enhancing VFX systems.
 
 ---
 
-*Last Updated: Documentation generated from research phase*
+## 14. Advanced Systems Reference
+
+### 14.1 DynamicLightSystem
+
+**File:** `Common/Systems/VFX/Core/DynamicLightSystem.cs`
+
+Advanced lighting overlay system with multiple light types:
+
+| Light Type | Description | Use Case |
+|------------|-------------|----------|
+| **Point** | Radial light with inverse-square falloff | Explosions, glowing projectiles |
+| **Directional** | Parallel rays in a direction | Laser beams, god rays |
+| **Spotlight** | Cone-shaped with inner/outer angles | Focused effects, boss attacks |
+
+```csharp
+// Add a point light
+DynamicLightSystem.AddLight(
+    position, 
+    color, 
+    radius: 200f, 
+    intensity: 1.5f
+);
+
+// Add a directional light
+DynamicLightSystem.AddDirectionalLight(
+    position, 
+    direction, 
+    color, 
+    length: 400f, 
+    width: 50f, 
+    intensity: 1.0f
+);
+
+// Add a spotlight
+DynamicLightSystem.AddSpotlight(
+    position, 
+    direction, 
+    color, 
+    range: 300f, 
+    innerConeAngle: MathHelper.ToRadians(15f),
+    outerConeAngle: MathHelper.ToRadians(30f),
+    intensity: 2.0f
+);
+
+// Add animated lights
+DynamicLightSystem.AddPulsingLight(position, color, radius, baseIntensity, pulseAmount, pulseSpeed);
+DynamicLightSystem.AddFlickeringLight(position, color, radius, intensity, flickerSpeed);
+
+// Light cookies (textured lights)
+Texture2D cookie = LightCookie.GenerateSoftCircle(device, 64);
+Texture2D caustics = LightCookie.GenerateCaustics(device, 64);
+```
+
+### 14.2 MultiBeamController
+
+**File:** `Common/Systems/VFX/Core/MultiBeamController.cs`
+
+Synchronized multi-beam management with state machines:
+
+**Beam States:**
+| State | Description |
+|-------|-------------|
+| `Idle` | Beam not visible |
+| `Charging` | Building up with jitter |
+| `Firing` | Full intensity, wave motion |
+| `Dissipating` | Fading out |
+
+```csharp
+// Create a multi-beam controller
+var controller = new MultiBeamController(origin, target, beamCount: 5);
+controller.SpreadAngle = MathHelper.ToRadians(60f);
+controller.ChargeTime = 1.0f;
+controller.DissipateTime = 0.5f;
+
+// State transitions
+controller.StartCharging();  // Idle → Charging
+controller.StartFiring();    // Charging → Firing
+controller.StartDissipating(); // Firing → Dissipating
+
+// Converging beam pattern (beams start spread, converge to target)
+var converging = new ConvergingBeamSystem(origin, target, beamCount: 6);
+converging.StartSpread = 100f;
+converging.ConvergeDuration = 1.0f;
+
+// Pulsing beam array (synchronized pulse animation)
+var pulsing = new PulsingBeamArray(origin, target, beamCount: 4);
+pulsing.PulseFrequency = 2.0f;
+pulsing.PulseAmplitude = 0.3f;
+pulsing.PulseOffset = 0.25f; // Phase offset between beams
+```
+
+### 14.3 ObjectPool<T>
+
+**File:** `Common/Systems/VFX/Core/ObjectPool.cs`
+
+Generic object pooling to eliminate GC allocations:
+
+```csharp
+// Create a pool
+var pool = new ObjectPool<MyParticle>(
+    initialSize: 100,
+    maxSize: 500,
+    createFunc: () => new MyParticle(),
+    onAcquire: p => p.OnSpawn(),
+    onRelease: p => p.OnDespawn()
+);
+
+// Get an object (reuses from pool or creates new)
+MyParticle particle = pool.Get();
+
+// Return to pool when done
+pool.Return(particle);
+
+// IPoolable interface for automatic Reset()
+public class MyParticle : IPoolable
+{
+    public void Reset()
+    {
+        // Reset state for reuse
+    }
+}
+
+// PoolManager for centralized pools
+PoolManager.RegisterPool<MyParticle>("particles", 100, 500);
+MyParticle p = PoolManager.Get<MyParticle>("particles");
+PoolManager.Return(p, "particles");
+```
+
+### 14.4 ParticlePoolSystem
+
+**File:** `Common/Systems/VFX/Core/ParticlePoolSystem.cs`
+
+High-performance pooled particle system with presets:
+
+```csharp
+// Create a particle system
+var system = new ParticlePoolSystem(maxParticles: 1000);
+
+// Use presets
+system.Spawn(position, velocity, ParticleSettings.Explosion());
+system.Spawn(position, velocity, ParticleSettings.Sparkle());
+system.Spawn(position, velocity, ParticleSettings.Smoke());
+system.Spawn(position, velocity, ParticleSettings.Fire());
+system.Spawn(position, velocity, ParticleSettings.MusicNote());
+system.Spawn(position, velocity, ParticleSettings.Beam());
+
+// Burst spawn
+system.SpawnBurst(center, count: 20, ParticleSettings.Explosion());
+
+// Cone spawn (directional)
+system.SpawnCone(position, direction, coneAngle, count, settings);
+
+// Line spawn (between points)
+system.SpawnLine(start, end, count, settings);
+
+// Ring spawn (circular)
+system.SpawnRing(center, radius, count, settings);
+
+// Update and draw
+system.Update();
+system.Draw(spriteBatch, texture);
+system.DrawAdditive(spriteBatch, texture);
+```
+
+### 14.5 FrustumCuller
+
+**File:** `Common/Systems/VFX/Core/FrustumCuller.cs`
+
+Screen visibility testing for VFX optimization:
+
+```csharp
+// Simple visibility tests
+bool visible = FrustumCuller.IsPointVisible(worldPosition);
+bool visible = FrustumCuller.IsRectangleVisible(bounds);
+bool visible = FrustumCuller.IsCircleVisible(center, radius);
+bool visible = FrustumCuller.IsLineVisible(start, end);
+bool visible = FrustumCuller.IsBeamVisible(start, end, width);
+
+// Culled beam renderer
+var renderer = new CulledBeamRenderer();
+renderer.AddBeam(start, end, width, color);
+renderer.Draw(spriteBatch);
+
+// Statistics
+float ratio = renderer.CullRatio; // 0.0 = all visible, 1.0 = all culled
+
+// Hierarchical culling (spatial partitioning)
+var culler = new HierarchicalCuller<MyBeam>(cellSize: 256);
+culler.Insert(beam, bounds);
+culler.Update(); // Must call after adding all items
+
+// Get visible items
+foreach (var beam in culler.GetVisibleItems())
+{
+    beam.Draw(spriteBatch);
+}
+```
+
+### 14.6 BloomPostProcess
+
+**File:** `Common/Systems/VFX/Bloom/BloomPostProcess.cs`
+
+Full-screen bloom post-processing pipeline:
+
+```csharp
+// Initialize (call once)
+BloomPostProcess.Initialize(graphicsDevice, screenWidth, screenHeight);
+
+// Configure settings
+BloomPostProcess.Threshold = 0.8f;    // Brightness threshold (0-1)
+BloomPostProcess.Intensity = 1.5f;     // Bloom brightness
+BloomPostProcess.BlurSize = 2.0f;      // Blur kernel size
+BloomPostProcess.BlurPasses = 2;       // Number of blur iterations
+BloomPostProcess.ResolutionDivisor = 2; // Downscale factor (performance)
+
+// Apply bloom (wrap your scene rendering)
+BloomPostProcess.Apply(spriteBatch, () =>
+{
+    // Draw your scene here
+    DrawScene();
+});
+
+// Or apply with custom shader
+BloomPostProcess.ApplyWithShader(spriteBatch, customEffect, () =>
+{
+    DrawScene();
+});
+
+// Alternative: Kawase blur (faster, softer)
+BloomPostProcess.ApplyKawaseBlur(spriteBatch, iterations: 4, () =>
+{
+    DrawScene();
+});
+
+// Handle window resize
+BloomPostProcess.Resize(newWidth, newHeight);
+
+// Cleanup
+BloomPostProcess.Dispose();
+```
+
+**Bloom Pipeline:**
+1. Capture scene to render target
+2. Extract bright pixels (threshold pass)
+3. Horizontal Gaussian blur
+4. Vertical Gaussian blur
+5. Composite with additive blending
+
+---
+
+## 15. Beam, Glow, Impact & Screen Shake Systems (Parts 3.1-3.7)
+
+### 15.1 SegmentedBeamRenderer
+
+**File:** `Common/Systems/VFX/Beams/SegmentedBeamRenderer.cs`
+
+Three-part beam architecture for high-quality laser/beam effects:
+
+```csharp
+// Create a segmented beam
+var beam = new SegmentedBeam(
+    start: player.Center,
+    end: targetPos,
+    color: Color.Cyan,
+    width: 30f
+);
+
+// Draw the beam (calls all three sections)
+beam.Draw(Main.spriteBatch);
+
+// Or draw sections individually
+beam.Muzzle.Draw(Main.spriteBatch);
+beam.Body.Draw(Main.spriteBatch);
+beam.Impact.Draw(Main.spriteBatch);
+
+// Animate over time
+beam.Update();  // Advances waveOffset, coronaAngle, etc.
+```
+
+**Visual Hierarchy (Brightness):**
+| Section | Purpose | Brightness |
+|---------|---------|------------|
+| Muzzle (Start) | Energy emission, corona effect | 100% |
+| Body (Middle) | Main beam with wave distortion | 60% |
+| Impact (End) | Hit point with spark particles | 80% |
+
+**Key Features:**
+- **Wave Distortion:** Sine-wave vertical offset for organic feel
+- **Corona Effect:** Rotating energy particles around muzzle
+- **UV Scrolling:** Body texture scrolls for flow animation
+- **Spark Particles:** Sparks emit from impact point
+
+### 15.2 TaperCurves
+
+**File:** `Common/Systems/VFX/Core/TaperCurves.cs`
+
+Width tapering functions for beams, trails, and effects:
+
+```csharp
+// Basic taper functions (progress 0→1)
+float width = TaperCurves.Linear(progress) * baseWidth;      // Constant
+float width = TaperCurves.EaseOut(progress) * baseWidth;     // Fast start, slow end
+float width = TaperCurves.EaseIn(progress) * baseWidth;      // Slow start, fast end
+float width = TaperCurves.SmoothStep(progress) * baseWidth;  // S-curve
+float width = TaperCurves.Exponential(progress, 2f) * baseWidth; // Power curve
+float width = TaperCurves.Bulge(progress, 0.5f) * baseWidth; // Thick middle
+float width = TaperCurves.Wave(progress, 3) * baseWidth;     // Sinusoidal ripples
+float width = TaperCurves.BezierTaper(progress, 1f, 1.2f, 0.8f, 0f) * baseWidth; // Custom curve
+
+// FargosSoulsDLC-style InverseLerpBump (peaks in middle)
+float opacity = TaperCurves.InverseLerpBump(0.02f, 0.15f, 0.85f, 0.98f, progress);
+
+// Dynamic modulation
+float modulated = TaperCurves.ApplyPulse(width, time, amplitude: 0.1f, frequency: 5f);
+float jittered = TaperCurves.ApplyJitter(width, Main.rand, intensity: 0.05f);
+
+// Use preset via enum
+Func<float, float> taper = TaperCurves.GetTaperFunction(TaperType.EaseOut);
+```
+
+**TaperType Enum:**
+`Linear`, `EaseIn`, `EaseOut`, `SmoothStep`, `Exponential`, `Bulge`, `Wave`, `InverseLerpBump`
+
+### 15.3 GlowRenderer
+
+**File:** `Common/Systems/VFX/Bloom/GlowRenderer.cs`
+
+Multi-layer glow system with predefined profiles:
+
+```csharp
+// Basic multi-layer glow
+GlowRenderer.DrawLayeredGlow(
+    spriteBatch,
+    texture,
+    position,
+    baseColor,
+    scale: 1f,
+    GlowRenderer.SoftProfile  // Predefined layer configuration
+);
+
+// Theme-specific glow effects
+GlowRenderer.DrawLaCampanellaGlow(spriteBatch, texture, position, scale, intensity);
+GlowRenderer.DrawEroicaGlow(spriteBatch, texture, position, scale, intensity);
+GlowRenderer.DrawFateGlow(spriteBatch, texture, position, scale, intensity);
+GlowRenderer.DrawMoonlightGlow(spriteBatch, texture, position, scale, intensity);
+GlowRenderer.DrawSwanLakeGlow(spriteBatch, texture, position, scale, intensity);
+GlowRenderer.DrawEnigmaGlow(spriteBatch, texture, position, scale, intensity);
+
+// Animated glow variants
+GlowRenderer.DrawPulsingGlow(spriteBatch, texture, position, color, scale, time);
+GlowRenderer.DrawChargeGlow(spriteBatch, texture, position, color, scale, progress); // 0→1 charge
+GlowRenderer.DrawFadingGlow(spriteBatch, texture, position, color, scale, progress); // Fade out
+GlowRenderer.DrawImpactGlow(spriteBatch, texture, position, color, scale, progress); // Expand + fade
+```
+
+**Predefined Profiles:**
+| Profile | Layers | Use Case |
+|---------|--------|----------|
+| `SoftProfile` | 4 layers, wide spread | Ambient glows, magic effects |
+| `SharpProfile` | 4 layers, tight core | Bright points, stars |
+| `EnergyBeamProfile` | 6 layers, elongated | Laser/beam centers |
+| `ExplosionProfile` | 5 layers, rapid falloff | Impact explosions |
+| `CosmicProfile` | 5 layers, deep colors | Fate/celestial effects |
+| `InfernalProfile` | 5 layers, warm tints | La Campanella fire effects |
+| `HeroicProfile` | 5 layers, gold tints | Eroica triumphant effects |
+
+### 15.4 ImpactEffectManager
+
+**File:** `Common/Systems/VFX/Effects/ImpactEffectManager.cs`
+
+Choreographed multi-stage impact effects:
+
+```csharp
+// Spawn a basic impact effect
+ImpactEffectManager.SpawnImpact(position, color, intensity: 1.5f);
+
+// Spawn themed impacts
+ImpactEffectManager.SpawnLaCampanellaImpact(position, intensity);
+ImpactEffectManager.SpawnEroicaImpact(position, intensity);
+ImpactEffectManager.SpawnFateImpact(position, intensity);
+ImpactEffectManager.SpawnMoonlightImpact(position, intensity);
+ImpactEffectManager.SpawnSwanLakeImpact(position, intensity);
+ImpactEffectManager.SpawnEnigmaImpact(position, intensity);
+
+// Custom impact configuration
+var impact = new ImpactEffect(position, color, intensity)
+{
+    ShockwaveSpeed = 200f,
+    ShockwaveRings = 3,
+    SparkCount = 20,
+    DebrisCount = 15,
+    SmokeCount = 10,
+    ScreenShakeIntensity = 5f
+};
+ImpactEffectManager.AddEffect(impact);
+```
+
+**Impact Stages (Timeline):**
+| Stage | Frames | Description |
+|-------|--------|-------------|
+| Anticipation | 0-5 | Converging particles, energy buildup |
+| Impact | 5-10 | Flash, core explosion |
+| Shockwave | 10-20 | Expanding ring |
+| Debris | 20-60 | Sparks, fragments settling |
+| Aftermath | 60+ | Smoke dissipation |
+
+### 15.5 ScreenShakeManager
+
+**File:** `Common/Systems/VFX/Effects/ScreenShakeManager.cs`
+
+Camera shake system with trauma accumulation:
+
+```csharp
+// Basic shake
+ScreenShakeManager.Instance.AddShake(intensity: 10f, duration: 30);
+
+// Impact shake (sharp attack, quick decay)
+ScreenShakeManager.Instance.AddImpactShake(position, intensity: 15f);
+
+// Explosion shake (builds then decays)
+ScreenShakeManager.Instance.AddExplosionShake(position, intensity: 20f, radius: 500f);
+
+// Directional shake (pushes camera in direction)
+ScreenShakeManager.Instance.AddDirectionalShake(direction, intensity: 8f, duration: 20);
+
+// Continuous rumble
+ScreenShakeManager.Instance.AddRumbleShake(intensity: 3f, duration: 120);
+
+// Trauma system (accumulates and affects intensity)
+ScreenShakeManager.Instance.AddTrauma(0.3f);  // 0-1 scale
+
+// Get current shake offset (apply in ModifyTransformMatrix)
+Vector2 offset = ScreenShakeManager.Instance.GetOffset();
+```
+
+**Decay Curves:**
+`Linear`, `Exponential`, `EaseIn`, `EaseOut`, `Bounce`
+
+### 15.6 TileDustSpawner
+
+**File:** `Common/Systems/VFX/Effects/TileDustSpawner.cs`
+
+Material-based dust/debris interaction system:
+
+```csharp
+// Spawn impact dust at world position (auto-detects material)
+TileDustSpawner.SpawnImpactDust(worldPosition, velocity, count: 8);
+
+// Spawn trail dust (for moving projectiles)
+TileDustSpawner.SpawnTrailDust(worldPosition, velocity, interval: 3);
+
+// Spawn beam trail (for laser effects hitting surfaces)
+TileDustSpawner.SpawnBeamTrailDust(worldPosition, beamDirection, intensity: 0.5f);
+
+// Spawn destruction debris (for breaking tiles)
+TileDustSpawner.SpawnDestructionDebris(worldPosition, count: 20);
+
+// Tile raycast (find collision point)
+if (TileDustSpawner.TileRaycast(start, end, out Vector2 hitPoint, out Vector2 hitNormal, out Tile hitTile))
+{
+    // Hit detected
+    TileDustSpawner.SpawnImpactDust(hitPoint, -hitNormal * 5f, 12);
+}
+
+// Get material type for a tile
+MaterialType material = TileDustSpawner.GetMaterialType(tile);
+```
+
+**Material Types (14):**
+| Material | Special Effects |
+|----------|----------------|
+| `Stone` | Gray dust, rock fragments |
+| `Dirt` | Brown dust, soil particles |
+| `Wood` | Wood splinters, sawdust |
+| `Metal` | Sparks, metallic particles |
+| `Ice` | Ice mist, crystal shards |
+| `Flesh` | Red particles |
+| `Crystal` | Shimmer sparkles |
+| `Sand` | Sandy particles |
+| `Glass` | Glass shards |
+| `Corruption` | Evil purple dust |
+| `Crimson` | Crimson red dust |
+| `Hallow` | Sparkle effects |
+| `Jungle` | Green particles |
+| `Lava` | Ember particles |
+
+---
+
+## 16. Optimization Systems (Part 4 Continued)
+
+### 16.1 LODManager (Level of Detail)
+
+**File:** `Common/Systems/VFX/Optimization/LODManager.cs`
+
+Distance-based LOD system for automatic detail scaling:
+
+```csharp
+// Get LOD level based on camera distance
+LODLevel level = LODManager.GetLODLevel(worldPosition);
+
+// LOD levels and their distance thresholds
+public enum LODLevel
+{
+    High,     // 0-400 pixels: Full quality
+    Medium,   // 400-800 pixels: Reduced quality
+    Low,      // 800-1200 pixels: Minimal quality
+    VeryLow,  // 1200-1600 pixels: Bare minimum
+    Culled    // 1600+ pixels: Don't render
+}
+
+// Get quality multipliers
+float quality = LODManager.GetQualityMultiplier(level);  // 1.0, 0.6, 0.3, 0.1
+int updateFreq = LODManager.GetUpdateFrequency(level);   // 1, 2, 4, 8 frames
+int segments = LODManager.GetSegmentCount(level, 20);    // Scales beam segments
+int particles = LODManager.GetParticleCount(level, 50);  // Scales particle counts
+
+// Blend between LOD levels for smooth transitions
+float blend = LODManager.GetLODBlendFactor(worldPosition);
+```
+
+### 16.2 LODBeamRenderer
+
+**File:** `Common/Systems/VFX/Optimization/LODBeamRenderer.cs`
+
+LOD-aware beam rendering with automatic detail adjustment:
+
+```csharp
+// Create LOD-aware beam configuration
+var config = BeamLODConfig.High;  // Preset configs: High, Medium, Low, VeryLow
+
+// Or create custom config
+var config = new BeamLODConfig
+{
+    SegmentCount = 20,
+    ParticleCount = 50,
+    GlowLayers = 4,
+    ShaderQuality = 1.0f
+};
+
+// Draw LOD-aware beam
+LODBeamRenderer.DrawBeamWithLOD(
+    spriteBatch: Main.spriteBatch,
+    start: startPosition,
+    end: endPosition,
+    width: 30f,
+    color: Color.Cyan,
+    glowTexture: glowTex
+);
+
+// Access config presets
+BeamLODConfig highConfig = BeamLODConfig.High;   // 20 segments, 50 particles, 4 glow layers
+BeamLODConfig medConfig = BeamLODConfig.Medium;  // 12 segments, 25 particles, 3 glow layers
+BeamLODConfig lowConfig = BeamLODConfig.Low;     // 6 segments, 10 particles, 2 glow layers
+```
+
+### 16.3 AdaptiveLODSystem
+
+**File:** `Common/Systems/VFX/Optimization/AdaptiveLODSystem.cs`
+
+ModSystem that manages update frequency for registered objects:
+
+```csharp
+// Implement ILODUpdatable on your VFX object
+public class MyBeamEffect : ILODUpdatable
+{
+    public void Update() { /* Update logic */ }
+    public Vector2 GetPosition() => position;
+    public bool NeedsUpdateWhenInvisible() => false;
+}
+
+// Register objects for automatic LOD-based updates
+AdaptiveLODSystem.Register(myEffect);
+
+// Statistics
+int registeredCount = AdaptiveLODSystem.RegisteredCount;
+int updatedThisFrame = AdaptiveLODSystem.UpdatedThisFrame;
+int skippedThisFrame = AdaptiveLODSystem.SkippedThisFrame;
+```
+
+### 16.4 TextureAtlas
+
+**File:** `Common/Systems/VFX/Optimization/TextureAtlas.cs`
+
+Texture atlas for batch rendering optimization:
+
+```csharp
+// Build atlas from multiple textures
+var builder = new AtlasBuilder();
+builder.AddTexture("Glow", glowTexture);
+builder.AddTexture("Spark", sparkTexture);
+builder.AddTexture("Flare", flareTexture);
+TextureAtlas atlas = builder.Build(graphicsDevice);
+
+// Use atlas for batched drawing
+atlas.Draw(
+    spriteBatch,
+    regionName: "Glow",
+    position: drawPosition,
+    color: Color.White,
+    rotation: 0f,
+    scale: Vector2.One
+);
+
+// Get UV region for custom rendering
+Rectangle region = atlas.GetRegion("Spark");
+```
+
+### 16.5 BatchedParticleRenderer
+
+**File:** `Common/Systems/VFX/Optimization/BatchedParticleRenderer.cs`
+
+Queue-based particle batching with single draw call:
+
+```csharp
+// Create batched renderer with atlas
+var renderer = new BatchedParticleRenderer(atlas);
+
+// Queue particles (no draw call yet)
+renderer.Queue("Glow", position, color, rotation, scale);
+renderer.Queue("Spark", position2, color2);
+
+// Burst helper (queues multiple particles)
+renderer.QueueBurst("Glow", center, 20, radius, color);
+
+// Line helper (particles along a line)
+renderer.QueueLine("Spark", start, end, 10, color);
+
+// Flush all queued particles in one draw call
+renderer.Flush(Main.spriteBatch);
+
+// State-sorted renderer (minimizes state changes)
+var sortedRenderer = new StateSortedRenderer();
+sortedRenderer.Queue(texture1, position1, color1, BlendState.Additive);
+sortedRenderer.Queue(texture2, position2, color2, BlendState.Additive);
+sortedRenderer.Queue(texture3, position3, color3, BlendState.AlphaBlend);
+sortedRenderer.Flush(Main.spriteBatch);  // Groups by blend state automatically
+```
+
+### 16.6 VertexBufferPool
+
+**File:** `Common/Systems/VFX/Optimization/VertexBufferPool.cs`
+
+Reusable vertex buffer pool to minimize GPU allocations:
+
+```csharp
+// Create pool for specific vertex type
+var pool = new VertexBufferPool<VertexPositionColorTexture>(
+    graphicsDevice,
+    initialCapacity: 1024,
+    maxCapacity: 10000
+);
+
+// Rent buffer (returns to pool when done)
+var buffer = pool.Rent(vertexCount);
+
+// Use the buffer
+buffer.SetData(vertices);
+graphicsDevice.SetVertexBuffer(buffer);
+graphicsDevice.DrawPrimitives(PrimitiveType.TriangleStrip, 0, vertexCount - 2);
+
+// Return to pool
+pool.Return(buffer);
+
+// Ring buffer for streaming data (zero-allocation updates)
+var ringBuffer = new RingVertexBuffer<VertexPositionColorTexture>(graphicsDevice, 4096);
+
+// Write vertices with automatic wrap-around
+int startVertex = ringBuffer.Write(vertices, vertexCount);
+
+// Draw from ring buffer
+graphicsDevice.SetVertexBuffer(ringBuffer.Buffer);
+graphicsDevice.DrawPrimitives(PrimitiveType.TriangleStrip, startVertex, vertexCount - 2);
+
+// Cleanup
+pool.TrimExcess();  // Return unused buffers to GC
+pool.Dispose();
+```
+
+### 16.7 AdaptiveQualityManager
+
+**File:** `Common/Systems/VFX/Optimization/AdaptiveQualityManager.cs`
+
+ModSystem that auto-adjusts VFX quality based on frame rate:
+
+```csharp
+// Quality levels
+public enum VFXQuality { Ultra, High, Medium, Low, Potato }
+
+// Get current quality level
+VFXQuality level = AdaptiveQualityManager.CurrentQuality;
+
+// Quality-adjusted values
+int maxParticles = AdaptiveQualityManager.MaxParticles;  // 2000→100 based on quality
+int bloomLayers = AdaptiveQualityManager.BloomLayers;    // 5→1 based on quality
+float particleQuality = AdaptiveQualityManager.ParticleQuality;  // 1.0→0.1
+
+// Feature toggles (automatically adjusted)
+bool enableGlow = AdaptiveQualityManager.EnableGlow;
+bool enableShaders = AdaptiveQualityManager.EnableShaders;
+bool enableTrails = AdaptiveQualityManager.EnableTrails;
+bool enableScreenEffects = AdaptiveQualityManager.EnableScreenEffects;
+
+// Frame rate thresholds (configurable)
+// Ultra: 58+ FPS
+// High: 50-58 FPS
+// Medium: 40-50 FPS
+// Low: 30-40 FPS
+// Potato: <30 FPS
+
+// Force a quality level (overrides automatic)
+AdaptiveQualityManager.ForceQuality(VFXQuality.High);
+AdaptiveQualityManager.ClearForce();  // Resume automatic
+
+// Debug info
+float fps = AdaptiveQualityManager.CurrentFPS;
+float avgFrameTime = AdaptiveQualityManager.AverageFrameTime;
+```
+
+### 16.8 ConditionalEffectRenderer
+
+**File:** `Common/Systems/VFX/Optimization/ConditionalEffectRenderer.cs`
+
+Conditional effect rendering based on quality and visibility:
+
+```csharp
+// Check if effects should render
+bool shouldGlow = ConditionalEffectRenderer.ShouldRenderGlow();
+bool shouldSpawnParticles = ConditionalEffectRenderer.ShouldSpawnParticles(worldPosition);
+bool shouldBloom = ConditionalEffectRenderer.ShouldApplyBloom();
+bool shouldShaders = ConditionalEffectRenderer.ShouldUseShaders();
+bool shouldDistortion = ConditionalEffectRenderer.ShouldApplyDistortion();
+
+// Get quality-adjusted counts
+int bloomLayers = ConditionalEffectRenderer.GetBloomLayers();  // 1-5 based on quality
+int particleCount = ConditionalEffectRenderer.GetAdjustedParticleCount(worldPos, baseCount);
+
+// Get quality-adjusted scale/opacity
+float adjustedScale = ConditionalEffectRenderer.GetAdjustedGlowScale(1.0f);
+float adjustedOpacity = ConditionalEffectRenderer.GetAdjustedGlowOpacity(1.0f);
+
+// Force toggles for testing
+ConditionalEffectRenderer.ForceDisableGlow = true;
+ConditionalEffectRenderer.ForceDisableParticles = true;
+ConditionalEffectRenderer.ForceDisableBloom = true;
+```
+
+### 16.9 PerformanceProfiler
+
+**File:** `Common/Systems/VFX/Optimization/PerformanceProfiler.cs`
+
+Custom profiler for identifying VFX bottlenecks:
+
+```csharp
+// Basic timing
+PerformanceProfiler.BeginSample("TrailRendering");
+// ... do work ...
+PerformanceProfiler.EndSample("TrailRendering");
+
+// Using pattern (auto-ends on dispose)
+using (new ProfileScope("ParticleUpdate"))
+{
+    // ... work automatically timed ...
+}
+
+// Get statistics
+var stats = PerformanceProfiler.GetStatistics("TrailRendering");
+double avgMs = stats.AverageMs;
+double minMs = stats.MinMs;
+double maxMs = stats.MaxMs;
+int callCount = stats.CallCount;
+double totalMs = stats.TotalMs;
+
+// Memory profiling
+MemoryProfiler.BeginSample("ParticleSystem");
+// ... allocations ...
+MemoryProfiler.EndSample("ParticleSystem");
+long allocated = MemoryProfiler.GetAllocated("ParticleSystem");
+
+// GC monitoring
+int gcCount = MemoryProfiler.GetGCCount();
+long totalMemory = MemoryProfiler.GetTotalMemory();
+
+// Report all statistics
+PerformanceProfiler.ReportAll();  // Logs to console
+MemoryProfiler.ReportAll();
+
+// Reset for fresh measurements
+PerformanceProfiler.Reset();
+MemoryProfiler.Reset();
+```
+
+### 16.10 Optimization Best Practices
+
+**LOD Guidelines:**
+```csharp
+// Use LOD for ALL distance-based effects
+Vector2 pos = myEffect.Position;
+LODLevel lod = LODManager.GetLODLevel(pos);
+
+if (lod == LODLevel.Culled)
+    return;  // Don't render
+
+int particles = LODManager.GetParticleCount(lod, baseCount);
+int segments = LODManager.GetSegmentCount(lod, baseSegments);
+```
+
+**Batching Guidelines:**
+```csharp
+// Group draws by texture/state
+var renderer = new BatchedParticleRenderer(atlas);
+foreach (var particle in particles)
+    renderer.Queue(particle.Type, particle.Position, particle.Color);
+renderer.Flush(spriteBatch);  // Single draw call
+```
+
+**Profiling Guidelines:**
+```csharp
+// Profile hot paths
+using (new ProfileScope("HotPath"))
+{
+    ExpensiveOperation();
+}
+
+// Check for problems
+if (PerformanceProfiler.GetStatistics("HotPath").AverageMs > 2.0)
+    Debug.Log("Performance warning: HotPath taking too long");
+```
+
+---
+
+*Last Updated: VFX Parts 3.1-3.7 + Part 4 Optimization Implementation Complete*

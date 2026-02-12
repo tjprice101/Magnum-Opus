@@ -132,7 +132,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             SpectacularMeleeSwing.OnSwing(player, hitbox, NachtmusikCosmicVFX.DeepPurple, NachtmusikCosmicVFX.Gold, 
                 SpectacularMeleeSwing.SwingTier.Ultimate, SpectacularMeleeSwing.WeaponTheme.Nachtmusik);
             
-            // === IRIDESCENT WINGSPAN-STYLE HEAVY DUST TRAILS ===
+            // === CALAMITY-STANDARD HEAVY DUST TRAILS ===
             // Heavy purple dust trail #1
             float trailProgress1 = Main.rand.NextFloat();
             Color purpleGradient = Color.Lerp(NachtmusikCosmicVFX.DeepPurple, NachtmusikCosmicVFX.NightBlue, trailProgress1);

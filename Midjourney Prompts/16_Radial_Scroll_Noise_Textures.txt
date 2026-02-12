@@ -1,0 +1,464 @@
+# Noise Texture Prompts for Radial Scroll VFX
+
+> **PURPOSE**: Midjourney prompts for generating seamless tileable noise textures optimized for radial scroll shaders and theme-specific VFX effects.
+>
+> **REQUIREMENTS**: All textures must be:
+> - **Seamlessly tileable** (edges wrap perfectly)
+> - **Grayscale or single-channel RGB** (shader tints colors)
+> - **512x512 or 1024x1024 resolution**
+> - **PNG format with no compression artifacts**
+
+---
+
+## 📐 RADIAL SCROLL NOISE TEXTURES
+
+These textures work specifically with the RadialScrollSystem and polar coordinate shaders.
+
+### Universal Radial Flow Noise
+
+```
+seamless tileable grayscale noise texture, flowing organic caustic patterns, 
+smooth gradients with soft edges, designed for radial UV mapping, 
+subtle swirling currents like water caustics, no harsh edges, 
+512x512 texture map, game asset, --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+### Soft Circular Caustics
+
+```
+seamless tileable caustic light pattern, soft underwater light refraction, 
+organic flowing shapes with smooth transitions, grayscale noise map, 
+radial symmetry hints but not perfect circles, 512x512 game texture, 
+VFX shader input, --v 6.1 --ar 1:1 --style raw --s 50
+```
+
+### Energy Plasma Flow
+
+```
+seamless tileable plasma energy texture, electric flowing currents, 
+grayscale energy map with bright cores and dark edges, organic veins pattern, 
+designed for radial scroll effects, game VFX asset, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 75
+```
+
+### Vortex Spiral Pattern
+
+```
+seamless tileable spiral vortex pattern, grayscale whirlpool texture, 
+organic swirling motion frozen in time, smooth gradient transitions, 
+portal energy texture map, 512x512, game shader asset, 
+--v 6.1 --ar 1:1 --style raw --s 50
+```
+
+---
+
+## 🔥 LA CAMPANELLA THEME (Fire/Infernal)
+
+Black → Orange → Gold color scheme. Bell tower, flames, infernal energy.
+
+### Infernal Smoke Noise
+
+```
+seamless tileable smoke noise texture, billowing dark smoke patterns, 
+heavy turbulent flow, grayscale with strong value contrast, 
+volcanic smoke and ash, dense atmospheric, 512x512 game texture, 
+--v 6.1 --ar 1:1 --style raw --s 50
+```
+
+### Fire Flicker Noise
+
+```
+seamless tileable fire flicker pattern, flame turbulence noise, 
+organic upward flowing motion, grayscale fire texture map, 
+hot embers and burning edges, game VFX shader input, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 75
+```
+
+### Molten Metal Flow
+
+```
+seamless tileable molten metal texture, flowing liquid metal pattern, 
+bright cores fading to dark edges, organic branching veins, 
+grayscale lava flow map, volcanic energy, 512x512 game asset, 
+--v 6.1 --ar 1:1 --style raw --s 50
+```
+
+### Bell Resonance Waves
+
+```
+seamless tileable circular wave pattern, concentric ripples with organic distortion, 
+sound wave visualization, grayscale interference pattern, 
+bell vibration rings, smooth gradient transitions, 512x512 texture, 
+--v 6.1 --ar 1:1 --style raw --s 50
+```
+
+---
+
+## ⚔️ EROICA THEME (Heroic/Triumphant)
+
+Scarlet → Crimson → Gold color scheme. Heroic energy, sakura petals, valor.
+
+### Heroic Energy Flow
+
+```
+seamless tileable energy flow texture, powerful rising currents, 
+ascending motion pattern, grayscale power surge, 
+triumphant energy waves, game VFX shader map, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 50
+```
+
+### Sakura Petal Scatter
+
+```
+seamless tileable abstract petal pattern, organic scattered shapes, 
+soft floating particles, grayscale flower petal distribution, 
+gentle breeze motion, game particle texture, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 50
+```
+
+### Valor Aura Glow
+
+```
+seamless tileable radiant glow texture, powerful emanating light, 
+soft bright cores with gradual falloff, grayscale aura map, 
+heroic power visualization, game VFX asset, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+## 🌙 MOONLIGHT SONATA THEME (Lunar/Ethereal)
+
+Purple → Violet → Ice Blue color scheme. Moon, night, ethereal calm.
+
+### Lunar Mist Noise
+
+```
+seamless tileable ethereal mist texture, soft flowing fog pattern, 
+gentle moonlit haze, grayscale atmospheric noise, 
+subtle gradient transitions, dreamy night fog, 512x512 game texture, 
+--v 6.1 --ar 1:1 --style raw --s 25
+```
+
+### Starlight Sparkle Pattern
+
+```
+seamless tileable star sparkle texture, scattered point lights, 
+twinkling distant stars, grayscale night sky pattern, 
+small bright dots on dark background, game VFX map, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 50
+```
+
+### Lunar Halo Rings
+
+```
+seamless tileable soft ring pattern, lunar halo effect, 
+gentle concentric glows, grayscale moon ring texture, 
+ethereal light diffusion, game shader input, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 25
+```
+
+### Night Water Ripples
+
+```
+seamless tileable water ripple texture, gentle moonlit lake surface, 
+soft circular waves, grayscale reflection pattern, 
+peaceful water motion, game VFX texture, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 25
+```
+
+---
+
+## 🦢 SWAN LAKE THEME (Elegant/Monochrome)
+
+White → Gray → Black with rainbow shimmer. Ballet grace, feathers, reflection.
+
+### Feather Softness Pattern
+
+```
+seamless tileable feather texture pattern, soft organic barbs, 
+delicate flowing filaments, grayscale downy feather structure, 
+elegant bird plumage detail, game texture map, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 25
+```
+
+### Ballet Silk Flow
+
+```
+seamless tileable flowing silk texture, elegant fabric motion, 
+soft draping curves, grayscale ribbon flow pattern, 
+graceful dance motion frozen, game VFX asset, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 25
+```
+
+### Lake Reflection Shimmer
+
+```
+seamless tileable water shimmer texture, gentle lake surface, 
+prismatic light scatter hints, grayscale reflection noise, 
+peaceful mirror surface, game shader input, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 25
+```
+
+### Monochrome Gradient Flow
+
+```
+seamless tileable gradient noise, smooth flowing grayscale values, 
+organic transitions from light to dark, minimal harsh edges, 
+elegant value distribution, game VFX texture, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 25
+```
+
+---
+
+## 🕷️ ENIGMA VARIATIONS THEME (Mystery/Void)
+
+Black → Purple → Green color scheme. Mystery, watching eyes, arcane symbols.
+
+### Void Distortion Noise
+
+```
+seamless tileable void distortion texture, reality warping pattern, 
+dark mysterious swirls, grayscale dimensional rift, 
+eldritch void energy, game VFX shader map, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 75
+```
+
+### Arcane Glyph Scatter
+
+```
+seamless tileable abstract symbol pattern, scattered arcane shapes, 
+mysterious rune-like marks, grayscale occult texture, 
+magical inscription distribution, game asset, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 50
+```
+
+### Watching Eye Pattern
+
+```
+seamless tileable abstract eye pattern, scattered organic circles, 
+iris-like shapes with dark centers, grayscale surveillance texture, 
+mysterious watching pattern, game VFX map, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 75
+```
+
+### Mystery Smoke Tendrils
+
+```
+seamless tileable tendril smoke texture, reaching organic wisps, 
+dark mysterious flowing shapes, grayscale eldritch mist, 
+creeping shadow pattern, game shader input, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 50
+```
+
+---
+
+## ⭐ FATE THEME (Cosmic/Celestial)
+
+Black → Pink → Red with white stars. Destiny, cosmos, reality manipulation.
+
+### Cosmic Nebula Clouds
+
+```
+seamless tileable nebula cloud texture, cosmic gas clouds, 
+swirling space dust pattern, grayscale galaxy formation, 
+celestial cloud structure, game VFX texture, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 50
+```
+
+### Star Field Scatter
+
+```
+seamless tileable star field texture, scattered celestial points, 
+varying star sizes and brightness, grayscale constellation pattern, 
+deep space background, game shader map, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 50
+```
+
+### Destiny Thread Pattern
+
+```
+seamless tileable thread pattern texture, connecting lines and nodes, 
+fate web structure, grayscale string of destiny, 
+interconnected paths pattern, game VFX asset, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 50
+```
+
+### Reality Crack Pattern
+
+```
+seamless tileable fracture pattern, reality crack texture, 
+broken dimensional fabric, grayscale shattered space, 
+cosmic rift damage map, game shader input, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 75
+```
+
+### Cosmic Energy Vortex
+
+```
+seamless tileable cosmic vortex texture, swirling celestial energy, 
+spiral galaxy pattern, grayscale cosmic power, 
+dimensional portal core, game VFX map, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 75
+```
+
+---
+
+## 🎵 MUSIC NOTE THEMES (Universal)
+
+For music-themed effects across all palettes.
+
+### Musical Wave Pattern
+
+```
+seamless tileable sound wave texture, audio waveform pattern, 
+rhythmic oscillation visualization, grayscale music frequency, 
+harmonic wave motion, game VFX texture, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 50
+```
+
+### Staff Line Flow
+
+```
+seamless tileable flowing line pattern, parallel curved lines, 
+musical staff abstraction, grayscale notation background, 
+melodic flow visualization, game shader map, 512x512, 
+--v 6.1 --ar 1:1 --style raw --s 25
+```
+
+---
+
+## 🎯 GRADIENT LUT TEXTURES (1D Lookup Tables)
+
+Horizontal gradient textures for theme color mapping.
+
+### La Campanella Gradient LUT
+
+```
+horizontal gradient texture, left to right color transition, 
+deep black to ember orange to bright gold, 
+smooth color ramp, 256x16 pixels, game color lookup table, 
+--v 6.1 --ar 16:1 --style raw --s 25
+```
+
+### Eroica Gradient LUT
+
+```
+horizontal gradient texture, left to right color transition, 
+deep scarlet to crimson to bright gold, 
+smooth heroic color ramp, 256x16 pixels, game LUT, 
+--v 6.1 --ar 16:1 --style raw --s 25
+```
+
+### Moonlight Sonata Gradient LUT
+
+```
+horizontal gradient texture, left to right color transition, 
+deep purple to violet to ice blue, 
+smooth lunar color ramp, 256x16 pixels, game LUT, 
+--v 6.1 --ar 16:1 --style raw --s 25
+```
+
+### Swan Lake Gradient LUT
+
+```
+horizontal gradient texture, left to right color transition, 
+pure white through grays to deep black, 
+elegant monochrome ramp, 256x16 pixels, game LUT, 
+--v 6.1 --ar 16:1 --style raw --s 25
+```
+
+### Enigma Gradient LUT
+
+```
+horizontal gradient texture, left to right color transition, 
+void black to deep purple to eerie green, 
+mysterious color ramp, 256x16 pixels, game LUT, 
+--v 6.1 --ar 16:1 --style raw --s 25
+```
+
+### Fate Gradient LUT
+
+```
+horizontal gradient texture, left to right color transition, 
+cosmic black to hot pink to crimson red with white highlights, 
+celestial color ramp, 256x16 pixels, game LUT, 
+--v 6.1 --ar 16:1 --style raw --s 25
+```
+
+---
+
+## 📋 TEXTURE NAMING CONVENTIONS
+
+When saving generated textures, use these naming patterns:
+
+### Noise Textures
+- `RadialFlowNoise.png` - Universal radial scroll
+- `CausticNoise.png` - Water caustics
+- `PlasmaFlowNoise.png` - Energy effects
+- `VortexSpiralNoise.png` - Portal effects
+
+### Theme-Specific
+- `LaCampanella_SmokeNoise.png`
+- `LaCampanella_FireNoise.png`
+- `Eroica_EnergyNoise.png`
+- `MoonlightSonata_MistNoise.png`
+- `SwanLake_FeatherNoise.png`
+- `Enigma_VoidNoise.png`
+- `Fate_CosmicNoise.png`
+
+### Gradient LUTs
+- `LaCampanella_GradientLUT.png`
+- `Eroica_GradientLUT.png`
+- `MoonlightSonata_GradientLUT.png`
+- `SwanLake_GradientLUT.png`
+- `Enigma_GradientLUT.png`
+- `Fate_GradientLUT.png`
+
+---
+
+## 🔧 POST-PROCESSING TIPS
+
+After generating textures in Midjourney:
+
+1. **Check seamless tiling**: Open in image editor, offset 50% both axes, fix any visible seams
+2. **Convert to grayscale**: Use desaturation or channel mixer for consistent values
+3. **Adjust contrast**: Ensure full value range (0-255) for maximum shader control
+4. **Resize if needed**: 512x512 is standard, 1024x1024 for high-detail effects
+5. **Save as PNG**: No compression artifacts, preserve value precision
+
+---
+
+## 📁 FILE DESTINATIONS
+
+Save generated textures to:
+
+```
+MagnumOpus/
+├── Assets/
+│   └── VFX/
+│       ├── Noise/
+│       │   ├── RadialFlowNoise.png
+│       │   ├── CausticNoise.png
+│       │   ├── PlasmaFlowNoise.png
+│       │   ├── VortexSpiralNoise.png
+│       │   ├── LaCampanella_SmokeNoise.png
+│       │   ├── LaCampanella_FireNoise.png
+│       │   ├── Eroica_EnergyNoise.png
+│       │   ├── MoonlightSonata_MistNoise.png
+│       │   ├── SwanLake_FeatherNoise.png
+│       │   ├── Enigma_VoidNoise.png
+│       │   ├── Fate_CosmicNoise.png
+│       │   └── ...
+│       └── LUT/
+│           ├── LaCampanella_GradientLUT.png
+│           ├── Eroica_GradientLUT.png
+│           ├── MoonlightSonata_GradientLUT.png
+│           ├── SwanLake_GradientLUT.png
+│           ├── Enigma_GradientLUT.png
+│           └── Fate_GradientLUT.png
+```
+
+---
+
+*Last Updated: Radial Scroll VFX Implementation*

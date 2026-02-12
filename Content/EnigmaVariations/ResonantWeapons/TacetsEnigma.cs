@@ -241,7 +241,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
             
-            // === IRIDESCENT WINGSPAN-STYLE RADIANT TRAIL EFFECTS ===
+            // === CALAMITY-STANDARD RADIANT TRAIL EFFECTS ===
             // Heavy dust trails (2+ per frame) - void bullet stream
             for (int d = 0; d < 2; d++)
             {
@@ -468,7 +468,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
             
-            // === IRIDESCENT WINGSPAN-STYLE RADIANT TRAIL EFFECTS (Enhanced for Paradox Bolt) ===
+            // === CALAMITY-STANDARD RADIANT TRAIL EFFECTS (Enhanced for Paradox Bolt) ===
             // Heavy dust trails (3 per frame for enhanced bolt) - void paradox stream
             for (int d = 0; d < 3; d++)
             {

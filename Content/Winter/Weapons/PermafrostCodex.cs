@@ -58,7 +58,7 @@ namespace MagnumOpus.Content.Winter.Weapons
 
         public override void HoldItem(Player player)
         {
-            // ========== IRIDESCENT WINGSPAN VFX PATTERN ==========
+            // ========== CALAMITY-STANDARD VFX PATTERN ==========
             // HEAVY DUST TRAILS - 2+ per frame (glacial purple/ice dust)
             for (int d = 0; d < 2; d++)
             {

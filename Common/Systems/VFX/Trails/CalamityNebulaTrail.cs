@@ -626,12 +626,12 @@ namespace MagnumOpus.Common.Systems.VFX
                 _vertices[i * 2] = new VertexPositionColorTexture(
                     new Vector3(topPos.X, topPos.Y, 0),
                     finalColor,
-                    new Vector3(u, 0, 0));
+                    new Vector2(u, 0));
                 
                 _vertices[i * 2 + 1] = new VertexPositionColorTexture(
                     new Vector3(bottomPos.X, bottomPos.Y, 0),
                     finalColor,
-                    new Vector3(u, 1, 0));
+                    new Vector2(u, 1));
             }
             
             // Build triangle indices

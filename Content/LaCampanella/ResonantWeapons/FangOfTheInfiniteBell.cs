@@ -423,7 +423,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 0.6f }, Projectile.Center);
             SoundEngine.PlaySound(SoundID.DD2_BetsyFireballImpact with { Pitch = 0.1f, Volume = 0.4f }, Projectile.Center);
             
-            // === IRIDESCENT WINGSPAN STYLE IMPACT ===
+            // === CALAMITY-STANDARD IMPACT ===
             UnifiedVFX.LaCampanella.Impact(Projectile.Center, 1.2f);
             
             // === MUSIC NOTES BURST! ===
@@ -560,7 +560,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Color campanellaOrange = ThemedParticles.CampanellaOrange;
             Color campanellaGold = ThemedParticles.CampanellaGold;
             
-            // === IRIDESCENT WINGSPAN STYLE - HEAVY DUST TRAILS (2+ per frame) ===
+            // === CALAMITY-STANDARD - HEAVY DUST TRAILS (2+ per frame) ===
             for (int i = 0; i < 2; i++)
             {
                 // Main flame trail - Black to Orange gradient
@@ -664,7 +664,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.1f, Volume = 0.7f }, position);
             SoundEngine.PlaySound(SoundID.Item94 with { Pitch = 0.3f, Volume = 0.4f }, position); // Thunder sound
             
-            // === IRIDESCENT WINGSPAN STYLE - LAYERED IMPACT ===
+            // === CALAMITY-STANDARD - LAYERED IMPACT ===
             // UnifiedVFX handles core impact
             UnifiedVFX.LaCampanella.Impact(position, 1.5f);
             
@@ -799,7 +799,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             Color campanellaGold = ThemedParticles.CampanellaGold;
             Color campanellaBlack = ThemedParticles.CampanellaBlack;
             
-            // === IRIDESCENT WINGSPAN STYLE - GRADIENT TRAIL ===
+            // === CALAMITY-STANDARD - GRADIENT TRAIL ===
             for (int i = Projectile.oldPos.Length - 1; i >= 0; i--)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
@@ -820,7 +820,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 Main.EntitySpriteDraw(texture, drawPos, null, trailColor, trailRotation, origin, trailScale * 0.6f, SpriteEffects.None, 0);
             }
             
-            // === MULTI-LAYER ADDITIVE GLOW (Iridescent Wingspan style) ===
+            // === MULTI-LAYER ADDITIVE GLOW (CALAMITY-STANDARD) ===
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);

@@ -57,7 +57,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
         public override void HoldItem(Player player)
         {
-            // === IRIDESCENT WINGSPAN-STYLE HEAVY DUST TRAILS ===
+            // === CALAMITY-STANDARD HEAVY DUST TRAILS ===
             // Heavy decay dust trail #1
             float trailProgress1 = Main.rand.NextFloat();
             Color purpleGradient = Color.Lerp(DecayPurple, DeathGreen, trailProgress1);

@@ -54,7 +54,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
         public override void HoldItem(Player player)
         {
-            // === IRIDESCENT WINGSPAN-STYLE HEAVY DUST TRAILS ===
+            // === CALAMITY-STANDARD HEAVY DUST TRAILS ===
             // Heavy twilight dust trail #1
             float trailProgress1 = Main.rand.NextFloat();
             Color purpleGradient = Color.Lerp(TwilightPurple, MoonSilver, trailProgress1);
@@ -119,7 +119,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             shotCount++;
             Vector2 direction = velocity.SafeNormalize(Vector2.UnitX);
 
-            // === IRIDESCENT WINGSPAN-STYLE MUZZLE FLASH ===
+            // === CALAMITY-STANDARD MUZZLE FLASH ===
             // Multi-layer flare burst
             CustomParticles.GenericFlare(position, Color.White, 0.55f, 15);
             CustomParticles.GenericFlare(position, TwilightOrange, 0.45f, 18);

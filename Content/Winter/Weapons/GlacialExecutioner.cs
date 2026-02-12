@@ -117,7 +117,7 @@ namespace MagnumOpus.Content.Winter.Weapons
             SpectacularMeleeSwing.OnSwing(player, hitbox, IceBlue, CrystalCyan, 
                 SpectacularMeleeSwing.SwingTier.High, SpectacularMeleeSwing.WeaponTheme.Winter);
             
-            // === IRIDESCENT WINGSPAN-STYLE HEAVY DUST TRAILS ===
+            // === CALAMITY-STANDARD HEAVY DUST TRAILS ===
             // Heavy ice blue dust trail #1
             float trailProgress1 = Main.rand.NextFloat();
             Color iceGradient = Color.Lerp(IceBlue, CrystalCyan, trailProgress1);
@@ -216,7 +216,7 @@ namespace MagnumOpus.Content.Winter.Weapons
             // Always apply Frostburn
             target.AddBuff(BuffID.Frostburn2, 240);
 
-            // === IRIDESCENT WINGSPAN-STYLE GRADIENT HALO RINGS (4 stacked) ===
+            // === CALAMITY-STANDARD GRADIENT HALO RINGS (4 stacked) ===
             CustomParticles.HaloRing(target.Center, DeepBlue, 0.55f, 16);
             CustomParticles.HaloRing(target.Center, IceBlue, 0.45f, 14);
             CustomParticles.HaloRing(target.Center, CrystalCyan, 0.35f, 12);

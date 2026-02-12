@@ -393,12 +393,12 @@ namespace MagnumOpus.Common.Systems.VFX
                     _beamVertices[i * 2] = new VertexPositionColorTexture(
                         new Vector3(topPos.X, topPos.Y, 0),
                         color,
-                        new Vector3(u, 0, 0));
+                        new Vector2(u, 0));
                     
                     _beamVertices[i * 2 + 1] = new VertexPositionColorTexture(
                         new Vector3(bottomPos.X, bottomPos.Y, 0),
                         color,
-                        new Vector3(u, 1, 0));
+                        new Vector2(u, 1));
                 }
                 
                 // Build indices

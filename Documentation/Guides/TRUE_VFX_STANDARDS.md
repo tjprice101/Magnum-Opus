@@ -246,32 +246,41 @@ Color[] fatePalette = MagnumThemePalettes.Fate;     // Black → Pink → Red �
 
 ---
 
-## 🕹️ THE GOLD STANDARD: Iridescent Wingspan
+## 🕹️ THE GOLD STANDARD: Calamity Mod Source Code
 
-**Study this weapon's VFX patterns for inspiration:**
+> **Gold Standard = Calamity Mod Source Code** (Exoblade, Ark of the Cosmos, Galaxia, Photoviscerator, The Oracle, Scarlet Devil)
 
-**Key Patterns (Implement in YOUR weapon):**
+**Study Calamity's source. These weapons are the benchmark, NOT our own production weapons.**
+
+**5 Core Calamity Patterns (Implement in YOUR weapon):**
+- **Multi-Layer Bloom Stack**: `{ A = 0 }` pattern with 4 layers (Outer 0.30, Mid 0.50, Inner 0.70, Core 0.85)
+- **3-Pass Trail Rendering**: `EnhancedTrailRenderer` or `CalamityStyleTrailRenderer` with width taper and color gradient
+- **CurveSegment Piecewise Animation**: Multi-phase swing arcs with PolyIn/PolyOut easing
+- **Sub-Pixel Interpolation**: `InterpolatedRenderer.PartialTicks` for 144Hz+ smoothness
+- **Velocity-Based VFX**: Stretch + spin scaling with speed
+
+**Additional Required Patterns:**
 - Heavy dust trails (2+ particles per frame, scale 1.5f+)
 - Contrasting sparkles (opposite colors for visual pop)
 - Frequent flares (1-in-2 chance, not 1-in-10)
 - Color oscillation (Main.hslToRgb for dynamic hue shifts)
-- Multi-layer PreDraw (4+ glow layers with different scales/rotations)
 - Orbiting music notes (locked to projectile position, scale 0.7f+)
 
 ```csharp
-// Example: Dense dust trail
+// Example: Calamity bloom stack with { A = 0 }
+Color c = baseColor with { A = 0 }; // CRITICAL: remove alpha for additive
+sb.Draw(bloom, pos, null, c * 0.30f, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f); // Outer
+sb.Draw(bloom, pos, null, c * 0.50f, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f); // Mid
+sb.Draw(bloom, pos, null, c * 0.70f, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f); // Inner
+sb.Draw(bloom, pos, null, Color.White with { A = 0 } * 0.85f, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f); // Core
+
+// Example: Dense dust trail (Calamity standard density)
 for (int i = 0; i < 2; i++)
 {
-    Dust d = Dust.NewDustPerfect(Projectile.Center, dustType, vel, 100, color, 1.8f);
+    Dust d = Dust.NewDustPerfect(Projectile.Center, dustType, vel, 0, color, 1.5f);
     d.noGravity = true;
-    d.fadeIn = 1.4f;
+    d.fadeIn = 1.2f; // Fades IN, not out (Calamity pattern)
 }
-
-// Example: Multi-layer bloom in PreDraw
-float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.15f;
-spriteBatch.Draw(tex, pos, null, color * 0.5f, rot, origin, scale * 1.4f * pulse, ...);
-spriteBatch.Draw(tex, pos, null, color * 0.3f, rot, origin, scale * 1.2f * pulse, ...);
-spriteBatch.Draw(tex, pos, null, Color.White, rot, origin, scale * pulse, ...);
 ```
 
-**Every weapon deserves this level of VFX polish.**
+**Every weapon deserves this level of VFX polish. Study Calamity's source for reference.**

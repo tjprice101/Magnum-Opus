@@ -12,7 +12,7 @@
 
 1. [Core Philosophy](#core-philosophy)
 2. [Cardinal Rules](#cardinal-rules)
-3. [The Gold Standard: Iridescent Wingspan](#the-gold-standard)
+3. [The Gold Standard: Calamity Mod Source Code](#the-gold-standard)
 4. [Particle Asset Catalog](#particle-assets)
 5. [Theme Color Palettes](#theme-colors)
 6. [VFX Implementation Patterns](#implementation-patterns)
@@ -82,119 +82,86 @@ CustomParticles.HaloRing(target.Center, color, 0.3f, 12);
 
 ## THE GOLD STANDARD
 
-### Iridescent Wingspan Pattern
+### Calamity Mod Source Code
 
-**STUDY THIS. COPY THIS. THIS IS WHAT GOOD LOOKS LIKE.**
+> **Gold Standard = Calamity Mod Source Code.** Study Exoblade, Ark of the Cosmos, Galaxia, Photoviscerator, The Oracle, and Scarlet Devil.
 
-#### PreDraw: 4+ Layered Spinning Flares
+**STUDY CALAMITY'S SOURCE. THESE WEAPONS ARE THE BENCHMARK, NOT OUR OWN PRODUCTION WEAPONS.**
+
+| Calamity Weapon | Why It Matters | Study For |
+|-----------------|----------------|----------|
+| **Exoblade** | Held-projectile swing, 4-phase combo, `CurveSegment` easing | Melee swing architecture |
+| **Ark of the Cosmos** | Constellation trails, cosmic cloud particles, curved bezier paths | Trail rendering, curved motion |
+| **Galaxia** | Mode-switching combos, per-mode color palettes, sub-projectile spawns | Combo variety, palette systems |
+| **Photoviscerator** | Metaball rendering, multi-pass bloom, `{ A = 0 }` alpha removal | Bloom stacking, additive blending |
+| **The Oracle** | Primitive trail shaders, width/color functions, shader-based rendering | HLSL trails, GPU rendering |
+| **Scarlet Devil** | Afterimage rendering, velocity stretch, spin-based rotation | Motion blur, speed-responsive VFX |
+
+### 5 Core Calamity Patterns
+
+#### 1. Multi-Layer Bloom Stack (`{ A = 0 }` pattern)
 ```csharp
-public override bool PreDraw(ref Color lightColor)
-{
-    Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-    Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-    Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-    
-    float time = Main.GameUpdateCount * 0.05f;
-    float pulse = 1f + (float)Math.Sin(time * 2f) * 0.15f;
-    
-    Main.spriteBatch.End();
-    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, ...);
-    
-    // Layer 1: Soft glow base
-    Main.spriteBatch.Draw(softGlow, drawPos, null, themeColor * 0.3f, 0f, origin, 0.8f * pulse, ...);
-    // Layer 2: Spinning clockwise
-    Main.spriteBatch.Draw(flare1, drawPos, null, themeColor * 0.6f, time, origin, 0.5f * pulse, ...);
-    // Layer 3: Spinning counter-clockwise
-    Main.spriteBatch.Draw(flare2, drawPos, null, secondaryColor * 0.5f, -time * 0.7f, origin, 0.4f * pulse, ...);
-    // Layer 4: White core
-    Main.spriteBatch.Draw(flare1, drawPos, null, Color.White * 0.8f, 0f, origin, 0.2f, ...);
-    
-    Main.spriteBatch.End();
-    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, ...);
-    return false;
-}
+Color c = baseColor with { A = 0 }; // CRITICAL: remove alpha for additive
+sb.Draw(bloom, pos, null, c * 0.30f, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f); // Outer
+sb.Draw(bloom, pos, null, c * 0.50f, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f); // Mid
+sb.Draw(bloom, pos, null, c * 0.70f, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f); // Inner
+sb.Draw(bloom, pos, null, Color.White with { A = 0 } * 0.85f, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f); // Core
 ```
 
-#### AI: Dense Trails + Orbiting Notes
+#### 2. 3-Pass Trail Rendering
 ```csharp
-public override void AI()
-{
-    // DENSE DUST - 2+ every frame!
-    for (int i = 0; i < 2; i++)
-    {
-        Dust d = Dust.NewDustPerfect(Projectile.Center, dustType, vel, 100, color, 1.8f);
-        d.noGravity = true;
-        d.fadeIn = 1.4f;
-    }
-    
-    // CONTRASTING SPARKLES - 1-in-2
-    if (Main.rand.NextBool(2))
-    {
-        Dust contrast = Dust.NewDustPerfect(Projectile.Center, DustID.WhiteTorch, vel, 0, Color.White, 1.0f);
-        contrast.noGravity = true;
-    }
-    
-    // FLARES - 1-in-2
-    if (Main.rand.NextBool(2))
-        CustomParticles.GenericFlare(Projectile.Center + offset, themeColor, 0.5f, 18);
-    
-    // COLOR OSCILLATION
-    if (Main.rand.NextBool(3))
-    {
-        float hue = (Main.GameUpdateCount * 0.02f) % 1f;
-        hue = themeHueMin + (hue * (themeHueMax - themeHueMin));
-        Color shifted = Main.hslToRgb(hue, 0.9f, 0.75f);
-        CustomParticles.GenericFlare(Projectile.Center, shifted, 0.35f, 12);
-    }
-    
-    // ORBITING MUSIC NOTES
-    float orbitAngle = Main.GameUpdateCount * 0.08f;
-    if (Main.rand.NextBool(8))
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            float noteAngle = orbitAngle + MathHelper.TwoPi * i / 3f;
-            Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * 15f;
-            ThemedParticles.MusicNote(notePos, Projectile.velocity * 0.8f, themeColor, 0.75f, 30);
-        }
-    }
-}
+var settings = new EnhancedTrailRenderer.PrimitiveSettings(
+    width: progress => baseWidth * (1f - progress),
+    color: progress => Color.Lerp(startColor, endColor, progress) with { A = 0 },
+    smoothen: true
+);
+EnhancedTrailRenderer.RenderMultiPassTrail(oldPositions, oldRotations, settings, passes: 3);
 ```
 
-#### OnKill: Glimmer Cascade
+#### 3. CurveSegment Piecewise Animation (Swing Arcs)
 ```csharp
-public override void OnKill(int timeLeft)
+new CurveSegment(EasingType.PolyOut, 0f, -1f, 0.25f, 2),     // Windup
+new CurveSegment(EasingType.PolyIn, 0.25f, -0.75f, 1.65f, 3), // Main swing
+new CurveSegment(EasingType.PolyOut, 0.85f, 0.9f, 0.1f, 2),   // Follow-through
+```
+
+#### 4. Sub-Pixel Interpolation (144Hz+)
+```csharp
+float partialTicks = InterpolatedRenderer.PartialTicks;
+Vector2 smoothPos = Vector2.Lerp(previousPosition, currentPosition, partialTicks);
+```
+
+#### 5. Velocity-Based VFX (Stretch + Spin)
+```csharp
+float speed = Projectile.velocity.Length();
+float stretch = 1f + speed * 0.02f;   // Stretch with speed
+float spin = speed * 0.05f;            // Faster = more spin
+```
+
+### Additional Required Patterns
+
+- **Dense dust trails**: 2+ particles per frame, scale 1.5f+, `fadeIn = 1.2f` (Calamity pattern)
+- **Contrasting sparkles**: Opposite colors for visual pop (1-in-2 chance)
+- **Frequent flares**: 1-in-2 chance, not 1-in-10
+- **Color oscillation**: `Main.hslToRgb` within theme hue range for dynamic shifts
+- **Orbiting music notes**: Locked to projectile position, scale 0.7f+
+
+```csharp
+// Example: Dense dust trail (Calamity standard density)
+for (int i = 0; i < 2; i++)
 {
-    // CENTRAL GLIMMER - Multiple spinning flares
-    for (int layer = 0; layer < 4; layer++)
-    {
-        float scale = 0.3f + layer * 0.15f;
-        float alpha = 0.8f - layer * 0.15f;
-        Color color = Color.Lerp(Color.White, themeColor, layer / 4f);
-        CustomParticles.GenericFlare(Projectile.Center, color * alpha, scale, 18 - layer * 2);
-    }
-    
-    // EXPANDING GLOW RINGS
-    for (int ring = 0; ring < 3; ring++)
-    {
-        Color ringColor = Color.Lerp(themeColor, secondaryColor, ring / 3f);
-        CustomParticles.HaloRing(Projectile.Center, ringColor, 0.3f + ring * 0.12f, 12 + ring * 3);
-    }
-    
-    // RADIAL SPARKLE BURST
-    for (int i = 0; i < 12; i++)
-    {
-        float angle = MathHelper.TwoPi * i / 12f;
-        Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
-        var sparkle = new SparkleParticle(Projectile.Center, vel, Color.Lerp(themeColor, Color.White, i / 12f), 0.4f, 25);
-        MagnumParticleHandler.SpawnParticle(sparkle);
-    }
-    
-    // MUSIC NOTE FINALE
-    ThemedParticles.MusicNoteBurst(Projectile.Center, themeColor, 6, 4f);
-    
-    // BRIGHT LIGHTING
-    Lighting.AddLight(Projectile.Center, themeColor.ToVector3() * 1.5f);
+    Dust d = Dust.NewDustPerfect(Projectile.Center, dustType, vel, 0, color, 1.5f);
+    d.noGravity = true;
+    d.fadeIn = 1.2f; // Fades IN, not out (Calamity pattern)
+}
+
+// Example: Orbiting music notes (locked to projectile)
+float orbitAngle = Main.GameUpdateCount * 0.08f;
+for (int i = 0; i < 3; i++)
+{
+    float noteAngle = orbitAngle + MathHelper.TwoPi * i / 3f;
+    Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * 15f;
+    ThemedParticles.MusicNote(notePos, Projectile.velocity * 0.8f, themeColor, 0.75f, 30);
 }
 ```
 
@@ -866,4 +833,4 @@ EnhancedTrailRenderer.RenderTrailWithShader(
 
 ---
 
-*This document supersedes all previous VFX documentation. When in doubt, refer to the Iridescent Wingspan pattern.*
+*This document supersedes all previous VFX documentation. When in doubt, refer to Calamity Mod source code — Exoblade, Ark of the Cosmos, Galaxia, Photoviscerator, The Oracle, and Scarlet Devil.*

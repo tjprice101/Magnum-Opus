@@ -7,6 +7,11 @@
 // Style 4: CHROMATIC - Rainbow prismatic, color separation, spectrum blend
 // Style 5: VOID - Dark inner glow, event horizon effect, inverse luminance
 // =============================================================================
+//
+// USAGE: Include shared utility library for noise, SDFs, color utilities:
+// #include "HLSLLibrary.fxh"
+// (Uncomment above line after compiling library into your build pipeline)
+// =============================================================================
 
 sampler uImage0 : register(s0);
 sampler uImage1 : register(s1); // Secondary texture for patterns
@@ -27,6 +32,8 @@ float2 uImageSize;
 
 // =============================================================================
 // UTILITY FUNCTIONS
+// Note: These are duplicated from HLSLLibrary.fxh for standalone compilation.
+// When integrating with the full library, remove these and use #include.
 // =============================================================================
 
 float QuadraticBump(float x)

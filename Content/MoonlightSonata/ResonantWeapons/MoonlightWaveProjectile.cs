@@ -110,7 +110,7 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
                     UnifiedVFX.MoonlightSonata.LightBlue * 0.6f, 0.4f);
             }
             
-            // === IRIDESCENT WINGSPAN-STYLE HEAVY DUST TRAILS ===
+            // === CALAMITY-STANDARD HEAVY DUST TRAILS ===
             // Heavy purple dust trail #1
             float trailProgress1 = Main.rand.NextFloat();
             Color purpleGradient = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.MediumPurple, trailProgress1);
@@ -201,7 +201,7 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
             // === LUNAR IMPACT (Trust UnifiedVFX for core effect) ===
             UnifiedVFX.MoonlightSonata.Impact(target.Center, 1.0f);
             
-            // === IRIDESCENT WINGSPAN-STYLE GRADIENT HALO RINGS (4 stacked) ===
+            // === CALAMITY-STANDARD GRADIENT HALO RINGS (4 stacked) ===
             CustomParticles.HaloRing(target.Center, UnifiedVFX.MoonlightSonata.DarkPurple, 0.5f, 15);
             CustomParticles.HaloRing(target.Center, UnifiedVFX.MoonlightSonata.MediumPurple, 0.4f, 13);
             CustomParticles.HaloRing(target.Center, UnifiedVFX.MoonlightSonata.LightBlue, 0.3f, 11);

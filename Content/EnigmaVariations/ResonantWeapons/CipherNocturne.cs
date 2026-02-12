@@ -263,7 +263,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 }
             }
             
-            // === IRIDESCENT WINGSPAN STYLE - HEAVY DUST TRAILS (2+ per frame at beam end) ===
+            // === CALAMITY-STANDARD - HEAVY DUST TRAILS (2+ per frame at beam end) ===
             for (int i = 0; i < 2; i++)
             {
                 // Main enigma trail - Purple to Green gradient

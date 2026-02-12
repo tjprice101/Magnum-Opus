@@ -15,6 +15,10 @@
 // - uDistortionMask (s1): Ripple/Eclipse ring texture
 // - uNoiseTexture (s2): Noise for heat/turbulence
 // 
+// USAGE: Include shared utility library for noise, SDFs, color utilities:
+// #include "HLSLLibrary.fxh"
+// (Uncomment above line after compiling library into your build pipeline)
+// 
 // =============================================================================
 
 sampler uImage0 : register(s0);           // Screen texture
@@ -34,6 +38,8 @@ float uDistortionStrength;   // How much UV is displaced
 
 // =============================================================================
 // UTILITY FUNCTIONS
+// Note: These are duplicated from HLSLLibrary.fxh for standalone compilation.
+// When integrating with the full library, remove these and use #include.
 // =============================================================================
 
 float2 ScreenToUV(float2 screenPos)

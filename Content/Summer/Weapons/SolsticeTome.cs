@@ -69,7 +69,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                 player.GetDamage(DamageClass.Magic) += 0.15f; // +15% damage during blessing
             }
 
-            // ========== IRIDESCENT WINGSPAN VFX PATTERN ==========
+            // ========== CALAMITY-STANDARD VFX PATTERN ==========
             // HEAVY DUST TRAILS - 2+ per frame with fadeIn
             for (int d = 0; d < 2; d++)
             {

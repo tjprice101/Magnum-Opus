@@ -11,14 +11,14 @@
 >
 > **The #1 Problem**: We've been making lazy projectiles. "Slapping a flare" on PreDraw is NOT enough.
 >
-> **What GOOD looks like (Iridescent Wingspan):**
-> - PreDraw has **4+ layered flares spinning** at different speeds
-> - Trail has **dense dust** (2+ particles per frame, scale 1.5f+)
-> - Trail has **contrasting sparkles** (1-in-2 frequency)
-> - Colors **oscillate** using Main.hslToRgb
-> - Music notes **orbit the projectile** (scale 0.7f+)
-> - Impact is a **glimmer cascade** with expanding rings and radial bursts
-> - **SwordArc textures** are used for melee wave effects
+> **Gold Standard = Calamity Mod Source Code** (Exoblade, Ark of the Cosmos, Galaxia, Photoviscerator, The Oracle, Scarlet Devil)
+> - **Multi-Layer Bloom Stack**: `{ A = 0 }` pattern with 4 layers (Outer 0.30, Mid 0.50, Inner 0.70, Core 0.85)
+> - **3-Pass Trail Rendering**: `EnhancedTrailRenderer` or `CalamityStyleTrailRenderer` with width taper and color gradient
+> - **CurveSegment Piecewise Animation**: Multi-phase swing arcs with PolyIn/PolyOut easing
+> - **Sub-Pixel Interpolation**: `InterpolatedRenderer.PartialTicks` for 144Hz+ smoothness
+> - **Velocity-Based VFX**: Stretch + spin scaling with speed
+> - **Dense dust trails** (2+ particles per frame) with contrasting sparkles and color oscillation
+> - **Orbiting music notes** locked to projectile position (scale 0.7f+)
 
 ---
 
