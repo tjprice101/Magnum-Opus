@@ -86,8 +86,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             
             // First weapon guaranteed (one from each damage type category)
             itemLoot.Add(ItemDropRule.OneFromOptions(1,
-                ModContent.ItemType<VariationsOfTheVoid>(),      // Melee Sword
-                ModContent.ItemType<TheUnresolvedCadence>(),     // Melee Broadsword
+                ModContent.ItemType<VariationsOfTheVoidItem>(),      // Melee Sword
+                ModContent.ItemType<TheUnresolvedCadenceItem>(),     // Melee Broadsword
                 ModContent.ItemType<DissonanceOfSecrets>(),      // Magic Staff
                 ModContent.ItemType<CipherNocturne>(),           // Magic Beam
                 ModContent.ItemType<FugueOfTheUnknown>()));      // Magic Tome

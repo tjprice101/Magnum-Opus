@@ -7066,6 +7066,21 @@ Items: {
 		DisplayName: Arcane Harmonics
 		Tooltip: ""
 	}
+
+	TheUnresolvedCadenceItem: {
+		DisplayName: The Unresolved Cadence Item
+		Tooltip: ""
+	}
+
+	VariationsOfTheVoidItem: {
+		DisplayName: Variations Of The Void Item
+		Tooltip: ""
+	}
+
+	SandboxTerraBlade: {
+		DisplayName: Sandbox Terra Blade
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -7345,6 +7360,7 @@ Projectiles: {
 	AvalancheWave.DisplayName: Avalanche Wave
 	BlizzardShardProjectile.DisplayName: Blizzard Shard Projectile
 	FrostSentinelMinion.DisplayName: Frost Sentinel Minion
+	AvalancheIceShardProjectile.DisplayName: Avalanche Ice Shard
 	IceShardProjectile.DisplayName: Ice Shard Projectile
 	IceStormProjectile.DisplayName: Ice Storm Projectile
 	IcicleBolt.DisplayName: Icicle Bolt
@@ -7529,4 +7545,44 @@ Projectiles: {
 	VFXPlusNebulaStaffProjectile.DisplayName: V F X Plus Nebula Staff Projectile
 	CalamityTrailSlash.DisplayName: Calamity Trail Slash
 	ShaderTestProjectile.DisplayName: Shader Test Projectile
+	HarvestReaperSwing.DisplayName: Harvest Reaper Swing
+	TheUnresolvedCadenceSwing.DisplayName: The Unresolved Cadence Swing
+	VariationsOfTheVoidSwing.DisplayName: Variations Of The Void Swing
+	SakurasBlossomSwing.DisplayName: Sakuras Blossom Swing
+	CelestialValorSwing.DisplayName: Celestial Valor Swing
+	DualFatedChimeSwing.DisplayName: Dual Fated Chime Swing
+	IncisorOfMoonlightSwing.DisplayName: Incisor Of Moonlight Swing
+	EternalMoonSwing.DisplayName: Eternal Moon Swing
+	MidnightsCrescendoSwing.DisplayName: Midnights Crescendo Swing
+	NocturnalExecutionerSwing.DisplayName: Nocturnal Executioner Swing
+	TwilightSeveranceSwing.DisplayName: Twilight Severance Swing
+	FourSeasonsBladeSwing.DisplayName: Four Seasons Blade Swing
+	BlossomsEdgeSwing.DisplayName: Blossoms Edge Swing
+	ZenithCleaverSwing.DisplayName: Zenith Cleaver Swing
+	CalloftheBlackSwanSwing.DisplayName: Callofthe Black Swan Swing
+	EmberShardProjectile.DisplayName: Ember Shard Projectile
+	InfernalCleaverSwing.DisplayName: Infernal Cleaver Swing
+	MagmaPillarProjectile.DisplayName: Magma Pillar Projectile
+	FrostbiteEdgeSwing.DisplayName: Frostbite Edge Swing
+	FrostNovaProjectile.DisplayName: Frost Nova Projectile
+	CosmicRendBladeSwing.DisplayName: Cosmic Rend Blade Swing
+	VoidRiftProjectile.DisplayName: Void Rift Projectile
+	VoidShardProjectile.DisplayName: Void Shard Projectile
+	BloomBurstProjectile.DisplayName: Bloom Burst Projectile
+	ThornVolleyProjectile.DisplayName: Thorn Volley Projectile
+	VerdantCrescendoSwing.DisplayName: Verdant Crescendo Swing
+	ArcaneHarmonicsSwing.DisplayName: Arcane Harmonics Swing
+	HarmonicRingProjectile.DisplayName: Harmonic Ring Projectile
+	NoteProjectile.DisplayName: Note Projectile
+	ResonanceFieldProjectile.DisplayName: Resonance Field Projectile
+	SymphonyBurstProjectile.DisplayName: Symphony Burst Projectile
+	GlacialExecutionerSwing.DisplayName: Glacial Executioner Swing
+	SandboxTerraBladeSwing.DisplayName: Sandbox Terra Blade Swing
+	LightShardBeam.DisplayName: Light Shard Beam
+	LightShardExplosion.DisplayName: Light Shard Explosion
+	LightShardProjectile.DisplayName: Light Shard Projectile
+	CosmicImpactZone.DisplayName: Cosmic Impact Zone
+	CosmicSpinShard.DisplayName: Cosmic Spin Shard
+	SandboxTerraBladeComboSwing.DisplayName: Sandbox Terra Blade Combo Swing
+	SandboxTerraBladeSpinThrow.DisplayName: Sandbox Terra Blade Spin Throw
 }

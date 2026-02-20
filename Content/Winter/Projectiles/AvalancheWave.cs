@@ -102,7 +102,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 {
                     Vector2 shardVel = perpAngle.ToRotationVector2() * i * Main.rand.NextFloat(3f, 6f);
                     Projectile.NewProjectile(Projectile.GetSource_FromAI(), Projectile.Center, shardVel, 
-                        ModContent.ProjectileType<IceShardProjectile>(), Projectile.damage / 3, Projectile.knockBack * 0.5f, Projectile.owner);
+                        ModContent.ProjectileType<AvalancheIceShardProjectile>(), Projectile.damage / 3, Projectile.knockBack * 0.5f, Projectile.owner);
                 }
             }
 
@@ -183,7 +183,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// <summary>
     /// Ice Shard - Secondary projectile spawned by Avalanche Wave
     /// </summary>
-    public class IceShardProjectile : ModProjectile
+    public class AvalancheIceShardProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles/TwinkleSparkle";
         

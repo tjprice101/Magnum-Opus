@@ -396,6 +396,57 @@ namespace MagnumOpus.Common.Systems.VFX
             return (dominant.Style, maxIntensity, dominant.WorldPosition);
         }
 
+        /// <summary>
+        /// Data packet consumed by <c>ScreenDistortionRenderPass</c> each frame.
+        /// Contains everything the shader needs to render the dominant effect.
+        /// </summary>
+        public struct DistortionRenderData
+        {
+            public ShaderStyleRegistry.ScreenStyle Style;
+            public Vector2 WorldPosition;
+            public float Intensity;   // Eased / decayed intensity (0→BaseIntensity)
+            public float Progress;    // Raw normalized timer (0→1, 0 = just started)
+            public Color PrimaryColor;
+            public Color SecondaryColor;
+        }
+
+        /// <summary>
+        /// Returns the strongest active distortion packaged for the render pass,
+        /// or <c>null</c> when nothing should render.
+        /// </summary>
+        public static DistortionRenderData? GetDominantRenderData()
+        {
+            if (_activeDistortions.Count == 0) return null;
+
+            ActiveDistortion dominant = default;
+            float maxIntensity = 0f;
+            float dominantProgress = 0f;
+
+            foreach (var d in _activeDistortions)
+            {
+                float progress = d.Timer / (float)d.Duration;
+                float intensity = d.BaseIntensity * (1f - d.EasingFunction(progress));
+                if (intensity > maxIntensity)
+                {
+                    maxIntensity = intensity;
+                    dominant = d;
+                    dominantProgress = progress;
+                }
+            }
+
+            if (maxIntensity < 0.01f) return null;
+
+            return new DistortionRenderData
+            {
+                Style          = dominant.Style,
+                WorldPosition  = dominant.WorldPosition,
+                Intensity      = maxIntensity,
+                Progress       = dominantProgress,
+                PrimaryColor   = dominant.PrimaryColor,
+                SecondaryColor = dominant.SecondaryColor,
+            };
+        }
+
         #endregion
 
         #region Easing Functions

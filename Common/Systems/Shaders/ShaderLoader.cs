@@ -9,15 +9,13 @@ namespace MagnumOpus.Common.Systems.Shaders
 {
     /// <summary>
     /// Centralized shader and VFX texture loading system.
-    /// Loads pre-compiled .fxc shader bytecode from Effects/ and noise/trail
+    /// Loads auto-compiled shaders from Effects/ and noise/trail
     /// textures from Assets/VFX/ for use as secondary samplers (uImage1).
     /// 
-    /// IMPORTANT: tModLoader does NOT auto-compile .fx files. You must manually
-    /// compile .fx → .fxc using fxc.exe (Windows SDK DirectX Shader Compiler):
-    ///   fxc.exe /T fx_2_0 /O2 /Fo Effects/MyShader.fxc Effects/MyShader.fx
-    /// 
-    /// tModLoader's FxcReader recognizes .fxc files and loads them as Effect objects.
-    /// The .fx source files are kept alongside for reference but are not used at runtime.
+    /// tModLoader auto-compiles .fx files placed in the Effects/ folder
+    /// into FNA-compatible effect bytecode at build time. Do NOT place
+    /// pre-compiled .fxc files here — they use DirectX bytecode that is
+    /// incompatible with FNA's MojoShader runtime.
     /// 
     /// Usage:
     ///   Effect shader = ShaderLoader.GetShader("SimpleTrailShader");
@@ -39,10 +37,13 @@ namespace MagnumOpus.Common.Systems.Shaders
         private static bool _initialized;
         private static bool _shadersEnabled;
 
-        // Shader names (without extension) - must match .fxc filenames in Effects/
+        // Shader names (without extension) - must match .fx filenames in Effects/
         public const string TrailShader = "SimpleTrailShader";
         public const string BloomShader = "SimpleBloomShader";
         public const string ScrollingTrailShader = "ScrollingTrailShader";
+        public const string CelestialValorTrailShader = "CelestialValorTrail";
+        public const string MotionBlurBloomShader = "MotionBlurBloom";
+        public const string TerraBladeSwingVFXShader = "TerraBladeSwingVFX";
 
         // Noise texture names (without extension) - in Assets/VFX/Noise/
         private static readonly string[] NoiseTextureNames = new[]
@@ -159,6 +160,9 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(TrailShader);
                 LoadShader(BloomShader);
                 LoadShader(ScrollingTrailShader);
+                LoadShader(CelestialValorTrailShader);
+                LoadShader(MotionBlurBloomShader);
+                LoadShader(TerraBladeSwingVFXShader);
 
                 _shadersEnabled = _shaders.Count > 0;
 
@@ -202,6 +206,16 @@ namespace MagnumOpus.Common.Systems.Shaders
             try
             {
                 string path = $"MagnumOpus/Effects/{shaderName}";
+
+                // Check existence BEFORE requesting to avoid tModLoader's
+                // internal AssetRepository error dialog on missing assets.
+                if (!ModContent.HasAsset(path))
+                {
+                    ModContent.GetInstance<MagnumOpus>()?.Logger.Warn(
+                        $"ShaderLoader: Shader '{shaderName}' not found at '{path}' — skipping.");
+                    return;
+                }
+
                 var effect = ModContent.Request<Effect>(path, AssetRequestMode.ImmediateLoad).Value;
 
                 if (effect != null)
@@ -281,6 +295,15 @@ namespace MagnumOpus.Common.Systems.Shaders
 
         /// <summary>Gets the Scrolling Trail shader if available.</summary>
         public static Effect ScrollingTrail => GetShader(ScrollingTrailShader);
+
+        /// <summary>Gets the Celestial Valor trail shader if available.</summary>
+        public static Effect CelestialValorTrail => GetShader(CelestialValorTrailShader);
+
+        /// <summary>Gets the Motion Blur Bloom shader if available.</summary>
+        public static Effect MotionBlurBloom => GetShader(MotionBlurBloomShader);
+
+        /// <summary>Gets the Terra Blade Swing VFX shader if available.</summary>
+        public static Effect TerraBladeSwingVFX => GetShader(TerraBladeSwingVFXShader);
 
         // =====================================================================
         //  Texture Accessors

@@ -18,6 +18,7 @@ using MagnumOpus.Content.MoonlightSonata.ResonantWeapons;
 using MagnumOpus.Content.MoonlightSonata.Weapons;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.ResonantWeapons;
+using MagnumOpus.Content.Eroica.Weapons.CelestialValor;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons;
 using MagnumOpus.Content.LaCampanella.ResonanceEnergies;
@@ -112,8 +113,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             recipe.AddIngredient(ModContent.ItemType<IgnitionOfTheBell>(), 1);
             recipe.AddIngredient(ModContent.ItemType<DualFatedChime>(), 1);
             // Enigma Variations (2)
-            recipe.AddIngredient(ModContent.ItemType<VariationsOfTheVoid>(), 1);
-            recipe.AddIngredient(ModContent.ItemType<TheUnresolvedCadence>(), 1);
+            recipe.AddIngredient(ModContent.ItemType<VariationsOfTheVoidItem>(), 1);
+            recipe.AddIngredient(ModContent.ItemType<TheUnresolvedCadenceItem>(), 1);
             // Swan Lake (1)
             recipe.AddIngredient(ModContent.ItemType<CalloftheBlackSwan>(), 1);
             // Fate weapons (4 - NOT including Coda itself)

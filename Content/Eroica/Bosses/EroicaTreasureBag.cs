@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using ReLogic.Content;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.ResonantWeapons;
+using MagnumOpus.Content.Eroica.Weapons.CelestialValor;
 using MagnumOpus.Content.Eroica.Pets;
 using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Common;

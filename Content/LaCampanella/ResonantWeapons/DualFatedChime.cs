@@ -9,6 +9,7 @@ using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Common.BaseClasses;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
@@ -22,45 +23,41 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
     /// Special: Inferno Waltz - charge bar fills with attacks, right-click unleashes spinning flame dance.
     /// All attacks apply Resonant Toll debuff.
     /// </summary>
-    public class DualFatedChime : ModItem
+    public class DualFatedChime : MeleeSwingItemBase
     {
         private float chargeBar = 0f;
         private const float MaxCharge = 100f;
         public const float ChargePerHit = 8f;
-        
+
+        protected override int SwingProjectileType => ModContent.ProjectileType<DualFatedChimeSwing>();
+        protected override int ComboStepCount => 3;
+
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 1;
         }
 
-        public override void SetDefaults()
+        protected override void SetWeaponDefaults()
         {
             Item.damage = 380;
-            Item.DamageType = DamageClass.Melee;
-            Item.width = 80;
-            Item.height = 80;
+            Item.DamageType = DamageClass.MeleeNoSpeed;
             Item.useTime = 16;
             Item.useAnimation = 16;
-            Item.useStyle = ItemUseStyleID.Swing;
             Item.knockBack = 6.5f;
             Item.value = Item.sellPrice(gold: 50);
             Item.rare = ModContent.RarityType<LaCampanellaRainbowRarity>();
             Item.UseSound = SoundID.Item1;
-            Item.autoReuse = true;
-            Item.shoot = ModContent.ProjectileType<DualFatedChimeProjectile>();
-            Item.shootSpeed = 16f;
-            Item.noMelee = true; // Projectiles do the damage
-            Item.noUseGraphic = true; // Hide the held item
-            Item.channel = true;
         }
 
-        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        protected override Color GetLoreColor() => new Color(255, 140, 40);
+
+        protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Swings like the Zenith, casting spectral blades wreathed in bell-music flames"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Swings cast spectral blades wreathed in bell-music flames"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Attacks fill a charge bar - right-click to unleash Inferno Waltz"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Inferno Waltz creates a devastating spinning flame dance"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Applies Resonant Toll on hit"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Two fates intertwined in the dance of the eternal chime'") { OverrideColor = new Color(255, 140, 40) });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Two fates intertwined in the dance of the eternal chime'") { OverrideColor = GetLoreColor() });
         }
 
         public override bool AltFunctionUse(Player player) => chargeBar >= MaxCharge;
@@ -80,54 +77,40 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             return true;
         }
 
-        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        protected override void OnShoot(Player player, int projectileIndex)
         {
             if (player.altFunctionUse == 2 && chargeBar >= MaxCharge)
             {
-                // Inferno Waltz - spinning flame attack
-                ActivateInfernoWaltz(player, source, damage);
+                // Kill the swing projectile — alt fire uses Inferno Waltz instead
+                if (projectileIndex >= 0 && projectileIndex < Main.maxProjectiles)
+                    Main.projectile[projectileIndex].Kill();
+
+                ActivateInfernoWaltz(player, player.GetSource_ItemUse(Item), (int)(Item.damage * player.GetDamage(DamageClass.MeleeNoSpeed).Additive));
                 chargeBar = 0f;
-                return false;
+                return;
             }
-            
-            // Normal attack - spawn Zenith-style projectiles
+
+            // Normal swing — also spawn Zenith-style spectral blades alongside the swing
             Vector2 toMouse = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
-            
-            // Spawn multiple spectral blades
             int bladeCount = Main.rand.Next(2, 5);
             for (int i = 0; i < bladeCount; i++)
             {
                 float offsetAngle = Main.rand.NextFloat(-0.4f, 0.4f);
-                Vector2 projVelocity = toMouse.RotatedBy(offsetAngle) * Item.shootSpeed * Main.rand.NextFloat(0.8f, 1.2f);
+                Vector2 projVelocity = toMouse.RotatedBy(offsetAngle) * 16f * Main.rand.NextFloat(0.8f, 1.2f);
                 Vector2 spawnPos = player.Center + toMouse.RotatedBy(offsetAngle) * Main.rand.NextFloat(30f, 80f);
-                
-                Projectile.NewProjectile(source, spawnPos, projVelocity, type, damage, knockback, player.whoAmI, 
-                    Main.rand.NextFloat(MathHelper.TwoPi)); // ai[0] = random rotation
+
+                Projectile.NewProjectile(player.GetSource_ItemUse(Item), spawnPos, projVelocity,
+                    ModContent.ProjectileType<DualFatedChimeProjectile>(), Item.damage, Item.knockBack, player.whoAmI,
+                    Main.rand.NextFloat(MathHelper.TwoPi));
             }
-            
-            // === SWING SOUNDS (2 max) ===
-            SoundEngine.PlaySound(SoundID.Item35 with { Pitch = Main.rand.NextFloat(0.2f, 0.6f), Volume = 0.5f }, player.Center);
-            SoundEngine.PlaySound(SoundID.Item34 with { Pitch = Main.rand.NextFloat(-0.2f, 0.2f), Volume = 0.3f }, player.Center);
-            
-            // === SWING EFFECTS (cleaned) ===
+
+            // Swing VFX
             Vector2 swingPoint = player.Center + toMouse * 40f;
-            
-            // UnifiedVFX handles core swing aura
             UnifiedVFX.LaCampanella.SwingAura(swingPoint, toMouse, 1.0f);
-            
-            // Sparks (reduced to 4)
             ThemedParticles.LaCampanellaSparks(swingPoint, toMouse, 4, 6f);
-            
-            // Music notes (reduced to 2)
             ThemedParticles.LaCampanellaMusicNotes(player.Center, 2, 25f);
-            
-            // Single halo ring
             CustomParticles.HaloRing(swingPoint, ThemedParticles.CampanellaOrange, 0.35f, 14);
-            
-            // Light
             Lighting.AddLight(swingPoint, 0.9f, 0.45f, 0.12f);
-            
-            return false;
         }
 
         private void ActivateInfernoWaltz(Player player, IEntitySource source, int damage)
@@ -171,6 +154,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         public override void HoldItem(Player player)
         {
+            base.HoldItem(player);
+
             // === SUBTLE AMBIENT AURA (cleaned) ===
             // Rare ambient flares
             if (Main.rand.NextBool(15))

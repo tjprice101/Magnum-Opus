@@ -249,14 +249,14 @@ namespace MagnumOpus.Common.Systems.VFX
             // ==========================================
             // LUT TEXTURES (Color Lookup Tables)
             // ==========================================
-            LUT.Rainbow = LoadTexture("Assets/VFX/RainbowLUT", CreateFallbackRainbowLUT);
+            LUT.Rainbow = LoadTexture("Assets/VFX/LUT/RainbowLUT", CreateFallbackRainbowLUT);
             LUT.EnergyGradient = LoadTexture("Assets/VFX/Noise/HorizontalBlackCoreCenterEnergyGradient", CreateFallbackGradient);
             LUT.HorizontalEnergy = LoadTexture("Assets/VFX/Noise/HorizontalEnergyGradient", CreateFallbackGradient);
             
             // ==========================================
             // BEAM/TRAIL TEXTURES
             // ==========================================
-            Beam.Streak1 = LoadTexture("Assets/VFX/BeamStreak1", CreateFallbackBeam);
+            Beam.Streak1 = LoadTexture("Assets/VFX/Beams/BeamStreak1", CreateFallbackBeam);
             Beam.BloomLine = LoadTexture("Assets/Particles/SoftGlow2", CreateFallbackBeam);
             Beam.TaperedLine = LoadTexture("Assets/Particles/ParticleTrail1", CreateFallbackBeam);
             try
@@ -279,8 +279,8 @@ namespace MagnumOpus.Common.Systems.VFX
             // ==========================================
             // MASK TEXTURES
             // ==========================================
-            Mask.EclipseRing = LoadTexture("Assets/VFX/EclipseRing", CreateFallbackHalo);
-            Mask.RippleRing = LoadTexture("Assets/VFX/RippleRing", CreateFallbackHalo);
+            Mask.EclipseRing = LoadTexture("Assets/VFX/Masks/EclipseRing", CreateFallbackHalo);
+            Mask.RippleRing = LoadTexture("Assets/VFX/Masks/RippleRing", CreateFallbackHalo);
             Mask.RadialGradient = LoadTexture("Assets/Particles/SoftGlow3", CreateFallbackGradient);
             Mask.LinearGradient = LoadTexture("Assets/Particles/SoftGlow4", CreateFallbackGradient);
             

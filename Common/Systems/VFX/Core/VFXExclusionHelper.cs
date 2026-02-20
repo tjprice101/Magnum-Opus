@@ -19,15 +19,16 @@ namespace MagnumOpus.Common.Systems.VFX
                 
             string typeName = projectile.ModProjectile.GetType().FullName ?? "";
             
-            // Exclude all debug weapons and test projectiles
+            // Exclude all debug weapons, test projectiles, and sandbox weapons
             return typeName.Contains("Debug") || 
                    typeName.Contains("DebugWeapons") ||
-                   typeName.Contains("Test");
+                   typeName.Contains("Test") ||
+                   typeName.Contains("Sandbox");
         }
         
         /// <summary>
         /// Returns true if this item should be EXCLUDED from global VFX.
-        /// Debug weapons return true.
+        /// Debug weapons and sandbox weapons return true.
         /// </summary>
         public static bool ShouldExcludeItem(Item item)
         {
@@ -36,10 +37,11 @@ namespace MagnumOpus.Common.Systems.VFX
                 
             string typeName = item.ModItem.GetType().FullName ?? "";
             
-            // Exclude all debug weapons and test items
+            // Exclude all debug weapons, test items, and sandbox weapons
             return typeName.Contains("Debug") || 
                    typeName.Contains("DebugWeapons") ||
-                   typeName.Contains("Test");
+                   typeName.Contains("Test") ||
+                   typeName.Contains("Sandbox");
         }
     }
 }

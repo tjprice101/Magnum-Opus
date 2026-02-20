@@ -3215,8 +3215,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<HarmonicCoreOfEnigma>(), 1, 1, 1));
             
             notExpert.OnSuccess(ItemDropRule.OneFromOptions(1,
-                ModContent.ItemType<VariationsOfTheVoid>(),
-                ModContent.ItemType<TheUnresolvedCadence>(),
+                ModContent.ItemType<VariationsOfTheVoidItem>(),
+                ModContent.ItemType<TheUnresolvedCadenceItem>(),
                 ModContent.ItemType<DissonanceOfSecrets>(),
                 ModContent.ItemType<CipherNocturne>(),
                 ModContent.ItemType<FugueOfTheUnknown>()));

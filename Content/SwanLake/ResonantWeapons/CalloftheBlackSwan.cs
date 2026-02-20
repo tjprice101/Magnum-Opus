@@ -12,6 +12,7 @@ using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.SwanLake.Debuffs;
+using MagnumOpus.Common.BaseClasses;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons
 {
@@ -21,7 +22,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
     /// Rainbow (Swan) rarity, no crafting recipe.
     /// Hold right-click to charge a devastating prismatic swan storm attack!
     /// </summary>
-    public class CalloftheBlackSwan : ModItem
+    public class CalloftheBlackSwan : MeleeSwingItemBase
     {
         // Track empowerment state per player
         private static Dictionary<int, int> flareHitCounts = new Dictionary<int, int>();
@@ -69,33 +70,31 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             flareHitCounts[playerIndex] = 0;
         }
 
+        protected override int SwingProjectileType => ModContent.ProjectileType<CalloftheBlackSwanSwing>();
+        protected override int ComboStepCount => 3;
+        protected override Color GetLoreColor() => new Color(220, 225, 235);
+
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 1;
         }
 
-        public override void SetDefaults()
+        protected override void SetWeaponDefaults()
         {
             Item.damage = 400;
-            Item.DamageType = DamageClass.Melee;
-            Item.width = 70;
-            Item.height = 70;
+            Item.DamageType = DamageClass.MeleeNoSpeed;
             Item.useTime = 28;
             Item.useAnimation = 28;
-            Item.useStyle = ItemUseStyleID.Swing;
             Item.knockBack = 7f;
             Item.value = Item.sellPrice(gold: 60);
             Item.rare = ModContent.RarityType<SwanRarity>();
-            Item.UseSound = SoundID.Item29 with { Pitch = -0.1f, Volume = 0.85f }; // Fractal crystal sound
-            Item.autoReuse = true;
-            Item.shoot = ModContent.ProjectileType<BlackSwanFlare>();
-            Item.shootSpeed = 14f;
-            Item.noMelee = false;
-            Item.scale = 0.9f; // 90% size
+            Item.UseSound = SoundID.Item29 with { Pitch = -0.1f, Volume = 0.85f };
         }
 
         public override void HoldItem(Player player)
         {
+            base.HoldItem(player);
+
             // Update empowerment timer
             if (empowermentTimer.ContainsKey(player.whoAmI) && empowermentTimer[player.whoAmI] > 0)
             {
@@ -176,278 +175,11 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             }
         }
 
-        public override void MeleeEffects(Player player, Rectangle hitbox)
-        {
-            // === REDUCED: BLACK SWAN FEATHER TRAIL ===
-            // The greatsword leaves a subtle trail of black and white feathers
-            
-            Vector2 hitboxCenter = hitbox.Center.ToVector2();
-            float swingProgress = player.itemAnimation / (float)player.itemAnimationMax;
-            float trailIntensity = (float)Math.Sin(swingProgress * MathHelper.Pi);
-            
-            // === VERY SUBTLE DUAL-POLARITY FEATHER WAKE ===
-            // Rare feather spawns - accent only, not primary effect
-            if (Main.rand.NextBool(15))
-            {
-                Vector2 featherPos = hitboxCenter + Main.rand.NextVector2Circular(hitbox.Width * 0.3f, hitbox.Height * 0.3f);
-                Color featherColor = Main.rand.NextBool() ? UnifiedVFX.SwanLake.Black : UnifiedVFX.SwanLake.White;
-                CustomParticles.SwanFeatherDrift(featherPos, featherColor, 0.25f);
-            }
-            
-            // === SUBTLE RAINBOW EDGE SHIMMER ===
-            if (trailIntensity > 0.4f && Main.rand.NextBool(8))
-            {
-                Vector2 shimmerPos = hitboxCenter + Main.rand.NextVector2Circular(hitbox.Width * 0.25f, hitbox.Height * 0.25f);
-                float hue = Main.rand.NextFloat();
-                Color rainbowColor = Main.hslToRgb(hue, 0.8f, 0.75f);
-                CustomParticles.PrismaticSparkle(shimmerPos, rainbowColor, 0.2f);
-            }
-            
-            // === SUBTLE GLOW TRAIL ===
-            if (Main.rand.NextBool(10))
-            {
-                Vector2 glowPos = hitboxCenter + Main.rand.NextVector2Circular(12f, 12f);
-                Color glowColor = Color.Lerp(UnifiedVFX.SwanLake.White, UnifiedVFX.SwanLake.Silver, Main.rand.NextFloat());
-                CustomParticles.GenericFlare(glowPos, glowColor, 0.15f + trailIntensity * 0.1f, 8);
-            }
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Swings send black and white flares that track enemies"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Landing 3 flares empowers the next swing with devastating force"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Hold right-click to charge a prismatic swan storm"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'In darkness and light, the black swan dances alone'") 
-            { 
-                OverrideColor = new Color(220, 225, 235) 
-            });
-        }
-
-        public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            target.AddBuff(ModContent.BuffType<FlameOfTheSwan>(), 360); // 6 seconds
-            
-            // === UnifiedVFX SWAN LAKE IMPACT! ===
-            UnifiedVFX.SwanLake.Impact(target.Center, 1.4f);
-            
-            // Enhanced monochrome burst into rainbow explosion!
-            ThemedParticles.SwanLakeRainbowExplosion(target.Center, 1.1f);
-            
-                // HEAVY black/white spark explosion with GRADIENT to rainbow!
-            for (int i = 0; i < 20; i++)
-            {
-                // GRADIENT: Black ↁEWhite with rainbow shimmer overlay
-                float progress = (float)i / 20f;
-                Color baseColor = Color.Lerp(Color.Black, Color.White, progress);
-                // Add rainbow shimmer overlay
-                float hue = (progress + Main.GameUpdateCount * 0.01f) % 1f;
-                Color rainbowShimmer = Main.hslToRgb(hue, 0.5f, 0.8f);
-                Color finalColor = Color.Lerp(baseColor, rainbowShimmer, 0.3f);
-                Color col = i % 2 == 0 ? Color.White : Color.Black;
-                int dustType = i % 2 == 0 ? DustID.WhiteTorch : DustID.Shadowflame;
-                Vector2 vel = Main.rand.NextVector2Circular(8f, 8f);
-                Dust d = Dust.NewDustPerfect(target.Center, dustType, vel, i % 2 == 0 ? 0 : 100, col, 2.0f);
-                d.noGravity = true;
-                d.fadeIn = 1.4f;
-            }
-            
-            // Multiple music notes on hit!
-            ThemedParticles.SwanLakeMusicNotes(target.Center, 8, 40f);
-            ThemedParticles.SwanLakeAccidentals(target.Center, 4, 30f);
-            
-            // Halo rings!
-            CustomParticles.HaloRing(target.Center, Color.White, 0.8f, 30);
-            CustomParticles.HaloRing(target.Center, Color.Black, 0.6f, 25);
-            
-            // Swan feather burst on impact!
-            CustomParticles.SwanFeatherBurst(target.Center, 6, 0.35f);
-            
-            // Rainbow explosion on critical hits - DEVASTATING!
-            if (hit.Crit)
-            {
-                ThemedParticles.SwanLakeRainbowExplosion(target.Center, 1.98f);
-                ThemedParticles.SwanLakeMusicalImpact(target.Center, 1.35f, true);
-                
-                // MASSIVE rainbow flare burst!
-                for (int i = 0; i < 16; i++)
-                {
-                    float hue = i / 16f;
-                    Color flareColor = Main.hslToRgb(hue, 1f, 0.8f);
-                    CustomParticles.GenericFlare(target.Center + Main.rand.NextVector2Circular(20f, 20f), flareColor, 0.9f, 30);
-                }
-                
-                // Multiple stacked halo rings!
-                for (int ring = 0; ring < 4; ring++)
-                {
-                    float hue = (Main.GameUpdateCount * 0.02f + ring * 0.25f) % 1f;
-                    Color ringColor = Main.hslToRgb(hue, 1f, 0.75f);
-                    CustomParticles.HaloRing(target.Center, ringColor, 0.7f + ring * 0.2f, 25 + ring * 6);
-                }
-                
-                // Huge radial spark explosion!
-                for (int i = 0; i < 32; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 32f;
-                    float hue = i / 32f;
-                    Color sparkColor = Main.hslToRgb(hue, 1f, 0.7f);
-                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(6f, 14f);
-                    Dust spark = Dust.NewDustPerfect(target.Center, DustID.RainbowTorch, vel, 0, sparkColor, 2.3f);
-                    spark.noGravity = true;
-                    spark.fadeIn = 1.5f;
-                }
-                
-                // Crit sound and light
-                SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with { Volume = 0.6f, Pitch = 0.4f }, target.Center);
-                Lighting.AddLight(target.Center, 2f, 2f, 2.5f);
-                
-                // Spawn seeking crystals on crit - Swan Lake prismatic power
-                SeekingCrystalHelper.SpawnSwanLakeCrystals(
-                    player.GetSource_ItemUse(Item),
-                    target.Center,
-                    (Main.MouseWorld - target.Center).SafeNormalize(Vector2.UnitX) * 8f,
-                    (int)(damageDone * 0.2f),
-                    Item.knockBack * 0.4f,
-                    player.whoAmI,
-                    5);
-            }
-            else
-            {
-                Lighting.AddLight(target.Center, 1.2f, 1.2f, 1.5f);
-            }
-        }
-
-        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
-        {
-            bool empowered = IsEmpowered(player.whoAmI);
-            
-            if (empowered)
-            {
-                // === ABSOLUTELY DEVASTATING EMPOWERED SWING! ===
-                ConsumeEmpowerment(player.whoAmI);
-                
-                // Fire 8 flares at double damage in a spread!
-                float spreadAngle = MathHelper.ToRadians(50f);
-                for (int i = 0; i < 8; i++)
-                {
-                    float angle = MathHelper.Lerp(-spreadAngle, spreadAngle, i / 7f);
-                    Vector2 flareVel = velocity.RotatedBy(angle) * Main.rand.NextFloat(0.9f, 1.15f);
-                    int flareType = i % 2;
-                    
-                    Projectile.NewProjectile(source, position, flareVel, type, damage * 2, knockback, player.whoAmI, flareType, 1);
-                }
-                
-                // MASSIVE rainbow explosion from monochrome burst!
-                ThemedParticles.SwanLakeRainbowExplosion(position, 2.7f);
-                ThemedParticles.SwanLakeMusicalImpact(position, 2.25f, true);
-                
-                // Stacked shockwave rings!
-                for (int ring = 0; ring < 6; ring++)
-                {
-                    float hue = (Main.GameUpdateCount * 0.02f + ring * 0.16f) % 1f;
-                    Color ringColor = Main.hslToRgb(hue, 1f, 0.8f);
-                    CustomParticles.HaloRing(position, ringColor, 0.5f + ring * 0.125f, 20 + ring * 5);
-                }
-                CustomParticles.HaloRing(position, Color.Black, 0.9f, 28);
-                CustomParticles.HaloRing(position, Color.White, 0.75f, 25);
-                
-                // Rainbow sparkle flares!
-                ThemedParticles.SwanLakeSparkles(position, 30, 55f);
-                for (int i = 0; i < 12; i++)
-                {
-                    float flareHue = i / 12f;
-                    Color flareColor = Main.hslToRgb(flareHue, 1f, 0.8f);
-                    CustomParticles.GenericFlare(position + Main.rand.NextVector2Circular(20f, 20f), flareColor, 0.6f, 22);
-                }
-                
-                // HUGE music notes burst!
-                ThemedParticles.SwanLakeMusicNotes(position, 20, 70f);
-                ThemedParticles.SwanLakeAccidentals(position, 10, 55f);
-                ThemedParticles.SwanLakeFeathers(position, 15, 60f);
-                
-                // DEVASTATING feather explosion!
-                CustomParticles.SwanFeatherExplosion(position, 12, 0.5f);
-                
-                // MASSIVE rainbow spark explosion!
-                for (int i = 0; i < 48; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 48f;
-                    float hue = i / 48f;
-                    Color sparkColor = Main.hslToRgb(hue, 1f, 0.75f);
-                    Vector2 sparkVel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(10f, 20f);
-                    Dust spark = Dust.NewDustPerfect(position, DustID.RainbowTorch, sparkVel, 0, sparkColor, 2.8f);
-                    spark.noGravity = true;
-                    spark.fadeIn = 1.6f;
-                }
-                
-                // Explosive black/white core!
-                for (int i = 0; i < 24; i++)
-                {
-                    Color col = i % 2 == 0 ? Color.White : Color.Black;
-                    int dustType = i % 2 == 0 ? DustID.WhiteTorch : DustID.Shadowflame;
-                    Vector2 vel = velocity.SafeNormalize(Vector2.Zero).RotatedBy(Main.rand.NextFloat(-1f, 1f)) * Main.rand.NextFloat(8f, 16f);
-                    Dust d = Dust.NewDustPerfect(position, dustType, vel, i % 2 == 0 ? 0 : 100, col, 2.5f);
-                    d.noGravity = true;
-                    d.fadeIn = 1.5f;
-                }
-                
-                // MASSIVE light explosion!
-                Lighting.AddLight(position, 3f, 3f, 3.5f);
-                
-                SoundEngine.PlaySound(SoundID.Item122 with { Volume = 1.1f, Pitch = -0.1f }, position);
-                SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with { Volume = 0.9f, Pitch = 0.2f }, position);
-            }
-            else
-            {
-                // === ENHANCED NORMAL SWING - Still flashy! ===
-                ResetFlareCount(player.whoAmI);
-                
-                float spreadAngle = MathHelper.ToRadians(30f);
-                for (int i = 0; i < 3; i++)
-                {
-                    float angle = MathHelper.Lerp(-spreadAngle, spreadAngle, i / 2f);
-                    Vector2 flareVel = velocity.RotatedBy(angle);
-                    int flareType = i % 2;
-                    
-                    Projectile.NewProjectile(source, position, flareVel, type, damage, knockback, player.whoAmI, flareType, 0);
-                }
-                
-                // Enhanced swing effect with rainbow accents!
-                ThemedParticles.SwanLakeSparks(position, velocity.SafeNormalize(Vector2.Zero), 15, 10f);
-                ThemedParticles.SwanLakeSparkles(position, 12, 40f);
-                ThemedParticles.SwanLakeBloomBurst(position, 0.8f);
-                
-                // Rainbow flares on swing!
-                for (int i = 0; i < 8; i++)
-                {
-                    float hue = i / 8f;
-                    Color flareColor = Main.hslToRgb(hue, 1f, 0.7f);
-                    CustomParticles.GenericFlare(position + Main.rand.NextVector2Circular(15f, 15f), flareColor, 0.55f, 20);
-                }
-                
-                // Halo rings (reduced size)
-                CustomParticles.HaloRing(position, Color.White, 0.3f, 11);
-                CustomParticles.HaloRing(position, Color.Black, 0.2f, 9);
-                
-                // Rainbow sparkle flares!
-                ThemedParticles.SwanLakeSparkles(position, 15, 35f);
-                
-                // Swan feather duality - black and white feathers
-                CustomParticles.SwanFeatherDuality(position, 4, 0.3f);
-                
-                // Spark burst
-                for (int i = 0; i < 16; i++)
-                {
-                    Color col = i % 2 == 0 ? Color.White : Color.Black;
-                    int dustType = i % 2 == 0 ? DustID.WhiteTorch : DustID.Shadowflame;
-                    Vector2 vel = velocity.SafeNormalize(Vector2.Zero).RotatedBy(Main.rand.NextFloat(-0.6f, 0.6f)) * Main.rand.NextFloat(5f, 10f);
-                    Dust d = Dust.NewDustPerfect(position, dustType, vel, i % 2 == 0 ? 0 : 100, col, 1.6f);
-                    d.noGravity = true;
-                }
-                
-                Lighting.AddLight(position, 1.2f, 1.2f, 1.5f);
-            }
-            
-            return false;
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)

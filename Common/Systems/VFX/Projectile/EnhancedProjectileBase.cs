@@ -415,7 +415,17 @@ namespace MagnumOpus.Common.Systems.VFX
             
             // Draw multi-layer bloom behind the projectile
             DrawBloomLayers();
-            
+
+            // Motion blur bloom (shader-based directional blur along velocity)
+            if (Projectile.velocity.LengthSquared() > 1f)
+            {
+                Texture2D projTex = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
+                Color mbPrimary = PrimaryColor ?? VFXUtilities.PaletteLerp(ThemePalette, 0.3f);
+                Color mbSecondary = SecondaryColor ?? VFXUtilities.PaletteLerp(ThemePalette, 0.7f);
+                MotionBlurBloomRenderer.DrawProjectile(Main.spriteBatch, projTex, Projectile,
+                    mbPrimary, mbSecondary, BloomIntensity);
+            }
+
             // Draw Bézier trail
             if (UseBezierTrails && PositionHistory.Count >= 3)
             {

@@ -21,7 +21,7 @@ namespace MagnumOpus.Common.Systems.Metaballs
     [Autoload(Side = ModSide.Client)]
     public sealed class MagnumMetaballShaders : ModSystem
     {
-        private const string ShaderPath = "Assets/Shaders/";
+        private const string ShaderPath = "Effects/";
         private const string ShaderPrefix = "MagnumOpus:";
         
         /// <summary>
@@ -51,14 +51,21 @@ namespace MagnumOpus.Common.Systems.Metaballs
         {
             try
             {
-                // First check if the asset exists before trying to load it
-                // Use AsyncLoad mode which doesn't throw immediately
-                var asset = Mod.Assets.Request<Effect>($"{ShaderPath}{path}", AssetRequestMode.AsyncLoad);
+                // Check if the compiled shader asset exists BEFORE requesting it.
+                // Mod.Assets.Request registers a tracked asset; if it's missing,
+                // Mod.TransferAllAssets() throws MissingResourceException and
+                // fatally disables the entire mod — even if we catch the exception here.
+                string fullPath = $"{ShaderPath}{path}";
+                if (!Mod.HasAsset(fullPath))
+                {
+                    Mod.Logger.Info($"MagnumMetaballShaders: {fullPath} not found — skipping.");
+                    return null;
+                }
+
+                var asset = Mod.Assets.Request<Effect>(fullPath, AssetRequestMode.AsyncLoad);
                 
-                // Force load to check if it actually exists
                 if (asset != null && asset.State != AssetState.NotLoaded)
                 {
-                    // Wait for it to load
                     asset.Wait();
                     if (asset.Value != null)
                         return asset;
@@ -85,8 +92,7 @@ namespace MagnumOpus.Common.Systems.Metaballs
         
         public override void Load()
         {
-            // Nothing to do - shaders load in PostSetupContent
-            ShadersAvailable = false;
+            // Shaders are loaded in PostSetupContent after all content is available
         }
         
         public override void PostSetupContent()
@@ -95,18 +101,6 @@ namespace MagnumOpus.Common.Systems.Metaballs
             if (Main.dedServ)
                 return;
             
-            // DISABLED: Shader loading is disabled until properly compiled .xnb files exist
-            // The metaball system will use particle-based fallback which still looks great
-            ShadersAvailable = false;
-            Mod.Logger.Info("MagnumMetaballShaders: Using particle-based fallback (no compiled shaders).");
-            
-            // NOTE: To enable metaball shaders:
-            // 1. Compile MetaballEdgeShader.fx and AdditiveMetaballEdgeShader.fx 
-            //    from ShaderSource/ using FNA-compatible tools
-            // 2. Place compiled .xnb files in Assets/Shaders/
-            // 3. Uncomment the shader loading code below
-            
-            /*
             bool success = true;
             
             try
@@ -120,7 +114,7 @@ namespace MagnumOpus.Common.Systems.Metaballs
                 }
                 else
                 {
-                    Mod.Logger.Warn("MagnumMetaballShaders: MetaballEdgeShader loaded but Value is null.");
+                    Mod.Logger.Warn("MagnumMetaballShaders: MetaballEdgeShader not found or loaded as null.");
                     success = false;
                 }
             }
@@ -141,7 +135,7 @@ namespace MagnumOpus.Common.Systems.Metaballs
                 }
                 else
                 {
-                    Mod.Logger.Warn("MagnumMetaballShaders: AdditiveMetaballEdgeShader loaded but Value is null.");
+                    Mod.Logger.Warn("MagnumMetaballShaders: AdditiveMetaballEdgeShader not found or loaded as null.");
                     success = false;
                 }
             }
@@ -159,9 +153,8 @@ namespace MagnumOpus.Common.Systems.Metaballs
             }
             else
             {
-                Mod.Logger.Info("MagnumMetaballShaders: Some shaders failed to load - using particle-based fallback.");
+                Mod.Logger.Info("MagnumMetaballShaders: Some shaders failed to load — using particle-based fallback.");
             }
-            */
         }
         
         public override void Unload()

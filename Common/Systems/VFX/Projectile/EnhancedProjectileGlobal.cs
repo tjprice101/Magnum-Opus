@@ -451,6 +451,17 @@ namespace MagnumOpus.Common.Systems.VFX
             // Draw multi-layer bloom behind the projectile
             DrawBloomLayers(projectile, config);
             
+            // Motion blur bloom (shader-based directional blur along velocity)
+            // Guard: skip if this projectile already applies its own blur via EnhancedProjectileBase
+            if (!(projectile.ModProjectile is EnhancedProjectileBase) && projectile.velocity.LengthSquared() > 1f)
+            {
+                Texture2D projTex = TextureAssets.Projectile[projectile.type].Value;
+                Color mbPrimary = VFXUtilities.PaletteLerp(themePalette, 0.3f);
+                Color mbSecondary = VFXUtilities.PaletteLerp(themePalette, 0.7f);
+                MotionBlurBloomRenderer.DrawProjectile(Main.spriteBatch, projTex, projectile,
+                    mbPrimary, mbSecondary, config.BloomIntensity);
+            }
+            
             // Draw Bézier trail
             if (config.UseBezierTrails && positionHistory.Count >= 3)
             {

@@ -19,7 +19,7 @@ namespace MagnumOpus.Common.Systems.VFX
     [Autoload(Side = ModSide.Client)]
     public sealed class SwingShaderSystem : ModSystem
     {
-        private const string ShaderPath = "Assets/Shaders/";
+        private const string ShaderPath = "Effects/";
         private const string ShaderPrefix = "MagnumOpus:";
 
         /// <summary>
@@ -42,28 +42,9 @@ namespace MagnumOpus.Common.Systems.VFX
         /// </summary>
         public static Texture2D NoiseTexture { get; private set; }
 
-        private Asset<Effect> LoadShader(string path)
-        {
-            try
-            {
-                var asset = Mod.Assets.Request<Effect>($"{ShaderPath}{path}", AssetRequestMode.AsyncLoad);
-                if (asset != null && asset.State != AssetState.NotLoaded)
-                {
-                    asset.Wait();
-                    if (asset.Value != null)
-                        return asset;
-                }
-            }
-            catch
-            {
-                // Shader not available
-            }
-            return null;
-        }
-
         public override void Load()
         {
-            ShadersAvailable = false;
+            // Shaders are loaded in PostSetupContent after all content is available
         }
 
         public override void PostSetupContent()
@@ -74,19 +55,41 @@ namespace MagnumOpus.Common.Systems.VFX
             // Try to load noise texture for shaders
             try
             {
-                var noiseTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX/Noise/VoronoiNoise", AssetRequestMode.ImmediateLoad);
-                if (noiseTex?.Value != null)
-                    NoiseTexture = noiseTex.Value;
+                if (ModContent.HasAsset("MagnumOpus/Assets/VFX/Noise/VoronoiNoise"))
+                {
+                    var noiseTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX/Noise/VoronoiNoise", AssetRequestMode.ImmediateLoad);
+                    if (noiseTex?.Value != null)
+                        NoiseTexture = noiseTex.Value;
+                }
             }
             catch
             {
                 // Use fallback noise
             }
 
-            // Shader loading is disabled until properly compiled .xnb files exist
-            // The swing system will use non-shader fallback rendering
-            ShadersAvailable = false;
-            Mod.Logger.Info("SwingShaderSystem: Using non-shader fallback rendering.");
+            // Attempt to load swing shader from Effects/ (tModLoader auto-compiles .fx)
+            // Check existence BEFORE requesting to avoid fatal tracked-asset failure.
+            try
+            {
+                if (ModContent.HasAsset("MagnumOpus/Effects/TerraBladeSwingVFX"))
+                {
+                    SwingSpriteShader = ModContent.Request<Effect>("MagnumOpus/Effects/TerraBladeSwingVFX", AssetRequestMode.ImmediateLoad);
+                    ShadersAvailable = SwingSpriteShader?.Value != null;
+                }
+                else
+                {
+                    ShadersAvailable = false;
+                }
+            }
+            catch
+            {
+                ShadersAvailable = false;
+            }
+
+            if (ShadersAvailable)
+                Mod.Logger.Info("SwingShaderSystem: Swing shader loaded successfully.");
+            else
+                Mod.Logger.Info("SwingShaderSystem: Swing shader not available — using fallback rendering.");
         }
 
         public override void Unload()

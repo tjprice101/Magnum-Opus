@@ -47,6 +47,7 @@ namespace MagnumOpus.Common.Systems.VFX.Optimization
         public bool EnableShaders => currentQuality >= QualityLevel.Medium;
         public bool EnableNoise => currentQuality >= QualityLevel.High;
         public bool EnableBloom => currentQuality >= QualityLevel.Medium;
+        public bool EnableMotionBlurBloom => currentQuality >= QualityLevel.High;
 
         public int MaxParticles => currentQuality switch
         {

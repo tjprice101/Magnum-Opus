@@ -7,6 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
+using MagnumOpus.Content.MoonlightSonata.VFX.IncisorOfMoonlight;
 using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
@@ -257,7 +258,7 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
             Texture2D glowTex = Terraria.GameContent.TextureAssets.Extra[ExtrasID.SharpTears].Value;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             
-            // Draw expanding crescent moon beam trail
+            // Draw expanding crescent moon beam trail with Incisor resonant shimmer
             for (int i = 0; i < Projectile.oldPos.Length - 1; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) 
@@ -265,45 +266,52 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
                 
                 float progress = (float)i / Projectile.oldPos.Length;
                 float alpha = (1f - progress) * 0.9f;
-                float trailScale = (1f - progress * 0.3f) * Projectile.scale * 0.8f;
+                float shimmer = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 6f + progress * 8f) * 0.08f;
+                float trailScale = (1f - progress * 0.3f) * Projectile.scale * 0.8f * shimmer;
                 
                 Vector2 drawPos = Projectile.oldPos[i] - Main.screenPosition + Projectile.Size / 2f;
                 
-                // Large outer moon glow - light blue
+                // Layer 1 (outermost): DeepResonance haze — Incisor's signature purple
+                Color resonanceHaze = IncisorOfMoonlightVFX.DeepResonance with { A = 0 };
+                spriteBatch.Draw(glowTex, drawPos, null, resonanceHaze * alpha * 0.25f, 
+                    Projectile.rotation, glowOrigin, trailScale * 2.8f, SpriteEffects.None, 0f);
+                
+                // Layer 2: Light blue outer moon glow
                 Color outerMoon = UnifiedVFX.MoonlightSonata.LightBlue with { A = 0 };
                 spriteBatch.Draw(glowTex, drawPos, null, outerMoon * alpha * 0.4f, 
-                    Projectile.rotation, glowOrigin, trailScale * 2.2f, SpriteEffects.None, 0f);
+                    Projectile.rotation, glowOrigin, trailScale * 2.0f, SpriteEffects.None, 0f);
                 
-                // Middle purple core
-                Color midMoon = UnifiedVFX.MoonlightSonata.MediumPurple with { A = 0 };
+                // Layer 3: FrequencyPulse mid-core — shifts along trail length
+                Color midMoon = Color.Lerp(IncisorOfMoonlightVFX.FrequencyPulse, UnifiedVFX.MoonlightSonata.MediumPurple, progress) with { A = 0 };
                 spriteBatch.Draw(glowTex, drawPos, null, midMoon * alpha * 0.6f, 
-                    Projectile.rotation, glowOrigin, trailScale * 1.5f, SpriteEffects.None, 0f);
+                    Projectile.rotation, glowOrigin, trailScale * 1.4f, SpriteEffects.None, 0f);
                 
-                // Inner crescent highlight
-                Color innerMoon = Color.White with { A = 0 };
+                // Layer 4: ResonantSilver inner highlight
+                Color innerMoon = IncisorOfMoonlightVFX.ResonantSilver with { A = 0 };
                 spriteBatch.Draw(glowTex, drawPos, null, innerMoon * alpha * 0.5f, 
-                    Projectile.rotation, glowOrigin, trailScale * 0.9f, SpriteEffects.None, 0f);
+                    Projectile.rotation, glowOrigin, trailScale * 0.8f, SpriteEffects.None, 0f);
             }
             
-            // Draw massive main crescent glow at projectile center
+            // Draw massive main crescent glow at projectile center with resonant pulse
             float fadeAlpha = 1f - (Projectile.alpha / 255f);
+            float pulse = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 8f) * 0.06f;
             Vector2 mainPos = Projectile.Center - Main.screenPosition;
             
-            // Outermost ethereal glow
-            spriteBatch.Draw(glowTex, mainPos, null, UnifiedVFX.MoonlightSonata.DarkPurple with { A = 0 } * fadeAlpha * 0.3f, 
-                Projectile.rotation, glowOrigin, Projectile.scale * 2.8f, SpriteEffects.None, 0f);
+            // Layer 1 (outermost): DeepResonance ethereal haze
+            spriteBatch.Draw(glowTex, mainPos, null, IncisorOfMoonlightVFX.DeepResonance with { A = 0 } * fadeAlpha * 0.30f, 
+                Projectile.rotation, glowOrigin, Projectile.scale * 2.8f * pulse, SpriteEffects.None, 0f);
             
-            // Large blue moon aura
-            spriteBatch.Draw(glowTex, mainPos, null, UnifiedVFX.MoonlightSonata.LightBlue with { A = 0 } * fadeAlpha * 0.5f, 
-                Projectile.rotation, glowOrigin, Projectile.scale * 2.0f, SpriteEffects.None, 0f);
+            // Layer 2: Light blue moon aura
+            spriteBatch.Draw(glowTex, mainPos, null, UnifiedVFX.MoonlightSonata.LightBlue with { A = 0 } * fadeAlpha * 0.50f, 
+                Projectile.rotation, glowOrigin, Projectile.scale * 2.0f * pulse, SpriteEffects.None, 0f);
             
-            // Mid purple crescent
-            spriteBatch.Draw(glowTex, mainPos, null, UnifiedVFX.MoonlightSonata.MediumPurple with { A = 0 } * fadeAlpha * 0.7f, 
-                Projectile.rotation, glowOrigin, Projectile.scale * 1.3f, SpriteEffects.None, 0f);
+            // Layer 3: FrequencyPulse mid crescent
+            spriteBatch.Draw(glowTex, mainPos, null, IncisorOfMoonlightVFX.FrequencyPulse with { A = 0 } * fadeAlpha * 0.70f, 
+                Projectile.rotation, glowOrigin, Projectile.scale * 1.3f * pulse, SpriteEffects.None, 0f);
             
-            // Bright white core
-            spriteBatch.Draw(glowTex, mainPos, null, Color.White with { A = 0 } * fadeAlpha * 0.8f, 
-                Projectile.rotation, glowOrigin, Projectile.scale * 0.6f, SpriteEffects.None, 0f);
+            // Layer 4: HarmonicWhite bright core
+            spriteBatch.Draw(glowTex, mainPos, null, IncisorOfMoonlightVFX.HarmonicWhite with { A = 0 } * fadeAlpha * 0.85f, 
+                Projectile.rotation, glowOrigin, Projectile.scale * 0.6f * pulse, SpriteEffects.None, 0f);
             
             // Reset to normal blending
             MagnumVFX.EndAdditiveBlend(spriteBatch);

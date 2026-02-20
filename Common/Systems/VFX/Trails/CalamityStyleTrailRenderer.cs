@@ -443,9 +443,6 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
                 float width = widthFunc(progress);
                 Color color = colorFunc(progress);
 
-                // CRITICAL: Remove alpha for proper additive blending
-                color = color with { A = 0 };
-
                 // Calculate perpendicular direction
                 Vector2 direction;
                 if (i == 0 && positionCount > 1)
@@ -493,9 +490,6 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
                 float progress = (float)i / (positions.Count - 1);
                 float width = widthFunc(progress);
                 Color color = colorFunc(progress);
-
-                // CRITICAL: Remove alpha for proper additive blending
-                color = color with { A = 0 };
 
                 // Calculate perpendicular direction
                 Vector2 direction;
