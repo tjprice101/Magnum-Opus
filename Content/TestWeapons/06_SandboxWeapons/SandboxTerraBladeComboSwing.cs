@@ -11,6 +11,7 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Trails;
 using MagnumOpus.Content.TestWeapons.SandboxWeapons.Shaders;
+using MagnumOpus.Common.Systems.Particles;
 using static MagnumOpus.Common.Systems.Particles.Particle;
 
 namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
@@ -30,16 +31,16 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         private static readonly CurveSegment[] DownswingCurve = new CurveSegment[]
         {
             new CurveSegment(EasingType.SineIn,  0.00f, -1.0f,   0.20f, 2),
-            new CurveSegment(EasingType.PolyIn,  0.25f, -0.80f,  1.90f, 3),
-            new CurveSegment(EasingType.PolyOut, 0.80f,  1.10f, -0.10f, 2),
+            new CurveSegment(EasingType.PolyIn,  0.25f, -0.80f,  1.72f, 3),
+            new CurveSegment(EasingType.SineOut, 0.80f,  0.92f,  0.08f, 2),
         };
 
         // Phase 1: Quick upswing — starts below, ends above-forward (flipped)
         private static readonly CurveSegment[] UpswingCurve = new CurveSegment[]
         {
             new CurveSegment(EasingType.SineIn,  0.00f,  1.0f,  -0.20f, 2),
-            new CurveSegment(EasingType.PolyIn,  0.25f,  0.80f, -1.90f, 3),
-            new CurveSegment(EasingType.PolyOut, 0.80f, -1.10f,  0.10f, 2),
+            new CurveSegment(EasingType.PolyIn,  0.25f,  0.80f, -1.72f, 3),
+            new CurveSegment(EasingType.SineOut, 0.80f, -0.92f, -0.08f, 2),
         };
 
         private const float DownswingMaxAngle = MathHelper.PiOver2 * 2.0f;  // ~160°
@@ -287,6 +288,19 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                         -SwordDirection * Main.rand.NextFloat(1f, 3f), 0,
                         TerraBladeShaderManager.GetPaletteColor(Main.rand.NextFloat(0.2f, 0.8f)), 1.5f);
                     d.noGravity = true;
+                    d.fadeIn = 1.2f;
+                }
+
+                // GlowSpark particles along blade (sparkle dust)
+                if (Timer % 2 == 0)
+                {
+                    float bladeT = Main.rand.NextFloat(0.3f, 1f);
+                    Vector2 sparkPos = Owner.MountedCenter + SwordDirection * BladeLength * bladeT;
+                    Vector2 perpendicular = new Vector2(-SwordDirection.Y, SwordDirection.X);
+                    Vector2 sparkVel = perpendicular * Main.rand.NextFloat(-2f, 2f) + -SwordDirection * Main.rand.NextFloat(0.5f, 1.5f);
+                    Color sparkColor = TerraBladeShaderManager.GetPaletteColor(Main.rand.NextFloat(0.3f, 0.8f));
+                    var spark = new GlowSparkParticle(sparkPos, sparkVel, sparkColor, Main.rand.NextFloat(0.15f, 0.30f), 15);
+                    MagnumParticleHandler.SpawnParticle(spark);
                 }
             }
 
@@ -395,12 +409,16 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             float baseScale = BladeLength / bladeTex.Height;
             float squish = SquishAtProgress(Progression);
 
+            // Velocity-based directional stretch: blade elongates along its length at high speed
+            float velocityStretch = 1f + swingSpeed * 0.20f;
+            float velocityCompress = 1f - swingSpeed * 0.10f;
+
             ctx = new DrawContext
             {
                 BladeTex = bladeTex,
                 Origin = new Vector2(0, bladeTex.Height),
                 DrawPos = Owner.MountedCenter - Main.screenPosition,
-                Scale = new Vector2(baseScale * (1f + (1f - squish) * 0.6f), baseScale * squish),
+                Scale = new Vector2(baseScale * (1f + (1f - squish) * 0.6f) * velocityCompress, baseScale * squish * velocityStretch),
                 Rotation = SwordRotation + (Direction == -1 ? MathHelper.Pi : 0),
                 Effects = Direction == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                 Time = Main.GlobalTimeWrappedHourly,
@@ -518,7 +536,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                     TerraBladeShaderManager.BeginShaderAdditive(sb);
                     TerraBladeShaderManager.ApplySlashSmear(shader, Progression, ctx.SwingSpeed, Direction, ctx.Time);
 
-                    Color smearColor = TerraBladeShaderManager.GetPaletteColor(0.5f) * smearAlpha;
+                    Color smearColor = (TerraBladeShaderManager.GetPaletteColor(0.5f) with { A = 0 }) * smearAlpha;
                     sb.Draw(smearTex, ctx.DrawPos, null, smearColor, ctx.Rotation, smearOrigin, baseSmearScale, smearFlip, 0f);
 
                     TerraBladeShaderManager.RestoreSpriteBatch(sb);
@@ -537,15 +555,15 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 {
                     TerraBladeShaderManager.BeginAdditive(sb);
 
-                    Color outerSmear = TerraBladeShaderManager.GetPaletteColor(0.2f);
+                    Color outerSmear = TerraBladeShaderManager.GetPaletteColor(0.2f) with { A = 0 };
                     sb.Draw(smearTex, ctx.DrawPos, null, outerSmear * smearAlpha * 0.35f,
                         ctx.Rotation, smearOrigin, baseSmearScale * 1.1f, smearFlip, 0f);
 
-                    Color mainSmear = TerraBladeShaderManager.GetPaletteColor(0.5f);
+                    Color mainSmear = TerraBladeShaderManager.GetPaletteColor(0.5f) with { A = 0 };
                     sb.Draw(smearTex, ctx.DrawPos, null, mainSmear * smearAlpha * 0.65f,
                         ctx.Rotation, smearOrigin, baseSmearScale, smearFlip, 0f);
 
-                    Color coreSmear = TerraBladeShaderManager.GetPaletteColor(0.8f);
+                    Color coreSmear = TerraBladeShaderManager.GetPaletteColor(0.8f) with { A = 0 };
                     sb.Draw(smearTex, ctx.DrawPos, null, coreSmear * smearAlpha * 0.45f,
                         ctx.Rotation, smearOrigin, baseSmearScale * 0.9f, smearFlip, 0f);
 
@@ -582,7 +600,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 TerraBladeShaderManager.BeginAdditive(sb);
 
                 int afterimageCount = 5;
-                float stepSize = 0.02f;
+                float stepSize = 0.015f + ctx.SwingSpeed * 0.015f;
 
                 for (int i = 1; i <= afterimageCount; i++)
                 {
@@ -591,10 +609,10 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
 
                     float pastRotation = SwordRotationAtProgress(pastProgress);
                     float t = (float)i / afterimageCount;
-                    float afterimageAlpha = (1f - t) * 0.25f;
+                    float afterimageAlpha = (1f - t) * (0.10f + ctx.SwingSpeed * 0.25f);
                     float rotation = pastRotation + (Direction == -1 ? MathHelper.Pi : 0);
 
-                    Color afterColor = TerraBladeShaderManager.GetPaletteColor(0.4f + t * 0.4f)
+                    Color afterColor = (TerraBladeShaderManager.GetPaletteColor(0.4f + t * 0.4f) with { A = 0 })
                         * afterimageAlpha;
 
                     sb.Draw(ctx.BladeTex, ctx.DrawPos, null, afterColor,
@@ -621,12 +639,53 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             {
                 TerraBladeShaderManager.BeginAdditive(sb);
 
-                // Blade glow (2 layers)
-                Color glowColor = TerraBladeShaderManager.GetPaletteColor(0.4f + Progression * 0.5f) * 0.3f;
+                // Blade glow (2 layers — intensity scales with swing speed)
+                float paletteShift = ctx.SwingSpeed * 0.15f;
+                float glowMult = 0.2f + ctx.SwingSpeed * 0.6f;
+                Color glowColor = (TerraBladeShaderManager.GetPaletteColor(0.4f + Progression * 0.5f + paletteShift) with { A = 0 }) * glowMult;
                 sb.Draw(ctx.BladeTex, ctx.DrawPos, null, glowColor,
                     ctx.Rotation, ctx.Origin, ctx.Scale * 1.05f, ctx.Effects, 0f);
                 sb.Draw(ctx.BladeTex, ctx.DrawPos, null, glowColor * 0.5f,
                     ctx.Rotation, ctx.Origin, ctx.Scale * 1.12f, ctx.Effects, 0f);
+
+                // Radial noise flame overlay (2 layers using UniversalRadialFlowNoise)
+                {
+                    Texture2D radialNoise = ShaderLoader.GetNoiseTexture("UniversalRadialFlowNoise");
+                    Effect flameShader = TerraBladeShaderManager.GetShader();
+                    if (radialNoise != null && flameShader != null && TerraBladeShaderManager.IsAvailable)
+                    {
+                        try
+                        {
+                            TerraBladeShaderManager.RestoreSpriteBatch(sb);
+                            var device = Main.instance.GraphicsDevice;
+                            device.Textures[1] = radialNoise;
+                            device.SamplerStates[1] = SamplerState.LinearWrap;
+                            TerraBladeShaderManager.BeginShaderAdditive(sb);
+                            float flameIntensity = 1.0f + ctx.SwingSpeed * 1.5f;
+                            float flameOverbright = 1.5f + ctx.SwingSpeed * 1.8f;
+                            TerraBladeShaderManager.ApplyShimmerOverlay(
+                                flameShader, Progression, ctx.SwingSpeed, Direction, ctx.Time,
+                                intensity: flameIntensity, overbright: flameOverbright);
+
+                            Color flameColor1 = (TerraBladeShaderManager.GetPaletteColor(0.5f) with { A = 0 }) * 0.5f;
+                            sb.Draw(ctx.BladeTex, ctx.DrawPos, null, flameColor1,
+                                ctx.Rotation, ctx.Origin, ctx.Scale * 1.02f, ctx.Effects, 0f);
+
+                            Color flameColor2 = (TerraBladeShaderManager.GetPaletteColor(0.7f) with { A = 0 }) * 0.35f;
+                            sb.Draw(ctx.BladeTex, ctx.DrawPos, null, flameColor2,
+                                ctx.Rotation, ctx.Origin, ctx.Scale * 1.06f, ctx.Effects, 0f);
+
+                            TerraBladeShaderManager.RestoreSpriteBatch(sb);
+                            TerraBladeShaderManager.BeginAdditive(sb);
+                        }
+                        catch
+                        {
+                            try { sb.End(); } catch { }
+                            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                        }
+                    }
+                }
 
                 // Shimmer overlay on blade (iridescent scrolling noise)
                 Effect shader = TerraBladeShaderManager.GetShader();
@@ -637,11 +696,13 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                         TerraBladeShaderManager.RestoreSpriteBatch(sb);
                         TerraBladeShaderManager.BindShimmerTexture(Main.instance.GraphicsDevice);
                         TerraBladeShaderManager.BeginShaderAdditive(sb);
+                        float shimmerIntensity = 1.0f + ctx.SwingSpeed * 1.5f;
+                        float shimmerOverbright = 1.5f + ctx.SwingSpeed * 1.5f;
                         TerraBladeShaderManager.ApplyShimmerOverlay(
                             shader, Progression, ctx.SwingSpeed, Direction, ctx.Time,
-                            afterimageOffset: 0f, intensity: 1.8f, overbright: 2.5f);
+                            afterimageOffset: 0f, intensity: shimmerIntensity, overbright: shimmerOverbright);
 
-                        Color shimmerColor = Color.White * 0.3f;
+                        Color shimmerColor = (Color.White with { A = 0 }) * (0.1f + ctx.SwingSpeed * 0.4f);
                         sb.Draw(ctx.BladeTex, ctx.DrawPos, null, shimmerColor,
                             ctx.Rotation, ctx.Origin, ctx.Scale, ctx.Effects, 0f);
 
@@ -657,18 +718,18 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                     }
                 }
 
-                // Lens flare at tip (3 layers)
+                // Lens flare at tip (3 layers — scales with swing speed)
                 Texture2D flareTex = Terraria.GameContent.TextureAssets.Extra[98].Value;
                 Vector2 flareOrigin = flareTex.Size() * 0.5f;
                 float pulse = 1f + MathF.Sin(ctx.Time * 10f) * 0.15f;
-                float baseScale = 0.25f * pulse;
-                Color flareColor = TerraBladeShaderManager.GetPaletteColor(0.6f + Progression * 0.3f);
+                float baseScale = (0.10f + ctx.SwingSpeed * 0.20f) * pulse;
+                Color flareColor = TerraBladeShaderManager.GetPaletteColor(0.6f + Progression * 0.3f) with { A = 0 };
 
                 sb.Draw(flareTex, ctx.TipScreen, null, flareColor * 0.7f,
                     0f, flareOrigin, baseScale, SpriteEffects.None, 0f);
                 sb.Draw(flareTex, ctx.TipScreen, null, flareColor * 0.4f,
                     MathHelper.PiOver4, flareOrigin, baseScale * 0.7f, SpriteEffects.None, 0f);
-                sb.Draw(flareTex, ctx.TipScreen, null, Color.White * 0.3f,
+                sb.Draw(flareTex, ctx.TipScreen, null, (Color.White with { A = 0 }) * 0.3f,
                     0f, flareOrigin, baseScale * 0.35f, SpriteEffects.None, 0f);
 
                 TerraBladeShaderManager.RestoreSpriteBatch(sb);
@@ -689,14 +750,14 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         {
             if (Progression < 0.08f || Progression > 0.95f) return;
 
-            float swingSpeed = Progression < 0.5f ? Progression * 2f : 1f;
-            float blurStrength = 0.08f * swingSpeed;
+            float blurStrength = 0.02f + ctx.SwingSpeed * 0.12f;
+            float blurIntensity = 0.6f + ctx.SwingSpeed * 0.8f;
 
             MotionBlurBloomRenderer.DrawMeleeSwing(
                 sb, ctx.BladeTex, ctx.DrawPos, SwordDirection,
                 TerraBladeShaderManager.GetPaletteColor(0.5f),
                 TerraBladeShaderManager.GetPaletteColor(0.8f),
-                Math.Max(ctx.Scale.X, ctx.Scale.Y), ctx.Rotation, blurStrength, 1.0f,
+                Math.Max(ctx.Scale.X, ctx.Scale.Y), ctx.Rotation, blurStrength, blurIntensity,
                 origin: ctx.Origin);
         }
 
@@ -726,6 +787,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 Dust d = Dust.NewDustPerfect(hitPos, DustID.GreenTorch, vel, 0,
                     TerraBladeShaderManager.GetPaletteColor(Main.rand.NextFloat()), 1.3f);
                 d.noGravity = true;
+                d.fadeIn = 1.2f;
             }
 
             for (int i = 0; i < 4; i++)
@@ -733,6 +795,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 Vector2 vel = Main.rand.NextVector2Circular(4f, 4f);
                 Dust d = Dust.NewDustPerfect(hitPos, DustID.Enchanted_Gold, vel, 0, Color.White, 0.9f);
                 d.noGravity = true;
+                d.fadeIn = 1.2f;
             }
 
             for (int i = 0; i < 3; i++)
@@ -744,6 +807,29 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             }
 
             Lighting.AddLight(hitPos, 0.5f, 1f, 0.6f);
+
+            // Impact light beams (3-4 radially distributed)
+            if (Main.myPlayer == Projectile.owner)
+            {
+                int beamCount = Main.rand.Next(3, 5);
+                float baseAngle = SwordRotation;
+                float spread = MathHelper.TwoPi / beamCount;
+                for (int i = 0; i < beamCount; i++)
+                {
+                    float angle = baseAngle + spread * i + Main.rand.NextFloat(-0.3f, 0.3f);
+                    Projectile.NewProjectile(Projectile.GetSource_FromThis(), hitPos, Vector2.Zero,
+                        ModContent.ProjectileType<ImpactLightBeamVFX>(), 0, 0f, Projectile.owner, ai0: angle);
+                }
+
+                // Anamorphic streaks (1-2 perpendicular to blade)
+                int streakCount = Main.rand.Next(1, 3);
+                for (int i = 0; i < streakCount; i++)
+                {
+                    float streakRot = SwordRotation + MathHelper.PiOver2 + Main.rand.NextFloat(-0.2f, 0.2f);
+                    Projectile.NewProjectile(Projectile.GetSource_FromThis(), hitPos, Vector2.Zero,
+                        ModContent.ProjectileType<AnamorphicStreakVFX>(), 0, 0f, Projectile.owner, ai0: streakRot);
+                }
+            }
         }
 
         #endregion

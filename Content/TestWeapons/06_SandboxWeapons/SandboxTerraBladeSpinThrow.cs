@@ -195,6 +195,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.GreenTorch,
                     -Projectile.velocity * 0.2f, 0, dustColor, 1.3f);
                 d.noGravity = true;
+                d.fadeIn = 1.2f;
             }
         }
 
@@ -236,6 +237,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 Color dustColor = TerraBladeShaderManager.GetPaletteColor(Main.rand.NextFloat(0.3f, 0.7f));
                 Dust d = Dust.NewDustPerfect(dustPos, DustID.GreenTorch, dustVel, 0, dustColor, 1.0f);
                 d.noGravity = true;
+                d.fadeIn = 1.2f;
             }
 
             // Music notes every 20 frames
@@ -286,6 +288,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                     -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(1f, 1f),
                     0, dustColor, 1.5f);
                 d.noGravity = true;
+                d.fadeIn = 1.2f;
             }
 
             // Catch — arrived at player
@@ -325,6 +328,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 Color dustColor = TerraBladeShaderManager.GetPaletteColor(Main.rand.NextFloat());
                 Dust d = Dust.NewDustPerfect(flashPos, DustID.GreenTorch, vel, 0, dustColor, 1.5f);
                 d.noGravity = true;
+                d.fadeIn = 1.2f;
             }
 
             // Gold sparks
@@ -333,6 +337,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 Vector2 vel = Main.rand.NextVector2Circular(5f, 5f);
                 Dust d = Dust.NewDustPerfect(flashPos, DustID.Enchanted_Gold, vel, 0, Color.White, 1.0f);
                 d.noGravity = true;
+                d.fadeIn = 1.2f;
             }
 
             // Music notes
@@ -497,7 +502,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                     shader, spinProgress, 1f, 1f, time,
                     intensity: 2.0f, overbright: 3.5f);
 
-                Color shimmerColor = Color.White * 0.6f;
+                Color shimmerColor = (Color.White with { A = 0 }) * 0.6f;
                 sb.Draw(bladeTex, drawPos, null, shimmerColor,
                     Projectile.rotation, origin, scale, SpriteEffects.None, 0f);
 
@@ -509,11 +514,11 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 TerraBladeShaderManager.BeginAdditive(sb);
 
                 float pulse = 0.8f + MathF.Sin(time * 8f) * 0.2f;
-                Color outerColor = TerraBladeShaderManager.GetPaletteColor((time * 0.3f) % 1f);
+                Color outerColor = TerraBladeShaderManager.GetPaletteColor((time * 0.3f) % 1f) with { A = 0 };
                 sb.Draw(bladeTex, drawPos, null, outerColor * 0.25f * pulse,
                     Projectile.rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
 
-                Color midColor = TerraBladeShaderManager.GetPaletteColor((time * 0.3f + 0.33f) % 1f);
+                Color midColor = TerraBladeShaderManager.GetPaletteColor((time * 0.3f + 0.33f) % 1f) with { A = 0 };
                 sb.Draw(bladeTex, drawPos, null, midColor * 0.35f * pulse,
                     Projectile.rotation, origin, scale * 1.005f, SpriteEffects.None, 0f);
 
@@ -528,16 +533,21 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
 
             TerraBladeShaderManager.BeginAdditive(sb);
 
-            Color outerGlow = TerraBladeShaderManager.GetPaletteColor(0.3f);
-            sb.Draw(bladeTex, drawPos, null, outerGlow * 0.12f,
+            // Calamity 4-layer bloom stack with { A = 0 }
+            Color outerGlow = TerraBladeShaderManager.GetPaletteColor(0.3f) with { A = 0 };
+            sb.Draw(bladeTex, drawPos, null, outerGlow * 0.30f,
+                Projectile.rotation, origin, scale * 1.08f * pulse, SpriteEffects.None, 0f);
+
+            Color midGlow = TerraBladeShaderManager.GetPaletteColor(0.5f) with { A = 0 };
+            sb.Draw(bladeTex, drawPos, null, midGlow * 0.50f,
                 Projectile.rotation, origin, scale * 1.04f * pulse, SpriteEffects.None, 0f);
 
-            Color midGlow = TerraBladeShaderManager.GetPaletteColor(0.5f);
-            sb.Draw(bladeTex, drawPos, null, midGlow * 0.18f,
+            Color innerGlow = TerraBladeShaderManager.GetPaletteColor(0.7f) with { A = 0 };
+            sb.Draw(bladeTex, drawPos, null, innerGlow * 0.70f,
                 Projectile.rotation, origin, scale * 1.01f * pulse, SpriteEffects.None, 0f);
 
-            Color coreGlow = Color.White;
-            sb.Draw(bladeTex, drawPos, null, coreGlow * 0.10f,
+            Color coreGlow = Color.White with { A = 0 };
+            sb.Draw(bladeTex, drawPos, null, coreGlow * 0.85f,
                 Projectile.rotation, origin, scale * 0.97f, SpriteEffects.None, 0f);
 
             TerraBladeShaderManager.RestoreSpriteBatch(sb);
@@ -546,7 +556,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         private void DrawTipFlare(SpriteBatch sb, Vector2 drawPos, float time)
         {
             float pulse = 1f + MathF.Sin(time * 10f) * 0.15f;
-            Color flareColor = TerraBladeShaderManager.GetPaletteColor(0.6f);
+            Color flareColor = TerraBladeShaderManager.GetPaletteColor(0.6f) with { A = 0 };
 
             Texture2D starTex = SafeRequest("MagnumOpus/Assets/VFX/Impacts/4-Point Star Impact Burst");
 
@@ -583,7 +593,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
 
             TerraBladeShaderManager.BeginAdditive(sb);
 
-            Color ringColor = TerraBladeShaderManager.GetPaletteColor(0.4f) * 0.15f;
+            Color ringColor = TerraBladeShaderManager.GetPaletteColor(0.4f) with { A = 0 } * 0.15f;
             sb.Draw(bloomTex, orbitCenter, null, ringColor,
                 time * 0.5f, bloomOrigin, ringScale, SpriteEffects.None, 0f);
 
@@ -602,6 +612,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 Color dustColor = TerraBladeShaderManager.GetPaletteColor(Main.rand.NextFloat());
                 Dust d = Dust.NewDustPerfect(target.Center, DustID.GreenTorch, vel, 0, dustColor, 1.3f);
                 d.noGravity = true;
+                d.fadeIn = 1.2f;
             }
 
             Lighting.AddLight(target.Center, 0.5f, 1f, 0.6f);

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.TestWeapons.SandboxWeapons.Shaders;
 
@@ -30,6 +31,11 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         // =====================================================================
 
         private int timer = 0;
+
+        // Disc vertex mesh for circular noise rendering
+        private const int RingSegments = 16;
+        private VertexPositionColorTexture[] _discVerts;
+        private static short[] _discIndices;
 
         // =====================================================================
         //  Setup
@@ -72,6 +78,13 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             if (timer == 1)
             {
                 SpawnBurstParticles();
+
+                // Vertical energy pillar VFX
+                if (Main.myPlayer == Projectile.owner)
+                {
+                    Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero,
+                        ModContent.ProjectileType<VerticalEnergyPillarVFX>(), 0, 0f, Projectile.owner);
+                }
             }
 
             // Ambient sparks during expansion
@@ -83,6 +96,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 Dust d = Dust.NewDustPerfect(sparkPos, DustID.GreenTorch,
                     angle.ToRotationVector2() * Main.rand.NextFloat(1f, 3f), 0, sparkColor, 1.1f);
                 d.noGravity = true;
+                d.fadeIn = 1.2f;
             }
 
             // Lighting
@@ -137,6 +151,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 Color dustColor = TerraBladeShaderManager.GetPaletteColor(Main.rand.NextFloat(0.3f, 0.7f));
                 Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.GreenTorch, dustVel, 0, dustColor, 1.4f);
                 d.noGravity = true;
+                d.fadeIn = 1.2f;
             }
 
             // 6 Enchanted_Gold shimmer
@@ -146,6 +161,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Enchanted_Gold, shimmerVel, 0,
                     TerraBladeShaderManager.GetPaletteColor(0.8f), 1.0f);
                 d.noGravity = true;
+                d.fadeIn = 1.2f;
             }
 
             // 3 expanding bloom rings at staggered scales/opacities
@@ -162,6 +178,59 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                     ringScale, ringLife, expansion);
                 MagnumParticleHandler.SpawnParticle(ring);
             }
+        }
+
+        // =====================================================================
+        //  Disc Mesh
+        // =====================================================================
+
+        private void InitDiscMesh()
+        {
+            _discVerts = new VertexPositionColorTexture[1 + RingSegments];
+
+            if (_discIndices == null)
+            {
+                _discIndices = new short[RingSegments * 3];
+                for (int i = 0; i < RingSegments; i++)
+                {
+                    int idx = i * 3;
+                    _discIndices[idx + 0] = 0;
+                    _discIndices[idx + 1] = (short)(1 + i);
+                    _discIndices[idx + 2] = (short)(1 + (i + 1) % RingSegments);
+                }
+            }
+        }
+
+        private int BuildDiscMesh(Vector2 centerScreen, float radius, float fadeAlpha, float time)
+        {
+            if (_discVerts == null) InitDiscMesh();
+
+            Color centerColor = TerraBladeShaderManager.GetPaletteColor(0.5f) * fadeAlpha;
+            _discVerts[0] = new VertexPositionColorTexture(
+                new Vector3(centerScreen, 0),
+                centerColor,
+                new Vector2(0.5f, 0.5f));
+
+            for (int i = 0; i < RingSegments; i++)
+            {
+                float angle = i / (float)RingSegments * MathHelper.TwoPi;
+                Vector2 offset = angle.ToRotationVector2() * radius;
+                Vector2 pos = centerScreen + offset;
+
+                // Radial UV scrolling: rotate angle over time + scroll outward
+                float scrollAngle = angle + time * 0.8f;
+                float radialScroll = time * 0.5f;
+                float u = 0.5f + MathF.Cos(scrollAngle) * (0.5f + radialScroll);
+                float v = 0.5f + MathF.Sin(scrollAngle) * (0.5f + radialScroll);
+
+                Color edgeColor = TerraBladeShaderManager.GetPaletteColor(0.3f) * fadeAlpha * 0.08f;
+                _discVerts[1 + i] = new VertexPositionColorTexture(
+                    new Vector3(pos, 0),
+                    edgeColor,
+                    new Vector2(u, v));
+            }
+
+            return 1 + RingSegments;
         }
 
         // =====================================================================
@@ -182,31 +251,68 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
 
             // Switch to additive
             sb.End();
+
+            // --- Disc mesh with NatureTechnique shader (circular-masked, UV-scrolling) ---
+            var device = Main.instance.GraphicsDevice;
+            Effect trailShader = ShaderLoader.Trail;
+            float currentRadius = MaxRadius * expandScale;
+
+            try
+            {
+                Texture2D noise = ShaderLoader.GetNoiseTexture("SoftCircularCaustics");
+                if (noise != null)
+                {
+                    device.Textures[1] = noise;
+                    device.SamplerStates[1] = SamplerState.LinearWrap;
+                }
+
+                device.BlendState = BlendState.Additive;
+                device.DepthStencilState = DepthStencilState.None;
+                device.RasterizerState = RasterizerState.CullNone;
+                device.SamplerStates[0] = SamplerState.LinearWrap;
+                device.Textures[0] = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+
+                if (trailShader != null)
+                {
+                    trailShader.CurrentTechnique = trailShader.Techniques["NatureTechnique"];
+                    trailShader.Parameters["uTime"]?.SetValue(time);
+                    trailShader.Parameters["uColor"]?.SetValue(TerraBladeShaderManager.EnergyGreen.ToVector3());
+                    trailShader.Parameters["uSecondaryColor"]?.SetValue(TerraBladeShaderManager.BrightCyan.ToVector3());
+                    trailShader.Parameters["uOpacity"]?.SetValue(fadeAlpha);
+                    trailShader.Parameters["uProgress"]?.SetValue(0f);
+                    trailShader.Parameters["uOverbrightMult"]?.SetValue(4.0f);
+                    trailShader.Parameters["uGlowThreshold"]?.SetValue(0.4f);
+                    trailShader.Parameters["uGlowIntensity"]?.SetValue(2.0f);
+                    trailShader.Parameters["uHasSecondaryTex"]?.SetValue(noise != null ? 1f : 0f);
+                    trailShader.Parameters["uSecondaryTexScale"]?.SetValue(1.0f);
+                    trailShader.Parameters["uSecondaryTexScroll"]?.SetValue(1.2f);
+
+                    int vertCount = BuildDiscMesh(drawPos, currentRadius, fadeAlpha, time);
+
+                    // 3 passes at increasing intensity for layered energy buildup
+                    float[] intensities = { 0.4f, 0.8f, 1.4f };
+                    for (int pass = 0; pass < intensities.Length; pass++)
+                    {
+                        trailShader.Parameters["uIntensity"]?.SetValue(intensities[pass]);
+
+                        foreach (var p in trailShader.CurrentTechnique.Passes)
+                        {
+                            p.Apply();
+                            device.DrawUserIndexedPrimitives(
+                                PrimitiveType.TriangleList,
+                                _discVerts, 0, vertCount,
+                                _discIndices, 0, RingSegments);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                device.Textures[1] = null;
+            }
+
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // --- VoronoiNoise: 3 counter-rotating layers ---
-            Texture2D voronoiTex = SandboxVFXHelper.SafeRequest("MagnumOpus/Assets/VFX/Noise/VoronoiNoise");
-            if (voronoiTex != null)
-            {
-                Vector2 vOrigin = voronoiTex.Size() * 0.5f;
-                float baseScale = (MaxRadius * 2.2f) / Math.Max(voronoiTex.Width, voronoiTex.Height) * expandScale;
-
-                // Layer 1: Outer glow (slow clockwise)
-                Color layer1Color = TerraBladeShaderManager.GetPaletteColor(0.2f);
-                sb.Draw(voronoiTex, drawPos, null, layer1Color * 0.25f * fadeAlpha, time * 0.8f,
-                    vOrigin, baseScale * 1.2f, SpriteEffects.None, 0f);
-
-                // Layer 2: Mid energy (counter-clockwise)
-                Color layer2Color = TerraBladeShaderManager.GetPaletteColor(0.5f);
-                sb.Draw(voronoiTex, drawPos, null, layer2Color * 0.45f * fadeAlpha, -time * 1.2f,
-                    vOrigin, baseScale * 0.9f, SpriteEffects.None, 0f);
-
-                // Layer 3: Core (fast clockwise)
-                Color layer3Color = TerraBladeShaderManager.GetPaletteColor(0.8f);
-                sb.Draw(voronoiTex, drawPos, null, layer3Color * 0.6f * fadeAlpha, time * 2f,
-                    vOrigin, baseScale * 0.6f, SpriteEffects.None, 0f);
-            }
 
             // --- EclipseRing: dark ring outline ---
             Texture2D eclipseTex = SandboxVFXHelper.SafeRequest("MagnumOpus/Assets/VFX/Masks/EclipseRing");

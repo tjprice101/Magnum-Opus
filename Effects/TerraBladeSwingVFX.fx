@@ -250,7 +250,7 @@ float4 ShimmerOverlayPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) 
     noise2UV.y += uTime * uSecondaryTexScroll * 0.4;
     float noise2 = tex2D(uImage1, noise2UV).g;
 
-    float combinedNoise = noise1 * 0.6 + noise2 * 0.4;
+    float combinedNoise = noise1 * 0.7 + noise2 * 0.3;
 
     // --- Sparkle peaks (white-hot points at noise maxima) ---
     float sparkle = saturate((combinedNoise - 0.65) * 5.0);
@@ -273,7 +273,7 @@ float4 ShimmerOverlayPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) 
 
     // Blend rainbow 35% with theme palette 65% for consistency
     float3 themeColor = lerp(uColor, uSecondaryColor, wavelength);
-    float3 iridescentColor = lerp(themeColor, rainbow, 0.35);
+    float3 iridescentColor = lerp(themeColor, rainbow, 0.20);
 
     // --- Edge fade + tip bias ---
     float edgeFade = QuadraticBump(coords.x);
@@ -283,7 +283,7 @@ float4 ShimmerOverlayPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) 
     float speedMod = lerp(0.5, 1.2, uSwingSpeed);
 
     // --- Shimmer visibility mask ---
-    float shimmerMask = saturate(combinedNoise * edgeFade * tipBias * speedMod * 1.5);
+    float shimmerMask = saturate(combinedNoise * edgeFade * tipBias * speedMod * 2.2);
 
     // --- Final composite ---
     float3 shimmerColor = iridescentColor * shimmerMask;

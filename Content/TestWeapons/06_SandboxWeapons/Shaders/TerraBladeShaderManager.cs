@@ -108,12 +108,12 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons.Shaders
         }
 
         /// <summary>
-        /// Binds SparklyNoiseTexture to sampler slot 1 for shimmer effects.
+        /// Binds TileableFBMNoise to sampler slot 1 for fluid shimmer effects.
         /// Falls back to PerlinNoise if unavailable.
         /// </summary>
         public static void BindShimmerTexture(GraphicsDevice device)
         {
-            Texture2D shimmerNoise = ShaderLoader.GetNoiseTexture("SparklyNoiseTexture");
+            Texture2D shimmerNoise = ShaderLoader.GetNoiseTexture("TileableFBMNoise");
             if (shimmerNoise == null)
                 shimmerNoise = ShaderLoader.GetNoiseTexture("PerlinNoise");
             if (shimmerNoise != null)
@@ -257,8 +257,8 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons.Shaders
 
             // Override noise params for shimmer (higher scale, faster scroll)
             float speedScale = MathHelper.Lerp(0.8f, 1.4f, swingSpeed);
-            shader.Parameters["uSecondaryTexScale"]?.SetValue(2.0f);
-            shader.Parameters["uSecondaryTexScroll"]?.SetValue(0.5f * speedScale);
+            shader.Parameters["uSecondaryTexScale"]?.SetValue(1.5f);
+            shader.Parameters["uSecondaryTexScroll"]?.SetValue(0.8f * speedScale);
 
             shader.CurrentTechnique = shader.Techniques["ShimmerOverlay"];
             shader.CurrentTechnique.Passes[0].Apply();

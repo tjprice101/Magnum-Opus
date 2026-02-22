@@ -104,7 +104,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 float t = (float)i / lightSteps;
                 Vector2 lightPos = Vector2.Lerp(Projectile.Center, target.Center, t);
                 Color lc = TerraBladeShaderManager.GetPaletteColor(0.5f);
-                Lighting.AddLight(lightPos, lc.ToVector3() * 0.7f);
+                Lighting.AddLight(lightPos, lc.ToVector3() * 1.2f);
             }
         }
 
@@ -285,7 +285,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                     trailShader.Parameters["uSecondaryColor"]?.SetValue(TerraBladeShaderManager.BrightCyan.ToVector3());
                     trailShader.Parameters["uOpacity"]?.SetValue(1f);
                     trailShader.Parameters["uProgress"]?.SetValue(0f);
-                    trailShader.Parameters["uOverbrightMult"]?.SetValue(3.5f);
+                    trailShader.Parameters["uOverbrightMult"]?.SetValue(5.0f);
                     trailShader.Parameters["uGlowThreshold"]?.SetValue(0.4f);
                     trailShader.Parameters["uGlowIntensity"]?.SetValue(2f);
                     trailShader.Parameters["uHasSecondaryTex"]?.SetValue(noise != null ? 1f : 0f);
@@ -308,12 +308,26 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                         }
                     }
 
-                    // Pass 2: Main beam body
+                    // Pass 2: Main beam body (vibrant)
                     vertCount = BuildWaveBeamMesh(startWorld, endWorld, 1.0f,
-                        TerraBladeShaderManager.GetPaletteColor(0.5f), fadeAlpha * 0.65f, time);
+                        TerraBladeShaderManager.GetPaletteColor(0.5f), fadeAlpha * 0.85f, time);
                     if (vertCount >= 4)
                     {
-                        trailShader.Parameters["uIntensity"]?.SetValue(1.4f);
+                        trailShader.Parameters["uIntensity"]?.SetValue(2.2f);
+                        foreach (var p in trailShader.CurrentTechnique.Passes)
+                        {
+                            p.Apply();
+                            device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList,
+                                _beamVerts, 0, vertCount, _beamIndices, 0, primitiveCount);
+                        }
+                    }
+
+                    // Pass 2.5: Intermediate bloom (bright bridge between main body and core)
+                    vertCount = BuildWaveBeamMesh(startWorld, endWorld, 1.4f,
+                        TerraBladeShaderManager.GetPaletteColor(0.65f), fadeAlpha * 0.4f, time);
+                    if (vertCount >= 4)
+                    {
+                        trailShader.Parameters["uIntensity"]?.SetValue(1.6f);
                         foreach (var p in trailShader.CurrentTechnique.Passes)
                         {
                             p.Apply();

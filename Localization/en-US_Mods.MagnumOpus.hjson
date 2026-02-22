@@ -7585,4 +7585,9 @@ Projectiles: {
 	CosmicSpinShard.DisplayName: Cosmic Spin Shard
 	SandboxTerraBladeComboSwing.DisplayName: Sandbox Terra Blade Combo Swing
 	SandboxTerraBladeSpinThrow.DisplayName: Sandbox Terra Blade Spin Throw
+	AnamorphicStreakVFX.DisplayName: Anamorphic Streak V F X
+	ImpactLightBeamVFX.DisplayName: Impact Light Beam V F X
+	LingeringFlameZone.DisplayName: Lingering Flame Zone
+	NeonEnergyBall.DisplayName: Neon Energy Ball
+	VerticalEnergyPillarVFX.DisplayName: Vertical Energy Pillar V F X
 }
