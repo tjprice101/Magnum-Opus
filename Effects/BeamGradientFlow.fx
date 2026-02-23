@@ -86,14 +86,18 @@ float4 GradientFlowPS(VS_OUTPUT input) : COLOR0
     float noise2 = tex2D(uImage1, noiseUV2).r;
 
     // --- Color Gradient ---
-    // Noise-driven color mixing between primary and secondary
-    float colorMix = noise1 * 0.55 + noise2 * 0.45;
+    // Smooth noise for gentle color blending (no harsh banding)
+    float smoothNoise1 = smoothstep(0.15, 0.85, noise1);
+    float smoothNoise2 = smoothstep(0.15, 0.85, noise2);
+    float colorMix = smoothNoise1 * 0.5 + smoothNoise2 * 0.5;
+    // Bias toward center for seamless flowing gradients
+    colorMix = 0.25 + colorMix * 0.5;
     float3 baseColor = lerp(uColor, uSecondaryColor, colorMix);
 
     // --- White-Hot Core ---
     // Blend toward white at the beam center
-    float coreFactor = smoothstep(0.3, 0.65, edgeDist);
-    float3 coreColor = lerp(baseColor, float3(1.0, 1.0, 1.0), coreFactor * 0.35);
+    float coreFactor = smoothstep(0.25, 0.7, edgeDist);
+    float3 coreColor = lerp(baseColor, float3(1.0, 1.0, 1.0), coreFactor * 0.4);
 
     // --- Pulse Animation ---
     float pulse = sin(uTime * uPulseSpeed + u * 4.0) * 0.08 + 0.92;

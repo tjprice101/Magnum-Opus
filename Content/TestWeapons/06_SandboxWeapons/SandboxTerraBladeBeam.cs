@@ -484,8 +484,8 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             Texture2D noise1 = ShaderLoader.GetNoiseTexture("SoftCircularCaustics");
             Texture2D noise2 = ShaderLoader.GetNoiseTexture("TileableFBMNoise");
 
-            Color primary = TerraBladeShaderManager.GetPaletteColor(0.35f);
-            Color secondary = TerraBladeShaderManager.GetPaletteColor(0.75f);
+            Color primary = TerraBladeShaderManager.GetPaletteColor(0.40f);
+            Color secondary = TerraBladeShaderManager.GetPaletteColor(0.60f);
 
             Matrix viewProj = Matrix.CreateLookAt(Vector3.Backward, Vector3.Zero, Vector3.Up)
                             * Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);
@@ -496,6 +496,20 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             {
                 float t = (float)i / (segments - 1);
                 points[i] = Vector2.Lerp(start, end, t);
+            }
+
+            // Add wave-like wobble perpendicular to beam for organic water-like motion
+            Vector2 beamDir = (end - start).SafeNormalize(Vector2.UnitX);
+            Vector2 beamPerp = new Vector2(-beamDir.Y, beamDir.X);
+            for (int i = 1; i < segments - 1; i++)
+            {
+                float t = (float)i / (segments - 1);
+                // Multi-frequency sine waves for organic wobble
+                float wobble = MathF.Sin(t * MathHelper.TwoPi * 2f + time * 3.0f) * 5f
+                             + MathF.Sin(t * MathHelper.TwoPi * 3.5f - time * 4.5f) * 2.5f;
+                // Taper at endpoints so beam stays anchored at source and tip
+                float taper = MathF.Sin(t * MathHelper.Pi);
+                points[i] += beamPerp * wobble * taper;
             }
 
             try { Main.spriteBatch.End(); } catch { }

@@ -297,20 +297,13 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float time = Main.GlobalTimeWrappedHourly;
 
-            // Layer 1: Shader trail (Nature style, like CosmicSpinShard/TerraBladeEnergyBolt)
+            // Layer 1: Shader trail (needs its own SpriteBatch state)
             DrawShaderTrail(time);
 
-            // Layer 2: Motion blur afterimages
-            DrawMotionBlur(sb);
-
-            // Layer 3: Bloom stack (4 layers at projectile center)
-            DrawBloomStack(sb, drawPos, time);
-
-            // Layer 4: Crystal body (CrispStar4, velocity-stretched)
-            DrawCrystalBody(sb, drawPos, time);
-
-            // Layer 5: FlareSparkle overlay (counter-rotating)
-            DrawFlareSparkle(sb, drawPos, time);
+            // Layers 2-4: Bloom sandwich + crystal body + sparkle
+            // All drawn in the DEFAULT AlphaBlend batch using {A=0} premultiplied alpha trick
+            // (alpha=0 under premultiplied alpha = pure additive, no batch restarts needed)
+            DrawGlowAndBody(sb, drawPos, time);
 
             return false;
         }
@@ -319,138 +312,109 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         {
             try
             {
-                float hueShift = MathF.Sin(time * 4f + timer * 0.08f) * 0.15f;
-                Color trailPrimary = TerraBladeShaderManager.GetPaletteColor(0.4f + hueShift);
-                Color trailSecondary = TerraBladeShaderManager.GetPaletteColor(0.8f - hueShift);
+                float hueShift = MathF.Sin(time * 4f + timer * 0.08f) * 0.1f;
+                // Push trail colors 45% toward white (Calamity miracle weapons use 40-55%)
+                Color rawPrimary = TerraBladeShaderManager.GetPaletteColor(0.35f + hueShift);
+                Color rawSecondary = TerraBladeShaderManager.GetPaletteColor(0.7f - hueShift);
+                Color trailPrimary = Color.Lerp(rawPrimary, Color.White, 0.45f);
+                Color trailSecondary = Color.Lerp(rawSecondary, Color.White, 0.45f);
 
                 CalamityStyleTrailRenderer.DrawProjectileTrailWithBloom(
                     Projectile,
                     CalamityStyleTrailRenderer.TrailStyle.Nature,
-                    baseWidth: 15f,
+                    baseWidth: 16f,
                     primaryColor: trailPrimary,
                     secondaryColor: trailSecondary,
-                    intensity: 1.2f,
-                    bloomMultiplier: 2.0f);
+                    intensity: 3.0f,
+                    bloomMultiplier: 5.0f);
             }
             catch { }
         }
 
-        private void DrawMotionBlur(SpriteBatch sb)
-        {
-            try
-            {
-                Texture2D starTex = ModContent.Request<Texture2D>(Texture).Value;
-                if (starTex != null)
-                {
-                    Color mbPrimary = TerraBladeShaderManager.GetPaletteColor(0.4f);
-                    Color mbSecondary = TerraBladeShaderManager.GetPaletteColor(0.7f);
-                    MotionBlurBloomRenderer.DrawProjectile(sb, starTex, Projectile, mbPrimary, mbSecondary, 0.8f);
-                }
-            }
-            catch { }
-        }
-
-        private void DrawBloomStack(SpriteBatch sb, Vector2 drawPos, float time)
+        /// <summary>
+        /// Draws all glow, body, and sparkle layers in a single default AlphaBlend SpriteBatch.
+        /// Uses Calamity's {A=0} premultiplied alpha trick for free additive blending.
+        /// Bloom SANDWICH pattern: glow behind → body → glow on top.
+        /// All colors pushed 50% toward white (Calamity miracle weapons use 50-65%).
+        /// Counter-rotating double flare for visual richness.
+        /// </summary>
+        private void DrawGlowAndBody(SpriteBatch sb, Vector2 drawPos, float time)
         {
             Texture2D bloomTex = TextureAssets.Extra[98].Value;
-            if (bloomTex == null) return;
-
-            Vector2 bloomOrigin = bloomTex.Size() * 0.5f;
-            float pulse = 0.9f + MathF.Sin(time * 10f + timer * 0.25f) * 0.1f;
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null,
-                Main.GameViewMatrix.TransformationMatrix);
-
-            // Outer bloom
-            Color outerColor = TerraBladeShaderManager.GetPaletteColor(0.3f) with { A = 0 };
-            sb.Draw(bloomTex, drawPos, null, outerColor * 0.30f,
-                0f, bloomOrigin, 0.8f * pulse, SpriteEffects.None, 0f);
-
-            // Mid bloom
-            Color midColor = TerraBladeShaderManager.GetPaletteColor(0.5f) with { A = 0 };
-            sb.Draw(bloomTex, drawPos, null, midColor * 0.50f,
-                0f, bloomOrigin, 0.5f * pulse, SpriteEffects.None, 0f);
-
-            // Core bloom
-            Color coreColor = TerraBladeShaderManager.GetPaletteColor(0.7f) with { A = 0 };
-            sb.Draw(bloomTex, drawPos, null, coreColor * 0.70f,
-                0f, bloomOrigin, 0.3f * pulse, SpriteEffects.None, 0f);
-
-            // White-hot center
-            sb.Draw(bloomTex, drawPos, null, (Color.White with { A = 0 }) * 0.85f,
-                0f, bloomOrigin, 0.15f * pulse, SpriteEffects.None, 0f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                DepthStencilState.None, RasterizerState.CullNone, null,
-                Main.GameViewMatrix.TransformationMatrix);
-        }
-
-        private void DrawCrystalBody(SpriteBatch sb, Vector2 drawPos, float time)
-        {
             Texture2D starTex = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D sparkleTex = ParticleTextureGenerator.Sparkle;
+
             if (starTex == null) return;
 
-            Vector2 origin = starTex.Size() * 0.5f;
+            float pulse = 1f + MathF.Sin(time * 8f + timer * 0.25f) * 0.12f;
             float velRot = Projectile.velocity.ToRotation();
             float shimmer = 0.90f + MathF.Sin(time * 12f + timer * 0.2f) * 0.10f;
-
-            // Velocity stretch
             float speed = Projectile.velocity.Length();
-            float stretch = 1f + speed * 0.015f;
+            float stretch = 1f + speed * 0.02f;
+            Vector2 starOrigin = starTex.Size() * 0.5f;
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null,
-                Main.GameViewMatrix.TransformationMatrix);
+            // Push all colors 50% toward white for brilliance (Calamity miracle weapons use 50-65%)
+            Color brightOuter = Color.Lerp(TerraBladeShaderManager.GetPaletteColor(0.3f), Color.White, 0.45f) with { A = 0 };
+            Color brightMain = Color.Lerp(TerraBladeShaderManager.GetPaletteColor(0.5f), Color.White, 0.50f) with { A = 0 };
+            Color brightCore = Color.Lerp(TerraBladeShaderManager.GetPaletteColor(0.7f), Color.White, 0.55f) with { A = 0 };
+            Color brightWhite = Color.White with { A = 0 };
 
-            // Outer glow
-            Color outerColor = TerraBladeShaderManager.GetPaletteColor(0.3f);
-            sb.Draw(starTex, drawPos, null, outerColor with { A = 0 } * 0.45f,
-                velRot, origin, new Vector2(0.50f * stretch, 0.50f) * shimmer, SpriteEffects.None, 0f);
+            // === BEHIND BLOOM (wide diffuse aura — Calamity uses 2.5-3.0x projectile scale) ===
+            if (bloomTex != null)
+            {
+                Vector2 bloomOrigin = bloomTex.Size() * 0.5f;
 
-            // Main body
-            Color mainColor = TerraBladeShaderManager.GetPaletteColor(0.5f);
-            sb.Draw(starTex, drawPos, null, mainColor with { A = 0 } * 0.9f,
-                velRot, origin, new Vector2(0.28f * stretch, 0.28f) * shimmer, SpriteEffects.None, 0f);
+                // Large soft outer glow (wide atmospheric scatter)
+                sb.Draw(bloomTex, drawPos, null, brightOuter * 0.35f,
+                    0f, bloomOrigin, 1.0f * pulse, SpriteEffects.None, 0f);
 
-            // White-hot core
-            sb.Draw(starTex, drawPos, null, (Color.White with { A = 0 }) * 0.7f,
-                velRot, origin, new Vector2(0.12f, 0.12f) * shimmer, SpriteEffects.None, 0f);
+                // Mid glow
+                sb.Draw(bloomTex, drawPos, null, brightMain * 0.50f,
+                    0f, bloomOrigin, 0.55f * pulse, SpriteEffects.None, 0f);
+            }
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                DepthStencilState.None, RasterizerState.CullNone, null,
-                Main.GameViewMatrix.TransformationMatrix);
-        }
+            // === COUNTER-ROTATING DOUBLE FLARE (Calamity signature — two bloom flares at different speeds) ===
+            if (sparkleTex != null)
+            {
+                Vector2 sparkleOrigin = sparkleTex.Size() * 0.5f;
+                float flareRot1 = time * 2.5f + timer * 0.1f;
+                float flareRot2 = -time * 1.75f + timer * 0.05f;
 
-        private void DrawFlareSparkle(SpriteBatch sb, Vector2 drawPos, float time)
-        {
-            Texture2D sparkleTex = ParticleTextureGenerator.Sparkle;
-            if (sparkleTex == null) return;
+                // Flare A — larger, slightly dimmer
+                sb.Draw(sparkleTex, drawPos, null, brightMain * 0.50f,
+                    flareRot1, sparkleOrigin, 0.14f * pulse, SpriteEffects.None, 0f);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null,
-                Main.GameViewMatrix.TransformationMatrix);
+                // Flare B — smaller, counter-rotating, slightly brighter where they overlap
+                sb.Draw(sparkleTex, drawPos, null, brightCore * 0.40f,
+                    flareRot2, sparkleOrigin, 0.09f * pulse, SpriteEffects.None, 0f);
+            }
 
-            Vector2 sparkleOrigin = sparkleTex.Size() * 0.5f;
-            // Counter-rotating sparkle (like CosmicSpinShard)
-            float sparkleRot = -time * 8f;
+            // === CRYSTAL BODY (small, tight, velocity-stretched star — white-pushed core) ===
+            // Outer glow (~46px on 1024px texture)
+            sb.Draw(starTex, drawPos, null, brightOuter * 0.8f,
+                velRot, starOrigin, new Vector2(0.045f * stretch, 0.045f) * shimmer, SpriteEffects.None, 0f);
 
-            Color sparkleColor = TerraBladeShaderManager.GetPaletteColor(0.6f) with { A = 0 };
-            sb.Draw(sparkleTex, drawPos, null, sparkleColor * 0.5f,
-                sparkleRot, sparkleOrigin, 0.30f, SpriteEffects.None, 0f);
+            // Main body (~30px) — pushed 50% toward white
+            sb.Draw(starTex, drawPos, null, brightMain * 1.0f,
+                velRot, starOrigin, new Vector2(0.030f * stretch, 0.030f) * shimmer, SpriteEffects.None, 0f);
 
-            sb.Draw(sparkleTex, drawPos, null, (Color.White with { A = 0 }) * 0.5f,
-                sparkleRot, sparkleOrigin, 0.18f, SpriteEffects.None, 0f);
+            // White-hot core (~14px) — pure white, near-full opacity
+            sb.Draw(starTex, drawPos, null, brightWhite * 0.95f,
+                velRot, starOrigin, new Vector2(0.014f, 0.014f) * shimmer, SpriteEffects.None, 0f);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                DepthStencilState.None, RasterizerState.CullNone, null,
-                Main.GameViewMatrix.TransformationMatrix);
+            // === FRONT BLOOM SANDWICH (drawn ON TOP — Calamity stacks bloom behind AND on top) ===
+            if (bloomTex != null)
+            {
+                Vector2 bloomOrigin = bloomTex.Size() * 0.5f;
+
+                // Core glow on top (overbright stacking)
+                sb.Draw(bloomTex, drawPos, null, brightCore * 0.65f,
+                    0f, bloomOrigin, 0.25f * pulse, SpriteEffects.None, 0f);
+
+                // White-hot point (tiny, intense — creates incandescent center)
+                sb.Draw(bloomTex, drawPos, null, brightWhite * 0.85f,
+                    0f, bloomOrigin, 0.10f * pulse, SpriteEffects.None, 0f);
+            }
         }
 
         #endregion
