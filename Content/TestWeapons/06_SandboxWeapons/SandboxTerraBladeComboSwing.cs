@@ -1,15 +1,16 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
-using MagnumOpus.Common.Systems.VFX.Trails;
+using MagnumOpus.Common.Systems.VFX.Effects;
+using MagnumOpus.Common.Systems.VFX.Screen;
 using MagnumOpus.Content.TestWeapons.SandboxWeapons.Shaders;
 using MagnumOpus.Common.Systems.Particles;
 using static MagnumOpus.Common.Systems.Particles.Particle;
@@ -18,8 +19,8 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
 {
     /// <summary>
     /// Right-click combo swing for the Sandbox Terra Blade.
-    /// Two-phase held-projectile: quick downswing → quick upswing → spawns spin throw.
-    /// Uses the same 7-layer rendering pipeline as SandboxTerraBladeSwing.
+    /// Two-phase held-projectile: quick downswing → quick upswing → spawns beam.
+    /// Uses the same 4-layer Exoblade-style rendering pipeline as SandboxTerraBladeSwing.
     /// </summary>
     public class SandboxTerraBladeComboSwing : ModProjectile
     {
@@ -126,6 +127,63 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
 
         #endregion
 
+        #region Trail Point Generation
+
+        /// <summary>
+        /// Trailing edge progress — determines how far back the slash trail extends.
+        /// Adapted from Exoblade reference implementation.
+        /// </summary>
+        private float TrailEndProgression
+        {
+            get
+            {
+                float endProgression;
+                if (Progression < 0.75f)
+                    endProgression = Progression - 0.5f + 0.1f * (Progression / 0.75f);
+                else
+                    endProgression = Progression - 0.4f * (1 - (Progression - 0.75f) / 0.75f);
+                return Math.Clamp(endProgression, 0, 1);
+            }
+        }
+
+        /// <summary>
+        /// Maps a trail completion value (0=leading edge, 1=trailing edge) to actual swing progress.
+        /// </summary>
+        private float RealProgressionAtTrailCompletion(float completion)
+            => MathHelper.Lerp(Progression, TrailEndProgression, completion);
+
+        /// <summary>
+        /// Gets the direction vector at a given progress with squish-deformed angle.
+        /// Uses the squish factor to warp the angle for more organic trail shape.
+        /// </summary>
+        private Vector2 DirectionAtProgressScuffed(float progress)
+        {
+            float angleShift = SwingAngleShiftAtProgress(progress);
+            float squish = SquishAtProgress(progress);
+            Vector2 anglePoint = angleShift.ToRotationVector2();
+            anglePoint.X *= (1f + (1f - squish) * 0.6f);
+            anglePoint.Y *= squish;
+            angleShift = anglePoint.ToRotation();
+            return (BaseRotation + angleShift * Direction).ToRotationVector2() * squish;
+        }
+
+        /// <summary>
+        /// Generates 40 arc points for the slash trail, from leading edge to trailing edge.
+        /// Each point is an offset from Projectile.Center (player center).
+        /// </summary>
+        private List<Vector2> GenerateSlashPoints()
+        {
+            List<Vector2> result = new List<Vector2>();
+            for (int i = 0; i < 40; i++)
+            {
+                float progress = MathHelper.Lerp(Progression, TrailEndProgression, i / 40f);
+                result.Add(DirectionAtProgressScuffed(progress) * (BladeLength - 6f) * Projectile.scale);
+            }
+            return result;
+        }
+
+        #endregion
+
         #region Trail Tracking
 
         private Vector2[] basePositions = new Vector2[TrailLength];
@@ -133,52 +191,8 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         private float[] tipRotations = new float[TrailLength];
         private int trailIndex = 0;
 
-        // Pre-allocated vertex/index buffers for swept-area trail rendering
-        private VertexPositionColorTexture[] _sweptVerts = new VertexPositionColorTexture[TrailLength * 2];
-        private static short[] _sweptIndices;
-
-        private int BuildSweptAreaMesh()
-        {
-            if (_sweptIndices == null)
-            {
-                _sweptIndices = new short[(TrailLength - 1) * 6];
-                for (int i = 0; i < TrailLength - 1; i++)
-                {
-                    int sv = i * 2;
-                    int idx = i * 6;
-                    _sweptIndices[idx + 0] = (short)sv;
-                    _sweptIndices[idx + 1] = (short)(sv + 1);
-                    _sweptIndices[idx + 2] = (short)(sv + 2);
-                    _sweptIndices[idx + 3] = (short)(sv + 2);
-                    _sweptIndices[idx + 4] = (short)(sv + 1);
-                    _sweptIndices[idx + 5] = (short)(sv + 3);
-                }
-            }
-
-            int count = Math.Min(trailIndex, TrailLength);
-            if (count < 2) return 0;
-
-            int vertexCount = 0;
-            for (int i = 0; i < count; i++)
-            {
-                int bufIdx = ((trailIndex - 1 - i) % TrailLength + TrailLength) % TrailLength;
-                float progress = (float)i / (count - 1);
-                float alpha = 1f - progress;
-                alpha *= alpha;
-
-                Color color = TerraBladeShaderManager.GetPaletteColor(0.3f + progress * 0.4f);
-                color *= alpha;
-
-                Vector2 baseScreen = basePositions[bufIdx] - Main.screenPosition;
-                Vector2 tipScreen = tipPositions[bufIdx] - Main.screenPosition;
-
-                _sweptVerts[vertexCount++] = new VertexPositionColorTexture(
-                    new Vector3(baseScreen, 0), color, new Vector2(progress, 0f));
-                _sweptVerts[vertexCount++] = new VertexPositionColorTexture(
-                    new Vector3(tipScreen, 0), color, new Vector2(progress, 1f));
-            }
-            return vertexCount;
-        }
+        // Persistent smear particle that follows the blade (Calamity-style)
+        private Particle swingSmear;
 
         #endregion
 
@@ -274,7 +288,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             Owner.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, armRotation);
             Owner.direction = Direction;
 
-            // Track blade base and tip positions for swept-area trail rendering
+            // Track blade base and tip positions for trail rendering
             Vector2 baseWorld = Owner.MountedCenter;
             Vector2 tipWorld = baseWorld + SwordDirection * BladeLength;
             basePositions[trailIndex % TrailLength] = baseWorld;
@@ -313,6 +327,70 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                     var spark = new GlowSparkParticle(sparkPos, sparkVel, sparkColor, Main.rand.NextFloat(0.15f, 0.30f), 15);
                     MagnumParticleHandler.SpawnParticle(spark);
                 }
+
+                // Persistent Smear Particle (Calamity CircularSmearSmokeyVFX)
+                if (Progression > 0.10f && Progression < 0.90f)
+                {
+                    if (swingSmear == null || swingSmear.Time >= swingSmear.Lifetime)
+                    {
+                        Color smearColor = TerraBladeShaderManager.GetPaletteColor(0.4f) * 0.5f;
+                        swingSmear = new CircularSmearSmokeyVFX(
+                            Owner.MountedCenter + SwordDirection * BladeLength * 0.5f,
+                            smearColor, SwordRotation + MathHelper.PiOver4,
+                            MathHelper.Lerp(2.0f, 3.2f, localSwingSpeed));
+                        MagnumParticleHandler.SpawnParticle(swingSmear);
+                    }
+                    else
+                    {
+                        swingSmear.Position = Owner.MountedCenter + SwordDirection * BladeLength * 0.5f;
+                        swingSmear.Rotation = SwordRotation + MathHelper.PiOver4 + (Direction < 0 ? MathHelper.Pi : 0f);
+                        swingSmear.Scale = MathHelper.Lerp(2.0f, 3.2f, localSwingSpeed);
+                        swingSmear.Time = 0;
+                    }
+                }
+
+                // Screen Feel: Subtle Trauma + Ripple at Peak Speed
+                if (localSwingSpeed > 0.3f)
+                    Projectile.AddTrauma(0.04f * localSwingSpeed);
+
+                if (localSwingSpeed > 0.6f && Timer % 8 == 0)
+                {
+                    Vector2 rippleTipWorld = Owner.MountedCenter + SwordDirection * BladeLength;
+                    Color rippleColor = TerraBladeShaderManager.GetPaletteColor(0.5f);
+                    ScreenDistortionManager.TriggerRipple(rippleTipWorld, rippleColor, localSwingSpeed * 0.4f, 12);
+                }
+            }
+
+            // Beam Charge Buildup VFX (upswing final 30%)
+            if (ComboPhase == 1 && Progression > 0.70f)
+            {
+                float chargeBuildup = (Progression - 0.70f) / 0.30f;
+                Vector2 chargeTipWorld = Owner.MountedCenter + SwordDirection * BladeLength;
+
+                // Converging green sparks
+                if (Timer % 2 == 0)
+                {
+                    for (int c = 0; c < 3; c++)
+                    {
+                        float angle = Main.rand.NextFloat(MathHelper.TwoPi);
+                        float dist = MathHelper.Lerp(60f, 15f, chargeBuildup);
+                        Vector2 sparkStart = chargeTipWorld + angle.ToRotationVector2() * dist;
+                        Vector2 sparkVel = (chargeTipWorld - sparkStart).SafeNormalize(Vector2.Zero) * 3f;
+                        Color sparkColor = TerraBladeShaderManager.GetPaletteColor(Main.rand.NextFloat(0.4f, 0.8f));
+                        Dust d = Dust.NewDustPerfect(sparkStart, DustID.GreenTorch, sparkVel, 0, sparkColor,
+                            0.6f + chargeBuildup * 0.6f);
+                        d.noGravity = true;
+                        d.fadeIn = 1.1f;
+                    }
+                }
+
+                // Growing light at tip
+                Color chargeLight = TerraBladeShaderManager.GetPaletteColor(0.6f);
+                Lighting.AddLight(chargeTipWorld, chargeLight.ToVector3() * (0.3f + chargeBuildup * 0.8f));
+
+                // Sound cue at 70% start
+                if (Progression >= 0.70f && Progression < 0.72f)
+                    SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.6f, Volume = 0.4f }, chargeTipWorld);
             }
 
             // Check for phase transition
@@ -325,8 +403,8 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 }
                 else
                 {
-                    // Upswing complete — spawn the spin throw
-                    SpawnSpinThrow();
+                    // Upswing complete — fire the beam
+                    SpawnBeam();
                     Projectile.Kill();
                 }
             }
@@ -347,21 +425,31 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             SoundEngine.PlaySound(SoundID.Item1 with { Pitch = 0.5f, Volume = 0.85f }, Owner.Center);
         }
 
-        private void SpawnSpinThrow()
+        private void SpawnBeam()
         {
             if (Main.myPlayer != Projectile.owner) return;
 
             Vector2 toMouse = (Main.MouseWorld - Owner.MountedCenter).SafeNormalize(Vector2.UnitX);
-            Projectile.NewProjectile(
-                Projectile.GetSource_FromThis(), Owner.MountedCenter, toMouse * 18f,
-                ModContent.ProjectileType<SandboxTerraBladeSpinThrow>(),
+            Vector2 bladeTip = Owner.MountedCenter + toMouse * BladeLength;
+
+            int beamIndex = Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), bladeTip, Vector2.Zero,
+                ModContent.ProjectileType<SandboxTerraBladeBeam>(),
                 Projectile.damage, Projectile.knockBack, Projectile.owner);
+
+            // Initialize cursor position in the beam's localAI slots
+            if (beamIndex >= 0 && beamIndex < Main.maxProjectiles)
+            {
+                Main.projectile[beamIndex].localAI[0] = Main.MouseWorld.X;
+                Main.projectile[beamIndex].localAI[1] = Main.MouseWorld.Y;
+            }
         }
 
         #endregion
 
         #region Draw Context
 
+        /// <summary>Shared draw locals for the 4-layer rendering pipeline.</summary>
         private struct DrawContext
         {
             public Texture2D BladeTex;
@@ -370,21 +458,9 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             public Vector2 Scale;
             public float Rotation;
             public SpriteEffects Effects;
-            public float Time;
             public Vector2 TipScreen;
             public Vector2 TipWorld;
             public float SwingSpeed;
-        }
-
-        private static Texture2D SafeRequest(string path)
-        {
-            try
-            {
-                if (ModContent.HasAsset(path))
-                    return ModContent.Request<Texture2D>(path).Value;
-            }
-            catch { }
-            return null;
         }
 
         #endregion
@@ -396,12 +472,9 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             SpriteBatch sb = Main.spriteBatch;
             PrepareDrawLocals(out var ctx);
 
-            try { DrawSweptTrail(sb, in ctx); } catch (Exception ex) { Mod?.Logger?.Warn($"DrawSweptTrail failed: {ex.Message}"); }
-            try { DrawSmearOverlay(sb, in ctx); } catch (Exception ex) { Mod?.Logger?.Warn($"DrawSmearOverlay failed: {ex.Message}"); }
+            DrawSlashTrail(sb, in ctx);
             DrawBladeSprite(sb, in ctx, lightColor);
-            try { DrawBladeAfterimages(sb, in ctx); } catch (Exception ex) { Mod?.Logger?.Warn($"DrawBladeAfterimages failed: {ex.Message}"); }
-            try { DrawGlowAndFlare(sb, in ctx); } catch (Exception ex) { Mod?.Logger?.Warn($"DrawGlowAndFlare failed: {ex.Message}"); }
-            try { DrawMotionBlur(sb, in ctx); } catch (Exception ex) { Mod?.Logger?.Warn($"DrawMotionBlur failed: {ex.Message}"); }
+            DrawLensFlare(sb, in ctx);
             DrawDynamicLighting(in ctx);
 
             return false;
@@ -420,19 +493,14 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             float baseScale = BladeLength / bladeTex.Height;
             float squish = SquishAtProgress(Progression);
 
-            // Velocity-based directional stretch: blade elongates along its length at high speed
-            float velocityStretch = 1f + swingSpeed * 0.75f;
-            float velocityCompress = 1f - swingSpeed * 0.35f;
-
             ctx = new DrawContext
             {
                 BladeTex = bladeTex,
                 Origin = new Vector2(0, bladeTex.Height),
                 DrawPos = Owner.MountedCenter - Main.screenPosition,
-                Scale = new Vector2(baseScale * (1f + (1f - squish) * 0.6f) * velocityCompress, baseScale * squish * velocityStretch),
+                Scale = new Vector2(baseScale * (1f + (1f - squish) * 0.6f), baseScale * squish),
                 Rotation = SwordRotation + (Direction == -1 ? MathHelper.Pi : 0),
                 Effects = Direction == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                Time = Main.GlobalTimeWrappedHourly,
                 TipWorld = tipWorld,
                 TipScreen = tipWorld - Main.screenPosition,
                 SwingSpeed = swingSpeed
@@ -440,430 +508,130 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // LAYER 1: Swept-Area Noise Trail (custom vertex mesh + NatureTechnique)
+        // LAYER 1: Slash Trail (Exoblade-style 40-point arc with 2-pass glow strips)
         // ═══════════════════════════════════════════════════════════════
-        private void DrawSweptTrail(SpriteBatch sb, in DrawContext ctx)
+        private void DrawSlashTrail(SpriteBatch sb, in DrawContext ctx)
         {
-            int vertexCount = BuildSweptAreaMesh();
-            if (vertexCount < 4) return;
+            if (Progression < 0.35f)
+                return;
 
-            var device = Main.instance.GraphicsDevice;
+            List<Vector2> slashPoints = GenerateSlashPoints();
+            if (slashPoints.Count < 2)
+                return;
 
-            Effect trailShader = ShaderLoader.Trail;
-            if (trailShader == null) return;
+            Texture2D glowTex = Terraria.GameContent.TextureAssets.Extra[98].Value;
+            SwingShaderSystem.BeginAdditive(sb);
 
-            // Safe SpriteBatch End (matches CalamityStyleTrailRenderer)
-            try { sb.End(); } catch { }
-
-            try
+            for (int i = 0; i < slashPoints.Count - 1; i++)
             {
-                // Bind noise texture
-                Texture2D noise = ShaderLoader.GetNoiseTexture("TileableFBMNoise");
-                if (noise != null)
-                {
-                    device.Textures[1] = noise;
-                    device.SamplerStates[1] = SamplerState.LinearWrap;
-                }
+                float completion = (float)i / slashPoints.Count;
+                float opacity = Utils.GetLerpValue(0.95f, 0.4f, completion, true) * Projectile.Opacity;
+                float realProgress = RealProgressionAtTrailCompletion(completion);
+                float width = SquishAtProgress(realProgress) * Projectile.scale * 55f;
 
-                // Set render states
-                device.BlendState = BlendState.Additive;
-                device.DepthStencilState = DepthStencilState.None;
-                device.RasterizerState = RasterizerState.CullNone;
-                device.SamplerStates[0] = SamplerState.LinearWrap;
+                Vector2 start = Projectile.Center + slashPoints[i] - Main.screenPosition;
+                Vector2 end = Projectile.Center + slashPoints[i + 1] - Main.screenPosition;
 
-                // Bind white pixel to slot 0 so shader's tex2D(uImage0, coords) returns (1,1,1,1)
-                device.Textures[0] = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+                // TerraBlade green palette color (maps completion to 0.15-0.85 range)
+                float colorProgress = (completion + Progression * 0.5f) % 1f;
+                Color trailColor = TerraBladeShaderManager.GetPaletteColor(colorProgress * 0.7f + 0.15f);
+                trailColor.A = 0;
 
-                // Shader parameters
-                trailShader.CurrentTechnique = trailShader.Techniques["NatureTechnique"];
-                trailShader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly);
-                trailShader.Parameters["uColor"]?.SetValue(TerraBladeShaderManager.EnergyGreen.ToVector3());
-                trailShader.Parameters["uSecondaryColor"]?.SetValue(TerraBladeShaderManager.BrightCyan.ToVector3());
-                trailShader.Parameters["uOpacity"]?.SetValue(1f);
-                trailShader.Parameters["uProgress"]?.SetValue(0f);
-                trailShader.Parameters["uOverbrightMult"]?.SetValue(3f);
-                trailShader.Parameters["uGlowThreshold"]?.SetValue(0.5f);
-                trailShader.Parameters["uGlowIntensity"]?.SetValue(1.5f);
-                trailShader.Parameters["uHasSecondaryTex"]?.SetValue(noise != null ? 1f : 0f);
-                trailShader.Parameters["uSecondaryTexScale"]?.SetValue(1.2f);
-                trailShader.Parameters["uSecondaryTexScroll"]?.SetValue(0.5f);
+                Vector2 diff = end - start;
+                float rotation = diff.ToRotation();
+                float length = diff.Length();
+                if (length < 1f) continue;
 
-                int primitiveCount = (vertexCount / 2 - 1) * 2;
-                float[] intensityMultipliers = { 0.15f, 0.25f, 0.5f, 1.0f };
+                // Pass 1: Outer glow
+                sb.Draw(glowTex, start, null, trailColor * opacity * 0.7f, rotation,
+                    new Vector2(0, glowTex.Height / 2f), new Vector2(length / glowTex.Width, width / glowTex.Height * 0.6f),
+                    SpriteEffects.None, 0f);
 
-                for (int pass = 0; pass < 4; pass++)
-                {
-                    trailShader.Parameters["uIntensity"]?.SetValue(1.2f * intensityMultipliers[pass]);
-
-                    foreach (var p in trailShader.CurrentTechnique.Passes)
-                    {
-                        p.Apply();
-                        device.DrawUserIndexedPrimitives(
-                            PrimitiveType.TriangleList,
-                            _sweptVerts, 0, vertexCount,
-                            _sweptIndices, 0, primitiveCount);
-                    }
-                }
+                // Pass 2: White-hot core
+                Color coreColor = Color.Lerp(trailColor, Color.White, 0.4f);
+                coreColor.A = 0;
+                sb.Draw(glowTex, start, null, coreColor * opacity * 0.9f, rotation,
+                    new Vector2(0, glowTex.Height / 2f), new Vector2(length / glowTex.Width, width / glowTex.Height * 0.3f),
+                    SpriteEffects.None, 0f);
             }
-            finally
-            {
-                // Clean up noise texture + restore SpriteBatch (ALWAYS runs)
-                device.Textures[1] = null;
 
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            }
+            SwingShaderSystem.RestoreSpriteBatch(sb);
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // LAYER 2: Smear Overlay (shader/manual fallback)
-        // ═══════════════════════════════════════════════════════════════
-        private void DrawSmearOverlay(SpriteBatch sb, in DrawContext ctx)
-        {
-            if (Progression < 0.10f || Progression > 0.92f) return;
-
-            float smearIn = MathHelper.Clamp((Progression - 0.10f) / 0.15f, 0f, 1f);
-            float smearOut = MathHelper.Clamp((0.92f - Progression) / 0.15f, 0f, 1f);
-            float smearAlpha = smearIn * smearOut;
-
-            Texture2D smearTex = SafeRequest("MagnumOpus/Assets/VFX/Smears/Wide Crescent Arc Slash")
-                              ?? ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwordArc2").Value;
-
-            Vector2 smearOrigin = new Vector2(smearTex.Width * 0.5f, smearTex.Height);
-            float maxDim = Math.Max(smearTex.Width, smearTex.Height);
-            float baseSmearScale = (BladeLength * 2.2f) / maxDim;
-            SpriteEffects smearFlip = Direction == -1 ? SpriteEffects.FlipVertically : SpriteEffects.None;
-
-            // Flip smear vertically for upswing phase
-            if (ComboPhase == 1)
-                smearFlip ^= SpriteEffects.FlipVertically;
-
-            Effect shader = TerraBladeShaderManager.GetShader();
-            if (shader != null && TerraBladeShaderManager.IsAvailable)
-            {
-                try
-                {
-                    TerraBladeShaderManager.BindNoiseTexture(Main.instance.GraphicsDevice);
-                    TerraBladeShaderManager.BeginShaderAdditive(sb);
-                    TerraBladeShaderManager.ApplySlashSmear(shader, Progression, ctx.SwingSpeed, Direction, ctx.Time);
-
-                    Color smearColor = (TerraBladeShaderManager.GetPaletteColor(0.5f) with { A = 0 }) * smearAlpha;
-                    sb.Draw(smearTex, ctx.DrawPos, null, smearColor, ctx.Rotation, smearOrigin, baseSmearScale, smearFlip, 0f);
-
-                    TerraBladeShaderManager.RestoreSpriteBatch(sb);
-                }
-                catch (Exception ex)
-                {
-                    Mod?.Logger?.Warn($"SmearOverlay shader failed: {ex.Message}");
-                    try { sb.End(); } catch { }
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                }
-            }
-            else
-            {
-                try
-                {
-                    TerraBladeShaderManager.BeginAdditive(sb);
-
-                    Color outerSmear = TerraBladeShaderManager.GetPaletteColor(0.2f) with { A = 0 };
-                    sb.Draw(smearTex, ctx.DrawPos, null, outerSmear * smearAlpha * 0.35f,
-                        ctx.Rotation, smearOrigin, baseSmearScale * 1.1f, smearFlip, 0f);
-
-                    Color mainSmear = TerraBladeShaderManager.GetPaletteColor(0.5f) with { A = 0 };
-                    sb.Draw(smearTex, ctx.DrawPos, null, mainSmear * smearAlpha * 0.65f,
-                        ctx.Rotation, smearOrigin, baseSmearScale, smearFlip, 0f);
-
-                    Color coreSmear = TerraBladeShaderManager.GetPaletteColor(0.8f) with { A = 0 };
-                    sb.Draw(smearTex, ctx.DrawPos, null, coreSmear * smearAlpha * 0.45f,
-                        ctx.Rotation, smearOrigin, baseSmearScale * 0.9f, smearFlip, 0f);
-
-                    TerraBladeShaderManager.RestoreSpriteBatch(sb);
-                }
-                catch (Exception ex)
-                {
-                    Mod?.Logger?.Warn($"SmearOverlay fallback failed: {ex.Message}");
-                    try { sb.End(); } catch { }
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                }
-            }
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // LAYER 3: Shader-Rendered Blade (Exoblade-style energy blade)
+        // LAYER 2: Blade Sprite (shader deformation or additive glow fallback)
         // ═══════════════════════════════════════════════════════════════
         private void DrawBladeSprite(SpriteBatch sb, in DrawContext ctx, Color lightColor)
         {
-            Effect shader = TerraBladeShaderManager.GetShader();
+            bool shaderApplied = SwingShaderSystem.ApplySwingShader(sb, SwingAngleShiftAtProgress(Progression), 0.05f, Color.White);
 
-            if (shader != null && TerraBladeShaderManager.IsAvailable)
+            if (!shaderApplied)
             {
-                // Dim base sprite for grounding (30% lightColor)
-                sb.Draw(ctx.BladeTex, ctx.DrawPos, null, lightColor * 0.3f,
-                    ctx.Rotation, ctx.Origin, ctx.Scale, ctx.Effects, 0f);
+                // Fallback: additive glow layer behind the blade
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
-                var device = Main.instance.GraphicsDevice;
+                Color glowColor = TerraBladeShaderManager.GetPaletteColor(Progression * 0.7f + 0.15f);
+                glowColor.A = 0;
+                float glowIntensity = (float)Math.Sin(Progression * MathHelper.Pi) * 0.6f;
+                sb.Draw(ctx.BladeTex, ctx.DrawPos, null, glowColor * glowIntensity,
+                    ctx.Rotation, ctx.Origin, ctx.Scale * 1.15f, ctx.Effects, 0f);
 
-                try
-                {
-                    // Pass 1: EnergyTrail — noise-distorted green→cyan energy
-                    TerraBladeShaderManager.BindNoiseTexture(device);
-                    TerraBladeShaderManager.BeginShaderAdditive(sb);
-
-                    float energyIntensity = 1.5f + ctx.SwingSpeed * 2.0f;
-                    TerraBladeShaderManager.ApplyEnergyTrail(
-                        shader, 0f, ctx.SwingSpeed, Direction, ctx.Time,
-                        intensity: energyIntensity);
-
-                    sb.Draw(ctx.BladeTex, ctx.DrawPos, null, Color.White,
-                        ctx.Rotation, ctx.Origin, ctx.Scale, ctx.Effects, 0f);
-
-                    // Pass 2: BladeBloom — directional radial bloom ON the blade
-                    TerraBladeShaderManager.ApplyBladeBloom(
-                        shader, Progression, ctx.SwingSpeed, Direction, ctx.Time,
-                        intensity: 2.0f + ctx.SwingSpeed * 2.0f,
-                        overbright: 3.0f + ctx.SwingSpeed * 2.0f);
-
-                    sb.Draw(ctx.BladeTex, ctx.DrawPos, null, Color.White,
-                        ctx.Rotation, ctx.Origin, ctx.Scale * 1.04f, ctx.Effects, 0f);
-
-                    // Pass 3: ShimmerOverlay — iridescent scrolling energy on blade
-                    TerraBladeShaderManager.BindShimmerTexture(device);
-                    float shimmerIntensity = 1.0f + ctx.SwingSpeed * 2.0f;
-                    TerraBladeShaderManager.ApplyShimmerOverlay(
-                        shader, Progression, ctx.SwingSpeed, Direction, ctx.Time,
-                        intensity: shimmerIntensity, overbright: 3.0f + ctx.SwingSpeed * 1.5f);
-
-                    sb.Draw(ctx.BladeTex, ctx.DrawPos, null, Color.White,
-                        ctx.Rotation, ctx.Origin, ctx.Scale, ctx.Effects, 0f);
-
-                    TerraBladeShaderManager.RestoreSpriteBatch(sb);
-                }
-                catch (Exception ex)
-                {
-                    Mod?.Logger?.Warn($"DrawBladeSprite shader failed: {ex.Message}");
-                    try { sb.End(); } catch { }
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                }
-            }
-            else
-            {
-                sb.Draw(ctx.BladeTex, ctx.DrawPos, null, lightColor,
-                    ctx.Rotation, ctx.Origin, ctx.Scale, ctx.Effects, 0f);
-            }
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // LAYER 4: Blade Afterimages (ghost copies at previous rotations)
-        // ═══════════════════════════════════════════════════════════════
-        private void DrawBladeAfterimages(SpriteBatch sb, in DrawContext ctx)
-        {
-            if (Progression < 0.05f || Progression > 0.95f) return;
-
-            Effect shader = TerraBladeShaderManager.GetShader();
-
-            try
-            {
-                int afterimageCount = 4 + (int)(ctx.SwingSpeed * 6f);
-                float stepSize = 0.012f + ctx.SwingSpeed * 0.020f;
-
-                if (shader != null && TerraBladeShaderManager.IsAvailable)
-                {
-                    // Shader-rendered afterimages with EnergyTrail technique
-                    var device = Main.instance.GraphicsDevice;
-                    TerraBladeShaderManager.BindNoiseTexture(device);
-                    TerraBladeShaderManager.BeginShaderAdditive(sb);
-
-                    for (int i = 1; i <= afterimageCount; i++)
-                    {
-                        float pastProgress = Progression - i * stepSize;
-                        if (pastProgress < 0f) break;
-
-                        float pastRotation = SwordRotationAtProgress(pastProgress);
-                        float t = (float)i / afterimageCount;
-                        float rotation = pastRotation + (Direction == -1 ? MathHelper.Pi : 0);
-
-                        TerraBladeShaderManager.ApplyEnergyTrail(
-                            shader, t, ctx.SwingSpeed, Direction, ctx.Time,
-                            intensity: 2.5f * (1f - t));
-
-                        sb.Draw(ctx.BladeTex, ctx.DrawPos, null, Color.White,
-                            rotation, ctx.Origin, ctx.Scale, ctx.Effects, 0f);
-                    }
-
-                    TerraBladeShaderManager.RestoreSpriteBatch(sb);
-                }
-                else
-                {
-                    // Fallback: plain additive afterimages
-                    TerraBladeShaderManager.BeginAdditive(sb);
-
-                    for (int i = 1; i <= afterimageCount; i++)
-                    {
-                        float pastProgress = Progression - i * stepSize;
-                        if (pastProgress < 0f) break;
-
-                        float pastRotation = SwordRotationAtProgress(pastProgress);
-                        float t = (float)i / afterimageCount;
-                        float afterimageAlpha = (1f - t) * (0.05f + ctx.SwingSpeed * 0.40f);
-                        float rotation = pastRotation + (Direction == -1 ? MathHelper.Pi : 0);
-
-                        Color afterColor = (TerraBladeShaderManager.GetPaletteColor(0.4f + t * 0.4f) with { A = 0 })
-                            * afterimageAlpha;
-
-                        sb.Draw(ctx.BladeTex, ctx.DrawPos, null, afterColor,
-                            rotation, ctx.Origin, ctx.Scale, ctx.Effects, 0f);
-                    }
-
-                    TerraBladeShaderManager.RestoreSpriteBatch(sb);
-                }
-            }
-            catch (Exception ex)
-            {
-                Mod?.Logger?.Warn($"BladeAfterimages failed: {ex.Message}");
-                try { sb.End(); } catch { }
+                sb.End();
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
+
+            // Main blade draw
+            sb.Draw(ctx.BladeTex, ctx.DrawPos, null, lightColor,
+                ctx.Rotation, ctx.Origin, ctx.Scale, ctx.Effects, 0f);
+
+            if (shaderApplied)
+                SwingShaderSystem.RestoreSpriteBatch(sb);
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // LAYER 5: Glow + Shimmer + Lens Flare (single additive batch)
+        // LAYER 3: Lens Flare at blade tip during peak swing
         // ═══════════════════════════════════════════════════════════════
-        private void DrawGlowAndFlare(SpriteBatch sb, in DrawContext ctx)
+        private void DrawLensFlare(SpriteBatch sb, in DrawContext ctx)
         {
-            try
+            // Only show during peak motion (25-85% of swing)
+            float lensFlareOpacity = 0f;
+            if (Progression >= 0.25f)
             {
-                TerraBladeShaderManager.BeginAdditive(sb);
-
-                // Blade glow (2 layers — intensity scales dramatically with swing speed)
-                float paletteShift = ctx.SwingSpeed * 0.15f;
-                float glowMult = 0.05f + ctx.SwingSpeed * 1.2f;
-                Color glowColor = (TerraBladeShaderManager.GetPaletteColor(0.4f + Progression * 0.5f + paletteShift) with { A = 0 }) * glowMult;
-                float glowScale1 = 1.05f + ctx.SwingSpeed * 0.15f;
-                float glowScale2 = 1.12f + ctx.SwingSpeed * 0.25f;
-                sb.Draw(ctx.BladeTex, ctx.DrawPos, null, glowColor,
-                    ctx.Rotation, ctx.Origin, ctx.Scale * glowScale1, ctx.Effects, 0f);
-                sb.Draw(ctx.BladeTex, ctx.DrawPos, null, glowColor * 0.5f,
-                    ctx.Rotation, ctx.Origin, ctx.Scale * glowScale2, ctx.Effects, 0f);
-
-                // Radial noise flame overlay (2 layers using UniversalRadialFlowNoise)
-                {
-                    Texture2D radialNoise = ShaderLoader.GetNoiseTexture("UniversalRadialFlowNoise");
-                    Effect flameShader = TerraBladeShaderManager.GetShader();
-                    if (radialNoise != null && flameShader != null && TerraBladeShaderManager.IsAvailable)
-                    {
-                        try
-                        {
-                            TerraBladeShaderManager.RestoreSpriteBatch(sb);
-                            var device = Main.instance.GraphicsDevice;
-                            device.Textures[1] = radialNoise;
-                            device.SamplerStates[1] = SamplerState.LinearWrap;
-                            TerraBladeShaderManager.BeginShaderAdditive(sb);
-                            float flameIntensity = 1.0f + ctx.SwingSpeed * 1.5f;
-                            float flameOverbright = 1.5f + ctx.SwingSpeed * 1.8f;
-                            TerraBladeShaderManager.ApplyShimmerOverlay(
-                                flameShader, Progression, ctx.SwingSpeed, Direction, ctx.Time,
-                                intensity: flameIntensity, overbright: flameOverbright);
-
-                            Color flameColor1 = (TerraBladeShaderManager.GetPaletteColor(0.5f) with { A = 0 }) * 0.5f;
-                            sb.Draw(ctx.BladeTex, ctx.DrawPos, null, flameColor1,
-                                ctx.Rotation, ctx.Origin, ctx.Scale * 1.02f, ctx.Effects, 0f);
-
-                            Color flameColor2 = (TerraBladeShaderManager.GetPaletteColor(0.7f) with { A = 0 }) * 0.35f;
-                            sb.Draw(ctx.BladeTex, ctx.DrawPos, null, flameColor2,
-                                ctx.Rotation, ctx.Origin, ctx.Scale * 1.06f, ctx.Effects, 0f);
-
-                            TerraBladeShaderManager.RestoreSpriteBatch(sb);
-                            TerraBladeShaderManager.BeginAdditive(sb);
-                        }
-                        catch
-                        {
-                            try { sb.End(); } catch { }
-                            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                        }
-                    }
-                }
-
-                // Shimmer overlay on blade (iridescent scrolling noise)
-                Effect shader = TerraBladeShaderManager.GetShader();
-                if (shader != null && TerraBladeShaderManager.IsAvailable)
-                {
-                    try
-                    {
-                        TerraBladeShaderManager.RestoreSpriteBatch(sb);
-                        TerraBladeShaderManager.BindShimmerTexture(Main.instance.GraphicsDevice);
-                        TerraBladeShaderManager.BeginShaderAdditive(sb);
-                        float shimmerIntensity = 1.0f + ctx.SwingSpeed * 1.5f;
-                        float shimmerOverbright = 1.5f + ctx.SwingSpeed * 1.5f;
-                        TerraBladeShaderManager.ApplyShimmerOverlay(
-                            shader, Progression, ctx.SwingSpeed, Direction, ctx.Time,
-                            afterimageOffset: 0f, intensity: shimmerIntensity, overbright: shimmerOverbright);
-
-                        Color shimmerColor = (Color.White with { A = 0 }) * (0.1f + ctx.SwingSpeed * 0.4f);
-                        sb.Draw(ctx.BladeTex, ctx.DrawPos, null, shimmerColor,
-                            ctx.Rotation, ctx.Origin, ctx.Scale, ctx.Effects, 0f);
-
-                        TerraBladeShaderManager.RestoreSpriteBatch(sb);
-                        TerraBladeShaderManager.BeginAdditive(sb);
-                    }
-                    catch (Exception ex)
-                    {
-                        Mod?.Logger?.Warn($"ShimmerOverlay failed: {ex.Message}");
-                        try { sb.End(); } catch { }
-                        sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                            DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                    }
-                }
-
-                // Lens flare at tip (3 layers — scales with swing speed)
-                Texture2D flareTex = Terraria.GameContent.TextureAssets.Extra[98].Value;
-                Vector2 flareOrigin = flareTex.Size() * 0.5f;
-                float pulse = 1f + MathF.Sin(ctx.Time * 10f) * 0.15f;
-                float baseScale = (0.10f + ctx.SwingSpeed * 0.20f) * pulse;
-                Color flareColor = TerraBladeShaderManager.GetPaletteColor(0.6f + Progression * 0.3f) with { A = 0 };
-
-                sb.Draw(flareTex, ctx.TipScreen, null, flareColor * 0.7f,
-                    0f, flareOrigin, baseScale, SpriteEffects.None, 0f);
-                sb.Draw(flareTex, ctx.TipScreen, null, flareColor * 0.4f,
-                    MathHelper.PiOver4, flareOrigin, baseScale * 0.7f, SpriteEffects.None, 0f);
-                sb.Draw(flareTex, ctx.TipScreen, null, (Color.White with { A = 0 }) * 0.3f,
-                    0f, flareOrigin, baseScale * 0.35f, SpriteEffects.None, 0f);
-
-                TerraBladeShaderManager.RestoreSpriteBatch(sb);
+                lensFlareOpacity = (float)Math.Sin(MathHelper.Pi * (Progression - 0.25f) / 0.6f) * 0.85f;
+                lensFlareOpacity = Math.Clamp(lensFlareOpacity, 0f, 1f);
             }
-            catch (Exception ex)
-            {
-                Mod?.Logger?.Warn($"GlowAndFlare failed: {ex.Message}");
-                try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            }
+            if (lensFlareOpacity <= 0f) return;
+
+            Texture2D shineTex = Terraria.GameContent.TextureAssets.Extra[98].Value;
+            Vector2 shineScale = new Vector2(0.8f, 2.5f);
+
+            SwingShaderSystem.BeginAdditive(sb);
+
+            Color lensFlareColor = TerraBladeShaderManager.GetPaletteColor(Progression * 0.7f + 0.15f);
+            lensFlareColor.A = 0;
+
+            // Blade tip position
+            Vector2 bladePos = Owner.MountedCenter + DirectionAtProgressScuffed(Progression) * Projectile.scale * BladeLength;
+            Vector2 bladePosScreen = bladePos - Main.screenPosition;
+
+            // Vertical flare
+            sb.Draw(shineTex, bladePosScreen, null,
+                lensFlareColor * lensFlareOpacity, MathHelper.PiOver2, shineTex.Size() / 2f,
+                shineScale * Projectile.scale, SpriteEffects.None, 0f);
+
+            // Horizontal flare (dimmer, smaller)
+            sb.Draw(shineTex, bladePosScreen, null,
+                lensFlareColor * lensFlareOpacity * 0.5f, 0f, shineTex.Size() / 2f,
+                shineScale * Projectile.scale * 0.6f, SpriteEffects.None, 0f);
+
+            SwingShaderSystem.RestoreSpriteBatch(sb);
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // LAYER 6: Motion Blur (drawn AFTER blade for visibility)
-        // ═══════════════════════════════════════════════════════════════
-        private void DrawMotionBlur(SpriteBatch sb, in DrawContext ctx)
-        {
-            if (Progression < 0.08f || Progression > 0.95f) return;
-
-            float blurStrength = 0.02f + ctx.SwingSpeed * 0.35f;
-            float blurIntensity = 0.6f + ctx.SwingSpeed * 2.0f;
-
-            MotionBlurBloomRenderer.DrawMeleeSwing(
-                sb, ctx.BladeTex, ctx.DrawPos, SwordDirection,
-                TerraBladeShaderManager.GetPaletteColor(0.5f),
-                TerraBladeShaderManager.GetPaletteColor(0.8f),
-                Math.Max(ctx.Scale.X, ctx.Scale.Y), ctx.Rotation, blurStrength, blurIntensity,
-                origin: ctx.Origin);
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // LAYER 7: Dynamic Lighting
+        // LAYER 4: Dynamic Lighting
         // ═══════════════════════════════════════════════════════════════
         private void DrawDynamicLighting(in DrawContext ctx)
         {
@@ -881,6 +649,11 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             Vector2 hitPos = target.Center;
+
+            // Screen-level impact effects
+            ScreenDistortionManager.TriggerChromaticBurst(hitPos, intensity: 0.5f, duration: 10);
+            ScreenFlashSystem.Instance?.ImpactFlash(0.25f);
+            Projectile.ShakeScreen(0.4f);
 
             for (int i = 0; i < 8; i++)
             {

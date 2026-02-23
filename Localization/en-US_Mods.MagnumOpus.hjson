@@ -7591,4 +7591,9 @@ Projectiles: {
 	NeonEnergyBall.DisplayName: Neon Energy Ball
 	VerticalEnergyPillarVFX.DisplayName: Vertical Energy Pillar V F X
 	ClockworkGearProjectile.DisplayName: Clockwork Gear Projectile
+	CrispStarProjectile.DisplayName: Crisp Star Projectile
+	TerraBladeEnergyBolt.DisplayName: Terra Blade Energy Bolt
+	TerraBladeStarImpact.DisplayName: Terra Blade Star Impact
+	TerraBladeStarburstBeam.DisplayName: Terra Blade Starburst Beam
+	SandboxTerraBladeBeam.DisplayName: Sandbox Terra Blade Beam
 }

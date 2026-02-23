@@ -45,6 +45,7 @@ namespace MagnumOpus.Common.Systems.Shaders
         public const string MotionBlurBloomShader = "MotionBlurBloom";
         public const string TerraBladeSwingVFXShader = "TerraBladeSwingVFX";
         public const string RadialScrollShaderName = "RadialScrollShader";
+        public const string BeamGradientFlowShader = "BeamGradientFlow";
 
         // Noise texture names (without extension) - in Assets/VFX/Noise/
         private static readonly string[] NoiseTextureNames = new[]
@@ -165,6 +166,7 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(MotionBlurBloomShader);
                 LoadShader(TerraBladeSwingVFXShader);
                 LoadShader(RadialScrollShaderName);
+                LoadShader(BeamGradientFlowShader);
 
                 _shadersEnabled = _shaders.Count > 0;
 
@@ -309,6 +311,9 @@ namespace MagnumOpus.Common.Systems.Shaders
 
         /// <summary>Gets the Radial Scroll shader for orbs/explosions/portals if available.</summary>
         public static Effect RadialScroll => GetShader(RadialScrollShaderName);
+
+        /// <summary>Gets the Beam Gradient Flow shader for flowing energy beams if available.</summary>
+        public static Effect BeamGradientFlow => GetShader(BeamGradientFlowShader);
 
         // =====================================================================
         //  Texture Accessors

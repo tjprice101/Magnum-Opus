@@ -10,6 +10,7 @@ using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Trails;
+using MagnumOpus.Common.Systems.VFX.Effects;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.TestWeapons.SandboxWeapons.Shaders;
 
@@ -197,6 +198,9 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 d.noGravity = true;
                 d.fadeIn = 1.2f;
             }
+
+            // ───── Priority 8: Constellation Chain (player → blade) ─────
+            SpawnConstellationChain(Owner.MountedCenter, Projectile.Center);
         }
 
         private void AI_Spin()
@@ -247,6 +251,9 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 Color noteColor = TerraBladeShaderManager.GetPaletteColor(0.3f + Main.rand.NextFloat() * 0.5f);
                 ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.8f, 30);
             }
+
+            // ───── Priority 8: Constellation Chain (player → orbit center) ─────
+            SpawnConstellationChain(Owner.MountedCenter, orbitCenter);
 
             // Check end conditions: release mouse OR max duration
             bool shouldReturn = PhaseTimer >= MaxSpinFrames;
@@ -315,10 +322,105 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 Projectile.damage / 2, Projectile.knockBack * 0.5f, Projectile.owner);
         }
 
+        /// <summary>
+        /// Priority 8: Spawns constellation-style chain of sparkle "stars" + connecting lines
+        /// between two endpoints (player → blade during travel, player → orbit center during spin).
+        /// </summary>
+        private void SpawnConstellationChain(Vector2 startPos, Vector2 endPos)
+        {
+            if ((int)PhaseTimer % 5 != 0) return;
+
+            float baseHue = Main.GlobalTimeWrappedHourly * 0.3f;
+            Vector2 chainDir = (endPos - startPos);
+            float chainLength = chainDir.Length();
+            if (chainLength < 20f) return;
+
+            Vector2 perpendicular = new Vector2(-chainDir.Y, chainDir.X).SafeNormalize(Vector2.UnitY);
+
+            // Spawn 3-5 sparkle "star" points along the chain
+            int starCount = 3 + (int)(chainLength / 200f);
+            starCount = Math.Min(starCount, 5);
+
+            Vector2[] starPositions = new Vector2[starCount];
+            for (int i = 0; i < starCount; i++)
+            {
+                float t = Main.rand.NextFloat(0.15f, 0.85f);
+                float perpOffset = Main.rand.NextFloat(-25f, 25f);
+                Vector2 starPos = Vector2.Lerp(startPos, endPos, t) + perpendicular * perpOffset;
+                starPositions[i] = starPos;
+
+                Color starColor = Main.hslToRgb((baseHue + t * 0.3f) % 1f, 0.8f, 0.7f);
+                Vector2 starVel = Main.rand.NextVector2Circular(0.5f, 0.5f);
+                float starScale = Main.rand.NextFloat(0.3f, 0.5f);
+                var sparkle = new SparkleParticle(starPos, starVel, starColor, starColor * 0.7f, starScale, 8);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
+
+            // Spawn connecting lines between adjacent star positions
+            for (int i = 0; i < starCount - 1; i++)
+            {
+                Vector2 lineStart = starPositions[i];
+                Vector2 lineEnd = starPositions[i + 1];
+                Vector2 lineDir = lineEnd - lineStart;
+                float lineLength = lineDir.Length();
+                Color lineColor = TerraBladeShaderManager.GetPaletteColor(0.5f) with { A = 0 };
+                var line = new LineParticle(lineStart, lineDir.SafeNormalize(Vector2.UnitX) * 0.1f,
+                    lineColor * 0.4f, lineLength, 1.5f, 8);
+                MagnumParticleHandler.SpawnParticle(line);
+            }
+        }
+
         private void OnCatch()
         {
             // Flash VFX at player position
             Vector2 flashPos = Owner.MountedCenter;
+
+            // ───── Priority 10: Snap/Close Moment ─────
+
+            // Screen shake
+            Projectile.ShakeScreen(0.6f);
+
+            // Satisfying metallic snap sound
+            SoundEngine.PlaySound(SoundID.Item84 with { Pitch = -0.2f, Volume = 1.0f }, flashPos);
+
+            // Expanding bloom rings
+            for (int i = 0; i < 2; i++)
+            {
+                float ringScale = 0.3f + i * 0.2f;
+                Color ringColor = TerraBladeShaderManager.GetPaletteColor(0.4f + i * 0.2f);
+                var ring = new BloomRingParticle(flashPos, Vector2.Zero, ringColor * 0.8f, ringScale, 16);
+                MagnumParticleHandler.SpawnParticle(ring);
+            }
+
+            // CritSpark burst radiating outward
+            for (int i = 0; i < 4; i++)
+            {
+                float angle = i / 4f * MathHelper.TwoPi + Main.rand.NextFloat(-0.3f, 0.3f);
+                Vector2 critVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
+                Color critColor = TerraBladeShaderManager.GetPaletteColor(Main.rand.NextFloat(0.4f, 0.8f));
+                Color critBloom = Color.White;
+                float critScale = Main.rand.NextFloat(2.0f, 3.5f);
+                float angVel = Main.rand.NextFloat(-0.15f, 0.15f);
+                var crit = new CritSpark(flashPos, critVel, critColor, critBloom, critScale, 20, angVel);
+                MagnumParticleHandler.SpawnParticle(crit);
+            }
+
+            // Large expanding line from catch position
+            Color lineColor = TerraBladeShaderManager.GetPaletteColor(0.6f) with { A = 0 };
+            var snapLine = new LineParticle(flashPos, Vector2.UnitY * 0.1f, lineColor * 0.6f, 200f, 3f, 8);
+            MagnumParticleHandler.SpawnParticle(snapLine);
+
+            // Extra bright lighting flash
+            Lighting.AddLight(flashPos, 1.5f, 2.0f, 1.5f);
+
+            // Reset NPC immunity for snap damage
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                if (Main.npc[i].active && Vector2.Distance(flashPos, Main.npc[i].Center) < 100f)
+                    Projectile.localNPCImmunity[i] = 0;
+            }
+
+            // ───── Existing VFX ─────
 
             // Radial dust burst
             for (int i = 0; i < 16; i++)

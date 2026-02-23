@@ -387,7 +387,28 @@ namespace MagnumOpus.Common.Systems.VFX
         public static Color GetOdeToJoy(float progress) => VFXUtilities.PaletteLerp(OdeToJoy, progress);
         
         #endregion
-        
+
+        #region TerraBlade - Nature's Wrath (DarkGreen -> EnergyGreen -> BrightCyan -> WhiteHot)
+
+        /// <summary>TerraBlade gradient palette — green energy sword, matching TerraBladeShaderManager.Palette</summary>
+        public static readonly Color[] TerraBlade = new Color[]
+        {
+            new Color(20, 60, 30),      // DarkGreen — subtle underglow
+            new Color(40, 140, 60),     // ForestGreen — outer glow edge
+            new Color(100, 255, 120),   // EnergyGreen — main blade body
+            new Color(50, 200, 150),    // BrightCyan — hot inner glow
+            new Color(180, 255, 210),   // PaleMint — bloom highlight
+            new Color(245, 255, 245),   // WhiteHot — core/flare centre
+        };
+
+        public static Color TerraBladeEnergyGreen => new Color(100, 255, 120);
+        public static Color TerraBladeBrightCyan => new Color(50, 200, 150);
+
+        /// <summary>Gets a TerraBlade gradient color</summary>
+        public static Color GetTerraBlade(float progress) => VFXUtilities.PaletteLerp(TerraBlade, progress);
+
+        #endregion
+
         #region Utility Methods
         
         /// <summary>
@@ -420,6 +441,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 "autumn" or "fall" => Autumn,
                 "winter" => Winter,
                 "odetojoy" or "ode" or "joy" => OdeToJoy,
+                "terrablade" or "terra" => TerraBlade,
                 _ => new Color[] { Color.White, Color.Gray }
             };
         }
@@ -444,6 +466,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 "autumn" or "fall" => GetAutumn(progress),
                 "winter" => GetWinter(progress),
                 "odetojoy" or "ode" or "joy" => GetOdeToJoy(progress),
+                "terrablade" or "terra" => GetTerraBlade(progress),
                 _ => Color.White
             };
         }
@@ -468,6 +491,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 "autumn" or "fall" => AutumnAmber,
                 "winter" => WinterBlue,
                 "odetojoy" or "ode" or "joy" => OdeBrightGold,
+                "terrablade" or "terra" => TerraBladeEnergyGreen,
                 _ => Color.White
             };
         }
@@ -492,6 +516,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 "autumn" or "fall" => AutumnGold,
                 "winter" => WinterCrystal,
                 "odetojoy" or "ode" or "joy" => OdeSunlight,
+                "terrablade" or "terra" => TerraBladeBrightCyan,
                 _ => Color.White
             };
         }

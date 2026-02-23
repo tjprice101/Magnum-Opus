@@ -9,8 +9,8 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
     /// <summary>
     /// A sandbox Terra Blade using the held-projectile swing pattern.
     /// Left-click: Single swing (SandboxTerraBladeSwing).
-    /// Right-click: Combo system — downswing + upswing + thrown spinning blade
-    ///              that spawns cosmic shards, then snaps back with a flash.
+    /// Right-click: Combo system — downswing + upswing + charged beam attack
+    ///              that fires toward the cursor and creates 5 starburst beams at impact.
     /// Automatically excluded from all global VFX systems via VFXExclusionHelper.
     /// </summary>
     public class SandboxTerraBlade : ModItem
@@ -39,9 +39,9 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         {
             if (player.altFunctionUse == 2)
             {
-                // Right-click: block if combo swing or spin throw are active
+                // Right-click: block if combo swing or beam are active
                 return player.ownedProjectileCounts[ModContent.ProjectileType<SandboxTerraBladeComboSwing>()] <= 0
-                    && player.ownedProjectileCounts[ModContent.ProjectileType<SandboxTerraBladeSpinThrow>()] <= 0;
+                    && player.ownedProjectileCounts[ModContent.ProjectileType<SandboxTerraBladeBeam>()] <= 0;
             }
 
             // Left-click: prevent spawning a new swing while one is already active
@@ -73,7 +73,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "SandboxInfo",
-                "Sandbox weapon — left-click swing, right-click combo throw"));
+                "Sandbox weapon — left-click swing, right-click combo beam"));
         }
     }
 }
