@@ -93,10 +93,10 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             float halfW = width * 0.5f;
             float halfH = height * 0.5f;
 
-            Color topColor = TerraBladeShaderManager.GetPaletteColor(0.7f) * alpha * 0f; // fade at edges
+            Color topColor = TerraBladeShaderManager.GetPaletteColor(0.7f) * alpha * 0.35f; // fade at edges
             Color midColor = TerraBladeShaderManager.GetPaletteColor(0.5f) * alpha;
 
-            // Top-left, Top-right (faded)
+            // Top-left, Top-right (faded edges of pillar)
             _quadVerts[0] = new VertexPositionColorTexture(
                 new Vector3(centerScreen.X - halfW, centerScreen.Y - halfH, 0),
                 topColor, new Vector2(0f + time * 0.5f, 0f));
@@ -104,13 +104,13 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 new Vector3(centerScreen.X + halfW, centerScreen.Y - halfH, 0),
                 topColor, new Vector2(1f + time * 0.5f, 0f));
 
-            // Bottom-left, Bottom-right (faded)
+            // Bottom-left, Bottom-right (brighter center region)
             _quadVerts[2] = new VertexPositionColorTexture(
                 new Vector3(centerScreen.X - halfW, centerScreen.Y + halfH, 0),
-                topColor, new Vector2(0f + time * 0.5f, 1f));
+                midColor, new Vector2(0f + time * 0.5f, 1f));
             _quadVerts[3] = new VertexPositionColorTexture(
                 new Vector3(centerScreen.X + halfW, centerScreen.Y + halfH, 0),
-                topColor, new Vector2(1f + time * 0.5f, 1f));
+                midColor, new Vector2(1f + time * 0.5f, 1f));
 
             // Override center vertices to be brighter — use center alpha for mid rows
             // Since we only have 4 verts (a quad), the center brightness comes from

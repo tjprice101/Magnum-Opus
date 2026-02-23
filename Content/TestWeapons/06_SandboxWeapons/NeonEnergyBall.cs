@@ -25,10 +25,12 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
     ///   On kill: particle fizzle
     ///
     /// Rendering:
-    ///   1. Cosmic trail via CalamityStyleTrailRenderer with CosmicNebulaClouds noise
-    ///   2. Noise-textured orb body: SoftCircularCaustics at 3 counter-rotating scales
-    ///   3. 4-layer bloom stack (outer → white-hot core)
-    ///   4. FlareSparkle counter-rotating at center
+    ///   1. Fluctuating beam trail (4-pass sinusoidal mesh with NatureTechnique)
+    ///   2. Motion blur bloom
+    ///   3. RadialScrollShader orb body: MultiLayer (outer) + PulsingOrb (core)
+    ///      with linear UV scrolling and circular distance masking
+    ///   4. Subtle bloom stack (outer → white-hot core)
+    ///   5. FlareSparkle counter-rotating at center
     /// </summary>
     public class NeonEnergyBall : ModProjectile
     {
@@ -40,7 +42,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         private const float HomingLerp = 0.08f;
         private const float HomingSpeed = 16f;
         private const float Deceleration = 0.94f;
-        private const float BeamTrailWidth = 24f;
+        private const float BeamTrailWidth = 52f;
         private const int BeamTrailSegments = 50;
 
         #endregion
@@ -68,8 +70,8 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
 
         public override void SetDefaults()
         {
-            Projectile.width = 18;
-            Projectile.height = 18;
+            Projectile.width = 80;
+            Projectile.height = 80;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.MeleeNoSpeed;
             Projectile.penetrate = 1;
@@ -119,8 +121,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 }
             }
 
-            // Sparkle dust trail
-            if (Main.rand.NextBool(2))
+            // Sparkle dust trail (every frame)
             {
                 Color dustColor = TerraBladeShaderManager.GetPaletteColor(Main.rand.NextFloat(0.3f, 0.7f));
                 Dust d = Dust.NewDustPerfect(
@@ -132,8 +133,8 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 d.fadeIn = 1.2f;
             }
 
-            // GlowSpark particles every few frames
-            if (timer % 4 == 0)
+            // GlowSpark particles every 2 frames
+            if (timer % 2 == 0)
             {
                 Vector2 sparkVel = -Projectile.velocity.SafeNormalize(Vector2.UnitY) * Main.rand.NextFloat(1f, 3f);
                 sparkVel = sparkVel.RotatedBy(Main.rand.NextFloat(-0.5f, 0.5f));
@@ -269,64 +270,45 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 TerraBladeShaderManager.GetPaletteColor(0.8f),
                 1.0f);
 
-            // Switch to additive for all orb layers
+            // 3. Noise orb body via RadialScrollShader (linear UV scrolling with circle mask)
+            float speed = Projectile.velocity.Length();
+            float stretch = 1f + speed * 0.06f;
+            DrawRadialNoiseOrb(sb, drawPos, time, pulse, stretch);
+
+            // Switch to additive for bloom + sparkle layers
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null,
                 Main.GameViewMatrix.TransformationMatrix);
 
-            // 3. Noise-textured orb body (SoftCircularCaustics at 3 counter-rotating scales)
-            // Velocity-based stretch (Calamity pattern)
-            float speed = Projectile.velocity.Length();
-            float stretch = 1f + speed * 0.02f;
-            float velocityRot = Projectile.velocity.ToRotation();
-
-            Texture2D noiseTex = ShaderLoader.GetNoiseTexture("SoftCircularCaustics");
-            if (noiseTex != null)
+            // 4. Bloom backing — vibrant glow layers
+            Texture2D godRaysBack = SafeRequest("MagnumOpus/Assets/VFX/LightRays/Radial God Rays Full Circle");
+            if (godRaysBack != null)
             {
-                Vector2 noiseOrigin = noiseTex.Size() * 0.5f;
-                float orbRadius = 32f;
-                float texSize = Math.Max(noiseTex.Width, noiseTex.Height);
-                float noiseScale = orbRadius * 2f / texSize;
-
-                // Layer 1: Outer glow (slow CW rotation)
-                Color layer1 = TerraBladeShaderManager.GetPaletteColor(0.3f) with { A = 0 } * 0.55f;
-                sb.Draw(noiseTex, drawPos, null, layer1,
-                    time * 0.8f, noiseOrigin, new Vector2(noiseScale * 1.4f * pulse * stretch, noiseScale * 1.4f * pulse / stretch), SpriteEffects.None, 0f);
-
-                // Layer 2: Mid energy (CCW rotation)
-                Color layer2 = TerraBladeShaderManager.GetPaletteColor(0.5f) with { A = 0 } * 0.70f;
-                sb.Draw(noiseTex, drawPos, null, layer2,
-                    -time * 1.3f, noiseOrigin, noiseScale * 1.0f * pulse, SpriteEffects.None, 0f);
-
-                // Layer 3: Core (fast CW rotation)
-                Color layer3 = TerraBladeShaderManager.GetPaletteColor(0.75f) with { A = 0 } * 0.85f;
-                sb.Draw(noiseTex, drawPos, null, layer3,
-                    time * 2.2f, noiseOrigin, noiseScale * 0.7f * pulse, SpriteEffects.None, 0f);
+                Vector2 grOrigin = godRaysBack.Size() * 0.5f;
+                float grScale = 250f / Math.Max(godRaysBack.Width, godRaysBack.Height);
+                Color grColor = TerraBladeShaderManager.GetPaletteColor(0.3f);
+                sb.Draw(godRaysBack, drawPos, null, grColor * 0.45f,
+                    time * 0.4f, grOrigin, grScale * pulse, SpriteEffects.None, 0f);
             }
 
-            // 4. Calamity 4-layer bloom stack with { A = 0 }
-            Color outerBloom = TerraBladeShaderManager.GetPaletteColor(0.3f) with { A = 0 };
-            sb.Draw(coreTex, drawPos, null, outerBloom * 0.40f,
+            Color outerBloom = TerraBladeShaderManager.GetPaletteColor(0.4f);
+            sb.Draw(coreTex, drawPos, null, outerBloom * 0.30f,
                 0f, origin, 1.2f * pulse, SpriteEffects.None, 0f);
 
-            Color midBloom = TerraBladeShaderManager.GetPaletteColor(0.5f) with { A = 0 };
-            sb.Draw(coreTex, drawPos, null, midBloom * 0.65f,
-                0f, origin, 0.75f * pulse, SpriteEffects.None, 0f);
+            Color midBloom = TerraBladeShaderManager.GetPaletteColor(0.6f);
+            sb.Draw(coreTex, drawPos, null, midBloom * 0.40f,
+                0f, origin, 0.6f * pulse, SpriteEffects.None, 0f);
 
-            Color innerBloom = TerraBladeShaderManager.GetPaletteColor(0.7f) with { A = 0 };
-            sb.Draw(coreTex, drawPos, null, innerBloom * 0.80f,
-                0f, origin, 0.45f * pulse, SpriteEffects.None, 0f);
-
-            sb.Draw(coreTex, drawPos, null, (Color.White with { A = 0 }) * 0.95f,
-                0f, origin, 0.22f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(coreTex, drawPos, null, Color.White * 0.50f,
+                0f, origin, 0.25f * pulse, SpriteEffects.None, 0f);
 
             // 5. FlareSparkle counter-rotating at center
             Texture2D sparkleTex = SafeRequest("MagnumOpus/Assets/Particles/FlareSparkle");
             if (sparkleTex != null)
             {
                 Vector2 sparkleOrigin = sparkleTex.Size() * 0.5f;
-                Color sparkleColor = TerraBladeShaderManager.GetPaletteColor(0.6f) with { A = 0 };
+                Color sparkleColor = TerraBladeShaderManager.GetPaletteColor(0.6f);
                 sb.Draw(sparkleTex, drawPos, null, sparkleColor * 0.6f,
                     -time * 3.5f, sparkleOrigin, 0.22f * pulse, SpriteEffects.None, 0f);
                 sb.Draw(sparkleTex, drawPos, null, sparkleColor * 0.3f,
@@ -340,6 +322,147 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 Main.GameViewMatrix.TransformationMatrix);
 
             return false;
+        }
+
+        /// <summary>
+        /// Draws the noise orb body using RadialScrollShader for proper linear UV scrolling
+        /// with circular masking. Uses MultiLayer (outer) + PulsingOrb (core) techniques.
+        /// Falls back to scrolling source rectangles if shader is unavailable.
+        /// </summary>
+        private void DrawRadialNoiseOrb(SpriteBatch sb, Vector2 drawPos, float time, float pulse, float stretch)
+        {
+            Effect radialShader = ShaderLoader.RadialScroll;
+            Texture2D noiseTex = ShaderLoader.GetNoiseTexture("UniversalRadialFlowNoise");
+
+            if (noiseTex == null) return;
+
+            Vector2 noiseOrigin = noiseTex.Size() * 0.5f;
+            float orbRadius = 90f;
+            float texSize = Math.Max(noiseTex.Width, noiseTex.Height);
+            float noiseScale = orbRadius * 2f / texSize;
+
+            if (radialShader != null)
+            {
+                // Shader-based noise scrolling with circular masking
+                try { sb.End(); } catch { }
+
+                try
+                {
+                    // Layer 1: Outer energy flow (MultiLayer — 3 internal depth layers)
+                    radialShader.CurrentTechnique = radialShader.Techniques["MultiLayer"];
+                    radialShader.Parameters["uTime"]?.SetValue(time);
+                    radialShader.Parameters["uFlowSpeed"]?.SetValue(0.8f);
+                    radialShader.Parameters["uRadialSpeed"]?.SetValue(0.4f);
+                    radialShader.Parameters["uZoom"]?.SetValue(1.0f);
+                    radialShader.Parameters["uRepeat"]?.SetValue(1.0f);
+                    radialShader.Parameters["uVignetteSize"]?.SetValue(0.45f);
+                    radialShader.Parameters["uVignetteBlend"]?.SetValue(0.12f);
+                    radialShader.Parameters["uOpacity"]?.SetValue(0.85f);
+                    radialShader.Parameters["uColor"]?.SetValue(TerraBladeShaderManager.GetPaletteColor(0.4f).ToVector4());
+                    radialShader.Parameters["uSecondaryColor"]?.SetValue(TerraBladeShaderManager.GetPaletteColor(0.6f).ToVector4());
+
+                    sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                        DepthStencilState.None, RasterizerState.CullNone, radialShader,
+                        Main.GameViewMatrix.TransformationMatrix);
+
+                    sb.Draw(noiseTex, drawPos, null, Color.White * 0.8f,
+                        0f, noiseOrigin,
+                        new Vector2(noiseScale * 1.5f * pulse * stretch, noiseScale * 1.5f * pulse / stretch),
+                        SpriteEffects.None, 0f);
+
+                    sb.End();
+
+                    // Layer 2: Core energy (PulsingOrb — pulsing + dual-phase + edge glow)
+                    radialShader.CurrentTechnique = radialShader.Techniques["PulsingOrb"];
+                    radialShader.Parameters["uFlowSpeed"]?.SetValue(1.2f);
+                    radialShader.Parameters["uRadialSpeed"]?.SetValue(0.6f);
+                    radialShader.Parameters["uVignetteSize"]?.SetValue(0.42f);
+                    radialShader.Parameters["uVignetteBlend"]?.SetValue(0.10f);
+                    radialShader.Parameters["uPulseSpeed"]?.SetValue(4.0f);
+                    radialShader.Parameters["uPulseAmount"]?.SetValue(0.12f);
+                    radialShader.Parameters["uOpacity"]?.SetValue(1.0f);
+                    radialShader.Parameters["uColor"]?.SetValue(TerraBladeShaderManager.GetPaletteColor(0.7f).ToVector4());
+                    radialShader.Parameters["uSecondaryColor"]?.SetValue(TerraBladeShaderManager.GetPaletteColor(0.9f).ToVector4());
+
+                    sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                        DepthStencilState.None, RasterizerState.CullNone, radialShader,
+                        Main.GameViewMatrix.TransformationMatrix);
+
+                    sb.Draw(noiseTex, drawPos, null, Color.White * 1.0f,
+                        0f, noiseOrigin, noiseScale * 1.0f * pulse,
+                        SpriteEffects.None, 0f);
+
+                    sb.End();
+                }
+                catch
+                {
+                    try { sb.End(); } catch { }
+                }
+
+                // Restore to AlphaBlend state
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, RasterizerState.CullNone, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+            }
+            else
+            {
+                // Fallback: vibrant energy orb using shaped VFX textures
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+
+                float targetSize = orbRadius * 2f;
+
+                // Radial God Rays — rotating outer energy aura
+                Texture2D godRaysTex = SafeRequest("MagnumOpus/Assets/VFX/LightRays/Radial God Rays Full Circle");
+                if (godRaysTex != null)
+                {
+                    Vector2 grOrigin = godRaysTex.Size() * 0.5f;
+                    float grScale = targetSize * 1.4f / Math.Max(godRaysTex.Width, godRaysTex.Height);
+                    Color grColor = TerraBladeShaderManager.GetPaletteColor(0.3f);
+                    sb.Draw(godRaysTex, drawPos, null, grColor * 0.7f,
+                        time * 0.5f, grOrigin,
+                        new Vector2(grScale * pulse * stretch, grScale * pulse / stretch),
+                        SpriteEffects.None, 0f);
+                }
+
+                // Energy Flare — main body starburst (two counter-rotating layers)
+                Texture2D flareTex = SafeRequest("MagnumOpus/Assets/Particles/EnergyFlare");
+                if (flareTex != null)
+                {
+                    Vector2 flOrigin = flareTex.Size() * 0.5f;
+                    float flScale = targetSize * 1.1f / Math.Max(flareTex.Width, flareTex.Height);
+                    Color flColor = TerraBladeShaderManager.GetPaletteColor(0.5f);
+                    sb.Draw(flareTex, drawPos, null, flColor * 0.8f,
+                        -time * 0.8f, flOrigin,
+                        new Vector2(flScale * pulse * stretch, flScale * pulse / stretch),
+                        SpriteEffects.None, 0f);
+
+                    Color flColor2 = TerraBladeShaderManager.GetPaletteColor(0.7f);
+                    sb.Draw(flareTex, drawPos, null, flColor2 * 0.6f,
+                        time * 1.2f, flOrigin, flScale * 0.7f * pulse,
+                        SpriteEffects.None, 0f);
+                }
+
+                // Perfect Soft Color Bloom — structured inner glow
+                Texture2D bloomTex = SafeRequest("MagnumOpus/Assets/VFX/Blooms/Perfect Soft Color Bloom");
+                if (bloomTex == null) bloomTex = Terraria.GameContent.TextureAssets.Extra[98].Value;
+                Vector2 blOrigin = bloomTex.Size() * 0.5f;
+                float blScale = targetSize * 0.8f / Math.Max(bloomTex.Width, bloomTex.Height);
+                Color bloomColor = TerraBladeShaderManager.GetPaletteColor(0.6f);
+                sb.Draw(bloomTex, drawPos, null, bloomColor * 0.7f,
+                    time * 0.3f, blOrigin, blScale * pulse, SpriteEffects.None, 0f);
+
+                // White-hot center
+                sb.Draw(bloomTex, drawPos, null, Color.White * 0.5f,
+                    0f, blOrigin, blScale * 0.3f * pulse, SpriteEffects.None, 0f);
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, RasterizerState.CullNone, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+            }
         }
 
         /// <summary>
@@ -475,7 +598,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                     trailShader.Parameters["uSecondaryColor"]?.SetValue(TerraBladeShaderManager.BrightCyan.ToVector3());
                     trailShader.Parameters["uOpacity"]?.SetValue(1f);
                     trailShader.Parameters["uProgress"]?.SetValue(0f);
-                    trailShader.Parameters["uOverbrightMult"]?.SetValue(5.0f);
+                    trailShader.Parameters["uOverbrightMult"]?.SetValue(7.0f);
                     trailShader.Parameters["uGlowThreshold"]?.SetValue(0.4f);
                     trailShader.Parameters["uGlowIntensity"]?.SetValue(2f);
                     trailShader.Parameters["uHasSecondaryTex"]?.SetValue(noise != null ? 1f : 0f);
@@ -489,7 +612,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                         TerraBladeShaderManager.GetPaletteColor(0.2f), 0.25f, time);
                     if (vertCount >= 4)
                     {
-                        trailShader.Parameters["uIntensity"]?.SetValue(0.6f);
+                        trailShader.Parameters["uIntensity"]?.SetValue(1.0f);
                         foreach (var p in trailShader.CurrentTechnique.Passes)
                         {
                             p.Apply();
@@ -503,7 +626,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                         TerraBladeShaderManager.GetPaletteColor(0.5f), 0.5f, time);
                     if (vertCount >= 4)
                     {
-                        trailShader.Parameters["uIntensity"]?.SetValue(1.2f);
+                        trailShader.Parameters["uIntensity"]?.SetValue(1.8f);
                         foreach (var p in trailShader.CurrentTechnique.Passes)
                         {
                             p.Apply();
@@ -517,7 +640,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                         TerraBladeShaderManager.GetPaletteColor(0.65f), 0.85f, time);
                     if (vertCount >= 4)
                     {
-                        trailShader.Parameters["uIntensity"]?.SetValue(2.0f);
+                        trailShader.Parameters["uIntensity"]?.SetValue(3.0f);
                         foreach (var p in trailShader.CurrentTechnique.Passes)
                         {
                             p.Apply();
@@ -531,7 +654,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                         TerraBladeShaderManager.GetPaletteColor(0.85f), 0.9f, time);
                     if (vertCount >= 4)
                     {
-                        trailShader.Parameters["uIntensity"]?.SetValue(2.5f);
+                        trailShader.Parameters["uIntensity"]?.SetValue(4.0f);
                         foreach (var p in trailShader.CurrentTechnique.Passes)
                         {
                             p.Apply();

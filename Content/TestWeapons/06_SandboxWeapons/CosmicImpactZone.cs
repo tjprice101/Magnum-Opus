@@ -14,8 +14,8 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
     /// <summary>
     /// Expanding circular explosion zone spawned by CosmicSpinShard on impact.
     /// Brief flash style: 24-frame lifecycle with sqrt(progress) expansion.
-    /// 5-layer additive rendering: VoronoiNoise (3 counter-rotating) + shockwave ring
-    /// + ripple rings + core bloom + CosmicNebulaClouds shimmer.
+    /// 5-layer additive rendering: RadialScrollShader noise (MultiLayer technique)
+    /// + shockwave ring + ripple rings + core bloom + CosmicNebulaClouds shimmer.
     /// Green/white flame-like energy with Terra Blade palette colors.
     /// </summary>
     public class CosmicImpactZone : ModProjectile
@@ -23,7 +23,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         #region Constants
 
         private const int ExplosionDuration = 24;
-        private const float MaxRadius = 120f;
+        private const float MaxRadius = 65f;
 
         #endregion
 
@@ -32,11 +32,6 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         private int timer = 0;
         private float currentRadius = 0f;
         private bool spawnedInitialVFX = false;
-
-        // Disc vertex mesh for circular noise rendering
-        private const int RingSegments = 16;
-        private VertexPositionColorTexture[] _discVerts;
-        private static short[] _discIndices;
 
         #endregion
 
@@ -160,55 +155,6 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
 
         #region Rendering
 
-        private void InitDiscMesh()
-        {
-            _discVerts = new VertexPositionColorTexture[1 + RingSegments];
-
-            if (_discIndices == null)
-            {
-                _discIndices = new short[RingSegments * 3];
-                for (int i = 0; i < RingSegments; i++)
-                {
-                    int idx = i * 3;
-                    _discIndices[idx + 0] = 0;
-                    _discIndices[idx + 1] = (short)(1 + i);
-                    _discIndices[idx + 2] = (short)(1 + (i + 1) % RingSegments);
-                }
-            }
-        }
-
-        private int BuildDiscMesh(Vector2 centerScreen, float radius, float fadeAlpha, float time)
-        {
-            if (_discVerts == null) InitDiscMesh();
-
-            Color centerColor = TerraBladeShaderManager.GetPaletteColor(0.5f) * fadeAlpha;
-            _discVerts[0] = new VertexPositionColorTexture(
-                new Vector3(centerScreen, 0),
-                centerColor,
-                new Vector2(0.5f, 0.5f));
-
-            for (int i = 0; i < RingSegments; i++)
-            {
-                float angle = i / (float)RingSegments * MathHelper.TwoPi;
-                Vector2 offset = angle.ToRotationVector2() * radius;
-                Vector2 pos = centerScreen + offset;
-
-                // Radial UV scrolling: rotate angle over time + scroll outward
-                float scrollAngle = angle + time * 0.8f;
-                float radialScroll = time * 0.5f;
-                float u = 0.5f + MathF.Cos(scrollAngle) * (0.5f + radialScroll);
-                float v = 0.5f + MathF.Sin(scrollAngle) * (0.5f + radialScroll);
-
-                Color edgeColor = TerraBladeShaderManager.GetPaletteColor(0.3f) * fadeAlpha * 0.08f;
-                _discVerts[1 + i] = new VertexPositionColorTexture(
-                    new Vector3(pos, 0),
-                    edgeColor,
-                    new Vector2(u, v));
-            }
-
-            return 1 + RingSegments;
-        }
-
         private static Texture2D SafeRequest(string path)
         {
             try
@@ -233,8 +179,8 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             // Switch to additive blending for all layers
             sb.End();
 
-            // --- Disc mesh with NatureTechnique shader (circular-masked, UV-scrolling) ---
-            DrawLayer1_DiscNoise(sb, drawPos, fadeAlpha, time);
+            // --- Noise orb via RadialScrollShader (linear UV scrolling with circle mask) ---
+            DrawRadialNoiseExplosion(sb, drawPos, currentRadius, fadeAlpha, time);
 
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null,
@@ -254,62 +200,98 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             return false;
         }
 
-        private void DrawLayer1_DiscNoise(SpriteBatch sb, Vector2 drawPos, float fadeAlpha, float time)
+        /// <summary>
+        /// Draws the explosion noise body using RadialScrollShader MultiLayer technique
+        /// with linear UV scrolling and circular masking.
+        /// Falls back to scrolling source rectangles if shader is unavailable.
+        /// </summary>
+        private void DrawRadialNoiseExplosion(SpriteBatch sb, Vector2 drawPos, float radius, float fadeAlpha, float time)
         {
-            var device = Main.instance.GraphicsDevice;
-            Effect trailShader = ShaderLoader.Trail;
+            Effect radialShader = ShaderLoader.RadialScroll;
+            Texture2D noiseTex = ShaderLoader.GetNoiseTexture("UniversalRadialFlowNoise");
 
-            try
+            if (noiseTex == null) return;
+
+            Vector2 noiseOrigin = noiseTex.Size() * 0.5f;
+            float texSize = Math.Max(noiseTex.Width, noiseTex.Height);
+            float noiseScale = radius * 2.4f / texSize;
+
+            if (radialShader != null)
             {
-                Texture2D noise = ShaderLoader.GetNoiseTexture("SoftCircularCaustics");
-                if (noise != null)
+                // Shader-based noise scrolling with circular masking
+                try
                 {
-                    device.Textures[1] = noise;
-                    device.SamplerStates[1] = SamplerState.LinearWrap;
+                    radialShader.CurrentTechnique = radialShader.Techniques["MultiLayer"];
+                    radialShader.Parameters["uTime"]?.SetValue(time);
+                    radialShader.Parameters["uFlowSpeed"]?.SetValue(1.8f);
+                    radialShader.Parameters["uRadialSpeed"]?.SetValue(1.0f);
+                    radialShader.Parameters["uZoom"]?.SetValue(1.0f);
+                    radialShader.Parameters["uRepeat"]?.SetValue(1.0f);
+                    radialShader.Parameters["uVignetteSize"]?.SetValue(0.42f);
+                    radialShader.Parameters["uVignetteBlend"]?.SetValue(0.12f);
+                    radialShader.Parameters["uOpacity"]?.SetValue(fadeAlpha);
+                    radialShader.Parameters["uColor"]?.SetValue(TerraBladeShaderManager.GetPaletteColor(0.5f).ToVector4());
+                    radialShader.Parameters["uSecondaryColor"]?.SetValue(TerraBladeShaderManager.GetPaletteColor(0.8f).ToVector4());
+
+                    sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                        DepthStencilState.None, RasterizerState.CullNone, radialShader,
+                        Main.GameViewMatrix.TransformationMatrix);
+
+                    sb.Draw(noiseTex, drawPos, null, Color.White * 0.9f,
+                        0f, noiseOrigin, noiseScale, SpriteEffects.None, 0f);
+
+                    sb.End();
                 }
-
-                device.BlendState = BlendState.Additive;
-                device.DepthStencilState = DepthStencilState.None;
-                device.RasterizerState = RasterizerState.CullNone;
-                device.SamplerStates[0] = SamplerState.LinearWrap;
-                device.Textures[0] = Terraria.GameContent.TextureAssets.MagicPixel.Value;
-
-                if (trailShader != null)
+                catch
                 {
-                    trailShader.CurrentTechnique = trailShader.Techniques["NatureTechnique"];
-                    trailShader.Parameters["uTime"]?.SetValue(time);
-                    trailShader.Parameters["uColor"]?.SetValue(TerraBladeShaderManager.EnergyGreen.ToVector3());
-                    trailShader.Parameters["uSecondaryColor"]?.SetValue(TerraBladeShaderManager.BrightCyan.ToVector3());
-                    trailShader.Parameters["uOpacity"]?.SetValue(fadeAlpha);
-                    trailShader.Parameters["uProgress"]?.SetValue(0f);
-                    trailShader.Parameters["uOverbrightMult"]?.SetValue(4.0f);
-                    trailShader.Parameters["uGlowThreshold"]?.SetValue(0.4f);
-                    trailShader.Parameters["uGlowIntensity"]?.SetValue(2.0f);
-                    trailShader.Parameters["uHasSecondaryTex"]?.SetValue(noise != null ? 1f : 0f);
-                    trailShader.Parameters["uSecondaryTexScale"]?.SetValue(1.0f);
-                    trailShader.Parameters["uSecondaryTexScroll"]?.SetValue(1.2f);
-
-                    int vertCount = BuildDiscMesh(drawPos, currentRadius, fadeAlpha, time);
-
-                    float[] intensities = { 0.4f, 0.8f, 1.4f };
-                    for (int pass = 0; pass < intensities.Length; pass++)
-                    {
-                        trailShader.Parameters["uIntensity"]?.SetValue(intensities[pass]);
-
-                        foreach (var p in trailShader.CurrentTechnique.Passes)
-                        {
-                            p.Apply();
-                            device.DrawUserIndexedPrimitives(
-                                PrimitiveType.TriangleList,
-                                _discVerts, 0, vertCount,
-                                _discIndices, 0, RingSegments);
-                        }
-                    }
+                    try { sb.End(); } catch { }
                 }
             }
-            finally
+            else
             {
-                device.Textures[1] = null;
+                // Fallback: vibrant layered energy explosion using shaped VFX textures
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+
+                float targetSize = radius * 2f;
+
+                // Radial God Rays — expanding energy burst
+                Texture2D godRaysTex = SafeRequest("MagnumOpus/Assets/VFX/LightRays/Radial God Rays Full Circle");
+                if (godRaysTex != null)
+                {
+                    Vector2 grOrigin = godRaysTex.Size() * 0.5f;
+                    float grScale = targetSize * 1.4f / Math.Max(godRaysTex.Width, godRaysTex.Height);
+                    Color grColor = TerraBladeShaderManager.GetPaletteColor(0.35f);
+                    sb.Draw(godRaysTex, drawPos, null, grColor * 0.75f * fadeAlpha,
+                        time * 0.6f, grOrigin, grScale, SpriteEffects.None, 0f);
+                }
+
+                // Energy Flare — central starburst
+                Texture2D flareTex = SafeRequest("MagnumOpus/Assets/Particles/EnergyFlare");
+                if (flareTex != null)
+                {
+                    Vector2 flOrigin = flareTex.Size() * 0.5f;
+                    float flScale = targetSize * 1.1f / Math.Max(flareTex.Width, flareTex.Height);
+                    Color flColor = TerraBladeShaderManager.GetPaletteColor(0.5f);
+                    sb.Draw(flareTex, drawPos, null, flColor * 0.85f * fadeAlpha,
+                        -time * 0.4f, flOrigin, flScale, SpriteEffects.None, 0f);
+                }
+
+                // Perfect Soft Color Bloom — structured core glow
+                Texture2D bloomTex = SafeRequest("MagnumOpus/Assets/VFX/Blooms/Perfect Soft Color Bloom");
+                if (bloomTex == null) bloomTex = Terraria.GameContent.TextureAssets.Extra[98].Value;
+                Vector2 blOrigin = bloomTex.Size() * 0.5f;
+                float blScale = targetSize * 0.7f / Math.Max(bloomTex.Width, bloomTex.Height);
+                Color blColor = TerraBladeShaderManager.GetPaletteColor(0.7f);
+                sb.Draw(bloomTex, drawPos, null, blColor * 0.7f * fadeAlpha,
+                    time * 0.2f, blOrigin, blScale, SpriteEffects.None, 0f);
+
+                // White-hot center
+                sb.Draw(bloomTex, drawPos, null, Color.White * 0.6f * fadeAlpha,
+                    0f, blOrigin, blScale * 0.3f, SpriteEffects.None, 0f);
+
+                sb.End();
             }
         }
 
@@ -353,17 +335,17 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
 
             // Outer bloom
             Color outerBloom = TerraBladeShaderManager.GetPaletteColor(0.3f);
-            sb.Draw(bloomTex, drawPos, null, outerBloom * 0.3f * fadeAlpha,
+            sb.Draw(bloomTex, drawPos, null, outerBloom * 0.30f * fadeAlpha,
                 0f, bloomOrigin, 0.5f * pulse, SpriteEffects.None, 0f);
 
             // Mid bloom
             Color midBloom = TerraBladeShaderManager.GetPaletteColor(0.6f);
-            sb.Draw(bloomTex, drawPos, null, midBloom * 0.5f * fadeAlpha,
+            sb.Draw(bloomTex, drawPos, null, midBloom * 0.40f * fadeAlpha,
                 0f, bloomOrigin, 0.3f * pulse, SpriteEffects.None, 0f);
 
             // Core — white hot
             Color coreBloom = Color.White;
-            sb.Draw(bloomTex, drawPos, null, coreBloom * 0.7f * fadeAlpha,
+            sb.Draw(bloomTex, drawPos, null, coreBloom * 0.50f * fadeAlpha,
                 0f, bloomOrigin, 0.15f * pulse, SpriteEffects.None, 0f);
         }
 
@@ -372,13 +354,51 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             Texture2D cosmicTex = ShaderLoader.GetNoiseTexture("CosmicNebulaClouds");
             if (cosmicTex == null) return;
 
-            Vector2 cosmicOrigin = cosmicTex.Size() * 0.5f;
-            float cosmicTexSize = Math.Max(cosmicTex.Width, cosmicTex.Height);
-            float cosmicScale = currentRadius * 1.6f / cosmicTexSize;
+            Effect radialShader = ShaderLoader.RadialScroll;
 
-            Color cosmicColor = TerraBladeShaderManager.GetPaletteColor(0.4f) * 0.2f * (1f - progress) * fadeAlpha;
-            sb.Draw(cosmicTex, drawPos, null, cosmicColor,
-                time * 0.3f, cosmicOrigin, cosmicScale, SpriteEffects.None, 0f);
+            if (radialShader != null)
+            {
+                // Shader-masked cosmic shimmer (proper circle masking)
+                try
+                {
+                    sb.End();
+
+                    radialShader.CurrentTechnique = radialShader.Techniques["RadialBasic"];
+                    radialShader.Parameters["uTime"]?.SetValue(time * 0.3f);
+                    radialShader.Parameters["uFlowSpeed"]?.SetValue(0.3f);
+                    radialShader.Parameters["uRadialSpeed"]?.SetValue(0.2f);
+                    radialShader.Parameters["uZoom"]?.SetValue(1.0f);
+                    radialShader.Parameters["uRepeat"]?.SetValue(1.0f);
+                    radialShader.Parameters["uVignetteSize"]?.SetValue(0.40f);
+                    radialShader.Parameters["uVignetteBlend"]?.SetValue(0.15f);
+                    radialShader.Parameters["uOpacity"]?.SetValue((1f - progress) * fadeAlpha);
+                    radialShader.Parameters["uColor"]?.SetValue(TerraBladeShaderManager.GetPaletteColor(0.4f).ToVector4());
+
+                    sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                        DepthStencilState.None, RasterizerState.CullNone, radialShader,
+                        Main.GameViewMatrix.TransformationMatrix);
+
+                    Vector2 cosmicOrigin = cosmicTex.Size() * 0.5f;
+                    float cosmicTexSize = Math.Max(cosmicTex.Width, cosmicTex.Height);
+                    float cosmicScale = currentRadius * 1.6f / cosmicTexSize;
+
+                    sb.Draw(cosmicTex, drawPos, null, Color.White * 0.25f,
+                        0f, cosmicOrigin, cosmicScale, SpriteEffects.None, 0f);
+
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null,
+                        Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch
+                {
+                    try { sb.End(); } catch { }
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null,
+                        Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+            // No fallback: without the shader, cosmic shimmer is omitted to avoid unmasked noise
         }
 
         #endregion

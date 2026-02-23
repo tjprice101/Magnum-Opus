@@ -44,6 +44,7 @@ namespace MagnumOpus.Common.Systems.Shaders
         public const string CelestialValorTrailShader = "CelestialValorTrail";
         public const string MotionBlurBloomShader = "MotionBlurBloom";
         public const string TerraBladeSwingVFXShader = "TerraBladeSwingVFX";
+        public const string RadialScrollShaderName = "RadialScrollShader";
 
         // Noise texture names (without extension) - in Assets/VFX/Noise/
         private static readonly string[] NoiseTextureNames = new[]
@@ -163,6 +164,7 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(CelestialValorTrailShader);
                 LoadShader(MotionBlurBloomShader);
                 LoadShader(TerraBladeSwingVFXShader);
+                LoadShader(RadialScrollShaderName);
 
                 _shadersEnabled = _shaders.Count > 0;
 
@@ -304,6 +306,9 @@ namespace MagnumOpus.Common.Systems.Shaders
 
         /// <summary>Gets the Terra Blade Swing VFX shader if available.</summary>
         public static Effect TerraBladeSwingVFX => GetShader(TerraBladeSwingVFXShader);
+
+        /// <summary>Gets the Radial Scroll shader for orbs/explosions/portals if available.</summary>
+        public static Effect RadialScroll => GetShader(RadialScrollShaderName);
 
         // =====================================================================
         //  Texture Accessors

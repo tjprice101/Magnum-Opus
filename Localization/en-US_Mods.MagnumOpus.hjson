@@ -7590,4 +7590,5 @@ Projectiles: {
 	LingeringFlameZone.DisplayName: Lingering Flame Zone
 	NeonEnergyBall.DisplayName: Neon Energy Ball
 	VerticalEnergyPillarVFX.DisplayName: Vertical Energy Pillar V F X
+	ClockworkGearProjectile.DisplayName: Clockwork Gear Projectile
 }
