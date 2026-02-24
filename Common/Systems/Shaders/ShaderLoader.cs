@@ -46,6 +46,13 @@ namespace MagnumOpus.Common.Systems.Shaders
         public const string TerraBladeSwingVFXShader = "TerraBladeSwingVFX";
         public const string RadialScrollShaderName = "RadialScrollShader";
         public const string BeamGradientFlowShader = "BeamGradientFlow";
+        public const string MoonlightTrailShader = "MoonlightTrail";
+        public const string LunarBeamShader = "LunarBeam";
+        public const string CrescentAuraShader = "CrescentAura";
+        public const string HeroicFlameTrailShader = "HeroicFlameTrail";
+        public const string SakuraBloomShader = "SakuraBloom";
+        public const string EroicaFuneralTrailShader = "EroicaFuneralTrail";
+        public const string TriumphantFractalShaderName = "TriumphantFractalShader";
 
         // Noise texture names (without extension) - in Assets/VFX/Noise/
         private static readonly string[] NoiseTextureNames = new[]
@@ -167,6 +174,13 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(TerraBladeSwingVFXShader);
                 LoadShader(RadialScrollShaderName);
                 LoadShader(BeamGradientFlowShader);
+                LoadShader(MoonlightTrailShader);
+                LoadShader(LunarBeamShader);
+                LoadShader(CrescentAuraShader);
+                LoadShader(HeroicFlameTrailShader);
+                LoadShader(SakuraBloomShader);
+                LoadShader(EroicaFuneralTrailShader);
+                LoadShader(TriumphantFractalShaderName);
 
                 _shadersEnabled = _shaders.Count > 0;
 
@@ -314,6 +328,27 @@ namespace MagnumOpus.Common.Systems.Shaders
 
         /// <summary>Gets the Beam Gradient Flow shader for flowing energy beams if available.</summary>
         public static Effect BeamGradientFlow => GetShader(BeamGradientFlowShader);
+
+        /// <summary>Gets the Moonlight Trail shader for flowing lunar trails if available.</summary>
+        public static Effect MoonlightTrail => GetShader(MoonlightTrailShader);
+
+        /// <summary>Gets the Lunar Beam shader for crescent-shaped beam bodies if available.</summary>
+        public static Effect LunarBeam => GetShader(LunarBeamShader);
+
+        /// <summary>Gets the Crescent Aura shader for procedural crescent moon overlays if available.</summary>
+        public static Effect CrescentAura => GetShader(CrescentAuraShader);
+
+        /// <summary>Gets the Heroic Flame Trail shader for burning valor fire trails if available.</summary>
+        public static Effect HeroicFlameTrail => GetShader(HeroicFlameTrailShader);
+
+        /// <summary>Gets the Sakura Bloom shader for procedural petal bloom overlays if available.</summary>
+        public static Effect SakuraBloom => GetShader(SakuraBloomShader);
+
+        /// <summary>Gets the Eroica Funeral Trail shader for somber smoky flame trails if available.</summary>
+        public static Effect EroicaFuneralTrail => GetShader(EroicaFuneralTrailShader);
+
+        /// <summary>Gets the Triumphant Fractal shader for geometric hexagonal pattern trails if available.</summary>
+        public static Effect TriumphantFractal => GetShader(TriumphantFractalShaderName);
 
         // =====================================================================
         //  Texture Accessors

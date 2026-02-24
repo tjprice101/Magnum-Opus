@@ -10,8 +10,10 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Materials.EnemyDrops;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Content.Eroica.Enemies;
+using MagnumOpus.Content.Eroica.Enemies.EroicanCenturion;
 
-namespace MagnumOpus.Content.Eroica.Enemies
+namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 {
     /// <summary>
     /// Funeral Blitzer - A desert mini-boss with 5 unique red and gold explosive attacks.
@@ -160,6 +162,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
             }
             
             ThemedParticles.EroicaAura(NPC.Center, 25f);
+
+            // Unified blitzer ambient VFX — rapid flickering, funeral smoke, staccato notes
+            EroicaEnemyVFX.BlitzerAmbientAura(NPC.Center, (int)StateTimer);
 
             // Retarget
             NPC.TargetClosest(true);
@@ -320,6 +325,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
                         ModContent.ProjectileType<BlitzerSalvoProjectile>(), 75, 2f, Main.myPlayer);
 
                     SoundEngine.PlaySound(SoundID.Item73 with { Volume = 0.6f }, NPC.Center);
+
+                    // Unified blitzer fire VFX — muzzle flash, smoke puff, tracer dust
+                    EroicaEnemyVFX.BlitzerFireVFX(NPC.Center, shootDir);
 
                     // Muzzle flash
                     for (int i = 0; i < 8; i++)
@@ -574,6 +582,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         public override void HitEffect(NPC.HitInfo hit)
         {
+            // Unified enemy hit flash
+            EroicaEnemyVFX.EnemyHitFlash(NPC.Center, new Color(200, 40, 40), 1f);
+
             for (int i = 0; i < 10; i++)
             {
                 Dust hurt = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Torch, 0f, 0f, 100, EroicaRed, 1.8f);
@@ -583,6 +594,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
             if (NPC.life <= 0)
             {
+                // Unified blitzer death VFX — funeral pyre, smoke explosion, music notes
+                EroicaEnemyVFX.BlitzerDeathVFX(NPC.Center);
+
                 ThemedParticles.EroicaImpact(NPC.Center, 3.5f);
                 ThemedParticles.EroicaShockwave(NPC.Center, 2.5f);
 
@@ -650,6 +664,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
 
+            // Unified blitzer projectile trail
+            EroicaEnemyVFX.BlitzerProjectileTrail(Projectile);
+
             if (Main.rand.NextBool(2))
             {
                 Dust trail = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Torch, 0f, 0f, 100, new Color(200, 40, 40), 1.5f);
@@ -663,6 +680,10 @@ namespace MagnumOpus.Content.Eroica.Enemies
         public override void OnKill(int timeLeft)
         {
             SoundEngine.PlaySound(SoundID.Item14 with { Volume = 0.5f }, Projectile.Center);
+
+            // Unified blitzer projectile hit VFX
+            EroicaEnemyVFX.BlitzerProjectileHitVFX(Projectile.Center);
+
             for (int i = 0; i < 12; i++)
             {
                 Dust explode = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Torch, 0f, 0f, 100, new Color(200, 40, 40), 2f);
@@ -733,6 +754,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
             Projectile.rotation += Projectile.velocity.X * 0.05f;
 
+            // Unified blitzer projectile trail
+            EroicaEnemyVFX.BlitzerProjectileTrail(Projectile);
+
             if (Main.rand.NextBool(3))
             {
                 Dust smoke = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Smoke, 0f, 0f, 150, Color.Black, 1.2f);
@@ -745,6 +769,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
         public override void OnKill(int timeLeft)
         {
             SoundEngine.PlaySound(SoundID.Item14, Projectile.Center);
+
+            // Unified blitzer projectile hit VFX
+            EroicaEnemyVFX.BlitzerProjectileHitVFX(Projectile.Center);
 
             // Spawn fireballs on explosion
             if (Main.netMode != NetmodeID.MultiplayerClient)

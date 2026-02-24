@@ -5,8 +5,9 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Content.Eroica.Enemies;
 
-namespace MagnumOpus.Content.Eroica.Enemies
+namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 {
     /// <summary>
     /// Stolen Valor Flame - Black and red flaming projectile shot by Stolen Valor Minions.
@@ -103,6 +104,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
                 trail.fadeIn = 0.5f;
             }
 
+            // Unified blitzer projectile trail — mourning flame, smoke wisps
+            EroicaEnemyVFX.BlitzerProjectileTrail(Projectile);
+
             // Slight homing toward nearest player
             Player target = Main.player[Player.FindClosest(Projectile.position, Projectile.width, Projectile.height)];
             if (target != null && target.active && !target.dead)
@@ -117,6 +121,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
             SoundEngine.PlaySound(SoundID.Item14, Projectile.position);
             // Enemy flame burst - smaller intensity
             DynamicParticleEffects.EroicaDeathCrimsonSpark(Projectile.Center, 0.6f);
+
+            // Unified blitzer projectile hit VFX
+            EroicaEnemyVFX.BlitzerProjectileHitVFX(Projectile.Center);
         }
     }
 }

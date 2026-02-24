@@ -11,7 +11,7 @@ using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Materials.EnemyDrops;
 using MagnumOpus.Common.Systems;
 
-namespace MagnumOpus.Content.Eroica.Enemies
+namespace MagnumOpus.Content.Eroica.Enemies.EroicanCenturion
 {
     /// <summary>
     /// Eroican Centurion - A desert mini-boss with 5 unique red and gold flaming attacks.
@@ -154,16 +154,8 @@ namespace MagnumOpus.Content.Eroica.Enemies
             }
             NPC.spriteDirection = lastSpriteDirection;
 
-            // Intense scarlet and gold glow
-            Lighting.AddLight(NPC.Center, 1.2f, 0.4f, 0.2f);
-
-            // Themed ambient particles
-            ThemedParticles.EroicaAura(NPC.Center, NPC.width * 0.8f);
-            
-            if (Main.rand.NextBool(6))
-            {
-                ThemedParticles.EroicaSparkles(NPC.Center, 3, NPC.width * 0.6f);
-            }
+            // Ambient VFX — military precision aura via unified module
+            EroicaEnemyVFX.CenturionAmbientAura(NPC.Center, frameCounter);
 
             // Spawn lanterns on first tick
             if (StateTimer == 0f && CurrentState == AIState.Idle)
@@ -332,18 +324,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         private void SpawnWindupEffect()
         {
-            for (int i = 0; i < 25; i++)
-            {
-                Dust charge = Dust.NewDustDirect(NPC.Center, 1, 1, DustID.Torch, 0f, 0f, 100, EroicaCrimson, 2.5f);
-                charge.noGravity = true;
-                charge.velocity = Main.rand.NextVector2Circular(10f, 10f);
-            }
-            for (int i = 0; i < 15; i++)
-            {
-                Dust gold = Dust.NewDustDirect(NPC.Center, 1, 1, DustID.GoldFlame, 0f, 0f, 50, default, 2f);
-                gold.noGravity = true;
-                gold.velocity = Main.rand.NextVector2Circular(8f, 8f);
-            }
+            EroicaEnemyVFX.CenturionSwordSwingVFX(NPC.Center, chargeDirection);
         }
 
         #region Attack 1: Blazing Charge
@@ -358,18 +339,12 @@ namespace MagnumOpus.Content.Eroica.Enemies
                 NPC.velocity = chargeDirection * chargeSpeed;
                 NPC.velocity.Y += 0.3f;
 
-                // Flaming trail
+                // Flaming trail via unified VFX module
                 if (Main.rand.NextBool(2))
                 {
-                    Dust flame = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Torch, 0f, 0f, 100, EroicaCrimson, 3f);
-                    flame.noGravity = true;
-                    flame.velocity = -NPC.velocity * 0.25f + Main.rand.NextVector2Circular(3f, 3f);
-                }
-                if (Main.rand.NextBool(2))
-                {
-                    Dust gold = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.GoldFlame, 0f, 0f, 50, default, 2.5f);
-                    gold.noGravity = true;
-                    gold.velocity = -NPC.velocity * 0.2f;
+                    Vector2 trailDir = -NPC.velocity;
+                    trailDir.SafeNormalize(Vector2.UnitX);
+                    EroicaEnemyVFX.CenturionSwordSwingVFX(NPC.Center, trailDir);
                 }
 
                 // Spawn fire trail projectiles
@@ -443,13 +418,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         private void SpawnRingEffect()
         {
-            for (int i = 0; i < 30; i++)
-            {
-                float angle = MathHelper.TwoPi / 30f * i;
-                Vector2 velocity = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 6f;
-                Dust ring = Dust.NewDustDirect(NPC.Center, 1, 1, DustID.Torch, velocity.X, velocity.Y, 100, EroicaRed, 2f);
-                ring.noGravity = true;
-            }
+            EroicaEnemyVFX.CenturionSwordSwingVFX(NPC.Center, NPC.spriteDirection == 1 ? Vector2.UnitX : -Vector2.UnitX);
         }
         #endregion
 
@@ -503,13 +472,8 @@ namespace MagnumOpus.Content.Eroica.Enemies
                 }
                 
                 SoundEngine.PlaySound(SoundID.Item71, NPC.Center);
-                
-                for (int i = 0; i < 20; i++)
-                {
-                    Dust sword = Dust.NewDustDirect(NPC.Center, 1, 1, DustID.GoldFlame, 0f, 0f, 50, default, 2f);
-                    sword.noGravity = true;
-                    sword.velocity = Main.rand.NextVector2Circular(8f, 8f);
-                }
+
+                EroicaEnemyVFX.CenturionSwordSwingVFX(NPC.Center, NPC.spriteDirection == 1 ? Vector2.UnitX : -Vector2.UnitX);
             }
             else if (StateTimer > 80f)
             {
@@ -577,21 +541,8 @@ namespace MagnumOpus.Content.Eroica.Enemies
                     }
                 }
 
-                // Massive visual explosion
-                for (int i = 0; i < 60; i++)
-                {
-                    Dust explode = Dust.NewDustDirect(NPC.Center, 1, 1, DustID.Torch, 0f, 0f, 100, EroicaCrimson, 3.5f);
-                    explode.noGravity = true;
-                    explode.velocity = Main.rand.NextVector2Circular(20f, 20f);
-                }
-                for (int i = 0; i < 40; i++)
-                {
-                    Dust gold = Dust.NewDustDirect(NPC.Center, 1, 1, DustID.GoldFlame, 0f, 0f, 50, default, 3f);
-                    gold.noGravity = true;
-                    gold.velocity = Main.rand.NextVector2Circular(18f, 18f);
-                }
-
-                ThemedParticles.EroicaShockwave(NPC.Center, 3f);
+                // Massive visual explosion via unified VFX module
+                EroicaEnemyVFX.CenturionDeathVFX(NPC.Center);
             }
             else if (StateTimer > 90f)
             {
@@ -622,14 +573,7 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         private void SpawnImpactEffect()
         {
-            SoundEngine.PlaySound(SoundID.Item14, NPC.Center);
-            for (int i = 0; i < 30; i++)
-            {
-                Dust impact = Dust.NewDustDirect(NPC.Center, 1, 1, DustID.Torch, 0f, 0f, 100, EroicaCrimson, 2.5f);
-                impact.noGravity = true;
-                impact.velocity = Main.rand.NextVector2Circular(12f, 12f);
-            }
-            ThemedParticles.EroicaImpact(NPC.Center, 2f);
+            EroicaEnemyVFX.CenturionSwordSwingVFX(NPC.Center, NPC.spriteDirection == 1 ? Vector2.UnitX : -Vector2.UnitX);
         }
 
         private void SpawnLanterns()
@@ -737,23 +681,11 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         public override void HitEffect(NPC.HitInfo hit)
         {
-            ThemedParticles.EroicaSparkles(NPC.Center, 4, NPC.width * 0.5f);
-            ThemedParticles.EroicaSparks(NPC.Center, -hit.HitDirection * Vector2.UnitX, 4, 5f);
+            EroicaEnemyVFX.EnemyHitFlash(NPC.Center, new Color(200, 55, 45), 1f);
 
             if (NPC.life <= 0)
             {
-                // Dramatic death explosion
-                ThemedParticles.EroicaImpact(NPC.Center, 4f);
-                ThemedParticles.EroicaShockwave(NPC.Center, 3f);
-                ThemedParticles.EroicaSparkles(NPC.Center, 25, NPC.width * 1.5f);
-
-                for (int i = 0; i < 50; i++)
-                {
-                    Dust death = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.GoldFlame, 0f, 0f, 50, default, 3f);
-                    death.noGravity = true;
-                    death.velocity = Main.rand.NextVector2Circular(15f, 15f);
-                }
-
+                EroicaEnemyVFX.CenturionDeathVFX(NPC.Center);
                 SoundEngine.PlaySound(SoundID.Item14, NPC.Center);
                 SoundEngine.PlaySound(SoundID.NPCDeath43, NPC.Center);
             }

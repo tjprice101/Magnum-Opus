@@ -14,11 +14,12 @@ using MagnumOpus.Content.Fate.Debuffs;
 using MagnumOpus.Content.Fate.Projectiles;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 // Recipe imports
-using MagnumOpus.Content.MoonlightSonata.ResonantWeapons;
 using MagnumOpus.Content.MoonlightSonata.Weapons;
+using MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon;
+using MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
-using MagnumOpus.Content.Eroica.ResonantWeapons;
 using MagnumOpus.Content.Eroica.Weapons.CelestialValor;
+using MagnumOpus.Content.Eroica.Weapons.SakurasBlossom;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons;
 using MagnumOpus.Content.LaCampanella.ResonanceEnergies;

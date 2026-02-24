@@ -6,8 +6,9 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Content.Eroica.Enemies;
 
-namespace MagnumOpus.Content.Eroica.Enemies
+namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 {
     /// <summary>
     /// Stolen Valor Minion - Orbiting projectiles that follow StolenValor.
@@ -129,6 +130,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
             float lightPulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f + OrbitAngle * 2f) * 0.15f + 0.85f;
             Lighting.AddLight(Projectile.Center, 0.6f * lightPulse, 0.15f * lightPulse, 0.1f * lightPulse);
 
+            // Unified minion ambient VFX — corrupted flame glow, orbiting mote
+            EroicaEnemyVFX.MinionAmbientGlow(Projectile.Center, (int)FrameCounter);
+
             // Dark red/black particles
             if (Main.rand.NextBool(10))
             {
@@ -184,6 +188,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
                 ModContent.ProjectileType<StolenValorFlame>(), 65, 2f, Main.myPlayer);
 
             SoundEngine.PlaySound(SoundID.Item34, Projectile.Center);
+
+            // Unified minion fire VFX — corrupted flame burst, dark tracer
+            EroicaEnemyVFX.MinionFireVFX(Projectile.Center, shootDirection);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -238,6 +245,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
         {
             // Enemy minion death - smaller golden glow
             DynamicParticleEffects.EroicaDeathGoldenGlow(Projectile.Center, 0.5f);
+
+            // Unified minion death VFX — corrupted flash, ember scatter
+            EroicaEnemyVFX.MinionDeathVFX(Projectile.Center);
         }
     }
 }

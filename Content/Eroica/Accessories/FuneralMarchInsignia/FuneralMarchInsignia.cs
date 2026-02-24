@@ -8,7 +8,7 @@ using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Common.Systems;
 
-namespace MagnumOpus.Content.Eroica.Accessories
+namespace MagnumOpus.Content.Eroica.Accessories.FuneralMarchInsignia
 {
     /// <summary>
     /// Funeral March Insignia - Mage accessory.

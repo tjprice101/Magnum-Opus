@@ -11,7 +11,7 @@ using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Materials.EnemyDrops;
 using MagnumOpus.Common.Systems;
 
-namespace MagnumOpus.Content.Eroica.Enemies
+namespace MagnumOpus.Content.Eroica.Enemies.BehemothOfValor
 {
     /// <summary>
     /// Behemoth of Valor - A massive desert mini-boss with 5 unique red and gold flaming attacks.
@@ -143,16 +143,8 @@ namespace MagnumOpus.Content.Eroica.Enemies
             }
             NPC.spriteDirection = lastSpriteDirection;
 
-            // Intense glow
-            Lighting.AddLight(NPC.Center, 1f, 0.25f, 0.15f);
-
-            // Ambient particles
-            ThemedParticles.EroicaAura(NPC.Center, NPC.width * 0.7f);
-            
-            if (Main.rand.NextBool(6))
-            {
-                ThemedParticles.EroicaSparkles(NPC.Center, 3, NPC.width * 0.5f);
-            }
+            // Ambient VFX — heavy war-flame aura via unified module
+            EroicaEnemyVFX.BehemothAmbientAura(NPC.Center, frameCounter);
 
             // Retarget
             NPC.TargetClosest(true);
@@ -520,21 +512,8 @@ namespace MagnumOpus.Content.Eroica.Enemies
                     }
                 }
 
-                // Massive visual explosion
-                for (int i = 0; i < 80; i++)
-                {
-                    Dust explode = Dust.NewDustDirect(NPC.Center, 1, 1, DustID.Torch, 0f, 0f, 100, EroicaRed, 4f);
-                    explode.noGravity = true;
-                    explode.velocity = Main.rand.NextVector2Circular(25f, 25f);
-                }
-                for (int i = 0; i < 50; i++)
-                {
-                    Dust gold = Dust.NewDustDirect(NPC.Center, 1, 1, DustID.GoldFlame, 0f, 0f, 50, default, 3.5f);
-                    gold.noGravity = true;
-                    gold.velocity = Main.rand.NextVector2Circular(22f, 22f);
-                }
-
-                ThemedParticles.EroicaShockwave(NPC.Center, 4f);
+                // Massive visual explosion via unified VFX module
+                EroicaEnemyVFX.BehemothAttackVFX(NPC.Center, Vector2.UnitY);
             }
 
             if (StateTimer > 100f)
@@ -553,41 +532,12 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         private void CreateStompEffect()
         {
-            SoundEngine.PlaySound(SoundID.Item14, NPC.Center);
-
-            for (int i = 0; i < 40; i++)
-            {
-                Dust stomp = Dust.NewDustDirect(NPC.BottomLeft - new Vector2(30f, 10f), NPC.width + 60, 20, DustID.Torch, 0f, 0f, 100, EroicaRed, 2.5f);
-                stomp.velocity = new Vector2(Main.rand.NextFloat(-10f, 10f), Main.rand.NextFloat(-8f, -3f));
-                stomp.noGravity = true;
-            }
-
-            for (int i = 0; i < 25; i++)
-            {
-                Dust smoke = Dust.NewDustDirect(NPC.BottomLeft - new Vector2(30f, 10f), NPC.width + 60, 20, DustID.Smoke, 0f, 0f, 150, Color.Black, 3f);
-                smoke.velocity = new Vector2(Main.rand.NextFloat(-8f, 8f), Main.rand.NextFloat(-5f, -1f));
-            }
+            EroicaEnemyVFX.BehemothAttackVFX(NPC.Bottom, -Vector2.UnitY);
         }
 
         private void CreateMassiveStompEffect()
         {
-            SoundEngine.PlaySound(SoundID.Item14, NPC.Center);
-
-            for (int i = 0; i < 60; i++)
-            {
-                Dust stomp = Dust.NewDustDirect(NPC.BottomLeft - new Vector2(50f, 10f), NPC.width + 100, 20, DustID.Torch, 0f, 0f, 100, EroicaRed, 3f);
-                stomp.velocity = new Vector2(Main.rand.NextFloat(-15f, 15f), Main.rand.NextFloat(-12f, -5f));
-                stomp.noGravity = true;
-            }
-
-            for (int i = 0; i < 40; i++)
-            {
-                Dust gold = Dust.NewDustDirect(NPC.BottomLeft - new Vector2(50f, 10f), NPC.width + 100, 20, DustID.GoldFlame, 0f, 0f, 50, default, 2.5f);
-                gold.velocity = new Vector2(Main.rand.NextFloat(-12f, 12f), Main.rand.NextFloat(-10f, -4f));
-                gold.noGravity = true;
-            }
-
-            ThemedParticles.EroicaShockwave(NPC.Bottom, 2.5f);
+            EroicaEnemyVFX.BehemothAttackVFX(NPC.Bottom, -Vector2.UnitY);
         }
 
         public override void FindFrame(int frameHeight)
@@ -638,27 +588,11 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         public override void HitEffect(NPC.HitInfo hit)
         {
-            ThemedParticles.EroicaSparkles(NPC.Center, 5, NPC.width * 0.5f);
-            ThemedParticles.EroicaSparks(NPC.Center, -hit.HitDirection * Vector2.UnitX, 5, 6f);
+            EroicaEnemyVFX.EnemyHitFlash(NPC.Center, new Color(200, 40, 40), 1.2f);
 
             if (NPC.life <= 0)
             {
-                ThemedParticles.EroicaImpact(NPC.Center, 5f);
-                ThemedParticles.EroicaShockwave(NPC.Center, 4f);
-
-                for (int i = 0; i < 70; i++)
-                {
-                    Dust death = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Torch, 0f, 0f, 100, EroicaRed, 4f);
-                    death.noGravity = true;
-                    death.velocity = Main.rand.NextVector2Circular(18f, 18f);
-                }
-                for (int i = 0; i < 50; i++)
-                {
-                    Dust gold = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.GoldFlame, 0f, 0f, 50, default, 3.5f);
-                    gold.noGravity = true;
-                    gold.velocity = Main.rand.NextVector2Circular(15f, 15f);
-                }
-
+                EroicaEnemyVFX.BehemothDeathVFX(NPC.Center);
                 SoundEngine.PlaySound(SoundID.Item14, NPC.Center);
                 SoundEngine.PlaySound(SoundID.NPCDeath43, NPC.Center);
             }

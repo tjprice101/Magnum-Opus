@@ -8,10 +8,7 @@ using Terraria.ModLoader;
 using Terraria.GameContent;
 using MagnumOpus.Common;
 using MagnumOpus.Common.BaseClasses;
-using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Content.Eroica;
-using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 {
@@ -52,7 +49,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
         {
             tooltips.Add(new TooltipLine(Mod, "HeroicCombo",
                 "Escalating 3-hit combo fires heroic projectiles")
-            { OverrideColor = new Color(255, 150, 100) });
+            { OverrideColor = EroicaPalette.Flame });
             tooltips.Add(new TooltipLine(Mod, "ValorCrystals",
                 "Critical strikes unleash seeking valor crystals")
             { OverrideColor = EroicaPalette.Gold });
@@ -71,33 +68,31 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 
             if (Main.gameMenu) return;
 
-            // Eroica heroic aura
-            UnifiedVFX.Eroica.Aura(player.Center, 40f, 0.35f);
+            // Heroic aura — pulsing ring of rising embers
+            EroicaVFXLibrary.SpawnHeroicAura(player.Center, 40f);
 
-            // Ambient scarlet/gold flares
+            // Ambient music notes — scarlet/gold hue band
             if (Main.rand.NextBool(12))
             {
-                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
-                Color flareColor = Main.rand.NextBool() ? EroicaPalette.Scarlet : EroicaPalette.Gold;
-                CustomParticles.GenericFlare(player.Center + offset, flareColor, 0.25f, 15);
+                EroicaVFXLibrary.SpawnMusicNotes(player.Center, 1, 20f);
             }
 
             // Sakura petal drift
             if (Main.rand.NextBool(25))
             {
-                ThemedParticles.SakuraPetals(player.Center, 1, 30f);
+                EroicaVFXLibrary.SpawnSakuraPetals(player.Center, 1, 30f);
             }
 
-            // Prismatic gold sparkle
+            // Valor sparkles
             if (Main.rand.NextBool(18))
             {
-                Vector2 sparkleOffset = Main.rand.NextVector2Circular(25f, 25f);
-                CustomParticles.PrismaticSparkle(player.Center + sparkleOffset, EroicaGold, 0.22f);
+                EroicaVFXLibrary.SpawnValorSparkles(player.Center + Main.rand.NextVector2Circular(25f, 25f), 1, 10f);
             }
 
             // Pulsing heroic light — crimson to gold
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.15f + 0.55f;
-            Color lightColor = Color.Lerp(EroicaPalette.BladeCrimson, EroicaPalette.Gold, (float)Math.Sin(Main.GameUpdateCount * 0.03f) * 0.5f + 0.5f);
+            Color lightColor = Color.Lerp(EroicaPalette.BladeCrimson, EroicaPalette.Gold,
+                (float)Math.Sin(Main.GameUpdateCount * 0.03f) * 0.5f + 0.5f);
             Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse * 0.6f);
         }
 

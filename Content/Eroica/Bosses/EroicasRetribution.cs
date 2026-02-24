@@ -10,7 +10,6 @@ using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Projectiles;
-using MagnumOpus.Content.Eroica.ResonantWeapons;
 using MagnumOpus.Content.Eroica.Pets;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;

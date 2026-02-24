@@ -5,7 +5,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
-using MagnumOpus.Content.Eroica.ResonantWeapons;
+using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer;
 using MagnumOpus.Common.Systems;
 using System;
 

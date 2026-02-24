@@ -5,8 +5,9 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Content.Eroica.Enemies;
 
-namespace MagnumOpus.Content.Eroica.Enemies
+namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 {
     /// <summary>
     /// Blitzer Projectile 1 - Explodes into black/red flames and lightning
@@ -32,6 +33,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
         {
             // Rotation to face velocity
             Projectile.rotation = Projectile.velocity.ToRotation();
+
+            // Unified blitzer projectile trail — mourning flame, smoke wisps
+            EroicaEnemyVFX.BlitzerProjectileTrail(Projectile);
 
             // Dark red flame trail
             if (Main.rand.NextBool(2))
@@ -64,6 +68,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
         {
             // Explosive black/red flame and lightning burst
             SoundEngine.PlaySound(SoundID.Item14, Projectile.Center);
+
+            // Unified blitzer projectile hit VFX
+            EroicaEnemyVFX.BlitzerProjectileHitVFX(Projectile.Center);
 
             // Black and red flames
             for (int i = 0; i < 25; i++)
@@ -141,6 +148,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
             // Spinning rotation
             Projectile.rotation += 0.2f;
 
+            // Unified blitzer projectile trail — mourning flame, smoke wisps
+            EroicaEnemyVFX.BlitzerProjectileTrail(Projectile);
+
             // Black flame trail
             if (Main.rand.NextBool(2))
             {
@@ -172,6 +182,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
         {
             // Larger explosive burst
             SoundEngine.PlaySound(SoundID.Item14, Projectile.Center);
+
+            // Unified blitzer projectile hit VFX
+            EroicaEnemyVFX.BlitzerProjectileHitVFX(Projectile.Center);
 
             // Red flames
             for (int i = 0; i < 30; i++)

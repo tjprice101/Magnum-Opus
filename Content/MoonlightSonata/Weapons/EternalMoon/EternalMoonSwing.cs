@@ -15,33 +15,36 @@ using MagnumOpus.Content.MoonlightSonata.Projectiles;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using static MagnumOpus.Common.Systems.Particles.Particle;
 
-namespace MagnumOpus.Content.MoonlightSonata.Weapons
+namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon
 {
     /// <summary>
-    /// Swing projectile for EternalMoon — a moonlight-themed sword with 3-phase combo.
+    /// Swing projectile for EternalMoon — "The Eternal Tide".
+    /// 3-phase combo with lunar phase cycling (new moon → half → full crescendo).
+    ///
     /// Phase 0: Lunar Sweep — smooth horizontal slash, spawns 3 EternalMoonWave
     /// Phase 1: Crescent Backhand — quick reverse arc, spawns 3 EternalMoonWave
     /// Phase 2: Crescendo Finale — massive overhead slam, spawns 3 EternalMoonWave + 3 EternalMoonBeam
+    ///
+    /// VFX pipeline (sealed in MeleeSwingBase):
+    ///   Trail (CalamityStyleTrailRenderer.Cosmic) → Smear → Blade → Glow → LensFlare → MotionBlur → CustomVFX
+    ///
+    /// Custom VFX layer adds:
+    ///   - Crescent-shaped tip bloom (asymmetric, phase-dependent)
+    ///   - Phase-cycling dust trails (EternalMoonVFX.SwingFrameEffects)
+    ///   - God ray bursts + screen distortion on finale
     /// </summary>
     public sealed class EternalMoonSwing : MeleeSwingBase
     {
-        #region Theme Colors
-
-        private static readonly Color DarkPurple = MagnumThemePalettes.MoonlightDarkPurple;
-        private static readonly Color MediumPurple = MagnumThemePalettes.MoonlightViolet;
-        private static readonly Color LightBlue = MagnumThemePalettes.MoonlightIceBlue;
-        private static readonly Color Silver = MagnumThemePalettes.MoonlightSilver;
-        private static readonly Color Lavender = MagnumThemePalettes.MoonlightWeaponLavender;
-        private static readonly Color LightPurple = MagnumThemePalettes.MoonlightLightPurple;
+        #region Palette (canonical MoonlightVFXLibrary references)
 
         private static readonly Color[] MoonlightPalette = new Color[]
         {
-            DarkPurple,     // [0] Pianissimo — shadows, trail end
-            MediumPurple,   // [1] Piano — outer glow
-            LightBlue,      // [2] Mezzo — main body
-            Silver,         // [3] Forte — bright areas
-            Lavender,       // [4] Fortissimo — inner glow
-            LightPurple     // [5] Sforzando — core, flare center
+            MoonlightVFXLibrary.NightPurple,   // [0] Pianissimo — shadows, trail end
+            MoonlightVFXLibrary.DarkPurple,    // [1] Piano — outer glow
+            MoonlightVFXLibrary.Violet,        // [2] Mezzo — main body
+            MoonlightVFXLibrary.IceBlue,       // [3] Forte — bright areas
+            MoonlightVFXLibrary.Lavender,      // [4] Fortissimo — inner glow
+            MoonlightVFXLibrary.MoonWhite      // [5] Sforzando — core, flare center
         };
 
         #endregion
@@ -140,13 +143,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
         protected override int GetSecondaryDustType() => DustID.Enchanted_Pink;
 
         protected override Texture2D GetBladeTexture()
-            => ModContent.Request<Texture2D>("MagnumOpus/Content/MoonlightSonata/Weapons/EternalMoon").Value;
+            => ModContent.Request<Texture2D>("MagnumOpus/Content/MoonlightSonata/Weapons/EternalMoon/EternalMoon").Value;
 
         protected override Vector3 GetLightColor()
         {
             float intensity = 0.6f + ComboStep * 0.15f;
             float pulse = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 4f) * 0.1f;
-            return MediumPurple.ToVector3() * intensity * pulse;
+            return MoonlightVFXLibrary.Violet.ToVector3() * intensity * pulse;
         }
 
         #endregion
@@ -200,8 +203,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
                             );
                         }
 
-                        // Crescendo finale VFX — full library treatment
-                        MoonlightVFXLibrary.FinisherSlam(tipPos);
+                        // Crescendo finale VFX — full crescent treatment with god rays + distortion
+                        EternalMoonVFX.CrescendoFinaleVFX(tipPos);
                     }
                 }
             }
@@ -230,8 +233,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
                 );
             }
 
-            // Moonlight impact VFX — unified library treatment
-            MoonlightVFXLibrary.MeleeImpact(target.Center, ComboStep);
+            // EternalMoon-unique impact: crescent arcs + phase-colored bursts + god rays on crit
+            EternalMoonVFX.OnHitImpact(target.Center, ComboStep, hit.Crit);
         }
 
         #endregion
@@ -240,21 +243,18 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
 
         protected override void DrawCustomVFX(SpriteBatch sb)
         {
-            // Moonlight shimmer particles during swing
-            if (Progression > 0.08f && Progression < 0.92f)
-            {
-                Vector2 tipPos = GetBladeTipPosition();
+            if (Progression < 0.08f || Progression > 0.92f) return;
 
-                // Unified swing-frame VFX — shimmer, sparkles, music notes, lighting
-                MoonlightVFXLibrary.SwingFrameVFX(tipPos, SwordDirection, ComboStep, Projectile.timeLeft, GetInitialDustType());
+            Vector2 tipPos = GetBladeTipPosition();
 
-                // Blade-tip bloom — moonlit glow (combo-aware)
-                {
-                    float bloomOpacity = MathHelper.Clamp((Progression - 0.08f) / 0.12f, 0f, 1f)
-                                       * MathHelper.Clamp((0.92f - Progression) / 0.12f, 0f, 1f);
-                    MoonlightVFXLibrary.DrawComboBloom(tipPos, ComboStep, 0.4f, bloomOpacity);
-                }
-            }
+            // EternalMoon-unique swing VFX: crescent dust arcs, lunar motes, music notes
+            EternalMoonVFX.SwingFrameEffects(Owner.MountedCenter, tipPos, SwordDirection, ComboStep, Projectile.timeLeft);
+
+            // Crescent-shaped tip bloom (asymmetric, phase-dependent — not generic bloom)
+            EternalMoonVFX.DrawCrescentTipBloom(sb, tipPos, SwordRotation, ComboStep, Progression);
+
+            // Dynamic moonlight lighting from blade tip
+            EternalMoonVFX.AddCrescentLight(tipPos, 0.6f + ComboStep * 0.15f);
         }
 
         #endregion

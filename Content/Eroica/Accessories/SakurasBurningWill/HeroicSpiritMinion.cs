@@ -10,7 +10,7 @@ using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Common.Systems;
 
-namespace MagnumOpus.Content.Eroica.Accessories
+namespace MagnumOpus.Content.Eroica.Accessories.SakurasBurningWill
 {
     /// <summary>
     /// Temporary Heroic Spirit summoned by Sakura's Burning Will every 12 seconds.

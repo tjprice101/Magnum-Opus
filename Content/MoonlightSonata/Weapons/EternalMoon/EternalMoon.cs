@@ -8,11 +8,12 @@ using Terraria.ModLoader;
 using Terraria.GameContent;
 using MagnumOpus.Common;
 using MagnumOpus.Common.BaseClasses;
+using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Content.MoonlightSonata.Enemies;
 
-namespace MagnumOpus.Content.MoonlightSonata.Weapons
+namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon
 {
     /// <summary>
     /// EternalMoon — Moonlight Sonata melee weapon.
@@ -21,14 +22,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
     /// </summary>
     public class EternalMoon : MeleeSwingItemBase
     {
-        #region Theme Colors
-
-        private static readonly Color MoonlightPurple = new Color(138, 43, 226);
-        private static readonly Color MoonlightBlue = new Color(135, 206, 250);
-        private static readonly Color MoonlightSilver = new Color(220, 220, 235);
-
-        #endregion
-
         #region Abstract Overrides
 
         protected override int SwingProjectileType => ModContent.ProjectileType<EternalMoonSwing>();
@@ -75,7 +68,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
 
             if (Main.dedServ) return;
 
-            // Ambient moonlight aura particles
+            // Orbiting crescent motes — 3 bloom particles circling the player
             if (Main.rand.NextBool(6))
             {
                 float angle = Main.GameUpdateCount * 0.03f;
@@ -85,64 +78,61 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons
                     float radius = 30f + MathF.Sin(Main.GameUpdateCount * 0.05f + i * 0.8f) * 8f;
                     Vector2 flarePos = player.Center + orbitAngle.ToRotationVector2() * radius;
                     float progress = (float)i / 3f;
-                    Color flareColor = Color.Lerp(MoonlightPurple, MoonlightBlue, progress);
+                    Color flareColor = Color.Lerp(MoonlightVFXLibrary.Violet, MoonlightVFXLibrary.IceBlue, progress);
                     Dust d = Dust.NewDustPerfect(flarePos, DustID.Enchanted_Pink,
                         Vector2.Zero, 0, flareColor * 0.6f, 0.6f);
                     d.noGravity = true;
                 }
             }
 
-            // Soft purple ambient sparkle
+            // Ambient purple sparkle
             if (Main.rand.NextBool(10))
             {
                 Vector2 sparkleOffset = Main.rand.NextVector2Circular(25f, 25f);
                 Dust d = Dust.NewDustPerfect(player.Center + sparkleOffset, DustID.PurpleTorch,
-                    Vector2.Zero, 0, MoonlightPurple * 0.4f, 0.5f);
+                    Vector2.Zero, 0, MoonlightVFXLibrary.Violet * 0.4f, 0.5f);
                 d.noGravity = true;
             }
 
             // Pulsing moonlight glow
             float pulse = 0.6f + MathF.Sin(Main.GameUpdateCount * 0.08f) * 0.15f;
-            Lighting.AddLight(player.Center, MoonlightPurple.ToVector3() * pulse * 0.4f);
+            Lighting.AddLight(player.Center, MoonlightVFXLibrary.Violet.ToVector3() * pulse * 0.4f);
         }
 
         #endregion
 
-        #region PreDrawInWorld — Moonlight Glow
+        #region PreDrawInWorld — Moonlight Bloom
 
-        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor,
+            ref float rotation, ref float scale, int whoAmI)
         {
             Texture2D texture = TextureAssets.Item[Item.type].Value;
             Vector2 drawPos = Item.Center - Main.screenPosition;
             Vector2 origin = texture.Size() * 0.5f;
             float pulse = 1f + MathF.Sin(Main.GameUpdateCount * 0.06f) * 0.08f;
 
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            // 4-layer bloom using {A=0} premultiplied alpha trick
+            // Renders additively under AlphaBlend without SpriteBatch restart
 
-            // Outer purple glow
-            Color outerGlow = MoonlightPurple with { A = 0 };
-            spriteBatch.Draw(texture, drawPos, null, outerGlow * 0.25f, rotation, origin,
+            // Layer 1: Outer deep purple halo
+            spriteBatch.Draw(texture, drawPos, null,
+                (MoonlightVFXLibrary.DarkPurple with { A = 0 }) * 0.25f, rotation, origin,
                 scale * 1.3f * pulse, SpriteEffects.None, 0f);
 
-            // Mid blue glow
-            Color midGlow = MoonlightBlue with { A = 0 };
-            spriteBatch.Draw(texture, drawPos, null, midGlow * 0.35f, rotation, origin,
+            // Layer 2: Mid violet glow
+            spriteBatch.Draw(texture, drawPos, null,
+                (MoonlightVFXLibrary.Violet with { A = 0 }) * 0.35f, rotation, origin,
                 scale * 1.15f * pulse, SpriteEffects.None, 0f);
 
-            // Inner silver glow
-            Color innerGlow = MoonlightSilver with { A = 0 };
-            spriteBatch.Draw(texture, drawPos, null, innerGlow * 0.4f, rotation, origin,
+            // Layer 3: Inner ice blue glow
+            spriteBatch.Draw(texture, drawPos, null,
+                (MoonlightVFXLibrary.IceBlue with { A = 0 }) * 0.4f, rotation, origin,
                 scale * 1.05f * pulse, SpriteEffects.None, 0f);
 
-            // White-hot core
-            spriteBatch.Draw(texture, drawPos, null, Color.White with { A = 0 } * 0.3f, rotation, origin,
+            // Layer 4: White-hot core
+            spriteBatch.Draw(texture, drawPos, null,
+                (Color.White with { A = 0 }) * 0.3f, rotation, origin,
                 scale * pulse, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             return true;
         }

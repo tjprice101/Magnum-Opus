@@ -9,6 +9,8 @@ using Terraria.Audio;
 using Terraria.DataStructures;
 using ReLogic.Content;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
@@ -176,8 +178,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             
             // Custom particles - ethereal moonlight flash
             CustomParticles.MoonlightFlare(position, 0.9f);
-            CustomParticles.GenericGlow(position, new Color(150, 100, 220), 1.0f, 30);
-            CustomParticles.MoonlightMusicNotes(position, 3, 25f);
+            CustomParticles.MoonlightHalo(position, 0.5f);
+            MoonlightVFXLibrary.SpawnMusicNotes(position, 3, 25f, 0.7f, 0.9f, 25);
             
             // Sound
             SoundEngine.PlaySound(SoundID.Item14 with { Volume = 0.7f, Pitch = 0.5f }, position);
@@ -312,23 +314,45 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                 SpriteEffects effects = player.direction == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
                 Color lightColor = Lighting.GetColor((int)(player.Center.X / 16), (int)(player.Center.Y / 16));
                 
-                // Glow effect
-                Color glowColor = new Color(150, 100, 200, 0) * 0.5f;
-                for (int i = 0; i < 4; i++)
-                {
-                    Vector2 glowOffset = new Vector2(2f, 0f).RotatedBy(i * MathHelper.PiOver2);
-                    drawInfo.DrawDataCache.Add(new DrawData(
-                        texture,
-                        drawPos + glowOffset,
-                        sourceRect,
-                        glowColor,
-                        0f,
-                        origin,
-                        1f,
-                        effects,
-                        0
-                    ));
-                }
+                // {A=0} bloom stack
+                Color outerGlow = (MoonlightVFXLibrary.DarkPurple with { A = 0 }) * 0.30f;
+                drawInfo.DrawDataCache.Add(new DrawData(
+                    texture,
+                    drawPos,
+                    sourceRect,
+                    outerGlow,
+                    0f,
+                    origin,
+                    1.12f,
+                    effects,
+                    0
+                ));
+
+                Color midGlow = (MoonlightVFXLibrary.Violet with { A = 0 }) * 0.25f;
+                drawInfo.DrawDataCache.Add(new DrawData(
+                    texture,
+                    drawPos,
+                    sourceRect,
+                    midGlow,
+                    0f,
+                    origin,
+                    1.06f,
+                    effects,
+                    0
+                ));
+
+                Color innerGlow = (MoonlightVFXLibrary.IceBlue with { A = 0 }) * 0.20f;
+                drawInfo.DrawDataCache.Add(new DrawData(
+                    texture,
+                    drawPos,
+                    sourceRect,
+                    innerGlow,
+                    0f,
+                    origin,
+                    1.03f,
+                    effects,
+                    0
+                ));
                 
                 drawInfo.DrawDataCache.Add(new DrawData(
                     texture,
@@ -364,23 +388,45 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                 SpriteEffects effects = player.direction == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
                 Color lightColor = Lighting.GetColor((int)(player.Center.X / 16), (int)(player.Center.Y / 16));
                 
-                // Glow effect
-                Color glowColor = new Color(100, 150, 220, 0) * 0.5f;
-                for (int i = 0; i < 4; i++)
-                {
-                    Vector2 glowOffset = new Vector2(2f, 0f).RotatedBy(i * MathHelper.PiOver2);
-                    drawInfo.DrawDataCache.Add(new DrawData(
-                        texture,
-                        drawPos + glowOffset,
-                        sourceRect,
-                        glowColor,
-                        0f,
-                        origin,
-                        1f,
-                        effects,
-                        0
-                    ));
-                }
+                // {A=0} bloom stack
+                Color gyreOuterGlow = (MoonlightVFXLibrary.IceBlue with { A = 0 }) * 0.30f;
+                drawInfo.DrawDataCache.Add(new DrawData(
+                    texture,
+                    drawPos,
+                    sourceRect,
+                    gyreOuterGlow,
+                    0f,
+                    origin,
+                    1.12f,
+                    effects,
+                    0
+                ));
+
+                Color gyreMidGlow = (MoonlightVFXLibrary.Violet with { A = 0 }) * 0.25f;
+                drawInfo.DrawDataCache.Add(new DrawData(
+                    texture,
+                    drawPos,
+                    sourceRect,
+                    gyreMidGlow,
+                    0f,
+                    origin,
+                    1.06f,
+                    effects,
+                    0
+                ));
+
+                Color gyreInnerGlow = (MoonlightVFXLibrary.MoonWhite with { A = 0 }) * 0.15f;
+                drawInfo.DrawDataCache.Add(new DrawData(
+                    texture,
+                    drawPos,
+                    sourceRect,
+                    gyreInnerGlow,
+                    0f,
+                    origin,
+                    1.03f,
+                    effects,
+                    0
+                ));
                 
                 drawInfo.DrawDataCache.Add(new DrawData(
                     texture,

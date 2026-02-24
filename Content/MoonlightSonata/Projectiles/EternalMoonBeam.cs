@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -8,20 +9,22 @@ using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
-using System;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Common.Systems.VFX.Trails;
+using MagnumOpus.Content.MoonlightSonata;
+using MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon;
 
 namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 {
     /// <summary>
-    /// A spinning mana crystal star projectile fired by the Eternal Moon sword.
-    /// Uses the Mana Crystal texture with purple/pink hue, spinning as it flies.
+    /// Spinning mana crystal star projectile fired by the Eternal Moon sword (Phase 2 only).
+    /// Homes toward enemies with CalamityStyleTrailRenderer.Ice trail,
+    /// counter-rotating double flares, and 4-layer bloom body.
     /// </summary>
     public class EternalMoonBeam : ModProjectile
     {
-        // Use the Mana Crystal item texture
         public override string Texture => "Terraria/Images/Item_" + ItemID.ManaCrystal;
 
-        // Track spin rotation separately from movement rotation
         private float SpinRotation
         {
             get => Projectile.ai[0];
@@ -30,8 +33,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Type] = 12;
-            ProjectileID.Sets.TrailingMode[Type] = 2; // Store rotation too
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
@@ -41,12 +44,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             Projectile.friendly = true;
             Projectile.hostile = false;
             Projectile.DamageType = DamageClass.Melee;
-            Projectile.penetrate = 3; // Can hit 3 enemies
-            Projectile.timeLeft = 120; // 2 seconds of flight
+            Projectile.penetrate = 3;
+            Projectile.timeLeft = 120;
             Projectile.tileCollide = true;
             Projectile.ignoreWater = true;
             Projectile.alpha = 0;
-            Projectile.light = 0.6f;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 10;
             Projectile.scale = 1.2f;
@@ -54,12 +56,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 
         public override void AI()
         {
-            // Spin the star
+            // Spin the crystal
             SpinRotation += 0.25f;
             Projectile.rotation = SpinRotation;
 
-            // Add purple/pink lighting
-            Lighting.AddLight(Projectile.Center, 0.6f, 0.2f, 0.8f);
+            // Dynamic moonlight lighting
+            EternalMoonVFX.AddCrescentLight(Projectile.Center, 0.6f);
 
             // Slight homing toward nearby enemies
             float homingRange = 300f;
@@ -85,183 +87,127 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             {
                 Vector2 toTarget = closestNPC.Center - Projectile.Center;
                 toTarget.Normalize();
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * Projectile.velocity.Length(), homingStrength);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity,
+                    toTarget * Projectile.velocity.Length(), homingStrength);
             }
 
-            // Enhanced sparkle trail using ThemedParticles
-            ThemedParticles.MoonlightTrail(Projectile.Center, Projectile.velocity);
-            
-            // === ENHANCED SPINNING STAR TRAIL WITH MULTI-LAYER BLOOM ===
-            // Multi-layer glow particles with gradient using enhanced system
-            for (int i = 0; i < 2; i++)
+            // Music notes periodically
+            if (Main.rand.NextBool(8))
             {
-                Vector2 offset = Main.rand.NextVector2Circular(10f, 10f);
-                float progress = Main.rand.NextFloat();
-                Color trailColor = Color.Lerp(ThemedParticles.MoonlightDarkPurple, ThemedParticles.MoonlightLightBlue, progress);
-                
-                // Use enhanced particle with bloom
-                var glow = EnhancedParticlePool.GetParticle()
-                    .Setup(CustomParticleSystem.RandomGlow(), Projectile.Center + offset, -Projectile.velocity * 0.12f,
-                        trailColor, 0.25f + progress * 0.15f, 16)
-                    .WithBloom(2, 0.7f)
-                    .WithDrag(0.96f);
-                EnhancedParticlePool.SpawnParticle(glow);
+                MoonlightVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 12f, 0.7f, 0.9f, 30);
             }
-            
-            // Orbiting star points that spin with the projectile
+
+            // Phase-cycling dust trail
             if (Main.rand.NextBool(2))
             {
-                for (int i = 0; i < 4; i++)
-                {
-                    float starAngle = SpinRotation + MathHelper.TwoPi * i / 4f;
-                    Vector2 starPoint = Projectile.Center + starAngle.ToRotationVector2() * 14f;
-                    float starProgress = (float)i / 4f;
-                    Color starColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, starProgress);
-                    CustomParticles.GenericFlare(starPoint, starColor, 0.2f, 10);
-                }
-            }
-            
-            // Enhanced music notes with bloom effect
-            if (Main.rand.NextBool(6))
-            {
-                EnhancedThemedParticles.MoonlightMusicNotesEnhanced(Projectile.Center, 1, 12f);
-            }
-            
-            // Prismatic sparkle dust - floating gem particles
-            if (Main.rand.NextBool(4))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(12f, 12f);
-                CustomParticles.PrismaticSparkle(Projectile.Center + offset, UnifiedVFX.MoonlightSonata.Silver, 0.18f);
+                Vector2 offset = Main.rand.NextVector2Circular(8f, 8f);
+                Color trailColor = EternalMoonVFX.GetLunarPhaseColor(Main.rand.NextFloat(), 0);
+                Dust d = Dust.NewDustPerfect(Projectile.Center + offset, DustID.PurpleTorch,
+                    -Projectile.velocity * 0.1f, 0, trailColor, 1.3f);
+                d.noGravity = true;
             }
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
+            SpriteBatch sb = Main.spriteBatch;
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Vector2 origin = texture.Size() / 2f;
-            
-            // Switch to additive blending for vibrant glow
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, 
-                SamplerState.LinearClamp, DepthStencilState.None, 
-                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            float time = Main.GlobalTimeWrappedHourly;
 
-            // Draw glowing trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            // === CALAMITY-STYLE TRAIL (Ice style — crystalline shimmer) ===
+            if (Projectile.oldPos.Length > 1)
             {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                
-                float trailProgress = (float)i / Projectile.oldPos.Length;
-                float trailAlpha = (1f - trailProgress) * 0.6f;
-                float trailScale = Projectile.scale * (1f - trailProgress * 0.5f);
-                
-                // Purple/pink gradient for trail
-                Color trailColor = Color.Lerp(new Color(255, 100, 200), new Color(150, 50, 255), trailProgress);
-                trailColor *= trailAlpha;
-                
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                float trailRot = Projectile.oldRot[i];
-                
-                spriteBatch.Draw(texture, trailPos, null, trailColor, trailRot, origin, trailScale * 0.8f, SpriteEffects.None, 0f);
-                
-                // White sparkle highlight on recent trail
-                if (i < 4)
+                Vector2[] trailPos = new Vector2[Projectile.oldPos.Length];
+                float[] trailRot = new float[Projectile.oldPos.Length];
+                int validCount = 0;
+
+                for (int i = 0; i < Projectile.oldPos.Length; i++)
                 {
-                    Color whiteGlow = Color.White * trailAlpha * 0.6f;
-                    spriteBatch.Draw(texture, trailPos, null, whiteGlow, trailRot, origin, trailScale * 0.4f, SpriteEffects.None, 0f);
+                    if (Projectile.oldPos[i] == Vector2.Zero) break;
+                    trailPos[i] = Projectile.oldPos[i] + Projectile.Size / 2f;
+                    trailRot[i] = Projectile.oldRot[i];
+                    validCount++;
+                }
+
+                if (validCount > 1)
+                {
+                    if (validCount < trailPos.Length)
+                    {
+                        Array.Resize(ref trailPos, validCount);
+                        Array.Resize(ref trailRot, validCount);
+                    }
+
+                    CalamityStyleTrailRenderer.DrawTrailWithBloom(
+                        trailPos, trailRot,
+                        CalamityStyleTrailRenderer.TrailStyle.Ice,
+                        baseWidth: 10f,
+                        primaryColor: MoonlightVFXLibrary.IceBlue,
+                        secondaryColor: MoonlightVFXLibrary.Lavender,
+                        intensity: 0.7f,
+                        bloomMultiplier: 1.8f);
                 }
             }
 
-            // Draw outer glow (pink) - ENHANCED
-            Color glowPink = new Color(255, 150, 220, 0) * 0.8f;
-            spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, glowPink, 
-                Projectile.rotation, origin, Projectile.scale * 1.7f, SpriteEffects.None, 0f);
-            
-            // NEW: Extra outer ethereal halo
-            Color haloColor = new Color(200, 100, 255, 0) * 0.4f;
-            spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, haloColor, 
-                Projectile.rotation, origin, Projectile.scale * 2.0f, SpriteEffects.None, 0f);
+            // === COUNTER-ROTATING DOUBLE FLARES ===
+            MoonlightVFXLibrary.DrawCounterRotatingFlares(sb, Projectile.Center, 0.4f, time, 0.7f);
 
-            // Draw middle glow (purple) - ENHANCED
-            Color glowPurple = new Color(180, 80, 255, 0) * 0.9f;
-            spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, glowPurple, 
-                Projectile.rotation, origin, Projectile.scale * 1.35f, SpriteEffects.None, 0f);
-            
-            // NEW: Bright inner magenta accent
-            Color innerMagenta = new Color(255, 100, 200, 0) * 0.7f;
-            spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, innerMagenta, 
-                Projectile.rotation, origin, Projectile.scale * 1.15f, SpriteEffects.None, 0f);
-                
-            // Reset to normal blending
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                SamplerState.LinearClamp, DepthStencilState.None,
-                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            // === 4-LAYER BLOOM STACK BODY ({A=0} pattern) ===
+            var bloomTex = MagnumTextureRegistry.GetBloom();
+            if (bloomTex != null)
+            {
+                Vector2 bloomOrigin = bloomTex.Size() * 0.5f;
+                float pulse = 1f + MathF.Sin(time * 6f) * 0.1f;
+                float bloomScale = 0.3f * pulse;
 
-            // Draw main sprite with purple/pink tint
-            Color mainColor = new Color(220, 140, 255, 200);
-            spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, mainColor, 
+                // Layer 1: Outer DarkPurple halo
+                sb.Draw(bloomTex, drawPos, null,
+                    (MoonlightVFXLibrary.DarkPurple with { A = 0 }) * 0.25f,
+                    0f, bloomOrigin, bloomScale * 2.2f, SpriteEffects.None, 0f);
+
+                // Layer 2: Violet mid glow
+                sb.Draw(bloomTex, drawPos, null,
+                    (MoonlightVFXLibrary.Violet with { A = 0 }) * 0.4f,
+                    0f, bloomOrigin, bloomScale * 1.5f, SpriteEffects.None, 0f);
+
+                // Layer 3: IceBlue inner
+                sb.Draw(bloomTex, drawPos, null,
+                    (MoonlightVFXLibrary.IceBlue with { A = 0 }) * 0.6f,
+                    0f, bloomOrigin, bloomScale * 0.9f, SpriteEffects.None, 0f);
+
+                // Layer 4: White core
+                sb.Draw(bloomTex, drawPos, null,
+                    (Color.White with { A = 0 }) * 0.75f,
+                    0f, bloomOrigin, bloomScale * 0.35f, SpriteEffects.None, 0f);
+            }
+
+            // === MAIN SPRITE (tinted crystal) ===
+            Color mainColor = Color.Lerp(MoonlightVFXLibrary.Lavender, Color.White, 0.3f);
+            mainColor.A = 200;
+            sb.Draw(texture, drawPos, null, mainColor,
                 Projectile.rotation, origin, Projectile.scale, SpriteEffects.None, 0f);
 
-            // Draw bright white core
-            Color coreColor = Color.White * 0.8f;
-            spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, coreColor, 
+            // White-hot core overlay
+            sb.Draw(texture, drawPos, null,
+                (Color.White with { A = 0 }) * 0.5f,
                 Projectile.rotation, origin, Projectile.scale * 0.5f, SpriteEffects.None, 0f);
 
-            return false; // We handled drawing
+            return false;
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 300); // 5 seconds
-            
-            // === CALAMITY-INSPIRED IMPACT ===
-            // Central flash
-            CustomParticles.GenericFlare(target.Center, Color.White, 0.7f, 20);
-            CustomParticles.GenericFlare(target.Center, UnifiedVFX.MoonlightSonata.LightBlue, 0.55f, 18);
-            
-            // UnifiedVFX impact
-            UnifiedVFX.MoonlightSonata.Impact(target.Center, 0.7f);
-            
-            // Fractal flare burst - 8-point star matching the spinning star theme
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 flareOffset = angle.ToRotationVector2() * 32f;
-                float progress = (float)i / 8f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.LightBlue, progress);
-                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.5f, 18);
-            }
-            
-            // Gradient halo rings
-            for (int ring = 0; ring < 4; ring++)
-            {
-                float ringProgress = (float)ring / 4f;
-                Color ringColor = Color.Lerp(UnifiedVFX.MoonlightSonata.DarkPurple, UnifiedVFX.MoonlightSonata.Silver, ringProgress);
-                CustomParticles.HaloRing(target.Center, ringColor, 0.3f + ring * 0.12f, 14 + ring * 4);
-            }
-            
-            // Spark spray
-            for (int i = 0; i < 10; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 10f + Main.rand.NextFloat(-0.25f, 0.25f);
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 10f);
-                float progress = (float)i / 10f;
-                Color sparkColor = Color.Lerp(UnifiedVFX.MoonlightSonata.MediumPurple, UnifiedVFX.MoonlightSonata.Silver, progress);
-                
-                var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.35f, 20, true);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            // Music notes on hit
-            ThemedParticles.MoonlightMusicNotes(target.Center, 5, 30f);
+            target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 300);
+
+            // EternalMoon-themed impact — crescent arcs + halo cascade + music notes
+            EternalMoonVFX.OnHitImpact(target.Center, 0, hit.Crit);
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Simplified eternal beam death - misty dissipation
-            DynamicParticleEffects.MoonlightDeathSilverMist(Projectile.Center, 0.9f);
+            // Death: bloom flash + music note scatter
+            MoonlightVFXLibrary.ProjectileImpact(Projectile.Center, 0.6f);
         }
     }
 }

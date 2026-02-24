@@ -10,8 +10,9 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Materials.EnemyDrops;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Content.Eroica.Enemies;
 
-namespace MagnumOpus.Content.Eroica.Enemies
+namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 {
     /// <summary>
     /// Stolen Valor - A desert mini-boss with 5 unique red and gold attacks.
@@ -151,11 +152,14 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
             // Ambient particles
             ThemedParticles.EroicaAura(NPC.Center, NPC.width * 0.6f);
-            
+
             if (Main.rand.NextBool(10))
             {
                 ThemedParticles.EroicaSparkles(NPC.Center, 3, NPC.width * 0.5f);
             }
+
+            // Unified stolen valor ambient VFX — commander's presence, corrupted glow
+            EroicaEnemyVFX.StolenValorAmbientAura(NPC.Center, (int)StateTimer, (int)CurrentState > 3 ? 1 : 0);
 
             // Spawn minions on first tick
             if (StateTimer == 0f && CurrentState == AIState.Idle)
@@ -353,6 +357,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
                 }
                 
                 SoundEngine.PlaySound(SoundID.Item73 with { Volume = 0.7f }, NPC.Center);
+
+                // Unified minion barrage VFX — synchronized fire flash
+                EroicaEnemyVFX.MinionBarrageVFX(NPC.Center);
             }
 
             if (StateTimer > 80f)
@@ -391,6 +398,10 @@ namespace MagnumOpus.Content.Eroica.Enemies
                 }
                 
                 SoundEngine.PlaySound(SoundID.Item74, NPC.Center);
+
+                // Unified charging formation VFX — coordinated charge burst
+                Vector2 chargeDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
+                EroicaEnemyVFX.ChargingFormationVFX(NPC.Center, chargeDirection);
 
                 for (int i = 0; i < 30; i++)
                 {
@@ -434,6 +445,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
                 if (StateTimer % 18 == 0)
                     SoundEngine.PlaySound(SoundID.Item45 with { Volume = 0.5f }, NPC.Center);
+
+                // Unified orbital bombardment VFX — spiraling energy ring
+                EroicaEnemyVFX.OrbitalBombardmentVFX(NPC.Center, orbitAngle);
             }
 
             if (StateTimer > 90f)
@@ -466,6 +480,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
                 }
 
                 SoundEngine.PlaySound(SoundID.Item8, target.Center);
+
+                // Unified false glory VFX — cage ring flash, corrupted enclosure
+                EroicaEnemyVFX.FalseGloryVFX(target.Center);
 
                 // Teleport effect
                 for (int i = 0; i < 40; i++)
@@ -580,6 +597,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
                 }
 
                 ThemedParticles.EroicaShockwave(NPC.Center, 3.5f);
+
+                // Unified stolen triumph VFX — ultimate explosion, commander's wrath
+                EroicaEnemyVFX.StolenTriumphVFX(NPC.Center);
             }
 
             if (StateTimer > 90f)
@@ -693,11 +713,17 @@ namespace MagnumOpus.Content.Eroica.Enemies
 
         public override void HitEffect(NPC.HitInfo hit)
         {
+            // Unified enemy hit flash
+            EroicaEnemyVFX.EnemyHitFlash(NPC.Center, new Color(200, 40, 40), 1f);
+
             ThemedParticles.EroicaSparkles(NPC.Center, 4, NPC.width * 0.5f);
             ThemedParticles.EroicaSparks(NPC.Center, -hit.HitDirection * Vector2.UnitX, 4, 5f);
 
             if (NPC.life <= 0)
             {
+                // Unified stolen valor death VFX — commander's fall, corrupted flash
+                EroicaEnemyVFX.StolenValorDeathVFX(NPC.Center);
+
                 ThemedParticles.EroicaImpact(NPC.Center, 4f);
                 ThemedParticles.EroicaShockwave(NPC.Center, 3f);
 
@@ -765,6 +791,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
 
+            // Unified blitzer projectile trail
+            EroicaEnemyVFX.BlitzerProjectileTrail(Projectile);
+
             if (Main.rand.NextBool(2))
             {
                 Dust trail = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Torch, 0f, 0f, 100, new Color(200, 40, 40), 1.5f);
@@ -779,6 +808,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
         {
             // Small enemy projectile death
             DynamicParticleEffects.EroicaDeathHeroicFlash(Projectile.Center, 0.4f);
+
+            // Unified blitzer projectile hit VFX
+            EroicaEnemyVFX.BlitzerProjectileHitVFX(Projectile.Center);
         }
     }
 
@@ -805,6 +837,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
                 Projectile.Kill();
 
             Projectile.rotation = Projectile.velocity.ToRotation();
+
+            // Unified blitzer projectile trail
+            EroicaEnemyVFX.BlitzerProjectileTrail(Projectile);
 
             for (int i = 0; i < 3; i++)
             {
@@ -839,6 +874,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
         {
             Projectile.rotation += 0.2f;
 
+            // Unified blitzer projectile trail
+            EroicaEnemyVFX.BlitzerProjectileTrail(Projectile);
+
             if (Main.rand.NextBool(2))
             {
                 Dust trail = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.GoldFlame, 0f, 0f, 50, default, 1.2f);
@@ -853,6 +891,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
         {
             // Small enemy orbital shot death
             DynamicParticleEffects.EroicaDeathGoldenGlow(Projectile.Center, 0.4f);
+
+            // Unified blitzer projectile hit VFX
+            EroicaEnemyVFX.BlitzerProjectileHitVFX(Projectile.Center);
         }
     }
 
@@ -905,6 +946,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
         {
             // Small enemy cage orb death
             DynamicParticleEffects.EroicaDeathCrimsonSpark(Projectile.Center, 0.4f);
+
+            // Unified blitzer projectile hit VFX
+            EroicaEnemyVFX.BlitzerProjectileHitVFX(Projectile.Center);
         }
     }
 
@@ -931,6 +975,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
                 Projectile.Kill();
 
             Projectile.rotation = Projectile.velocity.ToRotation();
+
+            // Unified blitzer projectile trail
+            EroicaEnemyVFX.BlitzerProjectileTrail(Projectile);
 
             for (int i = 0; i < 3; i++)
             {

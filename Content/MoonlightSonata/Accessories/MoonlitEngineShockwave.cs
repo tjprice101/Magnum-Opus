@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
@@ -111,14 +112,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             float lightIntensity = (1f - progress * 0.5f) * 0.5f;
             Lighting.AddLight(Projectile.Center, 0.4f * lightIntensity, 0.3f * lightIntensity, 0.6f * lightIntensity);
             
-            // ☁EMUSICAL NOTATION - Engine shockwave melody
+            // Musical notation - Engine shockwave melody
             if (Projectile.timeLeft % 6 == 0)
             {
-                Color noteColor = Color.Lerp(new Color(138, 43, 226), new Color(135, 206, 250), Main.rand.NextFloat());
                 float noteAngle = Main.rand.NextFloat(MathHelper.TwoPi);
                 Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * shockwaveRadius * 0.4f;
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), -1.2f);
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.3f, 28);
+                MoonlightVFXLibrary.SpawnMusicNotes(notePos, 1, 8f, 0.6f, 0.75f, 28);
             }
         }
         
@@ -147,8 +146,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                 impact.noGravity = true;
             }
             
-            // ☁EMUSICAL IMPACT - Engine's moonlit resonance
-            ThemedParticles.MusicNoteBurst(target.Center, new Color(138, 43, 226), 5, 3.5f);
+            // Musical impact - Engine's moonlit resonance
+            CustomParticles.MoonlightFlare(target.Center, 0.5f);
+            MoonlightVFXLibrary.SpawnMusicNotes(target.Center, 3, 12f, 0.7f, 0.9f, 22);
         }
         
         public override bool PreDraw(ref Color lightColor)

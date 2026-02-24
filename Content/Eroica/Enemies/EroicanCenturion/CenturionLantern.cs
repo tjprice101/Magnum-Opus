@@ -5,8 +5,9 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Content.Eroica.Enemies;
 
-namespace MagnumOpus.Content.Eroica.Enemies
+namespace MagnumOpus.Content.Eroica.Enemies.EroicanCenturion
 {
     /// <summary>
     /// Centurion Lantern - Floating lanterns that orbit the Eroican Centurion.
@@ -122,6 +123,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
             float lightPulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f + OrbitAngle * 2f) * 0.2f + 0.8f;
             Lighting.AddLight(Projectile.Center, 0.7f * lightPulse, 0.4f * lightPulse, 0.1f * lightPulse);
 
+            // Unified lantern VFX — warm golden glow, flame motes, music notes
+            EroicaEnemyVFX.CenturionLanternVFX(Projectile.Center, (int)FrameCounter);
+
             // Gold and red particles
             if (Main.rand.NextBool(8))
             {
@@ -166,6 +170,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
                 ModContent.ProjectileType<CenturionSwordProjectile>(), 60, 2f, Main.myPlayer);
 
             SoundEngine.PlaySound(SoundID.Item71, Projectile.Center);
+
+            // Lantern fire VFX — disciplined spark line
+            EroicaEnemyVFX.CenturionSwordSwingVFX(Projectile.Center, shootDirection);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -266,6 +273,9 @@ namespace MagnumOpus.Content.Eroica.Enemies
         {
             // Gold and red explosion
             SoundEngine.PlaySound(SoundID.Item14 with { Volume = 0.6f }, Projectile.Center);
+
+            // Centurion sword impact VFX
+            EroicaEnemyVFX.CenturionSwordSwingVFX(Projectile.Center, Projectile.velocity.SafeNormalize(Vector2.UnitX));
 
             for (int i = 0; i < 20; i++)
             {

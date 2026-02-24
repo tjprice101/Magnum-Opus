@@ -6,6 +6,8 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX.Core;
 
 namespace MagnumOpus.Content.MoonlightSonata.Enemies
 {
@@ -15,7 +17,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
     /// </summary>
     public class WaningDeerChandelierOrbiting : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Content/MoonlightSonata/Enemies/WaningDeerFloat";
+        public override string Texture => "MagnumOpus/Content/MoonlightSonata/Enemies/WaningDeer/WaningDeerFloat";
 
         private int ParentNPCIndex => (int)Projectile.ai[0];
         private float OrbitAngle
@@ -24,7 +26,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             set => Projectile.ai[1] = value;
         }
 
-        // Orbit parameters - slightly different from Lunus lanterns
+        // Orbit parameters
         private const float OrbitRadiusX = 90f;
         private const float OrbitRadiusY = 55f;
         private const float OrbitSpeed = 0.018f;
@@ -38,11 +40,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             Projectile.hostile = false;
             Projectile.friendly = false;
             Projectile.penetrate = -1;
-            Projectile.timeLeft = 60; // Will be refreshed while parent is alive
+            Projectile.timeLeft = 60;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
             Projectile.alpha = 0;
-            Projectile.light = 0f; // Custom lighting
+            Projectile.light = 0f;
         }
 
         public override void AI()
@@ -58,14 +60,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 }
             }
 
-            // Despawn if parent is gone
             if (parent == null)
             {
                 Projectile.Kill();
                 return;
             }
 
-            // Stay alive while parent exists
             Projectile.timeLeft = 60;
 
             // Update orbit angle
@@ -77,7 +77,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             float bobOffset = (float)Math.Sin(Main.GameUpdateCount * BobSpeed + OrbitAngle) * BobAmount;
             Vector2 orbitOffset = new Vector2(
                 (float)Math.Cos(OrbitAngle) * OrbitRadiusX,
-                (float)Math.Sin(OrbitAngle) * OrbitRadiusY * 0.4f + bobOffset - 50f // Float above
+                (float)Math.Sin(OrbitAngle) * OrbitRadiusY * 0.4f + bobOffset - 50f
             );
 
             Vector2 targetPos = parent.Center + orbitOffset;
@@ -85,10 +85,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             // Smooth movement to target position
             Vector2 direction = targetPos - Projectile.Center;
             float distance = direction.Length();
-            
+
             if (distance > 2f)
             {
-                // Gentle, smooth following
                 float speed = Math.Min(distance * 0.08f, 7f);
                 Projectile.velocity = direction.SafeNormalize(Vector2.Zero) * speed;
             }
@@ -100,15 +99,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             // Gentle swaying rotation
             Projectile.rotation = (float)Math.Sin(Main.GameUpdateCount * 0.025f + OrbitAngle) * 0.08f;
 
-            // Ambient lighting - soft icy blue and purple
+            // Palette-based ambient lighting
             float lightPulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f + OrbitAngle * 2f) * 0.15f + 0.85f;
-            Lighting.AddLight(Projectile.Center, 0.4f * lightPulse, 0.5f * lightPulse, 0.8f * lightPulse);
+            Lighting.AddLight(Projectile.Center, MoonlightVFXLibrary.IceBlue.ToVector3() * 0.5f * lightPulse +
+                MoonlightVFXLibrary.DarkPurple.ToVector3() * 0.3f * lightPulse);
 
-            // Occasional gentle particles - purple and light blue
+            // Occasional gentle particles — palette colors
             if (Main.rand.NextBool(18))
             {
                 int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
-                Dust glow = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, dustType, 0f, 0f, 150, default, 0.6f);
+                Color dustColor = Main.rand.NextBool() ? MoonlightVFXLibrary.DarkPurple : MoonlightVFXLibrary.IceBlue;
+                Dust glow = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, dustType, 0f, 0f, 150, dustColor, 0.6f);
                 glow.noGravity = true;
                 glow.velocity = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1f, -0.3f));
                 glow.fadeIn = 0.5f;
@@ -129,13 +130,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 snow.noGravity = true;
                 snow.velocity = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(0.2f, 0.5f));
             }
-            
-            // ☁EMUSICAL NOTATION - Ethereal chandelier melody (subtle for enemy)
+
+            // Music notes — sparse for ambient chandelier
             if (Main.rand.NextBool(30))
             {
-                Color noteColor = Color.Lerp(new Color(138, 43, 226), new Color(135, 206, 250), Main.rand.NextFloat()) * 0.7f;
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.6f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.22f, 28);
+                MoonlightVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 8f, 0.55f, 0.72f, 28);
             }
         }
 
@@ -145,45 +144,49 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             Vector2 origin = new Vector2(texture.Width / 2, texture.Height / 2);
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            // Pulsing glow effect - icy
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f + OrbitAngle * 2f) * 0.3f + 0.7f;
-            
-            // Draw glow layers (behind) - alternating blue and purple
-            Color blueGlow = new Color(100, 160, 220) * pulse * 0.4f;
-            Color purpleGlow = new Color(150, 100, 200) * pulse * 0.3f;
-            
-            for (int i = 0; i < 4; i++)
-            {
-                Vector2 offset = new Vector2(4f, 0f).RotatedBy(MathHelper.TwoPi * i / 4);
-                Color glowColor = i % 2 == 0 ? blueGlow : purpleGlow;
-                Main.EntitySpriteDraw(texture, drawPos + offset, null, glowColor, Projectile.rotation, origin, Projectile.scale * 1.05f, SpriteEffects.None, 0);
-            }
+            float glowMult = pulse;
 
-            // Outer soft glow
-            Color outerGlow = new Color(80, 120, 180) * pulse * 0.2f;
-            for (int i = 0; i < 6; i++)
-            {
-                Vector2 offset = new Vector2(8f, 0f).RotatedBy(MathHelper.TwoPi * i / 6);
-                Main.EntitySpriteDraw(texture, drawPos + offset, null, outerGlow, Projectile.rotation, origin, Projectile.scale * 1.1f, SpriteEffects.None, 0);
-            }
+            // === 4-layer {A=0} bloom stack ===
+            // Layer 1: Outer dark purple aura
+            Color outerGlow = (MoonlightVFXLibrary.DarkPurple with { A = 0 }) * 0.20f * glowMult;
+            Main.EntitySpriteDraw(texture, drawPos, null, outerGlow, Projectile.rotation, origin, Projectile.scale * 1.15f, SpriteEffects.None, 0);
+
+            // Layer 2: Mid violet bloom
+            Color midGlow = (MoonlightVFXLibrary.Violet with { A = 0 }) * 0.25f * glowMult;
+            Main.EntitySpriteDraw(texture, drawPos, null, midGlow, Projectile.rotation, origin, Projectile.scale * 1.08f, SpriteEffects.None, 0);
+
+            // Layer 3: Inner ice blue glow
+            Color innerGlow = (MoonlightVFXLibrary.IceBlue with { A = 0 }) * 0.30f * glowMult;
+            Main.EntitySpriteDraw(texture, drawPos, null, innerGlow, Projectile.rotation, origin, Projectile.scale * 1.04f, SpriteEffects.None, 0);
+
+            // Layer 4: White core
+            Color coreGlow = (MoonlightVFXLibrary.MoonWhite with { A = 0 }) * 0.15f * glowMult;
+            Main.EntitySpriteDraw(texture, drawPos, null, coreGlow, Projectile.rotation, origin, Projectile.scale * 1.02f, SpriteEffects.None, 0);
 
             // Draw main sprite with enhanced brightness
             Color drawColor = new Color(255, 255, 255, 220);
             Main.EntitySpriteDraw(texture, drawPos, null, drawColor, Projectile.rotation, origin, Projectile.scale, SpriteEffects.None, 0);
 
-            return false; // Don't draw default
+            return false;
         }
 
         public override Color? GetAlpha(Color lightColor)
         {
-            // Always visible, not affected by darkness
             return new Color(255, 255, 255, 200);
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Simplified chandelier death - silver mist dissipation (enemy, small)
-            DynamicParticleEffects.MoonlightDeathSilverMist(Projectile.Center, 0.5f);
+            // Chandelier death — subtle themed dissipation
+            MoonlightVFXLibrary.ProjectileImpact(Projectile.Center, 0.4f);
+            for (int i = 0; i < 6; i++)
+            {
+                Color dustColor = Color.Lerp(MoonlightVFXLibrary.DarkPurple, MoonlightVFXLibrary.IceBlue, Main.rand.NextFloat());
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.PurpleTorch,
+                    Main.rand.NextVector2Circular(3f, 3f), 0, dustColor, 1.0f);
+                d.noGravity = true;
+            }
         }
     }
 }

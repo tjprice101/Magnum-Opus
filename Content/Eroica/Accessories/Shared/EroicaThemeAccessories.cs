@@ -12,21 +12,8 @@ using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using System;
 using System.Collections.Generic;
 
-namespace MagnumOpus.Content.Eroica.Accessories
+namespace MagnumOpus.Content.Eroica.Accessories.Shared
 {
-    #region Theme Colors
-    
-    public static class EroicaColors
-    {
-        public static readonly Color Scarlet = new Color(139, 0, 0);
-        public static readonly Color Crimson = new Color(220, 50, 50);
-        public static readonly Color Gold = new Color(255, 215, 0);
-        public static readonly Color Sakura = new Color(255, 150, 180);
-        public static readonly Color DarkRed = new Color(180, 30, 60);
-    }
-    
-    #endregion
-
     #region Badge of Valor
 
     /// <summary>
@@ -67,7 +54,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
                     float angle = Main.GameUpdateCount * 0.03f;
                     Vector2 laurelPos = player.Center + angle.ToRotationVector2() * 22f;
                     
-                    CustomParticles.GenericFlare(laurelPos, EroicaColors.Gold * 0.7f, 0.22f, 10);
+                    CustomParticles.GenericFlare(laurelPos, EroicaPalette.Gold * 0.7f, 0.22f, 10);
                 }
 
                 // Sakura petals drifting
@@ -81,30 +68,30 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 {
                     Vector2 pos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
                     Vector2 vel = new Vector2(0, -Main.rand.NextFloat(0.5f, 1.5f));
-                    CustomParticles.GenericGlow(pos, vel, EroicaColors.Crimson * 0.6f, 0.2f, 22, true);
+                    CustomParticles.GenericGlow(pos, vel, EroicaPalette.Crimson * 0.6f, 0.2f, 22, true);
                 }
             }
 
             // Warm heroic light
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.1f + 0.3f;
-            Lighting.AddLight(player.Center, EroicaColors.Gold.ToVector3() * pulse);
+            Lighting.AddLight(player.Center, EroicaPalette.Gold.ToVector3() * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "MeleeDamage", "+15% melee damage")
             {
-                OverrideColor = EroicaColors.Crimson
+                OverrideColor = EroicaPalette.Crimson
             });
 
             tooltips.Add(new TooltipLine(Mod, "MeleeSpeed", "+10% melee speed")
             {
-                OverrideColor = EroicaColors.Gold
+                OverrideColor = EroicaPalette.Gold
             });
 
             tooltips.Add(new TooltipLine(Mod, "HeroicMoment", "Killing an enemy grants 0.5 seconds of invulnerability")
             {
-                OverrideColor = EroicaColors.Sakura
+                OverrideColor = EroicaPalette.Sakura
             });
 
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'Worn by those who charge into battle without hesitation'")
@@ -146,7 +133,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 if (Main.rand.NextBool(3))
                 {
                     Vector2 pos = Player.Center + Main.rand.NextVector2Circular(20f, 30f);
-                    CustomParticles.GenericFlare(pos, EroicaColors.Gold * 0.8f, 0.35f, 8);
+                    CustomParticles.GenericFlare(pos, EroicaPalette.Gold * 0.8f, 0.35f, 8);
                 }
             }
         }
@@ -173,7 +160,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
 
                 // Heroic flash effect
                 CustomParticles.GenericFlare(Player.Center, Color.White, 0.6f, 15);
-                CustomParticles.HaloRing(Player.Center, EroicaColors.Gold, 0.4f, 15);
+                CustomParticles.HaloRing(Player.Center, EroicaPalette.Gold, 0.4f, 15);
                 ThemedParticles.SakuraPetals(Player.Center, 5, 40f);
             }
         }
@@ -236,7 +223,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
 
                     if (Main.rand.NextBool(10))
                     {
-                        Color flameColor = Color.Lerp(EroicaColors.Scarlet, EroicaColors.Gold, (float)i / 3f);
+                        Color flameColor = Color.Lerp(EroicaPalette.DeepScarlet, EroicaPalette.Gold, (float)i / 3f);
                         CustomParticles.GenericFlare(pos, flameColor * 0.7f, 0.25f, 12);
                     }
                 }
@@ -252,21 +239,21 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 {
                     Vector2 pos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
                     Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(1f, 2f));
-                    Color emberColor = Color.Lerp(EroicaColors.Crimson, EroicaColors.Gold, Main.rand.NextFloat());
+                    Color emberColor = Color.Lerp(EroicaPalette.Crimson, EroicaPalette.Gold, Main.rand.NextFloat());
                     CustomParticles.GenericGlow(pos, vel, emberColor * 0.75f, 0.24f, 25, true);
                 }
 
                 // Heroic surge visual
                 if (modPlayer.heroicSurgeDuration > 0 && Main.rand.NextBool(4))
                 {
-                    CustomParticles.HaloRing(player.Center, EroicaColors.Gold * 0.5f, 0.3f, 10);
+                    CustomParticles.HaloRing(player.Center, EroicaPalette.Gold * 0.5f, 0.3f, 10);
                     ThemedParticles.EroicaSparkles(player.Center, 4, 40f);
                 }
             }
 
             // Enhanced heroic light
             float intensity = modPlayer.heroicSurgeDuration > 0 ? 0.6f : 0.4f;
-            Vector3 lightColor = Color.Lerp(EroicaColors.Crimson, EroicaColors.Gold,
+            Vector3 lightColor = Color.Lerp(EroicaPalette.Crimson, EroicaPalette.Gold,
                 (float)Math.Sin(Main.GameUpdateCount * 0.03f) * 0.5f + 0.5f).ToVector3();
             Lighting.AddLight(player.Center, lightColor * intensity);
         }
@@ -275,17 +262,17 @@ namespace MagnumOpus.Content.Eroica.Accessories
         {
             tooltips.Add(new TooltipLine(Mod, "MeleeDamage", "+20% melee damage")
             {
-                OverrideColor = EroicaColors.Crimson
+                OverrideColor = EroicaPalette.Crimson
             });
 
             tooltips.Add(new TooltipLine(Mod, "MeleeSpeed", "+15% melee speed")
             {
-                OverrideColor = EroicaColors.Gold
+                OverrideColor = EroicaPalette.Gold
             });
 
             tooltips.Add(new TooltipLine(Mod, "MeleeCrit", "+10% melee critical strike chance")
             {
-                OverrideColor = EroicaColors.Sakura
+                OverrideColor = EroicaPalette.Sakura
             });
 
             tooltips.Add(new TooltipLine(Mod, "GenericDamage", "+8% damage (all types)")
@@ -295,12 +282,12 @@ namespace MagnumOpus.Content.Eroica.Accessories
 
             tooltips.Add(new TooltipLine(Mod, "HeroicMoment", "Killing an enemy grants 1 second of invulnerability")
             {
-                OverrideColor = EroicaColors.Sakura
+                OverrideColor = EroicaPalette.Sakura
             });
 
             tooltips.Add(new TooltipLine(Mod, "HeroicSurge", "Kills trigger 'Heroic Surge': +25% damage for 5 seconds")
             {
-                OverrideColor = EroicaColors.Gold
+                OverrideColor = EroicaPalette.Gold
             });
 
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'The symphony of heroes echoes through eternity'")
@@ -343,7 +330,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 if (Main.rand.NextBool(3))
                 {
                     Vector2 pos = Player.Center + Main.rand.NextVector2Circular(20f, 30f);
-                    CustomParticles.GenericFlare(pos, EroicaColors.Gold * 0.8f, 0.35f, 8);
+                    CustomParticles.GenericFlare(pos, EroicaPalette.Gold * 0.8f, 0.35f, 8);
                 }
             }
 
@@ -381,7 +368,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 CustomParticles.GenericFlare(Player.Center, Color.White, 0.8f, 20);
                 for (int i = 0; i < 3; i++)
                 {
-                    CustomParticles.HaloRing(Player.Center, Color.Lerp(EroicaColors.Scarlet, EroicaColors.Gold, (float)i / 3f), 
+                    CustomParticles.HaloRing(Player.Center, Color.Lerp(EroicaPalette.DeepScarlet, EroicaPalette.Gold, (float)i / 3f), 
                         0.3f + i * 0.15f, 12 + i * 3);
                 }
                 ThemedParticles.SakuraPetals(Player.Center, 10, 50f);

@@ -6,6 +6,8 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX.Core;
 
 namespace MagnumOpus.Content.MoonlightSonata.Enemies
 {
@@ -15,7 +17,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
     /// </summary>
     public class SnowOfTheMoonProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Content/MoonlightSonata/Enemies/SnowOfTheMoon";
+        public override string Texture => "MagnumOpus/Content/MoonlightSonata/Enemies/WaningDeer/SnowOfTheMoon";
 
         public override void SetStaticDefaults()
         {
@@ -35,12 +37,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             Projectile.ignoreWater = false;
             Projectile.alpha = 50;
             Projectile.light = 0.4f;
-            Projectile.coldDamage = true; // Ice damage
+            Projectile.coldDamage = true;
         }
 
         public override void AI()
         {
-            // Rotation
             Projectile.rotation += 0.12f;
 
             // Slight gravity
@@ -48,14 +49,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             if (Projectile.velocity.Y > 10f)
                 Projectile.velocity.Y = 10f;
 
-            // Lighting - icy blue
-            Lighting.AddLight(Projectile.Center, 0.4f, 0.5f, 0.8f);
+            // Palette-based lighting
+            Lighting.AddLight(Projectile.Center, MoonlightVFXLibrary.IceBlue.ToVector3() * 0.5f);
 
-            // Trail particles - alternating purple and light blue
+            // Trail particles — palette colors
             if (Main.rand.NextBool(2))
             {
                 int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
-                Dust trail = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, dustType, 0f, 0f, 100, default, 1.1f);
+                Color dustColor = Main.rand.NextBool() ? MoonlightVFXLibrary.DarkPurple : MoonlightVFXLibrary.IceBlue;
+                Dust trail = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, dustType, 0f, 0f, 100, dustColor, 1.1f);
                 trail.noGravity = true;
                 trail.velocity *= 0.2f;
             }
@@ -75,50 +77,57 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 sparkle.noGravity = true;
                 sparkle.velocity = Main.rand.NextVector2Circular(2f, 2f);
             }
-            
-            // ☁EMUSICAL NOTATION - Lunar snow melody (subtle for enemy)
+
+            // Music notes — sparse for enemy projectile
             if (Main.rand.NextBool(12))
             {
-                Color noteColor = Color.Lerp(new Color(138, 43, 226), new Color(135, 206, 250), Main.rand.NextFloat()) * 0.6f;
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), -0.8f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.25f, 25);
+                MoonlightVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 8f, 0.6f, 0.75f, 25);
             }
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Simplified snow projectile death - gentle lunar ripple (enemy, small)
-            DynamicParticleEffects.MoonlightDeathLunarRipple(Projectile.Center, 0.5f);
-            Terraria.Audio.SoundEngine.PlaySound(SoundID.Item27, Projectile.Center); // Ice shatter sound
+            // Snow projectile death — themed impact
+            MoonlightVFXLibrary.ProjectileImpact(Projectile.Center, 0.5f);
+            CustomParticles.HaloRing(Projectile.Center, MoonlightVFXLibrary.IceBlue, 0.25f, 14);
+            Terraria.Audio.SoundEngine.PlaySound(SoundID.Item27, Projectile.Center);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Draw trail
             Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = new Vector2(texture.Width / 2, texture.Height / 2);
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
+            // === Trail with {A=0} bloom ===
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
-                Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2 - Main.screenPosition;
-                float trailAlpha = (float)(Projectile.oldPos.Length - i) / Projectile.oldPos.Length;
-                // Alternating blue and purple trail
-                Color trailColor = i % 2 == 0 ? new Color(120, 180, 240) : new Color(180, 120, 220);
-                trailColor *= trailAlpha * 0.5f;
+                if (Projectile.oldPos[i] == Vector2.Zero) break;
+
+                Vector2 trailDrawPos = Projectile.oldPos[i] + Projectile.Size / 2 - Main.screenPosition;
+                float progress = (float)i / Projectile.oldPos.Length;
+                float trailAlpha = 1f - progress;
+                Color trailColor = Color.Lerp(MoonlightVFXLibrary.IceBlue, MoonlightVFXLibrary.DarkPurple, progress) with { A = 0 };
+                trailColor *= trailAlpha * 0.45f;
                 float trailScale = Projectile.scale * (0.4f + 0.6f * trailAlpha);
 
-                Main.EntitySpriteDraw(texture, drawPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0);
+                Main.EntitySpriteDraw(texture, trailDrawPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0);
             }
 
-            // Glow effect - icy
+            // === 3-layer {A=0} bloom stack ===
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.25f + 0.75f;
-            Color glowColor = new Color(100, 160, 220) * pulse * 0.5f;
-            
-            for (int i = 0; i < 4; i++)
-            {
-                Vector2 offset = new Vector2(3f, 0f).RotatedBy(MathHelper.TwoPi * i / 4);
-                Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition + offset, null, glowColor, Projectile.rotation, origin, Projectile.scale * 1.1f, SpriteEffects.None, 0);
-            }
+
+            // Layer 1: Outer purple aura
+            Color outerGlow = (MoonlightVFXLibrary.DarkPurple with { A = 0 }) * 0.25f * pulse;
+            Main.EntitySpriteDraw(texture, drawPos, null, outerGlow, Projectile.rotation, origin, Projectile.scale * 1.15f, SpriteEffects.None, 0);
+
+            // Layer 2: Mid ice blue
+            Color midGlow = (MoonlightVFXLibrary.IceBlue with { A = 0 }) * 0.35f * pulse;
+            Main.EntitySpriteDraw(texture, drawPos, null, midGlow, Projectile.rotation, origin, Projectile.scale * 1.08f, SpriteEffects.None, 0);
+
+            // Layer 3: Inner white core
+            Color innerGlow = (MoonlightVFXLibrary.MoonWhite with { A = 0 }) * 0.20f * pulse;
+            Main.EntitySpriteDraw(texture, drawPos, null, innerGlow, Projectile.rotation, origin, Projectile.scale * 1.03f, SpriteEffects.None, 0);
 
             return true;
         }

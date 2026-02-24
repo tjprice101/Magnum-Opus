@@ -11,41 +11,40 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX.Trails;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.MoonlightSonata;
-using MagnumOpus.Content.MoonlightSonata.ResonantWeapons;
+using MagnumOpus.Content.MoonlightSonata.Projectiles;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
-using MagnumOpus.Content.MoonlightSonata.VFX.IncisorOfMoonlight;
 using static MagnumOpus.Common.Systems.Particles.Particle;
 
-namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
+namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight
 {
     /// <summary>
-    /// Swing projectile for Incisor of Moonlight — Moonlight Sonata's crescent blade.
+    /// Swing projectile for Incisor of Moonlight — "The Stellar Scalpel".
     /// 4-phase lunar combo: Lunar Arc → Crescent Edge → Silver Surge → Moonlit Crescendo.
     /// Each phase fires expanding crescent wave projectiles (MoonlightWaveProjectile).
-    /// The sword channels crystallized moonlight — each swing a movement in the nocturne.
+    ///
+    /// VFX pipeline (sealed in MeleeSwingBase):
+    ///   Trail (CalamityStyleTrailRenderer.Cosmic) → Smear → Blade → Glow → LensFlare → MotionBlur → CustomVFX
+    ///
+    /// Custom VFX layer adds:
+    ///   - Resonant edge bloom (constellation starpoints along blade, not crescent)
+    ///   - Precision spark trails (tight tuning-fork pattern)
+    ///   - God ray bursts + screen distortion on crescendo
     /// </summary>
     public sealed class IncisorOfMoonlightSwing : MeleeSwingBase
     {
-        #region Theme Colors
-
-        private static readonly Color DarkPurple = MagnumThemePalettes.MoonlightDarkPurple;
-        private static readonly Color MediumPurple = MagnumThemePalettes.MoonlightViolet;
-        private static readonly Color LightBlue = MagnumThemePalettes.MoonlightIceBlue;
-        private static readonly Color Silver = MagnumThemePalettes.MoonlightSilver;
-        private static readonly Color Lavender = MagnumThemePalettes.MoonlightWeaponLavender;
-        private static readonly Color LightPurple = MagnumThemePalettes.MoonlightLightPurple;
+        #region Palette (canonical MoonlightVFXLibrary references)
 
         private int _crystalCooldown;
 
         // 6-color Moonlight palette — dusk to moonbeam
         private static readonly Color[] MoonlightPalette = new Color[]
         {
-            new Color(40, 0, 80),                        // [0] Pianissimo — deep night purple
-            MagnumThemePalettes.MoonlightDarkPurple,     // [1] Piano — indigo shadow
-            MagnumThemePalettes.MoonlightViolet,         // [2] Mezzo — violet body
-            MagnumThemePalettes.MoonlightIceBlue,        // [3] Forte — moonlit blue
-            MagnumThemePalettes.MoonlightWeaponLavender, // [4] Fortissimo — lavender glow
-            MagnumThemePalettes.MoonlightMoonWhite       // [5] Sforzando — pure moonbeam
+            MoonlightVFXLibrary.NightPurple,   // [0] Pianissimo — deep night purple
+            MoonlightVFXLibrary.DarkPurple,    // [1] Piano — indigo shadow
+            MoonlightVFXLibrary.Violet,        // [2] Mezzo — violet body
+            MoonlightVFXLibrary.IceBlue,       // [3] Forte — moonlit blue
+            MoonlightVFXLibrary.Lavender,      // [4] Fortissimo — lavender glow
+            MoonlightVFXLibrary.MoonWhite      // [5] Sforzando — pure moonbeam
         };
 
         #endregion
@@ -68,7 +67,7 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
             damageMult: 0.85f
         );
 
-        // Phase 1: Crescent Edge — quick reverse arc, blade traces a crescent shape
+        // Phase 1: Crescent Edge — quick reverse arc
         private static readonly ComboPhase Phase1_CrescentEdge = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -100,7 +99,7 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
             damageMult: 1.1f
         );
 
-        // Phase 3: Moonlit Crescendo — massive overhead slam, full lunar spectacle
+        // Phase 3: Moonlit Crescendo — massive overhead slam
         private static readonly ComboPhase Phase3_MoonlitCrescendo = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -146,7 +145,7 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
         #region Virtual Overrides
 
         protected override Texture2D GetBladeTexture()
-            => ModContent.Request<Texture2D>("MagnumOpus/Content/MoonlightSonata/ResonantWeapons/IncisorOfMoonlight").Value;
+            => ModContent.Request<Texture2D>("MagnumOpus/Content/MoonlightSonata/Weapons/IncisorOfMoonlight/IncisorOfMoonlight").Value;
 
         protected override SoundStyle GetSwingSound()
             => SoundID.Item71 with { Pitch = -0.25f + ComboStep * 0.12f, Volume = 0.85f };
@@ -159,7 +158,7 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
         {
             float intensity = 0.55f + ComboStep * 0.12f;
             float pulse = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 4f) * 0.1f;
-            Color c = Color.Lerp(DarkPurple, LightBlue, Progression);
+            Color c = Color.Lerp(MoonlightVFXLibrary.DarkPurple, MoonlightVFXLibrary.IceBlue, Progression);
             return c.ToVector3() * intensity * pulse;
         }
 
@@ -187,8 +186,8 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
                 }
 
                 Vector2 vfxTip = GetBladeTipPosition();
-                CustomParticles.GenericFlare(vfxTip, LightBlue, 0.5f, 14);
-                CustomParticles.HaloRing(vfxTip, MediumPurple, 0.3f, 12);
+                CustomParticles.GenericFlare(vfxTip, MoonlightVFXLibrary.IceBlue, 0.5f, 14);
+                CustomParticles.HaloRing(vfxTip, MoonlightVFXLibrary.Violet, 0.3f, 12);
             }
 
             // Phase 1 (Crescent Edge): 1 crescent wave at 55%
@@ -207,9 +206,8 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
 
                 Vector2 vfxTip = GetBladeTipPosition();
                 CustomParticles.GenericFlare(vfxTip, Color.White, 0.6f, 16);
-                CustomParticles.GenericFlare(vfxTip, MediumPurple, 0.45f, 14);
-                CustomParticles.HaloRing(vfxTip, DarkPurple, 0.35f, 13);
-                CustomParticles.PrismaticSparkle(vfxTip, Silver, 0.35f);
+                CustomParticles.GenericFlare(vfxTip, MoonlightVFXLibrary.Violet, 0.45f, 14);
+                CustomParticles.HaloRing(vfxTip, MoonlightVFXLibrary.DarkPurple, 0.35f, 13);
             }
 
             // Phase 2 (Silver Surge): 2 crescent waves at 60% with spread
@@ -231,16 +229,15 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
                 }
 
                 Vector2 vfxTip = GetBladeTipPosition();
-                CustomParticles.GenericFlare(vfxTip, LightBlue, 0.7f, 18);
-                CustomParticles.GenericFlare(vfxTip, Lavender, 0.55f, 16);
+                CustomParticles.GenericFlare(vfxTip, MoonlightVFXLibrary.IceBlue, 0.7f, 18);
+                CustomParticles.GenericFlare(vfxTip, MoonlightVFXLibrary.Lavender, 0.55f, 16);
                 for (int i = 0; i < 3; i++)
                 {
                     float progress = i / 3f;
-                    Color ringColor = Color.Lerp(DarkPurple, LightBlue, progress);
+                    Color ringColor = Color.Lerp(MoonlightVFXLibrary.DarkPurple, MoonlightVFXLibrary.IceBlue, progress);
                     CustomParticles.HaloRing(vfxTip, ringColor, 0.3f + i * 0.08f, 13 + i * 2);
                 }
-                ThemedParticles.MoonlightSparks(vfxTip, SwordDirection, 6, 5f);
-                CustomParticles.MoonlightMusicNotes(vfxTip, 3, 25f);
+                MoonlightVFXLibrary.SpawnMusicNotes(vfxTip, 3, 25f, 0.8f, 1.0f, 30);
             }
 
             // Phase 3 (Moonlit Crescendo): 3 crescent waves at 55% — full spectacle
@@ -261,21 +258,8 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
                     }
                 }
 
-                // VFX: Full moonlit crescendo — the night sky trembles
+                // Crescendo finisher — the night sky trembles
                 Vector2 vfxTip = GetBladeTipPosition();
-                UnifiedVFX.MoonlightSonata.Impact(vfxTip, 1.3f);
-                CustomParticles.GenericFlare(vfxTip, Color.White, 1.0f, 22);
-                CustomParticles.GenericFlare(vfxTip, LightBlue, 0.8f, 20);
-                CustomParticles.GenericFlare(vfxTip, MediumPurple, 0.6f, 18);
-                for (int i = 0; i < 5; i++)
-                {
-                    float progress = i / 5f;
-                    Color ringColor = Color.Lerp(DarkPurple, Silver, progress);
-                    CustomParticles.HaloRing(vfxTip, ringColor, 0.35f + i * 0.1f, 14 + i * 2);
-                }
-                CustomParticles.MoonlightMusicNotes(vfxTip, 6, 40f);
-
-                // Lunar crystal shard burst — unique Incisor finisher treatment
                 IncisorOfMoonlightVFX.CrescendoFinisherVFX(vfxTip);
             }
         }
@@ -289,20 +273,16 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
             // Apply MusicsDissonance debuff
             target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 240);
 
-            // Impact VFX scales with combo step
-            float impactScale = 0.7f + ComboStep * 0.2f;
-            UnifiedVFX.MoonlightSonata.Impact(target.Center, impactScale);
+            // Incisor-unique impact VFX — resonant shockwave with tuning-fork pattern
+            IncisorOfMoonlightVFX.OnHitImpact(target.Center, ComboStep, hit.Crit);
 
             // Gradient halo rings — purple to silver
             for (int ring = 0; ring < 2 + ComboStep; ring++)
             {
                 float progress = (float)ring / (2 + ComboStep);
-                Color ringColor = Color.Lerp(DarkPurple, Silver, progress);
+                Color ringColor = Color.Lerp(MoonlightVFXLibrary.DarkPurple, MoonlightVFXLibrary.Silver, progress);
                 CustomParticles.HaloRing(target.Center, ringColor, 0.3f + ring * 0.1f, 12 + ring * 2);
             }
-
-            // Moonlight impact VFX — unique Incisor resonance treatment
-            IncisorOfMoonlightVFX.OnHitImpact(target.Center, ComboStep, hit.Crit);
 
             // Seeking crystals on hit — 3 normally, 5 on crit (30-frame cooldown)
             if (_crystalCooldown <= 0)
@@ -322,12 +302,12 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
                 _crystalCooldown = 30;
             }
 
-            Lighting.AddLight(target.Center, MediumPurple.ToVector3() * (0.7f + ComboStep * 0.15f));
+            Lighting.AddLight(target.Center, MoonlightVFXLibrary.Violet.ToVector3() * (0.7f + ComboStep * 0.15f));
         }
 
         #endregion
 
-        #region Custom VFX — Moonlight Shimmer
+        #region Custom VFX — Stellar Scalpel
 
         protected override void DrawCustomVFX(SpriteBatch sb)
         {
@@ -335,13 +315,10 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
 
             Vector2 tipPos = GetBladeTipPosition();
 
-            // Unified swing-frame VFX — dense dust, sparkles, notes, lighting
-            MoonlightVFXLibrary.SwingFrameVFX(tipPos, SwordDirection, ComboStep, Projectile.timeLeft);
-
-            // Unique Incisor per-frame effects — silver sparks, resonance pulses, music notes
+            // Incisor-unique per-frame effects — precision sparks, resonance pulses, music notes
             IncisorOfMoonlightVFX.SwingFrameEffects(Owner.MountedCenter, tipPos, SwordDirection, ComboStep, Projectile.timeLeft);
 
-            // Resonant edge bloom — silver glow points along the blade
+            // Resonant edge bloom — constellation starpoints along the blade ({A=0}, no batch restart)
             IncisorOfMoonlightVFX.DrawResonantEdgeBloom(sb, Owner.MountedCenter, tipPos, ComboStep, Progression);
 
             // Pulsing resonant light at the blade tip
@@ -353,7 +330,7 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantWeapons
                 float bladeProgress = Main.rand.NextFloat(0.4f, 1f);
                 Vector2 bladePos = Owner.MountedCenter + SwordDirection * CurrentPhase.BladeLength * bladeProgress;
                 Dust glow = Dust.NewDustPerfect(bladePos, DustID.PurpleCrystalShard,
-                    -SwordDirection * Main.rand.NextFloat(1f, 3f), 0, LightBlue, 1.4f);
+                    -SwordDirection * Main.rand.NextFloat(1f, 3f), 0, MoonlightVFXLibrary.IceBlue, 1.4f);
                 glow.noGravity = true;
             }
 

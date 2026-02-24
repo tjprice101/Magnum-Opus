@@ -199,6 +199,51 @@ namespace MagnumOpus.Content.Eroica
         }
 
         // =================================================================
+        //  6-COLOR MASTER PALETTE INTERPOLATION
+        // =================================================================
+
+        /// <summary>
+        /// The 6 canonical palette stops as an array for indexed interpolation.
+        /// [0] Black → [1] Scarlet → [2] Crimson → [3] Gold → [4] Sakura → [5] HotCore.
+        /// </summary>
+        private static readonly Color[] MasterPalette =
+        {
+            Black, Scarlet, Crimson, Gold, Sakura, HotCore
+        };
+
+        /// <summary>
+        /// Lerp through the 6-colour master palette.
+        /// t=0 → Black (Pianissimo), t=1 → HotCore (Sforzando).
+        /// </summary>
+        public static Color GetPaletteColor(float t)
+        {
+            t = MathHelper.Clamp(t, 0f, 1f);
+            float scaled = t * (MasterPalette.Length - 1);
+            int idx = (int)scaled;
+            int next = Math.Min(idx + 1, MasterPalette.Length - 1);
+            return Color.Lerp(MasterPalette[idx], MasterPalette[next], scaled - idx);
+        }
+
+        /// <summary>
+        /// Palette colour with Calamity-style white push for perceived brilliance.
+        /// push=0 returns pure palette, push=1 returns full white.
+        /// Typical usage: push 0.35-0.55 for trail/bloom cores.
+        /// </summary>
+        public static Color GetPaletteColorWithWhitePush(float t, float push)
+        {
+            Color baseCol = GetPaletteColor(t);
+            return Color.Lerp(baseCol, Color.White, MathHelper.Clamp(push, 0f, 1f));
+        }
+
+        /// <summary>
+        /// Generic blade gradient through any blade palette array.
+        /// progress=0 returns palette[0], progress=1 returns palette[last].
+        /// Works with CelestialValorBlade, SakurasBlossomBlade, FuneralPrayerBlade, etc.
+        /// </summary>
+        public static Color GetBladeGradient(Color[] bladePalette, float progress)
+            => PaletteLerp(bladePalette, progress);
+
+        // =================================================================
         //  HSL CYCLING (for shimmer / color oscillation effects)
         // =================================================================
 

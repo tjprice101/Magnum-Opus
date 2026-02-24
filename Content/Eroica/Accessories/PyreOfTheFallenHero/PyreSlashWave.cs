@@ -10,7 +10,7 @@ using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Common.Systems.VFX;
 
-namespace MagnumOpus.Content.Eroica.Accessories
+namespace MagnumOpus.Content.Eroica.Accessories.PyreOfTheFallenHero
 {
     /// <summary>
     /// 360° sakura slash wave projectile spawned by Pyre of the Fallen Hero at max Fury stacks.

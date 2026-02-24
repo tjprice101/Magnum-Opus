@@ -7,6 +7,7 @@ using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.MoonlightSonata.Tools
 {
@@ -92,7 +93,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
             if (Main.rand.NextBool(4))
             {
                 Microsoft.Xna.Framework.Vector2 notePos = hitbox.Center.ToVector2();
-                ThemedParticles.MoonlightMusicNotes(notePos, 2, 15f);
+                MoonlightVFXLibrary.SpawnMusicNotes(notePos, 2, 15f, 0.6f, 0.8f, 20);
             }
         }
     }

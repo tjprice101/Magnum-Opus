@@ -28,8 +28,8 @@ namespace MagnumOpus.Content.Fate.Projectiles
         private static readonly string[] WeaponTextures = new string[]
         {
             // Moonlight Sonata
-            "MagnumOpus/Content/MoonlightSonata/ResonantWeapons/IncisorOfMoonlight",
-            "MagnumOpus/Content/MoonlightSonata/Weapons/EternalMoon",
+            "MagnumOpus/Content/MoonlightSonata/Weapons/IncisorOfMoonlight/IncisorOfMoonlight",
+            "MagnumOpus/Content/MoonlightSonata/Weapons/EternalMoon/EternalMoon",
             // Eroica
             "MagnumOpus/Content/Eroica/ResonantWeapons/SakurasBlossom",
             "MagnumOpus/Content/Eroica/ResonantWeapons/CelestialValor",

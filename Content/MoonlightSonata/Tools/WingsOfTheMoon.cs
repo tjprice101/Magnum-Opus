@@ -10,6 +10,8 @@ using Terraria.DataStructures;
 using ReLogic.Content;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.MoonlightSonata.Tools
 {
@@ -249,14 +251,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
         
         private void CreateDodgeExplosion(Vector2 position)
         {
-            // Use new themed particle system for enhanced effects
-            ThemedParticles.MoonlightImpact(position, 1.5f);
-            ThemedParticles.TeleportBurst(position, true);
+            // Themed moonlight impact VFX
+            CustomParticles.MoonlightCrescendo(position, 1.5f);
+            CustomParticles.ExplosionBurst(position, MoonlightVFXLibrary.Violet, 16, 8f);
             
-            // Deep purple color: RGB(75, 0, 130) - indigo
-            Color deepPurple = new Color(75, 0, 130);
-            // Light blue color: RGB(135, 206, 250) - light sky blue
-            Color lightBlue = new Color(135, 206, 250);
+            Color deepPurple = MoonlightVFXLibrary.DarkPurple;
+            Color lightBlue = MoonlightVFXLibrary.IceBlue;
             
             // Large outer ring - deep purple
             for (int i = 0; i < 40; i++)
@@ -319,8 +319,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
         
         private void CreateDodgeTrailEffects()
         {
-            // Use new themed particle system for enhanced trail
-            ThemedParticles.DodgeTrail(Player.Center, Player.velocity, true);
+            // Moonlight trail flare during dodge
+            CustomParticles.MoonlightTrailFlare(Player.Center, -Player.velocity * 0.3f);
             
             // Additional dust trail for density
             for (int i = 0; i < 3; i++)

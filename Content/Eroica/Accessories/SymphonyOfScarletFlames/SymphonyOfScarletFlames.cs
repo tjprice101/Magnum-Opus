@@ -9,7 +9,7 @@ using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 
-namespace MagnumOpus.Content.Eroica.Accessories
+namespace MagnumOpus.Content.Eroica.Accessories.SymphonyOfScarletFlames
 {
     /// <summary>
     /// Symphony of Scarlet Flames - Ranger accessory.

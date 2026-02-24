@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
@@ -124,14 +125,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             float lightIntensity = 1f - progress * 0.4f;
             Lighting.AddLight(Projectile.Center, 0.4f * lightIntensity, 0.2f * lightIntensity, 0.6f * lightIntensity);
             
-            // ☁EMUSICAL NOTATION - Spiral sonic melody
+            // Musical notation - Spiral sonic melody
             if (Projectile.timeLeft % 5 == 0)
             {
-                Color noteColor = Color.Lerp(new Color(138, 43, 226), new Color(135, 206, 250), Main.rand.NextFloat());
                 float noteAngle = spiralAngle + Main.rand.NextFloat(MathHelper.TwoPi);
                 Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * boomRadius * 0.5f;
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), -1.5f);
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.32f, 30);
+                MoonlightVFXLibrary.SpawnMusicNotes(notePos, 1, 8f, 0.65f, 0.8f, 30);
             }
         }
         
@@ -166,8 +165,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             // Sound on each hit
             SoundEngine.PlaySound(SoundID.Item12 with { Volume = 0.3f, Pitch = 0.6f + enemiesHit * 0.1f }, target.Center);
             
-            // ☁EMUSICAL IMPACT - Gyre's sonic chord
-            ThemedParticles.MusicNoteBurst(target.Center, new Color(135, 206, 250), 5, 3.5f);
+            // Musical impact - Gyre's sonic chord
+            CustomParticles.MoonlightFlare(target.Center, 0.5f);
+            MoonlightVFXLibrary.SpawnMusicNotes(target.Center, 3, 12f, 0.7f, 0.9f, 22);
         }
         
         public override bool PreDraw(ref Color lightColor)

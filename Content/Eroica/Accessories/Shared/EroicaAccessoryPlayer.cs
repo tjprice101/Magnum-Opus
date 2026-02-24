@@ -9,9 +9,8 @@ using Terraria.Audio;
 using Terraria.DataStructures;
 using ReLogic.Content;
 using static Terraria.ModLoader.PlayerDrawLayer;
-using MagnumOpus.Common.Systems;
 
-namespace MagnumOpus.Content.Eroica.Accessories
+namespace MagnumOpus.Content.Eroica.Accessories.Shared
 {
     /// <summary>
     /// ModPlayer class that handles all Eroica accessory effects.
@@ -98,18 +97,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 Player.immuneNoBlink = true; // Don't blink during heroic encore
                 
                 // Dramatic invulnerability visuals
-                if (Main.rand.NextBool(2))
-                {
-                    Dust flame = Dust.NewDustPerfect(Player.Center + Main.rand.NextVector2Circular(30f, 40f),
-                        DustID.CrimsonTorch, Main.rand.NextVector2Circular(3f, 3f), 100, default, 2f);
-                    flame.noGravity = true;
-                }
-                if (Main.rand.NextBool(3))
-                {
-                    Dust smoke = Dust.NewDustPerfect(Player.Center + Main.rand.NextVector2Circular(25f, 35f),
-                        DustID.Smoke, new Vector2(0, -2f), 150, Color.Black, 1.5f);
-                    smoke.noGravity = true;
-                }
+                EroicaAccessoryVFX.HeroicEncoreActiveVFX(Player.Center, heroicEncoreTimer);
                 
                 if (heroicEncoreTimer >= HeroicEncoreDuration)
                 {
@@ -169,34 +157,8 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 SoundEngine.PlaySound(SoundID.Item119 with { Pitch = -0.5f, Volume = 1.5f }, Player.Center);
                 SoundEngine.PlaySound(SoundID.NPCDeath6 with { Pitch = 0.3f }, Player.Center);
                 
-                // Massive flame burst
-                for (int ring = 0; ring < 3; ring++)
-                {
-                    for (int i = 0; i < 30; i++)
-                    {
-                        float angle = MathHelper.TwoPi * i / 30f;
-                        Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * (8f + ring * 4f);
-                        Dust flame = Dust.NewDustPerfect(Player.Center, DustID.CrimsonTorch, vel, 0, default, 2.5f - ring * 0.3f);
-                        flame.noGravity = true;
-                        flame.fadeIn = 1.5f;
-                    }
-                }
-                
-                // Black smoke burst
-                for (int i = 0; i < 40; i++)
-                {
-                    Dust smoke = Dust.NewDustPerfect(Player.Center, DustID.Smoke,
-                        Main.rand.NextVector2Circular(10f, 10f), 200, Color.Black, 2f);
-                    smoke.noGravity = true;
-                }
-                
-                // Golden sparks
-                for (int i = 0; i < 20; i++)
-                {
-                    Dust spark = Dust.NewDustPerfect(Player.Center, DustID.GoldCoin,
-                        Main.rand.NextVector2Circular(8f, 8f), 0, default, 1.5f);
-                    spark.noGravity = true;
-                }
+                // Dramatic revival VFX
+                EroicaAccessoryVFX.HeroicEncoreActivation(Player.Center);
                 
                 Main.NewText("Heroic Encore! The music refuses to end!", new Color(255, 100, 100));
                 
@@ -229,13 +191,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
             // Visual feedback for stack building
             if (furyStacks < MaxFuryStacks)
             {
-                // Small flame burst per hit
-                for (int i = 0; i < 3 + furyStacks / 2; i++)
-                {
-                    Dust flame = Dust.NewDustPerfect(Player.Center + Main.rand.NextVector2Circular(15f, 15f),
-                        DustID.CrimsonTorch, Main.rand.NextVector2Circular(3f, 3f), 100, default, 1f + furyStacks * 0.08f);
-                    flame.noGravity = true;
-                }
+                EroicaAccessoryVFX.FuryStackVFX(Player.Center, furyStacks);
             }
             
             // At max stacks, release the fury wave
@@ -257,14 +213,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 consecutiveHits++;
                 
                 // Visual feedback - growing mark on enemy
-                int particleCount = 5 + consecutiveHits * 3;
-                for (int i = 0; i < particleCount; i++)
-                {
-                    int dustType = Main.rand.NextBool() ? DustID.CrimsonTorch : DustID.GoldCoin;
-                    Dust mark = Dust.NewDustPerfect(target.Center + Main.rand.NextVector2Circular(target.width / 2f, target.height / 2f),
-                        dustType, Main.rand.NextVector2Circular(2f, 2f), 100, default, 1f + consecutiveHits * 0.2f);
-                    mark.noGravity = true;
-                }
+                EroicaAccessoryVFX.TargetMarkVFX(target.Center, consecutiveHits);
                 
                 // 4th hit triggers the explosion
                 if (consecutiveHits >= 3)
@@ -280,21 +229,14 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 consecutiveHits = 1;
                 
                 // Small initial mark
-                for (int i = 0; i < 5; i++)
-                {
-                    Dust mark = Dust.NewDustPerfect(target.Center, DustID.GoldCoin,
-                        Main.rand.NextVector2Circular(2f, 2f), 100, default, 1f);
-                    mark.noGravity = true;
-                }
+                EroicaAccessoryVFX.NewTargetMarkVFX(target.Center);
             }
         }
         
         private void ReleaseFuryWave(int baseDamage)
         {
-            // Custom particles - dramatic fury release!
-            CustomParticles.EroicaBossAttack(Player.Center, 15);
-            CustomParticles.GenericFlare(Player.Center, new Color(200, 50, 50), 2f, 50);
-            CustomParticles.GenericFlare(Player.Center, new Color(255, 200, 100), 1.5f, 40);
+            // Dramatic fury release VFX
+            EroicaAccessoryVFX.FuryReleasePulse(Player.Center);
             
             // Spawn the 360° slash wave projectile
             if (Main.myPlayer == Player.whoAmI)
@@ -379,13 +321,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
             SoundEngine.PlaySound(SoundID.Item78 with { Pitch = 0.2f }, Player.Center);
             
             // Dramatic appearance particles
-            for (int i = 0; i < 25; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 25f;
-                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 5f;
-                Dust flame = Dust.NewDustPerfect(Player.Center + new Vector2(0, -60f), DustID.CrimsonTorch, vel, 0, default, 1.8f);
-                flame.noGravity = true;
-            }
+            EroicaAccessoryVFX.HeroicSpiritSummonVFX(Player.Center + new Vector2(0, -60f));
         }
         
         private void UpdateMinionProximityBonus()
@@ -419,12 +355,7 @@ namespace MagnumOpus.Content.Eroica.Accessories
                 damageBoostTimer = DamageBoostDuration;
                 
                 // Visual feedback
-                for (int i = 0; i < 15; i++)
-                {
-                    Dust rage = Dust.NewDustPerfect(Player.Center, DustID.Torch,
-                        Main.rand.NextVector2Circular(5f, 5f), 100, new Color(255, 150, 50), 1.5f);
-                    rage.noGravity = true;
-                }
+                EroicaAccessoryVFX.DamageBoostIndicator(Player.Center, DamageBoostDuration);
             }
         }
         
