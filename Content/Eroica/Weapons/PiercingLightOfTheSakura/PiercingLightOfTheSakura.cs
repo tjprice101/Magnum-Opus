@@ -9,6 +9,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura

@@ -10,6 +10,7 @@ using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.OdeToJoy;
 
 // Dynamic particle effects for aesthetically pleasing animations
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
@@ -1402,20 +1403,20 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
             Projectile.alpha = (int)(255 * (1f - Projectile.timeLeft / 45f));
             
             // Petal trail
-            OdeToJoyVFX.PetalTrail(Projectile.Center, Projectile.velocity, 0.8f);
-            
+            OdeToJoyVFXLibrary.SpawnRosePetals(Projectile.Center, 3, 20f * 0.8f);
+
             // Music notes
             if (Main.rand.NextBool(6))
             {
-                OdeToJoyVFX.SpawnMusicNote(Projectile.Center, -Projectile.velocity * 0.1f, OdeToJoyColors.RosePink, 0.8f);
+                OdeToJoyVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 20f, 0.8f);
             }
-            
-            Lighting.AddLight(Projectile.Center, OdeToJoyColors.RosePink.ToVector3() * 0.6f);
+
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.RosePink.ToVector3() * 0.6f);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            OdeToJoyVFX.HarmonicNoteSparkle(target.Center, 7, 4f, 0.55f, true);
+            OdeToJoyVFXLibrary.SpawnMusicNotes(target.Center, 7, 4f * 0.55f, 0.55f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -1450,19 +1451,19 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
             
             // Enhanced vine trail with chromatic effect
             if (Main.rand.NextBool(3))
-                OdeToJoyVFX.ChromaticVineGrowthBurst(Projectile.Center, 1, 2f, 0.25f, false);
-            
-            Lighting.AddLight(Projectile.Center, OdeToJoyColors.VerdantGreen.ToVector3() * 0.4f);
+                OdeToJoyVFXLibrary.SpawnVineTrailDust(Projectile.Center, Vector2.Zero);
+
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.VerdantGreen.ToVector3() * 0.4f);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            OdeToJoyVFX.ChromaticRosePetalBurst(target.Center, 5, 3f, 0.4f, false);
+            OdeToJoyVFXLibrary.SpawnRosePetals(target.Center, 5, 3f * 0.4f);
         }
         
         public override void OnKill(int timeLeft)
         {
-            OdeToJoyVFX.ChromaticRosePetalBurst(Projectile.Center, 8, 5f, 0.5f, true);
+            OdeToJoyVFXLibrary.SpawnRosePetals(Projectile.Center, 8, 5f * 0.5f);
             SoundEngine.PlaySound(SoundID.Grass, Projectile.Center);
         }
         
@@ -1507,8 +1508,8 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
             Projectile.rotation += 0.15f;
             
             // Beautiful petal trail
-            OdeToJoyVFX.PetalTrail(Projectile.Center, Projectile.velocity, 1f);
-            
+            OdeToJoyVFXLibrary.SpawnRosePetals(Projectile.Center, 3, 20f * 1f);
+
             // Orbiting sparkles
             if (Projectile.timeLeft % 8 == 0)
             {
@@ -1517,17 +1518,17 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
                 {
                     float angle = orbitAngle + MathHelper.TwoPi * i / 3f;
                     Vector2 sparklePos = Projectile.Center + angle.ToRotationVector2() * 15f;
-                    var sparkle = new SparkleParticle(sparklePos, Projectile.velocity * 0.3f, OdeToJoyColors.GoldenPollen, 0.3f, 12);
+                    var sparkle = new SparkleParticle(sparklePos, Projectile.velocity * 0.3f, OdeToJoyPalette.GoldenPollen, 0.3f, 12);
                     MagnumParticleHandler.SpawnParticle(sparkle);
                 }
             }
-            
-            Lighting.AddLight(Projectile.Center, OdeToJoyColors.RosePink.ToVector3() * 0.6f);
+
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.RosePink.ToVector3() * 0.6f);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            OdeToJoyVFX.HarmonicNoteSparkle(target.Center, 8, 5f, 0.7f, true);
+            OdeToJoyVFXLibrary.SpawnMusicNotes(target.Center, 8, 5f * 0.7f, 0.7f);
         }
         
         public override void OnKill(int timeLeft)
@@ -1542,7 +1543,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
                     ModContent.ProjectileType<SmallPetalProjectile>(), Projectile.damage / 3, 1f, Projectile.owner);
             }
             
-            OdeToJoyVFX.OdeToJoySignatureExplosion(Projectile.Center, 0.7f);
+            OdeToJoyVFXLibrary.GardenImpact(Projectile.Center, 0.7f);
             SoundEngine.PlaySound(SoundID.Item27, Projectile.Center);
         }
         
@@ -1599,17 +1600,17 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
             
             if (Main.rand.NextBool(3))
             {
-                Color trailColor = OdeToJoyColors.GetPetalGradient(Main.rand.NextFloat());
+                Color trailColor = OdeToJoyPalette.GetPetalGradient(Main.rand.NextFloat());
                 var trail = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f, trailColor * 0.6f, 0.2f, 15, true);
                 MagnumParticleHandler.SpawnParticle(trail);
             }
-            
-            Lighting.AddLight(Projectile.Center, OdeToJoyColors.RosePink.ToVector3() * 0.3f);
+
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.RosePink.ToVector3() * 0.3f);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            OdeToJoyVFX.ChromaticRosePetalBurst(target.Center, 5, 3f, 0.35f, false);
+            OdeToJoyVFXLibrary.SpawnRosePetals(target.Center, 5, 3f * 0.35f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -1647,7 +1648,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
             // Intense golden trail
             for (int i = 0; i < 2; i++)
             {
-                Color trailColor = Color.Lerp(OdeToJoyColors.GoldenPollen, Color.White, Main.rand.NextFloat(0.3f, 0.7f));
+                Color trailColor = Color.Lerp(OdeToJoyPalette.GoldenPollen, Color.White, Main.rand.NextFloat(0.3f, 0.7f));
                 var trail = new GenericGlowParticle(
                     Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
                     -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(2f, 2f),
@@ -1658,33 +1659,33 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
                 );
                 MagnumParticleHandler.SpawnParticle(trail);
             }
-            
+
             // Golden sparkles
             if (Main.rand.NextBool(2))
             {
                 var sparkle = new SparkleParticle(
                     Projectile.Center + Main.rand.NextVector2Circular(10f, 10f),
                     -Projectile.velocity * 0.1f,
-                    OdeToJoyColors.GoldenPollen,
+                    OdeToJoyPalette.GoldenPollen,
                     0.4f,
                     18
                 );
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
-            
+
             // Music notes
             if (Main.rand.NextBool(8))
             {
-                OdeToJoyVFX.SpawnMusicNote(Projectile.Center, -Projectile.velocity * 0.1f, OdeToJoyColors.GoldenPollen, 0.85f);
+                OdeToJoyVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 20f, 0.85f);
             }
-            
-            Lighting.AddLight(Projectile.Center, OdeToJoyColors.GoldenPollen.ToVector3() * 0.8f);
+
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.GoldenPollen.ToVector3() * 0.8f);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            OdeToJoyVFX.HarmonicNoteSparkle(target.Center, 8, 5f, 0.65f, true);
-            OdeToJoyVFX.ChromaticRosePetalBurst(target.Center, 6, 4f, 0.5f, false);
+            OdeToJoyVFXLibrary.SpawnMusicNotes(target.Center, 8, 5f * 0.65f, 0.65f);
+            OdeToJoyVFXLibrary.SpawnRosePetals(target.Center, 6, 4f * 0.5f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -1734,15 +1735,15 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
             // VFX trail - enhanced vine growth
             if (Main.rand.NextBool(3))
             {
-                OdeToJoyVFX.ChromaticVineGrowthBurst(Projectile.Center, 1, 2f, 0.25f, false);
+                OdeToJoyVFXLibrary.SpawnVineTrailDust(Projectile.Center, Vector2.Zero);
             }
-            
-            Lighting.AddLight(Projectile.Center, OdeToJoyColors.VerdantGreen.ToVector3() * 0.4f);
+
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.VerdantGreen.ToVector3() * 0.4f);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            OdeToJoyVFX.ChromaticRosePetalBurst(target.Center, 4, 3f, 0.35f, false);
+            OdeToJoyVFXLibrary.SpawnRosePetals(target.Center, 4, 3f * 0.35f);
         }
         
         public override bool PreDraw(ref Color lightColor)

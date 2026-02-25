@@ -28,6 +28,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
     /// </summary>
     public class RiddlemastersCauldron : ModItem
     {
+        public override string Texture => "MagnumOpus/Content/EnigmaVariations/Accessories/RiddlemastersCauldron/RiddlemastersCauldron";
+
         // Enigma color palette
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreenFlame = new Color(50, 220, 100);
@@ -271,7 +273,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             Player player = drawInfo.drawPlayer;
             var modPlayer = player.GetModPlayer<RiddlemastersCauldronPlayer>();
 
-            _cauldronTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Content/EnigmaVariations/Accessories/RiddlemastersCauldron_Summon");
+            _cauldronTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Content/EnigmaVariations/Accessories/RiddlemastersCauldron/RiddlemastersCauldron_Summon");
             if (_cauldronTexture.State != AssetState.Loaded)
                 return;
 

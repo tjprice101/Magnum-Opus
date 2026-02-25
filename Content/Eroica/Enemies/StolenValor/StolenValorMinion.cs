@@ -16,7 +16,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
     /// </summary>
     public class StolenValorMinion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Content/Eroica/Enemies/StolenValorMinion";
+        public override string Texture => "MagnumOpus/Content/Eroica/Enemies/StolenValor/StolenValorMinion";
 
         private int ParentNPCIndex => (int)Projectile.ai[0];
         private float OrbitAngle

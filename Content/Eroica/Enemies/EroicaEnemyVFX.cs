@@ -9,6 +9,7 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Screen;
+using static MagnumOpus.Common.Systems.VFX.GodRaySystem;
 
 namespace MagnumOpus.Content.Eroica.Enemies
 {

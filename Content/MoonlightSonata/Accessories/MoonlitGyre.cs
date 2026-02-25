@@ -6,6 +6,7 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
+using MagnumOpus.Content.MoonlightSonata.VFX.Accessories;
 
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
@@ -45,6 +46,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                 Dust dust = Dust.NewDustPerfect(player.Center + offset + new Vector2(0, -35f), dustType, 
                     new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1.5f), 100, default, 1f);
                 dust.noGravity = true;
+            }
+
+            // Unified ambient VFX
+            if (!hideVisual)
+            {
+                MoonlitGyreVFX.AmbientGyroSpin(player.Center, (int)Main.GameUpdateCount);
             }
         }
 

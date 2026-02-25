@@ -34,12 +34,7 @@ namespace MagnumOpus.Content.Fate.Enemies
     /// </summary>
     public class HeraldOfFate : ModNPC
     {
-        // Fate theme colors - cosmic void aesthetic
-        private static readonly Color FateBlack = new Color(8, 3, 20);
-        private static readonly Color FateDarkPink = new Color(180, 50, 100);
-        private static readonly Color FateBrightRed = new Color(255, 60, 80);
-        private static readonly Color FatePurple = new Color(120, 30, 140);
-        private static readonly Color FateWhite = new Color(255, 255, 255);
+        // Fate theme colors - sourced from centralized FatePalette
         
         // Size variation
         private float sizeMultiplier = 1f;
@@ -211,7 +206,7 @@ namespace MagnumOpus.Content.Fate.Enemies
             // Dramatic spawn announcement
             if (Main.netMode != NetmodeID.MultiplayerClient)
             {
-                Main.NewText("The Herald of Fate has arrived...", FateDarkPink);
+                Main.NewText("The Herald of Fate has arrived...", FatePalette.DarkPink);
             }
             
             // Spawn VFX
@@ -234,7 +229,7 @@ namespace MagnumOpus.Content.Fate.Enemies
             if (!isEnraged && NPC.life < NPC.lifeMax * 0.3f)
             {
                 isEnraged = true;
-                Main.NewText("The Herald's fury is unleashed!", FateBrightRed);
+                Main.NewText("The Herald's fury is unleashed!", FatePalette.BrightCrimson);
                 SpawnCosmicBurst(NPC.Center, 3f);
                 SoundEngine.PlaySound(SoundID.Roar, NPC.Center);
             }
@@ -249,7 +244,7 @@ namespace MagnumOpus.Content.Fate.Enemies
             
             // Dynamic lighting
             float lightIntensity = cosmicGlow * 0.6f;
-            Vector3 lightColor = Vector3.Lerp(FatePurple.ToVector3(), FateBrightRed.ToVector3(), 
+            Vector3 lightColor = Vector3.Lerp(FatePalette.FatePurple.ToVector3(), FatePalette.BrightCrimson.ToVector3(), 
                 (float)Math.Sin(auraPulse) * 0.5f + 0.5f);
             Lighting.AddLight(NPC.Center, lightColor * lightIntensity);
             
@@ -404,7 +399,7 @@ namespace MagnumOpus.Content.Fate.Enemies
                         float angle = MathHelper.TwoPi * i / 6f + Timer * 0.1f;
                         float radius = 120f * (1f - progress * 0.5f);
                         Vector2 pos = NPC.Center + angle.ToRotationVector2() * radius;
-                        CustomParticles.GenericFlare(pos, FateDarkPink, 0.3f + progress * 0.3f, 12);
+                        CustomParticles.GenericFlare(pos, FatePalette.DarkPink, 0.3f + progress * 0.3f, 12);
                     }
                 }
                 
@@ -516,8 +511,8 @@ namespace MagnumOpus.Content.Fate.Enemies
                         orbitingGlyphPositions.Add(glyphPos);
                         
                         // Spawn VFX
-                        CustomParticles.GlyphBurst(glyphPos, FatePurple, 4, 3f);
-                        CustomParticles.GenericFlare(glyphPos, FateWhite, 0.6f, 20);
+                        CustomParticles.GlyphBurst(glyphPos, FatePalette.FatePurple, 4, 3f);
+                        CustomParticles.GenericFlare(glyphPos, FatePalette.WhiteCelestial, 0.6f, 20);
                     }
                     
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.3f }, NPC.Center);
@@ -544,7 +539,7 @@ namespace MagnumOpus.Content.Fate.Enemies
                     // Glyph particle
                     if (Timer % 5 == 0)
                     {
-                        CustomParticles.Glyph(newPos, FateDarkPink, 0.4f, -1);
+                        CustomParticles.Glyph(newPos, FatePalette.DarkPink, 0.4f, -1);
                     }
                     
                     // Draw beam to next glyph
@@ -574,14 +569,14 @@ namespace MagnumOpus.Content.Fate.Enemies
                     if (Timer % 3 == 0)
                     {
                         Vector2 beamMid = (newPos + nextPos) / 2f;
-                        CustomParticles.GenericFlare(beamMid, FateBrightRed * 0.6f, 0.2f, 5);
+                        CustomParticles.GenericFlare(beamMid, FatePalette.BrightCrimson * 0.6f, 0.2f, 5);
                     }
                 }
                 
                 // Glow particles on glyphs
                 foreach (Vector2 glyphPos in orbitingGlyphPositions)
                 {
-                    Lighting.AddLight(glyphPos, FatePurple.ToVector3() * 0.4f);
+                    Lighting.AddLight(glyphPos, FatePalette.FatePurple.ToVector3() * 0.4f);
                 }
                 
                 if (Timer >= chainDuration)
@@ -589,8 +584,8 @@ namespace MagnumOpus.Content.Fate.Enemies
                     // Collapse glyphs with explosion
                     foreach (Vector2 glyphPos in orbitingGlyphPositions)
                     {
-                        CustomParticles.GenericFlare(glyphPos, FateBrightRed, 0.8f, 20);
-                        CustomParticles.HaloRing(glyphPos, FateDarkPink, 0.4f, 15);
+                        CustomParticles.GenericFlare(glyphPos, FatePalette.BrightCrimson, 0.8f, 20);
+                        CustomParticles.HaloRing(glyphPos, FatePalette.DarkPink, 0.4f, 15);
                     }
                     orbitingGlyphPositions.Clear();
                     ReturnToHover();
@@ -622,7 +617,7 @@ namespace MagnumOpus.Content.Fate.Enemies
                         Vector2 pos = NPC.Center + angle.ToRotationVector2() * radius;
                         Vector2 vel = (NPC.Center - pos).SafeNormalize(Vector2.Zero) * (3f + progress * 5f);
                         
-                        var particle = new GenericGlowParticle(pos, vel, FatePurple * 0.8f, 0.3f, 15, true);
+                        var particle = new GenericGlowParticle(pos, vel, FatePalette.FatePurple * 0.8f, 0.3f, 15, true);
                         MagnumParticleHandler.SpawnParticle(particle);
                     }
                 }
@@ -665,12 +660,12 @@ namespace MagnumOpus.Content.Fate.Enemies
                         float angle = Timer * 0.15f + MathHelper.PiOver2 * i;
                         float radius = 40f + (float)Math.Sin(Timer * 0.1f + i) * 20f;
                         Vector2 pos = NPC.Center + angle.ToRotationVector2() * radius;
-                        CustomParticles.GenericFlare(pos, FateBlack, 0.4f, 8);
+                        CustomParticles.GenericFlare(pos, FatePalette.CosmicVoid, 0.4f, 8);
                     }
                 }
                 
                 // Central void glow
-                CustomParticles.GenericFlare(NPC.Center, FateDarkPink, 0.6f + (float)Math.Sin(Timer * 0.2f) * 0.2f, 5);
+                CustomParticles.GenericFlare(NPC.Center, FatePalette.DarkPink, 0.6f + (float)Math.Sin(Timer * 0.2f) * 0.2f, 5);
                 
                 if (Timer >= pullDuration)
                 {
@@ -704,8 +699,8 @@ namespace MagnumOpus.Content.Fate.Enemies
                     Vector2 starPos = target.Center + angle.ToRotationVector2() * starRadius;
                     
                     // Star spawn VFX
-                    CustomParticles.GenericFlare(starPos, FateWhite, 1f, 30);
-                    CustomParticles.HaloRing(starPos, FateDarkPink, 0.5f, 20);
+                    CustomParticles.GenericFlare(starPos, FatePalette.WhiteCelestial, 1f, 30);
+                    CustomParticles.HaloRing(starPos, FatePalette.DarkPink, 0.5f, 20);
                     SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.3f + starIndex * 0.1f }, starPos);
                 }
                 
@@ -721,7 +716,7 @@ namespace MagnumOpus.Content.Fate.Enemies
                         for (float t = 0; t < starRadius; t += 30f)
                         {
                             Vector2 linePos = starPos + toTarget * t;
-                            CustomParticles.GenericFlare(linePos, FateBrightRed * 0.4f, 0.15f, 3);
+                            CustomParticles.GenericFlare(linePos, FatePalette.BrightCrimson * 0.4f, 0.15f, 3);
                         }
                     }
                 }
@@ -792,16 +787,16 @@ namespace MagnumOpus.Content.Fate.Enemies
                     Vector2 teleportPos = target.Center + angle.ToRotationVector2() * 250f;
                     
                     // Departure VFX
-                    CustomParticles.GenericFlare(NPC.Center, FatePurple, 0.8f, 15);
-                    CustomParticles.HaloRing(NPC.Center, FateDarkPink, 0.5f, 12);
+                    CustomParticles.GenericFlare(NPC.Center, FatePalette.FatePurple, 0.8f, 15);
+                    CustomParticles.HaloRing(NPC.Center, FatePalette.DarkPink, 0.5f, 12);
                     
                     // Teleport
                     NPC.Center = teleportPos;
                     NPC.velocity = Vector2.Zero;
                     
                     // Arrival VFX
-                    CustomParticles.GenericFlare(NPC.Center, FateWhite, 1f, 20);
-                    CustomParticles.GlyphBurst(NPC.Center, FatePurple, 6, 4f);
+                    CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 1f, 20);
+                    CustomParticles.GlyphBurst(NPC.Center, FatePalette.FatePurple, 6, 4f);
                     SoundEngine.PlaySound(SoundID.Item8, NPC.Center);
                 }
                 
@@ -813,7 +808,7 @@ namespace MagnumOpus.Content.Fate.Enemies
                     for (float t = 0; t < dist; t += 25f)
                     {
                         Vector2 linePos = NPC.Center + toTarget * t;
-                        CustomParticles.GenericFlare(linePos, FateBrightRed * 0.5f, 0.2f, 4);
+                        CustomParticles.GenericFlare(linePos, FatePalette.BrightCrimson * 0.5f, 0.2f, 4);
                     }
                 }
                 
@@ -830,7 +825,7 @@ namespace MagnumOpus.Content.Fate.Enemies
                 }
                 
                 // Trail VFX
-                CustomParticles.GenericFlare(NPC.Center, FateDarkPink, 0.5f, 10);
+                CustomParticles.GenericFlare(NPC.Center, FatePalette.DarkPink, 0.5f, 10);
                 
                 // Spawn damaging trail
                 if (Main.netMode != NetmodeID.MultiplayerClient && cycleProgress % 3 == 0)
@@ -866,7 +861,7 @@ namespace MagnumOpus.Content.Fate.Enemies
                     {
                         float angle = MathHelper.TwoPi * i / glyphCount + Timer * 0.02f;
                         Vector2 glyphPos = target.Center + angle.ToRotationVector2() * (glyphRadius * progress);
-                        CustomParticles.Glyph(glyphPos, Color.Lerp(FatePurple, FateBrightRed, progress), 0.4f + progress * 0.3f, -1);
+                        CustomParticles.Glyph(glyphPos, Color.Lerp(FatePalette.FatePurple, FatePalette.BrightCrimson, progress), 0.4f + progress * 0.3f, -1);
                     }
                 }
                 
@@ -880,7 +875,7 @@ namespace MagnumOpus.Content.Fate.Enemies
                         Vector2 pos = target.Center + angle.ToRotationVector2() * radius;
                         Vector2 vel = (target.Center - pos).SafeNormalize(Vector2.Zero) * (5f + progress * 10f);
                         
-                        Color particleColor = Color.Lerp(FateDarkPink, FateWhite, progress);
+                        Color particleColor = Color.Lerp(FatePalette.DarkPink, FatePalette.WhiteCelestial, progress);
                         var particle = new GenericGlowParticle(pos, vel, particleColor, 0.35f, 18, true);
                         MagnumParticleHandler.SpawnParticle(particle);
                     }
@@ -943,7 +938,7 @@ namespace MagnumOpus.Content.Fate.Enemies
                     {
                         float angle = MathHelper.TwoPi * i / 12f;
                         Vector2 pos = target.Center + angle.ToRotationVector2() * (Timer * 15f);
-                        CustomParticles.GenericFlare(pos, FateBrightRed, 0.5f, 10);
+                        CustomParticles.GenericFlare(pos, FatePalette.BrightCrimson, 0.5f, 10);
                     }
                 }
                 
@@ -972,7 +967,7 @@ namespace MagnumOpus.Content.Fate.Enemies
             if (Main.rand.NextBool(4))
             {
                 Vector2 offset = Main.rand.NextVector2Circular(NPC.width * 0.5f, NPC.height * 0.5f);
-                Color particleColor = Main.rand.NextBool() ? FateDarkPink : FatePurple;
+                Color particleColor = Main.rand.NextBool() ? FatePalette.DarkPink : FatePalette.FatePurple;
                 
                 var particle = new GenericGlowParticle(NPC.Center + offset, 
                     Main.rand.NextVector2Circular(1f, 1f), particleColor * 0.6f, 0.25f, 20, true);
@@ -983,14 +978,14 @@ namespace MagnumOpus.Content.Fate.Enemies
             if (Main.rand.NextBool(20))
             {
                 Vector2 glyphPos = NPC.Center + Main.rand.NextVector2Circular(60f, 60f);
-                CustomParticles.Glyph(glyphPos, FatePurple * 0.7f, 0.3f, -1);
+                CustomParticles.Glyph(glyphPos, FatePalette.FatePurple * 0.7f, 0.3f, -1);
             }
             
             // Star sparkles
             if (Main.rand.NextBool(8))
             {
                 Vector2 sparklePos = NPC.Center + Main.rand.NextVector2Circular(50f, 50f);
-                CustomParticles.GenericFlare(sparklePos, FateWhite * 0.5f, 0.15f, 10);
+                CustomParticles.GenericFlare(sparklePos, FatePalette.WhiteCelestial * 0.5f, 0.15f, 10);
             }
         }
 
@@ -1002,33 +997,33 @@ namespace MagnumOpus.Content.Fate.Enemies
                 float angle = glyphRotation + Main.rand.NextFloat(MathHelper.TwoPi);
                 float radius = 60f + Main.rand.NextFloat(20f);
                 Vector2 glyphPos = NPC.Center + angle.ToRotationVector2() * radius;
-                CustomParticles.Glyph(glyphPos, FateDarkPink * 0.8f, 0.25f, -1);
+                CustomParticles.Glyph(glyphPos, FatePalette.DarkPink * 0.8f, 0.25f, -1);
             }
         }
 
         private void SpawnCosmicBurst(Vector2 position, float scale)
         {
             // Central flash
-            CustomParticles.GenericFlare(position, FateWhite, 1.2f * scale, 25);
-            CustomParticles.GenericFlare(position, FateBrightRed, 0.9f * scale, 22);
-            CustomParticles.GenericFlare(position, FateDarkPink, 0.7f * scale, 20);
+            CustomParticles.GenericFlare(position, FatePalette.WhiteCelestial, 1.2f * scale, 25);
+            CustomParticles.GenericFlare(position, FatePalette.BrightCrimson, 0.9f * scale, 22);
+            CustomParticles.GenericFlare(position, FatePalette.DarkPink, 0.7f * scale, 20);
             
             // Cascading halos
             for (int i = 0; i < 6; i++)
             {
-                Color ringColor = Color.Lerp(FateDarkPink, FatePurple, i / 6f);
+                Color ringColor = Color.Lerp(FatePalette.DarkPink, FatePalette.FatePurple, i / 6f);
                 CustomParticles.HaloRing(position, ringColor, (0.3f + i * 0.15f) * scale, 15 + i * 3);
             }
             
             // Glyph burst
-            CustomParticles.GlyphBurst(position, FatePurple, 8, 6f * scale);
+            CustomParticles.GlyphBurst(position, FatePalette.FatePurple, 8, 6f * scale);
             
             // Radial particles
             for (int i = 0; i < 16; i++)
             {
                 float angle = MathHelper.TwoPi * i / 16f;
                 Vector2 vel = angle.ToRotationVector2() * (8f * scale);
-                Color particleColor = Color.Lerp(FateDarkPink, FateBrightRed, Main.rand.NextFloat());
+                Color particleColor = Color.Lerp(FatePalette.DarkPink, FatePalette.BrightCrimson, Main.rand.NextFloat());
                 
                 var particle = new GenericGlowParticle(position, vel, particleColor, 0.4f * scale, 25, true);
                 MagnumParticleHandler.SpawnParticle(particle);
@@ -1038,7 +1033,7 @@ namespace MagnumOpus.Content.Fate.Enemies
             for (int i = 0; i < 12; i++)
             {
                 Vector2 sparklePos = position + Main.rand.NextVector2Circular(40f * scale, 40f * scale);
-                CustomParticles.GenericFlare(sparklePos, FateWhite, 0.3f * scale, 15);
+                CustomParticles.GenericFlare(sparklePos, FatePalette.WhiteCelestial, 0.3f * scale, 15);
             }
         }
 
@@ -1049,13 +1044,13 @@ namespace MagnumOpus.Content.Fate.Enemies
             {
                 float spread = MathHelper.ToRadians(30f);
                 Vector2 vel = direction.RotatedBy(Main.rand.NextFloat(-spread, spread)) * Main.rand.NextFloat(4f, 10f);
-                Color slashColor = Color.Lerp(FateDarkPink, FateBrightRed, Main.rand.NextFloat());
+                Color slashColor = Color.Lerp(FatePalette.DarkPink, FatePalette.BrightCrimson, Main.rand.NextFloat());
                 
                 var particle = new GenericGlowParticle(position, vel, slashColor, 0.35f, 18, true);
                 MagnumParticleHandler.SpawnParticle(particle);
             }
             
-            CustomParticles.GenericFlare(position, FateWhite, 0.6f, 12);
+            CustomParticles.GenericFlare(position, FatePalette.WhiteCelestial, 0.6f, 12);
         }
 
         #endregion
@@ -1102,7 +1097,7 @@ namespace MagnumOpus.Content.Fate.Enemies
             // Message
             if (Main.netMode != NetmodeID.MultiplayerClient)
             {
-                Main.NewText("The Herald of Fate has been vanquished.", FateDarkPink);
+                Main.NewText("The Herald of Fate has been vanquished.", FatePalette.DarkPink);
             }
         }
 
@@ -1145,7 +1140,7 @@ namespace MagnumOpus.Content.Fate.Enemies
             for (int i = 0; i < NPC.oldPos.Length; i++)
             {
                 float progress = (float)i / NPC.oldPos.Length;
-                Color trailColor = Color.Lerp(FateDarkPink, FatePurple, progress) * (1f - progress) * 0.4f;
+                Color trailColor = Color.Lerp(FatePalette.DarkPink, FatePalette.FatePurple, progress) * (1f - progress) * 0.4f;
                 Vector2 trailPos = NPC.oldPos[i] + NPC.Size / 2f - screenPos;
                 spriteBatch.Draw(texture, trailPos, frame, trailColor, NPC.rotation, origin, NPC.scale * (1f - progress * 0.2f), effects, 0f);
             }
@@ -1156,7 +1151,7 @@ namespace MagnumOpus.Content.Fate.Enemies
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             float pulse = 0.9f + (float)Math.Sin(auraPulse * 2f) * 0.1f;
-            Color glowColor = isEnraged ? FateBrightRed : FateDarkPink;
+            Color glowColor = isEnraged ? FatePalette.BrightCrimson : FatePalette.DarkPink;
             spriteBatch.Draw(texture, drawPos, frame, glowColor * 0.3f * cosmicGlow, NPC.rotation, origin, NPC.scale * 1.1f * pulse, effects, 0f);
             
             spriteBatch.End();

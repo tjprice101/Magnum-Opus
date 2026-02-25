@@ -222,6 +222,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         private float[] tipRotations = new float[TrailLength];
         private int trailIndex = 0;
         private int shardSpawnCount = 0;
+        private bool flareBeamSpawned = false;
 
         // Persistent smear particle that follows the blade (Calamity-style)
         private Particle swingSmear;
@@ -313,6 +314,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             Projectile.timeLeft = SwingTime;
 
             shardSpawnCount = 0;
+            flareBeamSpawned = false;
             SoundEngine.PlaySound(SoundID.Item1 with { Pitch = 0.2f, Volume = 0.8f }, Owner.Center);
         }
 
@@ -425,6 +427,21 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                             ai0: shardSpawnCount);
                     }
                     shardSpawnCount++;
+                }
+
+                // Spawn a stretched-flare "smudge beam" at peak swing velocity
+                if (!flareBeamSpawned && Progression >= 0.60f)
+                {
+                    flareBeamSpawned = true;
+                    if (Main.myPlayer == Projectile.owner)
+                    {
+                        Vector2 tipPos = Owner.MountedCenter + SwordDirection * BladeLength;
+                        Vector2 toMouse = (Main.MouseWorld - tipPos).SafeNormalize(Vector2.UnitX);
+                        Vector2 beamVel = toMouse * 22f;
+                        Projectile.NewProjectile(Projectile.GetSource_FromThis(), tipPos, beamVel,
+                            ModContent.ProjectileType<SandboxTerraBladeFlareBeam>(),
+                            (int)(Projectile.damage * 0.6f), Projectile.knockBack * 0.5f, Projectile.owner);
+                    }
                 }
             }
         }

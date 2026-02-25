@@ -9,6 +9,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.Graphics.Effects;
+using MagnumOpus.Content.OdeToJoy;
 using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 using MagnumOpus.Content.OdeToJoy.Projectiles;
 using MagnumOpus.Common.Systems;
@@ -41,13 +42,13 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
         // Phase 1 sprite - Chromatic Rose Conductor
         public override string Texture => "MagnumOpus/Content/OdeToJoy/Bosses/OdeToJoyChromaticRoseConductor";
         
-        #region Theme Colors - Ode to Joy Palette
-        private static readonly Color RosePink = new Color(255, 182, 193);       // Rose pink
-        private static readonly Color PetalPink = new Color(255, 105, 180);      // Hot pink
-        private static readonly Color GoldenPollen = new Color(255, 215, 0);     // Golden yellow
-        private static readonly Color WhiteBloom = new Color(255, 255, 255);     // Pure white
-        private static readonly Color LeafGreen = new Color(144, 238, 144);      // Light green
-        private static readonly Color ChromaticShift = new Color(255, 200, 220); // Chromatic accent
+        #region Theme Colors - Ode to Joy Palette (centralized via OdeToJoyPalette)
+        private static readonly Color RosePink = OdeToJoyPalette.RosePink;
+        private static readonly Color PetalPink = OdeToJoyPalette.PetalPink;
+        private static readonly Color GoldenPollen = OdeToJoyPalette.GoldenPollen;
+        private static readonly Color WhiteBloom = OdeToJoyPalette.WhiteBloom;
+        private static readonly Color LeafGreen = OdeToJoyPalette.LeafGreen;
+        private static readonly Color ChromaticShift = new Color(255, 200, 220); // Chromatic accent (no palette equivalent)
         #endregion
         
         #region Constants
@@ -227,14 +228,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
         #region Color Helpers
         private Color GetOdeToJoyGradient(float progress)
         {
-            if (progress < 0.25f)
-                return Color.Lerp(WhiteBloom, RosePink, progress * 4f);
-            else if (progress < 0.5f)
-                return Color.Lerp(RosePink, PetalPink, (progress - 0.25f) * 4f);
-            else if (progress < 0.75f)
-                return Color.Lerp(PetalPink, GoldenPollen, (progress - 0.5f) * 4f);
-            else
-                return Color.Lerp(GoldenPollen, LeafGreen, (progress - 0.75f) * 4f);
+            return OdeToJoyPalette.GetGardenGradient(progress);
         }
         
         private float GetAggressionSpeedMult() => 1f + aggressionLevel * 0.25f;
@@ -340,7 +334,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             MagnumScreenEffects.AddScreenShake(12f);
             
             // VFX burst
-            OdeToJoyVFX.ChromaticRosePetalBurst(NPC.Center, 24, 12f, 2f, true);
+            OdeToJoyVFXLibrary.SpawnRosePetals(NPC.Center, 24, 12f * 2f);
         }
         
         private void UpdatePhaseTransition()
@@ -383,7 +377,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 {
                     // Pulse effect
                     MagnumScreenEffects.AddScreenShake(8f);
-                    OdeToJoyVFX.OdeToJoySignatureExplosion(NPC.Center, 1.5f);
+                    OdeToJoyVFXLibrary.GardenImpact(NPC.Center, 1.5f);
                 }
                 
                 // Brief fade
@@ -447,7 +441,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 // Rose buds blooming everywhere
                 if (Timer % 6 == 0)
                 {
-                    OdeToJoyVFX.RoseBudExplosion(NPC.Center + Main.rand.NextVector2Circular(100f, 100f), 4, 5f, 0.6f);
+                    OdeToJoyVFXLibrary.BlossomImpact(NPC.Center + Main.rand.NextVector2Circular(100f, 100f), 0.6f);
                 }
             }
             // Power surge (60-90 frames)
@@ -456,7 +450,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 if (Timer == 61)
                 {
                     // MASSIVE chromatic explosion
-                    OdeToJoyVFX.ChromaticRosePetalBurst(NPC.Center, 32, 14f, 2.5f, true);
+                    OdeToJoyVFXLibrary.SpawnRosePetals(NPC.Center, 32, 14f * 2.5f);
                     MagnumScreenEffects.AddScreenShake(15f);
                 }
                 
@@ -557,13 +551,13 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             Vector2 teleportPos = target.Center + Main.rand.NextVector2CircularEdge(300f, 300f);
             
             // Departure VFX
-            OdeToJoyVFX.ChromaticRosePetalBurst(NPC.Center, 16, 8f, 1f, true);
-            
+            OdeToJoyVFXLibrary.SpawnRosePetals(NPC.Center, 16, 8f);
+
             NPC.Center = teleportPos;
             NPC.velocity = Vector2.Zero;
             
             // Arrival VFX
-            OdeToJoyVFX.ChromaticRosePetalBurst(NPC.Center, 16, 8f, 1f, true);
+            OdeToJoyVFXLibrary.SpawnRosePetals(NPC.Center, 16, 8f);
         }
         
         #endregion
@@ -579,7 +573,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 // Spawn VFX
                 if (Timer % 5 == 0)
                 {
-                    OdeToJoyVFX.RoseBudExplosion(NPC.Center + Main.rand.NextVector2Circular(80f, 80f), 3, 4f, 0.5f);
+                    OdeToJoyVFXLibrary.BlossomImpact(NPC.Center + Main.rand.NextVector2Circular(80f, 80f), 0.5f);
                 }
             }
             else
@@ -837,7 +831,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 if (Timer == 1)
                 {
                     MagnumScreenEffects.AddScreenShake(6f);
-                    OdeToJoyVFX.ChromaticRosePetalBurst(NPC.Center, 18, 10f, 1.2f, true);
+                    OdeToJoyVFXLibrary.SpawnRosePetals(NPC.Center, 18, 10f * 1.2f);
                     
                     // TODO: Spawn petal projectiles in arc
                     if (Main.netMode != NetmodeID.MultiplayerClient)
@@ -900,7 +894,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             {
                 if (Timer == 1)
                 {
-                    OdeToJoyVFX.RoseBudExplosion(NPC.Center, 8, 8f, 1f);
+                    OdeToJoyVFXLibrary.BlossomImpact(NPC.Center, 1f);
                     
                     // TODO: Spawn rose bud projectiles
                 }
@@ -961,7 +955,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 if (Timer == 1)
                 {
                     MagnumScreenEffects.AddScreenShake(8f);
-                    OdeToJoyVFX.ChromaticRosePetalBurst(NPC.Center, 22, 12f, 1.5f, true);
+                    OdeToJoyVFXLibrary.SpawnRosePetals(NPC.Center, 22, 12f * 1.5f);
                     
                     // TODO: Spawn chromatic petal wave
                 }
@@ -1040,7 +1034,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 if (Timer == 1)
                 {
                     MagnumScreenEffects.AddScreenShake(12f);
-                    OdeToJoyVFX.OdeToJoySignatureExplosion(NPC.Center, 1.8f);
+                    OdeToJoyVFXLibrary.TriumphantCelebration(NPC.Center, 1.8f);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
@@ -1119,7 +1113,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                     for (int i = 0; i < 4; i++)
                     {
                         Vector2 rosePos = NPC.Center + Main.rand.NextVector2Circular(150f, 150f);
-                        OdeToJoyVFX.RoseBudExplosion(rosePos, 3, 4f, 0.5f);
+                        OdeToJoyVFXLibrary.BlossomImpact(rosePos, 0.5f);
                     }
                 }
                 
@@ -1141,7 +1135,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 {
                     // MASSIVE EXPLOSION
                     MagnumScreenEffects.AddScreenShake(20f);
-                    OdeToJoyVFX.DeathExplosion(NPC.Center, 2f);
+                    OdeToJoyVFXLibrary.TriumphantCelebration(NPC.Center, 2f);
                     
                     // TODO: Spawn massive projectile storm
                 }
@@ -1223,7 +1217,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 // Rose buds blooming in finale
                 if (deathTimer % 8 == 0)
                 {
-                    OdeToJoyVFX.RoseBudExplosion(NPC.Center + Main.rand.NextVector2Circular(80f, 80f), 4, 5f, 0.6f);
+                    OdeToJoyVFXLibrary.BlossomImpact(NPC.Center + Main.rand.NextVector2Circular(80f, 80f), 0.6f);
                 }
                 
                 MagnumScreenEffects.AddScreenShake(intensity * 4f);
@@ -1232,7 +1226,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             else if (deathTimer == 140)
             {
                 // FINAL EXPLOSION
-                OdeToJoyVFX.DeathExplosion(NPC.Center, 2.5f);
+                OdeToJoyVFXLibrary.DeathGardenFlash(NPC.Center, 2.5f);
                 MagnumScreenEffects.AddScreenShake(25f);
                 
                 // === PHASE 10 MUSICAL VFX: Death Finale - The Garden's Final Song ===

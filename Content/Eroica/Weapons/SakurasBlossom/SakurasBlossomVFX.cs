@@ -10,6 +10,7 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Screen;
 using MagnumOpus.Common.Systems.VFX.Trails;
+using static MagnumOpus.Common.Systems.VFX.GodRaySystem;
 
 namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
 {

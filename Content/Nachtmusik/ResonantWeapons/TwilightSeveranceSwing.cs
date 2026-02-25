@@ -26,11 +26,11 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
     {
         #region Theme Colors
 
-        private static readonly Color DuskViolet = NachtmusikCosmicVFX.DuskViolet;
-        private static readonly Color StarGold = NachtmusikCosmicVFX.StarGold;
-        private static readonly Color DeepPurple = NachtmusikCosmicVFX.DeepPurple;
-        private static readonly Color StarWhite = NachtmusikCosmicVFX.StarWhite;
-        private static readonly Color Violet = NachtmusikCosmicVFX.Violet;
+        private static readonly Color DuskViolet = NachtmusikPalette.DuskViolet;
+        private static readonly Color StarGold = NachtmusikPalette.StarGold;
+        private static readonly Color DeepPurple = NachtmusikPalette.CosmicPurple;
+        private static readonly Color StarWhite = NachtmusikPalette.StarWhite;
+        private static readonly Color Violet = NachtmusikPalette.Violet;
 
         private static readonly Color[] TwilightPalette = new Color[]
         {
@@ -152,7 +152,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 hasSpawnedSpecial = true;
                 Vector2 tip = GetBladeTipPosition();
                 CustomParticles.GenericFlare(tip, DuskViolet, 0.4f, 10);
-                NachtmusikCosmicVFX.SpawnMusicNoteBurst(tip, 2, 12f);
+                NachtmusikVFXLibrary.SpawnMusicNotes(tip, 2, 12f, 0.7f, 0.9f, 25);
             }
 
             // Phase 1: Perpendicular slash pair at 50% — signature rapid strikes
@@ -179,7 +179,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 CustomParticles.GenericFlare(vfxTip, StarWhite, 0.6f, 14);
                 CustomParticles.GenericFlare(vfxTip, DuskViolet, 0.45f, 12);
                 CustomParticles.HaloRing(vfxTip, Violet, 0.35f, 11);
-                NachtmusikCosmicVFX.SpawnMusicNoteBurst(vfxTip, 3, 20f);
+                NachtmusikVFXLibrary.SpawnMusicNotes(vfxTip, 3, 20f, 0.7f, 0.9f, 25);
             }
 
             // Phase 2: Dawn Severance finale at 55% — slash fan + seeking crystals
@@ -206,15 +206,15 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 }
 
                 Vector2 vfxTip = GetBladeTipPosition();
-                NachtmusikCosmicVFX.SpawnCelestialImpact(vfxTip, 1.0f);
-                NachtmusikCosmicVFX.SpawnStarBurstImpact(vfxTip, 0.8f, 3);
+                TwilightSeveranceVFX.SwingImpactVFX(vfxTip, ComboStep);
+                NachtmusikVFXLibrary.SpawnStarBurst(vfxTip, 3, 0.8f);
                 for (int i = 0; i < 4; i++)
                 {
                     float p = i / 4f;
                     Color rc = Color.Lerp(DuskViolet, StarGold, p);
                     CustomParticles.HaloRing(vfxTip, rc, 0.3f + i * 0.08f, 11 + i * 2);
                 }
-                NachtmusikCosmicVFX.SpawnMusicNoteBurst(vfxTip, 5, 30f);
+                NachtmusikVFXLibrary.SpawnMusicNotes(vfxTip, 5, 30f, 0.7f, 0.9f, 25);
 
                 MagnumScreenEffects.AddScreenShake(5f);
             }
@@ -241,7 +241,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             }
 
             float impactScale = 0.6f + ComboStep * 0.15f;
-            NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, impactScale);
+            TwilightSeveranceVFX.SwingImpactVFX(target.Center, ComboStep);
 
             int dustCount = 5 + ComboStep * 2;
             for (int i = 0; i < dustCount; i++)
@@ -255,10 +255,10 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 d.noGravity = true;
             }
 
-            NachtmusikCosmicVFX.SpawnMusicNoteBurst(target.Center, 2 + ComboStep, 20f);
+            NachtmusikVFXLibrary.SpawnMusicNotes(target.Center, 2 + ComboStep, 20f, 0.7f, 0.9f, 25);
 
             if (hit.Crit)
-                NachtmusikCosmicVFX.SpawnStarBurstImpact(target.Center, 0.6f, 2);
+                NachtmusikVFXLibrary.SpawnStarBurst(target.Center, 2, 0.6f);
 
             Lighting.AddLight(target.Center, DuskViolet.ToVector3() * 0.6f);
         }
@@ -329,8 +329,8 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             {
                 BloomRenderer.DrawBloomStackAdditive(
                     tipPos,
-                    NachtmusikCosmicVFX.DuskViolet,
-                    NachtmusikCosmicVFX.StarGold,
+                    NachtmusikPalette.DuskViolet,
+                    NachtmusikPalette.StarGold,
                     scale: 0.45f + ComboStep * 0.08f,
                     opacity: bloomOpacity);
             }

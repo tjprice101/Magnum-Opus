@@ -53,6 +53,11 @@ namespace MagnumOpus.Common.Systems.Shaders
         public const string SakuraBloomShader = "SakuraBloom";
         public const string EroicaFuneralTrailShader = "EroicaFuneralTrail";
         public const string TriumphantFractalShaderName = "TriumphantFractalShader";
+        public const string EnigmaVoidTrailShader = "EnigmaVoidTrail";
+        public const string EnigmaFlameShader = "EnigmaFlame";
+        public const string NachtmusikStarTrailShader = "NachtmusikStarTrail";
+        public const string NachtmusikSerenadeShader = "NachtmusikSerenade";
+        public const string TerraBladeFlareBeamShaderName = "TerraBladeFlareBeamShader";
 
         // Noise texture names (without extension) - in Assets/VFX/Noise/
         private static readonly string[] NoiseTextureNames = new[]
@@ -181,6 +186,9 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(SakuraBloomShader);
                 LoadShader(EroicaFuneralTrailShader);
                 LoadShader(TriumphantFractalShaderName);
+                LoadShader(NachtmusikStarTrailShader);
+                LoadShader(NachtmusikSerenadeShader);
+                LoadShader(TerraBladeFlareBeamShaderName);
 
                 _shadersEnabled = _shaders.Count > 0;
 
@@ -349,6 +357,21 @@ namespace MagnumOpus.Common.Systems.Shaders
 
         /// <summary>Gets the Triumphant Fractal shader for geometric hexagonal pattern trails if available.</summary>
         public static Effect TriumphantFractal => GetShader(TriumphantFractalShaderName);
+
+        /// <summary>Gets the Enigma Void Trail shader for swirling void trails with purple-green distortion if available.</summary>
+        public static Effect EnigmaVoidTrail => GetShader(EnigmaVoidTrailShader);
+
+        /// <summary>Gets the Enigma Flame shader for eerie green flame effects with flickering motion if available.</summary>
+        public static Effect EnigmaFlame => GetShader(EnigmaFlameShader);
+
+        /// <summary>Gets the Nachtmusik Star Trail shader for twinkling star trails with playful nocturnal sparkle if available.</summary>
+        public static Effect NachtmusikStarTrail => GetShader(NachtmusikStarTrailShader);
+
+        /// <summary>Gets the Nachtmusik Serenade shader for soft starlit bloom with twinkling point-light sparkles if available.</summary>
+        public static Effect NachtmusikSerenade => GetShader(NachtmusikSerenadeShader);
+
+        /// <summary>Gets the Terra Blade Flare Beam shader for wave-distorted motion-blur energy beams if available.</summary>
+        public static Effect TerraBladeFlareBeam => GetShader(TerraBladeFlareBeamShaderName);
 
         // =====================================================================
         //  Texture Accessors

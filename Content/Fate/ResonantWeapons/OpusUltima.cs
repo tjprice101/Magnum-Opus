@@ -47,7 +47,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             tooltips.Add(new TooltipLine(Mod, "FateSpecial", "On enemy hit, explodes into 5 homing seeker balls"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The ultimate composition, the magnum opus of destruction'")
             {
-                OverrideColor = FateCosmicVFX.FateBrightRed
+                OverrideColor = FatePalette.BrightCrimson
             });
         }
         
@@ -61,8 +61,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             player.GetModPlayer<FateWeaponEffectPlayer>()?.OnFateWeaponAttack(player.Center);
             
             // Cosmic spawn VFX
-            FateCosmicVFX.SpawnCosmicExplosion(spawnPos, 0.6f);
-            FateCosmicVFX.SpawnGlyphBurst(spawnPos, 3, 4f, 0.3f);
+            FateVFXLibrary.ProjectileImpact(spawnPos, 0.6f);
+            FateVFXLibrary.SpawnGlyphBurst(spawnPos, 3, 4f);
             
             SoundEngine.PlaySound(SoundID.Item117 with { Pitch = 0.3f, Volume = 0.9f }, player.Center);
             
@@ -71,81 +71,25 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         
         public override void HoldItem(Player player)
         {
-            // === CELESTIAL COSMIC HOLD EFFECT ===
-            // Orbiting energy spheres
-            if (Main.rand.NextBool(10))
-            {
-                float angle = Main.GameUpdateCount * 0.035f;
-                for (int i = 0; i < 2; i++)
-                {
-                    float orbitAngle = angle + MathHelper.Pi * i;
-                    Vector2 orbitPos = player.Center + orbitAngle.ToRotationVector2() * 40f;
-                    var orb = new GenericGlowParticle(orbitPos, Vector2.Zero, FateCosmicVFX.GetCosmicGradient((float)i / 2f), 0.3f, 12, true);
-                    MagnumParticleHandler.SpawnParticle(orb);
-                }
-            }
-            
-            // Star particle aura
-            if (Main.rand.NextBool(7))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(38f, 38f);
-                var star = new GenericGlowParticle(player.Center + offset, Main.rand.NextVector2Circular(0.4f, 0.4f), 
-                    FateCosmicVFX.FateWhite, 0.2f, 16, true);
-                MagnumParticleHandler.SpawnParticle(star);
-            }
-            
-            // Occasional glyph
-            if (Main.rand.NextBool(15))
-            {
-                CustomParticles.Glyph(player.Center + Main.rand.NextVector2Circular(30f, 30f), FateCosmicVFX.FatePurple, 0.3f, -1);
-            }
-            
-            // Ambient light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.055f) * 0.12f + 0.88f;
-            Lighting.AddLight(player.Center, FateCosmicVFX.FateDarkPink.ToVector3() * pulse * 0.35f);
+            OpusUltimaVFX.HoldItemVFX(player);
         }
-        
+
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
-            Vector2 swingPos = hitbox.Center.ToVector2();
-            
             // === SPECTACULAR SWING SYSTEM - ENDGAME TIER (7-8 arcs + cosmic clouds + glyphs) ===
-            SpectacularMeleeSwing.OnSwing(player, hitbox, FateCosmicVFX.FateDarkPink, FateCosmicVFX.FateBrightRed, 
+            SpectacularMeleeSwing.OnSwing(player, hitbox, FatePalette.DarkPink, FatePalette.BrightCrimson,
                 SpectacularMeleeSwing.SwingTier.Endgame, SpectacularMeleeSwing.WeaponTheme.Fate);
-            
-            // Cosmic sparks from swing
-            if (Main.rand.NextBool(2))
-            {
-                Color sparkColor = FateCosmicVFX.GetCosmicGradient(Main.rand.NextFloat());
-                Vector2 sparkVel = new Vector2(player.direction * 3f, Main.rand.NextFloat(-2f, 2f));
-                var spark = new GlowSparkParticle(swingPos + Main.rand.NextVector2Circular(15f, 15f), sparkVel, sparkColor, 0.22f, 12);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            // Star particles in swing
-            if (Main.rand.NextBool(4))
-            {
-                Vector2 starOffset = Main.rand.NextVector2Circular(20f, 20f);
-                var star = new GenericGlowParticle(swingPos + starOffset, -player.velocity * 0.1f, 
-                    FateCosmicVFX.FateWhite, 0.2f, 14, true);
-                MagnumParticleHandler.SpawnParticle(star);
-            }
-            
-            // Glyphs trailing the swing
-            if (Main.rand.NextBool(6))
-            {
-                CustomParticles.GlyphTrail(swingPos, -player.velocity * 0.15f, FateCosmicVFX.FatePurple, 0.28f);
-            }
+
+            OpusUltimaVFX.SwingVFX(hitbox.Center.ToVector2(), player);
         }
-        
+
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 240);
-            
-            // Impact VFX with glyphs and stars
-            FateCosmicVFX.SpawnCosmicExplosion(target.Center, 0.8f);
-            FateCosmicVFX.SpawnGlyphBurst(target.Center, 4, 5f, 0.35f);
-            
+
+            // Impact VFX
+            OpusUltimaVFX.ImpactVFX(target.Center);
+
             // === SPAWN SEEKING CRYSTALS - THE MAIN DAMAGE SOURCE ===
             // On hit, release 3-5 homing crystal projectiles that seek nearby enemies
             Vector2 crystalDir = (target.Center - player.Center).SafeNormalize(Vector2.UnitX);
@@ -159,17 +103,6 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
                 player.whoAmI,
                 crystalCount
             );
-            
-            // Star particles
-            for (int i = 0; i < 6; i++)
-            {
-                Vector2 starOffset = Main.rand.NextVector2Circular(30f, 30f);
-                var star = new GenericGlowParticle(target.Center + starOffset, Main.rand.NextVector2Circular(2f, 2f), 
-                    FateCosmicVFX.FateWhite, 0.25f, 18, true);
-                MagnumParticleHandler.SpawnParticle(star);
-            }
-            
-            Lighting.AddLight(target.Center, FateCosmicVFX.FateBrightRed.ToVector3() * 1.2f);
         }
     }
 }

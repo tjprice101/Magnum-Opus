@@ -14,7 +14,6 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Nachtmusik;
 using MagnumOpus.Content.Nachtmusik.Projectiles;
 using MagnumOpus.Content.Nachtmusik.Debuffs;
-using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 {
@@ -85,8 +84,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                         dmg, Item.knockBack, player.whoAmI);
                 }
 
-                NachtmusikCosmicVFX.SpawnCelestialExplosion(player.Center, 1.5f);
-                NachtmusikCosmicVFX.SpawnMusicNoteBurst(player.Center, 5, 4f);
+                NocturnalExecutionerVFX.FinisherVFX(player.Center, 1.5f);
                 MagnumScreenEffects.AddScreenShake(10f);
             }
         }
@@ -94,6 +92,8 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         public override void HoldItem(Player player)
         {
             base.HoldItem(player);
+
+            NocturnalExecutionerVFX.HoldItemVFX(player);
 
             if (executionCharge >= 50 && Main.rand.NextBool(4))
             {
@@ -104,21 +104,11 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                     float a = angle + MathHelper.TwoPi * i / 3f;
                     Vector2 orbitPos = player.Center + a.ToRotationVector2() * radius;
                     float chargeProgress = executionCharge / 100f;
-                    Color orbitColor = Color.Lerp(NachtmusikCosmicVFX.DeepPurple, NachtmusikCosmicVFX.Gold, chargeProgress);
+                    Color orbitColor = Color.Lerp(NachtmusikPalette.CosmicPurple, NachtmusikPalette.RadianceGold, chargeProgress);
                     Dust d = Dust.NewDustPerfect(orbitPos, DustID.PurpleTorch, Vector2.Zero, 0, orbitColor, 0.8f);
                     d.noGravity = true;
                 }
             }
-
-            if (Main.rand.NextBool(8))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
-                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.Enchanted_Gold,
-                    Vector2.Zero, 0, NachtmusikCosmicVFX.Gold, 0.6f);
-                d.noGravity = true;
-            }
-
-            Lighting.AddLight(player.Center, NachtmusikCosmicVFX.DeepPurple.ToVector3() * 0.4f);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
@@ -126,13 +116,13 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             Texture2D tex = TextureAssets.Item[Item.type].Value;
             Vector2 pos = Item.Center - Main.screenPosition;
             Vector2 origin = tex.Size() * 0.5f;
-            Color glow = NachtmusikCosmicVFX.DeepPurple with { A = 0 } * 0.4f;
+            Color glow = NachtmusikPalette.CosmicPurple with { A = 0 } * 0.4f;
 
             spriteBatch.Draw(tex, pos, null, glow, rotation, origin, scale * 1.15f, SpriteEffects.None, 0f);
             return true;
         }
 
-        protected override Color GetLoreColor() => NachtmusikCosmicVFX.Gold;
+        protected override Color GetLoreColor() => NachtmusikPalette.RadianceGold;
 
         protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
         {
@@ -142,7 +132,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Right-click at 50+ charge: Spectral blade fan (2.5x damage)"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "Inflicts Celestial Harmony on all strikes"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The stars themselves bow to the executioner's decree'")
-            { OverrideColor = NachtmusikCosmicVFX.Gold });
+            { OverrideColor = NachtmusikPalette.RadianceGold });
         }
     }
 
@@ -202,7 +192,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                     ModContent.ProjectileType<CrescendoWaveProjectile>(),
                     dmg, Item.knockBack * 0.5f, player.whoAmI);
 
-                NachtmusikCosmicVFX.SpawnCelestialExplosion(player.Center, 0.8f + crescendoStacks * 0.05f);
+                MidnightsCrescendoVFX.FinisherVFX(player.Center, 0.8f + crescendoStacks * 0.05f);
             }
         }
 
@@ -226,6 +216,8 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             if (player.ItemAnimationActive)
                 decayTimer = DecayTime;
 
+            MidnightsCrescendoVFX.HoldItemVFX(player);
+
             if (crescendoStacks >= 10 && Main.rand.NextBool(3))
             {
                 float intensity = crescendoStacks / (float)MaxStacks;
@@ -235,21 +227,11 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 {
                     float a = angle + MathHelper.Pi * i;
                     Vector2 pos = player.Center + a.ToRotationVector2() * radius;
-                    Color c = Color.Lerp(NachtmusikCosmicVFX.Violet, NachtmusikCosmicVFX.Gold, intensity);
+                    Color c = Color.Lerp(NachtmusikPalette.Violet, NachtmusikPalette.RadianceGold, intensity);
                     Dust d = Dust.NewDustPerfect(pos, DustID.PurpleTorch, Vector2.Zero, 0, c, 0.7f * intensity);
                     d.noGravity = true;
                 }
             }
-
-            if (Main.rand.NextBool(10))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
-                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.Enchanted_Gold,
-                    Vector2.Zero, 0, NachtmusikCosmicVFX.Violet, 0.5f);
-                d.noGravity = true;
-            }
-
-            Lighting.AddLight(player.Center, NachtmusikCosmicVFX.Violet.ToVector3() * 0.3f);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
@@ -257,13 +239,13 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             Texture2D tex = TextureAssets.Item[Item.type].Value;
             Vector2 pos = Item.Center - Main.screenPosition;
             Vector2 origin = tex.Size() * 0.5f;
-            Color glow = NachtmusikCosmicVFX.Violet with { A = 0 } * 0.35f;
+            Color glow = NachtmusikPalette.Violet with { A = 0 } * 0.35f;
 
             spriteBatch.Draw(tex, pos, null, glow, rotation, origin, scale * 1.12f, SpriteEffects.None, 0f);
             return true;
         }
 
-        protected override Color GetLoreColor() => NachtmusikCosmicVFX.Violet;
+        protected override Color GetLoreColor() => NachtmusikPalette.Violet;
 
         protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
         {
@@ -275,7 +257,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             tooltips.Add(new TooltipLine(Mod, "Effect4", "At 8+ stacks, swings release crescendo waves"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "Inflicts Celestial Harmony on all strikes"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Each note builds upon the last, until the night itself sings'")
-            { OverrideColor = NachtmusikCosmicVFX.Violet });
+            { OverrideColor = NachtmusikPalette.Violet });
         }
     }
 
@@ -352,9 +334,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                         dmg, Item.knockBack * 1.5f, player.whoAmI);
                 }
 
-                NachtmusikCosmicVFX.SpawnCelestialExplosion(player.Center, 1.8f);
-                NachtmusikCosmicVFX.SpawnGlyphBurst(player.Center, 8, 5f);
-                NachtmusikCosmicVFX.SpawnMusicNoteBurst(player.Center, 6, 5f);
+                TwilightSeveranceVFX.FinisherVFX(player.Center, 1.8f);
                 MagnumScreenEffects.AddScreenShake(10f);
             }
             else
@@ -377,7 +357,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                         ModContent.ProjectileType<TwilightSlashProjectile>(),
                         dmg, Item.knockBack * 0.5f, player.whoAmI);
 
-                    NachtmusikCosmicVFX.SpawnCelestialImpact(player.Center, 0.6f);
+                    TwilightSeveranceVFX.SwingImpactVFX(player.Center, 0);
                 }
 
                 twilightCharge = Math.Min(twilightCharge + 5, MaxTwilightCharge);
@@ -391,6 +371,8 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             if (!player.ItemAnimationActive && twilightCharge > 0)
                 twilightCharge = Math.Max(0, twilightCharge - 1);
 
+            TwilightSeveranceVFX.HoldItemVFX(player);
+
             if (twilightCharge >= MaxTwilightCharge && Main.rand.NextBool(3))
             {
                 float angle = Main.GameUpdateCount * 0.08f;
@@ -398,20 +380,10 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 {
                     float a = angle + MathHelper.Pi * i;
                     Vector2 pos = player.Center + a.ToRotationVector2() * 28f;
-                    Dust d = Dust.NewDustPerfect(pos, DustID.PurpleTorch, Vector2.Zero, 0, NachtmusikCosmicVFX.DuskViolet, 1f);
+                    Dust d = Dust.NewDustPerfect(pos, DustID.PurpleTorch, Vector2.Zero, 0, NachtmusikPalette.DuskViolet, 1f);
                     d.noGravity = true;
                 }
             }
-
-            if (Main.rand.NextBool(8))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
-                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.Enchanted_Gold,
-                    Vector2.Zero, 0, NachtmusikCosmicVFX.StarGold, 0.5f);
-                d.noGravity = true;
-            }
-
-            Lighting.AddLight(player.Center, NachtmusikCosmicVFX.DuskViolet.ToVector3() * 0.35f);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
@@ -419,13 +391,13 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             Texture2D tex = TextureAssets.Item[Item.type].Value;
             Vector2 pos = Item.Center - Main.screenPosition;
             Vector2 origin = tex.Size() * 0.5f;
-            Color glow = NachtmusikCosmicVFX.DuskViolet with { A = 0 } * 0.4f;
+            Color glow = NachtmusikPalette.DuskViolet with { A = 0 } * 0.4f;
 
             spriteBatch.Draw(tex, pos, null, glow, rotation, origin, scale * 1.1f, SpriteEffects.None, 0f);
             return true;
         }
 
-        protected override Color GetLoreColor() => NachtmusikCosmicVFX.Gold;
+        protected override Color GetLoreColor() => NachtmusikPalette.RadianceGold;
 
         protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
         {
@@ -437,7 +409,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             tooltips.Add(new TooltipLine(Mod, "Effect5", "Right-click at full charge: Dimension Sever (3x damage fan)"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "Inflicts Celestial Harmony on all strikes"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Between dusk and dawn lies the blade that severs all'")
-            { OverrideColor = NachtmusikCosmicVFX.Gold });
+            { OverrideColor = NachtmusikPalette.RadianceGold });
         }
     }
 }

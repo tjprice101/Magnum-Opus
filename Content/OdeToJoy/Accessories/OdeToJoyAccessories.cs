@@ -10,6 +10,7 @@ using MagnumOpus.Content.OdeToJoy.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Content.OdeToJoy.Projectiles;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Content.OdeToJoy;
 
 namespace MagnumOpus.Content.OdeToJoy.Accessories
 {
@@ -38,7 +39,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
             tooltips.Add(new TooltipLine(Mod, "Effect5", "Every 10th magic hit creates a joyous bloom explosion"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The final flourish of nature's triumphant symphony'") 
             { 
-                OverrideColor = OdeToJoyColors.VerdantGreen 
+                OverrideColor = OdeToJoyPalette.VerdantGreen 
             });
         }
 
@@ -87,7 +88,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                 // Enhanced chromatic petal VFX
                 if (Main.rand.NextBool(3))
                 {
-                    OdeToJoyVFX.ChromaticRosePetalBurst(target.Center, 6, 4f, 0.45f, false);
+                    OdeToJoyVFXLibrary.SpawnRosePetals(target.Center, 6, 1.8f);
                 }
                 
                 // Every 10th hit: joyous bloom explosion with full signature effect
@@ -95,7 +96,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                 if (magicHitCounter >= 10)
                 {
                     magicHitCounter = 0;
-                    OdeToJoyVFX.OdeToJoySignatureExplosion(target.Center, 0.9f);
+                    OdeToJoyVFXLibrary.GardenImpact(target.Center, 0.9f);
                     
                     // Deal bonus damage in area
                     for (int i = 0; i < Main.maxNPCs; i++)
@@ -136,7 +137,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
             tooltips.Add(new TooltipLine(Mod, "Effect5", "+25% whip speed and range"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The endless melody of nature's eternal chorus'") 
             { 
-                OverrideColor = OdeToJoyColors.VerdantGreen 
+                OverrideColor = OdeToJoyPalette.VerdantGreen 
             });
         }
 
@@ -188,14 +189,14 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                     }
                     
                     // Enhanced chromatic rose petal burst and harmonic sparkle
-                    OdeToJoyVFX.ChromaticRosePetalBurst(target.Center, 8, 5f, 0.5f, true);
-                    OdeToJoyVFX.HarmonicNoteSparkle(target.Center, 4, 3f, 0.4f, false);
+                    OdeToJoyVFXLibrary.SpawnRosePetals(target.Center, 8, 2.5f);
+                    OdeToJoyVFXLibrary.SpawnMusicNotes(target.Center, 4, 1.2f);
                 }
                 
                 // Enhanced chromatic vine trail VFX
                 if (Main.rand.NextBool(4))
                 {
-                    OdeToJoyVFX.ChromaticVineGrowthBurst(proj.Center, 2, 2f, 0.35f, false);
+                    OdeToJoyVFXLibrary.SpawnVineTrailDust(proj.Center, Vector2.Zero);
                 }
             }
         }
@@ -226,7 +227,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
             tooltips.Add(new TooltipLine(Mod, "Effect5", "+20 defense while attacking"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The flower that blooms upon the conductor's heart, spreading joy to all'") 
             { 
-                OverrideColor = OdeToJoyColors.RosePink 
+                OverrideColor = OdeToJoyPalette.RosePink 
             });
         }
 
@@ -298,13 +299,13 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
             }
             
             // Enhanced chromatic vine trail on hit
-            OdeToJoyVFX.ChromaticVineGrowthBurst(target.Center, 3, 3f, 0.4f, false);
+            OdeToJoyVFXLibrary.SpawnVineTrailDust(target.Center, Vector2.Zero);
             
             // Critical strikes cause blooming explosions that heal nearby allies
             if (hit.Crit)
             {
                 // Full chromatic rose petal explosion on crits
-                OdeToJoyVFX.ChromaticRosePetalBurst(target.Center, 12, 6f, 0.8f, true);
+                OdeToJoyVFXLibrary.SpawnRosePetals(target.Center, 12, 4.8f);
                 
                 // Heal nearby allies (multiplayer)
                 for (int i = 0; i < Main.maxPlayers; i++)
@@ -350,7 +351,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
             tooltips.Add(new TooltipLine(Mod, "Effect6", "Every 5th shot fires a homing petal storm"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'A symphony played in petals and thorns, celebrating nature's triumph'") 
             { 
-                OverrideColor = OdeToJoyColors.RosePink 
+                OverrideColor = OdeToJoyPalette.RosePink 
             });
         }
 
@@ -396,7 +397,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                 // Enhanced chromatic vine VFX on mark
                 if (Main.rand.NextBool(3))
                 {
-                    OdeToJoyVFX.ChromaticVineGrowthBurst(target.Center, 2, 2f, 0.4f, false);
+                    OdeToJoyVFXLibrary.SpawnVineTrailDust(target.Center, Vector2.Zero);
                 }
                 
                 // Shot counter for bonus petal storm
@@ -421,7 +422,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                     }
                     
                     // Enhanced harmonic note sparkle on petal storm trigger
-                    OdeToJoyVFX.HarmonicNoteSparkle(Player.Center, 8, 5f, 0.7f, true);
+                    OdeToJoyVFXLibrary.MusicNoteBurst(Player.Center, OdeToJoyPalette.GoldenPollen, 8, 5f);
                 }
             }
         }

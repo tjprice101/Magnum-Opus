@@ -10,6 +10,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.OdeToJoy;
 using MagnumOpus.Content.OdeToJoy.Projectiles;
 using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 using MagnumOpus.Content.OdeToJoy.HarmonicCores;
@@ -52,7 +53,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             tooltips.Add(new TooltipLine(Mod, "Synergy", "Multiple spirits synchronize for +20% damage per spirit"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The crowd rises in celebration'") 
             { 
-                OverrideColor = OdeToJoyColors.GoldenPollen 
+                OverrideColor = OdeToJoyPalette.GoldenPollen 
             });
         }
 
@@ -62,8 +63,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             
             Vector2 spawnPos = Main.MouseWorld;
             
-            // Enhanced entrance VFX - chromatic signature explosion
-            OdeToJoyVFX.OdeToJoySignatureExplosion(spawnPos, 1.0f);
+            // Enhanced entrance VFX - garden impact
+            OdeToJoyVFXLibrary.GardenImpact(spawnPos, 1.0f);
             
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 0.8f }, spawnPos);
             
@@ -77,10 +78,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             if (Main.rand.NextBool(20))
             {
                 Vector2 notePos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                OdeToJoyVFX.SpawnMusicNote(notePos, new Vector2(0, -0.5f), OdeToJoyColors.GoldenPollen, 0.65f);
+                OdeToJoyVFXLibrary.SpawnMusicNotes(notePos, 1, 20f, 0.65f);
             }
             
-            Lighting.AddLight(player.Center, OdeToJoyColors.GoldenPollen.ToVector3() * 0.2f);
+            Lighting.AddLight(player.Center, OdeToJoyPalette.GoldenPollen.ToVector3() * 0.2f);
         }
 
         public override void AddRecipes()
@@ -211,7 +212,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
                     );
                     
                     SoundEngine.PlaySound(SoundID.Item29 with { Volume = 0.6f, Pitch = 0.4f }, Projectile.Center);
-                    OdeToJoyVFX.HarmonicNoteSparkle(Projectile.Center, 6, 4f, 0.5f, false);
+                    OdeToJoyVFXLibrary.SpawnMusicNotes(Projectile.Center, 6, 2f);
                 }
             }
             else
@@ -239,7 +240,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             // Ambient particles
             if (Main.rand.NextBool(6))
             {
-                Color trailColor = OdeToJoyColors.GetGradient(Main.rand.NextFloat());
+                Color trailColor = OdeToJoyPalette.GetGardenGradient(Main.rand.NextFloat());
                 var trail = new GenericGlowParticle(
                     Projectile.Center + Main.rand.NextVector2Circular(15f, 15f),
                     Main.rand.NextVector2Circular(1f, 1f),
@@ -251,7 +252,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
                 MagnumParticleHandler.SpawnParticle(trail);
             }
             
-            Lighting.AddLight(Projectile.Center, OdeToJoyColors.GoldenPollen.ToVector3() * 0.4f);
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.GoldenPollen.ToVector3() * 0.4f);
         }
 
         private bool CheckActive(Player owner)
@@ -320,7 +321,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyColors.GoldenPollen * 0.4f, 0f, origin, pulse * 1.3f, effects, 0f);
+            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyPalette.GoldenPollen * 0.4f, 0f, origin, pulse * 1.3f, effects, 0f);
             
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
@@ -363,7 +364,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             // Trail
             if (Main.rand.NextBool(2))
             {
-                Color trailColor = OdeToJoyColors.GetGradient(Main.rand.NextFloat());
+                Color trailColor = OdeToJoyPalette.GetGardenGradient(Main.rand.NextFloat());
                 var trail = new GenericGlowParticle(
                     Projectile.Center + Main.rand.NextVector2Circular(20f, 20f),
                     -Projectile.velocity * 0.1f,
@@ -378,25 +379,23 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             // Music notes
             if (Main.rand.NextBool(4))
             {
-                OdeToJoyVFX.SpawnMusicNote(Projectile.Center,
-                    Main.rand.NextVector2Circular(2f, 2f),
-                    OdeToJoyColors.RosePink, 0.7f);
+                OdeToJoyVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 20f, 0.7f);
             }
             
-            Lighting.AddLight(Projectile.Center, OdeToJoyColors.GoldenPollen.ToVector3() * 0.5f);
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.GoldenPollen.ToVector3() * 0.5f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(BuffID.Confused, 60);
             // Use new Harmonic Note Sparkle for magical summon impact!
-            OdeToJoyVFX.HarmonicNoteSparkle(target.Center, 6, 4f, 0.6f, false);
+            OdeToJoyVFXLibrary.SpawnMusicNotes(target.Center, 6, 2.4f);
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Use Chromatic Rose Petal Burst for beautiful death!
-            OdeToJoyVFX.ChromaticRosePetalBurst(Projectile.Center, 8, 5f, 0.7f, true);
+            // Use Rose Petal Burst for beautiful death!
+            OdeToJoyVFXLibrary.SpawnRosePetals(Projectile.Center, 8, 3.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -409,7 +408,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyColors.GoldenPollen * 0.7f, Projectile.rotation, origin, Projectile.scale * 0.6f, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyPalette.GoldenPollen * 0.7f, Projectile.rotation, origin, Projectile.scale * 0.6f, SpriteEffects.None, 0f);
             Main.spriteBatch.Draw(texture, drawPos, null, Color.White * 0.5f, Projectile.rotation, origin, Projectile.scale * 0.4f, SpriteEffects.None, 0f);
             
             Main.spriteBatch.End();
@@ -456,7 +455,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             tooltips.Add(new TooltipLine(Mod, "Healing", "Heals nearby players for 3 HP per second"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'From joy springs eternal life'") 
             { 
-                OverrideColor = OdeToJoyColors.VerdantGreen 
+                OverrideColor = OdeToJoyPalette.VerdantGreen 
             });
         }
 
@@ -466,25 +465,21 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             
             Vector2 spawnPos = Main.MouseWorld;
             
-            // Entrance VFX - Use the FULL signature explosion!
-            OdeToJoyVFX.OdeToJoySignatureExplosion(spawnPos, 1.2f);
+            // Entrance VFX - triumphant celebration
+            OdeToJoyVFXLibrary.TriumphantCelebration(spawnPos, 1.2f);
             
             // Additional water burst for fountain theme
             for (int i = 0; i < 12; i++)
             {
                 float angle = MathHelper.TwoPi * i / 12f;
                 Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f) + new Vector2(0, -2f);
-                Color burstColor = Color.Lerp(OdeToJoyColors.VerdantGreen, OdeToJoyColors.RosePink, Main.rand.NextFloat());
+                Color burstColor = Color.Lerp(OdeToJoyPalette.VerdantGreen, OdeToJoyPalette.RosePink, Main.rand.NextFloat());
                 var burst = new GenericGlowParticle(spawnPos, burstVel, burstColor * 0.7f, 0.4f, 25, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
             
             // Music notes rising
-            for (int i = 0; i < 6; i++)
-            {
-                OdeToJoyVFX.SpawnMusicNote(spawnPos, new Vector2(Main.rand.NextFloat(-2f, 2f), -3f), 
-                    OdeToJoyColors.GetGradient(Main.rand.NextFloat()), 0.9f);
-            }
+            OdeToJoyVFXLibrary.SpawnMusicNotes(spawnPos, 6, 20f, 0.9f);
             
             SoundEngine.PlaySound(SoundID.Item21 with { Pitch = 0.3f }, spawnPos);
             
@@ -498,7 +493,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             if (Main.rand.NextBool(25))
             {
                 Vector2 particlePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                var glow = new GenericGlowParticle(particlePos, new Vector2(0, -1f), OdeToJoyColors.VerdantGreen * 0.5f, 0.2f, 20, true);
+                var glow = new GenericGlowParticle(particlePos, new Vector2(0, -1f), OdeToJoyPalette.VerdantGreen * 0.5f, 0.2f, 20, true);
                 MagnumParticleHandler.SpawnParticle(glow);
             }
         }
@@ -602,14 +597,9 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
                     if (dist < 200f)
                     {
                         player.Heal(3);
-                        
+
                         // Healing VFX
-                        for (int j = 0; j < 3; j++)
-                        {
-                            OdeToJoyVFX.SpawnMusicNote(player.Center,
-                                new Vector2(Main.rand.NextFloat(-1f, 1f), -2f),
-                                OdeToJoyColors.VerdantGreen, 0.7f);
-                        }
+                        OdeToJoyVFXLibrary.SpawnMusicNotes(player.Center, 3, 20f, 0.7f);
                     }
                 }
             }
@@ -643,7 +633,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             // Ambient water particles rising
             if (Main.rand.NextBool(3))
             {
-                Color waterColor = Color.Lerp(OdeToJoyColors.VerdantGreen, OdeToJoyColors.RosePink, Main.rand.NextFloat());
+                Color waterColor = Color.Lerp(OdeToJoyPalette.VerdantGreen, OdeToJoyPalette.RosePink, Main.rand.NextFloat());
                 var water = new GenericGlowParticle(
                     Projectile.Center + new Vector2(Main.rand.NextFloat(-15f, 15f), -20f),
                     new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -2f),
@@ -658,12 +648,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             // Music notes
             if (Main.rand.NextBool(10))
             {
-                OdeToJoyVFX.SpawnMusicNote(Projectile.Center + new Vector2(0, -30f),
-                    new Vector2(Main.rand.NextFloat(-1f, 1f), -1.5f),
-                    OdeToJoyColors.GetGradient(Main.rand.NextFloat()), 0.75f);
+                OdeToJoyVFXLibrary.SpawnMusicNotes(Projectile.Center + new Vector2(0, -30f), 1, 20f, 0.75f);
             }
             
-            Lighting.AddLight(Projectile.Center, OdeToJoyColors.VerdantGreen.ToVector3() * 0.5f);
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.VerdantGreen.ToVector3() * 0.5f);
         }
 
         private bool CheckActive(Player owner)
@@ -716,7 +704,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.1f;
-            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyColors.VerdantGreen * 0.4f, 0f, origin, pulse * 1.2f, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyPalette.VerdantGreen * 0.4f, 0f, origin, pulse * 1.2f, SpriteEffects.None, 0f);
             
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
@@ -754,7 +742,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             Projectile.rotation += 0.1f;
             
             // Trail
-            Color trailColor = Color.Lerp(OdeToJoyColors.VerdantGreen, OdeToJoyColors.RosePink, Main.rand.NextFloat());
+            Color trailColor = Color.Lerp(OdeToJoyPalette.VerdantGreen, OdeToJoyPalette.RosePink, Main.rand.NextFloat());
             var trail = new GenericGlowParticle(
                 Projectile.Center,
                 -Projectile.velocity * 0.1f,
@@ -765,18 +753,18 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             );
             MagnumParticleHandler.SpawnParticle(trail);
             
-            Lighting.AddLight(Projectile.Center, OdeToJoyColors.VerdantGreen.ToVector3() * 0.3f);
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.VerdantGreen.ToVector3() * 0.3f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(BuffID.Wet, 180);
-            OdeToJoyVFX.ChromaticRosePetalBurst(target.Center, 6, 3f, 0.4f, false);
+            OdeToJoyVFXLibrary.SpawnRosePetals(target.Center, 6, 1.2f);
         }
 
         public override void OnKill(int timeLeft)
         {
-            OdeToJoyVFX.ChromaticVineGrowthBurst(Projectile.Center, 3, 3f, 0.35f, false);
+            OdeToJoyVFXLibrary.SpawnVineTrailDust(Projectile.Center, Vector2.Zero);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -789,7 +777,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyColors.VerdantGreen * 0.7f, Projectile.rotation, origin, 0.4f, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyPalette.VerdantGreen * 0.7f, Projectile.rotation, origin, 0.4f, SpriteEffects.None, 0f);
             Main.spriteBatch.Draw(texture, drawPos, null, Color.White * 0.5f, Projectile.rotation, origin, 0.25f, SpriteEffects.None, 0f);
             
             Main.spriteBatch.End();
@@ -838,7 +826,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             tooltips.Add(new TooltipLine(Mod, "Ultimate", "Periodically unleashes a grand finale attack"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'All voices rise as one in triumphant song'") 
             { 
-                OverrideColor = OdeToJoyColors.RosePink 
+                OverrideColor = OdeToJoyPalette.RosePink 
             });
         }
 
@@ -848,8 +836,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             
             Vector2 spawnPos = Main.MouseWorld;
             
-            // Grand entrance VFX - FULL SIGNATURE EXPLOSION
-            OdeToJoyVFX.OdeToJoySignatureExplosion(spawnPos, 1.3f);
+            // Grand entrance VFX - triumphant celebration
+            OdeToJoyVFXLibrary.TriumphantCelebration(spawnPos, 1.3f);
             
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 1.0f }, spawnPos);
             
@@ -863,11 +851,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             if (Main.rand.NextBool(15))
             {
                 Vector2 notePos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                OdeToJoyVFX.SpawnMusicNote(notePos, new Vector2(0, -0.8f), 
-                    OdeToJoyColors.GetGradient(Main.rand.NextFloat()), 0.75f);
+                OdeToJoyVFXLibrary.SpawnMusicNotes(notePos, 1, 20f, 0.75f);
             }
             
-            Lighting.AddLight(player.Center, OdeToJoyColors.RosePink.ToVector3() * 0.25f);
+            Lighting.AddLight(player.Center, OdeToJoyPalette.RosePink.ToVector3() * 0.25f);
         }
 
         public override void AddRecipes()
@@ -995,8 +982,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
                     );
                     
                     SoundEngine.PlaySound(SoundID.Item71 with { Volume = 0.7f, Pitch = 0.3f }, Projectile.Center);
-                    // Use Harmonic Note Sparkle for musical attack!
-                    OdeToJoyVFX.HarmonicNoteSparkle(Projectile.Center, 6, 4f, 0.6f, true);
+                    // Use Music Note Burst for musical attack!
+                    OdeToJoyVFXLibrary.MusicNoteBurst(Projectile.Center, OdeToJoyPalette.GoldenPollen, 6, 4f);
                 }
                 
                 // Ultimate attack
@@ -1024,17 +1011,11 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
                         );
                     }
                     
-                    // Use FULL SIGNATURE EXPLOSION for the ultimate attack!
-                    OdeToJoyVFX.OdeToJoySignatureExplosion(Projectile.Center, 1.4f);
-                    
+                    // Triumphant celebration for the ultimate attack!
+                    OdeToJoyVFXLibrary.TriumphantCelebration(Projectile.Center, 1.4f);
+
                     // Additional massive music note burst
-                    for (int i = 0; i < 12; i++)
-                    {
-                        float angle = MathHelper.TwoPi * i / 12f;
-                        OdeToJoyVFX.SpawnMusicNote(Projectile.Center,
-                            angle.ToRotationVector2() * 5f,
-                            OdeToJoyColors.GetGradient(i / 12f), 1.0f);
-                    }
+                    OdeToJoyVFXLibrary.MusicNoteBurst(Projectile.Center, OdeToJoyPalette.GoldenPollen, 12, 5f);
                 }
             }
             else
@@ -1062,7 +1043,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             // Ambient particles - more elaborate
             if (Main.rand.NextBool(4))
             {
-                Color trailColor = OdeToJoyColors.GetGradient(Main.rand.NextFloat());
+                Color trailColor = OdeToJoyPalette.GetGardenGradient(Main.rand.NextFloat());
                 var trail = new GenericGlowParticle(
                     Projectile.Center + Main.rand.NextVector2Circular(20f, 20f),
                     Main.rand.NextVector2Circular(1.5f, 1.5f),
@@ -1077,12 +1058,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             // Music notes
             if (Main.rand.NextBool(8))
             {
-                OdeToJoyVFX.SpawnMusicNote(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f),
-                    Main.rand.NextVector2Circular(1f, 1f),
-                    OdeToJoyColors.GetGradient(Main.rand.NextFloat()), 0.7f);
+                OdeToJoyVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 20f, 0.7f);
             }
             
-            Lighting.AddLight(Projectile.Center, OdeToJoyColors.RosePink.ToVector3() * 0.5f);
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.RosePink.ToVector3() * 0.5f);
         }
 
         private bool CheckActive(Player owner)
@@ -1137,8 +1116,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyColors.RosePink * 0.5f, 0f, origin, pulse * 1.4f, effects, 0f);
-            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyColors.GoldenPollen * 0.3f, 0f, origin, pulse * 1.2f, effects, 0f);
+            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyPalette.RosePink * 0.5f, 0f, origin, pulse * 1.4f, effects, 0f);
+            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyPalette.GoldenPollen * 0.3f, 0f, origin, pulse * 1.2f, effects, 0f);
             
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
@@ -1179,7 +1158,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             // Trail
             if (Main.rand.NextBool(2))
             {
-                Color trailColor = OdeToJoyColors.GetGradient(Main.rand.NextFloat());
+                Color trailColor = OdeToJoyPalette.GetGardenGradient(Main.rand.NextFloat());
                 var trail = new GenericGlowParticle(
                     Projectile.Center,
                     -Projectile.velocity * 0.1f,
@@ -1191,18 +1170,18 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
                 MagnumParticleHandler.SpawnParticle(trail);
             }
             
-            Lighting.AddLight(Projectile.Center, OdeToJoyColors.RosePink.ToVector3() * 0.5f);
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.RosePink.ToVector3() * 0.5f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(BuffID.Confused, 90);
-            OdeToJoyVFX.ChromaticRosePetalBurst(target.Center, 6, 4f, 0.4f, false);
+            OdeToJoyVFXLibrary.SpawnRosePetals(target.Center, 6, 1.6f);
         }
 
         public override void OnKill(int timeLeft)
         {
-            OdeToJoyVFX.HarmonicNoteSparkle(Projectile.Center, 5, 3f, 0.5f, false);
+            OdeToJoyVFXLibrary.SpawnMusicNotes(Projectile.Center, 5, 1.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -1217,8 +1196,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyColors.RosePink * 0.6f, Projectile.rotation, origin, 0.5f * pulse, SpriteEffects.None, 0f);
-            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyColors.GoldenPollen * 0.5f, Projectile.rotation * 0.8f, origin, 0.4f * pulse, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyPalette.RosePink * 0.6f, Projectile.rotation, origin, 0.5f * pulse, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyPalette.GoldenPollen * 0.5f, Projectile.rotation * 0.8f, origin, 0.4f * pulse, SpriteEffects.None, 0f);
             Main.spriteBatch.Draw(texture, drawPos, null, Color.White * 0.6f, Projectile.rotation, origin, 0.25f * pulse, SpriteEffects.None, 0f);
             
             Main.spriteBatch.End();
@@ -1258,7 +1237,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             // Heavy trail
             for (int i = 0; i < 2; i++)
             {
-                Color trailColor = OdeToJoyColors.GetGradient(Main.rand.NextFloat());
+                Color trailColor = OdeToJoyPalette.GetGardenGradient(Main.rand.NextFloat());
                 var trail = new GenericGlowParticle(
                     Projectile.Center + Main.rand.NextVector2Circular(10f, 10f),
                     -Projectile.velocity * 0.15f,
@@ -1273,9 +1252,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             // Music notes
             if (Main.rand.NextBool(3))
             {
-                OdeToJoyVFX.SpawnMusicNote(Projectile.Center,
-                    Main.rand.NextVector2Circular(2f, 2f),
-                    OdeToJoyColors.GetGradient(Main.rand.NextFloat()), 0.85f);
+                OdeToJoyVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 20f, 0.85f);
             }
             
             // Sparkles
@@ -1284,27 +1261,27 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
                 var sparkle = new SparkleParticle(
                     Projectile.Center + Main.rand.NextVector2Circular(15f, 15f),
                     Main.rand.NextVector2Circular(2f, 2f),
-                    OdeToJoyColors.GoldenPollen,
+                    OdeToJoyPalette.GoldenPollen,
                     0.35f,
                     15
                 );
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            Lighting.AddLight(Projectile.Center, OdeToJoyColors.GoldenPollen.ToVector3() * 0.7f);
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.GoldenPollen.ToVector3() * 0.7f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(BuffID.Confused, 180);
             target.AddBuff(BuffID.OnFire, 180);
-            OdeToJoyVFX.HarmonicNoteSparkle(target.Center, 8, 5f, 0.7f, true);
+            OdeToJoyVFXLibrary.MusicNoteBurst(target.Center, OdeToJoyPalette.GoldenPollen, 8, 5f);
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Signature explosion on death
-            OdeToJoyVFX.OdeToJoySignatureExplosion(Projectile.Center, 0.9f);
+            // Garden impact on death
+            OdeToJoyVFXLibrary.GardenImpact(Projectile.Center, 0.9f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -1319,8 +1296,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyColors.GoldenPollen * 0.7f, Projectile.rotation, origin, 0.7f * pulse, SpriteEffects.None, 0f);
-            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyColors.RosePink * 0.5f, -Projectile.rotation * 0.8f, origin, 0.55f * pulse, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyPalette.GoldenPollen * 0.7f, Projectile.rotation, origin, 0.7f * pulse, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(texture, drawPos, null, OdeToJoyPalette.RosePink * 0.5f, -Projectile.rotation * 0.8f, origin, 0.55f * pulse, SpriteEffects.None, 0f);
             Main.spriteBatch.Draw(texture, drawPos, null, Color.White * 0.7f, Projectile.rotation, origin, 0.35f * pulse, SpriteEffects.None, 0f);
             
             Main.spriteBatch.End();

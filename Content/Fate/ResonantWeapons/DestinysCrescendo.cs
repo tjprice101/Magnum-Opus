@@ -48,46 +48,13 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             tooltips.Add(new TooltipLine(Mod, "FateSpecial", "The deity periodically fires cosmic light beams"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'At the crescendo, even gods must answer the conductor's call'")
             {
-                OverrideColor = FateCosmicVFX.FateBrightRed
+                OverrideColor = FatePalette.BrightCrimson
             });
         }
         
         public override void HoldItem(Player player)
         {
-            // === COSMIC DEITY STAFF HOLD EFFECT ===
-            // Divine constellation pattern
-            if (Main.rand.NextBool(7))
-            {
-                // 6-point star formation
-                float baseAngle = Main.GameUpdateCount * 0.02f;
-                int point = Main.rand.Next(6);
-                float starAngle = baseAngle + MathHelper.TwoPi * point / 6f;
-                Vector2 starPos = player.Center + starAngle.ToRotationVector2() * 45f;
-                var star = new GenericGlowParticle(starPos, Vector2.Zero, FateCosmicVFX.FateStarGold, 0.25f, 20, true);
-                MagnumParticleHandler.SpawnParticle(star);
-            }
-            
-            // Orbiting deity essence glyphs
-            if (Main.rand.NextBool(10))
-            {
-                float glyphAngle = Main.GameUpdateCount * 0.035f;
-                for (int i = 0; i < 2; i++)
-                {
-                    Vector2 glyphPos = player.Center + (glyphAngle + MathHelper.Pi * i).ToRotationVector2() * 50f;
-                    CustomParticles.Glyph(glyphPos, FateCosmicVFX.FateDarkPink, 0.38f, -1);
-                }
-            }
-            
-            // Cosmic cloud aura
-            if (Main.rand.NextBool(15))
-            {
-                FateCosmicVFX.SpawnCosmicCloudTrail(player.Center + Main.rand.NextVector2Circular(30f, 30f),
-                    Main.rand.NextVector2Circular(0.5f, 0.5f), 0.3f);
-            }
-            
-            // Divine radiance light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.2f + 0.8f;
-            Lighting.AddLight(player.Center, FateCosmicVFX.FateWhite.ToVector3() * pulse * 0.35f);
+            DestinysCrescendoVFX.HoldItemVFX(player);
         }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
@@ -101,18 +68,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             // Track for star circle effect
             player.GetModPlayer<FateWeaponEffectPlayer>()?.OnFateWeaponAttack(player.Center);
             
-            // Spawn cosmic explosion effect at summon location
-            FateCosmicVFX.SpawnCosmicExplosion(spawnPos, 1.2f);
-            FateCosmicVFX.SpawnGlyphBurst(spawnPos, 6, 6f, 0.5f);
-            
-            // Star particles for celestial appearance
-            for (int i = 0; i < 12; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 12f;
-                Vector2 starVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
-                var star = new GlowSparkParticle(spawnPos, starVel, FateCosmicVFX.FateWhite, 0.3f, 20);
-                MagnumParticleHandler.SpawnParticle(star);
-            }
+            // Spawn cosmic summon VFX at summon location
+            DestinysCrescendoVFX.SummonVFX(spawnPos);
             
             // === SEEKING CRYSTALS - DESTINY'S HERALD SHARDS ===
             // Release cosmic crystals that seek enemies upon deity summoning

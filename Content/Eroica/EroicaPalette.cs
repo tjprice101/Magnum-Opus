@@ -1,6 +1,8 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.GameContent;
 
 namespace MagnumOpus.Content.Eroica
 {
@@ -179,23 +181,36 @@ namespace MagnumOpus.Content.Eroica
         /// Call from PreDrawInWorld with additive SpriteBatch.
         /// </summary>
         public static void DrawItemBloom(
-            Microsoft.Xna.Framework.Graphics.SpriteBatch sb,
-            Microsoft.Xna.Framework.Graphics.Texture2D tex,
-            Microsoft.Xna.Framework.Vector2 pos,
-            Microsoft.Xna.Framework.Vector2 origin,
+            SpriteBatch sb,
+            Texture2D tex,
+            Vector2 pos,
+            Vector2 origin,
             float rotation,
             float scale,
             float pulse)
         {
             // Layer 1: Outer dark crimson aura
             sb.Draw(tex, pos, null, Additive(Scarlet, 0.40f), rotation, origin, scale * 1.08f * pulse,
-                Microsoft.Xna.Framework.Graphics.SpriteEffects.None, 0f);
+                SpriteEffects.None, 0f);
             // Layer 2: Middle sakura/orange glow
             sb.Draw(tex, pos, null, Additive(Sakura, 0.30f), rotation, origin, scale * 1.04f * pulse,
-                Microsoft.Xna.Framework.Graphics.SpriteEffects.None, 0f);
+                SpriteEffects.None, 0f);
             // Layer 3: Inner golden-white core
             sb.Draw(tex, pos, null, Additive(HotCore, 0.22f), rotation, origin, scale * 1.01f * pulse,
-                Microsoft.Xna.Framework.Graphics.SpriteEffects.None, 0f);
+                SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Convenience overload — extracts texture, position, and origin from an Item.
+        /// Pulse is auto-computed from game time.
+        /// </summary>
+        public static void DrawItemBloom(SpriteBatch sb, Item item, float rotation, float scale)
+        {
+            Texture2D tex = TextureAssets.Item[item.type].Value;
+            Vector2 origin = tex.Size() / 2f;
+            Vector2 pos = item.position - Main.screenPosition + origin;
+            float pulse = 1f + MathF.Sin(Main.GameUpdateCount * 0.05f) * 0.04f;
+            DrawItemBloom(sb, tex, pos, origin, rotation, scale, pulse);
         }
 
         // =================================================================

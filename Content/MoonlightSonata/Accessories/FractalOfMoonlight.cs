@@ -9,6 +9,7 @@ using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.MoonlightSonata.VFX.Accessories;
 
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
@@ -58,6 +59,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                 {
                     CustomParticles.MoonlightFlare(player.Center + Main.rand.NextVector2Circular(25f, 25f), 0.3f);
                 }
+
+                // Unified fractal ambient VFX
+                FractalOfMoonlightVFX.AmbientFractalOrbit(player.Center, (int)Main.GameUpdateCount);
             }
         }
         

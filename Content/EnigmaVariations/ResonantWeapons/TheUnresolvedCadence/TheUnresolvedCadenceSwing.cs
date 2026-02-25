@@ -125,8 +125,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
 
         protected override Texture2D GetBladeTexture()
         {
-            if (ModContent.HasAsset("MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheUnresolvedCadence"))
-                return ModContent.Request<Texture2D>("MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheUnresolvedCadence").Value;
+            if (ModContent.HasAsset("MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheUnresolvedCadence/TheUnresolvedCadence"))
+                return ModContent.Request<Texture2D>("MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheUnresolvedCadence/TheUnresolvedCadence").Value;
             return base.GetBladeTexture();
         }
 

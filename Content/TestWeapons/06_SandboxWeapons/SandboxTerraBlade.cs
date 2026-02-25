@@ -9,8 +9,8 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
     /// <summary>
     /// A sandbox Terra Blade using the held-projectile swing pattern.
     /// Left-click: Single swing (SandboxTerraBladeSwing).
-    /// Right-click: Combo system — downswing + upswing + charged beam attack
-    ///              that fires toward the cursor and creates 5 starburst beams at impact.
+    /// Right-click: Last Prism-style channeled beam — hold to charge, converging beams merge
+    ///              into a sustained beam while mouse held, release to fade.
     /// Automatically excluded from all global VFX systems via VFXExclusionHelper.
     /// </summary>
     public class SandboxTerraBlade : ModItem
@@ -39,9 +39,8 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         {
             if (player.altFunctionUse == 2)
             {
-                // Right-click: block if combo swing or beam are active
-                return player.ownedProjectileCounts[ModContent.ProjectileType<SandboxTerraBladeComboSwing>()] <= 0
-                    && player.ownedProjectileCounts[ModContent.ProjectileType<SandboxTerraBladeBeam>()] <= 0;
+                // Right-click: block if prism beam is active
+                return player.ownedProjectileCounts[ModContent.ProjectileType<SandboxTerraBladePrismBeam>()] <= 0;
             }
 
             // Left-click: prevent spawning a new swing while one is already active
@@ -55,10 +54,11 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
 
             if (player.altFunctionUse == 2)
             {
-                // Right-click: combo swing (downswing + upswing + throw)
+                // Right-click: channeled Last Prism-style beam (ai0=targetX, ai1=targetY)
                 Projectile.NewProjectile(source, player.MountedCenter, direction,
-                    ModContent.ProjectileType<SandboxTerraBladeComboSwing>(),
-                    damage, knockback, player.whoAmI);
+                    ModContent.ProjectileType<SandboxTerraBladePrismBeam>(),
+                    damage, knockback, player.whoAmI,
+                    ai0: Main.MouseWorld.X, ai1: Main.MouseWorld.Y);
             }
             else
             {
@@ -73,7 +73,7 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "SandboxInfo",
-                "Sandbox weapon — left-click swing, right-click combo beam"));
+                "Sandbox weapon — left-click swing, right-click channeled prism beam"));
         }
     }
 }

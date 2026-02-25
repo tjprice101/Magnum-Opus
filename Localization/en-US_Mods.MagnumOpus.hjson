@@ -7596,4 +7596,6 @@ Projectiles: {
 	TerraBladeStarImpact.DisplayName: Terra Blade Star Impact
 	TerraBladeStarburstBeam.DisplayName: Terra Blade Starburst Beam
 	SandboxTerraBladeBeam.DisplayName: Sandbox Terra Blade Beam
+	SandboxTerraBladeFlareBeam.DisplayName: Sandbox Terra Blade Flare Beam
+	SandboxTerraBladePrismBeam.DisplayName: Sandbox Terra Blade Prism Beam
 }

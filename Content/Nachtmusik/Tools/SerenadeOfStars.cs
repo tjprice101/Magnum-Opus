@@ -14,6 +14,7 @@ using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common;
+using MagnumOpus.Content.Nachtmusik;
 
 namespace MagnumOpus.Content.Nachtmusik.Tools
 {
@@ -101,7 +102,7 @@ namespace MagnumOpus.Content.Nachtmusik.Tools
                 if (Main.rand.NextBool(8))
                 {
                     Vector2 notePos = player.Center + new Vector2(Main.rand.NextFloat(-20f, 20f), 15f);
-                    ThemedParticles.MusicNote(notePos, new Vector2(player.velocity.X * -0.1f, -0.5f), Violet * 0.6f, 0.55f, 25);
+                    NachtmusikVFXLibrary.SpawnMusicNotes(notePos, 1, 6f, 0.7f, 0.85f, 25);
                 }
                 
                 // Constellation trail - connected star points

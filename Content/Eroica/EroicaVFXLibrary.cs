@@ -5,10 +5,11 @@ using Terraria;
 using Terraria.ID;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
-using MagnumOpus.Common.Systems.VFX.Bloom;
+using static MagnumOpus.Common.Systems.VFX.GodRaySystem;
 using MagnumOpus.Common.Systems.VFX.Screen;
 using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX.Bloom;
 
 namespace MagnumOpus.Content.Eroica
 {
@@ -431,7 +432,7 @@ namespace MagnumOpus.Content.Eroica
             float scrollSpeed = 1.2f, float distortionAmt = 0.04f, float overbrightMult = 2.8f,
             float fractalDepth = 2.0f, float rotationSpeed = 0.3f, string technique = "FractalEnergyTrail")
         {
-            Effect shader = ShaderLoader.TriumphantFractalShader;
+            Effect shader = ShaderLoader.TriumphantFractal;
             if (shader == null) return;
 
             shader.Parameters["uColor"]?.SetValue(primary.ToVector3());
@@ -468,7 +469,7 @@ namespace MagnumOpus.Content.Eroica
                 Main.graphics.GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
             }
 
-            Effect shader = ShaderLoader.TriumphantFractalShader;
+            Effect shader = ShaderLoader.TriumphantFractal;
             if (shader == null) return;
 
             shader.Parameters["uColor"]?.SetValue(primary.ToVector3());

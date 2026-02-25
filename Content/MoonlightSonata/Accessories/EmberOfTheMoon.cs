@@ -9,6 +9,7 @@ using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.MoonlightSonata.VFX.Accessories;
 
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
@@ -76,6 +77,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                 Dust sparkle = Dust.NewDustPerfect(player.Center + offset, DustID.SparksMech, 
                     new Vector2(0, -1.5f), 0, Color.White, 1f);
                 sparkle.noGravity = true;
+            }
+
+            // Unified ember ambient VFX
+            if (!hideVisual)
+            {
+                EmberOfTheMoonVFX.AmbientEmberFloat(player.Center, (int)Main.GameUpdateCount);
             }
         }
 

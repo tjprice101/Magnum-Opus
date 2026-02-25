@@ -36,7 +36,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         private static readonly Color EnigmaDeepPurple = new Color(80, 20, 120);
         
-        public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/FugueOfTheUnknown";
+        public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/FugueOfTheUnknown/FugueOfTheUnknown";
         
         private Color GetEnigmaGradient(float progress)
         {

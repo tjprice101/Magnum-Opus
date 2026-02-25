@@ -26,11 +26,11 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
     {
         #region Theme Colors
 
-        private static readonly Color Violet = NachtmusikCosmicVFX.Violet;
-        private static readonly Color Gold = NachtmusikCosmicVFX.Gold;
-        private static readonly Color NebulaPink = NachtmusikCosmicVFX.NebulaPink;
-        private static readonly Color DeepPurple = NachtmusikCosmicVFX.DeepPurple;
-        private static readonly Color StarWhite = NachtmusikCosmicVFX.StarWhite;
+        private static readonly Color Violet = NachtmusikPalette.Violet;
+        private static readonly Color Gold = NachtmusikPalette.RadianceGold;
+        private static readonly Color NebulaPink = NachtmusikPalette.NebulaPink;
+        private static readonly Color DeepPurple = NachtmusikPalette.CosmicPurple;
+        private static readonly Color StarWhite = NachtmusikPalette.StarWhite;
 
         private static readonly Color[] CrescendoPalette = new Color[]
         {
@@ -180,7 +180,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 hasSpawnedSpecial = true;
                 Vector2 tip = GetBladeTipPosition();
                 CustomParticles.GenericFlare(tip, Color.Lerp(Violet, Gold, ci), 0.4f + ci * 0.2f, 12);
-                NachtmusikCosmicVFX.SpawnMusicNoteBurst(tip, 2, 15f);
+                NachtmusikVFXLibrary.SpawnMusicNotes(tip, 2, 15f, 0.7f, 0.9f, 25);
             }
 
             // Phase 1: Music note cascade + wave at 55% (if high stacks)
@@ -207,7 +207,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                     Color rc = Color.Lerp(DeepPurple, Gold, p);
                     CustomParticles.HaloRing(vfxTip, rc, 0.3f + i * 0.1f, 12 + i * 2);
                 }
-                NachtmusikCosmicVFX.SpawnMusicNoteBurst(vfxTip, 4, 30f);
+                NachtmusikVFXLibrary.SpawnMusicNotes(vfxTip, 4, 30f, 0.7f, 0.9f, 25);
             }
 
             // Phase 2: Crescendo Finale at 60% — seeking crystals, grand VFX
@@ -235,14 +235,14 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 }
 
                 Vector2 vfxTip = GetBladeTipPosition();
-                NachtmusikCosmicVFX.SpawnGrandCelestialImpact(vfxTip, 1.0f + ci * 0.5f);
+                MidnightsCrescendoVFX.FinisherVFX(vfxTip, 1.0f + ci * 0.5f);
                 for (int i = 0; i < 4 + (int)(ci * 3); i++)
                 {
                     float p = i / 7f;
                     Color rc = Color.Lerp(DeepPurple, Gold, p);
                     CustomParticles.HaloRing(vfxTip, rc, 0.3f + i * 0.1f, 13 + i * 2);
                 }
-                NachtmusikCosmicVFX.SpawnMusicNoteBurst(vfxTip, 5 + (int)(ci * 3), 40f);
+                NachtmusikVFXLibrary.SpawnMusicNotes(vfxTip, 5 + (int)(ci * 3), 40f, 0.7f, 0.9f, 25);
 
                 if (ci >= 0.5f)
                     MagnumScreenEffects.AddScreenShake(4f + ci * 4f);
@@ -274,7 +274,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 
             float ci = GetCrescendoIntensity();
             float impactScale = 0.7f + ComboStep * 0.15f + ci * 0.3f;
-            NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, impactScale);
+            MidnightsCrescendoVFX.SwingImpactVFX(target.Center, ComboStep);
 
             int dustCount = 5 + ComboStep * 2 + (int)(ci * 5);
             for (int i = 0; i < dustCount; i++)
@@ -288,7 +288,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 d.noGravity = true;
             }
 
-            NachtmusikCosmicVFX.SpawnMusicNoteBurst(target.Center, 2 + ComboStep, 22f);
+            NachtmusikVFXLibrary.SpawnMusicNotes(target.Center, 2 + ComboStep, 22f, 0.7f, 0.9f, 25);
 
             Lighting.AddLight(target.Center, Violet.ToVector3() * (0.5f + ci * 0.5f));
         }

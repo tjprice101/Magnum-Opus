@@ -83,6 +83,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             {
                 MoonlightVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 8f, 0.6f, 0.75f, 25);
             }
+
+            // Unified enemy projectile trail VFX
+            MoonlightEnemyVFX.EnemyProjectileTrail(Projectile);
         }
 
         public override void OnKill(int timeLeft)
@@ -91,6 +94,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             MoonlightVFXLibrary.ProjectileImpact(Projectile.Center, 0.5f);
             CustomParticles.HaloRing(Projectile.Center, MoonlightVFXLibrary.IceBlue, 0.25f, 14);
             Terraria.Audio.SoundEngine.PlaySound(SoundID.Item27, Projectile.Center);
+
+            // Unified enemy projectile impact VFX
+            MoonlightEnemyVFX.EnemyProjectileImpact(Projectile.Center, 0.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)

@@ -146,7 +146,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             tooltips.Add(new TooltipLine(Mod, "FateSpecial", "Each swing summons a different weapon from the symphony of fate"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The final movement - a symphony of every blade that came before'")
             {
-                OverrideColor = FateCosmicVFX.FateBrightRed
+                OverrideColor = FatePalette.BrightCrimson
             });
         }
         
@@ -185,13 +185,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
                 }
             }
             
-            // Simple cosmic lighting - no particle clutter
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.25f + 0.75f;
-            Lighting.AddLight(player.Center, FateCosmicVFX.FatePurple.ToVector3() * pulse * 0.6f);
-            
-            // NOTE: Removed excessive orbit effects - GlobalWeaponVFXOverhaul handles swing VFX
-            // The weapon's visual identity comes from its SWING, not its IDLE state
-            // Old astralgraph orbit layers 1-6 removed for cleaner visuals
+            CodaOfAnnihilationVFX.HoldItemVFX(player);
         }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
@@ -234,13 +228,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
                 );
                 
                 // Spawn VFX at spawn location
-                Color spawnColor = GetWeaponColor(weaponCycleIndex);
-                CustomParticles.GenericFlare(spawnPos, spawnColor, 0.5f, 12);
-                
-                if (Main.rand.NextBool(2))
-                {
-                    CustomParticles.HaloRing(spawnPos, spawnColor * 0.6f, 0.25f, 10);
-                }
+                Color spawnColor = CodaOfAnnihilationVFX.GetWeaponColor(weaponCycleIndex);
+                CodaOfAnnihilationVFX.SwordSpawnVFX(spawnPos, spawnColor);
                 
                 // Cycle to next weapon
                 weaponCycleIndex = (weaponCycleIndex + 1) % TotalWeaponTypes;
@@ -293,7 +282,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             
             if (index >= 0 && index < colors.Length)
                 return colors[index];
-            return FateCosmicVFX.FateDarkPink;
+            return FatePalette.DarkPink;
         }
     }
 }

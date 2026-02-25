@@ -25,6 +25,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
     /// </summary>
     public class AlchemicalParadox : ModItem
     {
+        public override string Texture => "MagnumOpus/Content/EnigmaVariations/Accessories/AlchemicalParadox/AlchemicalParadox";
+
         // Enigma color palette
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreenFlame = new Color(50, 220, 100);

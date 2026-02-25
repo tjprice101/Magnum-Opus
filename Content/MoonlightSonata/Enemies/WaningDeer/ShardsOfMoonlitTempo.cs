@@ -12,6 +12,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
     /// </summary>
     public class ShardsOfMoonlitTempo : ModItem
     {
+        public override string Texture => "MagnumOpus/Content/MoonlightSonata/Enemies/WaningDeer/ShardsOfMoonlitTempo";
+
         public override void SetDefaults()
         {
             Item.width = 45;

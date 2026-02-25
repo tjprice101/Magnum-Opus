@@ -9,6 +9,9 @@ using Terraria.Audio;
 using Terraria.DataStructures;
 using ReLogic.Content;
 using static Terraria.ModLoader.PlayerDrawLayer;
+using MagnumOpus.Content.Eroica.Accessories.PyreOfTheFallenHero;
+using MagnumOpus.Content.Eroica.Accessories.SymphonyOfScarletFlames;
+using MagnumOpus.Content.Eroica.Accessories.SakurasBurningWill;
 
 namespace MagnumOpus.Content.Eroica.Accessories.Shared
 {
@@ -97,7 +100,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                 Player.immuneNoBlink = true; // Don't blink during heroic encore
                 
                 // Dramatic invulnerability visuals
-                EroicaAccessoryVFX.HeroicEncoreActiveVFX(Player.Center, heroicEncoreTimer);
+                FuneralMarchInsigniaVFX.HeroicEncoreActiveVFX(Player.Center, heroicEncoreTimer);
                 
                 if (heroicEncoreTimer >= HeroicEncoreDuration)
                 {
@@ -158,7 +161,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                 SoundEngine.PlaySound(SoundID.NPCDeath6 with { Pitch = 0.3f }, Player.Center);
                 
                 // Dramatic revival VFX
-                EroicaAccessoryVFX.HeroicEncoreActivation(Player.Center);
+                FuneralMarchInsigniaVFX.HeroicEncoreActivation(Player.Center);
                 
                 Main.NewText("Heroic Encore! The music refuses to end!", new Color(255, 100, 100));
                 
@@ -191,7 +194,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
             // Visual feedback for stack building
             if (furyStacks < MaxFuryStacks)
             {
-                EroicaAccessoryVFX.FuryStackVFX(Player.Center, furyStacks);
+                PyreOfTheFallenHeroVFX.FuryStackVFX(Player.Center, furyStacks);
             }
             
             // At max stacks, release the fury wave
@@ -213,7 +216,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                 consecutiveHits++;
                 
                 // Visual feedback - growing mark on enemy
-                EroicaAccessoryVFX.TargetMarkVFX(target.Center, consecutiveHits);
+                SymphonyOfScarletFlamesVFX.TargetMarkVFX(target.Center, consecutiveHits);
                 
                 // 4th hit triggers the explosion
                 if (consecutiveHits >= 3)
@@ -229,14 +232,14 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                 consecutiveHits = 1;
                 
                 // Small initial mark
-                EroicaAccessoryVFX.NewTargetMarkVFX(target.Center);
+                SymphonyOfScarletFlamesVFX.NewTargetMarkVFX(target.Center);
             }
         }
         
         private void ReleaseFuryWave(int baseDamage)
         {
             // Dramatic fury release VFX
-            EroicaAccessoryVFX.FuryReleasePulse(Player.Center);
+            PyreOfTheFallenHeroVFX.FuryReleasePulse(Player.Center);
             
             // Spawn the 360° slash wave projectile
             if (Main.myPlayer == Player.whoAmI)
@@ -321,7 +324,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
             SoundEngine.PlaySound(SoundID.Item78 with { Pitch = 0.2f }, Player.Center);
             
             // Dramatic appearance particles
-            EroicaAccessoryVFX.HeroicSpiritSummonVFX(Player.Center + new Vector2(0, -60f));
+            SakurasBurningWillVFX.HeroicSpiritSummonVFX(Player.Center + new Vector2(0, -60f));
         }
         
         private void UpdateMinionProximityBonus()
@@ -355,7 +358,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                 damageBoostTimer = DamageBoostDuration;
                 
                 // Visual feedback
-                EroicaAccessoryVFX.DamageBoostIndicator(Player.Center, DamageBoostDuration);
+                PyreOfTheFallenHeroVFX.DamageBoostIndicator(Player.Center, DamageBoostDuration);
             }
         }
         

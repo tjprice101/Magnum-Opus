@@ -21,6 +21,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
     /// </summary>
     public class IgnitionOfMystery : ModItem
     {
+        public override string Texture => "MagnumOpus/Content/EnigmaVariations/Accessories/IgnitionOfMystery/IgnitionOfMystery";
+
         // Enigma color palette
         private static readonly Color EnigmaBlack = new Color(15, 10, 20);
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);

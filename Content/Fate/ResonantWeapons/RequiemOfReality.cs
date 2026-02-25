@@ -56,7 +56,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             tooltips.Add(new TooltipLine(Mod, "FateSpecial2", "Notes explode with cosmic flames and electricity on contact"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The final requiem for a dying reality'")
             {
-                OverrideColor = FateCosmicVFX.FateBrightRed
+                OverrideColor = FatePalette.BrightCrimson
             });
         }
         
@@ -82,9 +82,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
                     ModContent.ProjectileType<RequiemSpectralBladeProjectile>(), damage * 2, knockback, player.whoAmI);
                 
                 // Dramatic spawn VFX
-                FateCosmicVFX.SpawnGlyphBurst(player.Center, 8, 6f, 0.45f);
-                FateCosmicVFX.SpawnCosmicMusicNotes(player.Center, 6, 40f, 0.35f);
-                FateCosmicVFX.SpawnCosmicCloudBurst(player.Center, 0.6f, 12);
+                RequiemOfRealityVFX.SpectralBladeComboSpawnVFX(player.Center);
                 SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 0.8f }, player.Center);
             }
             
@@ -107,97 +105,34 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             }
             
             // Musical spawn VFX
-            FateCosmicVFX.SpawnCosmicMusicNotes(player.Center + velocity.SafeNormalize(Vector2.Zero) * 30f, 2, 15f, 0.25f);
-            
+            RequiemOfRealityVFX.MusicNoteSpawnVFX(player.Center + velocity.SafeNormalize(Vector2.Zero) * 30f);
+
             SoundEngine.PlaySound(SoundID.Item26 with { Pitch = 0.5f, Volume = 0.7f }, player.Center);
-            
+
             return false;
         }
-        
+
         public override void HoldItem(Player player)
         {
-            // === COSMIC SYMPHONY HOLD EFFECT ===
-            // Floating music notes orbit
-            if (Main.rand.NextBool(6))
-            {
-                float angle = Main.GameUpdateCount * 0.025f + Main.rand.NextFloat(MathHelper.Pi);
-                Vector2 notePos = player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(30f, 50f);
-                FateCosmicVFX.SpawnCosmicMusicNotes(notePos, 1, 8f, 0.22f);
-            }
-            
-            // Glyphs in rhythm pattern
-            if (Main.rand.NextBool(12))
-            {
-                float rhythmOffset = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 25f;
-                CustomParticles.Glyph(player.Center + new Vector2(rhythmOffset, -20f), FateCosmicVFX.FateDarkPink, 0.3f, -1);
-            }
-            
-            // Star sparkle accompaniment
-            if (Main.rand.NextBool(7))
-            {
-                var star = new GenericGlowParticle(player.Center + Main.rand.NextVector2Circular(35f, 35f),
-                    Main.rand.NextVector2Circular(0.6f, 0.6f), FateCosmicVFX.FateWhite, 0.18f, 18, true);
-                MagnumParticleHandler.SpawnParticle(star);
-            }
-            
-            // Harmonic light pulse (synced to musical rhythm)
-            float rhythmPulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.2f + 0.8f;
-            Lighting.AddLight(player.Center, FateCosmicVFX.FateNebulaPurple.ToVector3() * rhythmPulse * 0.4f);
+            RequiemOfRealityVFX.HoldItemVFX(player);
         }
-        
+
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
-            Vector2 swingPos = hitbox.Center.ToVector2();
-            
             // === SPECTACULAR SWING SYSTEM - ENDGAME TIER (7-8 arcs + cosmic music notes) ===
-            SpectacularMeleeSwing.OnSwing(player, hitbox, FateCosmicVFX.FateDarkPink, FateCosmicVFX.FateBrightRed, 
+            SpectacularMeleeSwing.OnSwing(player, hitbox, FatePalette.DarkPink, FatePalette.BrightCrimson,
                 SpectacularMeleeSwing.SwingTier.Endgame, SpectacularMeleeSwing.WeaponTheme.Fate);
-            
-            // Cosmic sparks and music notes from swing
-            if (Main.rand.NextBool(2))
-            {
-                Color sparkColor = FateCosmicVFX.GetCosmicGradient(Main.rand.NextFloat());
-                Vector2 sparkVel = new Vector2(player.direction * 3f, Main.rand.NextFloat(-2f, 2f));
-                var spark = new GlowSparkParticle(swingPos + Main.rand.NextVector2Circular(15f, 15f), sparkVel, sparkColor, 0.22f, 12);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            // Music notes scatter from swing - VISIBLE SCALE 0.7f+
-            if (Main.rand.NextBool(4))
-            {
-                FateCosmicVFX.SpawnCosmicMusicNotes(swingPos, 1, 20f, 0.2f);
-            }
-            
-            // Star sparkle accents
-            if (Main.rand.NextBool(5))
-            {
-                var sparkle = new SparkleParticle(swingPos + Main.rand.NextVector2Circular(15f, 15f), 
-                    Main.rand.NextVector2Circular(1f, 1f), FateCosmicVFX.FateWhite * 0.5f, 0.2f, 14);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
+
+            RequiemOfRealityVFX.SwingVFX(hitbox.Center.ToVector2(), player);
         }
-        
+
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 300);
-            
-            // Impact with cosmic flames and lightning
-            FateCosmicVFX.SpawnCosmicExplosion(target.Center, 0.9f);
-            FateCosmicVFX.SpawnCosmicLightningStrike(target.Center, 0.8f);
-            FateCosmicVFX.SpawnCosmicMusicNotes(target.Center, 5, 40f, 0.35f);
-            FateCosmicVFX.SpawnGlyphBurst(target.Center, 4, 5f, 0.35f);
-            
-            // Star particles
-            for (int i = 0; i < 8; i++)
-            {
-                Vector2 starOffset = Main.rand.NextVector2Circular(35f, 35f);
-                var star = new GenericGlowParticle(target.Center + starOffset, Main.rand.NextVector2Circular(2f, 2f), 
-                    FateCosmicVFX.FateWhite, 0.28f, 20, true);
-                MagnumParticleHandler.SpawnParticle(star);
-            }
-            
-            Lighting.AddLight(target.Center, FateCosmicVFX.FateBrightRed.ToVector3() * 1.3f);
-            
+
+            // Impact VFX
+            RequiemOfRealityVFX.ImpactVFX(target.Center);
+
             // Spawn seeking crystals on every hit - Fate endgame power
             if (Main.rand.NextBool(3)) // 33% chance per hit
             {

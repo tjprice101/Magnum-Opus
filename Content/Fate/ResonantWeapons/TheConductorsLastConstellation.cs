@@ -49,131 +49,64 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             tooltips.Add(new TooltipLine(Mod, "FateVisual", "Swings create a glass-shattering distortion effect"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The final symphony, written in starlight'")
             {
-                OverrideColor = FateCosmicVFX.FateBrightRed
+                OverrideColor = FatePalette.BrightCrimson
             });
         }
-        
+
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             // Spawn 3 homing spectral Terrablade-style beams in a spread
             float baseAngle = velocity.ToRotation();
             float spreadAngle = MathHelper.ToRadians(18f);
-            
+
             for (int i = 0; i < 3; i++)
             {
                 float angleOffset = MathHelper.Lerp(-spreadAngle, spreadAngle, (i + 0.5f) / 3f);
                 Vector2 projVelocity = (baseAngle + angleOffset).ToRotationVector2() * velocity.Length();
                 Vector2 spawnPos = player.Center + projVelocity.SafeNormalize(Vector2.Zero) * 40f;
-                
+
                 Projectile.NewProjectile(source, spawnPos, projVelocity, type, damage, knockback, player.whoAmI);
             }
-            
+
             // Spawn glass distortion effect at swing origin
             Vector2 distortionPos = player.Center + velocity.SafeNormalize(Vector2.Zero) * 50f;
-            Projectile.NewProjectile(source, distortionPos, velocity * 0.5f, 
-                ModContent.ProjectileType<GlassDistortionEffect>(), 0, 0f, player.whoAmI, 
+            Projectile.NewProjectile(source, distortionPos, velocity * 0.5f,
+                ModContent.ProjectileType<GlassDistortionEffect>(), 0, 0f, player.whoAmI,
                 velocity.ToRotation());
-            
+
             // Track for star circle effect
             player.GetModPlayer<FateWeaponEffectPlayer>()?.OnFateWeaponAttack(player.Center);
-            
+
             SoundEngine.PlaySound(SoundID.Item71 with { Pitch = 0.4f, Volume = 0.9f }, player.Center);
-            
+
             return false;
         }
-        
+
         public override void HoldItem(Player player)
         {
-            // === CELESTIAL COSMIC HOLD EFFECT ===
-            // Orbiting glyphs around the player
-            if (Main.rand.NextBool(8))
-            {
-                float angle = Main.GameUpdateCount * 0.04f;
-                for (int i = 0; i < 3; i++)
-                {
-                    float glyphAngle = angle + MathHelper.TwoPi * i / 3f;
-                    Vector2 glyphPos = player.Center + glyphAngle.ToRotationVector2() * 45f;
-                    CustomParticles.Glyph(glyphPos, FateCosmicVFX.FateDarkPink, 0.35f, -1);
-                }
-            }
-            
-            // Star sparkles ambient aura
-            if (Main.rand.NextBool(6))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(35f, 35f);
-                var star = new GenericGlowParticle(player.Center + offset, Main.rand.NextVector2Circular(0.5f, 0.5f), 
-                    FateCosmicVFX.FateWhite, 0.22f, 18, true);
-                MagnumParticleHandler.SpawnParticle(star);
-            }
-            
-            // Cosmic cloud wisps while moving
-            if (player.velocity.Length() > 2f && Main.rand.NextBool(4))
-            {
-                FateCosmicVFX.SpawnCosmicCloudTrail(player.Center - player.velocity * 0.5f, player.velocity, 0.4f);
-            }
-            
-            // Pulsing cosmic light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.15f + 0.85f;
-            Lighting.AddLight(player.Center, FateCosmicVFX.FateBrightRed.ToVector3() * pulse * 0.4f);
+            TheConductorsLastConstellationVFX.HoldItemVFX(player);
         }
-        
+
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
-            Vector2 swingPos = hitbox.Center.ToVector2();
-            
-            // Cosmic sparks from swing with music notes
-            if (Main.rand.NextBool(2))
-            {
-                Color sparkColor = FateCosmicVFX.GetCosmicGradient(Main.rand.NextFloat());
-                Vector2 sparkVel = new Vector2(player.direction * 4f, Main.rand.NextFloat(-3f, 3f));
-                var spark = new GlowSparkParticle(swingPos + Main.rand.NextVector2Circular(15f, 15f), sparkVel, sparkColor, 0.25f, 14);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            // Occasional cosmic glyph in swing
-            if (Main.rand.NextBool(8))
-            {
-                FateCosmicVFX.SpawnGlyphBurst(swingPos, 1, 3f, 0.3f);
-            }
+            TheConductorsLastConstellationVFX.SwingVFX(hitbox.Center.ToVector2(), player);
         }
-        
+
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
         {
             // Apply Fate debuff
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 300);
-            
+
             // Call down cosmic lightning 3 times with staggered timing
             for (int strike = 0; strike < 3; strike++)
             {
                 Vector2 strikeOffset = Main.rand.NextVector2Circular(25f, 25f);
-                FateCosmicVFX.SpawnCosmicLightningStrike(target.Center + strikeOffset, 1.0f + strike * 0.15f);
+                TheConductorsLastConstellationVFX.LightningStrikeVFX(target.Center + strikeOffset, 1.0f + strike * 0.15f);
             }
-            
-            // Cosmic explosion particles with gradient
-            for (int i = 0; i < 12; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 12f;
-                float progress = (float)i / 12f;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(6f, 12f);
-                Color sparkColor = FateCosmicVFX.GetCosmicGradient(progress);
-                var spark = new GlowSparkParticle(target.Center, vel, sparkColor, 0.35f, 18);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-            
-            // Star particle burst
-            for (int i = 0; i < 8; i++)
-            {
-                Vector2 starOffset = Main.rand.NextVector2Circular(40f, 40f);
-                var star = new GenericGlowParticle(target.Center + starOffset, Main.rand.NextVector2Circular(2f, 2f), 
-                    FateCosmicVFX.FateWhite, 0.3f, 20, true);
-                MagnumParticleHandler.SpawnParticle(star);
-            }
-            
-            // Glyphs around impact
-            FateCosmicVFX.SpawnGlyphBurst(target.Center, 4, 6f, 0.4f);
-            
-            Lighting.AddLight(target.Center, FateCosmicVFX.FateBrightRed.ToVector3() * 1.5f);
-            
+
+            // Impact VFX
+            TheConductorsLastConstellationVFX.ImpactVFX(target.Center);
+
             // Spawn seeking crystals on every hit - Fate ultimate melee power
             SeekingCrystalHelper.SpawnFateCrystals(
                 player.GetSource_ItemUse(Item),

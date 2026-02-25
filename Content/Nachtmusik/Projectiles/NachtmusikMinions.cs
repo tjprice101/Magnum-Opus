@@ -9,6 +9,7 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Nachtmusik.Debuffs;
+using MagnumOpus.Content.Nachtmusik.ResonantWeapons;
 
 namespace MagnumOpus.Content.Nachtmusik.Projectiles
 {
@@ -95,7 +96,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                     Projectile.velocity = toTarget * 22f;
                     
                     // Attack VFX
-                    NachtmusikCosmicVFX.SpawnCelestialCloudTrail(Projectile.Center, Projectile.velocity, 0.4f);
+                    NachtmusikVFXLibrary.SpawnCloudTrail(Projectile.Center, Projectile.velocity, 0.4f);
                 }
                 else
                 {
@@ -107,43 +108,17 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             Projectile.rotation = Projectile.velocity.X * 0.02f;
             Projectile.spriteDirection = Projectile.velocity.X > 0 ? 1 : -1;
             
-            // Ambient particles
-            if (Main.rand.NextBool(5))
-            {
-                var glow = new GenericGlowParticle(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f),
-                    Main.rand.NextVector2Circular(0.5f, 0.5f), NachtmusikCosmicVFX.Violet * 0.5f, 0.2f, 15, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-            
-            // ☁EMUSICAL PRESENCE - Celestial guardian aura - VISIBLE SCALE 0.72f+
-            if (Main.rand.NextBool(15))
-            {
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.8f);
-                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f), noteVel, NachtmusikCosmicVFX.DeepPurple, 0.72f, 30);
-                
-                // Celestial sparkle accent
-                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(12f, 12f), noteVel * 0.6f, NachtmusikCosmicVFX.StarWhite * 0.6f, 0.3f, 22);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-            
-            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.DeepPurple.ToVector3() * 0.5f);
+            // Ambient VFX
+            CelestialChorusBatonVFX.MinionAmbientVFX(Projectile.Center, 1f);
+
+            Lighting.AddLight(Projectile.Center, NachtmusikPalette.CosmicPurple.ToVector3() * 0.5f);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(ModContent.BuffType<CelestialHarmony>(), 300);
             target.GetGlobalNPC<CelestialHarmonyNPC>().AddStack(target, 1);
-            NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, 0.8f);
-            
-            // ☁EMUSICAL IMPACT - Guardian strike chord - VISIBLE SCALE 0.72f+
-            ThemedParticles.MusicNoteBurst(target.Center, NachtmusikCosmicVFX.Violet, 5, 3.5f);
-            
-            // Celestial sparkle burst
-            for (int i = 0; i < 4; i++)
-            {
-                var sparkle = new SparkleParticle(target.Center, Main.rand.NextVector2Circular(3f, 3f), NachtmusikCosmicVFX.StarWhite * 0.7f, 0.28f, 18);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
+            CelestialChorusBatonVFX.MinionImpactVFX(target.Center);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -157,8 +132,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             // Glow behind sprite
             Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow3").Value;
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.1f + 0.9f;
-            sb.Draw(glow, drawPos, null, NachtmusikCosmicVFX.DeepPurple * 0.4f, 0f, glow.Size() / 2f, 0.7f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(glow, drawPos, null, NachtmusikCosmicVFX.Violet * 0.3f, 0f, glow.Size() / 2f, 0.5f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, NachtmusikPalette.CosmicPurple * 0.4f, 0f, glow.Size() / 2f, 0.7f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, NachtmusikPalette.Violet * 0.3f, 0f, glow.Size() / 2f, 0.5f * pulse, SpriteEffects.None, 0f);
             
             // Main sprite
             sb.Draw(tex, drawPos, null, Color.White, Projectile.rotation, origin, Projectile.scale, effects, 0f);
@@ -273,24 +248,15 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                     ModContent.ProjectileType<MuseNoteProjectile>(), Projectile.damage, Projectile.knockBack, Projectile.owner);
                 
                 attackCooldown = 20;
-                
-                // Fire VFX - VISIBLE SCALE 0.7f+
-                CustomParticles.GenericFlare(Projectile.Center, NachtmusikCosmicVFX.Gold, 0.4f, 12);
-                ThemedParticles.MusicNote(Projectile.Center + toTarget * 15f, toTarget * 2f, NachtmusikCosmicVFX.Gold, 0.7f, 15);
+
+                // Fire VFX
+                GalacticOvertureVFX.MinionAttackVFX(Projectile.Center, toTarget);
             }
-            
-            // Ambient music notes - VISIBLE SCALE 0.7f+
-            if (Main.rand.NextBool(20))
-            {
-                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f),
-                    new Vector2(0, -1f), NachtmusikCosmicVFX.Violet * 0.7f, 0.7f, 25);
-                
-                // Golden sparkle accent
-                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f), new Vector2(0, -0.8f), NachtmusikCosmicVFX.Gold * 0.5f, 0.25f, 20);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-            
-            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.Gold.ToVector3() * 0.4f);
+
+            // Ambient VFX
+            GalacticOvertureVFX.MinionAmbientVFX(Projectile.Center, 1f);
+
+            Lighting.AddLight(Projectile.Center, NachtmusikPalette.RadianceGold.ToVector3() * 0.4f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -304,8 +270,8 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             // Golden glow
             Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow4").Value;
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.15f + 0.85f;
-            sb.Draw(glow, drawPos, null, NachtmusikCosmicVFX.Gold * 0.3f, 0f, glow.Size() / 2f, 0.6f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(glow, drawPos, null, NachtmusikCosmicVFX.Violet * 0.2f, 0f, glow.Size() / 2f, 0.4f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, NachtmusikPalette.RadianceGold * 0.3f, 0f, glow.Size() / 2f, 0.6f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, NachtmusikPalette.Violet * 0.2f, 0f, glow.Size() / 2f, 0.4f * pulse, SpriteEffects.None, 0f);
             
             sb.Draw(tex, drawPos, null, Color.White, 0f, origin, Projectile.scale, effects, 0f);
             
@@ -381,7 +347,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             if (Main.rand.NextBool(3))
             {
                 var trail = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f,
-                    NachtmusikCosmicVFX.Gold * 0.6f, 0.15f, 12, true);
+                    NachtmusikPalette.RadianceGold * 0.6f, 0.15f, 12, true);
                 MagnumParticleHandler.SpawnParticle(trail);
             }
             
@@ -389,28 +355,28 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             if (Main.rand.NextBool(5))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), -0.9f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, NachtmusikCosmicVFX.Gold, 0.7f, 25);
+                NachtmusikVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 1f, 0.7f, 0.7f, 25);
                 
                 // Golden sparkle accent
-                var sparkle = new SparkleParticle(Projectile.Center, noteVel * 0.5f, NachtmusikCosmicVFX.Gold * 0.5f, 0.22f, 18);
+                var sparkle = new SparkleParticle(Projectile.Center, noteVel * 0.5f, NachtmusikPalette.RadianceGold * 0.5f, 0.22f, 18);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.Gold.ToVector3() * 0.3f);
+            Lighting.AddLight(Projectile.Center, NachtmusikPalette.RadianceGold.ToVector3() * 0.3f);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(ModContent.BuffType<CelestialHarmony>(), 240);
-            CustomParticles.GenericFlare(target.Center, NachtmusikCosmicVFX.Gold, 0.4f, 10);
+            CustomParticles.GenericFlare(target.Center, NachtmusikPalette.RadianceGold, 0.4f, 10);
             
-            // ☁EMUSICAL IMPACT - Muse melody chord - VISIBLE SCALE 0.7f+
-            ThemedParticles.MusicNoteBurst(target.Center, NachtmusikCosmicVFX.Gold, 4, 3f);
+            // Musical impact - Muse melody chord
+            NachtmusikVFXLibrary.SpawnMusicNotes(target.Center, 4, 3f, 0.7f, 0.9f, 25);
             
             // Sparkle burst
             for (int i = 0; i < 3; i++)
             {
-                var sparkle = new SparkleParticle(target.Center, Main.rand.NextVector2Circular(2.5f, 2.5f), NachtmusikCosmicVFX.StarWhite * 0.6f, 0.22f, 15);
+                var sparkle = new SparkleParticle(target.Center, Main.rand.NextVector2Circular(2.5f, 2.5f), NachtmusikPalette.StarWhite * 0.6f, 0.22f, 15);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
         }
@@ -420,17 +386,17 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             for (int i = 0; i < 4; i++)
             {
                 var burst = new GenericGlowParticle(Projectile.Center, Main.rand.NextVector2Circular(3f, 3f),
-                    NachtmusikCosmicVFX.Gold * 0.6f, 0.2f, 12, true);
+                    NachtmusikPalette.RadianceGold * 0.6f, 0.2f, 12, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
             
-            // ☁EMUSICAL FINALE - Muse note finale - VISIBLE SCALE 0.72f+
-            ThemedParticles.MusicNoteBurst(Projectile.Center, NachtmusikCosmicVFX.Gold, 5, 3.5f);
+            // Musical finale - Muse note finale
+            NachtmusikVFXLibrary.SpawnMusicNotes(Projectile.Center, 5, 3.5f, 0.7f, 0.9f, 25);
             
             // Finale sparkle cascade
             for (int i = 0; i < 4; i++)
             {
-                var sparkle = new SparkleParticle(Projectile.Center, Main.rand.NextVector2Circular(3f, 3f), NachtmusikCosmicVFX.Gold * 0.6f, 0.25f, 18);
+                var sparkle = new SparkleParticle(Projectile.Center, Main.rand.NextVector2Circular(3f, 3f), NachtmusikPalette.RadianceGold * 0.6f, 0.25f, 18);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
         }
@@ -516,7 +482,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                 attackCooldown = 25;
                 
                 // Conducting VFX
-                NachtmusikCosmicVFX.SpawnConstellationCircle(Projectile.Center, 40f, 6, 0.3f);
+                ConductorOfConstellationsVFX.MinionAttackVFX(Projectile.Center, (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitX));
                 SoundEngine.PlaySound(SoundID.Item25 with { Pitch = 0.5f, Volume = 0.6f }, Projectile.Center);
             }
             
@@ -532,41 +498,14 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                         dir * 12f, ModContent.ProjectileType<ConductorStarProjectile>(), Projectile.damage, Projectile.knockBack, Projectile.owner);
                 }
                 
-                NachtmusikCosmicVFX.SpawnCelestialExplosion(Projectile.Center, 0.7f);
-                NachtmusikCosmicVFX.SpawnMusicNoteBurst(Projectile.Center, 12, 6f);
+                NachtmusikVFXLibrary.ProjectileImpact(Projectile.Center, 0.7f);
+                NachtmusikVFXLibrary.SpawnMusicNotes(Projectile.Center, 12, 6f, 0.7f, 0.9f, 25);
             }
             
-            // Ambient conducting particles
-            if (Main.rand.NextBool(8))
-            {
-                float sparkAngle = conductAngle * 3f;
-                Vector2 sparkPos = Projectile.Center + sparkAngle.ToRotationVector2() * 30f;
-                CustomParticles.GenericFlare(sparkPos, NachtmusikCosmicVFX.Gold, 0.25f, 12);
-            }
+            // Ambient VFX
+            ConductorOfConstellationsVFX.MinionAmbientVFX(Projectile.Center, 1f);
             
-            // ☁EMUSICAL PRESENCE - Conductor's celestial baton - VISIBLE SCALE 0.75f+
-            if (Main.rand.NextBool(12))
-            {
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), -1f);
-                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f), noteVel, NachtmusikCosmicVFX.Gold, 0.75f, 35);
-                
-                // Majestic star sparkle accent
-                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(18f, 18f), noteVel * 0.6f, NachtmusikCosmicVFX.StarWhite * 0.65f, 0.32f, 25);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-            
-            // Orbiting glyphs
-            if (orchestraTimer % 30 == 0)
-            {
-                for (int i = 0; i < 3; i++)
-                {
-                    float glyphAngle = conductAngle + MathHelper.TwoPi * i / 3f;
-                    Vector2 glyphPos = Projectile.Center + glyphAngle.ToRotationVector2() * 45f;
-                    CustomParticles.Glyph(glyphPos, NachtmusikCosmicVFX.Violet, 0.3f, -1);
-                }
-            }
-            
-            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.Gold.ToVector3() * 0.6f);
+            Lighting.AddLight(Projectile.Center, NachtmusikPalette.RadianceGold.ToVector3() * 0.6f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -579,9 +518,9 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             // Majestic glow
             Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo4").Value;
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.2f + 0.8f;
-            sb.Draw(glow, drawPos, null, NachtmusikCosmicVFX.DeepPurple * 0.5f, 0f, glow.Size() / 2f, 1f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(glow, drawPos, null, NachtmusikCosmicVFX.Gold * 0.4f, 0f, glow.Size() / 2f, 0.7f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(glow, drawPos, null, NachtmusikCosmicVFX.Violet * 0.3f, 0f, glow.Size() / 2f, 0.5f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, NachtmusikPalette.CosmicPurple * 0.5f, 0f, glow.Size() / 2f, 1f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, NachtmusikPalette.RadianceGold * 0.4f, 0f, glow.Size() / 2f, 0.7f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, NachtmusikPalette.Violet * 0.3f, 0f, glow.Size() / 2f, 0.5f * pulse, SpriteEffects.None, 0f);
             
             sb.Draw(tex, drawPos, null, Color.White, 0f, origin, Projectile.scale, SpriteEffects.None, 0f);
             
@@ -674,7 +613,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             if (Main.rand.NextBool(2))
             {
                 var trail = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f,
-                    NachtmusikCosmicVFX.StarWhite * 0.5f, 0.15f, 10, true);
+                    NachtmusikPalette.StarWhite * 0.5f, 0.15f, 10, true);
                 MagnumParticleHandler.SpawnParticle(trail);
             }
             
@@ -682,50 +621,50 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             if (Main.rand.NextBool(6))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, NachtmusikCosmicVFX.StarWhite, 0.7f, 28);
+                NachtmusikVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 1f, 0.7f, 0.7f, 28);
                 
                 // Star sparkle accent
-                var sparkle = new SparkleParticle(Projectile.Center, noteVel * 0.4f, NachtmusikCosmicVFX.Gold * 0.5f, 0.2f, 16);
+                var sparkle = new SparkleParticle(Projectile.Center, noteVel * 0.4f, NachtmusikPalette.RadianceGold * 0.5f, 0.2f, 16);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            Lighting.AddLight(Projectile.Center, NachtmusikCosmicVFX.StarWhite.ToVector3() * 0.4f);
+            Lighting.AddLight(Projectile.Center, NachtmusikPalette.StarWhite.ToVector3() * 0.4f);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(ModContent.BuffType<CelestialHarmony>(), 300);
             target.GetGlobalNPC<CelestialHarmonyNPC>().AddStack(target, 1);
-            NachtmusikCosmicVFX.SpawnCelestialImpact(target.Center, 0.6f);
+            NachtmusikVFXLibrary.ProjectileImpact(target.Center, 0.6f);
             
-            // ☁EMUSICAL IMPACT - Conductor star chord - VISIBLE SCALE 0.7f+
-            ThemedParticles.MusicNoteBurst(target.Center, NachtmusikCosmicVFX.StarWhite, 4, 3f);
+            // Musical impact - Conductor star chord
+            NachtmusikVFXLibrary.SpawnMusicNotes(target.Center, 4, 3f, 0.7f, 0.9f, 25);
             
             // Star sparkle burst
             for (int i = 0; i < 3; i++)
             {
-                var sparkle = new SparkleParticle(target.Center, Main.rand.NextVector2Circular(3f, 3f), NachtmusikCosmicVFX.Gold * 0.6f, 0.22f, 15);
+                var sparkle = new SparkleParticle(target.Center, Main.rand.NextVector2Circular(3f, 3f), NachtmusikPalette.RadianceGold * 0.6f, 0.22f, 15);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
         }
         
         public override void OnKill(int timeLeft)
         {
-            CustomParticles.GenericFlare(Projectile.Center, NachtmusikCosmicVFX.Gold, 0.4f, 12);
+            CustomParticles.GenericFlare(Projectile.Center, NachtmusikPalette.RadianceGold, 0.4f, 12);
             for (int i = 0; i < 5; i++)
             {
                 var burst = new GenericGlowParticle(Projectile.Center, Main.rand.NextVector2Circular(4f, 4f),
-                    NachtmusikCosmicVFX.GetCelestialGradient(Main.rand.NextFloat()) * 0.6f, 0.15f, 10, true);
+                    NachtmusikPalette.GetCelestialGradient(Main.rand.NextFloat()) * 0.6f, 0.15f, 10, true);
                 MagnumParticleHandler.SpawnParticle(burst);
             }
             
-            // ☁EMUSICAL FINALE - Conductor star finale - VISIBLE SCALE 0.72f+
-            ThemedParticles.MusicNoteBurst(Projectile.Center, NachtmusikCosmicVFX.Gold, 5, 3.5f);
+            // Musical finale - Conductor star finale
+            NachtmusikVFXLibrary.SpawnMusicNotes(Projectile.Center, 5, 3.5f, 0.7f, 0.9f, 25);
             
             // Finale sparkle cascade
             for (int i = 0; i < 4; i++)
             {
-                var sparkle = new SparkleParticle(Projectile.Center, Main.rand.NextVector2Circular(4f, 4f), NachtmusikCosmicVFX.StarWhite * 0.6f, 0.25f, 18);
+                var sparkle = new SparkleParticle(Projectile.Center, Main.rand.NextVector2Circular(4f, 4f), NachtmusikPalette.StarWhite * 0.6f, 0.25f, 18);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
         }

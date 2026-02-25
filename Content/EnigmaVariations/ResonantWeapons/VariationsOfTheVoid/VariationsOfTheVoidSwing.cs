@@ -124,9 +124,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
 
         protected override Texture2D GetBladeTexture()
         {
-            if (ModContent.HasAsset("MagnumOpus/Content/EnigmaVariations/ResonantWeapons/VariationsOfTheVoid"))
+            if (ModContent.HasAsset("MagnumOpus/Content/EnigmaVariations/ResonantWeapons/VariationsOfTheVoid/VariationsOfTheVoid"))
                 return ModContent.Request<Texture2D>(
-                    "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/VariationsOfTheVoid").Value;
+                    "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/VariationsOfTheVoid/VariationsOfTheVoid").Value;
             return base.GetBladeTexture();
         }
 

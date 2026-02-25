@@ -7,6 +7,7 @@ using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Content.Eroica.Accessories.Shared;
 
 namespace MagnumOpus.Content.Eroica.Accessories.FuneralMarchInsignia
 {

@@ -10,6 +10,7 @@ using MagnumOpus.Content.Common.Accessories;
 using MagnumOpus.Content.MoonlightSonata.HarmonicCores;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
+using MagnumOpus.Content.MoonlightSonata.VFX.Accessories;
 using System;
 using System.Collections.Generic;
 
@@ -38,6 +39,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
     /// </summary>
     public class AdagioPendant : ModItem
     {
+        public override string Texture => "MagnumOpus/Content/MoonlightSonata/Accessories/Shared/AdagioPendant";
+
         public override void SetDefaults()
         {
             Item.width = 28;
@@ -96,6 +99,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                 {
                     CustomParticles.MoonlightCrescendo(player.Center, 0.3f);
                 }
+
+                // Unified adagio ambient VFX
+                AdagioPendantVFX.AmbientAdagioAura(player.Center, (int)Main.GameUpdateCount);
             }
 
             // Soft lunar light
@@ -148,6 +154,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
     /// </summary>
     public class SonatasEmbrace : ModItem
     {
+        public override string Texture => "MagnumOpus/Content/MoonlightSonata/Accessories/Shared/SonatasEmbrace";
+
         public override void SetDefaults()
         {
             Item.width = 32;
@@ -234,6 +242,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                     Vector2 pos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
                     MoonlightVFXLibrary.SpawnMusicNotes(pos, 1, 8f, 0.6f, 0.75f, 30);
                 }
+
+                // Unified orchestral ambient VFX
+                SonatasEmbraceVFX.AmbientOrchestraAura(player.Center, (int)Main.GameUpdateCount);
             }
 
             // Enhanced lunar light
@@ -327,6 +338,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                     CustomParticles.GenericFlare(pos, MoonlightVFXLibrary.Violet * 0.8f, 0.3f, 15);
                 }
             }
+
+            // Unified moonstruck application flash
+            SonatasEmbraceVFX.MoonstruckApplicationFlash(target.Center);
         }
     }
 

@@ -33,6 +33,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
     /// </summary>
     public class PuzzleFragment : ModItem
     {
+        public override string Texture => "MagnumOpus/Content/EnigmaVariations/Accessories/PendantOfAThousandPuzzles/PuzzleFragment";
+
         public override void SetDefaults()
         {
             Item.width = 32;
@@ -182,6 +184,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
     /// </summary>
     public class RiddleOfTheVoid : ModItem
     {
+        public override string Texture => "MagnumOpus/Content/EnigmaVariations/Accessories/RiddlemastersCauldron/RiddleOfTheVoid";
+
         public override void SetDefaults()
         {
             Item.width = 36;

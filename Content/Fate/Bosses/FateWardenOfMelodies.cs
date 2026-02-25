@@ -40,14 +40,7 @@ namespace MagnumOpus.Content.Fate.Bosses
         // Custom boss sprite - celestial deity with multiple arms
         public override string Texture => "MagnumOpus/Content/Fate/Bosses/FateWardenOfMelodies";
         
-        #region Theme Colors - Dark Prismatic Celestial
-        private static readonly Color FateBlack = new Color(15, 5, 20);
-        private static readonly Color FateDarkPink = new Color(180, 50, 100);
-        private static readonly Color FateBrightRed = new Color(255, 60, 80);
-        private static readonly Color FatePurple = new Color(120, 30, 140);
-        private static readonly Color FateWhite = new Color(255, 255, 255);
-        private static readonly Color FateStarGold = new Color(255, 230, 180);
-        #endregion
+        // Fate theme colors - sourced from centralized FatePalette
         
         #region Constants - Tight Timing Windows
         private const float BaseSpeed = 22f;           // Very fast base speed
@@ -204,11 +197,11 @@ namespace MagnumOpus.Content.Fate.Bosses
         private Color GetCosmicGradient(float progress)
         {
             if (progress < 0.33f)
-                return Color.Lerp(FateBlack, FateDarkPink, progress * 3f);
+                return Color.Lerp(FatePalette.CosmicVoid, FatePalette.DarkPink, progress * 3f);
             else if (progress < 0.66f)
-                return Color.Lerp(FateDarkPink, FateBrightRed, (progress - 0.33f) * 3f);
+                return Color.Lerp(FatePalette.DarkPink, FatePalette.BrightCrimson, (progress - 0.33f) * 3f);
             else
-                return Color.Lerp(FateBrightRed, FateWhite, (progress - 0.66f) * 3f);
+                return Color.Lerp(FatePalette.BrightCrimson, FatePalette.WhiteCelestial, (progress - 0.66f) * 3f);
         }
         
         private float GetAggressionSpeedMult() => 1f + aggressionLevel * 0.4f;
@@ -284,7 +277,7 @@ namespace MagnumOpus.Content.Fate.Bosses
             NPC.spriteDirection = NPC.direction = (target.Center.X > NPC.Center.X) ? 1 : -1;
             
             float lightIntensity = isEnraged ? 1.4f : 1.0f;
-            Lighting.AddLight(NPC.Center, FateBrightRed.ToVector3() * lightIntensity * 0.6f);
+            Lighting.AddLight(NPC.Center, FatePalette.BrightCrimson.ToVector3() * lightIntensity * 0.6f);
         }
 
         #region Core AI Methods
@@ -307,7 +300,7 @@ namespace MagnumOpus.Content.Fate.Bosses
             SoundEngine.PlaySound(SoundID.Roar with { Pitch = difficultyTier * 0.15f - 0.3f }, NPC.Center);
             
             // Cosmic burst
-            CustomParticles.GenericFlare(NPC.Center, FateWhite, 1.3f, 25);
+            CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 1.3f, 25);
             for (int i = 0; i < 10 + difficultyTier * 4; i++)
             {
                 float angle = MathHelper.TwoPi * i / (10 + difficultyTier * 4);
@@ -316,7 +309,7 @@ namespace MagnumOpus.Content.Fate.Bosses
             }
             
             // Glyph burst
-            CustomParticles.GlyphBurst(NPC.Center, FateDarkPink, 8, 5f);
+            CustomParticles.GlyphBurst(NPC.Center, FatePalette.DarkPink, 8, 5f);
             
             // Use dialogue system for phase transitions
             if (difficultyTier == 1)
@@ -391,14 +384,14 @@ namespace MagnumOpus.Content.Fate.Bosses
         {
             // Departure VFX
             SoundEngine.PlaySound(SoundID.Item8 with { Pitch = 0.5f, Volume = 1.3f }, NPC.Center);
-            CustomParticles.GenericFlare(NPC.Center, FateWhite, 1.2f, 20);
-            CustomParticles.GlyphBurst(NPC.Center, FatePurple, 6, 4f);
+            CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 1.2f, 20);
+            CustomParticles.GlyphBurst(NPC.Center, FatePalette.FatePurple, 6, 4f);
             
             // Cosmic cloud at departure
             for (int i = 0; i < 8; i++)
             {
                 Vector2 cloudVel = Main.rand.NextVector2Circular(4f, 4f);
-                var cloud = new GenericGlowParticle(NPC.Center, cloudVel, FatePurple * 0.6f, 0.4f, 25, true);
+                var cloud = new GenericGlowParticle(NPC.Center, cloudVel, FatePalette.FatePurple * 0.6f, 0.4f, 25, true);
                 MagnumParticleHandler.SpawnParticle(cloud);
             }
             
@@ -408,7 +401,7 @@ namespace MagnumOpus.Content.Fate.Bosses
             
             // Arrival VFX
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.4f }, NPC.Center);
-            CustomParticles.GenericFlare(NPC.Center, FateWhite, 1.5f, 28);
+            CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 1.5f, 28);
             // Cascading star burst arrival effect
             for (int i = 0; i < 6; i++)
             {
@@ -423,7 +416,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                     MagnumParticleHandler.SpawnParticle(starBurst);
                 }
             }
-            CustomParticles.GlyphBurst(NPC.Center, FateDarkPink, 8, 6f);
+            CustomParticles.GlyphBurst(NPC.Center, FatePalette.DarkPink, 8, 6f);
         }
         
         #endregion
@@ -437,7 +430,7 @@ namespace MagnumOpus.Content.Fate.Bosses
             if (Timer == 1)
             {
                 SoundEngine.PlaySound(SoundID.Roar with { Pitch = -0.5f, Volume = 1.5f }, NPC.Center);
-                Main.NewText("The Warden of Universal Melodies descends...", FateDarkPink);
+                Main.NewText("The Warden of Universal Melodies descends...", FatePalette.DarkPink);
             }
             
             if (Timer < 90 && Timer % 5 == 0)
@@ -454,14 +447,14 @@ namespace MagnumOpus.Content.Fate.Bosses
                 
                 // Glyphs spiral inward
                 CustomParticles.Glyph(NPC.Center + Main.rand.NextVector2Circular(100f * (1f - progress), 100f * (1f - progress)), 
-                    FateDarkPink, 0.4f, -1);
+                    FatePalette.DarkPink, 0.4f, -1);
             }
             
             if (Timer == 90)
             {
                 // Grand entrance explosion
                 MagnumScreenEffects.AddScreenShake(25f);
-                CustomParticles.GenericFlare(NPC.Center, FateWhite, 2f, 30);
+                CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 2f, 30);
                 // Cascading star burst entrance explosion
                 for (int i = 0; i < 12; i++)
                 {
@@ -476,7 +469,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                         MagnumParticleHandler.SpawnParticle(starBurst);
                     }
                 }
-                CustomParticles.GlyphBurst(NPC.Center, FateBrightRed, 12, 8f);
+                CustomParticles.GlyphBurst(NPC.Center, FatePalette.BrightCrimson, 12, 8f);
             }
             
             if (Timer >= 84)
@@ -610,7 +603,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                 // Recovery shimmer during reposition
                 if (Timer % 5 == 0)
                 {
-                    BossVFXOptimizer.RecoveryShimmer(NPC.Center, FateDarkPink, 55f, progress);
+                    BossVFXOptimizer.RecoveryShimmer(NPC.Center, FatePalette.DarkPink, 55f, progress);
                 }
             }
             else
@@ -624,7 +617,7 @@ namespace MagnumOpus.Content.Fate.Bosses
             if (Timer >= 28)
             {
                 // Ready to attack cue
-                BossVFXOptimizer.ReadyToAttackCue(NPC.Center, FatePurple, 0.6f);
+                BossVFXOptimizer.ReadyToAttackCue(NPC.Center, FatePalette.FatePurple, 0.6f);
                 
                 State = BossPhase.Idle;
                 Timer = 0;
@@ -645,13 +638,13 @@ namespace MagnumOpus.Content.Fate.Bosses
             {
                 float angle = Main.rand.NextFloat(-0.3f, 0.3f);
                 Vector2 projVel = (NPC.velocity.SafeNormalize(Vector2.UnitY) * 12f).RotatedBy(angle);
-                BossProjectileHelper.SpawnHostileOrb(NPC.Center, projVel, 80, FateBrightRed, HomingSpeed * 0.002f);
+                BossProjectileHelper.SpawnHostileOrb(NPC.Center, projVel, 80, FatePalette.BrightCrimson, HomingSpeed * 0.002f);
             }
             
             // Trail particles
             if (Timer % 3 == 0)
             {
-                CustomParticles.GenericFlare(NPC.Center, FateBrightRed, 0.5f, 12);
+                CustomParticles.GenericFlare(NPC.Center, FatePalette.BrightCrimson, 0.5f, 12);
             }
         }
         
@@ -693,7 +686,7 @@ namespace MagnumOpus.Content.Fate.Bosses
         private void EndAttack()
         {
             // Fate theme attack end cue - cosmic celestial exhale
-            BossVFXOptimizer.AttackEndCue(NPC.Center, FateDarkPink, FatePurple, 0.8f);
+            BossVFXOptimizer.AttackEndCue(NPC.Center, FatePalette.DarkPink, FatePalette.FatePurple, 0.8f);
             
             Timer = 0;
             SubPhase = 0;
@@ -738,21 +731,21 @@ namespace MagnumOpus.Content.Fate.Bosses
                         Vector2 offset = offsetAngle.ToRotationVector2() * 400f;
                         
                         // Departure VFX
-                        CustomParticles.GlyphBurst(NPC.Center, FatePurple, 4, 3f);
+                        CustomParticles.GlyphBurst(NPC.Center, FatePalette.FatePurple, 4, 3f);
                         
                         NPC.Center = target.Center + offset;
                         NPC.velocity = Vector2.Zero;
                         dashDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitY);
                         
                         // Arrival flash
-                        CustomParticles.GenericFlare(NPC.Center, FateWhite, 0.8f, 15);
+                        CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 0.8f, 15);
                         SoundEngine.PlaySound(SoundID.Item8 with { Pitch = 0.3f }, NPC.Center);
                     }
                     
                     // Warning line
                     float progress = (float)Timer / telegraphTime;
                     BossVFXOptimizer.WarningLine(NPC.Center, dashDirection, 500f, 12, WarningType.Danger);
-                    BossVFXOptimizer.ConvergingWarning(NPC.Center, 50f, progress, FateBrightRed, 6);
+                    BossVFXOptimizer.ConvergingWarning(NPC.Center, 50f, progress, FatePalette.BrightCrimson, 6);
                     
                     if (Timer >= telegraphTime)
                     {
@@ -767,14 +760,14 @@ namespace MagnumOpus.Content.Fate.Bosses
                     {
                         NPC.velocity = dashDirection * dashSpeed;
                         SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.4f, Volume = 0.8f }, NPC.Center);
-                        BossVFXOptimizer.AttackReleaseBurst(NPC.Center, FateBrightRed, FateDarkPink, 0.9f);
+                        BossVFXOptimizer.AttackReleaseBurst(NPC.Center, FatePalette.BrightCrimson, FatePalette.DarkPink, 0.9f);
                     }
                     
                     // Trail particles
                     if (Timer % 2 == 0)
                     {
-                        CustomParticles.GenericFlare(NPC.Center, FateBrightRed * 0.7f, 0.4f, 10);
-                        var trail = new GenericGlowParticle(NPC.Center, -NPC.velocity * 0.1f, FateDarkPink, 0.35f, 15, true);
+                        CustomParticles.GenericFlare(NPC.Center, FatePalette.BrightCrimson * 0.7f, 0.4f, 10);
+                        var trail = new GenericGlowParticle(NPC.Center, -NPC.velocity * 0.1f, FatePalette.DarkPink, 0.35f, 15, true);
                         MagnumParticleHandler.SpawnParticle(trail);
                     }
                     
@@ -834,11 +827,11 @@ namespace MagnumOpus.Content.Fate.Bosses
                     
                     // Mix of accelerating and homing
                     if (i % 2 == 0)
-                        BossProjectileHelper.SpawnAcceleratingBolt(spawnPos, vel * 0.7f, 85, FateBrightRed, 15f);
+                        BossProjectileHelper.SpawnAcceleratingBolt(spawnPos, vel * 0.7f, 85, FatePalette.BrightCrimson, 15f);
                     else
-                        BossProjectileHelper.SpawnHostileOrb(spawnPos, vel * 0.8f, 85, FateStarGold, 0.015f);
+                        BossProjectileHelper.SpawnHostileOrb(spawnPos, vel * 0.8f, 85, FatePalette.StarGold, 0.015f);
                     
-                    CustomParticles.GenericFlare(spawnPos, FateWhite, 0.4f, 10);
+                    CustomParticles.GenericFlare(spawnPos, FatePalette.WhiteCelestial, 0.4f, 10);
                 }
             }
             
@@ -869,7 +862,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                     {
                         float angle = MathHelper.TwoPi * i / glyphCount + Timer * 0.02f;
                         Vector2 glyphPos = target.Center + angle.ToRotationVector2() * radius;
-                        CustomParticles.Glyph(glyphPos, Color.Lerp(FatePurple, FateDarkPink, progress), 0.4f, -1);
+                        CustomParticles.Glyph(glyphPos, Color.Lerp(FatePalette.FatePurple, FatePalette.DarkPink, progress), 0.4f, -1);
                     }
                 }
                 
@@ -897,13 +890,13 @@ namespace MagnumOpus.Content.Fate.Bosses
                         Vector2 spawnPos = target.Center + angle.ToRotationVector2() * radius;
                         Vector2 vel = (target.Center - spawnPos).SafeNormalize(Vector2.Zero) * MediumProjectileSpeed;
                         
-                        BossProjectileHelper.SpawnHostileOrb(spawnPos, vel, 80, FateDarkPink, 0f);
-                        CustomParticles.GenericFlare(spawnPos, FateDarkPink, 0.5f, 12);
+                        BossProjectileHelper.SpawnHostileOrb(spawnPos, vel, 80, FatePalette.DarkPink, 0f);
+                        CustomParticles.GenericFlare(spawnPos, FatePalette.DarkPink, 0.5f, 12);
                     }
                     
                     // Central warning - cosmic glyph flash instead of halo
-                    CustomParticles.GenericFlare(target.Center, FateBrightRed * 0.6f, 0.6f, 15);
-                    CustomParticles.Glyph(target.Center, FateBrightRed * 0.7f, 0.5f, -1);
+                    CustomParticles.GenericFlare(target.Center, FatePalette.BrightCrimson * 0.6f, 0.6f, 15);
+                    CustomParticles.Glyph(target.Center, FatePalette.BrightCrimson * 0.7f, 0.5f, -1);
                 }
                 
                 if (Timer >= 21) EndAttack();
@@ -928,14 +921,14 @@ namespace MagnumOpus.Content.Fate.Bosses
                     Vector2 offset = angle.ToRotationVector2() * 200f;
                     
                     // Departure glyph
-                    CustomParticles.Glyph(NPC.Center, FatePurple, 0.5f, -1);
+                    CustomParticles.Glyph(NPC.Center, FatePalette.FatePurple, 0.5f, -1);
                     
                     NPC.Center = target.Center + offset;
                     NPC.velocity = Vector2.Zero;
                     
                     // Arrival burst
                     SoundEngine.PlaySound(SoundID.Item8 with { Pitch = 0.5f }, NPC.Center);
-                    CustomParticles.GenericFlare(NPC.Center, FateWhite, 0.7f, 12);
+                    CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 0.7f, 12);
                 }
                 
                 // Quick attack toward player
@@ -945,9 +938,9 @@ namespace MagnumOpus.Content.Fate.Bosses
                     for (int i = -1; i <= 1; i++)
                     {
                         Vector2 vel = toPlayer.RotatedBy(i * 0.15f) * FastProjectileSpeed;
-                        BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel, 75, FateBrightRed, 12f);
+                        BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel, 75, FatePalette.BrightCrimson, 12f);
                     }
-                    BossVFXOptimizer.AttackReleaseBurst(NPC.Center, FateBrightRed, FatePurple, 0.6f);
+                    BossVFXOptimizer.AttackReleaseBurst(NPC.Center, FatePalette.BrightCrimson, FatePalette.FatePurple, 0.6f);
                 }
                 
                 if (Timer >= teleportDelay)
@@ -993,8 +986,8 @@ namespace MagnumOpus.Content.Fate.Bosses
                     storedStarPositions.Add(starPos);
                     
                     // Star placement VFX
-                    CustomParticles.GenericFlare(starPos, FateWhite, 0.6f, 20);
-                    CustomParticles.GenericFlare(starPos, FateStarGold, 0.4f, 25);
+                    CustomParticles.GenericFlare(starPos, FatePalette.WhiteCelestial, 0.6f, 20);
+                    CustomParticles.GenericFlare(starPos, FatePalette.StarGold, 0.4f, 25);
                     SoundEngine.PlaySound(SoundID.Item9 with { Pitch = storedStarPositions.Count * 0.1f, Volume = 0.4f }, starPos);
                 }
                 
@@ -1003,7 +996,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                 {
                     foreach (var starPos in storedStarPositions)
                     {
-                        CustomParticles.GenericFlare(starPos, FateStarGold * 0.5f, 0.3f, 8);
+                        CustomParticles.GenericFlare(starPos, FatePalette.StarGold * 0.5f, 0.3f, 8);
                     }
                 }
                 
@@ -1055,14 +1048,14 @@ namespace MagnumOpus.Content.Fate.Bosses
                             float t = (float)p / projCount;
                             Vector2 pos = Vector2.Lerp(start, end, t);
                             Vector2 vel = dir.RotatedBy(MathHelper.PiOver2) * Main.rand.NextFloat(-2f, 2f);
-                            BossProjectileHelper.SpawnHostileOrb(pos, vel + dir * 5f, 70, FateStarGold, 0f);
+                            BossProjectileHelper.SpawnHostileOrb(pos, vel + dir * 5f, 70, FatePalette.StarGold, 0f);
                         }
                         
                         // Beam VFX
                         for (int seg = 0; seg < (int)(length / 20f); seg++)
                         {
                             Vector2 pos = Vector2.Lerp(start, end, seg / (length / 20f));
-                            CustomParticles.GenericFlare(pos, FateWhite, 0.5f, 15);
+                            CustomParticles.GenericFlare(pos, FatePalette.WhiteCelestial, 0.5f, 15);
                         }
                     }
                     
@@ -1096,7 +1089,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                     NPC.velocity = Vector2.Zero;
                     
                     SoundEngine.PlaySound(SoundID.Item8 with { Pitch = 0.6f }, NPC.Center);
-                    CustomParticles.GenericFlare(NPC.Center, FateWhite, 0.9f, 15);
+                    CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 0.9f, 15);
                 }
                 
                 // Warning line across screen
@@ -1105,7 +1098,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                     float progress = (float)Timer / (sliceDelay - 5);
                     Vector2 sliceDir = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
                     BossVFXOptimizer.WarningLine(NPC.Center, sliceDir, 1200f, 20, WarningType.Imminent);
-                    BossVFXOptimizer.ConvergingWarning(NPC.Center, 80f, progress, FateBrightRed, 8);
+                    BossVFXOptimizer.ConvergingWarning(NPC.Center, 80f, progress, FatePalette.BrightCrimson, 8);
                 }
                 
                 // Execute slice
@@ -1120,12 +1113,12 @@ namespace MagnumOpus.Content.Fate.Bosses
                         float offset = (i - 7) * 8f;
                         Vector2 spawnPos = NPC.Center + sliceDir.RotatedBy(MathHelper.PiOver2) * offset;
                         Vector2 vel = sliceDir * sliceSpeed;
-                        BossProjectileHelper.SpawnAcceleratingBolt(spawnPos, vel, 85, FateBrightRed, 5f);
+                        BossProjectileHelper.SpawnAcceleratingBolt(spawnPos, vel, 85, FatePalette.BrightCrimson, 5f);
                     }
                     
                     // Slice VFX
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 1.2f }, NPC.Center);
-                    BossVFXOptimizer.AttackReleaseBurst(NPC.Center, FateBrightRed, FateWhite, 1.2f);
+                    BossVFXOptimizer.AttackReleaseBurst(NPC.Center, FatePalette.BrightCrimson, FatePalette.WhiteCelestial, 1.2f);
                     MagnumScreenEffects.AddScreenShake(12f);
                 }
                 
@@ -1162,10 +1155,10 @@ namespace MagnumOpus.Content.Fate.Bosses
                 if (Timer == 1)
                 {
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.5f }, NPC.Center);
-                    Main.NewText("Witness Universal Judgment!", FateBrightRed);
+                    Main.NewText("Witness Universal Judgment!", FatePalette.BrightCrimson);
                     
                     // TelegraphSystem - Converging ring visual warning
-                    TelegraphSystem.ConvergingRing(NPC.Center, 300f, chargeTime, FateBrightRed);
+                    TelegraphSystem.ConvergingRing(NPC.Center, 300f, chargeTime, FatePalette.BrightCrimson);
                 }
                 
                 float progress = Timer / (float)chargeTime;
@@ -1187,7 +1180,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                 // Glyphs orbit
                 if (Timer % 8 == 0)
                 {
-                    CustomParticles.GlyphCircle(NPC.Center, FateDarkPink, 6, 100f * (1f - progress * 0.3f), 0.03f);
+                    CustomParticles.GlyphCircle(NPC.Center, FatePalette.DarkPink, 6, 100f * (1f - progress * 0.3f), 0.03f);
                 }
                 
                 // Safe zone indicators
@@ -1216,7 +1209,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                     MagnumScreenEffects.AddScreenShake(18f);
                     SoundEngine.PlaySound(SoundID.Item122 with { Volume = 1.5f }, NPC.Center);
                     
-                    CustomParticles.GenericFlare(NPC.Center, FateWhite, 1.8f, 28);
+                    CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 1.8f, 28);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
@@ -1254,7 +1247,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                     }
                     
                     // Glyph explosion
-                    CustomParticles.GlyphBurst(NPC.Center, FateBrightRed, 10, 7f);
+                    CustomParticles.GlyphBurst(NPC.Center, FatePalette.BrightCrimson, 10, 7f);
                 }
                 
                 if (Timer >= 25)
@@ -1302,20 +1295,20 @@ namespace MagnumOpus.Content.Fate.Bosses
                     float angle = vortexAngle + MathHelper.TwoPi * i / 4f;
                     float radius = 60f + (float)Math.Sin(Timer * 0.05f) * 20f;
                     Vector2 pos = vortexCenter + angle.ToRotationVector2() * radius;
-                    CustomParticles.GenericFlare(pos, FatePurple * 0.7f, 0.35f, 12);
+                    CustomParticles.GenericFlare(pos, FatePalette.FatePurple * 0.7f, 0.35f, 12);
                 }
             }
             
             // Central glyph pulses
             if (Timer % 12 == 0)
             {
-                CustomParticles.Glyph(vortexCenter, FateBrightRed, 0.6f, -1);
+                CustomParticles.Glyph(vortexCenter, FatePalette.BrightCrimson, 0.6f, -1);
                 // Orbiting cosmic sparkles instead of halo
                 for (int i = 0; i < 6; i++)
                 {
                     float sparkAngle = MathHelper.TwoPi * i / 6f + Timer * 0.05f;
                     Vector2 sparkPos = vortexCenter + sparkAngle.ToRotationVector2() * 35f;
-                    var sparkle = new SparkleParticle(sparkPos, sparkAngle.ToRotationVector2() * 1f, FateDarkPink * 0.7f, 0.35f, 18);
+                    var sparkle = new SparkleParticle(sparkPos, sparkAngle.ToRotationVector2() * 1f, FatePalette.DarkPink * 0.7f, 0.35f, 18);
                     MagnumParticleHandler.SpawnParticle(sparkle);
                 }
             }
@@ -1329,7 +1322,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                     float angle = MathHelper.TwoPi * i / projCount + Timer * 0.02f;
                     Vector2 spawnPos = vortexCenter + angle.ToRotationVector2() * 80f;
                     Vector2 vel = angle.ToRotationVector2() * MediumProjectileSpeed;
-                    BossProjectileHelper.SpawnHostileOrb(spawnPos, vel, 80, FateBrightRed, 0.01f);
+                    BossProjectileHelper.SpawnHostileOrb(spawnPos, vel, 80, FatePalette.BrightCrimson, 0.01f);
                 }
             }
             
@@ -1363,7 +1356,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                 
                 if (Timer == 1)
                 {
-                    Main.NewText("THE FINAL MELODY BEGINS!", FateBrightRed);
+                    Main.NewText("THE FINAL MELODY BEGINS!", FatePalette.BrightCrimson);
                     SoundEngine.PlaySound(SoundID.Roar with { Pitch = 0.3f, Volume = 1.5f }, NPC.Center);
                 }
                 
@@ -1404,7 +1397,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                         BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel, 80, GetCosmicGradient((float)i / projPerBurst), 8f);
                     }
                     
-                    BossVFXOptimizer.AttackReleaseBurst(NPC.Center, FateBrightRed, FateDarkPink, 0.7f);
+                    BossVFXOptimizer.AttackReleaseBurst(NPC.Center, FatePalette.BrightCrimson, FatePalette.DarkPink, 0.7f);
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 0.7f }, NPC.Center);
                 }
                 
@@ -1422,7 +1415,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                     MagnumScreenEffects.AddScreenShake(25f);
                     SoundEngine.PlaySound(SoundID.Item122 with { Volume = 2f, Pitch = -0.2f }, NPC.Center);
                     
-                    CustomParticles.GenericFlare(NPC.Center, FateWhite, 2.5f, 35);
+                    CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 2.5f, 35);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
@@ -1438,7 +1431,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                             
                             float speed = 16f + difficultyTier * 3f;
                             Vector2 vel = angle.ToRotationVector2() * speed;
-                            BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel, 90, FateBrightRed, 12f);
+                            BossProjectileHelper.SpawnAcceleratingBolt(NPC.Center, vel, 90, FatePalette.BrightCrimson, 12f);
                         }
                     }
                     
@@ -1463,7 +1456,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                         }
                     }
                     
-                    CustomParticles.GlyphBurst(NPC.Center, FateBrightRed, 16, 10f);
+                    CustomParticles.GlyphBurst(NPC.Center, FatePalette.BrightCrimson, 16, 10f);
                 }
                 
                 if (Timer >= phase3Time)
@@ -1507,7 +1500,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                     float angle = glyphOrbitAngle + MathHelper.TwoPi * i / 3f;
                     float radius = 70f + (float)Math.Sin(Main.GameUpdateCount * 0.03f + i) * 15f;
                     Vector2 glyphPos = NPC.Center + angle.ToRotationVector2() * radius;
-                    CustomParticles.Glyph(glyphPos, FateDarkPink * 0.6f, 0.35f, -1);
+                    CustomParticles.Glyph(glyphPos, FatePalette.DarkPink * 0.6f, 0.35f, -1);
                 }
             }
             
@@ -1516,7 +1509,7 @@ namespace MagnumOpus.Content.Fate.Bosses
             if (Main.rand.NextBool(sparkleChance))
             {
                 Vector2 starOffset = Main.rand.NextVector2Circular(100f, 100f);
-                CustomParticles.GenericFlare(NPC.Center + starOffset, FateWhite * 0.4f, 0.2f, 12);
+                CustomParticles.GenericFlare(NPC.Center + starOffset, FatePalette.WhiteCelestial * 0.4f, 0.2f, 12);
             }
             
             // Cosmic cloud trail - reduce under high load
@@ -1524,7 +1517,7 @@ namespace MagnumOpus.Content.Fate.Bosses
             if (NPC.velocity.Length() > 5f && Main.rand.NextBool(cloudChance))
             {
                 Vector2 cloudOffset = Main.rand.NextVector2Circular(20f, 20f);
-                var cloud = new GenericGlowParticle(NPC.Center + cloudOffset, -NPC.velocity * 0.1f, FatePurple * 0.4f, 0.3f, 20, true);
+                var cloud = new GenericGlowParticle(NPC.Center + cloudOffset, -NPC.velocity * 0.1f, FatePalette.FatePurple * 0.4f, 0.3f, 20, true);
                 MagnumParticleHandler.SpawnParticle(cloud);
             }
         }
@@ -1553,7 +1546,7 @@ namespace MagnumOpus.Content.Fate.Bosses
             }
             
             // Glow underlayer
-            Color glowColor = FateBrightRed * 0.3f;
+            Color glowColor = FatePalette.BrightCrimson * 0.3f;
             glowColor.A = 0;
             spriteBatch.Draw(texture, drawPos, frame, glowColor, NPC.rotation, origin, NPC.scale * 1.1f, effects, 0f);
             
@@ -1599,10 +1592,10 @@ namespace MagnumOpus.Content.Fate.Bosses
                 
                 // Dialogue - the struggle
                 if (awakeningTimer == 30)
-                    Main.NewText("No... this cannot be...", FateBrightRed);
+                    Main.NewText("No... this cannot be...", FatePalette.BrightCrimson);
                     
                 if (awakeningTimer == 70)
-                    Main.NewText("I will NOT fall here!", FateDarkPink);
+                    Main.NewText("I will NOT fall here!", FatePalette.DarkPink);
             }
             // Phase 2: Rising defiance (90-150 frames / 1 sec)
             else if (awakeningTimer <= 150)
@@ -1618,21 +1611,21 @@ namespace MagnumOpus.Content.Fate.Bosses
                         float angle = MathHelper.TwoPi * i / particleCount + awakeningTimer * 0.08f;
                         float radius = 200f * (1f - risingProgress * 0.6f);
                         Vector2 pos = NPC.Center + angle.ToRotationVector2() * radius;
-                        CustomParticles.GenericFlare(pos, Color.Lerp(FateDarkPink, FateWhite, risingProgress), 0.4f + risingProgress * 0.5f, 20);
+                        CustomParticles.GenericFlare(pos, Color.Lerp(FatePalette.DarkPink, FatePalette.WhiteCelestial, risingProgress), 0.4f + risingProgress * 0.5f, 20);
                     }
                     
                     // Glyphs converging
-                    CustomParticles.GlyphCircle(NPC.Center, FateBrightRed * (0.5f + risingProgress * 0.5f), 6, 80f * (1f - risingProgress * 0.5f), 0.06f);
+                    CustomParticles.GlyphCircle(NPC.Center, FatePalette.BrightCrimson * (0.5f + risingProgress * 0.5f), 6, 80f * (1f - risingProgress * 0.5f), 0.06f);
                 }
                 
                 MagnumScreenEffects.AddScreenShake(risingProgress * 15f);
                 
                 // Epic dialogue - the resolve
                 if (awakeningTimer == 100)
-                    Main.NewText("You think you can UNSHACKLE those melodies?!", FateWhite);
+                    Main.NewText("You think you can UNSHACKLE those melodies?!", FatePalette.WhiteCelestial);
                     
                 if (awakeningTimer == 130)
-                    Main.NewText("I am the WARDEN of this universe's symphony!", Color.Lerp(FateBrightRed, FateWhite, 0.5f));
+                    Main.NewText("I am the WARDEN of this universe's symphony!", Color.Lerp(FatePalette.BrightCrimson, FatePalette.WhiteCelestial, 0.5f));
             }
             // Phase 3: True Form Emergence (150-240 frames / 1.5 sec)
             else if (awakeningTimer <= 240)
@@ -1663,7 +1656,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                     for (int i = 0; i < 12; i++)
                     {
                         Vector2 starVel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(6f, 14f);
-                        var star = new GenericGlowParticle(NPC.Center, starVel, FateWhite * 0.8f, 0.35f, 25, true);
+                        var star = new GenericGlowParticle(NPC.Center, starVel, FatePalette.WhiteCelestial * 0.8f, 0.35f, 25, true);
                         MagnumParticleHandler.SpawnParticle(star);
                     }
                 }
@@ -1688,12 +1681,12 @@ namespace MagnumOpus.Content.Fate.Bosses
                 // The climactic declaration
                 if (awakeningTimer == 180)
                 {
-                    Main.NewText("I WILL NOT LET YOU CONDUCT THE FINAL MOVEMENT!", FateWhite);
+                    Main.NewText("I WILL NOT LET YOU CONDUCT THE FINAL MOVEMENT!", FatePalette.WhiteCelestial);
                     SoundEngine.PlaySound(SoundID.Roar with { Volume = 1.8f, Pitch = -0.5f }, NPC.Center);
                 }
                 
                 if (awakeningTimer == 220)
-                    Main.NewText("WITNESS MY TRUE FORM!", Color.Lerp(FateBrightRed, Color.White, 0.7f));
+                    Main.NewText("WITNESS MY TRUE FORM!", Color.Lerp(FatePalette.BrightCrimson, Color.White, 0.7f));
             }
             // Phase 4: Rebirth Explosion (240-300 frames / 1 sec)
             else
@@ -1706,8 +1699,8 @@ namespace MagnumOpus.Content.Fate.Bosses
                     SoundEngine.PlaySound(SoundID.Item122 with { Volume = 2.5f, Pitch = 0.3f }, NPC.Center);
                     
                     // Massive white flash
-                    CustomParticles.GenericFlare(NPC.Center, FateWhite, 4f, 45);
-                    CustomParticles.GenericFlare(NPC.Center, FateBrightRed, 3f, 40);
+                    CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 4f, 45);
+                    CustomParticles.GenericFlare(NPC.Center, FatePalette.BrightCrimson, 3f, 40);
                     
                     // 20 cascading cosmic star bursts - the grand rebirth explosion
                     for (int i = 0; i < 20; i++)
@@ -1732,7 +1725,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                     }
                     
                     // Massive glyph explosion
-                    CustomParticles.GlyphBurst(NPC.Center, FateWhite, 30, 18f);
+                    CustomParticles.GlyphBurst(NPC.Center, FatePalette.WhiteCelestial, 30, 18f);
                     
                     // Radial cosmic storm
                     for (int i = 0; i < 50; i++)
@@ -1751,7 +1744,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                     {
                         float angle = MathHelper.TwoPi * i / 8f + awakeningTimer * 0.05f;
                         Vector2 pos = NPC.Center + angle.ToRotationVector2() * 60f;
-                        CustomParticles.GenericFlare(pos, FateWhite * 0.6f, 0.4f, 15);
+                        CustomParticles.GenericFlare(pos, FatePalette.WhiteCelestial * 0.6f, 0.4f, 15);
                     }
                 }
                 
@@ -1794,7 +1787,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                 {
                     float angle = MathHelper.TwoPi * i / 12f;
                     Vector2 pos = NPC.Center + angle.ToRotationVector2() * 80f;
-                    CustomParticles.Glyph(pos, FateWhite * 0.8f, 0.5f, -1);
+                    CustomParticles.Glyph(pos, FatePalette.WhiteCelestial * 0.8f, 0.5f, -1);
                 }
             }
         }
@@ -1824,7 +1817,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                 
                 if (deathTimer % 10 == 0)
                 {
-                    CustomParticles.GlyphCircle(NPC.Center, FateDarkPink, 8, 100f * (1f - progress * 0.4f), 0.04f);
+                    CustomParticles.GlyphCircle(NPC.Center, FatePalette.DarkPink, 8, 100f * (1f - progress * 0.4f), 0.04f);
                 }
                 
                 MagnumScreenEffects.AddScreenShake(progress * 8f);
@@ -1836,9 +1829,9 @@ namespace MagnumOpus.Content.Fate.Bosses
                 SoundEngine.PlaySound(SoundID.Item122 with { Volume = 2f, Pitch = -0.3f }, NPC.Center);
                 
                 // Massive cosmic explosion - white core flash
-                CustomParticles.GenericFlare(NPC.Center, FateWhite, 3f, 40);
-                CustomParticles.GenericFlare(NPC.Center, FateDarkPink, 2.5f, 35);
-                CustomParticles.GenericFlare(NPC.Center, FateBrightRed, 2f, 30);
+                CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 3f, 40);
+                CustomParticles.GenericFlare(NPC.Center, FatePalette.DarkPink, 2.5f, 35);
+                CustomParticles.GenericFlare(NPC.Center, FatePalette.BrightCrimson, 2f, 30);
                 
                 // Cascading star burst explosion 
                 for (int ring = 0; ring < 16; ring++)
@@ -1866,7 +1859,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                     }
                 }
                 
-                CustomParticles.GlyphBurst(NPC.Center, FateBrightRed, 20, 12f);
+                CustomParticles.GlyphBurst(NPC.Center, FatePalette.BrightCrimson, 20, 12f);
                 
                 // Radial spark storm
                 for (int i = 0; i < 30; i++)
@@ -1878,7 +1871,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                 }
                 
                 // === PHASE 10 MUSICAL VFX: Death Finale - Cosmic Celestial Symphony Ends ===
-                Phase10Integration.Universal.DeathFinale(NPC.Center, FateWhite, FateDarkPink);
+                Phase10Integration.Universal.DeathFinale(NPC.Center, FatePalette.WhiteCelestial, FatePalette.DarkPink);
             }
             
             if (deathTimer >= 180)

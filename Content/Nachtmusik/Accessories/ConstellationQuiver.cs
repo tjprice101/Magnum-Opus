@@ -8,7 +8,7 @@ using MagnumOpus.Content.Nachtmusik.ResonanceEnergies;
 using MagnumOpus.Content.Nachtmusik.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems.Particles;
-using static MagnumOpus.Common.Systems.ThemedParticles;
+using MagnumOpus.Content.Nachtmusik;
 
 namespace MagnumOpus.Content.Nachtmusik.Accessories
 {
@@ -70,7 +70,7 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                 Vector2 notePos = player.Center + Main.rand.NextVector2Circular(32f, 32f);
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), -Main.rand.NextFloat(0.3f, 0.5f));
                 Color noteColor = Color.Lerp(new Color(100, 60, 180), new Color(80, 100, 200), Main.rand.NextFloat()) * 0.55f;
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 35);
+                NachtmusikVFXLibrary.SpawnMusicNotes(notePos, 1, 8f, 0.7f, 0.85f, 35);
             }
         }
 
@@ -165,7 +165,7 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             }
 
             // Music note accent
-            ThemedParticles.MusicNoteBurst(target.Center, Violet * 0.6f, 3, 3f);
+            NachtmusikVFXLibrary.SpawnMusicNotes(target.Center, 3, 12f, 0.7f, 0.9f, 25);
 
             // Find nearby enemies for shards to target
             int shardDamage = (int)(baseDamage * 0.4f);

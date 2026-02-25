@@ -24,7 +24,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
     /// </summary>
     public class VariationsOfTheVoidItem : MeleeSwingItemBase
     {
-        public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/VariationsOfTheVoid";
+        public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/VariationsOfTheVoid/VariationsOfTheVoid";
 
         #region Theme Colors
 

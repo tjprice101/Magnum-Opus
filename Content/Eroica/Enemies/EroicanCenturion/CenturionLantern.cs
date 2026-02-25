@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.EroicanCenturion
     /// </summary>
     public class CenturionLantern : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Content/Eroica/Enemies/CenturionLantern";
+        public override string Texture => "MagnumOpus/Content/Eroica/Enemies/EroicanCenturion/CenturionLantern";
 
         private int ParentNPCIndex => (int)Projectile.ai[0];
         private float OrbitAngle
@@ -231,7 +231,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.EroicanCenturion
     /// </summary>
     public class CenturionSwordProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Content/Eroica/Enemies/CenturionSwordProjectile";
+        public override string Texture => "MagnumOpus/Content/Eroica/Enemies/EroicanCenturion/CenturionSwordProjectile";
 
         public override void SetDefaults()
         {

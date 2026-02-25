@@ -3,11 +3,10 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Content.Fate;
 using MagnumOpus.Content.Fate.ResonanceEnergies;
 using MagnumOpus.Content.Fate.HarmonicCores;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Fate.Accessories
 {
@@ -41,38 +40,10 @@ namespace MagnumOpus.Content.Fate.Accessories
             // +10% minion knockback
             player.GetKnockback(DamageClass.Summon) += 0.10f;
             
-            // Cosmic orrery ambient particles - orbiting planets
+            // Cosmic orrery ambient VFX
             if (!hideVisual)
             {
-                float orbitSpeed = Main.GameUpdateCount * 0.02f;
-                
-                // Three orbiting "planets" at different speeds
-                for (int planet = 0; planet < 3; planet++)
-                {
-                    float planetAngle = orbitSpeed * (1f + planet * 0.3f) + MathHelper.TwoPi * planet / 3f;
-                    float orbitRadius = 30f + planet * 8f;
-                    Vector2 planetPos = player.Center + planetAngle.ToRotationVector2() * orbitRadius;
-                    
-                    if (Main.rand.NextBool(8))
-                    {
-                        Color planetColor = planet switch
-                        {
-                            0 => FateCosmicVFX.FateDarkPink,
-                            1 => FateCosmicVFX.FateBrightRed,
-                            _ => FateCosmicVFX.FatePurple
-                        };
-                        
-                        Dust dust = Dust.NewDustPerfect(planetPos, DustID.Enchanted_Pink, 
-                            Vector2.Zero, 100, planetColor, 0.5f);
-                        dust.noGravity = true;
-                    }
-                }
-                
-                // Central star glow
-                if (Main.rand.NextBool(10))
-                {
-                    CustomParticles.GenericFlare(player.Center, FateCosmicVFX.FateWhite * 0.5f, 0.15f, 8);
-                }
+                FateAccessoryVFX.OrreryOrbitVFX(player);
             }
         }
 
@@ -82,27 +53,27 @@ namespace MagnumOpus.Content.Fate.Accessories
             {
                 OverrideColor = new Color(100, 200, 255)
             });
-            
+
             tooltips.Add(new TooltipLine(Mod, "MinionSlot", "+1 max minion")
             {
                 OverrideColor = new Color(120, 220, 255)
             });
-            
+
             tooltips.Add(new TooltipLine(Mod, "KnockbackBoost", "+10% minion knockback")
             {
                 OverrideColor = new Color(140, 200, 255)
             });
-            
+
             tooltips.Add(new TooltipLine(Mod, "CosmicEmpower", "Minions periodically gain Cosmic Empowerment")
             {
-                OverrideColor = FateCosmicVFX.FateDarkPink
+                OverrideColor = FatePalette.DarkPink
             });
-            
+
             tooltips.Add(new TooltipLine(Mod, "EmpowerEffect", "Empowered minion attacks deal 50% bonus damage")
             {
-                OverrideColor = FateCosmicVFX.FateBrightRed
+                OverrideColor = FatePalette.BrightCrimson
             });
-            
+
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'The universe itself serves at your command'")
             {
                 OverrideColor = new Color(255, 150, 180)
@@ -160,20 +131,7 @@ namespace MagnumOpus.Content.Fate.Accessories
                 Projectile minion = Main.projectile[empoweredMinionIndex];
                 if (minion.active && minion.owner == Player.whoAmI && minion.minion)
                 {
-                    // Cosmic glow around empowered minion
-                    if (Main.rand.NextBool(3))
-                    {
-                        CustomParticles.GenericFlare(minion.Center + Main.rand.NextVector2Circular(15f, 15f),
-                            FateCosmicVFX.FateDarkPink * 0.7f, 0.25f, 10);
-                    }
-                    
-                    // Orbiting stars
-                    if (Main.GameUpdateCount % 10 == 0)
-                    {
-                        float starAngle = Main.GameUpdateCount * 0.1f;
-                        Vector2 starPos = minion.Center + starAngle.ToRotationVector2() * 20f;
-                        CustomParticles.GenericFlare(starPos, FateCosmicVFX.FateWhite, 0.2f, 8);
-                    }
+                    FateAccessoryVFX.OrreryEmpoweredMinionVFX(minion.Center);
                 }
             }
         }
@@ -182,7 +140,7 @@ namespace MagnumOpus.Content.Fate.Accessories
         {
             // Find all player's minions
             System.Collections.Generic.List<int> minionIndices = new();
-            
+
             foreach (Projectile proj in Main.projectile)
             {
                 if (proj.active && proj.owner == Player.whoAmI && proj.minion)
@@ -190,17 +148,15 @@ namespace MagnumOpus.Content.Fate.Accessories
                     minionIndices.Add(proj.whoAmI);
                 }
             }
-            
+
             if (minionIndices.Count == 0) return;
-            
+
             // Pick random minion
             empoweredMinionIndex = minionIndices[Main.rand.Next(minionIndices.Count)];
-            
+
             // Empowerment VFX burst
             Projectile minion = Main.projectile[empoweredMinionIndex];
-            FateCosmicVFX.SpawnCosmicExplosion(minion.Center, 0.5f);
-            CustomParticles.GlyphBurst(minion.Center, FateCosmicVFX.FateDarkPink, 3, 2f);
-            CustomParticles.HaloRing(minion.Center, FateCosmicVFX.FateBrightRed, 0.3f, 12);
+            FateAccessoryVFX.OrreryEmpowermentVFX(minion.Center);
         }
     }
 
@@ -210,24 +166,21 @@ namespace MagnumOpus.Content.Fate.Accessories
         {
             if (projectile.owner < 0 || projectile.owner >= Main.maxPlayers) return;
             if (!projectile.minion) return;
-            
+
             Player player = Main.player[projectile.owner];
             var modPlayer = player.GetModPlayer<OrreryPlayer>();
-            
+
             if (!modPlayer.hasOrrery) return;
-            
+
             // Check if this is the empowered minion during empowerment window
-            if (projectile.whoAmI == modPlayer.empoweredMinionIndex && 
+            if (projectile.whoAmI == modPlayer.empoweredMinionIndex &&
                 modPlayer.empowermentTimer < 120) // Within empowerment duration
             {
                 // +50% damage for empowered minion
                 modifiers.FinalDamage *= 1.5f;
-                
+
                 // Extra VFX on empowered hit
-                if (Main.rand.NextBool(2))
-                {
-                    CustomParticles.GenericFlare(target.Center, FateCosmicVFX.FateBrightRed, 0.4f, 12);
-                }
+                FateAccessoryVFX.OrreryEmpoweredHitVFX(target.Center);
             }
         }
     }

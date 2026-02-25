@@ -8,6 +8,7 @@ using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.Eroica.Accessories.Shared;
 
 namespace MagnumOpus.Content.Eroica.Accessories.SymphonyOfScarletFlames
 {

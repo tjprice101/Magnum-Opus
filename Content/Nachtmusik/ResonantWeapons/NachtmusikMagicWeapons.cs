@@ -9,7 +9,6 @@ using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
-using static MagnumOpus.Common.Systems.ThemedParticles;
 using MagnumOpus.Content.Nachtmusik.Debuffs;
 using MagnumOpus.Content.Nachtmusik.Projectiles;
 
@@ -23,12 +22,12 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
     public class StarweaversGrimoire : ModItem
     {
         private int constellationCharge = 0;
-        
+
         public override void SetStaticDefaults()
         {
             ItemID.Sets.ItemsThatAllowRepeatedRightClick[Item.type] = true;
         }
-        
+
         public override void SetDefaults()
         {
             Item.width = 32;
@@ -50,9 +49,9 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             Item.crit = 16;
             Item.staff[Item.type] = true;
         }
-        
+
         public override bool AltFunctionUse(Player player) => true;
-        
+
         public override bool CanUseItem(Player player)
         {
             if (player.altFunctionUse == 2)
@@ -60,7 +59,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 // Constellation Burst - requires full charge
                 if (constellationCharge < 100)
                     return false;
-                    
+
                 Item.mana = 40;
                 Item.useTime = 35;
                 Item.useAnimation = 35;
@@ -73,16 +72,16 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             }
             return base.CanUseItem(player);
         }
-        
+
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             Vector2 direction = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
-            
+
             if (player.altFunctionUse == 2 && constellationCharge >= 100)
             {
                 // Constellation Burst - fire a massive barrage
                 constellationCharge = 0;
-                
+
                 // Fire 12 orbs in a complex pattern
                 for (int wave = 0; wave < 3; wave++)
                 {
@@ -91,14 +90,14 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                         float angleOffset = MathHelper.ToRadians(-30f + 20f * i);
                         float speedMod = 1f - wave * 0.15f;
                         Vector2 orbVel = direction.RotatedBy(angleOffset) * 14f * speedMod;
-                        
+
                         // Stagger spawns for wave effect
                         Vector2 spawnPos = player.Center + direction * (20f + wave * 15f);
-                        
+
                         Projectile.NewProjectile(source, spawnPos, orbVel, type, (int)(damage * 1.5f), knockback, player.whoAmI);
                     }
                 }
-                
+
                 // === SPAWN SEEKING CRYSTALS - CONSTELLATION BURST FINALE ===
                 // Massive burst of 8 seeking crystals that spread out and home to enemies
                 SeekingCrystalHelper.SpawnNachtmusikCrystals(
@@ -110,121 +109,123 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                     player.whoAmI,
                     8  // 8 crystals for constellation burst
                 );
-                
-                // Constellation Burst VFX - trust GrandCelestialImpact
-                NachtmusikCosmicVFX.SpawnGrandCelestialImpact(player.Center + direction * 40f, 1.5f);
-                NachtmusikCosmicVFX.SpawnConstellationCircle(player.Center, 50f, 8, 0.4f);
+
+                // Constellation Burst VFX
+                StarweaversGrimoireVFX.SpecialCastVFX(player.Center + direction * 40f, 1.5f);
+                NachtmusikVFXLibrary.SpawnConstellationCircle(player.Center, 50f, 8, 0.4f);
                 MagnumScreenEffects.AddScreenShake(8f);
-                
+
                 // Single music note burst
-                ThemedParticles.MusicNoteBurst(player.Center, new Color(80, 100, 200), 5, 4f);
-                
+                NachtmusikVFXLibrary.SpawnMusicNotes(player.Center, 5, 4f, 0.7f, 0.9f, 25);
+
                 SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 1f }, player.Center);
             }
             else
             {
                 // Normal shot - single orb
                 Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
-                
+
                 // Build constellation charge
                 constellationCharge = Math.Min(100, constellationCharge + 8);
-                
+
                 // Cast VFX with shattered starlight accents
-                CustomParticles.GenericFlare(position + direction * 20f, NachtmusikCosmicVFX.Violet, 0.4f, 12);
+                CustomParticles.GenericFlare(position + direction * 20f, NachtmusikPalette.Violet, 0.4f, 12);
                 if (Main.rand.NextBool(3))
                 {
-                    NachtmusikCosmicVFX.SpawnShatteredStarlightBurst(position + direction * 15f, 3, 3f, 0.3f, false);
+                    NachtmusikVFXLibrary.SpawnShatteredStarlight(position + direction * 15f, 3, 3f, 0.3f, false);
                 }
-                
+
                 // Music note on cast
-                ThemedParticles.MusicNote(position + direction * 15f, direction * 1.5f, new Color(100, 60, 180) * 0.8f, 0.7f, 25);
+                NachtmusikVFXLibrary.SpawnMusicNotes(position + direction * 15f, 1, 8f, 0.7f, 0.85f, 25);
             }
-            
+
             return false;
         }
-        
+
         public override void HoldItem(Player player)
         {
+            StarweaversGrimoireVFX.HoldItemVFX(player);
+
             float chargePercent = constellationCharge / 100f;
-            
+
             // Subtle charge indicator at high charge
             if (constellationCharge >= 50 && Main.rand.NextBool(15))
             {
                 float angle = Main.GameUpdateCount * 0.04f;
                 Vector2 pointPos = player.Center + angle.ToRotationVector2() * 35f;
-                Color pointColor = Color.Lerp(NachtmusikCosmicVFX.DeepPurple, NachtmusikCosmicVFX.StarWhite, chargePercent);
+                Color pointColor = Color.Lerp(NachtmusikPalette.CosmicPurple, NachtmusikPalette.StarWhite, chargePercent);
                 CustomParticles.GenericFlare(pointPos, pointColor, 0.18f, 8);
             }
-            
+
             // Sparse ambient music note
             if (Main.rand.NextBool(25))
             {
                 Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Color noteColor = Color.Lerp(NachtmusikCosmicVFX.DeepPurple, NachtmusikCosmicVFX.StarWhite, chargePercent) * 0.5f;
-                ThemedParticles.MusicNote(notePos, new Vector2(0, -0.4f), noteColor, 0.65f, 30);
+                Color noteColor = Color.Lerp(NachtmusikPalette.CosmicPurple, NachtmusikPalette.StarWhite, chargePercent) * 0.5f;
+                NachtmusikVFXLibrary.SpawnMusicNotes(notePos, 1, 8f, 0.7f, 0.85f, 25);
             }
-            
-            Lighting.AddLight(player.Center, NachtmusikCosmicVFX.Violet.ToVector3() * 0.25f);
+
+            Lighting.AddLight(player.Center, NachtmusikPalette.Violet.ToVector3() * 0.25f);
         }
-        
+
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
             // === STARWEAVER COSMIC GLOW ===
             Texture2D texture = Terraria.GameContent.TextureAssets.Item[Item.type].Value;
             Vector2 position = Item.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
-            
+
             float time = Main.GameUpdateCount * 0.05f;
             float pulse = 1f + (float)Math.Sin(time * 1.5f) * 0.1f;
-            
+
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
+
             // Deep purple outer glow
-            spriteBatch.Draw(texture, position, null, NachtmusikCosmicVFX.DeepPurple * 0.35f, rotation, origin, scale * pulse * 1.35f, SpriteEffects.None, 0f);
-            
+            spriteBatch.Draw(texture, position, null, NachtmusikPalette.CosmicPurple * 0.35f, rotation, origin, scale * pulse * 1.35f, SpriteEffects.None, 0f);
+
             // Violet mid glow
-            spriteBatch.Draw(texture, position, null, NachtmusikCosmicVFX.Violet * 0.3f, rotation, origin, scale * pulse * 1.2f, SpriteEffects.None, 0f);
-            
+            spriteBatch.Draw(texture, position, null, NachtmusikPalette.Violet * 0.3f, rotation, origin, scale * pulse * 1.2f, SpriteEffects.None, 0f);
+
             // Star white core shimmer
             float shimmer = (float)Math.Sin(time * 2.5f) * 0.5f + 0.5f;
-            spriteBatch.Draw(texture, position, null, NachtmusikCosmicVFX.StarWhite * 0.2f * shimmer, rotation, origin, scale * pulse * 1.08f, SpriteEffects.None, 0f);
-            
+            spriteBatch.Draw(texture, position, null, NachtmusikPalette.StarWhite * 0.2f * shimmer, rotation, origin, scale * pulse * 1.08f, SpriteEffects.None, 0f);
+
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            Lighting.AddLight(Item.Center, NachtmusikCosmicVFX.Violet.ToVector3() * 0.5f);
-            
+
+            Lighting.AddLight(Item.Center, NachtmusikPalette.Violet.ToVector3() * 0.5f);
+
             return true;
         }
-        
+
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
             // === STARWEAVER INVENTORY COSMIC PULSE ===
             Texture2D texture = Terraria.GameContent.TextureAssets.Item[Item.type].Value;
-            
+
             float time = Main.GameUpdateCount * 0.04f;
             float pulse = 1f + (float)Math.Sin(time * 1.8f) * 0.08f;
-            
+
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-            
+
             // Celestial gradient glow
-            Color glowColor = NachtmusikCosmicVFX.GetCelestialGradient((float)Math.Sin(time * 0.6f) * 0.5f + 0.5f) * 0.28f;
+            Color glowColor = NachtmusikPalette.GetCelestialGradient((float)Math.Sin(time * 0.6f) * 0.5f + 0.5f) * 0.28f;
             spriteBatch.Draw(texture, position, frame, glowColor, 0f, origin, scale * pulse * 1.12f, SpriteEffects.None, 0f);
-            
+
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-            
+
             spriteBatch.Draw(texture, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
-            
+
             return false;
         }
-        
+
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Orb", "Fires cosmic orbs that create mini-explosions along their path"));
@@ -233,11 +234,11 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             tooltips.Add(new TooltipLine(Mod, "Debuff", "Inflicts heavy Celestial Harmony stacks"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Written in stardust, bound in eternity'")
             {
-                OverrideColor = NachtmusikCosmicVFX.Violet
+                OverrideColor = NachtmusikPalette.Violet
             });
         }
     }
-    
+
     /// <summary>
     /// Requiem of the Cosmos - The ultimate magic weapon from Nachtmusik.
     /// Fires devastating cosmic beams that pierce all enemies.
@@ -247,7 +248,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
     {
         private int requiemTimer = 0;
         private bool isChanneling = false;
-        
+
         public override void SetDefaults()
         {
             Item.width = 36;
@@ -270,20 +271,20 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             Item.channel = true;
             Item.staff[Item.type] = true;
         }
-        
+
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             requiemTimer++;
             isChanneling = true;
-            
+
             Vector2 direction = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
-            
+
             // Fire beam
             Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
-            
+
             // Channeling intensifies over time
             float intensity = Math.Min(1f, requiemTimer / 60f);
-            
+
             // Fire additional beams at higher intensity
             if (requiemTimer % 4 == 0 && intensity > 0.3f)
             {
@@ -291,7 +292,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 Vector2 sideVel = velocity.RotatedBy(angleOffset);
                 Projectile.NewProjectile(source, position, sideVel, type, (int)(damage * 0.6f), knockback * 0.5f, player.whoAmI);
             }
-            
+
             // Grand finale at peak intensity
             if (requiemTimer % 45 == 0 && intensity >= 1f)
             {
@@ -302,33 +303,33 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                     Vector2 burstVel = burstAngle.ToRotationVector2() * 18f;
                     Projectile.NewProjectile(source, player.Center, burstVel, type, (int)(damage * 0.8f), knockback, player.whoAmI);
                 }
-                
-                // Grand finale - trust GrandCelestialImpact
-                NachtmusikCosmicVFX.SpawnGrandCelestialImpact(player.Center, 1.2f);
+
+                // Grand finale VFX
+                RequiemOfTheCosmosVFX.CosmicFinaleVFX(player.Center, 1.2f);
                 MagnumScreenEffects.AddScreenShake(6f);
-                
+
                 // Single music note burst
-                ThemedParticles.MusicNoteBurst(player.Center, new Color(100, 60, 180), 6, 5f);
+                NachtmusikVFXLibrary.SpawnMusicNotes(player.Center, 6, 5f, 0.7f, 0.9f, 25);
             }
-            
+
             // Channeling VFX with star trail effects
-            CustomParticles.GenericFlare(position + direction * 25f, NachtmusikCosmicVFX.Violet, 0.35f + intensity * 0.2f, 8);
-            NachtmusikCosmicVFX.SpawnStarTrailEffect(position + direction * 20f, velocity, 0.3f + intensity * 0.3f);
-            
+            CustomParticles.GenericFlare(position + direction * 25f, NachtmusikPalette.Violet, 0.35f + intensity * 0.2f, 8);
+            NachtmusikVFXLibrary.SpawnRadiantBeamTrail(position + direction * 20f, velocity, 0.3f + intensity * 0.3f);
+
             // Music note on cast
-            ThemedParticles.MusicNote(position + direction * 15f, direction * 1.5f, new Color(100, 60, 180) * 0.8f, 0.7f, 25);
-            
+            NachtmusikVFXLibrary.SpawnMusicNotes(position + direction * 15f, 1, 8f, 0.7f, 0.85f, 25);
+
             if (Main.rand.NextBool(3))
             {
-                Color trailColor = NachtmusikCosmicVFX.GetCelestialGradient(Main.rand.NextFloat());
+                Color trailColor = NachtmusikPalette.GetCelestialGradient(Main.rand.NextFloat());
                 var trail = new GenericGlowParticle(position + Main.rand.NextVector2Circular(15f, 15f),
                     direction * 2f + Main.rand.NextVector2Circular(1f, 1f), trailColor * 0.6f, 0.2f, 12, true);
                 MagnumParticleHandler.SpawnParticle(trail);
             }
-            
+
             return false;
         }
-        
+
         public override void UpdateInventory(Player player)
         {
             // Reset channel timer when not using
@@ -345,97 +346,99 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                         Projectile.NewProjectile(player.GetSource_FromThis(), player.Center, burstVel,
                             ModContent.ProjectileType<CosmicRequiemBeamProjectile>(), (int)(Item.damage * player.GetDamage(DamageClass.Magic).Multiplicative), Item.knockBack, player.whoAmI);
                     }
-                    
-                    NachtmusikCosmicVFX.SpawnCelestialImpact(player.Center + direction * 30f, 1f);
+
+                    NachtmusikVFXLibrary.ProjectileImpact(player.Center + direction * 30f, 1f);
                 }
-                
+
                 requiemTimer = 0;
                 isChanneling = false;
             }
         }
-        
+
         public override void HoldItem(Player player)
         {
+            RequiemOfTheCosmosVFX.HoldItemVFX(player);
+
             float intensity = Math.Min(1f, requiemTimer / 60f);
-            
+
             // Subtle channeling aura at high intensity
             if (isChanneling && intensity > 0.5f && Main.rand.NextBool(15))
             {
                 float angle = Main.GameUpdateCount * 0.06f;
                 Vector2 auraPos = player.Center + angle.ToRotationVector2() * 35f;
-                Color auraColor = NachtmusikCosmicVFX.GetCelestialGradient(Main.rand.NextFloat());
+                Color auraColor = NachtmusikPalette.GetCelestialGradient(Main.rand.NextFloat());
                 CustomParticles.GenericFlare(auraPos, auraColor, 0.2f, 10);
             }
-            
+
             // Sparse ambient music note
             if (Main.rand.NextBool(25))
             {
                 Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Color noteColor = NachtmusikCosmicVFX.GetCelestialGradient(Main.rand.NextFloat()) * 0.5f;
-                ThemedParticles.MusicNote(notePos, new Vector2(0, -0.4f), noteColor, 0.65f, 30);
+                Color noteColor = NachtmusikPalette.GetCelestialGradient(Main.rand.NextFloat()) * 0.5f;
+                NachtmusikVFXLibrary.SpawnMusicNotes(notePos, 1, 8f, 0.7f, 0.85f, 25);
             }
-            
-            Lighting.AddLight(player.Center, NachtmusikCosmicVFX.Violet.ToVector3() * (0.25f + intensity * 0.2f));
+
+            Lighting.AddLight(player.Center, NachtmusikPalette.Violet.ToVector3() * (0.25f + intensity * 0.2f));
         }
-        
+
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
             // === REQUIEM COSMIC GLOW ===
             Texture2D texture = Terraria.GameContent.TextureAssets.Item[Item.type].Value;
             Vector2 position = Item.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
-            
+
             float time = Main.GameUpdateCount * 0.06f;
             float pulse = 1f + (float)Math.Sin(time * 1.8f) * 0.12f;
-            
+
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
+
             // Deep purple outer glow with enhanced intensity
-            spriteBatch.Draw(texture, position, null, NachtmusikCosmicVFX.DeepPurple * 0.4f, rotation, origin, scale * pulse * 1.4f, SpriteEffects.None, 0f);
-            
+            spriteBatch.Draw(texture, position, null, NachtmusikPalette.CosmicPurple * 0.4f, rotation, origin, scale * pulse * 1.4f, SpriteEffects.None, 0f);
+
             // Violet mid glow
-            spriteBatch.Draw(texture, position, null, NachtmusikCosmicVFX.Violet * 0.35f, rotation, origin, scale * pulse * 1.25f, SpriteEffects.None, 0f);
-            
+            spriteBatch.Draw(texture, position, null, NachtmusikPalette.Violet * 0.35f, rotation, origin, scale * pulse * 1.25f, SpriteEffects.None, 0f);
+
             // Star burst core shimmer
             float shimmer = (float)Math.Sin(time * 3f) * 0.5f + 0.5f;
-            spriteBatch.Draw(texture, position, null, NachtmusikCosmicVFX.StarWhite * 0.25f * shimmer, rotation, origin, scale * pulse * 1.1f, SpriteEffects.None, 0f);
-            
+            spriteBatch.Draw(texture, position, null, NachtmusikPalette.StarWhite * 0.25f * shimmer, rotation, origin, scale * pulse * 1.1f, SpriteEffects.None, 0f);
+
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            Lighting.AddLight(Item.Center, NachtmusikCosmicVFX.Violet.ToVector3() * 0.6f);
-            
+
+            Lighting.AddLight(Item.Center, NachtmusikPalette.Violet.ToVector3() * 0.6f);
+
             return true;
         }
-        
+
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
             // === REQUIEM INVENTORY COSMIC PULSE ===
             Texture2D texture = Terraria.GameContent.TextureAssets.Item[Item.type].Value;
-            
+
             float time = Main.GameUpdateCount * 0.05f;
             float pulse = 1f + (float)Math.Sin(time * 2f) * 0.1f;
-            
+
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-            
+
             // Celestial gradient glow - enhanced for ultimate weapon
-            Color glowColor = NachtmusikCosmicVFX.GetCelestialGradient((float)Math.Sin(time * 0.7f) * 0.5f + 0.5f) * 0.32f;
+            Color glowColor = NachtmusikPalette.GetCelestialGradient((float)Math.Sin(time * 0.7f) * 0.5f + 0.5f) * 0.32f;
             spriteBatch.Draw(texture, position, frame, glowColor, 0f, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
-            
+
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-            
+
             spriteBatch.Draw(texture, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
-            
+
             return false;
         }
-        
+
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Beam", "Fires piercing cosmic beams that hit all enemies"));
@@ -445,7 +448,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             tooltips.Add(new TooltipLine(Mod, "Debuff", "Inflicts heavy Celestial Harmony stacks"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The final movement plays as the universe falls silent'")
             {
-                OverrideColor = NachtmusikCosmicVFX.DeepPurple
+                OverrideColor = NachtmusikPalette.CosmicPurple
             });
         }
     }

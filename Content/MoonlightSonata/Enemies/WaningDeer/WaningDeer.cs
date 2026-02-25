@@ -25,6 +25,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
     /// </summary>
     public class WaningDeer : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/MoonlightSonata/Enemies/WaningDeer/WaningDeer";
+
         // AI States - Mini-boss attack phases
         private enum AIState
         {
@@ -186,6 +188,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             // Ambient particles
             SpawnAmbientParticles();
 
+            // Unified Moonlight enemy ambient VFX
+            MoonlightEnemyVFX.EnemyAmbientLight(NPC.Center, 0.5f);
+
             float distanceToTarget = Vector2.Distance(NPC.Center, target.Center);
             bool canSeeTarget = Collision.CanHitLine(NPC.Center, 1, 1, target.Center, 1, 1);
 
@@ -307,6 +312,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 CustomParticles.MoonlightCrescendo(NPC.Center, 1f);
                 MoonlightVFXLibrary.SpawnMusicNotes(NPC.Center, 2, 20f, 0.8f, 1.0f, 25);
                 SoundEngine.PlaySound(SoundID.Item29 with { Pitch = -0.2f }, NPC.Center);
+
+                // Unified alert burst VFX
+                MoonlightEnemyVFX.WaningDeerAlertBurst(NPC.Center);
             }
         }
 
@@ -916,6 +924,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 
         public override void HitEffect(NPC.HitInfo hit)
         {
+            // Unified hit flash VFX
+            MoonlightEnemyVFX.EnemyHitFlash(NPC.Center, NPC.width, NPC.height);
+
             for (int i = 0; i < 12; i++)
             {
                 Color particleColor = Main.rand.NextBool() ? MoonlightVFXLibrary.DarkPurple : MoonlightVFXLibrary.IceBlue;
@@ -928,6 +939,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 
             if (NPC.life <= 0)
             {
+                // Unified Waning Deer death VFX
+                MoonlightEnemyVFX.WaningDeerDeathVFX(NPC.Center);
+
                 for (int i = 0; i < 50; i++)
                 {
                     Color deathColor = Main.rand.NextBool() ? MoonlightVFXLibrary.DarkPurple : MoonlightVFXLibrary.IceBlue;

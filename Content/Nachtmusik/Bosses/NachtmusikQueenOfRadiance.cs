@@ -17,6 +17,7 @@ using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.Nachtmusik.Enemies;
 
 namespace MagnumOpus.Content.Nachtmusik.Bosses
 {
@@ -550,10 +551,10 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                     CustomParticles.GenericFlare(NPC.Center, StarWhite, 2.0f, 30);
                     
                     // Star burst explosion at center
-                    NachtmusikCosmicVFX.SpawnStarBurstImpact(NPC.Center, 1.5f, 6);
+                    NachtmusikVFXLibrary.SpawnStarBurst(NPC.Center, 6, 0.4f);
                     
                     // Massive shattered starlight explosion
-                    NachtmusikCosmicVFX.SpawnShatteredStarlightBurst(NPC.Center, 30, 12f, 1.0f, true);
+                    NachtmusikVFXLibrary.SpawnShatteredStarlight(NPC.Center, 30, 12f, 1.0f, true);
                     
                     for (int i = 0; i < 16; i++)
                     {
@@ -573,8 +574,8 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                     }
                     
                     // Glyphs and music notes
-                    NachtmusikCosmicVFX.SpawnGlyphBurst(NPC.Center, 12, 8f, 0.5f);
-                    NachtmusikCosmicVFX.SpawnMusicNoteBurst(NPC.Center, 16, 8f);
+                    NachtmusikVFXLibrary.SpawnGlyphBurst(NPC.Center, 12, 8f, 0.5f);
+                    NachtmusikVFXLibrary.SpawnMusicNotes(NPC.Center, 16, 30f, 0.8f, 1.0f, 30);
                     
                     Main.NewText("NACHTMUSIK, CELESTIAL FURY awakens!", Gold);
                 }

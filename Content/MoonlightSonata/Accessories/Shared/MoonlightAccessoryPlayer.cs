@@ -11,6 +11,7 @@ using ReLogic.Content;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.MoonlightSonata.VFX.Accessories;
 
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
@@ -112,6 +113,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                 {
                     // Custom particles - moonlight glow flare on each minion
                     CustomParticles.MoonlightFlare(proj.Center, 0.5f);
+
+                    // Unified fractal surge VFX
+                    FractalOfMoonlightVFX.FractalSurgePulse(proj.Center, 0.8f);
                     
                     // Visual surge effect around each minion
                     for (int i = 0; i < 15; i++)
@@ -180,6 +184,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             CustomParticles.MoonlightFlare(position, 0.9f);
             CustomParticles.MoonlightHalo(position, 0.5f);
             MoonlightVFXLibrary.SpawnMusicNotes(position, 3, 25f, 0.7f, 0.9f, 25);
+
+            // Unified engine rev pulse VFX
+            MoonlitEngineVFX.EngineRevPulse(position, 1.0f);
             
             // Sound
             SoundEngine.PlaySound(SoundID.Item14 with { Volume = 0.7f, Pitch = 0.5f }, position);
@@ -226,10 +233,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                     // Visual cue
                     for (int i = 0; i < 8; i++)
                     {
-                        Dust dust = Dust.NewDustPerfect(position, DustID.PurpleTorch, 
+                        Dust dust = Dust.NewDustPerfect(position, DustID.PurpleTorch,
                             Main.rand.NextVector2Circular(3f, 3f), 100, default, 1.2f);
                         dust.noGravity = true;
                     }
+
+                    // Unified double-cast proc flash
+                    EmberOfTheMoonVFX.DoubleCastProcFlash(position, 0.7f);
                 }
             }
             

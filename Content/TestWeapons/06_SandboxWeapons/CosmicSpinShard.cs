@@ -7,6 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Trails;
 using MagnumOpus.Content.TestWeapons.SandboxWeapons.Shaders;
@@ -15,9 +16,9 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
 {
     /// <summary>
     /// Cosmic homing shard flung from the spinning Terra Blade.
+    /// Rendered as HIGHLY stretched/squished flare textures with sparkle overlays.
     /// Brief outward flight with deceleration, then homes toward nearest enemy.
-    /// On hit: spawns CosmicImpactZone. On miss: fizzles out with particles.
-    /// Rendered with Cosmic trail, motion blur, bloom stack, and sparkle.
+    /// Fluid water-like wobble movement for organic, non-rigid motion.
     /// </summary>
     public class CosmicSpinShard : ModProjectile
     {
@@ -30,18 +31,29 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         private const float HomingSpeed = 14f;
         private const float Deceleration = 0.96f;
 
+        // Stretched flare rendering
+        private const float FlareStretchX = 7f;
+        private const float FlareSquishY = 0.14f;
+
+        // Fluid wobble
+        private const float WobbleFreq1 = 3.8f;
+        private const float WobbleFreq2 = 6.1f;
+        private const float WobbleAmp1 = 2.0f;
+        private const float WobbleAmp2 = 1.2f;
+
         #endregion
 
         #region State
 
         private int cachedTargetWhoAmI = -1;
         private int timer = 0;
+        private float wobblePhase;
 
         #endregion
 
         #region Setup
 
-        public override string Texture => "Terraria/Images/Extra_" + 98;
+        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
 
         public override void SetStaticDefaults()
         {
@@ -61,6 +73,9 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
             Projectile.extraUpdates = 1;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
+            Projectile.alpha = 255;
+
+            wobblePhase = Main.rand.NextFloat(MathHelper.TwoPi);
         }
 
         #endregion
@@ -70,16 +85,14 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
         public override void AI()
         {
             timer++;
-            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
+            Projectile.rotation = Projectile.velocity.ToRotation();
 
             if (timer <= LaunchFrames)
             {
-                // Phase 1: Outward flight with deceleration
                 Projectile.velocity *= Deceleration;
             }
             else
             {
-                // Phase 2: Home toward nearest enemy
                 if (cachedTargetWhoAmI < 0)
                     AcquireTarget();
 
@@ -93,16 +106,22 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                     }
                     else
                     {
-                        // Target died, reacquire
                         cachedTargetWhoAmI = -1;
                     }
                 }
                 else
                 {
-                    // No target: slow deceleration, eventually dies at timeLeft = 0
                     Projectile.velocity *= 0.99f;
                 }
             }
+
+            // Fluid wobble — organic water-like motion
+            float t = timer * 0.1f + wobblePhase;
+            Vector2 dir = Projectile.velocity.SafeNormalize(Vector2.UnitX);
+            Vector2 perp = new Vector2(-dir.Y, dir.X);
+            float wobble = MathF.Sin(t * WobbleFreq1) * WobbleAmp1
+                         + MathF.Sin(t * WobbleFreq2 + 1.9f) * WobbleAmp2;
+            Projectile.position += perp * wobble * 0.25f;
 
             // Sparkle dust trail
             if (Main.rand.NextBool(2))
@@ -114,6 +133,17 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                     -Projectile.velocity * 0.15f,
                     0, dustColor, 1.0f);
                 d.noGravity = true;
+            }
+
+            // Sparkle particles
+            if (timer % 4 == 0)
+            {
+                Color sparkleColor = TerraBladeShaderManager.GetPaletteColor(Main.rand.NextFloat(0.4f, 0.8f));
+                var sparkle = new SparkleParticle(
+                    Projectile.Center, Main.rand.NextVector2Circular(1f, 1f),
+                    sparkleColor, sparkleColor * 0.5f,
+                    Main.rand.NextFloat(0.15f, 0.35f), 8);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
             // Dynamic lighting
@@ -144,7 +174,6 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Spawn CosmicImpactZone at target center
             if (Main.myPlayer == Projectile.owner)
             {
                 Projectile.NewProjectile(
@@ -153,7 +182,6 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                     Projectile.damage / 2, 0f, Projectile.owner);
             }
 
-            // Dust burst
             for (int i = 0; i < 10; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(6f, 6f);
@@ -169,7 +197,6 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 d.noGravity = true;
             }
 
-            // Music notes
             for (int i = 0; i < 3; i++)
             {
                 Vector2 noteVel = Main.rand.NextVector2Circular(3f, 3f) + new Vector2(0f, -1.5f);
@@ -182,7 +209,6 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
 
         public override void OnKill(int timeLeft)
         {
-            // Fizzle-out particles
             for (int i = 0; i < 6; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(3f, 3f);
@@ -198,64 +224,86 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
 
         #region Rendering
 
-        private static Texture2D SafeRequest(string path)
-        {
-            try
-            {
-                if (ModContent.HasAsset(path))
-                    return ModContent.Request<Texture2D>(path).Value;
-            }
-            catch { }
-            return null;
-        }
-
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D coreTex = Terraria.GameContent.TextureAssets.Extra[98].Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = coreTex.Size() * 0.5f;
             float time = Main.GlobalTimeWrappedHourly;
+            float velRot = Projectile.velocity.ToRotation();
             float pulse = 1f + MathF.Sin(time * 8f) * 0.1f;
+            float speed = Projectile.velocity.Length();
+            float dynamicStretch = 1f + speed * 0.05f;
 
-            // 1. Cosmic trail via oldPos
+            // Cosmic trail via oldPos
             DrawCosmicTrail(sb);
 
-            // 2. Motion blur
-            MotionBlurBloomRenderer.DrawProjectile(
-                sb, coreTex, Projectile,
-                TerraBladeShaderManager.GetPaletteColor(0.5f),
-                TerraBladeShaderManager.GetPaletteColor(0.8f),
-                0.8f);
+            // Stretched flare body
+            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/FlareSparkle").Value;
+            Texture2D flare3 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/ThinSparkleFlare").Value;
 
-            // 3-5. Core sprite + bloom + sparkle in one additive batch
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null,
                 Main.GameViewMatrix.TransformationMatrix);
 
-            // Bloom stack
-            Color outerColor = TerraBladeShaderManager.GetPaletteColor(0.3f);
-            sb.Draw(coreTex, drawPos, null, outerColor * 0.30f, 0f, origin, 0.8f * pulse, SpriteEffects.None, 0f);
-
-            Color midColor = TerraBladeShaderManager.GetPaletteColor(0.5f);
-            sb.Draw(coreTex, drawPos, null, midColor * 0.50f, 0f, origin, 0.5f * pulse, SpriteEffects.None, 0f);
-
-            Color coreColor = TerraBladeShaderManager.GetPaletteColor(0.7f);
-            sb.Draw(coreTex, drawPos, null, coreColor * 0.70f, 0f, origin, 0.3f * pulse, SpriteEffects.None, 0f);
-
-            // White-hot core
-            sb.Draw(coreTex, drawPos, null, Color.White * 0.85f,
-                0f, origin, 0.15f * pulse, SpriteEffects.None, 0f);
-
-            // FlareSparkle counter-rotating at center
-            Texture2D sparkleTex = SafeRequest("MagnumOpus/Assets/Particles/FlareSparkle");
-            if (sparkleTex != null)
+            // Layer 1: Outer glow — wide stretched flare
             {
-                Vector2 sparkleOrigin = sparkleTex.Size() * 0.5f;
-                Color sparkleColor = TerraBladeShaderManager.GetPaletteColor(0.6f);
-                sb.Draw(sparkleTex, drawPos, null, sparkleColor * 0.5f,
-                    -time * 3f, sparkleOrigin, 0.12f * pulse, SpriteEffects.None, 0f);
+                Vector2 origin = flare1.Size() * 0.5f;
+                Color outerColor = TerraBladeShaderManager.GetPaletteColor(0.3f) with { A = 0 };
+                Vector2 stretchScale = new Vector2(FlareStretchX * dynamicStretch, FlareSquishY) * pulse;
+                sb.Draw(flare1, drawPos, null, outerColor * 0.28f,
+                    velRot, origin, stretchScale, SpriteEffects.None, 0f);
+            }
+
+            // Layer 2: Sparkle overlay — FlareSparkle with slight wobble rotation
+            {
+                Vector2 origin = flare2.Size() * 0.5f;
+                Color sparkleColor = TerraBladeShaderManager.GetPaletteColor(0.5f) with { A = 0 };
+                Vector2 stretchScale = new Vector2(FlareStretchX * 0.7f * dynamicStretch, FlareSquishY * 1.2f) * pulse;
+                sb.Draw(flare2, drawPos, null, sparkleColor * 0.40f,
+                    velRot + MathF.Sin(time * 5f) * 0.03f, origin, stretchScale, SpriteEffects.None, 0f);
+            }
+
+            // Layer 3: Thin sparkle core
+            {
+                Vector2 origin = flare3.Size() * 0.5f;
+                Color coreColor = TerraBladeShaderManager.GetPaletteColor(0.7f) with { A = 0 };
+                Vector2 stretchScale = new Vector2(FlareStretchX * 0.45f * dynamicStretch, FlareSquishY * 0.5f) * pulse;
+                sb.Draw(flare3, drawPos, null, coreColor * 0.50f,
+                    velRot, origin, stretchScale, SpriteEffects.None, 0f);
+            }
+
+            // Layer 4: White-hot center
+            {
+                Vector2 origin = flare1.Size() * 0.5f;
+                Vector2 stretchScale = new Vector2(FlareStretchX * 0.25f * dynamicStretch, FlareSquishY * 0.3f) * pulse;
+                sb.Draw(flare1, drawPos, null, (Color.White with { A = 0 }) * 0.55f,
+                    velRot, origin, stretchScale, SpriteEffects.None, 0f);
+            }
+
+            // Counter-rotating sparkle overlay
+            {
+                Vector2 origin = flare2.Size() * 0.5f;
+                Color sparkColor = TerraBladeShaderManager.GetPaletteColor(0.6f) with { A = 0 };
+                sb.Draw(flare2, drawPos, null, sparkColor * 0.20f,
+                    -time * 2.5f + timer * 0.1f, origin, 0.10f * pulse, SpriteEffects.None, 0f);
+            }
+
+            // Afterimage stretched flares at old positions
+            Vector2 flareOrigin = flare1.Size() * 0.5f;
+            for (int i = 1; i < TrailCacheSize; i += 2)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                float trailProgress = (float)i / TrailCacheSize;
+                float trailAlpha = (1f - trailProgress) * 0.18f;
+                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size * 0.5f - Main.screenPosition;
+                float trailRot = Projectile.oldRot[i];
+                float trailStretch = MathHelper.Lerp(FlareStretchX * 0.4f, FlareStretchX * 0.08f, trailProgress);
+                float trailSquish = MathHelper.Lerp(FlareSquishY * 0.6f, FlareSquishY * 0.15f, trailProgress);
+                Color trailColor = TerraBladeShaderManager.GetPaletteColor(0.3f + trailProgress * 0.4f) with { A = 0 };
+                sb.Draw(flare1, trailPos, null, trailColor * trailAlpha,
+                    trailRot, flareOrigin, new Vector2(trailStretch, trailSquish), SpriteEffects.None, 0f);
             }
 
             sb.End();
@@ -268,7 +316,6 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
 
         private void DrawCosmicTrail(SpriteBatch sb)
         {
-            // Use oldPos for trail (tModLoader manages this via TrailingMode)
             int validCount = 0;
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
@@ -288,7 +335,6 @@ namespace MagnumOpus.Content.TestWeapons.SandboxWeapons
                 rotations[i] = Projectile.oldRot[i];
             }
 
-            // Bind cosmic noise
             Texture2D noise = ShaderLoader.GetNoiseTexture("CosmicNebulaClouds");
             if (noise != null)
             {

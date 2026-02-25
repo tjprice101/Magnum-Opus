@@ -108,7 +108,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             spinSpeed = 0.15f;
             
             // Initial spawn VFX - spectral appearance
-            FateCosmicVFX.SpawnCosmicCloudBurst(Projectile.Center, 0.5f, 10);
+            FateVFXLibrary.SpawnCosmicCloudBurst(Projectile.Center, 0.5f, 10);
             SoundEngine.PlaySound(SoundID.Item8 with { Pitch = 0.3f, Volume = 0.7f }, Projectile.Center);
             
             // Set initial hover position above owner
@@ -161,7 +161,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             
             // Spectral cosmic lighting
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.2f + 0.8f;
-            Lighting.AddLight(Projectile.Center, FateCosmicVFX.FateDarkPink.ToVector3() * pulse * 0.6f);
+            Lighting.AddLight(Projectile.Center, FatePalette.DarkPink.ToVector3() * pulse * 0.6f);
         }
         
         private void AI_RiseUp(Player owner)
@@ -182,7 +182,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Rising cosmic trail
             if (PhaseTimer % 2 == 0)
             {
-                Color trailColor = FateCosmicVFX.GetCosmicGradient(progress);
+                Color trailColor = FatePalette.GetCosmicGradient(progress);
                 var trail = new GenericGlowParticle(Projectile.Center, new Vector2(Main.rand.NextFloat(-1f, 1f), 2f), 
                     trailColor * 0.6f, 0.3f, 20, true);
                 MagnumParticleHandler.SpawnParticle(trail);
@@ -191,13 +191,13 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 if (Main.rand.NextBool(2))
                 {
                     var star = new GenericGlowParticle(Projectile.Center + Main.rand.NextVector2Circular(25f, 25f),
-                        Main.rand.NextVector2Circular(0.5f, 0.5f), FateCosmicVFX.FateWhite * spectralAlpha, 0.2f, 15, true);
+                        Main.rand.NextVector2Circular(0.5f, 0.5f), FatePalette.WhiteCelestial * spectralAlpha, 0.2f, 15, true);
                     MagnumParticleHandler.SpawnParticle(star);
                 }
                 
                 // Spectral glyph trail
                 if (Main.rand.NextBool(3))
-                    CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f), FateCosmicVFX.FatePurple * spectralAlpha, 0.28f, -1);
+                    CustomParticles.Glyph(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f), FatePalette.FatePurple * spectralAlpha, 0.28f, -1);
             }
             
             // ☁EMUSICAL NOTATION - Cosmic destiny trail
@@ -231,7 +231,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Cosmic cloud energy building
             if (PhaseTimer % 3 == 0)
             {
-                FateCosmicVFX.SpawnCosmicCloudTrail(Projectile.Center, Vector2.Zero, 0.5f + progress * 0.5f);
+                FateVFXLibrary.SpawnCosmicCloudTrail(Projectile.Center, Vector2.Zero, 0.5f + progress * 0.5f);
             }
             
             // Orbiting glyphs
@@ -248,7 +248,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 Vector2 gatherStart = Projectile.Center + gatherAngle.ToRotationVector2() * (80f - progress * 40f);
                 Vector2 gatherVel = (Projectile.Center - gatherStart).SafeNormalize(Vector2.Zero) * (2f + progress * 4f);
                 
-                var star = new GenericGlowParticle(gatherStart, gatherVel, FateCosmicVFX.FateWhite * spectralAlpha, 0.25f, 20, true);
+                var star = new GenericGlowParticle(gatherStart, gatherVel, FatePalette.WhiteCelestial * spectralAlpha, 0.25f, 20, true);
                 MagnumParticleHandler.SpawnParticle(star);
             }
             
@@ -282,15 +282,15 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 
                 // Cosmic explosion
                 FateCosmicVFX.SpawnCosmicExplosion(Projectile.Center, 1.5f);
-                FateCosmicVFX.SpawnCosmicCloudBurst(Projectile.Center, 1.2f, 24);
+                FateVFXLibrary.SpawnCosmicCloudBurst(Projectile.Center, 1.2f, 24);
                 FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 12, 10f, 0.5f);
-                FateCosmicVFX.SpawnStarSparkles(Projectile.Center, 20, 60f, 0.35f);
+                FateVFXLibrary.SpawnStarSparkles(Projectile.Center, 20, 60f, 0.35f);
                 FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 8, 50f, 0.4f);
                 
                 // Halo rings cascade
                 for (int i = 0; i < 6; i++)
                 {
-                    Color ringColor = FateCosmicVFX.GetCosmicGradient((float)i / 6f);
+                    Color ringColor = FatePalette.GetCosmicGradient((float)i / 6f);
                     CustomParticles.HaloRing(Projectile.Center, ringColor, 0.5f + i * 0.15f, 20 + i * 3);
                 }
                 
@@ -316,7 +316,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Lingering explosion particles
             if (Main.rand.NextBool(2))
             {
-                Color burstColor = FateCosmicVFX.GetCosmicGradient(Main.rand.NextFloat());
+                Color burstColor = FatePalette.GetCosmicGradient(Main.rand.NextFloat());
                 CustomParticles.GenericFlare(Projectile.Center + Main.rand.NextVector2Circular(40f, 40f), burstColor, 0.4f, 15);
             }
             
@@ -422,12 +422,12 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Trail VFX
             if (PhaseTimer % 2 == 0)
             {
-                FateCosmicVFX.SpawnCosmicCloudTrail(Projectile.Center, Projectile.velocity, 0.6f);
+                FateVFXLibrary.SpawnCosmicCloudTrail(Projectile.Center, Projectile.velocity, 0.6f);
                 
                 if (Main.rand.NextBool(2))
                 {
                     var star = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(2f, 2f),
-                        FateCosmicVFX.FateWhite, 0.25f, 15, true);
+                        FatePalette.WhiteCelestial, 0.25f, 15, true);
                     MagnumParticleHandler.SpawnParticle(star);
                 }
             }
@@ -463,7 +463,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Return trail
             if (PhaseTimer % 3 == 0)
             {
-                Color trailColor = FateCosmicVFX.GetCosmicGradient((PhaseTimer * 0.02f) % 1f);
+                Color trailColor = FatePalette.GetCosmicGradient((PhaseTimer * 0.02f) % 1f);
                 var trail = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f, 
                     trailColor * 0.6f, 0.25f, 18, true);
                 MagnumParticleHandler.SpawnParticle(trail);
@@ -511,7 +511,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             for (int i = 0; i < 6; i++)
             {
                 var star = new GenericGlowParticle(target.Center + Main.rand.NextVector2Circular(25f, 25f),
-                    Main.rand.NextVector2Circular(3f, 3f), FateCosmicVFX.FateWhite, 0.25f, 18, true);
+                    Main.rand.NextVector2Circular(3f, 3f), FatePalette.WhiteCelestial, 0.25f, 18, true);
                 MagnumParticleHandler.SpawnParticle(star);
             }
         }
@@ -520,12 +520,12 @@ namespace MagnumOpus.Content.Fate.Projectiles
         {
             // Return VFX
             FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 6, 4f, 0.35f);
-            CustomParticles.GenericFlare(Projectile.Center, FateCosmicVFX.FateWhite, 0.6f, 15);
+            CustomParticles.GenericFlare(Projectile.Center, FatePalette.WhiteCelestial, 0.6f, 15);
             
             for (int i = 0; i < 8; i++)
             {
                 var star = new GenericGlowParticle(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f),
-                    Main.rand.NextVector2Circular(2f, 2f), FateCosmicVFX.FateDarkPink, 0.2f, 15, true);
+                    Main.rand.NextVector2Circular(2f, 2f), FatePalette.DarkPink, 0.2f, 15, true);
                 MagnumParticleHandler.SpawnParticle(star);
             }
             
@@ -548,7 +548,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 float trailAlpha = (1f - trailProgress) * 0.3f * spectralAlpha;
                 float trailScale = (1f - trailProgress * 0.5f) * 0.9f;
                 
-                Color trailColor = FateCosmicVFX.GetCosmicGradient(trailProgress) * trailAlpha;
+                Color trailColor = FatePalette.GetCosmicGradient(trailProgress) * trailAlpha;
                 spriteBatch.Draw(texture, trailPos, null, trailColor, trailRotations[trailIdx], origin, trailScale, SpriteEffects.None, 0f);
             }
             
@@ -560,9 +560,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.15f + 1f;
             
             // Outer cosmic glow (more intense for spectral look)
-            spriteBatch.Draw(texture, drawPos, null, FateCosmicVFX.FateBrightRed * 0.35f * spectralAlpha, Projectile.rotation, origin, 1.4f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, FateCosmicVFX.FateDarkPink * 0.45f * spectralAlpha, Projectile.rotation, origin, 1.2f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, FateCosmicVFX.FateWhite * 0.25f * spectralAlpha, Projectile.rotation, origin, 1.08f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, drawPos, null, FatePalette.BrightCrimson * 0.35f * spectralAlpha, Projectile.rotation, origin, 1.4f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, drawPos, null, FatePalette.DarkPink * 0.45f * spectralAlpha, Projectile.rotation, origin, 1.2f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, drawPos, null, FatePalette.WhiteCelestial * 0.25f * spectralAlpha, Projectile.rotation, origin, 1.08f * pulse, SpriteEffects.None, 0f);
             
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,

@@ -9,6 +9,7 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.MoonlightSonata.Accessories;
 using MagnumOpus.Content.Eroica.Accessories;
+using MagnumOpus.Content.Eroica.Accessories.Shared;
 using MagnumOpus.Content.LaCampanella.Accessories;
 using MagnumOpus.Content.EnigmaVariations.Accessories;
 using MagnumOpus.Content.SwanLake.Accessories;
@@ -16,6 +17,8 @@ using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.HarmonicCores;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.HarmonicCores;
+using EroicaColors = MagnumOpus.Common.Systems.CustomParticleSystem.EroicaColors;
+using MagnumOpus.Content.Eroica;
 using MagnumOpus.Content.LaCampanella.ResonanceEnergies;
 using MagnumOpus.Content.LaCampanella.HarmonicCores;
 using MagnumOpus.Content.EnigmaVariations.ResonanceEnergies;
@@ -253,7 +256,7 @@ namespace MagnumOpus.Content.Common.Accessories
                 if (Main.rand.NextBool(10))
                 {
                     Vector2 offset = Main.rand.NextVector2Circular(40f, 40f);
-                    Color color = Color.Lerp(EroicaColors.Sakura, 
+                    Color color = Color.Lerp(EroicaPalette.Sakura,
                         EnigmaColors.Purple, Main.rand.NextFloat());
                     
                     CustomParticles.GenericFlare(player.Center + offset, color * 0.6f, 0.28f, 15);
@@ -943,7 +946,7 @@ namespace MagnumOpus.Content.Common.Accessories
                 {
                     Vector2 petalPos = player.Center + new Vector2(Main.rand.NextFloat(-35f, 35f), -15f);
                     Color petalColor = Main.rand.NextBool() ? 
-                        EroicaColors.Sakura : SwanColors.White;
+                        EroicaPalette.Sakura : SwanColors.White;
                     
                     if (Main.rand.NextBool())
                         ThemedParticles.SakuraPetals(petalPos, 1, 10f);

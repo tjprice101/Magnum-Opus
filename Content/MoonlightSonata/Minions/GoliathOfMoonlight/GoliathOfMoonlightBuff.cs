@@ -8,6 +8,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
     /// </summary>
     public class GoliathOfMoonlightBuff : ModBuff
     {
+        public override string Texture => "MagnumOpus/Content/MoonlightSonata/Minions/GoliathOfMoonlight/GoliathOfMoonlightBuff";
+
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;

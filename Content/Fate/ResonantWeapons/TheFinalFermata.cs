@@ -51,56 +51,26 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             tooltips.Add(new TooltipLine(Mod, "FateSpecial2", "Each blade deals massive damage on both passes"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'In the silence between notes, worlds are born and die'")
             {
-                OverrideColor = FateCosmicVFX.FateBrightRed
+                OverrideColor = FatePalette.BrightCrimson
             });
         }
-        
+
         public override bool CanUseItem(Player player)
         {
             // Limit concurrent spectral swords
             return player.ownedProjectileCounts[ModContent.ProjectileType<FermataSpectralSword>()] < 6;
         }
-        
+
         public override void HoldItem(Player player)
         {
-            // === COSMIC SPECTRAL SWORD HOLD EFFECT ===
-            // Faint spectral swords orbiting at the ready
-            if (Main.rand.NextBool(8))
-            {
-                float angle = Main.GameUpdateCount * 0.04f + Main.rand.NextFloat(MathHelper.TwoPi);
-                Vector2 orbitPos = player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(50f, 70f);
-                Color swordColor = Main.rand.NextBool() ? FateCosmicVFX.FateDarkPink : FateCosmicVFX.FatePurple;
-                
-                var glow = new GenericGlowParticle(orbitPos, angle.ToRotationVector2() * 1f, swordColor * 0.4f, 0.2f, 15, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-            
-            // Zodiac glyphs floating
-            if (Main.rand.NextBool(10))
-            {
-                float angle = Main.GameUpdateCount * 0.03f + Main.rand.NextFloat(MathHelper.TwoPi);
-                Vector2 glyphPos = player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(35f, 55f);
-                CustomParticles.Glyph(glyphPos, FateCosmicVFX.FateDarkPink, 0.35f, -1);
-            }
-            
-            // Star particles
-            if (Main.rand.NextBool(7))
-            {
-                var star = new GenericGlowParticle(player.Center + Main.rand.NextVector2Circular(40f, 40f),
-                    Main.rand.NextVector2Circular(0.3f, 0.3f), FateCosmicVFX.FateWhite, 0.2f, 18, true);
-                MagnumParticleHandler.SpawnParticle(star);
-            }
-            
-            // Cosmic glow
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.09f) * 0.18f + 0.82f;
-            Lighting.AddLight(player.Center, FateCosmicVFX.FatePurple.ToVector3() * pulse * 0.45f);
+            TheFinalFermataVFX.HoldItemVFX(player);
         }
-        
+
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             // Track for star circle effect
             player.GetModPlayer<FateWeaponEffectPlayer>()?.OnFateWeaponAttack(player.Center);
-            
+
             // Spawn 3 spectral Coda swords at different orbit positions
             for (int i = 0; i < 3; i++)
             {
@@ -108,30 +78,18 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
                 float spawnAngle = MathHelper.TwoPi * i / 3f;
                 Vector2 spawnOffset = spawnAngle.ToRotationVector2() * 60f;
                 Vector2 spawnPos = player.Center + spawnOffset;
-                
+
                 // ai[0] = phase (starts at 0 = Orbiting)
                 // ai[1] = orbit index (0, 1, or 2)
                 Projectile.NewProjectile(source, spawnPos, Vector2.Zero, type, damage, knockback, player.whoAmI, 0, i);
-                
+
                 // Spawn VFX per sword
-                CustomParticles.GenericFlare(spawnPos, FateCosmicVFX.FateWhite, 0.5f, 15);
-                FateCosmicVFX.SpawnGlyphBurst(spawnPos, 3, 4f, 0.3f);
+                TheFinalFermataVFX.SwordSummonVFX(spawnPos);
             }
-            
-            // Central summoning VFX
-            FateCosmicVFX.SpawnCosmicCloudBurst(player.Center, 0.6f, 12);
-            FateCosmicVFX.SpawnCosmicMusicNotes(player.Center, 5, 40f, 0.35f);
-            
-            // Halo rings
-            for (int i = 0; i < 4; i++)
-            {
-                Color haloColor = FateCosmicVFX.GetCosmicGradient((float)i / 4f);
-                CustomParticles.HaloRing(player.Center, haloColor, 0.4f + i * 0.08f, 18 + i * 2);
-            }
-            
+
             // Dramatic sound
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 0.7f }, player.Center);
-            
+
             return false;
         }
     }

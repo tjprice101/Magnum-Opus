@@ -10,6 +10,7 @@ using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common;
+using MagnumOpus.Content.Nachtmusik;
 
 namespace MagnumOpus.Content.Nachtmusik.Tools
 {
@@ -94,7 +95,7 @@ namespace MagnumOpus.Content.Nachtmusik.Tools
             if (Main.rand.NextBool(10))
             {
                 Vector2 notePos = hitbox.Center.ToVector2() + Main.rand.NextVector2Circular(15f, 15f);
-                ThemedParticles.MusicNote(notePos, Main.rand.NextVector2Circular(1f, 1f), Violet, 0.5f, 20);
+                NachtmusikVFXLibrary.SpawnMusicNotes(notePos, 1, 5f, 0.7f, 0.85f, 20);
             }
 
             // Star sparkles

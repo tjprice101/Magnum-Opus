@@ -9,6 +9,7 @@ using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Content.OdeToJoy;
 using MagnumOpus.Content.OdeToJoy.Projectiles;
 using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 using MagnumOpus.Content.OdeToJoy.HarmonicCores;
@@ -60,9 +61,9 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect", "800% pickaxe power") { OverrideColor = OdeToJoyColors.VerdantGreen });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Mining powered by nature's boundless energy") { OverrideColor = OdeToJoyColors.RosePink });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Dig deep, and let joy bloom forth'") { OverrideColor = OdeToJoyColors.GoldenPollen });
+            tooltips.Add(new TooltipLine(Mod, "Effect", "800% pickaxe power") { OverrideColor = OdeToJoyPalette.VerdantGreen });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Mining powered by nature's boundless energy") { OverrideColor = OdeToJoyPalette.RosePink });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Dig deep, and let joy bloom forth'") { OverrideColor = OdeToJoyPalette.GoldenPollen });
         }
 
         public override void AddRecipes()
@@ -108,7 +109,7 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
             if (Main.rand.NextBool(3))
             {
                 Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(12f, 12f);
-                Color trailColor = OdeToJoyColors.GetGradient(Main.rand.NextFloat());
+                Color trailColor = OdeToJoyPalette.GetGradient(Main.rand.NextFloat());
                 var trail = new GenericGlowParticle(dustPos, Main.rand.NextVector2Circular(2f, 2f), trailColor * 0.6f, 0.25f, 15, true);
                 MagnumParticleHandler.SpawnParticle(trail);
             }
@@ -125,14 +126,14 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
                 var sparkle = new SparkleParticle(
                     Projectile.Center + Main.rand.NextVector2Circular(15f, 15f),
                     Main.rand.NextVector2Circular(1f, 1f),
-                    OdeToJoyColors.GoldenPollen,
+                    OdeToJoyPalette.GoldenPollen,
                     0.25f,
                     15
                 );
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
-            Lighting.AddLight(Projectile.Center, OdeToJoyColors.VerdantGreen.ToVector3() * 0.5f);
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.VerdantGreen.ToVector3() * 0.5f);
         }
     }
     
@@ -167,9 +168,9 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect", "500% axe power") { OverrideColor = OdeToJoyColors.VerdantGreen });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Fells forests with a single joyous swing") { OverrideColor = OdeToJoyColors.RosePink });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Even the mightiest oak bows to joy'") { OverrideColor = OdeToJoyColors.GoldenPollen });
+            tooltips.Add(new TooltipLine(Mod, "Effect", "500% axe power") { OverrideColor = OdeToJoyPalette.VerdantGreen });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Fells forests with a single joyous swing") { OverrideColor = OdeToJoyPalette.RosePink });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Even the mightiest oak bows to joy'") { OverrideColor = OdeToJoyPalette.GoldenPollen });
         }
 
         public override void MeleeEffects(Player player, Rectangle hitbox)
@@ -182,7 +183,7 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
                     Main.rand.Next(hitbox.Top, hitbox.Bottom)
                 );
                 
-                Color trailColor = OdeToJoyColors.GetGradient(Main.rand.NextFloat());
+                Color trailColor = OdeToJoyPalette.GetGradient(Main.rand.NextFloat());
                 var trail = new GenericGlowParticle(dustPos, player.velocity * 0.2f, trailColor, 0.35f, 15, true);
                 MagnumParticleHandler.SpawnParticle(trail);
                 
@@ -197,7 +198,7 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
                     Main.rand.Next(hitbox.Top, hitbox.Bottom)
                 );
                 var sparkle = new SparkleParticle(sparklePos, Main.rand.NextVector2Circular(1f, 1f), 
-                    OdeToJoyColors.GoldenPollen, 0.3f, 15);
+                    OdeToJoyPalette.GoldenPollen, 0.3f, 15);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
@@ -208,33 +209,33 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
                     Main.rand.Next(hitbox.Left, hitbox.Right),
                     Main.rand.Next(hitbox.Top, hitbox.Bottom)
                 );
-                OdeToJoyVFX.SpawnMusicNote(notePos, Vector2.Zero, OdeToJoyColors.VerdantGreen, 0.75f);
+                OdeToJoyVFXLibrary.SpawnMusicNotes(notePos, 1, 20f, 0.75f);
             }
-            
-            Lighting.AddLight(hitbox.Center.ToVector2(), OdeToJoyColors.VerdantGreen.ToVector3() * 0.4f);
+
+            Lighting.AddLight(hitbox.Center.ToVector2(), OdeToJoyPalette.VerdantGreen.ToVector3() * 0.4f);
         }
-        
+
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
             Texture2D texture = TextureAssets.Item[Item.type].Value;
             Vector2 position = Item.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
-            
+
             float time = Main.GameUpdateCount * 0.06f;
             float pulse = 1f + (float)Math.Sin(time * 2f) * 0.08f;
-            
+
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            spriteBatch.Draw(texture, position, null, OdeToJoyColors.VerdantGreen * 0.3f, rotation, origin, scale * pulse * 1.25f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, position, null, OdeToJoyColors.RosePink * 0.25f, rotation, origin, scale * pulse * 1.12f, SpriteEffects.None, 0f);
+
+            spriteBatch.Draw(texture, position, null, OdeToJoyPalette.VerdantGreen * 0.3f, rotation, origin, scale * pulse * 1.25f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, position, null, OdeToJoyPalette.RosePink * 0.25f, rotation, origin, scale * pulse * 1.12f, SpriteEffects.None, 0f);
             
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            Lighting.AddLight(Item.Center, OdeToJoyColors.VerdantGreen.ToVector3() * 0.4f);
+            Lighting.AddLight(Item.Center, OdeToJoyPalette.VerdantGreen.ToVector3() * 0.4f);
             
             return true;
         }
@@ -282,9 +283,9 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect", "260% hammer power") { OverrideColor = OdeToJoyColors.VerdantGreen });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Shatters walls with nature's triumphant force") { OverrideColor = OdeToJoyColors.RosePink });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Let joy thunder through every barrier'") { OverrideColor = OdeToJoyColors.GoldenPollen });
+            tooltips.Add(new TooltipLine(Mod, "Effect", "260% hammer power") { OverrideColor = OdeToJoyPalette.VerdantGreen });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Shatters walls with nature's triumphant force") { OverrideColor = OdeToJoyPalette.RosePink });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Let joy thunder through every barrier'") { OverrideColor = OdeToJoyPalette.GoldenPollen });
         }
 
         public override void MeleeEffects(Player player, Rectangle hitbox)
@@ -297,7 +298,7 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
                     Main.rand.Next(hitbox.Top, hitbox.Bottom)
                 );
                 
-                Color trailColor = OdeToJoyColors.GetGradient(Main.rand.NextFloat());
+                Color trailColor = OdeToJoyPalette.GetGradient(Main.rand.NextFloat());
                 var trail = new GenericGlowParticle(dustPos, player.velocity * 0.2f, trailColor, 0.4f, 18, true);
                 MagnumParticleHandler.SpawnParticle(trail);
                 
@@ -312,7 +313,7 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
                     Main.rand.Next(hitbox.Top, hitbox.Bottom)
                 );
                 var sparkle = new SparkleParticle(sparklePos, Main.rand.NextVector2Circular(2f, 2f), 
-                    OdeToJoyColors.GoldenPollen, 0.35f, 18);
+                    OdeToJoyPalette.GoldenPollen, 0.35f, 18);
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
@@ -324,7 +325,7 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
                     Main.rand.Next(hitbox.Top, hitbox.Bottom)
                 );
                 Dust smoke = Dust.NewDustPerfect(smokePos, DustID.Cloud, -Vector2.UnitY * 1.5f, 150, 
-                    OdeToJoyColors.GoldenPollen * 0.5f, 1.1f);
+                    OdeToJoyPalette.GoldenPollen * 0.5f, 1.1f);
                 smoke.noGravity = true;
             }
             
@@ -335,10 +336,10 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
                     Main.rand.Next(hitbox.Left, hitbox.Right),
                     Main.rand.Next(hitbox.Top, hitbox.Bottom)
                 );
-                OdeToJoyVFX.SpawnMusicNote(notePos, Vector2.Zero, OdeToJoyColors.RosePink, 0.8f);
+                OdeToJoyVFXLibrary.SpawnMusicNotes(notePos, 1, 20f, 0.8f);
             }
             
-            Lighting.AddLight(hitbox.Center.ToVector2(), OdeToJoyColors.RosePink.ToVector3() * 0.5f);
+            Lighting.AddLight(hitbox.Center.ToVector2(), OdeToJoyPalette.RosePink.ToVector3() * 0.5f);
         }
         
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
@@ -354,17 +355,17 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            spriteBatch.Draw(texture, position, null, OdeToJoyColors.RosePink * 0.35f, rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, position, null, OdeToJoyColors.VerdantGreen * 0.28f, rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, position, null, OdeToJoyPalette.RosePink * 0.35f, rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, position, null, OdeToJoyPalette.VerdantGreen * 0.28f, rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
             
             float shimmer = (float)Math.Sin(time * 3f) * 0.5f + 0.5f;
-            spriteBatch.Draw(texture, position, null, OdeToJoyColors.GoldenPollen * 0.2f * shimmer, rotation, origin, scale * pulse * 1.05f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, position, null, OdeToJoyPalette.GoldenPollen * 0.2f * shimmer, rotation, origin, scale * pulse * 1.05f, SpriteEffects.None, 0f);
             
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            Lighting.AddLight(Item.Center, OdeToJoyColors.RosePink.ToVector3() * 0.45f);
+            Lighting.AddLight(Item.Center, OdeToJoyPalette.RosePink.ToVector3() * 0.45f);
             
             return true;
         }

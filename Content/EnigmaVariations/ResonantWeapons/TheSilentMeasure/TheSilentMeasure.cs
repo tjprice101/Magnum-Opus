@@ -28,6 +28,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
     /// </summary>
     public class TheSilentMeasure : ModItem
     {
+        public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheSilentMeasure/TheSilentMeasure";
+
         private static readonly Color EnigmaBlack = new Color(15, 10, 20);
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);

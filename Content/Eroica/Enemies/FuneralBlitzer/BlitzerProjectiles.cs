@@ -14,7 +14,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
     /// </summary>
     public class BlitzerProjectile1 : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Content/Eroica/Enemies/BlitzerProjectile1";
+        public override string Texture => "MagnumOpus/Content/Eroica/Enemies/FuneralBlitzer/BlitzerProjectile1";
 
         public override void SetDefaults()
         {
@@ -128,7 +128,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
     /// </summary>
     public class BlitzerProjectile2 : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Content/Eroica/Enemies/BlitzerProjectile2";
+        public override string Texture => "MagnumOpus/Content/Eroica/Enemies/FuneralBlitzer/BlitzerProjectile2";
 
         public override void SetDefaults()
         {

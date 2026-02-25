@@ -3,11 +3,10 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Content.Fate;
 using MagnumOpus.Content.Fate.ResonanceEnergies;
 using MagnumOpus.Content.Fate.HarmonicCores;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Fate.Accessories
 {
@@ -41,29 +40,10 @@ namespace MagnumOpus.Content.Fate.Accessories
             // Increased projectile speed
             player.GetAttackSpeed(DamageClass.Ranged) += 0.12f;
             
-            // Celestial compass ambient particles
-            if (!hideVisual && Main.rand.NextBool(7))
+            // Constellation compass ambient VFX
+            if (!hideVisual)
             {
-                float angle = Main.GameUpdateCount * 0.03f;
-                for (int i = 0; i < 4; i++)
-                {
-                    float starAngle = angle + MathHelper.PiOver2 * i;
-                    Vector2 starPos = player.Center + starAngle.ToRotationVector2() * 25f;
-                    
-                    if (Main.rand.NextBool(4))
-                    {
-                        Dust dust = Dust.NewDustPerfect(starPos, DustID.Enchanted_Pink, 
-                            Vector2.Zero, 100, default, 0.6f);
-                        dust.noGravity = true;
-                    }
-                }
-            }
-            
-            // Star sparkle particles
-            if (!hideVisual && Main.rand.NextBool(12))
-            {
-                CustomParticles.GenericFlare(player.Center + Main.rand.NextVector2Circular(30f, 30f),
-                    FateCosmicVFX.FateWhite, 0.2f, 10);
+                FateAccessoryVFX.ConstellationCompassAmbientVFX(player);
             }
         }
 
@@ -73,27 +53,27 @@ namespace MagnumOpus.Content.Fate.Accessories
             {
                 OverrideColor = new Color(255, 180, 100)
             });
-            
+
             tooltips.Add(new TooltipLine(Mod, "CritBoost", "+15% ranged critical strike chance")
             {
                 OverrideColor = new Color(255, 200, 120)
             });
-            
+
             tooltips.Add(new TooltipLine(Mod, "SpeedBoost", "+12% ranged attack speed")
             {
                 OverrideColor = new Color(255, 220, 140)
             });
-            
+
             tooltips.Add(new TooltipLine(Mod, "HomingEffect", "Ranged projectiles gain slight homing toward nearby enemies")
             {
-                OverrideColor = FateCosmicVFX.FateDarkPink
+                OverrideColor = FatePalette.DarkPink
             });
-            
+
             tooltips.Add(new TooltipLine(Mod, "StarburstEffect", "Critical hits create constellation starbursts")
             {
-                OverrideColor = FateCosmicVFX.FateBrightRed
+                OverrideColor = FatePalette.BrightCrimson
             });
-            
+
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'Every shot follows the path written in the stars'")
             {
                 OverrideColor = new Color(255, 150, 180)
@@ -134,45 +114,23 @@ namespace MagnumOpus.Content.Fate.Accessories
         private void TriggerConstellationStarburst(Vector2 position, int damage)
         {
             // Constellation starburst VFX
-            FateCosmicVFX.SpawnCosmicExplosion(position, 0.6f);
-            
-            // Star pattern burst
-            int starPoints = 5;
-            for (int i = 0; i < starPoints; i++)
-            {
-                float angle = MathHelper.TwoPi * i / starPoints;
-                Vector2 starPos = position + angle.ToRotationVector2() * 40f;
-                
-                CustomParticles.GenericFlare(starPos, FateCosmicVFX.FateWhite, 0.4f, 18);
-                CustomParticles.GenericFlare(starPos, FateCosmicVFX.FateDarkPink * 0.8f, 0.3f, 15);
-                
-                // Connect stars with faint lines (constellation effect)
-                int nextPoint = (i + 2) % starPoints; // Skip one for star pattern
-                float nextAngle = MathHelper.TwoPi * nextPoint / starPoints;
-                Vector2 nextPos = position + nextAngle.ToRotationVector2() * 40f;
-                
-                FateCosmicVFX.DrawCosmicLightning(starPos, nextPos, 4, 8f, 0, 0.3f);
-            }
-            
-            // Central flare
-            CustomParticles.GenericFlare(position, Color.White, 0.7f, 20);
-            CustomParticles.HaloRing(position, FateCosmicVFX.FateDarkPink, 0.4f, 15);
-            
+            FateAccessoryVFX.ConstellationCompassStarburstVFX(position);
+
             // Bonus damage to nearby enemies from starburst
             if (Main.myPlayer == Player.whoAmI)
             {
                 int burstDamage = damage / 4;
                 float burstRange = 120f;
-                
+
                 foreach (NPC npc in Main.npc)
                 {
                     if (!npc.active || npc.friendly || !npc.CanBeChasedBy()) continue;
-                    
+
                     float dist = Vector2.Distance(position, npc.Center);
                     if (dist < burstRange)
                     {
                         Player.ApplyDamageToNPC(npc, burstDamage, 0f, 0, false);
-                        CustomParticles.GenericFlare(npc.Center, FateCosmicVFX.FateBrightRed * 0.7f, 0.35f, 12);
+                        FateAccessoryVFX.ConstellationCompassBonusDamageVFX(npc.Center);
                     }
                 }
             }

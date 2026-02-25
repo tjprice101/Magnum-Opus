@@ -8,7 +8,7 @@ using MagnumOpus.Content.Nachtmusik.ResonanceEnergies;
 using MagnumOpus.Content.Nachtmusik.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems.Particles;
-using static MagnumOpus.Common.Systems.ThemedParticles;
+using MagnumOpus.Content.Nachtmusik;
 
 namespace MagnumOpus.Content.Nachtmusik.Accessories
 {
@@ -77,7 +77,7 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                 Vector2 notePos = player.Center + Main.rand.NextVector2Circular(32f, 32f);
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), -Main.rand.NextFloat(0.3f, 0.5f)); // Rising like night whispers
                 Color noteColor = Color.Lerp(new Color(100, 60, 180), new Color(80, 100, 200), Main.rand.NextFloat()) * 0.55f;
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 35);
+                NachtmusikVFXLibrary.SpawnMusicNotes(notePos, 1, 8f, 0.7f, 0.85f, 35);
             }
         }
 
@@ -197,7 +197,7 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             CustomParticles.GenericFlare(Player.Center, Violet, 0.9f, 20);
 
             // Music note burst on radiance nova
-            ThemedParticles.MusicNoteBurst(Player.Center, new Color(100, 60, 180), 6, 5f);
+            NachtmusikVFXLibrary.SpawnMusicNotes(Player.Center, 6, 18f, 0.8f, 1.0f, 30);
 
             // Star sparkle accents
             for (int i = 0; i < 5; i++)

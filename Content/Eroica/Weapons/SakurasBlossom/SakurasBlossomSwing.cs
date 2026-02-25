@@ -7,6 +7,8 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.BaseClasses;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.Particles.Particle;
 using MagnumOpus.Common.Systems.VFX.Trails;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
@@ -124,7 +126,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
         #region Virtual Overrides
 
         protected override Texture2D GetBladeTexture()
-            => ModContent.Request<Texture2D>("MagnumOpus/Content/Eroica/ResonantWeapons/SakurasBlossom").Value;
+            => ModContent.Request<Texture2D>("MagnumOpus/Content/Eroica/Weapons/SakurasBlossom/SakurasBlossom").Value;
 
         protected override SoundStyle GetSwingSound()
             => SoundID.Item71 with { Pitch = -0.15f + ComboStep * 0.15f, Volume = 0.9f };

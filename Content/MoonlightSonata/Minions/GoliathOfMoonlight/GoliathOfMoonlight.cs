@@ -24,6 +24,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
     /// </summary>
     public class GoliathOfMoonlight : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Content/MoonlightSonata/Minions/GoliathOfMoonlight/GoliathOfMoonlight";
+
         // Spritesheet configuration - 6x6 grid
         public const int FrameColumns = 6;
         public const int FrameRows = 6;

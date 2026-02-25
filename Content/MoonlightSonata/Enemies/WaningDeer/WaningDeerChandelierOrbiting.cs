@@ -136,6 +136,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             {
                 MoonlightVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 8f, 0.55f, 0.72f, 28);
             }
+
+            // Unified chandelier ambient VFX
+            MoonlightEnemyVFX.ChandelierAmbientVFX(Projectile);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -187,6 +190,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                     Main.rand.NextVector2Circular(3f, 3f), 0, dustColor, 1.0f);
                 d.noGravity = true;
             }
+
+            // Unified chandelier death VFX
+            MoonlightEnemyVFX.ChandelierDeathVFX(Projectile.Center);
         }
     }
 }

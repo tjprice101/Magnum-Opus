@@ -9,7 +9,6 @@ using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
-using static MagnumOpus.Common.Systems.ThemedParticles;
 using MagnumOpus.Content.Nachtmusik.Debuffs;
 using MagnumOpus.Content.Nachtmusik.Projectiles;
 
@@ -80,27 +79,15 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 SoundEngine.PlaySound(SoundID.Item25 with { Pitch = 0.4f, Volume = 0.7f }, position);
             }
             
-            // Muzzle flash - trust star burst for core VFX
-            NachtmusikCosmicVFX.SpawnStarBurstImpact(position + direction * 25f, 0.6f, 2);
-            CustomParticles.GenericFlare(position + direction * 15f, NachtmusikCosmicVFX.Gold, 0.4f, 12);
-            
-            // Music note on shot
-            ThemedParticles.MusicNote(position + direction * 18f, direction * 2f, new Color(100, 60, 180) * 0.7f, 0.65f, 20);
+            // Muzzle flash VFX
+            ConstellationPiercerVFX.MuzzleFlashVFX(position + direction * 25f, direction);
             
             return false;
         }
         
         public override void HoldItem(Player player)
         {
-            // Sparse ambient music note
-            if (Main.rand.NextBool(25))
-            {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Color noteColor = Color.Lerp(new Color(100, 60, 180), new Color(80, 100, 200), Main.rand.NextFloat()) * 0.5f;
-                ThemedParticles.MusicNote(notePos, new Vector2(0, -0.4f), noteColor, 0.6f, 30);
-            }
-            
-            Lighting.AddLight(player.Center, NachtmusikCosmicVFX.Gold.ToVector3() * 0.2f);
+            ConstellationPiercerVFX.HoldItemVFX(player);
         }
         
         public override Vector2? HoldoutOffset() => new Vector2(-5f, 0f);
@@ -112,11 +99,11 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             tooltips.Add(new TooltipLine(Mod, "Debuff", "Inflicts Celestial Harmony on all chained targets"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Each shot etches another star into the cosmos'")
             {
-                OverrideColor = NachtmusikCosmicVFX.Gold
+                OverrideColor = NachtmusikPalette.RadianceGold
             });
         }
     }
-    
+
     /// <summary>
     /// Nebula's Whisper - A cosmic cannon that fires splitting nebula blasts.
     /// Shots split on hit, creating a cloud of cosmic damage.
@@ -150,33 +137,16 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             // Fire nebula arrow
             Projectile.NewProjectile(source, position, velocity, ModContent.ProjectileType<NebulaArrowProjectile>(), damage, knockback, player.whoAmI);
             
-            // Music note on shot
+            // Muzzle flash VFX
             Vector2 direction = velocity.SafeNormalize(Vector2.UnitX);
-            ThemedParticles.MusicNote(position + direction * 15f, direction * 1.5f, new Color(100, 60, 180) * 0.7f, 0.65f, 20);
-            
-            // Sparse nebula cloud muzzle effect
-            for (int i = 0; i < 2; i++)
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(12f, 12f);
-                Color nebulaColor = Color.Lerp(NachtmusikCosmicVFX.NebulaPink, NachtmusikCosmicVFX.Violet, Main.rand.NextFloat());
-                var cloud = new GenericGlowParticle(position + offset, velocity * 0.08f, nebulaColor * 0.4f, 0.2f, 15, true);
-                MagnumParticleHandler.SpawnParticle(cloud);
-            }
+            NebulasWhisperVFX.MuzzleFlashVFX(position + direction * 15f, direction);
             
             return false;
         }
         
         public override void HoldItem(Player player)
         {
-            // Sparse ambient music note
-            if (Main.rand.NextBool(25))
-            {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Color noteColor = Color.Lerp(NachtmusikCosmicVFX.NebulaPink, NachtmusikCosmicVFX.Violet, Main.rand.NextFloat()) * 0.5f;
-                ThemedParticles.MusicNote(notePos, new Vector2(0, -0.4f), noteColor, 0.65f, 30);
-            }
-            
-            Lighting.AddLight(player.Center, NachtmusikCosmicVFX.NebulaPink.ToVector3() * 0.2f);
+            NebulasWhisperVFX.HoldItemVFX(player);
         }
         
         public override Vector2? HoldoutOffset() => new Vector2(-3f, 0f);
@@ -188,7 +158,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             tooltips.Add(new TooltipLine(Mod, "Debuff", "Inflicts Celestial Harmony"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'A whisper from the depths of space'")
             {
-                OverrideColor = NachtmusikCosmicVFX.NebulaPink
+                OverrideColor = NachtmusikPalette.NebulaPink
             });
         }
     }
@@ -241,34 +211,16 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 Projectile.NewProjectile(source, starPos, starVel, ModContent.ProjectileType<SerenadeStarProjectile>(), damage, knockback, player.whoAmI);
             }
             
-            // Serenade burst - trust star burst for core VFX
+            // Serenade muzzle flash VFX
             Vector2 direction = velocity.SafeNormalize(Vector2.UnitX);
-            NachtmusikCosmicVFX.SpawnStarBurstImpact(position + direction * 25f, 0.5f, 2);
-            CustomParticles.GenericFlare(position + direction * 20f, NachtmusikCosmicVFX.StarWhite, 0.5f, 12);
-            
-            // Music note burst (reduced count)
-            ThemedParticles.MusicNoteBurst(position + direction * 25f, new Color(100, 60, 180), 3, 3f);
+            SerenadeOfDistantStarsVFX.MuzzleFlashVFX(position + direction * 25f, direction);
             
             return false;
         }
         
         public override void HoldItem(Player player)
         {
-            // Sparse ambient star flare
-            if (Main.rand.NextBool(25))
-            {
-                Vector2 starPos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                CustomParticles.GenericFlare(starPos, NachtmusikCosmicVFX.StarWhite * 0.5f, 0.12f, 10);
-            }
-            
-            // Sparse music note
-            if (Main.rand.NextBool(30))
-            {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                ThemedParticles.MusicNote(notePos, new Vector2(0, -0.4f), NachtmusikCosmicVFX.Gold * 0.5f, 0.6f, 25);
-            }
-            
-            Lighting.AddLight(player.Center, NachtmusikCosmicVFX.StarWhite.ToVector3() * 0.25f);
+            SerenadeOfDistantStarsVFX.HoldItemVFX(player);
         }
         
         public override Vector2? HoldoutOffset() => new Vector2(-6f, 0f);
@@ -280,7 +232,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             tooltips.Add(new TooltipLine(Mod, "Debuff", "Inflicts stacking Celestial Harmony"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'A love song sung by the stars themselves'")
             {
-                OverrideColor = NachtmusikCosmicVFX.StarWhite
+                OverrideColor = NachtmusikPalette.StarWhite
             });
         }
     }

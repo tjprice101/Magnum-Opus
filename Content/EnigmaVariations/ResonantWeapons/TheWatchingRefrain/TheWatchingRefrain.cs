@@ -28,6 +28,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
     /// </summary>
     public class TheWatchingRefrain : ModItem
     {
+        public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheWatchingRefrain/TheWatchingRefrain";
+
         private static readonly Color EnigmaBlack = new Color(15, 10, 20);
         private static readonly Color EnigmaDeepPurple = new Color(80, 20, 120);
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
@@ -125,6 +127,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
     
     public class UnsolvedPhantomBuff : ModBuff
     {
+        public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheWatchingRefrain/UnsolvedPhantomBuff";
+
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;
@@ -150,6 +154,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
     /// </summary>
     public class UnsolvedPhantomMinion : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheWatchingRefrain/UnsolvedPhantomMinion";
+
         private static readonly Color EnigmaBlack = new Color(15, 10, 20);
         private static readonly Color EnigmaDeepPurple = new Color(80, 20, 120);
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);

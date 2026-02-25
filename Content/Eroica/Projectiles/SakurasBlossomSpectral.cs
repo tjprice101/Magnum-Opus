@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     /// </summary>
     public class SakurasBlossomSpectral : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Content/Eroica/ResonantWeapons/SakurasBlossom";
+        public override string Texture => "MagnumOpus/Content/Eroica/Weapons/SakurasBlossom/SakurasBlossom";
 
         private int targetNPC = -1;
 

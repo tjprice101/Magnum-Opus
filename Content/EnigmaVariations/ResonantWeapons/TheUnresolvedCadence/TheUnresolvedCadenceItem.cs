@@ -27,7 +27,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
     /// </summary>
     public class TheUnresolvedCadenceItem : MeleeSwingItemBase
     {
-        public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheUnresolvedCadence";
+        public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheUnresolvedCadence/TheUnresolvedCadence";
 
         #region Theme Colors
 
