@@ -219,6 +219,23 @@ namespace MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura
             // {A=0} bloom trail behind the bullet
             EroicaVFXLibrary.DrawProjectileTrail(sb, proj, TracerPink);
 
+            // Shader-enhanced tracer trail pass
+            {
+                Texture2D shaderGlow = MagnumTextureRegistry.GetSoftGlow();
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                EroicaShaderManager.ApplyBlossomTracerTrail(Main.GlobalTimeWrappedHourly, heatProgress);
+                Vector2 glowOrigin = shaderGlow.Size() * 0.5f;
+                for (int k = 0; k < proj.oldPos.Length; k++)
+                {
+                    if (proj.oldPos[k] == Vector2.Zero) continue;
+                    Vector2 shaderPos = proj.oldPos[k] - Main.screenPosition + new Vector2(proj.width / 2f, proj.height / 2f);
+                    float shaderProgress = (proj.oldPos.Length - k) / (float)proj.oldPos.Length;
+                    sb.Draw(shaderGlow, shaderPos, null, Color.White * shaderProgress * (0.4f + heatProgress * 0.3f), proj.oldRot[k],
+                        glowOrigin, proj.scale * (0.3f + shaderProgress * 0.5f), SpriteEffects.None, 0f);
+                }
+                EroicaShaderManager.RestoreSpriteBatch(sb);
+            }
+
             // Afterimage trail with sakura-tinted {A=0} additive colors
             for (int k = 0; k < proj.oldPos.Length; k++)
             {

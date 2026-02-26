@@ -6,7 +6,9 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
-using MagnumOpus.Common.Systems;
+using MagnumOpus.Content.Eroica;
+using MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.Eroica.Minions
 {
@@ -211,14 +213,15 @@ namespace MagnumOpus.Content.Eroica.Minions
                 Projectile.Center = owner.Center + new Vector2(-40f * owner.direction, -30f);
                 Projectile.velocity = Vector2.Zero;
                 
-                // Teleport effect - black and red
-                ThemedParticles.TeleportBurst(Projectile.Center, isMoonlight: false);
-                ThemedParticles.EroicaBloomBurst(Projectile.Center, 1.5f);
-                ThemedParticles.SakuraPetals(Projectile.Center, 8, 30f);
-                
-                // Subtle blossom glow for teleport - no explosion needed
-                CustomParticles.GenericGlow(Projectile.Center, new Color(255, 150, 180), 0.8f, 30);
-                CustomParticles.SwanLakeFlare(Projectile.Center, 0.4f);
+                // Teleport effect — dark bloom, sakura petals, halo ring
+                EroicaVFXLibrary.HeroicImpact(Projectile.Center, 1.5f, EroicaPalette.Crimson);
+                EroicaVFXLibrary.SpawnSakuraPetals(Projectile.Center, 8, 30f);
+                EroicaVFXLibrary.BloomFlare(Projectile.Center, EroicaPalette.Crimson, 0.6f, 18);
+
+                // Subtle blossom glow for teleport
+                MagnumParticleHandler.SpawnParticle(new BloomRingParticle(
+                    Projectile.Center, Vector2.Zero, new Color(255, 150, 180) * 0.7f, 0.5f, 25, 0.06f));
+                EroicaVFXLibrary.BloomFlare(Projectile.Center, new Color(255, 180, 200), 0.4f, 14);
                 
                 SoundEngine.PlaySound(SoundID.Item8 with { Pitch = -0.3f }, Projectile.Center);
             }
@@ -278,13 +281,13 @@ namespace MagnumOpus.Content.Eroica.Minions
             // Pulsing halo effect every 20 frames
             if (Main.GameUpdateCount % 20 == 0)
             {
-                CustomParticles.EroicaHalo(Projectile.Center, 0.4f);
+                EroicaVFXLibrary.SpawnGradientHaloRings(Projectile.Center, 1, 0.25f);
             }
             
-            // Trail effect while moving
+            // Trail effect while moving — delegate to VFX module
             if (Projectile.velocity.Length() > 1f)
             {
-                CustomParticles.EroicaTrail(Projectile.Center, Projectile.velocity, 0.25f);
+                FinalityOfTheSakuraVFX.MinionFlameTrailVFX(Projectile);
             }
             
             // Subtle black and crimson aura - minimal particles
@@ -309,8 +312,7 @@ namespace MagnumOpus.Content.Eroica.Minions
             // ☁EMUSICAL PRESENCE - Heroic aura
             if (Main.rand.NextBool(15))
             {
-                Color noteColor = Color.Lerp(new Color(200, 50, 50), new Color(255, 150, 180), Main.rand.NextFloat());
-                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f), new Vector2(0, -0.8f), noteColor, 0.28f, 30);
+                EroicaVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 15f, 0.5f, 0.85f, 30);
             }
             
             // Orbiting dark flame particles - less frequent
@@ -327,9 +329,8 @@ namespace MagnumOpus.Content.Eroica.Minions
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Custom particles on hit - halo impact burst
-            CustomParticles.EroicaHalo(target.Center, 0.6f);
-            CustomParticles.EroicaFlare(target.Center, 0.4f);
+            // Delegate hit VFX to VFX module
+            FinalityOfTheSakuraVFX.MinionFlameHitVFX(target.Center);
             
             // Small gold/red impact burst
             for (int i = 0; i < 6; i++)
@@ -345,7 +346,7 @@ namespace MagnumOpus.Content.Eroica.Minions
             Lighting.AddLight(target.Center, 0.6f, 0.3f, 0.1f);
             
             // ☁EMUSICAL IMPACT - Triumphant chord burst
-            ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 215, 0), 5, 3.5f);
+            EroicaVFXLibrary.MusicNoteBurst(target.Center, new Color(255, 215, 0), 5, 3.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)

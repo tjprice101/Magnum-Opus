@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Content.MoonlightSonata.Minions;
+using MagnumOpus.Content.MoonlightSonata.Dusts;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
@@ -110,11 +111,37 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
             Projectile.velocity = Projectile.velocity.RotatedBy(wobble);
             Projectile.velocity.Normalize();
 
-            // Intense lighting along beam
+            // Intense lighting along beam — cosmic palette
             for (float i = 0; i < BeamLength; i += 50f)
             {
+                float t = i / Math.Max(BeamLength, 1f);
                 Vector2 lightPos = Projectile.Center + Projectile.velocity * i;
-                Lighting.AddLight(lightPos, MoonlightVFXLibrary.Violet.ToVector3() * 0.9f);
+                Color beamLight = Color.Lerp(GoliathVFX.NebulaPurple, GoliathVFX.EnergyTendril, t);
+                Lighting.AddLight(lightPos, beamLight.ToVector3() * 0.9f);
+            }
+
+            // GravityWellDust origin swirl — gravitational muzzle vortex
+            if (!Main.dedServ && BeamTimer % 4 == 0)
+            {
+                float swirl = BeamTimer * 0.15f;
+                for (int s = 0; s < 2; s++)
+                {
+                    float swirlAngle = swirl + MathHelper.Pi * s;
+                    Vector2 swirlPos = Projectile.Center + swirlAngle.ToRotationVector2() * 12f;
+                    Color swirlColor = Color.Lerp(GoliathVFX.GravityWell, GoliathVFX.StarCore, Main.rand.NextFloat(0.4f));
+                    Dust well = Dust.NewDustPerfect(swirlPos,
+                        ModContent.DustType<GravityWellDust>(),
+                        Vector2.Zero, 0, swirlColor, 0.2f);
+                    well.customData = new GravityWellBehavior
+                    {
+                        GravityCenter = Projectile.Center,
+                        PullStrength = 0.1f,
+                        SpiralSpeed = 0.4f,
+                        BaseScale = 0.2f,
+                        Lifetime = 16,
+                        VelocityDecay = 0.96f
+                    };
+                }
             }
 
             // Sound effects

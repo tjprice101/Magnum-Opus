@@ -304,14 +304,17 @@ namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
         /// Lightning rendering: {A=0} zigzag trail (LightningPink→BurstWhite),
         /// 4-layer bloom stack (PierceSakura/ChargingGold/LightningPink/BurstWhite),
         /// main sprite with electric glow. Returns false to suppress vanilla.
+        /// Accepts optional sourceRect/drawOrigin for sprite-sheet animation.
         /// </summary>
-        public static bool DrawLightningProjectile(SpriteBatch sb, Projectile proj, ref Color lightColor)
+        public static bool DrawLightningProjectile(SpriteBatch sb, Projectile proj,
+            Rectangle? sourceRect = null, Vector2? customOrigin = null, Color? lightColorRef = null)
         {
             Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[proj.type].Value;
-            Vector2 drawOrigin = new Vector2(texture.Width / 2, texture.Height / 2);
+            Rectangle frame = sourceRect ?? new Rectangle(0, 0, texture.Width, texture.Height);
+            Vector2 drawOrigin = customOrigin ?? new Vector2(frame.Width / 2f, frame.Height / 2f);
             Vector2 projScreen = proj.Center - Main.screenPosition;
 
-            // {A=0} zigzag trail
+            // {A=0} zigzag trail — electric bolt afterimage
             for (int k = 0; k < proj.oldPos.Length; k++)
             {
                 if (proj.oldPos[k] == Vector2.Zero) continue;
@@ -323,23 +326,43 @@ namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
                 drawPos += perpDir * zigzag;
 
                 Color trailColor = (Color.Lerp(LightningPink, BurstWhite, progress * 0.6f) * progress) with { A = 0 };
-                sb.Draw(texture, drawPos, null, trailColor, proj.oldRot[k], drawOrigin,
+                sb.Draw(texture, drawPos, frame, trailColor, proj.oldRot[k], drawOrigin,
                     proj.scale * (0.4f + progress * 0.6f), SpriteEffects.None, 0f);
+            }
+
+            // Shader-enhanced lightning trail pass
+            {
+                Texture2D shaderGlow = MagnumTextureRegistry.GetSoftGlow();
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                EroicaShaderManager.ApplyPiercingLightLightningTrail(Main.GlobalTimeWrappedHourly, 1f);
+                Vector2 glowOrigin = shaderGlow.Size() * 0.5f;
+                for (int k = 0; k < proj.oldPos.Length; k++)
+                {
+                    if (proj.oldPos[k] == Vector2.Zero) continue;
+                    Vector2 shaderPos = proj.oldPos[k] - Main.screenPosition + new Vector2(proj.width / 2f, proj.height / 2f);
+                    float shaderProgress = (proj.oldPos.Length - k) / (float)proj.oldPos.Length;
+                    float shaderZigzag = (float)Math.Sin(k * 1.8f + Main.GameUpdateCount * 0.3f) * 3f * (1f - shaderProgress);
+                    Vector2 shaderPerp = (proj.oldPos[k] - proj.Center).SafeNormalize(Vector2.UnitY).RotatedBy(MathHelper.PiOver2);
+                    shaderPos += shaderPerp * shaderZigzag;
+                    sb.Draw(shaderGlow, shaderPos, null, Color.White * shaderProgress * 0.55f, proj.oldRot[k],
+                        glowOrigin, proj.scale * (0.35f + shaderProgress * 0.6f), SpriteEffects.None, 0f);
+                }
+                EroicaShaderManager.RestoreSpriteBatch(sb);
             }
 
             // 4-layer {A=0} bloom stack
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.1f + 1f;
-            sb.Draw(texture, projScreen, null, (PierceSakura with { A = 0 }) * 0.35f, proj.rotation, drawOrigin,
+            sb.Draw(texture, projScreen, frame, (PierceSakura with { A = 0 }) * 0.35f, proj.rotation, drawOrigin,
                 proj.scale * 1.35f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(texture, projScreen, null, (ChargingGold with { A = 0 }) * 0.30f, proj.rotation, drawOrigin,
+            sb.Draw(texture, projScreen, frame, (ChargingGold with { A = 0 }) * 0.30f, proj.rotation, drawOrigin,
                 proj.scale * 1.20f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(texture, projScreen, null, (LightningPink with { A = 0 }) * 0.40f, proj.rotation, drawOrigin,
+            sb.Draw(texture, projScreen, frame, (LightningPink with { A = 0 }) * 0.40f, proj.rotation, drawOrigin,
                 proj.scale * 1.10f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(texture, projScreen, null, (BurstWhite with { A = 0 }) * 0.30f, proj.rotation, drawOrigin,
+            sb.Draw(texture, projScreen, frame, (BurstWhite with { A = 0 }) * 0.30f, proj.rotation, drawOrigin,
                 proj.scale * 1.03f * pulse, SpriteEffects.None, 0f);
 
             // Main sprite with electric glow tint
-            sb.Draw(texture, projScreen, null, new Color(255, 230, 240, 210), proj.rotation, drawOrigin,
+            sb.Draw(texture, projScreen, frame, new Color(255, 230, 240, 210), proj.rotation, drawOrigin,
                 proj.scale, SpriteEffects.None, 0f);
             return false;
         }
@@ -359,6 +382,23 @@ namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
                 Color trailColor = (Color.Lerp(CrystalFacet, ChargingGold, progress * 0.4f) * progress * 0.6f) with { A = 0 };
                 sb.Draw(texture, drawPos, null, trailColor, proj.oldRot[k], drawOrigin,
                     proj.scale * (0.5f + progress * 0.5f), SpriteEffects.None, 0f);
+            }
+
+            // Shader-enhanced crystal trail pass
+            {
+                Texture2D shaderGlow = MagnumTextureRegistry.GetSoftGlow();
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                EroicaShaderManager.ApplyPiercingLightCrescendoCharge(Main.GlobalTimeWrappedHourly, 0.8f);
+                Vector2 glowOrigin = shaderGlow.Size() * 0.5f;
+                for (int k = 0; k < proj.oldPos.Length; k++)
+                {
+                    if (proj.oldPos[k] == Vector2.Zero) continue;
+                    Vector2 shaderPos = proj.oldPos[k] - Main.screenPosition + new Vector2(proj.width / 2f, proj.height / 2f);
+                    float shaderProgress = (proj.oldPos.Length - k) / (float)proj.oldPos.Length;
+                    sb.Draw(shaderGlow, shaderPos, null, Color.White * shaderProgress * 0.35f, proj.oldRot[k],
+                        glowOrigin, proj.scale * (0.3f + shaderProgress * 0.4f), SpriteEffects.None, 0f);
+                }
+                EroicaShaderManager.RestoreSpriteBatch(sb);
             }
 
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.06f + 1f;

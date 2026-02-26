@@ -6,23 +6,25 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
-using MagnumOpus.Common.Systems;
+using MagnumOpus.Content.Eroica;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
     /// <summary>
     /// Spiral explosion effect spawned by Piercing Light of the Sakura projectile.
     /// Red and gold spiral explosion with scarlet particles.
+    /// All old API calls replaced with EroicaVFXLibrary + vanilla Dust + MagnumParticleHandler.
     /// </summary>
     public class SakuraLightning : ModProjectile
     {
         // Override texture to use particle asset since we draw with particles
-        public override string Texture => "MagnumOpus/Assets/Particles/LightningBurst"; // Particle-based rendering
-        
+        public override string Texture => "MagnumOpus/Assets/Particles/LightningBurst";
+
         private bool initialized = false;
         private float spiralAngle = 0f;
         private int spiralCounter = 0;
-        
+
         public override void SetDefaults()
         {
             Projectile.width = 80;
@@ -35,7 +37,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
             Projectile.alpha = 255;
-            Projectile.light = 1.2f;
+            Projectile.light = 0f; // Lighting handled explicitly below
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 10;
         }
@@ -46,47 +48,43 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             {
                 initialized = true;
                 SoundEngine.PlaySound(SoundID.Item74 with { Pitch = 0.3f, Volume = 0.8f }, Projectile.Center);
-                
-                // Initial burst
                 CreateInitialBurst();
             }
-            
+
             // Projectile stays in place
             Projectile.velocity = Vector2.Zero;
-            
-            // Intense lighting - red and gold
+
+            // Intense lighting — red and gold pulse
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.3f) * 0.3f + 0.7f;
             Lighting.AddLight(Projectile.Center, 1.2f * pulse, 0.5f * pulse, 0.1f * pulse);
-            
-            // Create expanding spiral effect
+
+            // Expanding spiral effect
             spiralCounter++;
             spiralAngle += 0.3f;
-            
+
             float progress = 1f - (Projectile.timeLeft / 45f);
             float radius = 20f + progress * 60f;
-            
-            // Spiral arms - scarlet red and gold
+
+            // 3 spiral arms — scarlet red and gold
             for (int arm = 0; arm < 3; arm++)
             {
                 float armAngle = spiralAngle + (MathHelper.TwoPi / 3f) * arm;
                 Vector2 spiralPos = Projectile.Center + new Vector2((float)Math.Cos(armAngle), (float)Math.Sin(armAngle)) * radius;
-                
-                // Scarlet red particles
-                Dust scarlet = Dust.NewDustPerfect(spiralPos, DustID.CrimsonTorch, 
+
+                Dust scarlet = Dust.NewDustPerfect(spiralPos, DustID.CrimsonTorch,
                     Main.rand.NextVector2Circular(2f, 2f), 100, default, 2.0f);
                 scarlet.noGravity = true;
                 scarlet.fadeIn = 1.2f;
-                
-                // Gold particles
+
                 if (Main.rand.NextBool(2))
                 {
-                    Dust gold = Dust.NewDustPerfect(spiralPos, DustID.GoldFlame, 
+                    Dust gold = Dust.NewDustPerfect(spiralPos, DustID.GoldFlame,
                         Main.rand.NextVector2Circular(2f, 2f), 100, default, 1.8f);
                     gold.noGravity = true;
                     gold.fadeIn = 1.0f;
                 }
             }
-            
+
             // Inner scarlet glow
             if (spiralCounter % 2 == 0)
             {
@@ -94,21 +92,21 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 for (int i = 0; i < 4; i++)
                 {
                     float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                    Vector2 pos = Projectile.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(innerRadius);
-                    
+                    Vector2 pos = Projectile.Center + angle.ToRotationVector2() * Main.rand.NextFloat(innerRadius);
+
                     Dust inner = Dust.NewDustPerfect(pos, DustID.CrimsonTorch, Vector2.Zero, 150, default, 1.5f);
                     inner.noGravity = true;
                 }
             }
-            
+
             // Expanding ring effect
             if (spiralCounter % 5 == 0)
             {
                 for (int i = 0; i < 12; i++)
                 {
                     float angle = MathHelper.TwoPi * i / 12f;
-                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * (3f + progress * 5f);
-                    
+                    Vector2 vel = angle.ToRotationVector2() * (3f + progress * 5f);
+
                     int dustType = Main.rand.NextBool() ? DustID.CrimsonTorch : DustID.GoldFlame;
                     Dust ring = Dust.NewDustPerfect(Projectile.Center, dustType, vel, 100, default, 1.5f);
                     ring.noGravity = true;
@@ -118,25 +116,33 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         private void CreateInitialBurst()
         {
-            // Enhanced explosion using ThemedParticles
-            ThemedParticles.EroicaImpact(Projectile.Center, 2.5f);
-            ThemedParticles.SakuraPetals(Projectile.Center, 15, 50f);
-            
-            // ★ MUSICAL NOTATION - Heroic chord burst
-            ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(255, 215, 0), 6, 4f);
-            
-            // Large scarlet explosion (reduced count)
+            // Heroic impact flash — bloom + halo + directional sparks
+            EroicaVFXLibrary.HeroicImpact(Projectile.Center, 2.5f);
+
+            // Sakura petal scatter
+            EroicaVFXLibrary.SpawnSakuraPetals(Projectile.Center, 15, 50f);
+
+            // Musical chord burst — gold music notes
+            EroicaVFXLibrary.MusicNoteBurst(Projectile.Center, new Color(255, 215, 0), 6, 4f);
+
+            // Bloom flare + ring at epicenter
+            EroicaVFXLibrary.BloomFlare(Projectile.Center, new Color(255, 180, 200), 0.7f, 20);
+            var impactRing = new BloomRingParticle(Projectile.Center, Vector2.Zero,
+                new Color(255, 150, 170) * 0.8f, 0.5f, 22, 0.08f);
+            MagnumParticleHandler.SpawnParticle(impactRing);
+
+            // Large scarlet explosion
             for (int i = 0; i < 25; i++)
             {
                 float angle = MathHelper.TwoPi * i / 25f;
                 float speed = Main.rand.NextFloat(4f, 12f);
-                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * speed;
-                
+                Vector2 vel = angle.ToRotationVector2() * speed;
+
                 Dust burst = Dust.NewDustPerfect(Projectile.Center, DustID.CrimsonTorch, vel, 100, default, 2.5f);
                 burst.noGravity = true;
                 burst.fadeIn = 1.5f;
             }
-            
+
             // Gold accents
             for (int i = 0; i < 15; i++)
             {
@@ -149,8 +155,19 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // Triumphant finale for major lightning strike
-            DynamicParticleEffects.EroicaDeathTriumphFade(Projectile.Center, 1.3f);
+            // Triumphant finale — heroic flash + scattered sparks + fading sakura
+            EroicaVFXLibrary.DeathHeroicFlash(Projectile.Center, 1.3f);
+            EroicaVFXLibrary.SpawnSakuraPetals(Projectile.Center, 6, 35f);
+
+            // Residual ember scatter
+            for (int i = 0; i < 10; i++)
+            {
+                Color col = Color.Lerp(EroicaPalette.Crimson, EroicaPalette.OrangeGold, Main.rand.NextFloat());
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.CrimsonTorch,
+                    Main.rand.NextVector2Circular(4f, 4f), 100, col, Main.rand.NextFloat(1.2f, 1.8f));
+                d.noGravity = true;
+            }
+
             SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.2f, Volume = 0.7f }, Projectile.Center);
         }
 

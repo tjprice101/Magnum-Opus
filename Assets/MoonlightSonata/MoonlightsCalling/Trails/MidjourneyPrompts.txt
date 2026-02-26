@@ -1,0 +1,63 @@
+================================================================================
+  MOONLIGHT'S CALLING — TRAIL TEXTURES
+  Asset Category: Elongated Trail Strips for Vertex Trail Rendering
+================================================================================
+
+PURPOSE:
+  These are horizontal strip textures mapped onto vertex trail meshes by the
+  CalamityStyleTrailRenderer system. In the mod code, PreDraw() builds trail
+  vertex arrays from Projectile.oldPos[] (20 cached positions with trailing
+  mode 2) and renders them using CalamityStyleTrailRenderer.DrawTrailWithBloom()
+  with Cosmic style for primary beams and Ice style for child beams. The trail
+  textures are UV-mapped where U spans the trail length (0=head, 1=tail) and V
+  spans the trail width (0=top edge, 1=bottom edge). BeamTrailWidth() returns
+  12-22 pixels width expanding with bounce count. These textures need visible
+  internal detail and energy patterns since they are stretched across the full
+  beam length.
+
+TECHNICAL REQUIREMENTS:
+  - Canvas: 256x64 or 512x128 pixels (horizontal strips)
+  - Background: Solid black (#000000) — rendered with additive blending
+  - Left edge (trail head/origin) should be brightest
+  - Right edge (trail tail/tip) should fade toward black or near-black
+  - Top and bottom edges must fade to black for smooth trail width blending
+  - Internal detail/pattern gives the trail visual interest when stretched
+  - Should tile or look seamless when UV-scrolled horizontally by shaders
+  - Color palette: dark purple (75,0,130), prism violet (160,80,255),
+    violet (138,43,226), refracted blue (100,200,255), ice blue (135,206,250),
+    moon white (240,235,255)
+
+VISUAL IDENTITY:
+  "Prismatic musical refraction — spectral shards, prismatic violet-blue beams, musical
+  note motifs, light splitting through crystal. Every beam is moonlight through
+  a prism. Playful yet arcane."
+
+================================================================================
+  PROMPT 1 — Prismatic Beam Core Trail (Primary Energy Trail)
+================================================================================
+
+A horizontal elongated energy beam trail texture on pure black background, 512 pixels wide and 128 pixels tall, an intense bright energy beam flowing from left to right, the vertical center line is the brightest zone: a searing moon white rgb(240,235,255) core approximately 16 pixels tall running the full width, immediately above and below the white core is a zone of ice blue rgb(135,206,250) energy with visible internal turbulence patterns showing flowing wisps and swirling energy currents moving left to right, beyond that a broader zone of refracted blue rgb(100,200,255) with subtle prismatic spectral streaks running parallel to the beam direction like spectral color bands separated by refraction, the outermost glow regions are prism violet rgb(160,80,255) fading through dark purple rgb(75,0,130) to black at the top and bottom edges, the left edge is brightest and most intense, the right edge fades and dissipates with the energy trails breaking into scattered wisps and dissolving particles, internal energy flow lines create a sense of rapid motion from left to right, the prismatic spectral streaks within the beam show subtle spectral separation like light inside a fiber optic cable, game VFX beam trail texture --ar 4:1 --v 6.1 --style raw --s 200 --no text watermark signature frame border
+
+================================================================================
+  PROMPT 2 — Musical Staff Line Trail (Notation-Patterned Beam)
+================================================================================
+
+A horizontal beam trail texture on black background, 512 pixels wide and 128 pixels tall, featuring a magical energy beam with musical staff line motifs integrated into the energy pattern, the central bright core is moon white rgb(240,235,255) to ice blue rgb(135,206,250), within the broader beam body five faint parallel horizontal lines are visible spaced evenly across the vertical center region resembling a musical staff rendered in prism violet rgb(160,80,255) luminous lines, scattered along these staff lines are tiny ghostly musical note shapes: eighth notes quarter notes and beam-connected note pairs rendered as subtle luminous shapes in refracted blue rgb(100,200,255) at 40 percent opacity so they appear as energy formations within the beam not as solid objects, the notes appear to flow and drift rightward along the staff lines, between the musical elements the energy shows prismatic spectral color shifting with purple-blue undertones, the top and bottom edges of the beam fade through violet rgb(138,43,226) and dark purple rgb(75,0,130) to black, the right end of the texture dissipates into scattered note shapes and spectral sparks dissolving into darkness, magical musical energy beam game texture --ar 4:1 --v 6.1 --style raw --s 250 --no text watermark signature frame border
+
+================================================================================
+  PROMPT 3 — Spectral Refraction Strip Trail (Spectral Band Beam)
+================================================================================
+
+A horizontal trail texture on black background 256 pixels wide and 64 pixels tall showing a beam of light that has been refracted through a prism into its component spectral colors, the beam flows from left to right, on the left side the beam starts as a single concentrated white beam with moon white rgb(240,235,255) brightness, as it progresses rightward it gradually separates into distinct parallel horizontal color bands like a prismatic dispersion: a band of prism violet rgb(160,80,255) on top, then violet rgb(138,43,226), then refracted blue rgb(100,200,255), then ice blue rgb(135,206,250), then a thin subtle band of spectral cyan rgb(110,220,255), then back through cool lavender tints, then moon white at center, the color bands maintain soft edges between them and each band has subtle internal energy flow texture showing motion, the vertical center of the beam formation is brightest, the top and bottom edges fade to black, the right edge shows the bands slightly fanning apart with increasing separation and decreasing intensity suggesting continued prismatic dispersion, a light refraction beam effect texture for 2D game trails --ar 4:1 --v 6.1 --style raw --s 200 --no text watermark signature frame border
+
+================================================================================
+  PROMPT 4 — Spectral Light Band Trail (Looping Scrollable Beam)
+================================================================================
+
+A seamlessly horizontally tileable beam trail texture on black background, 512 pixels wide and 128 pixels tall, designed so the left and right edges match perfectly for continuous UV scrolling, the beam interior shows a complex prismatic energy pattern: the vertical center is brightest in moon white rgb(240,235,255) and ice blue rgb(135,206,250), throughout the beam body there are diagonal streaking energy lines flowing at slight angles creating a sense of rapid motion and turbulence, these streaks alternate between refracted blue rgb(100,200,255) and prism violet rgb(160,80,255) colors, scattered throughout are tiny bright sparkle points in moon white rgb(240,235,255) like stars within the energy flow, periodic brighter pulse zones appear every 128 pixels showing concentrated energy nodes with enhanced brightness and wider glow, between pulses the beam maintains a consistent energy flow with prismatic color variation, subtle spectral purple-blue chromatic aberration halos appear around the brightest elements, the top and bottom edges fade through dark purple rgb(75,0,130) to black with soft feathering, tileable game beam texture --ar 4:1 --v 6.1 --style raw --s 200 --no text watermark signature frame border
+
+================================================================================
+  PROMPT 5 — Crescendo Intensity Trail (Escalating Energy Beam)
+================================================================================
+
+A horizontal beam trail texture on pure black background 512 pixels wide and 128 pixels tall showing a beam that dramatically intensifies from left to right representing a musical crescendo building in power, the left end starts as a thin subtle wisp of dark purple rgb(75,0,130) energy only about 20 pixels tall with low brightness, as the beam progresses rightward it grows wider and more intense: at one-quarter width the beam shows violet rgb(138,43,226) energy flows approximately 40 pixels tall, at center the beam expands to prism violet rgb(160,80,255) approximately 60 pixels tall with visible internal energy patterns and small prismatic sparkle points, at three-quarters the beam is a brilliant refracted blue rgb(100,200,255) energy torrent approximately 90 pixels tall with prismatic purple-blue spectral streaks and musical note ghost shapes visible within, the far right end reaches maximum intensity with a bright ice blue rgb(135,206,250) to moon white rgb(240,235,255) core filling nearly the full 128 pixel height with intense bloom and scattered crystal shard shapes within the energy, the crescendo progression tells a visual story of building magical musical power, game VFX beam trail texture --ar 4:1 --v 6.1 --style raw --s 200 --no text watermark signature frame border

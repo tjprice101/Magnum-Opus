@@ -1,0 +1,71 @@
+================================================================================
+  ETERNAL MOON — TRAIL TEXTURES
+  Midjourney Prompt Reference
+================================================================================
+
+PURPOSE:
+  Elongated horizontal strip textures mapped onto the sword's trailing arc mesh
+  by CalamityStyleTrailRenderer. The trail renderer builds a triangle strip mesh
+  that follows the blade tip's world positions over recent frames, then maps
+  these textures across the strip UV space. The texture's left edge corresponds
+  to the newest (brightest) part of the trail near the blade, and the right edge
+  corresponds to the oldest (fading) tail end.
+
+USAGE IN CODE:
+  - CalamityStyleTrailRenderer.TrailStyle.Cosmic — primary trail style, uses
+    scrolling UVs to animate the trail texture along the strip
+  - ScrollingTrailShader.fxc — scrolls texture UV over time for animated flow
+  - CelestialValorTrail.fxc — combines trail texture with gradient lookup
+  - SimpleTrailShader.fxc — basic trail rendering fallback
+  - EternalMoonVFX.WaveTrailColor() modulates the texture with runtime color
+  - EternalMoonVFX.WaveTrailWidth() shapes the mesh width (crescent taper)
+  - The connecting flow lines in DrawTidalWake() also use trail textures
+    stretched between wake points
+
+DIMENSIONS: 256x64 or 512x128 horizontal strips. Left = bright/new,
+  Right = fading/old. Can have content extending to all edges since the trail
+  mesh handles the shape; the texture provides internal detail and pattern.
+
+COLOR PALETTE:
+  - Night Void:     RGB(40, 10, 60)    — trailing fade edge (right side)
+  - Deep Indigo:    RGB(75, 0, 130)    — trail body background
+  - Violet Body:    RGB(138, 43, 226)  — primary trail energy
+  - Ice Blue Flare: RGB(135, 206, 250) — bright trail highlights
+  - Glacial Blue:  RGB(170, 225, 255) — accent streaks
+  - Moon White: RGB(230, 235, 255) — leading edge cool core (left side)
+
+VISUAL IDENTITY: Flowing water energy, tidal current patterns, moonlight
+  ribbons on dark ocean surface. Not fire, not electricity — liquid lunar light.
+
+REFERENCE: SandboxLastPrism/Trails/EnergyTex.png, Trail5Loop.png,
+  ThinGlowLine.png, spark_06.png
+
+================================================================================
+  PROMPT 1 — Flowing Tidal Energy Trail (Primary Swing Trail)
+================================================================================
+
+a horizontal elongated energy trail VFX texture on a dark background, the texture shows flowing liquid energy like moonlit water current viewed from above, the left side is the brightest with a concentrated stream of moon white RGB(230,235,255) and ice blue RGB(135,206,250) flowing energy, the center features swirling violet RGB(138,43,226) currents with organic fluid dynamics patterns like water eddies and tidal flow, thin sinusoidal wave lines of glacial blue RGB(170,225,255) weave through the violet body like moonlight reflecting on moving water, the right side fades through deep indigo RGB(75,0,130) into night void RGB(40,10,60), the overall flow direction is left to right with the energy streams appearing to move and branch like river currents, the vertical center is brightest with darker edges suggesting a cylindrical energy stream, no hard geometric patterns only organic flowing liquid shapes, game VFX trail texture for mapping onto a triangle strip mesh --ar 4:1 --s 200 --v 6.1 --style raw --no text watermark border frame 3d
+
+================================================================================
+  PROMPT 2 — Crescent Wake Pattern (Tidal Afterwash Trail)
+================================================================================
+
+a horizontal elongated trail VFX texture showing a repeating crescent wake wave pattern, the pattern consists of overlapping crescent-shaped arcs flowing from left to right like the wake behind a blade cutting through dark water, each crescent arc is rendered in violet RGB(138,43,226) body with a bright ice blue RGB(135,206,250) leading edge, the spaces between crescents fill with deep indigo RGB(75,0,130), the left side crescents are larger and brighter suggesting proximity to the blade, crescents decrease in size and brightness toward the right suggesting distance and time decay, scattered points of glacial blue RGB(170,225,255) along the crescent tips like moonlight catching wave peaks, a bright moon white RGB(230,235,255) highlight at the leftmost point, the overall feel is of a series of crescent moon shapes nested inside each other forming a flowing wave pattern, dark night void RGB(40,10,60) fills the background between elements, game VFX trail texture with tidal wave character --ar 4:1 --s 200 --v 6.1 --style raw --no text watermark border frame background
+
+================================================================================
+  PROMPT 3 — Tidal Wave Energy Strip (Projectile Trail)
+================================================================================
+
+a horizontal elongated VFX energy strip texture showing concentrated tidal wave power, the texture features a central bright horizontal core of ice blue RGB(135,206,250) energy that undulates with gentle sinusoidal waves along its length, above and below the core are secondary streams of violet RGB(138,43,226) energy that flow in parallel but slightly out of phase creating a braided water-current appearance, thin threads of glacial blue RGB(170,225,255) highlight the peaks of each wave undulation, the left third is intense and concentrated with all streams merging toward a moon white RGB(230,235,255) leading point, the center maintains full energy density, the right third begins to disperse with streams separating and fading through deep indigo RGB(75,0,130) to night void RGB(40,10,60), small luminous droplet shapes scatter along the edges like tidal spray, the overall texture should tile seamlessly in the horizontal direction for scrolling UV animation, flowing liquid energy game VFX trail texture --ar 4:1 --s 200 --v 6.1 --style raw --no text watermark border frame elements
+
+================================================================================
+  PROMPT 4 — Moon Arc Ribbon (Sword Smear Trail)
+================================================================================
+
+a horizontal elongated ribbon-like trail VFX texture with a smooth flowing crescent arc quality, the texture shows a single primary ribbon of energy that curves gently up and down across the strip creating a gentle S-curve wave, the ribbon body is a rich gradient from violet RGB(138,43,226) at the ribbon core to ice blue RGB(135,206,250) at the feathered edges, a bright moon white RGB(230,235,255) highlight line runs along the center of the ribbon like moonlight on a silk ribbon, thin wisps of glacial blue RGB(170,225,255) trail off the ribbon edges like icy lunar filaments, the left side of the ribbon is full width and brightness, tapering gradually toward the right where it narrows and fades through deep indigo RGB(75,0,130) into the night void RGB(40,10,60) background, the ribbon has an elegant flowing quality like a dancer's silk cloth caught in slow lunar wind, soft feathered edges on the ribbon contrasting with the dark background, game VFX sword trail texture --ar 4:1 --s 250 --v 6.1 --style raw --no text watermark border 3d elements
+
+================================================================================
+  PROMPT 5 — Deep Ocean Current (Ambient Layering Trail)
+================================================================================
+
+a horizontal elongated subtle ambient trail VFX texture showing deep ocean current patterns, this is a darker more subtle trail texture designed to be layered behind brighter trails for depth, the overall palette is dominated by night void RGB(40,10,60) and deep indigo RGB(75,0,130) with only hints of brighter color, organic flowing current shapes like deep ocean water movement seen from above, subtle turbulence patterns and gentle vortex swirls spread across the length, occasional thin bright accents of violet RGB(138,43,226) where currents converge, very rare pinpoints of ice blue RGB(135,206,250) like bioluminescent creatures deep underwater, the left side is marginally brighter suggesting recent disturbance from the blade, the right side fades to near-pure night void, the texture should enhance the sense of oceanic depth when composited behind a brighter primary trail, low contrast and atmospheric, subtle flowing current game VFX underlayer trail texture --ar 4:1 --s 150 --v 6.1 --style raw --no text watermark border frame bright elements

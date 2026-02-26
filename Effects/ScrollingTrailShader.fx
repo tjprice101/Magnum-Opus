@@ -65,7 +65,7 @@ float SmoothNoise(float2 uv)
     return lerp(lerp(a, b, u.x), lerp(c, d, u.x), u.y);
 }
 
-// QuadraticBump: 0→1→0 over input 0→1 (peak at 0.5)
+// QuadraticBump: 0ↁEↁE over input 0ↁE (peak at 0.5)
 float QuadraticBump(float x)
 {
     return x * (4.0 - x * 4.0);

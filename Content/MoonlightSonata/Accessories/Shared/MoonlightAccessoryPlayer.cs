@@ -42,6 +42,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
         public const int ResurrectionReloadTime = 90; // 1.5 seconds
         public bool resurrectionIsReloaded = true;
         public bool resurrectionPlayedReadySound = false;
+        public int resurrectionActiveChamber = 0; // 0=Standard, 1=CometCore, 2=Supernova
+
+        // Staff of the Lunar Phases — Conductor Mode state
+        public bool staffConductorMode = false;
+        public int conductorPulseTimer = 0;
         
         // Floating visual tracking
         public float floatAngle = 0f;

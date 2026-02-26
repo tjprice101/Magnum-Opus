@@ -1,0 +1,95 @@
+================================================================================
+ INCISOR OF MOONLIGHT — GRADIENT TEXTURES
+ Midjourney Prompt Reference
+================================================================================
+
+PURPOSE:
+  Horizontal color gradient strips sampled by HLSL pixel shaders during trail
+  and beam rendering. The IncisorResonance.fx shader uses these as lookup
+  textures (sampled via coords.x along the trail) to determine trail color at
+  each pixel. The MoonlightTrail.fx shader also samples gradients for the
+  multi-pass glow rendering system.
+
+  The CalamityStyleTrailRenderer renders 3 passes per trail, each sampling
+  different regions of the gradient. The shader's gradientT variable maps
+  trail position (head=0, tail=1) into the gradient texture's U coordinate.
+
+  These are NOT decorative images — they are functional data textures that
+  shaders read pixel-by-pixel to determine color output.
+
+TECHNICAL REQUIREMENTS:
+  - Dimensions: 256x16 (primary) or 512x32 (high-detail variant)
+  - Horizontal orientation: Left edge = trail head (newest), Right edge = tail
+  - Vertically uniform: Each column should be the same color top-to-bottom
+    (or with very subtle vertical variation for noise)
+  - Format: PNG, no alpha needed (fully opaque)
+  - Clean smooth blending: No hard edges, banding, or dithering
+  - NO text, NO symbols, NO patterns — pure smooth color gradients only
+  - Must display the EXACT colors specified — shader reads literal RGB values
+
+COLOR PALETTE (Incisor of Moonlight — "The Stellar Scalpel"):
+  Deep Resonance Purple:  RGB(90, 50, 160)   — #5A32A0
+  Frequency Pulse Lavender: RGB(170, 140, 255) — #AA8CFF
+  Resonant Silver:        RGB(230, 235, 255)  — #E6EBFF
+  Ice Blue Clarity:       RGB(135, 206, 250)  — #87CEFA
+  Crystal Edge:           RGB(220, 230, 255)  — #DCE6FF
+  Harmonic White:         RGB(235, 240, 255)  — #EBEFFF
+
+  Supporting Moonlight Palette (from MoonlightVFXLibrary):
+  Night Purple:           RGB(40, 10, 60)     — #280A3C
+  Dark Purple:            RGB(75, 0, 130)     — #4B0082
+  Violet:                 RGB(138, 43, 226)   — #8A2BE2
+  Lavender:               RGB(180, 150, 255)  — #B496FF
+  Ice Blue:               RGB(135, 206, 250)  — #87CEFA
+  Moon White:             RGB(240, 235, 255)  — #F0EBFF
+
+VISUAL THEME:
+  "Constellation precision — surgical nodes, crystalline cuts, tuning fork
+  strikes, star-map geometry."
+
+================================================================================
+ PROMPT 1 — Primary Resonance Trail Gradient (IncisorResonance.fx main pass)
+================================================================================
+
+A perfectly smooth horizontal color gradient strip texture, extremely wide and thin proportions, left edge begins with bright harmonic white RGB(235,240,255) representing the trail head, smoothly transitions through resonant silver RGB(230,235,255) at 15% width, then crystal edge RGB(220,230,255) at 25%, then ice blue clarity RGB(135,206,250) at 40%, broadening into frequency pulse lavender RGB(170,140,255) at 60%, deepening to a rich deep resonance purple RGB(90,50,160) at 80%, and fading to near-black deep indigo RGB(40,10,60) at the right edge representing the trail tail, the gradient must be mathematically smooth with zero banding zero noise zero texture, each vertical column is a single uniform color, this is a technical shader lookup texture not a decorative image, the color transitions should feel like moonlight fading across a crystalline blade from blazing bright tip to cold deep-space purple, clinical precision in color spacing, 512x32 pixels --ar 16:1 --v 6.1 --style raw --s 50 --no pattern texture noise grain detail symbol text object shape star
+
+================================================================================
+ PROMPT 2 — Standing Wave Node Gradient (Constellation Node Highlights)
+================================================================================
+
+A horizontal gradient strip texture with a unique oscillating brightness pattern, the base gradient flows from bright crystal edge RGB(220,230,255) on the far left through ice blue clarity RGB(135,206,250) at center to deep resonance purple RGB(90,50,160) on the far right, overlaid on this base gradient are 5 evenly-spaced bright node peaks where the color locally brightens to near-white harmonic white RGB(235,240,255), these nodes create a standing-wave pattern of brightness variation along the strip like resonance peaks on a vibrating string, the nodes are smoothly Gaussian-shaped brightness bumps not hard spots, between nodes the base gradient is dimmer, the peaks should be positioned at approximately 10% 30% 50% 70% and 90% of the width, this creates a frequency-visualization effect when sampled by the shader, perfectly smooth transitions, zero noise zero banding, technical shader lookup texture, 256x16 pixels --ar 16:1 --v 6.1 --style raw --s 50 --no pattern texture noise grain detail symbol text object shape star blur
+
+================================================================================
+ PROMPT 3 — Glow Pass Gradient (MoonlightTrail.fx bloom overlay)
+================================================================================
+
+A smooth horizontal color gradient strip texture optimized for bloom glow rendering, left edge is a soft cool harmonic white RGB(235,240,255) with very subtle crystalline coolness, transitions into a luminous frequency pulse lavender RGB(170,140,255) at 20% width, flows through a rich saturated violet RGB(138,43,226) at 45%, into a deep dark purple RGB(75,0,130) at 70%, fading to night purple RGB(40,10,60) at 85%, and ending in near-pure-black at the right edge, the gradient is slightly more saturated and deeper than a typical moonlight gradient emphasizing the violet-lavender band for bloom rendering, smoothness is paramount with absolutely no visible stepping or banding between colors, each vertical column uniform in color, this is a shader data texture for multi-pass glow rendering, 256x16 pixels --ar 16:1 --v 6.1 --style raw --s 50 --no pattern texture noise grain detail symbol text object shape star
+
+================================================================================
+ PROMPT 4 — Dual-Tone Resonance Gradient (Combo Escalation Color Map)
+================================================================================
+
+A horizontal gradient strip texture showing a dual-tone color progression designed for combo-step color mapping, the strip is divided conceptually into a cool zone and a high-intensity zone, left third flows from resonant silver RGB(230,235,255) through ice blue clarity RGB(135,206,250) representing low-resonance phases 0-1, the center third transitions from ice blue through frequency pulse lavender RGB(170,140,255) representing mid-resonance phase 2, the right third intensifies from lavender through harmonic white RGB(235,240,255) representing maximum resonance phase 3 crescendo, a subtle underlying tint of deep resonance purple RGB(90,50,160) adds depth throughout at very low intensity, the overall feel is cold precision building to blazing harmonic intensity from left to right, smooth continuous gradient with no hard boundaries between zones, technical shader lookup texture, 512x32 pixels --ar 16:1 --v 6.1 --style raw --s 50 --no pattern texture noise grain detail symbol text object shape star
+
+================================================================================
+ PROMPT 5 — Edge Bloom Gradient (Blade-Edge Resonant Glow Sampling)
+================================================================================
+
+A horizontal gradient strip texture designed for blade-edge bloom color sampling, begins on the left with deep resonance purple RGB(90,50,160) representing the pommel end of the blade, transitions through frequency pulse lavender RGB(170,140,255) at 25%, into a bright zone of resonant silver RGB(230,235,255) at 45%, peaks at an intense ice blue clarity RGB(135,206,250) at 60%, continues brightening to crystal edge RGB(220,230,255) at 75%, and reaches maximum brightness at harmonic white RGB(235,240,255) at the right edge representing the blade tip, this gradient is intentionally weighted toward brightness on the right side to create the effect of energy concentrating at the sword's tip during swings, the left-to-right progression mirrors the pommel-to-tip direction of the blade, smooth flawless gradient, shader data texture, 256x16 pixels --ar 16:1 --v 6.1 --style raw --s 50 --no pattern texture noise grain detail symbol text object shape star blur
+
+================================================================================
+ POST-PROCESSING NOTES:
+  - CRITICAL: Resize outputs to exact dimensions (256x16 or 512x32)
+  - Verify vertical uniformity — each pixel column must be one color
+  - Remove any noise, grain, or texture artifacts from generation
+  - Check that the leftmost and rightmost pixel columns match the specified
+    endpoint colors exactly — the shader reads these literal values
+  - Save as PNG without alpha (or with fully opaque alpha)
+  - Test by zooming in to 1600%+ to verify there is no visible banding or
+    stepping in the gradient transitions
+  - These may need manual correction in an image editor to achieve the
+    mathematically smooth gradients that shader sampling requires
+  - The IncisorResonance.fx shader samples these with:
+      gradientT = coords.x * 0.7 + standingWaveVal * 0.3
+    so the middle 70% of the gradient gets the most use
+================================================================================

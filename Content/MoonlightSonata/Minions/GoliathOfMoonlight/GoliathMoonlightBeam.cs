@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
+using MagnumOpus.Content.MoonlightSonata.Dusts;
 using MagnumOpus.Content.MoonlightSonata.Minions;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
@@ -56,14 +57,21 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // Themed trail dust
+            // Themed trail dust — GravityWellDust cosmic wake
             if (!Main.dedServ)
             {
-                Color dustColor = Color.Lerp(MoonlightVFXLibrary.DarkPurple, MoonlightVFXLibrary.IceBlue, Main.rand.NextFloat());
+                Color dustColor = Color.Lerp(GoliathVFX.GravityWell, GoliathVFX.EnergyTendril, Main.rand.NextFloat());
                 Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(3f, 3f),
-                    DustID.PurpleTorch, -Projectile.velocity * 0.08f, 0, dustColor, 1.5f);
-                d.noGravity = true;
-                d.fadeIn = 1.1f;
+                    ModContent.DustType<GravityWellDust>(),
+                    -Projectile.velocity * 0.08f, 0, dustColor, 0.18f);
+                d.customData = new GravityWellBehavior
+                {
+                    GravityCenter = Vector2.Zero,
+                    PullStrength = 0f,
+                    BaseScale = 0.18f,
+                    Lifetime = 16,
+                    VelocityDecay = 0.95f
+                };
 
                 // Music notes (sparse)
                 if (Main.rand.NextBool(12))
@@ -72,7 +80,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                 }
             }
 
-            Lighting.AddLight(Projectile.Center, MoonlightVFXLibrary.Violet.ToVector3() * 0.5f);
+            Lighting.AddLight(Projectile.Center, GoliathVFX.NebulaPurple.ToVector3() * 0.5f);
 
             // Slight homing after a bit
             if (Projectile.timeLeft < 250)
@@ -141,15 +149,23 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
                     Projectile.velocity = newDirection * BeamSpeed;
                     Projectile.netUpdate = true;
 
-                    // Small ricochet dust burst
+                    // Small ricochet dust burst — StarPointDust sparks
                     if (!Main.dedServ)
                     {
                         for (int i = 0; i < 4; i++)
                         {
                             Vector2 vel = newDirection.RotatedByRandom(0.5f) * Main.rand.NextFloat(2f, 5f);
-                            Color sparkCol = Color.Lerp(MoonlightVFXLibrary.DarkPurple, MoonlightVFXLibrary.IceBlue, Main.rand.NextFloat());
-                            Dust spark = Dust.NewDustPerfect(Projectile.Center, DustID.PurpleTorch, vel, 0, sparkCol, 1.0f);
-                            spark.noGravity = true;
+                            Color sparkCol = Color.Lerp(GoliathVFX.StarCore, GoliathVFX.EnergyTendril, Main.rand.NextFloat());
+                            Dust spark = Dust.NewDustPerfect(Projectile.Center,
+                                ModContent.DustType<StarPointDust>(),
+                                vel, 0, sparkCol, 0.18f);
+                            spark.customData = new StarPointBehavior
+                            {
+                                RotationSpeed = 0.15f,
+                                TwinkleFrequency = 0.5f,
+                                Lifetime = 14,
+                                FadeStartTime = 4
+                            };
                         }
                     }
 
@@ -195,12 +211,16 @@ namespace MagnumOpus.Content.MoonlightSonata.Projectiles
 
                     float trailWidth = 8f + ricochetCount * 0.5f;
 
+                    // Cosmic palette trail — shifts from gravity well to star core with ricochets
+                    Color primaryTrail = Color.Lerp(GoliathVFX.NebulaPurple, GoliathVFX.EnergyTendril, ricochetCount * 0.08f);
+                    Color secondaryTrail = Color.Lerp(GoliathVFX.EnergyTendril, GoliathVFX.StarCore, ricochetCount * 0.08f);
+
                     CalamityStyleTrailRenderer.DrawTrailWithBloom(
                         positions, rotations,
                         CalamityStyleTrailRenderer.TrailStyle.Ice,
                         trailWidth,
-                        MoonlightVFXLibrary.Violet,
-                        MoonlightVFXLibrary.IceBlue,
+                        primaryTrail,
+                        secondaryTrail,
                         0.8f,
                         2.0f);
                 }

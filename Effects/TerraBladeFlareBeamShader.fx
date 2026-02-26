@@ -1,5 +1,5 @@
 // =============================================================================
-// MagnumOpus — Terra Blade Flare Beam Shader
+// MagnumOpus  ETerra Blade Flare Beam Shader
 // =============================================================================
 //
 // Flowing energy beam shader with heavy wave distortion and directional
@@ -11,7 +11,7 @@
 //   2. Elongated directional noise sampling for motion-blur streaking
 //
 // UV Layout:
-//   U (coords.x) = position along beam (0→1) + time scroll offset
+//   U (coords.x) = position along beam (0ↁE) + time scroll offset
 //   V (coords.y) = position across beam (0 = top edge, 1 = bottom edge)
 //
 // =============================================================================
@@ -66,7 +66,7 @@ VS_OUTPUT MainVS(VS_INPUT input)
 }
 
 // =============================================================================
-// PIXEL SHADER — Wave Distortion + Motion Blur Beam
+// PIXEL SHADER  EWave Distortion + Motion Blur Beam
 // =============================================================================
 float4 WaveMotionBlurPS(VS_OUTPUT input) : COLOR0
 {
@@ -137,6 +137,6 @@ technique WaveMotionBlurBeam
     pass MainPass
     {
         VertexShader = compile vs_2_0 MainVS();
-        PixelShader = compile ps_2_0 WaveMotionBlurPS();
+        PixelShader = compile ps_3_0 WaveMotionBlurPS();
     }
 }

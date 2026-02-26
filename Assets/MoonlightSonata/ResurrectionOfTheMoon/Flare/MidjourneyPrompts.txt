@@ -1,0 +1,74 @@
+================================================================================
+  RESURRECTION OF THE MOON -- FLARE ASSETS
+  Midjourney Prompt Reference
+================================================================================
+
+PURPOSE:
+  Lens flare and burst textures used for hit-impact effects, crit flashes,
+  muzzle flash bloom, and comet detonation radiance. These are drawn as
+  additive-blended sprites centered on the point of impact or projectile
+  origin. They fire for 2-6 frames and fade out rapidly.
+
+USAGE IN MOD:
+  - Impact flash when comet rounds strike enemies or terrain
+  - Supernova crit burst overlay (scaled up 2-3x with fast fade)
+  - Muzzle bloom when the launcher fires
+  - Crater detonation secondary flash (delayed 2 frames after primary hit)
+  - Resurrection ultimate ability activation burst
+
+FORMAT REQUIREMENTS:
+  - 128x128 or 256x256 PNG
+  - Pure black (#000000) background (additive blend discards black)
+  - Centered radial composition -- glow must originate from dead center
+  - No hard rectangular edges; all energy must feather to black at borders
+  - sRGB color space, 8-bit per channel, no embedded ICC profile
+
+COLOR PALETTE:
+  Deep Space Violet ........... RGB(50, 20, 100)
+  Impact Crater Indigo ........ RGB(100, 80, 200)
+  Comet Trail Lavender ........ RGB(180, 120, 255)
+  Lunar Shine Blue ............ RGB(120, 190, 255)
+  Comet Core Pale Blue ........ RGB(210, 225, 255)
+  Blue-White Impact ........... RGB(235, 240, 255)
+
+================================================================================
+  PROMPT 1 -- Comet Impact Flare (Primary Hit Flash)
+================================================================================
+
+A radial lens flare explosion on a pure black background, celestial comet impact burst, intense blue-white core center RGB(235,240,255) radiating outward through pale blue RGB(210,225,255) then lunar shine blue RGB(120,190,255) then comet trail lavender RGB(180,120,255) fading to deep space violet RGB(50,20,100) at the edges, six-pointed asymmetric star burst with irregular spike lengths, volumetric light rays emanating from center, tiny scattered ember particles floating in the mid-field, faint concentric shockwave ring visible at 60% radius in impact crater indigo RGB(100,80,200), dust motes and micro-debris scattered throughout, cinematic explosion photography reference, lens artifact chromatic aberration on spike tips, the entire flare feathers smoothly to pure black at all borders, no background elements, centered radial composition, VFX game asset texture, high dynamic range lighting feel compressed to 8-bit --ar 1:1 --v 6.1 --style raw --s 200 --q 2 --no text, watermark, frame, border, gradient banding
+
+================================================================================
+  PROMPT 2 -- Crater Detonation Burst (Secondary Delayed Flash)
+================================================================================
+
+An explosive detonation shockwave flare on a solid black background, circular crater blast ring expanding outward, bright blue-white center RGB(235,240,255) with a visible hollow ring structure, the ring glows lunar shine blue RGB(120,190,255) on its inner edge transitioning to comet trail lavender RGB(180,120,255) on its outer edge, the space between center and ring filled with swirling impact crater indigo RGB(100,80,200) plasma wisps, fine radial fracture lines extending beyond the ring in deep space violet RGB(50,20,100), tiny cool debris particle dots scattered around the ring perimeter in pale blue RGB(210,225,255), the texture fades completely to black at all four edges, perfect center registration, game VFX explosion sprite sheet frame, designed for additive blending --ar 1:1 --v 6.1 --style raw --s 250 --q 2 --no text, watermark, background scene, ground, sky
+
+================================================================================
+  PROMPT 3 -- Meteorite Flash Flare (Fast Muzzle Bloom)
+================================================================================
+
+A short intense flash burst on pure black background, compact directional muzzle flare, elongated horizontal core of blue-white light RGB(235,240,255) with slight vertical spread, comet core pale blue RGB(210,225,255) halo surrounding the core in a soft oval, faint lunar shine blue RGB(120,190,255) outer glow, two sharp diagonal light spikes crossing through center at 45 degrees in comet trail lavender RGB(180,120,255), very subtle secondary spikes at 22.5 degree offsets in impact crater indigo RGB(100,80,200), microscopic cool particle spray emerging from center in random directions, photographic weapon muzzle flash reference, the entire element is compact occupying roughly 70% of frame with generous black falloff, extremely clean feathered edges dissolving to black, centered, VFX texture asset for game engine additive overlay --ar 1:1 --v 6.1 --style raw --s 150 --q 2 --no text, watermark, gun, weapon, barrel, background
+
+================================================================================
+  PROMPT 4 -- Lunar Explosion Glow (Ultimate Activation Burst)
+================================================================================
+
+A massive celestial supernova explosion flare on black background, enormous soft radial bloom, smooth gradient from blue-white center RGB(235,240,255) expanding through comet core pale blue RGB(210,225,255) through lunar shine blue RGB(120,190,255) to a wide field of comet trail lavender RGB(180,120,255) then impact crater indigo RGB(100,80,200) then deep space violet RGB(50,20,100) at the outermost reaches, embedded within the glow are faint crescent moon shapes and subtle arc segments suggesting lunar symbolism, delicate wispy nebula-like tendrils of lavender and icy blue swirling slowly within the bloom, tiny star-like point highlights scattered at various distances from center, god-ray beams faintly visible radiating outward in 12 directions, the overall feeling is divine celestial resurrection energy, the glow occupies nearly the entire frame but still feathers to pure black at borders, ethereal beautiful yet overwhelmingly powerful, designed as a game VFX overlay asset --ar 1:1 --v 6.1 --style raw --s 300 --q 2 --no text, watermark, clouds, planet, character
+
+================================================================================
+  PROMPT 5 -- Comet Streaker Flare (Angled Impact Flash)
+================================================================================
+
+A directional comet impact flare on pure black background, angled at roughly 30 degrees from horizontal suggesting a celestial body striking at an angle, blue-white impact point RGB(235,240,255) at composition center, a bright tail of comet core pale blue RGB(210,225,255) and lunar shine blue RGB(120,190,255) streaming backward from the impact point toward the upper-left, a forward splash of comet trail lavender RGB(180,120,255) and impact crater indigo RGB(100,80,200) debris light scattering forward and downward from the impact, visible shockwave arc in front of the impact in deep space violet RGB(50,20,100), cool ember sparks trailing along the comet tail path, sharp focused center with progressive softening toward all edges, the entire composition is asymmetric and dynamic conveying violent directional energy, suitable for rotation in-engine to match projectile angle, game VFX impact sprite, additive blend ready --ar 1:1 --v 6.1 --style raw --s 200 --q 2 --no text, watermark, background, ground, sky, planet
+
+================================================================================
+  POST-GENERATION NOTES:
+  - Upscale all results to at least 256x256 before final export
+  - Verify pure black (#000000) in corners; repaint any near-black artifacts
+  - Test additive blend in-engine: if any area reads too bright at 100% opacity,
+    reduce overall brightness by 10-20% in post
+  - For the Lunar Explosion Glow (#4), consider generating at 512x512 and
+    downsampling for smoother gradients
+  - The Comet Streaker Flare (#5) should be rotated in-engine to match projectile
+    velocity vector; ensure center registration is precise
+================================================================================

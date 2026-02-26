@@ -1,0 +1,58 @@
+================================================================================
+  MOONLIGHT'S CALLING — ORB TEXTURES
+  Asset Category: Circular Soft Glow / Bloom Sphere / Halo Textures
+================================================================================
+
+PURPOSE:
+  These are circular soft-glow textures used for bloom rendering, beam body glow,
+  and halo effects. In the mod code, DrawBeamBloom() draws a 5-layer bloom stack
+  using MagnumTextureRegistry.GetSoftGlow() with {A=0} premultiplied alpha at
+  various scales and colors. CustomParticles.HaloRing() also uses circular orb
+  textures for the expanding spectral ring effects at bounce points. The orbs
+  are also used for the soft circular glow behind music note particles and as
+  base textures for the ResonantPulseDust expanding rings.
+
+TECHNICAL REQUIREMENTS:
+  - Canvas: 32x32, 64x64, or 128x128 pixels (various sizes needed)
+  - Background: Pure black (#000000) — rendered with additive blending
+  - Perfectly centered circular symmetry (or near-circular for organic variants)
+  - Soft feathered edges that fade smoothly to black — NO hard circle boundary
+  - The brightest region should be a small concentrated center (15-25% of radius)
+  - Color palette: dark purple (75,0,130), prism violet (160,80,255),
+    violet (138,43,226), refracted blue (100,200,255), ice blue (135,206,250),
+    moon white (240,235,255)
+
+VISUAL IDENTITY:
+  "Prismatic musical refraction — spectral shards, prismatic violet-blue beams, musical
+  note motifs, light splitting through crystal. Every beam is moonlight through
+  a prism. Playful yet arcane."
+
+================================================================================
+  PROMPT 1 — Prismatic Soft Glow Orb (Primary Bloom Texture)
+================================================================================
+
+A perfectly circular soft glow orb on a pure black background, the center is an intense concentrated bright moon white rgb(240,235,255) hotspot approximately 20 percent of the total diameter, transitioning outward through a smooth radial gradient into ice blue rgb(135,206,250) then refracted blue rgb(100,200,255) then prism violet rgb(160,80,255) then violet rgb(138,43,226) then dark purple rgb(75,0,130) fading to complete black at the edges, the falloff curve is smooth exponential with no visible banding or stepping, there is a very subtle prismatic spectral iridescence visible in the mid-radius zone where the blue transitions to violet appearing as faint spectral color bands in a thin ring formation suggesting light through a circular prism, the overall impression is a pure concentrated magical energy sphere with prismatic undertones, clean digital render, 128x128 pixel game VFX texture, no noise no grain --ar 1:1 --v 6.1 --style raw --s 150 --no text watermark signature frame border noise grain texture pattern detail
+
+================================================================================
+  PROMPT 2 — Spectral Edge Refraction Orb (Chromatic Halo Sphere)
+================================================================================
+
+A circular soft glow sphere on solid black background, the center core is bright moon white rgb(240,235,255) fading outward through ice blue rgb(135,206,250) to refracted blue rgb(100,200,255), at approximately 60 percent radius there is a distinctive prismatic refraction ring where the light separates into visible spectral colors showing a thin spectral band cycling through deep violet indigo blue cyan lavender in a complete circle like a circular prism dispersion, beyond this spectral ring the glow continues in prism violet rgb(160,80,255) fading through dark purple rgb(75,0,130) to black, the spectral ring is subtle and elegant not garish, the inner glow is smooth and feathered, tiny diamond-shaped sparkle points are scattered sparsely in the region between the core and the spectral ring suggesting crystalline light catching, overall effect is a magical resonance sphere with prismatic chromatic aberration, 128x128 pixel digital VFX asset --ar 1:1 --v 6.1 --style raw --s 200 --no text watermark signature frame border noise
+
+================================================================================
+  PROMPT 3 — Sound Wave Ring Orb (Resonant Pulse Texture)
+================================================================================
+
+A circular orb texture on pure black background featuring concentric ring wave patterns suggesting visible sound waves made of light, the very center has a small bright moon white rgb(240,235,255) dot, radiating outward are three concentric thin luminous rings with decreasing brightness: the innermost ring is refracted blue rgb(100,200,255) and crisp, the middle ring is prism violet rgb(160,80,255) and slightly softer, the outermost ring is dark purple rgb(75,0,130) and very diffuse, between the rings the space is filled with soft smooth gradual glow not pure black creating a sense of connected energy, the rings have subtle thickness variation around their circumference suggesting organic wave propagation, the spaces between rings show faint tiny musical notation symbols as ghostly luminous shapes including a treble clef and scattered note heads in ice blue rgb(135,206,250) at very low opacity, the whole composition suggests a musical tone visualized as expanding light rings, 64x64 pixel game texture --ar 1:1 --v 6.1 --style raw --s 200 --no text watermark signature frame border
+
+================================================================================
+  PROMPT 4 — Crystal Resonance Sphere (Faceted Glow Orb)
+================================================================================
+
+A circular crystalline resonance sphere on black background, the core is brilliant moon white rgb(240,235,255) with a faceted internal structure visible as subtle geometric planes catching light at different angles suggesting a cut gemstone viewed head-on, the faceted light pattern creates a subtle hexagonal or octagonal star pattern within the bright core, the glow transitions outward through crystalline ice blue rgb(135,206,250) where individual facet edge lines are faintly visible as slightly brighter linear streaks radiating from center, then through refracted blue rgb(100,200,255) becoming smoother, then through prism violet rgb(160,80,255) where the facet structure is no longer visible and the glow becomes purely smooth, fading through violet rgb(138,43,226) and dark purple rgb(75,0,130) to black at the edges, the faceted core gives it a crystalline magical quality while the soft outer glow provides smooth blending, 64x64 pixel digital game VFX texture --ar 1:1 --v 6.1 --style raw --s 200 --no text watermark signature frame border noise
+
+================================================================================
+  PROMPT 5 — Musical Note Halo Orb (Note-Embedded Soft Glow)
+================================================================================
+
+A circular soft glow orb on pure black background with embedded musical notation motifs, the bright center core is moon white rgb(240,235,255) with a smooth radial falloff, at approximately 40 percent radius from center there are four small ghostly musical note symbols arranged in a diamond formation around the core: two eighth notes and two quarter notes rendered as faint luminous shapes in ice blue rgb(135,206,250) at roughly 30 percent opacity so they are visible but not dominant, each note has a tiny prismatic spectral shimmer along its edges, the overall glow transitions from the white core through refracted blue rgb(100,200,255) to prism violet rgb(160,80,255) to dark purple rgb(75,0,130) to black, between the musical notes thin curved lines of light connect them in a circular arc suggesting a musical staff bent into a ring in very subtle violet rgb(138,43,226), the composition merges the concept of a magical glow sphere with musical notation creating a musical magic effect, 128x128 pixels, clean digital render for game use --ar 1:1 --v 6.1 --style raw --s 200 --no text watermark signature frame border

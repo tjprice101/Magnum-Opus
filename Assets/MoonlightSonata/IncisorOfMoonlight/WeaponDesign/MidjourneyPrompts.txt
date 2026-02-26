@@ -1,0 +1,53 @@
+================================================================================
+  INCISOR OF MOONLIGHT — WEAPON DESIGN SPRITES
+  Midjourney Prompt Reference
+================================================================================
+
+Weapon: Incisor of Moonlight
+Class: Melee — Precision Sword / Stellar Scalpel
+Theme: Moonlight Sonata — "Surgical precision, constellation strikes"
+Colors: Deep dark purples, midnight indigo, vibrant ice blues, violet,
+  resonant silver, crystal-edge white, harmonic lavender
+Identity: Constellation star maps, tuning fork resonance, surgical scalpel
+  precision, standing wave harmonics, the night sky mapped as a weapon
+Calamity References: Exoblade (energy blade layers), Celestus (orbital
+  ring motifs), Ark of the Cosmos (cosmic portal energy)
+
+================================================================================
+  PROMPT 1 — "THE RESONANT DISSECTION"
+================================================================================
+
+Concept art for a side-view idle pixel art sprite of a massive tuning fork weapon that has evolved a blade of pure vibrational energy between its tines in the style of Terraria, themed around "Moonlight Sonata", two parallel crystalline prongs of deep midnight indigo extend upward with harmonic wave interference patterns etched into their surfaces, between the prongs a shimmering blade of standing-wave energy ripples and oscillates in luminous lavender and violet with bright harmonic nodes of ice blue pulsing at mathematically precise intervals along its length, five brilliant star-point nodes of silver-white mark the constellation pattern formed by the harmonic peaks, the prong tips curve inward almost touching with crackling ice blue potential energy in the gap, the base where the prongs merge becomes the grip as a single resonating shaft of dark crystal that visibly vibrates with harmonic energy, the pommel is a spherical resonance chamber with violet energy lines tracing its meridians like a sound visualization globe, tiny star particles and musical frequency waves and constellation connection lines and tuning fork sparks orbit the weapon, radiating an intensely precise surgical aura of crystalline moonlight, a weapon that cuts with sound and starlight, detailed like an Exoblade-tier endgame Terraria weapon, full-view
+
+================================================================================
+  PROMPT 2 — "THE STAR CARTOGRAPHER"
+================================================================================
+
+Concept art for a side-view idle pixel art sprite of a precision sword whose blade flat is a window into deep space containing a living three-dimensional star map in the style of Terraria, themed around "Moonlight Sonata", the blade has an impossibly thin crystal frame of silver-white outlining an elongated hexagonal viewport, within this frame the blade is not solid but a portal into the cosmos filled with dozens of stars at varying depths and brightnesses with the closest stars blazing moon white with diffraction spikes and distant stars as tiny specks of violet and deep purple, thin constellation lines of luminous lavender connect the stars into alien stellar cartography patterns that also form the blade's structural integrity, at the center of the star map a brilliant stellar nursery nebula swirls in violet and ice blue with a blazing white core, the cutting edge is where the crystal frame tapers to an infinitely thin line cutting the boundary between reality and star-space, the crossguard is an astronomical sextant arc with tiny degree markings, the grip is a telescope barrel segment in dark indigo with focusing ring ridges, the pommel is an observatory dome revealing an ice blue lens, tiny orbiting stars and constellation fragments and nebula wisps float around the weapon, radiating an aura of infinite cosmic depth, detailed ornate Terraria Calamity endgame quality, full-view
+
+================================================================================
+  PROMPT 3 — "HARMONIC SCISSION"
+================================================================================
+
+Concept art for a side-view idle pixel art sprite of a sword whose blade physically follows a perfect sine wave oscillation from base to tip in the style of Terraria, themed around "Moonlight Sonata", the blade undulates in smooth sinusoidal curves with the wavelength getting tighter and the frequency increasing toward the tip like sound approaching its resonant peak, the wave peaks glow brilliant ice blue and the troughs pulse deep violet with lavender at the zero-crossings creating a visible sound wave made into a cutting weapon, the spine follows the inverse wave in opposite phase so the blade width breathes rhythmically narrow and wide, the absolute tip where frequency reaches infinity converges to a single point of devastating harmonic white, the interior shows standing wave interference patterns in deep resonant purple, the crossguard is a tiny oscilloscope readout displaying the blade's frequency, the grip is a dark indigo piezoelectric crystal wrapped with violet energy coils, the pommel is a vinyl record disc storing the musical data that drives the blade, tiny frequency waves and harmonic nodes and star-point sparks and musical resonance rings orbit the weapon, radiating an aura of mathematically perfect destructive frequency, a weapon unlike anything in any game, detailed Terraria endgame quality, full-view
+
+================================================================================
+  PROMPT 4 — "SUPERNOVA NEEDLE"
+================================================================================
+
+Concept art for a side-view idle pixel art sprite of an impossibly thin rapier-needle weapon containing a collapsing star whose extreme gravity creates a visible cutting field around it in the style of Terraria, themed around "Moonlight Sonata", the blade is an absolute minimum-width needle of silver-white light barely visible on its own, but surrounding it a dramatic gravitational lensing field extends outward where starlight bends and warps around the needle in gorgeous arcs of ice blue and lavender, the tip holds a tiny blazing singularity of white-blue brilliance surrounded by concentric rings of ice blue then violet then deep indigo representing a miniature event horizon, three luminous accretion knots of lavender and white are threaded along the needle like pearls of compressed stellar matter, the crossguard is a tilted miniature accretion disk with matter spiraling inward toward the blade, the grip is minimal dark indigo crystal with a helical groove of violet energy, the pommel is a tiny quasar sphere with twin jets of ice blue shooting from its poles, orbiting star fragments and gravitationally lensed light arcs and tiny constellation points float around the weapon caught in its gravity, radiating an aura of impossibly concentrated stellar power contained in the thinnest possible form, detailed like a Calamity Miracle Matter weapon, full-view
+
+================================================================================
+  PROMPT 5 — "THE CONSTELLATION SUTURE"
+================================================================================
+
+Concept art for a side-view idle pixel art sprite of a giant cosmic sewing needle that stitches torn reality together using thread made of connected constellation stars in the style of Terraria, themed around "Moonlight Sonata", the blade is a long elegantly curved surgical needle of void-dark metal with only hairline silver-white edge highlights, an eye-hole near the tip glows with blazing ice blue energy, threaded through the eye and wrapped in a loose helical spiral around the entire blade shaft is the constellation thread: a continuous chain of brilliant white star-points connected by thin lavender constellation lines that winds around the dark needle six times at different tilt angles creating a complex luminous lattice pattern, trailing from the needle eye the free end of the thread frays into a scattering cluster of disconnected stars giving a distinctive comet-tail at the tip, the needle tip below the eye curves into a surgical suture shape ground to crystal-sharp precision, the crossguard is a thimble ring with violet energy pooling in its dimples, the grip is a spindle wound with dark thread, the pommel is a tiny bobbin spool of wound constellation thread in reserve with stars blinking sequentially along the stored thread, tiny orbiting stars and trailing constellation fragments and scattered needle-point sparks float around the weapon, radiating an aura of cosmic surgical precision, detailed ornate Terraria Calamity endgame quality, full-view
+
+================================================================================
+  POST-GENERATION NOTES:
+  - Design #1 (Tuning Fork) sells the musical identity strongest
+  - Design #2 (Star Map Window) has the most visual depth and wow factor
+  - Design #3 (Sine Wave) has the most unique silhouette in gaming
+  - Design #4 (Supernova Needle) best embodies surgical precision
+  - Design #5 (Constellation Suture) has the most creative narrative
+================================================================================

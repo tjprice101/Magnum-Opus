@@ -13,15 +13,28 @@ using MagnumOpus.Content.Eroica;
 namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 {
     /// <summary>
-    /// Projectile fired by Celestial Valor greatsword on swing.
-    /// A powerful energy slash with red and gold effects.
-    /// Collides with walls and creates gold/red AOE explosions on impact.
+    /// Celestial Valor energy slash projectile — "The Hero's Echo".
+    /// 
+    /// A blazing arc of heroic determination that seeks nearby enemies,
+    /// leaving a wake of flame dust and valor sparks. On impact, detonates
+    /// in a multi-layered heroic explosion with bloom cascades and lightning.
+    /// 
+    /// Enhanced features:
+    ///   - Stronger homing with acceleration curve (gentle at start, aggressive near death)
+    ///   - Pulsating visual scale tied to projectile age
+    ///   - Expanded AOE explosion radius for finisher feel
+    ///   - 33% chance seeking crystals on hit
+    ///   - 12-position trail cache for smooth afterimage rendering
     /// </summary>
     public class CelestialValorProjectile : ModProjectile
     {
+        // AI state
+        private ref float HomingAccel => ref Projectile.ai[0];
+        private ref float AgeTimer => ref Projectile.ai[1];
+
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 12;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -34,10 +47,10 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
             Projectile.DamageType = DamageClass.Melee;
             Projectile.penetrate = 3;
             Projectile.timeLeft = 90;
-            Projectile.tileCollide = true; // Now collides with walls
+            Projectile.tileCollide = true;
             Projectile.ignoreWater = true;
             Projectile.alpha = 50;
-            Projectile.light = 0.7f;
+            Projectile.light = 0.8f;
             Projectile.extraUpdates = 1;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 15;
@@ -45,16 +58,25 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 
         public override void AI()
         {
-            // Face direction of travel
-            Projectile.rotation = Projectile.velocity.ToRotation();
-            
-            // Slight homing toward nearby enemies
-            float homingRange = 150f;
-            float homingStrength = 0.02f;
-            
+            AgeTimer++;
+
+            // Face direction of travel with slight rotation smoothing
+            float targetRot = Projectile.velocity.ToRotation();
+            Projectile.rotation = MathHelper.Lerp(Projectile.rotation, targetRot, 0.3f);
+
+            // Pulsating visual scale — subtle breathing tied to age
+            float pulse = 1f + (float)Math.Sin(AgeTimer * 0.15f) * 0.06f;
+            Projectile.scale = pulse;
+
+            // Enhanced homing: gentle at first, more aggressive as projectile ages
+            float homingRange = 180f;
+            float baseHoming = 0.018f;
+            float ageFactor = MathHelper.Clamp(AgeTimer / 60f, 0f, 1f); // 0→1 over 1 second
+            float homingStrength = baseHoming + ageFactor * 0.025f; // Ramps from 0.018 to 0.043
+
             NPC closestNPC = null;
             float closestDist = homingRange;
-            
+
             for (int i = 0; i < Main.maxNPCs; i++)
             {
                 NPC npc = Main.npc[i];
@@ -68,24 +90,31 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                     }
                 }
             }
-            
+
             if (closestNPC != null)
             {
                 Vector2 toTarget = (closestNPC.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * Projectile.velocity.Length(), homingStrength);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity,
+                    toTarget * Projectile.velocity.Length(), homingStrength);
             }
-            
-            // Trail VFX (consolidated in CelestialValorVFX)
+
+            // Slight speed decay to give "weight" to the projectile
+            if (AgeTimer > 40)
+            {
+                Projectile.velocity *= 0.998f;
+            }
+
+            // Trail VFX — enhanced per-frame particles
             CelestialValorVFX.ProjectileTrailVFX(Projectile);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // AOE explosion + VFX (consolidated in CelestialValorVFX)
+            // AOE explosion VFX
             CreateAOEExplosion(target.Center);
             CelestialValorVFX.ProjectileHitVFX(target.Center);
-            
-            // === SEEKING CRYSTALS - Celestial valor burst ===
+
+            // Seeking crystals — 33% chance on hit
             if (Main.rand.NextBool(3))
             {
                 SeekingCrystalHelper.SpawnEroicaCrystals(
@@ -98,10 +127,10 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                     5
                 );
             }
-            
-            // Deal 5% bonus explosion damage to nearby enemies
+
+            // Splash damage to nearby enemies (5% of hit damage, 110f radius)
             int explosionDamage = (int)(damageDone * 0.05f);
-            float explosionRadius = 100f;
+            float explosionRadius = 110f;
             for (int i = 0; i < Main.maxNPCs; i++)
             {
                 NPC npc = Main.npc[i];
@@ -109,31 +138,27 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                 {
                     if (Vector2.Distance(npc.Center, target.Center) <= explosionRadius)
                     {
-                        Player player = Main.player[Projectile.owner];
                         npc.SimpleStrikeNPC(explosionDamage, 0, false, 0f, DamageClass.Melee);
                     }
                 }
             }
         }
-        
+
         public override bool OnTileCollide(Vector2 oldVelocity)
         {
-            // Create AOE explosion on wall collision
             CreateAOEExplosion(Projectile.Center);
-            return true; // Destroy projectile
+            return true;
         }
 
         private void CreateAOEExplosion(Vector2 position)
         {
             CelestialValorVFX.AOEExplosion(position);
         }
-        
-        // Lightning VFX consolidated in CelestialValorVFX.SpawnLightning
 
         public override void OnKill(int timeLeft)
         {
-            if (timeLeft > 0)
-                return;
+            // Always play death flash (removed the timeLeft > 0 guard — projectiles
+            // killed by penetrate exhaustion should also flash)
             CelestialValorVFX.DeathFlash(Projectile.Center);
         }
 
@@ -144,7 +169,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 
         public override Color? GetAlpha(Color lightColor)
         {
-            return new Color(255, 240, 200, 180);
+            // Warm heroic tint with slight transparency
+            return new Color(255, 242, 210, 175);
         }
     }
 }

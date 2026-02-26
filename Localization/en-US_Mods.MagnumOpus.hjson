@@ -45,8 +45,10 @@ Mods: {
 				DisplayName: Eternal Moon
 				Tooltip:
 					'''
-					'The moon's eternal embrace given form'
-					A heavy sword that releases waves of purple energy
+					'The eternal cycle made blade — each swing echoes moonlight on water'
+					5-phase Tidal Lunar Cycle combo with escalating crescent waves
+					Ghost reflection echoes on Half Moon, tidal detonation on Full Moon crescendo
+					Critical hits spawn seeking lunar crystals
 					Inflicts Musical Dissonance on enemies
 					'''
 			}
@@ -55,9 +57,13 @@ Mods: {
 				DisplayName: Moonlight's Calling
 				Tooltip:
 					'''
-					'The moon beckons through arcane pages'
-					Rapidly fires beams of moonlight magic
+					Rapid-fire bouncing moonlight beams with prismatic refraction — each bounce intensifies the spectral cascade
+					Bounces 3+ split into spectral child beams — light refracting through a crystal prism
+					Final bounce detonates into a full prismatic spectral explosion with god rays and screen effects
+					Right-click unleashes Serenade Mode — a devastating prismatic mega-beam that pierces walls and enemies
+					Serenade Mode: 40 mana, 3 second cooldown, 1.8x damage, infinite pierce
 					Inflicts Musical Dissonance on enemies
+					'The moon whispers secrets to those who listen — each note a color, each color a truth'
 					'''
 			}
 
@@ -65,9 +71,11 @@ Mods: {
 				DisplayName: Staff of the Lunar Phases
 				Tooltip:
 					'''
-					'Command the shadows between crescent and full'
-					Summons a mighty Goliath of Moonlight to fight for you
-					The Goliath fires devastating moonlight beams at enemies
+					'The conductor raises the baton — and the moonlight obeys'
+					Parts the veil of moonlight, summoning a Goliath of Moonlight
+					The Goliath fires devastating moonlight beams that ricochet between enemies
+					Each beam hit restores 10 health
+					Right-click to toggle Conductor Mode — direct the Goliath's beams toward your cursor
 					Inflicts Musical Dissonance on enemies
 					'''
 			}
@@ -1254,9 +1262,13 @@ Mods: {
 				DisplayName: Incisor Of Moonlight
 				Tooltip:
 					'''
-					A blade that cuts with lunar precision
-					Strikes leave ethereal crescent trails
-					'Sharp as the moon's edge at midnight'
+					5-phase Surgical Precision combo — Precise Incision, Crescent Cut, Constellation Mapping, Harmonic Surge, and Stellar Crescendo
+					Swings unleash crescent waves and homing star fragments that escalate with each phase
+					Constellation Mapping deploys a homing lock marker that detonates on enemies
+					Harmonic Surge unleashes an expanding resonant detonation
+					Stellar Crescendo finale: lunar detonation, radial star burst, and full VFX cascade
+					Critical hits spawn seeking lunar crystals and bonus star fragments
+					'Sharp as the moon's edge at midnight — a silver scalpel honed by quiet sorrow'
 					'''
 			}
 
@@ -1940,6 +1952,15 @@ Mods: {
 			MoonlightBeam.DisplayName: Moonlight Beam
 			RazerOfMoonlightsShadow.DisplayName: Razer of Moonlight's Shadow
 			EternalMoonBeam.DisplayName: Eternal Moon Beam
+			EternalMoonTidalWash.DisplayName: Eternal Moon Tidal Wash
+			EternalMoonReflection.DisplayName: Eternal Moon Reflection
+			EternalMoonTidalDetonation.DisplayName: Eternal Moon Tidal Detonation
+			IncisorStarFragment.DisplayName: Star Fragment
+			IncisorConstellationLock.DisplayName: Constellation Lock
+			IncisorHarmonicBurst.DisplayName: Harmonic Burst
+			IncisorLunarDetonation.DisplayName: Lunar Detonation
+			SpectralChildBeam.DisplayName: Spectral Child Beam
+			PrismaticCrescendo.DisplayName: Prismatic Crescendo
 			BlossomOfTheSakuraBulletProjectile.DisplayName: Blossom Of The Sakura Bullet Projectile
 			FuneralPrayerProjectile.DisplayName: Funeral Prayer Projectile
 			SakurasBlossomSpectral.DisplayName: Sakura's Blossom Spectral
@@ -1960,16 +1981,20 @@ Mods: {
 			WaningDeerChandelierOrbiting.DisplayName: Waning Chandelier
 			AbyssalOrbProjectile.DisplayName: Abyssal Orb
 			AbyssalBoltProjectile.DisplayName: Abyssal Bolt
-			ResurrectionProjectile.DisplayName: Resurrection Projectile
+			ResurrectionProjectile.DisplayName: Moonlight Comet Round
+			CometCore.DisplayName: Comet Core
+			SupernovaShell.DisplayName: Supernova Shell
 
 			ResurrectionOfTheMoon: {
 				DisplayName: Resurrection of the Moon
 				Tooltip:
 					'''
-					'From death comes rebirth in silver light'
-					Fires a devastating moonlight bullet
-					Bullets ricochet 10 times to nearby enemies
-					Each hit creates a devastating radial explosion
+					'From death comes rebirth in silver light — the final movement that silences all'
+					Fires a devastating moonlight round with shattering lunar force
+					Right-click to cycle between three chamber types:
+					  Standard — Ricochets 10 times with escalating crater detonations
+					  Comet Core — Pierces through 5 enemies with burning ember wake
+					  Supernova — Arcing artillery that detonates in massive AoE
 					Requires reloading between shots
 					Synergizes with Moonlit Gyre: +25% damage, +15% velocity
 					'''
@@ -5276,12 +5301,12 @@ Items: {
 	}
 
 	ResurrectionOfTheMoon: {
-		DisplayName: Resurrection Of The Moon
+		DisplayName: Resurrection of the Moon
 		Tooltip: ""
 	}
 
 	StaffOfTheLunarPhases: {
-		DisplayName: Staff Of The Lunar Phases
+		DisplayName: Staff of the Lunar Phases
 		Tooltip: ""
 	}
 
@@ -7081,6 +7106,11 @@ Items: {
 		DisplayName: Sandbox Terra Blade
 		Tooltip: ""
 	}
+
+	SandboxLastPrism: {
+		Tooltip: ""
+		DisplayName: Sandbox Last Prism
+	}
 }
 
 NPCs: {
@@ -7275,10 +7305,21 @@ Projectiles: {
 	RazerOfMoonlightsShadow.DisplayName: Razer Of Moonlights Shadow
 	EternalMoonBeam.DisplayName: Eternal Moon Beam
 	EternalMoonWave.DisplayName: Eternal Moon Wave
+	EternalMoonTidalWash.DisplayName: Eternal Moon Tidal Wash
+	EternalMoonReflection.DisplayName: Eternal Moon Reflection
+	EternalMoonTidalDetonation.DisplayName: Eternal Moon Tidal Detonation
+	IncisorStarFragment.DisplayName: Star Fragment
+	IncisorConstellationLock.DisplayName: Constellation Lock
+	IncisorHarmonicBurst.DisplayName: Harmonic Burst
+	IncisorLunarDetonation.DisplayName: Lunar Detonation
+	SpectralChildBeam.DisplayName: Spectral Child Beam
+	PrismaticCrescendo.DisplayName: Prismatic Crescendo
 	GoliathDevastatingBeam.DisplayName: Goliath Devastating Beam
 	GoliathMoonlightBeam.DisplayName: Goliath Moonlight Beam
 	MoonlightBeam.DisplayName: Moonlight Beam
-	ResurrectionProjectile.DisplayName: Resurrection Projectile
+	ResurrectionProjectile.DisplayName: Moonlight Comet Round
+	CometCore.DisplayName: Comet Core
+	SupernovaShell.DisplayName: Supernova Shell
 	MoonlightWaveProjectile.DisplayName: Moonlight Wave Projectile
 	HealingFeatherPickup.DisplayName: Healing Feather Pickup
 	HomingSwanFeather.DisplayName: Homing Swan Feather

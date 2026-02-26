@@ -1,0 +1,97 @@
+================================================================================
+ INCISOR OF MOONLIGHT — TRAIL TEXTURES
+ Midjourney Prompt Reference
+================================================================================
+
+PURPOSE:
+  Elongated horizontal strip textures mapped onto vertex-mesh trail geometry
+  by the CalamityStyleTrailRenderer system. The trail renderer builds a
+  triangle strip mesh following the projectile/blade path, then UVs are
+  mapped so that:
+    U (horizontal, 0-1) = position along the trail (0 = head/newest, 1 = tail)
+    V (vertical, 0-1) = position across the trail width (0 = top edge, 1 = bottom)
+
+  The IncisorResonance.fx and MoonlightTrail.fx shaders sample these textures
+  with distorted UVs to create their visual effects. Key shader behaviors:
+  - Standing wave displacement (perpendicular oscillation of V coordinate)
+  - High-frequency shimmer (rapid U scrolling)
+  - Constellation node highlights (bright spots at regular U intervals)
+  - QuadraticBump edge fade (bright center, fading edges across V)
+  - White-hot core masking (brightest along V=0.5 centerline)
+
+  The renderer makes 3 passes per trail with different color pairs, so
+  these textures are drawn multiple times with additive blending.
+
+TECHNICAL REQUIREMENTS:
+  - Dimensions: 256x64 (standard) or 512x128 (high-detail)
+  - Horizontal orientation: Left = trail head (bright), Right = trail tail (fading)
+  - Vertical structure: Bright center band, fading to dark/transparent top and bottom
+  - Background: Black (#000000) where the trail fades out
+  - Format: PNG (alpha optional since black = invisible in additive blend)
+  - Must tile VERTICALLY without visible seam (top and bottom edges match)
+  - Should NOT tile horizontally (head and tail are intentionally different)
+  - Internal detail must survive UV distortion by the shader
+
+COLOR PALETTE (Incisor of Moonlight — "The Stellar Scalpel"):
+  Deep Resonance Purple:  RGB(90, 50, 160)   — #5A32A0
+  Frequency Pulse Lavender: RGB(170, 140, 255) — #AA8CFF
+  Resonant Silver:        RGB(230, 235, 255)  — #E6EBFF
+  Ice Blue Clarity:       RGB(135, 206, 250)  — #87CEFA
+  Crystal Edge:           RGB(220, 230, 255)  — #DCE6FF
+  Harmonic White:         RGB(235, 240, 255)  — #EBEFFF
+
+VISUAL THEME:
+  "Constellation precision — surgical nodes, crystalline cuts, tuning fork
+  strikes, star-map geometry."
+
+================================================================================
+ PROMPT 1 — Crystalline Resonance Trail (Primary Trail Texture)
+================================================================================
+
+A horizontal elongated VFX trail texture strip on pure black background, 512 pixels wide and 128 pixels tall, the left edge is a bright concentrated energy point in harmonic white RGB(235,240,255) that gradually expands and fades rightward, the center horizontal band running left to right is the brightest featuring a core line of crystal edge RGB(220,230,255) that transitions through resonant silver RGB(230,235,255) to ice blue clarity RGB(135,206,250) in the middle section then to frequency pulse lavender RGB(170,140,255) and finally deep resonance purple RGB(90,50,160) near the right edge, the top and bottom edges fade smoothly to pure black creating a tapered cigar-shaped brightness profile when viewed vertically, embedded within the trail are 5-6 evenly spaced slightly brighter node points along the center line suggesting constellation waypoints or standing-wave antinodes, between these nodes the brightness dips slightly creating a subtle oscillating intensity pattern along the length, very fine hair-thin parallel lines running along the length at slight angles suggest crystalline structure or blade-cut striations, the overall effect is a precise surgical energy trail like a laser scalpel cutting through space leaving resonant frequency nodes in its wake, clean sharp geometric quality with no organic softness no smoke no cloud, game VFX trail texture --ar 4:1 --v 6.1 --style raw --s 200 --no smoke cloud organic soft blur fuzzy warm fire flame
+
+================================================================================
+ PROMPT 2 — Standing Wave Frequency Trail (Resonance Pattern)
+================================================================================
+
+A horizontal elongated VFX trail texture strip on solid black background, 512 pixels wide and 128 pixels tall, the defining feature is a visible standing wave pattern along its length where the brightness oscillates in a sinusoidal pattern creating alternating bright antinodes and dim nodes, approximately 6-8 full wave cycles visible across the full width, at antinode positions the trail reaches maximum brightness in harmonic white RGB(235,240,255) and resonant silver RGB(230,235,255), at node positions (minimum brightness points) the trail dims to deep resonance purple RGB(90,50,160), the wave amplitude is also visible vertically with antinodes being wider/taller in the vertical dimension and nodes being narrower creating a beaded or segmented appearance, the overall envelope tapers from full brightness at the left to near-dark at the right, a thin continuous center thread of ice blue clarity RGB(135,206,250) runs the full length connecting all the nodes and antinodes, the vertical edges fade to black top and bottom, the effect precisely resembles a vibrating tuning fork frequency visualization rendered as an energy trail, clinical geometric precision with mathematical standing wave pattern --ar 4:1 --v 6.1 --style raw --s 250 --no smoke cloud organic soft blur fuzzy warm fire flame noise
+
+================================================================================
+ PROMPT 3 — Constellation Connection Trail (Star-Map Lines)
+================================================================================
+
+A horizontal elongated VFX trail texture strip on pure black background, 256 pixels wide and 64 pixels tall, featuring a thin bright central line connecting discrete bright star-nodes spaced irregularly along its length, the connecting line is thin only 2-4 pixels wide in resonant silver RGB(230,235,255) at 60% brightness, at 5 positions along the length there are brighter circular node-glow expansions where the trail widens to 20-30 pixels vertically in a soft bloom, these nodes have cores of harmonic white RGB(235,240,255) surrounded by halos of ice blue clarity RGB(135,206,250) and fainter outer glow of frequency pulse lavender RGB(170,140,255), between the nodes the trail is just the thin connecting line like constellation lines drawn between stars on a star chart, the first node on the left is the brightest and the nodes progressively dim toward the right edge, the rightmost 20% of the trail fades entirely to black, top and bottom edges are black except where node glows expand, the overall aesthetic is precisely a constellation diagram rendered as a glowing energy trail, astronomical star-map geometry --ar 4:1 --v 6.1 --style raw --s 200 --no smoke cloud organic soft blur fuzzy warm fire flame noise texture
+
+================================================================================
+ PROMPT 4 — Surgical Cut Trail (Sharp Precision Edge)
+================================================================================
+
+A horizontal elongated VFX trail texture strip on solid black background, 256 pixels wide and 64 pixels tall, this trail has an extremely sharp concentrated appearance like a precision laser cut or surgical incision, the center line is razor-thin only 3-5 pixels tall of intense harmonic white RGB(235,240,255), immediately above and below the white center are thin bands of crystal edge RGB(220,230,255) each 2-3 pixels, then slightly wider bands of resonant silver RGB(230,235,255), then ice blue clarity RGB(135,206,250), then a feathered glow of frequency pulse lavender RGB(170,140,255) that fades to black, the total bright area is only the central 40% of the vertical height with the rest being black, horizontally the trail brightness decreases linearly from maximum at left to zero at right but the sharp center line maintains relative brightness longest creating a pointed taper, very subtle perpendicular frequency ripples cross the trail at regular intervals in deep resonance purple RGB(90,50,160) at very low opacity suggesting the resonant oscillation perpendicular to the cut direction, the overall effect is an extremely precise clean energy slash mark --ar 4:1 --v 6.1 --style raw --s 200 --no smoke cloud organic soft blur fuzzy warm fire flame noise wide thick blurry
+
+================================================================================
+ PROMPT 5 — Harmonic Shimmer Trail (Multi-Frequency Overlay)
+================================================================================
+
+A horizontal elongated VFX trail texture strip on pure black background, 512 pixels wide and 128 pixels tall, featuring multiple overlaid frequency patterns creating a complex harmonic shimmer, the base layer is a smooth gradient from resonant silver RGB(230,235,255) at left to deep resonance purple RGB(90,50,160) at right with standard vertical edge-to-center brightness profile, overlaid on this are three visible wave frequencies simultaneously: a slow large wavelength oscillation creating broad 3-4 brightness undulations in frequency pulse lavender RGB(170,140,255), a medium frequency pattern of 7-8 oscillations in ice blue clarity RGB(135,206,250), and a fine high-frequency shimmer of many tiny oscillations in crystal edge RGB(220,230,255), where wave peaks of different frequencies align the brightness constructively interferes creating especially bright hot spots in harmonic white RGB(235,240,255), where they cancel the brightness drops to near deep resonance purple, the combined effect is a complex shimmering interference pattern that suggests multiple resonant frequencies superimposed like harmonics on a vibrating string, the center horizontal band is brightest fading to black at top and bottom, scientifically precise visualization of harmonic resonance, game VFX trail texture --ar 4:1 --v 6.1 --style raw --s 250 --no smoke cloud organic soft blur fuzzy warm fire flame random noise
+
+================================================================================
+ POST-PROCESSING NOTES:
+  - Resize to exact power-of-two dimensions (256x64 or 512x128)
+  - Verify that top and bottom edges are pure black (#000000)
+  - The shader applies its own edge fade via QuadraticBump, so the texture's
+    vertical fade acts as a multiplier on top of the shader's — keep the
+    texture's V-fade relatively gentle to avoid double-darkening
+  - The shader scrolls the U coordinate (distortedUV.x += shimmerDisp) so
+    fine horizontal detail will animate and shimmer during gameplay
+  - The shader adds its own constellation node highlights via the
+    ConstellationNode() function, so the texture's nodes are supplementary
+  - Test with the IncisorResonance.fx shader parameters:
+      uScrollSpeed: 1.0-2.0
+      uDistortionAmt: 0.04-0.08
+      uIntensity: 0.3-1.0 (varies with combo step)
+  - The CalamityStyleTrailRenderer.TrailStyle.Cosmic uses a specific UV
+    mapping that stretches the texture along curved trail geometry — test
+    your texture on curved paths, not just flat strips
+  - Trail textures are rendered 3 times per trail at different scales and
+    colors, so subtle internal detail is important for visual richness
+================================================================================

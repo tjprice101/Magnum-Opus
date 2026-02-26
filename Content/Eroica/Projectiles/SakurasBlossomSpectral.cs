@@ -6,22 +6,34 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.Eroica.Weapons.SakurasBlossom;
+using static MagnumOpus.Common.Systems.Particles.Particle;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
     /// <summary>
-    /// Spectral copy of Sakura's Blossom that seeks and hits enemies.
-    /// Features dramatic scarlet/pink arc trail with white sparkles.
+    /// Spectral copy of Sakura's Blossom — homing phantom blade that seeks enemies
+    /// and detonates in petal bursts. Enhanced with acceleration-based homing,
+    /// pulsating visual scale, and full VFX module integration.
+    /// 
+    /// Trail cache: 20 positions for dramatic arc sweep rendering.
+    /// Rendering: Delegated to SakurasBlossomVFX.DrawSpectralCopy for
+    /// consistent 5-layer bloom + afterimage + perpendicular shimmer pipeline.
     /// </summary>
     public class SakurasBlossomSpectral : ModProjectile
     {
         public override string Texture => "MagnumOpus/Content/Eroica/Weapons/SakurasBlossom/SakurasBlossom";
 
+        // AI state tracking
+        private ref float HomingAccel => ref Projectile.ai[0];
+        private ref float AgeTimer => ref Projectile.ai[1];
+
         private int targetNPC = -1;
 
         public override void SetStaticDefaults()
         {
-            // Extended trail for dramatic arc effect
             ProjectileID.Sets.TrailCacheLength[Type] = 20;
             ProjectileID.Sets.TrailingMode[Type] = 2;
         }
@@ -35,7 +47,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Projectile.DamageType = DamageClass.Melee;
             Projectile.penetrate = 1;
             Projectile.timeLeft = 180;
-            Projectile.alpha = 100;
+            Projectile.alpha = 80;
             Projectile.light = 0.6f;
             Projectile.ignoreWater = true;
             Projectile.tileCollide = false;
@@ -43,45 +55,29 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void AI()
         {
+            AgeTimer++;
+
             // Align rotation with velocity direction
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver4;
-            
-            // Custom particle trail effect
-            CustomParticles.EroicaTrail(Projectile.Center, Projectile.velocity, 0.3f);
 
-            // White sparkle dust effect
-            if (Main.rand.NextBool(2))
-            {
-                Dust sparkle = Dust.NewDustDirect(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f), 1, 1,
-                    DustID.SparksMech, 0f, 0f, 0, Color.White, 1.3f);
-                sparkle.noGravity = true;
-                sparkle.velocity = Main.rand.NextVector2Circular(2f, 2f);
-                sparkle.fadeIn = 1.2f;
-            }
+            // Pulsating visual scale — breathing blossom effect
+            float scaleBase = 1.0f;
+            float scalePulse = (float)Math.Sin(AgeTimer * 0.12f) * 0.08f;
+            Projectile.scale = scaleBase + scalePulse;
 
-            // Scarlet/pink petal trail
-            if (Main.rand.NextBool(2))
-            {
-                Dust trail = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.RedTorch, 0f, 0f, 100, default, 1.2f);
-                trail.noGravity = true;
-                trail.velocity *= 0.3f;
-            }
-            
-            // Pink accent particles
-            if (Main.rand.NextBool(3))
-            {
-                Dust pink = Dust.NewDustDirect(Projectile.Center, 1, 1,
-                    DustID.PinkTorch, 0f, 0f, 100, default, 1.0f);
-                pink.noGravity = true;
-                pink.velocity = Main.rand.NextVector2Circular(2f, 2f);
-            }
+            // Per-frame VFX trail — delegated to VFX module
+            SakurasBlossomVFX.SpectralCopyTrailVFX(Projectile);
 
-            // Find and home towards nearest enemy
+            // ── ENHANCED HOMING — acceleration curve ──
+            // Homing strengthens over time: starts gentle, becomes aggressive
+            float ageSeconds = AgeTimer / 60f;
+            HomingAccel = MathHelper.Lerp(0.020f, 0.048f, MathHelper.Clamp(ageSeconds, 0f, 1f));
+
+            // Find target — prioritize bosses
             if (targetNPC < 0 || !Main.npc[targetNPC].active)
             {
                 targetNPC = -1;
-                float maxDistance = 800f;
+                float maxDistance = 850f;
                 bool foundBoss = false;
 
                 for (int i = 0; i < Main.maxNPCs; i++)
@@ -101,7 +97,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
                 if (!foundBoss)
                 {
-                    maxDistance = 600f;
+                    maxDistance = 650f;
                     for (int i = 0; i < Main.maxNPCs; i++)
                     {
                         NPC npc = Main.npc[i];
@@ -118,42 +114,35 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 }
             }
 
+            // Apply homing with acceleration curve + rotation smoothing
             if (targetNPC >= 0 && Main.npc[targetNPC].active)
             {
-                Vector2 direction = Main.npc[targetNPC].Center - Projectile.Center;
-                direction.Normalize();
-                Projectile.velocity = (Projectile.velocity * 20f + direction * 15f) / 21f;
+                Vector2 direction = (Main.npc[targetNPC].Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
+                float speed = Projectile.velocity.Length();
+                float turnWeight = 18f - HomingAccel * 80f; // tighter turns as age increases
+                turnWeight = MathHelper.Clamp(turnWeight, 12f, 20f);
+                Projectile.velocity = (Projectile.velocity * turnWeight + direction * speed) / (turnWeight + 1f);
             }
 
-            Lighting.AddLight(Projectile.Center, 0.8f, 0.2f, 0.3f);
+            // Slight speed decay after 50 ticks — gives a weighted feel
+            if (AgeTimer > 50)
+            {
+                Projectile.velocity *= 0.998f;
+            }
+
+            // Dynamic palette-based lighting
+            Color lightColor = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.Gold,
+                (float)Math.Sin(AgeTimer * 0.08f) * 0.5f + 0.5f);
+            Lighting.AddLight(Projectile.Center, lightColor.ToVector3() * 0.8f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Ethereal sakura bloom using SoftGlows[1] (bloom) and EnergyFlares[1] (soft spark)
-            var softGlow = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.SoftGlows[1], Projectile.Center, Vector2.Zero,
-                new Color(255, 150, 180), 1.0f, 35, 0f, true, false);
-            CustomParticleSystem.SpawnParticle(softGlow);
-            var softFlare = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[1], Projectile.Center, Vector2.Zero,
-                new Color(255, 200, 220), 0.7f, 25, 0.01f, true, true);
-            CustomParticleSystem.SpawnParticle(softFlare);
-            CustomParticles.SwanLakeFlare(Projectile.Center, 0.5f); // Iridescent shimmer
-            
-            // === SIGNATURE FRACTAL FLARE BURST ===
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
-                float progress = (float)i / 6f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
-                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.45f, 18);
-            }
-            
-            // Music notes on hit
-            ThemedParticles.EroicaMusicNotes(target.Center, 4, 30f);
-            
-            // === SEEKING CRYSTALS - Spectral sakura ===
-            if (Main.rand.NextBool(3))
+            // VFX: delegated to VFX module for consistent impact rendering
+            SakurasBlossomVFX.SpectralCopyHitVFX(target.Center);
+
+            // Seeking crystals — 33% chance
+            if (Main.rand.NextBool(3) && Main.myPlayer == Projectile.owner)
             {
                 SeekingCrystalHelper.SpawnEroicaCrystals(
                     Projectile.GetSource_FromThis(),
@@ -165,97 +154,25 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     4
                 );
             }
-            
-            // Massive scarlet explosion with white sparkles
-            for (int i = 0; i < 40; i++)
-            {
-                Dust explosion = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.RedTorch, 0f, 0f, 100, default, 2.5f);
-                explosion.noGravity = true;
-                explosion.velocity = Main.rand.NextVector2Circular(8f, 8f);
-            }
-            
-            // White sparkle burst
-            for (int i = 0; i < 15; i++)
-            {
-                Dust sparkle = Dust.NewDustDirect(target.Center, 1, 1, DustID.SparksMech, 0f, 0f, 0, Color.White, 1.8f);
-                sparkle.noGravity = true;
-                sparkle.velocity = Main.rand.NextVector2Circular(6f, 6f);
-            }
-            
-            // Pink accents
-            for (int i = 0; i < 20; i++)
-            {
-                Dust pink = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.PinkTorch, 0f, 0f, 100, default, 2.0f);
-                pink.noGravity = true;
-                pink.velocity = Main.rand.NextVector2Circular(7f, 7f);
-            }
 
-            SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode, Projectile.position);
+            SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with
+            {
+                Pitch = 0.15f,
+                Volume = 0.7f
+            }, Projectile.position);
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Elegant sakura scatter for spectral blade
-            DynamicParticleEffects.EroicaDeathSakuraScatter(Projectile.Center, 1.0f);
+            // VFX: delegated to VFX module for consistent death rendering
+            SakurasBlossomVFX.SpectralCopyDeathVFX(Projectile.Center);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
-            Vector2 origin = texture.Size() / 2f;
-            
-            // Switch to additive blending for dramatic glow
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, 
-                SamplerState.LinearClamp, DepthStencilState.None, 
-                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Draw sweeping arc trail - scarlet to pink gradient
-            for (int i = 0; i < Projectile.oldPos.Length - 1; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-
-                float progress = (float)i / Projectile.oldPos.Length;
-                float alpha = (1f - progress) * 0.7f;
-                float trailScale = Projectile.scale * (1f - progress * 0.4f) * 0.9f;
-                
-                Vector2 drawPos = Projectile.oldPos[i] - Main.screenPosition + Projectile.Size / 2f;
-                
-                // Scarlet core trail
-                Color scarletColor = new Color(220, 50, 70) * alpha;
-                spriteBatch.Draw(texture, drawPos, null, scarletColor, 
-                    Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
-                
-                // Pink outer glow
-                Color pinkGlow = new Color(255, 120, 150) * alpha * 0.6f;
-                spriteBatch.Draw(texture, drawPos, null, pinkGlow, 
-                    Projectile.oldRot[i], origin, trailScale * 1.25f, SpriteEffects.None, 0f);
-                
-                // White sparkle highlights on recent positions
-                if (i < 6)
-                {
-                    Color whiteGlow = Color.White * alpha * 0.5f;
-                    spriteBatch.Draw(texture, drawPos, null, whiteGlow, 
-                        Projectile.oldRot[i], origin, trailScale * 0.6f, SpriteEffects.None, 0f);
-                }
-            }
-            
-            // Reset to normal blending
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                SamplerState.LinearClamp, DepthStencilState.None,
-                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Draw main projectile with glow
-            Vector2 mainPos = Projectile.Center - Main.screenPosition;
-            Color trailColor = new Color(220, 80, 100, 100);
-            spriteBatch.Draw(texture, mainPos, null, trailColor, Projectile.rotation, origin,
-                Projectile.scale, SpriteEffects.None, 0f);
-
-            return false;
+            // Full rendering delegated to VFX module for consistent
+            // 5-layer pipeline: bloom trail → afterimage → shimmer → bloom stack → main
+            return SakurasBlossomVFX.DrawSpectralCopy(Main.spriteBatch, Projectile, ref lightColor);
         }
     }
 }

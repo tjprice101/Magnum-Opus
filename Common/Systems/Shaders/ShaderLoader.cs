@@ -41,23 +41,92 @@ namespace MagnumOpus.Common.Systems.Shaders
         public const string TrailShader = "SimpleTrailShader";
         public const string BloomShader = "SimpleBloomShader";
         public const string ScrollingTrailShader = "ScrollingTrailShader";
-        public const string CelestialValorTrailShader = "CelestialValorTrail";
+        public const string CelestialValorTrailShader = "Eroica/CelestialValor/CelestialValorTrail";
         public const string MotionBlurBloomShader = "MotionBlurBloom";
         public const string TerraBladeSwingVFXShader = "TerraBladeSwingVFX";
         public const string RadialScrollShaderName = "RadialScrollShader";
         public const string BeamGradientFlowShader = "BeamGradientFlow";
-        public const string MoonlightTrailShader = "MoonlightTrail";
-        public const string LunarBeamShader = "LunarBeam";
-        public const string CrescentAuraShader = "CrescentAura";
-        public const string HeroicFlameTrailShader = "HeroicFlameTrail";
-        public const string SakuraBloomShader = "SakuraBloom";
-        public const string EroicaFuneralTrailShader = "EroicaFuneralTrail";
-        public const string TriumphantFractalShaderName = "TriumphantFractalShader";
+        public const string MoonlightTrailShader = "MoonlightSonata/MoonlightTrail";
+        public const string LunarBeamShader = "MoonlightSonata/LunarBeam";
+        public const string CrescentAuraShader = "MoonlightSonata/CrescentAura";
+        public const string HeroicFlameTrailShader = "Eroica/HeroicFlameTrail";
+        public const string SakuraBloomShader = "Eroica/SakuraBloom";
+        public const string EroicaFuneralTrailShader = "Eroica/FuneralPrayer/EroicaFuneralTrail";
+        public const string TriumphantFractalShaderName = "Eroica/TriumphantFractal/TriumphantFractalShader";
         public const string EnigmaVoidTrailShader = "EnigmaVoidTrail";
         public const string EnigmaFlameShader = "EnigmaFlame";
         public const string NachtmusikStarTrailShader = "NachtmusikStarTrail";
         public const string NachtmusikSerenadeShader = "NachtmusikSerenade";
         public const string TerraBladeFlareBeamShaderName = "TerraBladeFlareBeamShader";
+        public const string IncisorResonanceShader = "MoonlightSonata/IncisorOfMoonlight/IncisorResonance";
+        public const string ConstellationFieldShader = "MoonlightSonata/IncisorOfMoonlight/ConstellationField";
+
+        // Eroica — SakurasBlossom weapon-specific shaders
+        public const string SakuraSwingTrailShader = "Eroica/SakurasBlossom/SakuraSwingTrail";
+        public const string PetalDissolveShader = "Eroica/SakurasBlossom/PetalDissolve";
+
+        // Eroica — CelestialValor weapon-specific shaders
+        public const string ValorAuraShader = "Eroica/CelestialValor/ValorAura";
+
+        // Eroica — BlossomOfTheSakura weapon-specific shaders
+        public const string HeatDistortionShader = "Eroica/BlossomOfTheSakura/HeatDistortion";
+        public const string TracerTrailShader = "Eroica/BlossomOfTheSakura/TracerTrail";
+
+        // Eroica — PiercingLightOfTheSakura weapon-specific shaders
+        public const string CrescendoChargeShader = "Eroica/PiercingLightOfTheSakura/CrescendoCharge";
+        public const string SakuraLightningTrailShader = "Eroica/PiercingLightOfTheSakura/SakuraLightningTrail";
+
+        // Eroica — FuneralPrayer weapon-specific shaders
+        public const string RequiemBeamShader = "Eroica/FuneralPrayer/RequiemBeam";
+        public const string PrayerConvergenceShader = "Eroica/FuneralPrayer/PrayerConvergence";
+
+        // Eroica — TriumphantFractal weapon-specific shaders
+        public const string SacredGeometryShader = "Eroica/TriumphantFractal/SacredGeometry";
+
+        // Eroica — FinalityOfTheSakura weapon-specific shaders
+        public const string FateSummonCircleShader = "Eroica/FinalityOfTheSakura/FateSummonCircle";
+        public const string DarkFlameAuraShader = "Eroica/FinalityOfTheSakura/DarkFlameAura";
+
+        // Moonlight Sonata — EternalMoon weapon-specific shaders
+        public const string TidalTrailShader = "MoonlightSonata/EternalMoon/TidalTrail";
+        public const string CrescentBloomShader = "MoonlightSonata/EternalMoon/CrescentBloom";
+        public const string LunarPhaseAuraShader = "MoonlightSonata/EternalMoon/LunarPhaseAura";
+
+        // Moonlight Sonata — MoonlightsCalling weapon-specific shaders
+        public const string PrismaticBeamShader = "MoonlightSonata/MoonlightsCalling/PrismaticBeam";
+        public const string RefractionRippleShader = "MoonlightSonata/MoonlightsCalling/RefractionRipple";
+
+        // Moonlight Sonata — ResurrectionOfTheMoon weapon-specific shaders
+        public const string CometTrailShader = "MoonlightSonata/ResurrectionOfTheMoon/CometTrail";
+        public const string SupernovaBlastShader = "MoonlightSonata/ResurrectionOfTheMoon/SupernovaBlast";
+
+        // Moonlight Sonata — StaffOfTheLunarPhases weapon-specific shaders
+        public const string GravitationalRiftShader = "MoonlightSonata/StaffOfTheLunarPhases/GravitationalRift";
+        public const string SummonCircleShader = "MoonlightSonata/StaffOfTheLunarPhases/SummonCircle";
+
+        // Swan Lake — CalloftheBlackSwan weapon-specific shaders
+        public const string DualPolaritySwingShader = "SwanLake/CalloftheBlackSwan/DualPolaritySwing";
+        public const string SwanFlareTrailShader = "SwanLake/CalloftheBlackSwan/SwanFlareTrail";
+
+        // Swan Lake — CallofthePearlescentLake weapon-specific shaders
+        public const string PearlescentRocketTrailShader = "SwanLake/CallofthePearlescentLake/PearlescentRocketTrail";
+        public const string LakeExplosionShader = "SwanLake/CallofthePearlescentLake/LakeExplosion";
+
+        // Swan Lake — ChromaticSwanSong weapon-specific shaders
+        public const string ChromaticTrailShader = "SwanLake/ChromaticSwanSong/ChromaticTrail";
+        public const string AriaExplosionShader = "SwanLake/ChromaticSwanSong/AriaExplosion";
+
+        // Swan Lake — FeatheroftheIridescentFlock weapon-specific shaders
+        public const string CrystalOrbitTrailShader = "SwanLake/FeatheroftheIridescentFlock/CrystalOrbitTrail";
+        public const string FlockAuraShader = "SwanLake/FeatheroftheIridescentFlock/FlockAura";
+
+        // Swan Lake — IridescentWingspan weapon-specific shaders
+        public const string EtherealWingShader = "SwanLake/IridescentWingspan/EtherealWing";
+        public const string WingspanFlareTrailShader = "SwanLake/IridescentWingspan/WingspanFlareTrail";
+
+        // Swan Lake — TheSwansLament weapon-specific shaders
+        public const string LamentBulletTrailShader = "SwanLake/TheSwansLament/LamentBulletTrail";
+        public const string DestructionRevelationShader = "SwanLake/TheSwansLament/DestructionRevelation";
 
         // Noise texture names (without extension) - in Assets/VFX/Noise/
         private static readonly string[] NoiseTextureNames = new[]
@@ -189,6 +258,75 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(NachtmusikStarTrailShader);
                 LoadShader(NachtmusikSerenadeShader);
                 LoadShader(TerraBladeFlareBeamShaderName);
+                LoadShader(IncisorResonanceShader);
+                LoadShader(ConstellationFieldShader);
+
+                // Eroica — SakurasBlossom shaders
+                LoadShader(SakuraSwingTrailShader);
+                LoadShader(PetalDissolveShader);
+
+                // Eroica — CelestialValor shaders
+                LoadShader(ValorAuraShader);
+
+                // Eroica — BlossomOfTheSakura shaders
+                LoadShader(HeatDistortionShader);
+                LoadShader(TracerTrailShader);
+
+                // Eroica — PiercingLightOfTheSakura shaders
+                LoadShader(CrescendoChargeShader);
+                LoadShader(SakuraLightningTrailShader);
+
+                // Eroica — FuneralPrayer shaders
+                LoadShader(RequiemBeamShader);
+                LoadShader(PrayerConvergenceShader);
+
+                // Eroica — TriumphantFractal shaders
+                LoadShader(SacredGeometryShader);
+
+                // Eroica — FinalityOfTheSakura shaders
+                LoadShader(FateSummonCircleShader);
+                LoadShader(DarkFlameAuraShader);
+
+                // Moonlight Sonata — EternalMoon shaders
+                LoadShader(TidalTrailShader);
+                LoadShader(CrescentBloomShader);
+                LoadShader(LunarPhaseAuraShader);
+
+                // Moonlight Sonata — MoonlightsCalling shaders
+                LoadShader(PrismaticBeamShader);
+                LoadShader(RefractionRippleShader);
+
+                // Moonlight Sonata — ResurrectionOfTheMoon shaders
+                LoadShader(CometTrailShader);
+                LoadShader(SupernovaBlastShader);
+
+                // Moonlight Sonata — StaffOfTheLunarPhases shaders
+                LoadShader(GravitationalRiftShader);
+                LoadShader(SummonCircleShader);
+
+                // Swan Lake — CalloftheBlackSwan shaders
+                LoadShader(DualPolaritySwingShader);
+                LoadShader(SwanFlareTrailShader);
+
+                // Swan Lake — CallofthePearlescentLake shaders
+                LoadShader(PearlescentRocketTrailShader);
+                LoadShader(LakeExplosionShader);
+
+                // Swan Lake — ChromaticSwanSong shaders
+                LoadShader(ChromaticTrailShader);
+                LoadShader(AriaExplosionShader);
+
+                // Swan Lake — FeatheroftheIridescentFlock shaders
+                LoadShader(CrystalOrbitTrailShader);
+                LoadShader(FlockAuraShader);
+
+                // Swan Lake — IridescentWingspan shaders
+                LoadShader(EtherealWingShader);
+                LoadShader(WingspanFlareTrailShader);
+
+                // Swan Lake — TheSwansLament shaders
+                LoadShader(LamentBulletTrailShader);
+                LoadShader(DestructionRevelationShader);
 
                 _shadersEnabled = _shaders.Count > 0;
 
@@ -372,6 +510,111 @@ namespace MagnumOpus.Common.Systems.Shaders
 
         /// <summary>Gets the Terra Blade Flare Beam shader for wave-distorted motion-blur energy beams if available.</summary>
         public static Effect TerraBladeFlareBeam => GetShader(TerraBladeFlareBeamShaderName);
+
+        /// <summary>Gets the Incisor Resonance shader for standing-wave resonance trails with constellation nodes if available.</summary>
+        public static Effect IncisorResonance => GetShader(IncisorResonanceShader);
+
+        /// <summary>Gets the Constellation Field shader for parallax starfield overlays on Incisor of Moonlight.</summary>
+        public static Effect ConstellationField => GetShader(ConstellationFieldShader);
+
+        /// <summary>Gets the Sakura Swing Trail shader for flowing petal-energy melee swing trails on SakurasBlossom.</summary>
+        public static Effect SakuraSwingTrail => GetShader(SakuraSwingTrailShader);
+
+        /// <summary>Gets the Petal Dissolve shader for noise-driven petal-shaped dissolution on Sakura's Blossom spectral copies.</summary>
+        public static Effect PetalDissolve => GetShader(PetalDissolveShader);
+
+        /// <summary>Gets the Valor Aura shader for concentric ember ring aura on Celestial Valor hold phase.</summary>
+        public static Effect ValorAura => GetShader(ValorAuraShader);
+
+        /// <summary>Gets the Heat Distortion shader for barrel heat mirage on Blossom of the Sakura.</summary>
+        public static Effect HeatDistortion => GetShader(HeatDistortionShader);
+
+        /// <summary>Gets the Tracer Trail shader for heat-reactive bullet trails on Blossom of the Sakura.</summary>
+        public static Effect TracerTrail => GetShader(TracerTrailShader);
+
+        /// <summary>Gets the Crescendo Charge shader for orbiting charge indicator on Piercing Light of the Sakura.</summary>
+        public static Effect CrescendoCharge => GetShader(CrescendoChargeShader);
+
+        /// <summary>Gets the Sakura Lightning Trail shader for zigzag lightning bolt trails on Piercing Light of the Sakura.</summary>
+        public static Effect SakuraLightningTrail => GetShader(SakuraLightningTrailShader);
+
+        /// <summary>Gets the Requiem Beam shader for electric tracking beam body on Funeral Prayer.</summary>
+        public static Effect RequiemBeam => GetShader(RequiemBeamShader);
+
+        /// <summary>Gets the Prayer Convergence shader for 5-beam convergence burst on Funeral Prayer.</summary>
+        public static Effect PrayerConvergence => GetShader(PrayerConvergenceShader);
+
+        /// <summary>Gets the Sacred Geometry shader for hexagram burst on Triumphant Fractal cast/impact.</summary>
+        public static Effect SacredGeometry => GetShader(SacredGeometryShader);
+
+        /// <summary>Gets the Fate Summon Circle shader for dark summoning ritual on Finality of the Sakura.</summary>
+        public static Effect FateSummonCircle => GetShader(FateSummonCircleShader);
+
+        /// <summary>Gets the Dark Flame Aura shader for inverted dark fire halo on Finality minion.</summary>
+        public static Effect DarkFlameAura => GetShader(DarkFlameAuraShader);
+
+        /// <summary>Gets the Tidal Trail shader for flowing water-like trail effects on EternalMoon.</summary>
+        public static Effect TidalTrail => GetShader(TidalTrailShader);
+
+        /// <summary>Gets the Crescent Bloom shader for procedural crescent moon bloom overlays on EternalMoon.</summary>
+        public static Effect CrescentBloom => GetShader(CrescentBloomShader);
+
+        /// <summary>Gets the Lunar Phase Aura shader for expanding concentric ring auras on EternalMoon.</summary>
+        public static Effect LunarPhaseAura => GetShader(LunarPhaseAuraShader);
+
+        /// <summary>Gets the Prismatic Beam shader for spectral color-splitting beam trails on MoonlightsCalling.</summary>
+        public static Effect PrismaticBeam => GetShader(PrismaticBeamShader);
+
+        /// <summary>Gets the Refraction Ripple shader for prismatic expanding ring effects on MoonlightsCalling bounces.</summary>
+        public static Effect RefractionRipple => GetShader(RefractionRippleShader);
+
+        /// <summary>Gets the Comet Trail shader for burning ember tail trails on Resurrection of the Moon.</summary>
+        public static Effect CometTrail => GetShader(CometTrailShader);
+
+        /// <summary>Gets the Supernova Blast shader for radial crater explosions on Resurrection of the Moon.</summary>
+        public static Effect SupernovaBlast => GetShader(SupernovaBlastShader);
+
+        /// <summary>Gets the Gravitational Rift shader for spiral gravity well distortion on Staff of the Lunar Phases.</summary>
+        public static Effect GravitationalRift => GetShader(GravitationalRiftShader);
+
+        /// <summary>Gets the Summon Circle shader for rotating lunar phase sigil on Staff of the Lunar Phases.</summary>
+        public static Effect SummonCircle => GetShader(SummonCircleShader);
+
+        /// <summary>Gets the Dual Polarity Swing shader for black/white melee trail on Call of the Black Swan.</summary>
+        public static Effect DualPolaritySwing => GetShader(DualPolaritySwingShader);
+
+        /// <summary>Gets the Swan Flare Trail shader for homing flare projectile trails on Call of the Black Swan.</summary>
+        public static Effect SwanFlareTrail => GetShader(SwanFlareTrailShader);
+
+        /// <summary>Gets the Pearlescent Rocket Trail shader for opal-shimmer projectile trails on Call of the Pearlescent Lake.</summary>
+        public static Effect PearlescentRocketTrail => GetShader(PearlescentRocketTrailShader);
+
+        /// <summary>Gets the Lake Explosion shader for concentric water-ripple explosions on Call of the Pearlescent Lake.</summary>
+        public static Effect LakeExplosion => GetShader(LakeExplosionShader);
+
+        /// <summary>Gets the Chromatic Trail shader for rainbow-banded projectile trails on Chromatic Swan Song.</summary>
+        public static Effect ChromaticTrail => GetShader(ChromaticTrailShader);
+
+        /// <summary>Gets the Aria Explosion shader for full-spectrum prismatic detonation on Chromatic Swan Song.</summary>
+        public static Effect AriaExplosion => GetShader(AriaExplosionShader);
+
+        /// <summary>Gets the Crystal Orbit Trail shader for faceted prismatic orbit trails on Feather of the Iridescent Flock.</summary>
+        public static Effect CrystalOrbitTrail => GetShader(CrystalOrbitTrailShader);
+
+        /// <summary>Gets the Flock Aura shader for concentric prismatic formation aura on Feather of the Iridescent Flock.</summary>
+        public static Effect FlockAura => GetShader(FlockAuraShader);
+
+        /// <summary>Gets the Ethereal Wing shader for procedural wing silhouette overlay on Iridescent Wingspan.</summary>
+        public static Effect EtherealWing => GetShader(EtherealWingShader);
+
+        /// <summary>Gets the Wingspan Flare Trail shader for feather-dissolve homing trails on Iridescent Wingspan.</summary>
+        public static Effect WingspanFlareTrail => GetShader(WingspanFlareTrailShader);
+
+        /// <summary>Gets the Lament Bullet Trail shader for muted sorrowful bullet trails on The Swan's Lament.</summary>
+        public static Effect LamentBulletTrail => GetShader(LamentBulletTrailShader);
+
+        /// <summary>Gets the Destruction Revelation shader for monochrome-to-prismatic explosion on The Swan's Lament.</summary>
+        public static Effect DestructionRevelation => GetShader(DestructionRevelationShader);
 
         // =====================================================================
         //  Texture Accessors

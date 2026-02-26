@@ -9,6 +9,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Content.Eroica.Minions;
 using MagnumOpus.Common;
+using System.Collections.Generic;
 
 namespace MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura
 {
@@ -63,21 +64,14 @@ namespace MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura
             FinalityOfTheSakuraVFX.HoldItemVFX(player);
         }
 
-        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "MinionInfo", "Summons a Sakura of Fate to fight for you")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons a Sakura of Fate — a spectral guardian of black flame"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "The Sakura fires rapid streams of dark scarlet fire at nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Flames occasionally spawn seeking crystals that chain to nearby foes"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The last petal falls — and with it, the world remembers what it meant to bloom'")
             {
-                OverrideColor = EroicaPalette.Sakura
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "FlameInfo", "The Sakura fires black and scarlet flames at enemies")
-            {
-                OverrideColor = EroicaPalette.BladeCrimson
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "FateInfo", "'A final blossom before eternal night'")
-            {
-                OverrideColor = new Color(100, 100, 100)
+                OverrideColor = new Color(200, 50, 50)
             });
         }
     }

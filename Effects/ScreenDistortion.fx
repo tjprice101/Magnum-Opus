@@ -1,19 +1,19 @@
 // =============================================================================
-// MagnumOpus Screen Distortion Shader  —  PS 2.0 Compatible
+// MagnumOpus Screen Distortion Shader   E PS 2.0 Compatible
 // =============================================================================
 // Three screen-space post-process techniques for impacts, heat, and aberration.
 // Designed for tModLoader's Filters.Scene system (ScreenShaderData).
 //
 // Techniques:
-//   RippleTechnique   – Expanding radial sine-wave ring  (impacts, shockwaves)
-//   HeatHazeTechnique – Vertical shimmer distortion      (fire, explosions)
-//   ChromaticTechnique – RGB channel separation           (powerful hits, tears)
+//   RippleTechnique    EExpanding radial sine-wave ring  (impacts, shockwaves)
+//   HeatHazeTechnique  EVertical shimmer distortion      (fire, explosions)
+//   ChromaticTechnique  ERGB channel separation           (powerful hits, tears)
 //
 // Compile:
 //   fxc.exe /T fx_2_0 /O2 /Fo Effects/ScreenDistortion.fxc Effects/ScreenDistortion.fx
 // =============================================================================
 
-// Scene render target — provided automatically by Filters.Scene
+// Scene render target  Eprovided automatically by Filters.Scene
 sampler uImage0 : register(s0);
 
 // ---- Standard ScreenShaderData parameters ----
@@ -27,9 +27,9 @@ float  uOpacity;         // Master opacity (reserved)
 
 
 // =============================================================================
-//  RIPPLE  –  Expanding radial sine-wave ring
+//  RIPPLE   E Expanding radial sine-wave ring
 // =============================================================================
-//  uProgress drives ring expansion (0 → centre, 1 → fully expanded).
+//  uProgress drives ring expansion (0 ↁEcentre, 1 ↁEfully expanded).
 //  uIntensity scales displacement amplitude.
 //  Good for impacts, shockwaves, and the "TriggerRipple" / "TriggerPulse" paths.
 // =============================================================================
@@ -39,7 +39,7 @@ float4 RipplePS(float4 color : COLOR0, float2 uv : TEXCOORD0) : COLOR0
     float2 toCenter = uv - uTargetPosition;
     float  dist     = length(toCenter);
 
-    // Ring geometry — expands with progress, thickens slightly
+    // Ring geometry  Eexpands with progress, thickens slightly
     float ringRadius = uProgress * 0.6;
     float ringWidth  = 0.06 + uProgress * 0.04;
     float ringDist   = abs(dist - ringRadius);
@@ -65,7 +65,7 @@ float4 RipplePS(float4 color : COLOR0, float2 uv : TEXCOORD0) : COLOR0
 
 
 // =============================================================================
-//  HEAT HAZE  –  Vertical shimmer distortion
+//  HEAT HAZE   E Vertical shimmer distortion
 // =============================================================================
 //  Single-octave procedural shimmer from 2 sin() calls (2 sincos = 16 slots).
 //  No secondary texture sampler needed.
@@ -79,15 +79,15 @@ float4 HeatHazePS(float4 color : COLOR0, float2 uv : TEXCOORD0) : COLOR0
     float2 toCenter = uv - uTargetPosition;
     float  dist     = length(toCenter);
 
-    // Radial falloff (radius ≈ 0.3), fades with progress
+    // Radial falloff (radius ≁E0.3), fades with progress
     float fade = saturate(1.0 - dist * 3.33);
     fade *= fade * saturate(1.0 - uProgress);
 
-    // Single-octave sin interference — 2 sin calls = 16 slots
+    // Single-octave sin interference  E2 sin calls = 16 slots
     float noise = sin(uv.x * 30.0 + uTime * 3.0)
                 * sin(uv.y * 35.0 + uTime * 2.0);
 
-    // Displacement — primarily vertical (heat rises)
+    // Displacement  Eprimarily vertical (heat rises)
     float strength = uIntensity * fade;
     float2 disp;
     disp.x = noise * 0.008 * strength;
@@ -98,11 +98,11 @@ float4 HeatHazePS(float4 color : COLOR0, float2 uv : TEXCOORD0) : COLOR0
 
 
 // =============================================================================
-//  CHROMATIC  –  RGB channel separation
+//  CHROMATIC   E RGB channel separation
 // =============================================================================
 //  Radial chromatic aberration centred on uTargetPosition.
 //  Good for "TriggerShatter", "TriggerTear", and "TriggerChromaticBurst".
-//  3 tex2D reads — reuse center sample for G and A channels.
+//  3 tex2D reads  Ereuse center sample for G and A channels.
 //
 //  Instruction budget: ~25 arithmetic  (limit 64)
 // =============================================================================
@@ -116,7 +116,7 @@ float4 ChromaticPS(float4 color : COLOR0, float2 uv : TEXCOORD0) : COLOR0
     float fade = saturate(1.0 - dist * 1.5)
                * saturate(1.0 - uProgress);
 
-    // Offset direction — avoid normalize (saves div + branch)
+    // Offset direction  Eavoid normalize (saves div + branch)
     float2 offset = toCenter * (fade * uIntensity * 0.015 / (dist + 0.001));
 
     // 3 tex2D reads: red-shifted, center (green + alpha), blue-shifted
@@ -129,7 +129,7 @@ float4 ChromaticPS(float4 color : COLOR0, float2 uv : TEXCOORD0) : COLOR0
 
 
 // =============================================================================
-//  TECHNIQUES — one per distortion type
+//  TECHNIQUES  Eone per distortion type
 // =============================================================================
 
 technique RippleTechnique

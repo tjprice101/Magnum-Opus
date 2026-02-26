@@ -7,7 +7,7 @@
 // Samples the center pixel plus 4 cardinal neighbors, averages them,
 // finds the darkest channel, and brightens toward white based on intensity.
 //
-// Only 5 texture samples — well within ps_2_0 instruction limits.
+// Only 5 texture samples  Ewell within ps_2_0 instruction limits.
 // =============================================================================
 
 // Metaball render target (auto-bound by SpriteBatch to slot 0)
@@ -49,7 +49,7 @@ float4 AdditiveMetaballPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0
     // Average samples (divisor 4.7 from original for softer blending)
     float4 color = (center + right + left + up + down) / 4.7;
 
-    // Find darkest channel — indicates how far from white
+    // Find darkest channel  Eindicates how far from white
     float lowestChannel = min(color.r, min(color.g, color.b));
 
     // Push toward white based on how dark the darkest channel is

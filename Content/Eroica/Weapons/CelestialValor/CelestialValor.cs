@@ -9,13 +9,20 @@ using Terraria.GameContent;
 using MagnumOpus.Common;
 using MagnumOpus.Common.BaseClasses;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.Particles.Particle;
 
 namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 {
     /// <summary>
-    /// Celestial Valor — Eroica-themed endgame melee weapon.
-    /// A blade forged from the valor of countless heroes, using held-projectile combo architecture.
-    /// 3-hit escalating combo that fires increasing numbers of heroic projectiles.
+    /// Celestial Valor — "The Hero's Burning Oath"
+    /// 
+    /// An Eroica-themed endgame melee greatsword forged from the crystallized
+    /// valor of countless fallen heroes. Uses a held-projectile combo system
+    /// with a 3-hit escalating combo that crescendos from whisper to war cry.
+    /// 
+    /// Ambient VFX: When held, the blade radiates a heroic aura of scarlet
+    /// embers and gold sparks, with drifting sakura petals and occasional
+    /// music notes that float upward like prayers.
     /// </summary>
     public class CelestialValor : MeleeSwingItemBase
     {
@@ -48,19 +55,22 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
         protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "HeroicCombo",
-                "Escalating 3-hit combo fires heroic projectiles")
+                "Escalating 3-hit combo launches heroic energy slashes")
             { OverrideColor = EroicaPalette.Flame });
             tooltips.Add(new TooltipLine(Mod, "ValorCrystals",
                 "Critical strikes unleash seeking valor crystals")
             { OverrideColor = EroicaPalette.Gold });
+            tooltips.Add(new TooltipLine(Mod, "AOEBurst",
+                "Projectiles detonate in fiery explosions that chain to nearby enemies")
+            { OverrideColor = EroicaPalette.Scarlet });
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'A blade forged from the valor of countless heroes'")
+                "'Each swing carries the final words of heroes who fell with their oath unbroken'")
             { OverrideColor = GetLoreColor() });
         }
 
         #endregion
 
-        #region ── HoldItem — Ambient VFX ──
+        #region ── HoldItem — Enhanced Ambient VFX ──
 
         public override void HoldItem(Player player)
         {
@@ -68,37 +78,49 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 
             if (Main.gameMenu) return;
 
-            // Heroic aura — pulsing ring of rising embers
-            EroicaVFXLibrary.SpawnHeroicAura(player.Center, 40f);
+            // ── Heroic aura — pulsing ring of rising embers ──
+            EroicaVFXLibrary.SpawnHeroicAura(player.Center, 42f);
 
-            // Ambient music notes — scarlet/gold hue band
-            if (Main.rand.NextBool(12))
+            // ── Ambient music notes — heroic scarlet/gold hue band ──
+            if (Main.rand.NextBool(10))
             {
-                EroicaVFXLibrary.SpawnMusicNotes(player.Center, 1, 20f);
+                EroicaVFXLibrary.SpawnMusicNotes(player.Center, 1, 22f);
             }
 
-            // Sakura petal drift
-            if (Main.rand.NextBool(25))
+            // ── Sakura petal drift — gentle courage petals ──
+            if (Main.rand.NextBool(20))
             {
-                EroicaVFXLibrary.SpawnSakuraPetals(player.Center, 1, 30f);
+                EroicaVFXLibrary.SpawnSakuraPetals(player.Center, 1, 32f);
             }
 
-            // Valor sparkles
-            if (Main.rand.NextBool(18))
+            // ── Valor sparkles — golden motes drifting upward ──
+            if (Main.rand.NextBool(14))
             {
-                EroicaVFXLibrary.SpawnValorSparkles(player.Center + Main.rand.NextVector2Circular(25f, 25f), 1, 10f);
+                Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(28f, 28f);
+                EroicaVFXLibrary.SpawnValorSparkles(sparklePos, 1, 12f);
             }
 
-            // Pulsing heroic light — crimson to gold
+            // ── GlowSpark particles — ambient heroic fire motes ──
+            if (Main.rand.NextBool(16))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(30f, 30f);
+                Vector2 vel = Vector2.UnitY * -Main.rand.NextFloat(0.5f, 1.5f);
+                Color sparkColor = Color.Lerp(EroicaPalette.Scarlet, EroicaPalette.Gold, Main.rand.NextFloat());
+                var spark = new GlowSparkParticle(player.Center + offset, vel,
+                    sparkColor, Main.rand.NextFloat(0.2f, 0.4f), Main.rand.Next(20, 35));
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+
+            // ── Pulsing heroic light — crimson ↔ gold oscillation ──
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.15f + 0.55f;
             Color lightColor = Color.Lerp(EroicaPalette.BladeCrimson, EroicaPalette.Gold,
                 (float)Math.Sin(Main.GameUpdateCount * 0.03f) * 0.5f + 0.5f);
-            Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse * 0.6f);
+            Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse * 0.65f);
         }
 
         #endregion
 
-        #region ── PreDrawInWorld — Item Glow ──
+        #region ── PreDrawInWorld — Enhanced Item Glow ──
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor,
             ref float rotation, ref float scale, int whoAmI)
@@ -109,6 +131,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 1f;
 
+            // Additive bloom pass
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
@@ -119,7 +142,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            Lighting.AddLight(Item.Center, EroicaPalette.Gold.ToVector3() * 0.5f);
+            // Warm heroic light at item position
+            Lighting.AddLight(Item.Center, EroicaPalette.Gold.ToVector3() * 0.55f);
 
             return true;
         }

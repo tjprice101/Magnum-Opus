@@ -47,13 +47,16 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
         protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "SakuraCombo",
-                "4-phase sakura combo spawns escalating spectral copies")
+                "4-phase sakura combo spawns escalating spectral blade copies")
             { OverrideColor = EroicaPalette.Sakura });
+            tooltips.Add(new TooltipLine(Mod, "Spectral",
+                "Spectral copies home to enemies and scatter petal bursts on impact")
+            { OverrideColor = new Color(255, 180, 200) });
             tooltips.Add(new TooltipLine(Mod, "SeekingCrystals",
                 "Hits have a chance to unleash seeking valor crystals")
             { OverrideColor = EroicaPalette.Gold });
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'Petals fall, heroes rise'")
+                "'Each petal carries the memory of a hero who chose beauty over survival'")
             { OverrideColor = GetLoreColor() });
         }
 

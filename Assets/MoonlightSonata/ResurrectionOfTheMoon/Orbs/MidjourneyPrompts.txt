@@ -1,0 +1,80 @@
+================================================================================
+  RESURRECTION OF THE MOON -- ORB ASSETS
+  Midjourney Prompt Reference
+================================================================================
+
+PURPOSE:
+  Circular soft-glow textures used for glowing energy orbs, impact shockwave
+  rings, radial aura fields, ember cloud volumes, and bullet core sprites.
+  These are drawn as additive or alpha-blended sprites and are often scaled,
+  rotated, and tinted dynamically in the shader/draw code.
+
+USAGE IN MOD:
+  - Comet projectile core glow (drawn behind the projectile sprite)
+  - Impact shockwave ring expanding from hit point
+  - Residual crater glow lingering after impact
+  - Ember cloud volume (multiple orbs overlaid with slight offset + rotation)
+  - Resurrection resurrection pulse ring
+  - Soft ambient glow behind the weapon when held
+
+FORMAT REQUIREMENTS:
+  - 32x32, 64x64, or 128x128 PNG depending on use case
+  - Pure black (#000000) background for additive-blend orbs
+  - OR transparent background for alpha-blend orbs (noted per prompt)
+  - Perfectly centered; the visual center of mass must be at exact center pixel
+  - Smooth radial falloff from center to edges -- no hard outlines
+  - sRGB color space, 8-bit per channel
+
+COLOR PALETTE:
+  Deep Space Violet ........... RGB(50, 20, 100)
+  Impact Crater Indigo ........ RGB(100, 80, 200)
+  Comet Trail Lavender ........ RGB(180, 120, 255)
+  Lunar Shine Blue ............ RGB(120, 190, 255)
+  Comet Core Pale Blue ........ RGB(210, 225, 255)
+  Blue-White Impact ........... RGB(235, 240, 255)
+
+================================================================================
+  PROMPT 1 -- Burning Comet Core Orb (Projectile Center Glow)
+================================================================================
+
+A single perfectly circular glowing energy orb centered on a pure black background, intensely bright blue-white core RGB(235,240,255) at the exact center with a tight concentrated bright spot occupying roughly 15% of the total diameter, the core radiates outward through comet core pale blue RGB(210,225,255) into a vivid lunar shine blue RGB(120,190,255) mid-field halo, the outer glow transitions through comet trail lavender RGB(180,120,255) and fades through impact crater indigo RGB(100,80,200) into deep space violet RGB(50,20,100) at the outermost visible edge before disappearing into pure black, within the blue-lavender zone there are very subtle wispy flame-like tendrils suggesting burning comet atmosphere, the overall shape is spherical with very slight organic irregularity at the outer halo edge, smooth feathered falloff, no sharp boundaries anywhere, looks like a burning celestial body viewed from space, VFX game texture asset for additive blending --ar 1:1 --v 6.1 --style raw --s 200 --q 2 --no text, watermark, face, planet surface, craters, background scene
+
+================================================================================
+  PROMPT 2 -- Impact Shockwave Ring (Expanding Hit Ring)
+================================================================================
+
+A circular shockwave ring on pure black background, a visible ring shape with a dark hollow center, the ring itself glows with lunar shine blue RGB(120,190,255) on its inner edge brightening to blue-white RGB(235,240,255) at the peak intensity mid-ring, the outer edge of the ring fades through comet trail lavender RGB(180,120,255) to impact crater indigo RGB(100,80,200), the ring occupies roughly 60-80% of the frame diameter with the hollow center being about 40% of the frame, the ring has subtle radial distortion texture suggesting a pressure wave expanding outward, faint secondary ripple ring at about 90% of frame diameter in deep space violet RGB(50,20,100), tiny bright debris particle dots scattered along the ring in pale blue RGB(210,225,255), the center of the ring is pure black, all edges feather smoothly to pure black background, perfect center registration, game VFX shockwave texture for additive blending --ar 1:1 --v 6.1 --style raw --s 200 --q 2 --no text, watermark, ground, character, 3D scene
+
+================================================================================
+  PROMPT 3 -- Crater Glow Circle (Residual Ground Glow)
+================================================================================
+
+A soft diffuse circular glow on pure black background, resembling the lingering energy glow from a meteor impact crater viewed from above, the center has a cool comet core pale blue RGB(210,225,255) glow that is less intense than a core orb more diffuse and spread out, the glow transitions through lunar shine blue RGB(120,190,255) to comet trail lavender RGB(180,120,255) across a wide soft radius, the outermost visible edge blends through impact crater indigo RGB(100,80,200) into deep space violet RGB(50,20,100), the interior has subtle darker veins and cracks suggesting a cooling impact crater surface giving it texture rather than being a perfectly smooth gradient, very faint ember-like bright spots scattered randomly within the glow suggesting residual impact energy, overall much softer and more diffuse than a sharp orb, occupies about 85% of the frame with gentle fade to black borders, game VFX texture for ground impact residual glow --ar 1:1 --v 6.1 --style raw --s 250 --q 2 --no text, watermark, landscape, terrain, rocks, 3D rendering
+
+================================================================================
+  PROMPT 4 -- Ember Cloud Orb (Volumetric Smoke-Glow Sprite)
+================================================================================
+
+A soft amorphous cloudy glow orb on pure black background, resembling a small cloud of glowing embers and luminous smoke, not perfectly circular but organic and cloud-like with irregular wispy edges, the interior is lit with lunar shine blue RGB(120,190,255) and comet trail lavender RGB(180,120,255) mixed together in a swirling turbulent pattern, tiny bright pinpoint sparks within the cloud in comet core pale blue RGB(210,225,255) suggesting bright ember particles embedded in smoke, the cloud edges are translucent and wispy fading through impact crater indigo RGB(100,80,200) and deep space violet RGB(50,20,100) into black, there is a sense of depth and volume with lighter and darker regions within the cloud, the texture should look good when multiple copies are overlaid with slight offsets and different rotations to create a larger ember field, soft edges everywhere no sharp boundaries, game VFX particle texture for additive or premultiplied alpha blending --ar 1:1 --v 6.1 --style raw --s 250 --q 2 --no text, watermark, character, background, sky
+
+================================================================================
+  PROMPT 5 -- Feathered Soft Glow 64px (General Purpose Soft Light)
+================================================================================
+
+An extremely simple perfectly circular feathered soft glow on pure black background, a single smooth radial gradient from bright comet trail lavender RGB(180,120,255) at the center fading to pure black at the edges, the glow is perfectly uniform with no texture no noise no variation, just a pure mathematically smooth circular gradient, the bright center occupies about 10% of the diameter then falls off in a smooth bell curve to black, extremely clean and minimal, this is a utility texture that will be tinted to various colors in the game engine, the glow should reach about 80% of the frame before becoming imperceptible, perfectly centered, game VFX utility glow texture, suitable for 64x64 final resolution --ar 1:1 --v 6.1 --style raw --s 50 --q 2 --no text, watermark, flare, spikes, rays, texture, noise
+
+================================================================================
+  POST-GENERATION NOTES:
+  - Export Prompt 1 (Comet Core) at 128x128 -- this is the primary projectile glow
+  - Export Prompt 2 (Shockwave Ring) at 128x128 -- will be scaled up in-engine
+  - Export Prompt 3 (Crater Glow) at 128x128 -- drawn at ground level under impacts
+  - Export Prompt 4 (Ember Cloud) at 64x64 -- spawned many times, keep filesize small
+  - Export Prompt 5 (Soft Glow) at 64x64 -- general utility, keep extremely clean
+  - Verify all have pure black corners (#000000 exactly, not RGB(1,1,1) or similar)
+  - For Prompt 2 (Shockwave Ring): the center hollow must be true black so it
+    reads as a ring not a disc when drawn additively
+  - For Prompt 4 (Ember Cloud): test overlapping 4-6 copies at different rotations
+    to ensure the combined result looks like a coherent ember field
+  - Consider generating a PMA (premultiplied alpha) variant of Prompt 4 for
+    alpha-blended rendering contexts
+================================================================================

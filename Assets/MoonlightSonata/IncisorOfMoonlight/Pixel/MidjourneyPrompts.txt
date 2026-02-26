@@ -1,0 +1,93 @@
+================================================================================
+ INCISOR OF MOONLIGHT — PIXEL PARTICLE TEXTURES
+ Midjourney Prompt Reference
+================================================================================
+
+PURPOSE:
+  Very small pixel-art particle sprites used for the custom dust types in the
+  Incisor of Moonlight VFX system. These are the visual representation of:
+
+  - StarPointDust: Tiny 4-pointed star sparkles spawned along the blade edge,
+    at standing-wave antinodes, during impact bursts, and in the Phase 3
+    constellation starburst. Drawn at scales 0.2-0.6 with rotation and twinkle.
+  - LunarMote: Crescent-shaped motes that orbit the player and blade tip.
+    Drawn at scales 0.25-0.5 with orbital motion behavior.
+  - ResonantPulseDust: Expanding ring particles for frequency shockwaves.
+    Drawn at scales 0.15-0.3 with expansion animation.
+  - General crystal shards and tuning-fork sparks from DustID types.
+
+  These are rendered by Terraria's dust system at very small screen sizes
+  (typically 4-16 pixels on screen), so they must read clearly at tiny scales.
+
+TECHNICAL REQUIREMENTS:
+  - Dimensions: 8x8, 12x12, 16x16, or 32x32 maximum
+  - Art style: Clean pixel art with sharp edges, NO anti-aliasing
+  - Background: Transparent (alpha channel)
+  - Every pixel must be deliberate — at this scale each pixel matters
+  - Must read as intended shape at 100% zoom in Terraria (very small)
+  - Colors should be built from the palette but can include full brights
+  - These spin, so design should look good at any rotation angle
+
+COLOR PALETTE (Incisor of Moonlight — "The Stellar Scalpel"):
+  Deep Resonance Purple:  RGB(90, 50, 160)   — #5A32A0
+  Frequency Pulse Lavender: RGB(170, 140, 255) — #AA8CFF
+  Resonant Silver:        RGB(230, 235, 255)  — #E6EBFF
+  Ice Blue Clarity:       RGB(135, 206, 250)  — #87CEFA
+  Crystal Edge:           RGB(220, 230, 255)  — #DCE6FF
+  Harmonic White:         RGB(235, 240, 255)  — #EBEFFF
+
+VISUAL THEME:
+  "Constellation precision — surgical nodes, crystalline cuts, tuning fork
+  strikes, star-map geometry."
+
+================================================================================
+ PROMPT 1 — 4-Pointed Star Sparkle (StarPointDust)
+================================================================================
+
+A tiny pixel art 4-pointed star sparkle sprite on transparent background, exactly 16x16 pixels, clean sharp pixel art style with zero anti-aliasing, the star has 4 pointed tips extending to near the edges at cardinal directions north south east west, the absolute center pixel is pure harmonic white RGB(235,240,255), the inner 3x3 area is bright crystal edge RGB(220,230,255), each of the 4 points tapers from resonant silver RGB(230,235,255) at the base to ice blue clarity RGB(135,206,250) at the tip, each point is exactly 1 pixel wide at its tip and 3 pixels wide where it meets the center creating precise diamond-shaped points, the diagonal pixels between points are transparent creating a clean cross-star silhouette, the overall impression is a tiny precise astronomical star marker used on star charts, every single pixel is deliberately placed with surgical precision, retro pixel art game particle asset, no blur no smoothing no anti-aliasing, hard pixel edges only --ar 1:1 --v 6.1 --style raw --s 250 --no blur smooth antialiasing gradient soft glow realistic 3d
+
+================================================================================
+ PROMPT 2 — Crescent Mote (LunarMote)
+================================================================================
+
+A tiny pixel art crescent moon shape sprite on transparent background, exactly 12x12 pixels, clean deliberate pixel art with hard edges and no anti-aliasing, the crescent is a thin curved sliver opening to the right side, approximately 3 pixels wide at its thickest point in the center tapering to single-pixel points at both tips, the outer edge of the crescent is bright harmonic white RGB(235,240,255) creating a sharp bright rim, the inner body of the crescent transitions from crystal edge RGB(220,230,255) to frequency pulse lavender RGB(170,140,255), there is a single pixel of deep resonance purple RGB(90,50,160) at the inner curve shadow side, the crescent should occupy roughly 60% of the canvas with the rest transparent, the shape suggests a tiny sliver of moon or a curved surgical blade fragment, crisp clean pixel art game particle, every pixel intentional, no smoothing no blur --ar 1:1 --v 6.1 --style raw --s 250 --no blur smooth antialiasing gradient soft glow realistic 3d organic
+
+================================================================================
+ PROMPT 3 — Crystal Shard Fragment (Impact Particle)
+================================================================================
+
+A tiny pixel art crystal shard sprite on transparent background, exactly 8x8 pixels, an elongated diamond or rhombus shape tilted at approximately 30 degrees, 6 pixels tall and 3 pixels wide at its widest, the top tip pixel is pure harmonic white RGB(235,240,255), the upper third is resonant silver RGB(230,235,255), the middle section is ice blue clarity RGB(135,206,250), the lower portion transitions to frequency pulse lavender RGB(170,140,255), the bottom tip pixel is deep resonance purple RGB(90,50,160), one side of the shard has a single-pixel highlight edge in crystal edge RGB(220,230,255) suggesting a light-catching facet, the shape is angular and geometric like a fragment broken from a larger crystalline structure, absolutely no curves no anti-aliasing every pixel sharp and deliberate, minimalist pixel art game particle at the smallest functional scale, 8x8 pixels --ar 1:1 --v 6.1 --style raw --s 250 --no blur smooth antialiasing gradient soft glow realistic 3d organic round
+
+================================================================================
+ PROMPT 4 — Tuning Fork Spark (Resonance Spark Particle)
+================================================================================
+
+A tiny pixel art tuning fork spark sprite on transparent background, exactly 16x16 pixels, the shape is a Y-form or tuning-fork silhouette standing vertically, two parallel prongs of 2 pixels each extending upward for 5 pixels separated by a 2-pixel gap, joined at a 3-pixel-wide base that extends downward for 3 pixels as the handle, the prong tips are bright harmonic white RGB(235,240,255), the prong bodies are resonant silver RGB(230,235,255), the junction where prongs meet handle is ice blue clarity RGB(135,206,250), the handle transitions through frequency pulse lavender RGB(170,140,255) to deep resonance purple RGB(90,50,160) at its base, between the two prongs at the midpoint is a single bright pixel of crystal edge RGB(220,230,255) suggesting a resonance energy point, clean hard pixel art with zero anti-aliasing, reads as a tiny tuning fork icon, game VFX particle sprite --ar 1:1 --v 6.1 --style raw --s 250 --no blur smooth antialiasing gradient soft glow realistic 3d organic
+
+================================================================================
+ PROMPT 5 — Constellation Dot Cluster (Multi-Star Particle)
+================================================================================
+
+A tiny pixel art constellation pattern sprite on transparent background, exactly 16x16 pixels, featuring 4-5 bright single-pixel dots arranged in an asymmetric constellation pattern reminiscent of a small star grouping, each dot is a single bright pixel of harmonic white RGB(235,240,255), connected by single-pixel-thin lines of resonant silver RGB(230,235,255) at 60% opacity suggesting constellation connection lines, the dots are NOT evenly spaced but placed in an organic astronomical pattern suggesting a real star constellation fragment, 2-3 of the dots have a single adjacent pixel of ice blue clarity RGB(135,206,250) suggesting a tiny glow around brighter stars, one dot is slightly larger at 2x2 pixels to serve as the primary star of the constellation in frequency pulse lavender RGB(170,140,255), the background is fully transparent, the overall pattern fits within the central 12x12 area of the 16x16 canvas, retro pixel art game particle for constellation trail rendering, every pixel deliberate --ar 1:1 --v 6.1 --style raw --s 250 --no blur smooth antialiasing gradient soft glow realistic 3d organic curve
+
+================================================================================
+ POST-PROCESSING NOTES:
+  - CRITICAL: These MUST be actual pixel art at the exact stated dimensions.
+    Midjourney may generate larger images that look like pixel art — you MUST
+    downscale to exact dimensions (8x8, 12x12, 16x16) using Nearest Neighbor
+    resampling (NO bilinear/bicubic interpolation).
+  - Better approach: Use Midjourney outputs as REFERENCE images, then
+    manually recreate the sprites pixel-by-pixel in Aseprite, GraphicsGale,
+    or similar pixel art tool at the target resolution.
+  - Verify zero anti-aliasing: Every pixel should be a solid color with no
+    semi-transparent edge pixels (except the transparent background).
+  - The StarPointDust draws with rotation (RotationSpeed = 0.1-0.2f), so
+    the sprite must look correct at any rotation angle.
+  - The LunarMote uses orbital motion, so test the crescent shape looks
+    good while spinning in a circle.
+  - These are tinted at runtime via dust.color, so bright neutral colors
+    (white, silver) in the sprite get tinted to any palette color.
+  - File size will be extremely small (<1KB per sprite). This is correct.
+  - Consider creating sprite sheets (multiple variants in one texture) for
+    random variation, but the dust system expects single sprites.
+================================================================================

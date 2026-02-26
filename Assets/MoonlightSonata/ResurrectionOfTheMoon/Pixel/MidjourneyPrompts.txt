@@ -1,0 +1,84 @@
+================================================================================
+  RESURRECTION OF THE MOON -- PIXEL PARTICLE ASSETS
+  Midjourney Prompt Reference
+================================================================================
+
+PURPOSE:
+  Tiny pixel-art scale particle textures for individual sparks, debris shards,
+  comet fragment chunks, cinder motes, dust puffs, and micro-embers. These are
+  spawned in large quantities by the particle system and each instance is
+  individually colored, scaled, rotated, and velocity-driven.
+
+USAGE IN MOD:
+  - Ember spark particles flying from comet impact points
+  - Rocky debris shards ejected from crater detonations
+  - Tiny comet fragment pieces breaking off the main projectile in flight
+  - Impact dust motes that linger and float after a hit
+  - Burning cinder particles drifting upward from residual crater glow
+  - Star-like micro-flare particles for the resurrection ultimate burst
+
+FORMAT REQUIREMENTS:
+  - 8x8, 16x16, or 32x32 PNG
+  - Sharp pixel-art edges preferred (point-filtered, not bilinear smoothed)
+  - Black (#000000) background for additive particles
+  - OR transparent background for alpha-blended particles (noted per prompt)
+  - These will be point-sampled in-engine; individual pixel clarity matters
+  - sRGB color space, 8-bit per channel
+
+COLOR PALETTE:
+  Deep Space Violet ........... RGB(50, 20, 100)
+  Impact Crater Indigo ........ RGB(100, 80, 200)
+  Comet Trail Lavender ........ RGB(180, 120, 255)
+  Lunar Shine Blue ............ RGB(120, 190, 255)
+  Comet Core Pale Blue ........ RGB(210, 225, 255)
+  Blue-White Impact ........... RGB(235, 240, 255)
+
+================================================================================
+  PROMPT 1 -- Ember Spark Particle Sheet (Multiple Small Sparks)
+================================================================================
+
+A sprite sheet of tiny ember spark particles arranged in a grid on pure black background, pixel art style, each spark is approximately 8x8 to 12x12 pixels, 16 unique spark designs arranged in a 4x4 grid with clear spacing between each, each spark is a small bright burning point with 2-4 pixel sharp core in blue-white RGB(235,240,255) or comet core pale blue RGB(210,225,255) surrounded by 1-2 pixel glow in lunar shine blue RGB(120,190,255), some sparks are single bright dots, others are tiny 3-pixel streaks suggesting motion, others are small cross or diamond shapes, a few have a single pixel of comet trail lavender RGB(180,120,255) at their tail, all sparks are very small and crisp with hard pixel edges, retro game particle aesthetic, each spark distinct from the others in shape, clear separation between grid cells, game development sprite sheet asset, pixel art, sharp edges, no anti-aliasing, no smooth gradients --ar 1:1 --v 6.1 --style raw --s 100 --q 2 --no text, watermark, large objects, smooth rendering, 3D, blur
+
+================================================================================
+  PROMPT 2 -- Debris Rock Shard Sprites (Impact Chunk Particles)
+================================================================================
+
+A sprite sheet of tiny rocky debris fragments on pure black background, pixel art style, 12 unique small rock chunk designs arranged in a grid, each rock is 10x10 to 16x16 pixels, the rocks are irregular angular broken shard shapes suggesting meteor fragments and crater debris, each rock has a lit face in impact crater indigo RGB(100,80,200) with highlights of comet trail lavender RGB(180,120,255) on top edges suggesting overhead moonlight, shadow faces in deep space violet RGB(50,20,100), some rocks have 1-2 pixel bright spots of lunar shine blue RGB(120,190,255) or comet core pale blue RGB(210,225,255) on their surface suggesting residual energy from the impact, the rocks look like small broken pieces of a celestial body, crisp pixel art rendering with visible individual pixels, hard edges, no anti-aliasing, no smooth gradients, distinct shapes varying from angular shards to rounder pebbles, game sprite sheet --ar 1:1 --v 6.1 --style raw --s 100 --q 2 --no text, watermark, large rocks, landscape, ground, 3D rendering, smooth shading
+
+================================================================================
+  PROMPT 3 -- Comet Fragment Particles (Breaking Projectile Pieces)
+================================================================================
+
+A sprite sheet of small glowing comet fragment particles on pure black background, pixel art style, 12 unique designs in a grid, each fragment is 8x8 to 14x14 pixels, these are tiny pieces of a burning comet with irregular rocky shapes, each fragment has a bright core of 2-3 pixels in blue-white RGB(235,240,255) or comet core pale blue RGB(210,225,255), surrounded by lunar shine blue RGB(120,190,255) body pixels, with a 1-pixel outer edge of comet trail lavender RGB(180,120,255), some fragments have tiny 1-2 pixel trailing tails in impact crater indigo RGB(100,80,200) suggesting they are in motion, the fragments glow and burn unlike the cold debris rocks these are actively incandescent, the shapes are organic and rocky but luminous, pixel art with hard edges and visible individual pixels, each fragment is distinct in shape and glow pattern, game particle sprite sheet asset --ar 1:1 --v 6.1 --style raw --s 100 --q 2 --no text, watermark, large objects, comet, planet, atmosphere, smooth rendering
+
+================================================================================
+  PROMPT 4 -- Dust Mote and Cinder Particles (Ambient Float Particles)
+================================================================================
+
+A sprite sheet of extremely tiny dust motes and floating cinder particles on pure black background, pixel art, 20 unique designs in a 5x4 grid, each particle is only 4x4 to 8x8 pixels, the very smallest particles are single pixels or 2x2 pixel clusters, the dust motes are single pixels or small 2-3 pixel clusters in deep space violet RGB(50,20,100) or impact crater indigo RGB(100,80,200) representing cold lunar dust, the cinder particles are single bright pixels or tiny 2x2 clusters in lunar shine blue RGB(120,190,255) or comet trail lavender RGB(180,120,255) representing tiny bright embers floating upward, a few special particles are tiny 3-pixel crosses or diamonds in comet core pale blue RGB(210,225,255) representing fading sparkles, these are the smallest possible recognizable particles, pure pixel art minimalism, each one subtly different, clear grid spacing, game micro-particle sprite sheet --ar 1:1 --v 6.1 --style raw --s 50 --q 2 --no text, watermark, large objects, smooth rendering, blur, glow effects
+
+================================================================================
+  PROMPT 5 -- Star Burst Micro-Flare Particles (Resurrection Sparkles)
+================================================================================
+
+A sprite sheet of tiny star-shaped and cross-shaped micro-flare particles on pure black background, pixel art style, 16 unique designs in a 4x4 grid, each micro-flare is 8x8 to 16x16 pixels, these are small sharp star burst shapes, four-pointed stars and six-pointed stars and simple cross shapes, each with a bright center pixel of blue-white RGB(235,240,255), the star arms extend 2-4 pixels outward in comet core pale blue RGB(210,225,255) and lunar shine blue RGB(120,190,255), the very tips of the arms fade to comet trail lavender RGB(180,120,255), some designs are symmetric four-point stars, others are asymmetric sparkle shapes, a few are simple plus-sign crosses with bright centers, these read as tiny magical sparkle or twinkle effects, crisp pixel art with absolutely no anti-aliasing or smoothing, each star shape is distinct, hard sharp pixel edges, game VFX sparkle particle sprite sheet --ar 1:1 --v 6.1 --style raw --s 100 --q 2 --no text, watermark, large stars, night sky, space scene, smooth rendering
+
+================================================================================
+  POST-GENERATION NOTES:
+  - CRITICAL: After Midjourney generation, these MUST be manually cleaned up
+    in a pixel art editor (Aseprite, GraphicsGale, or Photoshop with point
+    sampling) because Midjourney does not produce true pixel art
+  - Manually redraw or clean each sprite to be crisp at the target resolution
+  - Use the Midjourney output as a reference/guide for shapes and color placement
+  - Final exports should be individual sprite PNGs cut from the sheet, or keep
+    as a sheet with known grid dimensions for spritesheet sampling
+  - Ember Sparks (#1): cut into individual 8x8 or 12x12 sprites
+  - Debris Rocks (#2): cut into individual 16x16 sprites
+  - Comet Fragments (#3): cut into individual 14x14 sprites
+  - Dust Motes (#4): cut into individual 8x8 sprites (many will be mostly empty)
+  - Star Bursts (#5): cut into individual 16x16 sprites
+  - Ensure all backgrounds are exactly #000000 for additive blending
+  - Test particle spawn rate in-game: embers and dust should be abundant (20-40
+    per impact), fragments medium (5-10 per impact), star bursts sparse (3-5
+    during ultimate only)
+================================================================================

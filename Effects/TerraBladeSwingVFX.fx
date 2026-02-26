@@ -4,14 +4,14 @@
 // Calamity-tier per-weapon shader for the Sandbox Terra Blade swing.
 // Three techniques in a single file for efficient single-load usage:
 //
-//   1. EnergyTrail   – Noise-distorted afterimage energy trail
-//                      (green → cyan gradient, QuadraticBump fade, noise turbulence)
+//   1. EnergyTrail    ENoise-distorted afterimage energy trail
+//                      (green ↁEcyan gradient, QuadraticBump fade, noise turbulence)
 //
-//   2. BladeBloom    – Multi-layer radial bloom with directional bias
+//   2. BladeBloom     EMulti-layer radial bloom with directional bias
 //                      (4-layer falloff emulation in a single pass,
-//                       inner white-hot core → green fringe, sine pulse)
+//                       inner white-hot core ↁEgreen fringe, sine pulse)
 //
-//   3. SlashSmear    – Arc-shaped swing smear overlay
+//   3. SlashSmear     EArc-shaped swing smear overlay
 //                      (angular gradient, noise displacement, sharp edge glow)
 //
 // Uniform naming follows MagnumOpus convention (uColor, uSecondaryColor, etc.)
@@ -43,7 +43,7 @@ float uDirection;                      // Swing direction (-1 or 1)
 // UTILITY
 // =============================================================================
 
-// 0 → 1 → 0  (peak at x = 0.5)
+// 0 ↁE1 ↁE0  (peak at x = 0.5)
 float QuadraticBump(float x)
 {
     return x * (4.0 - x * 4.0);
@@ -82,7 +82,7 @@ float4 EnergyTrailPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : C
     // --- Trail dissipation: older images (higher uProgress) fade more ---
     float trailFade = saturate(1.0 - uProgress * 1.15);
 
-    // --- Color gradient along blade length (pommel → tip) ---
+    // --- Color gradient along blade length (pommel ↁEtip) ---
     float3 energyColor = lerp(uColor, uSecondaryColor, coords.y);
 
     // --- White-hot core in the very centre of the blade ---
@@ -138,7 +138,7 @@ float4 BladeBloomPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : CO
     // Combined glow intensity
     float totalGlow = outerGlow + midGlow + innerGlow + coreGlow;
 
-    // --- Color gradient: green outer → white core ---
+    // --- Color gradient: green outer ↁEwhite core ---
     float3 bloomColor = lerp(uColor, float3(1.0, 1.0, 1.0), coreGlow / max(totalGlow, 0.01));
     bloomColor = lerp(bloomColor, uSecondaryColor, outerGlow * 0.6);
 
@@ -193,7 +193,7 @@ float4 SlashSmearPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : CO
     float noiseBias = lerp(0.0, (noise.r - 0.5) * 0.3, uHasSecondaryTex);
     float displacedWidth = saturate(widthFade + noiseBias);
 
-    // --- Color: green → cyan gradient across the smear arc ---
+    // --- Color: green ↁEcyan gradient across the smear arc ---
     float3 smearColor = lerp(uSecondaryColor, uColor, coords.x * 0.7);
     smearColor = lerp(smearColor, edgeHighlight, leadingEdge * 0.8);
 
@@ -302,7 +302,7 @@ technique EnergyTrail
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 EnergyTrailPS();
+        PixelShader = compile ps_3_0 EnergyTrailPS();
     }
 }
 
@@ -310,7 +310,7 @@ technique BladeBloom
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 BladeBloomPS();
+        PixelShader = compile ps_3_0 BladeBloomPS();
     }
 }
 
@@ -318,7 +318,7 @@ technique SlashSmear
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 SlashSmearPS();
+        PixelShader = compile ps_3_0 SlashSmearPS();
     }
 }
 
@@ -326,6 +326,6 @@ technique ShimmerOverlay
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 ShimmerOverlayPS();
+        PixelShader = compile ps_3_0 ShimmerOverlayPS();
     }
 }

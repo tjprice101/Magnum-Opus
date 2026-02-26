@@ -1,16 +1,16 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
-using Terraria.GameContent;
+using MagnumOpus.Content.Eroica;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
 {
@@ -50,14 +50,17 @@ namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
 
             PiercingLightOfTheSakuraVFX.NormalShotFlash(position, velocity);
 
-            // Every 10th shot fires the special sakura lightning
+            // Every 10th shot fires the special sakura lightning projectile
             if (shotCounter >= 10)
             {
+                // Pass charge progress (1.0 = full crescendo) to projectile via ai[0]
+                float chargeProgress = 1.0f;
                 shotCounter = 0;
 
                 Projectile.NewProjectile(source, position, velocity * 1.2f,
                     ModContent.ProjectileType<PiercingLightOfTheSakuraProjectile>(),
-                    (int)(damage * 2.5f), knockback * 2f, player.whoAmI);
+                    (int)(damage * 2.5f), knockback * 2f, player.whoAmI,
+                    ai0: chargeProgress);
 
                 // Spawn seeking crystals
                 SeekingCrystalHelper.SpawnEroicaCrystals(
@@ -94,7 +97,6 @@ namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
 
         public override void HoldItem(Player player)
         {
-            float chargeProgress = shotCounter / 9f;
             Vector2 gunTip = player.Center + new Vector2(45f * player.direction, -3f);
             PiercingLightOfTheSakuraVFX.ChargeOrbitVFX(gunTip, shotCounter, Main.GameUpdateCount * 0.04f);
             PiercingLightOfTheSakuraVFX.HoldItemVFX(player, shotCounter);
@@ -107,11 +109,13 @@ namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
             return true;
         }
 
-        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "EroicaWeapon", "The light of fallen heroes guides each shot")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Every 10th shot builds to a piercing crescendo burst"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Crescendo shots detonate into sakura lightning and seeking crystals"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Nine notes of sorrow, one chord of blazing triumph'")
             {
-                OverrideColor = EroicaPalette.OrangeGold
+                OverrideColor = new Color(200, 50, 50)
             });
         }
     }

@@ -1,0 +1,64 @@
+================================================================================
+  ETERNAL MOON — ORB TEXTURES
+  Midjourney Prompt Reference
+================================================================================
+
+PURPOSE:
+  Circular soft glow textures used for multi-layer bloom stacking, tidal wake
+  glow points, crescent tip bloom layers, and halo ring effects. These are the
+  most frequently drawn textures in the EternalMoon VFX pipeline — every frame
+  of a swing draws 3-5 layered orb sprites per wake point and at the blade tip.
+
+USAGE IN CODE:
+  - MagnumTextureRegistry.GetSoftGlow() — the primary orb texture, drawn at
+    multiple scales and colors for bloom layering (see DrawTidalWake which draws
+    3 layers per wake point, and DrawCrescentTipBloom which draws 5 layers)
+  - CustomParticles.HaloRing() — hollow ring expansion effect on impact
+  - GlowRenderer.GlowLayer[] MoonlightGlowProfile — 4-layer glow stack
+  - PreDrawInWorld 5-layer bloom on the dropped item
+  - All drawn with {A=0} premultiplied alpha and additive blending
+
+DIMENSIONS: Various sizes — 32x32 (small mote glow), 64x64 (standard bloom),
+  128x128 (large halo/impact glow). Must be perfectly centered with smooth
+  feathered falloff to fully transparent/black at edges.
+
+COLOR PALETTE:
+  - Night Void:     RGB(40, 10, 60)    — largest, softest outer orb layer
+  - Deep Indigo:    RGB(75, 0, 130)    — second outer layer
+  - Violet Body:    RGB(138, 43, 226)  — mid-body glow
+  - Ice Blue Flare: RGB(135, 206, 250) — bright inner glow
+  - Glacial Blue:  RGB(170, 225, 255) — icy accent core
+  - Moon White: RGB(230, 235, 255) — cool center point
+
+REFERENCE: SandboxLastPrism/Orbs/SoftGlow.png, SoftGlow64.png,
+  feather_circle128PMA.png, circle_05.png
+
+================================================================================
+  PROMPT 1 — Full Moon Soft Glow (Primary Bloom Orb, 128x128)
+================================================================================
+
+a perfectly circular soft glowing orb VFX texture on a pure black background, the orb is centered in the frame, a smooth radial gradient from a bright moon white RGB(230,235,255) cool center point transitioning outward through ice blue RGB(135,206,250) then through violet RGB(138,43,226) and finally fading through deep indigo RGB(75,0,130) into the pure black background, the gradient falloff follows a smooth quadratic curve with no hard edges or banding, the orb should appear like a full moon seen through thin clouds with a natural atmospheric glow quality, the outer 30 percent of the radius should be extremely subtle and barely visible fading seamlessly to black, perfectly symmetrical radial gradient, game VFX soft glow sprite texture for additive blending, no surface detail no craters just pure smooth radial light falloff --ar 1:1 --s 100 --v 6.1 --style raw --no text watermark border detail texture noise
+
+================================================================================
+  PROMPT 2 — Crescent Phase Orb (Asymmetric Moon Bloom, 128x128)
+================================================================================
+
+a crescent moon phase shaped soft glow VFX texture on a pure black background, not a full circle but an asymmetric crescent where the left side of the orb is darker like the shadowed face of a half moon and the right side glows brightly, the illuminated crescent portion radiates from moon white RGB(230,235,255) at its brightest point through ice blue RGB(135,206,250) to violet RGB(138,43,226), the shadow side transitions through deep indigo RGB(75,0,130) to night void RGB(40,10,60) before fading to black, a subtle glacial blue RGB(170,225,255) accent along the terminator line where light meets shadow, the overall shape is still roughly circular but the light distribution within it is distinctly crescent-shaped, very soft feathered edges all around fading to black, centered in frame, game VFX particle texture for additive rendering --ar 1:1 --s 150 --v 6.1 --style raw --no text watermark border stars background
+
+================================================================================
+  PROMPT 3 — Tidal Droplet Orb (Small Water Glow, 64x64)
+================================================================================
+
+a small perfectly circular water droplet glow VFX texture on a pure black background, meant to represent a single drop of moonlit tidal water, the center glows with a cool ice blue RGB(135,206,250) core transitioning to a soft tidal seafoam RGB(200,220,255) ring, the outer glow fades through violet RGB(138,43,226) to black, the droplet has a very subtle specular highlight offset slightly from center suggesting a curved liquid surface catching moonlight, the highlight is a tiny bright glacial blue RGB(170,225,255) point, overall the orb is small and intimate compared to the full moon glow, extremely soft feathered edges with the outer 40 percent being barely perceptible, perfectly clean falloff to black on all sides, tiny game VFX particle sprite for additive blending --ar 1:1 --s 100 --v 6.1 --style raw --no text watermark border detail background elements
+
+================================================================================
+  PROMPT 4 — Lunar Halo Ring (Hollow Expansion Ring, 128x128)
+================================================================================
+
+a hollow ring shaped glow VFX texture on a pure black background, a circular ring or donut shape with a dark center and glowing band at approximately 70 percent radius, the ring band glows violet RGB(138,43,226) at its center with ice blue RGB(135,206,250) bright edges, the inner edge of the ring fades through deep indigo RGB(75,0,130) to black in the hollow center, the outer edge fades through night void RGB(40,10,60) to the black background, subtle glacial blue RGB(170,225,255) highlight along the top of the ring suggesting moonlight catching the upper arc, the ring width is approximately 15-20 percent of the total radius, very smooth anti-aliased edges both inside and outside the ring, perfectly centered and circular, looks like a lunar halo or shockwave ring seen from directly above, game VFX texture for expanding shockwave particle effect --ar 1:1 --s 150 --v 6.1 --style raw --no text watermark background elements
+
+================================================================================
+  PROMPT 5 — Deep Tide Ambient Glow (Large Soft Haze, 128x128)
+================================================================================
+
+an extremely soft and diffused circular glow VFX texture on a pure black background, this is a very large and very subtle ambient haze orb, the center is a muted deep tidal blue-purple RGB(40,30,100) with barely visible night void RGB(40,10,60) tones, the glow is so soft that only the inner 20 percent has clearly visible color, the remaining 80 percent is an incredibly gradual fade to black that creates an atmospheric haze effect, a very faint touch of violet RGB(138,43,226) glow at the exact center point, no bright highlights no sharp features just an extremely gentle radial falloff, this texture is layered behind brighter orbs to create depth and atmospheric presence in multi-layer bloom stacks, the falloff should be exponential with the vast majority of the visible area being nearly black, game VFX ambient glow texture for additive stacking behind brighter elements --ar 1:1 --s 50 --v 6.1 --style raw --no text watermark border detail surface

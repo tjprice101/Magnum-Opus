@@ -1,0 +1,36 @@
+================================================================================
+STAFF OF THE LUNAR PHASES / GOLIATH OF MOONLIGHT — ORB ASSETS
+================================================================================
+
+PURPOSE: Circular soft glow textures used for bloom rendering, aura effects,
+projectile body glow, and ambient cosmic presence. Rendered as additive sprites
+with the {A=0} premultiplied alpha trick. Various sizes from 32x32 to 128x128.
+Must have smooth feathered edges that fade to black/transparent. Will be tinted
+by code at runtime — grayscale/white bases are acceptable.
+
+VISUAL IDENTITY: Gravitational distortion — warped light orbs, nebula cloud
+spheres, accretion disk rings, singularity cores.
+
+================================================================================
+PROMPTS
+================================================================================
+
+PROMPT 1 — Gravitational Distortion Orb (primary bloom orb)
+---
+A perfectly circular soft glow orb with gravitational distortion, the center is brilliantly bright icy blue-white RGB(210,225,255), surrounded by concentric rings of decreasing brightness through lavender RGB(180,140,255) then purple RGB(100,60,180), the outermost edge subtly warps and bends as if light is being gravitationally lensed around the sphere, smooth feathered fade to pure black at the edges, 2D game VFX texture asset, centered on solid black background, no surface detail, pure glow effect --ar 1:1 --v 6.1 --style raw --s 150 --no text watermark noise grain
+
+PROMPT 2 — Nebula Cloud Orb (ambient aura orb)
+---
+A soft circular nebula cloud formation, wispy purple RGB(150,80,220) and lavender RGB(180,140,255) gas clouds forming a roughly circular shape, brighter in the center with a cool stellar glow, edges dissolve into wispy tendrils that fade to black, looks like a miniature nebula viewed from above, subtle internal structure with darker void lanes winding through brighter gas, game particle texture, black background, roughly circular overall shape --ar 1:1 --v 6.1 --style raw --s 150 --no text watermark
+
+PROMPT 3 — Accretion Ring Orb (charge effect orb)
+---
+A cosmic accretion ring viewed from slight angle, thin bright ring of energy in lavender-white at a medium radius from center, the center is dark cosmic void black RGB(20,8,40) like a black hole, the ring glows brilliantly in purple RGB(100,60,180) and white, faint outer halo of dark purple energy extends beyond the ring, everything fades to black at the edges, game VFX texture, centered composition, black background --ar 1:1 --v 6.1 --style raw --s 200 --no text watermark
+
+PROMPT 4 — Soft Cosmic Glow (general purpose bloom)
+---
+An extremely soft circular glow, perfectly centered, pure white at the very center point smoothly fading through pale lavender then to deep purple then to black at the edges, ultra-smooth gaussian-like falloff, no hard edges anywhere, no texture detail, pure radial gradient glow, game engine bloom texture, solid black background, suitable for additive blending --ar 1:1 --v 6.1 --style raw --s 50 --no text watermark noise grain detail
+
+PROMPT 5 — Star Core Point Orb (small intense bloom)
+---
+A tiny intensely bright star core point, central pixel-level bright spot of icy blue-white RGB(210,225,255) with a small but intense glow halo that transitions through cool blue-white then lavender then deep purple, the glow is compact and concentrated with most brightness in the inner 30% of the texture, sharp brightness falloff, represents a point of incredibly concentrated cosmic energy, game VFX texture, black background --ar 1:1 --v 6.1 --style raw --s 100 --no text watermark

@@ -1,0 +1,105 @@
+================================================================================
+  RESURRECTION OF THE MOON -- MUZZLE FLASH ASSETS
+  Midjourney Prompt Reference
+================================================================================
+
+PURPOSE:
+  Muzzle flash and barrel discharge textures drawn at the weapon's muzzle
+  point when the gun fires. These are short-lived additive-blended sprites
+  (2-4 frames visible) that convey the violent celestial energy release of
+  each comet round being launched. They should feel like a concentrated
+  crescent-moon-shaped energy eruption -- not a conventional gunpowder flash
+  but a celestial discharge event with comet-launch plasma, crescent arc
+  geometry, and concentrated blue-white detonation light.
+
+USAGE IN MOD:
+  - Primary muzzle flash sprite drawn at the barrel tip each time the weapon
+    fires, randomly selected from the set and randomly mirrored vertically
+    for variety
+  - Scaled muzzle bloom overlay (larger, softer version drawn behind the
+    sharp flash for glow diffusion)
+  - Rapid-fire burst flash variant (compact, bright, less elaborate for when
+    the weapon fires at maximum rate)
+  - Charged shot release flash (larger, more dramatic for fully-charged
+    comet rounds)
+  - Crescent-shaped directional muzzle flare for the weapon's signature
+    crescent moon barrel aperture
+
+FORMAT REQUIREMENTS:
+  - 128x128 or 256x256 PNG
+  - Pure black (#000000) background (additive blend discards black)
+  - The flash should be oriented with the primary energy direction pointing
+    RIGHT (toward the target) since the weapon fires rightward; the engine
+    will rotate to match actual aim direction
+  - Registration point (visual origin of the flash) should be at the LEFT
+    CENTER of the image (where the barrel muzzle would be)
+  - Energy should erupt rightward and slightly spread vertically, but the
+    leftward back-blast should be minimal (20-30% of the rightward extent)
+  - All edges must feather to pure black; no energy touching the image borders
+  - sRGB color space, 8-bit per channel, no embedded ICC profile
+
+COLOR PALETTE:
+  Deep Space Violet ........... RGB(50, 20, 100)
+  Impact Crater Indigo ........ RGB(100, 80, 200)
+  Comet Trail Lavender ........ RGB(180, 120, 255)
+  Lunar Shine Blue ............ RGB(120, 190, 255)
+  Comet Core Pale Blue ........ RGB(210, 225, 255)
+  Blue-White Impact ........... RGB(235, 240, 255)
+
+================================================================================
+  PROMPT 1 -- Celestial Discharge Flash (Primary Muzzle Flash)
+================================================================================
+
+A directional muzzle flash energy burst on a pure black background, a violent celestial discharge erupting primarily to the right from an origin point at the left-center of the composition, the flash represents a concentrated comet round being launched from a celestial cannon. The origin point at left-center has a blindingly intense compact core of blue-white impact RGB(235,240,255) that is small and tight occupying roughly 8-10% of the image width, from this core a primary blast cone of energy erupts rightward and fans outward in a roughly 40-degree cone, the inner cone is filled with luminous comet core pale blue RGB(210,225,255) plasma that has visible turbulent structure with brighter filaments and streaks within the cone suggesting hypersonic discharge gas flow, the mid-cone transitions through lunar shine blue RGB(120,190,255) with bright sharp energy spike tendrils extending ahead of the main cone like lightning or plasma discharge fingers, each spike tipped with a tiny bright point of blue-white, the outer cone fades through comet trail lavender RGB(180,120,255) into wispy dissolving edges of impact crater indigo RGB(100,80,200) energy that curl and billow outward like plasma cloud edges. Above and below the main cone, two sharp angular secondary flash spikes extend diagonally outward from the origin point in lunar shine blue RGB(120,190,255) at roughly 50-60 degrees from the horizontal, these are thinner and shorter than the main forward blast creating a star-burst asymmetric pattern. Behind the origin point to the left a smaller and dimmer back-blast of deep space violet RGB(50,20,100) and impact crater indigo RGB(100,80,200) energy extends a short distance, representing barrel back-pressure venting, this back-blast is intentionally subdued only about 25% the size and brightness of the forward flash. Scattered throughout the flash are tiny bright ember sparks in comet core pale blue RGB(210,225,255) and blue-white RGB(235,240,255) flying outward from the origin in all directions, concentrated more densely in the forward cone, represented as small sharp points and short streaks. A very faint concentric shockwave arc is visible in the forward zone at about 60% of the cone length in a thin ring of impact crater indigo RGB(100,80,200) suggesting a compression wave propagating from the discharge. The entire flash is dynamic, violent, and asymmetric with the energy flow clearly reading as an explosion pushing rightward from a source on the left, all energy feathers smoothly to pure black at every border of the image, designed for additive blending in a game engine, VFX muzzle flash texture --ar 1:1 --v 6.1 --style raw --s 250 --q 2 --no text, watermark, gun, barrel, weapon, background, ground, character
+
+================================================================================
+  PROMPT 2 -- Crescent Moon Muzzle Flare (Signature Aperture Flash)
+================================================================================
+
+A crescent-moon-shaped muzzle flash on a pure black background, a unique directional flash that takes the shape of a crescent or sickle arc opening to the right, representing energy discharged through the weapon's crescent-moon-shaped barrel aperture. The origin point sits at the left-center of the image where the crescent's inner curve begins, the crescent arc is formed by two curving arms of concentrated energy that sweep from the origin point upward-right and downward-right then curve back toward each other forming a C-shape or crescent open to the right, the inner edges of the crescent arms (the concave side) are the brightest glowing with intense blue-white impact RGB(235,240,255) and comet core pale blue RGB(210,225,255) with a sharp almost blade-like luminous quality, the body of each crescent arm is filled with lunar shine blue RGB(120,190,255) energy that has a smooth flowing appearance like gracefully curving plasma streams, the outer edges of the crescent arms (the convex side) have a softer glow of comet trail lavender RGB(180,120,255) that feathers into impact crater indigo RGB(100,80,200) wisps trailing off the curvature. In the open space between the crescent tips (the rightward opening), concentrated forward-discharge energy fills the gap with a blast of comet core pale blue RGB(210,225,255) and lunar shine blue RGB(120,190,255) light pushing rightward, this is where the actual projectile exits and the energy here is turbulent and directional with visible plasma stream lines pushing outward. At the origin point where the crescent arms converge, a compact bright core glows in blue-white RGB(235,240,255) with a tiny starburst pattern. Very fine luminous particles in comet core pale blue RGB(210,225,255) scatter outward from the crescent edges like sparks thrown from a curved blade, more densely along the inner concave edge. A subtle ethereal glow of deep space violet RGB(50,20,100) fills the area immediately outside the crescent convex surface like a dark aura surrounding the bright crescent shape. The overall composition is dominated by this elegant crescent arc shape while still reading as a violent muzzle discharge, the beauty of the crescent moon form combined with the raw power of a weapon blast, all energy feathers to pure black at borders, centered crescent with origin at left-center, game VFX muzzle flash texture for additive blending --ar 1:1 --v 6.1 --style raw --s 300 --q 2 --no text, watermark, gun, moon, face, night sky, stars, background, character
+
+================================================================================
+  PROMPT 3 -- Comet Launch Blast (Rapid-Fire Compact Flash)
+================================================================================
+
+A compact intense muzzle flash burst on a pure black background, designed as a rapid-fire flash variant that is smaller and tighter than the primary muzzle flash, representing the quick successive discharge of comet rounds at maximum fire rate. The flash is concentrated and punchy with minimal spread, the origin point is at left-center with a hard bright core of blue-white impact RGB(235,240,255) that is very small and dense roughly 5-6% of image width, from this core a tight horizontal jet of energy shoots rightward in a narrow 20-degree cone, the jet is compact and focused in comet core pale blue RGB(210,225,255) with an extremely bright central thread of blue-white light running through its axis like a tracer beam, the jet extends roughly 40% of the image width before dissipating rapidly, the edges of the jet bloom into a narrow halo of lunar shine blue RGB(120,190,255) that hugs the cone tightly without much vertical spread. Two very short sharp diagonal spikes of comet trail lavender RGB(180,120,255) extend from the origin at roughly 45 degrees up-right and down-right, these are minimal accent features barely 15% the length of the main forward jet, adding just enough vertical element to prevent the flash from looking like a simple line. A tiny compact burst of back-blast behind the origin to the left in impact crater indigo RGB(100,80,200) extends a very short distance, just a small circular puff of energy. A handful of sharp tiny ember spark dots in blue-white RGB(235,240,255) and comet core pale blue RGB(210,225,255) spray forward from the origin concentrated along the main jet axis, these are few in number 8-12 individual sparks to keep the flash reading as clean and fast. The overall impression is speed and efficiency -- a quick snappy discharge that fires and fades rapidly, the flash occupies a smaller percentage of the frame than the primary flash with generous black space around it allowing for the rapid animation pacing of sustained fire, edges feather cleanly to pure black, game VFX rapid-fire muzzle flash texture, additive blend ready --ar 1:1 --v 6.1 --style raw --s 150 --q 2 --no text, watermark, gun, weapon, barrel, background, smoke, fire, character
+
+================================================================================
+  PROMPT 4 -- Supernova Discharge Bloom (Charged Shot Release Flash)
+================================================================================
+
+A massive dramatic muzzle flash explosion on a pure black background, representing the discharge of a fully-charged comet round -- a charged shot that has accumulated maximum celestial energy before release, producing an overwhelmingly powerful muzzle flash. The origin point at left-center erupts with a huge intense core of blue-white impact RGB(235,240,255) that is significantly larger than the standard flash core occupying roughly 15% of the image, this core is so bright it appears almost overexposed with a pure white hotspot at its absolute center surrounded by a corona of blue-white that radiates pulsing energy waves. The forward blast is enormous -- a wide 60-70-degree cone of devastation pushing rightward, the inner cone is filled with roiling turbulent plasma in comet core pale blue RGB(210,225,255) and lunar shine blue RGB(120,190,255) with complex churning structure resembling a mini supernova shockfront, bright filamentary tendrils and looping magnetic-field-like arcs of blue-white energy dance within the cone as the discharge overwhelms normal energy containment, the mid-cone has spectacular detail with visible plasma instability structures -- bright knots, pinch points, and expansion lobes in lunar shine blue creating a sense of uncontrolled power, the outer cone transitions through comet trail lavender RGB(180,120,255) into a wide diffuse cloud of impact crater indigo RGB(100,80,200) and deep space violet RGB(50,20,100) that billows outward far beyond the bright inner cone like an energy shockwave pushing into the surrounding dark. Multiple large secondary flash spikes radiate from the origin at irregular angles -- not just up and down but at 30, 75, 120, and 150 degrees creating an asymmetric starburst pattern, each spike is thick and bright in lunar shine blue RGB(120,190,255) with comet trail lavender RGB(180,120,255) edges, the spikes vary in length from 20-50% of frame radius adding dramatic irregular energy to the composition. The back-blast behind the origin is significant for a charged shot -- a wide arc of impact crater indigo RGB(100,80,200) and comet trail lavender RGB(180,120,255) energy extends leftward roughly 40% as far as the forward blast, with visible energy venting streams and pressure wisps bleeding backward from the barrel, this larger back-blast reflects the weapon struggling to contain the charged shot's release. An expanding spherical shockwave ring is visible in the forward zone, a thin bright circle of comet core pale blue RGB(210,225,255) at roughly 70% of the forward blast range, propagating outward from the discharge center. Dense clouds of bright ember particles in blue-white RGB(235,240,255) and comet core pale blue RGB(210,225,255) fill the cone and spray outward in all directions, more numerous than any other flash variant with 40-60 visible individual sparks and streaks creating a feeling of overwhelming firepower. Faint crescent moon arc shapes are barely visible within the plasma chaos as echoes of the weapon's crescent aperture geometry in lunar shine blue. The entire flash is overwhelming dramatic and powerful, filling roughly 70-80% of the frame while still feathering to pure black at all borders, designed for the weapon's most powerful attack, game VFX charged shot muzzle flash texture, additive blending --ar 1:1 --v 6.1 --style raw --s 350 --q 2 --no text, watermark, explosion, nuclear, gun, weapon, background, character, mushroom cloud
+
+================================================================================
+  PROMPT 5 -- Lunar Veil Muzzle Bloom (Soft Atmospheric Discharge Glow)
+================================================================================
+
+A soft diffuse muzzle bloom glow on a pure black background, designed as a large-scale atmospheric overlay drawn behind the sharper muzzle flash sprites to create depth and bloom diffusion, this is the gentle ambient glow component that makes the weapon discharge feel celestially radiant rather than just mechanically bright. The origin point at left-center has a broad soft concentration of luminous energy, not a hard bright point but a wide smooth gradient of comet core pale blue RGB(210,225,255) light that spills outward in all directions from the origin with a gentle directional bias toward the right, the core glow occupies roughly 25-30% of the image as a smooth luminous cloud with extremely soft edges and no sharp features. The rightward glow extends further than the leftward glow creating a gentle asymmetric oval shape, the rightward extent is filled with smooth gradients of lunar shine blue RGB(120,190,255) transitioning to comet trail lavender RGB(180,120,255) in wide graceful bands with no sharp transitions anywhere, the entire right half of the glow resembles a soft celestial nebula cloud gently illuminated from within. The leftward and vertical extents of the glow fade through comet trail lavender RGB(180,120,255) to impact crater indigo RGB(100,80,200) to deep space violet RGB(50,20,100) in concentric smooth gradients, the leftward back-glow is about 60% the extent of the rightward glow creating a natural directional reading. Within the soft glow field very faint and subtle detail is visible -- delicate wispy nebula-like tendrils of slightly brighter lunar shine blue RGB(120,190,255) swirl slowly within the comet trail lavender field like cosmic gas currents disturbed by the discharge energy, these wisps are extremely subtle barely 5-10% brighter than their surrounding field, adding organic texture without disrupting the overall soft quality. A very faint haze of deep space violet RGB(50,20,100) extends beyond the main glow body as an outermost veil, barely perceptible against the black background but important for preventing the glow from having a visible hard outer edge. No sharp features, no spikes, no sparks, no hard points of light -- this is purely a soft atmospheric glow component that provides the underlying luminous bed upon which the sharper flash sprites are composited, the smoothest and gentlest texture in the muzzle flash set, all edges feather imperceptibly to pure black, game VFX bloom overlay texture for additive blending behind primary flash sprites --ar 1:1 --v 6.1 --style raw --s 200 --q 2 --no text, watermark, lens flare, spikes, rays, starburst, gun, weapon, background, character, sharp edges
+
+================================================================================
+  POST-GENERATION NOTES:
+  - Upscale all results to 256x256 for primary use; keep 128x128 downscaled
+    versions for the rapid-fire variant (#3) and bloom overlay (#5) where
+    smaller texture resolution is acceptable
+  - Verify pure black (#000000) in all four corners and along all borders;
+    repaint any near-black Midjourney artifacts to true black
+  - CRITICAL REGISTRATION: The flash origin point (where the barrel muzzle
+    meets the flash) should be at approximately pixel coordinates (32, 128)
+    for a 256x256 texture, or (16, 64) for 128x128. Adjust the generated
+    image position if the origin drifts from left-center
+  - In-engine compositing order for a single weapon fire frame:
+    1. Draw the Lunar Veil Bloom (#5) behind everything at 50-70% opacity
+    2. Draw the primary or variant flash (#1, #2, or #3) on top at full opacity
+    3. For charged shots, draw Supernova Discharge (#4) replacing the primary
+  - The Crescent Moon Flare (#2) is the weapon's SIGNATURE flash and should
+    appear most frequently during normal fire; the standard Celestial Discharge
+    (#1) fills in for variety on alternating shots
+  - Rapid-Fire (#3) replaces the primary flash when the weapon fires faster
+    than 10 shots per second to prevent visual clutter from overlapping flashes
+  - The Supernova Discharge (#4) should only appear for fully charged shots
+    or critical hit shots; its intensity warrants a brief screen-shake in code
+  - All flashes should be randomly mirrored on the vertical axis each time
+    they appear to prevent repetitive visual patterns
+  - Consider generating 2-3 variants of prompts #1 and #3 to have a pool of
+    slightly different flashes for random selection during sustained fire
+================================================================================

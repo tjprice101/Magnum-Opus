@@ -68,14 +68,14 @@ namespace MagnumOpus.Content.MoonlightSonata
         /// <summary>Refracted blue for prismatic beam secondaries.</summary>
         public static readonly Color RefractedBlue = new Color(100, 200, 255);
 
-        /// <summary>Crescent gold for lunar phase accents and cores.</summary>
-        public static readonly Color CrescentGold = new Color(255, 240, 180);
+        /// <summary>Crescent glow — bright icy blue for lunar phase accents and cores.</summary>
+        public static readonly Color CrescentGlow = new Color(170, 225, 255);
 
-        /// <summary>Moonrise gold for warm comet and impact accents.</summary>
-        public static readonly Color MoonriseGold = new Color(255, 210, 150);
+        /// <summary>Lunar shine — vivid medium blue for impact and comet accents.</summary>
+        public static readonly Color LunarShine = new Color(120, 190, 255);
 
-        /// <summary>Star core white-gold for intense bright centers.</summary>
-        public static readonly Color StarCore = new Color(255, 240, 220);
+        /// <summary>Star core — cool brilliant blue-white for intense bright centers.</summary>
+        public static readonly Color StarCore = new Color(210, 225, 255);
 
         /// <summary>Deep space violet for crater and impact ring shadows.</summary>
         public static readonly Color DeepSpaceViolet = new Color(50, 20, 100);
@@ -101,7 +101,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         // =================================================================
 
         /// <summary>
-        /// EternalMoon blade palette — lunar eclipse ascending to crescent gold.
+        /// EternalMoon blade palette — lunar eclipse ascending to crescent brilliance.
         /// Majestic, sweeping, the adagio's power. Every swing is a moonrise.
         /// </summary>
         public static readonly Color[] EternalMoonBlade = new Color[]
@@ -110,8 +110,8 @@ namespace MagnumOpus.Content.MoonlightSonata
             new Color(75, 0, 130),      // [1] Piano — deep indigo
             new Color(138, 43, 226),    // [2] Mezzo — violet body
             new Color(135, 206, 250),   // [3] Forte — ice blue flare
-            new Color(255, 240, 180),   // [4] Fortissimo — crescent gold
-            new Color(255, 250, 240),   // [5] Sforzando — moonbeam white
+            new Color(170, 225, 255),   // [4] Fortissimo — crescent glow
+            new Color(230, 235, 255),   // [5] Sforzando — moonbeam white
         };
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace MagnumOpus.Content.MoonlightSonata
             new Color(230, 235, 255),   // [2] Mezzo — resonant silver
             new Color(135, 206, 250),   // [3] Forte — ice blue clarity
             new Color(220, 230, 255),   // [4] Fortissimo — crystal edge
-            new Color(255, 250, 245),   // [5] Sforzando — harmonic white
+            new Color(235, 240, 255),   // [5] Sforzando — harmonic white
         };
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         };
 
         /// <summary>
-        /// ResurrectionOfTheMoon palette — deep space through comet core.
+        /// ResurrectionOfTheMoon palette — deep space through comet brilliance.
         /// Heavy, impactful, meteoric. Every shot is a celestial crash.
         /// </summary>
         public static readonly Color[] ResurrectionComet = new Color[]
@@ -151,9 +151,9 @@ namespace MagnumOpus.Content.MoonlightSonata
             new Color(50, 20, 100),     // [0] Pianissimo — deep space violet
             new Color(100, 80, 200),    // [1] Piano — impact crater
             new Color(180, 120, 255),   // [2] Mezzo — comet trail
-            new Color(255, 210, 150),   // [3] Forte — moonrise gold
-            new Color(255, 230, 200),   // [4] Fortissimo — comet core
-            new Color(255, 248, 230),   // [5] Sforzando — white-hot impact
+            new Color(120, 190, 255),   // [3] Forte — lunar shine
+            new Color(210, 225, 255),   // [4] Fortissimo — comet core
+            new Color(235, 240, 255),   // [5] Sforzando — frigid impact
         };
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace MagnumOpus.Content.MoonlightSonata
             new Color(150, 80, 220),    // [2] Mezzo — nebula purple
             new Color(180, 140, 255),   // [3] Forte — energy tendril
             new Color(135, 206, 250),   // [4] Fortissimo — ice blue brilliance
-            new Color(255, 240, 220),   // [5] Sforzando — star core
+            new Color(210, 225, 255),   // [5] Sforzando — star core
         };
 
         // =================================================================
@@ -219,11 +219,11 @@ namespace MagnumOpus.Content.MoonlightSonata
         }
 
         /// <summary>
-        /// Crescent gradient: DarkPurple -> CrescentGold over 0->1.
+        /// Crescent gradient: DarkPurple -> CrescentGlow over 0->1.
         /// Use for crescent moon motifs, lunar accents.
         /// </summary>
         public static Color GetCrescentGradient(float progress)
-            => Color.Lerp(DarkPurple, CrescentGold, progress);
+            => Color.Lerp(DarkPurple, CrescentGlow, progress);
 
         /// <summary>
         /// Cosmic gradient: CosmicVoid -> NebulaPurple -> StarCore over 0->1.

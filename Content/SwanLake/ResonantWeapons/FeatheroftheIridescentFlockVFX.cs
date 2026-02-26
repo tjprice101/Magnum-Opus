@@ -1,9 +1,11 @@
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons
@@ -12,7 +14,14 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
     /// VFX helper for Feather of the Iridescent Flock summon weapon.
     /// Handles hold-item ambient, summon formation, crystal orbit trail,
     /// flare attack, explosive beam, and death VFX.
-    /// The Iridescent Flock: prismatic crystal sentinels orbiting in graceful formation.
+    ///
+    /// The Iridescent Flock: prismatic crystal sentinels in graceful orbit.
+    ///
+    /// Shader-driven VFX (primary):
+    ///   - CrystalOrbitTrail.fx: Faceted prismatic orbit trail (CrystalOrbitMain + CrystalOrbitGlow)
+    ///   - FlockAura.fx: Formation-node aura overlay (FlockAuraMain + FlockAuraGlow)
+    ///
+    /// Accent particles (reduced): feather drifts, music notes.
     /// </summary>
     public static class FeatheroftheIridescentFlockVFX
     {
@@ -27,23 +36,14 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             Vector2 center = player.MountedCenter;
             float time = (float)Main.timeForVisualEffects;
 
-            // Subtle Swan Lake aura (reduced)
+            // Subtle Swan Lake aura
             try { UnifiedVFX.SwanLake.Aura(center, 22f); } catch { }
 
-            // Subtle feathers
+            // Subtle feathers (kept — lightweight)
             if (Main.rand.NextBool(30))
             {
                 Color featherCol = Main.rand.NextBool() ? SwanLakePalette.FeatherWhite : SwanLakePalette.FeatherBlack;
                 try { CustomParticles.SwanFeatherDrift(center + Main.rand.NextVector2Circular(16f, 16f), featherCol, 0.12f); } catch { }
-            }
-
-            // Subtle rainbow shimmer
-            if (Main.rand.NextBool(12))
-            {
-                Color rainbow = SwanLakePalette.GetRainbow(Main.rand.NextFloat());
-                Dust d = Dust.NewDustPerfect(center + Main.rand.NextVector2Circular(20f, 20f),
-                    DustID.RainbowTorch, Vector2.Zero, 0, rainbow * 0.4f, 0.5f);
-                d.noGravity = true;
             }
 
             SwanLakeVFXLibrary.AddPulsingLight(center, time, 0.2f);
@@ -54,8 +54,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
         // =====================================================================
 
         public static void PreDrawInWorldBloom(
-            Microsoft.Xna.Framework.Graphics.SpriteBatch sb,
-            Microsoft.Xna.Framework.Graphics.Texture2D tex,
+            SpriteBatch sb,
+            Texture2D tex,
             Vector2 pos, Vector2 origin, float rotation, float scale)
         {
             float time = (float)Main.timeForVisualEffects;
@@ -64,162 +64,264 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
         }
 
         // =====================================================================
-        //  SUMMON FORMATION VFX
+        //  FLOCK AURA SHADER RENDERING
         // =====================================================================
 
         /// <summary>
-        /// VFX when crystals are first summoned: rainbow explosion, halo rings,
-        /// sparkles, feather explosion, music notes.
+        /// Draw shader-driven formation aura around player.
+        /// Called from hold-item rendering when crystals are active.
+        /// 2-pass: Glow underlay + Main formation overlay.
+        /// crystalCount: 1, 2, or 3 active crystals.
+        /// </summary>
+        public static void DrawFlockAuraShader(SpriteBatch sb, Vector2 playerCenter, int crystalCount)
+        {
+            if (Main.dedServ) return;
+            if (!SwanLakeShaderManager.HasFlockAura) return;
+            if (crystalCount <= 0) return;
+
+            Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+            if (glowTex == null) return;
+
+            Vector2 origin = glowTex.Size() * 0.5f;
+            Vector2 drawPos = playerCenter - Main.screenPosition;
+            float time = Main.GlobalTimeWrappedHourly;
+            float crystalPhase = crystalCount / 3f; // 0.33, 0.66, 1.0
+
+            try
+            {
+                SwanLakeShaderManager.BeginShaderAdditive(sb);
+                SwanLakeShaderManager.BindCrystalNoiseTexture(Main.graphics.GraphicsDevice);
+
+                // PASS 1: Glow underlay
+                SwanLakeShaderManager.ApplyIridescentFlockAura(time, crystalPhase, glow: true);
+                sb.Draw(glowTex, drawPos, null, Color.White * 0.3f,
+                    0f, origin, 2.0f, SpriteEffects.None, 0f);
+
+                // PASS 2: Main formation overlay
+                SwanLakeShaderManager.ApplyIridescentFlockAura(time, crystalPhase, glow: false);
+                sb.Draw(glowTex, drawPos, null, Color.White * 0.5f,
+                    0f, origin, 1.5f, SpriteEffects.None, 0f);
+
+                SwanLakeShaderManager.RestoreSpriteBatch(sb);
+            }
+            catch
+            {
+                try { SwanLakeShaderManager.RestoreSpriteBatch(sb); } catch { }
+            }
+        }
+
+        // =====================================================================
+        //  SUMMON FORMATION VFX (reduced)
+        // =====================================================================
+
+        /// <summary>
+        /// VFX when crystals are first summoned: reduced from heavy explosion.
         /// </summary>
         public static void SummonFormationVFX(Vector2 pos)
         {
             if (Main.dedServ) return;
 
-            SwanLakeVFXLibrary.SpawnRainbowExplosion(pos, 0.8f);
             try { ThemedParticles.SwanLakeMusicalImpact(pos, 0.7f); } catch { }
-            SwanLakeVFXLibrary.SpawnGradientHaloRings(pos, 4, 0.25f);
-            SwanLakeVFXLibrary.SpawnPrismaticSparkles(pos, 6, 15f);
-            SwanLakeVFXLibrary.SpawnFeatherBurst(pos, 4, 0.25f);
+
+            // Halo rings (reduced: 4 -> 2)
+            SwanLakeVFXLibrary.SpawnGradientHaloRings(pos, 2, 0.25f);
+
+            // Prismatic sparkles (reduced: 6 -> 3)
+            SwanLakeVFXLibrary.SpawnPrismaticSparkles(pos, 3, 15f);
+
+            // Feather burst (reduced: 4 -> 2)
+            SwanLakeVFXLibrary.SpawnFeatherBurst(pos, 2, 0.25f);
+
+            // Music notes (kept)
             SwanLakeVFXLibrary.SpawnMusicNotes(pos, 3, 20f, 0.75f, 1.0f, 25);
 
             Lighting.AddLight(pos, SwanLakePalette.PureWhite.ToVector3() * 0.8f);
         }
 
         // =====================================================================
-        //  CRYSTAL ORBIT TRAIL VFX
+        //  CRYSTAL ORBIT TRAIL VFX (shader-driven + sparse accents)
         // =====================================================================
 
         /// <summary>
-        /// Per-frame crystal orbit trail: heavy rainbow sparkle trail,
-        /// dual-polarity core, prismatic flares, and feather trail.
+        /// Per-frame crystal orbit trail: heavy per-frame particles removed.
+        /// CrystalOrbitTrail shader handles the primary visual.
+        /// Sparse accents only.
         /// </summary>
         public static void CrystalOrbitTrailVFX(Vector2 pos, Vector2 velocity)
         {
             if (Main.dedServ) return;
 
-            Vector2 away = -velocity.SafeNormalize(Vector2.Zero);
-
-            // Constant rainbow sparkle trail (heavy)
-            Color rainbow = SwanLakePalette.GetVividRainbow(Main.rand.NextFloat());
-            Dust r = Dust.NewDustPerfect(pos + Main.rand.NextVector2Circular(4f, 4f),
-                DustID.RainbowTorch, away * Main.rand.NextFloat(0.5f, 1.5f), 0, rainbow, 1.2f);
-            r.noGravity = true;
-
-            // Dual-polarity core trail
-            SwanLakeVFXLibrary.SpawnDualPolarityDust(pos, away);
-
-            // Frequent rainbow flares (1-in-3)
-            if (Main.rand.NextBool(3))
-            {
-                Color flareRainbow = SwanLakePalette.GetRainbow(Main.rand.NextFloat());
-                try { CustomParticles.GenericFlare(pos + Main.rand.NextVector2Circular(6f, 6f), flareRainbow, 0.3f, 12); } catch { }
-            }
-
-            // Pearlescent flares (1-in-4)
-            if (Main.rand.NextBool(4))
-            {
-                try { CustomParticles.GenericFlare(pos, SwanLakePalette.Pearlescent * 0.6f, 0.25f, 10); } catch { }
-            }
-
-            // Feather trail (1-in-6)
-            if (Main.rand.NextBool(6))
+            // Feather trail (1-in-10, reduced from 1-in-6)
+            if (Main.rand.NextBool(10))
             {
                 Color featherCol = Main.rand.NextBool() ? SwanLakePalette.FeatherWhite : SwanLakePalette.FeatherBlack;
                 try { CustomParticles.SwanFeatherDrift(pos, featherCol, 0.18f); } catch { }
             }
 
-            // Music notes (1-in-8)
-            if (Main.rand.NextBool(8))
+            // Music notes (1-in-12, reduced from 1-in-8)
+            if (Main.rand.NextBool(12))
                 SwanLakeVFXLibrary.SpawnMusicNotes(pos, 1, 6f, 0.7f, 0.85f, 20);
 
             SwanLakeVFXLibrary.AddSwanLight(pos, 0.35f);
         }
 
         // =====================================================================
-        //  FLARE ATTACK VFX
+        //  CRYSTAL ORBIT TRAIL SHADER RENDERING
         // =====================================================================
 
         /// <summary>
-        /// Explosive flare burst when crystals attack: massive rainbow flare ring,
-        /// dual-polarity contrast burst, bloom, halo rings, and feather burst.
+        /// Draw shader-driven crystal orbit trail using projectile oldPos history.
+        /// Called from the crystal projectile's PreDraw method.
+        /// 3-pass rendering with per-crystal hue offset.
+        /// crystalIndex: 0, 1, or 2 (selects hue identity).
+        /// </summary>
+        public static void DrawCrystalOrbitShaderTrail(SpriteBatch sb, Projectile proj, int crystalIndex)
+        {
+            if (Main.dedServ) return;
+            if (!SwanLakeShaderManager.HasCrystalOrbitTrail)
+            {
+                DrawFallbackOrbitTrail(sb, proj, crystalIndex);
+                return;
+            }
+
+            Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+            if (glowTex == null) return;
+
+            Vector2 origin = glowTex.Size() * 0.5f;
+            float time = Main.GlobalTimeWrappedHourly;
+            float crystalPhase = crystalIndex / 3f; // 0.0, 0.33, 0.66
+
+            try
+            {
+                SwanLakeShaderManager.BeginShaderAdditive(sb);
+                SwanLakeShaderManager.BindCrystalNoiseTexture(Main.graphics.GraphicsDevice);
+
+                // PASS 1: Glow underlay @ 3x width
+                SwanLakeShaderManager.ApplyIridescentFlockOrbitTrail(time, crystalPhase, glow: true);
+                DrawTrailPositions(sb, proj, glowTex, origin, scaleMult: 0.22f, alphaMult: 0.3f);
+
+                // PASS 2: Main faceted core @ 1x width
+                SwanLakeShaderManager.ApplyIridescentFlockOrbitTrail(time, crystalPhase, glow: false);
+                DrawTrailPositions(sb, proj, glowTex, origin, scaleMult: 0.08f, alphaMult: 0.7f);
+
+                // PASS 3: Glow overbright @ 1.5x width
+                SwanLakeShaderManager.ApplyIridescentFlockOrbitTrail(time, crystalPhase, glow: true);
+                DrawTrailPositions(sb, proj, glowTex, origin, scaleMult: 0.12f, alphaMult: 0.25f);
+
+                SwanLakeShaderManager.RestoreSpriteBatch(sb);
+            }
+            catch
+            {
+                try { SwanLakeShaderManager.RestoreSpriteBatch(sb); } catch { }
+                DrawFallbackOrbitTrail(sb, proj, crystalIndex);
+            }
+        }
+
+        /// <summary>
+        /// Loops through projectile oldPos to draw trail history at given scale/alpha.
+        /// </summary>
+        private static void DrawTrailPositions(SpriteBatch sb, Projectile proj,
+            Texture2D tex, Vector2 origin, float scaleMult, float alphaMult)
+        {
+            for (int k = 0; k < proj.oldPos.Length; k++)
+            {
+                if (proj.oldPos[k] == Vector2.Zero) continue;
+                Vector2 drawPos = proj.oldPos[k] - Main.screenPosition +
+                    new Vector2(proj.width / 2f, proj.height / 2f);
+                float progress = (proj.oldPos.Length - k) / (float)proj.oldPos.Length;
+                float alpha = progress * alphaMult;
+                float scale = scaleMult + progress * scaleMult * 0.5f;
+
+                sb.Draw(tex, drawPos, null, Color.White * alpha,
+                    proj.oldRot[k], origin, scale, SpriteEffects.None, 0f);
+            }
+        }
+
+        /// <summary>
+        /// Fallback orbit trail rendering when shader is unavailable.
+        /// Simple additive bloom dots with per-crystal coloring.
+        /// </summary>
+        private static void DrawFallbackOrbitTrail(SpriteBatch sb, Projectile proj, int crystalIndex)
+        {
+            Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+            if (glowTex == null) return;
+
+            Vector2 origin = glowTex.Size() * 0.5f;
+
+            // Per-crystal color variation
+            Color primary = crystalIndex switch
+            {
+                0 => new Color(255, 200, 100), // Warm gold
+                1 => new Color(100, 220, 150), // Emerald
+                _ => new Color(150, 130, 255), // Violet
+            };
+
+            for (int k = 0; k < proj.oldPos.Length; k++)
+            {
+                if (proj.oldPos[k] == Vector2.Zero) continue;
+                Vector2 drawPos = proj.oldPos[k] - Main.screenPosition +
+                    new Vector2(proj.width / 2f, proj.height / 2f);
+                float progress = (proj.oldPos.Length - k) / (float)proj.oldPos.Length;
+
+                Color trailColor = Color.Lerp(SwanLakePalette.Silver, primary, progress);
+                sb.Draw(glowTex, drawPos, null,
+                    SwanLakePalette.Additive(trailColor, 0.2f * progress),
+                    proj.oldRot[k], origin, 0.06f + progress * 0.04f, SpriteEffects.None, 0f);
+            }
+        }
+
+        // =====================================================================
+        //  FLARE ATTACK VFX (reduced)
+        // =====================================================================
+
+        /// <summary>
+        /// Explosive flare burst when crystals attack: reduced from
+        /// 14-flare loop + 24 dust to compact accents.
         /// </summary>
         public static void FlareAttackVFX(Vector2 pos, float intensity = 1f)
         {
             if (Main.dedServ) return;
 
-            // Explosive rainbow flare burst (14 flares)
-            for (int i = 0; i < 14; i++)
-            {
-                float hue = (float)i / 14f;
-                Color flareCol = Main.hslToRgb(hue, 1f, 0.8f);
-                Vector2 offset = Main.rand.NextVector2Circular(15f, 15f);
-                try { CustomParticles.GenericFlare(pos + offset, flareCol, 0.5f * intensity, 16); } catch { }
-            }
-
-            // Massive rainbow spark burst (24 dust)
-            SwanLakeVFXLibrary.SpawnRainbowBurst(pos, 24, 6f * intensity);
-
-            // Dual-polarity contrast burst
-            SwanLakeVFXLibrary.SpawnRadialDustBurst(pos, 12, 5f * intensity);
-
-            // Bloom
+            // Bloom (kept — lightweight)
             SwanLakeVFXLibrary.DrawBloom(pos, 0.6f * intensity);
 
-            // Halo rings
-            SwanLakeVFXLibrary.SpawnGradientHaloRings(pos, 4, 0.25f * intensity);
-            SwanLakeVFXLibrary.SpawnRainbowHaloRings(pos, 3, 0.2f * intensity);
+            // Halo rings (reduced: 4+3 -> 2)
+            SwanLakeVFXLibrary.SpawnGradientHaloRings(pos, 2, 0.25f * intensity);
 
-            // Feather burst
-            SwanLakeVFXLibrary.SpawnFeatherBurst(pos, (int)(5 * intensity), 0.3f);
+            // Feather burst (reduced: 5 -> 2)
+            SwanLakeVFXLibrary.SpawnFeatherBurst(pos, 2, 0.3f);
 
-            // Music notes
-            SwanLakeVFXLibrary.SpawnMusicNotes(pos, 4, 20f, 0.75f, 1.0f, 25);
+            // Music notes (reduced: 4 -> 2)
+            SwanLakeVFXLibrary.SpawnMusicNotes(pos, 2, 20f, 0.75f, 1.0f, 25);
 
             Lighting.AddLight(pos, SwanLakePalette.PureWhite.ToVector3() * 1.0f * intensity);
         }
 
         // =====================================================================
-        //  EXPLOSIVE BEAM VFX
+        //  EXPLOSIVE BEAM VFX (reduced)
         // =====================================================================
 
         /// <summary>
-        /// Explosive beam VFX: rainbow explosion, halos, sparkles, feather spiral,
-        /// rainbow meteor shower (36 dust toward target), and massive light.
+        /// Explosive beam VFX: reduced from 36-dust meteor shower + massive
+        /// particle bursts to compact shader-friendly accents.
         /// </summary>
         public static void ExplosiveBeamVFX(Vector2 pos, Vector2 targetDir, float intensity = 1f)
         {
             if (Main.dedServ) return;
 
-            SwanLakeVFXLibrary.SpawnRainbowExplosion(pos, 1.0f * intensity);
             try { ThemedParticles.SwanLakeMusicalImpact(pos, intensity); } catch { }
 
-            // Rainbow halo rings
-            SwanLakeVFXLibrary.SpawnRainbowHaloRings(pos, 5, 0.3f * intensity);
-            SwanLakeVFXLibrary.SpawnGradientHaloRings(pos, 4, 0.25f * intensity);
+            // Halo rings (reduced: 5+4 -> 3)
+            SwanLakeVFXLibrary.SpawnGradientHaloRings(pos, 3, 0.25f * intensity);
 
-            // Prismatic sparkles
-            SwanLakeVFXLibrary.SpawnPrismaticSparkles(pos, (int)(10 * intensity), 25f);
+            // Prismatic sparkles (reduced: 10 -> 4)
+            SwanLakeVFXLibrary.SpawnPrismaticSparkles(pos, 4, 25f);
 
-            // Rainbow meteor shower (36 dust toward target direction)
-            for (int i = 0; i < 36; i++)
-            {
-                float hue = (float)i / 36f;
-                Color meteorCol = Main.hslToRgb(hue, 1f, 0.75f);
-                float spreadAngle = Main.rand.NextFloat(-0.6f, 0.6f);
-                Vector2 vel = targetDir.RotatedBy(spreadAngle) * Main.rand.NextFloat(4f, 10f);
-                Dust d = Dust.NewDustPerfect(pos, DustID.RainbowTorch, vel, 0, meteorCol, 1.5f);
-                d.noGravity = true;
-            }
+            // Feather burst (reduced: 8+4 -> 3)
+            SwanLakeVFXLibrary.SpawnFeatherBurst(pos, 3, 0.35f);
 
-            // Feather spiral
-            SwanLakeVFXLibrary.SpawnFeatherBurst(pos, (int)(8 * intensity), 0.35f);
-            SwanLakeVFXLibrary.SpawnFeatherDuality(pos, (int)(4 * intensity), 0.3f);
-
-            // Prismatic swirl
-            SwanLakeVFXLibrary.SpawnPrismaticSwirl(pos, 8, 60f * intensity);
-
-            // Massive music notes
-            SwanLakeVFXLibrary.SpawnMusicNotes(pos, 6, 35f, 0.8f, 1.2f, 35);
+            // Music notes (reduced: 6 -> 3)
+            SwanLakeVFXLibrary.SpawnMusicNotes(pos, 3, 35f, 0.8f, 1.2f, 35);
 
             // Bloom
             SwanLakeVFXLibrary.DrawBloom(pos, 0.8f * intensity);
@@ -228,19 +330,17 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
         }
 
         // =====================================================================
-        //  CRYSTAL IMPACT VFX
+        //  CRYSTAL IMPACT VFX (reduced)
         // =====================================================================
 
         /// <summary>
-        /// Crystal hit impact: rainbow explosion, music notes, feathers, sparkles.
+        /// Crystal hit impact: reduced from heavy rainbow explosion.
         /// </summary>
         public static void CrystalImpactVFX(Vector2 pos)
         {
             if (Main.dedServ) return;
 
             SwanLakeVFXLibrary.ProjectileImpact(pos, 0.8f);
-            SwanLakeVFXLibrary.SpawnRainbowExplosion(pos, 0.6f);
-            try { ThemedParticles.SwanLakeFractalGemBurst(pos, SwanLakePalette.PureWhite, 0.6f); } catch { }
         }
     }
 }

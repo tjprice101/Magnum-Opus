@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
@@ -10,11 +11,19 @@ using MagnumOpus.Common;
 
 namespace MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura
 {
+    /// <summary>
+    /// Blossom of the Sakura — Eroica heat-reactive assault rifle.
+    /// Very fast fire rate with homing explosive sakura rounds.
+    /// Heat system drives VFX intensity from cool sakura pinks
+    /// through crimson to white-hot gold at sustained fire.
+    /// Enhanced: overheat pulse, heat mirage, heat propagation to bullets.
+    /// </summary>
     public class BlossomOfTheSakura : ModItem
     {
         private int heatLevel = 0;
         private int heatDecayCooldown = 0;
         private const int MaxHeat = 40;
+        private bool hasOverheated = false;
 
         public override void SetStaticDefaults()
         {
@@ -59,8 +68,26 @@ namespace MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura
             Vector2 gunBarrel = player.Center + new Vector2(40f * player.direction, -2f);
             Vector2 gunBody = player.Center + new Vector2(20f * player.direction, -2f);
 
+            // Heat-reactive barrel VFX
             BlossomOfTheSakuraVFX.BarrelHeatVFX(gunBarrel, gunBody, heatProgress, player.direction);
+
+            // Heat mirage shimmer at medium-high heat
+            if (heatProgress > 0.3f)
+                BlossomOfTheSakuraVFX.HeatMirage(gunBarrel, heatProgress);
+
+            // Ambient hold VFX (sakura petals, embers, music notes)
             BlossomOfTheSakuraVFX.HoldItemVFX(player, heatProgress);
+
+            // Overheat pulse — triggers once when heat reaches maximum
+            if (heatLevel >= MaxHeat && !hasOverheated)
+            {
+                hasOverheated = true;
+                BlossomOfTheSakuraVFX.OverheatPulse(gunBarrel);
+            }
+            else if (heatLevel < MaxHeat)
+            {
+                hasOverheated = false;
+            }
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
@@ -80,7 +107,10 @@ namespace MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura
             type = ModContent.ProjectileType<BlossomOfTheSakuraBulletProjectile>();
 
             Vector2 perturbedVelocity = velocity.RotatedByRandom(MathHelper.ToRadians(3));
-            Projectile.NewProjectile(source, position, perturbedVelocity, type, damage, knockback, player.whoAmI);
+
+            // Pass heat progress to bullet via ai[0]
+            Projectile.NewProjectile(source, position, perturbedVelocity, type, damage, knockback,
+                player.whoAmI, ai0: heatProgress);
 
             // Muzzle flash VFX
             Vector2 muzzlePos = position + velocity.SafeNormalize(Vector2.Zero) * 25f;
@@ -94,11 +124,20 @@ namespace MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura
             position += velocity.SafeNormalize(Vector2.UnitX * player.direction) * 40f;
         }
 
-        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Very high fire rate assault rifle with explosive rounds"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Gun heats up visually with sustained fire"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'A storm of sakura and steel'") { OverrideColor = EroicaPalette.Scarlet });
+            tooltips.Add(new TooltipLine(Mod, "Effect1",
+                "Very high fire rate assault rifle with homing explosive sakura rounds")
+            { OverrideColor = EroicaPalette.Sakura });
+            tooltips.Add(new TooltipLine(Mod, "Effect2",
+                "Sustained fire heats the barrel — hotter shots track harder and glow brighter")
+            { OverrideColor = new Color(240, 180, 100) });
+            tooltips.Add(new TooltipLine(Mod, "Effect3",
+                "Hits have a chance to unleash seeking valor crystals")
+            { OverrideColor = EroicaPalette.Gold });
+            tooltips.Add(new TooltipLine(Mod, "Lore",
+                "'A storm of sakura and steel — each round a petal torn from spring's last breath'")
+            { OverrideColor = EroicaPalette.Scarlet });
         }
     }
 }

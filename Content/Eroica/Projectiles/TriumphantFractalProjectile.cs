@@ -7,18 +7,21 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
-using MagnumOpus.Common.Systems;
+using MagnumOpus.Content.Eroica;
+using MagnumOpus.Content.Eroica.Weapons.TriumphantFractal;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
     /// <summary>
-    /// Triumphant Fractal projectile with massive explosion and fractal lightning effects.
-    /// Creates the signature fractal lightning sparks like Moon Lord summon weapons.
+    /// Triumphant Fractal projectile — homing fractal geometry with lightning flourishes.
+    /// Game logic (homing, hit, death) lives here; ALL visuals delegated to TriumphantFractalVFX.
     /// </summary>
     public class TriumphantFractalProjectile : ModProjectile
     {
-        private float lightningTimer = 0f;
-        private List<(Vector2 start, Vector2 end, float time)> activeLightning = new List<(Vector2, Vector2, float)>();
+        /// <summary>Frame counter for lightning timing and animation.</summary>
+        private ref float AgeTimer => ref Projectile.ai[1];
+
+        private List<(Vector2 start, Vector2 end, float time)> activeLightning = new();
 
         public override void SetStaticDefaults()
         {
@@ -45,11 +48,11 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public override void AI()
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
-            lightningTimer += 1f;
+            AgeTimer++;
 
-            // HOMING: Track nearby enemies
+            // ─── Homing ───
             float homingRange = 400f;
-            float homingStrength = 0.045f; // Moderate tracking
+            float homingStrength = 0.045f;
             NPC closestNPC = null;
             float closestDist = homingRange;
 
@@ -69,20 +72,18 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             if (closestNPC != null)
             {
-                Vector2 toTarget = closestNPC.Center - Projectile.Center;
-                toTarget.Normalize();
+                Vector2 toTarget = Vector2.Normalize(closestNPC.Center - Projectile.Center);
                 Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * Projectile.velocity.Length(), homingStrength);
             }
 
-            // Spawn fractal lightning bolts around the projectile periodically
-            if (lightningTimer % 8 == 0)
+            // ─── Lightning bolt management ───
+            if ((int)AgeTimer % 8 == 0)
             {
                 float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                Vector2 lightningEnd = Projectile.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(40f, 80f);
+                Vector2 lightningEnd = Projectile.Center + angle.ToRotationVector2() * Main.rand.NextFloat(40f, 80f);
                 activeLightning.Add((Projectile.Center, lightningEnd, 0f));
             }
 
-            // Update and remove old lightning
             activeLightning.RemoveAll(l => l.time > 10f);
             for (int i = 0; i < activeLightning.Count; i++)
             {
@@ -90,57 +91,20 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 activeLightning[i] = (l.start, l.end, l.time + 1f);
             }
 
-            // Intense crimson flame trail with pulsing using new particle system
-            float pulse = 1f + (float)Math.Sin(lightningTimer * 0.3f) * 0.3f;
-            ThemedParticles.EroicaTrail(Projectile.Center, Projectile.velocity);
-            
-            // Enhanced custom particle trail
-            CustomParticles.EroicaTrail(Projectile.Center, Projectile.velocity, 0.35f);
-            
-            for (int i = 0; i < 2; i++)
-            {
-                Dust flame = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.CrimsonTorch, 0f, 0f, 100, default, 2f * pulse);
-                flame.noGravity = true;
-                flame.velocity = Projectile.velocity * 0.3f + Main.rand.NextVector2Circular(1f, 1f);
-            }
+            // ─── Delegate ALL trail VFX to VFX module ───
+            TriumphantFractalVFX.ProjectileTrailVFX(Projectile);
 
-            // Gold/heroic sparkles
-            if (Main.rand.NextBool(2))
-            {
-                Dust gold = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.GoldCoin, 0f, 0f, 0, default, 1.2f);
-                gold.noGravity = true;
-                gold.velocity = -Projectile.velocity * 0.2f;
-            }
-
-            if (Main.rand.NextBool(3))
-            {
-                Dust smoke = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.Smoke, 0f, 0f, 100, Color.Black, 1.3f);
-                smoke.noGravity = true;
-                smoke.velocity *= 0.4f;
-            }
-
-            Lighting.AddLight(Projectile.Center, 1f, 0.4f, 0.3f);
+            // Pulsating scale
+            float pulse = 1f + MathF.Sin(AgeTimer * 0.3f) * 0.08f;
+            Projectile.scale = pulse;
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // === SIGNATURE FRACTAL FLARE BURST ===
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 flareOffset = angle.ToRotationVector2() * 30f;
-                float progress = (float)i / 6f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, progress);
-                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.45f, 18);
-            }
-            
-            // Music notes on hit
-            ThemedParticles.EroicaMusicNotes(target.Center, 3, 25f);
-            
-            // === SEEKING CRYSTALS - Triumphant fractal burst ===
+            // ─── Delegate hit VFX to VFX module ───
+            TriumphantFractalVFX.ProjectileHitVFX(target.Center);
+
+            // ─── Seeking Crystals — game logic (20% chance, 4 crystals) ───
             if (Main.rand.NextBool(3))
             {
                 SeekingCrystalHelper.SpawnEroicaCrystals(
@@ -153,7 +117,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     4
                 );
             }
-            
+
             CreateMassiveExplosion();
         }
 
@@ -170,123 +134,43 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         private void CreateMassiveExplosion()
         {
-            // Prevent duplicate explosions via flag
             if (Projectile.localAI[0] >= 1f) return;
             Projectile.localAI[0] = 1f;
 
             SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode, Projectile.position);
 
-            // Grand triumphant finale effect - the big moment
-            DynamicParticleEffects.EroicaDeathTriumphFade(Projectile.Center, 1.8f);
-            
-            // Fractal lightning bolts as unique flourish
+            // ─── Delegate death VFX ───
+            EroicaVFXLibrary.DeathHeroicFlash(Projectile.Center, 1.8f, EroicaPalette.OrangeGold);
+            TriumphantFractalVFX.ProjectileDeathVFX(Projectile.Center);
+
+            // ─── Fractal lightning dust bolts (game-spawned geometry) ───
             for (int i = 0; i < 5; i++)
             {
                 float angle = MathHelper.TwoPi * i / 5f;
                 Vector2 direction = angle.ToRotationVector2();
                 Vector2 lightningEnd = Projectile.Center + direction * Main.rand.NextFloat(80f, 140f);
-                MagnumVFX.DrawFractalLightning(Projectile.Center, lightningEnd, new Color(255, 150, 100), 8, 28f, 1, 0.4f);
+
+                // 8-segment zigzag dust chain
+                Vector2 step = (lightningEnd - Projectile.Center) / 8f;
+                Vector2 perp = new Vector2(-step.Y, step.X);
+                perp.Normalize();
+                Vector2 current = Projectile.Center;
+                for (int s = 0; s < 8; s++)
+                {
+                    current += step;
+                    float offset = (s % 2 == 0 ? 1f : -1f) * Main.rand.NextFloat(14f, 28f);
+                    Vector2 pos = current + perp * offset;
+                    Color col = Color.Lerp(new Color(255, 210, 80), new Color(255, 150, 100), (float)s / 8f);
+                    Dust bolt = Dust.NewDustPerfect(pos, DustID.GoldFlame, step * 0.15f, 0, col, 1.5f - s * 0.1f);
+                    bolt.noGravity = true;
+                }
             }
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
-            Vector2 origin = texture.Size() / 2f;
-
-            // Switch to additive blending for glow effects
-            MagnumVFX.BeginAdditiveBlend(spriteBatch);
-
-            // Draw active lightning bolts around the projectile
-            foreach (var lightning in activeLightning)
-            {
-                float alpha = 1f - (lightning.time / 10f);
-                Color lightningColor = new Color(255, 180, 100) * alpha;
-                
-                // Draw mini lightning bolt
-                DrawMiniLightning(lightning.start, lightning.end, lightningColor);
-            }
-            
-            // Draw prismatic gem trail using oldPos for brilliant diamond effect
-            MagnumVFX.DrawPrismaticGemTrail(spriteBatch, Projectile.oldPos, true, 0.5f, lightningTimer);
-
-            // Draw enhanced glowing trail with color gradient
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-
-                float progress = (float)i / Projectile.oldPos.Length;
-                Vector2 drawPos = Projectile.oldPos[i] - Main.screenPosition + Projectile.Size / 2f;
-                
-                // Gradient from bright gold to deep crimson
-                Color trailColor = Color.Lerp(new Color(255, 200, 100), new Color(200, 50, 30), progress);
-                trailColor *= (1f - progress) * 0.9f;
-                float trailScale = Projectile.scale * MathHelper.Lerp(1.2f, 0.4f, progress);
-
-                spriteBatch.Draw(texture, drawPos, null, trailColor, Projectile.oldRot[i], origin,
-                    trailScale, SpriteEffects.None, 0f);
-
-                // Extra glow layer
-                spriteBatch.Draw(texture, drawPos, null, trailColor * 0.5f, Projectile.oldRot[i], origin,
-                    trailScale * 1.3f, SpriteEffects.None, 0f);
-            }
-
-            // Draw the main projectile with glow
-            Vector2 mainDrawPos = Projectile.Center - Main.screenPosition;
-            float pulseScale = 1f + (float)Math.Sin(lightningTimer * 0.2f) * 0.15f;
-            
-            // Draw central prismatic gem effect
-            MagnumVFX.DrawEroicaPrismaticGem(spriteBatch, Projectile.Center, pulseScale * 1.2f, 1f, lightningTimer);
-            
-            // Outer glow
-            spriteBatch.Draw(texture, mainDrawPos, null, new Color(255, 150, 80) * 0.6f, Projectile.rotation, origin,
-                Projectile.scale * pulseScale * 2f, SpriteEffects.None, 0f);
-            // Inner glow
-            spriteBatch.Draw(texture, mainDrawPos, null, new Color(255, 220, 180) * 0.8f, Projectile.rotation, origin,
-                Projectile.scale * pulseScale * 1.3f, SpriteEffects.None, 0f);
-
-            MagnumVFX.EndAdditiveBlend(spriteBatch);
-
-            return true;
-        }
-
-        private void DrawMiniLightning(Vector2 start, Vector2 end, Color color)
-        {
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
-            int segments = 5;
-            List<Vector2> points = new List<Vector2>();
-            points.Add(start);
-
-            Vector2 direction = end - start;
-            Vector2 perpendicular = new Vector2(-direction.Y, direction.X);
-            perpendicular.Normalize();
-
-            for (int i = 1; i < segments; i++)
-            {
-                float progress = (float)i / segments;
-                Vector2 basePos = Vector2.Lerp(start, end, progress);
-                float offset = Main.rand.NextFloat(-15f, 15f) * (float)Math.Sin(progress * Math.PI);
-                points.Add(basePos + perpendicular * offset);
-            }
-            points.Add(end);
-
-            for (int i = 0; i < points.Count - 1; i++)
-            {
-                Vector2 segStart = points[i] - Main.screenPosition;
-                Vector2 segEnd = points[i + 1] - Main.screenPosition;
-                Vector2 segDir = segEnd - segStart;
-                float length = segDir.Length();
-                float rotation = segDir.ToRotation();
-
-                // Glow
-                Main.spriteBatch.Draw(pixel, segStart, new Rectangle(0, 0, 1, 1), color * 0.5f,
-                    rotation, Vector2.Zero, new Vector2(length, 4f), SpriteEffects.None, 0f);
-                // Core
-                Main.spriteBatch.Draw(pixel, segStart, new Rectangle(0, 0, 1, 1), Color.White * (color.A / 255f),
-                    rotation, Vector2.Zero, new Vector2(length, 1.5f), SpriteEffects.None, 0f);
-            }
+            // ─── Delegate ALL rendering to VFX module ───
+            return TriumphantFractalVFX.DrawFractalProjectile(Main.spriteBatch, Projectile, ref lightColor);
         }
     }
 }

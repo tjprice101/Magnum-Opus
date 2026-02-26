@@ -20,6 +20,9 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
     /// 4-phase sakura combo: Petal Slash → Crimson Scatter → Blossom Bloom → Storm of Petals.
     /// Each phase spawns increasing numbers of spectral homing copies (SakurasBlossomSpectral).
     /// The blade literally blooms with petals — a flower unfurling across four movements.
+    /// 
+    /// Enhanced: phase transition tracking, petal trail recording, escalating
+    /// sound design with pitch/volume curve, peak-boost lighting.
     /// </summary>
     public sealed class SakurasBlossomSwing : MeleeSwingBase
     {
@@ -30,15 +33,23 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
 
         #endregion
 
+        #region Phase Transition Tracking
+
+        /// <summary>Track last combo step for phase transition VFX.</summary>
+        private int _lastComboStep = -1;
+
+        #endregion
+
         #region Combo Phases
 
         // Phase 0: Petal Slash — quick horizontal opener, petals scatter
+        //   Refined: slightly tighter timing +  snappier acceleration
         private static readonly ComboPhase Phase0_PetalSlash = new ComboPhase(
             curves: new CurveSegment[]
             {
-                new CurveSegment(EasingType.PolyOut, 0f, -0.85f, 0.18f, 2),
-                new CurveSegment(EasingType.PolyIn, 0.18f, -0.67f, 1.45f, 3),
-                new CurveSegment(EasingType.PolyOut, 0.80f, 0.78f, 0.12f, 2)
+                new CurveSegment(EasingType.PolyOut, 0f, -0.85f, 0.16f, 2),
+                new CurveSegment(EasingType.PolyIn, 0.16f, -0.69f, 1.50f, 3),
+                new CurveSegment(EasingType.PolyOut, 0.78f, 0.81f, 0.10f, 2)
             },
             maxAngle: MathHelper.PiOver2 * 1.4f,
             duration: 26,
@@ -49,51 +60,54 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
         );
 
         // Phase 1: Crimson Scatter — backhand that tosses spectral copies wide
+        //   Refined: wider arc, slightly longer for drama
         private static readonly ComboPhase Phase1_CrimsonScatter = new ComboPhase(
             curves: new CurveSegment[]
             {
-                new CurveSegment(EasingType.PolyOut, 0f, 0.9f, -0.2f, 2),
-                new CurveSegment(EasingType.PolyIn, 0.2f, 0.7f, -1.6f, 3),
-                new CurveSegment(EasingType.PolyOut, 0.82f, -0.9f, -0.1f, 2)
+                new CurveSegment(EasingType.PolyOut, 0f, 0.92f, -0.20f, 2),
+                new CurveSegment(EasingType.PolyIn, 0.20f, 0.72f, -1.65f, 3),
+                new CurveSegment(EasingType.PolyOut, 0.82f, -0.93f, -0.08f, 2)
             },
-            maxAngle: MathHelper.PiOver2 * 1.6f,
-            duration: 28,
-            bladeLength: 158f,
+            maxAngle: MathHelper.PiOver2 * 1.65f,
+            duration: 29,
+            bladeLength: 160f,
             flip: true,
-            squish: 0.90f,
+            squish: 0.89f,
             damageMult: 1.0f
         );
 
         // Phase 2: Blossom Bloom — rising arc, pollen explodes from blade
+        //   Refined: broader bloom arc, longer blade
         private static readonly ComboPhase Phase2_BlossomBloom = new ComboPhase(
             curves: new CurveSegment[]
             {
-                new CurveSegment(EasingType.SineOut, 0f, -1.0f, 0.25f, 2),
-                new CurveSegment(EasingType.PolyIn, 0.25f, -0.75f, 1.8f, 3),
-                new CurveSegment(EasingType.PolyOut, 0.84f, 1.05f, 0.08f, 2)
+                new CurveSegment(EasingType.SineOut, 0f, -1.0f, 0.22f, 2),
+                new CurveSegment(EasingType.PolyIn, 0.22f, -0.78f, 1.85f, 3),
+                new CurveSegment(EasingType.PolyOut, 0.84f, 1.07f, 0.06f, 2)
             },
-            maxAngle: MathHelper.PiOver2 * 1.9f,
-            duration: 32,
-            bladeLength: 165f,
+            maxAngle: MathHelper.PiOver2 * 1.95f,
+            duration: 33,
+            bladeLength: 168f,
             flip: false,
-            squish: 0.86f,
-            damageMult: 1.15f
+            squish: 0.85f,
+            damageMult: 1.18f
         );
 
         // Phase 3: Storm of Petals — massive slam, sakura storm erupts
+        //   Refined: power-4 acceleration for devastating finisher, longest blade
         private static readonly ComboPhase Phase3_StormOfPetals = new ComboPhase(
             curves: new CurveSegment[]
             {
-                new CurveSegment(EasingType.SineOut, 0f, -1.15f, 0.18f, 2),
-                new CurveSegment(EasingType.PolyIn, 0.2f, -0.97f, 2.2f, 4),
-                new CurveSegment(EasingType.PolyOut, 0.82f, 1.23f, 0.05f, 2)
+                new CurveSegment(EasingType.SineOut, 0f, -1.18f, 0.16f, 2),
+                new CurveSegment(EasingType.PolyIn, 0.18f, -1.02f, 2.30f, 4),
+                new CurveSegment(EasingType.PolyOut, 0.82f, 1.28f, 0.04f, 2)
             },
-            maxAngle: MathHelper.PiOver2 * 2.3f,
-            duration: 40,
-            bladeLength: 175f,
+            maxAngle: MathHelper.PiOver2 * 2.35f,
+            duration: 42,
+            bladeLength: 178f,
             flip: true,
-            squish: 0.80f,
-            damageMult: 1.5f
+            squish: 0.78f,
+            damageMult: 1.55f
         );
 
         #endregion
@@ -128,16 +142,31 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
         protected override Texture2D GetBladeTexture()
             => ModContent.Request<Texture2D>("MagnumOpus/Content/Eroica/Weapons/SakurasBlossom/SakurasBlossom").Value;
 
+        /// <summary>
+        /// Escalating sakura sound — pitch rises through combo, volume grows,
+        /// Phase 3 finisher gets extra reverb-like pitch drop.
+        /// </summary>
         protected override SoundStyle GetSwingSound()
-            => SoundID.Item71 with { Pitch = -0.15f + ComboStep * 0.15f, Volume = 0.9f };
+            => SoundID.Item71 with
+            {
+                Pitch = -0.22f + ComboStep * 0.18f,
+                Volume = 0.88f + ComboStep * 0.06f
+            };
 
         protected override int GetInitialDustType() => DustID.RedTorch;
 
         protected override int GetSecondaryDustType() => DustID.PinkTorch;
 
+        /// <summary>
+        /// Enhanced light color with progression-based peak boost.
+        /// Pink → Gold gradient intensifies at swing peak (progression ~0.5).
+        /// </summary>
         protected override Vector3 GetLightColor()
         {
-            float intensity = 0.55f + ComboStep * 0.12f;
+            float baseIntensity = 0.55f + ComboStep * 0.14f;
+            // Peak boost: sine curve peaking at mid-swing
+            float peakFactor = (float)Math.Sin(Progression * MathHelper.Pi);
+            float intensity = baseIntensity + peakFactor * 0.25f;
             Color c = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.Gold, Progression);
             return c.ToVector3() * intensity;
         }
@@ -148,6 +177,17 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
 
         protected override void HandleComboSpecials()
         {
+            // Phase transition detection — petal burst between phases
+            if (ComboStep != _lastComboStep)
+            {
+                if (_lastComboStep >= 0)
+                {
+                    SakurasBlossomVFX.PhaseTransitionBurst(Owner.MountedCenter, ComboStep);
+                    SakurasBlossomVFX.ResetPetalTrail();
+                }
+                _lastComboStep = ComboStep;
+            }
+
             if (hasSpawnedSpecial) return;
 
             // Phase 0 (Petal Slash): 1 spectral copy at 60%
@@ -208,7 +248,6 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
                     }
                 }
 
-                // VFX: Pollen explosion — golden motes scatter from bloom
                 Vector2 vfxTip = GetBladeTipPosition();
                 SakurasBlossomVFX.BlossomBloomVFX(vfxTip);
             }
@@ -235,6 +274,10 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
                 // VFX: Full sakura storm — the climactic blooming
                 Vector2 vfxTip = GetBladeTipPosition();
                 SakurasBlossomVFX.StormOfPetalsVFX(vfxTip);
+
+                // Finisher sound — low boom to complement the storm
+                SoundEngine.PlaySound(SoundID.Item70 with { Pitch = -0.3f, Volume = 0.5f },
+                    GetBladeTipPosition());
             }
         }
 
@@ -270,10 +313,9 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
 
         protected override void DrawCustomVFX(SpriteBatch sb)
         {
-            if (Progression <= 0.08f || Progression >= 0.92f) return;
+            if (Progression <= 0.06f || Progression >= 0.94f) return;
 
             Vector2 tipPos = GetBladeTipPosition();
-
             SakurasBlossomVFX.DrawSwingTrailVFX(tipPos, Owner.MountedCenter, SwordDirection, Progression, ComboStep);
         }
 

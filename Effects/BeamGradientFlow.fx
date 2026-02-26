@@ -5,7 +5,7 @@
 // Designed for DrawUserIndexedPrimitives with VertexPositionColorTexture.
 //
 // UV Layout:
-//   U (coords.x) = position along beam (0→1) + time scroll offset
+//   U (coords.x) = position along beam (0ↁE) + time scroll offset
 //   V (coords.y) = position across beam (0 = top edge, 1 = bottom edge, 0.5 = center)
 //
 // Features:
@@ -63,7 +63,7 @@ VS_OUTPUT MainVS(VS_INPUT input)
 }
 
 // =============================================================================
-// PIXEL SHADER — Gradient Flow Beam
+// PIXEL SHADER  EGradient Flow Beam
 // =============================================================================
 float4 GradientFlowPS(VS_OUTPUT input) : COLOR0
 {
@@ -103,7 +103,7 @@ float4 GradientFlowPS(VS_OUTPUT input) : COLOR0
     float pulse = sin(uTime * uPulseSpeed + u * 4.0) * 0.08 + 0.92;
 
     // --- Noise-modulated intensity ---
-    // Creates the flowing energy feel — brighter where noise peaks
+    // Creates the flowing energy feel  Ebrighter where noise peaks
     float noiseIntensity = 0.65 + noise1 * 0.25 + noise2 * 0.10;
 
     // --- Final Composition ---

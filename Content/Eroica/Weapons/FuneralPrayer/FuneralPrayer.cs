@@ -8,7 +8,6 @@ using Terraria.ModLoader;
 using Terraria.GameContent;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Common;
-using MagnumOpus.Common.Systems.Particles;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -128,11 +127,15 @@ namespace MagnumOpus.Content.Eroica.Weapons.FuneralPrayer
             }
         }
 
-        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires 5 large flaming projectiles"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Hitting multiple enemies triggers ricochet beams"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'A requiem for the fallen'") { OverrideColor = EroicaPalette.Scarlet });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires a spreading volley of five sacred flame beams"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "When all five beams find their mark, a devastating ricochet beam is unleashed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Ricochet beams chain between enemies, growing fiercer with each leap"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Ashes to ashes, hymn to silence — the last prayer is always fire'")
+            {
+                OverrideColor = new Color(200, 50, 50)
+            });
         }
     }
 }

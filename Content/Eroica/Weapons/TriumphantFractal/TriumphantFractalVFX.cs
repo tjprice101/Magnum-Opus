@@ -5,9 +5,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Screen;
 
 namespace MagnumOpus.Content.Eroica.Weapons.TriumphantFractal
@@ -170,7 +168,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.TriumphantFractal
             }
 
             EroicaVFXLibrary.DrawBloom(pos, 0.5f);
-            CustomParticles.EroicaFlare(pos, 0.4f);
+            EroicaVFXLibrary.BloomFlare(pos, FractalGold, 0.4f, 14);
             EroicaVFXLibrary.SpawnMusicNotes(pos, 2, 15f, 0.7f, 0.9f, 30);
             SoundEngine.PlaySound(SoundID.Item10 with { Volume = 0.5f }, pos);
             Lighting.AddLight(pos, FractalGold.ToVector3() * 0.8f);
@@ -236,6 +234,23 @@ namespace MagnumOpus.Content.Eroica.Weapons.TriumphantFractal
 
             // {A=0} bloom trail
             EroicaVFXLibrary.DrawProjectileTrail(sb, proj, FractalGold);
+
+            // Shader-enhanced fractal trail pass
+            {
+                Texture2D shaderGlow = MagnumTextureRegistry.GetSoftGlow();
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                EroicaShaderManager.ApplyTriumphantFractalProjectileTrail(Main.GlobalTimeWrappedHourly);
+                Vector2 glowOrigin = shaderGlow.Size() * 0.5f;
+                for (int k = 0; k < proj.oldPos.Length; k++)
+                {
+                    if (proj.oldPos[k] == Vector2.Zero) continue;
+                    Vector2 shaderPos = proj.oldPos[k] - Main.screenPosition + new Vector2(proj.width / 2f, proj.height / 2f);
+                    float shaderProgress = (proj.oldPos.Length - k) / (float)proj.oldPos.Length;
+                    sb.Draw(shaderGlow, shaderPos, null, Color.White * shaderProgress * 0.55f, proj.oldRot[k],
+                        glowOrigin, proj.scale * (0.4f + shaderProgress * 0.65f), SpriteEffects.None, 0f);
+                }
+                EroicaShaderManager.RestoreSpriteBatch(sb);
+            }
 
             // Afterimage trail with FractalGold→HexagonScarlet gradient
             for (int k = 0; k < proj.oldPos.Length; k++)

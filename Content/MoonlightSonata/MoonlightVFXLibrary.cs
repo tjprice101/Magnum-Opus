@@ -357,7 +357,7 @@ namespace MagnumOpus.Content.MoonlightSonata
             shader.Parameters["uPhase"]?.SetValue(MathHelper.Clamp(phase, 0f, 1f));
             shader.Parameters["uSharpness"]?.SetValue(2.5f);
 
-            string technique = pulsing ? "CrescentPulse" : "CrescentShape";
+            string technique = pulsing ? "CrescentPulse" : "CrescentShapeTechnique";
             shader.CurrentTechnique = shader.Techniques[technique];
             shader.CurrentTechnique.Passes[0].Apply();
         }

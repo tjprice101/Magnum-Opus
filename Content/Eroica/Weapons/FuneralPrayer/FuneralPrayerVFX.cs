@@ -5,7 +5,6 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Screen;
@@ -218,7 +217,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.FuneralPrayer
             }
 
             // Small flare — last ember
-            CustomParticles.EroicaFlare(pos, 0.25f);
+            EroicaVFXLibrary.BloomFlare(pos, MourningFlame, 0.25f, 12);
 
             Lighting.AddLight(pos, MourningFlame.ToVector3() * 0.4f);
         }
@@ -434,6 +433,23 @@ namespace MagnumOpus.Content.Eroica.Weapons.FuneralPrayer
             // {A=0} bloom trail — FuneralShadow to MourningFlame
             EroicaVFXLibrary.DrawProjectileTrail(sb, proj, MourningFlame);
 
+            // Shader-enhanced funeral beam trail pass
+            {
+                Texture2D shaderGlow = MagnumTextureRegistry.GetSoftGlow();
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                EroicaShaderManager.ApplyFuneralPrayerRequiemBeam(Main.GlobalTimeWrappedHourly);
+                Vector2 glowOrigin = shaderGlow.Size() * 0.5f;
+                for (int k = 0; k < proj.oldPos.Length; k++)
+                {
+                    if (proj.oldPos[k] == Vector2.Zero) continue;
+                    Vector2 shaderPos = proj.oldPos[k] - Main.screenPosition + new Vector2(proj.width / 2f, proj.height / 2f);
+                    float shaderProgress = (proj.oldPos.Length - k) / (float)proj.oldPos.Length;
+                    sb.Draw(shaderGlow, shaderPos, null, Color.White * shaderProgress * 0.5f, proj.oldRot[k],
+                        glowOrigin, proj.scale * (0.35f + shaderProgress * 0.6f), SpriteEffects.None, 0f);
+                }
+                EroicaShaderManager.RestoreSpriteBatch(sb);
+            }
+
             // Afterimage trail with DirgeRed opacity fade
             for (int k = 0; k < proj.oldPos.Length; k++)
             {
@@ -482,6 +498,23 @@ namespace MagnumOpus.Content.Eroica.Weapons.FuneralPrayer
 
             // {A=0} bloom trail — RequiemGold, brighter than standard
             EroicaVFXLibrary.DrawProjectileTrail(sb, proj, RequiemGold);
+
+            // Shader-enhanced ricochet beam trail pass
+            {
+                Texture2D shaderGlow = MagnumTextureRegistry.GetSoftGlow();
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                EroicaShaderManager.ApplyFuneralPrayerRequiemBeam(Main.GlobalTimeWrappedHourly, glowPass: true);
+                Vector2 glowOrigin = shaderGlow.Size() * 0.5f;
+                for (int k = 0; k < proj.oldPos.Length; k++)
+                {
+                    if (proj.oldPos[k] == Vector2.Zero) continue;
+                    Vector2 shaderPos = proj.oldPos[k] - Main.screenPosition + new Vector2(proj.width / 2f, proj.height / 2f);
+                    float shaderProgress = (proj.oldPos.Length - k) / (float)proj.oldPos.Length;
+                    sb.Draw(shaderGlow, shaderPos, null, Color.White * shaderProgress * 0.65f, proj.oldRot[k],
+                        glowOrigin, proj.scale * (0.4f + shaderProgress * 0.7f), SpriteEffects.None, 0f);
+                }
+                EroicaShaderManager.RestoreSpriteBatch(sb);
+            }
 
             // Enhanced afterimage — RequiemGold to SpiritWhite gradient
             for (int k = 0; k < proj.oldPos.Length; k++)

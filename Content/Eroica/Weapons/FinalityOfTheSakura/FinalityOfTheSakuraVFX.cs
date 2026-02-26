@@ -5,9 +5,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Screen;
 
 namespace MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura
@@ -296,7 +294,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura
             }
 
             // Small bloom — a dim flicker, then nothing
-            CustomParticles.EroicaFlare(pos, 0.2f);
+            EroicaVFXLibrary.BloomFlare(pos, AbyssFlame, 0.2f, 10);
 
             Lighting.AddLight(pos, AbyssFlame.ToVector3() * 0.3f);
         }
@@ -319,6 +317,17 @@ namespace MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura
             Vector2 drawPos = minionWorldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
             float pulse = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 3.5f) * 0.08f;
+
+            // Shader-enhanced dark flame aura pass
+            {
+                Texture2D shaderGlow = MagnumTextureRegistry.GetSoftGlow();
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                EroicaShaderManager.ApplyFinalityDarkFlameAura(Main.GlobalTimeWrappedHourly);
+                Vector2 glowOrigin = shaderGlow.Size() * 0.5f;
+                sb.Draw(shaderGlow, drawPos, null, Color.White * 0.5f, 0f,
+                    glowOrigin, scale * 1.8f * pulse, SpriteEffects.None, 0f);
+                EroicaShaderManager.RestoreSpriteBatch(sb);
+            }
 
             // Layer 1: Outer void — FateBlack halo
             sb.Draw(bloom, drawPos, null,
@@ -355,6 +364,23 @@ namespace MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura
 
             // {A=0} dark bloom trail — FateBlack
             EroicaVFXLibrary.DrawProjectileTrail(sb, proj, FateBlack);
+
+            // Shader-enhanced dark funeral trail pass
+            {
+                Texture2D shaderGlow = MagnumTextureRegistry.GetSoftGlow();
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                EroicaShaderManager.ApplyFinalityDarkFuneralTrail(Main.GlobalTimeWrappedHourly);
+                Vector2 glowOrigin = shaderGlow.Size() * 0.5f;
+                for (int k = 0; k < proj.oldPos.Length; k++)
+                {
+                    if (proj.oldPos[k] == Vector2.Zero) continue;
+                    Vector2 shaderPos = proj.oldPos[k] - Main.screenPosition + new Vector2(proj.width / 2f, proj.height / 2f);
+                    float shaderProgress = (proj.oldPos.Length - k) / (float)proj.oldPos.Length;
+                    sb.Draw(shaderGlow, shaderPos, null, Color.White * shaderProgress * 0.45f, proj.oldRot[k],
+                        glowOrigin, proj.scale * (0.35f + shaderProgress * 0.55f), SpriteEffects.None, 0f);
+                }
+                EroicaShaderManager.RestoreSpriteBatch(sb);
+            }
 
             // Afterimage trail — FateBlack to DoomCrimson gradient
             for (int k = 0; k < proj.oldPos.Length; k++)
@@ -440,7 +466,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura
 
             // Fading bloom — DoomCrimson to nothing
             EroicaVFXLibrary.BloomFlare(pos, DoomCrimson, 0.5f, 25);
-            CustomParticles.EroicaFlare(pos, 0.3f);
+            EroicaVFXLibrary.BloomFlare(pos, SakuraFinale, 0.3f, 15);
 
             // Ascending spirit motes — fragments of the minion drifting upward
             for (int i = 0; i < 8; i++)

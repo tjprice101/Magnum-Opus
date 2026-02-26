@@ -1,21 +1,23 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
-using MagnumOpus.Common.Systems;
+using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer;
 using System.Collections.Generic;
 using System;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
     /// <summary>
-    /// Large ricochet beam that bounces between enemies 5-6 times
+    /// Large ricochet beam that bounces between enemies 5-6 times.
+    /// All VFX delegated to FuneralPrayerVFX module.
     /// </summary>
     public class FuneralPrayerRicochetBeam : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/LightningStreak"; // Particle-based rendering
+        public override string Texture => "MagnumOpus/Assets/Particles/LightningStreak";
 
         private int currentTarget = -1;
         private List<int> hitEnemies = new List<int>();
@@ -38,9 +40,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Projectile.hostile = false;
             Projectile.DamageType = DamageClass.Magic;
             Projectile.penetrate = -1;
-            Projectile.timeLeft = 300; // 5 seconds max
+            Projectile.timeLeft = 300;
             Projectile.alpha = 255;
-            Projectile.light = 1.5f;
+            Projectile.light = 0f; // Lighting handled by VFX module
             Projectile.ignoreWater = true;
             Projectile.tileCollide = false;
             Projectile.extraUpdates = 1;
@@ -48,14 +50,14 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void AI()
         {
-            // Initialize ricochet count from ai parameter
+            // Initialize ricochet count
             if (Projectile.ai[0] == 0)
             {
                 Projectile.ai[0] = 1;
-                ricochetsRemaining = Main.rand.Next(5, 7); // 5-6 ricochets
+                ricochetsRemaining = Main.rand.Next(5, 7);
             }
 
-            // Find next target if we don't have one or need to ricochet
+            // Find next target if needed
             if (currentTarget < 0 || !Main.npc[currentTarget].active || isRicocheting)
             {
                 FindNextTarget();
@@ -67,8 +69,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             {
                 Vector2 direction = (Main.npc[currentTarget].Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
                 Projectile.velocity = direction * 20f;
-                
-                // Check if we're close enough to hit
+
                 if (Vector2.Distance(Projectile.Center, Main.npc[currentTarget].Center) < 50f)
                 {
                     HitCurrentTarget();
@@ -76,51 +77,13 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             }
             else if (ricochetsRemaining <= 0)
             {
-                // No more ricochets, fade out
                 Projectile.Kill();
             }
 
-            // Intense glowing red with pink highlights
-            Lighting.AddLight(Projectile.Center, 1.2f, 0.2f, 0.5f);
-            
-            // Custom particle trail effect
-            CustomParticles.EroicaTrail(Projectile.Center, Projectile.velocity, 0.4f);
-            
-            // ☁EMUSICAL NOTATION - Heroic melody trail
-            if (Main.rand.NextBool(6))
-            {
-                Color noteColor = Color.Lerp(new Color(200, 50, 50), new Color(255, 215, 0), Main.rand.NextFloat());
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
-            }
-
-            // Large red torch particles for massive beam
-            if (Main.rand.NextBool(1)) // Every frame
-            {
-                Dust beam = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.RedTorch, 0f, 0f, 100, default, 3.0f);
-                beam.noGravity = true;
-                beam.velocity = Projectile.velocity * 0.3f;
-            }
-
-            // Pink highlight particles
-            if (Main.rand.NextBool(2))
-            {
-                Dust energy = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.PinkTorch, 0f, 0f, 100, default, 2.5f);
-                energy.noGravity = true;
-                energy.velocity = Main.rand.NextVector2Circular(3f, 3f);
-            }
-
-            // Orange fire particles for emphasis
-            if (Main.rand.NextBool(3))
-            {
-                Dust fire = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.Torch, 0f, 0f, 100, new Color(255, 100, 50), 2.0f);
-                fire.noGravity = true;
-            }
-
             Projectile.rotation = Projectile.velocity.ToRotation();
+
+            // ═══ ALL VFX delegated to module ═══
+            FuneralPrayerVFX.RicochetBeamTrailVFX(Projectile);
         }
 
         private void FindNextTarget()
@@ -131,7 +94,6 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 return;
             }
 
-            // Find nearest enemy we haven't hit yet
             int nextTarget = -1;
             float minDistance = MaxRicochetRange;
             Vector2 searchFrom = lastHitPosition != Vector2.Zero ? lastHitPosition : Projectile.Center;
@@ -153,7 +115,6 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 }
             }
 
-            // If no boss, find any enemy
             if (!foundBoss)
             {
                 minDistance = MaxRicochetRange;
@@ -181,22 +142,15 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 return;
 
             NPC target = Main.npc[currentTarget];
-            
-            // Deal damage
+
+            // Game logic: damage + debuff
             target.SimpleStrikeNPC(Projectile.damage, 0, false, 0f, null, false, 0f, true);
-            target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 360); // 6 seconds for ricochet
+            target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 360);
 
-            // Sharp ricochet flash using EnergyFlares[0] (sharp burst)
-            CustomParticles.EroicaFlare(target.Center, 0.6f);
-            var ricochetFlare = CustomParticleSystem.GetParticle().Setup(CustomParticleSystem.EnergyFlares[0], target.Center, Vector2.Zero,
-                new Color(255, 100, 50), 0.5f, 15, 0.02f, true, true);
-            CustomParticleSystem.SpawnParticle(ricochetFlare);
-            CustomParticles.ExplosionBurst(target.Center, new Color(255, 120, 80), 6, 4f);
-            
-            // ☁EMUSICAL IMPACT - Triumphant chord burst
-            ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 215, 0), 5, 3.5f);
+            // Delegate hit VFX to module — heroic impact, requiem burst, halos, music notes
+            FuneralPrayerVFX.RicochetBeamHitVFX(target.Center);
 
-            // Massive explosion particles
+            // Massive explosion dust
             for (int i = 0; i < 30; i++)
             {
                 Dust shock = Dust.NewDustDirect(target.position, target.width, target.height,
@@ -221,44 +175,25 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 fire.velocity = Main.rand.NextVector2Circular(5f, 5f);
             }
 
-            // Sound effect
             SoundEngine.PlaySound(SoundID.DD2_BetsyFireballImpact with { Volume = 0.8f, Pitch = -0.2f }, target.position);
 
-            // Mark this enemy as hit
             hitEnemies.Add(currentTarget);
             lastHitPosition = target.Center;
-            
-            // Decrement ricochets
             ricochetsRemaining--;
-            
-            // Flag for ricochet
             isRicocheting = true;
             currentTarget = -1;
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Draw large particle trail
-            Vector2 beamDirection = Projectile.velocity.SafeNormalize(Vector2.UnitX);
-            
-            // Create thick particle trail
-            for (int i = 0; i < 3; i++)
-            {
-                Vector2 offset = new Vector2(0, (i - 1) * 5).RotatedBy(Projectile.rotation);
-                Vector2 trailPos = Projectile.Center + offset;
-                
-                Dust trail = Dust.NewDustPerfect(trailPos, DustID.RedTorch, Vector2.Zero, 0, default, 2.5f);
-                trail.noGravity = true;
-                trail.velocity = -Projectile.velocity * 0.1f;
-            }
-
-            return false;
+            // Delegate rendering to VFX module
+            return FuneralPrayerVFX.DrawRicochetBeam(Main.spriteBatch, Projectile, ref lightColor);
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Sharp crimson spark for ricochet beam
-            DynamicParticleEffects.EroicaDeathCrimsonSpark(Projectile.Center, 0.8f);
+            // Delegate death VFX to module — heroic flash, radial dust, mourning flames, ash
+            FuneralPrayerVFX.RicochetBeamDeathVFX(Projectile.Center);
         }
     }
 }

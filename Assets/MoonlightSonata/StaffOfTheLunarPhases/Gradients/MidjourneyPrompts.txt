@@ -1,0 +1,37 @@
+================================================================================
+STAFF OF THE LUNAR PHASES / GOLIATH OF MOONLIGHT — GRADIENT ASSETS
+================================================================================
+
+PURPOSE: Horizontal color gradient strip textures sampled by HLSL shaders for
+beam coloring, trail rendering, aura fields, and cosmic energy effects. Shaders
+sample these textures using UV coordinates where U maps along the gradient.
+Typical sizes: 256x16 or 512x32 pixels. Horizontal orientation, left-to-right
+gradient progression.
+
+COLOR PALETTE:
+  Cosmic Void:     RGB(20, 8, 40)    — left edge / shadow
+  Event Horizon:   RGB(60, 20, 120)  — early shadow
+  Gravity Well:    RGB(100, 60, 180) — primary body
+  Nebula Purple:   RGB(150, 80, 220) — mid accent
+  Energy Tendril:  RGB(180, 140, 255)— bright accent
+  Star Core:       RGB(210, 225, 255)— right edge / bright
+
+================================================================================
+PROMPTS
+================================================================================
+
+PROMPT 1 — Cosmic Void to Star Core Gradient (primary beam/aura gradient)
+---
+A perfectly smooth horizontal color gradient strip texture, left side begins with deep cosmic void near-black purple RGB(20,8,40), transitions through dark event horizon purple RGB(60,20,120), then gravity well purple RGB(100,60,180), through nebula purple RGB(150,80,220), into bright lavender energy tendril RGB(180,140,255), ending at icy star-core blue-white RGB(210,225,255) on the right, absolutely smooth transitions with no banding, no noise, no texture detail, pure clean gradient, game shader texture asset, wide panoramic strip --ar 16:1 --v 6.1 --style raw --s 50 --no text watermark noise grain texture pattern
+
+PROMPT 2 — Nebula Gas Cloud Gradient (beam body shader texture)
+---
+A horizontal gradient texture resembling a cross-section through a cosmic nebula, left side deep space black transitioning through swirling tendrils of deep purple and violet, center section has bright nebula gas clouds in lavender RGB(180,140,255) and purple RGB(150,80,220) with subtle wispy structure, right side brightens to near-white star-forming regions with icy blue-white tint RGB(210,225,255), subtle gas cloud structure within the gradient but overall smooth left-to-right brightness progression, game VFX texture --ar 16:1 --v 6.1 --style raw --s 100 --no text watermark
+
+PROMPT 3 — Gravitational Accretion Gradient (charge buildup shader)
+---
+A horizontal gradient representing gravitational accretion energy, left side cold deep space void RGB(20,8,40), center rapidly brightens through compressed gravity well purple RGB(100,60,180) as matter compresses, right side intensely bright with icy stellar blue-white RGB(210,225,255), the transition is NOT linear but has a sharp brightness ramp in the right third simulating gravitational compression, clean smooth color bands, shader-ready texture strip --ar 16:1 --v 6.1 --style raw --s 50 --no text watermark noise
+
+PROMPT 4 — Dual-Tone Cosmic Energy Gradient (trail secondary)
+---
+A horizontal gradient oscillating between two cosmic colors, alternating bands of gravity well purple RGB(100,60,180) and energy tendril lavender RGB(180,140,255) that smoothly blend into each other across the strip, creating a subtle pulsing wave pattern, overall progression from darker left to brighter right, suitable for scrolling shader sampling to create animated energy pulse effects, clean digital render, game texture --ar 16:1 --v 6.1 --style raw --s 50 --no text watermark

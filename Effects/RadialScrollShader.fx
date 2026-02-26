@@ -8,7 +8,7 @@
 // Usage:
 //   1. Set causticTexture and distortTexture via shader parameters
 //   2. Pass this Effect to sb.Begin() as the effect parameter
-//   3. Draw the shape texture (gear, orb, etc.) — its alpha masks the output
+//   3. Draw the shape texture (gear, orb, etc.)  Eits alpha masks the output
 //
 // The drawn texture's alpha channel acts as the shape mask.
 // Noise textures are set via shader parameters, NOT device.Textures[].
@@ -16,7 +16,7 @@
 
 const float TAU = 6.283185;
 
-// SpriteBatch-drawn texture (shape mask — gear, orb, circle, etc.)
+// SpriteBatch-drawn texture (shape mask  Egear, orb, circle, etc.)
 // SpriteBatch binds this automatically to register s0.
 sampler2D uImage0 : register(s0);
 
@@ -103,7 +103,7 @@ float4 PSPolarScroll(float4 sampleColor : COLOR0, float2 uv : TEXCOORD0) : COLOR
     float vign = 1.0 - smoothstep(vignetteSize, vignetteSize + vignetteBlend, cd);
 
     // Map noise intensity through color gradient:
-    // dark → uColor → uSecondaryColor → white-hot
+    // dark ↁEuColor ↁEuSecondaryColor ↁEwhite-hot
     float intensity = caus * vign;
     float3 finalColor = lerp(uColor * 0.3, uColor, saturate(intensity * 2.0));
     finalColor = lerp(finalColor, uSecondaryColor, saturate(intensity * 2.0 - 0.5));
@@ -163,7 +163,7 @@ float4 PSPolarMultiLayer(float4 sampleColor : COLOR0, float2 uv : TEXCOORD0) : C
 // ============================================================================
 // TECHNIQUE 3: LINEAR SCROLL (non-polar, simple scrolling, shape-masked)
 // ============================================================================
-// Simpler version without polar conversion — just scrolls noise linearly.
+// Simpler version without polar conversion  Ejust scrolls noise linearly.
 // Good for rectangular shapes or when polar distortion isn't wanted.
 float4 PSLinearScroll(float4 sampleColor : COLOR0, float2 uv : TEXCOORD0) : COLOR0
 {
@@ -193,7 +193,7 @@ technique PolarScroll
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 PSPolarScroll();
+        PixelShader = compile ps_3_0 PSPolarScroll();
     }
 }
 
@@ -201,7 +201,7 @@ technique PolarMultiLayer
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 PSPolarMultiLayer();
+        PixelShader = compile ps_3_0 PSPolarMultiLayer();
     }
 }
 
@@ -209,6 +209,6 @@ technique LinearScroll
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 PSLinearScroll();
+        PixelShader = compile ps_3_0 PSLinearScroll();
     }
 }

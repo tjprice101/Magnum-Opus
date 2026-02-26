@@ -1,0 +1,81 @@
+================================================================================
+  ETERNAL MOON — CLEAR TRAIL TEXTURES (Transparent Background)
+  Midjourney Prompt Reference
+================================================================================
+
+PURPOSE:
+  Same conceptual content as the Trails/ textures but rendered with fully
+  transparent backgrounds and soft feathered alpha edges. These textures are
+  used for OVERLAY trail rendering where the trail is composited on top of
+  the game scene using alpha blending rather than additive blending. The alpha
+  channel controls visibility, whereas regular Trails/ textures rely on
+  black = invisible via additive blend math.
+
+USAGE IN CODE:
+  - Used when CalamityStyleTrailRenderer switches to non-additive blend states
+  - GlowTrailClear-style rendering for soft overlay sword arcs
+  - ThinLineGlowClear-style rendering for thin connecting flow lines between
+    wake points in DrawTidalWake()
+  - Overlay compositing for motion blur passes (MotionBlurBloom.fxc)
+  - Cases where the trail needs to partially occlude what is behind it rather
+    than purely brighten it (semi-opaque tidal flow effects)
+
+DIMENSIONS: 256x64 or 512x128 horizontal strips. Same left-bright to
+  right-fading directionality as regular Trails.
+
+CRITICAL DIFFERENCE FROM TRAILS/:
+  - Background MUST be fully transparent (alpha = 0), not black
+  - Trail energy itself has partial alpha (soft feathered edges blend to zero)
+  - Colors can include darker tones that would be invisible in additive mode
+  - The texture edges (top, bottom, right) must fade smoothly to zero alpha
+  - Left edge can be fully opaque
+  - Midjourney does not natively support transparency, so generate on WHITE
+    background and note that post-processing will convert white to transparent.
+
+POST-PROCESSING NOTE:
+  Midjourney outputs will need post-processing in Photoshop/GIMP:
+  1. Use "Color Range" to select the white background
+  2. Delete selected pixels to create transparency
+  3. Apply slight Gaussian blur to alpha channel edges for smooth feathering
+  4. Save as PNG with alpha channel
+
+COLOR PALETTE:
+  - Night Void:     RGB(40, 10, 60)    — semi-opaque trailing dark tones
+  - Deep Indigo:    RGB(75, 0, 130)    — body shadow tones
+  - Violet Body:    RGB(138, 43, 226)  — primary trail color
+  - Ice Blue Flare: RGB(135, 206, 250) — bright highlights
+  - Glacial Blue:  RGB(170, 225, 255) — icy accent streaks
+  - Moon White: RGB(230, 235, 255) — leading edge core
+
+REFERENCE: SandboxLastPrism/Trails/Clear/GlowTrailClear.png,
+  ThinLineGlowClear.png
+
+================================================================================
+  PROMPT 1 — Soft Tidal Glow Trail Clear (Primary Overlay Trail)
+================================================================================
+
+a horizontal elongated soft glowing trail VFX texture on a pure white background, the trail is a flowing ribbon of luminous energy centered vertically with very soft feathered edges that dissolve into the white background, the trail body flows from left to right: the left side features a concentrated glow of ice blue RGB(135,206,250) with a bright moon white RGB(230,235,255) center line, the middle section shows a soft violet RGB(138,43,226) body with gentle organic flowing internal patterns like moonlit water currents, thin glacial blue RGB(170,225,255) accent lines weave through the body, the right side tapers and fades with the violet becoming deep indigo RGB(75,0,130) then dissolving completely into the white background, the top and bottom edges are extremely softly feathered with a gradual falloff creating a rounded cross-section appearance, no hard edges anywhere on the trail body, the trail occupies roughly the center 50 percent of the vertical space leaving plenty of white for feathered falloff, this texture will be post-processed to convert the white background to transparency, game VFX overlay trail texture --ar 4:1 --s 150 --v 6.1 --style raw --no text watermark border frame dark-background
+
+================================================================================
+  PROMPT 2 — Thin Moonbeam Line Clear (Connecting Flow Line)
+================================================================================
+
+a horizontal elongated very thin glowing line VFX texture on a pure white background, a single luminous line running horizontally through the exact vertical center of the frame, the line is only about 4-6 pixels tall but has extensive soft glow falloff above and below, the line core is moon white RGB(230,235,255) transitioning to ice blue RGB(135,206,250), the glow halo surrounding the line fades through violet RGB(138,43,226) to very subtle deep indigo RGB(75,0,130) before dissolving into the white background, the line is brightest at the left end and gradually fades in intensity toward the right end, subtle pulse-like brightness variations along the length creating a gentle undulating luminosity like a heartbeat in the light, the glow extends roughly 20 percent of the total height above and below the center line, perfectly smooth and clean with no texture or noise in the glow, designed to be stretched between two points as a connecting energy line, will be post-processed to convert white to transparency, thin game VFX connecting line texture --ar 4:1 --s 100 --v 6.1 --style raw --no text watermark border frame dark-background
+
+================================================================================
+  PROMPT 3 — Crescent Arc Wash Clear (Tidal Wash Overlay)
+================================================================================
+
+a horizontal elongated crescent arc shaped trail VFX texture on a pure white background, the shape is a gentle curving arc that bows slightly downward from left to right creating a crescent-shaped sweep path, the arc body glows with violet RGB(138,43,226) as the primary color with ice blue RGB(135,206,250) bright highlights along the upper curved edge, the lower edge features cooler glacial blue RGB(170,225,255) accents, the left end of the arc is full brightness and width while the right end tapers to a thin wispy point before disappearing into the white background, soft tidal flow patterns within the arc body like water washing across a surface with organic streaking and flowing internal detail, the entire trail shape has extremely soft feathered edges that gradually dissolve into the surrounding white, night void RGB(40,10,60) deepens the shadow tones within the arc body giving it visual weight, will be post-processed to convert white to transparency for overlay blending, curved tidal game VFX trail texture --ar 4:1 --s 200 --v 6.1 --style raw --no text watermark border frame dark-background
+
+================================================================================
+  PROMPT 4 — Lunar Phase Fade Trail Clear (Phase Transition Trail)
+================================================================================
+
+a horizontal elongated trail VFX texture on a pure white background showing a lunar phase transition effect across its length, the left third represents a new moon phase with darker mysterious violet RGB(138,43,226) and deep indigo RGB(75,0,130) tones forming a soft concentrated glow, the center third brightens to represent a half moon with ice blue RGB(135,206,250) light expanding and the trail widening vertically, the right third represents a full moon crescendo with the trail at its brightest and widest featuring moon white RGB(230,235,255) core light and glacial blue RGB(170,225,255) cool accents, then the far right edge rapidly fades back to nothing dissolving into white, all edges are extremely softly feathered with gradual alpha-like falloff into the white background, the internal detail shows flowing organic light patterns that increase in complexity and brightness from left to right mirroring the lunar escalation, will be post-processed for transparency conversion, game VFX overlay trail with phase progression character --ar 4:1 --s 200 --v 6.1 --style raw --no text watermark border frame dark-background
+
+================================================================================
+  PROMPT 5 — Soft Tidal Mist Trail Clear (Atmospheric Underlayer)
+================================================================================
+
+a horizontal elongated extremely soft and diffused misty trail VFX texture on a pure white background, this is a very subtle atmospheric trail representing tidal mist or ocean spray illuminated by moonlight, the entire trail is low opacity and dreamy, the left side has the most visible concentration as a soft cloud of pale violet RGB(138,43,226) with the faintest ice blue RGB(135,206,250) undertone, scattered throughout are barely perceptible wisps and tendrils of deeper indigo RGB(75,0,130) suggesting depth in the mist, occasional tiny bright points of glacial blue RGB(170,225,255) embedded in the mist like distant moonlight sparkles, the mist occupies the full vertical space of the frame but is most concentrated along the center horizontal axis, all edges fade with extremely gradual softness into the white background, the right side thins to almost nothing like mist dissipating in the wind, the overall impression is of moonlit ocean mist trailing behind a powerful swing, very low contrast and atmospheric, will be post-processed to convert white to transparency, subtle game VFX underlayer trail texture --ar 4:1 --s 100 --v 6.1 --style raw --no text watermark border frame dark-background contrast

@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -7,19 +8,29 @@ using Terraria.Audio;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
     /// <summary>
-    /// Bullet projectile for Blossom of the Sakura with explosion on impact.
+    /// Bullet projectile for Blossom of the Sakura — heat-reactive homing tracer.
+    /// 
+    /// Enhanced: AI state tracking for heat propagation, acceleration-based homing,
+    /// pulsating scale, all VFX delegated to BlossomOfTheSakuraVFX module.
+    /// 
+    /// ai[0] = heatProgress (0-1, set by weapon item via Shoot)
+    /// ai[1] = age timer
     /// </summary>
     public class BlossomOfTheSakuraBulletProjectile : ModProjectile
     {
+        private ref float HeatProgress => ref Projectile.ai[0];
+        private ref float AgeTimer => ref Projectile.ai[1];
+
         private int targetNPC = -1;
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Type] = 8;
+            ProjectileID.Sets.TrailCacheLength[Type] = 10;
             ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
@@ -41,16 +52,23 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void AI()
         {
+            AgeTimer++;
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // Find and home towards nearest enemy (prioritize bosses)
+            // Pulsating visual scale — subtle heat shimmer
+            float pulse = (float)Math.Sin(AgeTimer * 0.15f) * 0.06f;
+            Projectile.scale = 1f + pulse + HeatProgress * 0.1f;
+
+            // ── Per-frame VFX — delegated to VFX module ──
+            BlossomOfTheSakuraVFX.BulletTrailVFX(Projectile, HeatProgress);
+
+            // ── HOMING AI — boss-priority with gentle tracking ──
             if (targetNPC < 0 || !Main.npc[targetNPC].active)
             {
                 targetNPC = -1;
-                float maxDistance = 800f;
+                float maxDistance = 850f;
                 bool foundBoss = false;
 
-                // First pass: look for bosses
                 for (int i = 0; i < Main.maxNPCs; i++)
                 {
                     NPC npc = Main.npc[i];
@@ -66,10 +84,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     }
                 }
 
-                // Second pass: if no boss, target any enemy
                 if (!foundBoss)
                 {
-                    maxDistance = 600f;
+                    maxDistance = 650f;
                     for (int i = 0; i < Main.maxNPCs; i++)
                     {
                         NPC npc = Main.npc[i];
@@ -86,91 +103,28 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 }
             }
 
-            // Home towards target with moderate tracking
+            // Gentle homing — tighter when hot, looser when cool
             if (targetNPC >= 0 && Main.npc[targetNPC].active)
             {
-                Vector2 direction = Main.npc[targetNPC].Center - Projectile.Center;
-                direction.Normalize();
-                // Gentle homing so bullets don't make sharp turns
-                Projectile.velocity = (Projectile.velocity * 30f + direction * 12f) / 31f;
+                Vector2 direction = (Main.npc[targetNPC].Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
+                float speed = Projectile.velocity.Length();
+                float turnWeight = 28f - HeatProgress * 6f; // hotter = tighter turns
+                turnWeight = MathHelper.Clamp(turnWeight, 20f, 30f);
+                Projectile.velocity = (Projectile.velocity * turnWeight + direction * speed) / (turnWeight + 1f);
             }
 
-            // === CALAMITY-STANDARD TRAIL VFX ===
-            
-            // HEAVY DUST TRAILS - scarlet/crimson fire (2+ per frame)
-            for (int d = 0; d < 2; d++)
-            {
-                Dust flame = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(4f, 4f), 
-                    DustID.RedTorch, -Projectile.velocity * 0.2f + Main.rand.NextVector2Circular(1f, 1f), 0, default, 1.2f);
-                flame.noGravity = true;
-                flame.fadeIn = 1.4f;
-                
-                Dust glow = Dust.NewDustPerfect(Projectile.Center, DustID.GoldCoin, 
-                    -Projectile.velocity * 0.15f, 0, Color.White, 0.9f);
-                glow.noGravity = true;
-                glow.fadeIn = 1.3f;
-            }
-            
-            // CONTRASTING SPARKLES - gold sparkles (1-in-2)
-            if (Main.rand.NextBool(2))
-            {
-                var sparkle = new SparkleParticle(Projectile.Center, -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(0.5f, 0.5f), 
-                    UnifiedVFX.Eroica.Gold, 0.4f, 15);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-            
-            // EROICA SHIMMER TRAILS - cycling crimson to gold hues (1-in-3)
-            if (Main.rand.NextBool(3))
-            {
-                // Eroica hues: 0.0-0.08 (red to orange-gold range)
-                float hue = Main.rand.NextFloat(0.0f, 0.08f);
-                Color shimmerColor = Main.hslToRgb(hue, 1f, 0.6f);
-                var shimmer = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(1f, 1f), 
-                    shimmerColor, 0.3f, 18, true);
-                MagnumParticleHandler.SpawnParticle(shimmer);
-            }
-            
-            // PEARLESCENT SAKURA EFFECTS - color shifting pink/crimson (1-in-4)
-            if (Main.rand.NextBool(4))
-            {
-                float colorShift = (float)System.Math.Sin(Main.GameUpdateCount * 0.2f) * 0.5f + 0.5f;
-                Color pearlColor = Color.Lerp(UnifiedVFX.Eroica.Sakura, UnifiedVFX.Eroica.Gold, colorShift) * 0.65f;
-                var pearl = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f, pearlColor, 0.25f, 16, true);
-                MagnumParticleHandler.SpawnParticle(pearl);
-            }
-            
-            // FREQUENT FLARES - scarlet glow (1-in-3)
-            if (Main.rand.NextBool(3))
-            {
-                Color flareColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Crimson, Main.rand.NextFloat());
-                CustomParticles.GenericFlare(Projectile.Center, flareColor, Main.rand.NextFloat(0.2f, 0.35f), 10);
-            }
-            
-            // Custom particle trail
-            CustomParticles.EroicaTrail(Projectile.Center, Projectile.velocity, 0.25f);
-
-            // Black smoke wisps (1-in-3)
-            if (Main.rand.NextBool(3))
-            {
-                var smoke = new HeavySmokeParticle(Projectile.Center, -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(0.5f, 0.5f),
-                    Color.Black * 0.5f, Main.rand.Next(15, 25), 0.2f, 0.4f, 0.02f, false);
-                MagnumParticleHandler.SpawnParticle(smoke);
-            }
-            
-            // MUSIC NOTES - Eroica melody (1-in-8)
-            if (Main.rand.NextBool(8))
-            {
-                Vector2 noteVel = -Projectile.velocity * 0.05f + new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1f, 0f));
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, UnifiedVFX.Eroica.Gold, 0.75f, 22);
-            }
-
-            Lighting.AddLight(Projectile.Center, 0.6f, 0.2f, 0.15f);
+            // Dynamic palette-based lighting
+            Color lightColor = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.Gold, HeatProgress);
+            Lighting.AddLight(Projectile.Center, lightColor.ToVector3() * (0.4f + HeatProgress * 0.35f));
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // === SEEKING CRYSTALS - Sakura blossom burst ===
-            if (Main.rand.NextBool(4))
+            // VFX: delegated to VFX module
+            BlossomOfTheSakuraVFX.BulletHitVFX(target.Center, HeatProgress);
+
+            // Seeking crystals — 25% chance
+            if (Main.rand.NextBool(4) && Main.myPlayer == Projectile.owner)
             {
                 SeekingCrystalHelper.SpawnEroicaCrystals(
                     Projectile.GetSource_FromThis(),
@@ -182,58 +136,27 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     3
                 );
             }
-            
-            CreateExplosion();
+
+            SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.1f, Volume = 0.55f }, Projectile.position);
         }
 
         public override bool OnTileCollide(Vector2 oldVelocity)
         {
-            CreateExplosion();
+            BlossomOfTheSakuraVFX.BulletDeathVFX(Projectile.Center);
+            SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.2f, Volume = 0.4f }, Projectile.position);
             return true;
         }
 
         public override void OnKill(int timeLeft)
         {
-            CreateExplosion();
-        }
-
-        private void CreateExplosion()
-        {
-            SoundEngine.PlaySound(SoundID.Item14, Projectile.position);
-            // Gentle sakura scatter for the elegant bullet
-            DynamicParticleEffects.EroicaDeathSakuraScatter(Projectile.Center, 1.1f);
+            BlossomOfTheSakuraVFX.BulletDeathVFX(Projectile.Center);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
-            Vector2 origin = texture.Size() / 2f;
-
-            // Switch to additive blending for prismatic effect
-            MagnumVFX.BeginAdditiveBlend(spriteBatch);
-            
-            // Draw prismatic gem trail
-            MagnumVFX.DrawPrismaticGemTrail(spriteBatch, Projectile.oldPos, true, 0.3f, (float)Projectile.timeLeft);
-            
-            // Draw small prismatic gem at bullet position
-            MagnumVFX.DrawEroicaPrismaticGem(spriteBatch, Projectile.Center, 0.35f, 0.8f, (float)Projectile.timeLeft);
-            
-            MagnumVFX.EndAdditiveBlend(spriteBatch);
-            
-            // Draw standard trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-
-                Vector2 drawPos = Projectile.oldPos[i] - Main.screenPosition + Projectile.Size / 2f;
-                Color trailColor = new Color(200, 50, 50, 0) * ((float)(Projectile.oldPos.Length - i) / Projectile.oldPos.Length);
-
-                spriteBatch.Draw(texture, drawPos, null, trailColor, Projectile.oldRot[i], origin,
-                    Projectile.scale, SpriteEffects.None, 0f);
-            }
-
-            return true;
+            // Full rendering delegated to VFX module:
+            // {A=0} bloom trail → afterimage → heat-reactive bloom stack → main sprite
+            return BlossomOfTheSakuraVFX.DrawBulletProjectile(Main.spriteBatch, Projectile, HeatProgress, ref lightColor);
         }
     }
 }

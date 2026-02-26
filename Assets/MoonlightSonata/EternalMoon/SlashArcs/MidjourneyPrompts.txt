@@ -1,0 +1,81 @@
+================================================================================
+  ETERNAL MOON — SLASH ARC TEXTURES
+  Midjourney Prompt Reference
+================================================================================
+
+PURPOSE:
+  Crescent-shaped swing arc VFX textures that appear during EternalMoon melee
+  swings. These are the large, dramatic slash arcs that sweep across the screen
+  when the player swings the greatsword — not the trailing ribbon behind the
+  blade (those are Trails), but the wide slicing energy crescents at the peak
+  of each swing. Drawn as additive-blend sprites on black backgrounds, rendered
+  at the rotation angle of the swing. The arc represents the concentrated cutting
+  energy that extends beyond the physical blade, creating massive sweeping
+  crescent shapes inspired by Calamity's Exoblade and Galaxia melee arcs.
+
+USAGE IN CODE:
+  - EternalMoonSwing.cs — primary swing projectile, spawns slash arc sprites at
+    swing apex with rotation matching the swing angle
+  - EternalMoonVFX.DrawSlashArc() — renders the arc texture at the player's
+    position with scale, rotation, and color modulation per-frame
+  - CrescendoFinaleVFX — enhanced multi-layered slash arcs during the Crescendo
+    combo finisher, three overlapping arcs with staggered timing
+  - The arc texture is drawn ONCE per swing at peak velocity, not continuously —
+    it must read as a single powerful crescent slash, not a smear
+  - Additive blending with {A=0} premultiplied alpha for glow stacking
+  - Multiple arcs can layer: a dark base arc + bright inner arc + white edge arc
+
+DIMENSIONS: 256x256 or 512x512 square. The arc shape itself is a crescent or
+  curved slash within the square canvas, oriented as a roughly diagonal sweep.
+  Pure black (#000000) background for additive blending. The arc should occupy
+  most of the canvas from corner to corner for maximum visual impact.
+
+COLOR PALETTE:
+  - Night Void:     RGB(40, 10, 60)    — outermost arc halo, feathered edge
+  - Deep Indigo:    RGB(75, 0, 130)    — arc body outer zone
+  - Violet:         RGB(138, 43, 226)  — primary arc energy body
+  - Lavender:       RGB(180, 150, 255) — arc body inner glow zone
+  - Ice Blue:       RGB(135, 206, 250) — bright arc cutting edge
+  - Moon White:     RGB(240, 235, 255) — brightest slash core, edge peak
+
+VISUAL IDENTITY: "Moonrise over dark waters" — these arcs should feel like
+  crescent moons slicing through darkness, tidal energy released in a single
+  devastating sweep. The arcs carry water-current internal detail, not fire or
+  electricity. Think of moonlight reflecting off the curved edge of a massive
+  wave crest frozen mid-crash, or the luminous crescent of the moon itself
+  weaponized into a cutting arc.
+
+REFERENCE: Calamity Mod — Exoblade slash arcs (massive sweeping crescents),
+  Galaxia's layered multi-color arcs, Ark of the Cosmos radial slash effects,
+  Celestus orbital disc trails. Also reference FromSoftware Moonlight Greatsword
+  projectile arcs from Elden Ring and Dark Souls.
+
+================================================================================
+  PROMPT 1 — Crescent Moon Slash Arc (Primary Swing Arc)
+================================================================================
+
+a dramatic crescent-shaped sword slash arc VFX texture on a pure black background, a single sweeping crescent energy arc that curves from the lower-left corner of the canvas to the upper-right corner describing a wide powerful sword swing, the arc is broad at its center apex and tapers to sharp vanishing points at both ends like the horns of a crescent moon, the cutting edge of the arc — the outer convex curve — blazes with concentrated ice blue RGB(135,206,250) energy that peaks to moon white RGB(240,235,255) at the very sharpest point of the outer edge creating an incandescent cutting line that reads as razor-sharp even at a glance, moving inward from the cutting edge the arc body transitions through a luminous band of lavender RGB(180,150,255) where flowing tidal current patterns are visible as organic swirling lines within the energy — these internal patterns flow along the length of the arc from one tapered end to the other like water currents following the curve of a wave, the inner body of the arc fills with rich violet RGB(138,43,226) energy that pulses with dense luminosity and carries additional sinusoidal ripple lines suggesting harmonic tidal resonance, the inner concave edge of the arc — the trailing side — fades through deep indigo RGB(75,0,130) with a soft feathered falloff into the black background, beyond the outer cutting edge a faint halo of night void RGB(40,10,60) extends outward as a subtle atmospheric corona suggesting the arc has disturbed the very darkness around it, scattered along the outer edge of the arc are tiny bright sparking points of moon white RGB(240,235,255) like moonlit seafoam droplets thrown from the slash, the arc has a thickness that is roughly 15 to 20 percent of the canvas height at its widest center point thinning dramatically toward both tapered ends, the overall feeling is of a single catastrophic crescent-moon-shaped energy release frozen at the moment of maximum extension, game VFX slash arc texture for additive blending over dark backgrounds, digital painting style luminous and clean --ar 1:1 --s 300 --v 6.1 --style raw --no text watermark border frame background elements stars
+
+================================================================================
+  PROMPT 2 — Tidal Wave Crest Arc (Heavy Slash / Charged Swing)
+================================================================================
+
+a powerful curved slash arc VFX texture shaped like the crest of a massive tidal wave on a pure black background, the arc sweeps diagonally across the canvas from lower-left to upper-right with an exaggerated curvature at the apex that mirrors the moment an ocean wave curls over before crashing, the leading edge of the arc — the outer wave-crest curve — churns with brilliant ice blue RGB(135,206,250) energy rendered as roiling turbulent foam patterns with individual wave-crest peaks and spray detail, the brightest foam peaks flare to moon white RGB(240,235,255) creating explosive highlights that read as raw tidal power, immediately behind the foam line the arc body shows a compressed transition of the full palette — lavender RGB(180,150,255) turbulent water zone teeming with small circular eddy patterns and spiral vortex details that give the impression of violently agitated deep water, flowing into a wide violet RGB(138,43,226) body zone where the current patterns become longer and more laminar as the water deepens optically, the internal flow lines within the violet body all curve to follow the arc's crescent shape creating a powerful sense of directional momentum, the trailing inner edge of the arc transitions through deep indigo RGB(75,0,130) with organic irregular edges like the underside of a breaking wave where water meets dark air, a soft atmospheric halo of night void RGB(40,10,60) surrounds the entire arc shape creating depth and atmosphere, where the arc tapers to its ends the foam energy compresses into thin bright ice blue RGB(135,206,250) whip-like trailing points, the center apex of the arc is the thickest brightest and most detailed section suggesting the concentration of maximum swing force, scattered water droplet points of lavender RGB(180,150,255) and ice blue RGB(135,206,250) spray outward from the leading edge in small clusters like tidal spray thrown by the force of the slash, the overall visual is a crescent-shaped tidal wave weaponized into a sword arc, game VFX texture for additive blending, dramatic and high-energy --ar 1:1 --s 350 --v 6.1 --style raw --no text watermark border frame background elements
+
+================================================================================
+  PROMPT 3 — Eclipse Corona Arc (Crescendo Finisher Arc)
+================================================================================
+
+an extremely intense crescent slash arc VFX texture on a pure black background designed as the ultimate finisher arc with maximum visual drama, the arc sweeps across the canvas in a wide crescent from corner to corner, the extraordinary feature of this arc is an eclipse-like contrast structure — the inner body of the arc is paradoxically dark, filled with concentrated night void RGB(40,10,60) and deep indigo RGB(75,0,130) shadow that creates a void-like darkness within the crescent shape, but the outer edge explodes with a searing corona of energy that transitions rapidly from deep indigo through violet RGB(138,43,226) to ice blue RGB(135,206,250) to blazing moon white RGB(240,235,255) at the absolute outer edge, this creates the visual effect of an eclipsed crescent moon — dark body ringed by impossibly bright corona light, the corona along the outer convex cutting edge is rendered with fine filamentary detail like solar prominences adapted to lunar cold-light — long thin spike-like rays of ice blue RGB(135,206,250) and moon white RGB(240,235,255) project outward from the edge with varying lengths creating a jagged brilliant outline, between the dark inner void and the bright corona edge there is a compressed band of violet RGB(138,43,226) and lavender RGB(180,150,255) energy that writhes with dense overlapping tidal distortion patterns — wave interference lines, standing wave nodes, and resonance rings compressed into the narrow transition zone, the inner concave edge of the arc also carries a secondary dimmer corona in deep indigo RGB(75,0,130) and muted violet RGB(138,43,226) suggesting the eclipse energy radiates in all directions from the dark core, at the two tapered crescent tips the corona energy spills outward in concentrated beams of ice blue that extend slightly beyond the arc endpoints like energy jets, the total effect is overwhelmingly dramatic — a void-dark crescent ringed by blinding cold light, the visual signature of a final devastating attack, scattered around the outer corona are discrete flare points of moon white RGB(240,235,255) functioning as tiny lens flares caught in the energy release, game VFX slash arc texture for layered additive rendering during combo finisher animation --ar 1:1 --s 400 --v 6.1 --style raw --no text watermark border frame background elements stars planets
+
+================================================================================
+  PROMPT 4 — Moonbeam Razor Arc (Light Fast Slash)
+================================================================================
+
+an elegant thin crescent slash arc VFX texture on a pure black background designed for fast light swings, the arc is much thinner than a standard heavy slash — a refined razor-sharp crescent line that curves gracefully across the canvas from lower-left to upper-right with the clean economy of a calligraphy brush stroke, the arc is narrowest at its two tapered endpoints and reaches its maximum width at the center apex but even at maximum width it is slender and precise no more than 8 percent of the canvas height, the outer cutting edge is a single continuous line of concentrated moon white RGB(240,235,255) energy no more than a few pixels wide that carries absolute brightness and reads as an impossibly sharp cutting plane, immediately inside this white edge line there is a narrow band of ice blue RGB(135,206,250) glow that provides the primary readable color of the arc, the thin body of the arc fills with a clean gradient from ice blue through lavender RGB(180,150,255) to violet RGB(138,43,226) showing a simplified but still recognizable flow of tidal energy rendered as parallel current lines running along the length of the crescent, the inner trailing edge fades quickly through deep indigo RGB(75,0,130) to black with a tight feathered falloff — this is not a diffuse glow arc but a concentrated razor line, a soft but narrow outer glow of night void RGB(40,10,60) extends just beyond the white cutting edge adding subtle atmospheric depth, the crescent curvature is smooth and mathematically elegant like a section of a perfect ellipse, at the tapered endpoints the arc dissolves into tiny scattered motes of ice blue RGB(135,206,250) and lavender RGB(180,150,255) that drift away from the line suggesting the energy dissipating, the entire arc has a precision and elegance that contrasts with heavier slash effects — it suggests speed and accuracy rather than raw power, a faint secondary echo arc of pure night void RGB(40,10,60) follows the inner curve at slight offset suggesting the blade passed through this space a fraction of a second before the energy release, game VFX thin slash arc texture for fast melee swing additive blending --ar 1:1 --s 250 --v 6.1 --style raw --no text watermark border frame background elements
+
+================================================================================
+  PROMPT 5 — Double Crescent Tide Arc (Combo Continuation Arc)
+================================================================================
+
+a double-layered crescent slash arc VFX texture on a pure black background showing two overlapping crescent arcs that represent a two-hit combo slash sequence, the primary larger arc sweeps from lower-left to upper-right occupying most of the canvas as a broad crescent, the secondary smaller arc sweeps in the opposing direction from upper-left to lower-right crossing through the primary arc and creating an X-like intersection zone, both arcs share the lunar tidal palette but are deliberately differentiated — the primary arc carries the full color treatment with its outer convex edge blazing in ice blue RGB(135,206,250) and moon white RGB(240,235,255) while its body fills with flowing violet RGB(138,43,226) tidal current patterns overlaid with organic wave-eddy lines of lavender RGB(180,150,255) and its trailing inner edge fades through deep indigo RGB(75,0,130) into black, the secondary arc is rendered slightly dimmer and thinner as if it occurred a beat earlier in time with its outer edge glowing in lavender RGB(180,150,255) rather than full ice blue and its body rendered in deep indigo RGB(75,0,130) and muted violet RGB(138,43,226) suggesting it is already fading from its initial flash, where the two arcs intersect there is an intense brightening — an overlap zone where the energies compound, creating a concentrated diamond-shaped region of brilliant moon white RGB(240,235,255) and ice blue RGB(135,206,250) luminance that flares outward with small radial light spikes, this intersection represents the devastating convergence point where both slashes pass through the same space, surrounding the intersection zone the overlapping energies create interference ripple rings in lavender RGB(180,150,255) that radiate outward from the convergence point in concentric semicircles like wave interference patterns on water where two wakes cross, the tapered endpoints of both arcs trail off into scattered motes and small crescent-shaped spark fragments of ice blue and violet, a unified halo of night void RGB(40,10,60) atmospheric glow surrounds the entire double-arc composition, the overall composition reads as a devastating two-slash sequence captured in a single frozen moment, game VFX multi-slash arc texture for additive rendering during combo attacks --ar 1:1 --s 350 --v 6.1 --style raw --no text watermark border frame background elements stars

@@ -7,6 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
 using MagnumOpus.Content.Eroica.Projectiles;
+using System.Collections.Generic;
 using MagnumOpus.Common;
 
 namespace MagnumOpus.Content.Eroica.Weapons.TriumphantFractal
@@ -70,11 +71,15 @@ namespace MagnumOpus.Content.Eroica.Weapons.TriumphantFractal
             return true;
         }
 
-        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires three fractal projectiles in a spread"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Projectiles explode with recursive fractal geometry"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Victory branches infinitely'") { OverrideColor = EroicaPalette.Scarlet });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires three homing fractal projectiles in a geometric spread"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Projectiles explode into recursive hexagonal geometry and seeking crystals"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Each cast blooms a sacred hexagram of golden fire"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Victory branches infinitely — every triumph fractals into a thousand more'")
+            {
+                OverrideColor = new Color(200, 50, 50)
+            });
         }
 
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)

@@ -9,6 +9,8 @@ using Terraria.GameContent;
 using MagnumOpus.Common;
 using MagnumOpus.Common.BaseClasses;
 using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Content.MoonlightSonata;
+using MagnumOpus.Content.MoonlightSonata.Dusts;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 
@@ -17,15 +19,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight
     /// <summary>
     /// Incisor of Moonlight — "The Stellar Scalpel".
     /// Moonlight Sonata endgame melee weapon using held-projectile swing system.
-    /// A crescent blade forged from crystallized moonlight — 4-phase lunar combo
-    /// with escalating wave projectiles. Precise, surgical, constellation-themed.
+    /// A crescent blade forged from crystallized moonlight — 5-phase Surgical Precision combo
+    /// with escalating wave projectiles, star fragments, constellation locks, and harmonic bursts.
     /// </summary>
     public class IncisorOfMoonlight : MeleeSwingItemBase
     {
         #region Abstract Overrides
 
         protected override int SwingProjectileType => ModContent.ProjectileType<IncisorOfMoonlightSwing>();
-        protected override int ComboStepCount => 4;
+        protected override int ComboStepCount => 5;
 
         #endregion
 
@@ -49,17 +51,26 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight
 
         protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "LunarCombo",
-                "4-phase lunar combo fires escalating crescent wave projectiles")
+            tooltips.Add(new TooltipLine(Mod, "SurgicalCombo",
+                "5-phase Surgical Precision — Precise Incision, Crescent Cut, Constellation Mapping, Harmonic Surge, and Stellar Crescendo")
             { OverrideColor = MoonlightVFXLibrary.IceBlue });
+            tooltips.Add(new TooltipLine(Mod, "ConstellationLock",
+                "Constellation Mapping phase deploys a homing lock marker that detonates on enemies")
+            { OverrideColor = IncisorOfMoonlightVFX.ConstellationBlue });
+            tooltips.Add(new TooltipLine(Mod, "HarmonicBurst",
+                "Harmonic Surge unleashes an expanding resonant detonation with standing wave patterns")
+            { OverrideColor = IncisorOfMoonlightVFX.FrequencyPulse });
+            tooltips.Add(new TooltipLine(Mod, "Crescendo",
+                "Stellar Crescendo finale: lunar detonation, radial star burst, constellation locks, and full VFX cascade")
+            { OverrideColor = IncisorOfMoonlightVFX.CrescendoBright });
             tooltips.Add(new TooltipLine(Mod, "SeekingCrystals",
-                "Hits unleash seeking moonlight crystals on critical strikes")
+                "Hits unleash seeking moonlight crystals — crits spawn homing star fragments")
             { OverrideColor = MoonlightVFXLibrary.Silver });
             tooltips.Add(new TooltipLine(Mod, "MoonlightAura",
-                "Ethereal moonlight aura while held")
+                "Ethereal constellation aura while held")
             { OverrideColor = MoonlightVFXLibrary.Violet });
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'A blade forged from crystallized moonlight'")
+                "'A blade forged from crystallized moonlight — each swing traces a constellation'")
             { OverrideColor = GetLoreColor() });
         }
 
@@ -87,8 +98,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight
 
             if (Main.dedServ) return;
 
-            // Orbiting silver motes — 3 tiny points circling the player (precision feel)
-            if (Main.rand.NextBool(6))
+            // Orbiting LunarMotes — 3 crescent motes circling the player (constellation precision feel)
+            if (Main.rand.NextBool(8))
             {
                 float angle = Main.GameUpdateCount * 0.035f;
                 for (int i = 0; i < 3; i++)
@@ -96,25 +107,40 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight
                     float orbitAngle = angle + MathHelper.TwoPi * i / 3f;
                     float radius = 28f + MathF.Sin(Main.GameUpdateCount * 0.06f + i * 0.9f) * 6f;
                     Vector2 motePos = player.Center + orbitAngle.ToRotationVector2() * radius;
-                    float progress = (float)i / 3f;
                     Color moteColor = Color.Lerp(MoonlightVFXLibrary.Violet,
-                        IncisorOfMoonlightVFX.ResonantSilver, progress);
-                    Dust d = Dust.NewDustPerfect(motePos, DustID.Enchanted_Pink,
-                        Vector2.Zero, 0, moteColor * 0.5f, 0.5f);
-                    d.noGravity = true;
+                        IncisorOfMoonlightVFX.ResonantSilver, (float)i / 3f);
+                    Dust mote = Dust.NewDustPerfect(motePos,
+                        ModContent.DustType<LunarMote>(),
+                        Vector2.Zero, 0, moteColor, 0.25f);
+                    mote.customData = new LunarMoteBehavior(player.Center, orbitAngle)
+                    {
+                        OrbitRadius = radius,
+                        OrbitSpeed = 0.035f,
+                        Lifetime = 25,
+                        FadePower = 0.92f
+                    };
                 }
             }
 
-            // Ambient sparkle (sparse — precision, not excess)
-            if (Main.rand.NextBool(12))
+            // StarPointDust sparkle — precision star twinkles near player
+            if (Main.rand.NextBool(14))
             {
-                Vector2 offset = Main.rand.NextVector2Circular(22f, 22f);
-                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.PurpleTorch,
-                    Vector2.Zero, 0, MoonlightVFXLibrary.Violet * 0.35f, 0.45f);
-                d.noGravity = true;
+                Vector2 offset = Main.rand.NextVector2Circular(24f, 24f);
+                Color starColor = Color.Lerp(IncisorOfMoonlightVFX.ResonantSilver,
+                    MoonlightVFXLibrary.IceBlue, Main.rand.NextFloat());
+                Dust star = Dust.NewDustPerfect(player.Center + offset,
+                    ModContent.DustType<StarPointDust>(),
+                    Vector2.Zero, 0, starColor, 0.2f);
+                star.customData = new StarPointBehavior
+                {
+                    RotationSpeed = 0.1f,
+                    TwinkleFrequency = 0.4f,
+                    Lifetime = 30,
+                    FadeStartTime = 10
+                };
             }
 
-            // Pulsing moonlight glow
+            // Pulsing moonlight glow with resonant frequency
             float pulse = 0.55f + MathF.Sin(Main.GameUpdateCount * 0.07f) * 0.12f;
             Lighting.AddLight(player.Center, MoonlightVFXLibrary.Violet.ToVector3() * pulse * 0.35f);
         }

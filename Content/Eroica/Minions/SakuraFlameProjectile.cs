@@ -5,7 +5,8 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
-using MagnumOpus.Common.Systems;
+using MagnumOpus.Content.Eroica;
+using MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura;
 
 namespace MagnumOpus.Content.Eroica.Minions
 {
@@ -123,9 +124,7 @@ namespace MagnumOpus.Content.Eroica.Minions
             // ☁EMUSICAL NOTATION - Heroic melody trail
             if (Main.rand.NextBool(8))
             {
-                Color noteColor = Color.Lerp(new Color(200, 50, 50), new Color(255, 215, 0), Main.rand.NextFloat());
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.28f, 30);
+                EroicaVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 10f, 0.5f, 0.8f, 30);
             }
         }
         
@@ -181,7 +180,7 @@ namespace MagnumOpus.Content.Eroica.Minions
             // ☁EMUSICAL IMPACT - Triumphant chord burst
             if (Main.rand.NextBool(3)) // Not every hit to avoid spam
             {
-                ThemedParticles.MusicNoteBurst(target.Center, new Color(255, 215, 0), 3, 2.5f);
+                EroicaVFXLibrary.MusicNoteBurst(target.Center, new Color(255, 215, 0), 3, 2.5f);
             }
             
             // === SEEKING CRYSTALS - Sakura flame minion ===
@@ -201,8 +200,8 @@ namespace MagnumOpus.Content.Eroica.Minions
         
         public override void OnKill(int timeLeft)
         {
-            // Small crisp spark for minion flame
-            DynamicParticleEffects.EroicaDeathCrimsonSpark(Projectile.Center, 0.5f);
+            // Small crisp death VFX — delegate to VFX module
+            FinalityOfTheSakuraVFX.MinionFlameDeathVFX(Projectile.Center);
         }
     }
 }

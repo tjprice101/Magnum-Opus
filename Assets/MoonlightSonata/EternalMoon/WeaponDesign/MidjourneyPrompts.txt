@@ -1,0 +1,55 @@
+================================================================================
+  ETERNAL MOON — WEAPON DESIGN SPRITES
+  Midjourney Prompt Reference
+================================================================================
+
+Weapon: Eternal Moon
+Class: Melee — Greatsword
+Theme: Moonlight Sonata — "Moonrise over dark waters"
+Colors: Deep dark purples, midnight indigo, vibrant ice blues, violet,
+  lavender, moon white
+Identity: Tidal lunar energy, crescent moon blade geometry, dark ocean
+  under moonlight, the moment of moonrise frozen as a weapon
+Calamity References: Exoblade (layered energy blade with cosmic aura),
+  Galaxia (large iconic silhouette with constellation motifs),
+  Ark of the Cosmos (ornate fantasy blade with portal energy)
+
+================================================================================
+  PROMPT 1 — "THE MOON THAT FELL INTO THE SEA"
+================================================================================
+
+Concept art for a side-view idle pixel art sprite of an ancient massive crescent greatsword themed around "Moonlight Sonata" in the style of Terraria, the blade IS the moon itself crashing into a dark ocean frozen mid-impact, the upper blade is a brilliant luminous crescent moon shape with visible lunar surface detail and craters glowing ice blue and lavender, the lower blade transitions into dark churning ocean water in midnight indigo and deep purple with bioluminescent organisms glowing violet within the depths, where the moon meets the water an explosive horizon line of ice blue tidal energy erupts outward forming the crossguard as two frozen tsunami waves crashing in opposite directions, the grip is the ocean floor in void-dark purple with cracks of violet pressure energy, the pommel is a cracked deep-sea pearl revealing a tiny glowing moon inside, tidal energy currents flow through the blade like rivers of moonlight, crescent moon particles and star motes and tiny wave-spray droplets float around it as part of its design, radiating a cold powerful lunar aura, detailed ornate mythic quality like a Calamity Miracle Matter weapon, full-view
+
+================================================================================
+  PROMPT 2 — "ABYSSAL MOONBEAM"
+================================================================================
+
+Concept art for a side-view idle pixel art sprite of an ethereal translucent greatsword made from a solidified beam of moonlight that struck the ocean and crystallized on impact in the style of Terraria, themed around "Moonlight Sonata", the blade tip is a blazing white-blue star point with god-rays extending outward, the upper blade is pure concentrated moonbeam in brilliant ice blue fading through lavender as it descends through atmosphere, at the middle the blade SHATTERS outward into a dramatic splash of prismatic crystal fragments where the light hit the water surface forming wing-like crossguard protrusions of frozen splash, below the splash the refracted light fragments narrow into the dark grip as deep indigo crystal with internal spectral rainbows visible through the translucent material, moonlight particles and tiny refracted light shards and scattered star dust motes orbit the blade, the blade glows from within casting violet and ice blue light on everything around it, radiating an otherworldly cold moonlight aura, crescent moon shapes echo within the crystal fracture pattern, detailed like an Exoblade-tier endgame Terraria weapon, full-view
+
+================================================================================
+  PROMPT 3 — "MOONLIGHT'S LAST TIDE"
+================================================================================
+
+Concept art for a side-view idle pixel art sprite of a legendary greatsword that was shattered into five dark ancient fragments held together by flowing bridges of liquid tidal moonlight energy in the style of Terraria, themed around "Moonlight Sonata", five separate chunks of void-dark abyssal metal float in sequence from hilt to tip with gaps between them, each gap is bridged by a graceful flowing arc of luminous ice blue and lavender tidal energy that curves outward in alternating directions creating a sinusoidal wave rhythm along the blade, the dark fragments look like weathered seafloor stone encrusted with deep-sea barnacles and ancient ocean sediment in deep indigo and midnight purple, the tidal bridges have visible streams of moon-white particles racing through them like moonlit currents, where each bridge meets a fragment the energy splashes outward in violet and ice blue burst patterns, the crossguard is a horizontal crescent moon from which the tidal energy originates, tiny orbiting moon fragments and scattered star particles and bioluminescent deep-sea motes float around the weapon, radiating an ancient resurrected lunar aura, the weapon tells the story of something destroyed by time and reborn through moonlight, detailed ornate Terraria Calamity endgame quality, full-view
+
+================================================================================
+  PROMPT 4 — "CONDUCTOR'S TEMPEST"
+================================================================================
+
+Concept art for a side-view idle pixel art sprite of a weapon that is simultaneously an elegant conductor's baton and a tidal storm greatsword in the style of Terraria, themed around "Moonlight Sonata", the lower grip and handle is a refined minimalist conductor's baton in polished dark indigo with elegant proportions, but from the baton tip upward it ERUPTS into an explosion of tidal storm energy that expands into a full massive greatsword blade, the transition is a swirling vortex of violet and ice blue energy like a whirlpool tearing open, the blade above is made of captured tidal storm with churning dark water currents and lightning-like fractures of ice blue and cresting wave formations of lavender along the cutting edge, at the very tip a perfect calm cyclone eye of brilliant moon white where all the chaos converges into devastating stillness, faint musical staff lines weave through the storm body with tiny glowing note heads positioned on them like the storm IS a musical composition, scattered musical notes and crescent moon shapes and tiny stars and sea-spray particles orbit the weapon, radiating a tempestuous yet hauntingly beautiful aura, detailed like a Galaxia-tier Terraria weapon, full-view
+
+================================================================================
+  PROMPT 5 — "THE DROWNED CRESCENDO"
+================================================================================
+
+Concept art for a side-view idle pixel art sprite of a greatsword whose entire blade silhouette follows the shape of a musical crescendo symbol in the style of Terraria, themed around "Moonlight Sonata", the blade starts impossibly thin and narrow at the pommel end representing pianissimo silence and expands with accelerating width toward the tip where it reaches maximum devastating breadth representing fortissimo, the thin base is void-dark purple barely visible, widening through deep indigo then rich violet then luminous lavender then brilliant ice blue with each color zone growing wider matching the crescendo GETTING LOUDER, the wide tip blazes with blinding moon white like the thundering crash of a tidal wave at full height, the surface texture transitions from calm deep water currents at the narrow base through harmonic standing wave patterns in the middle to explosive breakers and churning surf at the wide tip, ghostly musical dynamic markings are etched along the blade like spectral engravings, the pommel is a fermata rest symbol the silence before the music begins, there is no crossguard because the expanding width IS the defense, scattered musical symbols and crescent moon particles and star dust and tidal energy wisps orbit the blade, radiating a crescendoing lunar power aura that builds from whisper to roar, completely unique silhouette unlike any weapon in any game, detailed Terraria Calamity endgame quality, full-view
+
+================================================================================
+  POST-GENERATION NOTES:
+  - These are reference concepts — hand-clean the outputs into pixel art
+  - Design #1 (Moon Crash) has the strongest narrative silhouette
+  - Design #3 (Shattered Tidal) has the most unique visual mechanic
+  - Design #4 (Conductor Tempest) best sells the musical identity
+  - Design #5 (Crescendo) has the most iconic silhouette in gaming
+  - Consider combining favorite elements across designs
+================================================================================

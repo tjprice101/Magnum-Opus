@@ -218,7 +218,7 @@ namespace MagnumOpus.Content.MoonlightSonata.VFX.Accessories
     public static class EmberOfTheMoonVFX
     {
         private static readonly Color EmberLavender = new Color(200, 160, 255);
-        private static readonly Color EmberCore = new Color(255, 220, 240);
+        private static readonly Color EmberGlow = new Color(210, 200, 255);
         private static readonly Color DoubleCastFlash = new Color(180, 140, 255);
 
         /// <summary>
@@ -232,7 +232,7 @@ namespace MagnumOpus.Content.MoonlightSonata.VFX.Accessories
             {
                 Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
                 Vector2 vel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.5f - Main.rand.NextFloat(0.3f));
-                Color emberColor = Color.Lerp(EmberLavender, EmberCore, Main.rand.NextFloat());
+                Color emberColor = Color.Lerp(EmberLavender, EmberGlow, Main.rand.NextFloat());
                 Dust d = Dust.NewDustPerfect(playerCenter + offset, DustID.Enchanted_Pink, vel, 0, emberColor, 1.0f);
                 d.noGravity = true;
             }
@@ -245,7 +245,7 @@ namespace MagnumOpus.Content.MoonlightSonata.VFX.Accessories
         public static void DoubleCastProcFlash(Vector2 castPos, float intensity = 1f)
         {
             // Bright flash
-            CustomParticles.GenericFlare(castPos, EmberCore, 0.55f * intensity, 12);
+            CustomParticles.GenericFlare(castPos, EmberGlow, 0.55f * intensity, 12);
             CustomParticles.GenericFlare(castPos, DoubleCastFlash, 0.4f * intensity, 16);
 
             // Ember scatter
@@ -253,7 +253,7 @@ namespace MagnumOpus.Content.MoonlightSonata.VFX.Accessories
             {
                 float angle = MathHelper.TwoPi * i / 8f;
                 Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
-                Color scatterColor = Color.Lerp(EmberLavender, EmberCore, Main.rand.NextFloat());
+                Color scatterColor = Color.Lerp(EmberLavender, EmberGlow, Main.rand.NextFloat());
                 Dust d = Dust.NewDustPerfect(castPos, DustID.Enchanted_Pink, vel, 0, scatterColor, 1.2f);
                 d.noGravity = true;
             }
@@ -326,7 +326,7 @@ namespace MagnumOpus.Content.MoonlightSonata.VFX.Accessories
         private static readonly Color OrchestraViolet = new Color(170, 100, 240);
         private static readonly Color ConductorSilver = new Color(230, 225, 245);
         private static readonly Color MoonstruckFlash = new Color(200, 150, 255);
-        private static readonly Color SonataGold = new Color(240, 220, 180);
+        private static readonly Color SonataLight = new Color(180, 210, 255);
 
         /// <summary>
         /// Ambient VFX — full 3-layer orchestral aura.
@@ -367,7 +367,7 @@ namespace MagnumOpus.Content.MoonlightSonata.VFX.Accessories
                     float radius = 40f + MathF.Sin(timer * 0.03f + i) * 5f;
                     Vector2 motePos = playerCenter + angle.ToRotationVector2() * radius;
 
-                    Color moteColor = Color.Lerp(OrchestraViolet, SonataGold, (float)i / 3f);
+                    Color moteColor = Color.Lerp(OrchestraViolet, SonataLight, (float)i / 3f);
                     CustomParticles.MoonlightTrailFlare(motePos, angle.ToRotationVector2() * 0.2f);
                 }
             }

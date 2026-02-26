@@ -1,5 +1,5 @@
 // =============================================================================
-// MagnumOpus — Motion Blur Bloom Shader
+// MagnumOpus  EMotion Blur Bloom Shader
 // =============================================================================
 //
 // Directional motion blur combined with bloom enhancement for high-speed VFX.
@@ -37,7 +37,7 @@ float uBlurStrength;      // Blur spread in UV space (0.01-0.15 typical)
 
 
 // =============================================================================
-//  DIRECTIONAL BLUR — Linear streak along velocity direction
+//  DIRECTIONAL BLUR  ELinear streak along velocity direction
 //  Best for: Projectiles, dashing entities
 // =============================================================================
 
@@ -123,7 +123,7 @@ float4 DirectionalBlur13(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0)
 
 
 // =============================================================================
-//  RADIAL BLUR — Burst from center outward
+//  RADIAL BLUR  EBurst from center outward
 //  Best for: Explosions, impacts, radial energy bursts
 // =============================================================================
 
@@ -213,7 +213,7 @@ float4 RadialBlur13(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : CO
 
 
 // =============================================================================
-//  ARC SWEEP BLUR — Tangential/rotational motion
+//  ARC SWEEP BLUR  ETangential/rotational motion
 //  Best for: Melee swings, spinning attacks, circular motion
 // =============================================================================
 
@@ -308,7 +308,7 @@ float4 ArcSweepBlur13(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : 
 
 
 // =============================================================================
-//  TECHNIQUES — Standard (5-tap ps_2_0)
+//  TECHNIQUES  EStandard (5-tap ps_2_0)
 // =============================================================================
 
 technique DirectionalBlurTechnique
@@ -336,7 +336,7 @@ technique ArcSweepBlurTechnique
 }
 
 // =============================================================================
-//  TECHNIQUES — High Quality (9-tap ps_2_0)
+//  TECHNIQUES  EHigh Quality (9-tap ps_2_0)
 // =============================================================================
 
 technique DirectionalBlurHQTechnique
@@ -364,7 +364,7 @@ technique ArcSweepBlurHQTechnique
 }
 
 // =============================================================================
-//  TECHNIQUES — Ultra Quality (13-tap ps_2_0)
+//  TECHNIQUES  EUltra Quality (13-tap ps_2_0)
 // =============================================================================
 
 technique DirectionalBlurUltraTechnique

@@ -46,7 +46,7 @@ float4 MetaballEdgePS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : 
     // =======================================================================
     // OUTER GLOW  (meaningful when outside; masked to zero when inside)
     // =======================================================================
-    // Ring 1 — cardinal directions at close range
+    // Ring 1  Ecardinal directions at close range
     float dist1  = edgeThickness * 2.0;
     float2 off1  = pixelSize * dist1;
     float glowAccum = 0;
@@ -55,7 +55,7 @@ float4 MetaballEdgePS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : 
     glowAccum += tex2D(uImage0, coords + float2(0,  off1.y)).a;
     glowAccum += tex2D(uImage0, coords + float2(0, -off1.y)).a;
 
-    // Ring 2 — diagonal directions at farther range
+    // Ring 2  Ediagonal directions at farther range
     float dist2  = edgeThickness * 4.0;
     float2 off2  = pixelSize * dist2 * 0.707;
     glowAccum += tex2D(uImage0, coords + float2( off2.x,  off2.y)).a * 0.5;
@@ -118,26 +118,26 @@ float4 MetaballEdgePS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : 
     insideResult.a      = center.a;
 
     // =======================================================================
-    // FINAL COMPOSITE — one path chosen per pixel via masks
+    // FINAL COMPOSITE  Eone path chosen per pixel via masks
     // =======================================================================
     return outsideResult * isOutside + insideResult * isInside;
 }
 
 
-// Default technique — backward compatible
+// Default technique  Ebackward compatible
 technique DefaultTechnique
 {
     pass ParticlePass
     {
-        PixelShader = compile ps_2_0 MetaballEdgePS();
+        PixelShader = compile ps_3_0 MetaballEdgePS();
     }
 }
 
-// Enhanced technique — same shader, separate entry point for future use
+// Enhanced technique  Esame shader, separate entry point for future use
 technique EnhancedTechnique
 {
     pass ParticlePass
     {
-        PixelShader = compile ps_2_0 MetaballEdgePS();
+        PixelShader = compile ps_3_0 MetaballEdgePS();
     }
 }

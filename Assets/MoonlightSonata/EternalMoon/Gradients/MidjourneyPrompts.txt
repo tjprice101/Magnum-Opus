@@ -1,0 +1,58 @@
+================================================================================
+  ETERNAL MOON — GRADIENT TEXTURES
+  Midjourney Prompt Reference
+================================================================================
+
+PURPOSE:
+  Horizontal gradient strip textures sampled by pixel/vertex shaders to color
+  trails, swing arcs, and tidal wave projectile effects. The shader reads a UV
+  coordinate (usually the progress along the trail or swing arc) and samples
+  color from left-to-right across the gradient strip.
+
+USAGE IN CODE:
+  - CalamityStyleTrailRenderer.TrailStyle.Cosmic trail shader (samples gradient
+    for trail color based on distance from blade tip)
+  - EternalMoonVFX.GetLunarPhaseColor() visual reference — the gradient encodes
+    the DeepTide -> DarkPurple -> Violet -> IceBlue -> MoonWhite color ramp
+  - EternalMoonVFX.WaveTrailColor() for projectile trail rendering
+  - ScrollingTrailShader.fxc and CelestialValorTrail.fxc gradient sampling
+  - Tidal wash projectile (EternalMoonTidalWash) arc coloring
+  - BeamGradientFlow.fxc for beam projectile color ramping
+
+DIMENSIONS: 256x16 or 512x32 horizontal strips (width is sample resolution,
+  height provides anti-aliasing margin and vertical gradient variation)
+FORMAT: Opaque (no transparency needed — shaders sample RGB only)
+
+COLOR PALETTE (left-to-right flow represents shadow-to-light progression):
+  - Night Void:     RGB(40, 10, 60)    — far left, trail end / shadow
+  - Deep Indigo:    RGB(75, 0, 130)    — early transition
+  - Violet Body:    RGB(138, 43, 226)  — mid-body primary
+  - Ice Blue Flare: RGB(135, 206, 250) — bright zone
+  - Glacial Blue:  RGB(170, 225, 255) — icy accent peak
+  - Moon White: RGB(230, 235, 255) — far right, cool core
+
+REFERENCE: SandboxLastPrism/Gradients/RainbowGrad1.png
+
+================================================================================
+  PROMPT 1 — Deep Ocean to Moonrise (Primary Trail Gradient)
+================================================================================
+
+a perfectly horizontal color gradient strip texture, extremely wide and thin aspect ratio, flowing smoothly left to right: starting at far left with deep night void purple RGB(40,10,60), transitioning through rich deep indigo RGB(75,0,130), blending into vibrant violet RGB(138,43,226) at the center-left, flowing through a bright ice blue RGB(135,206,250) past center, shifting into bright glacial blue RGB(170,225,255) near right, ending at far right with soft moon white RGB(230,235,255), the transitions between colors should be smooth and organic like watercolor bleeding on wet paper, no hard edges between color bands, the vertical dimension should have very subtle variation with slightly darker tones at top and bottom edges and purest colors at the vertical center, this is a shader lookup texture for game VFX trail rendering, flat 2D digital texture with no perspective no lighting no 3D effects --ar 16:1 --s 100 --v 6.1 --style raw --no text watermark border frame 3d perspective lighting shadow
+
+================================================================================
+  PROMPT 2 — Tidal Phase Cycling Gradient (Combo Escalation)
+================================================================================
+
+a horizontal gradient strip texture with extremely wide thin proportions, the color flow represents three distinct but smoothly blended lunar phases from left to right: Phase 0 on the left third shows deep tidal blue-purple RGB(40,30,100) melting into dark indigo RGB(75,0,130), Phase 1 in the middle third transitions from violet RGB(138,43,226) through a subtle lavender lunar accent RGB(175,130,255) back into violet, Phase 2 on the right third escalates through bright ice blue RGB(135,206,250) into bright glacial blue RGB(170,225,255) ending in blazing white RGB(230,235,255), all transitions bleed smoothly into each other with no hard boundaries, the vertical axis has a very slight vignette with darker versions of each color at top and bottom, clean flat digital texture suitable for horizontal UV sampling in a game shader, no noise no grain no texture just pure smooth color gradients --ar 16:1 --s 100 --v 6.1 --style raw --no text watermark border 3d effects lighting
+
+================================================================================
+  PROMPT 3 — Crescent Wake Gradient (Tidal Wash Projectile Color)
+================================================================================
+
+a horizontal color gradient strip texture at extremely wide thin aspect ratio, designed to color a curving tidal wash trailing a sword swing, left side starts with a rich underwater deep indigo RGB(75,0,130) with hints of night void RGB(40,10,60), transitioning through a cool deep tidal blue RGB(40,30,100), the center features ocean violet RGB(138,43,226) blending with tidal seafoam RGB(200,220,255), the right side brightens through ice blue RGB(135,206,250) with scattered bright accents of glacial blue RGB(170,225,255) suggesting moonlight catching wave crests, far right fades to a pale tidal foam blue RGB(200,220,255), the color flow should feel like looking at the ocean surface at night with moonlight playing across the waves, smooth continuous blending, flat 2D digital shader texture no perspective --ar 16:1 --s 100 --v 6.1 --style raw --no text watermark border frame effects
+
+================================================================================
+  PROMPT 4 — Eclipse Transition Gradient (Phase Change Flash)
+================================================================================
+
+a horizontal gradient strip texture at extremely wide thin proportions, representing a lunar eclipse transition from darkness to light, far left is pure near-black night void RGB(40,10,60), the left quarter stays extremely dark with only the faintest hint of deep indigo RGB(75,0,130) emerging, then at approximately 30 percent from left there is a sharp but smooth bloom where violet RGB(138,43,226) surges in intensity, the center-right features a bright concentrated band of ice blue RGB(135,206,250), then glacial blue RGB(170,225,255) creates a cool flash peak near 75 percent, and the far right explodes into moon white RGB(230,235,255), this gradient is intentionally nonlinear with the dark portion taking up more space than the bright portion to create an eclipse reveal effect when sampled from left to right, flat digital UV lookup texture, smooth continuous color --ar 16:1 --s 100 --v 6.1 --style raw --no text watermark border 3d lighting grain
