@@ -20,7 +20,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class DecayBoltProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow2";
         
         private static readonly Color DecayPurple = new Color(100, 50, 120);
         private static readonly Color DeathGreen = new Color(80, 120, 60);
@@ -358,9 +358,9 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             // Load MULTIPLE flare textures for layered spinning effect
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
-            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/FlareSpikeBurst").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
+            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/FlareSpikeBurst").Value;
             
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin1 = flare1.Size() / 2f;
@@ -453,7 +453,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class EntropicField : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo2";
         
         private static readonly Color DecayPurple = new Color(100, 50, 120);
         private static readonly Color DeathGreen = new Color(80, 120, 60);
@@ -610,8 +610,8 @@ namespace MagnumOpus.Content.Autumn.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo2").Value;
-            Texture2D flare = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/GlowingHalo2").Value;
+            Texture2D flare = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin = flare.Size() / 2f;
@@ -658,7 +658,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class WitheringWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/ParticleTrail2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ParticleTrail2";
         
         private static readonly Color DecayPurple = new Color(100, 50, 120);
         private static readonly Color DeathGreen = new Color(80, 120, 60);
@@ -935,8 +935,8 @@ namespace MagnumOpus.Content.Autumn.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/ParticleTrail2").Value;
-            Texture2D flare = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/FlareSpikeBurst").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/ParticleTrail2").Value;
+            Texture2D flare = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/FlareSpikeBurst").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin = flare.Size() / 2f;

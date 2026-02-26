@@ -383,7 +383,7 @@ namespace MagnumOpus.Common.Systems.VFX.Core
         {
             if (ActiveArcs.Count == 0) return;
             
-            Texture2D pixel = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2", 
+            Texture2D pixel = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2", 
                 ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
             
             foreach (var arc in ActiveArcs)
@@ -436,7 +436,7 @@ namespace MagnumOpus.Common.Systems.VFX.Core
         {
             if (prediction.PointCount < 2) return;
             
-            Texture2D pixel = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2",
+            Texture2D pixel = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2",
                 ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
             
             for (int i = 0; i < prediction.PointCount - 1; i++)
@@ -479,7 +479,7 @@ namespace MagnumOpus.Common.Systems.VFX.Core
         public static void DrawDashedLine(SpriteBatch spriteBatch, Vector2 start, Vector2 end, 
             Color color, float width, float dashLength = 8f, float gapLength = 4f)
         {
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2",
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2",
                 ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
             
             Vector2 direction = end - start;
@@ -512,7 +512,7 @@ namespace MagnumOpus.Common.Systems.VFX.Core
         public static void DrawWarningRing(SpriteBatch spriteBatch, Vector2 center, float radius,
             Color color, float width, int segments = 32, float progress = 1f)
         {
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2",
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2",
                 ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
             
             int segmentsToDraw = (int)(segments * progress);

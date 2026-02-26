@@ -35,7 +35,7 @@ namespace MagnumOpus.Common.Systems.VFX
         private static Dictionary<string, Texture2D> _textureCache = new Dictionary<string, Texture2D>();
         
         // Asset path prefix
-        private const string ParticlePath = "MagnumOpus/Assets/Particles/";
+        private const string ParticlePath = "MagnumOpus/Assets/Particles Asset Library/";
         
         /// <summary>
         /// Gets a particle texture by name, with caching for performance.

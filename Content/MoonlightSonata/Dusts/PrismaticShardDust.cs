@@ -8,14 +8,14 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.MoonlightSonata.Dusts
 {
     /// <summary>
-    /// Prismatic crystalline shard dust for Moonlight's Calling — "The Serenade".
+    /// Prismatic crystalline shard dust for Moonlight's Calling  E"The Serenade".
     /// Creates the feel of light refracting through a crystal prism into spectral colors.
     /// Rotates as it floats, cycling through hue over its lifetime.
     /// Uses CrispStar4.png for sharp, crystalline sparkle appearance.
     /// </summary>
     public class PrismaticShardDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/CrispStar4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/CrispStar4";
 
         public override void OnSpawn(Dust dust)
         {
@@ -40,7 +40,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
             {
                 float lifeProgress = (float)dust.alpha / behavior.Lifetime;
 
-                // Hue cycling — refracts through spectral range over lifetime
+                // Hue cycling  Erefracts through spectral range over lifetime
                 float hue = (behavior.BaseHue + lifeProgress * behavior.HueRange
                     + Main.GlobalTimeWrappedHourly * behavior.HueCycleSpeed) % 1f;
                 dust.color = Main.hslToRgb(hue, behavior.Saturation, behavior.Lightness);
@@ -49,15 +49,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
                 dust.position += dust.velocity;
                 dust.velocity *= behavior.VelocityDecay;
 
-                // Rotation — spinning crystal shard
+                // Rotation  Espinning crystal shard
                 dust.rotation += behavior.RotationSpeed;
 
-                // Scale pulse — twinkling like light hitting a facet
+                // Scale pulse  Etwinkling like light hitting a facet
                 float twinkle = MathF.Sin(dust.alpha * behavior.TwinkleFrequency + behavior.PhaseOffset);
                 float twinkleScale = 1f + twinkle * 0.3f;
                 dust.scale = behavior.BaseScale * twinkleScale * (1f - lifeProgress * 0.5f);
 
-                // Fade — rapid fade-in, slow fade-out
+                // Fade  Erapid fade-in, slow fade-out
                 if (dust.alpha < 4)
                     dust.fadeIn = dust.alpha / 4f;
                 else
@@ -68,7 +68,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
             }
             else
             {
-                // Default behavior — simple spectral fade
+                // Default behavior  Esimple spectral fade
                 dust.position += dust.velocity;
                 dust.velocity *= 0.96f;
                 dust.rotation += 0.08f;

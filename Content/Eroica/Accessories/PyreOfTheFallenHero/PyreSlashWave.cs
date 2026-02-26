@@ -21,7 +21,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.PyreOfTheFallenHero
     public class PyreSlashWave : ModProjectile
     {
         // Custom texture - no vanilla textures allowed
-        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc6";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc6";
         
         private float currentRadius = 0f;
         private const float MaxRadius = 250f;

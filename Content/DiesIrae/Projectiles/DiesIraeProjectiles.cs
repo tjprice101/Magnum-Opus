@@ -844,7 +844,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         
         /// <summary>
         /// Spawns a CrossParticle texture-based particle - THE CORE CROSS EFFECT
-        /// Uses actual PNG textures from Assets/Particles/CrossParticleBlack.png and CrossParticleWhite.png
+        /// Uses actual PNG textures from Assets/Particles Asset Library/CrossParticleBlack.png and CrossParticleWhite.png
         /// </summary>
         /// <param name="position">Spawn position</param>
         /// <param name="velocity">Movement velocity</param>
@@ -1099,7 +1099,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
     /// </summary>
     public class WrathWaveProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/TallFlamingWispProjectile";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/TallFlamingWispProjectile";
         
         // TRUE_VFX_STANDARDS: Dies Irae blood red to orange hue range
         private const float HueMin = 0.0f;    // Blood red
@@ -1298,9 +1298,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare4").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin = flareTex.Size() / 2f;
@@ -1382,7 +1382,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
     /// </summary>
     public class CrystallizedFlameProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/FlamingWispProjectileSmall";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/FlamingWispProjectileSmall";
         
         // TRUE_VFX_STANDARDS: Dies Irae blood red to orange hue range
         private const float HueMin = 0.0f;    // Blood red
@@ -1626,9 +1626,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare4").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin = flareTex.Size() / 2f;
@@ -1696,7 +1696,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
     /// </summary>
     public class IgnitedWrathBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/FlamingWispProjectileSmall";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/FlamingWispProjectileSmall";
         
         // TRUE_VFX_STANDARDS: Dies Irae blood red to orange hue range
         private const float HueMin = 0.0f;    // Blood red
@@ -1908,9 +1908,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare4").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin = flareTex.Size() / 2f;
@@ -2147,8 +2147,8 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare4").Value;
             
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin = flareTex.Size() / 2f;
@@ -2495,9 +2495,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare4").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin = flareTex.Size() / 2f;
@@ -2606,7 +2606,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
     /// </summary>
     public class IgnitedWrathBall : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/TallFlamingWispProjectile";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/TallFlamingWispProjectile";
         
         // TRUE_VFX_STANDARDS: Dies Irae blood red to orange hue range
         private const float HueMin = 0.0f;    // Blood red
@@ -2853,9 +2853,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare4").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin = flareTex.Size() / 2f;
@@ -2968,7 +2968,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
     /// </summary>
     public class OrbitingShrapnel : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/FlamingWispProjectileSmall";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/FlamingWispProjectileSmall";
         
         // TRUE_VFX_STANDARDS: Dies Irae blood red to orange hue range
         private const float HueMin = 0.0f;    // Blood red
@@ -3230,9 +3230,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare4").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin = flareTex.Size() / 2f;
@@ -3335,7 +3335,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
     /// </summary>
     public class JudgmentFlame : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/TallFlamingWispProjectile";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/TallFlamingWispProjectile";
         
         // TRUE_VFX_STANDARDS: Dies Irae blood red to orange hue range
         private const float HueMin = 0.0f;    // Blood red
@@ -3567,9 +3567,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
             Vector2 origin = texture.Size() / 2f;
             
             // Flare textures for spinning layers
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare4").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             Vector2 flareOrigin = flareTex.Size() / 2f;
             Vector2 flareOrigin2 = flareTex2.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
@@ -3683,7 +3683,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
     /// </summary>
     public class SinBullet : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/FlamingWispProjectileSmall";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/FlamingWispProjectileSmall";
         
         // TRUE_VFX_STANDARDS: Dies Irae blood red to orange hue range
         private const float HueMin = 0.0f;    // Blood red
@@ -3923,9 +3923,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare4").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin = flareTex.Size() / 2f;
@@ -4265,9 +4265,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
             Vector2 origin = texture.Size() / 2f;
             
             // Flare textures for spinning layers
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D flareTex2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare4").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             Vector2 flareOrigin = flareTex.Size() / 2f;
             Vector2 flareOrigin2 = flareTex2.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
@@ -4379,7 +4379,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
     /// </summary>
     public class BlazingMusicShard : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/FlamingWispProjectileSmall";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/FlamingWispProjectileSmall";
         
         // TRUE_VFX_STANDARDS: Dies Irae red hue range for color oscillation
         private const float HueMin = 0.0f;   // Blood red
@@ -4740,9 +4740,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
-            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare4").Value;
+            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin1 = flare1.Size() / 2f;
@@ -4827,7 +4827,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
     /// </summary>
     public class FloatingIgnition : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/FlamingWispProjectileSmall";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/FlamingWispProjectileSmall";
         
         // === TRUE_VFX_STANDARDS: Hue range for Dies Irae (blood red to orange) ===
         private const float HueMin = 0.0f;
@@ -5133,9 +5133,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
-            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare4").Value;
+            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin1 = flare1.Size() / 2f;
@@ -5208,7 +5208,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
     /// </summary>
     public class EclipseOrb : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/TallFlamingWispProjectile";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/TallFlamingWispProjectile";
         
         // === TRUE_VFX_STANDARDS: Hue range for Dies Irae ===
         private const float HueMin = 0.0f;
@@ -5458,9 +5458,9 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
-            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare4").Value;
+            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin1 = flare1.Size() / 2f;
@@ -5544,7 +5544,7 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
     /// </summary>
     public class WrathShard : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/FlamingWispProjectileSmall";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/FlamingWispProjectileSmall";
         
         // === TRUE_VFX_STANDARDS: Hue range for Dies Irae ===
         private const float HueMin = 0.0f;
@@ -5791,8 +5791,8 @@ namespace MagnumOpus.Content.DiesIrae.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D texture = TextureAssets.Projectile[Type].Value;
-            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
+            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare4").Value;
             
             Vector2 origin = texture.Size() / 2f;
             Vector2 flareOrigin1 = flare1.Size() / 2f;

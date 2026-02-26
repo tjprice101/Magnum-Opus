@@ -37,7 +37,14 @@ namespace MagnumOpus.Content.SandboxExoblade.Projectiles
             }
         }
 
-        public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) => Projectile.RotatingHitboxCollision(targetHitbox);
+        public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
+        {
+            // Rotating hitbox collision via line check along projectile velocity
+            float collisionPoint = 0f;
+            Vector2 lineStart = Projectile.Center - Projectile.velocity.SafeNormalize(Vector2.Zero) * Projectile.width * 0.5f;
+            Vector2 lineEnd = Projectile.Center + Projectile.velocity.SafeNormalize(Vector2.Zero) * Projectile.width * 0.5f;
+            return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), lineStart, lineEnd, Projectile.width, ref collisionPoint);
+        }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {

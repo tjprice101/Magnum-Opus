@@ -15,8 +15,8 @@ using static MagnumOpus.Common.Systems.Particles.Particle;
 namespace MagnumOpus.Content.Spring.Weapons
 {
     /// <summary>
-    /// Blossom's Edge held-projectile swing — the gentle first movement of spring.
-    /// 3-phase cherry blossom combo: Quick Slash → Wide Arc → Flourishing Thrust.
+    /// Blossom's Edge held-projectile swing  Ethe gentle first movement of spring.
+    /// 3-phase cherry blossom combo: Quick Slash ↁEWide Arc ↁEFlourishing Thrust.
     /// Each swing scatters petals; every 5th hit triggers Renewal Strike (8 HP heal);
     /// crits trigger Spring Bloom (seeking crystals + AoE petal burst).
     /// </summary>
@@ -35,7 +35,7 @@ namespace MagnumOpus.Content.Spring.Weapons
             set => Projectile.ai[2] = value;
         }
 
-        // ── 6-Color Palette: pianissimo → sforzando ──
+        // ── 6-Color Palette: pianissimo ↁEsforzando ──
         private static readonly Color[] SpringPalette = new Color[]
         {
             new Color(120, 80, 100),    // [0] Deep rose shadow
@@ -48,7 +48,7 @@ namespace MagnumOpus.Content.Spring.Weapons
 
         #region ── Combo Phase Definitions ──
 
-        // Phase 0 — Quick Slash (the breath of new petals)
+        // Phase 0  EQuick Slash (the breath of new petals)
         private static readonly ComboPhase Phase0_QuickSlash = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -64,7 +64,7 @@ namespace MagnumOpus.Content.Spring.Weapons
             damageMult: 0.9f
         );
 
-        // Phase 1 — Wide Arc (the blossom in full bloom)
+        // Phase 1  EWide Arc (the blossom in full bloom)
         private static readonly ComboPhase Phase1_WideArc = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -80,7 +80,7 @@ namespace MagnumOpus.Content.Spring.Weapons
             damageMult: 1.0f
         );
 
-        // Phase 2 — Flourishing Thrust (petals scatter in the wind)
+        // Phase 2  EFlourishing Thrust (petals scatter in the wind)
         private static readonly ComboPhase Phase2_Flourish = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -114,10 +114,10 @@ namespace MagnumOpus.Content.Spring.Weapons
 
         protected override string GetSmearTexturePath(int comboStep) => comboStep switch
         {
-            0 => "MagnumOpus/Assets/Particles/SimpleArcSwordSlash",
-            1 => "MagnumOpus/Assets/Particles/CurvedSwordSlash",
-            2 => "MagnumOpus/Assets/Particles/SwordArc2",
-            _ => "MagnumOpus/Assets/Particles/SimpleArcSwordSlash",
+            0 => "MagnumOpus/Assets/Particles Asset Library/SimpleArcSwordSlash",
+            1 => "MagnumOpus/Assets/Particles Asset Library/CurvedSwordSlash",
+            2 => "MagnumOpus/Assets/Particles Asset Library/SwordArc2",
+            _ => "MagnumOpus/Assets/Particles Asset Library/SimpleArcSwordSlash",
         };
 
         #endregion
@@ -223,7 +223,7 @@ namespace MagnumOpus.Content.Spring.Weapons
                 Vector2 tipPos = GetBladeTipPosition();
                 float bladeLen = CurrentPhase.BladeLength;
 
-                // Pink petal dust — dense, 2 per frame
+                // Pink petal dust  Edense, 2 per frame
                 for (int i = 0; i < 2; i++)
                 {
                     Vector2 dustPos = Owner.MountedCenter + SwordDirection * bladeLen * Main.rand.NextFloat(0.4f, 1f);
@@ -274,7 +274,7 @@ namespace MagnumOpus.Content.Spring.Weapons
             HitCounter++;
 
             // ── Visual impact layers ──
-            // Halo rings — pink → green gradient
+            // Halo rings  Epink ↁEgreen gradient
             for (int i = 0; i < 4; i++)
             {
                 float progress = i / 4f;
@@ -318,7 +318,7 @@ namespace MagnumOpus.Content.Spring.Weapons
                 petal.noGravity = true;
             }
 
-            // ── RENEWAL STRIKE — every 5th hit heals 8 HP ──
+            // ── RENEWAL STRIKE  Eevery 5th hit heals 8 HP ──
             if (HitCounter >= 5)
             {
                 HitCounter = 0;
@@ -349,7 +349,7 @@ namespace MagnumOpus.Content.Spring.Weapons
                 }
             }
 
-            // ── SPRING BLOOM — on crit: seeking crystals + AoE ──
+            // ── SPRING BLOOM  Eon crit: seeking crystals + AoE ──
             if (hit.Crit)
             {
                 // Crit flash
@@ -384,7 +384,7 @@ namespace MagnumOpus.Content.Spring.Weapons
                         count: 4
                     );
 
-                    // AoE — 50% damage to nearby enemies within 100 tiles
+                    // AoE  E50% damage to nearby enemies within 100 tiles
                     for (int i = 0; i < Main.maxNPCs; i++)
                     {
                         NPC npc = Main.npc[i];

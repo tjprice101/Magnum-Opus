@@ -174,7 +174,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
     /// </summary>
     public class StarfallBoltProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/MediumCrystalShard";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MediumCrystalShard";
 
         private bool IsCharged => Projectile.ai[0] == 1f;
 
@@ -290,7 +290,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
     /// </summary>
     public class StarfallRiftProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/LightningBurst";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningBurst";
 
         private int spawnTimer = 0;
 
@@ -344,7 +344,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
     /// </summary>
     public class StarfallCrystalProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SmallCrystalShard";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SmallCrystalShard";
 
         public override void SetDefaults()
         {
@@ -554,7 +554,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
     /// </summary>
     public class MechanismBoltProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/ClockworkGearSmall";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearSmall";
 
         public override void SetDefaults()
         {
@@ -624,7 +624,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
     /// </summary>
     public class SynchronizedGearBoltProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/ClockworkGearLarge";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearLarge";
 
         public override void SetDefaults()
         {
@@ -818,7 +818,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
     /// </summary>
     public class ClockworkBombProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/ClockworkGearLarge";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearLarge";
 
         private bool IsCharged => Projectile.ai[0] == 1f;
         private float rotation = 0f;
@@ -948,7 +948,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
     /// </summary>
     public class GearShrapnelProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/ClockworkGearSmall";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearSmall";
 
         public override void SetDefaults()
         {
@@ -990,7 +990,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
     /// </summary>
     public class TemporalSingularityProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/LightningBurst";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningBurst";
 
         private int lifeTimer = 0;
 
@@ -1067,7 +1067,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.2f;
             
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             Vector2 origin = tex.Size() / 2f;
             
             Main.spriteBatch.End();

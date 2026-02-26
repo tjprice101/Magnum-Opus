@@ -19,7 +19,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class DecayCrescentWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc8";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc8";
         
         private static readonly Color AutumnOrange = new Color(255, 140, 50);
         private static readonly Color AutumnRed = new Color(178, 34, 34);
@@ -162,7 +162,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwordArc8").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SwordArc8").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
@@ -190,7 +190,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class SoulWisp : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField4";
         
         private static readonly Color AutumnGold = new Color(218, 165, 32);
         private static readonly Color SoulWhite = new Color(255, 250, 230);

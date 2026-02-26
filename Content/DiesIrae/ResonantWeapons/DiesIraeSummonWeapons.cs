@@ -490,7 +490,7 @@ namespace MagnumOpus.Content.DiesIrae.ResonantWeapons
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
             // Glow behind
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow3").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow3").Value;
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.1f + 0.9f;
             
             // Charging glow intensifies
@@ -552,7 +552,7 @@ namespace MagnumOpus.Content.DiesIrae.ResonantWeapons
     /// </summary>
     public class BellTollWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/FlameImpactExplosion";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/FlameImpactExplosion";
         
         public override void SetDefaults()
         {
@@ -723,7 +723,7 @@ namespace MagnumOpus.Content.DiesIrae.ResonantWeapons
             SpriteEffects effects = Projectile.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             
             // Golden glow
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow4").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow4").Value;
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.12f + 0.88f;
             sb.Draw(glow, drawPos, null, DiesIraeColors.HellfireGold * 0.35f, 0f, glow.Size() / 2f, 0.6f * pulse, SpriteEffects.None, 0f);
             sb.Draw(glow, drawPos, null, DiesIraeColors.InfernalWhite * 0.2f, 0f, glow.Size() / 2f, 0.4f * pulse, SpriteEffects.None, 0f);
@@ -780,7 +780,7 @@ namespace MagnumOpus.Content.DiesIrae.ResonantWeapons
     /// </summary>
     public class JudgementRay : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/FlamingWispProjectileSmall";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/FlamingWispProjectileSmall";
         
         public override void SetDefaults()
         {
@@ -1026,7 +1026,7 @@ namespace MagnumOpus.Content.DiesIrae.ResonantWeapons
             SpriteEffects effects = Projectile.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             
             // Demonic glow
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow3").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow3").Value;
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.15f + 0.85f;
             
             // Intensify during attack
@@ -1088,7 +1088,7 @@ namespace MagnumOpus.Content.DiesIrae.ResonantWeapons
     /// </summary>
     public class WrathFireball : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/FlamingWispProjectileSmall";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/FlamingWispProjectileSmall";
         
         public override void SetDefaults()
         {

@@ -58,7 +58,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.netImportant = true;
         }
 
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow4";
 
         public override bool? CanCutTiles() => false;
         public override bool MinionContactDamage() => true;
@@ -405,7 +405,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow2";
 
         public override void AI()
         {
@@ -493,7 +493,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.alpha = 50;
         }
 
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow3";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow3";
 
         public override void AI()
         {
@@ -552,7 +552,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "MagnumOpus/Assets/Particles/ManySparklesInCLuster";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ManySparklesInCLuster";
 
         public override void AI()
         {

@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -25,7 +25,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class NocturnalBladeProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs10";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs10";
         
         // Nachtmusik hue range - violet/purple spectrum (0.75-0.85)
         private const float HueMin = 0.75f;
@@ -266,7 +266,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class CrescendoWaveProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc6";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc6";
         
         // Nachtmusik hue range - violet/purple spectrum (0.75-0.85)
         private const float HueMin = 0.75f;
@@ -478,7 +478,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class ConstellationBoltProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/StarBurst1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/StarBurst1";
         
         // Nachtmusik hue range - violet/purple spectrum (0.75-0.85)
         private const float HueMin = 0.75f;
@@ -709,7 +709,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     public class NebulaArrowProjectile : ModProjectile
     {
         // Use StarBurst texture for unique nebula core look
-        public override string Texture => "MagnumOpus/Assets/Particles/StarBurst2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/StarBurst2";
         
         private int splitCount = 0;
         private float nebulaRotation = 0f;
@@ -875,7 +875,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class NebulaStarfallProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle14";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle14";
         
         private static readonly Color StarCore = new Color(255, 255, 220);
         private static readonly Color StarTrail = new Color(255, 180, 220);
@@ -935,7 +935,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class SerenadeStarProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle13";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle13";
         
         // TRUE_VFX_STANDARDS: Hue range for Nachtmusik violet/purple spectrum
         private const float HueMin = 0.75f;
@@ -1162,7 +1162,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class StarweaverOrbProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField8";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField8";
         
         // TRUE_VFX_STANDARDS: Hue range for Nachtmusik violet/purple spectrum
         private const float HueMin = 0.75f;
@@ -1405,7 +1405,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     public class CosmicRequiemBeamProjectile : ModProjectile
     {
         // Use unique textures for cosmic beam look
-        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField7";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField7";
         
         private float cosmicRotation = 0f;
         private float[] galaxyMoteAngles = new float[4];
@@ -1563,7 +1563,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class TwilightSlashProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc3";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc3";
         
         private bool isDimensionSever => Projectile.ai[0] == 1f;
         
@@ -1606,14 +1606,14 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                     MagnumParticleHandler.SpawnParticle(glow);
                 }
                 
-                // 笘・MUSICAL NOTATION - Dimension sever crescendo (VISIBLE SCALE 0.78f+)
+                // ☁EMUSICAL NOTATION - Dimension sever crescendo (VISIBLE SCALE 0.78f+)
                 if (Main.rand.NextBool(4))
                 {
                     Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.7f, 0.7f), -1.3f);
                     NachtmusikVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 1f, 0.7f, 0.78f, 25);
                 }
                 
-                // 笘・SPARKLE ACCENT - Dimension shimmer
+                // ☁ESPARKLE ACCENT - Dimension shimmer
                 if (Main.rand.NextBool(3))
                 {
                     var sparkle = new SparkleParticle(Projectile.Center, -Projectile.velocity * 0.1f, NachtmusikPalette.StarWhite, 0.4f, 12);
@@ -1631,14 +1631,14 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                     MagnumParticleHandler.SpawnParticle(glow);
                 }
                 
-                // 笘・MUSICAL NOTATION - Twilight melody (VISIBLE SCALE 0.7f+)
+                // ☁EMUSICAL NOTATION - Twilight melody (VISIBLE SCALE 0.7f+)
                 if (Main.rand.NextBool(6))
                 {
                     Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
                     NachtmusikVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 1f, 0.7f, 0.7f, 28);
                 }
                 
-                // 笘・SPARKLE ACCENT - Twilight gleam
+                // ☁ESPARKLE ACCENT - Twilight gleam
                 if (Main.rand.NextBool(5))
                 {
                     var sparkle = new SparkleParticle(Projectile.Center, Vector2.Zero, NachtmusikPalette.RadianceGold, 0.25f, 15);
@@ -1666,7 +1666,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
                 var hitBurst = new StarBurstParticle(target.Center, Vector2.Zero, NachtmusikPalette.RadianceGold, 0.35f, 12);
                 MagnumParticleHandler.SpawnParticle(hitBurst);
                 
-                // 笘・MUSICAL IMPACT - Dimension sever chord
+                // ☁EMUSICAL IMPACT - Dimension sever chord
                 NachtmusikVFXLibrary.SpawnMusicNotes(target.Center, 5, 3.5f, 0.7f, 0.9f, 25);
                 
                 // === DYNAMIC IMPACT: STYLE 2 - Crescent Wave (Dimension Sever) ===
@@ -1677,7 +1677,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             {
                 CustomParticles.GenericFlare(target.Center, NachtmusikPalette.Violet, 0.4f, 10);
                 
-                // 笘・MUSICAL IMPACT - Twilight chord
+                // ☁EMUSICAL IMPACT - Twilight chord
                 NachtmusikVFXLibrary.SpawnMusicNotes(target.Center, 3, 2.5f, 0.7f, 0.9f, 25);
                 
                 // === DYNAMIC IMPACT: STYLE 2 - Crescent Wave (Normal slash) ===

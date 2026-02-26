@@ -8,14 +8,14 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.MoonlightSonata.Dusts
 {
     /// <summary>
-    /// Flowing water-like dust for Eternal Moon — "The Eternal Tide".
+    /// Flowing water-like dust for Eternal Moon  E"The Eternal Tide".
     /// Creates the feel of moonlight reflecting off ocean waves.
     /// Moves with a gentle sinusoidal drift, fading outward like retreating tides.
     /// Uses SoftGlow2.png for soft, flowing luminescence.
     /// </summary>
     public class TidalMoonDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow2";
 
         public override void OnSpawn(Dust dust)
         {
@@ -40,7 +40,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
             {
                 float lifeProgress = (float)dust.alpha / behavior.Lifetime;
 
-                // Sinusoidal lateral drift — creates tidal sloshing motion
+                // Sinusoidal lateral drift  Ecreates tidal sloshing motion
                 float driftPhase = dust.alpha * behavior.DriftFrequency + behavior.PhaseOffset;
                 float driftAmount = MathF.Sin(driftPhase) * behavior.DriftAmplitude;
                 Vector2 driftDir = new Vector2(-dust.velocity.Y, dust.velocity.X);
@@ -49,10 +49,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
 
                 dust.position += dust.velocity + driftDir * driftAmount;
 
-                // Decelerate gently — retreating tide feel
+                // Decelerate gently  Eretreating tide feel
                 dust.velocity *= behavior.VelocityDecay;
 
-                // Scale pulse — gentle breathing
+                // Scale pulse  Egentle breathing
                 float scalePulse = 1f + MathF.Sin(dust.alpha * 0.15f + behavior.PhaseOffset) * 0.15f;
                 dust.scale = behavior.BaseScale * scalePulse * (1f - lifeProgress * 0.4f);
 
@@ -69,7 +69,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
             }
             else
             {
-                // Default behavior — simple flowing fade
+                // Default behavior  Esimple flowing fade
                 dust.position += dust.velocity;
                 dust.velocity *= 0.95f;
                 dust.scale *= 0.98f;

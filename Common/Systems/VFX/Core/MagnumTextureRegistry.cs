@@ -8,7 +8,7 @@ namespace MagnumOpus.Common.Systems.VFX
 {
     /// <summary>
     /// Centralized VFX texture registry for MagnumOpus.
-    /// Uses EXISTING particle textures from Assets/Particles/ folder.
+    /// Uses EXISTING particle textures from Assets/Particles Asset Library/ folder.
     /// 
     /// This provides a standardized API for VFX systems to access common textures
     /// without needing to hard-code paths everywhere.
@@ -62,12 +62,12 @@ namespace MagnumOpus.Common.Systems.VFX
             if (Main.dedServ)
                 return;
             
-            // Load distinct textures from Assets/Particles/
+            // Load distinct textures from Assets/Particles Asset Library/
             // SoftGlow2 = softest, SoftGlow3 = medium, SoftGlow4 = most defined
-            SoftGlow = SafeLoad("MagnumOpus/Assets/Particles/SoftGlow2");
-            EnergyFlare = SafeLoad("MagnumOpus/Assets/Particles/EnergyFlare");
-            HaloRing = SafeLoad("MagnumOpus/Assets/Particles/GlowingHalo1");
-            CloudSmoke = SafeLoad("MagnumOpus/Assets/Particles/SoftGlow3"); // Softer texture for clouds
+            SoftGlow = SafeLoad("MagnumOpus/Assets/Particles Asset Library/SoftGlow2");
+            EnergyFlare = SafeLoad("MagnumOpus/Assets/Particles Asset Library/EnergyFlare");
+            HaloRing = SafeLoad("MagnumOpus/Assets/Particles Asset Library/GlowingHalo1");
+            CloudSmoke = SafeLoad("MagnumOpus/Assets/Particles Asset Library/SoftGlow3"); // Softer texture for clouds
             
             TexturesLoaded = true;
         }

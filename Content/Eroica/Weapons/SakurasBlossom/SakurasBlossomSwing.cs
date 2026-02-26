@@ -16,10 +16,10 @@ using MagnumOpus.Content.MoonlightSonata.Debuffs;
 namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
 {
     /// <summary>
-    /// Swing projectile for Sakura's Blossom — Eroica's blooming sword of spring.
-    /// 4-phase sakura combo: Petal Slash → Crimson Scatter → Blossom Bloom → Storm of Petals.
+    /// Swing projectile for Sakura's Blossom  EEroica's blooming sword of spring.
+    /// 4-phase sakura combo: Petal Slash ↁECrimson Scatter ↁEBlossom Bloom ↁEStorm of Petals.
     /// Each phase spawns increasing numbers of spectral homing copies (SakurasBlossomSpectral).
-    /// The blade literally blooms with petals — a flower unfurling across four movements.
+    /// The blade literally blooms with petals  Ea flower unfurling across four movements.
     /// 
     /// Enhanced: phase transition tracking, petal trail recording, escalating
     /// sound design with pitch/volume curve, peak-boost lighting.
@@ -28,7 +28,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
     {
         #region Theme Colors
 
-        // 6-color Sakura palette — bud to full bloom (delegates to EroicaPalette)
+        // 6-color Sakura palette  Ebud to full bloom (delegates to EroicaPalette)
         private static readonly Color[] SakuraPalette = EroicaPalette.SakurasBlossomBlade;
 
         #endregion
@@ -42,7 +42,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
 
         #region Combo Phases
 
-        // Phase 0: Petal Slash — quick horizontal opener, petals scatter
+        // Phase 0: Petal Slash  Equick horizontal opener, petals scatter
         //   Refined: slightly tighter timing +  snappier acceleration
         private static readonly ComboPhase Phase0_PetalSlash = new ComboPhase(
             curves: new CurveSegment[]
@@ -59,7 +59,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
             damageMult: 0.85f
         );
 
-        // Phase 1: Crimson Scatter — backhand that tosses spectral copies wide
+        // Phase 1: Crimson Scatter  Ebackhand that tosses spectral copies wide
         //   Refined: wider arc, slightly longer for drama
         private static readonly ComboPhase Phase1_CrimsonScatter = new ComboPhase(
             curves: new CurveSegment[]
@@ -76,7 +76,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
             damageMult: 1.0f
         );
 
-        // Phase 2: Blossom Bloom — rising arc, pollen explodes from blade
+        // Phase 2: Blossom Bloom  Erising arc, pollen explodes from blade
         //   Refined: broader bloom arc, longer blade
         private static readonly ComboPhase Phase2_BlossomBloom = new ComboPhase(
             curves: new CurveSegment[]
@@ -93,7 +93,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
             damageMult: 1.18f
         );
 
-        // Phase 3: Storm of Petals — massive slam, sakura storm erupts
+        // Phase 3: Storm of Petals  Emassive slam, sakura storm erupts
         //   Refined: power-4 acceleration for devastating finisher, longest blade
         private static readonly ComboPhase Phase3_StormOfPetals = new ComboPhase(
             curves: new CurveSegment[]
@@ -129,10 +129,10 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
 
         protected override string GetSmearTexturePath(int comboStep) => comboStep switch
         {
-            1 => "MagnumOpus/Assets/Particles/SwordArc3",
-            2 => "MagnumOpus/Assets/Particles/CurvedSwordSlash",
-            3 => "MagnumOpus/Assets/Particles/FlamingArcSwordSlash",
-            _ => "MagnumOpus/Assets/Particles/SwordArc2"
+            1 => "MagnumOpus/Assets/Particles Asset Library/SwordArc3",
+            2 => "MagnumOpus/Assets/Particles Asset Library/CurvedSwordSlash",
+            3 => "MagnumOpus/Assets/Particles Asset Library/FlamingArcSwordSlash",
+            _ => "MagnumOpus/Assets/Particles Asset Library/SwordArc2"
         };
 
         #endregion
@@ -143,7 +143,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
             => ModContent.Request<Texture2D>("MagnumOpus/Content/Eroica/Weapons/SakurasBlossom/SakurasBlossom").Value;
 
         /// <summary>
-        /// Escalating sakura sound — pitch rises through combo, volume grows,
+        /// Escalating sakura sound  Epitch rises through combo, volume grows,
         /// Phase 3 finisher gets extra reverb-like pitch drop.
         /// </summary>
         protected override SoundStyle GetSwingSound()
@@ -159,7 +159,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
 
         /// <summary>
         /// Enhanced light color with progression-based peak boost.
-        /// Pink → Gold gradient intensifies at swing peak (progression ~0.5).
+        /// Pink ↁEGold gradient intensifies at swing peak (progression ~0.5).
         /// </summary>
         protected override Vector3 GetLightColor()
         {
@@ -173,11 +173,11 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
 
         #endregion
 
-        #region Combo Specials — Escalating Spectral Copies
+        #region Combo Specials  EEscalating Spectral Copies
 
         protected override void HandleComboSpecials()
         {
-            // Phase transition detection — petal burst between phases
+            // Phase transition detection  Epetal burst between phases
             if (ComboStep != _lastComboStep)
             {
                 if (_lastComboStep >= 0)
@@ -271,11 +271,11 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
                     }
                 }
 
-                // VFX: Full sakura storm — the climactic blooming
+                // VFX: Full sakura storm  Ethe climactic blooming
                 Vector2 vfxTip = GetBladeTipPosition();
                 SakurasBlossomVFX.StormOfPetalsVFX(vfxTip);
 
-                // Finisher sound — low boom to complement the storm
+                // Finisher sound  Elow boom to complement the storm
                 SoundEngine.PlaySound(SoundID.Item70 with { Pitch = -0.3f, Volume = 0.5f },
                     GetBladeTipPosition());
             }
@@ -283,14 +283,14 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
 
         #endregion
 
-        #region On Hit — MusicsDissonance + Seeking Crystals
+        #region On Hit  EMusicsDissonance + Seeking Crystals
 
         protected override void OnSwingHitNPC(NPC target, NPC.HitInfo hit, int remainingDamageCount)
         {
             // Apply MusicsDissonance debuff
             target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 240);
 
-            // Impact VFX — delegated to VFX module
+            // Impact VFX  Edelegated to VFX module
             SakurasBlossomVFX.SwingHitImpact(target.Center, ComboStep);
 
             // Seeking crystals on every third hit (33% chance)
@@ -309,7 +309,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
 
         #endregion
 
-        #region Custom VFX — Blooming Sakura Aura
+        #region Custom VFX  EBlooming Sakura Aura
 
         protected override void DrawCustomVFX(SpriteBatch sb)
         {

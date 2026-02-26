@@ -19,7 +19,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.SakurasBurningWill
     /// </summary>
     public class HeroicSpiritMinion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc6";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc6";
         
         private const int LifeDuration = 300; // 5 seconds
         private int targetNPC = -1;
@@ -383,7 +383,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.SakurasBurningWill
     /// </summary>
     public class HeroicSpiritSlash : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc8";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc8";
         
         public override void SetStaticDefaults()
         {

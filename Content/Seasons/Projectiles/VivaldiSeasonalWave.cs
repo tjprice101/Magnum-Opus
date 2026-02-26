@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class VivaldiSeasonalWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc6";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc6";
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
@@ -294,10 +294,10 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D arcTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwordArc6").Value;
-            Texture2D flareTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-            Texture2D flareTexture2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare4").Value;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D arcTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SwordArc6").Value;
+            Texture2D flareTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D flareTexture2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare4").Value;
+            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             Vector2 arcOrigin = arcTexture.Size() / 2f;
             Vector2 flareOrigin = flareTexture.Size() / 2f;
             Vector2 flareOrigin2 = flareTexture2.Size() / 2f;

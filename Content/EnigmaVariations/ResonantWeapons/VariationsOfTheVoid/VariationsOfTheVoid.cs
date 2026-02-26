@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -46,7 +46,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
         }
         
-        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs6";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs6";
         
         public override bool PreDraw(ref Color lightColor) => false;
         
@@ -526,7 +526,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         
-        public override string Texture => "MagnumOpus/Assets/Particles/StarBurst1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/StarBurst1";
         
         public override void SetDefaults()
         {

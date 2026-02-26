@@ -606,7 +606,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Melee
     [AllowLargeHitbox("Bloom explosion requires large hitbox for AoE damage marking")]
     public class BloomExplosionProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare";
 
         public override void SetDefaults()
         {

@@ -8,15 +8,15 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.MoonlightSonata.Dusts
 {
     /// <summary>
-    /// Gravity well dust for the Goliath of Moonlight — cosmic entity particles.
+    /// Gravity well dust for the Goliath of Moonlight  Ecosmic entity particles.
     /// Heavy particles that spiral inward toward a gravitational center, creating
     /// the visual of matter being drawn into a cosmic entity's gravitational pull.
     /// Uses GlowingHalo2.png for a dense nebula appearance.
-    /// Color shifts from deep space violet → nebula purple → star core white.
+    /// Color shifts from deep space violet ↁEnebula purple ↁEstar core white.
     /// </summary>
     public class GravityWellDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo2";
 
         public override void OnSpawn(Dust dust)
         {
@@ -41,11 +41,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
             {
                 float lifeProgress = (float)dust.alpha / behavior.Lifetime;
 
-                // Color intensification: deep space → nebula purple → star core
+                // Color intensification: deep space ↁEnebula purple ↁEstar core
                 float colorT = lifeProgress;
                 if (colorT < 0.4f)
                 {
-                    // Approaching phase: dark cosmic void → gravity well purple
+                    // Approaching phase: dark cosmic void ↁEgravity well purple
                     dust.color = Color.Lerp(
                         new Color(30, 12, 60),
                         new Color(100, 60, 180),
@@ -53,7 +53,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
                 }
                 else if (colorT < 0.75f)
                 {
-                    // Close approach: gravity well → nebula purple (brightening)
+                    // Close approach: gravity well ↁEnebula purple (brightening)
                     dust.color = Color.Lerp(
                         new Color(100, 60, 180),
                         new Color(180, 140, 255),
@@ -61,7 +61,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
                 }
                 else
                 {
-                    // Terminal phase: nebula → star core white (intense)
+                    // Terminal phase: nebula ↁEstar core white (intense)
                     dust.color = Color.Lerp(
                         new Color(180, 140, 255),
                         new Color(255, 240, 220),
@@ -93,10 +93,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
                 dust.position += dust.velocity;
                 dust.velocity *= behavior.VelocityDecay;
 
-                // Rotation — spinning as it spirals
+                // Rotation  Espinning as it spirals
                 dust.rotation += behavior.RotationSpeed * (1f + lifeProgress);
 
-                // Scale — grows slightly as it intensifies, then shrinks at terminal phase
+                // Scale  Egrows slightly as it intensifies, then shrinks at terminal phase
                 float gravitationalScale;
                 if (lifeProgress < 0.6f)
                     gravitationalScale = 1f + lifeProgress * 0.5f;
@@ -107,7 +107,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
                 float pulse = 1f + MathF.Sin(dust.alpha * pulseRate + behavior.PhaseOffset) * 0.15f;
                 dust.scale = behavior.BaseScale * gravitationalScale * pulse;
 
-                // Fade — quick ignite, hold, then absorb at end
+                // Fade  Equick ignite, hold, then absorb at end
                 if (dust.alpha < 4)
                     dust.fadeIn = dust.alpha / 4f;
                 else if (lifeProgress < 0.7f)
@@ -120,7 +120,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
             }
             else
             {
-                // Default behavior — simple spiral fade
+                // Default behavior  Esimple spiral fade
                 dust.position += dust.velocity;
                 dust.velocity *= 0.96f;
                 dust.rotation += 0.05f;

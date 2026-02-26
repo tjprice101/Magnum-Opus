@@ -8,14 +8,14 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.MoonlightSonata.Dusts
 {
     /// <summary>
-    /// Expanding resonance ring dust — represents tuning-fork vibration waves.
+    /// Expanding resonance ring dust  Erepresents tuning-fork vibration waves.
     /// Inspired by VFX+ WindLine's directional scaling approach.
     /// Expands outward while fading, creating visible sonic-like resonance rings.
     /// Used for Incisor's precision impact effects and frequency cascade.
     /// </summary>
     public class ResonantPulseDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo1";
 
         public override void OnSpawn(Dust dust)
         {

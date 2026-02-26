@@ -339,7 +339,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
     /// </summary>
     public class JoyWaveProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo2";
 
         public override void SetDefaults()
         {
@@ -721,7 +721,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
     /// </summary>
     public class FountainWaterProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow2";
 
         public override void SetDefaults()
         {
@@ -1135,7 +1135,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
     /// </summary>
     public class HarmonicBlastProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare4";
 
         public override void SetDefaults()
         {
@@ -1213,7 +1213,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Summon
     /// </summary>
     public class GrandFinaleProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/StarBurst1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/StarBurst1";
 
         public override void SetDefaults()
         {

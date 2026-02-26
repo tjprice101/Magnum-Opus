@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     /// </summary>
     public class FuneralPrayerBeam : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/LightningStreak";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningStreak";
 
         private int targetNPC = -1;
         private Vector2 beamEnd;
@@ -71,7 +71,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // ═══ ALL VFX delegated to module ═══
+            // ══╁EALL VFX delegated to module ══╁E
             FuneralPrayerVFX.BeamTrailFrame(Projectile);
         }
 
@@ -202,7 +202,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Apply debuff
             target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 240);
 
-            // Delegate hit VFX to module — halo, dust burst, bloom
+            // Delegate hit VFX to module  Ehalo, dust burst, bloom
             FuneralPrayerVFX.BeamHitVFX(target.Center);
 
             // Music notes at impact
@@ -255,7 +255,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             {
                 NPC secondary = Main.npc[secondaryTarget];
 
-                // Zigzag lightning arc — smaller, dimmer
+                // Zigzag lightning arc  Esmaller, dimmer
                 Vector2 startPos = hitTarget.Center;
                 Vector2 endPos = secondary.Center;
                 Vector2 direction = (endPos - startPos).SafeNormalize(Vector2.UnitX);

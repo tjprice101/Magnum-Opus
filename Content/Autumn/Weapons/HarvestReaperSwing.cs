@@ -16,8 +16,8 @@ using static MagnumOpus.Common.Systems.Particles.Particle;
 namespace MagnumOpus.Content.Autumn.Weapons
 {
     /// <summary>
-    /// Harvest Reaper held-projectile swing — the slow dirge of autumn's decay.
-    /// 4-phase scythe combo: Reaping Sweep → Decay Slash → Soul Rend → Twilight Judgement.
+    /// Harvest Reaper held-projectile swing  Ethe slow dirge of autumn's decay.
+    /// 4-phase scythe combo: Reaping Sweep ↁEDecay Slash ↁESoul Rend ↁETwilight Judgement.
     /// Every 5th hit applies Autumn's Decay (Ichor + seeking crystals);
     /// kills spawn soul wisps; every 8th COMBO triggers Twilight Slash (DecayCrescentWave).
     /// </summary>
@@ -37,7 +37,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             set => Projectile.ai[2] = value;
         }
 
-        // ── 6-Color Palette: pianissimo → sforzando ──
+        // ── 6-Color Palette: pianissimo ↁEsforzando ──
         private static readonly Color[] AutumnPalette = new Color[]
         {
             new Color(80, 40, 20),      // [0] Dark bark shadow
@@ -50,7 +50,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
         #region ── Combo Phase Definitions ──
 
-        // Phase 0 — Reaping Sweep (slow, wide horizontal arc — the first leaves falling)
+        // Phase 0  EReaping Sweep (slow, wide horizontal arc  Ethe first leaves falling)
         private static readonly ComboPhase Phase0_ReapingSweep = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -66,7 +66,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             damageMult: 0.9f
         );
 
-        // Phase 1 — Decay Slash (quick backhand — the wind scattering dead leaves)
+        // Phase 1  EDecay Slash (quick backhand  Ethe wind scattering dead leaves)
         private static readonly ComboPhase Phase1_DecaySlash = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -82,7 +82,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             damageMult: 1.0f
         );
 
-        // Phase 2 — Soul Rend (overhead slam — the weight of autumn's sorrow)
+        // Phase 2  ESoul Rend (overhead slam  Ethe weight of autumn's sorrow)
         private static readonly ComboPhase Phase2_SoulRend = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -98,7 +98,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             damageMult: 1.15f
         );
 
-        // Phase 3 — Twilight Judgement (massive finisher — the last light fading)
+        // Phase 3  ETwilight Judgement (massive finisher  Ethe last light fading)
         private static readonly ComboPhase Phase3_TwilightJudgement = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -133,11 +133,11 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
         protected override string GetSmearTexturePath(int comboStep) => comboStep switch
         {
-            0 => "MagnumOpus/Assets/Particles/CurvedSwordSlash",
-            1 => "MagnumOpus/Assets/Particles/SimpleArcSwordSlash",
-            2 => "MagnumOpus/Assets/Particles/SwordArc3",
-            3 => "MagnumOpus/Assets/Particles/FlamingArcSwordSlash",
-            _ => "MagnumOpus/Assets/Particles/CurvedSwordSlash",
+            0 => "MagnumOpus/Assets/Particles Asset Library/CurvedSwordSlash",
+            1 => "MagnumOpus/Assets/Particles Asset Library/SimpleArcSwordSlash",
+            2 => "MagnumOpus/Assets/Particles Asset Library/SwordArc3",
+            3 => "MagnumOpus/Assets/Particles Asset Library/FlamingArcSwordSlash",
+            _ => "MagnumOpus/Assets/Particles Asset Library/CurvedSwordSlash",
         };
 
         #endregion
@@ -199,7 +199,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 }
             }
 
-            // Phase 3 at ~85%: Twilight Slash finisher — spawn DecayCrescentWave
+            // Phase 3 at ~85%: Twilight Slash finisher  Espawn DecayCrescentWave
             if (ComboStep == 3 && Progression >= 0.85f)
             {
                 hasSpawnedSpecial = true;
@@ -240,7 +240,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 Vector2 tipPos = GetBladeTipPosition();
                 float bladeLen = CurrentPhase.BladeLength;
 
-                // Autumn torch dust — dense, 2 per frame
+                // Autumn torch dust  Edense, 2 per frame
                 for (int i = 0; i < 2; i++)
                 {
                     Vector2 dustPos = Owner.MountedCenter + SwordDirection * bladeLen * Main.rand.NextFloat(0.4f, 1f);
@@ -298,7 +298,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
             HitCounter++;
 
-            // ── Gradient halo rings — orange → purple ──
+            // ── Gradient halo rings  Eorange ↁEpurple ──
             for (int i = 0; i < 4; i++)
             {
                 float progress = i / 4f;
@@ -342,7 +342,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 MagnumParticleHandler.SpawnParticle(leaf);
             }
 
-            // ── AUTUMN'S DECAY — every 5th hit: Ichor + seeking crystals ──
+            // ── AUTUMN'S DECAY  Eevery 5th hit: Ichor + seeking crystals ──
             if (HitCounter >= 5)
             {
                 HitCounter = 0;
@@ -375,7 +375,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 }
             }
 
-            // ── SOUL HARVEST — kills spawn healing wisp ──
+            // ── SOUL HARVEST  Ekills spawn healing wisp ──
             if (target.life <= 0)
             {
                 if (Main.myPlayer == Projectile.owner && Main.netMode != NetmodeID.MultiplayerClient)

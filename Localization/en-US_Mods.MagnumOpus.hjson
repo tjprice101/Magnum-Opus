@@ -4347,6 +4347,26 @@ Buffs: {
 		DisplayName: Triumphant Chorus Buff
 		Description: Mods.MagnumOpus.Buffs.TriumphantChorusBuff.Description
 	}
+
+	ExoMiracleBlight: {
+		Description: Mods.MagnumOpus.Buffs.ExoMiracleBlight.Description
+		DisplayName: Exo Miracle Blight
+	}
+
+	ExoGlacialState: {
+		Description: Mods.MagnumOpus.Buffs.ExoGlacialState.Description
+		DisplayName: Exo Glacial State
+	}
+
+	LunarResonanceDebuff: {
+		DisplayName: Lunar Resonance Debuff
+		Description: Mods.MagnumOpus.Buffs.LunarResonanceDebuff.Description
+	}
+
+	MoonlitStasis: {
+		DisplayName: Moonlit Stasis
+		Description: Mods.MagnumOpus.Buffs.MoonlitStasis.Description
+	}
 }
 
 Items: {
@@ -7111,6 +7131,11 @@ Items: {
 		Tooltip: ""
 		DisplayName: Sandbox Last Prism
 	}
+
+	Exoblade: {
+		Tooltip: ""
+		DisplayName: Exoblade
+	}
 }
 
 NPCs: {
@@ -7639,4 +7664,14 @@ Projectiles: {
 	SandboxTerraBladeBeam.DisplayName: Sandbox Terra Blade Beam
 	SandboxTerraBladeFlareBeam.DisplayName: Sandbox Terra Blade Flare Beam
 	SandboxTerraBladePrismBeam.DisplayName: Sandbox Terra Blade Prism Beam
+	Exoboom.DisplayName: Exoboom
+	ExobladeProj.DisplayName: Exoblade Proj
+	ExobeamSlashCreator.DisplayName: Exobeam Slash Creator
+	ExobeamSlash.DisplayName: Exobeam Slash
+	Exobeam.DisplayName: Exobeam
+	ConstellationSlash.DisplayName: Constellation Slash
+	ConstellationSlashCreator.DisplayName: Constellation Slash Creator
+	IncisorSwingProj.DisplayName: Incisor Swing Proj
+	LunarBeamProj.DisplayName: Lunar Beam Proj
+	LunarNova.DisplayName: Lunar Nova
 }

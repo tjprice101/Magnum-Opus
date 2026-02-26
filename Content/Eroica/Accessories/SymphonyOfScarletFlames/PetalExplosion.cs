@@ -19,7 +19,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.SymphonyOfScarletFlames
     [AllowLargeHitbox("Sakura petal explosion requires large hitbox for AoE damage")]
     public class PetalExplosion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField6";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField6";
         
         private int explosionTimer = 0;
         private const int ExplosionDuration = 20;

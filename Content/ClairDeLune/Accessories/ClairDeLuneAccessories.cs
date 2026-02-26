@@ -283,7 +283,7 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
     /// </summary>
     public class ClockworkTargetingBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/LightningStreak";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningStreak";
 
         public override void SetDefaults()
         {
@@ -534,7 +534,7 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
     /// </summary>
     public class TemporalEchoProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow2";
 
         private int TargetNPC => (int)Projectile.ai[0];
         private int Delay => (int)Projectile.ai[1];

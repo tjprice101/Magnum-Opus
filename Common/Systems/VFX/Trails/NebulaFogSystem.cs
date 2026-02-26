@@ -143,10 +143,10 @@ namespace MagnumOpus.Common.Systems.VFX
                 }
                 
                 // Load soft glow for fog base
-                if (ModContent.HasAsset("MagnumOpus/Assets/Particles/SoftGlow2"))
+                if (ModContent.HasAsset("MagnumOpus/Assets/Particles Asset Library/SoftGlow2"))
                 {
                     _softGlowTexture = ModContent.Request<Texture2D>(
-                        "MagnumOpus/Assets/Particles/SoftGlow2", AssetRequestMode.ImmediateLoad).Value;
+                        "MagnumOpus/Assets/Particles Asset Library/SoftGlow2", AssetRequestMode.ImmediateLoad).Value;
                 }
             }
             catch

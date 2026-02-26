@@ -453,8 +453,8 @@ namespace MagnumOpus.Common.Systems.VFX
         private void DrawBloomLayers()
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
-            Texture2D flare = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+            Texture2D flare = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
             
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 glowOrigin = softGlow.Size() * 0.5f;
@@ -502,7 +502,7 @@ namespace MagnumOpus.Common.Systems.VFX
             if (smoothTrail.Length == 0) return;
             
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = softGlow.Size() * 0.5f;
             
             Color primaryColor = PrimaryColor ?? VFXUtilities.PaletteLerp(ThemePalette, 0.2f);
@@ -568,7 +568,7 @@ namespace MagnumOpus.Common.Systems.VFX
         private void DrawOrbitingElements()
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D flare = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+            Texture2D flare = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = flare.Size() * 0.5f;
             
             Color primaryColor = PrimaryColor ?? VFXUtilities.PaletteLerp(ThemePalette, 0.3f);

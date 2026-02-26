@@ -40,7 +40,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
 
         #region Combo Phases
 
-        // Phase 0: Swift bell chime strike — fast opener
+        // Phase 0: Swift bell chime strike  Efast opener
         private static readonly ComboPhase Phase0_BellStrike = new ComboPhase(
             new CurveSegment[]
             {
@@ -56,7 +56,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             damageMult: 0.9f
         );
 
-        // Phase 1: Tolling sweep — wider arc, alternating direction
+        // Phase 1: Tolling sweep  Ewider arc, alternating direction
         private static readonly ComboPhase Phase1_TollSweep = new ComboPhase(
             new CurveSegment[]
             {
@@ -72,7 +72,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
             damageMult: 1.1f
         );
 
-        // Phase 2: Grand toll — heavy finisher with wide arc and long blade
+        // Phase 2: Grand toll  Eheavy finisher with wide arc and long blade
         private static readonly ComboPhase Phase2_GrandToll = new ComboPhase(
             new CurveSegment[]
             {
@@ -108,8 +108,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
         {
             return comboStep switch
             {
-                2 => "MagnumOpus/Assets/Particles/FlamingArcSwordSlash",
-                _ => "MagnumOpus/Assets/Particles/SwordArc3"
+                2 => "MagnumOpus/Assets/Particles Asset Library/FlamingArcSwordSlash",
+                _ => "MagnumOpus/Assets/Particles Asset Library/SwordArc3"
             };
         }
 
@@ -296,7 +296,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                 ember.noGravity = true;
             }
 
-            // Music notes — infernal chime spectrum (hue-shifting)
+            // Music notes  Einfernal chime spectrum (hue-shifting)
             if (Main.rand.NextBool(5))
             {
                 Vector2 noteVel = -SwordDirection * 1.2f + new Vector2(0, -0.5f);
@@ -307,7 +307,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
                     scale: 0.75f, lifetime: 25, hueSpeed: 0.02f));
             }
 
-            // Blade-tip bloom — infernal glow
+            // Blade-tip bloom  Einfernal glow
             {
                 float bloomOpacity = MathHelper.Clamp((Progression - 0.08f) / 0.12f, 0f, 1f)
                                    * MathHelper.Clamp((0.92f - Progression) / 0.12f, 0f, 1f);

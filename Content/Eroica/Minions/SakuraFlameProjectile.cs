@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.Eroica.Minions
     /// </summary>
     public class SakuraFlameProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle14";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle14";
         
         private float fadeProgress = 0f;
         
@@ -201,7 +201,7 @@ namespace MagnumOpus.Content.Eroica.Minions
         
         public override void OnKill(int timeLeft)
         {
-            // Small crisp death VFX — delegate to VFX module
+            // Small crisp death VFX  Edelegate to VFX module
             FinalityOfTheSakuraVFX.MinionFlameDeathVFX(Projectile.Center);
         }
     }

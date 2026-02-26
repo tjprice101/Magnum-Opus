@@ -22,7 +22,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class AvalancheWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc3";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc3";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
@@ -185,7 +185,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class AvalancheIceShardProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/TwinkleSparkle";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/TwinkleSparkle";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);

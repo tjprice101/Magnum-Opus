@@ -214,7 +214,7 @@ namespace MagnumOpus.Content.SandboxExoblade.Projectiles
 
             SwingTime = GetSwingTime;
             Projectile.timeLeft = (int)SwingTime;
-            Projectile.ForceNetUpdate();
+            Projectile.netUpdate = true;
         }
 
         public override void AI()
@@ -408,7 +408,7 @@ namespace MagnumOpus.Content.SandboxExoblade.Projectiles
                 return;
 
             Main.spriteBatch.EnterShaderRegion();
-            GameShaders.Misc["MagnumOpus:ExobladeSlash"].SetShaderTexture(ModContent.Request<Texture2D>("MagnumOpus/Content/SandboxExoblade/Textures/VoronoiShapes"));
+            GameShaders.Misc["MagnumOpus:ExobladeSlash"].UseImage1(ModContent.Request<Texture2D>("MagnumOpus/Content/SandboxExoblade/Textures/VoronoiShapes"));
             GameShaders.Misc["MagnumOpus:ExobladeSlash"].UseColor(new Color(105, 240, 220));
             GameShaders.Misc["MagnumOpus:ExobladeSlash"].UseSecondaryColor(new Color(57, 46, 115));
             GameShaders.Misc["MagnumOpus:ExobladeSlash"].Shader.Parameters["fireColor"].SetValue(new Color(242, 112, 72).ToVector3());
@@ -434,7 +434,7 @@ namespace MagnumOpus.Content.SandboxExoblade.Projectiles
             secondaryColor = Color.Lerp(Color.White, secondaryColor, 0.4f + 0.6f * (float)Math.Pow(LungeProgression, 0.5f));
 
             Vector2 trailOffset = (Projectile.rotation - Direction * MathHelper.PiOver4).ToRotationVector2() * 98f + Projectile.Size * 0.5f;
-            GameShaders.Misc["MagnumOpus:ExobladePierce"].SetShaderTexture(ModContent.Request<Texture2D>("MagnumOpus/Content/SandboxExoblade/Textures/EternityStreak"));
+            GameShaders.Misc["MagnumOpus:ExobladePierce"].UseImage1(ModContent.Request<Texture2D>("MagnumOpus/Content/SandboxExoblade/Textures/EternityStreak"));
             GameShaders.Misc["MagnumOpus:ExobladePierce"].UseImage2("Images/Extra_189");
             GameShaders.Misc["MagnumOpus:ExobladePierce"].UseColor(mainColor);
             GameShaders.Misc["MagnumOpus:ExobladePierce"].UseSecondaryColor(secondaryColor);

@@ -16,8 +16,8 @@ using static MagnumOpus.Common.Systems.Particles.Particle;
 namespace MagnumOpus.Content.Summer.Weapons
 {
     /// <summary>
-    /// Zenith Cleaver held-projectile swing — the blazing second movement of summer.
-    /// 3-phase solar combo: Scorching Slash → Solar Arc → Zenith Slam.
+    /// Zenith Cleaver held-projectile swing  Ethe blazing second movement of summer.
+    /// 3-phase solar combo: Scorching Slash ↁESolar Arc ↁEZenith Slam.
     /// Every swing fires a SolarWave; every 7th hit unleashes Zenith Strike
     /// (ZenithFlare + 8 radial SolarWaves). Hits apply Sunstroke debuffs
     /// and spawn seeking SummerCrystals.
@@ -32,14 +32,14 @@ namespace MagnumOpus.Content.Summer.Weapons
 
         private int _crystalCooldown;
 
-        // ── Swing Counter (stored in ai[2]) — Zenith Strike triggers on 7th ──
+        // ── Swing Counter (stored in ai[2])  EZenith Strike triggers on 7th ──
         private int SwingCounter
         {
             get => (int)Projectile.ai[2];
             set => Projectile.ai[2] = value;
         }
 
-        // ── 6-Color Palette: pianissimo → sforzando (solar heat gradient) ──
+        // ── 6-Color Palette: pianissimo ↁEsforzando (solar heat gradient) ──
         private static readonly Color[] SummerPalette = new Color[]
         {
             new Color(120, 50, 10),     // [0] Deep amber shadow
@@ -52,7 +52,7 @@ namespace MagnumOpus.Content.Summer.Weapons
 
         #region ── Combo Phase Definitions ──
 
-        // Phase 0 — Scorching Slash (a quick cutting beam of summer heat)
+        // Phase 0  EScorching Slash (a quick cutting beam of summer heat)
         private static readonly ComboPhase Phase0_ScorchingSlash = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -68,7 +68,7 @@ namespace MagnumOpus.Content.Summer.Weapons
             damageMult: 0.85f
         );
 
-        // Phase 1 — Solar Arc (the sun's arc across the zenith sky)
+        // Phase 1  ESolar Arc (the sun's arc across the zenith sky)
         private static readonly ComboPhase Phase1_SolarArc = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -84,7 +84,7 @@ namespace MagnumOpus.Content.Summer.Weapons
             damageMult: 1.0f
         );
 
-        // Phase 2 — Zenith Slam (the sun at its peak — maximum devastation)
+        // Phase 2  EZenith Slam (the sun at its peak  Emaximum devastation)
         private static readonly ComboPhase Phase2_ZenithSlam = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -118,10 +118,10 @@ namespace MagnumOpus.Content.Summer.Weapons
 
         protected override string GetSmearTexturePath(int comboStep) => comboStep switch
         {
-            0 => "MagnumOpus/Assets/Particles/FlamingArcSwordSlash",
-            1 => "MagnumOpus/Assets/Particles/SwordArc6",
-            2 => "MagnumOpus/Assets/Particles/SwordArc3",
-            _ => "MagnumOpus/Assets/Particles/FlamingArcSwordSlash",
+            0 => "MagnumOpus/Assets/Particles Asset Library/FlamingArcSwordSlash",
+            1 => "MagnumOpus/Assets/Particles Asset Library/SwordArc6",
+            2 => "MagnumOpus/Assets/Particles Asset Library/SwordArc3",
+            _ => "MagnumOpus/Assets/Particles Asset Library/FlamingArcSwordSlash",
         };
 
         #endregion
@@ -170,7 +170,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                     Vector2 tipPos = GetBladeTipPosition();
                     Vector2 waveVel = SwordDirection * 14f;
 
-                    // Standard SolarWave — half damage
+                    // Standard SolarWave  Ehalf damage
                     Projectile.NewProjectile(
                         Projectile.GetSource_FromThis(),
                         tipPos,
@@ -192,7 +192,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                         flare.noGravity = true;
                     }
 
-                    // ── Zenith Strike check — every 7th swing ──
+                    // ── Zenith Strike check  Eevery 7th swing ──
                     SwingCounter++;
                     if (SwingCounter >= 7)
                     {
@@ -208,7 +208,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                 Vector2 tipPos = GetBladeTipPosition();
                 float bladeLen = CurrentPhase.BladeLength;
 
-                // Solar flare dust — 2 per frame (dense, fiery)
+                // Solar flare dust  E2 per frame (dense, fiery)
                 for (int i = 0; i < 2; i++)
                 {
                     Vector2 dustPos = Owner.MountedCenter + SwordDirection * bladeLen * Main.rand.NextFloat(0.35f, 1f);
@@ -241,7 +241,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                     sparkle.noGravity = true;
                 }
 
-                // Solar shimmer trail — hslToRgb for iridescent heat
+                // Solar shimmer trail  EhslToRgb for iridescent heat
                 if (Main.rand.NextBool(3))
                 {
                     float hue = Main.rand.NextFloat(0.10f, 0.16f);
@@ -285,13 +285,13 @@ namespace MagnumOpus.Content.Summer.Weapons
         }
 
         /// <summary>
-        /// Zenith Strike: fires ZenithFlare + 8 radial SolarWaves — the climactic chord.
+        /// Zenith Strike: fires ZenithFlare + 8 radial SolarWaves  Ethe climactic chord.
         /// </summary>
         private void TriggerZenithStrike(Vector2 tipPos)
         {
             SoundEngine.PlaySound(SoundID.Item45 with { Pitch = 0.2f, Volume = 1.1f }, tipPos);
 
-            // Central ZenithFlare projectile — double damage
+            // Central ZenithFlare projectile  Edouble damage
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(),
                 tipPos,
@@ -302,7 +302,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                 Projectile.owner
             );
 
-            // 8 radial SolarWaves — third damage
+            // 8 radial SolarWaves  Ethird damage
             for (int i = 0; i < 8; i++)
             {
                 float angle = MathHelper.TwoPi * i / 8f;
@@ -337,7 +337,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                 burst.noGravity = true;
             }
 
-            // Halo rings — gold to red gradient
+            // Halo rings  Egold to red gradient
             for (int ring = 0; ring < 5; ring++)
             {
                 float progress = ring / 5f;
@@ -365,7 +365,7 @@ namespace MagnumOpus.Content.Summer.Weapons
             target.AddBuff(BuffID.OnFire3, 180);   // Hellfire 3 seconds
             target.AddBuff(BuffID.Daybreak, 120);   // Daybreak 2 seconds
 
-            // ── Seeking Summer Crystals — 2-3 crystals at 30% damage (30-frame cooldown) ──
+            // ── Seeking Summer Crystals  E2-3 crystals at 30% damage (30-frame cooldown) ──
             if (_crystalCooldown <= 0)
             {
                 if (Main.myPlayer == Projectile.owner)
@@ -385,7 +385,7 @@ namespace MagnumOpus.Content.Summer.Weapons
 
             // ── Impact VFX Layers ──
 
-            // Gradient halo rings — SunGold → SunRed
+            // Gradient halo rings  ESunGold ↁESunRed
             for (int i = 0; i < 4; i++)
             {
                 float progress = i / 4f;
@@ -400,7 +400,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                 }
             }
 
-            // Solar shimmer flares — hslToRgb 0.08-0.18
+            // Solar shimmer flares  EhslToRgb 0.08-0.18
             for (int i = 0; i < 6; i++)
             {
                 float progress = i / 6f;
@@ -413,7 +413,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                 shimmer.noGravity = true;
             }
 
-            // Dust explosion — SolarFlare + Enchanted_Gold radial burst
+            // Dust explosion  ESolarFlare + Enchanted_Gold radial burst
             for (int i = 0; i < 8; i++)
             {
                 float angle = MathHelper.TwoPi * i / 8f;
@@ -445,7 +445,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                 ember.noGravity = true;
             }
 
-            // Music notes — scattered from impact (1-in-2 per hit, visible)
+            // Music notes  Escattered from impact (1-in-2 per hit, visible)
             for (int i = 0; i < 3; i++)
             {
                 float noteAngle = MathHelper.TwoPi * i / 3f + Main.rand.NextFloat(-0.3f, 0.3f);

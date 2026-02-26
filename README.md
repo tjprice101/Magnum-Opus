@@ -21,50 +21,50 @@
 ```
 MagnumOpus/
 ├── .github/
-│   ├── copilot-instructions.md      # Full AI instructions (detailed)
-│   └── COPILOT_QUICK_REFERENCE.md   # ⭐ CONDENSED AI instructions
-│
+━E  ├── copilot-instructions.md      # Full AI instructions (detailed)
+━E  └── COPILOT_QUICK_REFERENCE.md   # ⭁ECONDENSED AI instructions
+━E
 ├── Assets/
-│   ├── Particles/                    # White/grayscale particle textures
-│   └── Music/                        # Theme music files
-│
+━E  ├── Particles/                    # White/grayscale particle textures
+━E  └── Music/                        # Theme music files
+━E
 ├── Common/
-│   ├── Systems/
-│   │   ├── Particles/               # Core particle system
-│   │   │   ├── MagnumParticleHandler.cs  # Particle spawning
-│   │   │   ├── CommonParticles.cs        # Particle classes
-│   │   │   └── Particle.cs               # Base particle class
-│   │   ├── UnifiedVFX.cs            # ⭐ PREFERRED VFX API
-│   │   ├── ThemedParticles.cs       # Theme-specific effects
-│   │   ├── MagnumVFX.cs             # Lightning, beams, utilities
-│   │   ├── MagnumMeleeSwingSystem.cs # Melee weapon rotation
-│   │   ├── BossAIUtilities.cs       # Boss helper methods
-│   │   └── [Theme]SkyEffect.cs      # Sky flash effects
-│   └── [Theme]Rarity.cs             # Custom item rarities
-│
+━E  ├── Systems/
+━E  ━E  ├── Particles/               # Core particle system
+━E  ━E  ━E  ├── MagnumParticleHandler.cs  # Particle spawning
+━E  ━E  ━E  ├── CommonParticles.cs        # Particle classes
+━E  ━E  ━E  └── Particle.cs               # Base particle class
+━E  ━E  ├── UnifiedVFX.cs            # ⭁EPREFERRED VFX API
+━E  ━E  ├── ThemedParticles.cs       # Theme-specific effects
+━E  ━E  ├── MagnumVFX.cs             # Lightning, beams, utilities
+━E  ━E  ├── MagnumMeleeSwingSystem.cs # Melee weapon rotation
+━E  ━E  ├── BossAIUtilities.cs       # Boss helper methods
+━E  ━E  └── [Theme]SkyEffect.cs      # Sky flash effects
+━E  └── [Theme]Rarity.cs             # Custom item rarities
+━E
 ├── Content/
-│   └── [ThemeName]/                 # Organized by theme
-│       ├── Bosses/
-│       ├── ResonantWeapons/
-│       ├── ResonantOres/
-│       ├── HarmonicCores/
-│       ├── Accessories/
-│       └── SummonItems/
-│
+━E  └── [ThemeName]/                 # Organized by theme
+━E      ├── Bosses/
+━E      ├── ResonantWeapons/
+━E      ├── ResonantOres/
+━E      ├── HarmonicCores/
+━E      ├── Accessories/
+━E      └── SummonItems/
+━E
 ├── Documentation/
-│   ├── Mod_Progression.txt          # Full progression chain
-│   ├── Guides/
-│   │   ├── VFX_PARTICLE_SYSTEM_GUIDE.md      # Complete particle API
-│   │   ├── PRISMATIC_GEM_EFFECT_GUIDE.txt    # Gem effect patterns
-│   │   └── INFERNUM_VFX_AND_BOSS_AI_REFERENCE.md
-│   ├── Design Documents for Inspiration/     # Calamity references
-│   └── AI Prompts/                  # Suno AI music prompts
-│
+━E  ├── Mod_Progression.txt          # Full progression chain
+━E  ├── Guides/
+━E  ━E  ├── VFX_PARTICLE_SYSTEM_GUIDE.md      # Complete particle API
+━E  ━E  ├── PRISMATIC_GEM_EFFECT_GUIDE.txt    # Gem effect patterns
+━E  ━E  └── INFERNUM_VFX_AND_BOSS_AI_REFERENCE.md
+━E  ├── Design Documents for Inspiration/     # Calamity references
+━E  └── AI Prompts/                  # Suno AI music prompts
+━E
 ├── Localization/
-│   └── en-US_Mods.MagnumOpus.hjson  # All item/NPC text
-│
+━E  └── en-US_Mods.MagnumOpus.hjson  # All item/NPC text
+━E
 └── Midjourney Prompts/
-    ├── MASTER_PROMPTS.md            # ⭐ CONSOLIDATED prompt library
+    ├── MASTER_PROMPTS.md            # ⭁ECONSOLIDATED prompt library
     └── [Individual files]           # Legacy individual prompts
 ```
 
@@ -100,9 +100,9 @@ CustomParticles.ExplosionBurst(position, color, count, speed);
 
 ### Progression Order
 ```
-Moon Lord → Moonlight Sonata → Eroica → La Campanella → Enigma Variations
-    → Swan Lake → Fate → Ode to Joy → Dies Irae → Winter → Nachtmusik
-    → Clair de Lune → Mercury → Mars
+Moon Lord ↁEMoonlight Sonata ↁEEroica ↁELa Campanella ↁEEnigma Variations
+    ↁESwan Lake ↁEFate ↁEOde to Joy ↁEDies Irae ↁEWinter ↁENachtmusik
+    ↁEClair de Lune ↁEMercury ↁEMars
 ```
 
 ### Theme Color Quick Reference
@@ -111,9 +111,9 @@ Moon Lord → Moonlight Sonata → Eroica → La Campanella → Enigma Variation
 | Moonlight Sonata | (75,0,130) Purple | (135,206,250) Blue | Lunar, mist |
 | Eroica | (139,0,0) Scarlet | (255,215,0) Gold | Sakura, heroic |
 | La Campanella | (20,15,20) Black | (255,100,0) Orange | Smoke, fire, bells |
-| Enigma | (15,10,20) Black | (140,60,200) Purple → (50,220,100) Green | Eyes, glyphs, void |
+| Enigma | (15,10,20) Black | (140,60,200) Purple ↁE(50,220,100) Green | Eyes, glyphs, void |
 | Swan Lake | (255,255,255) White | (20,20,30) Black | Feathers, rainbow |
-| Fate | (15,5,20) Black | (180,50,100) Pink → (255,60,80) Red | Reality tears, cosmic |
+| Fate | (15,5,20) Black | (180,50,100) Pink ↁE(255,60,80) Red | Reality tears, cosmic |
 
 ### Theme Content Locations
 | Theme | Content Path |
@@ -156,13 +156,13 @@ Moon Lord → Moonlight Sonata → Eroica → La Campanella → Enigma Variation
 ### Midjourney Prompts
 | File | Contents |
 |------|----------|
-| [MASTER_PROMPTS.md](Midjourney%20Prompts/MASTER_PROMPTS.md) | **⭐ CONSOLIDATED** - All prompts organized by category |
+| [MASTER_PROMPTS.md](Midjourney%20Prompts/MASTER_PROMPTS.md) | **⭁ECONSOLIDATED** - All prompts organized by category |
 | Individual theme files | Legacy prompts (kept for reference) |
 
 ### Asset Placement Rules
 | Asset Type | Destination |
 |------------|-------------|
-| Particle textures (.png) | `Assets/Particles/` |
+| Particle textures (.png) | `Assets/Particles Asset Library/` |
 | Item textures | Same folder as item `.cs` file |
 | Projectile textures | Same folder as projectile `.cs` file |
 | Boss spritesheets | `Content/[Theme]/Bosses/` |

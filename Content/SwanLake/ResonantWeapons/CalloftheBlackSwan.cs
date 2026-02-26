@@ -223,7 +223,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
 
     public class BlackSwanFlare : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwanFeather2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwanFeather2";
 
         private bool isBlack => Projectile.ai[0] == 0;
         private bool isEmpowered => Projectile.ai[1] == 1;

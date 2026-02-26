@@ -260,7 +260,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch spriteBatch = Main.spriteBatch;
             // Use the ACTUAL sprite texture for the minion
             Texture2D spriteTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Spring/Projectiles/FlowerSpriteMinion").Value;
-            Texture2D glowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D glowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             Vector2 spriteOrigin = spriteTexture.Size() / 2f;
             Vector2 glowOrigin = glowTexture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -303,7 +303,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SpiritPetalBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/ConstellationStyleSparkle";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ConstellationStyleSparkle";
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
 
@@ -576,7 +576,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/StarBurst1").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/StarBurst1").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -610,7 +610,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SpiritSolarBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField7";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField7";
         
         private static readonly Color SummerGold = new Color(255, 215, 0);
         private static readonly Color SummerOrange = new Color(255, 140, 0);
@@ -907,7 +907,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch spriteBatch = Main.spriteBatch;
             // Use the ACTUAL sprite texture for the minion
             Texture2D spriteTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Autumn/Projectiles/HarvestWraithMinion").Value;
-            Texture2D glowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo6").Value;
+            Texture2D glowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/GlowingHalo6").Value;
             Vector2 spriteOrigin = spriteTexture.Size() / 2f;
             Vector2 glowOrigin = glowTexture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -1199,7 +1199,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch spriteBatch = Main.spriteBatch;
             // Use the ACTUAL sprite texture for the minion
             Texture2D spriteTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Winter/Projectiles/FrostSentinelMinion").Value;
-            Texture2D glowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D glowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             Vector2 spriteOrigin = spriteTexture.Size() / 2f;
             Vector2 glowOrigin = glowTexture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -1245,7 +1245,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SpiritIceBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/TwilightSparkle";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/TwilightSparkle";
         
         private static readonly Color WinterBlue = new Color(150, 220, 255);
 

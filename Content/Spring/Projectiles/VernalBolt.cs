@@ -50,7 +50,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "MagnumOpus/Assets/Particles/StarBurst2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/StarBurst2";
 
         public override void AI()
         {
@@ -384,7 +384,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "MagnumOpus/Assets/Particles/Star";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Star";
 
         public override void AI()
         {
@@ -499,7 +499,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "MagnumOpus/Assets/Particles/ManySparklesInCLuster";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ManySparklesInCLuster";
 
         public override void AI()
         {

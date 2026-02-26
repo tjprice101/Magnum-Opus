@@ -191,7 +191,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class GrimoireLightningProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/LightningStreak";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningStreak";
 
         private int chainsRemaining = 4;
         private int lastHitNPC = -1;
@@ -299,7 +299,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class GrimoireCrystalProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SmallCrystalShard";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SmallCrystalShard";
 
         public override void SetDefaults()
         {
@@ -356,7 +356,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class GrimoireGearProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/ClockworkGearSmall";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearSmall";
 
         public override void SetDefaults()
         {
@@ -433,7 +433,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class GrimoireTimeFractureProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/LightningBurst";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningBurst";
 
         private int timer = 0;
 
@@ -512,7 +512,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
             float progress = timer / 90f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             Vector2 origin = tex.Size() / 2f;
             
             float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.2f;
@@ -684,7 +684,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class OrreryControllerProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/ClockworkGearLarge";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearLarge";
 
         private float rotation = 0f;
         private float AlignmentProgress => Projectile.ai[1];
@@ -783,7 +783,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class OrreryOrbitProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SmallCrystalShard";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SmallCrystalShard";
 
         public override void SetDefaults()
         {
@@ -801,7 +801,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class OrreryBeamProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/LightningStreak";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningStreak";
 
         public override void SetDefaults()
         {
@@ -834,7 +834,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class CosmicLaserProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/LightningBurstThick";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningBurstThick";
 
         public override void SetDefaults()
         {
@@ -1065,7 +1065,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class TemporalSlashProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc1";
 
         public override void SetDefaults()
         {
@@ -1141,7 +1141,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class TimeFreezeSweepProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc3";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc3";
 
         public override void SetDefaults()
         {

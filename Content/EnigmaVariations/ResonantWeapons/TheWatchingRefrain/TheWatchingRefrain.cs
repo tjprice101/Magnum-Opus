@@ -185,7 +185,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Texture2D eyeTex = CustomParticleSystem.EnigmaEyes[((int)(Main.GameUpdateCount * 0.05f)) % 8].Value;
             Texture2D glyphTex = CustomParticleSystem.RandomGlyph().Value;
             Texture2D sparkleTex = CustomParticleSystem.RandomPrismaticSparkle().Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo2").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/GlowingHalo2").Value;
             
             // Orbiting glyphs around the phantom
             for (int i = 0; i < 5; i++)
@@ -554,7 +554,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         private List<int> hitEnemies = new List<int>();
         
-        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs3";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs3";
         
         public override void SetStaticDefaults()
         {
@@ -574,7 +574,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             
             Texture2D glyphTex = CustomParticleSystem.RandomGlyph().Value;
             Texture2D sparkleTex = CustomParticleSystem.RandomPrismaticSparkle().Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo4").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/GlowingHalo4").Value;
             
             // Eerie glyph trail
             for (int i = 0; i < Projectile.oldPos.Length; i++)
@@ -810,7 +810,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         private static readonly Color EnigmaGreenFlame = new Color(50, 220, 100);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         
-        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs4";
         
         public override bool PreDraw(ref Color lightColor)
         {
@@ -829,7 +829,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Texture2D eyeTex = CustomParticleSystem.EnigmaEyes[((int)(Main.GameUpdateCount * 0.03f)) % 8].Value;
             Texture2D glyphTex = CustomParticleSystem.RandomGlyph().Value;
             Texture2D sparkleTex = CustomParticleSystem.RandomPrismaticSparkle().Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo4").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/GlowingHalo4").Value;
             
             // Swirling glyphs around the rift
             for (int i = 0; i < 4; i++)
@@ -1024,7 +1024,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         private const float ZoneRadius = 120f;
         private int damageTimer = 0;
         
-        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs5";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs5";
         
         public override bool PreDraw(ref Color lightColor)
         {
@@ -1043,7 +1043,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Texture2D eyeTex = CustomParticleSystem.EnigmaEyes[((int)(Main.GameUpdateCount * 0.02f)) % 8].Value;
             Texture2D glyphTex = CustomParticleSystem.RandomGlyph().Value;
             Texture2D sparkleTex = CustomParticleSystem.RandomPrismaticSparkle().Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo5").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/GlowingHalo5").Value;
             
             // Outer ring of glyphs - zone boundary
             for (int i = 0; i < 8; i++)

@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     /// </summary>
     public class PinkFlamingBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/FlamingWispProjectileSmall"; // Particle-based rendering
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/FlamingWispProjectileSmall"; // Particle-based rendering
 
         private float pulseTimer = 0f;
 
@@ -108,7 +108,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D pixel = TextureAssets.MagicPixel.Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle11").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle11").Value;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             
             // Switch to additive blending for glow

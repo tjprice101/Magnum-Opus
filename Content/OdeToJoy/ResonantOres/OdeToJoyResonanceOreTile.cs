@@ -148,7 +148,7 @@ namespace MagnumOpus.Content.OdeToJoy.ResonantOres
     /// </summary>
     public class OdeToJoyResonanceOre : ModItem
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/MediumCrystalShard";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MediumCrystalShard";
 
         public override void SetStaticDefaults()
         {

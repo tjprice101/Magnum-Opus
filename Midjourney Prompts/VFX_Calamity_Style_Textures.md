@@ -123,7 +123,7 @@ vertical sprite sheet with 7 rows, each row contains one unique smoke cloud shap
 **Post-processing needed:**
 - Crop to exactly 7 equal-height frames
 - Ensure pure black background converts to transparency
-- Final size: ~128x896 (128 wide × 7 frames of 128 tall)
+- Final size: ~128x896 (128 wide ÁE7 frames of 128 tall)
 
 ---
 
@@ -299,38 +299,38 @@ horizontal gradient bar, left edge pure white, smooth transition to pure black o
 
 | Texture | Dimensions | Notes |
 |---------|------------|-------|
-| **PerlinNoise.png** | **256×256** | **CRITICAL - Seamless tileable** |
-| **SimplexNoise.png** | **256×256** | **Seamless tileable** |
-| **VoronoiNoise.png** | **256×256** | **Seamless tileable** |
-| HeavySmoke.png | 128×896 | 7 frames, 128×128 each |
-| CircularSmear.png | 256×256 | Centered ring |
-| CircularSmearSmokey.png | 256×256 | Centered ring with noise |
-| SemiCircularSmear.png | 256×256 | Arc in upper half |
-| TrailStreak.png | 256×64 | Horizontal fade |
-| FlameTrail.png | 256×64 | Horizontal with wisps |
-| CosmicTrail.png | 256×64 | Horizontal with stars |
-| CircularFalloff.png | 256×256 | Simple radial gradient |
-| RadialBurst.png | 256×256 | Starburst rays |
-| SoftEdge.png | 256×64 | Linear horizontal gradient |
+| **PerlinNoise.png** | **256ÁE56** | **CRITICAL - Seamless tileable** |
+| **SimplexNoise.png** | **256ÁE56** | **Seamless tileable** |
+| **VoronoiNoise.png** | **256ÁE56** | **Seamless tileable** |
+| HeavySmoke.png | 128ÁE96 | 7 frames, 128ÁE28 each |
+| CircularSmear.png | 256ÁE56 | Centered ring |
+| CircularSmearSmokey.png | 256ÁE56 | Centered ring with noise |
+| SemiCircularSmear.png | 256ÁE56 | Arc in upper half |
+| TrailStreak.png | 256ÁE4 | Horizontal fade |
+| FlameTrail.png | 256ÁE4 | Horizontal with wisps |
+| CosmicTrail.png | 256ÁE4 | Horizontal with stars |
+| CircularFalloff.png | 256ÁE56 | Simple radial gradient |
+| RadialBurst.png | 256ÁE56 | Starburst rays |
+| SoftEdge.png | 256ÁE4 | Linear horizontal gradient |
 
 ### Photoshop/GIMP Quick Steps:
 
 **For particle textures:**
 1. Open generated image
-2. Select → Color Range → Select black background
+2. Select ↁEColor Range ↁESelect black background
 3. Delete selection (creates transparency)
-4. Image → Mode → Grayscale (if not already)
-5. Image → Mode → RGB (to allow tinting)
+4. Image ↁEMode ↁEGrayscale (if not already)
+5. Image ↁEMode ↁERGB (to allow tinting)
 6. Resize to target dimensions
 7. Export as PNG-24 with transparency
 
 **For noise textures:**
 1. Open generated image
-2. Filter → Other → Offset (set to 50% width/height, Wrap Around)
+2. Filter ↁEOther ↁEOffset (set to 50% width/height, Wrap Around)
 3. Check for visible seams - if any, use Clone Stamp to blend
-4. Filter → Other → Offset (reset to 0,0)
-5. Image → Mode → Grayscale
-6. Resize to 256×256
+4. Filter ↁEOther ↁEOffset (reset to 0,0)
+5. Image ↁEMode ↁEGrayscale
+6. Resize to 256ÁE56
 7. Export as PNG (no transparency needed)
 
 ---
@@ -351,10 +351,10 @@ Place the finished textures in:
 
 | Texture | Destination Path |
 |---------|-----------------|
-| HeavySmoke.png | `Assets/Particles/HeavySmoke.png` |
-| CircularSmear.png | `Assets/Particles/Textures/CircularSmear.png` |
-| CircularSmearSmokey.png | `Assets/Particles/Textures/CircularSmearSmokey.png` |
-| SemiCircularSmear.png | `Assets/Particles/Textures/SemiCircularSmear.png` |
+| HeavySmoke.png | `Assets/Particles Asset Library/HeavySmoke.png` |
+| CircularSmear.png | `Assets/Particles Asset Library/Textures/CircularSmear.png` |
+| CircularSmearSmokey.png | `Assets/Particles Asset Library/Textures/CircularSmearSmokey.png` |
+| SemiCircularSmear.png | `Assets/Particles Asset Library/Textures/SemiCircularSmear.png` |
 | TrailStreak.png | `Assets/VFX/Trails/TrailStreak.png` |
 | FlameTrail.png | `Assets/VFX/Trails/FlameTrail.png` |
 | CosmicTrail.png | `Assets/VFX/Trails/CosmicTrail.png` |
@@ -363,8 +363,8 @@ Place the finished textures in:
 | SoftEdge.png | `Assets/VFX/Masks/SoftEdge.png` |
 
 **Note:** Create the following folders if they don't exist:
-- `Assets/VFX/Noise/` ← **NEW - Critical for procedural trails**
-- `Assets/Particles/Textures/`
+- `Assets/VFX/Noise/` ↁE**NEW - Critical for procedural trails**
+- `Assets/Particles Asset Library/Textures/`
 - `Assets/VFX/Trails/`
 - `Assets/VFX/Masks/`
 

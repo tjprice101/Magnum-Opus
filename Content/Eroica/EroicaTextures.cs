@@ -14,9 +14,9 @@ namespace MagnumOpus.Content.Eroica
     /// </summary>
     public static class EroicaTextures
     {
-        // ═══════════════════════════════════════════════════════
-        //  SHARED — used across ALL Eroica weapons
-        // ═══════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════╁E
+        //  SHARED  Eused across ALL Eroica weapons
+        // ══════════════════════════════════════════════════════╁E
 
         /// <summary>Soft circular glow for tip blooms and ambient light.</summary>
         public static Asset<Texture2D> SoftGlow { get; private set; }
@@ -69,9 +69,9 @@ namespace MagnumOpus.Content.Eroica
         /// <summary>Rose's bud particle for sakura effects.</summary>
         public static Asset<Texture2D> RoseBud { get; private set; }
 
-        // ═══════════════════════════════════════════════════════
-        //  NOISE TEXTURES — for shader sampling
-        // ═══════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════╁E
+        //  NOISE TEXTURES  Efor shader sampling
+        // ══════════════════════════════════════════════════════╁E
 
         /// <summary>Perlin noise for flame distortion.</summary>
         public static Asset<Texture2D> PerlinNoise { get; private set; }
@@ -85,9 +85,9 @@ namespace MagnumOpus.Content.Eroica
         /// <summary>Sparkly noise for valor shimmer.</summary>
         public static Asset<Texture2D> SparklyNoise { get; private set; }
 
-        // ═══════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════╁E
         //  TRAIL TEXTURES
-        // ═══════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════╁E
 
         /// <summary>Comet trail gradient for projectile tails.</summary>
         public static Asset<Texture2D> CometTrailGradient { get; private set; }
@@ -101,16 +101,16 @@ namespace MagnumOpus.Content.Eroica
         /// <summary>Sparkle particle field for trail sparkles.</summary>
         public static Asset<Texture2D> SparkleField { get; private set; }
 
-        // ═══════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════╁E
         //  LUT TEXTURES
-        // ═══════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════╁E
 
         /// <summary>Eroica gradient LUT for color grading.</summary>
         public static Asset<Texture2D> EroicaLUT { get; private set; }
 
-        // ═══════════════════════════════════════════════════════
-        //  CELESTIAL VALOR — Heroic flame blade VFX
-        // ═══════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════╁E
+        //  CELESTIAL VALOR  EHeroic flame blade VFX
+        // ══════════════════════════════════════════════════════╁E
 
         /// <summary>Celestial Valor blade sprite for custom swing drawing.</summary>
         public static Asset<Texture2D> CelestialValorBlade { get; private set; }
@@ -121,46 +121,46 @@ namespace MagnumOpus.Content.Eroica
         /// <summary>Celestial Valor projectile sprite.</summary>
         public static Asset<Texture2D> CelestialValorProjectileTex { get; private set; }
 
-        // ═══════════════════════════════════════════════════════
-        //  SAKURA'S BLOSSOM — Petal storm blade VFX
-        // ═══════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════╁E
+        //  SAKURA'S BLOSSOM  EPetal storm blade VFX
+        // ══════════════════════════════════════════════════════╁E
 
         /// <summary>Sakura's Blossom blade sprite.</summary>
         public static Asset<Texture2D> SakurasBlossomBlade { get; private set; }
 
-        // ═══════════════════════════════════════════════════════
-        //  SMEAR / ARC TEXTURES (from Assets/Particles/)
-        // ═══════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════╁E
+        //  SMEAR / ARC TEXTURES (from Assets/Particles Asset Library/)
+        // ══════════════════════════════════════════════════════╁E
 
-        /// <summary>Sword arc 1 — thin elegant slash.</summary>
+        /// <summary>Sword arc 1  Ethin elegant slash.</summary>
         public static Asset<Texture2D> SwordArc1 { get; private set; }
-        /// <summary>Sword arc 2 — standard slash arc.</summary>
+        /// <summary>Sword arc 2  Estandard slash arc.</summary>
         public static Asset<Texture2D> SwordArc2 { get; private set; }
-        /// <summary>Sword arc 3 — wide sweeping slash.</summary>
+        /// <summary>Sword arc 3  Ewide sweeping slash.</summary>
         public static Asset<Texture2D> SwordArc3 { get; private set; }
-        /// <summary>Sword arc 4 — heavy overhead arc.</summary>
+        /// <summary>Sword arc 4  Eheavy overhead arc.</summary>
         public static Asset<Texture2D> SwordArc4 { get; private set; }
-        /// <summary>Sword arc 5 — crescent moon shape.</summary>
+        /// <summary>Sword arc 5  Ecrescent moon shape.</summary>
         public static Asset<Texture2D> SwordArc5 { get; private set; }
-        /// <summary>Sword arc 6 — dual crossing arcs.</summary>
+        /// <summary>Sword arc 6  Edual crossing arcs.</summary>
         public static Asset<Texture2D> SwordArc6 { get; private set; }
-        /// <summary>Sword arc 7 — rising flame arc.</summary>
+        /// <summary>Sword arc 7  Erising flame arc.</summary>
         public static Asset<Texture2D> SwordArc7 { get; private set; }
-        /// <summary>Sword arc 8 — full rotation sweep.</summary>
+        /// <summary>Sword arc 8  Efull rotation sweep.</summary>
         public static Asset<Texture2D> SwordArc8 { get; private set; }
 
-        /// <summary>Flaming arc sword slash — heroic fire style.</summary>
+        /// <summary>Flaming arc sword slash  Eheroic fire style.</summary>
         public static Asset<Texture2D> FlamingArcSwordSlash { get; private set; }
-        /// <summary>Sword arc slash wave — energy wave style.</summary>
+        /// <summary>Sword arc slash wave  Eenergy wave style.</summary>
         public static Asset<Texture2D> SwordArcSlashWave { get; private set; }
-        /// <summary>Simple arc sword slash — clean slash.</summary>
+        /// <summary>Simple arc sword slash  Eclean slash.</summary>
         public static Asset<Texture2D> SimpleArcSwordSlash { get; private set; }
-        /// <summary>Curved sword slash — curved motion trail.</summary>
+        /// <summary>Curved sword slash  Ecurved motion trail.</summary>
         public static Asset<Texture2D> CurvedSwordSlash { get; private set; }
 
-        // ═══════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════╁E
         //  INITIALIZATION
-        // ═══════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════╁E
 
         private static bool _loaded;
 
@@ -174,23 +174,23 @@ namespace MagnumOpus.Content.Eroica
             _loaded = true;
 
             // Shared
-            SoftGlow = Req("MagnumOpus/Assets/Particles/SoftGlow2");
-            EnergyFlare = Req("MagnumOpus/Assets/Particles/EnergyFlare");
-            Star4Point = Req("MagnumOpus/Assets/Particles/CrispStar4");
-            HaloRing = Req("MagnumOpus/Assets/Particles/GlowingHalo1");
-            CircularMask = Req("MagnumOpus/Assets/Particles/CircularMask");
-            BloomOrb = Req("MagnumOpus/Assets/Particles/SoftGlow4");
+            SoftGlow = Req("MagnumOpus/Assets/Particles Asset Library/SoftGlow2");
+            EnergyFlare = Req("MagnumOpus/Assets/Particles Asset Library/EnergyFlare");
+            Star4Point = Req("MagnumOpus/Assets/Particles Asset Library/CrispStar4");
+            HaloRing = Req("MagnumOpus/Assets/Particles Asset Library/GlowingHalo1");
+            CircularMask = Req("MagnumOpus/Assets/Particles Asset Library/CircularMask");
+            BloomOrb = Req("MagnumOpus/Assets/Particles Asset Library/SoftGlow4");
             FullSlashArc = Req("MagnumOpus/Assets/VFX/Smears/FullSlashArc");
-            FlamingArc = Req("MagnumOpus/Assets/Particles/FlamingArcSwordSlash");
-            MusicNote = Req("MagnumOpus/Assets/Particles/MusicNote");
-            CursiveMusicNote = Req("MagnumOpus/Assets/Particles/CursiveMusicNote");
-            FlameImpact = Req("MagnumOpus/Assets/Particles/FlameImpactExplosion");
+            FlamingArc = Req("MagnumOpus/Assets/Particles Asset Library/FlamingArcSwordSlash");
+            MusicNote = Req("MagnumOpus/Assets/Particles Asset Library/MusicNote");
+            CursiveMusicNote = Req("MagnumOpus/Assets/Particles Asset Library/CursiveMusicNote");
+            FlameImpact = Req("MagnumOpus/Assets/Particles Asset Library/FlameImpactExplosion");
             GodRays = Req("MagnumOpus/Assets/VFX/LightRays/Radial God Rays Full Circle");
             AnamorphicStreak = Req("MagnumOpus/Assets/VFX/Blooms/Horizontal Anamorphic Streak");
             ComboFinisherArc = Req("MagnumOpus/Assets/VFX/Impacts/Combo Finisher Impact Arc");
             ShockwaveRing = Req("MagnumOpus/Assets/VFX/Impacts/Expanding Shockwave Ring");
             HitSlashMark = Req("MagnumOpus/Assets/VFX/Impacts/Directional Hit Slash Mark");
-            RoseBud = Req("MagnumOpus/Assets/Particles/RosesBud");
+            RoseBud = Req("MagnumOpus/Assets/Particles Asset Library/RosesBud");
 
             // Noise
             PerlinNoise = Req("MagnumOpus/Assets/VFX/Noise/PerlinNoise");
@@ -216,24 +216,24 @@ namespace MagnumOpus.Content.Eroica
             SakurasBlossomBlade = Req("MagnumOpus/Content/Eroica/Weapons/SakurasBlossom/SakurasBlossom");
 
             // Smears / Arcs
-            SwordArc1 = Req("MagnumOpus/Assets/Particles/SwordArc1");
-            SwordArc2 = Req("MagnumOpus/Assets/Particles/SwordArc2");
-            SwordArc3 = Req("MagnumOpus/Assets/Particles/SwordArc3");
-            SwordArc4 = Req("MagnumOpus/Assets/Particles/SwordArc4");
-            SwordArc5 = Req("MagnumOpus/Assets/Particles/SwordArc5");
-            SwordArc6 = Req("MagnumOpus/Assets/Particles/SwordArc6");
-            SwordArc7 = Req("MagnumOpus/Assets/Particles/SwordArc7");
-            SwordArc8 = Req("MagnumOpus/Assets/Particles/SwordArc8");
-            FlamingArcSwordSlash = Req("MagnumOpus/Assets/Particles/FlamingArcSwordSlash");
-            SwordArcSlashWave = Req("MagnumOpus/Assets/Particles/SwordArcSlashWave");
-            SimpleArcSwordSlash = Req("MagnumOpus/Assets/Particles/SimpleArcSwordSlash");
-            CurvedSwordSlash = Req("MagnumOpus/Assets/Particles/CurvedSwordSlash");
+            SwordArc1 = Req("MagnumOpus/Assets/Particles Asset Library/SwordArc1");
+            SwordArc2 = Req("MagnumOpus/Assets/Particles Asset Library/SwordArc2");
+            SwordArc3 = Req("MagnumOpus/Assets/Particles Asset Library/SwordArc3");
+            SwordArc4 = Req("MagnumOpus/Assets/Particles Asset Library/SwordArc4");
+            SwordArc5 = Req("MagnumOpus/Assets/Particles Asset Library/SwordArc5");
+            SwordArc6 = Req("MagnumOpus/Assets/Particles Asset Library/SwordArc6");
+            SwordArc7 = Req("MagnumOpus/Assets/Particles Asset Library/SwordArc7");
+            SwordArc8 = Req("MagnumOpus/Assets/Particles Asset Library/SwordArc8");
+            FlamingArcSwordSlash = Req("MagnumOpus/Assets/Particles Asset Library/FlamingArcSwordSlash");
+            SwordArcSlashWave = Req("MagnumOpus/Assets/Particles Asset Library/SwordArcSlashWave");
+            SimpleArcSwordSlash = Req("MagnumOpus/Assets/Particles Asset Library/SimpleArcSwordSlash");
+            CurvedSwordSlash = Req("MagnumOpus/Assets/Particles Asset Library/CurvedSwordSlash");
         }
 
         public static void Unload()
         {
             _loaded = false;
-            // Asset<T> references are managed by tModLoader — just null out refs
+            // Asset<T> references are managed by tModLoader  Ejust null out refs
             SoftGlow = null;
             EnergyFlare = null;
             Star4Point = null;

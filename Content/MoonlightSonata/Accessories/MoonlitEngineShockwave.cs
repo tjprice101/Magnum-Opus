@@ -19,7 +19,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
     public class MoonlitEngineShockwave : ModProjectile
     {
         // Custom texture - no vanilla textures allowed
-        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo5";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo5";
         
         private float shockwaveRadius = 0f;
         private const float MaxRadius = 200f;

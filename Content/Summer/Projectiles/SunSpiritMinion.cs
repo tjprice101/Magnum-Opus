@@ -23,7 +23,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
     /// </summary>
     public class SunSpiritMinion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/StarBurst1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/StarBurst1";
         
         private static readonly Color SunGold = new Color(255, 215, 0);
         private static readonly Color SunOrange = new Color(255, 140, 0);
@@ -360,7 +360,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/StarBurst1").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/StarBurst1").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
@@ -401,7 +401,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
     /// </summary>
     public class SolarFlareProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare";
         
         private static readonly Color SunGold = new Color(255, 215, 0);
         private static readonly Color SunOrange = new Color(255, 140, 0);
@@ -520,7 +520,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
     /// </summary>
     public class ZenithFlareProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/FlareSpikeBurst";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/FlareSpikeBurst";
         
         private static readonly Color SunGold = new Color(255, 215, 0);
         private static readonly Color SunWhite = new Color(255, 250, 240);

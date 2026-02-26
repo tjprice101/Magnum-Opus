@@ -8,14 +8,14 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.MoonlightSonata.Dusts
 {
     /// <summary>
-    /// Burning comet ember dust for Resurrection of the Moon — "The Final Movement".
+    /// Burning comet ember dust for Resurrection of the Moon  E"The Final Movement".
     /// Hot, weighty fragments that trail smoldering wakes as they decelerate.
     /// Uses SoftGlow3.png for a warm, burning ember appearance.
     /// Color shifts from gold-white core to deep violet as the ember cools.
     /// </summary>
     public class CometEmberDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow3";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow3";
 
         public override void OnSpawn(Dust dust)
         {
@@ -40,7 +40,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
             {
                 float lifeProgress = (float)dust.alpha / behavior.Lifetime;
 
-                // Color cooling: hot gold-white → comet violet → deep space violet
+                // Color cooling: hot gold-white ↁEcomet violet ↁEdeep space violet
                 float coolingT = lifeProgress;
                 if (coolingT < 0.3f)
                 {
@@ -52,7 +52,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
                 }
                 else if (coolingT < 0.7f)
                 {
-                    // Cooling phase: gold → comet violet
+                    // Cooling phase: gold ↁEcomet violet
                     dust.color = Color.Lerp(
                         new Color(255, 200, 130),
                         new Color(180, 120, 255),
@@ -60,7 +60,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
                 }
                 else
                 {
-                    // Dying phase: comet violet → deep space
+                    // Dying phase: comet violet ↁEdeep space
                     dust.color = Color.Lerp(
                         new Color(180, 120, 255),
                         new Color(80, 40, 160),
@@ -75,15 +75,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
                 if (behavior.HasGravity)
                     dust.velocity.Y += 0.04f;
 
-                // Rotation — tumbling ember
+                // Rotation  Etumbling ember
                 dust.rotation += behavior.RotationSpeed * (1f - lifeProgress * 0.5f);
 
-                // Scale — smoldering pulse that shrinks as ember cools
+                // Scale  Esmoldering pulse that shrinks as ember cools
                 float smolder = MathF.Sin(dust.alpha * behavior.SmolderFrequency + behavior.PhaseOffset);
                 float smolderScale = 1f + smolder * 0.2f * (1f - lifeProgress);
                 dust.scale = behavior.BaseScale * smolderScale * (1f - lifeProgress * 0.7f);
 
-                // Fade — quick ignite, slow burn-out
+                // Fade  Equick ignite, slow burn-out
                 if (dust.alpha < 3)
                     dust.fadeIn = dust.alpha / 3f;
                 else
@@ -94,7 +94,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
             }
             else
             {
-                // Default behavior — simple ember fade
+                // Default behavior  Esimple ember fade
                 dust.position += dust.velocity;
                 dust.velocity *= 0.95f;
                 dust.velocity.Y += 0.03f;

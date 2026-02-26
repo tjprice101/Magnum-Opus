@@ -99,7 +99,7 @@ namespace MagnumOpus.Content.SandboxExoblade
                     if (p.owner != player.whoAmI || p.type != Item.shoot || p.ai[0] != 1 || p.ai[1] != 1)
                         continue;
                     p.timeLeft = LungeCooldown;
-                    p.ForceNetUpdate();
+                    p.netUpdate = true;
                 }
             }
 

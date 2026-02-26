@@ -18,8 +18,8 @@ using static MagnumOpus.Common.Systems.Particles.Particle;
 namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 {
     /// <summary>
-    /// Swing projectile for Nocturnal Executioner — heavy cosmic greatsword.
-    /// 3-phase combo: Shadow Cleave → Cosmic Divide → Stellar Execution.
+    /// Swing projectile for Nocturnal Executioner  Eheavy cosmic greatsword.
+    /// 3-phase combo: Shadow Cleave ↁECosmic Divide ↁEStellar Execution.
     /// Phase 2 fires NocturnalBladeProjectile fan, Phase 3 finale fires seeking crystals.
     /// </summary>
     public sealed class NocturnalExecutionerSwing : MeleeSwingBase
@@ -34,19 +34,19 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 
         private static readonly Color[] ExecutionerPalette = new Color[]
         {
-            new Color(20, 12, 45),      // [0] Pianissimo — deep void
-            new Color(45, 27, 78),      // [1] Piano — cosmic purple
-            new Color(80, 60, 140),     // [2] Mezzo — violet body
-            new Color(140, 100, 200),   // [3] Forte — nebula lavender
-            new Color(200, 175, 80),    // [4] Fortissimo — starlit gold
-            new Color(255, 240, 200)    // [5] Sforzando — pure starlight
+            new Color(20, 12, 45),      // [0] Pianissimo  Edeep void
+            new Color(45, 27, 78),      // [1] Piano  Ecosmic purple
+            new Color(80, 60, 140),     // [2] Mezzo  Eviolet body
+            new Color(140, 100, 200),   // [3] Forte  Enebula lavender
+            new Color(200, 175, 80),    // [4] Fortissimo  Estarlit gold
+            new Color(255, 240, 200)    // [5] Sforzando  Epure starlight
         };
 
         #endregion
 
         #region Combo Phases
 
-        // Phase 0: Shadow Cleave — swift downward diagonal
+        // Phase 0: Shadow Cleave  Eswift downward diagonal
         private static readonly ComboPhase Phase0_ShadowCleave = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -62,7 +62,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             damageMult: 0.85f
         );
 
-        // Phase 1: Cosmic Divide — wider arc backhand
+        // Phase 1: Cosmic Divide  Ewider arc backhand
         private static readonly ComboPhase Phase1_CosmicDivide = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -78,7 +78,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             damageMult: 1.1f
         );
 
-        // Phase 2: Stellar Execution — massive overhead slam
+        // Phase 2: Stellar Execution  Emassive overhead slam
         private static readonly ComboPhase Phase2_StellarExecution = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -112,9 +112,9 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 
         protected override string GetSmearTexturePath(int comboStep) => comboStep switch
         {
-            1 => "MagnumOpus/Assets/Particles/SwordArc3",
-            2 => "MagnumOpus/Assets/Particles/FlamingArcSwordSlash",
-            _ => "MagnumOpus/Assets/Particles/SwordArc2"
+            1 => "MagnumOpus/Assets/Particles Asset Library/SwordArc3",
+            2 => "MagnumOpus/Assets/Particles Asset Library/FlamingArcSwordSlash",
+            _ => "MagnumOpus/Assets/Particles Asset Library/SwordArc2"
         };
 
         #endregion
@@ -181,7 +181,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 NachtmusikVFXLibrary.SpawnShatteredStarlight(vfxTip, 5, 4f, 0.6f, false);
             }
 
-            // Phase 2: Grand finale at 65% — explosion + seeking crystals
+            // Phase 2: Grand finale at 65%  Eexplosion + seeking crystals
             if (ComboStep == 2 && Progression >= 0.65f)
             {
                 hasSpawnedSpecial = true;
@@ -213,7 +213,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 
         #endregion
 
-        #region On Hit — Celestial Harmony + Execution Charge
+        #region On Hit  ECelestial Harmony + Execution Charge
 
         protected override void OnSwingHitNPC(NPC target, NPC.HitInfo hit, int remainingDamageCount)
         {
@@ -316,7 +316,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 star.noGravity = true;
             }
 
-            // Music notes — cosmic serenade (hue-shifting)
+            // Music notes  Ecosmic serenade (hue-shifting)
             if (Main.rand.NextBool(5))
             {
                 Vector2 noteVel = -SwordDirection * 1.5f + new Vector2(0, -0.5f);
@@ -327,7 +327,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                     scale: 0.80f, lifetime: 28, hueSpeed: 0.025f));
             }
 
-            // Blade-tip bloom — cosmic glow
+            // Blade-tip bloom  Ecosmic glow
             {
                 float bloomOpacity = MathHelper.Clamp((Progression - 0.08f) / 0.12f, 0f, 1f)
                                    * MathHelper.Clamp((0.92f - Progression) / 0.12f, 0f, 1f);

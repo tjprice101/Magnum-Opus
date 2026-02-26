@@ -97,7 +97,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
         public override void SetDefaults()
         {
             // MINI-BOSS STATS
-            // Hitbox = (3384/6) × (2496/6) × 0.8 = 564 × 416 × 0.8 = 451 × 332
+            // Hitbox = (3384/6) ÁE(2496/6) ÁE0.8 = 564 ÁE416 ÁE0.8 = 451 ÁE332
             NPC.width = 451;
             NPC.height = 332;
             NPC.damage = 160;
@@ -163,7 +163,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
             
             ThemedParticles.EroicaAura(NPC.Center, 25f);
 
-            // Unified blitzer ambient VFX — rapid flickering, funeral smoke, staccato notes
+            // Unified blitzer ambient VFX  Erapid flickering, funeral smoke, staccato notes
             EroicaEnemyVFX.BlitzerAmbientAura(NPC.Center, (int)StateTimer);
 
             // Retarget
@@ -326,7 +326,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 
                     SoundEngine.PlaySound(SoundID.Item73 with { Volume = 0.6f }, NPC.Center);
 
-                    // Unified blitzer fire VFX — muzzle flash, smoke puff, tracer dust
+                    // Unified blitzer fire VFX  Emuzzle flash, smoke puff, tracer dust
                     EroicaEnemyVFX.BlitzerFireVFX(NPC.Center, shootDir);
 
                     // Muzzle flash
@@ -594,7 +594,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 
             if (NPC.life <= 0)
             {
-                // Unified blitzer death VFX — funeral pyre, smoke explosion, music notes
+                // Unified blitzer death VFX  Efuneral pyre, smoke explosion, music notes
                 EroicaEnemyVFX.BlitzerDeathVFX(NPC.Center);
 
                 ThemedParticles.EroicaImpact(NPC.Center, 3.5f);
@@ -646,7 +646,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 
     public class BlitzerSalvoProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SmallBurstFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SmallBurstFlare";
 
         public override void SetDefaults()
         {
@@ -695,7 +695,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 
     public class BlitzerLightningBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare4";
 
         public override void SetDefaults()
         {
@@ -732,7 +732,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 
     public class BlitzerSorrowBomb : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare4";
 
         public override void SetDefaults()
         {
@@ -798,7 +798,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 
     public class BlitzerHomingSoul : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/FlareSpikeBurst";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/FlareSpikeBurst";
 
         public override void SetDefaults()
         {

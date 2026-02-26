@@ -135,7 +135,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
         public override void SetDefaults()
         {
             // SWAN LAKE MINI-BOSS STATS - Graceful but deadly
-            // Hitbox = (90/6) × (51/6) × 0.8 = 15 × 8.5 × 0.8 = 12 × 6
+            // Hitbox = (90/6) ÁE(51/6) ÁE0.8 = 15 ÁE8.5 ÁE0.8 = 12 ÁE6
             NPC.width = 12;
             NPC.height = 6;
             NPC.damage = 140; // Slightly lower than other minibosses
@@ -1183,7 +1183,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Draw orbiting feathers
-            Texture2D featherTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwanFeather3").Value;
+            Texture2D featherTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SwanFeather3").Value;
             foreach (var featherPos in orbitingFeatherPositions)
             {
                 int index = orbitingFeatherPositions.IndexOf(featherPos);
@@ -1297,7 +1297,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
     /// </summary>
     public class PrimaFeatherBlade : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwanFeather4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwanFeather4";
         
         private bool isWhite => Projectile.ai[0] == 1;
         
@@ -1424,7 +1424,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
     /// </summary>
     public class PrimaSoundWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo4";
         
         private float radius => Projectile.ai[0] + Projectile.localAI[0];
         

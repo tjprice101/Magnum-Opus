@@ -14,14 +14,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
     /// </summary>
     public class LunarMote : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/CrescentSparkleMoon";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/CrescentSparkleMoon";
 
         private static Texture2D _glowTex;
 
         public override void Load()
         {
             _glowTex = ModContent.Request<Texture2D>(
-                "MagnumOpus/Assets/Particles/SoftGlow2", AssetRequestMode.ImmediateLoad).Value;
+                "MagnumOpus/Assets/Particles Asset Library/SoftGlow2", AssetRequestMode.ImmediateLoad).Value;
         }
 
         public override void Unload()

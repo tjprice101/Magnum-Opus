@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
     /// </summary>
     public class EnigmaWebShot : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnigmaEye1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnigmaEye1";
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
@@ -76,7 +76,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnigmaEye1").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnigmaEye1").Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             // Core
@@ -93,7 +93,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
     /// </summary>
     public class EnigmaGlyphProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs8";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs8";
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
@@ -143,7 +143,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Glyphs8").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Glyphs8").Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             float alpha = 1f - Projectile.alpha / 255f;
             
@@ -159,7 +159,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
     /// </summary>
     public class EnigmaHomingEye : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnigmaEye1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnigmaEye1";
         
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         
@@ -229,7 +229,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
     /// </summary>
     public class EnigmaVoidWeb : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/ActivatedEnigmaEye";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ActivatedEnigmaEye";
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
@@ -289,7 +289,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
     /// </summary>
     public class EnigmaShockwave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo1";
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
@@ -349,7 +349,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         {
             if (Projectile.timeLeft > 90 - DelayFrames) return false;
             
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GlowingHalo1").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/GlowingHalo1").Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             // Shockwave effect - scaled for player-sized projectile
@@ -371,7 +371,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
     /// </summary>
     public class EnigmaVoidBeam : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs9";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs9";
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
@@ -462,7 +462,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Glyphs9").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Glyphs9").Value;
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             float progress = 1f - (float)Projectile.timeLeft / BeamDuration;
@@ -504,7 +504,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
     /// </summary>
     public class EnigmaMazeWall : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs10";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs10";
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
@@ -593,7 +593,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Glyphs10").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Glyphs10").Value;
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             float progress = 1f - (float)Projectile.timeLeft / WallDuration;

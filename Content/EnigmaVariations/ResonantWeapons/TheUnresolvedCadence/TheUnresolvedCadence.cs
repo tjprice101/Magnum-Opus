@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -34,7 +34,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
         }
         
-        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs1";
         
         public override bool PreDraw(ref Color lightColor)
         {
@@ -295,12 +295,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
         }
         
-        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs2";
         
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Glyphs2").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Glyphs2").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = glowTex.Size() / 2f;
             
@@ -338,7 +338,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Texture2D eyeTex = CustomParticleSystem.EnigmaEyes[(int)(lifeProgress * 7) % 8].Value;
             Texture2D glyphTex = CustomParticleSystem.Glyphs[(int)(Main.GameUpdateCount / 6) % 12].Value;
             Texture2D sparkleTex = CustomParticleSystem.PrismaticSparkles[(int)(Main.GameUpdateCount / 5) % 3].Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow4").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow4").Value;
             
             // Draw massive glyph ring - expanding outward
             int glyphCount = 16;

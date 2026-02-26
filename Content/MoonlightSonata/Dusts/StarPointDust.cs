@@ -10,19 +10,19 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
     /// <summary>
     /// Sharp 4-point star sparkle dust for constellation and precision effects.
     /// Inspired by VFX+ GlowPixelCross's multi-layer approach.
-    /// Rotates rapidly, scales down quickly — surgical, precise feel.
+    /// Rotates rapidly, scales down quickly  Esurgical, precise feel.
     /// Used for Incisor's constellation trail and resonant impacts.
     /// </summary>
     public class StarPointDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/CrispStar4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/CrispStar4";
 
         private static Texture2D _glowTex;
 
         public override void Load()
         {
             _glowTex = ModContent.Request<Texture2D>(
-                "MagnumOpus/Assets/Particles/SoftGlow2", AssetRequestMode.ImmediateLoad).Value;
+                "MagnumOpus/Assets/Particles Asset Library/SoftGlow2", AssetRequestMode.ImmediateLoad).Value;
         }
 
         public override void Unload()
@@ -57,7 +57,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
                 // Fast rotation for twinkling effect
                 dust.rotation += behavior.RotationSpeed;
 
-                // Scale pulse — rapid twinkle
+                // Scale pulse  Erapid twinkle
                 float twinkle = 1f + MathF.Sin(dust.alpha * behavior.TwinkleFrequency) * 0.2f;
                 float baseFade = dust.alpha > behavior.FadeStartTime ?
                     MathF.Pow(behavior.FadePower, dust.alpha - behavior.FadeStartTime) : 1f;

@@ -8,7 +8,7 @@ using MagnumOpus.Common.Systems.VFX;
 namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Dusts
 {
     /// <summary>
-    /// Valor Crest — a brief 4-pointed star/cross that pulses once then fades.
+    /// Valor Crest  Ea brief 4-pointed star/cross that pulses once then fades.
     /// Used as accent for critical hits, phase transitions, and combo finishers.
     /// Bright gold-white core with scarlet arms.
     ///
@@ -16,7 +16,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Dusts
     /// </summary>
     public class ValorCrestDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/CrispStar4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/CrispStar4";
 
         public override void OnSpawn(Dust dust)
         {

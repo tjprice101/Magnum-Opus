@@ -19,7 +19,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     public class SakuraLightning : ModProjectile
     {
         // Override texture to use particle asset since we draw with particles
-        public override string Texture => "MagnumOpus/Assets/Particles/LightningBurst";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningBurst";
 
         private bool initialized = false;
         private float spiralAngle = 0f;
@@ -54,7 +54,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Projectile stays in place
             Projectile.velocity = Vector2.Zero;
 
-            // Intense lighting — red and gold pulse
+            // Intense lighting  Ered and gold pulse
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.3f) * 0.3f + 0.7f;
             Lighting.AddLight(Projectile.Center, 1.2f * pulse, 0.5f * pulse, 0.1f * pulse);
 
@@ -65,7 +65,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             float progress = 1f - (Projectile.timeLeft / 45f);
             float radius = 20f + progress * 60f;
 
-            // 3 spiral arms — scarlet red and gold
+            // 3 spiral arms  Escarlet red and gold
             for (int arm = 0; arm < 3; arm++)
             {
                 float armAngle = spiralAngle + (MathHelper.TwoPi / 3f) * arm;
@@ -116,13 +116,13 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         private void CreateInitialBurst()
         {
-            // Heroic impact flash — bloom + halo + directional sparks
+            // Heroic impact flash  Ebloom + halo + directional sparks
             EroicaVFXLibrary.HeroicImpact(Projectile.Center, 2.5f);
 
             // Sakura petal scatter
             EroicaVFXLibrary.SpawnSakuraPetals(Projectile.Center, 15, 50f);
 
-            // Musical chord burst — gold music notes
+            // Musical chord burst  Egold music notes
             EroicaVFXLibrary.MusicNoteBurst(Projectile.Center, new Color(255, 215, 0), 6, 4f);
 
             // Bloom flare + ring at epicenter
@@ -155,7 +155,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // Triumphant finale — heroic flash + scattered sparks + fading sakura
+            // Triumphant finale  Eheroic flash + scattered sparks + fading sakura
             EroicaVFXLibrary.DeathHeroicFlash(Projectile.Center, 1.3f);
             EroicaVFXLibrary.SpawnSakuraPetals(Projectile.Center, 6, 35f);
 

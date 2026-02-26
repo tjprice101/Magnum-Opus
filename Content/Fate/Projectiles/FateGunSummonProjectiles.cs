@@ -22,7 +22,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class FateRapidBullet : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle13";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle13";
 
         public static int HitCounter = 0; // Shared between all bullets from same player
         private float pulsePhase = 0f;
@@ -146,7 +146,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle13").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle13").Value;
             Vector2 origin = tex.Size() / 2f;
             
             float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.15f;
@@ -442,7 +442,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class AcceleratingCosmicRound : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs3";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs3";
 
         private float currentSpeed = 4f;
         private const float MaxSpeed = 25f;
@@ -614,7 +614,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Glyphs3").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Glyphs3").Value;
             Vector2 origin = tex.Size() / 2f;
             
             float speedRatio = currentSpeed / MaxSpeed;
@@ -657,7 +657,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class CosmicRocket : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/PrismaticSparkle14";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle14";
         
         private float pulsePhase = 0f;
 
@@ -770,7 +770,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle14").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle14").Value;
             Vector2 origin = tex.Size() / 2f;
             
             float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.12f;
@@ -1054,7 +1054,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             
             // Load the actual Cosmic Deity sprite (120x68 single frame)
             Texture2D deityTex = ModContent.Request<Texture2D>("MagnumOpus/Content/Fate/Projectiles/CosmicDeityMinion").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Glyphs4").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Glyphs4").Value;
             
             Vector2 deityOrigin = deityTex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
@@ -1125,7 +1125,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class DeityCosmicBeam : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/StarBurst2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/StarBurst2";
         
         private float pulsePhase = 0f;
 
@@ -1219,7 +1219,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/StarBurst2").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/StarBurst2").Value;
             Vector2 origin = tex.Size() / 2f;
             
             float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.15f;

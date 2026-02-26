@@ -93,7 +93,7 @@ namespace MagnumOpus.Content.Seasons.Weapons
 
         private static readonly ComboPhase[] Phases = new ComboPhase[]
         {
-            // Phase 0: SPRING — gentle flowing sweep (nature's breath)
+            // Phase 0: SPRING  Egentle flowing sweep (nature's breath)
             new ComboPhase(
                 new CurveSegment[]
                 {
@@ -103,7 +103,7 @@ namespace MagnumOpus.Content.Seasons.Weapons
                 },
                 MathHelper.PiOver2 * 1.4f, 52, 155f, false, 0.92f, 0.9f),
 
-            // Phase 1: SUMMER — blazing fast horizontal slash (solar fury)
+            // Phase 1: SUMMER  Eblazing fast horizontal slash (solar fury)
             new ComboPhase(
                 new CurveSegment[]
                 {
@@ -113,7 +113,7 @@ namespace MagnumOpus.Content.Seasons.Weapons
                 },
                 MathHelper.PiOver2 * 1.6f, 45, 160f, true, 0.90f, 1.0f),
 
-            // Phase 2: AUTUMN — heavy downward reaping strike (harvest's weight)
+            // Phase 2: AUTUMN  Eheavy downward reaping strike (harvest's weight)
             new ComboPhase(
                 new CurveSegment[]
                 {
@@ -123,7 +123,7 @@ namespace MagnumOpus.Content.Seasons.Weapons
                 },
                 MathHelper.PiOver2 * 1.8f, 55, 165f, false, 0.88f, 1.1f),
 
-            // Phase 3: WINTER — wide frost sweep (winter's embrace)
+            // Phase 3: WINTER  Ewide frost sweep (winter's embrace)
             new ComboPhase(
                 new CurveSegment[]
                 {
@@ -166,9 +166,9 @@ namespace MagnumOpus.Content.Seasons.Weapons
         {
             return comboStep switch
             {
-                2 => "MagnumOpus/Assets/Particles/InfernalCircularSmear",
-                3 => "MagnumOpus/Assets/Particles/InfernalTrientSmear",
-                _ => "MagnumOpus/Assets/Particles/InfernalSemiCircularSmear"
+                2 => "MagnumOpus/Assets/Particles Asset Library/InfernalCircularSmear",
+                3 => "MagnumOpus/Assets/Particles Asset Library/InfernalTrientSmear",
+                _ => "MagnumOpus/Assets/Particles Asset Library/InfernalSemiCircularSmear"
             };
         }
 
@@ -239,7 +239,7 @@ namespace MagnumOpus.Content.Seasons.Weapons
                 // Season-specific sub-effects
                 switch (Season)
                 {
-                    case 0: // Spring — petal scatter
+                    case 0: // Spring  Epetal scatter
                         for (int i = 0; i < 3; i++)
                         {
                             Vector2 petalVel = -SwordDirection.RotatedByRandom(0.5f) * Main.rand.NextFloat(2f, 5f);
@@ -247,7 +247,7 @@ namespace MagnumOpus.Content.Seasons.Weapons
                             d.noGravity = true;
                         }
                         break;
-                    case 1: // Summer — ember burst
+                    case 1: // Summer  Eember burst
                         for (int i = 0; i < 4; i++)
                         {
                             Vector2 emberVel = -SwordDirection.RotatedByRandom(0.4f) * Main.rand.NextFloat(3f, 7f);
@@ -255,7 +255,7 @@ namespace MagnumOpus.Content.Seasons.Weapons
                             d.noGravity = true;
                         }
                         break;
-                    case 2: // Autumn — leaf drift
+                    case 2: // Autumn  Eleaf drift
                         for (int i = 0; i < 3; i++)
                         {
                             Vector2 leafVel = -SwordDirection.RotatedByRandom(0.6f) * Main.rand.NextFloat(2f, 4f);
@@ -264,7 +264,7 @@ namespace MagnumOpus.Content.Seasons.Weapons
                             d.noGravity = true;
                         }
                         break;
-                    case 3: // Winter — frost shards
+                    case 3: // Winter  Efrost shards
                         for (int i = 0; i < 4; i++)
                         {
                             Vector2 iceVel = -SwordDirection.RotatedByRandom(0.4f) * Main.rand.NextFloat(3f, 6f);
@@ -284,7 +284,7 @@ namespace MagnumOpus.Content.Seasons.Weapons
 
             switch (Season)
             {
-                case 0: // Spring — healing bloom + poison
+                case 0: // Spring  Ehealing bloom + poison
                     owner.statLife = Math.Min(owner.statLife + 8, owner.statLifeMax2);
                     owner.HealEffect(8);
                     target.AddBuff(BuffID.Poisoned, 300);
@@ -296,7 +296,7 @@ namespace MagnumOpus.Content.Seasons.Weapons
                     }
                     break;
 
-                case 1: // Summer — scorching blaze
+                case 1: // Summer  Escorching blaze
                     target.AddBuff(BuffID.OnFire3, 300);
                     target.AddBuff(BuffID.Daybreak, 180);
                     for (int i = 0; i < 8; i++)
@@ -308,7 +308,7 @@ namespace MagnumOpus.Content.Seasons.Weapons
                     CustomParticles.GenericFlare(target.Center, primary, 0.6f, 15);
                     break;
 
-                case 2: // Autumn — harvest lifesteal + cursed flames
+                case 2: // Autumn  Eharvest lifesteal + cursed flames
                     int stolen = Math.Min(remainingDamageCount / 10, 15);
                     if (stolen > 0)
                     {
@@ -324,7 +324,7 @@ namespace MagnumOpus.Content.Seasons.Weapons
                     }
                     break;
 
-                case 3: // Winter — deep freeze
+                case 3: // Winter  Edeep freeze
                     target.AddBuff(BuffID.Frostburn2, 300);
                     if (Main.rand.NextBool(4))
                         target.AddBuff(BuffID.Frozen, 60);

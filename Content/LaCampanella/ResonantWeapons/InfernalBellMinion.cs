@@ -534,7 +534,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons
     public class InfernalBellWave : ModProjectile
     {
         // Use a soft glow texture - the wave is particle-based
-        public override string Texture => "MagnumOpus/Assets/Particles/FlareSpikeBurst";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/FlareSpikeBurst";
         
         private static readonly Color CampanellaOrange = new Color(255, 100, 0);
         private static readonly Color CampanellaYellow = new Color(255, 200, 50);

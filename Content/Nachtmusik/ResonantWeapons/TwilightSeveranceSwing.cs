@@ -18,8 +18,8 @@ using static MagnumOpus.Common.Systems.Particles.Particle;
 namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 {
     /// <summary>
-    /// Swing projectile for Twilight Severance — ultra-fast cosmic katana.
-    /// 3-phase blazing combo: Dusk Flash → Starlit Edge → Dawn Severance.
+    /// Swing projectile for Twilight Severance  Eultra-fast cosmic katana.
+    /// 3-phase blazing combo: Dusk Flash ↁEStarlit Edge ↁEDawn Severance.
     /// Lightning-fast swings with perpendicular slashes on Phase 2.
     /// </summary>
     public sealed class TwilightSeveranceSwing : MeleeSwingBase
@@ -34,19 +34,19 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 
         private static readonly Color[] TwilightPalette = new Color[]
         {
-            new Color(25, 15, 50),      // [0] Pianissimo — twilight void
-            new Color(55, 35, 90),      // [1] Piano — dusk shadow
-            new Color(100, 70, 160),    // [2] Mezzo — twilight violet
-            new Color(165, 120, 200),   // [3] Forte — bright dusk
-            new Color(220, 190, 120),   // [4] Fortissimo — golden dawn
-            new Color(255, 248, 230)    // [5] Sforzando — first light
+            new Color(25, 15, 50),      // [0] Pianissimo  Etwilight void
+            new Color(55, 35, 90),      // [1] Piano  Edusk shadow
+            new Color(100, 70, 160),    // [2] Mezzo  Etwilight violet
+            new Color(165, 120, 200),   // [3] Forte  Ebright dusk
+            new Color(220, 190, 120),   // [4] Fortissimo  Egolden dawn
+            new Color(255, 248, 230)    // [5] Sforzando  Efirst light
         };
 
         #endregion
 
         #region Combo Phases
 
-        // Phase 0: Dusk Flash — ultra-fast horizontal slash
+        // Phase 0: Dusk Flash  Eultra-fast horizontal slash
         private static readonly ComboPhase Phase0_DuskFlash = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -62,7 +62,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             damageMult: 0.8f
         );
 
-        // Phase 1: Starlit Edge — blazing backhand arc
+        // Phase 1: Starlit Edge  Eblazing backhand arc
         private static readonly ComboPhase Phase1_StarlitEdge = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -78,7 +78,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             damageMult: 0.9f
         );
 
-        // Phase 2: Dawn Severance — decisive overhead cut
+        // Phase 2: Dawn Severance  Edecisive overhead cut
         private static readonly ComboPhase Phase2_DawnSeverance = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -112,9 +112,9 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 
         protected override string GetSmearTexturePath(int comboStep) => comboStep switch
         {
-            1 => "MagnumOpus/Assets/Particles/SwordArc8",
-            2 => "MagnumOpus/Assets/Particles/SimpleArcSwordSlash",
-            _ => "MagnumOpus/Assets/Particles/SwordArc1"
+            1 => "MagnumOpus/Assets/Particles Asset Library/SwordArc8",
+            2 => "MagnumOpus/Assets/Particles Asset Library/SimpleArcSwordSlash",
+            _ => "MagnumOpus/Assets/Particles Asset Library/SwordArc1"
         };
 
         #endregion
@@ -155,7 +155,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 NachtmusikVFXLibrary.SpawnMusicNotes(tip, 2, 12f, 0.7f, 0.9f, 25);
             }
 
-            // Phase 1: Perpendicular slash pair at 50% — signature rapid strikes
+            // Phase 1: Perpendicular slash pair at 50%  Esignature rapid strikes
             if (ComboStep == 1 && Progression >= 0.50f)
             {
                 hasSpawnedSpecial = true;
@@ -182,7 +182,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 NachtmusikVFXLibrary.SpawnMusicNotes(vfxTip, 3, 20f, 0.7f, 0.9f, 25);
             }
 
-            // Phase 2: Dawn Severance finale at 55% — slash fan + seeking crystals
+            // Phase 2: Dawn Severance finale at 55%  Eslash fan + seeking crystals
             if (ComboStep == 2 && Progression >= 0.55f)
             {
                 hasSpawnedSpecial = true;
@@ -222,7 +222,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 
         #endregion
 
-        #region On Hit — Celestial Harmony + Twilight Charge
+        #region On Hit  ECelestial Harmony + Twilight Charge
 
         protected override void OnSwingHitNPC(NPC target, NPC.HitInfo hit, int remainingDamageCount)
         {
@@ -273,7 +273,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 
             Vector2 tipPos = GetBladeTipPosition();
 
-            // Dense twilight dust trail — dusk violet to golden dawn
+            // Dense twilight dust trail  Edusk violet to golden dawn
             for (int i = 0; i < 2; i++)
             {
                 float dp = Main.rand.NextFloat();
@@ -287,7 +287,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 d.fadeIn = 1.1f;
             }
 
-            // Quick star sparkle accents — fast katana needs sharp sparkles
+            // Quick star sparkle accents  Efast katana needs sharp sparkles
             if (Main.rand.NextBool(2))
             {
                 Vector2 sparklePos = tipPos + Main.rand.NextVector2Circular(6f, 6f);
@@ -296,7 +296,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 star.noGravity = true;
             }
 
-            // Twilight shimmer — hue oscillation between violet and gold
+            // Twilight shimmer  Ehue oscillation between violet and gold
             if (Main.rand.NextBool(3))
             {
                 bool isViolet = Main.rand.NextBool();
@@ -307,7 +307,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 s.noGravity = true;
             }
 
-            // Music notes from blade tip — faster frequency for katana rhythm
+            // Music notes from blade tip  Efaster frequency for katana rhythm
             if (Main.rand.NextBool(4))
             {
                 float shimmerScale = 1f + MathF.Sin(Main.GameUpdateCount * 0.18f) * 0.1f;
@@ -322,7 +322,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 ));
             }
 
-            // Blade-tip bloom glow — twilight cosmic radiance
+            // Blade-tip bloom glow  Etwilight cosmic radiance
             float bloomOpacity = MathHelper.Clamp((Progression - 0.08f) / 0.10f, 0f, 1f)
                                * MathHelper.Clamp((0.92f - Progression) / 0.10f, 0f, 1f);
             if (bloomOpacity > 0f)

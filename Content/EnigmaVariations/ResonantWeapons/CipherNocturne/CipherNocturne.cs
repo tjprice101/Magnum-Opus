@@ -120,7 +120,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
         }
         
-        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs11";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs11";
         
         public override bool PreDraw(ref Color lightColor)
         {
@@ -495,7 +495,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
         }
         
-        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs12";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs12";
         
         public override bool PreDraw(ref Color lightColor)
         {
@@ -515,7 +515,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Texture2D eyeTex = CustomParticleSystem.EnigmaEyes[(int)(lifeProgress * 7) % 8].Value;
             Texture2D glyphTex = CustomParticleSystem.Glyphs[(int)(Main.GameUpdateCount / 8) % 12].Value;
             Texture2D sparkleTex = CustomParticleSystem.PrismaticSparkles[(int)(Main.GameUpdateCount / 6) % 3].Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
             
             // Draw imploding/exploding glyph ring
             int glyphCount = lifeProgress < 0.4f ? 8 : 12;

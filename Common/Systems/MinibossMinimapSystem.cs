@@ -65,7 +65,7 @@ namespace MagnumOpus.Common.Systems
         public override void Load()
         {
             // Load music note texture
-            musicNoteTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MusicNote", AssetRequestMode.AsyncLoad);
+            musicNoteTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNote", AssetRequestMode.AsyncLoad);
         }
         
         public override void Unload()

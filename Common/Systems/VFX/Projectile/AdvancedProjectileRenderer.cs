@@ -121,7 +121,7 @@ namespace MagnumOpus.Common.Systems.VFX
                     float pulse = 1f + (float)Math.Sin(state.PulsePhase) * 0.15f;
                     float baseScale = proj.scale * 0.5f;
                     
-                    // Draw multi-layer bloom (outer → inner)
+                    // Draw multi-layer bloom (outer ↁEinner)
                     DrawProjectileBloomStack(sb, interpolatedPos, palette, baseScale, pulse, state.LifetimeProgress);
                 }
                 
@@ -138,11 +138,11 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             if (_softGlowTexture == null)
             {
-                _softGlowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                _softGlowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
             }
             if (_flareTexture == null)
             {
-                _flareTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                _flareTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
             }
             
             Vector2 origin = _softGlowTexture.Size() * 0.5f;

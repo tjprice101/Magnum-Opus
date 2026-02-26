@@ -137,7 +137,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
         
         /// <summary>
         /// Multi-layered blossom impact explosion - OPTIMIZED for proper sizing
-        /// White core → Rose pink petals → Verdant green → Golden pollen burst
+        /// White core ↁERose pink petals ↁEVerdant green ↁEGolden pollen burst
         /// </summary>
         public static void BlossomImpact(Vector2 position, float scale = 1f)
         {
@@ -354,7 +354,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
         /// </summary>
         public static void ChargeUp(Vector2 position, float progress, float scale = 1f)
         {
-            // Converging particles - Green → Pink → Gold → White
+            // Converging particles - Green ↁEPink ↁEGold ↁEWhite
             int particleCount = (int)(8 + progress * 12);
             for (int i = 0; i < particleCount; i++)
             {
@@ -754,7 +754,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
                 float hueShift = (float)i / petalCount + Main.rand.NextFloat(-0.1f, 0.1f);
                 Color petalColor;
                 
-                // Create chromatic gradient: White → Pink → Magenta → Rose → Pink → White
+                // Create chromatic gradient: White ↁEPink ↁEMagenta ↁERose ↁEPink ↁEWhite
                 if (hueShift < 0.2f)
                     petalColor = Color.Lerp(Color.White, OdeToJoyColors.RosePink, hueShift * 5f);
                 else if (hueShift < 0.4f)
@@ -1095,7 +1095,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
                 else
                     vineColor = Color.Lerp(new Color(100, 200, 100), OdeToJoyColors.VerdantGreen, (hueShift - 0.66f) * 3f);
                 
-                // ★ NEW: Spawn VineRoseParticle with custom textures! ★
+                // ☁ENEW: Spawn VineRoseParticle with custom textures! ☁E
                 // Alternate between vine types for variety
                 VineRoseParticle.VineType vineType;
                 if (withRoseBloom)
@@ -1193,7 +1193,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
                     Vector2 rosePos = position + angle.ToRotationVector2() * distance;
                     Vector2 roseVel = angle.ToRotationVector2() * Main.rand.NextFloat(1f, 2f);
                     
-                    // ★ NEW: Spawn VineRoseParticle with TwoRoses for maximum roses! ★
+                    // ☁ENEW: Spawn VineRoseParticle with TwoRoses for maximum roses! ☁E
                     var roseVine = new VineRoseParticle(
                         rosePos,
                         roseVel * 0.5f,
@@ -1381,7 +1381,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
     /// </summary>
     public class BlossomWaveProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc1";
         
         public override void SetDefaults()
         {
@@ -1431,7 +1431,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
     /// </summary>
     public class ThornProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/VineWithRoseOnTop";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/VineWithRoseOnTop";
         
         public override void SetDefaults()
         {
@@ -1479,7 +1479,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
     /// </summary>
     public class PetalStormProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/FlareSparkle";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/FlareSparkle";
         
         private float homingStrength = 0.05f;
         
@@ -1579,7 +1579,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
     /// </summary>
     public class SmallPetalProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/RosesBud";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/RosesBud";
         
         public override void SetDefaults()
         {
@@ -1625,7 +1625,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
     /// </summary>
     public class GloryBeamProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow3";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow3";
         
         public override void SetDefaults()
         {
@@ -1700,7 +1700,7 @@ namespace MagnumOpus.Content.OdeToJoy.Projectiles
     /// </summary>
     public class ChainsawThornSegment : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/VineWithRoseOnTop";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/VineWithRoseOnTop";
         
         public int ParentProjectile
         {

@@ -8,7 +8,7 @@ using MagnumOpus.Common.Systems.VFX;
 namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Dusts
 {
     /// <summary>
-    /// Heroic Spark — a fast-moving velocity-aligned spark that leaves
+    /// Heroic Spark  Ea fast-moving velocity-aligned spark that leaves
     /// a brief trail of gold-white light. Used on hit impacts and
     /// combo specials. Elongates along its velocity for a dynamic streaking effect.
     /// 
@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Dusts
     /// </summary>
     public class HeroicSparkDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/ThinSparkleFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ThinSparkleFlare";
 
         public override void OnSpawn(Dust dust)
         {

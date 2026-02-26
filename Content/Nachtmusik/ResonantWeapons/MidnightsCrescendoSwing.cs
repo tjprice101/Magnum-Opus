@@ -18,8 +18,8 @@ using static MagnumOpus.Common.Systems.Particles.Particle;
 namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 {
     /// <summary>
-    /// Swing projectile for Midnight's Crescendo — momentum-building sword.
-    /// 3-phase combo: Harmonic Strike → Resonant Arc → Crescendo Finale.
+    /// Swing projectile for Midnight's Crescendo  Emomentum-building sword.
+    /// 3-phase combo: Harmonic Strike ↁEResonant Arc ↁECrescendo Finale.
     /// VFX intensity scales with owning item's crescendo stacks.
     /// </summary>
     public sealed class MidnightsCrescendoSwing : MeleeSwingBase
@@ -34,19 +34,19 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 
         private static readonly Color[] CrescendoPalette = new Color[]
         {
-            new Color(30, 20, 60),      // [0] Pianissimo — soft void
-            new Color(60, 45, 110),     // [1] Piano — dim violet
-            new Color(123, 104, 238),   // [2] Mezzo — bright violet
-            new Color(180, 140, 220),   // [3] Forte — nebula pink
-            new Color(230, 200, 140),   // [4] Fortissimo — warm gold
-            new Color(255, 245, 220)    // [5] Sforzando — blazing white-gold
+            new Color(30, 20, 60),      // [0] Pianissimo  Esoft void
+            new Color(60, 45, 110),     // [1] Piano  Edim violet
+            new Color(123, 104, 238),   // [2] Mezzo  Ebright violet
+            new Color(180, 140, 220),   // [3] Forte  Enebula pink
+            new Color(230, 200, 140),   // [4] Fortissimo  Ewarm gold
+            new Color(255, 245, 220)    // [5] Sforzando  Eblazing white-gold
         };
 
         #endregion
 
         #region Combo Phases
 
-        // Phase 0: Harmonic Strike — quick horizontal slash
+        // Phase 0: Harmonic Strike  Equick horizontal slash
         private static readonly ComboPhase Phase0_HarmonicStrike = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -62,7 +62,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             damageMult: 0.85f
         );
 
-        // Phase 1: Resonant Arc — wider backhand arc
+        // Phase 1: Resonant Arc  Ewider backhand arc
         private static readonly ComboPhase Phase1_ResonantArc = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -78,7 +78,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             damageMult: 1.0f
         );
 
-        // Phase 2: Crescendo Finale — powerful overhead slam
+        // Phase 2: Crescendo Finale  Epowerful overhead slam
         private static readonly ComboPhase Phase2_CrescendoFinale = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -112,9 +112,9 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 
         protected override string GetSmearTexturePath(int comboStep) => comboStep switch
         {
-            1 => "MagnumOpus/Assets/Particles/SwordArc6",
-            2 => "MagnumOpus/Assets/Particles/CurvedSwordSlash",
-            _ => "MagnumOpus/Assets/Particles/SwordArc1"
+            1 => "MagnumOpus/Assets/Particles Asset Library/SwordArc6",
+            2 => "MagnumOpus/Assets/Particles Asset Library/CurvedSwordSlash",
+            _ => "MagnumOpus/Assets/Particles Asset Library/SwordArc1"
         };
 
         #endregion
@@ -210,7 +210,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 NachtmusikVFXLibrary.SpawnMusicNotes(vfxTip, 4, 30f, 0.7f, 0.9f, 25);
             }
 
-            // Phase 2: Crescendo Finale at 60% — seeking crystals, grand VFX
+            // Phase 2: Crescendo Finale at 60%  Eseeking crystals, grand VFX
             if (ComboStep == 2 && Progression >= 0.60f)
             {
                 hasSpawnedSpecial = true;
@@ -251,7 +251,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 
         #endregion
 
-        #region On Hit — Celestial Harmony + Stack Building
+        #region On Hit  ECelestial Harmony + Stack Building
 
         protected override void OnSwingHitNPC(NPC target, NPC.HitInfo hit, int remainingDamageCount)
         {
@@ -304,7 +304,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
             Vector2 tipPos = GetBladeTipPosition();
             float ci = GetCrescendoIntensity();
 
-            // Violet/gold dust trail — density scales with crescendo
+            // Violet/gold dust trail  Edensity scales with crescendo
             int dustPerFrame = 1 + (int)(ci * 2);
             for (int i = 0; i < dustPerFrame; i++)
             {
@@ -329,7 +329,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 s.noGravity = true;
             }
 
-            // Music notes — crescendo-driven (hue-shifting)
+            // Music notes  Ecrescendo-driven (hue-shifting)
             int noteChance = Math.Max(2, 7 - (int)(ci * 5));
             if (Main.rand.NextBool(noteChance))
             {
@@ -341,7 +341,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                     scale: 0.7f + ci * 0.3f, lifetime: 25, hueSpeed: 0.025f));
             }
 
-            // Blade-tip bloom — crescendo glow
+            // Blade-tip bloom  Ecrescendo glow
             {
                 float bloomOpacity = MathHelper.Clamp((Progression - 0.08f) / 0.12f, 0f, 1f)
                                    * MathHelper.Clamp((0.92f - Progression) / 0.12f, 0f, 1f);

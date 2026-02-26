@@ -86,7 +86,7 @@ namespace MagnumOpus.Content.SandboxExoblade.Projectiles
 
             Projectile.scale = Utils.GetLerpValue(0f, 0.1f, Projectile.timeLeft / 600f, true);
 
-            if (Projectile.FinalExtraUpdate())
+            if (Projectile.numUpdates == 0)
                 Time++;
         }
 
@@ -152,7 +152,7 @@ namespace MagnumOpus.Content.SandboxExoblade.Projectiles
             if (TrailTex == null)
                 TrailTex = ModContent.Request<Texture2D>("MagnumOpus/Content/SandboxExoblade/Textures/BasicTrail");
 
-            GameShaders.Misc["MagnumOpus:ExobladePierce"].SetShaderTexture(TrailTex);
+            GameShaders.Misc["MagnumOpus:ExobladePierce"].UseImage1(TrailTex);
             GameShaders.Misc["MagnumOpus:ExobladePierce"].UseImage2("Images/Extra_189");
             GameShaders.Misc["MagnumOpus:ExobladePierce"].UseColor(mainColor);
             GameShaders.Misc["MagnumOpus:ExobladePierce"].UseSecondaryColor(secondaryColor);

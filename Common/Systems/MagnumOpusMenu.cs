@@ -153,7 +153,7 @@ namespace MagnumOpus.Common.Systems
         
         private void UpdateAndDrawCosmicStreams(SpriteBatch spriteBatch)
         {
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare", AssetRequestMode.ImmediateLoad).Value;
             
             foreach (var stream in cosmicStreams)
             {
@@ -185,8 +185,8 @@ namespace MagnumOpus.Common.Systems
         
         private void UpdateAndDrawParticles(SpriteBatch spriteBatch)
         {
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare", AssetRequestMode.ImmediateLoad).Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare", AssetRequestMode.ImmediateLoad).Value;
             
             for (int i = particles.Count - 1; i >= 0; i--)
             {
@@ -235,7 +235,7 @@ namespace MagnumOpus.Common.Systems
         
         private void UpdateAndDrawMusicNotes(SpriteBatch spriteBatch)
         {
-            Texture2D noteTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MusicNote", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D noteTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNote", AssetRequestMode.ImmediateLoad).Value;
             
             for (int i = musicNotes.Count - 1; i >= 0; i--)
             {
@@ -291,7 +291,7 @@ namespace MagnumOpus.Common.Systems
         private void DrawVignette(SpriteBatch spriteBatch)
         {
             // Simple corner darkening effect
-            Texture2D pixel = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D pixel = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare", AssetRequestMode.ImmediateLoad).Value;
             
             // Top and bottom gradients
             for (int i = 0; i < 5; i++)

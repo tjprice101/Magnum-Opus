@@ -16,8 +16,8 @@ using static MagnumOpus.Common.Systems.Particles.Particle;
 namespace MagnumOpus.Content.Winter.Weapons
 {
     /// <summary>
-    /// Glacial Executioner held-projectile swing — winter's merciless sentence.
-    /// 4-phase greataxe combo: Frost Cleave → Rime Backhand → Permafrost Slam → Absolute Zero.
+    /// Glacial Executioner held-projectile swing  Ewinter's merciless sentence.
+    /// 4-phase greataxe combo: Frost Cleave ↁERime Backhand ↁEPermafrost Slam ↁEAbsolute Zero.
     /// 25% freeze chance on hit; always applies Frostburn2; frozen enemies take 30% bonus;
     /// Phase 3 finisher spawns AvalancheWave; Phase 2 spawns ice bolt sub-projectiles.
     /// </summary>
@@ -29,7 +29,7 @@ namespace MagnumOpus.Content.Winter.Weapons
         private static readonly Color DeepBlue = MagnumThemePalettes.WinterDeepBlue;
         private static readonly Color CrystalCyan = MagnumThemePalettes.WinterCrystalCyan;
 
-        // ── 6-Color Palette: pianissimo → sforzando ──
+        // ── 6-Color Palette: pianissimo ↁEsforzando ──
         private static readonly Color[] WinterPalette = new Color[]
         {
             new Color(30, 50, 100),     // [0] Deep ocean shadow
@@ -42,7 +42,7 @@ namespace MagnumOpus.Content.Winter.Weapons
 
         #region ── Combo Phase Definitions ──
 
-        // Phase 0 — Frost Cleave (heavy horizontal — the first breath of winter)
+        // Phase 0  EFrost Cleave (heavy horizontal  Ethe first breath of winter)
         private static readonly ComboPhase Phase0_FrostCleave = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -58,7 +58,7 @@ namespace MagnumOpus.Content.Winter.Weapons
             damageMult: 0.95f
         );
 
-        // Phase 1 — Rime Backhand (quick reverse — biting frost wind)
+        // Phase 1  ERime Backhand (quick reverse  Ebiting frost wind)
         private static readonly ComboPhase Phase1_RimeBackhand = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -74,7 +74,7 @@ namespace MagnumOpus.Content.Winter.Weapons
             damageMult: 1.0f
         );
 
-        // Phase 2 — Permafrost Slam (overhead — the ice age descends)
+        // Phase 2  EPermafrost Slam (overhead  Ethe ice age descends)
         private static readonly ComboPhase Phase2_PermafrostSlam = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -90,7 +90,7 @@ namespace MagnumOpus.Content.Winter.Weapons
             damageMult: 1.2f
         );
 
-        // Phase 3 — Absolute Zero (massive finisher — the world goes still)
+        // Phase 3  EAbsolute Zero (massive finisher  Ethe world goes still)
         private static readonly ComboPhase Phase3_AbsoluteZero = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -125,11 +125,11 @@ namespace MagnumOpus.Content.Winter.Weapons
 
         protected override string GetSmearTexturePath(int comboStep) => comboStep switch
         {
-            0 => "MagnumOpus/Assets/Particles/SwordArc1",
-            1 => "MagnumOpus/Assets/Particles/SimpleArcSwordSlash",
-            2 => "MagnumOpus/Assets/Particles/SwordArc6",
-            3 => "MagnumOpus/Assets/Particles/SwordArc8",
-            _ => "MagnumOpus/Assets/Particles/SwordArc1",
+            0 => "MagnumOpus/Assets/Particles Asset Library/SwordArc1",
+            1 => "MagnumOpus/Assets/Particles Asset Library/SimpleArcSwordSlash",
+            2 => "MagnumOpus/Assets/Particles Asset Library/SwordArc6",
+            3 => "MagnumOpus/Assets/Particles Asset Library/SwordArc8",
+            _ => "MagnumOpus/Assets/Particles Asset Library/SwordArc1",
         };
 
         #endregion
@@ -191,7 +191,7 @@ namespace MagnumOpus.Content.Winter.Weapons
                 }
             }
 
-            // Phase 3 at ~85%: Absolute Zero finisher — spawn AvalancheWave
+            // Phase 3 at ~85%: Absolute Zero finisher  Espawn AvalancheWave
             if (ComboStep == 3 && Progression >= 0.85f)
             {
                 hasSpawnedSpecial = true;
@@ -232,7 +232,7 @@ namespace MagnumOpus.Content.Winter.Weapons
                 Vector2 tipPos = GetBladeTipPosition();
                 float bladeLen = CurrentPhase.BladeLength;
 
-                // Ice torch dust — dense, 2 per frame
+                // Ice torch dust  Edense, 2 per frame
                 for (int i = 0; i < 2; i++)
                 {
                     Vector2 dustPos = Owner.MountedCenter + SwordDirection * bladeLen * Main.rand.NextFloat(0.4f, 1f);
@@ -319,7 +319,7 @@ namespace MagnumOpus.Content.Winter.Weapons
                 }
             }
 
-            // ── Gradient halo rings — deep blue → frost white ──
+            // ── Gradient halo rings  Edeep blue ↁEfrost white ──
             for (int i = 0; i < 4; i++)
             {
                 float progress = i / 4f;

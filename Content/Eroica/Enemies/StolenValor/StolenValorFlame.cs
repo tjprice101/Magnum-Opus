@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
     /// </summary>
     public class StolenValorFlame : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow3";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow3";
 
         public override void SetStaticDefaults()
         {
@@ -104,7 +104,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
                 trail.fadeIn = 0.5f;
             }
 
-            // Unified blitzer projectile trail — mourning flame, smoke wisps
+            // Unified blitzer projectile trail  Emourning flame, smoke wisps
             EroicaEnemyVFX.BlitzerProjectileTrail(Projectile);
 
             // Slight homing toward nearest player

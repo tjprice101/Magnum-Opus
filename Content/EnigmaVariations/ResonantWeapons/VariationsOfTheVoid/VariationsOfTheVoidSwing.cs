@@ -16,13 +16,13 @@ using MagnumOpus.Content.EnigmaVariations.Debuffs;
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
 {
     /// <summary>
-    /// VARIATIONS OF THE VOID — Enigma Melee Sword (Swing Projectile).
+    /// VARIATIONS OF THE VOID  EEnigma Melee Sword (Swing Projectile).
     /// Held-projectile swing via MeleeSwingBase.
     /// 
-    /// 3-Phase combo — each a different voice of the void:
-    ///   Phase 0: VoidWhisper — fast, subtle cleave
-    ///   Phase 1: AbyssalEcho — medium sweep, flipped arc
-    ///   Phase 2: RiftSunderFinisher — heavy finisher, spawns sub-projectiles
+    /// 3-Phase combo  Eeach a different voice of the void:
+    ///   Phase 0: VoidWhisper  Efast, subtle cleave
+    ///   Phase 1: AbyssalEcho  Emedium sweep, flipped arc
+    ///   Phase 2: RiftSunderFinisher  Eheavy finisher, spawns sub-projectiles
     /// </summary>
     public sealed class VariationsOfTheVoidSwing : MeleeSwingBase
     {
@@ -113,8 +113,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             return comboStep switch
             {
-                2 => "MagnumOpus/Assets/Particles/SwordArc2",
-                _ => "MagnumOpus/Assets/Particles/SwordArc8"
+                2 => "MagnumOpus/Assets/Particles Asset Library/SwordArc2",
+                _ => "MagnumOpus/Assets/Particles Asset Library/SwordArc8"
             };
         }
 
@@ -298,7 +298,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                     EnigmaPurple, 0.35f);
             }
 
-            // Music notes — hue-shifting through void spectrum
+            // Music notes  Ehue-shifting through void spectrum
             if (Main.rand.NextBool(5))
             {
                 Vector2 noteVel = -SwordDirection * 1.5f + Main.rand.NextVector2Circular(0.5f, 0.5f);
@@ -309,7 +309,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                     scale: 0.75f, lifetime: 25, hueSpeed: 0.025f));
             }
 
-            // Blade-tip bloom — Enigma void glow
+            // Blade-tip bloom  EEnigma void glow
             {
                 float bloomOpacity = MathHelper.Clamp((Progression - 0.08f) / 0.12f, 0f, 1f)
                                    * MathHelper.Clamp((0.92f - Progression) / 0.12f, 0f, 1f);

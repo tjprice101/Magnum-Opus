@@ -158,7 +158,8 @@ namespace MagnumOpus.Content.SandboxExoblade.Utilities
             if (amount <= 0 || player.lifeSteal <= 0f || player.moonLeech)
                 return;
             player.lifeSteal -= amount * cooldownMultiplier;
-            player.HealPlayer(amount);
+            player.statLife += amount;
+            player.HealEffect(amount);
         }
     }
 }

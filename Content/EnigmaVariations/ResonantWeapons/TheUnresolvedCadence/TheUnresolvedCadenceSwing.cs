@@ -18,8 +18,8 @@ using MagnumOpus.Content.EnigmaVariations.Debuffs;
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
 {
     /// <summary>
-    /// THE UNRESOLVED CADENCE — Swing projectile (held-projectile combo).
-    /// 3-phase combo: VoidCleave → ParadoxSlash → DimensionalSeverance
+    /// THE UNRESOLVED CADENCE  ESwing projectile (held-projectile combo).
+    /// 3-phase combo: VoidCleave ↁEParadoxSlash ↁEDimensionalSeverance
     /// Each swing a different movement in the Enigma's unknowable melody.
     /// </summary>
     public sealed class TheUnresolvedCadenceSwing : MeleeSwingBase
@@ -34,19 +34,19 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
 
         private static readonly Color[] EnigmaPalette = new Color[]
         {
-            MagnumThemePalettes.EnigmaBlack,      // [0] Pianissimo — void darkness
-            MagnumThemePalettes.EnigmaDeepPurple,  // [1] Piano — deep arcane
-            MagnumThemePalettes.EnigmaPurple,      // [2] Mezzo — enigma purple
-            new Color(100, 140, 200),              // [3] Forte — transitional
-            MagnumThemePalettes.EnigmaGreen,       // [4] Fortissimo — eerie green
-            new Color(180, 255, 180),              // [5] Sforzando — bright green-white
+            MagnumThemePalettes.EnigmaBlack,      // [0] Pianissimo  Evoid darkness
+            MagnumThemePalettes.EnigmaDeepPurple,  // [1] Piano  Edeep arcane
+            MagnumThemePalettes.EnigmaPurple,      // [2] Mezzo  Eenigma purple
+            new Color(100, 140, 200),              // [3] Forte  Etransitional
+            MagnumThemePalettes.EnigmaGreen,       // [4] Fortissimo  Eeerie green
+            new Color(180, 255, 180),              // [5] Sforzando  Ebright green-white
         };
 
         #endregion
 
         #region Combo Phases
 
-        // Phase 0: VoidCleave — Quick, probing slash
+        // Phase 0: VoidCleave  EQuick, probing slash
         private static readonly ComboPhase Phase0_VoidCleave = new ComboPhase(
             new CurveSegment[]
             {
@@ -62,7 +62,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             damageMult: 0.85f
         );
 
-        // Phase 1: ParadoxSlash — Reversed arc, reality-bending
+        // Phase 1: ParadoxSlash  EReversed arc, reality-bending
         private static readonly ComboPhase Phase1_ParadoxSlash = new ComboPhase(
             new CurveSegment[]
             {
@@ -78,7 +78,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             damageMult: 1.0f
         );
 
-        // Phase 2: DimensionalSeverance — Heavy finisher, tears space
+        // Phase 2: DimensionalSeverance  EHeavy finisher, tears space
         private static readonly ComboPhase Phase2_DimensionalSeverance = new ComboPhase(
             new CurveSegment[]
             {
@@ -114,8 +114,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             return comboStep switch
             {
-                2 => "MagnumOpus/Assets/Particles/SwordArc3",
-                _ => "MagnumOpus/Assets/Particles/SwordArc6",
+                2 => "MagnumOpus/Assets/Particles Asset Library/SwordArc3",
+                _ => "MagnumOpus/Assets/Particles Asset Library/SwordArc6",
             };
         }
 
@@ -152,7 +152,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             if (hasSpawnedSpecial) return;
 
-            // Phase 0 at 55% — void ripple spark
+            // Phase 0 at 55%  Evoid ripple spark
             if (ComboStep == 0 && Progression >= 0.55f)
             {
                 hasSpawnedSpecial = true;
@@ -162,7 +162,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 ThemedParticles.EnigmaMusicNotes(tipPos, 2, 12f);
             }
 
-            // Phase 1 at 60% — dimensional slash sub-projectile
+            // Phase 1 at 60%  Edimensional slash sub-projectile
             if (ComboStep == 1 && Progression >= 0.60f)
             {
                 hasSpawnedSpecial = true;
@@ -183,7 +183,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 CustomParticles.GlyphBurst(tipPos, EnigmaGreen, 4, 4f);
             }
 
-            // Phase 2 at 50% — massive dimensional tear (finisher)
+            // Phase 2 at 50%  Emassive dimensional tear (finisher)
             if (ComboStep == 2 && Progression >= 0.50f)
             {
                 hasSpawnedSpecial = true;
@@ -311,18 +311,18 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 MagnumParticleHandler.SpawnParticle(shimmer);
             }
 
-// Music notes (1-in-5) — HueShifting bloom notes cycling Enigma purple↔green
+// Music notes (1-in-5)  EHueShifting bloom notes cycling Enigma purple↔green
         if (Main.rand.NextBool(5))
         {
             Vector2 notePos = Owner.MountedCenter + SwordDirection * CurrentPhase.BladeLength * Main.rand.NextFloat(0.6f, 1f);
             MagnumParticleHandler.SpawnParticle(new HueShiftingMusicNoteParticle(
                 notePos, -SwordDirection * 1.5f,
-                hueMin: 0.38f, hueMax: 0.77f,   // green(0.38) ↔ purple(0.77)
+                hueMin: 0.38f, hueMax: 0.77f,   // green(0.38) ↁEpurple(0.77)
                 saturation: 0.85f, luminosity: 0.6f,
                 scale: 0.75f, lifetime: 25, hueSpeed: 0.025f));
             }
 
-            // Blade-tip bloom stack — Calamity-style 4-layer additive bloom
+            // Blade-tip bloom stack  ECalamity-style 4-layer additive bloom
             {
                 Vector2 tipWorld = Owner.MountedCenter + SwordDirection * CurrentPhase.BladeLength;
                 float bloomOpacity = MathHelper.Clamp((Progression - 0.10f) / 0.15f, 0f, 1f)

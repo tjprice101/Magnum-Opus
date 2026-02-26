@@ -50,61 +50,63 @@ Do not use placeholder textures or skip VFX because an asset is missing. Ask for
 
 ### Item-Specific Asset Placement (SandboxLastPrism Pattern)
 
-All item-specific content (weapons, bosses, accessories, etc.) **must** follow the same organizational pattern established by the Sandbox Last Prism. This splits item-specific assets across three root directories by purpose:
+All item-specific content (weapons, bosses, accessories, etc.) should follow the organizational pattern established by the Sandbox Last Prism. The SandboxLastPrism (and its Exoblade-style self-contained architecture) is a **recommended folder and file structure**  Eit demonstrates a working, well-organized approach for per-weapon content. You do **not** need to copy the exact implementation or code patterns of the Sandbox Exoblade; it is there as a reference for how to organize files and folders so that each weapon's systems (shaders, particles, primitives, utilities, projectiles, buffs) are self-contained and properly structured. Adapt the architecture to suit each weapon's unique needs.
 
-#### 1. VFX Textures → `Assets/<ThemeName>/<ItemName>/`
+This pattern splits item-specific assets across three root directories by purpose:
+
+#### 1. VFX Textures ↁE`Assets/<ThemeName>/<ItemName>/`
 
 VFX texture assets (PNG images used by shaders, trails, particles, bloom) go in theme-scoped subfolders of `Assets/`, organized by texture type:
 
 ```
 Assets/<ThemeName>/<ItemName>/
-├── Flare/              — Lens flare, flash, and burst VFX textures
-├── Gradients/          — Color gradient lookup textures (1D or 2D ramps)
-├── Orbs/               — Soft glow circles, feathered spheres, bloom orbs
-├── Pixel/              — Tiny pixel-art particle sprites for ModDust types
-├── Trails/             — Trail strip textures, energy lines, ribbon UVs
-│   └── Clear/          — Trail textures on transparent (not black) backgrounds
-├── WeaponDesign/       — Midjourney reference prompts for the weapon sprite itself
-└── [Class-Specific]/   — Additional folders based on weapon class needs:
-    ├── SlashArcs/      — (Melee) Swing arc overlay textures
-    ├── ImpactSlash/    — (Melee) Hit impact slash/burst textures
-    ├── Beams/          — (Magic/Summoner) Beam strip textures
-    ├── ChannelingEffects/ — (Magic) Cast circle and channeling textures
-    ├── MuzzleFlash/    — (Ranged) Barrel discharge flash textures
-    ├── ImpactBurst/    — (Ranged) Explosive detonation impact textures
-    └── SummonCircle/   — (Summoner) Summoning ritual circle textures
+├── Flare/               ELens flare, flash, and burst VFX textures
+├── Gradients/           EColor gradient lookup textures (1D or 2D ramps)
+├── Orbs/                ESoft glow circles, feathered spheres, bloom orbs
+├── Pixel/               ETiny pixel-art particle sprites for ModDust types
+├── Trails/              ETrail strip textures, energy lines, ribbon UVs
+━E  └── Clear/           ETrail textures on transparent (not black) backgrounds
+├── WeaponDesign/        EMidjourney reference prompts for the weapon sprite itself
+└── [Class-Specific]/    EAdditional folders based on weapon class needs:
+    ├── SlashArcs/       E(Melee) Swing arc overlay textures
+    ├── ImpactSlash/     E(Melee) Hit impact slash/burst textures
+    ├── Beams/           E(Magic/Summoner) Beam strip textures
+    ├── ChannelingEffects/  E(Magic) Cast circle and channeling textures
+    ├── MuzzleFlash/     E(Ranged) Barrel discharge flash textures
+    ├── ImpactBurst/     E(Ranged) Explosive detonation impact textures
+    └── SummonCircle/    E(Summoner) Summoning ritual circle textures
 ```
 
 **Reference:** See `Assets/SandboxLastPrism/` for the canonical example (Flare/, Gradients/, Orbs/, Pixel/, Trails/, Trails/Clear/).
 
-#### 2. Custom Shaders → `Effects/<ThemeName>/<ItemName>/`
+#### 2. Custom Shaders ↁE`Effects/<ThemeName>/<ItemName>/`
 
 Item-specific `.fx` and `.fxc` shader files go in theme-scoped subfolders of `Effects/`, grouped by shader purpose:
 
 ```
 Effects/<ThemeName>/<ItemName>/
-├── <ShaderName>.fx         — Shader source
-├── <ShaderName>.fxc        — Compiled shader bytecode
-└── <SubCategory>/          — Grouped by shader purpose when multiple exist:
-    ├── Radial/             — Radial/circular effect shaders (sigils, auras)
-    └── Scroll/             — UV-scrolling shaders (beams, trails, lasers)
+├── <ShaderName>.fx          EShader source
+├── <ShaderName>.fxc         ECompiled shader bytecode
+└── <SubCategory>/           EGrouped by shader purpose when multiple exist:
+    ├── Radial/              ERadial/circular effect shaders (sigils, auras)
+    └── Scroll/              EUV-scrolling shaders (beams, trails, lasers)
 ```
 
 **Reference:** See `Effects/SandboxLastPrism/` for the canonical example (GlowDustShader at root, Radial/, Scroll/ subdirectories).
 
-#### 3. C# Code + Dust Textures → `Content/<ThemeName>/<ItemName>/`
+#### 3. C# Code + Dust Textures ↁE`Content/<ThemeName>/<ItemName>/`
 
 Item code, custom ModDust types, and dust sprite textures all co-locate under `Content/`:
 
 ```
 Content/<ThemeName>/<Category>/<ItemName>/
-├── <ItemName>.cs           — Main item/weapon class
-├── <ItemName>VFX.cs        — Item-specific VFX static class
-├── <ItemName>Swing.cs      — (Melee) Swing projectile
-├── Dusts/                  — Custom ModDust types for this item
-│   ├── <DustName>.cs       — Dust behavior code
-│   └── Textures/           — Dust sprite .png files (co-located with dust code)
-└── Systems/                — Item-specific systems (flash, pixelation, screen shake)
+├── <ItemName>.cs            EMain item/weapon class
+├── <ItemName>VFX.cs         EItem-specific VFX static class
+├── <ItemName>Swing.cs       E(Melee) Swing projectile
+├── Dusts/                   ECustom ModDust types for this item
+━E  ├── <DustName>.cs        EDust behavior code
+━E  └── Textures/            EDust sprite .png files (co-located with dust code)
+└── Systems/                 EItem-specific systems (flash, pixelation, screen shake)
     ├── <System>.cs
     └── ...
 ```
@@ -402,24 +404,24 @@ When implementing or referencing VFX, shaders, particles, trails, or any visual 
 
 | Directory | Contents |
 |-----------|----------|
-| `Effects/` | **Compiled shaders** (.fx) ready for use — trail shaders (SimpleTrailShader, MoonlightTrail, HeroicFlameTrail, CelestialValorTrail, EroicaFuneralTrail, ScrollingTrailShader), bloom shaders (SimpleBloomShader, SakuraBloom, MotionBlurBloom), beam shaders (BeamGradientFlow, LunarBeam, TerraBladeFlareBeamShader), screen effects (ScreenDistortion, RadialScrollShader), metaball shaders, and more |
-| `ShaderSource/` | **Shader source files** (.fx) for development — HLSLLibrary.fxh (shared utilities), advanced shaders (AdvancedBeamShader, AdvancedBloomShader, AdvancedTrailShader, AdvancedDistortionShader, AdvancedScreenEffectsShader), Calamity-inspired shaders (CalamityFireShader, ExobladeSlashShader), procedural trails (ProceduralTrailShader), and README_SHADER_COMPILATION.md for build instructions |
+| `Effects/` | **Compiled shaders** (.fx) ready for use  Etrail shaders (SimpleTrailShader, MoonlightTrail, HeroicFlameTrail, CelestialValorTrail, EroicaFuneralTrail, ScrollingTrailShader), bloom shaders (SimpleBloomShader, SakuraBloom, MotionBlurBloom), beam shaders (BeamGradientFlow, LunarBeam, TerraBladeFlareBeamShader), screen effects (ScreenDistortion, RadialScrollShader), metaball shaders, and more |
+| `ShaderSource/` | **Shader source files** (.fx) for development  EHLSLLibrary.fxh (shared utilities), advanced shaders (AdvancedBeamShader, AdvancedBloomShader, AdvancedTrailShader, AdvancedDistortionShader, AdvancedScreenEffectsShader), Calamity-inspired shaders (CalamityFireShader, ExobladeSlashShader), procedural trails (ProceduralTrailShader), and README_SHADER_COMPILATION.md for build instructions |
 | `Assets/Shaders/` | Additional compiled shader assets |
-| `Common/Systems/Shaders/` | **C# shader infrastructure** — ShaderLoader.cs (loads/manages shaders) and ShaderRenderer.cs (handles shader rendering) |
+| `Common/Systems/Shaders/` | **C# shader infrastructure**  EShaderLoader.cs (loads/manages shaders) and ShaderRenderer.cs (handles shader rendering) |
 
 #### VFX Textures & Sprites
 
 | Directory | Contents |
 |-----------|----------|
-| `Assets/VFX/` | **Main VFX texture library** with 15 subcategories: `Afterimages/`, `Beams/`, `Blooms/`, `Impacts/`, `Lightning/`, `LightRays/`, `LUT/` (color grading), `Masks/`, `Noise/` (19 noise types — cosmic energy, nebula, Voronoi, FBM, marble, perlin, etc.), `Overlays/`, `Ribbons/`, `Screen/`, `Smears/`, `Trails/` (comet trails, spiral trails, energy UV maps, ember scatters, sparkle fields) |
-| `Assets/Particles/` | **Particle sprites** — 107+ sprites including sparkles, glyphs, halos, explosions, lightning bursts, smoke, sword arcs, feathers, music notes, magic sparkle fields, flare spikes, circular masks, and themed particles |
+| `Assets/VFX/` | **Main VFX texture library** with 15 subcategories: `Afterimages/`, `Beams/`, `Blooms/`, `Impacts/`, `Lightning/`, `LightRays/`, `LUT/` (color grading), `Masks/`, `Noise/` (19 noise types  Ecosmic energy, nebula, Voronoi, FBM, marble, perlin, etc.), `Overlays/`, `Ribbons/`, `Screen/`, `Smears/`, `Trails/` (comet trails, spiral trails, energy UV maps, ember scatters, sparkle fields) |
+| `Assets/Particles Asset Library/` | **Particle sprites**  E107+ sprites including sparkles, glyphs, halos, explosions, lightning bursts, smoke, sword arcs, feathers, music notes, magic sparkle fields, flare spikes, circular masks, and themed particles |
 
 #### VFX Code Systems
 
 | Directory | Contents |
 |-----------|----------|
 | `Common/Systems/VFX/` | **Core VFX C# systems** with subsystems: `Beams/` (beam rendering), `Bloom/` (lens flares, god rays, glow), `Boss/` (boss arena/cinematic VFX), `Core/` (particle systems, texture registries, rendering utils), `Effects/` (afterimages, glow dust, smoke, screen shake), `Optimization/` (LOD, adaptive quality, batching), `Projectile/` (layered projectile rendering), `Screen/` (skyboxes, distortions, heat effects), `Themes/` (elemental/themed effects), `Trails/` (advanced trails, nebula, Bezier curves), `Weapon/` (glints, lens flares, fog), plus root files SwingShaderSystem.cs and VFXIntegration.cs |
-| `Common/Systems/Particles/` | **Particle system code** — ParticleTextureGenerator.cs, CommonParticles.cs, DynamicParticles.cs, SmearParticles.cs, MagnumParticleHandler.cs, MagnumParticleDrawLayer.cs, Particle.cs, plus `Textures/` subdirectory |
+| `Common/Systems/Particles/` | **Particle system code**  EParticleTextureGenerator.cs, CommonParticles.cs, DynamicParticles.cs, SmearParticles.cs, MagnumParticleHandler.cs, MagnumParticleDrawLayer.cs, Particle.cs, plus `Textures/` subdirectory |
 
 #### Theme-Specific VFX
 
@@ -433,7 +435,7 @@ When implementing or referencing VFX, shaders, particles, trails, or any visual 
 
 ## Suggestions & Inspiration (Recommendation Only)
 
-The following are **non-mandatory recommendations** for VFX and shader reference. These are not rules — they are starting points for inspiration when designing weapon effects, trails, bloom, and shader-driven visuals.
+The following are **non-mandatory recommendations** for VFX and shader reference. These are not rules  Ethey are starting points for inspiration when designing weapon effects, trails, bloom, and shader-driven visuals.
 
 ### Calamity's Miracle Matter Weapons (Exoblade, etc.)
 
@@ -443,8 +445,8 @@ The **Exoblade** and the other endgame Calamity weapons crafted from **Miracle M
 - **Slash VFX arcs** with procedural vertex meshes and custom fragment shaders
 - **Bloom stacking techniques** for weapon glow, projectile cores, and impact flashes
 - **Afterimage / motion blur systems** that convey speed and weight
-- **Per-weapon visual identity** — each Miracle Matter weapon has a completely distinct look despite sharing the same crafting material, achieved through unique shaders, color palettes, and particle choreography
-- **Screen effects on critical moments** — screen shake, flash, distortion timed to gameplay impact
+- **Per-weapon visual identity**  Eeach Miracle Matter weapon has a completely distinct look despite sharing the same crafting material, achieved through unique shaders, color palettes, and particle choreography
+- **Screen effects on critical moments**  Escreen shake, flash, distortion timed to gameplay impact
 
 **Where to find them locally:**
 ```
@@ -452,38 +454,38 @@ C:\Users\creat\Downloads\Terraria Magnum Opus Mod Assets\Calamity Mod Repo
 ```
 
 Key files to study (search within the repo):
-- `Exoblade.cs` — The weapon item and its swing projectile logic
-- `ExobladeSlashShader.fx` — Custom slash arc shader
-- Any files referencing `MiracleMatter` or `Exo` prefix — related weapons share the pipeline
-- `Galaxia.cs`, `ArkoftheCosmos.cs`, `ArkoftheElements.cs` — Other top-tier melee weapons with distinct VFX approaches
+- `Exoblade.cs`  EThe weapon item and its swing projectile logic
+- `ExobladeSlashShader.fx`  ECustom slash arc shader
+- Any files referencing `MiracleMatter` or `Exo` prefix  Erelated weapons share the pipeline
+- `Galaxia.cs`, `ArkoftheCosmos.cs`, `ArkoftheElements.cs`  EOther top-tier melee weapons with distinct VFX approaches
 
 ### How This Applies to MagnumOpus
 
 MagnumOpus is a **music-based mod**. When adapting these references, always apply a musical twist:
 
-- Where Calamity uses raw energy VFX, MagnumOpus should weave in **musical motifs** — music note particles, rhythmic pulsing tied to beat timing, harmonic resonance waves, conductor's baton flourishes
+- Where Calamity uses raw energy VFX, MagnumOpus should weave in **musical motifs**  Emusic note particles, rhythmic pulsing tied to beat timing, harmonic resonance waves, conductor's baton flourishes
 - Where Calamity uses elemental color palettes, MagnumOpus should use the **theme-specific palettes** defined in `MoonlightSonataPalette.cs` and each weapon's VFX class
-- Where Calamity uses generic impact effects, MagnumOpus should use **thematically unique custom dusts** — each weapon family has its own ModDust types (LunarMote, StarPointDust, GravityWellDust, etc.)
+- Where Calamity uses generic impact effects, MagnumOpus should use **thematically unique custom dusts**  Eeach weapon family has its own ModDust types (LunarMote, StarPointDust, GravityWellDust, etc.)
 - Trail shaders should incorporate **standing wave patterns, frequency oscillation, and harmonic node highlights** rather than simple energy flows
 - The goal is: take the technical quality and layered complexity of Calamity's best weapons, but make every visual element sing with the mod's musical identity
 
 ### VFX Asset Recommendations by Weapon Class
 
-Each weapon's VFX asset folder (Midjourney prompts, textures) should focus on effects that are natural for that weapon class. These are starting points — feel free to invent new effect types when inspiration strikes.
+Each weapon's VFX asset folder (Midjourney prompts, textures) should focus on effects that are natural for that weapon class. These are starting points  Efeel free to invent new effect types when inspiration strikes.
 
 - **Melee weapons**: Prioritize swing slash arcs, impact slash effects, blade trail textures, hit explosion flares, and projectile textures for any thrown or launched attacks.
 - **Magic weapons**: Focus on projectile orbs, beams, lightning bolts, arcane flames, channeling effects, and other dazzling visual phenomena that sell the feeling of raw magical power.
 - **Ranged weapons**: Emphasize muzzle flash flares, bullet/projectile trail textures, beam textures, explosive impact bursts, and shell casing / debris effects.
-- **Summoner weapons**: Consider all of the above — summoned minions can melee, shoot projectiles, cast beams, and create explosions. Design assets that support the full range of exciting summoner attack patterns.
+- **Summoner weapons**: Consider all of the above  Esummoned minions can melee, shoot projectiles, cast beams, and create explosions. Design assets that support the full range of exciting summoner attack patterns.
 
 ### Calamity Design References by Weapon Class
 
 When designing a new weapon, these Calamity weapons are good references for the visual quality and complexity to aim for. Search the local Calamity repo to study their implementations.
 
-- **Melee**: Exoblade, Celestus, Ark of the Cosmos, Galaxia — study their swing arcs, layered trails, slash shaders, and impact choreography
-- **Magic**: Subsuming Vortex, Vivid Clarity — study their projectile rendering, beam effects, channeling visuals, and particle cascades
-- **Ranged**: Photoviscerator, Magnomaly Cannon, Heavenly Gale — study their muzzle flash systems, projectile trails, explosive impacts, and screen effects
-- **Summoner**: Cosmic Immaterializer — study how the summoned entity attacks with varied VFX (beams, projectiles, slams) and how the staff itself has summoning ritual effects
+- **Melee**: Exoblade, Celestus, Ark of the Cosmos, Galaxia  Estudy their swing arcs, layered trails, slash shaders, and impact choreography
+- **Magic**: Subsuming Vortex, Vivid Clarity  Estudy their projectile rendering, beam effects, channeling visuals, and particle cascades
+- **Ranged**: Photoviscerator, Magnomaly Cannon, Heavenly Gale  Estudy their muzzle flash systems, projectile trails, explosive impacts, and screen effects
+- **Summoner**: Cosmic Immaterializer  Estudy how the summoned entity attacks with varied VFX (beams, projectiles, slams) and how the staff itself has summoning ritual effects
 
 These are recommendations, not constraints. The best MagnumOpus weapons will take inspiration from these references while developing their own unique musical identity.
 
@@ -491,16 +493,16 @@ These are recommendations, not constraints. The best MagnumOpus weapons will tak
 
 ## Shader-Driven VFX (Recommended Foundation)
 
-Custom HLSL shaders are the recommended foundation for advanced visual effects in MagnumOpus. While not every weapon needs custom shaders, weapons that aspire to high visual quality should aim for **multiple shader systems working together** — trails, bloom overlays, auras, beam rendering, screen distortions — layered to create a rich, cohesive look.
+Custom HLSL shaders are the recommended foundation for advanced visual effects in MagnumOpus. While not every weapon needs custom shaders, weapons that aspire to high visual quality should aim for **multiple shader systems working together**  Etrails, bloom overlays, auras, beam rendering, screen distortions  Elayered to create a rich, cohesive look.
 
 ### Workflow: Reference Repos First, Then Shaders
 
 Before writing any new shader or VFX system, **always study how the reference repositories solve the same problem**:
 
-1. **Search Calamity, Coralite, and VFX+** for the specific effect type you need (trail, beam, bloom, distortion, etc.). Read the full implementation — the C# rendering code, the `.fx` shader source, and how they wire together.
-2. **Understand the technique** — what shader uniforms drive the effect? How are vertices constructed? What blend states are used? How do they handle fallback when shaders aren't available?
-3. **Adapt for MagnumOpus** — build your version using MagnumOpus's existing shader infrastructure (`ShaderLoader.cs`, `ShaderRenderer.cs`, `MoonlightSonataShaderManager.cs`, etc.) and the mod's musical identity.
-4. **Layer multiple shaders** where it makes sense — a weapon that combines a custom trail shader, a bloom overlay shader, and an aura shader will look dramatically more polished than one relying on particles alone.
+1. **Search Calamity, Coralite, and VFX+** for the specific effect type you need (trail, beam, bloom, distortion, etc.). Read the full implementation  Ethe C# rendering code, the `.fx` shader source, and how they wire together.
+2. **Understand the technique**  Ewhat shader uniforms drive the effect? How are vertices constructed? What blend states are used? How do they handle fallback when shaders aren't available?
+3. **Adapt for MagnumOpus**  Ebuild your version using MagnumOpus's existing shader infrastructure (`ShaderLoader.cs`, `ShaderRenderer.cs`, `MoonlightSonataShaderManager.cs`, etc.) and the mod's musical identity.
+4. **Layer multiple shaders** where it makes sense  Ea weapon that combines a custom trail shader, a bloom overlay shader, and an aura shader will look dramatically more polished than one relying on particles alone.
 
 ### What Shaders Are Good For
 
@@ -508,7 +510,7 @@ Shaders excel at effects that are difficult or expensive to achieve with CPU-sid
 
 - **Trail rendering**: UV-scrolling energy patterns, tidal wave textures, gradient-sampled ribbons that flow smoothly along a path (see `TidalTrail.fx`, `ScrollingTrailShader.fx`)
 - **Bloom and glow overlays**: Soft procedural glow shapes, crescent bloom, lens flares rendered as screen-space quads (see `CrescentBloom.fx`, `SimpleBloomShader.fx`)
-- **Auras and overlays**: Radial effects around the player or weapon — concentric rings, sigil rotations, gravity distortions (see `LunarPhaseAura.fx`, `GravitationalRift.fx`, `SummonCircle.fx`)
+- **Auras and overlays**: Radial effects around the player or weapon  Econcentric rings, sigil rotations, gravity distortions (see `LunarPhaseAura.fx`, `GravitationalRift.fx`, `SummonCircle.fx`)
 - **Beam effects**: Gradient-mapped beam bodies with noise distortion, spectral splitting, intensity pulsing (see `LunarBeam.fx`, `BeamGradientFlow.fx`)
 - **Screen-space effects**: Distortion, chromatic aberration, heat haze, screen slice (see `ScreenDistortion.fx`)
 
@@ -533,17 +535,17 @@ Shaders and particles are complementary, not competing:
 - Use **shaders** for smooth, continuous effects (trails, beams, glowing overlays, distortions)
 - Use **particles** for discrete, scattered accents (dust motes, sparks, music notes, impact debris)
 - Use **custom ModDust types** for theme-specific particles that have unique behavior (homing, orbiting, fading gradients)
-- The best effects combine all three — a shader-driven trail with particle sparks flying off its edges and custom dust motes drifting in its wake
+- The best effects combine all three  Ea shader-driven trail with particle sparks flying off its edges and custom dust motes drifting in its wake
 
 ### Existing Shader Infrastructure
 
 Before creating new shaders, check what's already available:
 
-- **`ShaderLoader.cs`** (`Common/Systems/Shaders/`) — Loads and manages all shader instances. Add new shaders here.
-- **`ShaderRenderer.cs`** — Provides rendering utilities for shader-driven effects.
-- **Per-theme shader managers** (e.g., `MoonlightSonataShaderManager.cs`) — Theme-specific helpers for binding palettes, time uniforms, and texture parameters.
-- **`Effects/` directory** — Contains all compiled `.fx` and `.fxc` files, organized by theme and weapon.
-- **`ShaderSource/` directory** — Contains shader source files and `HLSLLibrary.fxh` with shared HLSL utilities.
+- **`ShaderLoader.cs`** (`Common/Systems/Shaders/`)  ELoads and manages all shader instances. Add new shaders here.
+- **`ShaderRenderer.cs`**  EProvides rendering utilities for shader-driven effects.
+- **Per-theme shader managers** (e.g., `MoonlightSonataShaderManager.cs`)  ETheme-specific helpers for binding palettes, time uniforms, and texture parameters.
+- **`Effects/` directory**  EContains all compiled `.fx` and `.fxc` files, organized by theme and weapon.
+- **`ShaderSource/` directory**  EContains shader source files and `HLSLLibrary.fxh` with shared HLSL utilities.
 
 ### Shader Placement (SandboxLastPrism Pattern)
 
@@ -551,9 +553,9 @@ New shaders follow the same folder structure as all other assets:
 
 ```
 Effects/<ThemeName>/<WeaponName>/
-├── <ShaderName>.fx         — Shader source
-├── <ShaderName>.fxc        — Compiled shader bytecode
-└── <SubCategory>/          — Grouped by purpose when multiple exist
+├── <ShaderName>.fx          EShader source
+├── <ShaderName>.fxc         ECompiled shader bytecode
+└── <SubCategory>/           EGrouped by purpose when multiple exist
 ```
 
 See `Effects/SandboxLastPrism/` and `Effects/MoonlightSonata/` for canonical examples.

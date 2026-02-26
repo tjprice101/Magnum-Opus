@@ -28,7 +28,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
         private const float HueMin = 0.92f;
         private const float HueMax = 0.98f;
 
-        public override string Texture => "MagnumOpus/Assets/Particles/BarrageOfGlintsAndSparkles";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/BarrageOfGlintsAndSparkles";
 
         public override void SetStaticDefaults()
         {
@@ -66,9 +66,9 @@ namespace MagnumOpus.Content.Spring.Projectiles
             // Gentle spin
             Projectile.rotation += Projectile.velocity.X * 0.05f;
 
-            // ═══════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════╁E
             // DENSE DUST TRAIL - 2+ particles per frame! (TRUE_VFX_STANDARDS)
-            // ═══════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════╁E
             for (int i = 0; i < 2; i++)
             {
                 Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(5f, 5f);
@@ -83,9 +83,9 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 dust.fadeIn = 1.2f;
             }
 
-            // ═══════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════╁E
             // CONTRASTING SPARKLES - 1-in-2 for visual pop
-            // ═══════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════╁E
             if (Main.rand.NextBool(2))
             {
                 Vector2 sparklePos = Projectile.Center + Main.rand.NextVector2Circular(6f, 6f);
@@ -94,9 +94,9 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 contrast.noGravity = true;
             }
 
-            // ═══════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════╁E
             // FREQUENT FLARES littering the air - 1-in-2
-            // ═══════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════╁E
             if (Main.rand.NextBool(2))
             {
                 Vector2 flareOffset = Main.rand.NextVector2Circular(8f, 8f);
@@ -105,9 +105,9 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 CustomParticles.GenericFlare(Projectile.Center + flareOffset, flareColor, 0.4f, 15);
             }
 
-            // ═══════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════╁E
             // ORBITING MUSIC NOTES - Locked to projectile! (TRUE_VFX_STANDARDS)
-            // ═══════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════╁E
             float orbitAngle = Main.GameUpdateCount * 0.08f;
             float orbitRadius = 12f + (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 4f;
             
@@ -132,9 +132,9 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 }
             }
 
-            // ═══════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════╁E
             // GLOW PARTICLE TRAIL for shimmer
-            // ═══════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════╁E
             if (Main.rand.NextBool(3))
             {
                 Color trailColor = Color.Lerp(SpringPink, SpringWhite, Main.rand.NextFloat()) * 0.7f;
@@ -143,9 +143,9 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 MagnumParticleHandler.SpawnParticle(glow);
             }
             
-            // ═══════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════╁E
             // DYNAMIC PARTICLE EFFECTS - Pulsing glow and twinkling sparks
-            // ═══════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════╁E
             if (Main.GameUpdateCount % 6 == 0)
             {
                 PulsingGlow(Projectile.Center, Vector2.Zero, SpringPink, SpringWhite, 0.26f, 18, 0.14f, 0.2f);
@@ -176,9 +176,9 @@ namespace MagnumOpus.Content.Spring.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // ═══════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════╁E
             // GLIMMER CASCADE - NOT a puff! (TRUE_VFX_STANDARDS)
-            // ═══════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════╁E
             
             // Central glimmer - multiple layered spinning flares
             for (int layer = 0; layer < 4; layer++)
@@ -227,9 +227,9 @@ namespace MagnumOpus.Content.Spring.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // ═══════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════╁E
             // GLIMMER IMPACT - Layered cascade (TRUE_VFX_STANDARDS)
-            // ═══════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════╁E
             
             // Central flash cascade
             CustomParticles.GenericFlare(target.Center, Color.White, 0.7f, 20);

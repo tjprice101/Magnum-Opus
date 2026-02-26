@@ -114,7 +114,7 @@ namespace MagnumOpus.Common.Systems
         {
             try
             {
-                string basePath = "MagnumOpus/Assets/Particles/";
+                string basePath = "MagnumOpus/Assets/Particles Asset Library/";
                 
                 // === FLARES & GLOWS ===
                 EnergyFlares[0] = ModContent.Request<Texture2D>(basePath + "EnergyFlare", AssetRequestMode.ImmediateLoad);

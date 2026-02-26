@@ -181,14 +181,14 @@ namespace MagnumOpus.Common.Systems.VFX
             
             try
             {
-                flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnergyFlare").Value;
-                slashTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SwordArc1").Value;
+                flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+                slashTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SwordArc1").Value;
                 
                 for (int n = 0; n < noteNames.Length; n++)
                 {
                     try
                     {
-                        noteTex[n] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles/{noteNames[n]}").Value;
+                        noteTex[n] = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles Asset Library/{noteNames[n]}").Value;
                     }
                     catch
                     {

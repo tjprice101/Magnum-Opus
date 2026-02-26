@@ -281,7 +281,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
     /// </summary>
     public class TemporalRiftProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/ClockworkGearLarge";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearLarge";
         
         private int bounceCount = 0;
         private const int MaxBounces = 6; // More than Rose Thorn
@@ -679,7 +679,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
     /// </summary>
     public class TimeFractureExplosion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/LightningBurst";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningBurst";
 
         public override void SetDefaults()
         {
@@ -885,7 +885,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
     /// </summary>
     public class GearWaveProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/ClockworkGearLarge";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearLarge";
         
         private float rotation = 0f;
 
@@ -996,7 +996,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
     /// </summary>
     public class SynchronizedGearExplosion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/ClockworkGearLarge";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearLarge";
 
         public override void SetDefaults()
         {

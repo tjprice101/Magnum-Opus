@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     public class EroicaSplittingOrb : ModProjectile
     {
         // Use placeholder texture - projectile is rendered entirely via particles/PreDraw
-        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField9";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField9";
         
         // Colors
         private static readonly Color EroicaGold = new Color(255, 200, 80);
@@ -185,7 +185,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MagicSparklField9").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MagicSparklField9").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             

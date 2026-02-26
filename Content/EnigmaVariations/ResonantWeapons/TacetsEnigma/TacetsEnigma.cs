@@ -174,7 +174,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         
-        public override string Texture => "MagnumOpus/Assets/Particles/BurstingEye";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/BurstingEye";
         
         private Color GetEnigmaGradient(float progress)
         {
@@ -207,7 +207,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
             
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/BurstingEye").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/BurstingEye").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = flareTex.Size() / 2f;
             
@@ -389,7 +389,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         private List<int> hitEnemies = new List<int>();
         
-        public override string Texture => "MagnumOpus/Assets/Particles/CircularEnigmaEye";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/CircularEnigmaEye";
         
         private Color GetEnigmaGradient(float progress)
         {
@@ -424,7 +424,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
             
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/CircularEnigmaEye").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/CircularEnigmaEye").Value;
             Texture2D glyphTex = CustomParticleSystem.RandomGlyph().Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = flareTex.Size() / 2f;

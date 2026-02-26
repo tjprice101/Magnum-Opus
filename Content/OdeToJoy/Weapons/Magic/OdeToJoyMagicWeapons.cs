@@ -132,7 +132,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Magic
     /// </summary>
     public class VictoriousNoteProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/MusicNote";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MusicNote";
 
         private float orbitAngle;
         private int phase = 0; // 0 = orbit, 1 = launch
@@ -286,7 +286,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Magic
     [AllowLargeHitbox("Healing/damage explosion requires large hitbox for AoE effect")]
     public class SymphonicExplosionProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow2";
 
         public override void SetDefaults()
         {
@@ -434,7 +434,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Magic
     /// </summary>
     public class ElysianOrbProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow3";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow3";
 
         private int missileTimer = 0;
 
@@ -678,7 +678,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Magic
     [AllowLargeHitbox("AoE explosion requires large hitbox for area damage")]
     public class ElysianExplosionProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow2";
 
         public override void SetDefaults()
         {
@@ -824,7 +824,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Magic
     /// </summary>
     public class GloryShardProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare4";
 
         private bool hasChained = false;
 
@@ -959,7 +959,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Magic
     /// </summary>
     public class OdeToJoyGloryBeamProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/ParticleTrail1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ParticleTrail1";
 
         public override void SetDefaults()
         {

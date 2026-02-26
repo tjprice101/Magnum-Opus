@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     /// </summary>
     public class FuneralPrayerRicochetBeam : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/LightningStreak";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningStreak";
 
         private int currentTarget = -1;
         private List<int> hitEnemies = new List<int>();
@@ -82,7 +82,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // ═══ ALL VFX delegated to module ═══
+            // ══╁EALL VFX delegated to module ══╁E
             FuneralPrayerVFX.RicochetBeamTrailVFX(Projectile);
         }
 
@@ -147,7 +147,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             target.SimpleStrikeNPC(Projectile.damage, 0, false, 0f, null, false, 0f, true);
             target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 360);
 
-            // Delegate hit VFX to module — heroic impact, requiem burst, halos, music notes
+            // Delegate hit VFX to module  Eheroic impact, requiem burst, halos, music notes
             FuneralPrayerVFX.RicochetBeamHitVFX(target.Center);
 
             // Massive explosion dust
@@ -192,7 +192,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // Delegate death VFX to module — heroic flash, radial dust, mourning flames, ash
+            // Delegate death VFX to module  Eheroic flash, radial dust, mourning flames, ash
             FuneralPrayerVFX.RicochetBeamDeathVFX(Projectile.Center);
         }
     }

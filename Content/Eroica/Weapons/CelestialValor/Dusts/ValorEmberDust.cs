@@ -8,7 +8,7 @@ using MagnumOpus.Common.Systems.VFX;
 namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Dusts
 {
     /// <summary>
-    /// Valor Ember — a rising flame particle that shifts from deep scarlet
+    /// Valor Ember  Ea rising flame particle that shifts from deep scarlet
     /// through crimson to brilliant gold as it ascends. The signature ambient
     /// particle of Celestial Valor's heroic fire aura.
     /// 
@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Dusts
     /// </summary>
     public class ValorEmberDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow2";
 
         public override void OnSpawn(Dust dust)
         {

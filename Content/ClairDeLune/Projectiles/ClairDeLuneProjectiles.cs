@@ -44,7 +44,7 @@ namespace MagnumOpus.Content.ClairDeLune.Projectiles
         /// </summary>
         public static Color GetGradient(float progress)
         {
-            // Full clockwork-temporal cycle: Brass → Crystal → Crimson → Moonlight → Brass
+            // Full clockwork-temporal cycle: Brass ↁECrystal ↁECrimson ↁEMoonlight ↁEBrass
             if (progress < 0.25f)
                 return Color.Lerp(Brass, Crystal, progress * 4f);
             else if (progress < 0.5f)
@@ -56,7 +56,7 @@ namespace MagnumOpus.Content.ClairDeLune.Projectiles
         }
         
         /// <summary>
-        /// Get lightning gradient - Electric blue → Purple → Crimson
+        /// Get lightning gradient - Electric blue ↁEPurple ↁECrimson
         /// </summary>
         public static Color GetLightningGradient(float progress)
         {
@@ -69,7 +69,7 @@ namespace MagnumOpus.Content.ClairDeLune.Projectiles
         }
         
         /// <summary>
-        /// Get crystal gradient - Pure white → Crystal → Moonlight Silver
+        /// Get crystal gradient - Pure white ↁECrystal ↁEMoonlight Silver
         /// </summary>
         public static Color GetCrystalGradient(float progress)
         {
@@ -80,7 +80,7 @@ namespace MagnumOpus.Content.ClairDeLune.Projectiles
         }
         
         /// <summary>
-        /// Get gear gradient - Brass → Gold → Crystal (polished mechanism shine)
+        /// Get gear gradient - Brass ↁEGold ↁECrystal (polished mechanism shine)
         /// </summary>
         public static Color GetGearGradient(float progress)
         {
@@ -106,13 +106,13 @@ namespace MagnumOpus.Content.ClairDeLune.Projectiles
     public static class ClairDeLuneVFX
     {
         // === TEXTURE PATHS ===
-        private const string ClockworkGearLarge = "MagnumOpus/Assets/Particles/ClockworkGearLarge";
-        private const string ClockworkGearSmall = "MagnumOpus/Assets/Particles/ClockworkGearSmall";
-        private const string LightningBurst = "MagnumOpus/Assets/Particles/LightningBurst";
-        private const string LightningBurstThick = "MagnumOpus/Assets/Particles/LightningBurstThick";
-        private const string LightningStreak = "MagnumOpus/Assets/Particles/LightningStreak";
-        private const string MediumCrystalShard = "MagnumOpus/Assets/Particles/MediumCrystalShard";
-        private const string SmallCrystalShard = "MagnumOpus/Assets/Particles/SmallCrystalShard";
+        private const string ClockworkGearLarge = "MagnumOpus/Assets/Particles Asset Library/ClockworkGearLarge";
+        private const string ClockworkGearSmall = "MagnumOpus/Assets/Particles Asset Library/ClockworkGearSmall";
+        private const string LightningBurst = "MagnumOpus/Assets/Particles Asset Library/LightningBurst";
+        private const string LightningBurstThick = "MagnumOpus/Assets/Particles Asset Library/LightningBurstThick";
+        private const string LightningStreak = "MagnumOpus/Assets/Particles Asset Library/LightningStreak";
+        private const string MediumCrystalShard = "MagnumOpus/Assets/Particles Asset Library/MediumCrystalShard";
+        private const string SmallCrystalShard = "MagnumOpus/Assets/Particles Asset Library/SmallCrystalShard";
         
         // === CORE VISUAL IDENTITY ===
         // Layer 1: BRILLIANT WHITE core (temporal power center)

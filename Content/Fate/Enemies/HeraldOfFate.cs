@@ -124,7 +124,7 @@ namespace MagnumOpus.Content.Fate.Enemies
         {
             // FATE MINI-BOSS STATS - STRONGER than Swan Lake (950k boss, 170 damage)
             // This is endgame content - terrifying power
-            // Hitbox = 292 × 164 × 0.8 = 233 × 131 (single frame sprite)
+            // Hitbox = 292 ÁE164 ÁE0.8 = 233 ÁE131 (single frame sprite)
             NPC.width = 233;
             NPC.height = 131;
             NPC.damage = 220; // Higher than Swan Lake boss (170)
@@ -1183,7 +1183,7 @@ namespace MagnumOpus.Content.Fate.Enemies
     /// </summary>
     public class CosmicRendSlash : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SwordArc3";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc3";
 
         public override void SetDefaults()
         {
@@ -1231,7 +1231,7 @@ namespace MagnumOpus.Content.Fate.Enemies
     /// </summary>
     public class StellarBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/ShatteredStarlight";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ShatteredStarlight";
 
         public override void SetDefaults()
         {
@@ -1293,7 +1293,7 @@ namespace MagnumOpus.Content.Fate.Enemies
     /// </summary>
     public class ConstellationBeam : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs6";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs6";
 
         public override void SetDefaults()
         {
@@ -1337,7 +1337,7 @@ namespace MagnumOpus.Content.Fate.Enemies
     /// </summary>
     public class RealityFractureTrail : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs7";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs7";
 
         public override void SetDefaults()
         {
@@ -1376,7 +1376,7 @@ namespace MagnumOpus.Content.Fate.Enemies
     /// </summary>
     public class FateSealedShard : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/StarryStarburst";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/StarryStarburst";
 
         public override void SetDefaults()
         {

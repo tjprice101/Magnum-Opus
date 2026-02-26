@@ -148,7 +148,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
     /// </summary>
     public class PollenSeedProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare";
 
         private float homingStrength = 0.02f;
 
@@ -461,7 +461,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
     /// </summary>
     public class PetalBombProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow2";
 
         public override void SetDefaults()
         {
@@ -561,7 +561,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.Ranged
     [AllowLargeHitbox("Area damage over time requires large hitbox")]
     public class LingeringPetalStorm : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow2";
 
         public override void SetDefaults()
         {

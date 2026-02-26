@@ -100,7 +100,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
         public override void SetDefaults()
         {
             // MINI-BOSS STATS
-            // Hitbox = (1660/6) × (868/6) × 1.15 × 0.8 = 276.6 × 144.6 × 1.15 × 0.8 = 254 × 133
+            // Hitbox = (1660/6) ÁE(868/6) ÁE1.15 ÁE0.8 = 276.6 ÁE144.6 ÁE1.15 ÁE0.8 = 254 ÁE133
             NPC.width = 254;
             NPC.height = 133;
             NPC.damage = 170;
@@ -158,7 +158,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
                 ThemedParticles.EroicaSparkles(NPC.Center, 3, NPC.width * 0.5f);
             }
 
-            // Unified stolen valor ambient VFX — commander's presence, corrupted glow
+            // Unified stolen valor ambient VFX  Ecommander's presence, corrupted glow
             EroicaEnemyVFX.StolenValorAmbientAura(NPC.Center, (int)StateTimer, (int)CurrentState > 3 ? 1 : 0);
 
             // Spawn minions on first tick
@@ -358,7 +358,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
                 
                 SoundEngine.PlaySound(SoundID.Item73 with { Volume = 0.7f }, NPC.Center);
 
-                // Unified minion barrage VFX — synchronized fire flash
+                // Unified minion barrage VFX  Esynchronized fire flash
                 EroicaEnemyVFX.MinionBarrageVFX(NPC.Center);
             }
 
@@ -399,7 +399,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
                 
                 SoundEngine.PlaySound(SoundID.Item74, NPC.Center);
 
-                // Unified charging formation VFX — coordinated charge burst
+                // Unified charging formation VFX  Ecoordinated charge burst
                 Vector2 chargeDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
                 EroicaEnemyVFX.ChargingFormationVFX(NPC.Center, chargeDirection);
 
@@ -446,7 +446,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
                 if (StateTimer % 18 == 0)
                     SoundEngine.PlaySound(SoundID.Item45 with { Volume = 0.5f }, NPC.Center);
 
-                // Unified orbital bombardment VFX — spiraling energy ring
+                // Unified orbital bombardment VFX  Espiraling energy ring
                 EroicaEnemyVFX.OrbitalBombardmentVFX(NPC.Center, orbitAngle);
             }
 
@@ -481,7 +481,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 
                 SoundEngine.PlaySound(SoundID.Item8, target.Center);
 
-                // Unified false glory VFX — cage ring flash, corrupted enclosure
+                // Unified false glory VFX  Ecage ring flash, corrupted enclosure
                 EroicaEnemyVFX.FalseGloryVFX(target.Center);
 
                 // Teleport effect
@@ -598,7 +598,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 
                 ThemedParticles.EroicaShockwave(NPC.Center, 3.5f);
 
-                // Unified stolen triumph VFX — ultimate explosion, commander's wrath
+                // Unified stolen triumph VFX  Eultimate explosion, commander's wrath
                 EroicaEnemyVFX.StolenTriumphVFX(NPC.Center);
             }
 
@@ -721,7 +721,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 
             if (NPC.life <= 0)
             {
-                // Unified stolen valor death VFX — commander's fall, corrupted flash
+                // Unified stolen valor death VFX  Ecommander's fall, corrupted flash
                 EroicaEnemyVFX.StolenValorDeathVFX(NPC.Center);
 
                 ThemedParticles.EroicaImpact(NPC.Center, 4f);
@@ -773,7 +773,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 
     public class StolenValorMinionShot : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/MusicNote";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MusicNote";
 
         public override void SetDefaults()
         {
@@ -816,7 +816,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 
     public class StolenValorChargeWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/WholeNote";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/WholeNote";
 
         public override void SetDefaults()
         {
@@ -856,7 +856,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 
     public class StolenValorOrbitalShot : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/CursiveMusicNote";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/CursiveMusicNote";
 
         public override void SetDefaults()
         {
@@ -899,7 +899,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 
     public class StolenValorCageOrb : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/QuarterNote";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/QuarterNote";
 
         public override void SetDefaults()
         {
@@ -954,7 +954,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 
     public class StolenValorTriumphWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/TallMusicNote";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/TallMusicNote";
 
         public override void SetDefaults()
         {

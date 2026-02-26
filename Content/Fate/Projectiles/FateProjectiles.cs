@@ -229,7 +229,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class GlassDistortionEffect : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/Glyphs1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs1";
 
         public override void SetDefaults()
         {
@@ -286,7 +286,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class CosmicEnergyBall : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/StarBurst1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/StarBurst1";
 
         public override void SetStaticDefaults()
         {
@@ -378,7 +378,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/StarBurst1").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/StarBurst1").Value;
             Vector2 origin = tex.Size() / 2f;
 
             // Trail - scaled for player-sized projectile
@@ -415,7 +415,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class CosmicSeekerBall : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/Star";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Star";
 
         public override void SetStaticDefaults()
         {
@@ -513,7 +513,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/Star").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Star").Value;
             Vector2 origin = tex.Size() / 2f;
 
             spriteBatch.End();
@@ -948,7 +948,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class PrismaticBeam : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/TwilightSparkle";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/TwilightSparkle";
 
         public ref float BeamSize => ref Projectile.ai[0];
         public ref float ColorProgress => ref Projectile.ai[1];
@@ -1028,7 +1028,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/TwilightSparkle").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/TwilightSparkle").Value;
             Vector2 origin = tex.Size() / 2f;
 
             float hue = (ColorProgress + Main.GameUpdateCount * 0.02f) % 1f;
@@ -1059,7 +1059,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class CosmicMusicNoteProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/MusicNote";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MusicNote";
 
         private int phase = 0; // 0 = floating, 1 = seeking
         private int floatTimer = 0;
@@ -1199,7 +1199,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MusicNote").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNote").Value;
             Vector2 origin = tex.Size() / 2f;
 
             float colorCycle = Main.GameUpdateCount * 0.03f + Projectile.ai[0];

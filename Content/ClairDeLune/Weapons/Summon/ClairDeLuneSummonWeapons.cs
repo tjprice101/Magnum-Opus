@@ -389,7 +389,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
     /// </summary>
     public class PhylacteryBeamProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/LightningStreak";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningStreak";
 
         private int SoulCount => (int)Projectile.ai[0];
 
@@ -769,7 +769,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
     /// </summary>
     public class ArbiterGearProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/ClockworkGearSmall";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearSmall";
 
         public override void SetDefaults()
         {

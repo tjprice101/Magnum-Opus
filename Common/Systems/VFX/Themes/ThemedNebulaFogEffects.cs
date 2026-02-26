@@ -617,7 +617,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             try
             {
-                sparkleTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/TwinkleSparkle", 
+                sparkleTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/TwinkleSparkle", 
                     ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
             }
             catch { return; }
@@ -710,12 +710,12 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 return new Texture2D[]
                 {
-                    ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MusicNote", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value,
-                    ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/CursiveMusicNote", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value,
-                    ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/MusicNoteWithSlashes", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value,
-                    ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/QuarterNote", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value,
-                    ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/TallMusicNote", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value,
-                    ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/WholeNote", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value
+                    ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNote", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value,
+                    ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/CursiveMusicNote", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value,
+                    ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNoteWithSlashes", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value,
+                    ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/QuarterNote", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value,
+                    ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/TallMusicNote", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value,
+                    ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/WholeNote", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value
                 };
             }
             catch

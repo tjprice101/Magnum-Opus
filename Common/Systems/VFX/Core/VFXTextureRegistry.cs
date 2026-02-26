@@ -257,8 +257,8 @@ namespace MagnumOpus.Common.Systems.VFX
             // BEAM/TRAIL TEXTURES
             // ==========================================
             Beam.Streak1 = LoadTexture("Assets/VFX/Beams/BeamStreak1", CreateFallbackBeam);
-            Beam.BloomLine = LoadTexture("Assets/Particles/SoftGlow2", CreateFallbackBeam);
-            Beam.TaperedLine = LoadTexture("Assets/Particles/ParticleTrail1", CreateFallbackBeam);
+            Beam.BloomLine = LoadTexture("Assets/Particles Asset Library/SoftGlow2", CreateFallbackBeam);
+            Beam.TaperedLine = LoadTexture("Assets/Particles Asset Library/ParticleTrail1", CreateFallbackBeam);
             try
             {
                 Beam.Pixel = CreatePixelTexture();
@@ -281,8 +281,8 @@ namespace MagnumOpus.Common.Systems.VFX
             // ==========================================
             Mask.EclipseRing = LoadTexture("Assets/VFX/Masks/EclipseRing", CreateFallbackHalo);
             Mask.RippleRing = LoadTexture("Assets/VFX/Masks/RippleRing", CreateFallbackHalo);
-            Mask.RadialGradient = LoadTexture("Assets/Particles/SoftGlow3", CreateFallbackGradient);
-            Mask.LinearGradient = LoadTexture("Assets/Particles/SoftGlow4", CreateFallbackGradient);
+            Mask.RadialGradient = LoadTexture("Assets/Particles Asset Library/SoftGlow3", CreateFallbackGradient);
+            Mask.LinearGradient = LoadTexture("Assets/Particles Asset Library/SoftGlow4", CreateFallbackGradient);
             
             LogLoadStatus();
         }
@@ -330,12 +330,12 @@ namespace MagnumOpus.Common.Systems.VFX
                 if (tex != null && tex.Width > 4) 
                 {
                     loaded++;
-                    Mod.Logger.Info($"[VFXTextureRegistry] ✓ {name}: {tex.Width}x{tex.Height}");
+                    Mod.Logger.Info($"[VFXTextureRegistry] ✁E{name}: {tex.Width}x{tex.Height}");
                 }
                 else 
                 {
                     fallback++;
-                    Mod.Logger.Warn($"[VFXTextureRegistry] ✗ {name}: FALLBACK ({(tex == null ? "null" : $"{tex.Width}x{tex.Height}")})");
+                    Mod.Logger.Warn($"[VFXTextureRegistry] ✁E{name}: FALLBACK ({(tex == null ? "null" : $"{tex.Width}x{tex.Height}")})");
                 }
             }
             

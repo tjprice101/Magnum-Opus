@@ -151,7 +151,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
         // Eye texture index for mysterious watching effect
         private int eyeTextureIndex = 0;
         
-        public override string Texture => "MagnumOpus/Assets/Particles/GodEye";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GodEye";
         
         public override void SetStaticDefaults()
         {
@@ -164,9 +164,9 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             // Load sparkle and flare textures for dazzling trail
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/GodEye").Value;
-            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle" + (1 + (Projectile.whoAmI % 8))).Value;
-            Texture2D eyeTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnigmaEye1").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/GodEye").Value;
+            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle" + (1 + (Projectile.whoAmI % 8))).Value;
+            Texture2D eyeTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnigmaEye1").Value;
             
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 flareOrigin = flareTex.Size() / 2f;
@@ -555,7 +555,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
         private int TargetIndex => (int)Projectile.ai[0];
         private int eyeTextureIndex = 0;
         
-        public override string Texture => "MagnumOpus/Assets/Particles/LargeEye";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LargeEye";
         
         public override void SetStaticDefaults()
         {
@@ -568,9 +568,9 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             // Load sparkle textures for dazzling trail
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/LargeEye").Value;
-            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle" + (1 + (Projectile.whoAmI % 8))).Value;
-            Texture2D eyeTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnigmaEye1").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/LargeEye").Value;
+            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle" + (1 + (Projectile.whoAmI % 8))).Value;
+            Texture2D eyeTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnigmaEye1").Value;
             
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 flareOrigin = flareTex.Size() / 2f;
@@ -847,7 +847,7 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
         private List<int> hitEnemies = new List<int>();
         private int eyeTextureIndex = 0;
         
-        public override string Texture => "MagnumOpus/Assets/Particles/SpikeyEye";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SpikeyEye";
         
         public override void SetStaticDefaults()
         {
@@ -860,9 +860,9 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             // Load sparkle textures for MEGA dazzling trail
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SpikeyEye").Value;
-            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/PrismaticSparkle" + (1 + (Projectile.whoAmI % 10))).Value;
-            Texture2D eyeTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/EnigmaEye1").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SpikeyEye").Value;
+            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle" + (1 + (Projectile.whoAmI % 10))).Value;
+            Texture2D eyeTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnigmaEye1").Value;
             
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 flareOrigin = flareTex.Size() / 2f;

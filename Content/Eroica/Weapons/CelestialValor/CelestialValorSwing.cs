@@ -17,15 +17,15 @@ using static MagnumOpus.Common.Systems.Particles.Particle;
 namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 {
     /// <summary>
-    /// Swing projectile for Celestial Valor — "The Hero's Burning Oath".
+    /// Swing projectile for Celestial Valor  E"The Hero's Burning Oath".
     /// 
     /// 3-phase escalating combo that crescendos from a controlled opening slash
     /// to a roaring finisher. Each phase has distinct visual energy and particle
     /// choreography that builds tension like an orchestral movement.
     /// 
-    /// Phase 0 — "Valor's Whisper": Swift controlled slash (1 projectile)
-    /// Phase 1 — "Crimson Declaration": Powerful backhand (2 projectiles, spread)
-    /// Phase 2 — "Heroic Finale": Massive overhead slam (3 projectiles, fan + finisher VFX)
+    /// Phase 0  E"Valor's Whisper": Swift controlled slash (1 projectile)
+    /// Phase 1  E"Crimson Declaration": Powerful backhand (2 projectiles, spread)
+    /// Phase 2  E"Heroic Finale": Massive overhead slam (3 projectiles, fan + finisher VFX)
     /// 
     /// Each swing integrates with the flame trail ring buffer in CelestialValorVFX
     /// for afterimage rendering and standing-wave flame resonance along the blade.
@@ -42,10 +42,10 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 
         #endregion
 
-        #region Combo Phases — Refined easing for dramatic impact
+        #region Combo Phases  ERefined easing for dramatic impact
 
-        // Phase 0: Valor's Whisper — swift controlled opener
-        // Easing: quick windup → sharp acceleration → soft follow-through
+        // Phase 0: Valor's Whisper  Eswift controlled opener
+        // Easing: quick windup ↁEsharp acceleration ↁEsoft follow-through
         private static readonly ComboPhase Phase0_ValorSlash = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -61,8 +61,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
             damageMult: 0.9f
         );
 
-        // Phase 1: Crimson Declaration — powerful reverse slash
-        // Easing: dramatic windup → explosive release → weighted decel
+        // Phase 1: Crimson Declaration  Epowerful reverse slash
+        // Easing: dramatic windup ↁEexplosive release ↁEweighted decel
         private static readonly ComboPhase Phase1_CrimsonCross = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -78,8 +78,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
             damageMult: 1.15f
         );
 
-        // Phase 2: Heroic Finale — massive overhead slam
-        // Easing: long dramatic raise → violent downswing with power-4 accel → abrupt stop
+        // Phase 2: Heroic Finale  Emassive overhead slam
+        // Easing: long dramatic raise ↁEviolent downswing with power-4 accel ↁEabrupt stop
         private static readonly ComboPhase Phase2_HeroicFinale = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -119,14 +119,14 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 
         protected override string GetSmearTexturePath(int comboStep) => comboStep switch
         {
-            1 => "MagnumOpus/Assets/Particles/SwordArc3",
-            2 => "MagnumOpus/Assets/Particles/FlamingArcSwordSlash",
-            _ => "MagnumOpus/Assets/Particles/SwordArc2"
+            1 => "MagnumOpus/Assets/Particles Asset Library/SwordArc3",
+            2 => "MagnumOpus/Assets/Particles Asset Library/FlamingArcSwordSlash",
+            _ => "MagnumOpus/Assets/Particles Asset Library/SwordArc2"
         };
 
         #endregion
 
-        #region Virtual Overrides — Enhanced
+        #region Virtual Overrides  EEnhanced
 
         public override string Texture => "MagnumOpus/Content/Eroica/Weapons/CelestialValor/CelestialValor_Swing";
 
@@ -159,7 +159,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 
         #endregion
 
-        #region Combo Specials — Escalating Projectiles + Phase Transitions
+        #region Combo Specials  EEscalating Projectiles + Phase Transitions
 
         protected override void HandleComboSpecials()
         {
@@ -251,17 +251,17 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 
         #endregion
 
-        #region On Hit — MusicsDissonance + Seeking Crystals
+        #region On Hit  EMusicsDissonance + Seeking Crystals
 
         protected override void OnSwingHitNPC(NPC target, NPC.HitInfo hit, int remainingDamageCount)
         {
-            // Apply MusicsDissonance debuff — standard across Eroica weapons (240 ticks)
+            // Apply MusicsDissonance debuff  Estandard across Eroica weapons (240 ticks)
             target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 240);
 
             // Enhanced impact VFX
             CelestialValorVFX.SwingHitImpact(target.Center, ComboStep);
 
-            // Spawn seeking crystals on critical hits — Celestial Valor's signature
+            // Spawn seeking crystals on critical hits  ECelestial Valor's signature
             if (hit.Crit && Main.myPlayer == Projectile.owner)
             {
                 SeekingCrystalHelper.SpawnEroicaCrystals(
@@ -277,7 +277,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 
         #endregion
 
-        #region Custom VFX — Enhanced Heroic Trail
+        #region Custom VFX  EEnhanced Heroic Trail
 
         protected override void DrawCustomVFX(SpriteBatch sb)
         {

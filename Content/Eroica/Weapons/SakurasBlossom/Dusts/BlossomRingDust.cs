@@ -7,13 +7,13 @@ using System;
 namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom.Dusts
 {
     /// <summary>
-    /// Expanding bloom rings — hollow ring dust that expands outward from impact
+    /// Expanding bloom rings  Ehollow ring dust that expands outward from impact
     /// and combo transition points. Stationary, scale grows linearly, opacity fades.
     /// Phase-dependent coloring. 2-layer PreDraw: outer diffuse overshoot + main ring.
     /// </summary>
     public class BlossomRingDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo2";
 
         public override void OnSpawn(Dust dust)
         {
@@ -76,7 +76,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom.Dusts
             Vector2 drawPos = dust.position - Main.screenPosition;
             Vector2 origin = new Vector2(32, 32);
 
-            // Layer 1: Outer diffuse ring — slightly overshot for bloom effect
+            // Layer 1: Outer diffuse ring  Eslightly overshot for bloom effect
             Main.EntitySpriteDraw(tex, drawPos, dust.frame,
                 (dust.color with { A = 0 }) * 0.20f * dust.fadeIn,
                 dust.rotation, origin, dust.scale * 1.3f,

@@ -119,7 +119,7 @@ namespace MagnumOpus.Common.Systems.Metaballs
 
             // Load soft glow texture for metaball instances
             circleTextureAsset = ModContent.Request<Texture2D>(
-                "MagnumOpus/Assets/Particles/SoftGlow3", 
+                "MagnumOpus/Assets/Particles Asset Library/SoftGlow3", 
                 AssetRequestMode.ImmediateLoad);
             
             // Shader availability is checked via MagnumShaderSystem.ShadersAvailable property

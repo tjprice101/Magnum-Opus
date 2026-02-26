@@ -242,7 +242,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         private int auraDamageTimer = 0;
         private int riddleboltTimer = 0;
         
-        public override string Texture => "MagnumOpus/Assets/Particles/TriangularEye";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/TriangularEye";
         
         public override bool PreDraw(ref Color lightColor)
         {
@@ -723,7 +723,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         private const float HomingStrength = 0.15f;
         private const float MaxSpeed = 14f;
         
-        public override string Texture => "MagnumOpus/Assets/Particles/MagicSparklField4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField4";
         
         public override void SetStaticDefaults()
         {

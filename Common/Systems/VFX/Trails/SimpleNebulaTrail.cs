@@ -164,7 +164,7 @@ namespace MagnumOpus.Common.Systems.VFX
             Texture2D glowTex = null;
             try
             {
-                glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles/SoftGlow2", 
+                glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2", 
                     AssetRequestMode.ImmediateLoad).Value;
             }
             catch
@@ -197,7 +197,7 @@ namespace MagnumOpus.Common.Systems.VFX
                     float completionRatio = (float)i / Math.Max(1, trail.Segments.Count - 1);
                     float ageRatio = seg.Age / MAX_AGE;
                     
-                    // QuadraticBump: 0→1→0 (thick in middle, thin at ends)
+                    // QuadraticBump: 0ↁEↁE (thick in middle, thin at ends)
                     float bump = completionRatio * (4f - completionRatio * 4f);
                     float ageFade = 1f - ageRatio;
                     

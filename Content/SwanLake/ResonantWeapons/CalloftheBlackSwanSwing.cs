@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
 {
     public sealed class CalloftheBlackSwanSwing : MeleeSwingBase
     {
-        #region Theme Colors — Monochrome + Rainbow Shimmer
+        #region Theme Colors  EMonochrome + Rainbow Shimmer
 
         private static readonly Color SwanBlack = MagnumThemePalettes.SwanBlack;
         private static readonly Color SwanDarkGray = MagnumThemePalettes.SwanDarkGray;
@@ -45,9 +45,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
 
         #endregion
 
-        #region Combo Phases — Ballet Movements
+        #region Combo Phases  EBallet Movements
 
-        // Phase 0: Graceful Plié — light, fast opener with gentle arc
+        // Phase 0: Graceful Plié  Elight, fast opener with gentle arc
         private static readonly ComboPhase Phase0_Plie = new ComboPhase(
             new CurveSegment[]
             {
@@ -63,7 +63,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             damageMult: 0.85f
         );
 
-        // Phase 1: Arabesque Sweep — wide, flowing arc in opposite direction
+        // Phase 1: Arabesque Sweep  Ewide, flowing arc in opposite direction
         private static readonly ComboPhase Phase1_Arabesque = new ComboPhase(
             new CurveSegment[]
             {
@@ -79,7 +79,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             damageMult: 1.0f
         );
 
-        // Phase 2: Grand Jeté — massive leap strike, finisher
+        // Phase 2: Grand Jeté  Emassive leap strike, finisher
         private static readonly ComboPhase Phase2_GrandJete = new ComboPhase(
             new CurveSegment[]
             {
@@ -115,8 +115,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
         {
             return comboStep switch
             {
-                2 => "MagnumOpus/Assets/Particles/CurvedSwordSlash",
-                _ => "MagnumOpus/Assets/Particles/SwordArc2"
+                2 => "MagnumOpus/Assets/Particles Asset Library/CurvedSwordSlash",
+                _ => "MagnumOpus/Assets/Particles Asset Library/SwordArc2"
             };
         }
 
@@ -224,7 +224,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
 
             Vector2 hitPos = target.Center;
 
-            // Monochrome → rainbow impact
+            // Monochrome ↁErainbow impact
             try { UnifiedVFX.SwanLake.Impact(hitPos, 1.2f + ComboStep * 0.2f); } catch { }
             try { ThemedParticles.SwanLakeRainbowExplosion(hitPos, 0.9f); } catch { }
 
@@ -329,7 +329,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
                 try { CustomParticles.SwanFeatherDrift(tipPos + Main.rand.NextVector2Circular(10f, 10f), featherCol, 0.25f); } catch { }
             }
 
-            // Music notes — rainbow spectrum (hue-shifting)
+            // Music notes  Erainbow spectrum (hue-shifting)
             if (Main.rand.NextBool(6))
             {
                 Vector2 noteVel = -SwordDirection * 0.5f + Main.rand.NextVector2Circular(0.3f, 0.3f);
@@ -340,7 +340,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
                     scale: 0.80f, lifetime: 30, hueSpeed: 0.03f));
             }
 
-            // Blade-tip bloom — monochrome shimmer
+            // Blade-tip bloom  Emonochrome shimmer
             {
                 float bloomOpacity = MathHelper.Clamp((Progression - 0.08f) / 0.12f, 0f, 1f)
                                    * MathHelper.Clamp((0.92f - Progression) / 0.12f, 0f, 1f);

@@ -213,7 +213,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
 
     public class PearlescentRocket : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/GlowingHalo1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo1";
 
         private bool isBlackRocket => Projectile.localAI[0] == 0;
 

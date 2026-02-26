@@ -8,7 +8,7 @@ using MagnumOpus.Common.Systems.VFX;
 namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Dusts
 {
     /// <summary>
-    /// Flame Ribbon — a curving ribbon of fire that expands then dissipates.
+    /// Flame Ribbon  Ea curving ribbon of fire that expands then dissipates.
     /// Used in swing trails and heroic finisher explosions. Grows to full size
     /// over the first third of its life, then gracefully fades while rotating.
     /// 
@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Dusts
     /// </summary>
     public class FlameRibbonDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles/SoftGlow3";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow3";
 
         public override void OnSpawn(Dust dust)
         {
