@@ -7,6 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.Eroica;
 using MagnumOpus.Content.Eroica.Weapons.TriumphantFractal;
 
@@ -140,7 +141,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode, Projectile.position);
 
             // ─── Delegate death VFX ───
-            EroicaVFXLibrary.DeathHeroicFlash(Projectile.Center, 1.8f, EroicaPalette.OrangeGold);
+            EroicaVFXLibrary.DeathHeroicFlash(Projectile.Center, 1.8f);
             TriumphantFractalVFX.ProjectileDeathVFX(Projectile.Center);
 
             // ─── Fractal lightning dust bolts (game-spawned geometry) ───

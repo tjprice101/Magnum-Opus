@@ -90,7 +90,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             try
             {
                 SwanLakeShaderManager.BeginShaderAdditive(sb);
-                SwanLakeShaderManager.BindCrystalNoiseTexture(Main.graphics.GraphicsDevice);
+                SwanLakeShaderManager.BindPrismaticNoiseTexture(Main.graphics.GraphicsDevice);
 
                 // PASS 1: Glow underlay
                 SwanLakeShaderManager.ApplyIridescentFlockAura(time, crystalPhase, glow: true);
@@ -194,7 +194,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
             try
             {
                 SwanLakeShaderManager.BeginShaderAdditive(sb);
-                SwanLakeShaderManager.BindCrystalNoiseTexture(Main.graphics.GraphicsDevice);
+                SwanLakeShaderManager.BindPrismaticNoiseTexture(Main.graphics.GraphicsDevice);
 
                 // PASS 1: Glow underlay @ 3x width
                 SwanLakeShaderManager.ApplyIridescentFlockOrbitTrail(time, crystalPhase, glow: true);

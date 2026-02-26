@@ -182,10 +182,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases
                 {
                     Vector2 tipPos = player.Center + new Vector2(player.direction * 16f, -18f);
                     Color pulseColor = Color.Lerp(GoliathVFX.GravityWell, BatonGlowColor, 0.5f);
-                    Dust pulse = Dust.NewDustPerfect(tipPos,
+                    Dust pulseDust = Dust.NewDustPerfect(tipPos,
                         ModContent.DustType<ResonantPulseDust>(),
                         Vector2.Zero, 0, pulseColor, 0.2f);
-                    pulse.customData = new ResonantPulseBehavior
+                    pulseDust.customData = new ResonantPulseBehavior
                     {
                         ExpansionRate = 0.035f,
                         ExpansionDecay = 0.94f,

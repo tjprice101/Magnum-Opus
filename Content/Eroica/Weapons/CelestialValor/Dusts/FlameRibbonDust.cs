@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Dusts
 {
@@ -52,7 +53,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Dusts
         public override bool PreDraw(Dust dust)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = MagnumOpus.Common.Systems.VFX.Core.MagnumTextureRegistry.GetSoftGlow();
+            Texture2D tex = MagnumTextureRegistry.GetSoftGlow();
             if (tex == null) return false;
 
             Vector2 drawPos = dust.position - Main.screenPosition;

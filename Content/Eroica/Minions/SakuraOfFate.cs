@@ -214,7 +214,7 @@ namespace MagnumOpus.Content.Eroica.Minions
                 Projectile.velocity = Vector2.Zero;
                 
                 // Teleport effect — dark bloom, sakura petals, halo ring
-                EroicaVFXLibrary.HeroicImpact(Projectile.Center, 1.5f, EroicaPalette.Crimson);
+                EroicaVFXLibrary.HeroicImpact(Projectile.Center, 1.5f);
                 EroicaVFXLibrary.SpawnSakuraPetals(Projectile.Center, 8, 30f);
                 EroicaVFXLibrary.BloomFlare(Projectile.Center, EroicaPalette.Crimson, 0.6f, 18);
 

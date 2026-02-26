@@ -262,7 +262,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight
                 MoonlightSonataShaderManager.BeginShaderBatch(sb);
 
                 MoonlightSonataShaderManager.ApplyIncisorConstellationField(
-                    Main.GlobalTimeWrappedHourly, resonance, comboStep);
+                    Main.GlobalTimeWrappedHourly, resonance, comboStep > 1);
 
                 sb.Draw(fieldTex, drawPos, null,
                     Color.White * fieldFade * 0.7f, rotation, origin,

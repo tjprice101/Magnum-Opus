@@ -165,15 +165,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
                 SwanLakeShaderManager.BindSparklyNoiseTexture(Main.graphics.GraphicsDevice);
 
                 // PASS 1: Glow underlay @ 3x width
-                SwanLakeShaderManager.ApplyChromaticSwanSongTrail(time, comboPhase, glow: true);
+                SwanLakeShaderManager.ApplySwanSongProjectileTrail(time, comboPhase, glow: true);
                 DrawTrailPositions(sb, proj, glowTex, origin, scaleMult: 0.28f, alphaMult: 0.3f);
 
                 // PASS 2: Main spectral core @ 1x width
-                SwanLakeShaderManager.ApplyChromaticSwanSongTrail(time, comboPhase, glow: false);
+                SwanLakeShaderManager.ApplySwanSongProjectileTrail(time, comboPhase, glow: false);
                 DrawTrailPositions(sb, proj, glowTex, origin, scaleMult: 0.10f, alphaMult: 0.7f);
 
                 // PASS 3: Glow overbright @ 1.5x width
-                SwanLakeShaderManager.ApplyChromaticSwanSongTrail(time, comboPhase, glow: true);
+                SwanLakeShaderManager.ApplySwanSongProjectileTrail(time, comboPhase, glow: true);
                 DrawTrailPositions(sb, proj, glowTex, origin, scaleMult: 0.15f, alphaMult: 0.25f);
 
                 SwanLakeShaderManager.RestoreSpriteBatch(sb);
@@ -314,14 +314,14 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons
                 SwanLakeShaderManager.BindSparklyNoiseTexture(Main.graphics.GraphicsDevice);
 
                 // PASS 1: Main spectral explosion body
-                SwanLakeShaderManager.ApplyChromaticSwanSongExplosion(time, explosionAge, ringOnly: false);
+                SwanLakeShaderManager.ApplySwanSongComboExplosion(time, explosionAge, ringOnly: false);
                 float bodyScale = 1.8f * scale;
                 float bodyAlpha = 1f - explosionAge * explosionAge;
                 sb.Draw(glowTex, drawPos, null, Color.White * bodyAlpha,
                     0f, origin, bodyScale, SpriteEffects.None, 0f);
 
                 // PASS 2: Rainbow ring shockwave overlay
-                SwanLakeShaderManager.ApplyChromaticSwanSongExplosion(time, explosionAge, ringOnly: true);
+                SwanLakeShaderManager.ApplySwanSongComboExplosion(time, explosionAge, ringOnly: true);
                 float ringScale = 2.5f * scale * (0.5f + explosionAge * 0.5f);
                 float ringAlpha = 0.8f * (1f - explosionAge);
                 sb.Draw(glowTex, drawPos, null, Color.White * ringAlpha,

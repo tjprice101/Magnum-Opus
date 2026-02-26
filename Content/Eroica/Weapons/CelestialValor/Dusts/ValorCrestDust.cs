@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Dusts
 {
@@ -57,7 +58,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Dusts
             catch { }
 
             if (starTex == null)
-                starTex = MagnumOpus.Common.Systems.VFX.Core.MagnumTextureRegistry.GetSoftGlow();
+                starTex = MagnumTextureRegistry.GetSoftGlow();
             if (starTex == null) return false;
 
             Vector2 drawPos = dust.position - Main.screenPosition;

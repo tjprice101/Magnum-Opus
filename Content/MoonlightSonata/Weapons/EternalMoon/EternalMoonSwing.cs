@@ -13,6 +13,7 @@ using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Common.Systems.VFX.Bloom;
 using MagnumOpus.Common.Systems.VFX.Optimization;
 using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.Particles.Particle;
 using MagnumOpus.Content.MoonlightSonata;
 using MagnumOpus.Content.MoonlightSonata.Projectiles;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
