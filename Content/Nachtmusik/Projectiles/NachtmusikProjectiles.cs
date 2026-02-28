@@ -25,7 +25,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class NocturnalBladeProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs10";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/QuarterNote";
         
         // Nachtmusik hue range - violet/purple spectrum (0.75-0.85)
         private const float HueMin = 0.75f;
@@ -266,7 +266,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class CrescendoWaveProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc6";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse";
         
         // Nachtmusik hue range - violet/purple spectrum (0.75-0.85)
         private const float HueMin = 0.75f;
@@ -478,7 +478,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class ConstellationBoltProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/StarBurst1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard";
         
         // Nachtmusik hue range - violet/purple spectrum (0.75-0.85)
         private const float HueMin = 0.75f;
@@ -709,7 +709,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     public class NebulaArrowProjectile : ModProjectile
     {
         // Use StarBurst texture for unique nebula core look
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/StarBurst2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard";
         
         private int splitCount = 0;
         private float nebulaRotation = 0f;
@@ -875,7 +875,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class NebulaStarfallProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle14";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         private static readonly Color StarCore = new Color(255, 255, 220);
         private static readonly Color StarTrail = new Color(255, 180, 220);
@@ -935,7 +935,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class SerenadeStarProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle13";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         // TRUE_VFX_STANDARDS: Hue range for Nachtmusik violet/purple spectrum
         private const float HueMin = 0.75f;
@@ -1162,7 +1162,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class StarweaverOrbProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField8";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         // TRUE_VFX_STANDARDS: Hue range for Nachtmusik violet/purple spectrum
         private const float HueMin = 0.75f;
@@ -1405,7 +1405,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     public class CosmicRequiemBeamProjectile : ModProjectile
     {
         // Use unique textures for cosmic beam look
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField7";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         private float cosmicRotation = 0f;
         private float[] galaxyMoteAngles = new float[4];
@@ -1563,7 +1563,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class TwilightSlashProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc3";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/VerticalEllipse";
         
         private bool isDimensionSever => Projectile.ai[0] == 1f;
         

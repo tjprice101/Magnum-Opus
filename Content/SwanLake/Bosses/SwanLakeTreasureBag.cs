@@ -7,7 +7,12 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using ReLogic.Content;
 using MagnumOpus.Content.SwanLake.ResonanceEnergies;
-using MagnumOpus.Content.SwanLake.ResonantWeapons;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFlock;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament;
 using MagnumOpus.Content.SwanLake.Items;
 using MagnumOpus.Common;
 

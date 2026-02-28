@@ -10,171 +10,165 @@ using MagnumOpus.Common.Systems.Particles;
 namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 {
     /// <summary>
-    /// VFX helper for the Midnight's Crescendo melee weapon.
-    /// Building musical intensity — each swing crescendos from deep blue
-    /// to starlit brilliance. Rising sparkle cascades, ascending star trails,
-    /// the crescendo builds to a blinding climax.
+    /// Shader-driven VFX for Midnight's Crescendo — the building musical intensity blade.
+    /// Uses CrescendoRise.fx for trails that intensify with crescendo stacks.
+    /// Each swing crescendos from deep blue to starlit brilliance.
     /// </summary>
     public static class MidnightsCrescendoVFX
     {
         // =====================================================================
-        //  HOLD ITEM VFX
+        //  HoldItemVFX — Pulsing crescendo aura that builds
         // =====================================================================
-
         public static void HoldItemVFX(Player player)
         {
-            if (Main.dedServ) return;
-
-            Vector2 center = player.MountedCenter;
-            float time = (float)Main.timeForVisualEffects;
-
-            // Pulsing crescendo aura — intensity builds and falls
-            if (Main.rand.NextBool(5))
+            if (Main.rand.NextBool(4))
             {
-                float pulse = (float)Math.Sin(time * 0.06f) * 0.5f + 0.5f;
-                Vector2 offset = Main.rand.NextVector2Circular(22f, 22f);
-                Color auraColor = NachtmusikPalette.GetCelestialGradient(pulse);
-                var glow = new GenericGlowParticle(center + offset, new Vector2(0, -0.3f),
-                    auraColor * 0.35f, 0.16f, 18, true);
-                MagnumParticleHandler.SpawnParticle(glow);
+                // Ascending star motes — the crescendo is always rising
+                Vector2 offset = new Vector2(Main.rand.NextFloat(-25f, 25f), Main.rand.NextFloat(5f, 25f));
+                Vector2 pos = player.Center + offset;
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.8f); // Always ascending
+
+                Dust d = Dust.NewDustPerfect(pos, DustID.BlueTorch, vel, 0, default, 0.6f);
+                d.noGravity = true;
+                d.fadeIn = 0.8f;
             }
 
-            // Ascending star motes — stars rise upward (crescendo motif)
-            if (Main.rand.NextBool(10))
+            if (Main.rand.NextBool(12))
             {
-                Vector2 motePos = center + new Vector2(Main.rand.NextFloat(-18f, 18f), 12f);
-                var mote = new GenericGlowParticle(motePos, new Vector2(0, -1.2f),
-                    NachtmusikPalette.StarWhite * 0.5f, 0.12f, 22, true);
-                MagnumParticleHandler.SpawnParticle(mote);
+                // Rising star spark
+                NachtmusikVFXLibrary.SpawnTwinklingStars(player.Center + new Vector2(0, -15f), 1, 20f);
             }
 
-            NachtmusikVFXLibrary.AddTwinklingLight(center, time, 0.25f);
+            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.25f);
         }
 
         // =====================================================================
-        //  PREDRAW IN WORLD BLOOM
+        //  PreDrawInWorldBloom — Shader-driven crescendo glow
         // =====================================================================
-
-        public static void PreDrawInWorldBloom(SpriteBatch sb, Texture2D tex,
-            Vector2 pos, Vector2 origin, float rotation, float scale)
+        public static void PreDrawInWorldBloom(SpriteBatch sb, Texture2D tex, Vector2 pos,
+            Vector2 origin, float rotation, float scale)
         {
-            float time = (float)Main.timeForVisualEffects;
-            float pulse = 1f + MathF.Sin(time * 0.05f) * 0.04f;
-            NachtmusikPalette.DrawItemBloom(sb, tex, pos, origin, rotation, scale, pulse);
+            if (NachtmusikShaderManager.HasCrescendoRise)
+            {
+                NachtmusikShaderManager.BeginShaderAdditive(sb);
+                NachtmusikShaderManager.ApplyCrescendoRiseGlow(
+                    (float)Main.timeForVisualEffects * 0.02f, 0.5f);
+
+                sb.Draw(tex, pos - Main.screenPosition, null,
+                    NachtmusikPalette.StarlitBlue * 0.5f, rotation, origin, scale * 1.05f,
+                    SpriteEffects.None, 0f);
+
+                NachtmusikShaderManager.RestoreSpriteBatch(sb);
+            }
+            else
+            {
+                NachtmusikVFXLibrary.DrawNachtmusikBloomStack(sb, pos,
+                    NachtmusikPalette.DeepBlue, NachtmusikPalette.StarWhite, scale * 0.35f, 0.4f);
+            }
         }
 
         // =====================================================================
-        //  SWING TRAIL VFX
+        //  SwingTrailVFX — Crescendo dust that brightens with combo
         // =====================================================================
-
-        /// <summary>
-        /// Per-frame swing trail: ascending starlit dust, crescendo sparkles,
-        /// intensity builds with combo step.
-        /// </summary>
         public static void SwingTrailVFX(Vector2 tipPos, Vector2 swordDirection, int comboStep, int timer)
         {
-            if (Main.dedServ) return;
-
-            // Crescendo dust — brighter with each combo
             float comboIntensity = 1f + comboStep * 0.25f;
-            Color dustColor = NachtmusikPalette.GetCelestialGradient(0.3f + comboStep * 0.15f);
-            for (int i = 0; i < 2; i++)
+
+            // Ascending dust trail — always biased upward
+            if (timer % 2 == 0)
             {
-                Vector2 vel = -swordDirection * Main.rand.NextFloat(1f, 3f) + new Vector2(0, -0.5f);
-                Dust d = Dust.NewDustPerfect(tipPos, DustID.BlueTorch, vel, 0,
-                    dustColor, 1.3f * comboIntensity);
+                Vector2 perpendicular = new Vector2(-swordDirection.Y, swordDirection.X);
+                Vector2 dustVel = perpendicular * Main.rand.NextFloat(-1f, 1f)
+                    + new Vector2(0, -1.5f * comboIntensity); // Ascending bias
+
+                Color dustColor = Color.Lerp(NachtmusikPalette.DeepBlue, NachtmusikPalette.StarWhite,
+                    comboStep / 3f);
+
+                Dust d = Dust.NewDustPerfect(tipPos, DustID.BlueTorch, dustVel, 0, default,
+                    0.8f * comboIntensity);
                 d.noGravity = true;
+                d.fadeIn = 1f;
             }
 
-            // Ascending star sparkles (rise upward)
-            if (Main.rand.NextBool(2))
+            // Crescendo sparkle accents — frequency increases with combo
+            int sparkInterval = Math.Max(2, 6 - comboStep);
+            if (timer % sparkInterval == 0)
             {
-                Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-1f, 1f), -2f - Main.rand.NextFloat(1f));
-                var spark = new GlowSparkParticle(tipPos, sparkVel,
-                    NachtmusikPalette.StarWhite * 0.7f, 0.2f * comboIntensity, 14);
-                MagnumParticleHandler.SpawnParticle(spark);
+                NachtmusikVFXLibrary.SpawnTwinklingStars(tipPos, 1, 8f);
             }
 
-            // Crescendo music notes (more frequent at higher combos)
-            if (timer % (6 - comboStep) == 0)
-                NachtmusikVFXLibrary.SpawnMusicNotes(tipPos, 1, 10f, 0.7f, 0.9f, 25);
+            // Music notes that build with crescendo
+            if (timer % Math.Max(3, 8 - comboStep * 2) == 0)
+            {
+                NachtmusikVFXLibrary.SpawnMusicNotes(tipPos, 1, 12f, 0.4f, 0.7f * comboIntensity, 25);
+            }
 
-            // Twinkling stars along arc
-            if (timer % 7 == 0)
-                NachtmusikVFXLibrary.SpawnTwinklingStars(tipPos, 1, 8f);
-
-            Lighting.AddLight(tipPos, NachtmusikPalette.StarlitBlue.ToVector3() * (0.5f + comboStep * 0.15f));
+            NachtmusikVFXLibrary.AddPaletteLighting(tipPos, 0.3f + comboStep * 0.1f,
+                0.4f + comboStep * 0.15f);
         }
 
         // =====================================================================
-        //  SWING IMPACT VFX
+        //  SwingImpactVFX — Growing intensity impact
         // =====================================================================
-
-        /// <summary>
-        /// On-hit impact: crescendo builds with combo — bloom grows,
-        /// star particles intensify, halo rings cascade upward.
-        /// </summary>
         public static void SwingImpactVFX(Vector2 hitPos, int comboStep = 0)
         {
-            if (Main.dedServ) return;
+            float comboIntensity = 1f + comboStep * 0.3f;
 
-            float intensity = 1f + comboStep * 0.3f;
+            NachtmusikVFXLibrary.MeleeImpact(hitPos, comboStep);
 
-            // Growing bloom flash
-            NachtmusikVFXLibrary.DrawBloom(hitPos, 0.4f * intensity);
-
-            // Gradient halo cascade
-            NachtmusikVFXLibrary.SpawnGradientHaloRings(hitPos, 3 + comboStep);
-
-            // Crescendo dust burst — intensifies
-            NachtmusikVFXLibrary.SpawnRadialDustBurst(hitPos, 8 + comboStep * 3, 4f + comboStep);
-
-            // Ascending star sparks
-            for (int i = 0; i < 4 + comboStep * 2; i++)
+            // Ascending star spark burst — sparks fly upward
+            int sparkCount = 6 + comboStep * 3;
+            for (int i = 0; i < sparkCount; i++)
             {
-                float angle = MathHelper.TwoPi * i / (4 + comboStep * 2) - MathHelper.PiOver2;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f) * intensity;
-                vel.Y -= 2f; // Upward bias
-                Color sparkColor = NachtmusikPalette.GetCelestialGradient((float)i / (4 + comboStep * 2));
-                var spark = new GlowSparkParticle(hitPos, vel, sparkColor, 0.25f * intensity, 16);
-                MagnumParticleHandler.SpawnParticle(spark);
+                float angle = MathHelper.TwoPi * i / sparkCount;
+                Vector2 vel = angle.ToRotationVector2() * (3f + Main.rand.NextFloat() * 2f);
+                vel.Y -= 2f * comboIntensity; // Ascending bias
+
+                Dust d = Dust.NewDustPerfect(hitPos, DustID.BlueTorch, vel, 0, default,
+                    1f * comboIntensity);
+                d.noGravity = true;
+                d.fadeIn = 1.2f;
             }
 
-            // Music notes — crescendo scatter
-            NachtmusikVFXLibrary.SpawnMusicNotes(hitPos, 2 + comboStep, 20f);
+            // Halo rings that grow with combo
+            if (comboStep >= 1)
+            {
+                NachtmusikVFXLibrary.SpawnGradientHaloRings(hitPos, 2 + comboStep, 0.25f * comboIntensity);
+            }
 
-            // Twinkling stars
-            NachtmusikVFXLibrary.SpawnTwinklingStars(hitPos, 2 + comboStep, 15f);
-
-            Lighting.AddLight(hitPos, NachtmusikPalette.StarWhite.ToVector3() * (0.6f + comboStep * 0.2f));
+            NachtmusikVFXLibrary.SpawnMusicNotes(hitPos, 1 + comboStep, 18f, 0.5f, 0.9f, 28);
+            NachtmusikVFXLibrary.DrawBloom(hitPos, 0.3f * comboIntensity, 0.7f);
+            NachtmusikVFXLibrary.AddPaletteLighting(hitPos, 0.4f, 0.7f * comboIntensity);
         }
 
         // =====================================================================
-        //  FINISHER VFX
+        //  FinisherVFX — Crescendo climax: ascending starburst fountain
         // =====================================================================
-
-        /// <summary>
-        /// Finisher: crescendo climax — maximum intensity starlit explosion,
-        /// ascending starburst cascade, culminating music note shower.
-        /// </summary>
         public static void FinisherVFX(Vector2 pos, float intensity = 1f)
         {
-            if (Main.dedServ) return;
+            // Ascending starburst fountain — the crescendo peaks
+            NachtmusikVFXLibrary.SpawnStarburstCascade(pos, 6, intensity, 1f);
 
-            NachtmusikVFXLibrary.FinisherSlam(pos, intensity);
+            // Upward shattered starlight spray
+            NachtmusikVFXLibrary.SpawnShatteredStarlight(pos, 8, 6f * intensity, 0.7f, false);
 
-            // Unique crescendo climax: ascending starburst fountain
-            for (int i = 0; i < 8; i++)
+            // Radiance halo rings expanding outward
+            NachtmusikVFXLibrary.SpawnRadianceHaloRings(pos, 6, 0.4f * intensity);
+
+            // Grand music note cascade — the musical climax
+            NachtmusikVFXLibrary.SpawnMusicNotes(pos, 8, 35f, 0.6f, 1.1f, 45);
+
+            // Ascending dust fountain
+            for (int i = 0; i < 15; i++)
             {
-                float spreadAngle = Main.rand.NextFloat(-0.5f, 0.5f);
-                Vector2 vel = new Vector2(spreadAngle * 4f, -6f - Main.rand.NextFloat(4f)) * intensity;
-                Color starColor = NachtmusikPalette.GetCelestialGradient((float)i / 8f);
-                var star = new GlowSparkParticle(pos, vel, starColor, 0.4f * intensity, 25);
-                MagnumParticleHandler.SpawnParticle(star);
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-3f, 3f), -6f * intensity + Main.rand.NextFloat(-2f, 0f));
+                Dust d = Dust.NewDustPerfect(pos, DustID.BlueTorch, vel, 0, default, 1.3f * intensity);
+                d.noGravity = true;
+                d.fadeIn = 1.5f;
             }
 
-            // Ascending shattered starlight
-            NachtmusikVFXLibrary.SpawnShatteredStarlight(pos, 10, 8f * intensity, intensity, false);
+            NachtmusikVFXLibrary.DrawComboBloom(pos, 2, 0.5f * intensity, 1f);
+            NachtmusikVFXLibrary.AddPaletteLighting(pos, 0.2f, 1f * intensity);
         }
     }
 }

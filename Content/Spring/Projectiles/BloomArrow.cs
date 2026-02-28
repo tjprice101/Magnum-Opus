@@ -26,7 +26,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
         private float[] orbitAngles = new float[5];
         private float arrowRotation;
 
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
 
         public override void SetDefaults()
         {
@@ -239,9 +239,9 @@ namespace MagnumOpus.Content.Spring.Projectiles
         {
             SpriteBatch sb = Main.spriteBatch;
             
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
-            Texture2D coreTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MagicSparklField4").Value;
-            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Star").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            Texture2D coreTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
             
             Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 coreOrigin = coreTex.Size() / 2f;
@@ -321,7 +321,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
         private static readonly Color SpringGreen = new Color(144, 238, 144);
         private float petalSpin;
 
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle13";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
 
         public override void SetDefaults()
         {
@@ -459,8 +459,8 @@ namespace MagnumOpus.Content.Spring.Projectiles
         {
             SpriteBatch sb = Main.spriteBatch;
             
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
-            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle13").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
             
             Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 petalOrigin = petalTex.Size() / 2f;
@@ -522,7 +522,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
         private float flowerRotation;
         private float[] petalAngles = new float[6];
 
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo4";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
 
         public override void SetDefaults()
         {
@@ -585,9 +585,9 @@ namespace MagnumOpus.Content.Spring.Projectiles
         {
             SpriteBatch sb = Main.spriteBatch;
             
-            Texture2D haloTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/GlowingHalo4").Value;
-            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/ManySparklesInCLuster").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
+            Texture2D haloTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle").Value;
+            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
             
             Vector2 haloOrigin = haloTex.Size() / 2f;
             Vector2 petalOrigin = petalTex.Size() / 2f;

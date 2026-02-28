@@ -1,3 +1,8 @@
+// ============================================================================
+// DEPRECATED: Replaced by self-contained systems in RequiemOfReality/ folder.
+// New VFX is distributed across Particles/, Primitives/, Shaders/, Projectiles/.
+// ============================================================================
+/*
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -293,3 +298,4 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         }
     }
 }
+*/

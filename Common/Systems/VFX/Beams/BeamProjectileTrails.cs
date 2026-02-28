@@ -216,7 +216,7 @@ namespace MagnumOpus.Common.Systems.VFX
             Texture2D flareTex;
             try
             {
-                flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare4").Value;
+                flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
             }
             catch
             {

@@ -19,7 +19,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     public class SpringVerseProjectile : ModProjectile
     {
         // Use MagicSparklField for unique floral core
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField6";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
@@ -240,7 +240,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class VersePetalProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Star";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringPetalCore = new Color(255, 220, 230);
@@ -318,7 +318,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     public class SummerMovementProjectile : ModProjectile
     {
         // Use StarBurst for unique solar flare look
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/StarBurst1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard";
         
         private static readonly Color SummerGold = new Color(255, 215, 0);
         private static readonly Color SummerOrange = new Color(255, 140, 0);
@@ -506,7 +506,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SolarPillarProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo4";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
         
         private static readonly Color SummerGold = new Color(255, 215, 0);
         private static readonly Color SummerOrange = new Color(255, 140, 0);
@@ -585,7 +585,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class AutumnPassageProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo4";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
         
         private static readonly Color AutumnOrange = new Color(255, 140, 50);
         private static readonly Color AutumnBrown = new Color(139, 90, 43);
@@ -751,7 +751,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class DecayFieldProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo2";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
         
         private static readonly Color AutumnOrange = new Color(255, 140, 50);
         private static readonly Color AutumnBrown = new Color(139, 90, 43);
@@ -840,7 +840,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class WinterFinaleProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/StarBurst2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard";
         
         private static readonly Color WinterBlue = new Color(150, 220, 255);
         private static readonly Color WinterWhite = new Color(240, 250, 255);
@@ -1023,7 +1023,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class FinaleIceShardProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SmallTwilightSparkle";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         private static readonly Color WinterBlue = new Color(150, 220, 255);
         private static readonly Color WinterCyan = new Color(180, 240, 255);

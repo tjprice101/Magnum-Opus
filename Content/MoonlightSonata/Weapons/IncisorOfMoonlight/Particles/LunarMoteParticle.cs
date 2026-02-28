@@ -9,7 +9,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Particle
     /// <summary>
     /// Soft, velocity-squished lunar glow mote.
     /// Drifts with gentle hue shift through the Moonlight Sonata purple-to-blue palette.
-    /// Used for dash energy streaks and nova cinders.
+    /// Used for dash energy streaks, swing accents, and nova cinders.
     /// </summary>
     public class LunarMoteParticle : IncisorParticle
     {
@@ -21,6 +21,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Particle
         public float SquishStrength;
         public float MaxSquish;
         public float HueShift;
+
+        // Cache the base hue so we avoid per-frame HSL round-trips
+        private float baseHue;
 
         public LunarMoteParticle(Vector2 position, Vector2 velocity, float scale, Color color,
             int lifetime, float opacity = 1f, float squishStrength = 1f, float maxSquish = 3f, float hueShift = 0f)
@@ -35,25 +38,32 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Particle
             SquishStrength = squishStrength;
             MaxSquish = maxSquish;
             HueShift = hueShift;
+            baseHue = Main.rgbToHsl(color).X;
         }
 
         public override void Update()
         {
             Velocity *= LifetimeCompletion >= 0.34f ? 0.93f : 1.02f;
-            Opacity = LifetimeCompletion > 0.5f
-                ? (float)Math.Sin(LifetimeCompletion * MathHelper.Pi) * 0.2f + 0.8f
-                : (float)Math.Sin(LifetimeCompletion * MathHelper.Pi);
-            Scale *= 0.95f;
-            Color = Main.hslToRgb(
-                Main.rgbToHsl(Color).X + HueShift,
-                Main.rgbToHsl(Color).Y,
-                Main.rgbToHsl(Color).Z);
+
+            // Smooth sine-based opacity curve
+            float lifeSin = (float)Math.Sin(LifetimeCompletion * MathHelper.Pi);
+            Opacity = LifetimeCompletion > 0.5f ? lifeSin * 0.2f + 0.8f : lifeSin;
+
+            Scale *= 0.96f;
+
+            // Efficient hue shift without per-frame HSL round-trip
+            if (Math.Abs(HueShift) > 0.0001f)
+            {
+                baseHue = (baseHue + HueShift) % 1f;
+                if (baseHue < 0f) baseHue += 1f;
+                Color = Main.hslToRgb(baseHue, 0.6f, 0.8f);
+            }
         }
 
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow4").Value;
-            Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/MoonlightSonata/Shared/Orbs/SoftCircularBloomOrb").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+            Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom").Value;
 
             float squish = MathHelper.Clamp(Velocity.Length() / 10f * SquishStrength, 1f, MaxSquish);
             float rot = Velocity.ToRotation() + MathHelper.PiOver2;
@@ -62,12 +72,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Particle
             float properBloomSize = (float)tex.Height / (float)bloomTex.Height;
             Vector2 drawPos = Position - Main.screenPosition;
 
-            spriteBatch.Draw(bloomTex, drawPos, null, Color * Opacity * 0.7f, rot,
-                bloomTex.Size() / 2f, scale * 2 * properBloomSize, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, Color * Opacity * 0.8f, rot,
+            // Outer bloom halo
+            spriteBatch.Draw(bloomTex, drawPos, null, Color * Opacity * 0.55f, rot,
+                bloomTex.Size() / 2f, scale * 2f * properBloomSize, SpriteEffects.None, 0f);
+            // Colored core
+            spriteBatch.Draw(tex, drawPos, null, Color * Opacity * 0.75f, rot,
                 origin, scale * 1.1f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, Color.White * Opacity * 0.85f, rot,
-                origin, scale, SpriteEffects.None, 0f);
+            // Bright white-hot center
+            spriteBatch.Draw(tex, drawPos, null, Color.White * Opacity * 0.8f, rot,
+                origin, scale * 0.5f, SpriteEffects.None, 0f);
         }
     }
 }

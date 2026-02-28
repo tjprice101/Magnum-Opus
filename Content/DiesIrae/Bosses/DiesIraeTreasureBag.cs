@@ -8,8 +8,16 @@ using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Content.DiesIrae.ResonanceEnergies;
 using MagnumOpus.Content.DiesIrae.HarmonicCores;
-using MagnumOpus.Content.DiesIrae.ResonantWeapons;
 using MagnumOpus.Content.DiesIrae.Accessories;
+using MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver;
+using MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment;
+using MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict;
+using MagnumOpus.Content.DiesIrae.Weapons.SinCollector;
+using MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon;
+using MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence;
+using MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgement;
+using MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath;
+using MagnumOpus.Content.DiesIrae.Weapons.GrimoireOfCondemnation;
 
 namespace MagnumOpus.Content.DiesIrae.Bosses
 {

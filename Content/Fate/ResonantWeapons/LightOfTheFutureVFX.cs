@@ -1,3 +1,5 @@
+// COMMENTED OUT — Replaced by self-contained system in LightOfTheFuture/ folder
+#if false
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -381,3 +383,4 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             => FateVFXLibrary.CosmicBeamWidth(completionRatio, 7f);
     }
 }
+#endif

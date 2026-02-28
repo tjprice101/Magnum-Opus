@@ -278,7 +278,7 @@ namespace MagnumOpus.Common.Systems
         private float pulseTimer = 0f;
         private float shimmerPhase = 0f;
         
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle11";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         public void SetColors(Color primary, Color secondary)
         {
@@ -460,7 +460,7 @@ namespace MagnumOpus.Common.Systems
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             // Use the sparkle variant assigned to this crystal
-            string texturePath = $"MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle{SparkleVariant}";
+            string texturePath = "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
             Texture2D texture = ModContent.Request<Texture2D>(texturePath).Value;
             Vector2 origin = texture.Size() / 2f;
             

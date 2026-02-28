@@ -48,8 +48,6 @@ namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
         {
             shotCounter++;
 
-            PiercingLightOfTheSakuraVFX.NormalShotFlash(position, velocity);
-
             // Every 10th shot fires the special sakura lightning projectile
             if (shotCounter >= 10)
             {
@@ -75,8 +73,6 @@ namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
 
                 SoundEngine.PlaySound(SoundID.Item125 with { Pitch = 0.3f, Volume = 0.8f }, position);
 
-                PiercingLightOfTheSakuraVFX.ChargedShotFlash(position, velocity);
-
                 return false;
             }
 
@@ -95,17 +91,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
             return new Vector2(-8f, 0f);
         }
 
-        public override void HoldItem(Player player)
-        {
-            Vector2 gunTip = player.Center + new Vector2(45f * player.direction, -3f);
-            PiercingLightOfTheSakuraVFX.ChargeOrbitVFX(gunTip, shotCounter, Main.GameUpdateCount * 0.04f);
-            PiercingLightOfTheSakuraVFX.HoldItemVFX(player, shotCounter);
-        }
-
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
-            EroicaPalette.DrawItemBloom(spriteBatch, Item, rotation, scale);
-            Lighting.AddLight(Item.Center, EroicaPalette.Scarlet.ToVector3() * 0.4f);
             return true;
         }
 

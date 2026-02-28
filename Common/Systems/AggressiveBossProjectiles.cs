@@ -29,7 +29,7 @@ namespace MagnumOpus.Common.Systems
     /// </summary>
     public class HostileOrbProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare";
         
         public Color PrimaryColor { get => new Color((int)Projectile.ai[0], (int)Projectile.ai[1], (int)(Projectile.localAI[0]), 255); }
         public Color SecondaryColor => Color.Lerp(PrimaryColor, Color.White, 0.4f);
@@ -117,7 +117,7 @@ namespace MagnumOpus.Common.Systems
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             
@@ -220,7 +220,7 @@ namespace MagnumOpus.Common.Systems
     /// </summary>
     public class AcceleratingBoltProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare";
         
         public Color PrimaryColor { get => new Color((int)Projectile.ai[0], (int)Projectile.ai[1], (int)(Projectile.localAI[0]), 255); }
         public Color SecondaryColor => Color.Lerp(PrimaryColor, Color.Orange, 0.35f);
@@ -305,7 +305,7 @@ namespace MagnumOpus.Common.Systems
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             
@@ -388,7 +388,7 @@ namespace MagnumOpus.Common.Systems
     /// </summary>
     public class ExplosiveOrbProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare";
         
         public Color PrimaryColor { get => new Color((int)Projectile.ai[0], (int)Projectile.ai[1], (int)(Projectile.localAI[0]), 255); }
         public Color SecondaryColor => Color.Lerp(PrimaryColor, new Color(200, 150, 255), 0.35f);
@@ -542,7 +542,7 @@ namespace MagnumOpus.Common.Systems
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             
@@ -588,7 +588,7 @@ namespace MagnumOpus.Common.Systems
     /// </summary>
     public class WaveProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare";
         
         public Color PrimaryColor { get => new Color((int)Projectile.ai[0], (int)Projectile.ai[1], (int)(Projectile.localAI[0]), 255); }
         public Color SecondaryColor => Color.Lerp(PrimaryColor, new Color(150, 255, 255), 0.4f);
@@ -677,7 +677,7 @@ namespace MagnumOpus.Common.Systems
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             
@@ -754,7 +754,7 @@ namespace MagnumOpus.Common.Systems
     /// </summary>
     public class DelayedDetonationProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare";
         
         public Color PrimaryColor { get => new Color((int)Projectile.ai[0], (int)Projectile.ai[1], (int)(Projectile.localAI[0]), 255); }
         public Color SecondaryColor => Color.Lerp(PrimaryColor, new Color(255, 220, 180), 0.4f);
@@ -921,7 +921,7 @@ namespace MagnumOpus.Common.Systems
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             
@@ -970,7 +970,7 @@ namespace MagnumOpus.Common.Systems
     /// </summary>
     public class BoomerangProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare";
         
         public Color PrimaryColor { get => new Color((int)Projectile.ai[0], (int)Projectile.ai[1], (int)(Projectile.localAI[0]), 255); }
         public Color SecondaryColor => Color.Lerp(PrimaryColor, new Color(180, 200, 255), 0.4f);
@@ -1082,7 +1082,7 @@ namespace MagnumOpus.Common.Systems
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             

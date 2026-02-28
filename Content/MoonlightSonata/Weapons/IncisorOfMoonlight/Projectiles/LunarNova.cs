@@ -3,6 +3,7 @@ using MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Buffs;
 using MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Particles;
 using MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Utilities;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
 
@@ -15,7 +16,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
     /// </summary>
     public class LunarNova : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/CircularMask";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
 
         public override void SetDefaults()
         {
@@ -75,6 +76,60 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             target.AddBuff(ModContent.BuffType<LunarResonanceDebuff>(), 300);
         }
 
-        public override bool PreDraw(ref Color lightColor) => false;
+        public override bool PreDraw(ref Color lightColor)
+        {
+            Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+            Texture2D ringTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle").Value;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            Vector2 bloomOrigin = bloomTex.Size() / 2f;
+            Vector2 ringOrigin = ringTex.Size() / 2f;
+
+            // Lifetime progress: 0 at spawn, 1 at death
+            float life = 1f - Projectile.timeLeft / 30f;
+            // Smooth expansion curve (fast start, gentle end)
+            float expand = (float)Math.Pow(life, 0.5);
+            // Fade out over the last half of lifetime
+            float fade = life < 0.5f ? 1f : 1f - (life - 0.5f) * 2f;
+
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                SamplerState.LinearClamp, DepthStencilState.None, Main.Rasterizer,
+                null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Layer 1: Large expanding soft bloom pulse (background glow)
+            Color pulseColor = IncisorUtils.MulticolorLerp(life,
+                new Color(90, 50, 160), new Color(170, 140, 255), new Color(135, 206, 250));
+            pulseColor.A = 0;
+            float pulseScale = MathHelper.Lerp(0.05f, 0.8f, expand);
+            Main.EntitySpriteDraw(bloomTex, drawPos, null, pulseColor * fade * 0.5f, 0f,
+                bloomOrigin, pulseScale, SpriteEffects.None, 0);
+
+            // Layer 2: Expanding ring (drawn as a soft circle that scales up)
+            Color ringColor = Color.Lerp(new Color(170, 140, 255), new Color(230, 235, 255), expand);
+            ringColor.A = 0;
+            float ringScale = MathHelper.Lerp(0.1f, 1.6f, expand);
+            float ringOpacity = fade * 0.6f;
+            Main.EntitySpriteDraw(ringTex, drawPos, null, ringColor * ringOpacity, 0f,
+                ringOrigin, ringScale, SpriteEffects.None, 0);
+
+            // Layer 3: White-hot core flash (bright, shrinks as it expands)
+            float coreScale = MathHelper.Lerp(0.15f, 0.04f, expand);
+            float coreFade = life < 0.3f ? 1f : MathHelper.Lerp(1f, 0f, (life - 0.3f) / 0.7f);
+            Main.EntitySpriteDraw(bloomTex, drawPos, null, Color.White * coreFade * 0.8f, 0f,
+                bloomOrigin, coreScale, SpriteEffects.None, 0);
+
+            // Layer 4: Secondary colored ring, slightly behind the main one
+            Color ring2Color = new Color(135, 206, 250) { A = 0 };
+            float ring2Scale = MathHelper.Lerp(0.05f, 1.3f, expand);
+            Main.EntitySpriteDraw(ringTex, drawPos, null, ring2Color * fade * 0.3f,
+                MathHelper.PiOver4 * life, ringOrigin, ring2Scale, SpriteEffects.None, 0);
+
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer,
+                null, Main.GameViewMatrix.TransformationMatrix);
+
+            return false;
+        }
     }
 }

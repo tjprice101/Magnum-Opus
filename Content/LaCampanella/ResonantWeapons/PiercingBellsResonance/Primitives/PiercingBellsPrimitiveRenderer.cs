@@ -1,0 +1,127 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Terraria;
+using Terraria.ModLoader;
+
+namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Primitives
+{
+    public class BulletTrailSettings
+    {
+        public string TrailTexturePath = "MagnumOpus/Assets/SandboxLastPrism/Trails/Trail5Loop";
+        public Color ColorStart = Color.White;
+        public Color ColorEnd = Color.Transparent;
+        public float Width = 8f;
+        public float BloomIntensity = 0.3f;
+    }
+
+    public class PiercingBellsPrimitiveRenderer : IDisposable
+    {
+        private DynamicVertexBuffer vertexBuffer;
+        private DynamicIndexBuffer indexBuffer;
+        private PiercingBellsVertexType[] vertices;
+        private short[] indices;
+        private bool disposed;
+        private const int MaxVertices = 1024;
+        private const int MaxIndices = 3072;
+
+        public PiercingBellsPrimitiveRenderer()
+        {
+            var device = Main.graphics.GraphicsDevice;
+            vertices = new PiercingBellsVertexType[MaxVertices];
+            indices = new short[MaxIndices];
+            vertexBuffer = new DynamicVertexBuffer(device, PiercingBellsVertexType._vertexDeclaration, MaxVertices, BufferUsage.WriteOnly);
+            indexBuffer = new DynamicIndexBuffer(device, IndexElementSize.SixteenBits, MaxIndices, BufferUsage.WriteOnly);
+        }
+
+        public void DrawTrail(SpriteBatch sb, List<Vector2> points, BulletTrailSettings settings, Vector2 screenPos)
+        {
+            if (points == null || points.Count < 2 || disposed) return;
+
+            int segCount = points.Count - 1;
+            int vertCount = (segCount + 1) * 2;
+            int idxCount = segCount * 6;
+            if (vertCount > MaxVertices || idxCount > MaxIndices) return;
+
+            for (int i = 0; i <= segCount; i++)
+            {
+                float t = (float)i / segCount;
+                Vector2 pos = points[i] - screenPos;
+
+                Vector2 dir;
+                if (i == 0) dir = Vector2.Normalize(points[1] - points[0]);
+                else if (i == segCount) dir = Vector2.Normalize(points[i] - points[i - 1]);
+                else dir = Vector2.Normalize(points[i + 1] - points[i - 1]);
+
+                Vector2 perp = new Vector2(-dir.Y, dir.X);
+                float width = settings.Width * (1f - t * 0.7f);
+                Color color = Color.Lerp(settings.ColorStart, settings.ColorEnd, t);
+
+                vertices[i * 2] = new PiercingBellsVertexType(pos + perp * width, color, new Vector3(t, 0f, 1f));
+                vertices[i * 2 + 1] = new PiercingBellsVertexType(pos - perp * width, color, new Vector3(t, 1f, 1f));
+            }
+
+            int idx = 0;
+            for (int i = 0; i < segCount; i++)
+            {
+                int v = i * 2;
+                indices[idx++] = (short)v;
+                indices[idx++] = (short)(v + 1);
+                indices[idx++] = (short)(v + 2);
+                indices[idx++] = (short)(v + 1);
+                indices[idx++] = (short)(v + 3);
+                indices[idx++] = (short)(v + 2);
+            }
+
+            try
+            {
+                var device = Main.graphics.GraphicsDevice;
+                vertexBuffer.SetData(vertices, 0, vertCount);
+                indexBuffer.SetData(indices, 0, idxCount);
+
+                var trailTex = ModContent.Request<Texture2D>(settings.TrailTexturePath).Value;
+
+                sb.End();
+                device.SetVertexBuffer(vertexBuffer);
+                device.Indices = indexBuffer;
+                device.Textures[0] = trailTex;
+                device.SamplerStates[0] = SamplerState.LinearClamp;
+
+                device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertCount, 0, idxCount / 3);
+
+                device.SetVertexBuffer(null);
+                device.Indices = null;
+
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                // Bloom overlay
+                if (settings.BloomIntensity > 0f && points.Count > 0)
+                {
+                    var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+                    Color bloomCol = settings.ColorStart * settings.BloomIntensity;
+                    sb.Draw(bloomTex, points[0] - screenPos, null, bloomCol, 0f,
+                        bloomTex.Size() / 2f, settings.Width * 0.02f, SpriteEffects.None, 0f);
+                }
+            }
+            catch
+            {
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
+        }
+
+        public void Dispose()
+        {
+            if (disposed) return;
+            disposed = true;
+            vertexBuffer?.Dispose();
+            indexBuffer?.Dispose();
+        }
+    }
+}

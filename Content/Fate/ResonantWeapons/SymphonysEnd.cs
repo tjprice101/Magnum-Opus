@@ -1,3 +1,4 @@
+/*  COMMENTED OUT — replaced by Content/Fate/ResonantWeapons/SymphonysEnd/SymphonysEndItem.cs
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -120,3 +121,4 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         }
     }
 }
+*/

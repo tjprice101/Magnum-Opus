@@ -15,6 +15,7 @@ using MagnumOpus.Content.ClairDeLune.Projectiles;
 using MagnumOpus.Content.ClairDeLune.ResonanceEnergies;
 using MagnumOpus.Content.ClairDeLune.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
+using MagnumOpus.Content.ClairDeLune.Weapons.Summon;
 
 namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
 {
@@ -69,6 +70,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
             // Entrance VFX
             ClairDeLuneVFX.TemporalChargeRelease(spawnPos, 0.8f);
             ClairDeLuneVFX.CrystalShatterBurst(spawnPos, 12, 6f, 0.7f);
+            LunarPhylacteryVFX.SummonVFX(spawnPos);
             
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 0.9f }, spawnPos);
             
@@ -79,6 +81,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
 
         public override void HoldItem(Player player)
         {
+            LunarPhylacteryVFX.HoldItemVFX(player);
+
             if (Main.rand.NextBool(15))
             {
                 Vector2 crystalPos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
@@ -226,6 +230,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
                     
                     SoundEngine.PlaySound(SoundID.Item33 with { Volume = 0.7f, Pitch = 0.3f }, Projectile.Center);
                     ClairDeLuneVFX.SpawnLightningBurst(Projectile.Center, attackDir * 4f, false, 0.5f);
+                    LunarPhylacteryVFX.SoulBeamFireVFX(Projectile.Center, attackDir);
                 }
             }
             else
@@ -282,6 +287,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
                 MagnumParticleHandler.SpawnParticle(trail);
             }
             
+            LunarPhylacteryVFX.MinionAmbientVFX(Projectile.Center);
             Lighting.AddLight(Projectile.Center, ClairDeLuneColors.Crystal.ToVector3() * (0.4f + totalSouls * 0.02f));
         }
 
@@ -389,7 +395,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
     /// </summary>
     public class PhylacteryBeamProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningStreak";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Trails/spark_06";
 
         private int SoulCount => (int)Projectile.ai[0];
 
@@ -422,6 +428,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             ClairDeLuneVFX.CrystalShatterBurst(target.Center, 6, 4f, 0.5f);
+            LunarPhylacteryVFX.SoulBeamImpactVFX(target.Center);
             target.AddBuff(BuffID.Frostburn2, 120);
             
             // If kill, try to give soul to phylactery
@@ -501,6 +508,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
             // Entrance VFX
             ClairDeLuneVFX.ClockworkGearCascade(spawnPos, 12, 8f, 0.8f);
             ClairDeLuneVFX.LightningStrikeExplosion(spawnPos, 0.6f);
+            GearDrivenArbiterVFX.SummonVFX(spawnPos);
             
             SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.2f, Volume = 0.9f }, spawnPos);
             
@@ -511,6 +519,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
 
         public override void HoldItem(Player player)
         {
+            GearDrivenArbiterVFX.HoldItemVFX(player);
+
             if (Main.rand.NextBool(12))
             {
                 Vector2 gearPos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
@@ -646,6 +656,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
                     
                     SoundEngine.PlaySound(SoundID.Item37 with { Volume = 0.7f, Pitch = 0.1f }, Projectile.Center);
                     ClairDeLuneVFX.ClockworkGearCascade(Projectile.Center, 6, 4f, 0.5f);
+                    GearDrivenArbiterVFX.JudgmentStrikeVFX(Projectile.Center);
                 }
             }
             else
@@ -687,6 +698,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
                 MagnumParticleHandler.SpawnParticle(trail);
             }
             
+            GearDrivenArbiterVFX.MinionAmbientVFX(Projectile.Center);
             Lighting.AddLight(Projectile.Center, ClairDeLuneColors.Brass.ToVector3() * 0.45f);
         }
 
@@ -769,7 +781,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
     /// </summary>
     public class ArbiterGearProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearSmall";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SmallHardCircleMask";
 
         public override void SetDefaults()
         {
@@ -829,6 +841,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             ClairDeLuneVFX.ClockworkGearCascade(target.Center, 6, 5f, 0.5f);
+            GearDrivenArbiterVFX.JudgmentStrikeVFX(target.Center);
+            GearDrivenArbiterVFX.MarkTargetVFX(target.Center);
             
             // Apply temporal judgment mark
             target.AddBuff(ModContent.BuffType<TemporalJudgmentDebuff>(), 300);
@@ -934,6 +948,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
             
             // Entrance VFX - resonance burst
             ClairDeLuneVFX.TemporalChargeRelease(spawnPos, 0.9f);
+            AutomatonsTuningForkVFX.SummonVFX(spawnPos);
             
             // Resonance ring
             for (int i = 0; i < 3; i++)
@@ -950,6 +965,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
 
         public override void HoldItem(Player player)
         {
+            AutomatonsTuningForkVFX.HoldItemVFX(player);
+
             if (Main.rand.NextBool(18))
             {
                 Vector2 ringPos = player.Center;
@@ -1079,6 +1096,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
                 }
                 
                 ClairDeLuneVFX.TemporalChargeRelease(Projectile.Center, 0.5f);
+                AutomatonsTuningForkVFX.ResonancePulseVFX(Projectile.Center, ResonanceRadius);
                 SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.6f, Volume = 0.5f }, Projectile.Center);
                 
                 // Damage nearby enemies
@@ -1133,6 +1151,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
                 MagnumParticleHandler.SpawnParticle(trail);
             }
             
+            AutomatonsTuningForkVFX.MinionAmbientVFX(Projectile.Center);
             Lighting.AddLight(Projectile.Center, ClairDeLuneColors.MoonlightSilver.ToVector3() * 0.5f);
         }
 

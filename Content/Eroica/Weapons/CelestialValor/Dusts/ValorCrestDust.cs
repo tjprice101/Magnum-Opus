@@ -16,7 +16,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Dusts
     /// </summary>
     public class ValorCrestDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/CrispStar4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard";
 
         public override void OnSpawn(Dust dust)
         {

@@ -10,189 +10,178 @@ using MagnumOpus.Common.Systems.Particles;
 namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 {
     /// <summary>
-    /// VFX helper for the Twilight Severance melee weapon.
-    /// The razor boundary between day and night — dusk violet cutting arcs,
-    /// nebula pink accents, twilight shimmer dissolve, and clean silver edges.
-    /// Every cut severs light from darkness.
+    /// Shader-driven VFX for Twilight Severance — the ultra-fast dimensional katana.
+    /// Uses DimensionalRift.fx for razor-sharp dimensional tear trails.
+    /// Every cut severs the boundary between day and night.
     /// </summary>
     public static class TwilightSeveranceVFX
     {
         // =====================================================================
-        //  HOLD ITEM VFX
+        //  HoldItemVFX — Twilight shimmer oscillating dusk↔dawn
         // =====================================================================
-
         public static void HoldItemVFX(Player player)
         {
-            if (Main.dedServ) return;
-
-            Vector2 center = player.MountedCenter;
-            float time = (float)Main.timeForVisualEffects;
-
-            // Twilight shimmer — oscillating between dusk and dawn
-            if (Main.rand.NextBool(6))
-            {
-                float shift = (float)Math.Sin(time * 0.05f) * 0.5f + 0.5f;
-                Color shimmerColor = Color.Lerp(NachtmusikPalette.DuskViolet, NachtmusikPalette.NebulaPink, shift);
-                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
-                var glow = new GenericGlowParticle(center + offset, Main.rand.NextVector2Circular(0.5f, 0.5f),
-                    shimmerColor * 0.4f, 0.15f, 18, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-
-            // Silver edge motes
-            if (Main.rand.NextBool(12))
-            {
-                Vector2 edgeOffset = new Vector2(player.direction * 20f + Main.rand.NextFloat(-5f, 5f), Main.rand.NextFloat(-15f, 15f));
-                try { CustomParticles.GenericFlare(center + edgeOffset, NachtmusikPalette.MoonlitSilver * 0.4f, 0.12f, 10); } catch { }
-            }
-
-            NachtmusikVFXLibrary.AddNachtmusikLight(center, 0.2f);
-        }
-
-        // =====================================================================
-        //  PREDRAW IN WORLD BLOOM
-        // =====================================================================
-
-        public static void PreDrawInWorldBloom(SpriteBatch sb, Texture2D tex,
-            Vector2 pos, Vector2 origin, float rotation, float scale)
-        {
-            float time = (float)Main.timeForVisualEffects;
-            float pulse = 1f + MathF.Sin(time * 0.045f) * 0.03f;
-            NachtmusikPalette.DrawItemBloom(sb, tex, pos, origin, rotation, scale, pulse);
-        }
-
-        // =====================================================================
-        //  SWING TRAIL VFX
-        // =====================================================================
-
-        /// <summary>
-        /// Per-frame swing trail: dusk violet cuts, nebula pink accents,
-        /// clean silver edge shimmer. Precise and sharp.
-        /// </summary>
-        public static void SwingTrailVFX(Vector2 tipPos, Vector2 swordDirection, int comboStep, int timer)
-        {
-            if (Main.dedServ) return;
-
-            // Dusk violet cutting dust
-            for (int i = 0; i < 2; i++)
-            {
-                Vector2 vel = -swordDirection * Main.rand.NextFloat(1.5f, 3.5f) + Main.rand.NextVector2Circular(0.4f, 0.4f);
-                Dust d = Dust.NewDustPerfect(tipPos, DustID.PurpleTorch, vel, 0,
-                    NachtmusikPalette.DuskViolet, 1.3f);
-                d.noGravity = true;
-            }
-
-            // Clean silver edge sparkle (1-in-2)
-            if (Main.rand.NextBool(2))
-            {
-                Vector2 sparkVel = -swordDirection * Main.rand.NextFloat(1f, 2f);
-                var spark = new GlowSparkParticle(tipPos, sparkVel,
-                    NachtmusikPalette.MoonlitSilver, 0.2f, 12);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-
-            // Nebula pink accent (1-in-4)
             if (Main.rand.NextBool(4))
             {
-                try { CustomParticles.GenericFlare(
-                    tipPos + Main.rand.NextVector2Circular(5f, 5f),
-                    NachtmusikPalette.NebulaPink * 0.6f, 0.22f, 14); } catch { }
+                // Oscillating dusk↔dawn shimmer particles
+                float oscillation = (float)Math.Sin(Main.timeForVisualEffects * 0.08) * 0.5f + 0.5f;
+                Color shimmerColor = Color.Lerp(NachtmusikPalette.DuskViolet, NachtmusikPalette.MoonlitSilver, oscillation);
+
+                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
+                Vector2 vel = Main.rand.NextVector2Circular(0.3f, 0.3f);
+
+                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.PurpleTorch, vel, 0, default, 0.5f);
+                d.noGravity = true;
+                d.fadeIn = 0.7f;
             }
 
-            // Music notes
-            if (timer % 5 == 0)
-                NachtmusikVFXLibrary.SpawnMusicNotes(tipPos, 1, 10f, 0.7f, 0.9f, 25);
+            if (Main.rand.NextBool(10))
+            {
+                // Silver edge mote — the blade's dimensional echo
+                Vector2 edgeOffset = Main.rand.NextVector2CircularEdge(20f, 20f);
+                Dust silver = Dust.NewDustPerfect(player.Center + edgeOffset, DustID.SilverFlame,
+                    edgeOffset * 0.02f, 0, default, 0.4f);
+                silver.noGravity = true;
+            }
 
-            // Twilight twinkling
-            if (timer % 9 == 0)
-                NachtmusikVFXLibrary.SpawnTwinklingStars(tipPos, 1, 8f);
-
-            Lighting.AddLight(tipPos, NachtmusikPalette.DuskViolet.ToVector3() * (0.4f + comboStep * 0.1f));
+            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.2f);
         }
 
         // =====================================================================
-        //  SWING IMPACT VFX
+        //  PreDrawInWorldBloom — Shader-driven dimensional glow
         // =====================================================================
+        public static void PreDrawInWorldBloom(SpriteBatch sb, Texture2D tex, Vector2 pos,
+            Vector2 origin, float rotation, float scale)
+        {
+            if (NachtmusikShaderManager.HasDimensionalRift)
+            {
+                NachtmusikShaderManager.BeginShaderAdditive(sb);
+                NachtmusikShaderManager.ApplyDimensionalRiftGlow((float)Main.timeForVisualEffects * 0.03f);
 
-        /// <summary>
-        /// On-hit impact: twilight severance flash, dusk-dawn split burst,
-        /// nebula sparkles, clean silver ring.
-        /// </summary>
+                sb.Draw(tex, pos - Main.screenPosition, null,
+                    NachtmusikPalette.MoonlitSilver * 0.5f, rotation, origin, scale * 1.04f,
+                    SpriteEffects.None, 0f);
+
+                NachtmusikShaderManager.RestoreSpriteBatch(sb);
+            }
+            else
+            {
+                NachtmusikVFXLibrary.DrawNachtmusikBloomStack(sb, pos,
+                    NachtmusikPalette.DuskViolet, NachtmusikPalette.MoonlitSilver, scale * 0.3f, 0.4f);
+            }
+        }
+
+        // =====================================================================
+        //  SwingTrailVFX — Dimensional tear dust at blade edge
+        // =====================================================================
+        public static void SwingTrailVFX(Vector2 tipPos, Vector2 swordDirection, int comboStep, int timer)
+        {
+            // Ultra-fast katana: every frame gets dust
+            Vector2 perpendicular = new Vector2(-swordDirection.Y, swordDirection.X);
+
+            // Dusk violet cut line
+            Vector2 dustVel = perpendicular * Main.rand.NextFloat(-1.5f, 1.5f) + swordDirection * 1f;
+            Dust d = Dust.NewDustPerfect(tipPos, DustID.PurpleTorch, dustVel, 0, default, 0.9f);
+            d.noGravity = true;
+            d.fadeIn = 1f;
+
+            // Silver edge sparkle — the dimensional boundary
+            if (timer % 2 == 0)
+            {
+                Vector2 silverVel = swordDirection * 2f + Main.rand.NextVector2Circular(1f, 1f);
+                Dust silver = Dust.NewDustPerfect(tipPos, DustID.SilverFlame, silverVel, 0, default, 0.6f);
+                silver.noGravity = true;
+            }
+
+            // Quick star accents
+            if (timer % 3 == 0)
+            {
+                NachtmusikVFXLibrary.SpawnTwinklingStars(tipPos, 1, 6f);
+            }
+
+            // Music notes at high combo only
+            if (comboStep >= 2 && timer % 5 == 0)
+            {
+                NachtmusikVFXLibrary.SpawnMusicNotes(tipPos, 1, 10f, 0.4f, 0.6f, 20);
+            }
+
+            NachtmusikVFXLibrary.AddPaletteLighting(tipPos, 0.5f, 0.4f);
+        }
+
+        // =====================================================================
+        //  SwingImpactVFX — Split-polarity dimensional impact
+        // =====================================================================
         public static void SwingImpactVFX(Vector2 hitPos, int comboStep = 0)
         {
-            if (Main.dedServ) return;
+            float intensity = 1f + comboStep * 0.2f;
 
-            // Twilight bloom
-            NachtmusikVFXLibrary.DrawBloom(hitPos, 0.45f + comboStep * 0.1f);
+            NachtmusikVFXLibrary.MeleeImpact(hitPos, comboStep);
 
-            // Dusk-violet halo rings
-            NachtmusikVFXLibrary.SpawnGradientHaloRings(hitPos, 3 + comboStep);
-
-            // Split dust burst — half dusk, half starlit
-            int dustCount = 8 + comboStep * 3;
+            // Split dust burst — half dusk, half silver (the dimensional tear)
+            int dustCount = 10 + comboStep * 3;
             for (int i = 0; i < dustCount; i++)
             {
                 float angle = MathHelper.TwoPi * i / dustCount;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
-                bool isDusk = i % 2 == 0;
-                Color col = isDusk ? NachtmusikPalette.DuskViolet : NachtmusikPalette.MoonlitSilver;
-                int dustType = isDusk ? DustID.PurpleTorch : DustID.BlueTorch;
-                Dust d = Dust.NewDustPerfect(hitPos, dustType, vel, 0, col, 1.3f);
+                Vector2 vel = angle.ToRotationVector2() * (4f + Main.rand.NextFloat() * 2f) * intensity;
+
+                // Alternate between dusk and silver
+                int dustType = (i % 2 == 0) ? DustID.PurpleTorch : DustID.SilverFlame;
+                Dust d = Dust.NewDustPerfect(hitPos, dustType, vel, 0, default, 1f * intensity);
                 d.noGravity = true;
+                d.fadeIn = 1.1f;
             }
 
-            // Nebula pink sparkle accents
-            for (int i = 0; i < 3 + comboStep; i++)
+            // Nebula pink accent sparkles at higher combo
+            if (comboStep >= 1)
             {
-                try { CustomParticles.GenericFlare(
-                    hitPos + Main.rand.NextVector2Circular(12f, 12f),
-                    NachtmusikPalette.NebulaPink, 0.3f, 16); } catch { }
+                NachtmusikVFXLibrary.SpawnStarBurst(hitPos, 4 + comboStep * 2, 0.35f);
             }
 
-            // Clean silver ring
-            try { CustomParticles.HaloRing(hitPos, NachtmusikPalette.MoonlitSilver, 0.35f, 14); } catch { }
+            // Silver dimensional ring
+            if (comboStep >= 2)
+            {
+                NachtmusikVFXLibrary.SpawnGradientHaloRings(hitPos, 3, 0.3f * intensity);
+            }
 
-            // Music notes
-            NachtmusikVFXLibrary.SpawnMusicNotes(hitPos, 2 + comboStep, 20f);
-
-            // Twinkling
-            NachtmusikVFXLibrary.SpawnTwinklingStars(hitPos, 2 + comboStep, 15f);
-
-            Lighting.AddLight(hitPos, NachtmusikPalette.MoonlitSilver.ToVector3() * (0.7f + comboStep * 0.15f));
+            NachtmusikVFXLibrary.SpawnMusicNotes(hitPos, 1 + comboStep, 15f, 0.5f, 0.8f, 25);
+            NachtmusikVFXLibrary.DrawBloom(hitPos, 0.35f * intensity, 0.7f);
+            NachtmusikVFXLibrary.AddPaletteLighting(hitPos, 0.5f, 0.6f * intensity);
         }
 
         // =====================================================================
-        //  FINISHER VFX
+        //  FinisherVFX — Dimensional severance: dual-polarity cascade
         // =====================================================================
-
-        /// <summary>
-        /// Finisher: twilight severance — reality splits between light and dark,
-        /// dusk-dawn polarity explosion, nebula cascade, silver edge ring.
-        /// </summary>
         public static void FinisherVFX(Vector2 pos, float intensity = 1f)
         {
-            if (Main.dedServ) return;
+            // Alternating dusk/silver spark waves
+            NachtmusikVFXLibrary.SpawnStarburstCascade(pos, 4, intensity, 1f);
 
-            NachtmusikVFXLibrary.FinisherSlam(pos, intensity);
+            // Shattered dimensional fragments
+            NachtmusikVFXLibrary.SpawnShatteredStarlight(pos, 8, 6f * intensity, 0.7f, false);
 
-            // Unique twilight split: alternating dusk/silver spark waves
-            for (int i = 0; i < 10; i++)
+            // Nebula pink accent cascade
+            NachtmusikVFXLibrary.SpawnRadianceBurst(pos, 10, 5f * intensity);
+
+            // Silver dimensional halo rings
+            NachtmusikVFXLibrary.SpawnGradientHaloRings(pos, 5, 0.35f * intensity);
+
+            // Music notes
+            NachtmusikVFXLibrary.SpawnMusicNotes(pos, 5, 30f, 0.6f, 1f, 35);
+
+            // Dual-polarity dust wave
+            for (int i = 0; i < 16; i++)
             {
-                float angle = MathHelper.TwoPi * i / 10f;
-                Vector2 vel = angle.ToRotationVector2() * 6f * intensity;
-                bool isDusk = i % 2 == 0;
-                Color splitColor = isDusk ? NachtmusikPalette.DuskViolet : NachtmusikPalette.MoonlitSilver;
-                var spark = new GlowSparkParticle(pos, vel, splitColor, 0.35f * intensity, 22);
-                MagnumParticleHandler.SpawnParticle(spark);
+                float angle = MathHelper.TwoPi * i / 16f;
+                Vector2 vel = angle.ToRotationVector2() * (5f * intensity + Main.rand.NextFloat() * 2f);
+
+                int dustType = (i % 2 == 0) ? DustID.PurpleTorch : DustID.SilverFlame;
+                Dust d = Dust.NewDustPerfect(pos, dustType, vel, 0, default, 1.2f * intensity);
+                d.noGravity = true;
+                d.fadeIn = 1.3f;
             }
 
-            // Nebula pink cascade
-            for (int i = 0; i < 6; i++)
-            {
-                Vector2 nebOffset = Main.rand.NextVector2Circular(30f * intensity, 30f * intensity);
-                try { CustomParticles.GenericFlare(pos + nebOffset,
-                    NachtmusikPalette.NebulaPink, 0.4f * intensity, 20 + i * 2); } catch { }
-            }
+            NachtmusikVFXLibrary.DrawComboBloom(pos, 2, 0.45f * intensity, 0.9f);
+            NachtmusikVFXLibrary.AddPaletteLighting(pos, 0.4f, 1f * intensity);
         }
     }
 }

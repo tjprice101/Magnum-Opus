@@ -264,10 +264,10 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 // Try to load compiled shader
                 // Note: You'll need to compile RadialScrollShader.fx to .xnb
-                if (ModContent.HasAsset("MagnumOpus/Assets/Shaders/RadialScrollShader"))
+                if (ModContent.HasAsset("MagnumOpus/Effects/RadialScrollShader"))
                 {
                     _radialScrollEffect = ModContent.Request<Effect>(
-                        "MagnumOpus/Assets/Shaders/RadialScrollShader",
+                        "MagnumOpus/Effects/RadialScrollShader",
                         AssetRequestMode.ImmediateLoad
                     ).Value;
                     return true;

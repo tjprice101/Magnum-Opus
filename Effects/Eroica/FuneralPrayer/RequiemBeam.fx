@@ -1,43 +1,38 @@
 // =============================================================================
-// Requiem Beam Shader - VS 2.0 + PS 2.0 Compatible
+// Requiem Beam Shader - Tesla Coil Funeral Beam
 // =============================================================================
-// Electric tracking beam body for Funeral Prayer magic staff.
-// Funeral-fire colored beam with flickering arc distortion (like Tesla
-// coil), somber deep scarlet core fading to requiem gold at edges,
-// smoke wisps emanating from the beam body.
+// Beam shader for Funeral Prayer magic staff. A mourning beam that
+// crackles with Tesla arc discharges, wreathed in smoke wisps, with
+// a deep mournful pulse that makes the beam breathe with sorrow.
 //
-// UV Layout:
-//   U (coords.x) = along beam (0 = source, 1 = target)
-//   V (coords.y) = across beam width (0 = top edge, 1 = bottom edge)
+// VISUAL IDENTITY: Not a clean laser -- this is a Tesla coil discharge
+// wrapped in incense smoke. The beam core is irregular, constantly
+// shifting with 3-frequency arc distortion. Smoke wisps curl at the
+// beam edges like funeral incense. The beam intensity surges and fades
+// with a slow, mournful cadence. Small electrical crackle sparks
+// branch off at random points along the beam length.
 //
 // Techniques:
-//   RequiemBeamMain  - Electric arc beam body with smoke wisps
-//   RequiemBeamGlow  - Soft mournful bloom for beam halo
-//
-// Features:
-//   - Tesla coil arc distortion via high-freq sine modulation
-//   - Somber scarlet ↁErequiem gold gradient
-//   - Smoke wisp impressions at beam edges
-//   - Steady, mournful pulse (not frantic)
-//   - Procedural hash noise for arc variation
-//   - Overbright multiplier for HDR bloom
+//   RequiemBeamMain  - Tesla arc beam with smoke wisps
+//   RequiemBeamGlow  - Mournful haze bloom
 // =============================================================================
 
-sampler2D uImage0 : register(s0); // Base beam texture
-sampler2D uImage1 : register(s1); // Noise texture (optional)
+sampler2D uImage0 : register(s0);
+sampler2D uImage1 : register(s1);
 
 float4x4 uTransformMatrix;
 float uTime;
-float3 uColor;           // Primary color (DeepScarlet)
-float3 uSecondaryColor;  // Secondary color (RequiemGold)
+float3 uColor;
+float3 uSecondaryColor;
 float uOpacity;
 float uIntensity;
 float uOverbrightMult;
-float uScrollSpeed;       // Arc scroll rate
-float uDistortionAmt;     // Arc displacement strength
-float uNoiseScale;        // Noise UV repetition
-float uArcFrequency;      // Arc oscillation frequency
-float uArcAmplitude;       // Arc lateral amplitude
+float uScrollSpeed;
+float uDistortionAmt;
+float uNoiseScale;
+float uPhase;
+float uArcFrequency;
+float uArcAmplitude;
 float uHasSecondaryTex;
 
 // =============================================================================
@@ -81,12 +76,10 @@ float SmoothHash(float2 uv)
     float2 i = floor(uv);
     float2 f = frac(uv);
     float2 u = f * f * (3.0 - 2.0 * f);
-
     float a = HashNoise(i);
     float b = HashNoise(i + float2(1.0, 0.0));
     float c = HashNoise(i + float2(0.0, 1.0));
     float d = HashNoise(i + float2(1.0, 1.0));
-
     return lerp(lerp(a, b, u.x), lerp(c, d, u.x), u.y);
 }
 
@@ -101,7 +94,42 @@ float4 ApplyOverbright(float3 color, float alpha)
 }
 
 // =============================================================================
-// TECHNIQUE 1: REQUIEM BEAM MAIN
+// TESLA ARC: 3-frequency electrical discharge displacement
+// =============================================================================
+
+float TeslaArc(float x, float time)
+{
+    float baseFreq = uArcFrequency;
+    float baseAmp = uArcAmplitude;
+
+    // 3 overlapping frequencies for chaotic electrical feel
+    float arc1 = sin(x * baseFreq + time * 12.0) * baseAmp;
+    float arc2 = sin(x * baseFreq * 2.3 + time * 18.0 + 1.7) * baseAmp * 0.5;
+    float arc3 = sin(x * baseFreq * 5.7 + time * 25.0 + 3.1) * baseAmp * 0.2;
+
+    // Occasional sharp snap: fast jitter at irregular intervals
+    float snap = HashNoise(float2(floor(x * 3.0 + time * 5.0), floor(time * 8.0)));
+    float snapArc = (snap - 0.5) * baseAmp * step(0.9, snap);
+
+    return arc1 + arc2 + arc3 + snapArc;
+}
+
+// Smoke wisp: curling shape for funeral incense
+float SmokeWisp(float2 uv, float speed, float phase)
+{
+    float2 wispUV = uv;
+    wispUV.x -= uTime * speed;
+    wispUV.y += sin(wispUV.x * 3.0 + uTime * 0.8 + phase) * 0.15; // Curl
+
+    float noise = SmoothHash(wispUV * uNoiseScale * 0.5);
+
+    // Wisp shape: narrow band modulated by noise
+    float band = saturate(1.0 - abs(uv.y - 0.5 + sin(uv.x * 2.0 + phase) * 0.1) * 5.0);
+    return band * noise;
+}
+
+// =============================================================================
+// TECHNIQUE 1: REQUIEM BEAM MAIN - Tesla Arc + Smoke
 // =============================================================================
 
 float4 RequiemBeamMainPS(VertexShaderOutput input) : COLOR0
@@ -109,70 +137,98 @@ float4 RequiemBeamMainPS(VertexShaderOutput input) : COLOR0
     float2 coords = input.TexCoord;
     float4 sampleColor = input.Color;
 
-    // --- Tesla coil arc distortion ---
-    // Primary arc: sweeping lateral displacement
-    float arcTime = uTime * uScrollSpeed * 4.0;
-    float arc1 = sin(coords.x * uArcFrequency + arcTime) * uArcAmplitude;
-    // Secondary arc: higher freq for electrical jitter
-    float arc2 = sin(coords.x * uArcFrequency * 2.3 - arcTime * 1.5) * uArcAmplitude * 0.4;
-    // Tertiary: rapid micro-jitter
-    float arc3 = sin(coords.x * uArcFrequency * 5.0 + arcTime * 3.0) * uArcAmplitude * 0.15;
+    // --- Tesla arc displacement (3 frequencies) ---
+    float arcDisplace = TeslaArc(coords.x, uTime);
 
-    float2 distortedUV = coords;
-    distortedUV.y += arc1 + arc2 + arc3;
+    // Displaced beam centreline
+    float beamCenter = 0.5 + arcDisplace;
+    float beamDist = abs(coords.y - beamCenter);
 
-    float4 baseTex = tex2D(uImage0, distortedUV);
+    // Multi-layer beam brightness
+    float beamCore = saturate(1.0 - beamDist * 30.0);  // Ultra-thin bright core
+    float beamBody = saturate(1.0 - beamDist * 10.0);   // Medium body
+    float beamField = saturate(1.0 - beamDist * 4.0);   // Wide field
 
-    // --- Beam core profile ---
-    float edgeFade = QuadraticBump(coords.y);
+    beamCore = pow(beamCore, 0.6);
 
-    // --- Beam length (source bright, target dimmer) ---
-    float beamFade = 0.85 + 0.15 * (1.0 - coords.x);
+    // --- Secondary arc: smaller companion arc at offset ---
+    float arcDisplace2 = TeslaArc(coords.x + 0.5, uTime + 1.0) * 0.6;
+    float beam2Center = 0.5 + arcDisplace2;
+    float beam2Dist = abs(coords.y - beam2Center);
+    float beam2 = saturate(1.0 - beam2Dist * 15.0) * 0.3;
 
-    // --- Smoke wisp impressions at edges ---
-    float edgeMask = saturate((0.55 - edgeFade) * 3.0);
-    float2 smokeP = float2(coords.x * 3.0 - uTime * uScrollSpeed * 0.5, coords.y * 2.0 - uTime * 0.2);
-    float smokeNoise = SmoothHash(smokeP * uNoiseScale);
-    float wisps = edgeMask * smokeNoise * 0.35;
+    // --- Smoke wisps at beam edges ---
+    float wisp1 = SmokeWisp(coords + float2(0.0, 0.15), uScrollSpeed * 0.3, 0.0);
+    float wisp2 = SmokeWisp(coords - float2(0.0, 0.15), uScrollSpeed * 0.25, 2.0);
+    float wisp3 = SmokeWisp(coords + float2(0.0, 0.25), uScrollSpeed * 0.2, 4.5);
 
-    // Optional noise texture
-    float2 noiseUV = coords * uNoiseScale;
-    noiseUV.x -= uTime * uScrollSpeed * 0.6;
-    float4 noiseTex = tex2D(uImage1, noiseUV);
-    float noiseVal = lerp(smokeNoise * 0.5 + 0.35, noiseTex.r, uHasSecondaryTex * 0.6);
+    // Wisps are strongest at beam edges
+    float edgeMask = saturate((beamField - beamBody) * 3.0);
+    float totalWisps = (wisp1 + wisp2 + wisp3) * 0.33 * (edgeMask * 0.7 + 0.3);
 
-    // --- Funeral colour gradient ---
-    // Scarlet core ↁEgold edges ↁEash at far end
-    float gradientT = coords.x * 0.5 + (1.0 - edgeFade) * 0.3 + noiseVal * 0.2;
-    float3 beamColor = lerp(uColor, uSecondaryColor, gradientT);
+    // --- Electrical crackle branches ---
+    // Small arcs that branch off the main beam at irregular intervals
+    float branchSeed = HashNoise(float2(floor(coords.x * 5.0 + uTime * 3.0), 0.0));
+    float branchVisible = step(0.8, branchSeed);
 
-    // Dimmer white core (somber, not blazing)
-    float coreMask = saturate((edgeFade - 0.55) * 2.5);
-    float3 dimWhite = float3(0.92, 0.85, 0.72);
-    beamColor = lerp(beamColor, dimWhite, coreMask * 0.5);
+    // Branch angle from main arc
+    float branchAngle = (branchSeed - 0.5) * 1.5;
+    float branchLen = branchSeed * 0.08;
+    float branchDist = abs(coords.y - beamCenter - branchAngle * (coords.x - floor(coords.x * 5.0 + uTime * 3.0) / 5.0));
+    float branch = saturate(1.0 - branchDist * 40.0) * branchVisible * beamField;
 
-    // Smoke-darkened edges
-    beamColor *= 1.0 - wisps * 0.4;
+    // --- Mournful pulse: slow, sorrowful breathing ---
+    float mournPulse = sin(uTime * 1.2) * 0.5 + 0.5;
+    mournPulse = pow(mournPulse, 1.5); // Asymmetric: slow fade, faster rise
+    float mournIntensity = 0.6 + mournPulse * 0.4;
 
-    // --- Electrical arc bright nodes ---
-    float arcNode = saturate(abs(arc1) * 12.0 - 0.3);
-    beamColor *= 1.0 + arcNode * 0.2;
+    // --- Base texture ---
+    float2 texUV = coords;
+    texUV.y += arcDisplace * 0.3;
+    texUV.x -= uTime * uScrollSpeed * 0.5;
+    float4 baseTex = tex2D(uImage0, texUV);
 
-    // --- Slow mournful pulse ---
-    float pulse = sin(uTime * 3.0 + coords.x * 4.0) * 0.05 + 0.95;
-    pulse *= sin(uTime * 2.0 + coords.x * 7.0) * 0.03 + 0.97;
+    // --- Noise texture blend ---
+    float noiseVal = SmoothHash(coords * uNoiseScale + float2(-uTime * 0.5, 0.0));
+    float4 noiseTex = tex2D(uImage1, coords * uNoiseScale * 0.3 - float2(uTime * 0.3, 0.0));
+    noiseVal = lerp(noiseVal, noiseTex.r, uHasSecondaryTex * 0.4);
 
-    // --- Final composition ---
-    float3 finalColor = beamColor * baseTex.rgb * uIntensity * pulse;
-    finalColor *= 0.6 + noiseVal * 0.4;
+    // --- Beam length taper ---
+    float lengthFade = saturate(1.0 - coords.x * 0.15); // Very gradual
 
-    float alpha = (edgeFade * beamFade + wisps) * uOpacity * sampleColor.a * baseTex.a;
+    // --- Colour: Deep crimson core -> dark smoke edges ---
+    float3 coreColor = uColor * 2.0; // Overbright crimson
+    float3 bodyColor = lerp(uColor, uSecondaryColor, 0.2);
+    float3 smokeColor = uSecondaryColor * 0.3; // Dark smoke at edges
+
+    float3 beamColor = coreColor * beamCore
+                      + bodyColor * beamBody * 0.5
+                      + smokeColor * totalWisps * 0.5;
+
+    // Secondary arc: slightly different hue
+    float3 arc2Color = lerp(uColor, float3(0.8, 0.3, 0.3), 0.3);
+    beamColor += arc2Color * beam2;
+
+    // Crackle branches: white-hot
+    beamColor += float3(1.0, 0.8, 0.7) * branch * 0.5;
+
+    // Noise modulation for organic feel
+    beamColor *= (0.7 + noiseVal * 0.3);
+
+    // --- Phase modulation ---
+    float phaseBoost = lerp(0.4, 1.2, uPhase);
+
+    // --- Final ---
+    float3 finalColor = beamColor * baseTex.rgb * uIntensity * mournIntensity * phaseBoost;
+
+    float alpha = (beamBody * 0.7 + totalWisps * 0.2 + beam2 * 0.1 + branch * 0.1)
+                * lengthFade * uOpacity * sampleColor.a * baseTex.a * mournIntensity;
 
     return ApplyOverbright(finalColor, alpha);
 }
 
 // =============================================================================
-// TECHNIQUE 2: REQUIEM BEAM GLOW
+// TECHNIQUE 2: REQUIEM BEAM GLOW - Mournful Haze
 // =============================================================================
 
 float4 RequiemBeamGlowPS(VertexShaderOutput input) : COLOR0
@@ -180,33 +236,27 @@ float4 RequiemBeamGlowPS(VertexShaderOutput input) : COLOR0
     float2 coords = input.TexCoord;
     float4 sampleColor = input.Color;
 
-    // Gentle arc distortion
-    float wave = sin(coords.x * uArcFrequency * 0.5 + uTime * uScrollSpeed * 2.0) * uArcAmplitude * 0.4;
-    float2 glowUV = coords;
-    glowUV.y += wave;
+    float4 baseTex = tex2D(uImage0, coords);
 
-    float4 baseTex = tex2D(uImage0, glowUV);
+    // Wide soft beam glow
+    float beamDist = abs(coords.y - 0.5);
+    float wideGlow = saturate(1.0 - beamDist * 2.5);
+    wideGlow = pow(wideGlow, 1.2);
 
-    // Wider, softer edge
-    float edgeFade = QuadraticBump(coords.y);
-    float softEdge = edgeFade * edgeFade;
+    float lengthFade = saturate(1.0 - coords.x * 0.1);
 
-    // Beam fade
-    float beamFade = saturate(1.0 - coords.x * 0.4);
+    // Mournful pulse matches main beam
+    float mournPulse = sin(uTime * 1.2) * 0.5 + 0.5;
+    mournPulse = pow(mournPulse, 1.5);
+    float mournIntensity = 0.7 + mournPulse * 0.3;
 
-    // Mournful glow colour
-    float3 glowColor = lerp(uColor, uSecondaryColor, coords.x * 0.4);
-    float3 amberTint = float3(0.85, 0.50, 0.20);
-    glowColor = lerp(glowColor, amberTint, 0.1);
+    // Smoke haze colour: dark, desaturated
+    float3 hazeColor = lerp(uColor, uSecondaryColor, 0.5) * 0.3;
+    hazeColor *= uIntensity * baseTex.rgb;
 
-    glowColor *= uIntensity * baseTex.rgb * 0.7;
+    float alpha = wideGlow * lengthFade * uOpacity * sampleColor.a * baseTex.a * mournIntensity * uPhase * 0.2;
 
-    // Heartbeat pulse
-    float heartbeat = sin(uTime * 2.0 + coords.x * 3.0) * 0.10 + 0.90;
-
-    float alpha = softEdge * beamFade * uOpacity * sampleColor.a * baseTex.a * heartbeat * 0.35;
-
-    return ApplyOverbright(glowColor, alpha);
+    return ApplyOverbright(hazeColor, alpha);
 }
 
 // =============================================================================

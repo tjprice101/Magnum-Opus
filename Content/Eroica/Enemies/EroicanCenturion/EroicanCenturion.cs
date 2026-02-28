@@ -722,7 +722,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.EroicanCenturion
     /// </summary>
     public class CenturionFireTrail : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare";
 
         public override void SetDefaults()
         {
@@ -759,7 +759,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.EroicanCenturion
     /// </summary>
     public class CenturionInfernoOrb : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare4";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare";
 
         public override void SetDefaults()
         {
@@ -810,7 +810,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.EroicanCenturion
     /// </summary>
     public class CenturionCrimsonMeteor : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ParticleTrail2";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Trails/spark_06";
 
         public override void SetDefaults()
         {
@@ -867,7 +867,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.EroicanCenturion
     /// </summary>
     public class CenturionGoldenSword : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc3";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/VerticalEllipse";
 
         public override void SetDefaults()
         {
@@ -917,7 +917,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.EroicanCenturion
     /// </summary>
     public class CenturionNovaWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo4";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
 
         public override void SetDefaults()
         {

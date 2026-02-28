@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
     /// </summary>
     public class CometEmberDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow3";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow64";
 
         public override void OnSpawn(Dust dust)
         {

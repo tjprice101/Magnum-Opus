@@ -3,33 +3,33 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.GameContent;
 using MagnumOpus.Common;
-using MagnumOpus.Common.BaseClasses;
+using MagnumOpus.Content.Eroica.Weapons.SakurasBlossom.Utilities;
 
 namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
 {
     /// <summary>
-    /// Sakura's Blossom — Eroica endgame melee weapon using held-projectile swing system.
-    /// Each swing blooms with petals — a 4-phase sakura combo that escalates spectral copies.
-    /// Drops from Eroica, God of Valor (no recipe).
+    /// Sakura's Blossom — Eroica endgame melee weapon. Direct ModItem pattern.
+    /// 4-phase sakura combo that escalates spectral copies:
+    ///   Phase 0: Petal Slash       — 1 spectral copy
+    ///   Phase 1: Crimson Scatter   — 2 spectral copies
+    ///   Phase 2: Blossom Bloom     — 3 spectral copies
+    ///   Phase 3: Storm of Petals   — 4 spectral copies + finisher VFX
+    /// Alt-click: Petal Dash — charge forward scattering sakura petals.
     /// </summary>
-    public class SakurasBlossom : MeleeSwingItemBase
+    public class SakurasBlossom : ModItem
     {
-        #region Abstract Overrides (MeleeSwingItemBase)
+        public const int PetalDashTime = 40;
 
-        protected override int SwingProjectileType => ModContent.ProjectileType<SakurasBlossomSwing>();
-        protected override int ComboStepCount => 4;
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
 
-        #endregion
-
-        #region Virtual Overrides
-
-        protected override Color GetLoreColor() => EroicaPalette.Scarlet;
-
-        protected override void SetWeaponDefaults()
+        public override void SetDefaults()
         {
             Item.width = 70;
             Item.height = 70;
@@ -37,72 +37,73 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
             Item.DamageType = DamageClass.MeleeNoSpeed;
             Item.useTime = 20;
             Item.useAnimation = 20;
+            Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 8f;
             Item.scale = 1.3f;
             Item.value = Item.sellPrice(gold: 40);
             Item.rare = ModContent.RarityType<EroicaRainbowRarity>();
-            Item.UseSound = SoundID.Item1;
+            Item.UseSound = null;
+            Item.autoReuse = true;
+            Item.channel = true;
+            Item.noMelee = true;
+            Item.noUseGraphic = true;
+            Item.shoot = ModContent.ProjectileType<SakurasBlossomSwing>();
+            Item.shootSpeed = 6f;
+            Item.maxStack = 1;
         }
 
-        protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
+        public override bool AltFunctionUse(Player player) => true;
+
+        public override bool CanShoot(Player player)
         {
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile p = Main.projectile[i];
+                if (p.active && p.owner == player.whoAmI && p.type == Item.shoot)
+                    return false;
+            }
+            return true;
+        }
+
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            int state = 0;
+            if (player.altFunctionUse == 2)
+                state = 1; // Petal Dash
+
+            var sakura = player.SakuraBlossom();
+            if (sakura.ComboStep == 3 && state == 0)
+                state = 2; // Empowered Storm of Petals
+
+            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, ai0: state);
+            return false;
+        }
+
+        public override void HoldItem(Player player)
+        {
+            var sakura = player.SakuraBlossom();
+            sakura.RightClickListener = player.altFunctionUse == 2;
+            sakura.MouseWorldListener = Main.MouseWorld;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            Player player = Main.LocalPlayer;
+            var sakura = player.SakuraBlossom();
+            string[] phases = { "Petal Slash", "Crimson Scatter", "Blossom Bloom", "Storm of Petals" };
+
             tooltips.Add(new TooltipLine(Mod, "SakuraCombo",
-                "4-phase sakura combo spawns escalating spectral blade copies")
+                $"4-phase sakura combo — current: {phases[sakura.ComboStep]}")
             { OverrideColor = EroicaPalette.Sakura });
             tooltips.Add(new TooltipLine(Mod, "Spectral",
                 "Spectral copies home to enemies and scatter petal bursts on impact")
             { OverrideColor = new Color(255, 180, 200) });
-            tooltips.Add(new TooltipLine(Mod, "SeekingCrystals",
-                "Hits have a chance to unleash seeking valor crystals")
+            tooltips.Add(new TooltipLine(Mod, "Dash",
+                "Right-click to perform a Petal Dash through enemies")
             { OverrideColor = EroicaPalette.Gold });
             tooltips.Add(new TooltipLine(Mod, "Lore",
                 "'Each petal carries the memory of a hero who chose beauty over survival'")
-            { OverrideColor = GetLoreColor() });
+            { OverrideColor = new Color(200, 50, 50) });
         }
-
-        #endregion
-
-        #region HoldItem — Ambient Sakura Aura
-
-        public override void HoldItem(Player player)
-        {
-            base.HoldItem(player);
-
-            if (Main.gameMenu) return;
-
-            SakurasBlossomVFX.HoldItemVFX(player);
-        }
-
-        #endregion
-
-        #region PreDrawInWorld — Item Glow
-
-        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor,
-            ref float rotation, ref float scale, int whoAmI)
-        {
-            Texture2D texture = TextureAssets.Item[Item.type].Value;
-            Vector2 position = Item.Center - Main.screenPosition;
-            Vector2 origin = texture.Size() / 2f;
-
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.055f) * 0.12f + 1f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            EroicaPalette.DrawItemBloom(spriteBatch, texture, position, origin, rotation, scale, pulse);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Lighting.AddLight(Item.Center, EroicaPalette.Scarlet.ToVector3() * 0.6f);
-
-            return true;
-        }
-
-        #endregion
-
-        // No recipe — drops from Eroica, God of Valor
     }
 }

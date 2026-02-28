@@ -6,26 +6,25 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
-using MagnumOpus.Content.Eroica;
-using MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura;
-using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura.Utilities;
+using MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura.Particles;
+using MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura.Primitives;
+using MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura.Dusts;
 
 namespace MagnumOpus.Content.Eroica.Minions
 {
     /// <summary>
-    /// Sakura of Fate - A spectral guardian minion that floats beside the player.
-    /// Fires black and red flaming projectiles at nearby enemies.
-    /// Has a mystical glow similar to Goliath but 25% dimmer.
-    /// Uses a 6x6 spritesheet animation (36 frames).
+    /// Sakura of Fate — spectral dark-flame guardian minion.
+    /// Self-contained VFX: 6×6 spritesheet rendering, dark flame aura, ambient particles.
     /// </summary>
     public class SakuraOfFate : ModProjectile
     {
-        // Spritesheet configuration - 6x6 grid
+        // ── Spritesheet configuration — 6×6 grid ──
         public const int FrameColumns = 6;
         public const int FrameRows = 6;
         public const int TotalFrames = 36;
-        public const int FrameTime = 4; // Game ticks per animation frame
-        
+        public const int FrameTime = 4;
+
         private enum AIState
         {
             Idle,
@@ -43,19 +42,26 @@ namespace MagnumOpus.Content.Eroica.Minions
             get => Projectile.ai[1];
             set => Projectile.ai[1] = value;
         }
-        
+
         private int frameCounter = 0;
         private int currentFrame = 0;
         private int attackCooldown = 0;
         private float hoverOffset = 0f;
 
+        // ── Trail tracking for aura effect ──
+        private const int TrailLength = 14;
+        private Vector2[] trailPositions = new Vector2[TrailLength];
+        private bool trailInitialized = false;
+
         public override void SetStaticDefaults()
         {
-            Main.projFrames[Type] = 1; // We handle frames manually
+            Main.projFrames[Type] = 1;
             Main.projPet[Type] = true;
             ProjectileID.Sets.MinionSacrificable[Type] = true;
             ProjectileID.Sets.MinionTargettingFeature[Type] = true;
             ProjectileID.Sets.CultistIsResistantTo[Type] = true;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
         public override void SetDefaults()
@@ -73,26 +79,22 @@ namespace MagnumOpus.Content.Eroica.Minions
         }
 
         public override bool? CanCutTiles() => false;
-
         public override bool MinionContactDamage() => true;
 
         public override void AI()
         {
             Player owner = Main.player[Projectile.owner];
-            
-            // Check if player still has the buff
+
             if (!CheckActive(owner))
                 return;
 
-            // Update animation constantly
+            Timer++;
             UpdateAnimation();
-            
-            // Float beside player
+            UpdateTrailPositions();
             FloatBesidePlayer(owner);
-            
-            // Find target
+
             NPC target = FindTarget(owner);
-            
+
             if (target != null)
             {
                 State = AIState.Attacking;
@@ -102,24 +104,19 @@ namespace MagnumOpus.Content.Eroica.Minions
             {
                 State = AIState.Idle;
             }
-            
-            // Visual effects - gold and red flame particles
-            CreateAmbientEffects();
 
-            // Lighting - warm gold/orange glow
-            Lighting.AddLight(Projectile.Center, 0.5f, 0.3f, 0.1f);
-            
-            // Update facing direction based on velocity or target
+            // Update facing direction
             if (target != null)
-            {
                 Projectile.spriteDirection = target.Center.X > Projectile.Center.X ? 1 : -1;
-            }
             else if (Math.Abs(Projectile.velocity.X) > 0.5f)
-            {
                 Projectile.spriteDirection = Projectile.velocity.X > 0 ? 1 : -1;
-            }
+
+            // ── Ambient VFX ──
+            SpawnAmbientParticles();
         }
-        
+
+        #region Core AI
+
         private void UpdateAnimation()
         {
             frameCounter++;
@@ -129,6 +126,22 @@ namespace MagnumOpus.Content.Eroica.Minions
                 currentFrame++;
                 if (currentFrame >= TotalFrames)
                     currentFrame = 0;
+            }
+        }
+
+        private void UpdateTrailPositions()
+        {
+            if (!trailInitialized)
+            {
+                for (int i = 0; i < TrailLength; i++)
+                    trailPositions[i] = Projectile.Center;
+                trailInitialized = true;
+            }
+            else
+            {
+                for (int i = TrailLength - 1; i > 0; i--)
+                    trailPositions[i] = trailPositions[i - 1];
+                trailPositions[0] = Projectile.Center;
             }
         }
 
@@ -142,9 +155,7 @@ namespace MagnumOpus.Content.Eroica.Minions
             }
 
             if (owner.HasBuff(ModContent.BuffType<SakuraOfFateBuff>()))
-            {
                 Projectile.timeLeft = 2;
-            }
 
             return true;
         }
@@ -155,17 +166,13 @@ namespace MagnumOpus.Content.Eroica.Minions
             NPC closestTarget = null;
             float closestDist = maxDistance;
 
-            // Check if player has manually targeted an NPC
             if (owner.HasMinionAttackTargetNPC)
             {
                 NPC target = Main.npc[owner.MinionAttackTargetNPC];
                 if (target.CanBeChasedBy(this) && Vector2.Distance(Projectile.Center, target.Center) < maxDistance)
-                {
                     return target;
-                }
             }
 
-            // Find closest enemy
             foreach (NPC npc in Main.ActiveNPCs)
             {
                 if (npc.CanBeChasedBy(this))
@@ -181,21 +188,19 @@ namespace MagnumOpus.Content.Eroica.Minions
 
             return closestTarget;
         }
-        
+
         private void FloatBesidePlayer(Player owner)
         {
-            // Gentle hover animation
             hoverOffset += 0.05f;
             float hoverY = (float)Math.Sin(hoverOffset) * 8f;
-            
-            // Target position - float beside player
+
             Vector2 targetPos = owner.Center + new Vector2(-50f * owner.direction, -40f + hoverY);
             Vector2 direction = targetPos - Projectile.Center;
             float distance = direction.Length();
-            
+
             float speed = 10f;
             float inertia = 20f;
-            
+
             if (distance > 10f)
             {
                 direction.Normalize();
@@ -207,22 +212,10 @@ namespace MagnumOpus.Content.Eroica.Minions
                 Projectile.velocity *= 0.95f;
             }
 
-            // Teleport if too far
             if (distance > 1200f)
             {
                 Projectile.Center = owner.Center + new Vector2(-40f * owner.direction, -30f);
                 Projectile.velocity = Vector2.Zero;
-                
-                // Teleport effect — dark bloom, sakura petals, halo ring
-                EroicaVFXLibrary.HeroicImpact(Projectile.Center, 1.5f);
-                EroicaVFXLibrary.SpawnSakuraPetals(Projectile.Center, 8, 30f);
-                EroicaVFXLibrary.BloomFlare(Projectile.Center, EroicaPalette.Crimson, 0.6f, 18);
-
-                // Subtle blossom glow for teleport
-                MagnumParticleHandler.SpawnParticle(new BloomRingParticle(
-                    Projectile.Center, Vector2.Zero, new Color(255, 150, 180) * 0.7f, 0.5f, 25, 0.06f));
-                EroicaVFXLibrary.BloomFlare(Projectile.Center, new Color(255, 180, 200), 0.4f, 14);
-                
                 SoundEngine.PlaySound(SoundID.Item8 with { Pitch = -0.3f }, Projectile.Center);
             }
         }
@@ -231,155 +224,250 @@ namespace MagnumOpus.Content.Eroica.Minions
         {
             Vector2 direction = target.Center - Projectile.Center;
             float distance = direction.Length();
-            
-            // Fire gold/red flame stream (flamethrower style - very fast)
+
             attackCooldown--;
             if (attackCooldown <= 0 && distance < 400f && Main.myPlayer == Projectile.owner)
             {
                 FireFlameProjectile(target);
-                attackCooldown = 4; // Rapid fire flamethrower - every ~0.07 seconds
+                attackCooldown = 4;
             }
         }
-        
+
         private void FireFlameProjectile(NPC target)
         {
             Vector2 toTarget = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
             float speed = 14f + Main.rand.NextFloat(-2f, 2f);
-            
-            // Add spread for flamethrower feel
             Vector2 velocity = toTarget.RotatedByRandom(0.15f) * speed;
-            
-            // Small gold/red muzzle particles (only occasional)
-            if (Main.rand.NextBool(3))
-            {
-                Color flameColor = Main.rand.NextBool() ? new Color(255, 200, 50) : new Color(255, 80, 30);
-                Dust flame = Dust.NewDustPerfect(Projectile.Center + toTarget * 10f, DustID.Torch, 
-                    toTarget * 2f + Main.rand.NextVector2Circular(1f, 1f), 100, flameColor, 1f);
-                flame.noGravity = true;
-            }
-            
-            // Occasional fire sound (not every shot)
+
             if (Main.rand.NextBool(8))
-            {
                 SoundEngine.PlaySound(SoundID.Item34 with { Pitch = 0.3f, Volume = 0.3f }, Projectile.Center);
-            }
-            
-            // Spawn the flame projectile
+
+            // Muzzle flash particle on fire
+            Color flashColor = FinalityUtils.EmberGold;
+            flashColor.A = 0;
+            FinalityParticleHandler.SpawnParticle(new DarkBloomParticle(
+                Projectile.Center, Vector2.Zero, flashColor, 0.3f, 6
+            ));
+
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(),
                 Projectile.Center,
                 velocity,
                 ModContent.ProjectileType<SakuraFlameProjectile>(),
-                Projectile.damage / 3, // Lower damage per hit since it fires rapidly
+                Projectile.damage / 3,
                 Projectile.knockBack * 0.3f,
                 Projectile.owner
             );
         }
-        
-        private void CreateAmbientEffects()
+
+        #endregion
+
+        #region Ambient VFX
+
+        private void SpawnAmbientParticles()
         {
-            // Pulsing halo effect every 20 frames
-            if (Main.GameUpdateCount % 20 == 0)
+            // Dark flame wisps hovering around minion
+            if (Main.rand.NextBool(3))
             {
-                EroicaVFXLibrary.SpawnGradientHaloRings(Projectile.Center, 1, 0.25f);
+                Vector2 offset = Main.rand.NextVector2Circular(18f, 18f);
+                Vector2 vel = new Vector2(Main.rand.NextFloatDirection() * 0.3f, -Main.rand.NextFloat(0.2f, 0.6f));
+                Color flameColor = Color.Lerp(FinalityUtils.AbyssalCrimson, FinalityUtils.FateViolet, Main.rand.NextFloat());
+
+                FinalityParticleHandler.SpawnParticle(new DarkFlameParticle(
+                    Projectile.Center + offset, vel, flameColor,
+                    Main.rand.NextFloat(0.25f, 0.5f), Main.rand.Next(15, 30)
+                ));
             }
-            
-            // Trail effect while moving — delegate to VFX module
-            if (Projectile.velocity.Length() > 1f)
+
+            // Occasional ash mote
+            if (Main.rand.NextBool(8))
             {
-                FinalityOfTheSakuraVFX.MinionFlameTrailVFX(Projectile);
+                FinalityParticleHandler.SpawnParticle(new SummonAshParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(20f, 20f),
+                    new Vector2(Main.rand.NextFloatDirection() * 0.4f, -Main.rand.NextFloat(0.1f, 0.3f)),
+                    FinalityUtils.AshGray * 0.6f,
+                    Main.rand.NextFloat(0.2f, 0.4f),
+                    Main.rand.Next(25, 45)
+                ));
             }
-            
-            // Subtle black and crimson aura - minimal particles
-            if (Main.rand.NextBool(5))
+
+            // Rare music note
+            if (Main.rand.NextBool(40))
             {
-                // Occasional black smoke wisp
-                Dust shadow = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
-                    DustID.Smoke, 0f, -1.5f, 150, Color.Black, 0.9f);
-                shadow.noGravity = true;
-                shadow.velocity *= 0.3f;
+                FinalityParticleHandler.SpawnParticle(new FinalityNoteParticle(
+                    Projectile.Center + new Vector2(Main.rand.NextFloatDirection() * 15f, -20f),
+                    new Vector2(Main.rand.NextFloatDirection() * 0.3f, -Main.rand.NextFloat(0.3f, 0.7f)),
+                    Color.Lerp(FinalityUtils.AbyssalCrimson, FinalityUtils.SummonGlow, Main.rand.NextFloat()),
+                    Main.rand.NextFloat(0.25f, 0.4f),
+                    Main.rand.Next(35, 55)
+                ));
             }
-            
-            if (Main.rand.NextBool(6))
+
+            // Dust trail
+            if (Main.rand.NextBool(4))
             {
-                // Rare crimson spark
-                Dust crimson = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 
-                    DustID.CrimsonTorch, 0f, -1.5f, 100, default, 0.8f);
-                crimson.noGravity = true;
-                crimson.velocity *= 0.3f;
-            }
-            
-            // ☁EMUSICAL PRESENCE - Heroic aura
-            if (Main.rand.NextBool(15))
-            {
-                EroicaVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 15f, 0.5f, 0.85f, 30);
-            }
-            
-            // Orbiting dark flame particles - less frequent
-            if (Main.GameUpdateCount % 4 == 0)
-            {
-                float orbitAngle = Main.GameUpdateCount * 0.06f;
-                Vector2 orbitOffset = new Vector2((float)Math.Cos(orbitAngle), (float)Math.Sin(orbitAngle)) * 20f;
-                int orbitType = Main.GameUpdateCount % 8 < 4 ? DustID.Smoke : DustID.CrimsonTorch;
-                Color orbitColor = Main.GameUpdateCount % 8 < 4 ? Color.Black : default;
-                Dust orbit = Dust.NewDustPerfect(Projectile.Center + orbitOffset, orbitType, Vector2.Zero, 100, orbitColor, 0.8f);
-                orbit.noGravity = true;
+                int dust = Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
+                    ModContent.DustType<FinalityDust>(), 0f, 0f, 0,
+                    FinalityUtils.AbyssalCrimson, Main.rand.NextFloat(0.5f, 1f));
+                Main.dust[dust].noGravity = true;
             }
         }
+
+        #endregion
+
+        #region Hit Effects
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Delegate hit VFX to VFX module
-            FinalityOfTheSakuraVFX.MinionFlameHitVFX(target.Center);
-            
-            // Small gold/red impact burst
+            // Spark burst from contact hit
             for (int i = 0; i < 6; i++)
             {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 vel = new Vector2((float)System.Math.Cos(angle), (float)System.Math.Sin(angle)) * 2.5f;
-                Color flameColor = i % 2 == 0 ? new Color(255, 200, 50) : new Color(255, 80, 30);
-                Dust dust = Dust.NewDustPerfect(target.Center, DustID.Torch, vel, 100, flameColor, 1f);
-                dust.noGravity = true;
+                float angle = MathHelper.TwoPi * i / 6f + Main.rand.NextFloatDirection() * 0.2f;
+                FinalityParticleHandler.SpawnParticle(new FateSpark(
+                    target.Center,
+                    angle.ToRotationVector2() * Main.rand.NextFloat(3f, 7f),
+                    Color.Lerp(FinalityUtils.EmberGold, FinalityUtils.SakuraFlame, Main.rand.NextFloat()),
+                    Main.rand.NextFloat(0.3f, 0.6f),
+                    Main.rand.Next(8, 14)
+                ));
             }
-            
-            // Warm lighting flash
-            Lighting.AddLight(target.Center, 0.6f, 0.3f, 0.1f);
-            
-            // ☁EMUSICAL IMPACT - Triumphant chord burst
-            EroicaVFXLibrary.MusicNoteBurst(target.Center, new Color(255, 215, 0), 5, 3.5f);
+
+            // Small bloom on hit
+            Color bloom = FinalityUtils.SakuraFlame;
+            bloom.A = 0;
+            FinalityParticleHandler.SpawnParticle(new DarkBloomParticle(
+                target.Center, Vector2.Zero, bloom, 0.5f, 10
+            ));
         }
+
+        #endregion
+
+        #region Rendering
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Get the texture - render as simple still image
-            Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
-            
-            Vector2 origin = new Vector2(texture.Width / 2f, texture.Height / 2f);
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            
-            // Flip sprite based on direction
-            SpriteEffects effects = Projectile.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-            
-            // Glow effect - dark red/black outer glow (25% dimmer than Goliath)
-            Color redGlow = new Color(130, 20, 30, 0) * 0.3f;
-            for (int i = 0; i < 4; i++)
-            {
-                Vector2 offset = new Vector2(4f, 0f).RotatedBy(i * MathHelper.PiOver2 + Main.GameUpdateCount * 0.05f);
-                Main.EntitySpriteDraw(texture, drawPos + offset, null, redGlow, 0f, origin, Projectile.scale * 1.1f, effects, 0);
-            }
-            
-            // Black inner glow (no purple)
-            Color blackGlow = new Color(20, 10, 10, 0) * 0.225f;
-            for (int i = 0; i < 4; i++)
-            {
-                Vector2 offset = new Vector2(2f, 0f).RotatedBy(i * MathHelper.PiOver2 + Main.GameUpdateCount * 0.08f);
-                Main.EntitySpriteDraw(texture, drawPos + offset, null, blackGlow, 0f, origin, Projectile.scale * 1.05f, effects, 0);
-            }
-            
-            // Draw main sprite (still image, no animation frames)
-            Main.EntitySpriteDraw(texture, drawPos, null, lightColor, 0f, origin, Projectile.scale, effects, 0);
-            
+            SpriteBatch sb = Main.spriteBatch;
+            Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
+
+            // Calculate 6×6 frame rect
+            int frameW = tex.Width / FrameColumns;
+            int frameH = tex.Height / FrameRows;
+            int col = currentFrame % FrameColumns;
+            int row = currentFrame / FrameColumns;
+            Rectangle frameRect = new Rectangle(col * frameW, row * frameH, frameW, frameH);
+            Vector2 origin = new Vector2(frameW / 2f, frameH / 2f);
+            SpriteEffects flipEffect = Projectile.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+
+            // ── Layer 1: Dark flame aura trail ──
+            DrawAuraTrail(sb);
+
+            // ── Layer 2: Afterimages ──
+            DrawAfterimages(sb, tex, frameRect, origin, flipEffect);
+
+            // ── Layer 3: Core sprite ──
+            DrawCore(sb, tex, frameRect, origin, flipEffect, lightColor);
+
+            // ── Layer 4: Additive bloom overlay ──
+            DrawBloomOverlay(sb, tex, frameRect, origin, flipEffect);
+
             return false;
         }
+
+        private void DrawAuraTrail(SpriteBatch sb)
+        {
+            if (Timer < 5) return;
+
+            int validCount = 0;
+            for (int i = 0; i < TrailLength; i++)
+            {
+                if (trailPositions[i] != Vector2.Zero) validCount++;
+                else break;
+            }
+            if (validCount < 3) return;
+
+            Vector2[] positions = new Vector2[validCount];
+            Array.Copy(trailPositions, positions, validCount);
+
+            var settings = new FinalityTrailSettings(
+                completionRatio => MathHelper.Lerp(14f, 2f, completionRatio),
+                completionRatio =>
+                {
+                    float fade = (1f - completionRatio);
+                    fade = fade * fade;
+                    Color baseCol = Color.Lerp(FinalityUtils.AbyssalCrimson, FinalityUtils.FateViolet, completionRatio * 0.6f);
+                    return baseCol * fade * 0.4f;
+                },
+                smoothen: true
+            );
+
+            try
+            {
+                sb.End();
+                FinalityTrailRenderer.RenderTrail(positions, settings);
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
+        }
+
+        private void DrawAfterimages(SpriteBatch sb, Texture2D tex, Rectangle frameRect, Vector2 origin, SpriteEffects flip)
+        {
+            int imageCount = 6;
+            FinalityUtils.EnterShaderRegion(sb);
+
+            for (int i = imageCount - 1; i >= 0; i--)
+            {
+                float progress = (float)i / imageCount;
+                float trailIndex = progress * (TrailLength - 1);
+                int idx = (int)trailIndex;
+                float frac = trailIndex - idx;
+
+                if (idx + 1 >= TrailLength) continue;
+                if (trailPositions[idx] == Vector2.Zero || trailPositions[idx + 1] == Vector2.Zero) continue;
+
+                Vector2 pos = Vector2.Lerp(trailPositions[idx], trailPositions[idx + 1], frac) - Main.screenPosition;
+
+                float fadeFactor = (1f - progress);
+                fadeFactor *= fadeFactor;
+                Color drawColor = Color.Lerp(FinalityUtils.AbyssalCrimson, FinalityUtils.FateViolet, progress * 0.5f) * (fadeFactor * 0.25f);
+                drawColor.A = 0;
+
+                float scale = Projectile.scale * (1f - progress * 0.15f);
+                sb.Draw(tex, pos, frameRect, drawColor, Projectile.rotation, origin, scale, flip, 0f);
+            }
+
+            FinalityUtils.ExitShaderRegion(sb);
+        }
+
+        private void DrawCore(SpriteBatch sb, Texture2D tex, Rectangle frameRect, Vector2 origin, SpriteEffects flip, Color lightColor)
+        {
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            Color coreTint = Color.Lerp(lightColor, FinalityUtils.SakuraFlame, 0.3f);
+
+            // Base sprite
+            sb.Draw(tex, drawPos, frameRect, coreTint, Projectile.rotation, origin, Projectile.scale, flip, 0f);
+
+            // Inner warm glow
+            Color coreGlow = FinalityUtils.EmberGold;
+            coreGlow.A = 0;
+            sb.Draw(tex, drawPos, frameRect, coreGlow * 0.25f, Projectile.rotation, origin,
+                Projectile.scale * 0.95f, flip, 0f);
+        }
+
+        private void DrawBloomOverlay(SpriteBatch sb, Texture2D tex, Rectangle frameRect, Vector2 origin, SpriteEffects flip)
+        {
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
+            Color bloomColor = FinalityUtils.AbyssalCrimson;
+            bloomColor.A = 0;
+            float pulse = (float)Math.Sin(Timer * 0.08f) * 0.08f;
+            float bloomScale = Projectile.scale * 1.25f + pulse;
+
+            FinalityUtils.EnterShaderRegion(sb);
+            sb.Draw(tex, drawPos, frameRect, bloomColor * 0.3f, Projectile.rotation, origin, bloomScale, flip, 0f);
+            FinalityUtils.ExitShaderRegion(sb);
+        }
+
+        #endregion
     }
 }

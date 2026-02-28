@@ -1,3 +1,5 @@
+// DEPRECATED: Replaced by OpusUltima/ folder self-contained system
+/*
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -454,3 +456,4 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             => FateVFXLibrary.CosmicBeamWidth(completionRatio, 8f);
     }
 }
+*/

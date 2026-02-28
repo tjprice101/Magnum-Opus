@@ -8,6 +8,16 @@ using Terraria.ModLoader;
 using ReLogic.Content;
 using MagnumOpus.Content.Fate.ResonanceEnergies;
 using MagnumOpus.Content.Fate.ResonantWeapons;
+using MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation;
+using MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality;
+using MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd;
+using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality;
+using MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars;
+using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation;
+using MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima;
+using MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture;
+using MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata;
+using MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo;
 using MagnumOpus.Common;
 
 namespace MagnumOpus.Content.Fate.Bosses
@@ -162,16 +172,16 @@ namespace MagnumOpus.Content.Fate.Bosses
         {
             return new int[]
             {
-                ModContent.ItemType<CodaOfAnnihilation>(),
-                ModContent.ItemType<DestinysCrescendo>(),
-                ModContent.ItemType<FractalOfTheStars>(),
-                ModContent.ItemType<LightOfTheFuture>(),
-                ModContent.ItemType<OpusUltima>(),
-                ModContent.ItemType<RequiemOfReality>(),
-                ModContent.ItemType<ResonanceOfABygoneReality>(),
-                ModContent.ItemType<SymphonysEnd>(),
-                ModContent.ItemType<TheConductorsLastConstellation>(),
-                ModContent.ItemType<TheFinalFermata>()
+                ModContent.ItemType<CodaOfAnnihilationItem>(),
+                ModContent.ItemType<DestinysCrescendoItem>(),
+                ModContent.ItemType<FractalOfTheStarsItem>(),
+                ModContent.ItemType<LightOfTheFutureItem>(),
+                ModContent.ItemType<OpusUltimaItem>(),
+                ModContent.ItemType<RequiemOfRealityItem>(),
+                ModContent.ItemType<ResonanceOfABygoneRealityItem>(),
+                ModContent.ItemType<SymphonysEndItem>(),
+                ModContent.ItemType<TheConductorsLastConstellationItem>(),
+                ModContent.ItemType<TheFinalFermataItem>()
             };
         }
     }

@@ -1,42 +1,36 @@
 // =============================================================================
-// Sakura Lightning Trail Shader - VS 2.0 + PS 2.0 Compatible
+// Sakura Lightning Trail Shader - Fractal Arc Storm
 // =============================================================================
-// Zigzagging lightning bolt trail for Piercing Light of the Sakura crescendo
-// projectiles. Sharp angular trail with sakura-fire colours, noise-driven
-// branching forks, and charge-driven intensity.
+// Lightning bolt trail for Piercing Light of the Sakura (bow).
+// Fractal branching arcs with charge accumulation glow, electric
+// bright nodes, and sakura-pink lightning with scarlet core flash.
 //
-// UV Layout:
-//   U (coords.x) = along trail (0 = head, 1 = tail)
-//   V (coords.y) = across trail width (0 = top edge, 1 = bottom edge)
+// VISUAL IDENTITY: Not a smooth energy beam -- this is LIGHTNING.
+// The trail zigzags violently with fractal fork branches splitting
+// off at random angles. Charge accumulation causes bright nodes to
+// swell along the main bolt. Each fork terminates in sakura-pink
+// sparks. The overall feel: a thunderbolt wrapped in cherry blossoms.
 //
 // Techniques:
-//   LightningTrailMain  - Sharp zigzag bolt with electrical crackling
-//   LightningTrailGlow  - Wider soft bloom for electrical aura
-//
-// Features:
-//   - High-frequency zigzag displacement via sin waves
-//   - Noise-driven branching fork impressions
-//   - Charge-reactive intensity (weak spark ↁEfull bolt)
-//   - Sakura pink ↁEgold ↁEwhite-hot colour escalation
-//   - Rapid electrical flicker for crackling feel
-//   - Overbright multiplier for HDR bloom
+//   LightningTrailMain  - Fractal zigzag bolt with fork branches
+//   LightningTrailGlow  - Electric haze bloom around bolt path
 // =============================================================================
 
-sampler2D uImage0 : register(s0); // Base trail texture
-sampler2D uImage1 : register(s1); // Noise texture (optional)
+sampler2D uImage0 : register(s0);
+sampler2D uImage1 : register(s1);
 
 float4x4 uTransformMatrix;
 float uTime;
-float3 uColor;           // Primary color (Sakura pink)
-float3 uSecondaryColor;  // Secondary color (Gold)
+float3 uColor;
+float3 uSecondaryColor;
 float uOpacity;
 float uIntensity;
 float uOverbrightMult;
-float uScrollSpeed;       // Lightning scroll rate
-float uDistortionAmt;     // Zigzag displacement amount
-float uNoiseScale;        // Noise UV repetition
-float uPhase;            // Charge level (0 = weak spark, 1 = full bolt)
-float uBranchIntensity;   // Fork branching strength
+float uScrollSpeed;
+float uDistortionAmt;
+float uNoiseScale;
+float uPhase;
+float uBranchIntensity;
 float uHasSecondaryTex;
 
 // =============================================================================
@@ -75,6 +69,18 @@ float HashNoise(float2 p)
     return frac(sin(dot(p, float2(12.9898, 78.233))) * 43758.5453);
 }
 
+float SmoothHash(float2 uv)
+{
+    float2 i = floor(uv);
+    float2 f = frac(uv);
+    float2 u = f * f * (3.0 - 2.0 * f);
+    float a = HashNoise(i);
+    float b = HashNoise(i + float2(1.0, 0.0));
+    float c = HashNoise(i + float2(0.0, 1.0));
+    float d = HashNoise(i + float2(1.0, 1.0));
+    return lerp(lerp(a, b, u.x), lerp(c, d, u.x), u.y);
+}
+
 float QuadraticBump(float x)
 {
     return x * (4.0 - x * 4.0);
@@ -86,7 +92,41 @@ float4 ApplyOverbright(float3 color, float alpha)
 }
 
 // =============================================================================
-// TECHNIQUE 1: LIGHTNING TRAIL MAIN
+// LIGHTNING-SPECIFIC: Multi-frequency zigzag displacement
+// =============================================================================
+
+// Creates jagged zigzag displacement (not smooth sine -- ANGULAR lightning)
+float ZigzagDisplacement(float x, float freq, float timeOffset)
+{
+    float phase = x * freq + uTime * uScrollSpeed * 8.0 + timeOffset;
+    // Triangle wave for sharp zigzag instead of smooth sine
+    float tri = abs(frac(phase * 0.159) * 2.0 - 1.0) * 2.0 - 1.0;
+    return tri;
+}
+
+// Fractal branching: each fork gets smaller and more jagged
+float ForkBranch(float2 coords, float forkAngle, float forkStart, float forkLen, float thickness)
+{
+    // Compute distance from a branching line segment
+    float2 forkOrigin = float2(forkStart, 0.5);
+    float2 forkDir = float2(cos(forkAngle), sin(forkAngle));
+    float2 delta = coords - forkOrigin;
+    float proj = dot(delta, forkDir);
+    proj = saturate(proj / forkLen);
+    float2 closestPt = forkOrigin + forkDir * proj * forkLen;
+    float dist = length(coords - closestPt);
+
+    // Zigzag along the fork
+    float zigzag = ZigzagDisplacement(proj * 5.0, 4.0, forkAngle * 10.0) * 0.02 * (1.0 - proj);
+    dist += abs(zigzag);
+
+    // Thin bright line
+    float brightness = saturate(1.0 - dist / thickness) * (1.0 - proj * 0.8);
+    return brightness;
+}
+
+// =============================================================================
+// TECHNIQUE 1: LIGHTNING TRAIL MAIN - Fractal Bolt
 // =============================================================================
 
 float4 LightningTrailMainPS(VertexShaderOutput input) : COLOR0
@@ -94,71 +134,107 @@ float4 LightningTrailMainPS(VertexShaderOutput input) : COLOR0
     float2 coords = input.TexCoord;
     float4 sampleColor = input.Color;
 
-    // --- Zigzag displacement (sharp, angular, not smooth) ---
-    // Primary bolt zigzag
-    float zigTime = uTime * uScrollSpeed * 8.0;
-    float zig1 = sin(coords.x * 25.0 + zigTime) * uDistortionAmt;
-    // Secondary high-freq jitter for electric crackle
-    float zig2 = sin(coords.x * 50.0 - zigTime * 1.5 + 2.0) * uDistortionAmt * 0.4;
-    // Low-freq wander for bolt path variation
-    float zig3 = sin(coords.x * 8.0 + uTime * 3.0) * uDistortionAmt * 0.6;
+    // --- Main bolt: 3-frequency zigzag displacement ---
+    float zigFreq1 = ZigzagDisplacement(coords.x, 3.0, 0.0) * uDistortionAmt * 1.2;
+    float zigFreq2 = ZigzagDisplacement(coords.x, 7.0, 3.14) * uDistortionAmt * 0.6;
+    float zigFreq3 = ZigzagDisplacement(coords.x, 15.0, 1.57) * uDistortionAmt * 0.25;
 
+    float totalDisplace = zigFreq1 + zigFreq2 + zigFreq3;
+
+    // Displaced bolt centreline
+    float boltCenter = 0.5 + totalDisplace;
+    float boltDist = abs(coords.y - boltCenter);
+
+    // Main bolt brightness: extremely bright core, sharp falloff
+    float boltCore = saturate(1.0 - boltDist * 25.0); // Very thin bright core
+    float boltGlow = saturate(1.0 - boltDist * 8.0);  // Wider soft glow
+    float boltField = saturate(1.0 - boltDist * 4.0);  // Diffuse field
+
+    boltCore = pow(boltCore, 0.5); // Soften slightly for smoother falloff
+
+    // --- Fractal fork branches ---
+    float branch1 = 0.0;
+    float branch2 = 0.0;
+    float branch3 = 0.0;
+    float branch4 = 0.0;
+
+    // Branch parameters derived from noise for variety
+    float forkSeed = HashNoise(float2(floor(uTime * 4.0), 0.0));
+
+    // 4 fork branches at different positions along the bolt
+    float forkAngle1 = 0.5 + forkSeed * 0.8;
+    branch1 = ForkBranch(coords, forkAngle1, 0.2 + forkSeed * 0.1, 0.12, 0.015);
+
+    float forkAngle2 = -0.4 - forkSeed * 0.6;
+    branch2 = ForkBranch(coords, forkAngle2, 0.4 + forkSeed * 0.05, 0.1, 0.012);
+
+    float forkAngle3 = 0.7 + forkSeed * 0.5;
+    branch3 = ForkBranch(coords, forkAngle3, 0.6 - forkSeed * 0.1, 0.08, 0.01);
+
+    float forkAngle4 = -0.6 - forkSeed * 0.4;
+    branch4 = ForkBranch(coords, forkAngle4, 0.75 + forkSeed * 0.05, 0.06, 0.008);
+
+    float totalBranches = (branch1 + branch2 + branch3 + branch4) * uBranchIntensity;
+
+    // --- Charge accumulation nodes ---
+    // Bright swelling nodes at irregular intervals along the bolt
+    float nodeSpacing = 0.18;
+    float nodePhase = frac(coords.x / nodeSpacing + uTime * 0.3);
+    float nodeBrightness = pow(saturate(1.0 - abs(nodePhase - 0.5) * 4.0), 2.0);
+    nodeBrightness *= boltGlow; // Only visible near the bolt
+    nodeBrightness *= (sin(uTime * 6.0 + coords.x * 20.0) * 0.3 + 0.7); // Flicker
+
+    // --- Electric crackle noise ---
+    float crackle = SmoothHash(coords * uNoiseScale * 2.0 + float2(uTime * 5.0, 0.0));
+    float crackleFlicker = step(0.85, crackle) * boltField * 0.4;
+
+    // Flicker: lightning should flicker rapidly
+    float flicker = HashNoise(float2(floor(uTime * 15.0), floor(uTime * 7.0)));
+    float flickerMask = 0.7 + flicker * 0.3;
+
+    // --- Trail fade ---
+    float trailFade = saturate(1.0 - coords.x * 1.05);
+    float edgeFade = QuadraticBump(coords.y);
+
+    // --- Base texture ---
     float2 distortedUV = coords;
-    distortedUV.y += zig1 + zig2 + zig3;
-
+    distortedUV.y += totalDisplace * 0.3;
     float4 baseTex = tex2D(uImage0, distortedUV);
 
-    // --- Sharp core profile (lightning is very thin and bright) ---
-    float edgeFade = QuadraticBump(coords.y);
-    float coreFade = pow(edgeFade, 3.5);
+    // --- Colour: Sakura-pink bolt with scarlet core ---
+    float3 coreColor = uColor * 2.5; // Overbright scarlet core
+    float3 glowColor = lerp(uColor, uSecondaryColor, 0.3); // Sakura-pink mid
+    float3 fieldColor = uSecondaryColor * 0.6; // Faint pink field
 
-    // --- Trail length fade (bolt dissipates at tail) ---
-    float trailFade = pow(1.0 - coords.x, 1.5);
+    float3 boltColor = coreColor * boltCore
+                      + glowColor * boltGlow * 0.6
+                      + fieldColor * boltField * 0.2;
 
-    // --- Branching fork impressions ---
-    float2 branchUV = float2(coords.x * 6.0 + uTime * uScrollSpeed * 2.0, coords.y * 3.0);
-    float branchNoise = HashNoise(branchUV * uNoiseScale);
-    float forks = saturate(branchNoise * 3.0 - 2.0) * uBranchIntensity;
-    // Forks extend from the bolt edge
-    float forkMask = saturate(0.6 - edgeFade) * 2.0;
-    forks *= forkMask;
+    // Branches are slightly more pink
+    float3 branchColor = lerp(uSecondaryColor, float3(1.0, 0.7, 0.8), 0.3);
+    boltColor += branchColor * totalBranches;
 
-    // Optional noise texture
-    float2 noiseUV = coords * uNoiseScale;
-    noiseUV.x -= uTime * uScrollSpeed;
-    float4 noiseTex = tex2D(uImage1, noiseUV);
-    float noiseVal = lerp(branchNoise, noiseTex.r, uHasSecondaryTex * 0.5);
+    // Charge nodes are white-hot
+    float3 nodeColor = float3(1.0, 0.95, 0.9);
+    boltColor += nodeColor * nodeBrightness * 0.8;
 
-    // --- Charge-reactive colour ---
-    float3 boltColor = lerp(uColor, uSecondaryColor, uPhase);
-    float3 electricWhite = float3(1.0, 0.97, 0.92);
-    boltColor = lerp(boltColor, electricWhite, coreFade * 0.6 * uPhase);
+    // Crackle sparks
+    boltColor += float3(1.0, 0.8, 0.9) * crackleFlicker;
 
-    // Branch colour (slightly different from core)
-    float3 branchColor = lerp(uColor, float3(0.9, 0.8, 1.0), 0.3);
-
-    // --- Electrical crackling flicker ---
-    float crackle1 = sin(uTime * 20.0 + coords.x * 30.0) * 0.12;
-    float crackle2 = sin(uTime * 35.0 + coords.x * 50.0) * 0.06;
-    float crackle = 0.82 + crackle1 + crackle2;
-    crackle *= 0.8 + uPhase * 0.2; // More stable at full charge
-
-    // --- Charge-driven visibility ---
-    float chargeVis = 0.3 + uPhase * 0.7;
+    // --- Phase modulation: charge intensity ---
+    float chargeBoost = lerp(0.5, 1.5, uPhase);
 
     // --- Final composition ---
-    float3 coreContrib = boltColor * coreFade * trailFade;
-    float3 forkContrib = branchColor * forks * 0.5;
-    float3 finalColor = (coreContrib + forkContrib) * baseTex.rgb * uIntensity * crackle;
-    finalColor *= 0.65 + noiseVal * 0.35;
+    float3 finalColor = boltColor * baseTex.rgb * uIntensity * flickerMask * chargeBoost;
 
-    float alpha = (coreFade * trailFade + forks * 0.3) * chargeVis * uOpacity * sampleColor.a * baseTex.a;
+    float alpha = (boltGlow * 0.8 + totalBranches * 0.3 + nodeBrightness * 0.2 + crackleFlicker)
+                * trailFade * uOpacity * sampleColor.a * baseTex.a;
 
     return ApplyOverbright(finalColor, alpha);
 }
 
 // =============================================================================
-// TECHNIQUE 2: LIGHTNING TRAIL GLOW
+// TECHNIQUE 2: LIGHTNING TRAIL GLOW - Electric Haze
 // =============================================================================
 
 float4 LightningTrailGlowPS(VertexShaderOutput input) : COLOR0
@@ -168,26 +244,27 @@ float4 LightningTrailGlowPS(VertexShaderOutput input) : COLOR0
 
     float4 baseTex = tex2D(uImage0, coords);
 
-    // Wider, softer profile
-    float edgeFade = QuadraticBump(coords.y);
-    edgeFade = pow(edgeFade, 0.4);
+    // Wider glow around main bolt path
+    float zigDisp = ZigzagDisplacement(coords.x, 3.0, 0.0) * uDistortionAmt;
+    float boltCenter = 0.5 + zigDisp;
+    float dist = abs(coords.y - boltCenter);
+    float wideGlow = saturate(1.0 - dist * 3.0);
+    wideGlow = pow(wideGlow, 1.5);
 
-    float trailFade = pow(1.0 - coords.x, 1.2);
+    float trailFade = saturate(1.0 - coords.x * 0.8);
 
-    // Glow colour
-    float3 glowColor = lerp(uColor, uSecondaryColor, uPhase * 0.5);
-    float3 electricTint = float3(0.85, 0.80, 1.0);
-    glowColor = lerp(glowColor, electricTint, 0.15);
+    // Electric haze shimmer
+    float shimmer = SmoothHash(coords * 5.0 + float2(uTime * 3.0, uTime * 1.5));
+    shimmer = shimmer * 0.3 + 0.7;
 
-    glowColor *= uIntensity * baseTex.rgb * 0.6;
+    float3 hazeColor = lerp(uSecondaryColor, uColor, 0.2) * 0.5;
+    hazeColor *= uIntensity * baseTex.rgb * shimmer;
 
-    float chargeVis = 0.3 + uPhase * 0.7;
+    float flicker = 0.8 + HashNoise(float2(floor(uTime * 12.0), 0.0)) * 0.2;
 
-    float pulse = sin(uTime * 5.0 + coords.x * 8.0) * 0.1 + 0.9;
+    float alpha = wideGlow * trailFade * uOpacity * sampleColor.a * baseTex.a * flicker * 0.25;
 
-    float alpha = edgeFade * trailFade * chargeVis * uOpacity * sampleColor.a * baseTex.a * pulse * 0.35;
-
-    return ApplyOverbright(glowColor, alpha);
+    return ApplyOverbright(hazeColor, alpha);
 }
 
 // =============================================================================

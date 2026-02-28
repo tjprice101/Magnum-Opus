@@ -106,10 +106,10 @@ namespace MagnumOpus.Common.Systems.VFX
             try
             {
                 // Load distortion shader
-                if (ModContent.HasAsset("MagnumOpus/Assets/Shaders/AdvancedDistortionShader"))
+                if (ModContent.HasAsset("MagnumOpus/Effects/ScreenDistortion"))
                 {
                     _distortionShader = ModContent.Request<Effect>(
-                        "MagnumOpus/Assets/Shaders/AdvancedDistortionShader",
+                        "MagnumOpus/Effects/ScreenDistortion",
                         AssetRequestMode.ImmediateLoad
                     ).Value;
                 }

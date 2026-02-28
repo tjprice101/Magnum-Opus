@@ -53,11 +53,42 @@ namespace MagnumOpus.Common.Systems.Shaders
         public const string SakuraBloomShader = "Eroica/SakuraBloom";
         public const string EroicaFuneralTrailShader = "Eroica/FuneralPrayer/EroicaFuneralTrail";
         public const string TriumphantFractalShaderName = "Eroica/TriumphantFractal/TriumphantFractalShader";
-        public const string EnigmaVoidTrailShader = "EnigmaVoidTrail";
-        public const string EnigmaFlameShader = "EnigmaFlame";
-        public const string NachtmusikStarTrailShader = "NachtmusikStarTrail";
-        public const string NachtmusikSerenadeShader = "NachtmusikSerenade";
+        public const string NachtmusikStarTrailShader = "Nachtmusik/NachtmusikStarTrail";
+        public const string NachtmusikSerenadeShader = "Nachtmusik/NachtmusikSerenade";
         public const string TerraBladeFlareBeamShaderName = "TerraBladeFlareBeamShader";
+
+        // Nachtmusik — NocturnalExecutioner weapon-specific shaders
+        public const string ExecutionDecreeShader = "Nachtmusik/NocturnalExecutioner/ExecutionDecree";
+
+        // Nachtmusik — MidnightsCrescendo weapon-specific shaders
+        public const string CrescendoRiseShader = "Nachtmusik/MidnightsCrescendo/CrescendoRise";
+
+        // Nachtmusik — TwilightSeverance weapon-specific shaders
+        public const string DimensionalRiftShader = "Nachtmusik/TwilightSeverance/DimensionalRift";
+
+        // Nachtmusik — ConstellationPiercer weapon-specific shaders
+        public const string StarChainBeamShader = "Nachtmusik/ConstellationPiercer/StarChainBeam";
+
+        // Nachtmusik — NebulasWhisper weapon-specific shaders
+        public const string NebulaScatterShader = "Nachtmusik/NebulasWhisper/NebulaScatter";
+
+        // Nachtmusik — SerenadeOfDistantStars weapon-specific shaders
+        public const string StarHomingTrailShader = "Nachtmusik/SerenadeOfDistantStars/StarHomingTrail";
+
+        // Nachtmusik — StarweaversGrimoire weapon-specific shaders
+        public const string ConstellationWeaveShader = "Nachtmusik/StarweaversGrimoire/ConstellationWeave";
+
+        // Nachtmusik — RequiemOfTheCosmos weapon-specific shaders
+        public const string CosmicRequiemShader = "Nachtmusik/RequiemOfTheCosmos/CosmicRequiem";
+
+        // Nachtmusik — CelestialChorusBaton weapon-specific shaders
+        public const string ChorusSummonAuraShader = "Nachtmusik/CelestialChorusBaton/ChorusSummonAura";
+
+        // Nachtmusik — GalacticOverture weapon-specific shaders
+        public const string OvertureAuraShader = "Nachtmusik/GalacticOverture/OvertureAura";
+
+        // Nachtmusik — ConductorOfConstellations weapon-specific shaders
+        public const string StellarConductorAuraShader = "Nachtmusik/ConductorOfConstellations/StellarConductorAura";
         public const string IncisorResonanceShader = "MoonlightSonata/IncisorOfMoonlight/IncisorResonance";
         public const string ConstellationFieldShader = "MoonlightSonata/IncisorOfMoonlight/ConstellationField";
 
@@ -127,6 +158,78 @@ namespace MagnumOpus.Common.Systems.Shaders
         // Swan Lake — TheSwansLament weapon-specific shaders
         public const string LamentBulletTrailShader = "SwanLake/TheSwansLament/LamentBulletTrail";
         public const string DestructionRevelationShader = "SwanLake/TheSwansLament/DestructionRevelation";
+
+        // Clair de Lune — theme-wide shaders
+        public const string ClairDeLuneMoonlitShader = "ClairDeLune/ClairDeLuneMoonlit";
+        public const string ClairDeLunePearlGlowShader = "ClairDeLune/ClairDeLunePearlGlow";
+
+        // Clair de Lune — Chronologicality weapon-specific shaders
+        public const string TemporalDrillShader = "ClairDeLune/Chronologicality/TemporalDrill";
+
+        // Clair de Lune — TemporalPiercer weapon-specific shaders
+        public const string CrystalLanceShader = "ClairDeLune/TemporalPiercer/CrystalLance";
+
+        // Clair de Lune — ClockworkHarmony weapon-specific shaders
+        public const string GearSwingShader = "ClairDeLune/ClockworkHarmony/GearSwing";
+
+        // Clair de Lune — ClockworkGrimoire weapon-specific shaders
+        public const string ArcanePagesShader = "ClairDeLune/ClockworkGrimoire/ArcanePages";
+
+        // Clair de Lune — OrreryOfDreams weapon-specific shaders
+        public const string CelestialOrbitShader = "ClairDeLune/OrreryOfDreams/CelestialOrbit";
+
+        // Clair de Lune — RequiemOfTime weapon-specific shaders
+        public const string TimeFreezeSlashShader = "ClairDeLune/RequiemOfTime/TimeFreezeSlash";
+
+        // Clair de Lune — StarfallWhisper weapon-specific shaders
+        public const string StarfallTrailShader = "ClairDeLune/StarfallWhisper/StarfallTrail";
+
+        // Clair de Lune — MidnightMechanism weapon-specific shaders
+        public const string GatlingBlurShader = "ClairDeLune/MidnightMechanism/GatlingBlur";
+
+        // Clair de Lune — CogAndHammer weapon-specific shaders
+        public const string SingularityPullShader = "ClairDeLune/CogAndHammer/SingularityPull";
+
+        // Clair de Lune — LunarPhylactery weapon-specific shaders
+        public const string SoulBeamShader = "ClairDeLune/LunarPhylactery/SoulBeam";
+
+        // Clair de Lune — GearDrivenArbiter weapon-specific shaders
+        public const string JudgmentMarkShader = "ClairDeLune/GearDrivenArbiter/JudgmentMark";
+
+        // Clair de Lune — AutomatonsTuningFork weapon-specific shaders
+        public const string ResonanceFieldShader = "ClairDeLune/AutomatonsTuningFork/ResonanceField";
+
+        // Enigma Variations — VariationsOfTheVoid weapon-specific shaders
+        public const string VoidSwingTrailShader = "EnigmaVariations/VariationsOfTheVoid/VoidVariationSwingTrail";
+        public const string VoidBeamShader = "EnigmaVariations/VariationsOfTheVoid/VoidVariationBeam";
+
+        // Enigma Variations — TheUnresolvedCadence weapon-specific shaders
+        public const string CadenceSwingTrailShader = "EnigmaVariations/TheUnresolvedCadence/CadenceSwingTrail";
+        public const string CadenceCollapseShader = "EnigmaVariations/TheUnresolvedCadence/CadenceCollapse";
+
+        // Enigma Variations — CipherNocturne weapon-specific shaders
+        public const string CipherBeamTrailShader = "EnigmaVariations/CipherNocturne/CipherBeamTrail";
+        public const string CipherSnapBackShader = "EnigmaVariations/CipherNocturne/CipherSnapBack";
+
+        // Enigma Variations — TheSilentMeasure weapon-specific shaders
+        public const string SilentSeekerTrailShader = "EnigmaVariations/TheSilentMeasure/SilentSeekerTrail";
+        public const string SilentQuestionBurstShader = "EnigmaVariations/TheSilentMeasure/SilentQuestionBurst";
+
+        // Enigma Variations — TacetsEnigma weapon-specific shaders
+        public const string TacetBulletTrailShader = "EnigmaVariations/TacetsEnigma/TacetBulletTrail";
+        public const string TacetParadoxExplosionShader = "EnigmaVariations/TacetsEnigma/TacetParadoxExplosion";
+
+        // Enigma Variations — TheWatchingRefrain weapon-specific shaders
+        public const string WatchingPhantomAuraShader = "EnigmaVariations/TheWatchingRefrain/WatchingPhantomAura";
+        public const string WatchingMysteryZoneShader = "EnigmaVariations/TheWatchingRefrain/WatchingMysteryZone";
+
+        // Enigma Variations — DissonanceOfSecrets weapon-specific shaders
+        public const string DissonanceOrbAuraShader = "EnigmaVariations/DissonanceOfSecrets/DissonanceOrbAura";
+        public const string DissonanceRiddleTrailShader = "EnigmaVariations/DissonanceOfSecrets/DissonanceRiddleTrail";
+
+        // Enigma Variations — FugueOfTheUnknown weapon-specific shaders
+        public const string FugueVoiceTrailShader = "EnigmaVariations/FugueOfTheUnknown/FugueVoiceTrail";
+        public const string FugueConvergenceShader = "EnigmaVariations/FugueOfTheUnknown/FugueConvergence";
 
         // Noise texture names (without extension) - in Assets/VFX/Noise/
         private static readonly string[] NoiseTextureNames = new[]
@@ -258,6 +361,19 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(NachtmusikStarTrailShader);
                 LoadShader(NachtmusikSerenadeShader);
                 LoadShader(TerraBladeFlareBeamShaderName);
+
+                // Nachtmusik — per-weapon shaders
+                LoadShader(ExecutionDecreeShader);
+                LoadShader(CrescendoRiseShader);
+                LoadShader(DimensionalRiftShader);
+                LoadShader(StarChainBeamShader);
+                LoadShader(NebulaScatterShader);
+                LoadShader(StarHomingTrailShader);
+                LoadShader(ConstellationWeaveShader);
+                LoadShader(CosmicRequiemShader);
+                LoadShader(ChorusSummonAuraShader);
+                LoadShader(OvertureAuraShader);
+                LoadShader(StellarConductorAuraShader);
                 LoadShader(IncisorResonanceShader);
                 LoadShader(ConstellationFieldShader);
 
@@ -328,6 +444,42 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(LamentBulletTrailShader);
                 LoadShader(DestructionRevelationShader);
 
+                // Clair de Lune — theme-wide shaders
+                LoadShader(ClairDeLuneMoonlitShader);
+                LoadShader(ClairDeLunePearlGlowShader);
+
+                // Clair de Lune — per-weapon shaders
+                LoadShader(TemporalDrillShader);
+                LoadShader(CrystalLanceShader);
+                LoadShader(GearSwingShader);
+                LoadShader(ArcanePagesShader);
+                LoadShader(CelestialOrbitShader);
+                LoadShader(TimeFreezeSlashShader);
+                LoadShader(StarfallTrailShader);
+                LoadShader(GatlingBlurShader);
+                LoadShader(SingularityPullShader);
+                LoadShader(SoulBeamShader);
+                LoadShader(JudgmentMarkShader);
+                LoadShader(ResonanceFieldShader);
+
+                // Enigma Variations — per-weapon shaders
+                LoadShader(VoidSwingTrailShader);
+                LoadShader(VoidBeamShader);
+                LoadShader(CadenceSwingTrailShader);
+                LoadShader(CadenceCollapseShader);
+                LoadShader(CipherBeamTrailShader);
+                LoadShader(CipherSnapBackShader);
+                LoadShader(SilentSeekerTrailShader);
+                LoadShader(SilentQuestionBurstShader);
+                LoadShader(TacetBulletTrailShader);
+                LoadShader(TacetParadoxExplosionShader);
+                LoadShader(WatchingPhantomAuraShader);
+                LoadShader(WatchingMysteryZoneShader);
+                LoadShader(DissonanceOrbAuraShader);
+                LoadShader(DissonanceRiddleTrailShader);
+                LoadShader(FugueVoiceTrailShader);
+                LoadShader(FugueConvergenceShader);
+
                 _shadersEnabled = _shaders.Count > 0;
 
                 if (_shadersEnabled)
@@ -347,7 +499,7 @@ namespace MagnumOpus.Common.Systems.Shaders
             int noiseLoaded = 0;
             foreach (string name in NoiseTextureNames)
             {
-                if (LoadTexture($"MagnumOpus/Assets/VFX/Noise/{name}", name, _noiseTextures))
+                if (LoadTexture($"MagnumOpus/Assets/VFX Asset Library/NoiseTextures/{name}", name, _noiseTextures))
                     noiseLoaded++;
             }
 
@@ -355,7 +507,7 @@ namespace MagnumOpus.Common.Systems.Shaders
             foreach (string name in TrailTextureNames)
             {
                 // Spaces in filenames work fine with ModContent.Request
-                if (LoadTexture($"MagnumOpus/Assets/VFX/Trails/{name}", name, _trailTextures))
+                if (LoadTexture($"MagnumOpus/Assets/SandboxLastPrism/Trails/{name}", name, _trailTextures))
                     trailLoaded++;
             }
 
@@ -496,17 +648,44 @@ namespace MagnumOpus.Common.Systems.Shaders
         /// <summary>Gets the Triumphant Fractal shader for geometric hexagonal pattern trails if available.</summary>
         public static Effect TriumphantFractal => GetShader(TriumphantFractalShaderName);
 
-        /// <summary>Gets the Enigma Void Trail shader for swirling void trails with purple-green distortion if available.</summary>
-        public static Effect EnigmaVoidTrail => GetShader(EnigmaVoidTrailShader);
-
-        /// <summary>Gets the Enigma Flame shader for eerie green flame effects with flickering motion if available.</summary>
-        public static Effect EnigmaFlame => GetShader(EnigmaFlameShader);
-
         /// <summary>Gets the Nachtmusik Star Trail shader for twinkling star trails with playful nocturnal sparkle if available.</summary>
         public static Effect NachtmusikStarTrail => GetShader(NachtmusikStarTrailShader);
 
         /// <summary>Gets the Nachtmusik Serenade shader for soft starlit bloom with twinkling point-light sparkles if available.</summary>
         public static Effect NachtmusikSerenade => GetShader(NachtmusikSerenadeShader);
+
+        /// <summary>Gets the Execution Decree shader for heavy void-rip slash trails on NocturnalExecutioner.</summary>
+        public static Effect ExecutionDecree => GetShader(ExecutionDecreeShader);
+
+        /// <summary>Gets the Crescendo Rise shader for intensity-building trails on MidnightsCrescendo.</summary>
+        public static Effect CrescendoRise => GetShader(CrescendoRiseShader);
+
+        /// <summary>Gets the Dimensional Rift shader for ultra-sharp dimensional tear trails on TwilightSeverance.</summary>
+        public static Effect DimensionalRift => GetShader(DimensionalRiftShader);
+
+        /// <summary>Gets the Star Chain Beam shader for precision constellation bullet trails on ConstellationPiercer.</summary>
+        public static Effect StarChainBeam => GetShader(StarChainBeamShader);
+
+        /// <summary>Gets the Nebula Scatter shader for gaseous nebula cloud trails on NebulasWhisper.</summary>
+        public static Effect NebulaScatter => GetShader(NebulaScatterShader);
+
+        /// <summary>Gets the Star Homing Trail shader for graceful arcing star ribbon trails on SerenadeOfDistantStars.</summary>
+        public static Effect StarHomingTrail => GetShader(StarHomingTrailShader);
+
+        /// <summary>Gets the Constellation Weave shader for charge-building star map pattern on StarweaversGrimoire.</summary>
+        public static Effect ConstellationWeave => GetShader(ConstellationWeaveShader);
+
+        /// <summary>Gets the Cosmic Requiem shader for channeled nebula-swirl beam on RequiemOfTheCosmos.</summary>
+        public static Effect CosmicRequiem => GetShader(CosmicRequiemShader);
+
+        /// <summary>Gets the Chorus Summon Aura shader for musical note constellation aura on CelestialChorusBaton.</summary>
+        public static Effect ChorusSummonAura => GetShader(ChorusSummonAuraShader);
+
+        /// <summary>Gets the Overture Aura shader for orchestral wave aura on GalacticOverture.</summary>
+        public static Effect OvertureAura => GetShader(OvertureAuraShader);
+
+        /// <summary>Gets the Stellar Conductor Aura shader for orbiting constellation ring aura on ConductorOfConstellations.</summary>
+        public static Effect StellarConductorAura => GetShader(StellarConductorAuraShader);
 
         /// <summary>Gets the Terra Blade Flare Beam shader for wave-distorted motion-blur energy beams if available.</summary>
         public static Effect TerraBladeFlareBeam => GetShader(TerraBladeFlareBeamShaderName);
@@ -615,6 +794,104 @@ namespace MagnumOpus.Common.Systems.Shaders
 
         /// <summary>Gets the Destruction Revelation shader for monochrome-to-prismatic explosion on The Swan's Lament.</summary>
         public static Effect DestructionRevelation => GetShader(DestructionRevelationShader);
+
+        // =====================================================================
+        //  Clair de Lune Shader Properties
+        // =====================================================================
+
+        /// <summary>Gets the Clair de Lune theme-wide moonlit pearl trail shader.</summary>
+        public static Effect ClairDeLuneMoonlit => GetShader(ClairDeLuneMoonlitShader);
+
+        /// <summary>Gets the Clair de Lune theme-wide pearl bloom/glow overlay shader.</summary>
+        public static Effect ClairDeLunePearlGlow => GetShader(ClairDeLunePearlGlowShader);
+
+        /// <summary>Gets the Temporal Drill shader for spiraling time-bore trails on Chronologicality.</summary>
+        public static Effect TemporalDrill => GetShader(TemporalDrillShader);
+
+        /// <summary>Gets the Crystal Lance shader for frost-crystal pierce trails on Temporal Piercer.</summary>
+        public static Effect CrystalLance => GetShader(CrystalLanceShader);
+
+        /// <summary>Gets the Gear Swing shader for brass pendulum arc on Clockwork Harmony.</summary>
+        public static Effect GearSwing => GetShader(GearSwingShader);
+
+        /// <summary>Gets the Arcane Pages shader for flowing script channel on Clockwork Grimoire.</summary>
+        public static Effect ArcanePages => GetShader(ArcanePagesShader);
+
+        /// <summary>Gets the Celestial Orbit shader for dream planetarium orbits on Orrery Of Dreams.</summary>
+        public static Effect CelestialOrbit => GetShader(CelestialOrbitShader);
+
+        /// <summary>Gets the Time Freeze Slash shader for reality-fracture sweeps on Requiem Of Time.</summary>
+        public static Effect TimeFreezeSlash => GetShader(TimeFreezeSlashShader);
+
+        /// <summary>Gets the Starfall Trail shader for falling star bolt trails on Starfall Whisper.</summary>
+        public static Effect StarfallTrail => GetShader(StarfallTrailShader);
+
+        /// <summary>Gets the Gatling Blur shader for clockwork barrel motion blur on Midnight Mechanism.</summary>
+        public static Effect GatlingBlur => GetShader(GatlingBlurShader);
+
+        /// <summary>Gets the Singularity Pull shader for gravitational vortex on Cog And Hammer.</summary>
+        public static Effect SingularityPull => GetShader(SingularityPullShader);
+
+        /// <summary>Gets the Soul Beam shader for moonlit soul tether beams on Lunar Phylactery.</summary>
+        public static Effect SoulBeam => GetShader(SoulBeamShader);
+
+        /// <summary>Gets the Judgment Mark shader for clockwork sigil branding on Gear-Driven Arbiter.</summary>
+        public static Effect JudgmentMark => GetShader(JudgmentMarkShader);
+
+        /// <summary>Gets the Resonance Field shader for harmonic pulse rings on Automaton's Tuning Fork.</summary>
+        public static Effect ResonanceField => GetShader(ResonanceFieldShader);
+
+        // =====================================================================
+        //  Enigma Variations Shader Properties
+        // =====================================================================
+
+        /// <summary>Gets the Void Variation Swing Trail shader for Voronoi cellular fracture melee trails on Variations Of The Void.</summary>
+        public static Effect VoidSwingTrail => GetShader(VoidSwingTrailShader);
+
+        /// <summary>Gets the Void Variation Beam shader for tri-stream chromatic convergence beams on Variations Of The Void.</summary>
+        public static Effect VoidBeam => GetShader(VoidBeamShader);
+
+        /// <summary>Gets the Cadence Swing Trail shader for dimensional tear crack melee trails on The Unresolved Cadence.</summary>
+        public static Effect CadenceSwingTrail => GetShader(CadenceSwingTrailShader);
+
+        /// <summary>Gets the Cadence Collapse shader for geometric mandala implosion on The Unresolved Cadence.</summary>
+        public static Effect CadenceCollapse => GetShader(CadenceCollapseShader);
+
+        /// <summary>Gets the Cipher Beam Trail shader for digital data stream beam trails on Cipher Nocturne.</summary>
+        public static Effect CipherBeamTrail => GetShader(CipherBeamTrailShader);
+
+        /// <summary>Gets the Cipher SnapBack shader for clock-face sector starburst on Cipher Nocturne.</summary>
+        public static Effect CipherSnapBack => GetShader(CipherSnapBackShader);
+
+        /// <summary>Gets the Silent Seeker Trail shader for phantom echo multi-ghost trails on The Silent Measure.</summary>
+        public static Effect SilentSeekerTrail => GetShader(SilentSeekerTrailShader);
+
+        /// <summary>Gets the Silent Question Burst shader for question-mark silhouette explosion on The Silent Measure.</summary>
+        public static Effect SilentQuestionBurst => GetShader(SilentQuestionBurstShader);
+
+        /// <summary>Gets the Tacet Bullet Trail shader for crystalline fracture shard trails on Tacet's Enigma.</summary>
+        public static Effect TacetBulletTrail => GetShader(TacetBulletTrailShader);
+
+        /// <summary>Gets the Tacet Paradox Explosion shader for multi-ring moiré cascade on Tacet's Enigma.</summary>
+        public static Effect TacetParadoxExplosion => GetShader(TacetParadoxExplosionShader);
+
+        /// <summary>Gets the Watching Phantom Aura shader for procedural watching eye patterns on The Watching Refrain.</summary>
+        public static Effect WatchingPhantomAura => GetShader(WatchingPhantomAuraShader);
+
+        /// <summary>Gets the Watching Mystery Zone shader for panopticon surveillance grid on The Watching Refrain.</summary>
+        public static Effect WatchingMysteryZone => GetShader(WatchingMysteryZoneShader);
+
+        /// <summary>Gets the Dissonance Orb Aura shader for counter-rotating arcane circle aura on Dissonance Of Secrets.</summary>
+        public static Effect DissonanceOrbAura => GetShader(DissonanceOrbAuraShader);
+
+        /// <summary>Gets the Dissonance Riddle Trail shader for encrypted/decrypted segmented trail on Dissonance Of Secrets.</summary>
+        public static Effect DissonanceRiddleTrail => GetShader(DissonanceRiddleTrailShader);
+
+        /// <summary>Gets the Fugue Voice Trail shader for polyphonic audio spectrum trails on Fugue Of The Unknown.</summary>
+        public static Effect FugueVoiceTrail => GetShader(FugueVoiceTrailShader);
+
+        /// <summary>Gets the Fugue Convergence shader for standing wave interference pattern on Fugue Of The Unknown.</summary>
+        public static Effect FugueConvergence => GetShader(FugueConvergenceShader);
 
         // =====================================================================
         //  Texture Accessors

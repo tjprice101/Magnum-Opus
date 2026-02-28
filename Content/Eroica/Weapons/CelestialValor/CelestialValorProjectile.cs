@@ -6,8 +6,6 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Eroica;
 
 namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
@@ -104,16 +102,10 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                 Projectile.velocity *= 0.998f;
             }
 
-            // Trail VFX — enhanced per-frame particles
-            CelestialValorVFX.ProjectileTrailVFX(Projectile);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // AOE explosion VFX
-            CreateAOEExplosion(target.Center);
-            CelestialValorVFX.ProjectileHitVFX(target.Center);
-
             // Seeking crystals — 33% chance on hit
             if (Main.rand.NextBool(3))
             {
@@ -146,25 +138,20 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 
         public override bool OnTileCollide(Vector2 oldVelocity)
         {
-            CreateAOEExplosion(Projectile.Center);
             return true;
         }
 
         private void CreateAOEExplosion(Vector2 position)
         {
-            CelestialValorVFX.AOEExplosion(position);
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Always play death flash (removed the timeLeft > 0 guard — projectiles
-            // killed by penetrate exhaustion should also flash)
-            CelestialValorVFX.DeathFlash(Projectile.Center);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
-            return CelestialValorVFX.DrawProjectile(Main.spriteBatch, Projectile, ref lightColor);
+            return true;
         }
 
         public override Color? GetAlpha(Color lightColor)

@@ -49,8 +49,8 @@ namespace MagnumOpus.Common.Systems
                 Vector2 flareDirection = (screenPos - screenCenter).SafeNormalize(Vector2.UnitY);
                 float distanceFromCenter = Vector2.Distance(screenPos, screenCenter);
                 
-                Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
-                Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+                Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
+                Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
                 
                 // Store original blend state
                 spriteBatch.End();

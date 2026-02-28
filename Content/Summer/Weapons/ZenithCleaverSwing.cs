@@ -118,10 +118,10 @@ namespace MagnumOpus.Content.Summer.Weapons
 
         protected override string GetSmearTexturePath(int comboStep) => comboStep switch
         {
-            0 => "MagnumOpus/Assets/Particles Asset Library/FlamingArcSwordSlash",
-            1 => "MagnumOpus/Assets/Particles Asset Library/SwordArc6",
-            2 => "MagnumOpus/Assets/Particles Asset Library/SwordArc3",
-            _ => "MagnumOpus/Assets/Particles Asset Library/FlamingArcSwordSlash",
+            0 => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse",
+            1 => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse",
+            2 => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/VerticalEllipse",
+            _ => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse",
         };
 
         #endregion

@@ -19,7 +19,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class FrostSentinelMinion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField10";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
@@ -348,7 +348,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MagicSparklField10").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -404,7 +404,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class SentinelFrostBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle11";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
@@ -506,7 +506,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle11").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 

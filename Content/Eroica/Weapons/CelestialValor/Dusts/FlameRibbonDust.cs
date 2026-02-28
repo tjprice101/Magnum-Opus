@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Dusts
     /// </summary>
     public class FlameRibbonDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow3";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow";
 
         public override void OnSpawn(Dust dust)
         {

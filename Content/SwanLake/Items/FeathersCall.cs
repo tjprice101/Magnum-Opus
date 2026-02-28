@@ -587,7 +587,7 @@ namespace MagnumOpus.Content.SwanLake.Items
     public class FeathersCallFlare : ModProjectile
     {
         // Use mod particle texture as base
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle13";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
 
         private int FlareType => (int)Projectile.ai[0]; // 0 = white, 1 = black, 2 = rainbow
         private int TargetIndex => (int)Projectile.ai[1];

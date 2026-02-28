@@ -1,0 +1,323 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
+using Terraria;
+using Terraria.Audio;
+using Terraria.DataStructures;
+using Terraria.ID;
+using Terraria.ModLoader;
+using MagnumOpus.Content.Fate.Debuffs;
+using MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Utilities;
+using MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Particles;
+
+namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
+{
+    /// <summary>
+    /// The held spinning sword that orbits the player during each Coda swing.
+    /// Orbit radius 65f, ±144° arc (0.8π), swing speed 0.12 rad/frame.
+    /// Deals melee damage via line collision from player center to tip.
+    /// Self-contained VFX — uses own particle handler for all effects.
+    /// </summary>
+    public class CodaHeldSwing : ModProjectile
+    {
+        // Swing speed in radians per frame
+        private const float SwingSpeed = 0.12f;
+
+        // Orbit radius around player
+        private const float OrbitRadius = 65f;
+
+        // Maximum swing arc: ±144° = 0.8π
+        private const float MaxSwingArc = MathHelper.Pi * 0.8f;
+
+        // Current swing angle offset
+        private float SwingAngle
+        {
+            get => Projectile.ai[0];
+            set => Projectile.ai[0] = value;
+        }
+
+        // Starting angle toward cursor
+        private float BaseAngle
+        {
+            get => Projectile.ai[1];
+            set => Projectile.ai[1] = value;
+        }
+
+        private bool initialized = false;
+
+        // 12-position trail
+        private Vector2[] trailPositions = new Vector2[12];
+        private float[] trailRotations = new float[12];
+        private int trailIndex = 0;
+
+        public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/CodaOfAnnihilation";
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 12;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
+
+        public override void SetDefaults()
+        {
+            Projectile.width = 80;
+            Projectile.height = 80;
+            Projectile.friendly = true;
+            Projectile.DamageType = DamageClass.Melee;
+            Projectile.penetrate = -1;
+            Projectile.tileCollide = false;
+            Projectile.ignoreWater = true;
+            Projectile.ownerHitCheck = true;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 8;
+            Projectile.extraUpdates = 1;
+        }
+
+        public override void AI()
+        {
+            Player owner = Main.player[Projectile.owner];
+
+            // Kill when animation ends
+            if (!owner.active || owner.dead || owner.itemAnimation <= 1)
+            {
+                Projectile.Kill();
+                return;
+            }
+
+            // Initialize base angle toward cursor on first frame
+            if (!initialized)
+            {
+                initialized = true;
+                Vector2 toCursor = Main.MouseWorld - owner.Center;
+                BaseAngle = toCursor.ToRotation();
+                SwingAngle = 0f;
+
+                // Initialize trail
+                for (int i = 0; i < trailPositions.Length; i++)
+                {
+                    trailPositions[i] = owner.Center;
+                    trailRotations[i] = BaseAngle;
+                }
+            }
+
+            // Keep alive
+            Projectile.timeLeft = 2;
+
+            // Advance swing angle — ±144° arc
+            SwingAngle += SwingSpeed * owner.direction;
+            SwingAngle = MathHelper.Clamp(SwingAngle, -MaxSwingArc, MaxSwingArc);
+
+            float actualAngle = BaseAngle + SwingAngle;
+
+            // Position orbiting player
+            Projectile.Center = owner.Center + actualAngle.ToRotationVector2() * OrbitRadius;
+            Projectile.rotation = actualAngle + MathHelper.PiOver4;
+
+            // Update trail
+            trailIndex = (trailIndex + 1) % trailPositions.Length;
+            trailPositions[trailIndex] = Projectile.Center;
+            trailRotations[trailIndex] = Projectile.rotation;
+
+            // VFX at sword tip
+            Vector2 tipOffset = Projectile.rotation.ToRotationVector2() * 45f;
+            Vector2 tipPos = Projectile.Center + tipOffset;
+
+            SpawnSwingParticles(owner, actualAngle, tipPos);
+
+            // Dynamic lighting
+            Lighting.AddLight(Projectile.Center, CodaUtils.CodaPurple.ToVector3() * 0.8f);
+            Lighting.AddLight(tipPos, CodaUtils.CodaCrimson.ToVector3() * 0.5f);
+        }
+
+        private void SpawnSwingParticles(Player owner, float actualAngle, Vector2 tipPos)
+        {
+            float swingProgress = (SwingAngle + MaxSwingArc) / (MaxSwingArc * 2f);
+            swingProgress = MathHelper.Clamp(swingProgress, 0f, 1f);
+
+            // Trail sparks at tip
+            if (Main.GameUpdateCount % 3 == 0)
+            {
+                Color sparkColor = CodaUtils.GetAnnihilationGradient(swingProgress);
+                Vector2 sparkVel = actualAngle.ToRotationVector2().RotatedBy(MathHelper.PiOver2 * Main.player[Projectile.owner].direction) * 3f;
+                sparkVel += Main.rand.NextVector2Circular(1f, 1f);
+                CodaParticleHandler.SpawnParticle(new ArcSparkParticle(
+                    tipPos, sparkVel, sparkColor * 0.8f, 0.3f, 15));
+            }
+
+            // Swing trail glow
+            if (Main.GameUpdateCount % 4 == 0)
+            {
+                Color trailColor = CodaUtils.GetAnnihilationGradient(0.4f + swingProgress * 0.4f);
+                CodaParticleHandler.SpawnParticle(new SwingTrailParticle(
+                    tipPos,
+                    actualAngle.ToRotationVector2() * 2f,
+                    trailColor * 0.6f,
+                    0.25f,
+                    15));
+            }
+
+            // Cosmic motes along the arc
+            if (Main.rand.NextBool(4))
+            {
+                float dist = Main.rand.NextFloat(30f, OrbitRadius);
+                Vector2 motePos = Main.player[Projectile.owner].Center + actualAngle.ToRotationVector2() * dist;
+                Color moteColor = Color.Lerp(CodaUtils.CodaPurple, CodaUtils.CodaPink, Main.rand.NextFloat());
+                CodaParticleHandler.SpawnParticle(new CosmicMoteParticle(
+                    motePos,
+                    Main.rand.NextVector2Circular(0.5f, 0.5f),
+                    moteColor * 0.5f,
+                    0.18f,
+                    14));
+            }
+
+            // Glyphs — fate's runes
+            if (Main.rand.NextBool(15))
+            {
+                CodaParticleHandler.SpawnParticle(new GlyphBurstParticle(
+                    tipPos + Main.rand.NextVector2Circular(10f, 10f),
+                    CodaUtils.CodaPink * 0.5f,
+                    0.25f,
+                    16));
+            }
+
+            // Music notes — the coda's symphony
+            if (Main.rand.NextBool(8))
+            {
+                Color noteColor = Color.Lerp(CodaUtils.CodaCrimson, CodaUtils.CodaPurple, Main.rand.NextFloat());
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
+                CodaParticleHandler.SpawnParticle(new ZenithNoteParticle(
+                    tipPos, noteVel, noteColor, 0.35f, 35));
+            }
+
+            // Star sparkles
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 sparkPos = Main.player[Projectile.owner].Center + actualAngle.ToRotationVector2() * Main.rand.NextFloat(30f, OrbitRadius);
+                CodaParticleHandler.SpawnParticle(new CosmicMoteParticle(
+                    sparkPos,
+                    Main.rand.NextVector2Circular(0.3f, 0.3f),
+                    CodaUtils.AnnihilationWhite * 0.4f,
+                    0.15f,
+                    10));
+            }
+        }
+
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            // Apply DestinyCollapse 300 ticks (longer than flying sword)
+            target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 300);
+
+            Vector2 hitPos = target.Center;
+
+            // Annihilation flare
+            CodaParticleHandler.SpawnParticle(new AnnihilationFlareParticle(
+                hitPos, CodaUtils.AnnihilationWhite, 0.7f, 18));
+
+            // Glyph burst
+            for (int i = 0; i < 4; i++)
+            {
+                CodaParticleHandler.SpawnParticle(new GlyphBurstParticle(
+                    hitPos + Main.rand.NextVector2Circular(15f, 15f),
+                    CodaUtils.CodaPink * 0.7f, 0.35f, 20));
+            }
+
+            // Radial spark burst
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
+                Color c = CodaUtils.GetAnnihilationGradient(Main.rand.NextFloat());
+                CodaParticleHandler.SpawnParticle(new ArcSparkParticle(
+                    hitPos, vel, c * 0.8f, 0.35f, 20));
+            }
+
+            // Music note burst
+            for (int i = 0; i < 5; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 5f + Main.rand.NextFloat(-0.3f, 0.3f);
+                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
+                CodaParticleHandler.SpawnParticle(new ZenithNoteParticle(
+                    hitPos, noteVel, CodaUtils.CodaCrimson, 0.4f, 30));
+            }
+
+            // Impact sound
+            SoundEngine.PlaySound(SoundID.Item71 with { Volume = 0.6f, Pitch = 0.2f }, hitPos);
+        }
+
+        public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
+        {
+            // Line collision from player center to tip (40f width)
+            Player owner = Main.player[Projectile.owner];
+            float _ = 0f;
+            Vector2 lineStart = owner.Center;
+            Vector2 tipOffset = Projectile.rotation.ToRotationVector2() * 45f;
+            Vector2 lineEnd = Projectile.Center + tipOffset;
+
+            return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), lineStart, lineEnd, 40f, ref _);
+        }
+
+        public override bool PreDraw(ref Color lightColor)
+        {
+            SpriteBatch spriteBatch = Main.spriteBatch;
+            Texture2D weaponTex = ModContent.Request<Texture2D>(Texture).Value;
+
+            if (weaponTex == null) return false;
+
+            Vector2 origin = weaponTex.Size() / 2f;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
+            // === Layer 1: Afterimage trail ===
+            for (int i = 0; i < trailPositions.Length; i++)
+            {
+                int actualIndex = (trailIndex - i + trailPositions.Length) % trailPositions.Length;
+                if (trailPositions[actualIndex] == Vector2.Zero) continue;
+
+                Vector2 trailPos = trailPositions[actualIndex] - Main.screenPosition;
+                float trailRot = trailRotations[actualIndex];
+
+                float progress = (float)i / trailPositions.Length;
+                float trailAlpha = (1f - progress) * 0.4f;
+                float trailScale = 1f - progress * 0.2f;
+
+                Color trailColor = Color.Lerp(CodaUtils.CodaPink, CodaUtils.CodaPurple, progress);
+                trailColor = trailColor with { A = 0 } * trailAlpha;
+
+                spriteBatch.Draw(weaponTex, trailPos, null, trailColor, trailRot, origin, trailScale, SpriteEffects.None, 0f);
+            }
+
+            // === Layer 2: Outer cosmic glow ===
+            Color outerGlow = CodaUtils.CodaPurple with { A = 0 } * 0.35f;
+            spriteBatch.Draw(weaponTex, drawPos, null, outerGlow, Projectile.rotation, origin, 1.2f, SpriteEffects.None, 0f);
+
+            // === Layer 3: Middle glow layer ===
+            Color midGlow = CodaUtils.CodaPink with { A = 0 } * 0.4f;
+            spriteBatch.Draw(weaponTex, drawPos, null, midGlow, Projectile.rotation, origin, 1.1f, SpriteEffects.None, 0f);
+
+            // === Layer 4: Main weapon sprite ===
+            spriteBatch.Draw(weaponTex, drawPos, null, lightColor, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
+
+            // === Layer 5: Inner bright glow ===
+            Color innerGlow = Color.Lerp(CodaUtils.CodaCrimson, Color.White, 0.4f) with { A = 0 } * 0.35f;
+            spriteBatch.Draw(weaponTex, drawPos, null, innerGlow, Projectile.rotation, origin, 0.85f, SpriteEffects.None, 0f);
+
+            return false;
+        }
+
+        public override void OnKill(int timeLeft)
+        {
+            // Final burst of particles
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
+                Color burstColor = Color.Lerp(CodaUtils.CodaPink, CodaUtils.AnnihilationWhite, Main.rand.NextFloat());
+                CodaParticleHandler.SpawnParticle(new CosmicMoteParticle(
+                    Projectile.Center, burstVel, burstColor * 0.7f, 0.3f, 18));
+            }
+
+            // Annihilation flare
+            CodaParticleHandler.SpawnParticle(new AnnihilationFlareParticle(
+                Projectile.Center, CodaUtils.CodaPurple * 0.5f, 0.4f, 12));
+        }
+    }
+}

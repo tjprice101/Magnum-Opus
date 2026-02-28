@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
     /// </summary>
     public class PrismaticShardDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/CrispStar4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard";
 
         public override void OnSpawn(Dust dust)
         {

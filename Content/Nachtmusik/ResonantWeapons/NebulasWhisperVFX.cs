@@ -10,166 +10,126 @@ using MagnumOpus.Common.Systems.Particles;
 namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 {
     /// <summary>
-    /// VFX helper for the Nebula's Whisper ranged weapon.
-    /// Soft cosmic whispers through nebula mist — gentle purple-pink trails,
-    /// ethereal cloud particles, whispering glow dissolves, and delicate
-    /// cosmic sparkle accents. Each shot is a whispered secret of the cosmos.
+    /// Shader-driven VFX for Nebula's Whisper — the splitting nebula blast ranged weapon.
+    /// Uses NebulaScatter.fx for gaseous nebula cloud trails.
+    /// Soft, atmospheric, dreamy — projectiles split like nebula fragments.
     /// </summary>
     public static class NebulasWhisperVFX
     {
         // =====================================================================
-        //  HOLD ITEM VFX
+        //  HoldItemVFX — Nebula haze ambient
         // =====================================================================
-
         public static void HoldItemVFX(Player player)
         {
-            if (Main.dedServ) return;
-
-            Vector2 center = player.MountedCenter;
-            float time = (float)Main.timeForVisualEffects;
-
-            // Ethereal nebula mist
-            if (Main.rand.NextBool(6))
+            if (Main.rand.NextBool(4))
             {
-                Vector2 offset = Main.rand.NextVector2Circular(22f, 22f);
-                Color mistColor = Color.Lerp(NachtmusikPalette.CosmicPurple, NachtmusikPalette.NebulaPink,
-                    Main.rand.NextFloat());
-                var cloud = new GenericGlowParticle(center + offset,
-                    Main.rand.NextVector2Circular(0.3f, 0.3f),
-                    mistColor * 0.3f, 0.2f, 22, true);
-                MagnumParticleHandler.SpawnParticle(cloud);
+                // Drifting nebula wisps
+                Vector2 offset = Main.rand.NextVector2Circular(28f, 28f);
+                Vector2 vel = Main.rand.NextVector2Circular(0.4f, 0.4f);
+
+                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.PinkTorch, vel, 0, default, 0.5f);
+                d.noGravity = true;
+                d.fadeIn = 0.8f;
             }
 
-            // Gentle serenade shimmer
-            if (Main.rand.NextBool(15))
+            if (Main.rand.NextBool(8))
             {
-                try { CustomParticles.GenericFlare(center + Main.rand.NextVector2Circular(18f, 18f),
-                    NachtmusikPalette.SerenadeGlow * 0.3f, 0.12f, 12); } catch { }
+                // Cosmic purple accent mote
+                Dust p = Dust.NewDustPerfect(player.Center + Main.rand.NextVector2Circular(20f, 20f),
+                    DustID.PurpleTorch, Main.rand.NextVector2Circular(0.2f, 0.2f), 0, default, 0.4f);
+                p.noGravity = true;
             }
 
-            NachtmusikVFXLibrary.AddNachtmusikLight(center, 0.15f);
+            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.2f);
         }
 
         // =====================================================================
-        //  PREDRAW IN WORLD BLOOM
+        //  PreDrawInWorldBloom
         // =====================================================================
-
-        public static void PreDrawInWorldBloom(SpriteBatch sb, Texture2D tex,
-            Vector2 pos, Vector2 origin, float rotation, float scale)
+        public static void PreDrawInWorldBloom(SpriteBatch sb, Texture2D tex, Vector2 pos,
+            Vector2 origin, float rotation, float scale)
         {
-            float time = (float)Main.timeForVisualEffects;
-            float pulse = 1f + MathF.Sin(time * 0.035f) * 0.03f;
-            NachtmusikPalette.DrawItemBloom(sb, tex, pos, origin, rotation, scale, pulse);
+            NachtmusikVFXLibrary.DrawNachtmusikBloomStack(sb, pos,
+                NachtmusikPalette.CosmicPurple, NachtmusikPalette.NebulaPink, scale * 0.3f, 0.4f);
         }
 
         // =====================================================================
-        //  MUZZLE FLASH VFX
+        //  MuzzleFlashVFX — Nebula gas discharge
         // =====================================================================
-
         public static void MuzzleFlashVFX(Vector2 muzzlePos, Vector2 direction)
         {
-            if (Main.dedServ) return;
-
-            // Soft nebula puff
-            try { CustomParticles.GenericFlare(muzzlePos, NachtmusikPalette.NebulaPink * 0.7f, 0.5f, 12); } catch { }
-            try { CustomParticles.GenericFlare(muzzlePos, NachtmusikPalette.SerenadeGlow * 0.5f, 0.35f, 10); } catch { }
-
-            // Gentle directional wisps
-            for (int i = 0; i < 4; i++)
+            // Soft nebula gas puff
+            for (int i = 0; i < 6; i++)
             {
-                float spread = Main.rand.NextFloat(-0.4f, 0.4f);
-                Vector2 vel = direction.RotatedBy(spread) * Main.rand.NextFloat(2f, 5f);
-                Color wispColor = Color.Lerp(NachtmusikPalette.CosmicPurple, NachtmusikPalette.NebulaPink,
-                    Main.rand.NextFloat());
-                var wisp = new GenericGlowParticle(muzzlePos, vel, wispColor * 0.6f, 0.2f, 16, true);
-                MagnumParticleHandler.SpawnParticle(wisp);
+                Vector2 vel = direction * (2f + Main.rand.NextFloat() * 2f)
+                    + Main.rand.NextVector2Circular(2f, 2f);
+                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.PinkTorch;
+                Dust d = Dust.NewDustPerfect(muzzlePos, dustType, vel, 0, default, 0.9f);
+                d.noGravity = true;
+                d.fadeIn = 1f;
             }
 
-            // Whisper music note
-            NachtmusikVFXLibrary.SpawnMusicNotes(muzzlePos, 1, 8f, 0.7f, 0.85f, 22);
-
-            Lighting.AddLight(muzzlePos, NachtmusikPalette.NebulaPink.ToVector3() * 0.5f);
+            NachtmusikVFXLibrary.SpawnMusicNotes(muzzlePos, 1, 12f, 0.4f, 0.6f, 20);
+            NachtmusikVFXLibrary.DrawBloom(muzzlePos, 0.3f, 0.6f);
+            NachtmusikVFXLibrary.AddPaletteLighting(muzzlePos, 0.4f, 0.5f);
         }
 
         // =====================================================================
-        //  PROJECTILE TRAIL VFX
+        //  ProjectileTrailVFX — Nebula cloud trail
         // =====================================================================
-
         public static void ProjectileTrailVFX(Vector2 pos, Vector2 velocity)
         {
-            if (Main.dedServ) return;
+            // Gaseous trail puffs
+            Vector2 dustVel = -velocity * 0.15f + Main.rand.NextVector2Circular(1.5f, 1.5f);
+            int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.PinkTorch;
+            Dust d = Dust.NewDustPerfect(pos, dustType, dustVel, 0, default, 0.7f);
+            d.noGravity = true;
+            d.fadeIn = 0.9f;
 
-            // Nebula cloud trail — soft, ethereal
-            NachtmusikVFXLibrary.SpawnCloudTrail(pos, velocity, 0.8f);
-
-            // Purple-pink wisping dust
-            if (Main.rand.NextBool(2))
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(1f, 1f);
-                Color dustColor = Color.Lerp(NachtmusikPalette.CosmicPurple, NachtmusikPalette.NebulaPink,
-                    Main.rand.NextFloat());
-                Dust d = Dust.NewDustPerfect(pos, DustID.PurpleTorch, vel, 0, dustColor, 1.1f);
-                d.noGravity = true;
-                d.fadeIn = 1.2f;
-            }
-
-            // Serenade glow sparkle (1-in-5)
             if (Main.rand.NextBool(5))
             {
-                try { CustomParticles.GenericFlare(pos + Main.rand.NextVector2Circular(6f, 6f),
-                    NachtmusikPalette.SerenadeGlow * 0.5f, 0.18f, 12); } catch { }
+                NachtmusikVFXLibrary.SpawnTwinklingStars(pos, 1, 8f);
             }
 
-            // Music note accent (1-in-8)
-            if (Main.rand.NextBool(8))
-                NachtmusikVFXLibrary.SpawnMusicNotes(pos, 1, 6f, 0.7f, 0.85f, 20);
-
-            NachtmusikVFXLibrary.AddNachtmusikLight(pos, 0.25f);
+            NachtmusikVFXLibrary.AddPaletteLighting(pos, 0.4f, 0.3f);
         }
 
         // =====================================================================
-        //  HIT VFX
+        //  SmallHitVFX — Nebula fragment impact
         // =====================================================================
-
         public static void SmallHitVFX(Vector2 hitPos)
         {
-            if (Main.dedServ) return;
+            NachtmusikVFXLibrary.ProjectileImpact(hitPos, 0.7f);
 
-            // Nebula puff impact
+            // Nebula gas burst on impact
             for (int i = 0; i < 5; i++)
             {
-                Vector2 vel = Main.rand.NextVector2Circular(3f, 3f);
-                Color puffColor = Color.Lerp(NachtmusikPalette.CosmicPurple, NachtmusikPalette.NebulaPink, Main.rand.NextFloat());
-                var puff = new GenericGlowParticle(hitPos + Main.rand.NextVector2Circular(8f, 8f),
-                    vel, puffColor * 0.5f, 0.25f, 18, true);
-                MagnumParticleHandler.SpawnParticle(puff);
+                float angle = MathHelper.TwoPi * i / 5f;
+                Vector2 vel = angle.ToRotationVector2() * (2f + Main.rand.NextFloat() * 1.5f);
+                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.PinkTorch;
+                Dust d = Dust.NewDustPerfect(hitPos, dustType, vel, 0, default, 0.8f);
+                d.noGravity = true;
             }
 
-            NachtmusikVFXLibrary.SpawnGradientHaloRings(hitPos, 2, 0.2f);
-            NachtmusikVFXLibrary.SpawnTwinklingStars(hitPos, 3, 12f);
-            NachtmusikVFXLibrary.SpawnMusicNotes(hitPos, 2, 12f, 0.7f, 0.9f, 22);
-
-            Lighting.AddLight(hitPos, NachtmusikPalette.NebulaPink.ToVector3() * 0.5f);
+            NachtmusikVFXLibrary.SpawnMusicNotes(hitPos, 1, 10f, 0.3f, 0.6f, 18);
+            NachtmusikVFXLibrary.DrawBloom(hitPos, 0.25f, 0.5f);
         }
 
         // =====================================================================
-        //  DEATH VFX
+        //  ProjectileDeathVFX — Nebula dissipation
         // =====================================================================
-
         public static void ProjectileDeathVFX(Vector2 pos)
         {
-            if (Main.dedServ) return;
-
-            // Nebula mist dissolve
-            for (int i = 0; i < 4; i++)
+            // Soft gas cloud dissipation
+            for (int i = 0; i < 6; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(2f, 2f);
-                Color cloudColor = Color.Lerp(NachtmusikPalette.CosmicPurple, NachtmusikPalette.NebulaPink, Main.rand.NextFloat());
-                var cloud = new GenericGlowParticle(pos + Main.rand.NextVector2Circular(8f, 8f),
-                    vel, cloudColor * 0.4f, 0.2f, 16, true);
-                MagnumParticleHandler.SpawnParticle(cloud);
+                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.PinkTorch;
+                Dust d = Dust.NewDustPerfect(pos, dustType, vel, 0, default, 0.8f);
+                d.noGravity = true;
+                d.fadeIn = 1f;
             }
-            try { CustomParticles.HaloRing(pos, NachtmusikPalette.NebulaPink * 0.5f, 0.18f, 10); } catch { }
+            NachtmusikVFXLibrary.SpawnMusicNotes(pos, 1, 12f, 0.4f, 0.6f, 18);
         }
     }
 }

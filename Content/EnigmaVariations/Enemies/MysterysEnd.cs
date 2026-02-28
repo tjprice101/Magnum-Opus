@@ -783,7 +783,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
     /// </summary>
     public class MysterysEndProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle11";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
@@ -833,7 +833,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle11").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             Main.spriteBatch.Draw(glow, pos, null, EnigmaGreen, 0f, glow.Size() / 2, 0.4f, SpriteEffects.None, 0f);
@@ -851,7 +851,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
     /// </summary>
     public class ParadoxGazeEye : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnigmaEye1";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA";
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
@@ -919,7 +919,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnigmaEye" + Main.rand.Next(1, 9)).Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA").Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             float alpha = 1f - Projectile.alpha / 255f;
             
@@ -937,7 +937,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
     /// </summary>
     public class CascadingGlyph : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MusicNote";
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
@@ -997,7 +997,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Glyphs" + glyphIndex).Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNote").Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             // Glow
@@ -1014,7 +1014,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
     /// </summary>
     public class WatchingEyeProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnigmaEye1";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA";
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
@@ -1070,7 +1070,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnigmaEye" + ((Projectile.timeLeft % 8) + 1)).Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA").Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             Main.spriteBatch.Draw(texture, pos, null, EnigmaPurple * 0.5f, Projectile.rotation, texture.Size() / 2, 0.45f, SpriteEffects.None, 0f);
@@ -1085,7 +1085,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
     /// </summary>
     public class MysteryVortexZone : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle14";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
@@ -1147,7 +1147,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle14").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             // Swirling vortex effect
@@ -1164,7 +1164,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
     /// </summary>
     public class RevelationEyeProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnigmaEye1";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA";
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
@@ -1229,7 +1229,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         public override bool PreDraw(ref Color lightColor)
         {
             int eyeIndex = ((Projectile.timeLeft / 5) % 8) + 1;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnigmaEye" + eyeIndex).Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA").Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             // Glow layers

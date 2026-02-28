@@ -47,7 +47,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             Projectile.extraUpdates = 1;
         }
 
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ParticleTrail3";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Trails/EnergyTex";
 
         public override void AI()
         {
@@ -207,7 +207,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo5";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
 
         public override void AI()
         {

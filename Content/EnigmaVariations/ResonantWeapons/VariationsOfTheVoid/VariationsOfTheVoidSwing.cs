@@ -7,22 +7,28 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.BaseClasses;
 using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
-using static MagnumOpus.Common.Systems.Particles.Particle;
-using MagnumOpus.Common.Systems.VFX.Trails;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Trails;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence;
+using static MagnumOpus.Common.Systems.Particles.Particle;
+using Terraria.GameContent;
+using ReLogic.Content;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoid.Particles;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoid.Dusts;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoid.Utilities;
 
-namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
+namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoid
 {
     /// <summary>
-    /// VARIATIONS OF THE VOID  EEnigma Melee Sword (Swing Projectile).
+    /// VARIATIONS OF THE VOID — Enigma Melee Sword (Swing Projectile).
     /// Held-projectile swing via MeleeSwingBase.
     /// 
-    /// 3-Phase combo  Eeach a different voice of the void:
-    ///   Phase 0: VoidWhisper  Efast, subtle cleave
-    ///   Phase 1: AbyssalEcho  Emedium sweep, flipped arc
-    ///   Phase 2: RiftSunderFinisher  Eheavy finisher, spawns sub-projectiles
+    /// 3-Phase combo — each a different voice of the void:
+    ///   Phase 0: VoidWhisper — fast, subtle cleave
+    ///   Phase 1: AbyssalEcho — medium sweep, flipped arc
+    ///   Phase 2: RiftSunderFinisher — heavy finisher, spawns sub-projectiles
     /// </summary>
     public sealed class VariationsOfTheVoidSwing : MeleeSwingBase
     {
@@ -113,8 +119,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             return comboStep switch
             {
-                2 => "MagnumOpus/Assets/Particles Asset Library/SwordArc2",
-                _ => "MagnumOpus/Assets/Particles Asset Library/SwordArc8"
+                2 => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse",
+                _ => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse"
             };
         }
 
@@ -150,40 +156,37 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             if (hasSpawnedSpecial) return;
 
+            // Phase 0 at 55% — no gameplay effect (was VFX only)
             if (ComboStep == 0 && Progression >= 0.55f)
             {
                 hasSpawnedSpecial = true;
-                CustomParticles.GenericFlare(GetBladeTipPosition(), EnigmaPurple, 0.55f, 15);
-                CustomParticles.GlyphBurst(GetBladeTipPosition(), EnigmaDeepPurple, 3, 3f);
-                ThemedParticles.EnigmaMusicNotes(GetBladeTipPosition(), 2, 20f);
             }
 
+            // Phase 1 at 60% — dimensional slash sub-projectile
             if (ComboStep == 1 && Progression >= 0.6f)
             {
                 hasSpawnedSpecial = true;
-                Vector2 tipPos = GetBladeTipPosition();
 
                 if (Main.myPlayer == Projectile.owner)
                 {
+                    Vector2 tipPos = GetBladeTipPosition();
                     Vector2 slashVel = SwordDirection * 10f;
                     Projectile.NewProjectile(Projectile.GetSource_FromThis(), tipPos, slashVel,
                         ModContent.ProjectileType<DimensionalSlash>(),
                         Projectile.damage / 3, 2f, Projectile.owner,
                         ai0: Projectile.rotation);
                 }
-
-                CustomParticles.GenericFlare(tipPos, EnigmaGreen, 0.6f, 18);
-                CustomParticles.HaloRing(tipPos, EnigmaPurple, 0.4f, 14);
-                ThemedParticles.EnigmaMusicNotes(tipPos, 3, 25f);
             }
 
+            // Phase 2 at 50% — heavy finisher with sub-projectiles
             if (ComboStep == 2 && Progression >= 0.5f)
             {
                 hasSpawnedSpecial = true;
-                Vector2 tipPos = GetBladeTipPosition();
 
                 if (Main.myPlayer == Projectile.owner)
                 {
+                    Vector2 tipPos = GetBladeTipPosition();
+
                     // Forward slash
                     Vector2 fwdVel = SwordDirection * 12f;
                     Projectile.NewProjectile(Projectile.GetSource_FromThis(), tipPos, fwdVel,
@@ -211,17 +214,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                             Projectile.damage / 5, 1f, Projectile.owner);
                     }
                 }
-
-                // Heavy VFX
-                UnifiedVFX.EnigmaVariations.Impact(tipPos, 1.3f);
-                CustomParticles.GlyphCircle(tipPos, EnigmaPurple, 6, 55f, 0.03f);
-                for (int i = 0; i < 4; i++)
-                {
-                    Color rc = Color.Lerp(EnigmaDeepPurple, EnigmaGreen, i / 4f);
-                    CustomParticles.HaloRing(tipPos, rc, 0.35f + i * 0.12f, 14 + i * 3);
-                }
-                ThemedParticles.EnigmaMusicNotes(tipPos, 4, 30f);
-                MagnumScreenEffects.AddScreenShake(4f);
             }
         }
 
@@ -247,18 +239,23 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 }
             }
 
-            UnifiedVFX.EnigmaVariations.Impact(target.Center, 0.9f);
-            CustomParticles.GlyphBurst(target.Center, EnigmaPurple, 4, 4f);
-            ThemedParticles.EnigmaMusicNotes(target.Center, 2, 18f);
+            Lighting.AddLight(target.Center, EnigmaPurple.ToVector3() * 0.8f);
 
-            for (int i = 0; i < 6; i++)
+            // === VFX: AbyssalEchoRing at target ===
+            VoidVariationParticleHandler.Spawn(new AbyssalEchoRing(
+                target.Center, VoidVariationUtils.VariationViolet, 0.3f, 30));
+
+            // === VFX: 3-5 RiftSunderSpark burst from hit point ===
+            for (int sp = 0; sp < Main.rand.Next(3, 6); sp++)
             {
-                Vector2 dv = Main.rand.NextVector2Circular(5f, 5f);
-                Dust d = Dust.NewDustPerfect(target.Center, DustID.PurpleTorch, dv, 0, EnigmaPurple, 1.3f);
-                d.noGravity = true;
+                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(5f, 5f);
+                VoidVariationParticleHandler.Spawn(new RiftSunderSpark(
+                    target.Center, sparkVel, Main.rand.NextFloat(0.15f, 0.25f), Main.rand.Next(15, 25)));
             }
 
-            Lighting.AddLight(target.Center, EnigmaPurple.ToVector3() * 0.8f);
+            // === VFX: VoidWhisperMote at target ===
+            VoidVariationParticleHandler.Spawn(new VoidWhisperMote(
+                target.Center, Main.rand.NextVector2Circular(1f, 1f), VoidVariationUtils.VoidSurge, 0.3f, 35));
         }
 
         #endregion
@@ -267,61 +264,56 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
 
         protected override void DrawCustomVFX(SpriteBatch sb)
         {
-            if (Progression < 0.08f || Progression > 0.92f) return;
+            if (Progression <= 0f || Progression >= 1f) return;
 
             Vector2 tipPos = GetBladeTipPosition();
+            int frame = (int)Main.GameUpdateCount;
 
-            // Dense dust trail
-            for (int i = 0; i < 2; i++)
+            // === Base particles for ALL phases: 1-2 VoidWhisperMote per frame at swing tip ===
+            for (int i = 0; i < Main.rand.Next(1, 3); i++)
             {
-                Vector2 dustPos = Vector2.Lerp(Owner.MountedCenter, tipPos, Main.rand.NextFloat(0.4f, 1f));
-                int dustType = i == 0 ? DustID.PurpleTorch : DustID.CursedTorch;
-                Dust d = Dust.NewDustPerfect(dustPos, dustType,
-                    -SwordDirection * Main.rand.NextFloat(1f, 3f), 0,
-                    Color.Lerp(EnigmaPurple, EnigmaGreen, Main.rand.NextFloat()), 1.4f);
-                d.noGravity = true;
+                Vector2 drift = Main.rand.NextVector2Circular(1.5f, 1.5f);
+                Color whisperColor = Main.rand.NextBool() ? VoidVariationUtils.VariationViolet : VoidVariationUtils.RiftTeal;
+                VoidVariationParticleHandler.Spawn(new VoidWhisperMote(
+                    tipPos + Main.rand.NextVector2Circular(8f, 8f), drift, whisperColor,
+                    Main.rand.NextFloat(0.08f, 0.15f), Main.rand.Next(25, 40)));
             }
 
-            // Void shimmer
-            if (Main.rand.NextBool(3))
+            // === Phase 0-1: RiftSunderSpark every 3 frames at tip ===
+            if (ComboStep <= 1 && frame % 3 == 0)
             {
-                Vector2 shimmerPos = tipPos + Main.rand.NextVector2Circular(8f, 8f);
-                Dust shimmer = Dust.NewDustPerfect(shimmerPos, DustID.Enchanted_Pink,
-                    Vector2.Zero, 0, EnigmaGreen, 0.8f);
-                shimmer.noGravity = true;
+                Vector2 sparkVel = SwordDirection.RotatedByRandom(0.4f) * Main.rand.NextFloat(3f, 6f);
+                VoidVariationParticleHandler.Spawn(new RiftSunderSpark(
+                    tipPos, sparkVel, Main.rand.NextFloat(0.1f, 0.2f), Main.rand.Next(15, 25)));
             }
 
-            // Eye sparkle
-            if (Main.rand.NextBool(4))
+            // === Phase 2+: AbyssalEchoRing every 4 frames at tip ===
+            if (ComboStep >= 2 && frame % 4 == 0)
             {
-                CustomParticles.EnigmaEyeGaze(tipPos + Main.rand.NextVector2Circular(12f, 12f),
-                    EnigmaPurple, 0.35f);
+                Color ringColor = Main.rand.NextBool() ? VoidVariationUtils.VoidSurge : VoidVariationUtils.RiftTeal;
+                VoidVariationParticleHandler.Spawn(new AbyssalEchoRing(
+                    tipPos, ringColor, 0.15f, Main.rand.Next(20, 35)));
             }
 
-            // Music notes  Ehue-shifting through void spectrum
-            if (Main.rand.NextBool(5))
+            // === Every 5 frames: 1 VoidVariationDust at swing tip ===
+            if (frame % 5 == 0)
             {
-                Vector2 noteVel = -SwordDirection * 1.5f + Main.rand.NextVector2Circular(0.5f, 0.5f);
-                MagnumParticleHandler.SpawnParticle(new HueShiftingMusicNoteParticle(
-                    tipPos, noteVel,
-                    hueMin: 0.38f, hueMax: 0.77f,
-                    saturation: 0.85f, luminosity: 0.6f,
-                    scale: 0.75f, lifetime: 25, hueSpeed: 0.025f));
+                Vector2 dustVel = Main.rand.NextVector2Circular(2f, 2f);
+                Dust.NewDustPerfect(tipPos, ModContent.DustType<VoidVariationDust>(), dustVel, 0, default, Main.rand.NextFloat(0.5f, 0.8f));
             }
 
-            // Blade-tip bloom  EEnigma void glow
+            // === Mid-swing burst (progress 0.4-0.6): 3-5 RiftSunderSpark along the arc ===
+            if (Progression >= 0.4f && Progression <= 0.6f && frame % 2 == 0)
             {
-                float bloomOpacity = MathHelper.Clamp((Progression - 0.08f) / 0.12f, 0f, 1f)
-                                   * MathHelper.Clamp((0.92f - Progression) / 0.12f, 0f, 1f);
-                float bloomScale = 0.45f + ComboStep * 0.08f;
-                BloomRenderer.DrawBloomStackAdditive(tipPos, EnigmaPurple, EnigmaGreen, bloomScale, bloomOpacity);
-            }
-
-            // Glyph accent on finisher
-            if (ComboStep == 2 && Main.rand.NextBool(6))
-            {
-                CustomParticles.Glyph(tipPos + Main.rand.NextVector2Circular(15f, 15f),
-                    EnigmaDeepPurple, 0.35f, -1);
+                int burstCount = Main.rand.Next(3, 6);
+                for (int i = 0; i < burstCount; i++)
+                {
+                    float arcT = Main.rand.NextFloat();
+                    Vector2 arcPos = Vector2.Lerp(Owner.MountedCenter, tipPos, arcT);
+                    Vector2 burstVel = SwordDirection.RotatedByRandom(0.8f) * Main.rand.NextFloat(4f, 8f);
+                    VoidVariationParticleHandler.Spawn(new RiftSunderSpark(
+                        arcPos, burstVel, Main.rand.NextFloat(0.12f, 0.22f), Main.rand.Next(12, 20)));
+                }
             }
         }
 

@@ -8,6 +8,8 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Common;
+using MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura.Utilities;
+using MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura.Particles;
 
 namespace MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura
 {
@@ -64,36 +66,15 @@ namespace MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura
             else if (heatLevel > 0)
                 heatLevel--;
 
-            float heatProgress = (float)heatLevel / MaxHeat;
-            Vector2 gunBarrel = player.Center + new Vector2(40f * player.direction, -2f);
-            Vector2 gunBody = player.Center + new Vector2(20f * player.direction, -2f);
-
-            // Heat-reactive barrel VFX
-            BlossomOfTheSakuraVFX.BarrelHeatVFX(gunBarrel, gunBody, heatProgress, player.direction);
-
-            // Heat mirage shimmer at medium-high heat
-            if (heatProgress > 0.3f)
-                BlossomOfTheSakuraVFX.HeatMirage(gunBarrel, heatProgress);
-
-            // Ambient hold VFX (sakura petals, embers, music notes)
-            BlossomOfTheSakuraVFX.HoldItemVFX(player, heatProgress);
-
-            // Overheat pulse — triggers once when heat reaches maximum
+            // Overheat tracking
             if (heatLevel >= MaxHeat && !hasOverheated)
-            {
                 hasOverheated = true;
-                BlossomOfTheSakuraVFX.OverheatPulse(gunBarrel);
-            }
             else if (heatLevel < MaxHeat)
-            {
                 hasOverheated = false;
-            }
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
-            EroicaPalette.DrawItemBloom(spriteBatch, Item, rotation, scale);
-            Lighting.AddLight(Item.Center, EroicaPalette.Sakura.ToVector3() * 0.4f);
             return true;
         }
 
@@ -111,10 +92,6 @@ namespace MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura
             // Pass heat progress to bullet via ai[0]
             Projectile.NewProjectile(source, position, perturbedVelocity, type, damage, knockback,
                 player.whoAmI, ai0: heatProgress);
-
-            // Muzzle flash VFX
-            Vector2 muzzlePos = position + velocity.SafeNormalize(Vector2.Zero) * 25f;
-            BlossomOfTheSakuraVFX.MuzzleFlashVFX(muzzlePos, velocity, heatProgress);
 
             return false;
         }

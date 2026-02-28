@@ -219,10 +219,10 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             try
             {
-                if (ModContent.HasAsset("MagnumOpus/Assets/Shaders/CalamityFireShader"))
+                if (ModContent.HasAsset("MagnumOpus/Effects/HeroicFlameTrail"))
                 {
                     _ribbonShader = ModContent.Request<Effect>(
-                        "MagnumOpus/Assets/Shaders/CalamityFireShader",
+                        "MagnumOpus/Effects/HeroicFlameTrail",
                         AssetRequestMode.ImmediateLoad
                     ).Value;
                     _shaderLoaded = _ribbonShader != null;

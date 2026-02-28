@@ -51,7 +51,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo4";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
 
         private float orbitTimer = 0f;
 
@@ -347,7 +347,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             Projectile.extraUpdates = 2;
         }
 
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField11";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
 
         public override void AI()
         {

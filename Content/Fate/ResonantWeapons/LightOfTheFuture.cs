@@ -1,3 +1,5 @@
+// COMMENTED OUT — Replaced by self-contained system in LightOfTheFuture/ folder
+#if false
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -83,3 +85,4 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         }
     }
 }
+#endif

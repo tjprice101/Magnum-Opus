@@ -10,179 +10,169 @@ using MagnumOpus.Common.Systems.Particles;
 namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 {
     /// <summary>
-    /// VFX helper for the Nocturnal Executioner melee weapon.
-    /// Heavy midnight authority — commanding swings with violet flash,
-    /// golden radiance accents, and cascading constellation impacts.
-    /// The executioner's decree echoes through the night sky.
+    /// Shader-driven VFX for the Nocturnal Executioner — the heavy midnight authority blade.
+    /// Uses ExecutionDecree.fx for void-rip slash trails and NachtmusikSerenade.fx for ambient aura.
+    /// Every swing is a decree written in cosmic void and violet lightning.
     /// </summary>
     public static class NocturnalExecutionerVFX
     {
         // =====================================================================
-        //  HOLD ITEM VFX
+        //  HoldItemVFX — Ambient authority aura while holding
         // =====================================================================
-
         public static void HoldItemVFX(Player player)
         {
-            if (Main.dedServ) return;
-
-            Vector2 center = player.MountedCenter;
-            float time = (float)Main.timeForVisualEffects;
-
-            // Midnight authority aura — deep blue shimmer
-            if (Main.rand.NextBool(6))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
-                Color auraColor = NachtmusikPalette.GetCelestialGradient(Main.rand.NextFloat(0f, 0.4f));
-                var glow = new GenericGlowParticle(center + offset, Main.rand.NextVector2Circular(0.5f, 0.5f),
-                    auraColor * 0.4f, 0.18f, 20, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-
-            // Orbiting violet authority glyphs
-            if (Main.rand.NextBool(15))
-            {
-                float angle = time * 0.03f + Main.rand.NextFloat(MathHelper.TwoPi);
-                Vector2 glyphPos = center + angle.ToRotationVector2() * 22f;
-                try { CustomParticles.Glyph(glyphPos, NachtmusikPalette.Violet * 0.5f, 0.3f, -1); } catch { }
-            }
-
-            // Twinkling star motes
-            if (Main.rand.NextBool(12))
-            {
-                Vector2 starPos = center + Main.rand.NextVector2Circular(20f, 20f);
-                try { CustomParticles.GenericFlare(starPos, NachtmusikPalette.StarWhite * 0.4f, 0.15f, 10); } catch { }
-            }
-
-            NachtmusikVFXLibrary.AddNachtmusikLight(center, 0.25f);
-        }
-
-        // =====================================================================
-        //  PREDRAW IN WORLD BLOOM
-        // =====================================================================
-
-        public static void PreDrawInWorldBloom(SpriteBatch sb, Texture2D tex,
-            Vector2 pos, Vector2 origin, float rotation, float scale)
-        {
-            float time = (float)Main.timeForVisualEffects;
-            float pulse = 1f + MathF.Sin(time * 0.04f) * 0.03f;
-            NachtmusikPalette.DrawItemBloom(sb, tex, pos, origin, rotation, scale, pulse);
-        }
-
-        // =====================================================================
-        //  SWING TRAIL VFX
-        // =====================================================================
-
-        /// <summary>
-        /// Per-frame swing trail VFX: violet dust, starlit sparks, midnight bloom.
-        /// The executioner's blade cleaves through the night with commanding authority.
-        /// </summary>
-        public static void SwingTrailVFX(Vector2 tipPos, Vector2 swordDirection, int comboStep, int timer)
-        {
-            if (Main.dedServ) return;
-
-            // Violet authority dust
-            for (int i = 0; i < 2; i++)
-            {
-                Vector2 vel = -swordDirection * Main.rand.NextFloat(1f, 3f) + Main.rand.NextVector2Circular(0.5f, 0.5f);
-                Dust d = Dust.NewDustPerfect(tipPos, DustID.PurpleTorch, vel, 0,
-                    NachtmusikPalette.Violet, 1.4f + comboStep * 0.15f);
-                d.noGravity = true;
-            }
-
-            // Golden radiance edge shimmer (1-in-2)
-            NachtmusikVFXLibrary.SpawnRadianceShimmer(tipPos, -swordDirection);
-
-            // Starlit sparkle accent (1-in-3)
             if (Main.rand.NextBool(3))
             {
-                try { CustomParticles.GenericFlare(
-                    tipPos + Main.rand.NextVector2Circular(6f, 6f),
-                    NachtmusikPalette.StarWhite, 0.25f, 12); } catch { }
+                // Dark cosmic motes drift around the blade — void authority
+                Vector2 offset = Main.rand.NextVector2Circular(30f, 30f);
+                Vector2 pos = player.Center + offset;
+                Dust d = Dust.NewDustPerfect(pos, DustID.PurpleTorch,
+                    Main.rand.NextVector2Circular(0.4f, 0.4f), 0, default, 0.7f);
+                d.noGravity = true;
+                d.fadeIn = 0.9f;
             }
 
-            // Music notes (every 5 frames)
-            if (timer % 5 == 0)
-                NachtmusikVFXLibrary.SpawnMusicNotes(tipPos, 1, 10f, 0.7f, 0.9f, 25);
-
-            // Orbiting glyph accent (every 8 frames)
-            if (timer % 8 == 0)
+            if (Main.rand.NextBool(8))
             {
-                try { CustomParticles.Glyph(tipPos + Main.rand.NextVector2Circular(8f, 8f),
-                    NachtmusikPalette.RadianceGold * 0.6f, 0.3f, -1); } catch { }
+                // Occasional violet authority spark
+                NachtmusikVFXLibrary.SpawnTwinklingStars(player.Center, 1, 25f);
             }
 
-            Lighting.AddLight(tipPos, NachtmusikPalette.Violet.ToVector3() * (0.5f + comboStep * 0.12f));
+            // Subtle cosmic lighting
+            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.3f);
         }
 
         // =====================================================================
-        //  SWING IMPACT VFX
+        //  PreDrawInWorldBloom — Shader-driven weapon glow
         // =====================================================================
+        public static void PreDrawInWorldBloom(SpriteBatch sb, Texture2D tex, Vector2 pos,
+            Vector2 origin, float rotation, float scale)
+        {
+            // Draw weapon with ExecutionDecree glow pass overlay
+            if (NachtmusikShaderManager.HasExecutionDecree)
+            {
+                NachtmusikShaderManager.BeginShaderAdditive(sb);
+                NachtmusikShaderManager.ApplyExecutionDecreeGlow((float)Main.timeForVisualEffects * 0.02f);
 
-        /// <summary>
-        /// On-hit impact: violet authority flash, golden radiance burst,
-        /// constellation spark ring, and starburst cascade.
-        /// </summary>
+                sb.Draw(tex, pos - Main.screenPosition, null,
+                    NachtmusikPalette.Violet * 0.6f, rotation, origin, scale * 1.08f,
+                    SpriteEffects.None, 0f);
+
+                NachtmusikShaderManager.RestoreSpriteBatch(sb);
+            }
+            else
+            {
+                // Fallback: simple bloom stack
+                NachtmusikVFXLibrary.DrawNachtmusikBloomStack(sb, pos,
+                    NachtmusikPalette.Violet, NachtmusikPalette.CosmicVoid, scale * 0.4f, 0.5f);
+            }
+        }
+
+        // =====================================================================
+        //  SwingTrailVFX — Per-frame cosmic void trail during swing
+        // =====================================================================
+        public static void SwingTrailVFX(Vector2 tipPos, Vector2 swordDirection, int comboStep, int timer)
+        {
+            // Void-crack dust at blade tip
+            if (timer % 2 == 0)
+            {
+                Vector2 perpendicular = new Vector2(-swordDirection.Y, swordDirection.X);
+                Vector2 dustVel = perpendicular * Main.rand.NextFloat(-2f, 2f) + swordDirection * 0.5f;
+
+                Dust d = Dust.NewDustPerfect(tipPos, DustID.PurpleTorch, dustVel, 0, default, 1.1f);
+                d.noGravity = true;
+                d.fadeIn = 1.2f;
+            }
+
+            // Cosmic authority sparks — wider spread on later combo phases
+            if (timer % (4 - Math.Min(comboStep, 2)) == 0)
+            {
+                float sparkScale = 0.3f + comboStep * 0.1f;
+                Vector2 sparkOffset = Main.rand.NextVector2Circular(8f, 8f);
+                NachtmusikVFXLibrary.SpawnTwinklingStars(tipPos + sparkOffset, 1, 10f);
+            }
+
+            // Music notes on later combo steps (the executioner's melody)
+            if (comboStep >= 1 && timer % 8 == 0)
+            {
+                NachtmusikVFXLibrary.SpawnMusicNotes(tipPos, 1, 15f, 0.5f, 0.8f, 30);
+            }
+
+            NachtmusikVFXLibrary.AddPaletteLighting(tipPos, 0.2f, 0.5f + comboStep * 0.15f);
+        }
+
+        // =====================================================================
+        //  SwingImpactVFX — Shader-driven hit impact
+        // =====================================================================
         public static void SwingImpactVFX(Vector2 hitPos, int comboStep = 0)
         {
-            if (Main.dedServ) return;
+            float intensity = 1f + comboStep * 0.3f;
 
-            // Commanding bloom flash
-            NachtmusikVFXLibrary.DrawBloom(hitPos, 0.5f + comboStep * 0.12f);
+            // Core impact: void burst + violet flash
+            NachtmusikVFXLibrary.MeleeImpact(hitPos, comboStep);
 
-            // Violet authority halo rings
-            NachtmusikVFXLibrary.SpawnGradientHaloRings(hitPos, 3 + comboStep);
-
-            // Purple dust burst
-            for (int i = 0; i < 10 + comboStep * 3; i++)
+            // Radial void dust explosion
+            int dustCount = 8 + comboStep * 4;
+            for (int i = 0; i < dustCount; i++)
             {
-                float angle = MathHelper.TwoPi * i / (10 + comboStep * 3);
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f + comboStep);
-                Dust d = Dust.NewDustPerfect(hitPos, DustID.PurpleTorch, vel, 0,
-                    NachtmusikPalette.Violet, 1.3f);
+                float angle = MathHelper.TwoPi * i / dustCount;
+                Vector2 vel = angle.ToRotationVector2() * (4f + Main.rand.NextFloat() * 3f) * intensity;
+                Dust d = Dust.NewDustPerfect(hitPos, DustID.PurpleTorch, vel, 0, default, 1.2f * intensity);
                 d.noGravity = true;
+                d.fadeIn = 1.4f;
             }
 
-            // Golden radiance accent sparks
-            NachtmusikVFXLibrary.SpawnStarBurst(hitPos, 4 + comboStep * 2, 0.3f);
+            // Constellation spark ring on higher combos
+            if (comboStep >= 1)
+            {
+                NachtmusikVFXLibrary.SpawnConstellationCircle(hitPos, 30f * intensity, 6 + comboStep * 2, 
+                    Main.rand.NextFloat() * MathHelper.TwoPi);
+            }
 
-            // Twinkling stars
-            NachtmusikVFXLibrary.SpawnTwinklingStars(hitPos, 2 + comboStep, 18f);
-
-            // Music notes
-            NachtmusikVFXLibrary.SpawnMusicNotes(hitPos, 2 + comboStep, 20f);
-
-            // Starburst cascade on combo 2+
+            // Glyph authority burst on combo 2
             if (comboStep >= 2)
-                NachtmusikVFXLibrary.SpawnStarburstCascade(hitPos, 3, 0.8f);
+            {
+                NachtmusikVFXLibrary.SpawnOrbitingGlyphs(hitPos, 4, 35f, Main.rand.NextFloat() * MathHelper.TwoPi);
+            }
 
-            Lighting.AddLight(hitPos, NachtmusikPalette.Violet.ToVector3() * (0.8f + comboStep * 0.15f));
+            // Music note scatter
+            NachtmusikVFXLibrary.SpawnMusicNotes(hitPos, 2 + comboStep, 20f, 0.6f, 1f, 30);
+
+            // Impact bloom
+            NachtmusikVFXLibrary.DrawBloom(hitPos, 0.4f * intensity, 0.8f);
+            NachtmusikVFXLibrary.AddPaletteLighting(hitPos, 0.3f, 0.8f * intensity);
         }
 
         // =====================================================================
-        //  FINISHER VFX
+        //  FinisherVFX — Execution decree: massive void-rip cascade
         // =====================================================================
-
-        /// <summary>
-        /// Finisher slam: massive authority explosion with midnight decree VFX.
-        /// Screen shake, constellation circle, golden radiance supernova.
-        /// </summary>
         public static void FinisherVFX(Vector2 pos, float intensity = 1f)
         {
-            if (Main.dedServ) return;
+            // Grand void-crack explosion
+            NachtmusikVFXLibrary.SpawnStarburstCascade(pos, 5, intensity, 1f);
 
-            NachtmusikVFXLibrary.FinisherSlam(pos, intensity);
+            // Outward shattered starlight spray
+            NachtmusikVFXLibrary.SpawnShatteredStarlight(pos, 10, 7f * intensity, 0.8f, false);
 
-            // Unique executioner authority: extra violet-gold flash cascade
-            for (int i = 0; i < 5; i++)
-            {
-                float progress = (float)i / 5f;
-                Color flashColor = Color.Lerp(NachtmusikPalette.Violet, NachtmusikPalette.RadianceGold, progress);
-                try { CustomParticles.GenericFlare(pos + Main.rand.NextVector2Circular(20f * intensity, 20f * intensity),
-                    flashColor, 0.5f * intensity, 18 + i * 3); } catch { }
-            }
+            // Golden authority glyph ring
+            NachtmusikVFXLibrary.SpawnOrbitingGlyphs(pos, 6, 50f * intensity, 
+                Main.rand.NextFloat() * MathHelper.TwoPi);
 
-            // Golden glyph circle
-            NachtmusikVFXLibrary.SpawnOrbitingGlyphs(pos, 6, 50f * intensity, Main.GameUpdateCount * 0.02f);
+            // Constellation decree circle — the execution signature
+            NachtmusikVFXLibrary.SpawnConstellationCircle(pos, 60f * intensity, 8, 
+                Main.rand.NextFloat() * MathHelper.TwoPi);
+
+            // Music note cascade
+            NachtmusikVFXLibrary.SpawnMusicNotes(pos, 6, 40f, 0.7f, 1.2f, 40);
+
+            // Massive dust burst
+            NachtmusikVFXLibrary.SpawnRadialDustBurst(pos, 20, 8f * intensity);
+
+            // Heavy bloom stack
+            NachtmusikVFXLibrary.DrawComboBloom(pos, 2, 0.6f * intensity, 1f);
+
+            // Strong lighting
+            NachtmusikVFXLibrary.AddPaletteLighting(pos, 0.1f, 1.2f * intensity);
         }
     }
 }

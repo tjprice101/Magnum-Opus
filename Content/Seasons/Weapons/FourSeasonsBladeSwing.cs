@@ -166,9 +166,9 @@ namespace MagnumOpus.Content.Seasons.Weapons
         {
             return comboStep switch
             {
-                2 => "MagnumOpus/Assets/Particles Asset Library/InfernalCircularSmear",
-                3 => "MagnumOpus/Assets/Particles Asset Library/InfernalTrientSmear",
-                _ => "MagnumOpus/Assets/Particles Asset Library/InfernalSemiCircularSmear"
+                2 => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse",
+                3 => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse",
+                _ => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse"
             };
         }
 

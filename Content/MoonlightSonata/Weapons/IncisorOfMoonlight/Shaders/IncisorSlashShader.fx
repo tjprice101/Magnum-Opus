@@ -4,6 +4,9 @@
 // Renders the swing arc trail with standing-wave resonance patterns,
 // constellation node highlights, and a moonlight color palette.
 //
+// Palette: Deep Resonance purple → Frequency Pulse lavender → Resonant Silver
+//          → Ice Blue Clarity → Crystal Edge white
+//
 // Vertex format: IncisorVertex (Position2D + Color + TextureCoordinates3D)
 // where TextureCoordinates.z = width correction factor.
 //
@@ -13,7 +16,7 @@
 // =============================================================================
 
 sampler uImage0 : register(s0);
-sampler uImage1 : register(s1); // Noise texture (VoronoiNoise or StarFieldScatter)
+sampler uImage1 : register(s1); // Noise texture (VoronoiNoise)
 
 float3 uColor;            // Primary: Resonant Silver
 float3 uSecondaryColor;   // Dark base: Deep Resonance purple
@@ -83,6 +86,14 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
     if (flipped)
         coords.y = 1 - coords.y;
 
+    // --- Width-based band structure ---
+    // Center distance (0 at center, 1 at edge)
+    float centerDist = abs(coords.y - 0.5) * 2.0;
+    // Smooth bell-curve core brightness
+    float coreBand = exp(-centerDist * centerDist * 3.5);
+    // Soft outer glow falloff
+    float outerGlow = exp(-centerDist * centerDist * 1.2);
+
     // Standing wave resonance pattern
     float waveFreq = 4.0 + uIntensity * 4.0;
     float standingWave = StandingWave(coords.x, waveFreq, uTime);
@@ -94,38 +105,46 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
     float noise2 = pow(tex2D(uImage1, noiseCoords * 2.1).r, 1.5);
     float noise3 = pow(tex2D(uImage1, noiseCoords * 1.15).r, 1.3);
 
-    // Trail opacity: noise-driven with fade along length and width
-    float opacity = noise1 * pow(saturate((1 - coords.x) - noise1 * coords.y * 0.45), 2.8);
+    // --- Trail opacity: smooth fade along length, noise-modulated ---
+    // Head-to-tail fade: strong at head, fades to tail
+    float lengthFade = pow(saturate(1.0 - coords.x), 1.6);
+    // Noise breathing for organic feel
+    float noiseFade = saturate(noise1 * 0.6 + 0.5);
+    float opacity = lengthFade * noiseFade * outerGlow;
 
-    // Primary color blend (silver/white core)
-    color = lerp(color, float4(uColor, 1), noise2);
+    // --- Color layering ---
+    // Base: vertex color (passed from C#, typically Frequency Pulse lavender)
+    // Core silver-white along the center band
+    float silverWeight = coreBand * pow(1.0 - coords.x, 0.8) * (0.6 + noise2 * 0.4);
+    color.rgb = lerp(color.rgb, uColor, silverWeight);
 
-    // Dark purple base toward bottom and tail of trail
-    float darkWeight = saturate(coords.y * 1.7 + coords.x * 0.5 + noise1 * 0.12);
-    color = lerp(color, float4(uSecondaryColor, 1), darkWeight);
+    // Dark purple base toward edges and tail
+    float darkWeight = saturate((1.0 - coreBand) * 0.8 + coords.x * 0.4 + noise1 * 0.08);
+    color.rgb = lerp(color.rgb, uSecondaryColor, darkWeight * 0.7);
 
-    // Ice blue edge at the top of the trail (like fire streak but moonlight)
-    float iceWeight = InverseLerp(0.28, 0, coords.y) * pow(1 - coords.x, 1.5);
-    color = lerp(color, float4(fireColor, 1), iceWeight);
+    // Ice blue leading edge (bright strip at the swing's cutting edge)
+    float iceEdge = InverseLerp(0.3, 0.0, coords.y) * pow(1.0 - coords.x, 1.8);
+    color.rgb = lerp(color.rgb, fireColor, iceEdge * 0.85);
 
     // Constellation node highlights
     float nodeCount = 3.0 + uIntensity * 4.0;
     float nodeGlow = ConstellationNodes(coords.x, nodeCount) * standingWave;
 
     // Standing wave brightness modulation
-    float waveBright = 0.7 + standingWave * 0.3 * uIntensity;
+    float waveBright = 0.8 + standingWave * 0.2 * uIntensity;
 
-    // High-frequency shimmer
-    float shimmer = sin(coords.x * 20.0 - uTime * 6.0) * 0.04 * uIntensity + 1.0;
+    // High-frequency shimmer (harmonic overtone)
+    float shimmer = sin(coords.x * 20.0 - uTime * 6.0) * 0.03 * uIntensity + 1.0;
 
-    // Compose final color
-    float4 finalColor = color * opacity * (noise3 * 2.2 + 2.2) * waveBright * shimmer;
+    // --- Compose final color ---
+    float brightMult = (noise3 * 1.5 + 1.8) * waveBright * shimmer;
+    float4 finalColor = float4(color.rgb * brightMult, 1.0) * opacity;
 
-    // Apply constellation node whitening
-    finalColor.rgb = lerp(finalColor.rgb, float3(0.93, 0.95, 1.0), nodeGlow * 0.65);
+    // Constellation node whitening: sharp silver-white star spots
+    finalColor.rgb = lerp(finalColor.rgb, float3(0.93, 0.95, 1.0) * brightMult * opacity, nodeGlow * 0.6);
 
-    // Transparent edge for fire streak
-    finalColor.a = lerp(finalColor.a, 0, 1 - iceWeight);
+    // Final alpha: smooth edges, no hard cutoff
+    finalColor.a = opacity * color.a * (0.85 + coreBand * 0.15);
 
     return finalColor * input.Color.a;
 }

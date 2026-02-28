@@ -572,7 +572,7 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 try
                 {
-                    _rayTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/ParticleTrail1",
+                    _rayTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Trails/ThinGlowLine",
                         ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
                 }
                 catch
@@ -585,7 +585,7 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 try
                 {
-                    _flareTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare",
+                    _flareTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare",
                         ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
                 }
                 catch
@@ -598,7 +598,7 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 try
                 {
-                    _softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2",
+                    _softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow",
                         ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
                 }
                 catch

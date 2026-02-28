@@ -1,3 +1,9 @@
+// ============================================================================
+// DEPRECATED: This file has been superseded by the self-contained weapon system.
+// New implementation: Content/Fate/ResonantWeapons/RequiemOfReality/RequiemOfRealityItem.cs
+// This file is kept as reference but is completely commented out.
+// ============================================================================
+/*
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -148,3 +154,4 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         }
     }
 }
+*/

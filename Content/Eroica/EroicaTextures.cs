@@ -173,39 +173,60 @@ namespace MagnumOpus.Content.Eroica
             if (_loaded) return;
             _loaded = true;
 
-            // Shared
-            SoftGlow = Req("MagnumOpus/Assets/Particles Asset Library/SoftGlow2");
-            EnergyFlare = Req("MagnumOpus/Assets/Particles Asset Library/EnergyFlare");
-            Star4Point = Req("MagnumOpus/Assets/Particles Asset Library/CrispStar4");
-            HaloRing = Req("MagnumOpus/Assets/Particles Asset Library/GlowingHalo1");
-            CircularMask = Req("MagnumOpus/Assets/Particles Asset Library/CircularMask");
-            BloomOrb = Req("MagnumOpus/Assets/Particles Asset Library/SoftGlow4");
-            FullSlashArc = Req("MagnumOpus/Assets/VFX/Smears/FullSlashArc");
-            FlamingArc = Req("MagnumOpus/Assets/Particles Asset Library/FlamingArcSwordSlash");
+            // Shared — remapped to existing VFX Asset Library + SandboxLastPrism assets
+            // SoftGlow: radial bloom orb for tip glows, ambient bloom
+            SoftGlow = Req("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
+            // EnergyFlare: bright point flare for blade tips and impact bursts
+            EnergyFlare = Req("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare");
+            // Star4Point: crisp 4-pointed star for heroic sparkles
+            Star4Point = Req("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard");
+            // HaloRing: soft circle used as expanding shockwave ring via scale animation
+            HaloRing = Req("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle");
+            // CircularMask: hard-edge circular mask for radial shader effects
+            CircularMask = Req("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/HardCircleMask");
+            // BloomOrb: small soft glow for layered bloom stacking
+            BloomOrb = Req("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow64");
+            // FullSlashArc: wide soft ellipse stretched + rotated creates convincing slash arc overlay
+            FullSlashArc = Req("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse");
+            // FlamingArc: impact ellipse drawn with additive blend + scale creates flame arc effect
+            FlamingArc = Req("MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse");
+            // Music notes — these exist in the Particles Asset Library
             MusicNote = Req("MagnumOpus/Assets/Particles Asset Library/MusicNote");
             CursiveMusicNote = Req("MagnumOpus/Assets/Particles Asset Library/CursiveMusicNote");
-            FlameImpact = Req("MagnumOpus/Assets/Particles Asset Library/FlameImpactExplosion");
-            GodRays = Req("MagnumOpus/Assets/VFX/LightRays/Radial God Rays Full Circle");
-            AnamorphicStreak = Req("MagnumOpus/Assets/VFX/Blooms/Horizontal Anamorphic Streak");
-            ComboFinisherArc = Req("MagnumOpus/Assets/VFX/Impacts/Combo Finisher Impact Arc");
-            ShockwaveRing = Req("MagnumOpus/Assets/VFX/Impacts/Expanding Shockwave Ring");
-            HitSlashMark = Req("MagnumOpus/Assets/VFX/Impacts/Directional Hit Slash Mark");
-            RoseBud = Req("MagnumOpus/Assets/Particles Asset Library/RosesBud");
+            // FlameImpact: SoftRadialBloom scaled up with additive orange tint = fire explosion effect
+            FlameImpact = Req("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
+            // GodRays: radial flow noise used as god rays via radial scroll shader
+            GodRays = Req("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/UniversalRadialFlowNoise");
+            // AnamorphicStreak: horizontal beam streak segment stretched = anamorphic flare
+            AnamorphicStreak = Req("MagnumOpus/Assets/VFX Asset Library/BeamTextures/HorizontalBeamStreakSegment");
+            // ComboFinisherArc: impact ellipse for finisher arc VFX
+            ComboFinisherArc = Req("MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse");
+            // ShockwaveRing: soft circle scaled rapidly outward = expanding shockwave
+            ShockwaveRing = Req("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle");
+            // HitSlashMark: vertical ellipse rotated to match hit angle = directional slash mark
+            HitSlashMark = Req("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/VerticalEllipse");
+            // RoseBud: 4-pointed soft star tinted pink = sakura petal substitute
+            RoseBud = Req("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft");
 
-            // Noise
-            PerlinNoise = Req("MagnumOpus/Assets/VFX/Noise/PerlinNoise");
-            CosmicEnergyNoise = Req("MagnumOpus/Assets/VFX/Noise/CosmicEnergyVortex");
-            MusicalWaveNoise = Req("MagnumOpus/Assets/VFX/Noise/MusicalWavePattern");
-            SparklyNoise = Req("MagnumOpus/Assets/VFX/Noise/SparklyNoiseTexture");
+            // Noise — remapped to VFX Asset Library/NoiseTextures/
+            PerlinNoise = Req("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise");
+            CosmicEnergyNoise = Req("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/CosmicEnergyVortex");
+            MusicalWaveNoise = Req("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/MusicalWavePattern");
+            // SparklyNoise: SimplexNoise provides fine-grain sparkle-like noise pattern
+            SparklyNoise = Req("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/SimplexNoise");
 
-            // Trails
-            CometTrailGradient = Req("MagnumOpus/Assets/VFX/Trails/Comet Trail Gradient Fade");
-            EmberScatter = Req("MagnumOpus/Assets/VFX/Trails/Ember Particle Scatter");
-            EnergyTrailUV = Req("MagnumOpus/Assets/VFX/Trails/EnergyTrailUV");
-            SparkleField = Req("MagnumOpus/Assets/VFX/Trails/Sparkle Particle Field");
+            // Trails — remapped to existing trail + VFX assets
+            // CometTrailGradient: Eroica gradient LUT used as comet trail color ramp
+            CometTrailGradient = Req("MagnumOpus/Assets/VFX Asset Library/ColorGradients/EroicaGradientLUTandRAMP");
+            // EmberScatter: star field scatter provides scattered point pattern similar to ember scatter
+            EmberScatter = Req("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/StarFieldScatter");
+            // EnergyTrailUV: EnergyTex provides clean energy UV map for shader trails
+            EnergyTrailUV = Req("MagnumOpus/Assets/SandboxLastPrism/Trails/EnergyTex");
+            // SparkleField: Voronoi cell noise makes excellent sparkle/shimmer field
+            SparkleField = Req("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VoronoiCellNoise");
 
-            // LUT
-            EroicaLUT = Req("MagnumOpus/Assets/VFX/LUT/EroicaGradientLUT");
+            // LUT — remapped to ColorGradients
+            EroicaLUT = Req("MagnumOpus/Assets/VFX Asset Library/ColorGradients/EroicaGradientLUTandRAMP");
 
             // Celestial Valor
             CelestialValorBlade = Req("MagnumOpus/Content/Eroica/Weapons/CelestialValor/CelestialValor");
@@ -215,19 +236,26 @@ namespace MagnumOpus.Content.Eroica
             // Sakura's Blossom
             SakurasBlossomBlade = Req("MagnumOpus/Content/Eroica/Weapons/SakurasBlossom/SakurasBlossom");
 
-            // Smears / Arcs
-            SwordArc1 = Req("MagnumOpus/Assets/Particles Asset Library/SwordArc1");
-            SwordArc2 = Req("MagnumOpus/Assets/Particles Asset Library/SwordArc2");
-            SwordArc3 = Req("MagnumOpus/Assets/Particles Asset Library/SwordArc3");
-            SwordArc4 = Req("MagnumOpus/Assets/Particles Asset Library/SwordArc4");
-            SwordArc5 = Req("MagnumOpus/Assets/Particles Asset Library/SwordArc5");
-            SwordArc6 = Req("MagnumOpus/Assets/Particles Asset Library/SwordArc6");
-            SwordArc7 = Req("MagnumOpus/Assets/Particles Asset Library/SwordArc7");
-            SwordArc8 = Req("MagnumOpus/Assets/Particles Asset Library/SwordArc8");
-            FlamingArcSwordSlash = Req("MagnumOpus/Assets/Particles Asset Library/FlamingArcSwordSlash");
-            SwordArcSlashWave = Req("MagnumOpus/Assets/Particles Asset Library/SwordArcSlashWave");
-            SimpleArcSwordSlash = Req("MagnumOpus/Assets/Particles Asset Library/SimpleArcSwordSlash");
-            CurvedSwordSlash = Req("MagnumOpus/Assets/Particles Asset Library/CurvedSwordSlash");
+            // Smears / Arcs — remapped to available mask and shape textures.
+            // Sword arcs use ImpactEllipse, WideSoftEllipse, VerticalEllipse, and BasicTrail
+            // rotated/scaled/tinted differently per draw call for visual variety.
+            // The arc "shape" comes from the elliptical masks combined with additive blending.
+            SwordArc1 = Req("MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse");
+            SwordArc2 = Req("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse");
+            SwordArc3 = Req("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/VerticalEllipse");
+            SwordArc4 = Req("MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse");
+            SwordArc5 = Req("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse");
+            SwordArc6 = Req("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/VerticalEllipse");
+            SwordArc7 = Req("MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse");
+            SwordArc8 = Req("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse");
+            // FlamingArcSwordSlash: impact ellipse with flame tint
+            FlamingArcSwordSlash = Req("MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse");
+            // SwordArcSlashWave: BasicTrail stretched wide = wave slash
+            SwordArcSlashWave = Req("MagnumOpus/Assets/VFX Asset Library/TrailsAndRibbons/BasicTrail");
+            // SimpleArcSwordSlash: clean soft ellipse
+            SimpleArcSwordSlash = Req("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse");
+            // CurvedSwordSlash: vertical ellipse for curved motion trail
+            CurvedSwordSlash = Req("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/VerticalEllipse");
         }
 
         public static void Unload()

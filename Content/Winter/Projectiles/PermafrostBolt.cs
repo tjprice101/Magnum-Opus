@@ -21,7 +21,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class PermafrostBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/TwilightSparkle";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
@@ -206,7 +206,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     [AllowLargeHitbox("Blizzard storm requires large hitbox for AoE damage")]
     public class IceStormProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo1";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
@@ -375,7 +375,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class StormIcicle : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SmallTwilightSparkle";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);

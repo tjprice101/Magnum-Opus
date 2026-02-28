@@ -1,49 +1,86 @@
 // =============================================================================
-// Heroic Flame Trail Shader - PS 2.0 Compatible
+// Heroic Flame Trail Shader - Rising Ember Crescendo
 // =============================================================================
-// Burning valor flame trail with turbulent fire distortion.
-// Designed for CalamityStyleTrailRenderer primitive geometry.
+// Shared flame trail shader for Eroica weapons. Multi-octave turbulent
+// fire with rising ember particles, fire-crack energy veins, and a
+// musical crescendo ramp that builds from smoulder to inferno.
 //
-// UV Layout:
-//   U (coords.x) = position along trail (0 = head, 1 = tail)
-//   V (coords.y) = position across trail width (0 = top edge, 1 = bottom edge)
+// VISUAL IDENTITY: A roaring heroic bonfire that sweeps behind the
+// weapon. Multiple octaves of fire noise create turbulent, slightly
+// chaotic flame with visible "fire cracks" -- bright veins of energy
+// within the flame body. Tiny ember particles rise upward from the
+// trail edges. The intensity ramps from the tail (smouldering embers)
+// to the head (white-hot inferno) like a musical crescendo.
 //
 // Techniques:
-//   HeroicFlameFlow  - Main flame trail with fire turbulence
-//   HeroicFlameGlow  - Softer additive bloom overlay for glow stacking
-//
-// Features:
-//   - Turbulent fire distortion with flickering edges
-//   - QuadraticBump edge fade with ember-hot center
-//   - White-hot core ↁEscarlet ↁEgold gradient
-//   - Noise texture modulation for organic flame flicker
-//   - Overbright multiplier for HDR bloom
-//   - Designed for multi-pass rendering (C# renders 3 passes)
+//   HeroicFlameFlow  - Multi-octave fire with cracks and embers
+//   HeroicFlameGlow  - Warm bloom underlay
 // =============================================================================
 
-sampler uImage0 : register(s0); // Base trail texture / white gradient
-sampler uImage1 : register(s1); // Noise texture (e.g. PerlinNoise, NoiseSmoke)
+sampler2D uImage0 : register(s0);
+sampler2D uImage1 : register(s1);
 
-float3 uColor;           // Primary color (e.g. Scarlet)
-float3 uSecondaryColor;  // Secondary color (e.g. Gold)
-float uOpacity;          // Overall opacity (lifecycle fade)
-float uTime;             // Animation time (Main.GlobalTimeWrappedHourly)
-float uIntensity;        // Brightness multiplier
+float4x4 uTransformMatrix;
+float uTime;
+float3 uColor;
+float3 uSecondaryColor;
+float uOpacity;
+float uIntensity;
+float uOverbrightMult;
+float uScrollSpeed;
+float uDistortionAmt;
+float uNoiseScale;
+float uPhase;
+float uHasSecondaryTex;
 
-// Extended uniforms
-float uOverbrightMult;    // HDR bloom multiplier (2-5 for glow)
-float uScrollSpeed;       // Flame flow scroll rate (default 1.5)
-float uNoiseScale;        // Noise UV repetition (default 3.0)
-float uDistortionAmt;     // Fire turbulence strength (default 0.08)
-float uHasSecondaryTex;   // 1.0 if noise texture bound, 0.0 if not
-float uSecondaryTexScale; // Noise texture UV scale
-float uSecondaryTexScroll; // Noise scroll speed
+// =============================================================================
+// VERTEX SHADER
+// =============================================================================
+
+struct VertexShaderInput
+{
+    float4 Position : POSITION0;
+    float2 TexCoord : TEXCOORD0;
+    float4 Color : COLOR0;
+};
+
+struct VertexShaderOutput
+{
+    float4 Position : POSITION0;
+    float2 TexCoord : TEXCOORD0;
+    float4 Color : COLOR0;
+};
+
+VertexShaderOutput MainVS(VertexShaderInput input)
+{
+    VertexShaderOutput output;
+    output.Position = mul(input.Position, uTransformMatrix);
+    output.TexCoord = input.TexCoord;
+    output.Color = input.Color;
+    return output;
+}
 
 // =============================================================================
 // UTILITY
 // =============================================================================
 
-// 0->1->0 bump (peak at centre)
+float HashNoise(float2 p)
+{
+    return frac(sin(dot(p, float2(12.9898, 78.233))) * 43758.5453);
+}
+
+float SmoothHash(float2 uv)
+{
+    float2 i = floor(uv);
+    float2 f = frac(uv);
+    float2 u = f * f * (3.0 - 2.0 * f);
+    float a = HashNoise(i);
+    float b = HashNoise(i + float2(1.0, 0.0));
+    float c = HashNoise(i + float2(0.0, 1.0));
+    float d = HashNoise(i + float2(1.0, 1.0));
+    return lerp(lerp(a, b, u.x), lerp(c, d, u.x), u.y);
+}
+
 float QuadraticBump(float x)
 {
     return x * (4.0 - x * 4.0);
@@ -55,121 +92,181 @@ float4 ApplyOverbright(float3 color, float alpha)
 }
 
 // =============================================================================
-// TECHNIQUE 1: HEROIC FLAME FLOW
-// =============================================================================
-// Turbulent flame trail that burns with valor. Fire licks upward from
-// the trail edges while the core remains white-hot. Flame distortion
-// creates organic flicker, evoking a sword wreathed in heroic fire.
+// FIRE-SPECIFIC: Multi-octave turbulence and fire cracks
 // =============================================================================
 
-float4 HeroicFlameFlowPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
+// 4-octave fire turbulence (different from FBM -- summed with abs for flame look)
+float FireTurbulence(float2 uv)
 {
-    // --- Fire turbulence distortion ---
-    // Primary: aggressive vertical flicker (flames lick upward)
-    float flicker1 = sin(coords.x * 8.0 + uTime * uScrollSpeed * 4.0) * uDistortionAmt;
-    // Secondary: lateral flame tongues
-    float flicker2 = sin(coords.x * 14.0 - uTime * uScrollSpeed * 6.0 + coords.y * 5.0) * uDistortionAmt * 0.6;
-    // Tertiary: rapid micro-flicker for heat shimmer
-    float flicker3 = sin(coords.x * 20.0 + uTime * uScrollSpeed * 10.0) * uDistortionAmt * 0.2;
+    float val = 0.0;
+    float amp = 0.5;
+    float2 p = uv;
+    // Octave 1: Large billowing shapes
+    val += abs(SmoothHash(p) * 2.0 - 1.0) * amp;
+    p *= 2.1; amp *= 0.5;
+    // Octave 2: Medium flame tongues
+    val += abs(SmoothHash(p) * 2.0 - 1.0) * amp;
+    p *= 2.3; amp *= 0.5;
+    // Octave 3: Small licks
+    val += abs(SmoothHash(p) * 2.0 - 1.0) * amp;
+    p *= 2.0; amp *= 0.5;
+    // Octave 4: Fine detail
+    val += abs(SmoothHash(p) * 2.0 - 1.0) * amp;
+    return val;
+}
 
+// Fire crack detection: bright veins where noise values align closely
+float FireCracks(float2 uv)
+{
+    float n1 = SmoothHash(uv * 3.0);
+    float n2 = SmoothHash(uv * 3.0 + float2(0.5, 0.3));
+    float crack = saturate(1.0 - abs(n1 - n2) * 15.0);
+    return crack * crack; // Sharpen
+}
+
+// =============================================================================
+// TECHNIQUE 1: HEROIC FLAME FLOW - Turbulent Inferno
+// =============================================================================
+
+float4 HeroicFlameFlowPS(VertexShaderOutput input) : COLOR0
+{
+    float2 coords = input.TexCoord;
+    float4 sampleColor = input.Color;
+
+    // --- Fire distortion (turbulent, not smooth) ---
+    float turb = FireTurbulence(coords * uNoiseScale * 0.5 + float2(-uTime * uScrollSpeed, uTime * 0.3));
     float2 distortedUV = coords;
-    distortedUV.y += flicker1 + flicker3;
-    distortedUV.x += flicker2;
+    distortedUV.x -= uTime * uScrollSpeed * 0.8;
+    distortedUV.y += (turb - 0.5) * uDistortionAmt * 1.5;
+    distortedUV.x += (turb - 0.5) * uDistortionAmt * 0.5;
 
-    // Sample base texture with distorted UVs
     float4 baseTex = tex2D(uImage0, distortedUV);
 
-    // --- Noise texture for organic flame variation ---
-    float2 noiseUV = coords * uSecondaryTexScale;
-    noiseUV.x -= uTime * uSecondaryTexScroll * 1.5;
-    noiseUV.y -= uTime * 0.4; // Flames rise upward
-    float4 noiseTex = tex2D(uImage1, noiseUV);
-    float noiseVal = lerp(0.65, noiseTex.r, uHasSecondaryTex);
-
-    // --- Edge-to-centre fade (QuadraticBump) ---
+    // --- Edge shape ---
     float edgeFade = QuadraticBump(coords.y);
 
-    // --- Trail length fade (head bright, tail embers) ---
-    float trailFade = saturate(1.0 - coords.x * 1.1);
-    // Ember tail: instead of full fadeout, embers glow dimly at the end
-    float emberTail = saturate(coords.x * 2.0 - 0.8) * 0.15;
+    // --- Musical crescendo ramp: tail = smoulder, head = inferno ---
+    // coords.x: 0 = head (newest), 1 = tail (oldest)
+    float crescendo = saturate(1.0 - coords.x * 0.9);
+    crescendo = pow(crescendo, 0.7); // Slightly non-linear buildup
 
-    // --- Flame gradient along trail ---
-    // Head: white-hot ↁEscarlet body ↁEgold embers at tail
-    float gradientT = coords.x * 0.7 + noiseVal * 0.3;
-    float3 flameColor = lerp(uColor, uSecondaryColor, gradientT);
+    // --- Fire noise layers ---
+    float2 fireUV1 = coords * uNoiseScale;
+    fireUV1.x -= uTime * uScrollSpeed * 1.2;
+    fireUV1.y -= uTime * 0.4;
+    float fire1 = FireTurbulence(fireUV1);
 
-    // --- White-hot core at beam centre ---
-    float coreMask = saturate((edgeFade - 0.50) * 3.0);
-    float3 hotCore = float3(1.0, 0.94, 0.78); // Warm white
-    flameColor = lerp(flameColor, hotCore, coreMask * 0.65);
+    float2 fireUV2 = coords * uNoiseScale * 1.5;
+    fireUV2.x -= uTime * uScrollSpeed * 0.8;
+    fireUV2.y += uTime * 0.2;
+    float fire2 = FireTurbulence(fireUV2);
 
-    // --- Flame edge: brighter, flickering edge glow ---
-    float edgeMask = saturate((0.50 - edgeFade) * 3.5);
-    float edgeFlicker = saturate(flicker1 * 6.0 + 0.5);
-    flameColor *= 1.0 + edgeMask * edgeFlicker * 0.3;
+    float combinedFire = fire1 * 0.6 + fire2 * 0.4;
 
-    // --- Fire cracks: noise-driven bright spots in the flame ---
-    float crackMask = saturate(noiseVal * 2.0 - 0.8) * coreMask;
-    flameColor += float3(0.3, 0.2, 0.05) * crackMask;
+    // Optional noise texture blend
+    float2 noiseSample = coords * uNoiseScale;
+    noiseSample.x -= uTime * uScrollSpeed * 0.5;
+    float4 noiseTex = tex2D(uImage1, noiseSample);
+    combinedFire = lerp(combinedFire, noiseTex.r, uHasSecondaryTex * 0.4);
 
-    // --- Rapid pulse (fire flicker rhythm) ---
-    float pulse = sin(uTime * 12.0 + coords.x * 8.0) * 0.06 + 0.94;
-    pulse *= sin(uTime * 7.0 + coords.x * 15.0) * 0.03 + 0.97; // Dual-freq
+    // --- Fire cracks: bright energy veins ---
+    float2 crackUV = coords * uNoiseScale * 0.8;
+    crackUV.x -= uTime * uScrollSpeed * 0.6;
+    crackUV.y -= uTime * 0.15;
+    float cracks = FireCracks(crackUV);
+    cracks *= edgeFade * crescendo;
+
+    // --- Rising ember particles ---
+    // Tiny bright dots that drift upward from trail edges
+    float2 emberGrid = coords * float2(30.0, 20.0);
+    float2 emberId = floor(emberGrid);
+    float2 emberFrac = frac(emberGrid);
+
+    float emberSeed = HashNoise(emberId);
+    float emberVisible = step(0.88, emberSeed); // Only ~12% of cells have embers
+
+    // Embers rise upward (positive Y in screen space) and drift
+    float emberRise = frac(emberSeed * 5.0 + uTime * (1.0 + emberSeed * 2.0));
+    float2 emberPos = float2(0.5 + sin(emberRise * 6.28 + emberId.x) * 0.3, 1.0 - emberRise);
+    float emberDist = length(emberFrac - emberPos);
+    float ember = saturate(1.0 - emberDist * 12.0) * emberVisible;
+
+    // Embers appear more at trail edges
+    float emberEdgeBias = saturate((0.6 - edgeFade) * 3.0);
+    ember *= emberEdgeBias;
+
+    // Ember fade-out as they rise
+    float emberFade = saturate(1.0 - emberRise * 1.5);
+    ember *= emberFade;
+
+    // --- Colour: Dark red -> Scarlet -> Orange -> Gold -> White crescendo ---
+    float heatLevel = combinedFire * crescendo;
+
+    float3 coolEmber = float3(0.3, 0.05, 0.02);      // Dark smoulder
+    float3 warmFlame = uColor;                          // Scarlet
+    float3 hotFlame = lerp(uColor, float3(1.0, 0.5, 0.1), 0.5); // Orange
+    float3 whiteHot = float3(1.0, 0.9, 0.7);           // White-gold core
+
+    float3 flameColor;
+    if (heatLevel < 0.33)
+        flameColor = lerp(coolEmber, warmFlame, heatLevel * 3.0);
+    else if (heatLevel < 0.66)
+        flameColor = lerp(warmFlame, hotFlame, (heatLevel - 0.33) * 3.0);
+    else
+        flameColor = lerp(hotFlame, whiteHot, (heatLevel - 0.66) * 3.0);
+
+    // Fire cracks are white-hot
+    flameColor = lerp(flameColor, whiteHot, cracks * 0.7);
+
+    // Embers are orange-gold tiny sparks
+    float3 emberColor = float3(1.0, 0.6, 0.15);
+    flameColor += emberColor * ember * 1.5;
+
+    // --- Dual-frequency heroic pulse ---
+    float pulse1 = sin(uTime * 4.0 + coords.x * 5.0) * 0.1 + 0.9;
+    float pulse2 = sin(uTime * 2.3 + coords.x * 2.0) * 0.05 + 0.95;
+    float pulse = pulse1 * pulse2;
+
+    // --- Trail fade ---
+    float trailFade = saturate(1.0 - coords.x * 1.05);
 
     // --- Final composition ---
-    float3 finalColor = flameColor * baseTex.rgb * uIntensity * pulse;
-    finalColor *= 0.6 + noiseVal * 0.4; // Noise modulation
+    float3 finalColor = flameColor * baseTex.rgb * uIntensity * pulse * crescendo;
 
-    float alpha = (edgeFade * trailFade + emberTail) * uOpacity * sampleColor.a * baseTex.a;
+    float fireAlpha = combinedFire * 0.5 + 0.5;
+    float alpha = (edgeFade * fireAlpha + cracks * 0.3 + ember * 0.2)
+                * trailFade * uOpacity * sampleColor.a * baseTex.a;
 
     return ApplyOverbright(finalColor, alpha);
 }
 
 // =============================================================================
-// TECHNIQUE 2: HEROIC FLAME GLOW
-// =============================================================================
-// Softer, wider glow pass for bloom stacking. Renders behind the
-// main flame pass to create a warm fire halo around the core trail.
+// TECHNIQUE 2: HEROIC FLAME GLOW - Warm Bloom
 // =============================================================================
 
-float4 HeroicFlameGlowPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
+float4 HeroicFlameGlowPS(VertexShaderOutput input) : COLOR0
 {
-    // Gentle fire distortion (less intense than main pass)
-    float wave = sin(coords.x * 5.0 + uTime * uScrollSpeed * 3.0) * uDistortionAmt * 0.4;
-    float2 glowUV = coords;
-    glowUV.y += wave;
+    float2 coords = input.TexCoord;
+    float4 sampleColor = input.Color;
 
-    float4 baseTex = tex2D(uImage0, glowUV);
+    float4 baseTex = tex2D(uImage0, coords);
 
-    // Wider, softer edge fade for fire halo
     float edgeFade = QuadraticBump(coords.y);
-    float softEdge = edgeFade * edgeFade; // Squared for softer rolloff
-
-    // Trail fade
     float trailFade = saturate(1.0 - coords.x * 0.85);
 
-    // Warmer gradient, biased toward primary flame color
-    float3 glowColor = lerp(uColor, uSecondaryColor, coords.x * 0.4);
+    // Crescendo in glow too
+    float crescendo = pow(saturate(1.0 - coords.x * 0.9), 0.8);
 
-    // Add warm orange tint to glow
-    float3 warmTint = float3(1.0, 0.6, 0.2);
-    glowColor = lerp(glowColor, warmTint, 0.15);
+    // Warm bloom colour
+    float3 bloomColor = lerp(uColor, float3(1.0, 0.4, 0.1), 0.3);
+    bloomColor *= uIntensity * baseTex.rgb;
 
-    // Gentle noise modulation
-    float2 noiseUV = coords * uSecondaryTexScale * 0.6;
-    noiseUV.x -= uTime * uSecondaryTexScroll * 0.7;
-    float4 noiseTex = tex2D(uImage1, noiseUV);
-    float noiseVal = lerp(0.80, noiseTex.r, uHasSecondaryTex * 0.5);
+    float softEdge = pow(edgeFade, 0.8);
+    float pulse = sin(uTime * 2.0) * 0.08 + 0.92;
 
-    glowColor *= uIntensity * noiseVal * baseTex.rgb;
+    float alpha = softEdge * trailFade * crescendo * uOpacity * sampleColor.a * baseTex.a * pulse * 0.3;
 
-    // Slow warm pulse
-    float pulse = sin(uTime * 3.5 + coords.x * 4.0) * 0.10 + 0.90;
-
-    float alpha = softEdge * trailFade * uOpacity * sampleColor.a * baseTex.a * pulse;
-
-    return ApplyOverbright(glowColor, alpha);
+    return ApplyOverbright(bloomColor, alpha);
 }
 
 // =============================================================================
@@ -180,6 +277,7 @@ technique HeroicFlameFlow
 {
     pass P0
     {
+        VertexShader = compile vs_2_0 MainVS();
         PixelShader = compile ps_3_0 HeroicFlameFlowPS();
     }
 }
@@ -188,6 +286,7 @@ technique HeroicFlameGlow
 {
     pass P0
     {
+        VertexShader = compile vs_2_0 MainVS();
         PixelShader = compile ps_3_0 HeroicFlameGlowPS();
     }
 }

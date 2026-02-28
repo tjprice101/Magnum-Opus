@@ -208,7 +208,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
     /// </summary>
     public class ZodiacExplosion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/CursiveMusicNote";
 
         private const int Duration = 60;
 

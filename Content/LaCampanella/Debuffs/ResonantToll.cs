@@ -23,7 +23,7 @@ namespace MagnumOpus.Content.LaCampanella.Debuffs
     public class ResonantToll : ModBuff
     {
         // Use the Dual-Fated Chime as the buff icon base (will show as a bell/chime icon)
-        public override string Texture => "MagnumOpus/Content/LaCampanella/ResonantWeapons/DualFatedChime";
+        public override string Texture => "MagnumOpus/Content/LaCampanella/ResonantWeapons/DualFatedChime/DualFatedChime";
         
         public const int MaxStacks = 10;
         public const int StackDuration = 300; // 5 seconds per stack refresh

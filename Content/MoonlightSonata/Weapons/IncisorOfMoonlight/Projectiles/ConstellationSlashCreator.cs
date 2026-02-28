@@ -11,7 +11,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
     /// </summary>
     public class ConstellationSlashCreator : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/CircularMask";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/HardCircleMask";
 
         public override void SetDefaults()
         {

@@ -1,0 +1,173 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
+using System;
+using System.Collections.Generic;
+using Terraria;
+using Terraria.Audio;
+using Terraria.DataStructures;
+using Terraria.ID;
+using Terraria.ModLoader;
+using MagnumOpus.Common;
+using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Utilities;
+using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Particles;
+using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Projectiles;
+
+namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
+{
+    /// <summary>
+    /// The Conductor's Last Constellation — A cosmic blade that IS the conductor's baton.
+    ///
+    /// SELF-CONTAINED WEAPON SYSTEM (no shared VFX libraries):
+    ///   - Own particle system (ConductorParticleHandler)
+    ///   - Own GPU trail renderer (ConductorTrailRenderer)
+    ///   - Own shader pipeline (ConductorShaderLoader → 4 .fx files, 5 keys)
+    ///   - Own ModPlayer state (ConductorPlayer via player.Conductor())
+    ///   - Own projectiles (ConductorSwingProjectile, ConductorSwordBeam)
+    ///
+    /// ATTACK PATTERN:
+    ///   TRUE MELEE — fires ConductorSwingProjectile as a held swing.
+    ///   3-phase combo (orchestral movements):
+    ///     Movement I  (Downbeat):  Powerful downward sweep + 3 descending beam columns
+    ///     Movement II (Crescendo): Rising sweep + intensifying beams
+    ///     Movement III (Forte):    Wide horizontal sweep + lightning cascade
+    ///   On swing: fires 3 homing ConductorSwordBeam projectiles in 18° spread
+    ///   On hit: DestinyCollapse (5s), 3 cosmic lightning strikes, 5 seeking crystal shards at 25% dmg
+    ///   On 3rd combo: Convergence — all active beams converge with cosmic lightning storm
+    /// </summary>
+    public class TheConductorsLastConstellationItem : ModItem
+    {
+        public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/TheConductorsLastConstellation";
+
+        private static Asset<Texture2D> _glowTex;
+
+        public override void SetDefaults()
+        {
+            // === PRESERVED STATS ===
+            Item.damage = 780;
+            Item.DamageType = DamageClass.Melee;
+            Item.width = 50;
+            Item.height = 50;
+            Item.useTime = 22;
+            Item.useAnimation = 22;
+            Item.knockBack = 6f;
+            Item.value = Item.sellPrice(gold: 50);
+            Item.rare = ModContent.RarityType<FateRarity>();
+            Item.autoReuse = true;
+            Item.shootSpeed = 14f;
+
+            // === HELD PROJECTILE SWING (TRUE MELEE) ===
+            Item.useStyle = ItemUseStyleID.Shoot;
+            Item.noMelee = true;
+            Item.noUseGraphic = true;
+            Item.shoot = ModContent.ProjectileType<ConductorSwingProjectile>();
+            Item.channel = false;
+            Item.UseSound = null; // Swing projectile handles sounds
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Each swing conducts a different orchestral movement"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Releases 3 homing spectral beams per swing in an 18 degree spread"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Strikes call down 3 cosmic lightning bolts and 5 seeking crystal shards"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Every 3rd swing triggers Convergence — a cosmic lightning storm"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The final symphony, written in starlight'")
+            {
+                OverrideColor = new Color(180, 40, 80) // Cosmic Crimson (Fate theme)
+            });
+        }
+
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            // Fire the held swing projectile — it handles beam spawning internally
+            Projectile.NewProjectile(source, player.Center, Vector2.Zero, type, damage, knockback, player.whoAmI);
+
+            SoundEngine.PlaySound(SoundID.Item71 with { Pitch = 0.4f, Volume = 0.9f }, player.Center);
+
+            return false;
+        }
+
+        public override void HoldItem(Player player)
+        {
+            if (Main.dedServ) return;
+
+            float time = (float)Main.timeForVisualEffects;
+            Vector2 center = player.MountedCenter;
+
+            // Orbiting conductor glyphs — triple orbit at 45f radius
+            if (Main.rand.NextBool(8))
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    float orbitAngle = time * 0.035f + MathHelper.TwoPi * i / 3f;
+                    float radius = 45f + MathF.Sin(time * 0.05f + i * 2f) * 6f;
+                    Vector2 glyphPos = center + orbitAngle.ToRotationVector2() * radius;
+                    Color glyphCol = ConductorUtils.PaletteLerp((float)i / 3f + 0.15f);
+                    ConductorParticleHandler.SpawnParticle(new ConductorGlyph(
+                        glyphPos, glyphCol * 0.6f, 0.2f, 20));
+                }
+            }
+
+            // Electric mote aura
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 motePos = center + Main.rand.NextVector2Circular(35f, 35f);
+                Color moteCol = Main.rand.NextBool(3) ? ConductorUtils.LightningGold : ConductorUtils.ConductorCyan;
+                ConductorParticleHandler.SpawnParticle(new ConductorMote(
+                    motePos, Main.rand.NextVector2Circular(0.5f, 0.5f),
+                    moteCol * 0.55f, 0.18f, 16));
+            }
+
+            // Cosmic nebula wisps while moving
+            if (player.velocity.Length() > 2f && Main.rand.NextBool(4))
+            {
+                Vector2 wispPos = center + Main.rand.NextVector2Circular(20f, 20f);
+                Color wispCol = Color.Lerp(ConductorUtils.VoidBlack, ConductorUtils.ConductorCyan, Main.rand.NextFloat()) * 0.35f;
+                ConductorParticleHandler.SpawnParticle(new ConductorNebulaWisp(
+                    wispPos, -player.velocity * 0.08f + Main.rand.NextVector2Circular(0.8f, 0.8f),
+                    wispCol, 0.18f, 18));
+            }
+
+            // Occasional zigzag lightning spark nearby
+            if (Main.rand.NextBool(12))
+            {
+                Vector2 sparkPos = center + Main.rand.NextVector2Circular(40f, 40f);
+                Vector2 sparkVel = Main.rand.NextVector2Circular(2f, 2f);
+                ConductorParticleHandler.SpawnParticle(new LightningSpark(
+                    sparkPos, sparkVel, ConductorUtils.ConductorCyan * 0.4f,
+                    0.12f, 14, 3f, 0.4f));
+            }
+
+            // Pulsing conductor light
+            float pulse = 0.28f + MathF.Sin(time * 0.05f) * 0.1f;
+            Color lightCol = Color.Lerp(ConductorUtils.ConductorCyan, ConductorUtils.StarSilver,
+                MathF.Sin(time * 0.03f) * 0.5f + 0.5f);
+            Lighting.AddLight(center, lightCol.ToVector3() * pulse);
+        }
+
+        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
+        {
+            if (Main.dedServ) return;
+
+            _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
+            if (_glowTex?.Value == null) return;
+
+            Texture2D itemTex = Terraria.GameContent.TextureAssets.Item[Item.type].Value;
+            Vector2 origin = itemTex.Size() / 2f;
+            Vector2 drawPos = Item.Center - Main.screenPosition;
+            float time = (float)Main.timeForVisualEffects;
+            float pulse = 0.85f + MathF.Sin(time * 0.05f) * 0.15f;
+
+            // Bloom layers behind item
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+            ConductorUtils.DrawItemBloom(spriteBatch, itemTex, drawPos, origin, rotation, scale, pulse);
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+    }
+}

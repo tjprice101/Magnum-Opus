@@ -28,7 +28,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
         private const float HueMin = 0.92f;
         private const float HueMax = 0.98f;
 
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/BarrageOfGlintsAndSparkles";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
 
         public override void SetStaticDefaults()
         {

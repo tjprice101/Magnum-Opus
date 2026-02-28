@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     public class SplittingValorOrb : ModProjectile
     {
         // Use invisible texture - projectile is entirely particle-based
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField11";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         private const int SplitCount = 8;
         private const int SplitDelay = 90; // Splits after 1.5 seconds
@@ -213,7 +213,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             // Draw multiple layered glows as the "projectile" visual
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MagicSparklField11").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = glowTex.Size() / 2f;
             

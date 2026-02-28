@@ -1,0 +1,502 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
+using System;
+using Terraria;
+using Terraria.Audio;
+using Terraria.DataStructures;
+using Terraria.GameContent;
+using Terraria.Graphics.Shaders;
+using Terraria.ID;
+using Terraria.ModLoader;
+using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Utilities;
+using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Particles;
+using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Primitives;
+using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Shaders;
+using MagnumOpus.Content.Fate.Debuffs;
+
+namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
+{
+    /// <summary>
+    /// Requiem of Reality — Main swing projectile.
+    /// 
+    /// ATTACK SYSTEM: 4-movement combo cycle (musical movements)
+    ///   Movement I   (Adagio):    Slow wide horizontal sweep — wide arc, moderate damage
+    ///   Movement II  (Allegro):   Fast diagonal upswing — narrow arc, fast
+    ///   Movement III (Scherzo):   Spin slash — 270° whirlwind with particles
+    ///   Movement IV  (Finale):    Overhead slam — narrow vertical, heavy damage + combo trigger
+    ///
+    /// 5-LAYER RENDERING (inspired by EternalMoon):
+    ///   Layer 1: Wide cosmic glow underlayer (RequiemSwingGlow shader)
+    ///   Layer 2: Core trail arc (RequiemSwingTrail shader + noise texture)
+    ///   Layer 3: Constellation spark accents along the arc
+    ///   Layer 4: UV-rotated weapon sprite + tip lens flare
+    ///   Layer 5: Combo intensity aura (RequiemComboAura when combo >= 3)
+    /// </summary>
+    public class RequiemSwingProjectile : ModProjectile
+    {
+        public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/RequiemOfReality";
+
+        // Swing arc parameters per movement
+        private static readonly float[] ArcAngles = { 160f, 120f, 270f, 100f };  // Degrees
+        private static readonly float[] SwingDurations = { 24f, 16f, 28f, 20f }; // Frames
+        private static readonly float[] DamageMultipliers = { 1f, 0.9f, 0.8f, 1.5f };
+
+        // Trail system
+        private Vector2[] _trailPoints = new Vector2[24];
+        private int _trailCount;
+        private float _currentAngle;
+        private float _startAngle;
+        private int _direction; // 1 or -1
+        private int _movement; // 0-3
+
+        // Textures (lazy loaded)
+        private static Asset<Texture2D> _noiseTex;
+        private static Asset<Texture2D> _glowTex;
+        private static Asset<Texture2D> _flareTex;
+
+        // Properties
+        private Player Owner => Main.player[Projectile.owner];
+        private float SwingProgress => Projectile.ai[1] / SwingDurations[_movement];
+        private float ArcRadians => MathHelper.ToRadians(ArcAngles[_movement]);
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 24;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
+
+        public override void SetDefaults()
+        {
+            Projectile.width = 80;
+            Projectile.height = 80;
+            Projectile.friendly = true;
+            Projectile.DamageType = DamageClass.Melee;
+            Projectile.penetrate = -1;
+            Projectile.tileCollide = false;
+            Projectile.ignoreWater = true;
+            Projectile.ownerHitCheck = true;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = -1; // One hit per swing
+            Projectile.extraUpdates = 1; // Smoother motion
+        }
+
+        public override void OnSpawn(IEntitySource source)
+        {
+            var rp = Owner.Requiem();
+            _movement = rp.MusicalMovement;
+
+            // Direction: alternate based on swing count, but Scherzo always clockwise
+            _direction = _movement == 2 ? 1 : (rp.SwingCounter % 2 == 0 ? 1 : -1);
+
+            // Start angle: aim toward mouse, offset by half arc
+            Vector2 toMouse = (Main.MouseWorld - Owner.Center).SafeNormalize(Vector2.UnitX);
+            _startAngle = toMouse.ToRotation() - ArcRadians * 0.5f * _direction;
+            _currentAngle = _startAngle;
+
+            // Set appropriate timeLeft
+            Projectile.timeLeft = (int)(SwingDurations[_movement] * 2) + 4; // extra updates double it
+
+            // Scale damage by movement multiplier
+            Projectile.damage = (int)(Projectile.damage * DamageMultipliers[_movement]);
+        }
+
+        public override void AI()
+        {
+            // Keep attached to player
+            Owner.heldProj = Projectile.whoAmI;
+            Owner.itemTime = 2;
+            Owner.itemAnimation = 2;
+            Projectile.Center = Owner.MountedCenter;
+
+            float duration = SwingDurations[_movement] * 2f; // doubled by extraUpdates
+            Projectile.ai[1]++;
+
+            if (Projectile.ai[1] >= duration)
+            {
+                Projectile.Kill();
+                return;
+            }
+
+            float progress = Projectile.ai[1] / duration;
+
+            // Swing easing per movement
+            float easedProgress;
+            switch (_movement)
+            {
+                case 0: // Adagio: smooth sine
+                    easedProgress = RequiemUtils.SineInOut(progress);
+                    break;
+                case 1: // Allegro: fast start
+                    easedProgress = RequiemUtils.QuadOut(progress);
+                    break;
+                case 2: // Scherzo: constant speed spin
+                    easedProgress = progress;
+                    break;
+                case 3: // Finale: slow windup, fast slam
+                    easedProgress = RequiemUtils.ExpIn(progress);
+                    break;
+                default:
+                    easedProgress = progress;
+                    break;
+            }
+
+            // Calculate current angle
+            _currentAngle = _startAngle + ArcRadians * easedProgress * _direction;
+
+            // Weapon reach (longer on finale)
+            float reach = _movement == 3 ? 95f : 78f;
+
+            // Set rotation for collision and rendering
+            Projectile.rotation = _currentAngle;
+            Vector2 tipPos = Owner.MountedCenter + _currentAngle.ToRotationVector2() * reach;
+
+            // Update trail
+            if (_trailCount < _trailPoints.Length)
+            {
+                _trailPoints[_trailCount] = tipPos;
+                _trailCount++;
+            }
+            else
+            {
+                Array.Copy(_trailPoints, 1, _trailPoints, 0, _trailPoints.Length - 1);
+                _trailPoints[_trailPoints.Length - 1] = tipPos;
+            }
+
+            // Player direction
+            Owner.ChangeDir(Math.Sign((_currentAngle.ToRotationVector2()).X));
+
+            // Spawn particles along arc
+            SpawnSwingParticles(tipPos, progress);
+
+            // Lighting
+            Color lightCol = RequiemUtils.PaletteLerp(progress);
+            Lighting.AddLight(tipPos, lightCol.ToVector3() * 0.7f);
+
+            // Sound at midpoint
+            if ((int)Projectile.ai[1] == (int)(duration * 0.3f))
+            {
+                SoundStyle sound = _movement == 3
+                    ? SoundID.Item71 with { Pitch = -0.3f, Volume = 0.9f }
+                    : SoundID.Item1 with { Pitch = 0.3f + _movement * 0.15f, Volume = 0.7f };
+                SoundEngine.PlaySound(sound, Owner.Center);
+            }
+        }
+
+        private void SpawnSwingParticles(Vector2 tipPos, float progress)
+        {
+            if (Main.dedServ) return;
+
+            var rp = Owner.Requiem();
+            float intensity = 0.5f + rp.ComboIntensity * 0.5f;
+
+            // Cosmic sparks at blade tip
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 sparkVel = (_currentAngle + MathHelper.PiOver2 * _direction).ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
+                Color sparkCol = RequiemUtils.GetCosmicGradient(Main.rand.NextFloat());
+                RequiemParticleHandler.SpawnParticle(new RequiemSparkParticle(
+                    tipPos + Main.rand.NextVector2Circular(5f, 5f), sparkVel,
+                    sparkCol, 0.25f * intensity, 14));
+            }
+
+            // Music notes scatter (more at higher combo)
+            if (Main.rand.NextBool(rp.ComboIntensity > 0.5f ? 3 : 6))
+            {
+                Vector2 noteVel = Main.rand.NextVector2Circular(2f, 2f);
+                noteVel.Y -= 1.5f; // Float upward
+                Color noteCol = RequiemUtils.PaletteLerp(Main.rand.NextFloat(0.3f, 0.8f));
+                RequiemParticleHandler.SpawnParticle(new RequiemNoteParticle(
+                    tipPos + Main.rand.NextVector2Circular(10f, 10f), noteVel,
+                    noteCol, 0.3f, 30));
+            }
+
+            // Nebula wisps during Scherzo spin
+            if (_movement == 2 && Main.rand.NextBool(3))
+            {
+                Vector2 wispVel = Main.rand.NextVector2Circular(1f, 1f);
+                Color wispCol = Color.Lerp(RequiemUtils.FatePurple, RequiemUtils.NebulaMist, Main.rand.NextFloat());
+                RequiemParticleHandler.SpawnParticle(new RequiemNebulaWisp(
+                    tipPos + Main.rand.NextVector2Circular(15f, 15f), wispVel,
+                    wispCol, 0.2f, 40));
+            }
+
+            // Finale: heavy bloom flares near impact
+            if (_movement == 3 && progress > 0.7f && Main.rand.NextBool(2))
+            {
+                Color flareCol = RequiemUtils.WithWhitePush(RequiemUtils.BrightCrimson, progress - 0.7f);
+                RequiemParticleHandler.SpawnParticle(new RequiemBloomFlare(
+                    tipPos, flareCol, 0.4f * intensity, 12));
+            }
+        }
+
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 300);
+            SpawnImpactVFX(target.Center);
+        }
+
+        private void SpawnImpactVFX(Vector2 pos)
+        {
+            if (Main.dedServ) return;
+
+            var rp = Owner.Requiem();
+            float intensity = 0.6f + rp.ComboIntensity * 0.4f;
+
+            // Central bloom flash
+            RequiemParticleHandler.SpawnParticle(new RequiemBloomFlare(
+                pos, RequiemUtils.SupernovaWhite, 0.6f * intensity, 15));
+            RequiemParticleHandler.SpawnParticle(new RequiemBloomFlare(
+                pos, RequiemUtils.BrightCrimson, 0.45f * intensity, 12));
+
+            // Radial spark burst (8-12 sparks)
+            int sparkCount = 8 + (int)(rp.ComboIntensity * 4);
+            for (int i = 0; i < sparkCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / sparkCount + Main.rand.NextFloat(-0.1f, 0.1f);
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f) * intensity;
+                Color sparkCol = RequiemUtils.GetCosmicGradient((float)i / sparkCount);
+                RequiemParticleHandler.SpawnParticle(new RequiemSparkParticle(
+                    pos, sparkVel, sparkCol, 0.3f * intensity, 16));
+            }
+
+            // Glyph accents (combo triggers extra glyphs)
+            int glyphCount = 2 + (int)(rp.ComboIntensity * 3);
+            for (int i = 0; i < glyphCount; i++)
+            {
+                Vector2 glyphPos = pos + Main.rand.NextVector2Circular(20f, 20f);
+                Color glyphCol = RequiemUtils.PaletteLerp(Main.rand.NextFloat());
+                RequiemParticleHandler.SpawnParticle(new RequiemGlyphParticle(
+                    glyphPos, glyphCol, 0.28f * intensity, 25));
+            }
+
+            // Music notes on impact
+            for (int i = 0; i < 3; i++)
+            {
+                Vector2 noteVel = Main.rand.NextVector2Circular(3f, 3f);
+                noteVel.Y -= 2f;
+                Color noteCol = RequiemUtils.PaletteLerp(Main.rand.NextFloat(0.3f, 0.8f));
+                RequiemParticleHandler.SpawnParticle(new RequiemNoteParticle(
+                    pos + Main.rand.NextVector2Circular(10f, 10f), noteVel,
+                    noteCol, 0.35f, 28));
+            }
+
+            Lighting.AddLight(pos, RequiemUtils.BrightCrimson.ToVector3() * 1.0f * intensity);
+        }
+
+        public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
+        {
+            // Line collision from player center to blade tip
+            float reach = _movement == 3 ? 95f : 78f;
+            Vector2 start = Owner.MountedCenter;
+            Vector2 end = start + _currentAngle.ToRotationVector2() * reach;
+            float _ = 0f;
+            return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), start, end, 30f, ref _);
+        }
+
+        // ======================== 5-LAYER RENDERING ========================
+
+        public override bool PreDraw(ref Color lightColor)
+        {
+            if (Main.dedServ || _trailCount < 2) return false;
+
+            // Lazy load textures
+            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise");
+            _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
+            _flareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16");
+
+            SpriteBatch sb = Main.spriteBatch;
+            var rp = Owner.Requiem();
+            float comboIntensity = rp.ComboIntensity;
+            float progress = SwingProgress;
+
+            DrawLayer1_CosmicGlow(sb, comboIntensity);
+            DrawLayer2_CoreTrail(sb, comboIntensity);
+            DrawLayer3_ConstellationSparks(sb, progress, comboIntensity);
+            DrawLayer4_WeaponSprite(sb, lightColor);
+            DrawLayer5_ComboAura(sb, comboIntensity);
+
+            return false;
+        }
+
+        /// <summary>Layer 1: Wide soft cosmic glow underlayer via shader.</summary>
+        private void DrawLayer1_CosmicGlow(SpriteBatch sb, float combo)
+        {
+            var shader = RequiemShaderLoader.GetSwingGlow();
+            if (shader == null || _trailCount < 2) return;
+
+            try
+            {
+                shader.UseColor(RequiemUtils.CosmicVoid.ToVector3());
+                shader.UseSecondaryColor(RequiemUtils.FatePurple.ToVector3());
+                shader.Shader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly * 2f);
+                shader.Shader.Parameters["uOpacity"]?.SetValue(0.4f + combo * 0.2f);
+                shader.Shader.Parameters["uIntensity"]?.SetValue(1.2f);
+                shader.Shader.Parameters["uOverbrightMult"]?.SetValue(1.5f);
+
+                RequiemTrailRenderer.RenderTrail(_trailPoints, new RequiemTrailSettings(
+                    (p, _) => (40f + combo * 15f) * (1f - p * 0.5f), // Wide, tapers
+                    (p) => Color.Lerp(RequiemUtils.Additive(RequiemUtils.FatePurple, 0.3f),
+                                      RequiemUtils.Additive(RequiemUtils.CosmicVoid, 0.1f), p),
+                    shader: shader), _trailCount, 3);
+            }
+            catch { }
+        }
+
+        /// <summary>Layer 2: Core trail arc with cosmic fire shader.</summary>
+        private void DrawLayer2_CoreTrail(SpriteBatch sb, float combo)
+        {
+            var shader = RequiemShaderLoader.GetSwingTrail();
+            if (shader == null || _trailCount < 2) return;
+
+            try
+            {
+                if (_noiseTex?.Value != null)
+                    shader.UseImage1(_noiseTex);
+
+                shader.UseColor(RequiemUtils.BrightCrimson.ToVector3());
+                shader.UseSecondaryColor(RequiemUtils.DarkPink.ToVector3());
+                shader.Shader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly * 3f);
+                shader.Shader.Parameters["uOpacity"]?.SetValue(0.8f + combo * 0.2f);
+                shader.Shader.Parameters["uIntensity"]?.SetValue(1.5f + combo * 0.5f);
+                shader.Shader.Parameters["uOverbrightMult"]?.SetValue(1.8f);
+                shader.Shader.Parameters["uScrollSpeed"]?.SetValue(1.2f);
+                shader.Shader.Parameters["uNoiseScale"]?.SetValue(2.5f);
+                shader.Shader.Parameters["uPhase"]?.SetValue(combo);
+                shader.Shader.Parameters["uHasSecondaryTex"]?.SetValue(_noiseTex?.Value != null ? 1f : 0f);
+                shader.Shader.Parameters["uSecondaryTexScale"]?.SetValue(3f);
+
+                RequiemTrailRenderer.RenderTrail(_trailPoints, new RequiemTrailSettings(
+                    (p, _) =>
+                    {
+                        float baseWidth = 22f + combo * 8f;
+                        // Tapered: fat in middle, thin at ends
+                        float taper = MathF.Sin(p * MathHelper.Pi);
+                        return baseWidth * (0.3f + taper * 0.7f);
+                    },
+                    (p) =>
+                    {
+                        Color c = RequiemUtils.GetCosmicGradient(p);
+                        float alpha = (1f - p * 0.6f);
+                        return RequiemUtils.Additive(c, alpha);
+                    },
+                    shader: shader), _trailCount, 3);
+            }
+            catch { }
+        }
+
+        /// <summary>Layer 3: Constellation spark accents (additive sprites along arc).</summary>
+        private void DrawLayer3_ConstellationSparks(SpriteBatch sb, float progress, float combo)
+        {
+            if (_flareTex?.Value == null || _trailCount < 3) return;
+
+            try
+            {
+                RequiemUtils.BeginAdditive(sb);
+
+                var tex = _flareTex.Value;
+                Vector2 origin = tex.Size() / 2f;
+                float time = (float)Main.timeForVisualEffects;
+
+                // Draw sparks along the trailing edge
+                for (int i = 1; i < _trailCount - 1; i += 2)
+                {
+                    float t = (float)i / _trailCount;
+                    float sparkAlpha = (1f - t) * (0.3f + combo * 0.4f);
+
+                    // Twinkle
+                    float twinkle = MathF.Sin(time * 0.2f + i * 1.7f) * 0.3f + 0.7f;
+                    sparkAlpha *= twinkle;
+
+                    if (sparkAlpha < 0.05f) continue;
+
+                    Color sparkCol = RequiemUtils.PaletteLerp(t * 0.8f + 0.1f);
+                    Vector2 drawPos = _trailPoints[i] - Main.screenPosition;
+                    float sparkScale = 0.15f + combo * 0.08f;
+
+                    sb.Draw(tex, drawPos, null, RequiemUtils.Additive(sparkCol, sparkAlpha),
+                        time * 0.5f + i, origin, sparkScale * twinkle, SpriteEffects.None, 0f);
+                }
+
+                RequiemUtils.EndAdditive(sb);
+            }
+            catch
+            {
+                try { RequiemUtils.EndAdditive(sb); } catch { }
+            }
+        }
+
+        /// <summary>Layer 4: UV-rotated weapon sprite at current angle + tip lens flare.</summary>
+        private void DrawLayer4_WeaponSprite(SpriteBatch sb, Color lightColor)
+        {
+            try
+            {
+                Texture2D weaponTex = TextureAssets.Projectile[Projectile.type].Value;
+                Vector2 origin = weaponTex.Size() / 2f;
+                float reach = _movement == 3 ? 95f : 78f;
+                Vector2 drawPos = Owner.MountedCenter + _currentAngle.ToRotationVector2() * reach * 0.5f - Main.screenPosition;
+
+                // Ghostly tint
+                Color weaponColor = Color.Lerp(lightColor, RequiemUtils.ConstellationSilver, 0.3f);
+
+                // Draw weapon with rotation
+                float drawRotation = _currentAngle + MathHelper.PiOver4; // Diagonal alignment
+                SpriteEffects fx = _direction < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+                sb.Draw(weaponTex, drawPos, null, weaponColor, drawRotation, origin, Projectile.scale, fx, 0f);
+
+                // Tip lens flare (additive)
+                if (_glowTex?.Value != null)
+                {
+                    Vector2 tipPos = Owner.MountedCenter + _currentAngle.ToRotationVector2() * reach - Main.screenPosition;
+                    float flarePulse = 0.8f + MathF.Sin((float)Main.timeForVisualEffects * 0.08f) * 0.2f;
+
+                    RequiemUtils.BeginAdditive(sb);
+                    sb.Draw(_glowTex.Value, tipPos, null, RequiemUtils.Additive(RequiemUtils.BrightCrimson, 0.5f * flarePulse),
+                        0f, _glowTex.Value.Size() / 2f, 0.35f * flarePulse, SpriteEffects.None, 0f);
+                    sb.Draw(_glowTex.Value, tipPos, null, RequiemUtils.Additive(RequiemUtils.SupernovaWhite, 0.3f * flarePulse),
+                        0f, _glowTex.Value.Size() / 2f, 0.18f * flarePulse, SpriteEffects.None, 0f);
+                    RequiemUtils.EndAdditive(sb);
+                }
+            }
+            catch
+            {
+                try { RequiemUtils.EndAdditive(sb); } catch { }
+            }
+        }
+
+        /// <summary>Layer 5: Combo aura when combo intensity is high enough.</summary>
+        private void DrawLayer5_ComboAura(SpriteBatch sb, float combo)
+        {
+            if (combo < 0.5f) return;
+            if (_glowTex?.Value == null) return;
+
+            try
+            {
+                float auraAlpha = (combo - 0.5f) * 2f; // 0→1 over 0.5→1.0
+                float pulse = MathF.Sin((float)Main.timeForVisualEffects * 0.06f) * 0.15f + 0.85f;
+
+                RequiemUtils.BeginAdditive(sb);
+
+                Vector2 center = Owner.MountedCenter - Main.screenPosition;
+                var tex = _glowTex.Value;
+                Vector2 origin = tex.Size() / 2f;
+
+                // Concentric rings expanding outward
+                for (int ring = 0; ring < 3; ring++)
+                {
+                    float ringScale = (0.8f + ring * 0.5f) * pulse;
+                    float ringAlpha = auraAlpha * (1f - ring * 0.25f) * 0.15f;
+                    Color ringCol = RequiemUtils.PaletteLerp(0.2f + ring * 0.2f);
+                    sb.Draw(tex, center, null, RequiemUtils.Additive(ringCol, ringAlpha),
+                        0f, origin, ringScale, SpriteEffects.None, 0f);
+                }
+
+                RequiemUtils.EndAdditive(sb);
+            }
+            catch
+            {
+                try { RequiemUtils.EndAdditive(sb); } catch { }
+            }
+        }
+    }
+}

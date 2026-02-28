@@ -1,48 +1,86 @@
 // =============================================================================
-// Sakura Bloom Shader - PS 2.0 Compatible
+// Sakura Bloom Shader - Wind-Blown Petal Animation
 // =============================================================================
-// Procedural sakura petal bloom overlay with wilt/bloom animation.
-// Renders soft petal shapes from UV coordinates with radial glow.
+// Shared sakura bloom effect for Eroica weapons. Procedural 5-petal
+// cherry blossom with wind drift, individual petal wilt and scatter,
+// and a full lifecycle (bud -> bloom -> scatter).
 //
-// UV Layout:
-//   U (coords.x) = horizontal position (0-1)
-//   V (coords.y) = vertical position (0-1)
-//   Centre (0.5, 0.5) = bloom core
+// VISUAL IDENTITY: A living cherry blossom that blooms, sways in wind,
+// and scatters its petals. Unlike the SakuraSwingTrail (which embeds
+// petal shapes into a trail strip), this shader renders a standalone
+// bloom effect: bud -> full bloom -> petals detach and drift away.
+// Individual petals have unique wilt angles and wind response.
 //
 // Techniques:
-//   SakuraPetalBloom  - Main petal bloom with procedural petal shapes
-//   SakuraGlowPass    - Soft radial glow for bloom stacking
-//
-// Features:
-//   - Procedural 5-petal flower shape via polar coordinates
-//   - Phase parameter: 0=bud, 0.5=full bloom, 1=petal scatter
-//   - Soft inner glow with sakura-to-gold gradient
-//   - Spinning petal animation synced to time
-//   - Noise modulation for organic variation
+//   SakuraPetalBloom  - Full lifecycle bloom with wind scatter
+//   SakuraGlowPass    - Soft inner radiance
 // =============================================================================
 
-sampler uImage0 : register(s0); // Base texture
-sampler uImage1 : register(s1); // Noise texture (optional)
+sampler2D uImage0 : register(s0);
+sampler2D uImage1 : register(s1);
 
-float3 uColor;           // Primary color (e.g. Sakura pink)
-float3 uSecondaryColor;  // Secondary color (e.g. Pollen gold)
-float uOpacity;          // Overall opacity
-float uTime;             // Animation time
-float uIntensity;        // Brightness multiplier
+float4x4 uTransformMatrix;
+float uTime;
+float3 uColor;
+float3 uSecondaryColor;
+float uOpacity;
+float uIntensity;
+float uOverbrightMult;
+float uScrollSpeed;
+float uDistortionAmt;
+float uNoiseScale;
+float uPhase;         // 0 = bud, 0.5 = full bloom, 1.0 = scatter
+float uPetalCount;    // Number of petals (default 5)
+float uRotationSpeed;
+float uHasSecondaryTex;
 
-// Extended uniforms
-float uOverbrightMult;    // HDR bloom multiplier
-float uPhase;             // Bloom phase: 0=bud, 0.5=full bloom, 1=scatter
-float uPetalCount;        // Number of petals (default 5.0)
-float uRotationSpeed;     // Petal rotation rate (default 0.5)
-float uHasSecondaryTex;   // 1.0 if noise texture bound
-float uSecondaryTexScale; // Noise texture UV scale
-float uSecondaryTexScroll; // Noise scroll speed
-float uDistortionAmt;     // Petal edge softness (default 0.1)
+// =============================================================================
+// VERTEX SHADER
+// =============================================================================
+
+struct VertexShaderInput
+{
+    float4 Position : POSITION0;
+    float2 TexCoord : TEXCOORD0;
+    float4 Color : COLOR0;
+};
+
+struct VertexShaderOutput
+{
+    float4 Position : POSITION0;
+    float2 TexCoord : TEXCOORD0;
+    float4 Color : COLOR0;
+};
+
+VertexShaderOutput MainVS(VertexShaderInput input)
+{
+    VertexShaderOutput output;
+    output.Position = mul(input.Position, uTransformMatrix);
+    output.TexCoord = input.TexCoord;
+    output.Color = input.Color;
+    return output;
+}
 
 // =============================================================================
 // UTILITY
 // =============================================================================
+
+float HashNoise(float2 p)
+{
+    return frac(sin(dot(p, float2(12.9898, 78.233))) * 43758.5453);
+}
+
+float SmoothHash(float2 uv)
+{
+    float2 i = floor(uv);
+    float2 f = frac(uv);
+    float2 u = f * f * (3.0 - 2.0 * f);
+    float a = HashNoise(i);
+    float b = HashNoise(i + float2(1.0, 0.0));
+    float c = HashNoise(i + float2(0.0, 1.0));
+    float d = HashNoise(i + float2(1.0, 1.0));
+    return lerp(lerp(a, b, u.x), lerp(c, d, u.x), u.y);
+}
 
 float4 ApplyOverbright(float3 color, float alpha)
 {
@@ -50,122 +88,180 @@ float4 ApplyOverbright(float3 color, float alpha)
 }
 
 // =============================================================================
-// TECHNIQUE 1: SAKURA PETAL BLOOM
-// =============================================================================
-// Procedural 5-petal flower shape rendered via polar coordinates.
-// The petal count creates a flower-like pattern using cosine in polar space.
-// Phase controls bloom state: bud (tight, dim), full bloom (wide, bright),
-// scatter (petals drift outward, fading).
+// SAKURA PETAL SHAPE
 // =============================================================================
 
-float4 SakuraPetalBloomPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
+// Single petal shape: a heart-like curve using polar coordinates
+// Returns 0-1 where 1 = inside petal
+float PetalShape(float2 uv, float angle, float openness, float wiltAngle)
 {
+    // Rotate UV to petal's angle
+    float ca = cos(angle + wiltAngle);
+    float sa = sin(angle + wiltAngle);
+    float2 rotUV = float2(uv.x * ca + uv.y * sa, -uv.x * sa + uv.y * ca);
+
+    // Petal extends in +X direction from centre
+    float r = length(rotUV);
+    float theta = atan2(rotUV.y, rotUV.x);
+
+    // Petal shape: cardioid-ish curve with notch at tip
+    float petalR = openness * 0.35 * (1.0 + cos(theta)) * (1.0 - 0.3 * abs(sin(theta * 2.5)));
+
+    // Soft edge
+    float shape = saturate(1.0 - (r - petalR * 0.8) / (petalR * 0.25 + 0.001));
+    shape *= step(0.0, rotUV.x); // Only forward half
+
+    return shape;
+}
+
+// =============================================================================
+// TECHNIQUE 1: SAKURA PETAL BLOOM - Living Flower
+// =============================================================================
+
+float4 SakuraPetalBloomPS(VertexShaderOutput input) : COLOR0
+{
+    float2 coords = input.TexCoord;
+    float4 sampleColor = input.Color;
+
+    // Centre the UV
+    float2 centre = coords - 0.5;
+
+    // Slow rotation
+    float rotAngle = uTime * uRotationSpeed;
+    float cr = cos(rotAngle);
+    float sr = sin(rotAngle);
+    float2 rotCentre = float2(centre.x * cr + centre.y * sr, -centre.x * sr + centre.y * cr);
+
+    // Phase-driven lifecycle
+    float budPhase = saturate(1.0 - uPhase * 2.0);       // 1 at bud, 0 at bloom
+    float bloomPhase = saturate(1.0 - abs(uPhase - 0.5) * 4.0); // Peak at 0.5
+    float scatterPhase = saturate(uPhase * 2.0 - 1.0);    // 0 until 0.5, then rises to 1
+
+    // Openness: how far petals extend
+    float openness = lerp(0.2, 1.0, saturate(uPhase * 2.0)); // Grows from bud to bloom
+
+    // --- Petal count (default 5 for cherry blossom) ---
+    float petalN = max(uPetalCount, 5.0);
+    float angleStep = 6.28318 / petalN;
+
+    float totalPetal = 0.0;
+    float3 petalColorAcc = float3(0, 0, 0);
+
+    // Wind gust: affects scatter direction and petal wilt
+    float windX = sin(uTime * uScrollSpeed * 0.7) * 0.3 + 0.5;
+    float windY = cos(uTime * uScrollSpeed * 0.5) * 0.2;
+
+    // --- Accumulate petals ---
+    for (float i = 0; i < 8; i++) // Max 8 petals (loops beyond petalN are masked out)
+    {
+        if (i >= petalN) break;
+
+        float petalAngle = angleStep * i;
+
+        // Per-petal random seed
+        float petalSeed = HashNoise(float2(i, i * 3.7));
+
+        // Wilt: each petal wilts at a different rate during scatter
+        float wiltAmount = scatterPhase * (0.3 + petalSeed * 0.7);
+        float wiltAngle = wiltAmount * (petalSeed - 0.5) * 2.0; // Random wilt direction
+
+        // Scatter drift: petals detach and drift with wind
+        float2 scatterOffset = float2(0, 0);
+        if (scatterPhase > 0.01)
+        {
+            float driftT = scatterPhase * (0.5 + petalSeed * 0.5);
+            scatterOffset.x = (windX + petalSeed * 0.3 - 0.15) * driftT * 0.3;
+            scatterOffset.y = (windY + petalSeed * 0.2 - 0.1) * driftT * 0.3;
+            // Small rotation during drift
+            scatterOffset.x += sin(driftT * 6.28 + petalSeed * 3.0) * 0.05;
+        }
+
+        float2 petalUV = rotCentre - scatterOffset;
+
+        // Petal shape
+        float petal = PetalShape(petalUV, petalAngle, openness, wiltAngle);
+
+        // Fade falling petals
+        float scatterFade = 1.0 - scatterPhase * petalSeed * 0.6;
+        petal *= scatterFade;
+
+        // --- Per-petal colour variation ---
+        // Base sakura pink with slight variation per petal
+        float3 innerPink = lerp(uColor, uSecondaryColor, 0.2 + petalSeed * 0.15);
+        float3 outerPink = lerp(uSecondaryColor, uColor, petalSeed * 0.3);
+
+        // Petal has darker edges, lighter centre
+        float r = length(petalUV);
+        float edgeDark = saturate(r * 3.0 - 0.3);
+        float3 petalCol = lerp(innerPink, outerPink, edgeDark);
+
+        // Slight vein pattern within each petal
+        float veinAngle = atan2(petalUV.y - sin(petalAngle) * 0.1,
+                                petalUV.x - cos(petalAngle) * 0.1);
+        float veins = abs(sin(veinAngle * 8.0 + petalSeed * 6.0)) * 0.15;
+        petalCol = lerp(petalCol, innerPink * 1.3, veins * petal);
+
+        totalPetal = max(totalPetal, petal);
+        petalColorAcc = lerp(petalColorAcc, petalCol, petal);
+    }
+
+    // --- Centre pistil glow ---
+    float pistilDist = length(rotCentre);
+    float pistil = saturate(1.0 - pistilDist * 8.0);
+    pistil *= openness;
+    float3 pistilColor = float3(1.0, 0.9, 0.4); // Golden-yellow pistil
+    petalColorAcc = lerp(petalColorAcc, pistilColor, pistil * 0.6);
+    totalPetal = max(totalPetal, pistil * 0.8);
+
+    // --- Texture sample for modulation ---
     float4 baseTex = tex2D(uImage0, coords);
 
-    // Centre-relative coordinates
-    float2 centred = coords - 0.5;
-    float dist = length(centred) * 2.0; // 0 at centre, 1 at edge
-    float angle = atan2(centred.y, centred.x);
+    // --- Bud glow: tight central sphere when phase < 0.3 ---
+    float budGlow = saturate(1.0 - pistilDist * 12.0) * budPhase;
+    float3 budColor = lerp(uColor, float3(0.8, 0.3, 0.3), 0.3);
+    petalColorAcc = lerp(petalColorAcc, budColor, budGlow);
+    totalPetal = max(totalPetal, budGlow);
 
-    // --- Petal rotation ---
-    float rotation = uTime * uRotationSpeed;
-    float rotatedAngle = angle + rotation;
+    // --- Wind shimmer ---
+    float shimmer = SmoothHash(coords * 15.0 + float2(uTime * 2.0, 0.0));
+    shimmer = shimmer * 0.15 + 0.85;
 
-    // --- Petal shape via polar cosine ---
-    // cos(petalCount * angle) creates petal-like lobes
-    float petalShape = cos(uPetalCount * rotatedAngle);
+    // --- Final ---
+    float3 finalColor = petalColorAcc * uIntensity * baseTex.rgb * shimmer;
 
-    // --- Phase-dependent petal radius ---
-    // Bud (0): petals tight (small radius, dim)
-    // Full bloom (0.5): petals wide open (large radius, bright)
-    // Scatter (1.0): petals drift outward (very large radius, fading)
-    float bloomRadius = lerp(0.15, 0.5, saturate(uPhase * 2.0)); // 0ↁE.5 phase
-    float scatterExpand = saturate((uPhase - 0.5) * 2.0) * 0.4;  // 0.5ↁE.0 phase
-    bloomRadius += scatterExpand;
-
-    // Petal boundary: smooth falloff from petal centre to petal edge
-    float petalDist = dist - (petalShape * 0.5 + 0.5) * bloomRadius;
-    float petalMask = saturate(1.0 - petalDist * (4.0 - uDistortionAmt * 20.0));
-
-    // --- Inner glow: radial falloff ---
-    float innerGlow = saturate(1.0 - dist * 1.8) * 0.6;
-    innerGlow *= saturate(uPhase * 4.0); // Only visible once blooming starts
-
-    // --- Color gradient: sakura centre ↁEgold edges ---
-    float colourT = saturate(dist * 1.5);
-    float3 petalColor = lerp(uColor, uSecondaryColor, colourT * 0.6);
-
-    // White-hot core at very centre
-    float coreMask = saturate((1.0 - dist * 3.0));
-    petalColor = lerp(petalColor, float3(1.0, 0.96, 0.92), coreMask * 0.5);
-
-    // --- Phase brightness ---
-    // Bud: dim, Full bloom: max, Scatter: fading
-    float phaseBright = 1.0;
-    if (uPhase < 0.5)
-        phaseBright = 0.3 + uPhase * 1.4; // 0.3ↁE.0
-    else
-        phaseBright = 1.0 - (uPhase - 0.5) * 1.2; // 1.0ↁE.4
-    phaseBright = saturate(phaseBright);
-
-    // --- Noise modulation for organic variation ---
-    float2 noiseUV = coords * uSecondaryTexScale;
-    noiseUV += float2(uTime * uSecondaryTexScroll * 0.3, uTime * 0.15);
-    float4 noiseTex = tex2D(uImage1, noiseUV);
-    float noiseVal = lerp(0.85, noiseTex.r, uHasSecondaryTex * 0.4);
-
-    // --- Gentle petal shimmer ---
-    float shimmer = sin(uTime * 3.0 + dist * 8.0) * 0.08 + 0.92;
-
-    // --- Final composition ---
-    float combinedMask = saturate(petalMask + innerGlow);
-    float3 finalColor = petalColor * baseTex.rgb * uIntensity * noiseVal * shimmer;
-
-    float alpha = combinedMask * phaseBright * uOpacity * sampleColor.a * baseTex.a;
+    float alpha = totalPetal * uOpacity * sampleColor.a * baseTex.a;
 
     return ApplyOverbright(finalColor, alpha);
 }
 
 // =============================================================================
-// TECHNIQUE 2: SAKURA GLOW PASS
-// =============================================================================
-// Pure radial soft glow for bloom stacking behind the petal layer.
-// Simple, soft, warm  Ecreates the sakura "aura" around the flower.
+// TECHNIQUE 2: SAKURA GLOW PASS - Inner Radiance
 // =============================================================================
 
-float4 SakuraGlowPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
+float4 SakuraGlowPassPS(VertexShaderOutput input) : COLOR0
 {
+    float2 coords = input.TexCoord;
+    float4 sampleColor = input.Color;
+
     float4 baseTex = tex2D(uImage0, coords);
 
-    // Radial distance from centre
-    float2 centred = coords - 0.5;
-    float dist = length(centred) * 2.0;
+    float2 centre = coords - 0.5;
+    float dist = length(centre);
 
-    // Soft radial falloff
-    float radial = saturate(1.0 - dist * dist);
-    radial *= radial; // Extra soft
+    // Soft radial glow
+    float glow = saturate(1.0 - dist * 2.5);
+    glow = pow(glow, 1.5);
 
-    // Warm sakura glow colour
-    float3 glowColor = lerp(uColor, uSecondaryColor, dist * 0.3);
+    // Phase: glow strongest at full bloom
+    float bloomPhase = saturate(1.0 - abs(uPhase - 0.5) * 4.0);
+    glow *= bloomPhase * 0.5 + 0.5;
 
-    // Add warm pink tint
-    float3 warmPink = float3(1.0, 0.75, 0.80);
-    glowColor = lerp(glowColor, warmPink, 0.2);
+    float3 glowColor = lerp(uColor, uSecondaryColor, 0.3) * uIntensity * 0.5;
+    glowColor *= baseTex.rgb;
 
-    glowColor *= uIntensity * baseTex.rgb;
+    float pulse = sin(uTime * 3.0) * 0.08 + 0.92;
 
-    // Phase brightness (same as main pass)
-    float phaseBright = 1.0;
-    if (uPhase < 0.5)
-        phaseBright = 0.3 + uPhase * 1.4;
-    else
-        phaseBright = 1.0 - (uPhase - 0.5) * 1.2;
-    phaseBright = saturate(phaseBright);
-
-    // Slow pulse
-    float pulse = sin(uTime * 2.0) * 0.1 + 0.9;
-
-    float alpha = radial * phaseBright * uOpacity * sampleColor.a * baseTex.a * pulse;
+    float alpha = glow * uOpacity * sampleColor.a * baseTex.a * pulse * 0.25;
 
     return ApplyOverbright(glowColor, alpha);
 }
@@ -178,6 +274,7 @@ technique SakuraPetalBloom
 {
     pass P0
     {
+        VertexShader = compile vs_2_0 MainVS();
         PixelShader = compile ps_3_0 SakuraPetalBloomPS();
     }
 }
@@ -186,6 +283,7 @@ technique SakuraGlowPass
 {
     pass P0
     {
-        PixelShader = compile ps_3_0 SakuraGlowPS();
+        VertexShader = compile vs_2_0 MainVS();
+        PixelShader = compile ps_3_0 SakuraGlowPassPS();
     }
 }

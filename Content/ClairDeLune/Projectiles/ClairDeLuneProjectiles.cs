@@ -106,13 +106,13 @@ namespace MagnumOpus.Content.ClairDeLune.Projectiles
     public static class ClairDeLuneVFX
     {
         // === TEXTURE PATHS ===
-        private const string ClockworkGearLarge = "MagnumOpus/Assets/Particles Asset Library/ClockworkGearLarge";
-        private const string ClockworkGearSmall = "MagnumOpus/Assets/Particles Asset Library/ClockworkGearSmall";
-        private const string LightningBurst = "MagnumOpus/Assets/Particles Asset Library/LightningBurst";
-        private const string LightningBurstThick = "MagnumOpus/Assets/Particles Asset Library/LightningBurstThick";
-        private const string LightningStreak = "MagnumOpus/Assets/Particles Asset Library/LightningStreak";
-        private const string MediumCrystalShard = "MagnumOpus/Assets/Particles Asset Library/MediumCrystalShard";
-        private const string SmallCrystalShard = "MagnumOpus/Assets/Particles Asset Library/SmallCrystalShard";
+        private const string ClockworkGearLarge = "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/HardCircleMask";
+        private const string ClockworkGearSmall = "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SmallHardCircleMask";
+        private const string LightningBurst = "MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16";
+        private const string LightningBurstThick = "MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16";
+        private const string LightningStreak = "MagnumOpus/Assets/SandboxLastPrism/Trails/spark_06";
+        private const string MediumCrystalShard = "MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar";
+        private const string SmallCrystalShard = "MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar";
         
         // === CORE VISUAL IDENTITY ===
         // Layer 1: BRILLIANT WHITE core (temporal power center)

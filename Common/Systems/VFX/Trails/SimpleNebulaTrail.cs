@@ -164,7 +164,7 @@ namespace MagnumOpus.Common.Systems.VFX
             Texture2D glowTex = null;
             try
             {
-                glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2", 
+                glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", 
                     AssetRequestMode.ImmediateLoad).Value;
             }
             catch

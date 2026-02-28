@@ -1183,7 +1183,7 @@ namespace MagnumOpus.Content.Fate.Enemies
     /// </summary>
     public class CosmicRendSlash : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc3";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/VerticalEllipse";
 
         public override void SetDefaults()
         {
@@ -1231,7 +1231,7 @@ namespace MagnumOpus.Content.Fate.Enemies
     /// </summary>
     public class StellarBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ShatteredStarlight";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar";
 
         public override void SetDefaults()
         {
@@ -1293,7 +1293,7 @@ namespace MagnumOpus.Content.Fate.Enemies
     /// </summary>
     public class ConstellationBeam : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs6";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/TallMusicNote";
 
         public override void SetDefaults()
         {
@@ -1337,7 +1337,7 @@ namespace MagnumOpus.Content.Fate.Enemies
     /// </summary>
     public class RealityFractureTrail : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs7";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MusicNoteWithSlashes";
 
         public override void SetDefaults()
         {
@@ -1376,7 +1376,7 @@ namespace MagnumOpus.Content.Fate.Enemies
     /// </summary>
     public class FateSealedShard : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/StarryStarburst";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard";
 
         public override void SetDefaults()
         {

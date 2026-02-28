@@ -1,3 +1,7 @@
+// ============================================================================
+// DEPRECATED: Replaced by RequiemOfReality/Projectiles/RequiemSpectralBlade.cs
+// ============================================================================
+/*
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -577,3 +581,4 @@ namespace MagnumOpus.Content.Fate.Projectiles
         }
     }
 }
+*/

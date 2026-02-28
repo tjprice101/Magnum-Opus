@@ -7,115 +7,61 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.DataStructures;
 using Terraria.Audio;
+using Terraria.GameContent;
+using ReLogic.Content;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.Particles;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.Dusts;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.Utilities;
 
-namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
+namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
 {
     /// <summary>
-    /// FUGUE OF THE UNKNOWN - Enigma Magic Tome
-    /// =========================================
-    /// A musical fugue where each voice builds upon the last, creating layered complexity.
-    /// 
-    /// UNIQUE MECHANICS:
-    /// - Left-click fires "Voice" projectiles that orbit around you before launching
-    /// - Each cast adds another voice to the fugue (up to 5 voices orbiting)
-    /// - Right-click RELEASES all voices as a coordinated assault
-    /// - Released voices spiral outward in a fugue pattern, homing on enemies
-    /// - When voices hit, they leave "Echo Marks" on enemies
-    /// - Enemies with 3+ Echo Marks trigger "Harmonic Convergence" - all marks detonate
-    /// - Harmonic Convergence creates chain reactions between marked enemies
-    /// - While holding voices, player has a mysterious aura with orbiting glyphs and eyes
+    /// FUGUE OF THE UNKNOWN - Magic weapon that spawns orbiting "voice" projectiles
+    /// Voices orbit the player and can be released toward enemies
+    /// Hitting enemies with EchoMark debuff builds stacks, culminating in Harmonic Convergence
     /// </summary>
     public class FugueOfTheUnknown : ModItem
     {
-        private static readonly Color EnigmaBlack = new Color(15, 10, 20);
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
-        private static readonly Color EnigmaDeepPurple = new Color(80, 20, 120);
         
         public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/FugueOfTheUnknown/FugueOfTheUnknown";
         
-        private Color GetEnigmaGradient(float progress)
-        {
-            if (progress < 0.5f)
-                return Color.Lerp(EnigmaBlack, EnigmaPurple, progress * 2f);
-            else
-                return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
-        }
-        
         public override void SetDefaults()
         {
-            Item.damage = 380;
+            Item.damage = 252;
             Item.DamageType = DamageClass.Magic;
-            Item.mana = 8;
-            Item.width = 24;
-            Item.height = 24;
-            Item.useTime = 18;
-            Item.useAnimation = 18;
-            Item.useStyle = ItemUseStyleID.Swing; // Held like a lantern
-            Item.knockBack = 4f;
+            Item.mana = 12;
+            Item.width = 40;
+            Item.height = 40;
+            Item.useTime = 20;
+            Item.useAnimation = 20;
+            Item.useStyle = ItemUseStyleID.Shoot;
+            Item.knockBack = 3f;
             Item.value = Item.sellPrice(gold: 20);
             Item.rare = ModContent.RarityType<EnigmaRarity>();
-            Item.UseSound = SoundID.Item117;
+            Item.UseSound = SoundID.Item8;
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<FugueVoiceProjectile>();
-            Item.shootSpeed = 0f;
+            Item.shootSpeed = 1f;
             Item.noMelee = true;
-            Item.holdStyle = ItemHoldStyleID.HoldLamp; // Lantern hold style
-            Item.scale = 0.32f; // 60% smaller
-        }
-        
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect1", "Left-click summons orbiting Voices of the Fugue (up to 5)"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect2", "Right-click releases all voices in a spiraling assault"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect3", "Voices leave Echo Marks - 3 marks trigger Harmonic Convergence"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect4", "Convergence chains between all marked enemies for massive damage"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaLore", "'A fugue is never truly finished - each voice echoes into eternity'") 
-            { 
-                OverrideColor = EnigmaPurple 
-            });
         }
         
         public override void HoldItem(Player player)
         {
-            // Count active voice projectiles
+            // Count active voices
             int voiceCount = 0;
             foreach (Projectile proj in Main.ActiveProjectiles)
             {
-                if (proj.type == ModContent.ProjectileType<FugueVoiceProjectile>() && 
-                    proj.owner == player.whoAmI && proj.ai[0] == 0) // ai[0] = 0 means orbiting
-                {
+                if (proj.owner == player.whoAmI && proj.type == ModContent.ProjectileType<FugueVoiceProjectile>() && proj.ai[0] == 0)
                     voiceCount++;
-                }
             }
             
-            // Subtle ambient aura based on voice count
-            if (voiceCount > 0)
-            {
-                float intensity = (float)voiceCount / 5f;
-                
-                // Occasional orbiting glyph
-                if (Main.rand.NextBool(30))
-                {
-                    float angle = Main.GameUpdateCount * 0.04f;
-                    Vector2 glyphPos = player.Center + angle.ToRotationVector2() * 50f;
-                    CustomParticles.Glyph(glyphPos, GetEnigmaGradient(intensity), 0.3f, -1);
-                }
-                
-                // Subtle music notes
-                if (Main.rand.NextBool(40))
-                {
-                    ThemedParticles.EnigmaMusicNotes(player.Center + Main.rand.NextVector2Circular(40f, 40f), 1, 20f);
-                }
-                
-                // Pulsing aura light
-                float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.15f + 0.85f;
-                Lighting.AddLight(player.Center, GetEnigmaGradient(intensity).ToVector3() * intensity * pulse * 0.4f);
-            }
+            Lighting.AddLight(player.Center, EnigmaPurple.ToVector3() * (0.1f + voiceCount * 0.05f));
         }
         
         public override bool AltFunctionUse(Player player) => true;
@@ -124,254 +70,160 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             if (player.altFunctionUse == 2)
             {
-                // Right-click: Release all voices
-                Item.useTime = 25;
-                Item.useAnimation = 25;
-                Item.mana = 0;
+                // Right click: release all voices
+                ReleaseAllVoices(player);
+                return false;
             }
-            else
+            return true;
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect", "Spawns mysterious voice projectiles that orbit you"));
+            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect2", "Right-click to release all voices toward nearest enemies"));
+            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect3", "Marks enemies with Echo; stacks trigger devastating Harmonic Convergence"));
+            tooltips.Add(new TooltipLine(Mod, "EnigmaLore", "'Three voices, interlocking, speaking truths that cannot be known.'")
             {
-                // Left-click: Summon voice
-                Item.useTime = 18;
-                Item.useAnimation = 18;
-                Item.mana = 8;
-            }
-            return base.CanUseItem(player);
+                OverrideColor = EnigmaPurple
+            });
         }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (player.altFunctionUse == 2)
-            {
-                // RIGHT-CLICK: Release all orbiting voices!
-                ReleaseAllVoices(player);
-                return false;
-            }
-            
-            // LEFT-CLICK: Summon a new voice
-            // Count existing voices
+            // Count existing orbiting voices
             int voiceCount = 0;
             foreach (Projectile proj in Main.ActiveProjectiles)
             {
-                if (proj.type == type && proj.owner == player.whoAmI && proj.ai[0] == 0)
+                if (proj.owner == player.whoAmI && proj.type == type && proj.ai[0] == 0)
                     voiceCount++;
             }
             
+            // Max 5 voices
             if (voiceCount >= 5)
             {
-                // Max voices - auto-release
                 ReleaseAllVoices(player);
                 return false;
             }
             
-            // Spawn new voice
-            int voiceIndex = voiceCount;
-            Projectile.NewProjectile(source, player.Center, Vector2.Zero, type, damage, knockback, 
-                player.whoAmI, ai0: 0, ai1: voiceIndex);
-            
-            // Summon VFX
-            Vector2 summonPos = player.Center;
-            CustomParticles.GenericFlare(summonPos, EnigmaPurple, 0.6f, 18);
-            CustomParticles.HaloRing(summonPos, EnigmaGreen * 0.7f, 0.3f, 14);
-            
-            // Musical note burst - each voice adds to the fugue
-            ThemedParticles.EnigmaMusicNoteBurst(summonPos, 4 + voiceCount, 3f);
-            
-            // Glyph at summon
-            CustomParticles.Glyph(summonPos, GetEnigmaGradient((float)voiceCount / 5f), 0.45f, voiceCount);
-            
-            SoundEngine.PlaySound(SoundID.Item8 with { Pitch = 0.2f + voiceCount * 0.15f, Volume = 0.6f }, summonPos);
+            Projectile.NewProjectile(source, player.Center, Vector2.Zero, type, damage, knockback, player.whoAmI, 0f, voiceCount);
+            SoundEngine.PlaySound(SoundID.Item8 with { Pitch = 0.3f + voiceCount * 0.15f }, player.Center);
             
             return false;
         }
         
         private void ReleaseAllVoices(Player player)
         {
-            List<Projectile> voices = new List<Projectile>();
+            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 0.7f }, player.Center);
             
-            foreach (Projectile proj in Main.ActiveProjectiles)
+            foreach (Projectile voice in Main.ActiveProjectiles)
             {
-                if (proj.type == ModContent.ProjectileType<FugueVoiceProjectile>() && 
-                    proj.owner == player.whoAmI && proj.ai[0] == 0)
-                {
-                    voices.Add(proj);
-                }
-            }
-            
-            if (voices.Count == 0) return;
-            
-            // Release VFX - clean and focused
-            CustomParticles.GenericFlare(player.Center, EnigmaGreen, 0.7f, 20);
-            CustomParticles.HaloRing(player.Center, EnigmaPurple, 0.4f, 15);
-            
-            // Music notes
-            ThemedParticles.EnigmaMusicNoteBurst(player.Center, 6, 4f);
-            
-            // Release each voice with staggered timing
-            int index = 0;
-            foreach (var voice in voices)
-            {
-                // Set to released state
-                voice.ai[0] = 1; // Released
-                voice.ai[1] = index; // Release order
+                if (voice.owner != player.whoAmI || voice.type != ModContent.ProjectileType<FugueVoiceProjectile>() || voice.ai[0] != 0)
+                    continue;
+                    
+                voice.ai[0] = 1; // Switch to released state
                 
-                // Find target
-                NPC target = FindNearestEnemy(voice.Center, 800f);
-                if (target != null)
+                // Find nearest enemy
+                float bestDist = 800f;
+                NPC bestTarget = null;
+                foreach (NPC npc in Main.ActiveNPCs)
                 {
-                    voice.ai[2] = target.whoAmI;
+                    if (npc.friendly) continue;
+                    float dist = Vector2.Distance(voice.Center, npc.Center);
+                    if (dist < bestDist)
+                    {
+                        bestDist = dist;
+                        bestTarget = npc;
+                    }
+                }
+                
+                if (bestTarget != null)
+                {
+                    voice.velocity = (bestTarget.Center - voice.Center).SafeNormalize(Vector2.UnitX) * 14f;
                 }
                 else
                 {
-                    // No target - fire toward mouse
-                    Vector2 toMouse = (Main.MouseWorld - voice.Center).SafeNormalize(Vector2.UnitX);
-                    voice.velocity = toMouse * 14f;
-                    voice.ai[2] = -1;
-                }
-                
-                // Release VFX at voice position
-                CustomParticles.GenericFlare(voice.Center, GetEnigmaGradient((float)index / voices.Count), 0.55f, 16);
-                
-                index++;
-            }
-            
-            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.4f, Volume = 0.8f }, player.Center);
-        }
-        
-        private NPC FindNearestEnemy(Vector2 pos, float range)
-        {
-            NPC closest = null;
-            float closestDist = range;
-            
-            foreach (NPC npc in Main.ActiveNPCs)
-            {
-                if (npc.friendly || npc.immortal) continue;
-                float dist = Vector2.Distance(pos, npc.Center);
-                if (dist < closestDist)
-                {
-                    closestDist = dist;
-                    closest = npc;
+                    voice.velocity = (Main.MouseWorld - voice.Center).SafeNormalize(Vector2.UnitX) * 14f;
                 }
             }
-            
-            return closest;
         }
     }
     
-    /// <summary>
-    /// Fugue Voice - Orbits the player then homes on enemies when released
-    /// </summary>
     public class FugueVoiceProjectile : ModProjectile
     {
-        private static readonly Color EnigmaBlack = new Color(15, 10, 20);
-        private static readonly Color EnigmaDeepPurple = new Color(80, 20, 120);
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         
-        private float orbitAngle = 0f;
-        private float orbitRadius = 60f;
-        private int releaseTimer = 0;
-        private int glyphIndex = 0;
-        
-        // ai[0] = state (0 = orbiting, 1 = released)
-        // ai[1] = voice index (for orbit position) / release order
-        // ai[2] = target NPC index when released
-        
-        private bool IsOrbiting => Projectile.ai[0] == 0;
-        private int VoiceIndex => (int)Projectile.ai[1];
-        private int TargetIndex => (int)Projectile.ai[2];
-        
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs7";
-        
-        public override void SetStaticDefaults()
-        {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 12;
-            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
-        }
-        
-        private Color GetEnigmaGradient(float progress)
-        {
-            if (progress < 0.5f)
-                return Color.Lerp(EnigmaBlack, EnigmaPurple, progress * 2f);
-            else
-                return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
-        }
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MusicNote";
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
+            SpriteBatch sb = Main.spriteBatch;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            
-            float pulse = 0.85f + (float)Math.Sin(Main.GameUpdateCount * 0.12f + VoiceIndex * 0.8f) * 0.2f;
-            float voiceHue = (float)VoiceIndex / 5f;
-            
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            Texture2D glyphTex = CustomParticleSystem.RandomGlyph().Value;
-            Texture2D sparkleTex = CustomParticleSystem.RandomPrismaticSparkle().Value;
-            Texture2D eyeTex = CustomParticleSystem.RandomEnigmaEye().Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow3").Value;
-            
-            // === TRAIL ===
-            if (!IsOrbiting && ProjectileID.Sets.TrailCacheLength[Projectile.type] > 0)
+            float pulse = MathF.Sin((float)Main.GameUpdateCount * 0.08f + Projectile.ai[1]) * 0.5f + 0.5f; // 0..1
+
+            var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
+            var glyphTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNote", AssetRequestMode.ImmediateLoad).Value;
+            Vector2 bloomOrigin = bloomTex.Size() / 2f;
+            Vector2 glyphOrigin = glyphTex.Size() / 2f;
+
+            // === Shader overlay: Polyphonic voice spectrum / standing wave interference ===
             {
-                for (int i = 0; i < Projectile.oldPos.Length; i++)
-                {
-                    if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                    float trailProgress = (float)i / Projectile.oldPos.Length;
-                    float trailAlpha = (1f - trailProgress) * 0.8f;
-                    float trailScale = (1f - trailProgress * 0.5f) * 0.4f;
-                    Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                    
-                    Color trailColor = GetEnigmaGradient(voiceHue + trailProgress * 0.3f);
-                    spriteBatch.Draw(sparkleTex, trailPos, null, trailColor * trailAlpha, 
-                        Main.GameUpdateCount * 0.1f + i * 0.3f, sparkleTex.Size() / 2f, trailScale, SpriteEffects.None, 0f);
-                    
-                    if (i % 3 == 0)
-                    {
-                        spriteBatch.Draw(glyphTex, trailPos, null, EnigmaPurple * trailAlpha * 0.6f, 
-                            -Main.GameUpdateCount * 0.05f + i, glyphTex.Size() / 2f, trailScale * 0.6f, SpriteEffects.None, 0f);
-                    }
-                }
+                Effect voiceShader = Projectile.ai[0] == 0f ? ShaderLoader.FugueVoiceTrail : ShaderLoader.FugueConvergence;
+                string technique = Projectile.ai[0] == 0f ? "FugueVoiceFlow" : "FugueConvergenceWave";
+                EnigmaShaderHelper.DrawShaderOverlay(sb, voiceShader,
+                    bloomTex, drawPos, bloomOrigin, 1.2f + pulse * 0.3f,
+                    FugueUtils.VoicePurple.ToVector3(), FugueUtils.EchoTeal.ToVector3(),
+                    opacity: 0.45f, intensity: 1.0f,
+                    noiseTexture: ShaderLoader.GetNoiseTexture("MusicalWavePattern"),
+                    techniqueName: technique);
             }
-            
-            // === ORBITING ELEMENTS ===
-            // Glyph halo
-            for (int i = 0; i < 4; i++)
+
+            if (Projectile.ai[0] == 0f)
             {
-                float glyphAngle = Main.GameUpdateCount * 0.08f + MathHelper.TwoPi * i / 4f;
-                float glyphRadius = 18f + (float)Math.Sin(Main.GameUpdateCount * 0.1f + i) * 4f;
-                Vector2 glyphPos = drawPos + glyphAngle.ToRotationVector2() * glyphRadius;
-                Color glyphColor = Color.Lerp(EnigmaPurple, EnigmaGreen, (float)i / 4f) * 0.7f * pulse;
-                spriteBatch.Draw(glyphTex, glyphPos, null, glyphColor, -glyphAngle, 
-                    glyphTex.Size() / 2f, 0.25f * pulse, SpriteEffects.None, 0f);
+                // === ORBITING STATE — ghostly eye/glyph with pulsing bloom ===
+
+                // Outer bloom: Voice Purple, pulsing scale
+                float outerScale = 0.5f + pulse * 0.15f;
+                Color outerColor = FugueUtils.VoicePurple * (0.35f + pulse * 0.15f);
+                sb.Draw(bloomTex, drawPos, null, outerColor, 0f, bloomOrigin, outerScale, SpriteEffects.None, 0f);
+
+                // Inner bloom: Echo Teal, smaller
+                float innerScale = 0.25f + pulse * 0.08f;
+                Color innerColor = FugueUtils.EchoTeal * (0.4f + pulse * 0.2f);
+                sb.Draw(bloomTex, drawPos, null, innerColor, 0f, bloomOrigin, innerScale, SpriteEffects.None, 0f);
+
+                // Core glyph sprite with sin-wave pulsing opacity (0.5 - 1.0)
+                float glyphAlpha = 0.5f + pulse * 0.5f;
+                sb.Draw(glyphTex, drawPos, null, Color.White * glyphAlpha, Projectile.rotation, glyphOrigin, 0.6f, SpriteEffects.None, 0f);
             }
-            
-            // Central eye (watches toward center when orbiting, toward velocity when released)
-            float eyeRot = IsOrbiting ? 
-                (Main.player[Projectile.owner].Center - Projectile.Center).ToRotation() :
-                Projectile.velocity.ToRotation();
-            spriteBatch.Draw(eyeTex, drawPos, null, EnigmaGreen * 0.8f * pulse, eyeRot, 
-                eyeTex.Size() / 2f, 0.4f * pulse, SpriteEffects.None, 0f);
-            
-            // Core glow layers
-            Color coreColor = GetEnigmaGradient(voiceHue);
-            spriteBatch.Draw(flareTex, drawPos, null, coreColor * 0.9f, 0f, flareTex.Size() / 2f, 0.5f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(flareTex, drawPos, null, EnigmaPurple * 0.7f, 0f, flareTex.Size() / 2f, 0.35f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreen * 0.6f, 0f, flareTex.Size() / 2f, 0.2f * pulse, SpriteEffects.None, 0f);
-            
-            // Musical note orbiting (because MUSIC MOD!)
-            float noteAngle = -Main.GameUpdateCount * 0.06f + VoiceIndex * 1.2f;
-            Vector2 noteOffset = noteAngle.ToRotationVector2() * 24f;
-            spriteBatch.Draw(sparkleTex, drawPos + noteOffset, null, EnigmaGreen * 0.6f * pulse, 
-                noteAngle, sparkleTex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
-            
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
+            else
+            {
+                // === RELEASED STATE — motion trail stretched in velocity direction ===
+                float speed = Projectile.velocity.Length();
+                float velAngle = Projectile.velocity.ToRotation();
+
+                // Stretched MagicPixel "motion trail" behind the voice
+                var pixel = TextureAssets.MagicPixel.Value;
+                float trailLength = MathHelper.Clamp(speed * 3f, 20f, 80f);
+                Rectangle trailRect = new Rectangle(0, 0, (int)trailLength, 6);
+                Vector2 trailOrigin = new Vector2(trailLength, 3f); // anchor at right-center so it trails behind
+                Color trailColor = FugueUtils.EchoTeal * 0.6f;
+                sb.Draw(pixel, drawPos, trailRect, trailColor, velAngle, trailOrigin, 1f, SpriteEffects.None, 0f);
+
+                // Brighter wider inner trail
+                Rectangle trailRect2 = new Rectangle(0, 0, (int)(trailLength * 0.6f), 3);
+                Vector2 trailOrigin2 = new Vector2(trailLength * 0.6f, 1.5f);
+                sb.Draw(pixel, drawPos, trailRect2, FugueUtils.FugueCyan * 0.8f, velAngle, trailOrigin2, 1f, SpriteEffects.None, 0f);
+
+                // Bloom core — larger, more intense
+                float coreScale = 0.4f + pulse * 0.1f;
+                sb.Draw(bloomTex, drawPos, null, FugueUtils.VoicePurple * 0.7f, 0f, bloomOrigin, coreScale, SpriteEffects.None, 0f);
+                sb.Draw(bloomTex, drawPos, null, FugueUtils.HarmonicWhite * 0.4f, 0f, bloomOrigin, coreScale * 0.35f, SpriteEffects.None, 0f);
+
+                // Glyph sprite at full intensity
+                sb.Draw(glyphTex, drawPos, null, Color.White * 0.9f, Projectile.rotation, glyphOrigin, 0.7f, SpriteEffects.None, 0f);
+            }
+
             return false;
         }
         
@@ -381,296 +233,280 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Projectile.height = 20;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Magic;
-            Projectile.penetrate = 2;
-            Projectile.timeLeft = 600;
+            Projectile.penetrate = 3;
+            Projectile.timeLeft = 9999;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
         }
         
         public override void OnSpawn(IEntitySource source)
         {
-            orbitAngle = MathHelper.TwoPi * VoiceIndex / 5f;
-            glyphIndex = Main.rand.Next(12);
+            Projectile.rotation = Main.rand.NextFloat(MathHelper.TwoPi);
         }
         
         public override void AI()
         {
             Player owner = Main.player[Projectile.owner];
             
-            if (IsOrbiting)
+            if (Projectile.ai[0] == 0)
             {
-                // === ORBITING STATE ===
-                Projectile.timeLeft = 600; // Don't expire while orbiting
+                // ORBITING STATE
+                Projectile.timeLeft = 600;
                 
-                // Orbit around player
-                orbitAngle += 0.06f + VoiceIndex * 0.008f;
-                float targetRadius = 60f + VoiceIndex * 12f;
-                orbitRadius = MathHelper.Lerp(orbitRadius, targetRadius, 0.1f);
+                float orbitIndex = Projectile.ai[1];
+                float orbitSpeed = 0.03f;
+                float orbitRadius = 80f + orbitIndex * 20f;
+                float angle = (float)Main.GameUpdateCount * orbitSpeed + orbitIndex * MathHelper.TwoPi / 5f;
                 
-                Vector2 orbitTarget = owner.Center + orbitAngle.ToRotationVector2() * orbitRadius;
-                Projectile.Center = Vector2.Lerp(Projectile.Center, orbitTarget, 0.15f);
-                Projectile.velocity = Vector2.Zero;
+                Vector2 targetPos = owner.Center + new Vector2(
+                    (float)Math.Cos(angle) * orbitRadius,
+                    (float)Math.Sin(angle) * orbitRadius
+                );
                 
-                // Ambient particles
-                if (Main.GameUpdateCount % 8 == VoiceIndex)
+                Projectile.Center = Vector2.Lerp(Projectile.Center, targetPos, 0.1f);
+                Projectile.rotation += 0.05f;
+
+                // --- Orbiting VFX ---
+                if (Main.GameUpdateCount % 4 == 0)
                 {
-                    CustomParticles.GenericFlare(Projectile.Center, GetEnigmaGradient((float)VoiceIndex / 5f) * 0.6f, 0.3f, 12);
+                    Vector2 outwardDrift = (Projectile.Center - owner.Center).SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(0.3f, 0.8f);
+                    FugueParticleHandler.Spawn(new VoiceWispParticle(
+                        Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                        outwardDrift,
+                        FugueUtils.VoicePurple,
+                        Main.rand.NextFloat(0.3f, 0.5f),
+                        Main.rand.Next(30, 50)
+                    ));
                 }
-                
-                // Occasional music note
-                if (Main.GameUpdateCount % 30 == VoiceIndex * 6)
-                {
-                    ThemedParticles.EnigmaMusicNotes(Projectile.Center, 1, 15f);
-                }
+
+                // Echo dust every frame
+                Dust.NewDustPerfect(
+                    Projectile.Center + Main.rand.NextVector2Circular(4f, 4f),
+                    ModContent.DustType<FugueEchoDust>(),
+                    Main.rand.NextVector2Circular(0.4f, 0.4f),
+                    0, default, Main.rand.NextFloat(0.3f, 0.6f)
+                );
             }
             else
             {
-                // === RELEASED STATE ===
-                releaseTimer++;
+                // RELEASED STATE - fly toward enemies with homing
+                float homingRange = 500f;
+                float bestDist = homingRange;
+                NPC bestTarget = null;
                 
-                // Initial spiral outward
-                if (releaseTimer < 20)
+                foreach (NPC npc in Main.ActiveNPCs)
                 {
-                    float spiralAngle = orbitAngle + releaseTimer * 0.2f;
-                    float spiralRadius = orbitRadius + releaseTimer * 8f;
-                    Vector2 spiralTarget = owner.Center + spiralAngle.ToRotationVector2() * spiralRadius;
-                    Projectile.velocity = (spiralTarget - Projectile.Center) * 0.3f;
-                }
-                else
-                {
-                    // Home toward target
-                    if (TargetIndex >= 0 && TargetIndex < Main.maxNPCs)
+                    if (npc.friendly) continue;
+                    float dist = Vector2.Distance(Projectile.Center, npc.Center);
+                    if (dist < bestDist)
                     {
-                        NPC target = Main.npc[TargetIndex];
-                        if (target.active && !target.friendly)
-                        {
-                            Vector2 toTarget = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                            float speed = 16f + releaseTimer * 0.1f;
-                            Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * speed, 0.12f);
-                        }
-                    }
-                    else
-                    {
-                        // No target - maintain velocity with slight homing to mouse
-                        Vector2 toMouse = (Main.MouseWorld - Projectile.Center).SafeNormalize(Vector2.Zero);
-                        Projectile.velocity = Vector2.Lerp(Projectile.velocity, toMouse * 14f, 0.03f);
+                        bestDist = dist;
+                        bestTarget = npc;
                     }
                 }
                 
-                // === CALAMITY-STANDARD RADIANT TRAIL EFFECTS ===
-                // Heavy dust trails (2+ per frame) - void fugue stream
-                for (int d = 0; d < 2; d++)
+                if (bestTarget != null)
                 {
-                    Vector2 dustOffset = Main.rand.NextVector2Circular(8f, 8f);
-                    Dust dustPurple = Dust.NewDustPerfect(Projectile.Center + dustOffset, DustID.PurpleTorch, 
-                        -Projectile.velocity * 0.25f + Main.rand.NextVector2Circular(1f, 1f), 0, EnigmaPurple, 1.2f);
-                    dustPurple.noGravity = true;
-                    dustPurple.fadeIn = 1.4f;
-                    
-                    Dust dustGreen = Dust.NewDustPerfect(Projectile.Center + dustOffset * 0.6f, DustID.CursedTorch, 
-                        -Projectile.velocity * 0.2f + Main.rand.NextVector2Circular(0.6f, 0.6f), 0, EnigmaGreen, 1.0f);
-                    dustGreen.noGravity = true;
-                    dustGreen.fadeIn = 1.3f;
+                    Vector2 toTarget = (bestTarget.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * 16f, 0.08f);
                 }
                 
-                // Contrasting sparkles (1-in-2) - fugue shimmer
-                if (Main.rand.NextBool(2))
-                {
-                    Vector2 sparkleOffset = Main.rand.NextVector2Circular(12f, 12f);
-                    var sparkle = new SparkleParticle(Projectile.Center + sparkleOffset, 
-                        -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(0.5f, 0.5f), 
-                        EnigmaGreen, 0.4f, 18);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
-                }
+                // Spiral motion
+                Projectile.velocity = Projectile.velocity.RotatedBy(MathHelper.ToRadians(2f));
                 
-                // Enigma shimmer trails (1-in-3) - void hue cycling
-                if (Main.rand.NextBool(3))
-                {
-                    float hue = Main.rand.NextFloat(0.28f, 0.45f); // Purple-green void range
-                    Color shimmerColor = Main.hslToRgb(hue, 0.85f, 0.65f);
-                    var shimmer = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.15f, 
-                        shimmerColor, 0.32f, 20, true);
-                    MagnumParticleHandler.SpawnParticle(shimmer);
-                }
+                Projectile.rotation += 0.1f;
+                Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.3f);
                 
-                // Pearlescent void effect (1-in-4)
-                if (Main.rand.NextBool(4))
+                // Eventually die
+                if (Projectile.timeLeft > 300)
+                    Projectile.timeLeft = 300;
+
+                // --- Released VFX: trail motes every frame ---
+                Color trailColor = Color.Lerp(FugueUtils.EchoTeal, FugueUtils.VoicePurple, Main.rand.NextFloat());
+                FugueParticleHandler.Spawn(new FugueTrailMote(
+                    Projectile.Center + Main.rand.NextVector2Circular(3f, 3f),
+                    -Projectile.velocity * Main.rand.NextFloat(0.1f, 0.25f),
+                    trailColor,
+                    Main.rand.NextFloat(0.2f, 0.4f),
+                    Main.rand.Next(15, 30)
+                ));
+
+                // Echo dust every 3 frames
+                if (Main.GameUpdateCount % 3 == 0)
                 {
-                    float shift = (float)Math.Sin(Main.GameUpdateCount * 0.1f + Projectile.whoAmI) * 0.5f + 0.5f;
-                    Color pearlColor = Color.Lerp(EnigmaPurple, EnigmaGreen, shift) * 0.75f;
-                    CustomParticles.GenericFlare(Projectile.Center, pearlColor, 0.35f, 14);
-                }
-                
-                // Frequent flares (1-in-2) - arcane radiance
-                if (Main.rand.NextBool(2))
-                {
-                    Vector2 flareOffset = Main.rand.NextVector2Circular(6f, 6f);
-                    CustomParticles.GenericFlare(Projectile.Center + flareOffset, 
-                        GetEnigmaGradient((float)VoiceIndex / 5f), 0.3f, 12);
-                }
-                
-                // Music note trail (1-in-6) - the voice sings
-                if (Main.rand.NextBool(6))
-                {
-                    Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreen, Main.rand.NextFloat());
-                    Vector2 noteVel = -Projectile.velocity * 0.05f + new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -0.8f);
-                    ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.85f, 30);
-                }
-                
-                // Timeout after long flight
-                if (releaseTimer > 300)
-                {
-                    Projectile.Kill();
+                    Dust.NewDustPerfect(
+                        Projectile.Center,
+                        ModContent.DustType<FugueEchoDust>(),
+                        -Projectile.velocity * 0.05f,
+                        0, default, Main.rand.NextFloat(0.3f, 0.5f)
+                    );
                 }
             }
-            
-            Projectile.rotation += 0.1f;
-            Lighting.AddLight(Projectile.Center, GetEnigmaGradient((float)VoiceIndex / 5f).ToVector3() * 0.4f);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             // Apply Echo Mark
             target.AddBuff(ModContent.BuffType<EchoMark>(), 300);
-            var echoNPC = target.GetGlobalNPC<EchoMarkNPC>();
-            echoNPC.AddEchoStack(target);
+            target.GetGlobalNPC<EchoMarkNPC>().AddEchoStack(target);
             
-            // Also apply Paradox Brand
-            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 240);
+            // Apply Paradox Brand
+            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 300);
             target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 1);
             
-            // Impact VFX
-            UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 1.2f);
-            
-            // Glyph circle on impact
-            CustomParticles.GlyphCircle(target.Center, EnigmaPurple, 6, 40f, 0.06f);
-            
-            // Music note burst - the voice sings its final note
-            ThemedParticles.EnigmaMusicNoteBurst(target.Center, 8, 5f);
-            
-            // Eye watching the impact
-            CustomParticles.EnigmaEyeImpact(target.Center, target.Center, EnigmaGreen, 0.5f);
-            
-            // Show echo stacks
-            int stacks = echoNPC.echoStacks;
-            if (stacks > 0)
-            {
-                CustomParticles.GlyphStack(target.Center + new Vector2(0, -30f), EnigmaGreen, stacks, 0.35f);
-            }
-            
             // Check for Harmonic Convergence
-            if (stacks >= 3)
+            int echoStacks = target.GetGlobalNPC<EchoMarkNPC>().echoStacks;
+            if (echoStacks >= 5)
             {
                 TriggerHarmonicConvergence(target);
             }
             
-            Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.8f);
+            Lighting.AddLight(target.Center, EnigmaPurple.ToVector3() * 0.5f);
         }
         
-        private void TriggerHarmonicConvergence(NPC centralTarget)
+        private void TriggerHarmonicConvergence(NPC target)
         {
-            Player owner = Main.player[Projectile.owner];
+            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 0.8f }, target.Center);
+            SoundEngine.PlaySound(SoundID.Item162 with { Pitch = 0.3f, Volume = 0.6f }, target.Center);
             
-            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.6f, Volume = 0.9f }, centralTarget.Center);
-            SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.3f, Volume = 0.7f }, centralTarget.Center);
+            // Reset echo stacks
+            target.GetGlobalNPC<EchoMarkNPC>().echoStacks = 0;
             
-            // Reset echo stacks on this target
-            centralTarget.GetGlobalNPC<EchoMarkNPC>().echoStacks = 0;
+            // Core damage to primary target
+            target.SimpleStrikeNPC(Projectile.damage * 5, 0, false, 0f, null, false, 0f, true);
             
-            // Find all other marked enemies
+            // Find all marked enemies and chain lightning damage
+            float chainRange = 400f;
             List<NPC> markedEnemies = new List<NPC>();
             foreach (NPC npc in Main.ActiveNPCs)
             {
-                if (npc.friendly || npc.whoAmI == centralTarget.whoAmI) continue;
+                if (npc.friendly || npc.whoAmI == target.whoAmI) continue;
+                if (Vector2.Distance(npc.Center, target.Center) > chainRange) continue;
                 if (npc.HasBuff(ModContent.BuffType<EchoMark>()))
                 {
                     markedEnemies.Add(npc);
                 }
             }
             
-            // === HARMONIC CONVERGENCE VFX ===
-            // Central explosion
-            CustomParticles.GenericFlare(centralTarget.Center, EnigmaGreen, 1.2f, 30);
-            CustomParticles.GenericFlare(centralTarget.Center, EnigmaGreen, 1.0f, 28);
-            
-            // Massive glyph circle
-            CustomParticles.GlyphCircle(centralTarget.Center, EnigmaPurple, 12, 80f, 0.1f);
-            CustomParticles.GlyphBurst(centralTarget.Center, EnigmaGreen, 10, 8f);
-            
-            // Expanding halos
-            for (int ring = 0; ring < 5; ring++)
-            {
-                Color ringColor = GetEnigmaGradient(ring / 5f);
-                CustomParticles.HaloRing(centralTarget.Center, ringColor * 0.8f, 0.4f + ring * 0.2f, 20 + ring * 5);
-            }
-            
-            // Eye formation watching outward
-            CustomParticles.EnigmaEyeFormation(centralTarget.Center, EnigmaGreen, 5, 70f);
-            
-            // Music note cascade - the fugue reaches its climax!
-            ThemedParticles.EnigmaMusicNoteBurst(centralTarget.Center, 16, 8f);
-            
-            // Spiral galaxy burst
-            for (int arm = 0; arm < 6; arm++)
-            {
-                float armAngle = MathHelper.TwoPi * arm / 6f;
-                for (int point = 0; point < 6; point++)
-                {
-                    float spiralAngle = armAngle + point * 0.35f;
-                    float spiralRadius = 30f + point * 20f;
-                    Vector2 spiralPos = centralTarget.Center + spiralAngle.ToRotationVector2() * spiralRadius;
-                    CustomParticles.GenericFlare(spiralPos, GetEnigmaGradient((arm * 6 + point) / 36f), 0.5f, 22);
-                }
-            }
-            
-            // Deal convergence damage to central target
-            int convergeDamage = Projectile.damage * 3;
-            centralTarget.SimpleStrikeNPC(convergeDamage, 0, true, 15f);
-            
-            // Chain to all marked enemies
             foreach (NPC marked in markedEnemies)
             {
-                float dist = Vector2.Distance(centralTarget.Center, marked.Center);
-                if (dist > 600f) continue;
-                
-                // Draw chain lightning
-                MagnumVFX.DrawFractalLightning(centralTarget.Center, marked.Center, EnigmaGreen, 14, 35f, 5, 0.5f);
-                
-                // Deal chain damage
-                float falloff = 1f - (dist / 600f) * 0.4f;
-                int chainDamage = (int)(convergeDamage * 0.6f * falloff);
-                marked.SimpleStrikeNPC(chainDamage, 0, true, 10f);
-                
-                // Chain impact VFX
-                CustomParticles.GenericFlare(marked.Center, EnigmaGreen, 0.7f, 20);
-                CustomParticles.HaloRing(marked.Center, EnigmaPurple, 0.45f, 16);
-                CustomParticles.GlyphImpact(marked.Center, EnigmaPurple, EnigmaGreen, 0.5f);
-                
-                // Reset their echo stacks too
+                marked.SimpleStrikeNPC(Projectile.damage * 3, 0, false, 0f, null, false, 0f, true);
+                marked.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(marked, 3);
                 marked.GetGlobalNPC<EchoMarkNPC>().echoStacks = 0;
-                
-                // Add more paradox stacks
-                marked.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(marked, 2);
             }
-            
-            // Reality distortion
-            FateRealityDistortion.TriggerChromaticAberration(centralTarget.Center, 5f, 18);
+
+            // ======= HARMONIC CONVERGENCE VFX =======
+
+            // Large flash at primary target — all voices resolving in unison
+            FugueParticleHandler.Spawn(new ConvergenceFlashParticle(
+                target.Center,
+                FugueUtils.HarmonicWhite,
+                Main.rand.NextFloat(2.0f, 3.0f),
+                35
+            ));
+
+            // Burst of trail motes outward from target
+            int burstCount = Main.rand.Next(15, 21);
+            for (int i = 0; i < burstCount; i++)
+            {
+                Vector2 burstVel = Main.rand.NextVector2CircularEdge(5f, 5f) * Main.rand.NextFloat(0.6f, 1.3f);
+                Color burstCol = Color.Lerp(FugueUtils.FugueCyan, FugueUtils.HarmonicWhite, Main.rand.NextFloat(0.3f, 0.8f));
+                FugueParticleHandler.Spawn(new FugueTrailMote(
+                    target.Center + Main.rand.NextVector2Circular(8f, 8f),
+                    burstVel,
+                    burstCol,
+                    Main.rand.NextFloat(0.3f, 0.5f),
+                    Main.rand.Next(25, 45)
+                ));
+            }
+
+            // Expanding voice wisps from target
+            int wispCount = Main.rand.Next(3, 6);
+            for (int i = 0; i < wispCount; i++)
+            {
+                Vector2 wispVel = Main.rand.NextVector2CircularEdge(1.5f, 1.5f) * Main.rand.NextFloat(0.4f, 0.8f);
+                FugueParticleHandler.Spawn(new VoiceWispParticle(
+                    target.Center + Main.rand.NextVector2Circular(10f, 10f),
+                    wispVel,
+                    FugueUtils.VoicePurple,
+                    Main.rand.NextFloat(0.4f, 0.7f),
+                    Main.rand.Next(40, 60)
+                ));
+            }
+
+            // Chain VFX: flash at each marked enemy + connecting trail motes
+            foreach (NPC marked in markedEnemies)
+            {
+                // Flash at chain target
+                FugueParticleHandler.Spawn(new ConvergenceFlashParticle(
+                    marked.Center,
+                    FugueUtils.FugueCyan,
+                    Main.rand.NextFloat(1.0f, 1.5f),
+                    25
+                ));
+
+                // Trail motes along the chain line between target and marked enemy
+                int chainMotes = Main.rand.Next(3, 6);
+                for (int j = 0; j < chainMotes; j++)
+                {
+                    float t = (j + 1f) / (chainMotes + 1f);
+                    Vector2 linePos = Vector2.Lerp(target.Center, marked.Center, t) + Main.rand.NextVector2Circular(4f, 4f);
+                    Vector2 lineVel = (marked.Center - target.Center).SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(0.3f, 0.8f);
+                    FugueParticleHandler.Spawn(new FugueTrailMote(
+                        linePos,
+                        lineVel,
+                        Color.Lerp(FugueUtils.EchoTeal, FugueUtils.HarmonicWhite, t),
+                        Main.rand.NextFloat(0.2f, 0.4f),
+                        Main.rand.Next(20, 35)
+                    ));
+                }
+            }
         }
         
         public override void OnKill(int timeLeft)
         {
-            // UNIQUE DEATH: Mystery Unravel - fugue voice fades into spiraling void
-            DynamicParticleEffects.EnigmaDeathMysteryUnravel(Projectile.Center, 0.7f);
+            // Death burst: scattered trail motes
+            int moteCount = Main.rand.Next(6, 11);
+            for (int i = 0; i < moteCount; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2CircularEdge(3f, 3f) * Main.rand.NextFloat(0.5f, 1.2f);
+                Color col = Color.Lerp(FugueUtils.EchoTeal, FugueUtils.VoicePurple, Main.rand.NextFloat());
+                FugueParticleHandler.Spawn(new FugueTrailMote(
+                    Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    vel,
+                    col,
+                    Main.rand.NextFloat(0.25f, 0.45f),
+                    Main.rand.Next(20, 40)
+                ));
+            }
+
+            // Central convergence flash
+            FugueParticleHandler.Spawn(new ConvergenceFlashParticle(
+                Projectile.Center,
+                FugueUtils.FugueCyan,
+                1.2f,
+                25
+            ));
+
+            // Echo dust burst
+            for (int i = 0; i < Main.rand.Next(3, 5); i++)
+            {
+                Dust.NewDustPerfect(
+                    Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
+                    ModContent.DustType<FugueEchoDust>(),
+                    Main.rand.NextVector2Circular(1.5f, 1.5f),
+                    0, default, Main.rand.NextFloat(0.5f, 0.9f)
+                );
+            }
         }
     }
     
     /// <summary>
-    /// Echo Mark debuff - Applied by Fugue voices, stacks up to trigger Harmonic Convergence
+    /// Echo Mark debuff - applied by Fugue of the Unknown voices,
+    /// stacks build toward Harmonic Convergence
     /// </summary>
     public class EchoMark : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.Cursed;
-        
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;
@@ -679,19 +515,18 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         }
     }
     
+    /// <summary>
+    /// Tracks Echo Mark stacks on NPCs for Fugue of the Unknown
+    /// </summary>
     public class EchoMarkNPC : GlobalNPC
     {
         public override bool InstancePerEntity => true;
         
         public int echoStacks = 0;
-        private const int MaxEchoStacks = 5;
-        
-        private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         
         public void AddEchoStack(NPC npc)
         {
-            echoStacks = Math.Min(echoStacks + 1, MaxEchoStacks);
+            echoStacks++;
         }
         
         public override void ResetEffects(NPC npc)
@@ -704,28 +539,32 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override void PostAI(NPC npc)
         {
-            if (echoStacks > 0 && npc.HasBuff(ModContent.BuffType<EchoMark>()))
+            if (echoStacks <= 0) return;
+
+            // Pulsing echo mark glyph above the enemy's head
+            if (Main.GameUpdateCount % 10 == 0)
             {
-                // Visual indicator of echo stacks
-                if (Main.GameUpdateCount % 20 == 0)
-                {
-                    float intensity = (float)echoStacks / MaxEchoStacks;
-                    
-                    // Orbiting glyphs representing stacks
-                    for (int i = 0; i < echoStacks; i++)
-                    {
-                        float angle = Main.GameUpdateCount * 0.05f + MathHelper.TwoPi * i / echoStacks;
-                        float radius = 25f + npc.width * 0.3f;
-                        Vector2 glyphPos = npc.Center + angle.ToRotationVector2() * radius;
-                        CustomParticles.Glyph(glyphPos, Color.Lerp(EnigmaPurple, EnigmaGreen, intensity) * 0.6f, 0.25f, i % 12);
-                    }
-                }
-                
-                // Pulsing aura at high stacks
-                if (echoStacks >= 3 && Main.GameUpdateCount % 30 == 0)
-                {
-                    CustomParticles.HaloRing(npc.Center, EnigmaGreen * 0.4f, 0.25f, 12);
-                }
+                float markScale = 0.3f + echoStacks * 0.1f;
+                FugueParticleHandler.Spawn(new EchoMarkParticle(
+                    npc.Top - Vector2.UnitY * 20f,
+                    12f,
+                    Main.rand.NextFloat(MathHelper.TwoPi),
+                    FugueUtils.VoicePurple,
+                    markScale,
+                    60,
+                    echoStacks
+                ));
+            }
+
+            // At 3+ stacks, intensified echo dust
+            if (echoStacks >= 3 && Main.GameUpdateCount % 5 == 0)
+            {
+                Dust.NewDustPerfect(
+                    npc.Center + Main.rand.NextVector2Circular(npc.width * 0.4f, npc.height * 0.4f),
+                    ModContent.DustType<FugueEchoDust>(),
+                    Main.rand.NextVector2Circular(0.5f, 0.5f),
+                    0, default, Main.rand.NextFloat(0.4f, 0.7f)
+                );
             }
         }
     }

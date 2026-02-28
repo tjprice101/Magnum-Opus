@@ -44,15 +44,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.FuneralPrayer
             Item.maxStack = 1;
         }
 
-        public override void HoldItem(Player player)
-        {
-            FuneralPrayerVFX.HoldItemVFX(player);
-        }
-
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
-            EroicaPalette.DrawItemBloom(spriteBatch, Item, rotation, scale);
-            Lighting.AddLight(Item.Center, EroicaPalette.Flame.ToVector3() * 0.5f);
             return true;
         }
 
@@ -77,9 +70,6 @@ namespace MagnumOpus.Content.Eroica.Weapons.FuneralPrayer
                 Projectile.NewProjectile(source, player.Center, beamVelocity,
                     ModContent.ProjectileType<FuneralPrayerBeam>(), beamDamage, knockback * 0.5f, player.whoAmI, shotId);
             }
-
-            // Cast VFX
-            FuneralPrayerVFX.CastVFX(player.Center + towardsCursor * 30f, towardsCursor, player);
 
             return false;
         }
@@ -118,8 +108,6 @@ namespace MagnumOpus.Content.Eroica.Weapons.FuneralPrayer
                         Projectile.NewProjectile(player.GetSource_FromThis(), player.Center, direction * 20f,
                             ModContent.ProjectileType<FuneralPrayerRicochetBeam>(), 400, 10f, player.whoAmI);
 
-                        // === PRAYER ANSWERED VFX ===
-                        FuneralPrayerVFX.PrayerAnsweredVFX(player.Center);
                     }
                 }
 

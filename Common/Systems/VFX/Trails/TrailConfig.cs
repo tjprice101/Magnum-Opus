@@ -667,7 +667,7 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
         {
             try
             {
-                return ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX/Trails/DefaultTrail", AssetRequestMode.ImmediateLoad).Value;
+                return ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Trails/ThinGlowLine", AssetRequestMode.ImmediateLoad).Value;
             }
             catch
             {

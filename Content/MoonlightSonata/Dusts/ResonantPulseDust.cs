@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
     /// </summary>
     public class ResonantPulseDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo1";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
 
         public override void OnSpawn(Dust dust)
         {

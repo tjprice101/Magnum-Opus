@@ -1949,16 +1949,16 @@ namespace MagnumOpus.Content.Fate.Bosses
             
             // Random weapon drop in normal mode (1 weapon)
             notExpert.OnSuccess(ItemDropRule.OneFromOptions(1, 
-                ModContent.ItemType<Content.Fate.ResonantWeapons.CodaOfAnnihilation>(),
-                ModContent.ItemType<Content.Fate.ResonantWeapons.DestinysCrescendo>(),
-                ModContent.ItemType<Content.Fate.ResonantWeapons.FractalOfTheStars>(),
-                ModContent.ItemType<Content.Fate.ResonantWeapons.LightOfTheFuture>(),
-                ModContent.ItemType<Content.Fate.ResonantWeapons.OpusUltima>(),
-                ModContent.ItemType<Content.Fate.ResonantWeapons.RequiemOfReality>(),
-                ModContent.ItemType<Content.Fate.ResonantWeapons.ResonanceOfABygoneReality>(),
-                ModContent.ItemType<Content.Fate.ResonantWeapons.SymphonysEnd>(),
-                ModContent.ItemType<Content.Fate.ResonantWeapons.TheConductorsLastConstellation>(),
-                ModContent.ItemType<Content.Fate.ResonantWeapons.TheFinalFermata>()
+                ModContent.ItemType<Content.Fate.ResonantWeapons.CodaOfAnnihilation.CodaOfAnnihilationItem>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.DestinysCrescendo.DestinysCrescendoItem>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.FractalOfTheStars.FractalOfTheStarsItem>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.LightOfTheFuture.LightOfTheFutureItem>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.OpusUltima.OpusUltimaItem>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.RequiemOfReality.RequiemOfRealityItem>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.ResonanceOfABygoneReality.ResonanceOfABygoneRealityItem>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.SymphonysEnd.SymphonysEndItem>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.TheConductorsLastConstellation.TheConductorsLastConstellationItem>(),
+                ModContent.ItemType<Content.Fate.ResonantWeapons.TheFinalFermata.TheFinalFermataItem>()
             ));
             
             npcLoot.Add(notExpert);

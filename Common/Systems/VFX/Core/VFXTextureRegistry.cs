@@ -257,8 +257,8 @@ namespace MagnumOpus.Common.Systems.VFX
             // BEAM/TRAIL TEXTURES
             // ==========================================
             Beam.Streak1 = LoadTexture("Assets/VFX/Beams/BeamStreak1", CreateFallbackBeam);
-            Beam.BloomLine = LoadTexture("Assets/Particles Asset Library/SoftGlow2", CreateFallbackBeam);
-            Beam.TaperedLine = LoadTexture("Assets/Particles Asset Library/ParticleTrail1", CreateFallbackBeam);
+            Beam.BloomLine = LoadTexture("Assets/SandboxLastPrism/Orbs/SoftGlow", CreateFallbackBeam);
+            Beam.TaperedLine = LoadTexture("Assets/SandboxLastPrism/Trails/ThinGlowLine", CreateFallbackBeam);
             try
             {
                 Beam.Pixel = CreatePixelTexture();
@@ -281,8 +281,8 @@ namespace MagnumOpus.Common.Systems.VFX
             // ==========================================
             Mask.EclipseRing = LoadTexture("Assets/VFX/Masks/EclipseRing", CreateFallbackHalo);
             Mask.RippleRing = LoadTexture("Assets/VFX/Masks/RippleRing", CreateFallbackHalo);
-            Mask.RadialGradient = LoadTexture("Assets/Particles Asset Library/SoftGlow3", CreateFallbackGradient);
-            Mask.LinearGradient = LoadTexture("Assets/Particles Asset Library/SoftGlow4", CreateFallbackGradient);
+            Mask.RadialGradient = LoadTexture("Assets/SandboxLastPrism/Orbs/SoftGlow", CreateFallbackGradient);
+            Mask.LinearGradient = LoadTexture("Assets/SandboxLastPrism/Orbs/SoftGlow64", CreateFallbackGradient);
             
             LogLoadStatus();
         }

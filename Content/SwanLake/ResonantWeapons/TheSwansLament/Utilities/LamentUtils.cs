@@ -1,0 +1,77 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
+using Terraria;
+
+namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Utilities
+{
+    /// <summary>
+    /// Self-contained utilities for The Swan's Lament.
+    /// Theme: Mourning, destruction, catharsis. Dark with prismatic flashes — like
+    /// light breaking through grief. Black/grey base with sudden prismatic reveals.
+    /// </summary>
+    public static class LamentUtils
+    {
+        public static readonly Color MourningBlack = new Color(20, 15, 25);
+        public static readonly Color GriefGrey = new Color(100, 95, 110);
+        public static readonly Color CatharsisWhite = new Color(235, 230, 245);
+        public static readonly Color RevelationGold = new Color(255, 220, 140);
+        public static readonly Color LoreColor = new Color(180, 175, 200);
+
+        public static readonly Color[] LamentPalette = new Color[]
+        {
+            new Color(30, 25, 40),
+            new Color(80, 70, 100),
+            new Color(140, 130, 165),
+            new Color(200, 195, 220),
+            new Color(240, 235, 250),
+            new Color(255, 255, 255),
+        };
+
+        public static Color GetLamentGradient(float t)
+        {
+            t = MathHelper.Clamp(t, 0f, 1f);
+            float scaled = t * (LamentPalette.Length - 1);
+            int lo = (int)scaled;
+            int hi = Math.Min(lo + 1, LamentPalette.Length - 1);
+            return Color.Lerp(LamentPalette[lo], LamentPalette[hi], scaled - lo);
+        }
+
+        /// <summary>
+        /// Sudden prismatic flash — mostly dark, but at intervals reveals full rainbow.
+        /// </summary>
+        public static Color GetGriefFlash(float t)
+        {
+            float flash = GetGriefFlashIntensity(t);
+            if (flash > 0.1f)
+            {
+                float hue = (t * 2f + (float)Main.GameUpdateCount * 0.005f) % 1f;
+                return Color.Lerp(GriefGrey, Main.hslToRgb(hue, 0.7f, 0.8f), flash);
+            }
+            return Color.Lerp(MourningBlack, GriefGrey, t);
+        }
+
+        /// <summary>
+        /// Returns the raw flash intensity (0-1) for the grief flash effect.
+        /// Use this when you need a float, use GetGriefFlash for a Color.
+        /// </summary>
+        public static float GetGriefFlashIntensity(float t)
+        {
+            return (float)Math.Pow(Math.Max(0, Math.Sin(t * MathHelper.TwoPi * 3f)), 8);
+        }
+
+        public static void BeginAdditive(SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        public static void RestoreSpriteBatch(SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+    }
+}

@@ -10,235 +10,164 @@ using MagnumOpus.Common.Systems.Particles;
 namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 {
     /// <summary>
-    /// VFX helper for the Celestial Chorus Baton summon weapon.
-    /// Choral harmony of nocturnal guardians — deep blue guardian aura,
-    /// harmonic starlit sparkles, chorale music note cascades, celestial
-    /// resonance rings. The conductor's baton calls forth a chorus of stars.
+    /// Shader-driven VFX for Celestial Chorus Baton — the musical summoner staff.
+    /// Uses ChorusSummonAura.fx for orbiting music note summoning circles.
+    /// Choral, harmonic, conducting — the baton conducts a chorus of celestial guardians.
     /// </summary>
     public static class CelestialChorusBatonVFX
     {
         // =====================================================================
-        //  HOLD ITEM VFX
+        //  HoldItemVFX — Conductor's harmonic presence
         // =====================================================================
-
         public static void HoldItemVFX(Player player, int minionCount)
         {
-            if (Main.dedServ) return;
-
-            Vector2 center = player.MountedCenter;
-            float time = (float)Main.timeForVisualEffects;
-
-            // Choral resonance aura — scales with minion count
-            if (Main.rand.NextBool(6))
+            // Music note motes orbit the player — count scales with active minions
+            int noteFreq = Math.Max(1, 6 - minionCount);
+            if (Main.rand.NextBool(noteFreq))
             {
-                float pulse = MathF.Sin(time * 0.04f + minionCount * 0.3f) * 0.5f + 0.5f;
-                Vector2 offset = Main.rand.NextVector2Circular(22f, 22f);
-                Color auraColor = Color.Lerp(NachtmusikPalette.DeepBlue, NachtmusikPalette.StarlitBlue, pulse);
-                var glow = new GenericGlowParticle(center + offset, Main.rand.NextVector2Circular(0.4f, 0.4f),
-                    auraColor * 0.35f, 0.16f, 20, true);
-                MagnumParticleHandler.SpawnParticle(glow);
+                float angle = (float)Main.timeForVisualEffects * 0.04f + Main.rand.NextFloat() * MathHelper.TwoPi;
+                float radius = 20f + minionCount * 4f;
+                Vector2 orbPos = player.Center + new Vector2(
+                    (float)Math.Cos(angle) * radius,
+                    (float)Math.Sin(angle) * radius * 0.5f);
+
+                NachtmusikVFXLibrary.SpawnMusicNotes(orbPos, 1, 6f, 0.3f, 0.6f, 16);
             }
 
-            // Harmonic star motes — more with more minions
-            if (Main.rand.NextBool(25 - Math.Min(minionCount * 3, 15)))
+            // Soft harmonic haze intensifies with more minions
+            if (Main.rand.NextBool(5))
             {
-                Vector2 notePos = center + Main.rand.NextVector2Circular(30f, 30f);
-                Color noteColor = NachtmusikPalette.GetCelestialGradient(Main.rand.NextFloat());
-                NachtmusikVFXLibrary.SpawnMusicNotes(notePos, 1, 8f, 0.7f, 0.85f, 25);
+                float haze = 0.3f + minionCount * 0.05f;
+                Vector2 offset = Main.rand.NextVector2Circular(24f, 24f);
+                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.BlueTorch,
+                    Main.rand.NextVector2Circular(0.3f, 0.3f), 0, default, haze);
+                d.noGravity = true;
+                d.fadeIn = 0.7f;
             }
 
-            // Conductor's pulse light
-            float intensity = 0.2f + minionCount * 0.04f;
-            float lightPulse = 0.3f + MathF.Sin(time * 0.05f) * 0.1f;
-            Lighting.AddLight(center, NachtmusikPalette.DeepBlue.ToVector3() * lightPulse * intensity);
+            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.15f + minionCount * 0.03f);
         }
 
         // =====================================================================
-        //  PREDRAW IN WORLD BLOOM
+        //  PreDrawInWorldBloom
         // =====================================================================
-
-        public static void PreDrawInWorldBloom(SpriteBatch sb, Texture2D tex,
-            Vector2 pos, Vector2 origin, float rotation, float scale)
+        public static void PreDrawInWorldBloom(SpriteBatch sb, Texture2D tex, Vector2 pos,
+            Vector2 origin, float rotation, float scale)
         {
-            float time = (float)Main.timeForVisualEffects;
-            float pulse = 1f + MathF.Sin(time * 0.04f) * 0.06f;
-            NachtmusikPalette.DrawItemBloom(sb, tex, pos, origin, rotation, scale, pulse);
+            NachtmusikVFXLibrary.DrawNachtmusikBloomStack(sb, pos,
+                NachtmusikPalette.SerenadeGlow, NachtmusikPalette.StarlitBlue, scale * 0.2f, 0.3f);
         }
 
         // =====================================================================
-        //  SUMMON VFX
+        //  SummonVFX — Choral summoning circle
         // =====================================================================
-
-        /// <summary>
-        /// One-shot VFX when the Nocturnal Guardian is summoned.
-        /// Celestial chorus flash, harmonic ring, starburst, music notes.
-        /// </summary>
         public static void SummonVFX(Vector2 spawnPos)
         {
-            if (Main.dedServ) return;
-
-            // Summoning flash — celestial blue-white
-            try { CustomParticles.GenericFlare(spawnPos, NachtmusikPalette.StarWhite, 0.7f, 18); } catch { }
-            try { CustomParticles.GenericFlare(spawnPos, NachtmusikPalette.StarlitBlue, 0.5f, 16); } catch { }
-
-            // Harmonic halo rings
-            NachtmusikVFXLibrary.SpawnGradientHaloRings(spawnPos, 4, 0.3f);
-
-            // Starburst cascade — the guardian emerges
-            NachtmusikVFXLibrary.SpawnStarburstCascade(spawnPos, 8, 5f, 0.3f);
-
-            // Celestial dust burst
-            NachtmusikVFXLibrary.SpawnRadialDustBurst(spawnPos, 10, 4f);
-
-            // Chorus music notes — the baton's call
-            NachtmusikVFXLibrary.SpawnMusicNotes(spawnPos, 4, 25f, 0.8f, 1.0f, 30);
-
-            // Bloom flash
-            NachtmusikVFXLibrary.DrawBloom(spawnPos, 0.5f);
-
-            Lighting.AddLight(spawnPos, NachtmusikPalette.StarWhite.ToVector3() * 0.8f);
-        }
-
-        // =====================================================================
-        //  MINION AMBIENT VFX
-        // =====================================================================
-
-        /// <summary>
-        /// Per-frame guardian ambient: deep blue celestial aura, orbiting
-        /// starlit dust, twinkling sparkles, music note wisps.
-        /// </summary>
-        public static void MinionAmbientVFX(Vector2 pos, float visibility)
-        {
-            if (Main.dedServ) return;
-
-            // Guardian aura dust (2 per frame)
-            for (int d = 0; d < 2; d++)
+            // Ring of music notes around spawn point — the chorus calls the guardian
+            for (int i = 0; i < 8; i++)
             {
-                Vector2 offset = Main.rand.NextVector2Circular(15f, 15f);
-                Color col = NachtmusikPalette.GetCelestialGradient(Main.rand.NextFloat(0.2f, 0.7f));
-                Dust dust = Dust.NewDustPerfect(pos + offset, DustID.BlueTorch,
-                    Main.rand.NextVector2Circular(1f, 1f), 0, col, (1.1f + Main.rand.NextFloat(0.3f)) * visibility);
-                dust.noGravity = true;
-                dust.fadeIn = 1.3f;
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 ringPos = spawnPos + angle.ToRotationVector2() * 32f;
+                NachtmusikVFXLibrary.SpawnMusicNotes(ringPos, 1, 8f, 0.5f, 0.8f, 22);
             }
 
-            // Starlit sparkle accent (1-in-3)
-            if (Main.rand.NextBool(3) && visibility > 0.5f)
+            // Central flash
+            for (int i = 0; i < 10; i++)
             {
-                var sparkle = new SparkleParticle(pos + Main.rand.NextVector2Circular(18f, 18f),
-                    Main.rand.NextVector2Circular(1f, 1f),
-                    NachtmusikPalette.StarWhite * visibility, 0.35f, 18);
-                MagnumParticleHandler.SpawnParticle(sparkle);
+                Vector2 vel = Main.rand.NextVector2Circular(3f, 3f);
+                Dust d = Dust.NewDustPerfect(spawnPos, DustID.BlueTorch, vel, 0, default, 0.9f);
+                d.noGravity = true;
+                d.fadeIn = 1f;
             }
 
-            // Celestial shimmer glow (1-in-4)
-            if (Main.rand.NextBool(4) && visibility > 0.5f)
-            {
-                Color shimmer = NachtmusikPalette.GetStarlitShimmer();
-                var glow = new GenericGlowParticle(pos + Main.rand.NextVector2Circular(12f, 12f),
-                    Main.rand.NextVector2Circular(0.8f, 0.8f),
-                    shimmer * visibility * 0.7f, 0.3f, 16, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-
-            // Orbiting star motes (periodic)
-            if (Main.GameUpdateCount % 15 == 0)
-            {
-                float baseAngle = Main.GameUpdateCount * 0.04f;
-                for (int i = 0; i < 3; i++)
-                {
-                    float angle = baseAngle + MathHelper.TwoPi * i / 3f;
-                    Vector2 motePos = pos + angle.ToRotationVector2() * 25f;
-                    try { CustomParticles.GenericFlare(motePos,
-                        NachtmusikPalette.GetCelestialGradient((float)i / 3f) * visibility, 0.3f * visibility, 12); } catch { }
-                }
-            }
-
-            // Music note wisps (1-in-8)
-            if (Main.rand.NextBool(8) && visibility > 0.5f)
-                NachtmusikVFXLibrary.SpawnMusicNotes(pos, 1, 12f, 0.7f, 0.85f, 22);
-
-            // Guardian light
-            float pulse = 0.35f + MathF.Sin((float)Main.timeForVisualEffects * 0.1f) * 0.08f;
-            Lighting.AddLight(pos, NachtmusikPalette.StarlitBlue.ToVector3() * pulse * visibility);
-        }
-
-        // =====================================================================
-        //  MINION ATTACK VFX
-        // =====================================================================
-
-        /// <summary>
-        /// Guardian dash attack launch: celestial flash, directional
-        /// star trail sparks, harmonic burst, music notes.
-        /// </summary>
-        public static void MinionAttackVFX(Vector2 minionPos, Vector2 direction)
-        {
-            if (Main.dedServ) return;
-
-            // Attack flash — starlit blue
-            try { CustomParticles.GenericFlare(minionPos, NachtmusikPalette.StarlitBlue, 0.6f, 14); } catch { }
-            try { CustomParticles.HaloRing(minionPos, NachtmusikPalette.DeepBlue, 0.35f, 12); } catch { }
-
-            // Directional star trail
-            for (int i = 0; i < 5; i++)
-            {
-                float spread = Main.rand.NextFloat(-0.2f, 0.2f);
-                Vector2 vel = direction.RotatedBy(spread) * Main.rand.NextFloat(3f, 6f);
-                Color sparkColor = NachtmusikPalette.GetCelestialGradient((float)i / 5f);
-                var spark = new GlowSparkParticle(minionPos, vel, sparkColor, 0.25f, 14);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-
-            // Music notes — the chorus strikes
-            NachtmusikVFXLibrary.SpawnMusicNotes(minionPos, 2, 15f, 0.7f, 0.9f, 22);
-
-            // Twinkling stars
-            NachtmusikVFXLibrary.SpawnTwinklingStars(minionPos, 2, 10f);
-
-            Lighting.AddLight(minionPos, NachtmusikPalette.StarlitBlue.ToVector3() * 0.6f);
-        }
-
-        // =====================================================================
-        //  MINION IMPACT VFX
-        // =====================================================================
-
-        /// <summary>
-        /// Guardian on-hit: celestial impact, gradient halos,
-        /// star dust burst, harmonic sparkle ring, music notes.
-        /// </summary>
-        public static void MinionImpactVFX(Vector2 hitPos)
-        {
-            if (Main.dedServ) return;
-
-            NachtmusikVFXLibrary.SpawnGradientHaloRings(hitPos, 3, 0.25f);
-            NachtmusikVFXLibrary.SpawnRadialDustBurst(hitPos, 8, 4f);
-            NachtmusikVFXLibrary.SpawnTwinklingStars(hitPos, 3, 12f);
-            NachtmusikVFXLibrary.SpawnMusicNotes(hitPos, 2, 15f, 0.7f, 0.9f, 25);
-
-            // Harmonic sparkle ring
+            // Gold accent sparks radiating outward
             for (int i = 0; i < 6; i++)
             {
                 float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
-                Color col = NachtmusikPalette.GetCelestialGradient((float)i / 6f);
-                var spark = new GlowSparkParticle(hitPos, vel, col, 0.22f, 14);
-                MagnumParticleHandler.SpawnParticle(spark);
+                Vector2 vel = angle.ToRotationVector2() * (2f + Main.rand.NextFloat() * 2f);
+                Dust d = Dust.NewDustPerfect(spawnPos, DustID.GoldFlame, vel, 0, default, 0.6f);
+                d.noGravity = true;
             }
 
-            Lighting.AddLight(hitPos, NachtmusikPalette.StarWhite.ToVector3() * 0.6f);
+            NachtmusikVFXLibrary.DrawBloom(spawnPos, 0.5f, 0.8f);
+            NachtmusikVFXLibrary.AddPaletteLighting(spawnPos, 0.6f, 0.6f);
         }
 
         // =====================================================================
-        //  DESPAWN VFX
+        //  MinionAmbientVFX — Guardian's harmonic aura
         // =====================================================================
+        public static void MinionAmbientVFX(Vector2 pos, float visibility)
+        {
+            if (Main.rand.NextBool(4))
+            {
+                // Gentle revolving mote
+                Vector2 offset = Main.rand.NextVector2Circular(16f, 16f);
+                Dust d = Dust.NewDustPerfect(pos + offset, DustID.BlueTorch,
+                    Main.rand.NextVector2Circular(0.2f, 0.2f), 0, default, 0.35f * visibility);
+                d.noGravity = true;
+                d.fadeIn = 0.6f;
+            }
 
+            if (Main.rand.NextBool(10))
+            {
+                NachtmusikVFXLibrary.SpawnMusicNotes(pos, 1, 12f, 0.2f * visibility, 0.5f, 16);
+            }
+
+            NachtmusikVFXLibrary.AddNachtmusikLight(pos, 0.1f * visibility);
+        }
+
+        // =====================================================================
+        //  MinionAttackVFX — Choral strike flash
+        // =====================================================================
+        public static void MinionAttackVFX(Vector2 minionPos, Vector2 direction)
+        {
+            // Sharp harmonic flash in attack direction
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 vel = direction * (3f + Main.rand.NextFloat() * 2f)
+                    + Main.rand.NextVector2Circular(1f, 1f);
+                Dust d = Dust.NewDustPerfect(minionPos, DustID.BlueTorch, vel, 0, default, 0.7f);
+                d.noGravity = true;
+            }
+
+            NachtmusikVFXLibrary.SpawnMusicNotes(minionPos, 1, 10f, 0.4f, 0.6f, 18);
+            NachtmusikVFXLibrary.DrawBloom(minionPos, 0.2f, 0.4f);
+        }
+
+        // =====================================================================
+        //  MinionImpactVFX — Harmonic resonance impact
+        // =====================================================================
+        public static void MinionImpactVFX(Vector2 hitPos)
+        {
+            NachtmusikVFXLibrary.ProjectileImpact(hitPos, 0.6f);
+
+            // Resonant chime burst
+            for (int i = 0; i < 5; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 5f;
+                Vector2 vel = angle.ToRotationVector2() * (2f + Main.rand.NextFloat());
+                Dust d = Dust.NewDustPerfect(hitPos, DustID.BlueTorch, vel, 0, default, 0.6f);
+                d.noGravity = true;
+            }
+
+            NachtmusikVFXLibrary.SpawnMusicNotes(hitPos, 2, 10f, 0.3f, 0.6f, 16);
+        }
+
+        // =====================================================================
+        //  DespawnVFX — Chorus fades to silence
+        // =====================================================================
         public static void DespawnVFX(Vector2 pos)
         {
-            if (Main.dedServ) return;
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(1.5f, 1.5f);
+                vel.Y -= 1f; // Ascend gently
+                Dust d = Dust.NewDustPerfect(pos, DustID.BlueTorch, vel, 0, default, 0.5f);
+                d.noGravity = true;
+                d.fadeIn = 0.8f;
+            }
 
-            NachtmusikVFXLibrary.SpawnRadialDustBurst(pos, 6, 3f);
-            NachtmusikVFXLibrary.SpawnTwinklingStars(pos, 3, 10f);
-            try { CustomParticles.HaloRing(pos, NachtmusikPalette.StarlitBlue * 0.5f, 0.2f, 10); } catch { }
+            NachtmusikVFXLibrary.SpawnMusicNotes(pos, 2, 14f, 0.3f, 0.5f, 18);
         }
     }
 }

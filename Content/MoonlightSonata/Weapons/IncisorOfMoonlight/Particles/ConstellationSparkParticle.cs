@@ -65,15 +65,23 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Particle
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
             Vector2 scale = Squash * Scale;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/ConstellationStyleSparkle").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar").Value;
             spriteBatch.Draw(tex, Position - Main.screenPosition, null, Color, Rotation,
                 tex.Size() * 0.5f, scale, SpriteEffects.None, 0f);
 
             if (Glowing)
             {
+                // Bright silver-white inner core for star-like brilliance
                 Color coreColor = Color.Lerp(Color.White, Color.Transparent, (float)Math.Pow(LifetimeCompletion, 3D));
                 spriteBatch.Draw(tex, Position - Main.screenPosition, null, coreColor, Rotation,
                     tex.Size() * 0.5f, scale * new Vector2(0.45f, 1f), SpriteEffects.None, 0f);
+
+                // Soft outer bloom glow
+                Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom").Value;
+                Color bloomColor = Color * 0.3f;
+                bloomColor.A = 0;
+                spriteBatch.Draw(bloomTex, Position - Main.screenPosition, null, bloomColor, 0f,
+                    bloomTex.Size() * 0.5f, Scale * 0.6f, SpriteEffects.None, 0f);
             }
         }
     }

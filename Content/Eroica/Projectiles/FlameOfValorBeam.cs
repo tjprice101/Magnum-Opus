@@ -18,7 +18,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     public class FlameOfValorBeam : ModProjectile
     {
         // Custom invisible texture - we draw everything with particles
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField10";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         // === EROICA COLORS ===
         private static readonly Color EroicaScarlet = new Color(180, 50, 50);
@@ -128,8 +128,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MagicSparklField10").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MagicSparklField10").Value;
+            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
             Vector2 flareOrigin = flareTex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             

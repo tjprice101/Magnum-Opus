@@ -626,7 +626,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.BehemothOfValor
 
     public class BehemothFlameRain : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ParticleTrail3";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Trails/EnergyTex";
 
         public override void SetDefaults()
         {
@@ -700,7 +700,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.BehemothOfValor
 
     public class BehemothShockwave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo4";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
 
         public override void SetDefaults()
         {
@@ -738,7 +738,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.BehemothOfValor
 
     public class BehemothBreathFlame : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow4";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow64";
 
         public override void SetDefaults()
         {
@@ -774,7 +774,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.BehemothOfValor
 
     public class BehemothFirePillar : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo5";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
 
         public override void SetDefaults()
         {
@@ -829,7 +829,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.BehemothOfValor
 
     public class BehemothEruptionWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/StarBurst1";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard";
 
         public override void SetDefaults()
         {
@@ -871,7 +871,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.BehemothOfValor
 
     public class BehemothDebris : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/StarBurst2";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard";
 
         public override void SetDefaults()
         {

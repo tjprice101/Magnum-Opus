@@ -14,6 +14,7 @@ using MagnumOpus.Content.ClairDeLune.ResonanceEnergies;
 using MagnumOpus.Content.ClairDeLune.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.ClairDeLune.Weapons.Melee;
 
 namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
 {
@@ -72,6 +73,11 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
             { 
                 OverrideColor = ClairDeLuneColors.Crimson 
             });
+        }
+
+        public override void HoldItem(Player player)
+        {
+            ChronologicalityVFX.HoldItemVFX(player);
         }
 
         public override void AddRecipes()
@@ -234,6 +240,9 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
                 ClairDeLuneVFX.OrbitingGears(Projectile.Center, 35f, 4, Main.GameUpdateCount * 0.05f, 0.5f);
             }
             
+            // Shader-driven drill trail
+            ChronologicalityVFX.DrillTrailVFX(Projectile.Center, Projectile.velocity.SafeNormalize(Vector2.Zero));
+
             // Intense lighting
             Lighting.AddLight(Projectile.Center, ClairDeLuneColors.Crimson.ToVector3() * 1.2f);
             Lighting.AddLight(Projectile.Center, ClairDeLuneColors.ElectricBlue.ToVector3() * 0.5f);
@@ -247,6 +256,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
             
             // === IMPACT VFX ===
             ClairDeLuneVFX.TemporalImpact(target.Center, 0.7f);
+            ChronologicalityVFX.DrillImpactVFX(target.Center);
             
             // Critical hit = massive lightning discharge
             if (hit.Crit)
@@ -255,6 +265,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
                 
                 // Extra clockwork cascade on crit
                 ClairDeLuneVFX.ClockworkGearCascade(target.Center, 10, 8f, 0.9f);
+                ChronologicalityVFX.CriticalDischargeVFX(target.Center);
                 
                 // Extra rift on crit
                 if (Main.myPlayer == Projectile.owner)
@@ -281,7 +292,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
     /// </summary>
     public class TemporalRiftProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearLarge";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/HardCircleMask";
         
         private int bounceCount = 0;
         private const int MaxBounces = 6; // More than Rose Thorn
@@ -529,6 +540,11 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
             return false;
         }
 
+        public override void HoldItem(Player player)
+        {
+            TemporalPiercerVFX.HoldItemVFX(player);
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -618,6 +634,9 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
                 );
             }
             
+            // Shader-driven thrust trail
+            TemporalPiercerVFX.ThrustTrailVFX(Projectile.Center, Projectile.velocity.SafeNormalize(Vector2.Zero), IsPowerThrust);
+
             Lighting.AddLight(Projectile.Center, ClairDeLuneColors.Crystal.ToVector3() * 1f);
             Lighting.AddLight(Projectile.Center, ClairDeLuneColors.Crimson.ToVector3() * 0.6f);
         }
@@ -638,6 +657,9 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
                 ClairDeLuneVFX.TemporalImpact(target.Center, 0.6f);
             }
             
+            // Shader-driven lance impact
+            TemporalPiercerVFX.ThrustImpactVFX(target.Center, IsPowerThrust);
+
             // Crystal shatter on hit
             ClairDeLuneVFX.CrystalShatterBurst(target.Center, 8, 6f, 0.6f);
         }
@@ -679,7 +701,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
     /// </summary>
     public class TimeFractureExplosion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningBurst";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16";
 
         public override void SetDefaults()
         {
@@ -865,7 +887,17 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
                 );
             }
             
+            // Shader-driven swing trail
+            Vector2 tipPos = hitbox.Center.ToVector2();
+            Vector2 swingDir = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
+            ClockworkHarmonyVFX.SwingTrailVFX(tipPos, swingDir, swingCounter, player.itemAnimation);
+
             Lighting.AddLight(hitbox.Center.ToVector2(), ClairDeLuneColors.Brass.ToVector3() * 0.8f);
+        }
+
+        public override void HoldItem(Player player)
+        {
+            ClockworkHarmonyVFX.HoldItemVFX(player);
         }
 
         public override void AddRecipes()
@@ -885,7 +917,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
     /// </summary>
     public class GearWaveProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearLarge";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/HardCircleMask";
         
         private float rotation = 0f;
 
@@ -950,6 +982,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
             // Impact VFX
             ClairDeLuneVFX.TemporalImpact(target.Center, 0.7f);
             ClairDeLuneVFX.ClockworkGearCascade(target.Center, 8, 6f, 0.7f);
+            ClockworkHarmonyVFX.SwingImpactVFX(target.Center);
         }
 
         public override void OnKill(int timeLeft)
@@ -996,7 +1029,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
     /// </summary>
     public class SynchronizedGearExplosion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearLarge";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/HardCircleMask";
 
         public override void SetDefaults()
         {
@@ -1018,6 +1051,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Melee
             {
                 ClairDeLuneVFX.TemporalImpact(Projectile.Center, 2f);
                 ClairDeLuneVFX.ClockworkGearCascade(Projectile.Center, 25, 15f, 1.5f);
+                ClockworkHarmonyVFX.FinisherVFX(Projectile.Center, 1.5f);
             }
             
             Projectile.alpha += 21;

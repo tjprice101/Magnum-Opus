@@ -7,13 +7,17 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.DataStructures;
 using Terraria.Audio;
+using Terraria.GameContent;
+using ReLogic.Content;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Particles;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Dusts;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Utilities;
 
-namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
+namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
 {
     /// <summary>
     /// CIPHER NOCTURNE - Magic beam weapon that channels mysterious arcane energy
@@ -27,14 +31,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         private static readonly Color EnigmaBlack = new Color(15, 10, 20);
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
-        
-        private Color GetEnigmaGradient(float progress)
-        {
-            if (progress < 0.5f)
-                return Color.Lerp(EnigmaBlack, EnigmaPurple, progress * 2f);
-            else
-                return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
-        }
         
         public override void SetDefaults()
         {
@@ -55,7 +51,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Item.shootSpeed = 1f;
             Item.noMelee = true;
             Item.channel = true;
-            Item.staff[Item.type] = true; // Makes it point forward like a staff
+            Item.staff[Item.type] = true;
         }
         
         public override void HoldItem(Player player)
@@ -84,14 +80,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Only spawn one beam
             int beamCount = player.ownedProjectileCounts[type];
             if (beamCount == 0)
             {
                 Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
-                
-                // Subtle music notes on beam start
-                ThemedParticles.EnigmaMusicNotes(position, 3, 30f);
             }
             return false;
         }
@@ -100,31 +92,85 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
     public class RealityUnravelerBeam : ModProjectile
     {
         private static readonly Color EnigmaBlack = new Color(15, 10, 20);
-        private static readonly Color EnigmaDeepPurple = new Color(80, 20, 120);
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color EnigmaGreenFlame = new Color(50, 220, 100);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         
         private const float MaxBeamLength = 800f;
-        private float currentBeamLength = 0f;
-        private float beamIntensity = 0f;
         private int channelTime = 0;
         private List<Vector2> unravelPoints = new List<Vector2>();
-        private Dictionary<int, int> targetHitTimes = new Dictionary<int, int>();
         
-        private Color GetEnigmaGradient(float progress)
-        {
-            if (progress < 0.5f)
-                return Color.Lerp(EnigmaBlack, EnigmaPurple, progress * 2f);
-            else
-                return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
-        }
+        // Instance fields for rendering access
+        private Vector2 currentBeamEnd;
+        private float currentBeamLength;
         
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs11";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MusicNote";
         
         public override bool PreDraw(ref Color lightColor)
         {
-            // Beam is invisible projectile - all visuals drawn via particles in AI
+            if (channelTime < 2) return false;
+            
+            Player owner = Main.player[Projectile.owner];
+            SpriteBatch sb = Main.spriteBatch;
+            
+            Vector2 start = owner.Center - Main.screenPosition;
+            Vector2 end = currentBeamEnd - Main.screenPosition;
+            Vector2 beamDir = (currentBeamEnd - owner.Center).SafeNormalize(Vector2.UnitX);
+            float rotation = beamDir.ToRotation();
+            float length = currentBeamLength;
+            
+            // Pulsing factor
+            float pulse = 1f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.1f);
+            float channelFactor = Math.Min(channelTime / 60f, 1f);
+            
+            // Width scales with channel time
+            float baseWidth = 4f + channelFactor * 16f; // 4 → 20px
+            
+            // Pixel texture for line drawing
+            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            
+            // === Shader overlay: Digital data-stream cipher beam ===
+            {
+                Texture2D shBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
+                EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.CipherBeamTrail,
+                    shBloom, start + (end - start) * 0.5f, shBloom.Size() / 2f,
+                    MathHelper.Clamp(length / 64f, 1f, 12f),
+                    CipherUtils.ArcaneViolet.ToVector3(), CipherUtils.UnravelGreen.ToVector3(),
+                    opacity: 0.55f * channelFactor, intensity: 1.2f, rotation: rotation,
+                    noiseTexture: ShaderLoader.GetNoiseTexture("VoronoiNoise"),
+                    techniqueName: "CipherBeamFlow");
+            }
+            
+            CipherUtils.EnterAdditiveShaderRegion(sb);
+            
+            // Layer 1: Wide soft purple outer glow
+            float outerWidth = baseWidth * 3f * pulse;
+            sb.Draw(pixel, start + (end - start) * 0.5f, new Rectangle(0, 0, 1, 1), CipherUtils.ArcaneViolet * 0.25f * channelFactor,
+                rotation, new Vector2(0.5f, 0.5f), new Vector2(length, outerWidth), SpriteEffects.None, 0f);
+            
+            // Layer 2: Medium green core glow
+            float midWidth = baseWidth * 1.5f * pulse;
+            sb.Draw(pixel, start + (end - start) * 0.5f, new Rectangle(0, 0, 1, 1), CipherUtils.UnravelGreen * 0.5f * channelFactor,
+                rotation, new Vector2(0.5f, 0.5f), new Vector2(length, midWidth), SpriteEffects.None, 0f);
+            
+            // Layer 3: Narrow bright white center
+            float innerWidth = baseWidth * 0.5f * pulse;
+            sb.Draw(pixel, start + (end - start) * 0.5f, new Rectangle(0, 0, 1, 1), CipherUtils.WhiteRevelation * 0.7f * channelFactor,
+                rotation, new Vector2(0.5f, 0.5f), new Vector2(length, innerWidth), SpriteEffects.None, 0f);
+            
+            // Layer 4: Bloom sprite at beam end
+            Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
+            float bloomScale = (0.3f + channelFactor * 0.5f) * pulse;
+            sb.Draw(bloomTex, end, null, CipherUtils.UnravelGreen * 0.6f * channelFactor, 0f,
+                bloomTex.Size() / 2f, bloomScale, SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, end, null, CipherUtils.CipherBright * 0.3f * channelFactor, 0f,
+                bloomTex.Size() / 2f, bloomScale * 0.5f, SpriteEffects.None, 0f);
+            
+            // Layer 5: Bloom at beam origin
+            sb.Draw(bloomTex, start, null, CipherUtils.ArcaneViolet * 0.4f * channelFactor, 0f,
+                bloomTex.Size() / 2f, bloomScale * 0.6f, SpriteEffects.None, 0f);
+            
+            CipherUtils.ExitShaderRegion(sb);
+            
             return false;
         }
         
@@ -139,7 +185,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
             Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = 8;
+            Projectile.localNPCHitCooldown = 6;
         }
         
         public override void AI()
@@ -154,10 +200,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 return;
             }
             
-            // Drain mana
+            // Mana drain
             if (channelTime % 10 == 0 && channelTime > 0)
             {
-                if (!owner.CheckMana(3, true, false))
+                if (owner.CheckMana(owner.HeldItem.mana, true))
+                {
+                    owner.manaRegenDelay = (int)owner.maxRegenDelay;
+                }
+                else
                 {
                     TriggerSnapBack();
                     Projectile.Kill();
@@ -166,252 +216,134 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             }
             
             channelTime++;
-            beamIntensity = Math.Min(1f, channelTime / 60f);
             
             // Position at player
             Projectile.Center = owner.Center;
             
-            // Aim towards cursor - beam stretches TO cursor position, not past it
+            // Aim toward cursor
             Vector2 toMouse = (Main.MouseWorld - owner.Center).SafeNormalize(Vector2.UnitX);
-            float distanceToCursor = Vector2.Distance(Main.MouseWorld, owner.Center);
             Projectile.velocity = toMouse;
             Projectile.rotation = toMouse.ToRotation();
             
-            // Beam length is the distance to cursor (capped at MaxBeamLength)
-            // This makes the beam stretch exactly to where cursor is
-            currentBeamLength = Math.Min(distanceToCursor, MaxBeamLength);
-            Vector2 beamStart = owner.Center;
-            Vector2 beamEnd = beamStart + toMouse * currentBeamLength;
-            
-            // Check for tiles - stop beam if it hits a tile before reaching cursor
-            for (int i = 0; i < (int)(currentBeamLength / 16f); i++)
+            // Calculate beam length (raycast for tiles)
+            float beamLength = MaxBeamLength;
+            for (int i = 0; i < (int)(MaxBeamLength / 16f); i++)
             {
-                Vector2 checkPos = beamStart + toMouse * (i * 16f);
+                Vector2 checkPos = owner.Center + toMouse * (i * 16f);
                 Point tilePos = checkPos.ToTileCoordinates();
-                
                 if (WorldGen.InWorld(tilePos.X, tilePos.Y))
                 {
                     Tile tile = Main.tile[tilePos.X, tilePos.Y];
                     if (tile.HasTile && Main.tileSolid[tile.TileType])
                     {
-                        currentBeamLength = i * 16f;
+                        beamLength = i * 16f;
                         break;
                     }
                 }
             }
             
-            beamEnd = beamStart + toMouse * currentBeamLength;
+            // Store beam end and length for PreDraw rendering
+            currentBeamLength = beamLength;
+            Vector2 beamEnd = owner.Center + toMouse * beamLength;
+            currentBeamEnd = beamEnd;
             
-            // Draw the beam with reality distortion
-            DrawUnravelingBeam(beamStart, beamEnd);
-            
-            // Store unravel points for snap-back
-            if (channelTime % 5 == 0)
-            {
-                unravelPoints.Add(beamEnd);
-                if (unravelPoints.Count > 30)
-                    unravelPoints.RemoveAt(0);
-            }
-            
-            // Deal damage along beam
-            DealBeamDamage(beamStart, beamEnd, toMouse);
-            
-            // Beam sound
+            // Record unravel points for snap-back
             if (channelTime % 15 == 0)
             {
-                SoundEngine.PlaySound(SoundID.Item15 with { Pitch = -0.3f + beamIntensity * 0.3f, Volume = 0.4f }, Projectile.Center);
+                unravelPoints.Add(beamEnd);
+                if (unravelPoints.Count > 20) unravelPoints.RemoveAt(0);
             }
             
-            // Keep player facing the beam
+            // Deal damage along the beam
+            DealBeamDamage(owner.Center, beamEnd, toMouse, beamLength);
+            
+            // Beam sound
+            if (channelTime % 20 == 0)
+            {
+                SoundEngine.PlaySound(SoundID.Item15 with { Pitch = -0.3f + channelTime * 0.002f, Volume = 0.3f }, owner.Center);
+            }
+            
+            // Keep player facing the right direction
             owner.ChangeDir(toMouse.X > 0 ? 1 : -1);
             owner.heldProj = Projectile.whoAmI;
             owner.itemTime = 2;
             owner.itemAnimation = 2;
             
-            Lighting.AddLight(owner.Center, EnigmaGreen.ToVector3() * beamIntensity);
-        }
-        
-        private void DrawUnravelingBeam(Vector2 start, Vector2 end)
-        {
-            Vector2 direction = (end - start).SafeNormalize(Vector2.Zero);
-            float length = Vector2.Distance(start, end);
-            // OPTIMIZED: Reduced segment count from length/12 to length/40 (roughly 3x fewer segments)
-            int segments = (int)(length / 40f);
+            Lighting.AddLight(beamEnd, EnigmaGreen.ToVector3() * 0.5f);
+            Lighting.AddLight(owner.Center, EnigmaPurple.ToVector3() * 0.3f);
             
-            // Only process segments every 4 frames instead of 2
-            if (Main.GameUpdateCount % 4 == 0)
+            // === VFX: Particle spawning along beam ===
+            
+            // Update CipherPlayer state
+            CipherPlayer cp = owner.GetModPlayer<CipherPlayer>();
+            cp.ChannelTime = channelTime;
+            cp.UnravelIntensity = Math.Min(channelTime / 120f, 1f);
+            
+            Vector2 perpDir = new Vector2(-toMouse.Y, toMouse.X);
+            
+            // Every 3 frames: 1-2 UnravelMoteParticle along beam
+            if (channelTime % 3 == 0)
             {
-                for (int i = 0; i < segments; i++)
+                int moteCount = Main.rand.Next(1, 3);
+                for (int i = 0; i < moteCount; i++)
                 {
-                    float t = (float)i / segments;
-                    Vector2 basePos = Vector2.Lerp(start, end, t);
-                    
-                    // Reality distortion - offset positions randomly and progressively
-                    float distortionAmount = 8f * beamIntensity * (float)Math.Sin(Main.GameUpdateCount * 0.2f + t * 10f);
-                    Vector2 perpendicular = direction.RotatedBy(MathHelper.PiOver2);
-                    Vector2 distortedPos = basePos + perpendicular * distortionAmount;
-                    
-                    // Gradient color along beam
-                    Color beamColor = GetEnigmaGradient(t) * beamIntensity;
-                    
-                    // Main beam particles - now spawns for all segments but less frequently
-                    CustomParticles.GenericFlare(distortedPos, beamColor, 0.35f + beamIntensity * 0.3f, 12);
-                    
-                    // Glyphs scattered along beam - every 3rd segment instead of every 8th
-                    if (i % 3 == 0)
-                    {
-                        CustomParticles.Glyph(distortedPos, EnigmaPurple * beamIntensity, 0.22f, -1);
-                    }
+                    float t = Main.rand.NextFloat();
+                    Vector2 pos = owner.Center + toMouse * beamLength * t;
+                    pos += perpDir * Main.rand.NextFloat(-12f, 12f);
+                    Vector2 vel = perpDir * Main.rand.NextFloat(-0.8f, 0.8f);
+                    Color col = Color.Lerp(CipherUtils.UnravelGreen, CipherUtils.ArcaneViolet, Main.rand.NextFloat());
+                    float scale = Main.rand.NextFloat(0.3f, 0.6f);
+                    CipherParticleHandler.Spawn(new UnravelMoteParticle(pos, vel, col, scale, Main.rand.Next(20, 40)));
                 }
             }
             
-            // === CALAMITY-STANDARD - HEAVY DUST TRAILS (2+ per frame at beam end) ===
-            for (int i = 0; i < 2; i++)
+            // Every 5 frames: 1 CipherGlyphParticle near beam end
+            if (channelTime % 5 == 0)
             {
-                // Main enigma trail - Purple to Green gradient
-                float progress = Main.rand.NextFloat();
-                Color dustColor = GetEnigmaGradient(progress);
-                int dustType = progress < 0.5f ? DustID.PurpleTorch : DustID.GreenTorch;
-                Dust d = Dust.NewDustPerfect(end + Main.rand.NextVector2Circular(8f, 8f), dustType,
-                    Main.rand.NextVector2Circular(3f, 3f),
-                    progress < 0.3f ? 80 : 0, dustColor * beamIntensity, 1.6f);
-                d.noGravity = true;
-                d.fadeIn = 1.3f;
+                float orbitRadius = Main.rand.NextFloat(15f, 35f);
+                float startAngle = Main.rand.NextFloat(MathHelper.TwoPi);
+                Color glyphCol = Color.Lerp(CipherUtils.DeepEnigma, CipherUtils.ArcaneViolet, Main.rand.NextFloat());
+                CipherParticleHandler.Spawn(new CipherGlyphParticle(beamEnd, orbitRadius, startAngle, glyphCol, Main.rand.NextFloat(0.4f, 0.7f), Main.rand.Next(30, 50)));
             }
             
-            // === CONTRASTING SPARKLES - Green flame against void black ===
-            if (Main.rand.NextBool(2))
+            // Every 10 frames: BeamCorePulseParticle at beam origin
+            if (channelTime % 10 == 0)
             {
-                Dust green = Dust.NewDustPerfect(end + Main.rand.NextVector2Circular(10f, 10f), DustID.GreenTorch,
-                    Main.rand.NextVector2Circular(2f, 2f),
-                    0, EnigmaGreenFlame * beamIntensity, 1.4f);
-                green.noGravity = true;
+                CipherParticleHandler.Spawn(new BeamCorePulseParticle(owner.Center, CipherUtils.ArcaneViolet, 0.8f + Math.Min(channelTime / 120f, 1f) * 0.4f, 15));
             }
             
-            // === VOID SHIMMER TRAIL - Cycling through enigma colors ===
-            if (Main.rand.NextBool(3))
+            // Every frame: 1 CipherVoidDust at random beam position
             {
-                // Cycle through void colors: purple -> deep purple -> green
-                float voidPhase = (Main.GameUpdateCount * 0.015f + Main.rand.NextFloat()) % 1f;
-                Color voidShimmer = GetEnigmaGradient(voidPhase);
-                Dust v = Dust.NewDustPerfect(end, DustID.PurpleTorch,
-                    Main.rand.NextVector2Circular(2f, 2f), 0, voidShimmer * beamIntensity, 1.4f);
-                v.noGravity = true;
+                float dt = Main.rand.NextFloat();
+                Vector2 dustPos = owner.Center + toMouse * beamLength * dt;
+                dustPos += perpDir * Main.rand.NextFloat(-8f, 8f);
+                Dust.NewDust(dustPos, 0, 0, ModContent.DustType<CipherVoidDust>(),
+                    perpDir.X * Main.rand.NextFloat(-0.5f, 0.5f), perpDir.Y * Main.rand.NextFloat(-0.5f, 0.5f),
+                    0, default, Main.rand.NextFloat(0.5f, 1f));
             }
-            
-            // === FREQUENT FLARES at beam end ===
-            if (Main.rand.NextBool(2))
-            {
-                Color flareColor = GetEnigmaGradient(Main.rand.NextFloat());
-                CustomParticles.GenericFlare(end + Main.rand.NextVector2Circular(12f, 12f), flareColor * beamIntensity, 0.5f, 16);
-            }
-            
-            // === ENIGMA EYE watching ===
-            if (Main.rand.NextBool(8))
-            {
-                CustomParticles.EnigmaEyeGaze(end + Main.rand.NextVector2Circular(20f, 20f), EnigmaPurple * beamIntensity, 0.35f);
-            }
-            
-            // === MUSIC NOTES - The enigma's riddle ===
-            if (Main.rand.NextBool(6))
-            {
-                Color noteColor = GetEnigmaGradient(Main.rand.NextFloat());
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
-                ThemedParticles.MusicNote(end, noteVel, noteColor * beamIntensity, 0.35f, 35);
-            }
-            
-            // End point unraveling effect - reduced from 6 to 4 particles, every 6 frames
-            if (Main.GameUpdateCount % 6 == 0)
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 4f + Main.GameUpdateCount * 0.15f;
-                    float radius = 20f + (float)Math.Sin(Main.GameUpdateCount * 0.2f + i) * 15f;
-                    Vector2 endOffset = angle.ToRotationVector2() * radius * beamIntensity;
-                    
-                    Color endColor = GetEnigmaGradient((float)i / 4f) * beamIntensity;
-                    CustomParticles.GenericFlare(end + endOffset, endColor, 0.4f, 14);
-                }
-            }
-            
-            // Dazzling sparkles along the beam's path - kept but less frequent
-            if (Main.GameUpdateCount % 30 == 0)
-            {
-                Vector2 sparklePos = Vector2.Lerp(start, end, Main.rand.NextFloat(0.3f, 0.8f));
-                sparklePos += Main.rand.NextVector2Circular(20f, 20f);
-                Color sparkleColor = GetEnigmaGradient(Main.rand.NextFloat()) * beamIntensity;
-                CustomParticles.GenericFlare(sparklePos, sparkleColor, 0.55f, 20);
-            }
-            
-            // Beam origin VFX - ENHANCED MULTI-LAYER BLOOM
-            if (Main.GameUpdateCount % 8 == 0)
-            {
-                EnhancedParticles.BloomFlare(start, EnigmaGreen * beamIntensity, 0.55f, 14, 3, 0.9f);
-            }
-            
-            // Beam end VFX - ENHANCED WITH BLOOM
-            if (Main.GameUpdateCount % 8 == 0)
-            {
-                EnhancedParticles.BloomFlare(end, EnigmaGreen * beamIntensity, 0.65f, 16, 4, 1.0f);
-                EnhancedThemedParticles.EnigmaBloomBurstEnhanced(end, beamIntensity * 0.5f);
-            }
-            
-            Lighting.AddLight(end, GetEnigmaGradient(0.7f).ToVector3() * beamIntensity * 0.8f);
         }
         
-        private void DealBeamDamage(Vector2 start, Vector2 end, Vector2 direction)
+        private void DealBeamDamage(Vector2 start, Vector2 end, Vector2 direction, float beamLength)
         {
+            float damageMultiplier = 1f + Math.Min(channelTime / 120f, 2f); // Ramps up over 2 seconds
+            
             foreach (NPC npc in Main.ActiveNPCs)
             {
                 if (npc.friendly) continue;
                 
-                // Check if NPC intersects with beam
                 float distToLine = DistancePointToLine(npc.Center, start, end);
                 if (distToLine > npc.width / 2f + 20f) continue;
                 
-                // Also check if within beam length
                 float projectionLength = Vector2.Dot(npc.Center - start, direction);
-                if (projectionLength < 0 || projectionLength > currentBeamLength) continue;
+                if (projectionLength < 0 || projectionLength > beamLength) continue;
                 
-                // Track hit time for increasing damage
-                if (!targetHitTimes.ContainsKey(npc.whoAmI))
-                    targetHitTimes[npc.whoAmI] = 0;
-                targetHitTimes[npc.whoAmI]++;
-                
-                // Deal damage - increases over time on same target
-                if (channelTime % 8 == 0)
+                // Deal periodic damage
+                if (channelTime % 6 == 0)
                 {
-                    float damageMultiplier = 1f + Math.Min(targetHitTimes[npc.whoAmI] / 30f, 2f); // Up to 3x damage
                     int damage = (int)(Projectile.damage * damageMultiplier);
-                    
                     npc.SimpleStrikeNPC(damage, 0, false, 0f, null, false, 0f, true);
-                    npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 360);
-                    var brandNPC = npc.GetGlobalNPC<ParadoxBrandNPC>();
-                    brandNPC.AddParadoxStack(npc, 1);
-                    
-                    // Hit VFX
-                    Vector2 hitPoint = start + direction * projectionLength;
-                    CustomParticles.GenericFlare(hitPoint, EnigmaGreen, 0.5f * beamIntensity, 12);
-                    
-                    // Prismatic sparkle burst at impact
-                    if (Main.rand.NextBool(3))
-                    {
-                        for (int sparkle = 0; sparkle < 4; sparkle++)
-                        {
-                            float sparkAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
-                            Vector2 sparkVel = sparkAngle.ToRotationVector2() * Main.rand.NextFloat(1.5f, 3f);
-                            Color sparkColor = GetEnigmaGradient(Main.rand.NextFloat());
-                            var sparkGlow = new GenericGlowParticle(npc.Center - new Vector2(0, 25f), sparkVel, sparkColor, 0.3f, 18, true);
-                            MagnumParticleHandler.SpawnParticle(sparkGlow);
-                        }
-                    }
-                    
-                    // Glyph stack
-                    int stacks = brandNPC.paradoxStacks;
-                    if (stacks > 0 && Main.rand.NextBool(5))
-                    {
-                        CustomParticles.GlyphStack(npc.Center + new Vector2(0, -20f), EnigmaGreen, stacks, 0.18f);
-                    }
+                    npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 300);
+                    npc.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(npc, 1);
                 }
             }
         }
@@ -433,44 +365,17 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         
         private void TriggerSnapBack()
         {
-            if (channelTime < 15) return; // Must have channeled for a bit
+            if (channelTime < 10) return;
             
-            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.4f, Volume = 0.9f }, Projectile.Center);
+            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.3f, Volume = 0.8f }, Projectile.Center);
             
-            // Snap-back at all unravel points
+            // Spawn snap-back projectiles at unravel points
             foreach (Vector2 point in unravelPoints)
             {
-                // Spawn snap-back explosion
                 Projectile.NewProjectile(Projectile.GetSource_FromThis(), point, Vector2.Zero,
-                    ModContent.ProjectileType<RealitySnapBack>(), (int)(Projectile.damage * 0.8f * beamIntensity), 
-                    5f, Projectile.owner);
+                    ModContent.ProjectileType<RealitySnapBack>(),
+                    (int)(Projectile.damage * 1.5f), 8f, Projectile.owner);
             }
-            
-            // Extra snap-back at beam end position
-            Player owner = Main.player[Projectile.owner];
-            Vector2 beamDir = Projectile.velocity.SafeNormalize(Vector2.UnitX);
-            Vector2 beamEnd = owner.Center + beamDir * currentBeamLength;
-            
-            // Massive final snap
-            Projectile.NewProjectile(Projectile.GetSource_FromThis(), beamEnd, Vector2.Zero,
-                ModContent.ProjectileType<RealitySnapBack>(), (int)(Projectile.damage * 1.5f * beamIntensity), 
-                8f, Projectile.owner, 1f); // ai[0] = 1 for enhanced version
-            
-            // Arcane sparkle formation at snap
-            for (int spark = 0; spark < 8; spark++)
-            {
-                float sparkAngle = MathHelper.TwoPi * spark / 8f;
-                Vector2 sparkPos = beamEnd + sparkAngle.ToRotationVector2() * 80f;
-                Vector2 sparkVel = (beamEnd - sparkPos).SafeNormalize(Vector2.Zero) * 2f;
-                Color sparkColor = GetEnigmaGradient((float)spark / 8f);
-                CustomParticles.GenericFlare(sparkPos, sparkColor, 0.5f, 20);
-                var sparkGlow = new GenericGlowParticle(sparkPos, sparkVel, sparkColor * 0.7f, 0.35f, 22, true);
-                MagnumParticleHandler.SpawnParticle(sparkGlow);
-            }
-            
-            // Glyph circles at snap
-            CustomParticles.GlyphCircle(beamEnd, EnigmaPurple, count: 10, radius: 60f, rotationSpeed: 0.1f);
-            CustomParticles.GlyphBurst(beamEnd, EnigmaGreen, count: 12, speed: 6f);
         }
         
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) => false;
@@ -478,228 +383,146 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
     
     public class RealitySnapBack : ModProjectile
     {
-        private static readonly Color EnigmaBlack = new Color(15, 10, 20);
-        private static readonly Color EnigmaDeepPurple = new Color(80, 20, 120);
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color EnigmaGreenFlame = new Color(50, 220, 100);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         
-        private bool IsEnhanced => Projectile.ai[0] > 0f;
-        private float ExplosionRadius => IsEnhanced ? 120f : 70f;
-        
-        private Color GetEnigmaGradient(float progress)
-        {
-            if (progress < 0.5f)
-                return Color.Lerp(EnigmaBlack, EnigmaPurple, progress * 2f);
-            else
-                return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
-        }
-        
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Glyphs12";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard";
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
+            SpriteBatch sb = Main.spriteBatch;
+            
+            // Progress: 1 at spawn → 0 at death
+            float progress = Projectile.timeLeft / 15f;
+            
+            Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            Vector2 origin = bloomTex.Size() / 2f;
             
-            float lifeProgress = 1f - (Projectile.timeLeft / 25f);
-            float intensity = 1f - lifeProgress;
-            float scale = IsEnhanced ? 1.5f : 1f;
-            float pulse = lifeProgress < 0.4f ? (1f - lifeProgress / 0.4f) : lifeProgress;
+            // === Shader overlay: Clock-face sector starburst ===
+            EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.CipherSnapBack,
+                bloomTex, drawPos, origin, 1.5f + (1f - progress) * 2f,
+                CipherUtils.ArcaneViolet.ToVector3(), CipherUtils.CipherBright.ToVector3(),
+                opacity: progress * 0.7f, intensity: 1.5f,
+                noiseTexture: ShaderLoader.GetNoiseTexture("SparklyNoiseTexture"),
+                techniqueName: "CipherSnapBackMain");
             
-            // Switch to additive blending
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            CipherUtils.EnterAdditiveShaderRegion(sb);
             
-            Texture2D eyeTex = CustomParticleSystem.EnigmaEyes[(int)(lifeProgress * 7) % 8].Value;
-            Texture2D glyphTex = CustomParticleSystem.Glyphs[(int)(Main.GameUpdateCount / 8) % 12].Value;
-            Texture2D sparkleTex = CustomParticleSystem.PrismaticSparkles[(int)(Main.GameUpdateCount / 6) % 3].Value;
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
+            // Expanding ring (starts small, grows, fades)
+            float ringScale = (1f - progress) * 2.5f + 0.3f;
+            float ringAlpha = progress * 0.8f;
+            sb.Draw(bloomTex, drawPos, null, CipherUtils.ArcaneViolet * ringAlpha * 0.5f, 0f,
+                origin, ringScale, SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, drawPos, null, CipherUtils.UnravelGreen * ringAlpha * 0.3f, 0f,
+                origin, ringScale * 1.3f, SpriteEffects.None, 0f);
             
-            // Draw imploding/exploding glyph ring
-            int glyphCount = lifeProgress < 0.4f ? 8 : 12;
-            float ringRadius = lifeProgress < 0.4f ? (40f * (1f - lifeProgress / 0.4f)) : (15f + lifeProgress * 60f);
-            for (int i = 0; i < glyphCount; i++)
-            {
-                float angle = Main.GameUpdateCount * (lifeProgress < 0.4f ? 0.15f : -0.08f) + MathHelper.TwoPi * i / glyphCount;
-                Vector2 glyphPos = drawPos + angle.ToRotationVector2() * ringRadius * scale;
-                Color glyphColor = Color.Lerp(EnigmaDeepPurple, EnigmaGreenFlame, (float)i / glyphCount) * intensity * 0.7f;
-                float glyphScale = 0.2f * scale * pulse;
-                spriteBatch.Draw(glyphTex, glyphPos, null, glyphColor, angle * 2f + lifeProgress * 5f, glyphTex.Size() / 2f, glyphScale, SpriteEffects.None, 0f);
-            }
+            // Shrinking bright core flash
+            float coreScale = progress * 1.2f;
+            float coreAlpha = progress;
+            sb.Draw(bloomTex, drawPos, null, CipherUtils.WhiteRevelation * coreAlpha * 0.9f, 0f,
+                origin, coreScale * 0.4f, SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, drawPos, null, CipherUtils.CipherBright * coreAlpha * 0.6f, 0f,
+                origin, coreScale * 0.7f, SpriteEffects.None, 0f);
             
-            // Draw orbiting sparkles
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = -Main.GameUpdateCount * 0.12f + MathHelper.TwoPi * i / 6f;
-                float sparkRadius = ringRadius * 0.6f;
-                Vector2 sparkPos = drawPos + angle.ToRotationVector2() * sparkRadius * scale;
-                Color sparkColor = Color.Lerp(EnigmaPurple, EnigmaGreenFlame, (float)i / 6f) * intensity * 0.6f;
-                spriteBatch.Draw(sparkleTex, sparkPos, null, sparkColor, angle * 1.5f, sparkleTex.Size() / 2f, 0.12f * scale * pulse, SpriteEffects.None, 0f);
-            }
-            
-            // Draw central watching eye during implosion phase
-            if (lifeProgress < 0.5f)
-            {
-                float eyeScale = 0.4f * scale * intensity * (lifeProgress < 0.4f ? 1f : (1f - (lifeProgress - 0.4f) * 10f));
-                spriteBatch.Draw(eyeTex, drawPos, null, EnigmaPurple * intensity * 0.9f, 0f, eyeTex.Size() / 2f, eyeScale, SpriteEffects.None, 0f);
-            }
-            
-            // Inner flare core
-            spriteBatch.Draw(flareTex, drawPos, null, EnigmaDeepPurple * intensity * 0.8f, Main.GameUpdateCount * 0.05f, flareTex.Size() / 2f, 0.35f * scale * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreenFlame * intensity * 0.6f, -Main.GameUpdateCount * 0.07f, flareTex.Size() / 2f, 0.18f * scale * pulse, SpriteEffects.None, 0f);
-            
-            // Restore normal blending
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            CipherUtils.ExitShaderRegion(sb);
             
             return false;
         }
         
         public override void SetDefaults()
         {
-            Projectile.width = 70;
-            Projectile.height = 70;
+            Projectile.width = 80;
+            Projectile.height = 80;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Magic;
             Projectile.penetrate = -1;
-            Projectile.timeLeft = 25;
+            Projectile.timeLeft = 15;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
             Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = 5;
+            Projectile.localNPCHitCooldown = -1;
         }
         
         public override void AI()
         {
-            float lifeProgress = 1f - (Projectile.timeLeft / 25f);
-            float intensity = 1f - lifeProgress;
-            float scale = IsEnhanced ? 1.5f : 1f;
+            float progress = Projectile.timeLeft / 15f;
+            float lightIntensity = 0.6f + (1f - progress) * 0.6f;
+            Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * lightIntensity);
             
-            // OPTIMIZED: Changed from % 2 to % 4 for less frequent particle spawns
-            // Implosion then explosion effect
-            float effectProgress;
-            if (lifeProgress < 0.4f)
+            // Every frame: 2-3 SnapBackSparkParticle in random outward directions
+            int sparkCount = Main.rand.Next(2, 4);
+            for (int i = 0; i < sparkCount; i++)
             {
-                // Implosion phase - reduced from 8 to 5 particles
-                effectProgress = lifeProgress / 0.4f;
-                float implodeRadius = ExplosionRadius * (1f - effectProgress) * scale;
-                
-                if (Main.GameUpdateCount % 4 == 0)
-                {
-                    for (int i = 0; i < 5; i++)
-                    {
-                        float angle = MathHelper.TwoPi * i / 5f + Main.GameUpdateCount * 0.2f;
-                        Vector2 particlePos = Projectile.Center + angle.ToRotationVector2() * implodeRadius;
-                        Vector2 vel = (Projectile.Center - particlePos).SafeNormalize(Vector2.Zero) * 6f;
-                        
-                        Color particleColor = GetEnigmaGradient((float)i / 5f) * intensity;
-                        var glow = new GenericGlowParticle(particlePos, vel, particleColor, 0.4f * scale, 14, true);
-                        MagnumParticleHandler.SpawnParticle(glow);
-                    }
-                }
-            }
-            else
-            {
-                // Explosion phase - reduced from 12 to 6 particles
-                effectProgress = (lifeProgress - 0.4f) / 0.6f;
-                float explodeRadius = ExplosionRadius * effectProgress * scale;
-                
-                if (Main.GameUpdateCount % 4 == 0)
-                {
-                    for (int i = 0; i < 6; i++)
-                    {
-                        float angle = MathHelper.TwoPi * i / 6f;
-                        Vector2 particlePos = Projectile.Center + angle.ToRotationVector2() * explodeRadius;
-                        
-                        Color particleColor = GetEnigmaGradient((float)i / 6f) * intensity;
-                        CustomParticles.GenericFlare(particlePos, particleColor, 0.45f * scale * intensity, 12);
-                    }
-                }
+                Vector2 vel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(4f, 10f);
+                Color col = Color.Lerp(CipherUtils.UnravelGreen, CipherUtils.CipherBright, Main.rand.NextFloat());
+                CipherParticleHandler.Spawn(new SnapBackSparkParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
+                    vel, col, Main.rand.NextFloat(0.3f, 0.7f), Main.rand.Next(8, 16)));
             }
             
-            // Central pulse - reduced frequency
-            if (Main.GameUpdateCount % 6 == 0)
+            // Every 5 frames: 1 VoidDistortionRingParticle
+            if (Projectile.timeLeft % 5 == 0)
             {
-                CustomParticles.GenericFlare(Projectile.Center, EnigmaGreen * intensity, 0.65f * scale * intensity, 12);
+                CipherParticleHandler.Spawn(new VoidDistortionRingParticle(
+                    Projectile.Center, CipherUtils.ArcaneViolet * 0.8f,
+                    0.5f + (1f - progress) * 0.8f, 20));
             }
-            
-            // Music note trail - reality snap echoes with musical notes
-            if (Main.rand.NextBool(5))
-            {
-                Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreenFlame, Main.rand.NextFloat()) * intensity;
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), -1.5f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f * scale, 32);
-            }
-            
-            // Mystical flare at center during snap
-            if (Projectile.timeLeft == 15)
-            {
-                CustomParticles.GenericFlare(Projectile.Center, EnigmaPurple, 0.75f * scale, 20);
-                CustomParticles.HaloRing(Projectile.Center, EnigmaGreen, 0.45f * scale, 16);
-            }
-            
-            Lighting.AddLight(Projectile.Center, GetEnigmaGradient(0.5f).ToVector3() * intensity * scale);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 420);
-            var brandNPC = target.GetGlobalNPC<ParadoxBrandNPC>();
-            brandNPC.AddParadoxStack(target, IsEnhanced ? 3 : 2);
+            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 360);
+            target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 3);
             
-            // === SEEKING CRYSTALS - 25% chance on beam hit ===
-            if (Main.rand.NextBool(4))
-            {
-                SeekingCrystalHelper.SpawnEnigmaCrystals(
-                    Projectile.GetSource_FromThis(),
-                    target.Center,
-                    Projectile.velocity,
-                    (int)(damageDone * 0.15f),
-                    Projectile.knockBack,
-                    Projectile.owner,
-                    IsEnhanced ? 4 : 3
-                );
-            }
+            SeekingCrystalHelper.SpawnEnigmaCrystals(
+                Projectile.GetSource_FromThis(),
+                target.Center,
+                Projectile.velocity,
+                (int)(damageDone * 0.25f),
+                5f,
+                Projectile.owner,
+                3
+            );
             
-            // === REALITY UNRAVELING DISTORTION ===
-            float distortionIntensity = IsEnhanced ? 5f : 3.5f;
-            int distortionLifetime = IsEnhanced ? 18 : 12;
-            FateRealityDistortion.TriggerChromaticAberration(target.Center, distortionIntensity, distortionLifetime);
-            if (IsEnhanced)
-                FateRealityDistortion.TriggerInversionPulse(6);
-            
-            // === ENHANCED HIT EFFECT WITH MULTI-LAYER BLOOM ===
-            UnifiedVFXBloom.EnigmaVariations.ImpactEnhanced(target.Center, IsEnhanced ? 1.2f : 0.9f);
-            
-            // === WATCHING EYE AT IMPACT ===
-            CustomParticles.EnigmaEyeImpact(target.Center, target.Center, EnigmaGreen, 0.45f);
-            
-            // === MUSIC NOTES ===
-            EnhancedThemedParticles.EnigmaMusicNotesEnhanced(target.Center, 4, 5f);
-            
-            // Central bloom flare
-            EnhancedParticles.BloomFlare(target.Center, EnigmaGreen, 0.55f, 14, 3, 0.9f);
-            
-            // === GLYPH CIRCLE ===
-            CustomParticles.GlyphCircle(target.Center, EnigmaPurple, count: 4, radius: 40f, rotationSpeed: 0.06f);
-            
-            // === DYNAMIC LIGHTING ===
             Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.8f);
         }
         
         public override void OnKill(int timeLeft)
         {
-            // Beam weapon - use MysteryUnravel (scale varies by enhanced state)
-            float scale = IsEnhanced ? 1.2f : 0.8f;
-            DynamicParticleEffects.EnigmaDeathMysteryUnravel(Projectile.Center, scale);
-            
-            // Keep enhanced-only reality distortion effect
-            if (IsEnhanced)
+            // Death burst: 10-15 SnapBackSparkParticle in all directions
+            int burstCount = Main.rand.Next(10, 16);
+            for (int i = 0; i < burstCount; i++)
             {
-                FateRealityDistortion.TriggerChromaticAberration(Projectile.Center, 3f, 12);
+                Vector2 vel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(5f, 14f);
+                Color col = Color.Lerp(CipherUtils.UnravelGreen, CipherUtils.WhiteRevelation, Main.rand.NextFloat());
+                CipherParticleHandler.Spawn(new SnapBackSparkParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    vel, col, Main.rand.NextFloat(0.4f, 0.9f), Main.rand.Next(12, 25)));
+            }
+            
+            // 1 large VoidDistortionRingParticle
+            CipherParticleHandler.Spawn(new VoidDistortionRingParticle(
+                Projectile.Center, CipherUtils.ArcaneViolet,
+                1.5f, 30));
+            
+            // 3-4 UnravelMoteParticle drifting outward
+            int moteCount = Main.rand.Next(3, 5);
+            for (int i = 0; i < moteCount; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(1f, 3f);
+                Color col = Color.Lerp(CipherUtils.DeepEnigma, CipherUtils.UnravelGreen, Main.rand.NextFloat());
+                CipherParticleHandler.Spawn(new UnravelMoteParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(10f, 10f),
+                    vel, col, Main.rand.NextFloat(0.4f, 0.7f), Main.rand.Next(25, 45)));
+            }
+            
+            // 5 CipherVoidDust
+            for (int i = 0; i < 5; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(1f, 4f);
+                Dust.NewDust(Projectile.Center, 0, 0, ModContent.DustType<CipherVoidDust>(),
+                    vel.X, vel.Y, 0, default, Main.rand.NextFloat(0.6f, 1.2f));
             }
         }
     }

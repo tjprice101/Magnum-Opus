@@ -14,6 +14,7 @@ using MagnumOpus.Content.ClairDeLune.ResonanceEnergies;
 using MagnumOpus.Content.ClairDeLune.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.ClairDeLune.Weapons.Magic;
 
 namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
 {
@@ -141,6 +142,10 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
                     break;
             }
             
+            // Shader-driven cast VFX
+            Vector2 castDir = velocity.SafeNormalize(Vector2.UnitX);
+            ClockworkGrimoireVFX.SpellCastVFX(spawnPos, castDir);
+
             // Reset use time for non-Time Fracture modes
             if (spellMode != 3)
             {
@@ -153,6 +158,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
 
         public override void HoldItem(Player player)
         {
+            ClockworkGrimoireVFX.HoldItemVFX(player);
+
             // Ambient page-turning effect
             if (Main.rand.NextBool(10))
             {
@@ -191,7 +198,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class GrimoireLightningProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningStreak";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Trails/spark_06";
 
         private int chainsRemaining = 4;
         private int lastHitNPC = -1;
@@ -219,14 +226,14 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
             }
             
             ClairDeLuneVFX.TemporalTrail(Projectile.Center, Projectile.velocity, 0.6f);
+            ClockworkGrimoireVFX.ProjectileTrailVFX(Projectile.Center, Projectile.velocity);
             Lighting.AddLight(Projectile.Center, ClairDeLuneColors.ElectricBlue.ToVector3() * 0.7f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             ClairDeLuneVFX.LightningStrikeExplosion(target.Center, 0.6f);
-            
-            // Chain to nearby enemies
+            ClockworkGrimoireVFX.ProjectileImpactVFX(target.Center);
             if (chainsRemaining > 0 && Main.myPlayer == Projectile.owner)
             {
                 NPC nextTarget = FindChainTarget(target, 350f);
@@ -299,7 +306,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class GrimoireCrystalProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SmallCrystalShard";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar";
 
         public override void SetDefaults()
         {
@@ -318,12 +325,14 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
             
             ClairDeLuneVFX.TemporalTrail(Projectile.Center, Projectile.velocity, 0.5f);
+            ClockworkGrimoireVFX.ProjectileTrailVFX(Projectile.Center, Projectile.velocity);
             Lighting.AddLight(Projectile.Center, ClairDeLuneColors.Crystal.ToVector3() * 0.4f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             ClairDeLuneVFX.CrystalShatterBurst(target.Center, 6, 4f, 0.5f);
+            ClockworkGrimoireVFX.ProjectileImpactVFX(target.Center);
             target.AddBuff(BuffID.Frostburn2, 120);
         }
 
@@ -356,7 +365,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class GrimoireGearProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearSmall";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SmallHardCircleMask";
 
         public override void SetDefaults()
         {
@@ -419,6 +428,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             ClairDeLuneVFX.SpawnClockworkGear(target.Center, Main.rand.NextVector2Circular(4f, 4f), false, 0.5f);
+            ClockworkGrimoireVFX.ProjectileImpactVFX(target.Center);
             target.AddBuff(BuffID.BetsysCurse, 180);
         }
 
@@ -433,7 +443,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class GrimoireTimeFractureProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningBurst";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16";
 
         private int timer = 0;
 
@@ -512,7 +522,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
             float progress = timer / 90f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
             Vector2 origin = tex.Size() / 2f;
             
             float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.2f;
@@ -614,6 +624,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
 
         public override void HoldItem(Player player)
         {
+            OrreryOfDreamsVFX.HoldItemVFX(player);
+
             // Charge alignment while channeling
             if (player.channel)
             {
@@ -684,7 +696,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class OrreryControllerProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearLarge";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/HardCircleMask";
 
         private float rotation = 0f;
         private float AlignmentProgress => Projectile.ai[1];
@@ -743,6 +755,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
             
             // Center gear
             ClairDeLuneVFX.OrbitingGears(Projectile.Center, 30f, 4, Main.GameUpdateCount * 0.05f, 0.3f);
+            OrreryOfDreamsVFX.OrbAmbientVFX(Projectile.Center);
             
             // Alignment visual
             if (AlignmentProgress > 0)
@@ -783,7 +796,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class OrreryOrbitProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SmallCrystalShard";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar";
 
         public override void SetDefaults()
         {
@@ -801,7 +814,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class OrreryBeamProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningStreak";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Trails/spark_06";
 
         public override void SetDefaults()
         {
@@ -820,12 +833,14 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
             Projectile.rotation = Projectile.velocity.ToRotation();
             
             ClairDeLuneVFX.TemporalTrail(Projectile.Center, Projectile.velocity, 0.4f);
+            OrreryOfDreamsVFX.OrbTrailVFX(Projectile.Center, Projectile.velocity);
             Lighting.AddLight(Projectile.Center, ClairDeLuneColors.Crystal.ToVector3() * 0.3f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             ClairDeLuneVFX.CrystalShatterBurst(target.Center, 4, 3f, 0.4f);
+            OrreryOfDreamsVFX.OrbImpactVFX(target.Center);
         }
     }
 
@@ -834,7 +849,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class CosmicLaserProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningBurstThick";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16";
 
         public override void SetDefaults()
         {
@@ -878,6 +893,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             ClairDeLuneVFX.TemporalImpact(target.Center, 0.8f);
+            OrreryOfDreamsVFX.OrbImpactVFX(target.Center);
             target.AddBuff(BuffID.Electrified, 300);
             target.AddBuff(BuffID.Frostburn2, 300);
         }
@@ -968,6 +984,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
 
         public override void HoldItem(Player player)
         {
+            RequiemOfTimeVFX.HoldItemVFX(player);
+
             // Charge while holding (right-click style mechanic even though it's swing)
             if (player.channel && player.itemAnimation == 0)
             {
@@ -1012,6 +1030,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
                 
                 ClairDeLuneVFX.TemporalChargeRelease(position, 1f);
                 ClairDeLuneVFX.LightningStrikeExplosion(position, 0.8f);
+                RequiemOfTimeVFX.TimeFreezeReleaseVFX(position);
                 SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f }, position);
             }
             else
@@ -1046,6 +1065,10 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
             {
                 ClairDeLuneVFX.SpawnCrystalShard(center, Main.rand.NextVector2Circular(3f, 3f), false, 0.35f);
             }
+
+            // Shader-driven swing trail
+            Vector2 swingDir = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
+            RequiemOfTimeVFX.SwingTrailVFX(center, swingDir);
         }
 
         public override void AddRecipes()
@@ -1065,7 +1088,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class TemporalSlashProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc1";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse";
 
         public override void SetDefaults()
         {
@@ -1097,6 +1120,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             ClairDeLuneVFX.TemporalImpact(target.Center, 0.6f);
+            RequiemOfTimeVFX.SwingImpactVFX(target.Center);
             target.AddBuff(BuffID.Slow, 120);
         }
 
@@ -1141,7 +1165,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
     /// </summary>
     public class TimeFreezeSweepProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwordArc3";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/VerticalEllipse";
 
         public override void SetDefaults()
         {
@@ -1188,6 +1212,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Magic
         {
             ClairDeLuneVFX.TemporalImpact(target.Center, 1f);
             ClairDeLuneVFX.CrystalShatterBurst(target.Center, 12, 8f, 0.8f);
+            RequiemOfTimeVFX.SwingImpactVFX(target.Center);
             
             // Freeze effect - heavy slow + stun
             target.AddBuff(BuffID.Slow, 300);

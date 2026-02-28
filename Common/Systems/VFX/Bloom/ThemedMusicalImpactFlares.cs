@@ -181,8 +181,8 @@ namespace MagnumOpus.Common.Systems.VFX
             
             try
             {
-                flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
-                slashTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SwordArc1").Value;
+                flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
+                slashTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse").Value;
                 
                 for (int n = 0; n < noteNames.Length; n++)
                 {

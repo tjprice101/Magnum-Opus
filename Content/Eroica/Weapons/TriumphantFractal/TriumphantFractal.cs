@@ -53,21 +53,11 @@ namespace MagnumOpus.Content.Eroica.Weapons.TriumphantFractal
                 Projectile.NewProjectile(source, position, perturbedVelocity, type, (int)(damage * 1.15f), knockback, player.whoAmI);
             }
 
-            float baseRotation = Main.GameUpdateCount * 0.02f;
-            TriumphantFractalVFX.CastGeometryBurst(position, baseRotation);
-
             return false;
-        }
-
-        public override void HoldItem(Player player)
-        {
-            TriumphantFractalVFX.HoldItemVFX(player);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
-            EroicaPalette.DrawItemBloom(spriteBatch, Item, rotation, scale);
-            Lighting.AddLight(Item.Center, EroicaPalette.Scarlet.ToVector3() * 0.6f);
             return true;
         }
 
@@ -82,18 +72,5 @@ namespace MagnumOpus.Content.Eroica.Weapons.TriumphantFractal
             });
         }
 
-        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
-        {
-            Texture2D texture = TextureAssets.Item[Item.type].Value;
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 1f;
-
-            // Golden glow behind
-            spriteBatch.Draw(texture, position, frame, (EroicaPalette.Gold with { A = 0 }) * 0.2f, 0f, origin, scale * pulse * 1.08f, SpriteEffects.None, 0f);
-
-            // Main item with pulse
-            spriteBatch.Draw(texture, position, frame, drawColor, 0f, origin, scale * pulse, SpriteEffects.None, 0f);
-
-            return false;
-        }
     }
 }

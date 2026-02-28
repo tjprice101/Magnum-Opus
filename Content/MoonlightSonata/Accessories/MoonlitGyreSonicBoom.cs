@@ -19,7 +19,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
     public class MoonlitGyreSonicBoom : ModProjectile
     {
         // Custom texture - no vanilla textures allowed
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField8";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         private float boomRadius = 0f;
         private const float MaxRadius = 180f;

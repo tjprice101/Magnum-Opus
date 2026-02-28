@@ -21,7 +21,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     public class TwilightBolt : ModProjectile
     {
         // Use a visible energy flare texture for bright projectile
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare4";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare";
         
         private static readonly Color TwilightPurple = new Color(120, 60, 140);
         private static readonly Color TwilightOrange = new Color(255, 120, 60);
@@ -237,7 +237,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare4").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
@@ -279,7 +279,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class HarvestMoonBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo6";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
         
         private static readonly Color MoonSilver = new Color(200, 200, 220);
         private static readonly Color MoonGold = new Color(218, 165, 32);
@@ -431,7 +431,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class HomingLeafShard : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle11";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         private static readonly Color AutumnOrange = new Color(255, 140, 50);
         private static readonly Color AutumnRed = new Color(178, 34, 34);

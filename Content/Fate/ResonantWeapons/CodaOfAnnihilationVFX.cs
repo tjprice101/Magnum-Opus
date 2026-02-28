@@ -1,3 +1,4 @@
+/*
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -357,3 +358,4 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             => FateVFXLibrary.FateTrailWidth(completionRatio, 18f);
     }
 }
+*/

@@ -37,8 +37,6 @@ namespace MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
-            EroicaPalette.DrawItemBloom(spriteBatch, Item, rotation, scale);
-            Lighting.AddLight(Item.Center, EroicaPalette.DeepScarlet.ToVector3() * 0.4f);
             return true;
         }
 
@@ -46,8 +44,6 @@ namespace MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura
         {
             player.AddBuff(Item.buffType, 18000);
             position = Main.MouseWorld;
-
-            FinalityOfTheSakuraVFX.SummonExplosionVFX(position);
 
             // Summoning sounds
             SoundEngine.PlaySound(SoundID.Item119 with { Volume = 0.8f, Pitch = -0.4f }, position);
@@ -57,11 +53,6 @@ namespace MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura
             Projectile.NewProjectile(source, position, Vector2.Zero, type, damage, knockback, player.whoAmI);
 
             return false;
-        }
-
-        public override void HoldItem(Player player)
-        {
-            FinalityOfTheSakuraVFX.HoldItemVFX(player);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

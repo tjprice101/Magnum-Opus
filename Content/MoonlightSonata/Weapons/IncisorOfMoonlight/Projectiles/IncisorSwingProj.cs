@@ -6,6 +6,7 @@ using MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Buffs;
 using MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Primitives;
 using MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Particles;
 using MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Utilities;
+using MagnumOpus.Content.MoonlightSonata;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -278,29 +279,18 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             if (!Owner.channel && Progression > 0.7f)
                 Projectile.scale = (0.5f + 0.5f * (float)Math.Pow(1 - (Progression - 0.7f) / 0.3f, 0.5)) * IdealSize;
 
-            // Purple stardust from blade edge
-            if (Main.rand.NextFloat() * 3f < DustDensity)
+                // Constellation sparks shed from blade edge during swing
+            if (Main.rand.NextFloat() < DustDensity * 0.5f)
             {
-                Vector2 dustPos = Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale
-                    * (float)Math.Pow(Main.rand.NextFloat(0.5f, 1f), 0.5f);
-                Dust d = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch,
-                    SwordDirection.RotatedBy(-MathHelper.PiOver2 * Direction) * 2f);
-                d.noGravity = true;
-                d.alpha = 10;
-                d.scale = 0.5f;
-            }
-
-            // Constellation sparkle dust from blade
-            if (Main.rand.NextFloat() < DustDensity)
-            {
-                Color dustColor = MulticolorLerp(Main.rand.NextFloat(), IncisorPalette);
-                Vector2 dustPos = Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale
-                    * (float)Math.Pow(Main.rand.NextFloat(0.2f, 1f), 0.5f);
-                Dust d = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch,
-                    SwordDirection.RotatedBy(MathHelper.PiOver2 * Direction) * 2.6f, 0, dustColor);
-                d.scale = 0.3f;
-                d.fadeIn = Main.rand.NextFloat() * 1.2f;
-                d.noGravity = true;
+                float bladeT = (float)Math.Pow(Main.rand.NextFloat(0.4f, 1f), 0.5f);
+                Vector2 sparkPos = Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale * bladeT;
+                Vector2 sparkVel = SwordDirection.RotatedBy(-MathHelper.PiOver2 * Direction) * Main.rand.NextFloat(2f, 5f);
+                Color sparkColor = MulticolorLerp(Main.rand.NextFloat(), IncisorPalette);
+                var spark = new ConstellationSparkParticle(
+                    sparkPos, sparkVel, false,
+                    Main.rand.Next(14, 24), Main.rand.NextFloat(0.12f, 0.28f), sparkColor,
+                    new Vector2(0.6f, 1.4f), quickShrink: true);
+                IncisorParticleHandler.SpawnParticle(spark);
             }
 
             // Lunar mote particles along the blade during swing
@@ -396,15 +386,18 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
                 Owner.velocity = newVel;
                 Owner.Incisor().LungingDown = true;
 
-                // Purple dust
-                if (Main.rand.NextBool())
+                    // Constellation sparks along dash path
+                if (Main.rand.NextBool(3))
                 {
-                    Color dc = MulticolorLerp(Main.rand.NextFloat(), IncisorPalette);
-                    Dust d = Dust.NewDustPerfect(Owner.MountedCenter + Main.rand.NextVector2Circular(20f, 20f),
-                        DustID.PurpleTorch, SwordDirection * -2.6f, 0, dc);
-                    d.scale = 0.3f;
-                    d.fadeIn = Main.rand.NextFloat() * 1.2f;
-                    d.noGravity = true;
+                    Color sc = MulticolorLerp(Main.rand.NextFloat(), IncisorPalette);
+                    Vector2 sparkVel = SwordDirection * -1 * Main.rand.NextFloat(3f, 8f)
+                        + Main.rand.NextVector2Circular(2f, 2f);
+                    var spark = new ConstellationSparkParticle(
+                        Owner.MountedCenter + Main.rand.NextVector2Circular(16f, 16f),
+                        sparkVel, false, Main.rand.Next(10, 18),
+                        Main.rand.NextFloat(0.15f, 0.3f), sc,
+                        new Vector2(0.5f, 1.6f), quickShrink: true);
+                    IncisorParticleHandler.SpawnParticle(spark);
                 }
 
                 // Lunar mote energy streaks during dash
@@ -480,7 +473,48 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             DrawSlash();
             DrawPierceTrail();
             DrawBlade();
+            DrawConstellationFlare();
             return false;
+        }
+
+        /// <summary>
+        /// Constellation star node flare at the blade tip — a sharp 4-pointed star
+        /// with a soft glow undertone. Only visible during the active swing arc.
+        /// "Each cut reveals the stars beneath reality."
+        /// </summary>
+        private void DrawConstellationFlare()
+        {
+            if (State != SwingState.Swinging || Progression < 0.25f || Progression > 0.85f)
+                return;
+
+            var starTex = ModContent.Request<Texture2D>(
+                "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard").Value;
+            var bloomTex = ModContent.Request<Texture2D>(
+                "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+
+            Vector2 tipPos = Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale
+                - Main.screenPosition;
+
+            float starPulse = 0.6f + 0.4f * MathF.Sin(Timer * 0.15f);
+            float opacity = MathF.Sin(MathHelper.Pi * (Progression - 0.25f) / 0.6f);
+
+            // Soft glow underlayer — violet constellation nebula
+            Color glowColor = MulticolorLerp(Progression, IncisorPalette) with { A = 0 };
+            Main.spriteBatch.Draw(bloomTex, tipPos, null, glowColor * opacity * 0.3f,
+                0f, bloomTex.Size() * 0.5f, 0.4f * starPulse * Projectile.scale,
+                SpriteEffects.None, 0f);
+
+            // Sharp 4-pointed star — constellation node revelation
+            Color starColor = Color.Lerp(new Color(230, 235, 255),
+                new Color(170, 140, 255), Progression) with { A = 0 };
+            Main.spriteBatch.Draw(starTex, tipPos, null, starColor * opacity * 0.8f,
+                SwordRotation, starTex.Size() * 0.5f, 0.2f * starPulse * Projectile.scale,
+                SpriteEffects.None, 0f);
+
+            // Secondary star at 45° offset — cross pattern
+            Main.spriteBatch.Draw(starTex, tipPos, null, starColor * opacity * 0.4f,
+                SwordRotation + MathHelper.PiOver4, starTex.Size() * 0.5f,
+                0.15f * starPulse * Projectile.scale, SpriteEffects.None, 0f);
         }
 
         public void DrawSlash()
@@ -496,7 +530,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
                 null, Main.GameViewMatrix.TransformationMatrix);
 
             GameShaders.Misc["MagnumOpus:IncisorSlash"].UseImage1(
-                ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX/Noise/VoronoiNoise"));
+                ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VoronoiNoise"));
             GameShaders.Misc["MagnumOpus:IncisorSlash"].UseColor(new Color(140, 100, 220));
             GameShaders.Misc["MagnumOpus:IncisorSlash"].UseSecondaryColor(new Color(70, 30, 130));
             GameShaders.Misc["MagnumOpus:IncisorSlash"].Shader.Parameters["fireColor"]
@@ -518,7 +552,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
 
             // Core slash arc pass
             GameShaders.Misc["MagnumOpus:IncisorSlash"].UseImage1(
-                ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX/Noise/VoronoiNoise"));
+                ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VoronoiNoise"));
             GameShaders.Misc["MagnumOpus:IncisorSlash"].UseColor(new Color(230, 235, 255));
             GameShaders.Misc["MagnumOpus:IncisorSlash"].UseSecondaryColor(new Color(90, 50, 160));
             GameShaders.Misc["MagnumOpus:IncisorSlash"].Shader.Parameters["fireColor"]
@@ -553,8 +587,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             Vector2 trailOffset = (Projectile.rotation - Direction * MathHelper.PiOver4).ToRotationVector2() * 80f + Projectile.Size * 0.5f;
 
             GameShaders.Misc["MagnumOpus:IncisorPierce"].UseImage1(
-                ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX/Trails/EnergyTrailUV"));
-            GameShaders.Misc["MagnumOpus:IncisorPierce"].UseImage2("Images/Extra_189");
+                ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/TrailsAndRibbons/BasicTrail"));
+            GameShaders.Misc["MagnumOpus:IncisorPierce"].UseImage2(
+                ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise"));
             GameShaders.Misc["MagnumOpus:IncisorPierce"].UseColor(mainColor);
             GameShaders.Misc["MagnumOpus:IncisorPierce"].UseSecondaryColor(secColor);
             GameShaders.Misc["MagnumOpus:IncisorPierce"].Apply();
@@ -680,6 +715,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
                         ModContent.ProjectileType<LunarNova>(), novaDmg, 0f, Projectile.owner);
                 }
                 Owner.DoLifestealDirect(target, (int)Math.Round(hit.Damage * 0.04), 0.4f);
+
+                // Musical climax — hue-shifting notes erupt from the Lunar Nova
+                if (!Main.dedServ)
+                    MoonlightVFXLibrary.SpawnMusicNotes(target.Center, count: 6, spread: 35f,
+                        minScale: 0.7f, maxScale: 1.1f, lifetime: 50);
             }
         }
 

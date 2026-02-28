@@ -3791,12 +3791,12 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             // 1-2 random weapons from Swan Lake weapon pool
             int[] swanWeapons = new int[]
             {
-                ModContent.ItemType<ResonantWeapons.CalloftheBlackSwan>(),           // Melee
-                ModContent.ItemType<ResonantWeapons.TheSwansLament>(),               // Melee
-                ModContent.ItemType<ResonantWeapons.IridescentWingspan>(),           // Ranger
-                ModContent.ItemType<ResonantWeapons.FeatheroftheIridescentFlock>(),  // Magic
-                ModContent.ItemType<ResonantWeapons.ChromaticSwanSong>(),            // Summoner
-                ModContent.ItemType<ResonantWeapons.CallofthePearlescentLake>(),     // Magic
+                ModContent.ItemType<ResonantWeapons.CalloftheBlackSwan.CalloftheBlackSwan>(),           // Melee
+                ModContent.ItemType<ResonantWeapons.TheSwansLament.TheSwansLament>(),               // Melee
+                ModContent.ItemType<ResonantWeapons.IridescentWingspan.IridescentWingspan>(),           // Ranger
+                ModContent.ItemType<ResonantWeapons.FeatheroftheIridescentFlock.FeatheroftheIridescentFlock>(),  // Magic
+                ModContent.ItemType<ResonantWeapons.ChromaticSwanSong.ChromaticSwanSong>(),            // Summoner
+                ModContent.ItemType<ResonantWeapons.CallofthePearlescentLake.CallofthePearlescentLake>(),     // Magic
             };
             
             // Always drop 1 weapon

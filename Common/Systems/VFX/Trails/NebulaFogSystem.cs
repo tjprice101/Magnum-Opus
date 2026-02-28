@@ -90,10 +90,10 @@ namespace MagnumOpus.Common.Systems.VFX
                 _shaderLoadAttempted = true;
                 try
                 {
-                    if (ModContent.HasAsset("MagnumOpus/Assets/Shaders/NebulaFogShader"))
+                    if (ModContent.HasAsset("MagnumOpus/Effects/SimpleTrailShader"))
                     {
                         _nebulaFogShader = ModContent.Request<Effect>(
-                            "MagnumOpus/Assets/Shaders/NebulaFogShader",
+                            "MagnumOpus/Effects/SimpleTrailShader",
                             AssetRequestMode.ImmediateLoad
                         ).Value;
                     }
@@ -130,23 +130,23 @@ namespace MagnumOpus.Common.Systems.VFX
             try
             {
                 // Try to load custom noise textures
-                if (ModContent.HasAsset("MagnumOpus/Assets/VFX/PerlinNoise"))
+                if (ModContent.HasAsset("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise"))
                 {
                     _perlinNoiseTexture = ModContent.Request<Texture2D>(
-                        "MagnumOpus/Assets/VFX/PerlinNoise", AssetRequestMode.ImmediateLoad).Value;
+                        "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise", AssetRequestMode.ImmediateLoad).Value;
                 }
                 
-                if (ModContent.HasAsset("MagnumOpus/Assets/VFX/VoronoiNoise"))
+                if (ModContent.HasAsset("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VoronoiNoise"))
                 {
                     _voronoiNoiseTexture = ModContent.Request<Texture2D>(
-                        "MagnumOpus/Assets/VFX/VoronoiNoise", AssetRequestMode.ImmediateLoad).Value;
+                        "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VoronoiNoise", AssetRequestMode.ImmediateLoad).Value;
                 }
                 
                 // Load soft glow for fog base
-                if (ModContent.HasAsset("MagnumOpus/Assets/Particles Asset Library/SoftGlow2"))
+                if (ModContent.HasAsset("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow"))
                 {
                     _softGlowTexture = ModContent.Request<Texture2D>(
-                        "MagnumOpus/Assets/Particles Asset Library/SoftGlow2", AssetRequestMode.ImmediateLoad).Value;
+                        "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
                 }
             }
             catch

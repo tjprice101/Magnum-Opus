@@ -1,15 +1,10 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Common.Systems.VFX;
-using MagnumOpus.Content.Eroica.Weapons.SakurasBlossom;
-using static MagnumOpus.Common.Systems.Particles.Particle;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -34,8 +29,6 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Type] = 20;
-            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
@@ -64,9 +57,6 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             float scaleBase = 1.0f;
             float scalePulse = (float)Math.Sin(AgeTimer * 0.12f) * 0.08f;
             Projectile.scale = scaleBase + scalePulse;
-
-            // Per-frame VFX trail — delegated to VFX module
-            SakurasBlossomVFX.SpectralCopyTrailVFX(Projectile);
 
             // ── ENHANCED HOMING — acceleration curve ──
             // Homing strengthens over time: starts gentle, becomes aggressive
@@ -130,17 +120,10 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 Projectile.velocity *= 0.998f;
             }
 
-            // Dynamic palette-based lighting
-            Color lightColor = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.Gold,
-                (float)Math.Sin(AgeTimer * 0.08f) * 0.5f + 0.5f);
-            Lighting.AddLight(Projectile.Center, lightColor.ToVector3() * 0.8f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // VFX: delegated to VFX module for consistent impact rendering
-            SakurasBlossomVFX.SpectralCopyHitVFX(target.Center);
-
             // Seeking crystals — 33% chance
             if (Main.rand.NextBool(3) && Main.myPlayer == Projectile.owner)
             {
@@ -164,15 +147,11 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // VFX: delegated to VFX module for consistent death rendering
-            SakurasBlossomVFX.SpectralCopyDeathVFX(Projectile.Center);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Full rendering delegated to VFX module for consistent
-            // 5-layer pipeline: bloom trail → afterimage → shimmer → bloom stack → main
-            return SakurasBlossomVFX.DrawSpectralCopy(Main.spriteBatch, Projectile, ref lightColor);
+            return true;
         }
     }
 }

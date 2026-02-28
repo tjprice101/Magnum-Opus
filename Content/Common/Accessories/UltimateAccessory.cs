@@ -9,6 +9,7 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Fate;
 using MagnumOpus.Content.Fate.ResonantWeapons;
+using MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation;
 
 namespace MagnumOpus.Content.Common.Accessories
 {
@@ -254,7 +255,7 @@ namespace MagnumOpus.Content.Common.Accessories
                 .AddIngredient<SpringsMoonlitGarden>()
                 .AddIngredient<SummersInfernalPeak>()
                 .AddIngredient<WintersEnigmaticSilence>()
-                .AddIngredient<CodaOfAnnihilation>() // CONSUMED
+                .AddIngredient<CodaOfAnnihilationItem>() // CONSUMED
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
         }

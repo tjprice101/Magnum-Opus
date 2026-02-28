@@ -1,3 +1,4 @@
+/*
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -351,3 +352,4 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             => FateVFXLibrary.CosmicBeamWidth(completionRatio, 12f);
     }
 }
+*/

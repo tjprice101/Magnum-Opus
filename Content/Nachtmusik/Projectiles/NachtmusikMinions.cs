@@ -130,7 +130,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             SpriteEffects effects = Projectile.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             
             // Glow behind sprite
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow3").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.1f + 0.9f;
             sb.Draw(glow, drawPos, null, NachtmusikPalette.CosmicPurple * 0.4f, 0f, glow.Size() / 2f, 0.7f * pulse, SpriteEffects.None, 0f);
             sb.Draw(glow, drawPos, null, NachtmusikPalette.Violet * 0.3f, 0f, glow.Size() / 2f, 0.5f * pulse, SpriteEffects.None, 0f);
@@ -268,7 +268,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             SpriteEffects effects = Projectile.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             
             // Golden glow
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow4").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow64").Value;
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.15f + 0.85f;
             sb.Draw(glow, drawPos, null, NachtmusikPalette.RadianceGold * 0.3f, 0f, glow.Size() / 2f, 0.6f * pulse, SpriteEffects.None, 0f);
             sb.Draw(glow, drawPos, null, NachtmusikPalette.Violet * 0.2f, 0f, glow.Size() / 2f, 0.4f * pulse, SpriteEffects.None, 0f);
@@ -516,7 +516,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
             // Majestic glow
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/GlowingHalo4").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle").Value;
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.2f + 0.8f;
             sb.Draw(glow, drawPos, null, NachtmusikPalette.CosmicPurple * 0.5f, 0f, glow.Size() / 2f, 1f * pulse, SpriteEffects.None, 0f);
             sb.Draw(glow, drawPos, null, NachtmusikPalette.RadianceGold * 0.4f, 0f, glow.Size() / 2f, 0.7f * pulse, SpriteEffects.None, 0f);
@@ -574,7 +574,7 @@ namespace MagnumOpus.Content.Nachtmusik.Projectiles
     /// </summary>
     public class ConductorStarProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Star";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         public override void SetStaticDefaults()
         {

@@ -17,92 +17,113 @@ namespace MagnumOpus.Content.MoonlightSonata
     {
         #region SharedAssets
 
-        private static readonly string SharedFlare = "MagnumOpus/Assets/MoonlightSonata/Shared/Flare/";
-        private static readonly string SharedGradients = "MagnumOpus/Assets/MoonlightSonata/Shared/Gradients/";
-        private static readonly string SharedOrbs = "MagnumOpus/Assets/MoonlightSonata/Shared/Orbs/";
-        private static readonly string SharedPixel = "MagnumOpus/Assets/MoonlightSonata/Shared/Pixel/";
+        // Shared texture paths — remapped to existing VFX Asset Library + SandboxLastPrism assets
+        private static readonly string SLPFlare = "MagnumOpus/Assets/SandboxLastPrism/Flare/";
+        private static readonly string SLPOrbs = "MagnumOpus/Assets/SandboxLastPrism/Orbs/";
+        private static readonly string SLPPixel = "MagnumOpus/Assets/SandboxLastPrism/Pixel/";
+        private static readonly string SLPTrails = "MagnumOpus/Assets/SandboxLastPrism/Trails/";
+        private static readonly string SLPTrailsClear = "MagnumOpus/Assets/SandboxLastPrism/Trails/Clear/";
+        private static readonly string VFXGradients = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/";
+        private static readonly string VFXMasks = "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/";
+        private static readonly string VFXGlow = "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/";
+        private static readonly string ParticleStars = "MagnumOpus/Assets/Particles Asset Library/Stars/";
 
-        /// <summary>Multi-pointed crystalline star burst — impact flares, crescendo bursts, crit detonations.</summary>
+        /// <summary>Multi-pointed crystalline star burst — impact flares, crescendo bursts, crit detonations.
+        /// Remapped: flare_16 provides a clean multi-pointed burst shape ideal for impact VFX.</summary>
         public static readonly Asset<Texture2D> ConstellationBurstFlare =
-            ModContent.Request<Texture2D>(SharedFlare + "ConstellationNodeBurstFlare", AssetRequestMode.ImmediateLoad);
+            ModContent.Request<Texture2D>(SLPFlare + "flare_16", AssetRequestMode.ImmediateLoad);
 
-        /// <summary>Ice blue → lavender → violet horizontal gradient — trail color grading, beam gradients.</summary>
+        /// <summary>Ice blue → lavender → violet horizontal gradient — trail color grading, beam gradients.
+        /// Remapped: MoonlightSonataGradientLUTandRAMP is the canonical Moonlight theme gradient ramp.</summary>
         public static readonly Asset<Texture2D> ResonanceTrailGradient =
-            ModContent.Request<Texture2D>(SharedGradients + "PrimaryResonanceTrailGradient", AssetRequestMode.ImmediateLoad);
+            ModContent.Request<Texture2D>(VFXGradients + "MoonlightSonataGradientLUTandRAMP", AssetRequestMode.ImmediateLoad);
 
-        /// <summary>Soft white circular gradient — bloom masking, metaball soft-edge, beam endpoints.</summary>
+        /// <summary>Soft white circular gradient — bloom masking, metaball soft-edge, beam endpoints.
+        /// Remapped: SoftCircle provides clean feathered circle with smooth falloff.</summary>
         public static readonly Asset<Texture2D> CircularMask =
-            ModContent.Request<Texture2D>(SharedOrbs + "CircularMask", AssetRequestMode.ImmediateLoad);
+            ModContent.Request<Texture2D>(VFXMasks + "SoftCircle", AssetRequestMode.ImmediateLoad);
 
-        /// <summary>Glowing ring with dark center — aura rings, shockwave blooms, orbital accents.</summary>
+        /// <summary>Glowing ring with dark center — aura rings, shockwave blooms, orbital accents.
+        /// Remapped: circle_05 has ring-like quality with hollow center for aura effects.</summary>
         public static readonly Asset<Texture2D> BloomOrb =
-            ModContent.Request<Texture2D>(SharedOrbs + "SoftCircularBloomOrb", AssetRequestMode.ImmediateLoad);
+            ModContent.Request<Texture2D>(SLPOrbs + "circle_05", AssetRequestMode.ImmediateLoad);
 
-        /// <summary>Clean 4-pointed star sparkle — ambient constellation stars, impact sparks, node accents.</summary>
+        /// <summary>Clean 4-pointed star sparkle — ambient constellation stars, impact sparks, node accents.
+        /// Remapped: 4PointedStarHard is a crisp 4-pointed star matching the original intent.</summary>
         public static readonly Asset<Texture2D> Star4Point =
-            ModContent.Request<Texture2D>(SharedPixel + "Crisp4PointedStar", AssetRequestMode.ImmediateLoad);
+            ModContent.Request<Texture2D>(ParticleStars + "4PointedStarHard", AssetRequestMode.ImmediateLoad);
 
         #endregion
 
         #region EternalMoon
 
-        private static readonly string EternalMoonGradients = "MagnumOpus/Assets/MoonlightSonata/EternalMoon/Gradients/";
-        private static readonly string EternalMoonTrails = "MagnumOpus/Assets/MoonlightSonata/EternalMoon/Trails/";
-        private static readonly string EternalMoonTrailsClear = "MagnumOpus/Assets/MoonlightSonata/EternalMoon/Trails/Clear/";
-        private static readonly string EternalMoonOrbs = "MagnumOpus/Assets/MoonlightSonata/EternalMoon/Orbs/";
-        private static readonly string EternalMoonFlare = "MagnumOpus/Assets/MoonlightSonata/EternalMoon/Flare/";
-        private static readonly string EternalMoonPixel = "MagnumOpus/Assets/MoonlightSonata/EternalMoon/Pixel/";
+        // EternalMoon textures — remapped to shared VFX library assets.
+        // The shader-driven trail effects use gradient LUTs, energy overlays,
+        // and glow masks from existing assets — achieving the tidal moonlight
+        // aesthetic through UV scrolling and palette-driven color grading.
 
-        /// <summary>Tidal color gradient for shader trail sampling — deep purple to ice blue to moon white.</summary>
+        /// <summary>Tidal color gradient for shader trail sampling — deep purple to ice blue to moon white.
+        /// Remapped: Moonlight Sonata theme gradient LUT — shader samples across this ramp for tidal color flow.</summary>
         public static readonly Asset<Texture2D> TidalGradient =
-            ModContent.Request<Texture2D>(EternalMoonGradients + "TidalGradient", AssetRequestMode.ImmediateLoad);
+            ModContent.Request<Texture2D>(VFXGradients + "MoonlightSonataGradientLUTandRAMP", AssetRequestMode.ImmediateLoad);
 
-        /// <summary>Tidal trail body texture — thin glow line for shader-driven trail rendering.</summary>
+        /// <summary>Tidal trail body texture — thin glow line for shader-driven trail rendering.
+        /// Remapped: ThinGlowLine is a clean thin trail body ideal for UV-scrolled shader trails.</summary>
         public static readonly Asset<Texture2D> TidalTrailBody =
-            ModContent.Request<Texture2D>(EternalMoonTrails + "TidalTrailBody", AssetRequestMode.ImmediateLoad);
+            ModContent.Request<Texture2D>(SLPTrails + "ThinGlowLine", AssetRequestMode.ImmediateLoad);
 
-        /// <summary>Tidal energy texture — flowing energy pattern for trail overlay.</summary>
+        /// <summary>Tidal energy texture — flowing energy pattern for trail overlay.
+        /// Remapped: EnergyTex provides flowing energy patterns for secondary trail layer UV scrolling.</summary>
         public static readonly Asset<Texture2D> TidalEnergy =
-            ModContent.Request<Texture2D>(EternalMoonTrails + "TidalEnergy", AssetRequestMode.ImmediateLoad);
+            ModContent.Request<Texture2D>(SLPTrails + "EnergyTex", AssetRequestMode.ImmediateLoad);
 
-        /// <summary>Tidal glow clear — additive-only trail glow for bloom stacking.</summary>
+        /// <summary>Tidal glow clear — additive-only trail glow for bloom stacking.
+        /// Remapped: ThinLineGlowClear is transparent-background glow perfect for additive bloom stacking.</summary>
         public static readonly Asset<Texture2D> TidalGlow =
-            ModContent.Request<Texture2D>(EternalMoonTrailsClear + "TidalGlow", AssetRequestMode.ImmediateLoad);
+            ModContent.Request<Texture2D>(SLPTrailsClear + "ThinLineGlowClear", AssetRequestMode.ImmediateLoad);
 
-        /// <summary>Tidal bloom orb — soft glow for crescent bloom and impact effects.</summary>
+        /// <summary>Tidal bloom orb — soft glow for crescent bloom and impact effects.
+        /// Remapped: SoftGlow is a clean radial bloom orb for impact glow and bloom sandwich layers.</summary>
         public static readonly Asset<Texture2D> TidalBloom =
-            ModContent.Request<Texture2D>(EternalMoonOrbs + "TidalBloom", AssetRequestMode.ImmediateLoad);
+            ModContent.Request<Texture2D>(SLPOrbs + "SoftGlow", AssetRequestMode.ImmediateLoad);
 
-        /// <summary>Crescent mask — feathered circle for aura rendering.</summary>
+        /// <summary>Crescent mask — feathered circle for aura rendering.
+        /// Remapped: feather_circle128PMA is a feathered soft-edge circle in premultiplied alpha — 
+        /// perfect for crescent masking when combined with shader-driven UV offset.</summary>
         public static readonly Asset<Texture2D> CrescentMask =
-            ModContent.Request<Texture2D>(EternalMoonOrbs + "CrescentMask", AssetRequestMode.ImmediateLoad);
+            ModContent.Request<Texture2D>(SLPOrbs + "feather_circle128PMA", AssetRequestMode.ImmediateLoad);
 
-        /// <summary>Crescent flare — burst flare for impacts and phase transitions.</summary>
+        /// <summary>Crescent flare — burst flare for impacts and phase transitions.
+        /// Remapped: flare_16 multi-pointed burst works as a crescent flare accent.</summary>
         public static readonly Asset<Texture2D> CrescentFlare =
-            ModContent.Request<Texture2D>(EternalMoonFlare + "CrescentFlare", AssetRequestMode.ImmediateLoad);
+            ModContent.Request<Texture2D>(SLPFlare + "flare_16", AssetRequestMode.ImmediateLoad);
 
-        /// <summary>Tidal lens flare — elongated lens effect for blade tip.</summary>
+        /// <summary>Tidal lens flare — elongated lens effect for blade tip.
+        /// Remapped: Simple Lens Flare_11 provides an elongated anamorphic lens streak.</summary>
         public static readonly Asset<Texture2D> TidalLensFlare =
-            ModContent.Request<Texture2D>(EternalMoonFlare + "TidalLensFlare", AssetRequestMode.ImmediateLoad);
+            ModContent.Request<Texture2D>(SLPFlare + "Simple Lens Flare_11", AssetRequestMode.ImmediateLoad);
 
-        /// <summary>Tidal spark — small bright pixel spark for finest detail particles.</summary>
+        /// <summary>Tidal spark — small bright pixel spark for finest detail particles.
+        /// Remapped: PartiGlow is a tiny bright pixel perfect for fine sparks and detail particles.</summary>
         public static readonly Asset<Texture2D> TidalSpark =
-            ModContent.Request<Texture2D>(EternalMoonPixel + "TidalSpark", AssetRequestMode.ImmediateLoad);
+            ModContent.Request<Texture2D>(SLPPixel + "PartiGlow", AssetRequestMode.ImmediateLoad);
 
         #endregion
 
         #region IncisorOfMoonlight
 
-        private static readonly string IncisorFlare = "MagnumOpus/Assets/MoonlightSonata/IncisorOfMoonlight/Flare/";
-        private static readonly string IncisorTrails = "MagnumOpus/Assets/MoonlightSonata/IncisorOfMoonlight/Trails/";
+        // Incisor textures — remapped to shared assets.
+        // The precision blade aesthetic uses sharp flares and thin trails.
 
-        /// <summary>Crystalline tuning fork with violet/ice glow — Incisor weapon identity flare.</summary>
+        /// <summary>Crystalline tuning fork with violet/ice glow — Incisor weapon identity flare.
+        /// Remapped: flare_16 provides sharp crystalline burst for precision blade identity.</summary>
         public static readonly Asset<Texture2D> TuningForkFlare =
-            ModContent.Request<Texture2D>(IncisorFlare + "TuningForkResonanceFlare", AssetRequestMode.ImmediateLoad);
+            ModContent.Request<Texture2D>(SLPFlare + "flare_16", AssetRequestMode.ImmediateLoad);
 
-        /// <summary>Horizontal stellar trail with scattered star particles — Incisor trail texture.</summary>
+        /// <summary>Horizontal stellar trail with scattered star particles — Incisor trail texture.
+        /// Remapped: ThinGlowLine gives a clean precision trail body for the Incisor's laser-sharp aesthetic.</summary>
         public static readonly Asset<Texture2D> IncisorTrail =
-            ModContent.Request<Texture2D>(IncisorTrails + "IncisorOfMoonlightTrail", AssetRequestMode.ImmediateLoad);
+            ModContent.Request<Texture2D>(SLPTrails + "ThinGlowLine", AssetRequestMode.ImmediateLoad);
 
         #endregion
     }

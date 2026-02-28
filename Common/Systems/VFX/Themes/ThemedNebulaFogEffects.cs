@@ -617,7 +617,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             try
             {
-                sparkleTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/TwinkleSparkle", 
+                sparkleTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", 
                     ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
             }
             catch { return; }

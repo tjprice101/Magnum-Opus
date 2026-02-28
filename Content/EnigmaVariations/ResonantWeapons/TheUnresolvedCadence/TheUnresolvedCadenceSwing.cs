@@ -9,17 +9,20 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.BaseClasses;
 using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
-using static MagnumOpus.Common.Systems.Particles.Particle;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Trails;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence.Particles;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence.Dusts;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence.Utilities;
+using static MagnumOpus.Common.Systems.Particles.Particle;
 
-namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
+namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence
 {
     /// <summary>
-    /// THE UNRESOLVED CADENCE  ESwing projectile (held-projectile combo).
-    /// 3-phase combo: VoidCleave ↁEParadoxSlash ↁEDimensionalSeverance
+    /// THE UNRESOLVED CADENCE — Swing projectile (held-projectile combo).
+    /// 3-phase combo: VoidCleave → ParadoxSlash → DimensionalSeverance
     /// Each swing a different movement in the Enigma's unknowable melody.
     /// </summary>
     public sealed class TheUnresolvedCadenceSwing : MeleeSwingBase
@@ -34,19 +37,19 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
 
         private static readonly Color[] EnigmaPalette = new Color[]
         {
-            MagnumThemePalettes.EnigmaBlack,      // [0] Pianissimo  Evoid darkness
-            MagnumThemePalettes.EnigmaDeepPurple,  // [1] Piano  Edeep arcane
-            MagnumThemePalettes.EnigmaPurple,      // [2] Mezzo  Eenigma purple
-            new Color(100, 140, 200),              // [3] Forte  Etransitional
-            MagnumThemePalettes.EnigmaGreen,       // [4] Fortissimo  Eeerie green
-            new Color(180, 255, 180),              // [5] Sforzando  Ebright green-white
+            MagnumThemePalettes.EnigmaBlack,      // [0] Pianissimo — void darkness
+            MagnumThemePalettes.EnigmaDeepPurple,  // [1] Piano — deep arcane
+            MagnumThemePalettes.EnigmaPurple,      // [2] Mezzo — enigma purple
+            new Color(100, 140, 200),              // [3] Forte — transitional
+            MagnumThemePalettes.EnigmaGreen,       // [4] Fortissimo — eerie green
+            new Color(180, 255, 180),              // [5] Sforzando — bright green-white
         };
 
         #endregion
 
         #region Combo Phases
 
-        // Phase 0: VoidCleave  EQuick, probing slash
+        // Phase 0: VoidCleave — Quick, probing slash
         private static readonly ComboPhase Phase0_VoidCleave = new ComboPhase(
             new CurveSegment[]
             {
@@ -62,7 +65,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             damageMult: 0.85f
         );
 
-        // Phase 1: ParadoxSlash  EReversed arc, reality-bending
+        // Phase 1: ParadoxSlash — Reversed arc, reality-bending
         private static readonly ComboPhase Phase1_ParadoxSlash = new ComboPhase(
             new CurveSegment[]
             {
@@ -78,7 +81,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             damageMult: 1.0f
         );
 
-        // Phase 2: DimensionalSeverance  EHeavy finisher, tears space
+        // Phase 2: DimensionalSeverance — Heavy finisher, tears space
         private static readonly ComboPhase Phase2_DimensionalSeverance = new ComboPhase(
             new CurveSegment[]
             {
@@ -114,8 +117,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             return comboStep switch
             {
-                2 => "MagnumOpus/Assets/Particles Asset Library/SwordArc3",
-                _ => "MagnumOpus/Assets/Particles Asset Library/SwordArc6",
+                2 => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/VerticalEllipse",
+                _ => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse",
             };
         }
 
@@ -152,45 +155,37 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             if (hasSpawnedSpecial) return;
 
-            // Phase 0 at 55%  Evoid ripple spark
+            // Phase 0 at 55% — no gameplay effect (was VFX only)
             if (ComboStep == 0 && Progression >= 0.55f)
             {
                 hasSpawnedSpecial = true;
-                Vector2 tipPos = GetBladeTipPosition();
-                CustomParticles.GenericFlare(tipPos, EnigmaPurple, 0.6f, 15);
-                CustomParticles.GlyphBurst(tipPos, EnigmaDeepPurple, 3, 3f);
-                ThemedParticles.EnigmaMusicNotes(tipPos, 2, 12f);
             }
 
-            // Phase 1 at 60%  Edimensional slash sub-projectile
+            // Phase 1 at 60% — dimensional slash sub-projectile
             if (ComboStep == 1 && Progression >= 0.60f)
             {
                 hasSpawnedSpecial = true;
-                Vector2 tipPos = GetBladeTipPosition();
 
                 if (Main.myPlayer == Projectile.owner)
                 {
+                    Vector2 tipPos = GetBladeTipPosition();
                     Vector2 slashVel = SwordDirection * 12f;
                     Projectile.NewProjectile(Projectile.GetSource_FromThis(), tipPos, slashVel,
                         ModContent.ProjectileType<DimensionalSlash>(),
                         (int)(Projectile.damage * 0.35f), 2f, Projectile.owner,
                         ai0: Projectile.rotation);
                 }
-
-                CustomParticles.GenericFlare(tipPos, EnigmaGreen, 0.7f, 18);
-                CustomParticles.HaloRing(tipPos, EnigmaPurple, 0.4f, 15);
-                ThemedParticles.EnigmaMusicNotes(tipPos, 3, 20f);
-                CustomParticles.GlyphBurst(tipPos, EnigmaGreen, 4, 4f);
             }
 
-            // Phase 2 at 50%  Emassive dimensional tear (finisher)
+            // Phase 2 at 50% — massive dimensional tear (finisher)
             if (ComboStep == 2 && Progression >= 0.50f)
             {
                 hasSpawnedSpecial = true;
-                Vector2 tipPos = GetBladeTipPosition();
 
                 if (Main.myPlayer == Projectile.owner)
                 {
+                    Vector2 tipPos = GetBladeTipPosition();
+
                     // Forward slash
                     Vector2 slashVel = SwordDirection * 15f;
                     Projectile.NewProjectile(Projectile.GetSource_FromThis(), tipPos, slashVel,
@@ -218,20 +213,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                             Projectile.damage / 4, 1f, Projectile.owner);
                     }
                 }
-
-                UnifiedVFX.EnigmaVariations.Impact(tipPos, 1.3f);
-                CustomParticles.GenericFlare(tipPos, Color.White, 1.0f, 22);
-                CustomParticles.GlyphCircle(tipPos, EnigmaPurple, 6, 60f, 0.06f);
-
-                for (int i = 0; i < 5; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 5f;
-                    CustomParticles.HaloRing(tipPos, Color.Lerp(EnigmaPurple, EnigmaGreen, i / 5f),
-                        0.35f + i * 0.1f, 15 + i * 3);
-                }
-
-                ThemedParticles.EnigmaMusicNoteBurst(tipPos, 5, 30f);
-                MagnumScreenEffects.AddScreenShake(5f);
             }
         }
 
@@ -258,21 +239,26 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                 }
             }
 
-            // Impact VFX
-            UnifiedVFX.EnigmaVariations.Impact(target.Center, 0.8f + ComboStep * 0.2f);
-            CustomParticles.GlyphBurst(target.Center, EnigmaGreen, 3 + ComboStep, 4f);
-            ThemedParticles.EnigmaMusicNotes(target.Center, 2 + ComboStep, 20f);
-
-            // Dust burst
-            for (int i = 0; i < 6 + ComboStep * 2; i++)
-            {
-                Vector2 dustVel = Main.rand.NextVector2Circular(6f, 6f);
-                Dust d = Dust.NewDustPerfect(target.Center, DustID.PurpleTorch, dustVel, 0,
-                    Color.Lerp(EnigmaPurple, EnigmaGreen, Main.rand.NextFloat()), 1.4f);
-                d.noGravity = true;
-            }
-
             Lighting.AddLight(target.Center, EnigmaPurple.ToVector3() * 0.9f);
+
+            // Impact VFX
+            if (!Main.dedServ)
+            {
+                CadenceParticleHandler.Spawn(new ParadoxSlashRipple(
+                    target.Center, CadenceUtils.CadenceViolet, 0.25f, 25));
+                for (int j = 0; j < Main.rand.Next(3, 6); j++)
+                {
+                    Vector2 burstVel = Main.rand.NextVector2CircularEdge(4f, 4f) * Main.rand.NextFloat(0.5f, 1.5f);
+                    CadenceParticleHandler.Spawn(new DimensionalRiftMote(
+                        target.Center, burstVel, Main.rand.NextFloat(0.2f, 0.4f), Main.rand.Next(12, 22)));
+                }
+                // Inevitability glyph on stack increment
+                float glyphAngle = Main.rand.NextFloat(MathHelper.TwoPi);
+                CadenceParticleHandler.Spawn(new InevitabilityGlyphParticle(
+                    target.Center, 35f, glyphAngle,
+                    TheUnresolvedCadenceItem.GetInevitabilityStacks(),
+                    CadenceUtils.CadenceViolet, 0.35f, 30));
+            }
         }
 
         #endregion
@@ -281,61 +267,58 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
 
         protected override void DrawCustomVFX(SpriteBatch sb)
         {
-            if (Progression < 0.08f || Progression > 0.92f) return;
+            if (Main.dedServ) return;
 
-            // Dense enigma dust trail (2 per frame)
-            for (int i = 0; i < 2; i++)
+            Vector2 tipPos = GetBladeTipPosition();
+            int timer = (int)Timer;
+
+            // Base particles for ALL phases: 1-2 DimensionalRiftMotes per frame at swing tip
+            for (int i = 0; i < Main.rand.Next(1, 3); i++)
             {
-                Vector2 dustPos = Owner.MountedCenter + SwordDirection * CurrentPhase.BladeLength * Main.rand.NextFloat(0.4f, 1f);
-                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.CursedTorch;
-                Dust d = Dust.NewDustPerfect(dustPos, dustType,
-                    -SwordDirection * Main.rand.NextFloat(1f, 3f), 0,
-                    Color.Lerp(EnigmaPurple, EnigmaGreen, Main.rand.NextFloat()), 1.5f);
-                d.noGravity = true;
+                Vector2 offset = Main.rand.NextVector2Circular(8f, 8f);
+                Vector2 vel = SwordDirection.RotatedBy(MathHelper.PiOver2 * Direction) * Main.rand.NextFloat(0.5f, 2f);
+                CadenceParticleHandler.Spawn(new DimensionalRiftMote(
+                    tipPos + offset, vel, Main.rand.NextFloat(0.15f, 0.35f), Main.rand.Next(15, 25)));
             }
 
-            // Enigma eye sparkle (1-in-3)
-            if (Main.rand.NextBool(3))
+            // Phase 0-1 (early combo): VoidCleaveParticle every 3 frames at swing tip
+            if (ComboStep <= 1 && timer % 3 == 0)
             {
-                Vector2 sparkPos = Owner.MountedCenter + SwordDirection * CurrentPhase.BladeLength * Main.rand.NextFloat(0.5f, 0.95f);
-                CustomParticles.EnigmaEyeGaze(sparkPos, EnigmaPurple, 0.3f);
+                Vector2 vel = SwordDirection * Main.rand.NextFloat(2f, 5f);
+                CadenceParticleHandler.Spawn(new VoidCleaveParticle(
+                    tipPos, vel, CadenceUtils.CadenceViolet, Main.rand.NextFloat(0.3f, 0.6f), Main.rand.Next(12, 20)));
             }
 
-            // Void shimmer (1-in-4)
-            if (Main.rand.NextBool(4))
+            // Phase 2+ (later combo): ParadoxSlashRipple every 2 frames at swing tip
+            if (ComboStep >= 2 && timer % 2 == 0)
             {
-                Vector2 shimmerPos = Owner.MountedCenter + SwordDirection * CurrentPhase.BladeLength * Main.rand.NextFloat(0.3f, 0.9f);
-                Color shimmerColor = Color.Lerp(EnigmaBlack, EnigmaGreen, Main.rand.NextFloat());
-                var shimmer = new GenericGlowParticle(shimmerPos, -SwordDirection * Main.rand.NextFloat(0.5f, 2f),
-                    shimmerColor * 0.7f, 0.25f, 12, true);
-                MagnumParticleHandler.SpawnParticle(shimmer);
+                Color rippleColor = Main.rand.NextBool() ? CadenceUtils.SeveranceLime : CadenceUtils.DimensionalGreen;
+                CadenceParticleHandler.Spawn(new ParadoxSlashRipple(
+                    tipPos, rippleColor, Main.rand.NextFloat(0.2f, 0.4f), Main.rand.Next(20, 35)));
             }
 
-// Music notes (1-in-5)  EHueShifting bloom notes cycling Enigma purple↔green
-        if (Main.rand.NextBool(5))
-        {
-            Vector2 notePos = Owner.MountedCenter + SwordDirection * CurrentPhase.BladeLength * Main.rand.NextFloat(0.6f, 1f);
-            MagnumParticleHandler.SpawnParticle(new HueShiftingMusicNoteParticle(
-                notePos, -SwordDirection * 1.5f,
-                hueMin: 0.38f, hueMax: 0.77f,   // green(0.38) ↁEpurple(0.77)
-                saturation: 0.85f, luminosity: 0.6f,
-                scale: 0.75f, lifetime: 25, hueSpeed: 0.025f));
+            // CadenceRiftDust every 5 frames
+            if (timer % 5 == 0)
+            {
+                Vector2 dustVel = SwordDirection.RotatedByRandom(0.5) * Main.rand.NextFloat(1f, 3f);
+                Dust.NewDust(tipPos, 0, 0, ModContent.DustType<CadenceRiftDust>(),
+                    dustVel.X, dustVel.Y);
             }
 
-            // Blade-tip bloom stack  ECalamity-style 4-layer additive bloom
+            // Attack burst at peak swing (mid-point of animation): 3-5 VoidCleaveParticle along the arc
+            int attackFrame = (int)(SwingTime * 0.5f);
+            if (timer == attackFrame)
             {
-                Vector2 tipWorld = Owner.MountedCenter + SwordDirection * CurrentPhase.BladeLength;
-                float bloomOpacity = MathHelper.Clamp((Progression - 0.10f) / 0.15f, 0f, 1f)
-                                   * MathHelper.Clamp((0.90f - Progression) / 0.15f, 0f, 1f);
-                BloomRenderer.DrawBloomStackAdditive(tipWorld, EnigmaPurple, EnigmaGreen,
-                    scale: 0.45f + ComboStep * 0.08f, opacity: bloomOpacity * 0.7f);
-            }
-
-            // Glyph accent on finisher (1-in-6 during phase 2)
-            if (ComboStep == 2 && Main.rand.NextBool(6))
-            {
-                Vector2 glyphPos = Owner.MountedCenter + SwordDirection * CurrentPhase.BladeLength * Main.rand.NextFloat(0.4f, 1f);
-                CustomParticles.Glyph(glyphPos, EnigmaGreen, 0.35f);
+                int burstCount = Main.rand.Next(3, 6);
+                for (int i = 0; i < burstCount; i++)
+                {
+                    float arcOffset = MathHelper.Lerp(-0.4f, 0.4f, i / (float)Math.Max(burstCount - 1, 1));
+                    Vector2 burstDir = SwordDirection.RotatedBy(arcOffset * Direction);
+                    Vector2 burstPos = Owner.MountedCenter + burstDir * CurrentPhase.BladeLength * Main.rand.NextFloat(0.5f, 1f);
+                    Vector2 burstVel = burstDir * Main.rand.NextFloat(3f, 7f);
+                    CadenceParticleHandler.Spawn(new VoidCleaveParticle(
+                        burstPos, burstVel, CadenceUtils.CadenceViolet, Main.rand.NextFloat(0.4f, 0.8f), Main.rand.Next(15, 25)));
+                }
             }
         }
 

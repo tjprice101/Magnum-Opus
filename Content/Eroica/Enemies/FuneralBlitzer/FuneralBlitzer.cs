@@ -646,7 +646,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 
     public class BlitzerSalvoProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SmallBurstFlare";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare";
 
         public override void SetDefaults()
         {
@@ -695,7 +695,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 
     public class BlitzerLightningBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare4";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare";
 
         public override void SetDefaults()
         {
@@ -732,7 +732,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 
     public class BlitzerSorrowBomb : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare4";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare";
 
         public override void SetDefaults()
         {
@@ -798,7 +798,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 
     public class BlitzerHomingSoul : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/FlareSpikeBurst";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16";
 
         public override void SetDefaults()
         {

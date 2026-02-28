@@ -1,32 +1,21 @@
 // =============================================================================
-// Eroica Funeral Trail Shader - VS 2.0 + PS 2.0 Compatible
+// Eroica Funeral Trail Shader - Somber Requiem Smoke
 // =============================================================================
-// Somber, smoky flame trail for funeral-themed weapons, enemies, and
-// accessories (Funeral Prayer, Funeral Blitzer, Funeral March Insignia).
-// A heavier, slower-burning counterpart to HeroicFlameTrail.
+// Multi-octave layered smoke trail with ash ember dissolution and incense
+// wisp depth. Heavier, slower, more mournful than the heroic variant.
 //
-// UV Layout:
-//   U (coords.x) = position along trail (0 = head, 1 = tail)
-//   V (coords.y) = position across trail width (0 = top edge, 1 = bottom edge)
+// VISUAL IDENTITY: Like incense burning at a warrior's funeral pyre --
+// thick layers of smoke that curl and separate into distinct depth planes,
+// glowing embers that cool to gray ash as they drift, each wisp rising
+// like a prayer being carried heavenward.
 //
 // Techniques:
-//   FuneralFlameFlow  - Slow smoldering trail with smoke dissolution at edges
-//   FuneralGlowPass   - Soft mournful radial glow with heartbeat pulse
-//
-// Features:
-//   - Vertex shader transforms via uTransformMatrix
-//   - Slower scroll speed for somber, funeral-march pacing
-//   - Smoky edge dissolution with procedural hash noise
-//   - uColor centre -> uSecondaryColor mid -> transparent edge gradient
-//   - "Incense rising" vertical wisps peeling off the trail
-//   - Reduced flicker (steady, smoldering flames)
-//   - Dimmer white-hot core compared to heroic variant
-//   - Overbright multiplier for HDR bloom
-//   - Designed for multi-pass rendering (C# renders 3 passes)
+//   FuneralFlameFlow  - Multi-octave smoke with ash dissolution
+//   FuneralGlowPass   - Deep mournful radial glow with heartbeat pulse
 // =============================================================================
 
-sampler2D uImage0 : register(s0); // Base trail texture / white gradient
-sampler2D uImage1 : register(s1); // Noise texture (e.g. NoiseSmoke, PerlinNoise)
+sampler2D uImage0 : register(s0);
+sampler2D uImage1 : register(s1); // Noise texture
 
 float4x4 uTransformMatrix;
 float uTime;
@@ -35,13 +24,13 @@ float3 uSecondaryColor;  // Secondary color (RequiemGold)
 float uOpacity;
 float uIntensity;
 float uOverbrightMult;
-float uScrollSpeed;       // Flame flow scroll rate (default 0.8, slower than heroic)
-float uDistortionAmt;     // Smoke turbulence strength (default 0.05)
-float uNoiseScale;        // Noise UV repetition (default 2.5)
-float uHasSecondaryTex;   // 1.0 if noise texture bound, 0.0 if not
-float uSecondaryTexScale; // Noise texture UV scale
-float uSecondaryTexScroll; // Noise scroll speed
-float uSmokeIntensity;    // Smoke overlay strength (0.0-1.0)
+float uScrollSpeed;
+float uDistortionAmt;
+float uNoiseScale;
+float uHasSecondaryTex;
+float uSecondaryTexScale;
+float uSecondaryTexScroll;
+float uSmokeIntensity;
 
 // =============================================================================
 // VERTEX SHADER
@@ -74,28 +63,45 @@ VertexShaderOutput MainVS(VertexShaderInput input)
 // UTILITY
 // =============================================================================
 
-// Hash-based procedural noise (PS 2.0 safe, no extra texture reads)
 float HashNoise(float2 p)
 {
     return frac(sin(dot(p, float2(12.9898, 78.233))) * 43758.5453);
 }
 
-// Smooth value noise from hash (4-tap bilinear interpolation)
 float SmoothHash(float2 uv)
 {
     float2 i = floor(uv);
     float2 f = frac(uv);
     float2 u = f * f * (3.0 - 2.0 * f);
-
     float a = HashNoise(i);
     float b = HashNoise(i + float2(1.0, 0.0));
     float c = HashNoise(i + float2(0.0, 1.0));
     float d = HashNoise(i + float2(1.0, 1.0));
-
     return lerp(lerp(a, b, u.x), lerp(c, d, u.x), u.y);
 }
 
-// 0->1->0 bump (peak at centre)
+// Multi-octave FBM (Fractal Brownian Motion) for rich smoke layering
+float FBMSmoke(float2 uv, float time)
+{
+    float value = 0.0;
+    float amplitude = 0.5;
+    float2 offset = float2(time * 0.15, -time * 0.08);
+
+    // Octave 1: Large billowy shapes
+    value += SmoothHash(uv * 1.0 + offset) * amplitude;
+    amplitude *= 0.5;
+    // Octave 2: Medium curls
+    value += SmoothHash(uv * 2.2 + offset * 1.3) * amplitude;
+    amplitude *= 0.5;
+    // Octave 3: Fine wispy detail
+    value += SmoothHash(uv * 4.7 + offset * 1.8) * amplitude;
+    amplitude *= 0.5;
+    // Octave 4: Micro turbulence
+    value += SmoothHash(uv * 9.5 + offset * 2.5) * amplitude;
+
+    return value;
+}
+
 float QuadraticBump(float x)
 {
     return x * (4.0 - x * 4.0);
@@ -107,13 +113,7 @@ float4 ApplyOverbright(float3 color, float alpha)
 }
 
 // =============================================================================
-// TECHNIQUE 1: FUNERAL FLAME FLOW
-// =============================================================================
-// Slow, smoldering flame trail that burns with quiet grief. Smoke curls
-// upward from the trail edges while the core holds a dim ember glow.
-// Uses procedural hash noise for smoke dissolution and wisp patterns.
-// Compared to HeroicFlameFlow: slower scroll, heavier smoke, steadier
-// burn, and an "incense rising" wisp effect at the upper edge.
+// TECHNIQUE 1: FUNERAL FLAME FLOW - Multi-Octave Smoke
 // =============================================================================
 
 float4 FuneralFlameFlowPS(VertexShaderOutput input) : COLOR0
@@ -121,88 +121,101 @@ float4 FuneralFlameFlowPS(VertexShaderOutput input) : COLOR0
     float2 coords = input.TexCoord;
     float4 sampleColor = input.Color;
 
-    // --- Smoke turbulence distortion ---
-    // Gentle vertical drift (smoke rises slowly, not heroic licking)
-    float drift1 = sin(coords.x * 5.0 + uTime * uScrollSpeed * 2.0) * uDistortionAmt;
-    // Slow lateral sway (smoke billows sideways)
-    float drift2 = sin(coords.x * 9.0 - uTime * uScrollSpeed * 3.0 + coords.y * 3.0) * uDistortionAmt * 0.5;
-    // Low-frequency undulation for heavy smoke movement
-    float drift3 = sin(coords.x * 3.0 + uTime * uScrollSpeed * 1.2) * uDistortionAmt * 0.35;
+    // --- Multi-layered smoke distortion (3 depth planes) ---
+    // Background smoke (slow, large billows)
+    float bgDrift = sin(coords.x * 3.0 + uTime * uScrollSpeed * 0.8) * uDistortionAmt * 0.8;
+    // Mid smoke (medium movement)
+    float midDrift = sin(coords.x * 7.0 - uTime * uScrollSpeed * 1.8 + coords.y * 2.0) * uDistortionAmt * 0.5;
+    // Foreground wisps (fast, thin)
+    float fgDrift = sin(coords.x * 13.0 + uTime * uScrollSpeed * 3.0) * uDistortionAmt * 0.25;
 
     float2 distortedUV = coords;
-    distortedUV.y += drift1 + drift3;
-    distortedUV.x += drift2;
+    distortedUV.y += bgDrift + fgDrift;
+    distortedUV.x += midDrift;
 
-    // Sample base texture
     float4 baseTex = tex2D(uImage0, distortedUV);
 
-    // --- Procedural smoke noise ---
-    float2 noiseP = coords * uNoiseScale;
-    noiseP.x -= uTime * uScrollSpeed * 0.6;
-    noiseP.y -= uTime * 0.15; // Smoke rises upward, slowly
-    float procNoise = SmoothHash(noiseP);
+    // --- Multi-octave FBM smoke noise ---
+    float2 smokeUV = coords * uNoiseScale;
+    float fbmNoise = FBMSmoke(smokeUV, uTime * uScrollSpeed);
 
     // Blend with optional secondary texture
     float2 secUV = coords * uSecondaryTexScale;
     secUV.x -= uTime * uSecondaryTexScroll * 0.8;
     secUV.y -= uTime * 0.2;
     float4 noiseTex = tex2D(uImage1, secUV);
-    float noiseVal = lerp(procNoise, noiseTex.r, uHasSecondaryTex * 0.6);
+    float noiseVal = lerp(fbmNoise, noiseTex.r, uHasSecondaryTex * 0.55);
 
     // --- Edge-to-centre fade ---
     float edgeFade = QuadraticBump(coords.y);
 
-    // --- Smoky edge dissolution ---
-    float smokeEdgeNoise = lerp(procNoise, noiseTex.g, uHasSecondaryTex * uSmokeIntensity * 0.5);
-    float smokeEdge = saturate(edgeFade * 1.3 - (1.0 - smokeEdgeNoise) * uSmokeIntensity * 0.6);
+    // --- Smoky edge dissolution with FBM detail ---
+    float smokeEdgeNoise = lerp(fbmNoise, noiseTex.g, uHasSecondaryTex * uSmokeIntensity * 0.4);
+    float smokeEdge = saturate(edgeFade * 1.3 - (1.0 - smokeEdgeNoise) * uSmokeIntensity * 0.7);
 
-    // --- Incense wisp effect: thin vertical streams peeling upward ---
-    float wispMask = saturate(1.0 - coords.y * 2.5); // Top-biased
-    float wispPattern = sin(coords.x * 18.0 + uTime * uScrollSpeed * 5.0) * 0.5 + 0.5;
-    wispPattern *= sin(coords.x * 25.0 - uTime * 2.0) * 0.3 + 0.7;
-    float wisps = wispMask * wispPattern * uSmokeIntensity * 0.25;
+    // --- Incense wisp depth layers (3 distinct wisp streams) ---
+    // Each stream has different frequency, speed, and vertical position
+    float wispMask1 = saturate(1.0 - coords.y * 2.2);
+    float wispPattern1 = sin(coords.x * 18.0 + uTime * uScrollSpeed * 5.0) * 0.5 + 0.5;
+    wispPattern1 *= SmoothHash(coords * 4.0 + float2(uTime * 0.3, 0.0));
 
-    // --- Trail length fade (head glows, tail turns to ash) ---
+    float wispMask2 = saturate(1.0 - abs(coords.y - 0.2) * 5.0);
+    float wispPattern2 = sin(coords.x * 12.0 - uTime * uScrollSpeed * 3.5 + 1.0) * 0.5 + 0.5;
+    wispPattern2 *= SmoothHash(coords * 6.0 + float2(-uTime * 0.2, uTime * 0.15));
+
+    float wispMask3 = saturate(1.0 - abs(coords.y - 0.35) * 6.0);
+    float wispPattern3 = cos(coords.x * 22.0 + uTime * uScrollSpeed * 4.0) * 0.5 + 0.5;
+
+    float wisps = (wispMask1 * wispPattern1 + wispMask2 * wispPattern2 + wispMask3 * wispPattern3) * uSmokeIntensity * 0.2;
+
+    // --- Ash ember dissolution at trail tail ---
     float trailFade = saturate(1.0 - coords.x * 1.15);
-    float ashTail = saturate(coords.x * 2.0 - 0.85) * 0.10;
+    float ashProgress = saturate((coords.x - 0.5) * 2.0); // 0 at midpoint, 1 at tail
 
-    // --- Funeral colour gradient ---
-    // uColor centre -> uSecondaryColor mid -> ash gray at tail
+    // Ash particles: noise-driven bright spots that dim to gray
+    float ashNoise = SmoothHash(coords * 8.0 + float2(uTime * 0.1, 0.0));
+    float ashSparks = saturate(ashNoise * 3.0 - 2.0) * ashProgress;
+    float ashDim = 1.0 - ashProgress * 0.6; // Dimming factor
+
+    // --- Funeral colour gradient with ash transition ---
     float gradientT = coords.x * 0.65 + noiseVal * 0.35;
     float3 flameColor = lerp(uColor, uSecondaryColor, gradientT);
-    float3 ashGray = float3(0.35, 0.30, 0.28);
-    float ashBlend = saturate((coords.x - 0.6) * 2.5);
-    flameColor = lerp(flameColor, ashGray, ashBlend * 0.5);
 
-    // --- Dimmer white-hot core (somber, not blazing) ---
+    // Ash gray at tail
+    float3 ashGray = float3(0.35, 0.30, 0.28);
+    float3 coolingEmber = float3(0.5, 0.25, 0.1); // Orange-gray cooling ember
+    float ashBlend = saturate((coords.x - 0.5) * 2.5);
+    flameColor = lerp(flameColor, coolingEmber, ashBlend * 0.4);
+    flameColor = lerp(flameColor, ashGray, ashBlend * ashBlend * 0.5);
+
+    // --- Dimmer white-hot core ---
     float coreMask = saturate((edgeFade - 0.55) * 2.5);
     float3 hotCore = float3(0.92, 0.85, 0.70);
-    flameColor = lerp(flameColor, hotCore, coreMask * 0.45);
+    flameColor = lerp(flameColor, hotCore, coreMask * 0.45 * ashDim);
 
     // --- Smoke-darkened edges ---
     float edgeMask = saturate((0.55 - edgeFade) * 3.0);
-    flameColor *= 1.0 - edgeMask * uSmokeIntensity * 0.3;
+    flameColor *= 1.0 - edgeMask * uSmokeIntensity * 0.35;
 
-    // --- Slow, steady pulse (heartbeat-like, not frantic) ---
+    // --- Ash spark highlights ---
+    float3 emberGlow = float3(0.8, 0.4, 0.1);
+    flameColor += emberGlow * ashSparks * 0.3;
+
+    // --- Slow heartbeat pulse ---
     float pulse = sin(uTime * 4.0 + coords.x * 5.0) * 0.04 + 0.96;
     pulse *= sin(uTime * 2.5 + coords.x * 8.0) * 0.03 + 0.97;
 
     // --- Final composition ---
     float3 finalColor = flameColor * baseTex.rgb * uIntensity * pulse;
-    finalColor *= 0.55 + noiseVal * 0.45;
+    finalColor *= 0.50 + noiseVal * 0.50;
 
-    float alpha = (smokeEdge * trailFade + ashTail + wisps) * uOpacity * sampleColor.a * baseTex.a;
+    float alpha = (smokeEdge * trailFade + wisps + ashSparks * 0.1) * uOpacity * sampleColor.a * baseTex.a;
 
     return ApplyOverbright(finalColor, alpha);
 }
 
 // =============================================================================
-// TECHNIQUE 2: FUNERAL GLOW PASS
-// =============================================================================
-// Soft, mournful radial glow overlay for bloom stacking. Renders behind
-// the main flame pass to create a dimmer, heavier halo. DirgeRed to
-// RequiemGold gradient. Pulse rate is reduced to a gentle heartbeat
-// rhythm. Edges dissolve into smoke.
+// TECHNIQUE 2: FUNERAL GLOW PASS - Deep Mournful Halo
 // =============================================================================
 
 float4 FuneralGlowPS(VertexShaderOutput input) : COLOR0
@@ -210,53 +223,44 @@ float4 FuneralGlowPS(VertexShaderOutput input) : COLOR0
     float2 coords = input.TexCoord;
     float4 sampleColor = input.Color;
 
-    // Gentle smoke distortion
     float wave = sin(coords.x * 3.5 + uTime * uScrollSpeed * 1.5) * uDistortionAmt * 0.35;
     float2 glowUV = coords;
     glowUV.y += wave;
 
     float4 baseTex = tex2D(uImage0, glowUV);
 
-    // --- Centre-relative coordinates for radial glow ---
     float2 centred = coords - 0.5;
     float dist = length(centred) * 2.0;
 
-    // Soft radial falloff (mournful, wide)
     float radial = saturate(1.0 - dist * dist);
     radial *= radial;
 
-    // Wider edge fade for smoke halo along trail width
     float edgeFade = QuadraticBump(coords.y);
     float softEdge = edgeFade * edgeFade;
 
-    // Procedural smoke dissolution at glow edges
+    // FBM smoke dissolution on glow edges
     float2 smokeP = coords * uNoiseScale * 0.5;
     smokeP.x -= uTime * uScrollSpeed * 0.3;
     smokeP.y -= uTime * 0.1;
-    float smokeNoise = SmoothHash(smokeP);
-    float smokeDissolve = lerp(1.0, smokeNoise * 0.6 + 0.4, uSmokeIntensity);
+    float smokeNoise = FBMSmoke(smokeP, uTime * uScrollSpeed * 0.5);
+    float smokeDissolve = lerp(1.0, smokeNoise * 0.7 + 0.3, uSmokeIntensity);
     softEdge *= smokeDissolve;
 
-    // Trail fade
     float trailFade = saturate(1.0 - coords.x * 0.9);
 
-    // --- DirgeRed -> RequiemGold mournful gradient ---
+    // Mournful gradient with amber undertone
     float3 glowColor = lerp(uColor, uSecondaryColor, coords.x * 0.45);
-
-    // Add warm but subdued amber tint
     float3 amberTint = float3(0.85, 0.45, 0.15);
     glowColor = lerp(glowColor, amberTint, 0.12);
 
-    // Gentle noise modulation
     float noiseVal = SmoothHash(coords * uNoiseScale * 0.55 - float2(uTime * 0.3, 0.0));
     noiseVal = lerp(0.75, noiseVal, 0.45);
 
     glowColor *= uIntensity * noiseVal * baseTex.rgb;
 
-    // --- Gentle heartbeat pulse (funeral pace) ---
+    // Heartbeat pulse
     float heartbeat = sin(uTime * 2.0 + coords.x * 3.0) * 0.12 + 0.88;
 
-    // Combine radial glow with trail edge shape
     float shape = max(radial, softEdge * 0.6);
     float alpha = shape * trailFade * uOpacity * sampleColor.a * baseTex.a * heartbeat;
 

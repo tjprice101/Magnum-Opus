@@ -10,249 +10,198 @@ using MagnumOpus.Common.Systems.Particles;
 namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 {
     /// <summary>
-    /// VFX helper for the Galactic Overture summon weapon.
-    /// Grand galactic melody — sweeping golden-blue muse trails,
-    /// musical projectile cascades, serenade shimmer aura, cosmic
-    /// notation bursts. The muse performs an overture across the sky.
+    /// Shader-driven VFX for Galactic Overture — the sweeping orchestral summoner staff.
+    /// Uses OvertureAura.fx with wave-front radiance and musical staff lines.
+    /// Grand, sweeping, orchestral — the Muse paints the battlefield with cosmic light.
     /// </summary>
     public static class GalacticOvertureVFX
     {
         // =====================================================================
-        //  HOLD ITEM VFX
+        //  HoldItemVFX — Orchestral anticipation aura
         // =====================================================================
-
         public static void HoldItemVFX(Player player, int minionCount)
         {
-            if (Main.dedServ) return;
-
-            Vector2 center = player.MountedCenter;
-            float time = (float)Main.timeForVisualEffects;
-
-            // Overture gold aura — warm serenade glow
-            if (Main.rand.NextBool(6))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(24f, 24f);
-                Color auraColor = Color.Lerp(NachtmusikPalette.RadianceGold, NachtmusikPalette.SerenadeGlow,
-                    Main.rand.NextFloat());
-                var glow = new GenericGlowParticle(center + offset, new Vector2(0, -0.3f),
-                    auraColor * 0.3f, 0.15f, 18, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-
-            // Musical notation motes — ascending
-            if (Main.rand.NextBool(25 - Math.Min(minionCount * 3, 15)))
-            {
-                Vector2 notePos = center + new Vector2(Main.rand.NextFloat(-25f, 25f), 10f);
-                NachtmusikVFXLibrary.SpawnMusicNotes(notePos, 1, 8f, 0.7f, 0.85f, 25);
-            }
-
-            // Warm golden light
-            float intensity = 0.2f + minionCount * 0.04f;
-            Lighting.AddLight(center, NachtmusikPalette.RadianceGold.ToVector3() * 0.2f * intensity);
-        }
-
-        // =====================================================================
-        //  PREDRAW IN WORLD BLOOM
-        // =====================================================================
-
-        public static void PreDrawInWorldBloom(SpriteBatch sb, Texture2D tex,
-            Vector2 pos, Vector2 origin, float rotation, float scale)
-        {
-            float time = (float)Main.timeForVisualEffects;
-            float pulse = 1f + MathF.Sin(time * 0.045f) * 0.05f;
-            NachtmusikPalette.DrawItemBloom(sb, tex, pos, origin, rotation, scale, pulse);
-        }
-
-        // =====================================================================
-        //  SUMMON VFX
-        // =====================================================================
-
-        /// <summary>
-        /// One-shot VFX when the Celestial Muse is summoned.
-        /// Golden overture flash, radiance burst, ascending music note cascade.
-        /// </summary>
-        public static void SummonVFX(Vector2 spawnPos)
-        {
-            if (Main.dedServ) return;
-
-            // Golden entrance flash
-            try { CustomParticles.GenericFlare(spawnPos, NachtmusikPalette.RadianceGold, 0.7f, 16); } catch { }
-            try { CustomParticles.GenericFlare(spawnPos, NachtmusikPalette.StarWhite, 0.5f, 14); } catch { }
-            try { CustomParticles.HaloRing(spawnPos, NachtmusikPalette.CosmicPurple, 0.4f, 15); } catch { }
-
-            // Radiance burst
-            NachtmusikVFXLibrary.SpawnRadianceBurst(spawnPos, 8, 5f);
-
-            // Gradient halos
-            NachtmusikVFXLibrary.SpawnGradientHaloRings(spawnPos, 3, 0.3f);
-
-            // Overture music note cascade — grand musical entrance
-            NachtmusikVFXLibrary.SpawnMusicNotes(spawnPos, 5, 25f, 0.8f, 1.0f, 30);
-
-            // Twinkling stars
-            NachtmusikVFXLibrary.SpawnTwinklingStars(spawnPos, 4, 20f);
-
-            // Bloom
-            NachtmusikVFXLibrary.DrawBloom(spawnPos, 0.45f);
-
-            Lighting.AddLight(spawnPos, NachtmusikPalette.RadianceGold.ToVector3() * 0.8f);
-        }
-
-        // =====================================================================
-        //  MINION AMBIENT VFX
-        // =====================================================================
-
-        /// <summary>
-        /// Per-frame muse ambient: golden serenade aura, hovering sparkles,
-        /// ascending music notation, warm shimmer glow.
-        /// </summary>
-        public static void MinionAmbientVFX(Vector2 pos, float visibility)
-        {
-            if (Main.dedServ) return;
-
-            // Golden muse aura dust
-            if (Main.rand.NextBool(2))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(12f, 12f);
-                Color col = Color.Lerp(NachtmusikPalette.RadianceGold, NachtmusikPalette.StarGold,
-                    Main.rand.NextFloat());
-                Dust dust = Dust.NewDustPerfect(pos + offset, DustID.GoldFlame,
-                    new Vector2(0, -0.5f) + Main.rand.NextVector2Circular(0.5f, 0.5f), 0,
-                    col, (1.0f + Main.rand.NextFloat(0.3f)) * visibility);
-                dust.noGravity = true;
-            }
-
-            // Serenade shimmer sparkle (1-in-3)
-            if (Main.rand.NextBool(3) && visibility > 0.5f)
-            {
-                var sparkle = new SparkleParticle(pos + Main.rand.NextVector2Circular(15f, 15f),
-                    new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -0.8f),
-                    NachtmusikPalette.SerenadeGlow * visibility, 0.35f, 18);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-
-            // Warm radiance glow (1-in-4)
-            if (Main.rand.NextBool(4) && visibility > 0.5f)
-            {
-                Color shimmer = NachtmusikPalette.GetRadianceShimmer();
-                var glow = new GenericGlowParticle(pos + Main.rand.NextVector2Circular(10f, 10f),
-                    new Vector2(0, -0.6f),
-                    shimmer * visibility * 0.6f, 0.28f, 16, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-
-            // Flare accent (1-in-3)
-            if (Main.rand.NextBool(3) && visibility > 0.4f)
-            {
-                try { CustomParticles.GenericFlare(pos + Main.rand.NextVector2Circular(10f, 10f),
-                    NachtmusikPalette.RadianceGold * visibility * 0.5f, 0.3f, 12); } catch { }
-            }
-
-            // Music note — the muse's melody (1-in-6)
-            if (Main.rand.NextBool(6) && visibility > 0.5f)
-                NachtmusikVFXLibrary.SpawnMusicNotes(pos, 1, 12f, 0.7f, 0.85f, 25);
-
-            // Golden muse light
-            float pulse = 0.3f + MathF.Sin((float)Main.timeForVisualEffects * 0.1f) * 0.08f;
-            Lighting.AddLight(pos, NachtmusikPalette.RadianceGold.ToVector3() * pulse * visibility);
-        }
-
-        // =====================================================================
-        //  MINION ATTACK VFX
-        // =====================================================================
-
-        /// <summary>
-        /// Muse fires a musical projectile: golden flash, radiance sparks,
-        /// music note burst along firing direction.
-        /// </summary>
-        public static void MinionAttackVFX(Vector2 minionPos, Vector2 direction)
-        {
-            if (Main.dedServ) return;
-
-            // Attack flash — golden radiance
-            try { CustomParticles.GenericFlare(minionPos, NachtmusikPalette.RadianceGold, 0.5f, 12); } catch { }
-
-            // Directional radiance sparks
-            for (int i = 0; i < 4; i++)
-            {
-                float spread = Main.rand.NextFloat(-0.3f, 0.3f);
-                Vector2 vel = direction.RotatedBy(spread) * Main.rand.NextFloat(2f, 5f);
-                Color sparkColor = Color.Lerp(NachtmusikPalette.RadianceGold, NachtmusikPalette.StarWhite,
-                    (float)i / 4f);
-                var spark = new GlowSparkParticle(minionPos, vel, sparkColor, 0.22f, 12);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-
-            // Music notes — the muse plays
-            NachtmusikVFXLibrary.SpawnMusicNotes(minionPos, 2, 12f, 0.7f, 0.9f, 20);
-
-            Lighting.AddLight(minionPos, NachtmusikPalette.RadianceGold.ToVector3() * 0.5f);
-        }
-
-        // =====================================================================
-        //  MUSE PROJECTILE TRAIL VFX
-        // =====================================================================
-
-        /// <summary>
-        /// Per-frame trail for the muse's musical projectiles:
-        /// golden radiance dust, serenade shimmer, ascending notes.
-        /// </summary>
-        public static void ProjectileTrailVFX(Vector2 pos, Vector2 velocity)
-        {
-            if (Main.dedServ) return;
-
-            // Golden radiance trail dust
-            Dust d = Dust.NewDustPerfect(pos, DustID.GoldFlame,
-                Main.rand.NextVector2Circular(0.5f, 0.5f), 0,
-                NachtmusikPalette.RadianceGold, 1.2f);
-            d.noGravity = true;
-
-            // Serenade shimmer (1-in-3)
+            // Sweeping wave-like motes circling outward — the overture builds
             if (Main.rand.NextBool(3))
             {
-                try { CustomParticles.GenericFlare(pos + Main.rand.NextVector2Circular(4f, 4f),
-                    NachtmusikPalette.SerenadeGlow * 0.5f, 0.18f, 10); } catch { }
+                float time = (float)Main.timeForVisualEffects * 0.025f;
+                float angle = time + Main.rand.NextFloat() * MathHelper.TwoPi;
+                float radius = 22f + minionCount * 5f + (float)Math.Sin(time * 3f) * 6f;
+                Vector2 orbPos = player.Center + new Vector2(
+                    (float)Math.Cos(angle) * radius,
+                    (float)Math.Sin(angle) * radius * 0.4f);
+
+                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.PurpleTorch;
+                Dust d = Dust.NewDustPerfect(orbPos, dustType,
+                    Main.rand.NextVector2Circular(0.4f, 0.4f), 0, default, 0.5f);
+                d.noGravity = true;
+                d.fadeIn = 0.7f;
             }
 
-            // Music note trail (1-in-8)
+            // Occasional twinkling star accent
             if (Main.rand.NextBool(8))
-                NachtmusikVFXLibrary.SpawnMusicNotes(pos, 1, 5f, 0.7f, 0.85f, 18);
+            {
+                NachtmusikVFXLibrary.SpawnTwinklingStars(player.Center, 1, 26f + minionCount * 3f);
+            }
 
-            NachtmusikVFXLibrary.AddRadianceLight(pos, Main.GameUpdateCount, 0.3f);
+            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.2f + minionCount * 0.04f);
         }
 
         // =====================================================================
-        //  PROJECTILE IMPACT VFX
+        //  PreDrawInWorldBloom
         // =====================================================================
+        public static void PreDrawInWorldBloom(SpriteBatch sb, Texture2D tex, Vector2 pos,
+            Vector2 origin, float rotation, float scale)
+        {
+            NachtmusikVFXLibrary.DrawNachtmusikBloomStack(sb, pos,
+                NachtmusikPalette.RadianceGold, NachtmusikPalette.CosmicPurple, scale * 0.25f, 0.35f);
+        }
 
-        /// <summary>
-        /// Muse projectile on-hit: golden radiance flash, star sparks,
-        /// music notes, twinkling stars.
-        /// </summary>
+        // =====================================================================
+        //  SummonVFX — Grand overture opening
+        // =====================================================================
+        public static void SummonVFX(Vector2 spawnPos)
+        {
+            // Expanding wave rings — the first note of the overture
+            for (int ring = 0; ring < 2; ring++)
+            {
+                float radius = 24f + ring * 20f;
+                int points = 10 + ring * 4;
+                for (int i = 0; i < points; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / points;
+                    Vector2 vel = angle.ToRotationVector2() * (1.5f + ring * 1.5f);
+                    int dustType = ring == 0 ? DustID.GoldFlame : DustID.PurpleTorch;
+                    Dust d = Dust.NewDustPerfect(spawnPos + angle.ToRotationVector2() * 8f,
+                        dustType, vel, 0, default, 0.8f);
+                    d.noGravity = true;
+                    d.fadeIn = 1f;
+                }
+            }
+
+            NachtmusikVFXLibrary.SpawnMusicNotes(spawnPos, 3, 20f, 0.5f, 0.8f, 24);
+            NachtmusikVFXLibrary.DrawBloom(spawnPos, 0.6f, 0.9f);
+            NachtmusikVFXLibrary.AddPaletteLighting(spawnPos, 0.7f, 0.6f);
+        }
+
+        // =====================================================================
+        //  MinionAmbientVFX — Muse's celestial presence
+        // =====================================================================
+        public static void MinionAmbientVFX(Vector2 pos, float visibility)
+        {
+            if (Main.rand.NextBool(3))
+            {
+                // Cosmic purple drift around the muse
+                Vector2 offset = Main.rand.NextVector2Circular(14f, 14f);
+                Dust d = Dust.NewDustPerfect(pos + offset, DustID.PurpleTorch,
+                    Main.rand.NextVector2Circular(0.3f, 0.3f), 0, default, 0.4f * visibility);
+                d.noGravity = true;
+                d.fadeIn = 0.7f;
+            }
+
+            // Occasional gold sparkle
+            if (Main.rand.NextBool(8))
+            {
+                Dust g = Dust.NewDustPerfect(pos + Main.rand.NextVector2Circular(10f, 10f),
+                    DustID.GoldFlame, Vector2.Zero, 0, default, 0.3f * visibility);
+                g.noGravity = true;
+            }
+
+            NachtmusikVFXLibrary.AddNachtmusikLight(pos, 0.12f * visibility);
+        }
+
+        // =====================================================================
+        //  MinionAttackVFX — Sweeping orchestral strike
+        // =====================================================================
+        public static void MinionAttackVFX(Vector2 minionPos, Vector2 direction)
+        {
+            // Arc of golden energy in sweep direction
+            for (int i = 0; i < 6; i++)
+            {
+                float spread = MathHelper.ToRadians(30f);
+                float angle = direction.ToRotation() + MathHelper.Lerp(-spread, spread, i / 5f);
+                Vector2 vel = angle.ToRotationVector2() * (3f + Main.rand.NextFloat() * 2f);
+                Dust d = Dust.NewDustPerfect(minionPos, DustID.GoldFlame, vel, 0, default, 0.7f);
+                d.noGravity = true;
+            }
+
+            // Purple accent
+            for (int i = 0; i < 3; i++)
+            {
+                Vector2 vel = direction * 2f + Main.rand.NextVector2Circular(1.5f, 1.5f);
+                Dust d = Dust.NewDustPerfect(minionPos, DustID.PurpleTorch, vel, 0, default, 0.5f);
+                d.noGravity = true;
+            }
+
+            NachtmusikVFXLibrary.SpawnMusicNotes(minionPos, 1, 12f, 0.4f, 0.7f, 20);
+            NachtmusikVFXLibrary.DrawBloom(minionPos, 0.3f, 0.5f);
+        }
+
+        // =====================================================================
+        //  ProjectileTrailVFX — Cosmic light trail
+        // =====================================================================
+        public static void ProjectileTrailVFX(Vector2 pos, Vector2 velocity)
+        {
+            // Dual-tone trail — gold core, purple edge
+            Vector2 dustVel = -velocity * 0.12f + Main.rand.NextVector2Circular(1f, 1f);
+            Dust gold = Dust.NewDustPerfect(pos, DustID.GoldFlame, dustVel, 0, default, 0.6f);
+            gold.noGravity = true;
+            gold.fadeIn = 0.8f;
+
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 purpleVel = -velocity * 0.08f + Main.rand.NextVector2Circular(1.5f, 1.5f);
+                Dust purple = Dust.NewDustPerfect(pos, DustID.PurpleTorch, purpleVel, 0, default, 0.45f);
+                purple.noGravity = true;
+            }
+
+            if (Main.rand.NextBool(6))
+            {
+                NachtmusikVFXLibrary.SpawnTwinklingStars(pos, 1, 8f);
+            }
+
+            NachtmusikVFXLibrary.AddPaletteLighting(pos, 0.3f, 0.3f);
+        }
+
+        // =====================================================================
+        //  ProjectileImpactVFX — Orchestral crescendo impact
+        // =====================================================================
         public static void ProjectileImpactVFX(Vector2 hitPos)
         {
-            if (Main.dedServ) return;
+            NachtmusikVFXLibrary.ProjectileImpact(hitPos, 0.9f);
 
-            NachtmusikVFXLibrary.SpawnGradientHaloRings(hitPos, 2, 0.2f);
-            NachtmusikVFXLibrary.SpawnRadialDustBurst(hitPos, 6, 3f);
-            NachtmusikVFXLibrary.SpawnRadianceBurst(hitPos, 4, 3f);
-            NachtmusikVFXLibrary.SpawnTwinklingStars(hitPos, 2, 10f);
-            NachtmusikVFXLibrary.SpawnMusicNotes(hitPos, 2, 12f, 0.7f, 0.9f, 22);
+            // Radiant burst — the crescendo hits
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 vel = angle.ToRotationVector2() * (3f + Main.rand.NextFloat() * 2f);
+                int dustType = i % 2 == 0 ? DustID.GoldFlame : DustID.PurpleTorch;
+                Dust d = Dust.NewDustPerfect(hitPos, dustType, vel, 0, default, 0.8f);
+                d.noGravity = true;
+            }
 
-            Lighting.AddLight(hitPos, NachtmusikPalette.RadianceGold.ToVector3() * 0.5f);
+            NachtmusikVFXLibrary.SpawnMusicNotes(hitPos, 2, 14f, 0.5f, 0.7f, 22);
+            NachtmusikVFXLibrary.DrawBloom(hitPos, 0.4f, 0.65f);
         }
 
         // =====================================================================
-        //  DESPAWN VFX
+        //  DespawnVFX — Overture's final bow
         // =====================================================================
-
         public static void DespawnVFX(Vector2 pos)
         {
-            if (Main.dedServ) return;
+            // Graceful ascending dissipation
+            for (int i = 0; i < 8; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(2f, 2f);
+                vel.Y -= 1.5f; // Rise upward gracefully
+                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.PurpleTorch;
+                Dust d = Dust.NewDustPerfect(pos, dustType, vel, 0, default, 0.6f);
+                d.noGravity = true;
+                d.fadeIn = 1f;
+            }
 
-            NachtmusikVFXLibrary.SpawnRadialDustBurst(pos, 5, 3f);
-            NachtmusikVFXLibrary.SpawnRadianceBurst(pos, 3, 2f);
-            try { CustomParticles.HaloRing(pos, NachtmusikPalette.RadianceGold * 0.4f, 0.18f, 10); } catch { }
+            NachtmusikVFXLibrary.SpawnTwinklingStars(pos, 3, 18f);
+            NachtmusikVFXLibrary.SpawnMusicNotes(pos, 2, 16f, 0.4f, 0.6f, 20);
         }
     }
 }

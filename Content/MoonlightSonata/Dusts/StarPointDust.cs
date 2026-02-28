@@ -15,14 +15,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
     /// </summary>
     public class StarPointDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/CrispStar4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard";
 
         private static Texture2D _glowTex;
 
         public override void Load()
         {
             _glowTex = ModContent.Request<Texture2D>(
-                "MagnumOpus/Assets/Particles Asset Library/SoftGlow2", AssetRequestMode.ImmediateLoad).Value;
+                "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
         }
 
         public override void Unload()

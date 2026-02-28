@@ -138,11 +138,11 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             if (_softGlowTexture == null)
             {
-                _softGlowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                _softGlowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
             }
             if (_flareTexture == null)
             {
-                _flareTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                _flareTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
             }
             
             Vector2 origin = _softGlowTexture.Size() * 0.5f;

@@ -14,6 +14,7 @@ using MagnumOpus.Content.ClairDeLune.ResonanceEnergies;
 using MagnumOpus.Content.ClairDeLune.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.ClairDeLune.Weapons.Ranged;
 
 namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
 {
@@ -70,6 +71,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
 
         public override void HoldItem(Player player)
         {
+            StarfallWhisperVFX.HoldItemVFX(player);
+
             // Charge while holding
             if (player.channel && player.itemAnimation == 0)
             {
@@ -81,6 +84,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
                 {
                     Vector2 muzzlePos = player.Center + (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX) * 50f;
                     ClairDeLuneVFX.TemporalChargeUp(muzzlePos, progress, 0.6f);
+                    StarfallWhisperVFX.ChargeUpVFX(muzzlePos, progress);
                     
                     // Crystal convergence
                     if (Main.rand.NextBool(4))
@@ -174,7 +178,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
     /// </summary>
     public class StarfallBoltProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MediumCrystalShard";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar";
 
         private bool IsCharged => Projectile.ai[0] == 1f;
 
@@ -198,6 +202,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
             
             // Crystal trail
             ClairDeLuneVFX.TemporalTrail(Projectile.Center, Projectile.velocity, IsCharged ? 1.2f : 0.8f);
+            StarfallWhisperVFX.BoltTrailVFX(Projectile.Center, Projectile.velocity);
             
             // Extra crystal shards for charged
             if (IsCharged && Main.rand.NextBool(3))
@@ -219,6 +224,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
         {
             // Impact VFX
             ClairDeLuneVFX.CrystalShatterBurst(target.Center, 10, 7f, 0.7f);
+            StarfallWhisperVFX.BoltImpactVFX(target.Center);
             
             // Critical hit = chain lightning
             if (hit.Crit)
@@ -290,7 +296,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
     /// </summary>
     public class StarfallRiftProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningBurst";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16";
 
         private int spawnTimer = 0;
 
@@ -344,7 +350,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
     /// </summary>
     public class StarfallCrystalProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SmallCrystalShard";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar";
 
         public override void SetDefaults()
         {
@@ -518,6 +524,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
 
         public override void HoldItem(Player player)
         {
+            MidnightMechanismVFX.HoldItemVFX(player);
+
             // Decay spin-up when not firing
             if (player.itemAnimation == 0 && spinUpLevel > 0)
             {
@@ -529,6 +537,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
             {
                 Vector2 gunPos = player.Center + (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX) * 40f;
                 ClairDeLuneVFX.OrbitingGears(gunPos, 25f, 3, Main.GameUpdateCount * 0.1f * (1f + spinUpLevel * 0.05f), 0.3f);
+                MidnightMechanismVFX.SpinUpVFX(gunPos, (float)spinUpLevel / MaxSpinUp);
             }
         }
 
@@ -554,7 +563,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
     /// </summary>
     public class MechanismBoltProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearSmall";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SmallHardCircleMask";
 
         public override void SetDefaults()
         {
@@ -588,11 +597,13 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
             }
             
             Lighting.AddLight(Projectile.Center, ClairDeLuneColors.Brass.ToVector3() * 0.3f);
+            MidnightMechanismVFX.BulletTrailVFX(Projectile.Center, Projectile.velocity);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             ClairDeLuneVFX.SpawnClockworkGear(target.Center, Main.rand.NextVector2Circular(3f, 3f), false, 0.4f);
+            MidnightMechanismVFX.BulletImpactVFX(target.Center);
         }
 
         public override void OnKill(int timeLeft)
@@ -624,7 +635,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
     /// </summary>
     public class SynchronizedGearBoltProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearLarge";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/HardCircleMask";
 
         public override void SetDefaults()
         {
@@ -744,6 +755,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
 
         public override void HoldItem(Player player)
         {
+            CogAndHammerVFX.HoldItemVFX(player);
+
             if (player.channel && player.itemAnimation == 0)
             {
                 chargeLevel = Math.Min(chargeLevel + 1, MaxCharge);
@@ -818,7 +831,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
     /// </summary>
     public class ClockworkBombProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearLarge";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/HardCircleMask";
 
         private bool IsCharged => Projectile.ai[0] == 1f;
         private float rotation = 0f;
@@ -844,6 +857,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
             
             // Trail
             ClairDeLuneVFX.HeavyTemporalTrail(Projectile.Center, Projectile.velocity, IsCharged ? 1f : 0.7f);
+            CogAndHammerVFX.BombTrailVFX(Projectile.Center, Projectile.velocity);
             
             // Orbiting gears
             if (Main.GameUpdateCount % 3 == 0)
@@ -871,6 +885,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
             {
                 // Singularity explosion
                 ClairDeLuneVFX.TemporalDeathExplosion(Projectile.Center, 1.8f);
+                CogAndHammerVFX.BombDetonationVFX(Projectile.Center, 200f);
                 
                 // Spawn singularity
                 if (Main.myPlayer == Projectile.owner)
@@ -886,6 +901,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
                 // Normal explosion with gear shrapnel
                 ClairDeLuneVFX.TemporalImpact(Projectile.Center, 1.2f);
                 ClairDeLuneVFX.ClockworkGearCascade(Projectile.Center, 16, 10f, 1f);
+                CogAndHammerVFX.BombDetonationVFX(Projectile.Center, 120f);
                 
                 // Spawn gear shrapnel
                 if (Main.myPlayer == Projectile.owner)
@@ -948,7 +964,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
     /// </summary>
     public class GearShrapnelProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ClockworkGearSmall";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SmallHardCircleMask";
 
         public override void SetDefaults()
         {
@@ -990,7 +1006,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
     /// </summary>
     public class TemporalSingularityProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LightningBurst";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16";
 
         private int lifeTimer = 0;
 
@@ -1067,7 +1083,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Ranged
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.2f;
             
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
             Vector2 origin = tex.Size() / 2f;
             
             Main.spriteBatch.End();

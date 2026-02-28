@@ -9,11 +9,9 @@ using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Common.BaseClasses;
 using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
 
-namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
+namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence
 {
     /// <summary>
     /// THE UNRESOLVED CADENCE — Ultimate Enigma melee broadsword (Item).
@@ -93,36 +91,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
         {
             base.HoldItem(player); // combo reset timer
 
-            // Orbiting glyphs proportional to stacks
-            if (inevitabilityStacks > 0 && Main.rand.NextBool(20))
-            {
-                float stackAngle = Main.GameUpdateCount * 0.03f;
-                float stackRadius = 40f + MathF.Sin(Main.GameUpdateCount * 0.05f) * 8f;
-                Vector2 stackPos = player.Center + stackAngle.ToRotationVector2() * stackRadius;
-                Color stackColor = Color.Lerp(EnigmaPurple, EnigmaGreen, inevitabilityStacks / 10f);
-                CustomParticles.Glyph(stackPos, stackColor, 0.3f);
-            }
-
-            // Near-max reality warp
-            if (inevitabilityStacks >= 7 && Main.rand.NextBool(25))
-            {
-                Vector2 warpPos = player.Center + Main.rand.NextVector2Circular(50f, 50f);
-                CustomParticles.GenericFlare(warpPos, EnigmaGreen, 0.3f, 12);
-            }
-
-            // Dimensional rift aura
-            if (Main.rand.NextBool(20))
-            {
-                Vector2 riftPos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                float p = Main.rand.NextFloat();
-                Color riftColor = p < 0.5f
-                    ? Color.Lerp(EnigmaBlack, EnigmaPurple, p * 2f)
-                    : Color.Lerp(EnigmaPurple, EnigmaGreen, (p - 0.5f) * 2f);
-                var rift = new GenericGlowParticle(riftPos, Main.rand.NextVector2Circular(1f, 1f),
-                    riftColor, 0.2f, 15, true);
-                MagnumParticleHandler.SpawnParticle(rift);
-            }
-
             // Lighting
             float intensity = 0.25f + inevitabilityStacks * 0.04f;
             float pulse = MathF.Sin(Main.GameUpdateCount * 0.08f) * 0.1f + 0.9f;
@@ -146,31 +114,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
                     npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 600);
                     var brandNPC = npc.GetGlobalNPC<ParadoxBrandNPC>();
                     brandNPC.AddParadoxStack(npc, 1);
-
-                    // Visual indicator
-                    if (Main.GameUpdateCount % 2 == 0)
-                    {
-                        Vector2 sparkPos = npc.Center - new Vector2(0, npc.height / 2f + 15f);
-                        float gp = Main.rand.NextFloat();
-                        Color sparkColor = (gp < 0.5f
-                            ? Color.Lerp(EnigmaBlack, EnigmaPurple, gp * 2f)
-                            : Color.Lerp(EnigmaPurple, EnigmaGreen, (gp - 0.5f) * 2f)) * 0.6f;
-                        CustomParticles.GenericFlare(sparkPos, sparkColor, 0.35f, 12);
-                    }
                 }
             }
 
             if (anyEnemies)
                 AddInevitabilityStack();
-
-            // Swing VFX
-            CustomParticles.GenericFlare(player.Center, EnigmaGreen, 0.7f, 15);
-            CustomParticles.HaloRing(player.Center, EnigmaPurple, 0.4f, 12);
-            ThemedParticles.EnigmaMusicNotes(player.Center, 4, 35f);
-
-            // Glyph stack indicator
-            if (inevitabilityStacks > 0)
-                CustomParticles.GlyphStack(player.Center - new Vector2(0, 50f), EnigmaGreen, inevitabilityStacks, 0.25f);
 
             // === PARADOX COLLAPSE CHECK ===
             if (inevitabilityStacks >= MaxInevitabilityStacks)
@@ -187,11 +135,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
             Projectile.NewProjectile(source, player.Center, Vector2.Zero,
                 ModContent.ProjectileType<ParadoxCollapseUltimate>(),
                 Item.damage * 3, 15f, player.whoAmI);
-
-            UnifiedVFX.EnigmaVariations.Explosion(player.Center, 1.5f);
-            CustomParticles.GlyphCircle(player.Center, EnigmaPurple, count: 8, radius: 100f, rotationSpeed: 0.08f);
-            CustomParticles.GlyphBurst(player.Center, EnigmaGreen, count: 6, speed: 5f);
-            ThemedParticles.EnigmaMusicNoteBurst(player.Center, 6, 5f);
         }
 
         #endregion

@@ -114,10 +114,10 @@ namespace MagnumOpus.Content.Spring.Weapons
 
         protected override string GetSmearTexturePath(int comboStep) => comboStep switch
         {
-            0 => "MagnumOpus/Assets/Particles Asset Library/SimpleArcSwordSlash",
-            1 => "MagnumOpus/Assets/Particles Asset Library/CurvedSwordSlash",
-            2 => "MagnumOpus/Assets/Particles Asset Library/SwordArc2",
-            _ => "MagnumOpus/Assets/Particles Asset Library/SimpleArcSwordSlash",
+            0 => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse",
+            1 => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/VerticalEllipse",
+            2 => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse",
+            _ => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse",
         };
 
         #endregion

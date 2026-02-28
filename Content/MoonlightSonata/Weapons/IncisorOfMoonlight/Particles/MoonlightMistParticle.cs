@@ -59,11 +59,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Particle
 
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SmokePuff").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle").Value;
             Color col = Color * Opacity;
             Vector2 origin = tex.Size() / 2f;
             spriteBatch.Draw(tex, Position - Main.screenPosition, null, col, Rotation,
                 origin, Scale, SpriteEffects.None, 0f);
+
+            // Secondary softer layer for depth
+            Color glowCol = col * 0.35f;
+            glowCol.A = 0;
+            spriteBatch.Draw(tex, Position - Main.screenPosition, null, glowCol, Rotation,
+                origin, Scale * 1.5f, SpriteEffects.None, 0f);
         }
     }
 }

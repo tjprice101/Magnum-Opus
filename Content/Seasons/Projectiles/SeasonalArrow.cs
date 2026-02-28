@@ -18,7 +18,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SeasonalArrow : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ParticleTrail2";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Trails/spark_06";
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
@@ -405,7 +405,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class HomingPetalProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle13";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
@@ -649,7 +649,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SummerArrowFlareProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField8";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         // Summer hue range: orange/gold (0.08-0.14)
         private const float HueMin = 0.08f;
@@ -889,7 +889,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class DecayZoneProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MagicSparklField9";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         // Autumn hue range: orange/brown (0.06-0.12)
         private const float HueMin = 0.06f;

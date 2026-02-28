@@ -10,190 +10,127 @@ using MagnumOpus.Common.Systems.Particles;
 namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 {
     /// <summary>
-    /// VFX helper for the Starweaver's Grimoire magic weapon.
-    /// Intricate star-weaving spellcraft — arcane patterns woven from cosmic
-    /// purple threads, violet glyph constellations, serenade glow accents,
-    /// and crystalline star-pattern detonations. Each cast weaves a new design.
+    /// Shader-driven VFX for Starweaver's Grimoire — the constellation-charge magic weapon.
+    /// Uses ConstellationWeave.fx for the living star-map charge orb.
+    /// Stars connect as charge builds, forming a complete constellation before bursting.
     /// </summary>
     public static class StarweaversGrimoireVFX
     {
         // =====================================================================
-        //  HOLD ITEM VFX
+        //  HoldItemVFX — Arcane starfield ambient
         // =====================================================================
-
         public static void HoldItemVFX(Player player)
         {
-            if (Main.dedServ) return;
-
-            Vector2 center = player.MountedCenter;
-            float time = (float)Main.timeForVisualEffects;
-
-            // Arcane star-thread aura
-            if (Main.rand.NextBool(6))
+            if (Main.rand.NextBool(5))
             {
-                float angle = time * 0.03f + Main.rand.NextFloat(MathHelper.TwoPi);
-                Vector2 threadPos = center + angle.ToRotationVector2() * Main.rand.NextFloat(15f, 25f);
-                Color threadColor = Color.Lerp(NachtmusikPalette.CosmicPurple, NachtmusikPalette.Violet,
-                    Main.rand.NextFloat());
-                var thread = new GenericGlowParticle(threadPos,
-                    (center - threadPos).SafeNormalize(Vector2.Zero) * 0.3f,
-                    threadColor * 0.35f, 0.12f, 18, true);
-                MagnumParticleHandler.SpawnParticle(thread);
+                // Orbiting arcane star motes
+                float angle = (float)Main.timeForVisualEffects * 0.04f + Main.rand.NextFloat() * MathHelper.TwoPi;
+                float radius = 20f + Main.rand.NextFloat() * 15f;
+                Vector2 pos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+
+                Dust d = Dust.NewDustPerfect(pos, DustID.PurpleTorch,
+                    Main.rand.NextVector2Circular(0.3f, 0.3f), 0, default, 0.5f);
+                d.noGravity = true;
+                d.fadeIn = 0.7f;
             }
 
-            // Orbiting grimoire glyphs
-            if (Main.rand.NextBool(18))
+            if (Main.rand.NextBool(10))
             {
-                float glyphAngle = time * 0.025f;
-                Vector2 glyphPos = center + glyphAngle.ToRotationVector2() * 20f;
-                try { CustomParticles.Glyph(glyphPos, NachtmusikPalette.Violet * 0.4f, 0.25f, -1); } catch { }
+                NachtmusikVFXLibrary.SpawnTwinklingStars(player.Center, 1, 30f);
             }
 
-            NachtmusikVFXLibrary.AddNachtmusikLight(center, 0.2f);
+            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.2f);
         }
 
         // =====================================================================
-        //  PREDRAW IN WORLD BLOOM
+        //  PreDrawInWorldBloom
         // =====================================================================
-
-        public static void PreDrawInWorldBloom(SpriteBatch sb, Texture2D tex,
-            Vector2 pos, Vector2 origin, float rotation, float scale)
+        public static void PreDrawInWorldBloom(SpriteBatch sb, Texture2D tex, Vector2 pos,
+            Vector2 origin, float rotation, float scale)
         {
-            float time = (float)Main.timeForVisualEffects;
-            float pulse = 1f + MathF.Sin(time * 0.04f) * 0.03f;
-            NachtmusikPalette.DrawItemBloom(sb, tex, pos, origin, rotation, scale, pulse);
+            NachtmusikVFXLibrary.DrawNachtmusikBloomStack(sb, pos,
+                NachtmusikPalette.CosmicPurple, NachtmusikPalette.StarGold, scale * 0.3f, 0.4f);
         }
 
         // =====================================================================
-        //  CAST BURST VFX
+        //  CastBurstVFX — Burst when firing orb projectile
         // =====================================================================
-
         public static void CastBurstVFX(Vector2 castPos)
         {
-            if (Main.dedServ) return;
+            // Star-weave discharge burst
+            NachtmusikVFXLibrary.SpawnStarBurst(castPos, 6, 0.4f);
+            NachtmusikVFXLibrary.SpawnMusicNotes(castPos, 2, 15f, 0.5f, 0.8f, 25);
 
-            // Glyph circle burst
-            NachtmusikVFXLibrary.SpawnGlyphBurst(castPos, 6, 3.5f, 0.35f);
-
-            // Central arcane flash
-            try { CustomParticles.GenericFlare(castPos, NachtmusikPalette.Violet, 0.7f, 14); } catch { }
-            try { CustomParticles.GenericFlare(castPos, NachtmusikPalette.SerenadeGlow * 0.6f, 0.5f, 12); } catch { }
-
-            // Star-weaving pattern burst
-            var magicBurst = new StarBurstParticle(castPos, Vector2.Zero,
-                NachtmusikPalette.Violet, 0.4f, 16);
-            MagnumParticleHandler.SpawnParticle(magicBurst);
-
-            // Weaving thread sparks
-            for (int i = 0; i < 8; i++)
+            // Constellation fragment scatter
+            for (int i = 0; i < 6; i++)
             {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
-                var spark = new GlowSparkParticle(castPos, vel,
-                    NachtmusikPalette.GetCelestialGradient((float)i / 8f), 0.22f, 14);
-                MagnumParticleHandler.SpawnParticle(spark);
-            }
-
-            // Music notes
-            NachtmusikVFXLibrary.SpawnMusicNotes(castPos, 2, 12f, 0.7f, 0.9f, 22);
-
-            Lighting.AddLight(castPos, NachtmusikPalette.Violet.ToVector3() * 0.7f);
-        }
-
-        // =====================================================================
-        //  PROJECTILE TRAIL VFX
-        // =====================================================================
-
-        public static void ProjectileTrailVFX(Vector2 pos, Vector2 velocity)
-        {
-            if (Main.dedServ) return;
-
-            // Arcane weave trail
-            NachtmusikVFXLibrary.SpawnCloudTrail(pos, velocity, 0.7f);
-
-            // Purple-violet thread dust
-            if (Main.rand.NextBool(2))
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(1f, 1f);
-                Color threadColor = Color.Lerp(NachtmusikPalette.CosmicPurple, NachtmusikPalette.Violet,
-                    Main.rand.NextFloat());
-                Dust d = Dust.NewDustPerfect(pos, DustID.PurpleTorch, vel, 0, threadColor, 1.2f);
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 vel = angle.ToRotationVector2() * (3f + Main.rand.NextFloat() * 2f);
+                Dust d = Dust.NewDustPerfect(castPos, DustID.PurpleTorch, vel, 0, default, 0.9f);
                 d.noGravity = true;
             }
 
-            // Serenade glow sparkle (1-in-4)
+            NachtmusikVFXLibrary.DrawBloom(castPos, 0.35f, 0.7f);
+            NachtmusikVFXLibrary.AddPaletteLighting(castPos, 0.3f, 0.6f);
+        }
+
+        // =====================================================================
+        //  ProjectileTrailVFX — Constellation orb in flight
+        // =====================================================================
+        public static void ProjectileTrailVFX(Vector2 pos, Vector2 velocity)
+        {
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 dustVel = -velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f);
+                Dust d = Dust.NewDustPerfect(pos, DustID.PurpleTorch, dustVel, 0, default, 0.7f);
+                d.noGravity = true;
+            }
+
             if (Main.rand.NextBool(4))
             {
-                try { CustomParticles.GenericFlare(pos + Main.rand.NextVector2Circular(5f, 5f),
-                    NachtmusikPalette.SerenadeGlow * 0.5f, 0.2f, 12); } catch { }
+                NachtmusikVFXLibrary.SpawnTwinklingStars(pos, 1, 8f);
             }
 
-            // Glyph accent (1-in-12)
-            if (Main.rand.NextBool(12))
-            {
-                try { CustomParticles.Glyph(pos + Main.rand.NextVector2Circular(8f, 8f),
-                    NachtmusikPalette.Violet * 0.5f, 0.25f, -1); } catch { }
-            }
-
-            // Music note (1-in-7)
-            if (Main.rand.NextBool(7))
-                NachtmusikVFXLibrary.SpawnMusicNotes(pos, 1, 6f, 0.7f, 0.85f, 20);
-
-            NachtmusikVFXLibrary.AddNachtmusikLight(pos, 0.3f);
+            NachtmusikVFXLibrary.AddPaletteLighting(pos, 0.3f, 0.4f);
         }
 
         // =====================================================================
-        //  HIT VFX
+        //  SmallHitVFX — Projectile impact
         // =====================================================================
-
         public static void SmallHitVFX(Vector2 hitPos)
         {
-            if (Main.dedServ) return;
-
-            NachtmusikVFXLibrary.SpawnGradientHaloRings(hitPos, 3, 0.2f);
-            NachtmusikVFXLibrary.SpawnTwinklingStars(hitPos, 3, 12f);
-            NachtmusikVFXLibrary.SpawnRadialDustBurst(hitPos, 8, 4f);
-            NachtmusikVFXLibrary.SpawnMusicNotes(hitPos, 2, 15f, 0.7f, 0.9f, 22);
-
-            // Glyph burst at impact
-            NachtmusikVFXLibrary.SpawnGlyphBurst(hitPos, 3, 3f, 0.3f);
-
-            // Star-weave pattern flash
-            var burst = new StarBurstParticle(hitPos, Vector2.Zero,
-                NachtmusikPalette.Violet * 0.6f, 0.3f, 12);
-            MagnumParticleHandler.SpawnParticle(burst);
-
-            Lighting.AddLight(hitPos, NachtmusikPalette.Violet.ToVector3() * 0.6f);
+            NachtmusikVFXLibrary.ProjectileImpact(hitPos, 0.8f);
+            NachtmusikVFXLibrary.SpawnMusicNotes(hitPos, 2, 12f, 0.4f, 0.7f, 20);
+            NachtmusikVFXLibrary.DrawBloom(hitPos, 0.3f, 0.6f);
         }
 
         // =====================================================================
-        //  COMBO / SPECIAL VFX
+        //  SpecialCastVFX — Constellation burst (right-click release)
         // =====================================================================
-
         public static void SpecialCastVFX(Vector2 pos, float intensity = 1f)
         {
-            if (Main.dedServ) return;
+            // Grand constellation completion burst
+            NachtmusikVFXLibrary.SpawnConstellationCircle(pos, 50f * intensity, 7,
+                Main.rand.NextFloat() * MathHelper.TwoPi);
 
-            NachtmusikVFXLibrary.ProjectileImpact(pos, intensity);
+            NachtmusikVFXLibrary.SpawnStarburstCascade(pos, 5, intensity, 1f);
+            NachtmusikVFXLibrary.SpawnOrbitingGlyphs(pos, 4, 40f * intensity,
+                Main.rand.NextFloat() * MathHelper.TwoPi);
 
-            // Unique weaving: glyph orbiting ring
-            NachtmusikVFXLibrary.SpawnOrbitingGlyphs(pos, 8, 40f * intensity, Main.GameUpdateCount * 0.03f);
+            NachtmusikVFXLibrary.SpawnMusicNotes(pos, 6, 30f, 0.6f, 1f, 35);
+            NachtmusikVFXLibrary.SpawnRadialDustBurst(pos, 15, 6f * intensity);
 
-            // Star-pattern constellation
-            NachtmusikVFXLibrary.SpawnConstellationCircle(pos, 30f * intensity, 6, Main.rand.NextFloat(MathHelper.TwoPi));
+            NachtmusikVFXLibrary.DrawComboBloom(pos, 2, 0.5f * intensity, 0.9f);
+            NachtmusikVFXLibrary.AddPaletteLighting(pos, 0.2f, 1f * intensity);
         }
 
         // =====================================================================
-        //  DEATH VFX
+        //  ProjectileDeathVFX — Orb expiry
         // =====================================================================
-
         public static void ProjectileDeathVFX(Vector2 pos)
         {
-            if (Main.dedServ) return;
-
-            NachtmusikVFXLibrary.SpawnRadialDustBurst(pos, 6, 3f);
-            NachtmusikVFXLibrary.SpawnGlyphBurst(pos, 3, 2f, 0.25f);
-            try { CustomParticles.HaloRing(pos, NachtmusikPalette.Violet * 0.5f, 0.2f, 10); } catch { }
+            NachtmusikVFXLibrary.SpawnShatteredStarlight(pos, 5, 4f, 0.6f, true);
+            NachtmusikVFXLibrary.SpawnMusicNotes(pos, 2, 15f, 0.4f, 0.7f, 20);
         }
     }
 }

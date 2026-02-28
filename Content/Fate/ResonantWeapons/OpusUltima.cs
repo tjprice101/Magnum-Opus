@@ -1,3 +1,5 @@
+// DEPRECATED: Replaced by OpusUltima/ folder self-contained system
+/*
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -106,3 +108,4 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         }
     }
 }
+*/

@@ -230,7 +230,7 @@ namespace MagnumOpus.Common.Systems
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/TallMusicNote").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -258,7 +258,7 @@ namespace MagnumOpus.Common.Systems
     /// </summary>
     public class ChromaticScaleSpiral : MusicalProjectileBase
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare";
         
         public override Color PrimaryColor => Color.White;
         public override Color SecondaryColor => GetChromaticColor(spiralPhase);
@@ -372,7 +372,7 @@ namespace MagnumOpus.Common.Systems
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
@@ -401,7 +401,7 @@ namespace MagnumOpus.Common.Systems
     /// </summary>
     public class CrescendoSwell : MusicalProjectileBase
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SoftGlow2";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow";
         
         private Color _baseColor;
         public override Color PrimaryColor => _baseColor;
@@ -521,7 +521,7 @@ namespace MagnumOpus.Common.Systems
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
             Texture2D noteTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/WholeNote").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 noteOrigin = noteTex.Size() / 2f;
@@ -553,7 +553,7 @@ namespace MagnumOpus.Common.Systems
     /// </summary>
     public class TempoMetronome : MusicalProjectileBase
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare";
         
         private Color _baseColor;
         public override Color PrimaryColor => _baseColor;
@@ -663,7 +663,7 @@ namespace MagnumOpus.Common.Systems
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
@@ -696,7 +696,7 @@ namespace MagnumOpus.Common.Systems
     /// </summary>
     public class SymphonyConductorBaton : MusicalProjectileBase
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/EnergyFlare4";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare";
         
         private Color _baseColor;
         public override Color PrimaryColor => _baseColor;
@@ -826,7 +826,7 @@ namespace MagnumOpus.Common.Systems
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SoftGlow2").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -863,7 +863,7 @@ namespace MagnumOpus.Common.Systems
     /// </summary>
     public class VinylRecordDisc : MusicalProjectileBase
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo1";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
         
         public override Color PrimaryColor => new Color(20, 20, 25);
         public override Color SecondaryColor => Color.Gold;
@@ -967,8 +967,8 @@ namespace MagnumOpus.Common.Systems
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D discTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/GlowingHalo1").Value;
-            Texture2D labelTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnergyFlare").Value;
+            Texture2D discTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle").Value;
+            Texture2D labelTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
             Vector2 discOrigin = discTex.Size() / 2f;
             Vector2 labelOrigin = labelTex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;

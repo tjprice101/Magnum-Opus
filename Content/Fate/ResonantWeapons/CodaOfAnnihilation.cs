@@ -1,3 +1,4 @@
+/*
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -21,13 +22,16 @@ using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Weapons.CelestialValor;
 using MagnumOpus.Content.Eroica.Weapons.SakurasBlossom;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
-using MagnumOpus.Content.LaCampanella.ResonantWeapons;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime;
 using MagnumOpus.Content.LaCampanella.ResonanceEnergies;
-using MagnumOpus.Content.EnigmaVariations.ResonantWeapons;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoid;
 using MagnumOpus.Content.EnigmaVariations.ResonanceEnergies;
-using MagnumOpus.Content.SwanLake.ResonantWeapons;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan;
 using MagnumOpus.Content.SwanLake.ResonanceEnergies;
 using MagnumOpus.Content.Fate.ResonanceEnergies;
+using MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons
 {
@@ -119,10 +123,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
             // Swan Lake (1)
             recipe.AddIngredient(ModContent.ItemType<CalloftheBlackSwan>(), 1);
             // Fate weapons (4 - NOT including Coda itself)
-            recipe.AddIngredient(ModContent.ItemType<TheConductorsLastConstellation>(), 1);
-            recipe.AddIngredient(ModContent.ItemType<RequiemOfReality>(), 1);
-            recipe.AddIngredient(ModContent.ItemType<OpusUltima>(), 1);
-            recipe.AddIngredient(ModContent.ItemType<FractalOfTheStars>(), 1);
+            recipe.AddIngredient(ModContent.ItemType<TheConductorsLastConstellation.TheConductorsLastConstellationItem>(), 1);
+            recipe.AddIngredient(ModContent.ItemType<RequiemOfReality.RequiemOfRealityItem>(), 1);
+            recipe.AddIngredient(ModContent.ItemType<OpusUltimaItem>(), 1);
+            recipe.AddIngredient(ModContent.ItemType<FractalOfTheStars.FractalOfTheStarsItem>(), 1);
             
             // === VANILLA ZENITH ===
             recipe.AddIngredient(ItemID.Zenith, 1);
@@ -286,3 +290,4 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         }
     }
 }
+*/

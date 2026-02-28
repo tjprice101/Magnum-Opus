@@ -47,7 +47,7 @@ namespace MagnumOpus.Documentation.Reference
     {
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/CodaOfAnnihilation";
         private const string FallbackTexture = "Terraria/Images/Item_" + nameof(ItemID.TerraBlade);
-        private const string NoiseTexturePath = "MagnumOpus/Assets/VFX/Noise/VoronoiNoise";
+        private const string NoiseTexturePath = "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VoronoiNoise";
 
         #region Constants
         private const float BladeLength = 180f;

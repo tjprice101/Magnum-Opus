@@ -16,7 +16,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Dusts
     /// </summary>
     public class GravityWellDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo2";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/circle_05";
 
         public override void OnSpawn(Dust dust)
         {

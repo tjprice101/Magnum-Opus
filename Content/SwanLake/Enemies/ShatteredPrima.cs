@@ -1183,7 +1183,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Draw orbiting feathers
-            Texture2D featherTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SwanFeather3").Value;
+            Texture2D featherTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar").Value;
             foreach (var featherPos in orbitingFeatherPositions)
             {
                 int index = orbitingFeatherPositions.IndexOf(featherPos);
@@ -1297,7 +1297,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
     /// </summary>
     public class PrimaFeatherBlade : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwanFeather4";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar";
         
         private bool isWhite => Projectile.ai[0] == 1;
         
@@ -1424,7 +1424,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
     /// </summary>
     public class PrimaSoundWave : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GlowingHalo4";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
         
         private float radius => Projectile.ai[0] + Projectile.localAI[0];
         

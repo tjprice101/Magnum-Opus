@@ -1,22 +1,26 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
+using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Common.Systems.VFX;
-using MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura;
+using MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura.Utilities;
+using MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura.Particles;
+using MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura.Primitives;
+using MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura.Shaders;
+using MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura.Dusts;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
     /// <summary>
-    /// Bullet projectile for Blossom of the Sakura — heat-reactive homing tracer.
+    /// Bullet projectile for Blossom of the Sakura — heat-reactive homing tracer round.
     /// 
-    /// Enhanced: AI state tracking for heat propagation, acceleration-based homing,
-    /// pulsating scale, all VFX delegated to BlossomOfTheSakuraVFX module.
+    /// Self-contained VFX: Multi-layer rendering with GPU trail, afterimage chain,
+    /// heat-reactive glow core, and particle spawning.
     /// 
     /// ai[0] = heatProgress (0-1, set by weapon item via Shoot)
     /// ai[1] = age timer
@@ -28,10 +32,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         private int targetNPC = -1;
 
+        // ── Trail tracking ──
+        private const int TrailLength = 20;
+        private Vector2[] trailPositions = new Vector2[TrailLength];
+        private float[] trailRotations = new float[TrailLength];
+        private bool trailInitialized = false;
+
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Type] = 10;
-            ProjectileID.Sets.TrailingMode[Type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 12;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
         public override void SetDefaults()
@@ -55,12 +65,37 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             AgeTimer++;
             Projectile.rotation = Projectile.velocity.ToRotation();
 
+            // ── Trail position tracking ──
+            if (!trailInitialized)
+            {
+                for (int i = 0; i < TrailLength; i++)
+                {
+                    trailPositions[i] = Projectile.Center;
+                    trailRotations[i] = Projectile.rotation;
+                }
+                trailInitialized = true;
+            }
+            else
+            {
+                for (int i = TrailLength - 1; i > 0; i--)
+                {
+                    trailPositions[i] = trailPositions[i - 1];
+                    trailRotations[i] = trailRotations[i - 1];
+                }
+                trailPositions[0] = Projectile.Center;
+                trailRotations[0] = Projectile.rotation;
+            }
+
             // Pulsating visual scale — subtle heat shimmer
             float pulse = (float)Math.Sin(AgeTimer * 0.15f) * 0.06f;
             Projectile.scale = 1f + pulse + HeatProgress * 0.1f;
 
-            // ── Per-frame VFX — delegated to VFX module ──
-            BlossomOfTheSakuraVFX.BulletTrailVFX(Projectile, HeatProgress);
+            // ── Particle Spawning ──
+            SpawnTracerParticles();
+
+            // ── Muzzle flash on first frame ──
+            if (AgeTimer == 1)
+                SpawnMuzzleFlash();
 
             // ── HOMING AI — boss-priority with gentle tracking ──
             if (targetNPC < 0 || !Main.npc[targetNPC].active)
@@ -108,20 +143,147 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             {
                 Vector2 direction = (Main.npc[targetNPC].Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
                 float speed = Projectile.velocity.Length();
-                float turnWeight = 28f - HeatProgress * 6f; // hotter = tighter turns
+                float turnWeight = 28f - HeatProgress * 6f;
                 turnWeight = MathHelper.Clamp(turnWeight, 20f, 30f);
                 Projectile.velocity = (Projectile.velocity * turnWeight + direction * speed) / (turnWeight + 1f);
             }
-
-            // Dynamic palette-based lighting
-            Color lightColor = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.Gold, HeatProgress);
-            Lighting.AddLight(Projectile.Center, lightColor.ToVector3() * (0.4f + HeatProgress * 0.35f));
         }
+
+        #region Particle Spawning
+
+        private void SpawnTracerParticles()
+        {
+            // Tracer sparks flying off the bullet trail
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 perpendicular = Projectile.velocity.SafeNormalize(Vector2.UnitX).RotatedBy(MathHelper.PiOver2);
+                Vector2 sparkOffset = perpendicular * Main.rand.NextFloatDirection() * 4f;
+                Vector2 sparkVel = -Projectile.velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(1f, 3f)
+                    + perpendicular * Main.rand.NextFloatDirection() * 1.5f;
+
+                Color sparkColor = BlossomUtils.GetHeatGradient(HeatProgress);
+                BlossomParticleHandler.SpawnParticle(new TracerSparkParticle(
+                    Projectile.Center + sparkOffset,
+                    sparkVel,
+                    sparkColor,
+                    Main.rand.NextFloat(0.3f, 0.6f + HeatProgress * 0.3f),
+                    Main.rand.Next(8, 16)
+                ));
+            }
+
+            // Heat shimmer particles — more frequent at high heat
+            if (HeatProgress > 0.3f && Main.rand.NextBool(Math.Max(1, (int)(6 - HeatProgress * 4))))
+            {
+                Vector2 shimmerOffset = Main.rand.NextVector2Circular(6f, 6f);
+                BlossomParticleHandler.SpawnParticle(new HeatShimmerParticle(
+                    Projectile.Center + shimmerOffset,
+                    new Vector2(Main.rand.NextFloatDirection() * 0.3f, -Main.rand.NextFloat(0.3f, 0.8f)),
+                    Color.White * (HeatProgress * 0.4f),
+                    Main.rand.NextFloat(0.4f, 0.7f),
+                    Main.rand.Next(12, 24)
+                ));
+            }
+
+            // Sakura petal drift — more frequent at low heat (cool blossoms)
+            if (HeatProgress < 0.5f && Main.rand.NextBool(6))
+            {
+                Vector2 petalVel = -Projectile.velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(0.5f, 1.5f)
+                    + new Vector2(Main.rand.NextFloatDirection() * 0.8f, Main.rand.NextFloat(0.2f, 0.6f));
+                BlossomParticleHandler.SpawnParticle(new BulletPetalParticle(
+                    Projectile.Center,
+                    petalVel,
+                    Color.Lerp(BlossomUtils.CoolPetal, BlossomUtils.SakuraBody, Main.rand.NextFloat()),
+                    Main.rand.NextFloat(0.3f, 0.55f),
+                    Main.rand.Next(30, 55)
+                ));
+            }
+        }
+
+        private void SpawnMuzzleFlash()
+        {
+            // Bright flash at spawn position
+            Color flashColor = BlossomUtils.GetHeatGradient(HeatProgress);
+            flashColor.A = 0;
+            BlossomParticleHandler.SpawnParticle(new MuzzleFlashParticle(
+                Projectile.Center - Projectile.velocity.SafeNormalize(Vector2.Zero) * 8f,
+                Vector2.Zero,
+                flashColor,
+                0.6f + HeatProgress * 0.4f,
+                8
+            ));
+
+            // Directional spark burst from muzzle
+            for (int i = 0; i < 4 + (int)(HeatProgress * 4); i++)
+            {
+                Vector2 sparkVel = Projectile.velocity.SafeNormalize(Vector2.UnitX).RotatedByRandom(MathHelper.ToRadians(25))
+                    * Main.rand.NextFloat(2f, 5f);
+                BlossomParticleHandler.SpawnParticle(new TracerSparkParticle(
+                    Projectile.Center,
+                    sparkVel,
+                    Color.Lerp(flashColor, BlossomUtils.WhiteHot, Main.rand.NextFloat(0.3f)),
+                    Main.rand.NextFloat(0.2f, 0.5f),
+                    Main.rand.Next(6, 12)
+                ));
+            }
+        }
+
+        private void SpawnImpactParticles()
+        {
+            Color impactColor = BlossomUtils.GetHeatGradient(HeatProgress);
+
+            // Central impact bloom
+            impactColor.A = 0;
+            BlossomParticleHandler.SpawnParticle(new ImpactBloomParticle(
+                Projectile.Center,
+                Vector2.Zero,
+                impactColor,
+                0.8f + HeatProgress * 0.6f,
+                12
+            ));
+
+            // Radial spark burst
+            int sparkCount = 6 + (int)(HeatProgress * 8);
+            for (int i = 0; i < sparkCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / sparkCount + Main.rand.NextFloatDirection() * 0.2f;
+                float speed = Main.rand.NextFloat(2f, 6f + HeatProgress * 3f);
+                BlossomParticleHandler.SpawnParticle(new TracerSparkParticle(
+                    Projectile.Center,
+                    angle.ToRotationVector2() * speed,
+                    Color.Lerp(impactColor, BlossomUtils.MuzzleFlash, Main.rand.NextFloat(0.4f)),
+                    Main.rand.NextFloat(0.3f, 0.7f),
+                    Main.rand.Next(10, 20)
+                ));
+            }
+
+            // Petal scatter on impact
+            for (int i = 0; i < 3 + (int)(3 * (1f - HeatProgress)); i++)
+            {
+                Vector2 petalVel = Main.rand.NextVector2Circular(3f, 3f) + new Vector2(0, Main.rand.NextFloat(-1f, 0.5f));
+                BlossomParticleHandler.SpawnParticle(new BulletPetalParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
+                    petalVel,
+                    Color.Lerp(BlossomUtils.CoolPetal, BlossomUtils.WarmCrimson, HeatProgress),
+                    Main.rand.NextFloat(0.35f, 0.6f),
+                    Main.rand.Next(25, 50)
+                ));
+            }
+
+            // Dust ring for vanilla visual mixing
+            for (int i = 0; i < 8; i++)
+            {
+                Vector2 dustVel = Main.rand.NextVector2CircularEdge(4f, 4f);
+                int dust = Dust.NewDust(Projectile.Center - new Vector2(4), 8, 8,
+                    ModContent.DustType<BlossomTracerDust>(), dustVel.X, dustVel.Y, 0, impactColor, Main.rand.NextFloat(0.6f, 1f));
+                Main.dust[dust].noGravity = true;
+            }
+        }
+
+        #endregion
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // VFX: delegated to VFX module
-            BlossomOfTheSakuraVFX.BulletHitVFX(target.Center, HeatProgress);
+            SpawnImpactParticles();
 
             // Seeking crystals — 25% chance
             if (Main.rand.NextBool(4) && Main.myPlayer == Projectile.owner)
@@ -142,21 +304,157 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override bool OnTileCollide(Vector2 oldVelocity)
         {
-            BlossomOfTheSakuraVFX.BulletDeathVFX(Projectile.Center);
+            SpawnImpactParticles();
             SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.2f, Volume = 0.4f }, Projectile.position);
             return true;
         }
 
         public override void OnKill(int timeLeft)
         {
-            BlossomOfTheSakuraVFX.BulletDeathVFX(Projectile.Center);
+            // Final burst if not already handled by OnHit/OnTileCollide
+            if (AgeTimer > 2)
+                SpawnImpactParticles();
         }
+
+        #region Rendering
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Full rendering delegated to VFX module:
-            // {A=0} bloom trail → afterimage → heat-reactive bloom stack → main sprite
-            return BlossomOfTheSakuraVFX.DrawBulletProjectile(Main.spriteBatch, Projectile, HeatProgress, ref lightColor);
+            SpriteBatch sb = Main.spriteBatch;
+            Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
+            Vector2 origin = tex.Size() / 2f;
+
+            // ── Layer 1: GPU Tracer Trail ──
+            DrawTracerTrail(sb);
+
+            // ── Layer 2: Afterimage chain ──
+            DrawAfterimages(sb, tex, origin);
+
+            // ── Layer 3: Core bullet sprite with heat glow ──
+            DrawBulletCore(sb, tex, origin, lightColor);
+
+            // ── Layer 4: Additive bloom overlay ──
+            DrawBloomOverlay(sb, origin);
+
+            return false;
         }
+
+        private void DrawTracerTrail(SpriteBatch sb)
+        {
+            if (AgeTimer < 3) return;
+
+            // Count valid trail positions
+            int validCount = 0;
+            for (int i = 0; i < TrailLength; i++)
+            {
+                if (trailPositions[i] != Vector2.Zero)
+                    validCount++;
+                else
+                    break;
+            }
+            if (validCount < 3) return;
+
+            Vector2[] positions = new Vector2[validCount];
+            Array.Copy(trailPositions, positions, validCount);
+
+            Color trailColor = BlossomUtils.GetHeatGradient(HeatProgress);
+
+            var settings = new BlossomTrailSettings(
+                completionRatio => MathHelper.Lerp(4f + HeatProgress * 3f, 1f, completionRatio),
+                completionRatio =>
+                {
+                    float fade = (1f - completionRatio);
+                    fade = fade * fade;
+                    Color baseCol = Color.Lerp(trailColor, BlossomUtils.CoolPetal, completionRatio * 0.6f);
+                    return baseCol * fade * (0.6f + HeatProgress * 0.4f);
+                },
+                smoothen: true
+            );
+
+            try
+            {
+                sb.End();
+                BlossomTrailRenderer.RenderTrail(positions, settings);
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
+        }
+
+        private void DrawAfterimages(SpriteBatch sb, Texture2D tex, Vector2 origin)
+        {
+            int imageCount = 6 + (int)(HeatProgress * 4);
+            Color afterColor = BlossomUtils.GetHeatGradient(HeatProgress);
+
+            BlossomUtils.EnterShaderRegion(sb);
+
+            for (int i = imageCount - 1; i >= 0; i--)
+            {
+                float progress = (float)i / imageCount;
+                float trailIndex = progress * (TrailLength - 1);
+                int idx = (int)trailIndex;
+                float lerp = trailIndex - idx;
+
+                if (idx + 1 >= TrailLength) continue;
+                if (trailPositions[idx] == Vector2.Zero || trailPositions[idx + 1] == Vector2.Zero) continue;
+
+                Vector2 pos = Vector2.Lerp(trailPositions[idx], trailPositions[idx + 1], lerp) - Main.screenPosition;
+                float rot = MathHelper.Lerp(trailRotations[idx], trailRotations[idx + 1], lerp);
+
+                float fadeFactor = (1f - progress);
+                fadeFactor = fadeFactor * fadeFactor;
+                float alpha = fadeFactor * (0.35f + HeatProgress * 0.2f);
+                float scale = Projectile.scale * (1f - progress * 0.3f);
+
+                Color drawColor = afterColor * alpha;
+                drawColor.A = 0; // Additive-ish via premultiplied
+
+                sb.Draw(tex, pos, null, drawColor, rot, origin, scale, SpriteEffects.None, 0f);
+            }
+
+            BlossomUtils.ExitShaderRegion(sb);
+        }
+
+        private void DrawBulletCore(SpriteBatch sb, Texture2D tex, Vector2 origin, Color lightColor)
+        {
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            Color heatTint = Color.Lerp(lightColor, BlossomUtils.GetHeatGradient(HeatProgress), 0.5f + HeatProgress * 0.4f);
+
+            // Base bullet sprite
+            sb.Draw(tex, drawPos, null, heatTint, Projectile.rotation, origin, Projectile.scale, SpriteEffects.None, 0f);
+
+            // Bright core overlay for high heat
+            if (HeatProgress > 0.2f)
+            {
+                Color coreColor = BlossomUtils.GetHeatGradient(Math.Min(HeatProgress + 0.2f, 1f));
+                coreColor.A = 0;
+                float coreAlpha = (HeatProgress - 0.2f) * 0.8f;
+                sb.Draw(tex, drawPos, null, coreColor * coreAlpha, Projectile.rotation, origin,
+                    Projectile.scale * 1.05f, SpriteEffects.None, 0f);
+            }
+        }
+
+        private void DrawBloomOverlay(SpriteBatch sb, Vector2 origin)
+        {
+            // Soft glow halo around bullet
+            Texture2D bloomTex = TextureAssets.Projectile[Projectile.type].Value;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
+            Color bloomColor = BlossomUtils.GetHeatGradient(HeatProgress);
+            bloomColor.A = 0;
+            float bloomAlpha = 0.25f + HeatProgress * 0.35f;
+            float bloomScale = Projectile.scale * (1.6f + HeatProgress * 0.8f);
+
+            // Pulsating bloom
+            float pulse = (float)Math.Sin(AgeTimer * 0.2f) * 0.1f;
+            bloomScale += pulse;
+
+            BlossomUtils.EnterShaderRegion(sb);
+            sb.Draw(bloomTex, drawPos, null, bloomColor * bloomAlpha, Projectile.rotation, origin,
+                bloomScale, SpriteEffects.None, 0f);
+            BlossomUtils.ExitShaderRegion(sb);
+        }
+
+        #endregion
     }
 }

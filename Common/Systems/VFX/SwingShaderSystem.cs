@@ -55,9 +55,9 @@ namespace MagnumOpus.Common.Systems.VFX
             // Try to load noise texture for shaders
             try
             {
-                if (ModContent.HasAsset("MagnumOpus/Assets/VFX/Noise/VoronoiNoise"))
+                if (ModContent.HasAsset("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VoronoiNoise"))
                 {
-                    var noiseTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX/Noise/VoronoiNoise", AssetRequestMode.ImmediateLoad);
+                    var noiseTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VoronoiNoise", AssetRequestMode.ImmediateLoad);
                     if (noiseTex?.Value != null)
                         NoiseTexture = noiseTex.Value;
                 }

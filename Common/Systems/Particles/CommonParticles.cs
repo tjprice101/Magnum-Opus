@@ -478,7 +478,7 @@ namespace MagnumOpus.Common.Systems.Particles
         public override int FrameVariants => 30;  // 5 columns x 6 rows
         public override bool UseCustomDraw => true;
         public override bool UseAdditiveBlend => true;  // ALWAYS additive for vibrant look
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/HeavySmoke";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/NoiseSmoke";
 
         private float Opacity;
         private float OriginalOpacity;
@@ -1363,9 +1363,9 @@ namespace MagnumOpus.Common.Systems.Particles
             {
                 try
                 {
-                    _vineTextures[0] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/VineWithNoRoses", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
-                    _vineTextures[1] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/VineWithRoseOnTop", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
-                    _vineTextures[2] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/VineWithTwoRoses", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                    _vineTextures[0] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/CursiveMusicNote", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                    _vineTextures[1] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/CursiveMusicNote", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                    _vineTextures[2] = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNoteWithSlashes", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
                 }
                 catch
                 {
@@ -1524,7 +1524,7 @@ namespace MagnumOpus.Common.Systems.Particles
             {
                 try
                 {
-                    _roseBudTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/RosesBud", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                    _roseBudTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
                 }
                 catch
                 {

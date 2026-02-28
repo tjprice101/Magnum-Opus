@@ -112,9 +112,9 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
 
         protected override string GetSmearTexturePath(int comboStep) => comboStep switch
         {
-            1 => "MagnumOpus/Assets/Particles Asset Library/SwordArc8",
-            2 => "MagnumOpus/Assets/Particles Asset Library/SimpleArcSwordSlash",
-            _ => "MagnumOpus/Assets/Particles Asset Library/SwordArc1"
+            1 => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse",
+            2 => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse",
+            _ => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse"
         };
 
         #endregion

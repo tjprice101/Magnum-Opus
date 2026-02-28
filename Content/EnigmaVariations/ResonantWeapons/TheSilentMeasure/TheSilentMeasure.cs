@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -9,244 +10,152 @@ using Terraria.DataStructures;
 using Terraria.Audio;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
+using Terraria.GameContent;
+using ReLogic.Content;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.Particles;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.Dusts;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.Utilities;
 
-namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
+namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
 {
     /// <summary>
-    /// THE SILENT MEASURE - Enigma Ranged Gun
-    /// ======================================
-    /// UNIQUE MECHANICS:
-    /// - Fire bullets that split into 3 HOMING seekers on first enemy hit
-    /// - Each seeker tracks different enemies with heavy particle trails
-    /// - On final impact: creates "?" shaped particle explosion
-    /// - Chain lightning connects ALL hit enemies with eerie green beams
-    /// - Every 5th bullet fired is a PARADOX BOLT that pierces infinitely and chains on every hit
-    /// - Mysterious eyes watch from bullet trails and at impact points
+    /// THE SILENT MEASURE - Ranged bow weapon that fires enigmatic arrows
+    /// Every 5th shot is a Paradox Piercing Bolt with enhanced effects
+    /// Regular arrows are Question Seeker Bolts that split on hit
     /// </summary>
     public class TheSilentMeasure : ModItem
     {
-        public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheSilentMeasure/TheSilentMeasure";
-
-        private static readonly Color EnigmaBlack = new Color(15, 10, 20);
+        private int shotCounter = 0;
+        
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         
-        private int shotCounter = 0;
-        
-        private Color GetEnigmaGradient(float progress)
-        {
-            if (progress < 0.5f)
-                return Color.Lerp(EnigmaBlack, EnigmaPurple, progress * 2f);
-            else
-                return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
-        }
+        public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheSilentMeasure/TheSilentMeasure";
         
         public override void SetDefaults()
         {
-            Item.damage = 290;
+            Item.damage = 245;
             Item.DamageType = DamageClass.Ranged;
-            Item.width = 40;
-            Item.height = 26;
-            Item.useTime = 14;
-            Item.useAnimation = 14;
+            Item.width = 30;
+            Item.height = 60;
+            Item.useTime = 22;
+            Item.useAnimation = 22;
             Item.useStyle = ItemUseStyleID.Shoot;
-            Item.knockBack = 4f;
-            Item.value = Item.sellPrice(gold: 18);
+            Item.knockBack = 3.5f;
+            Item.value = Item.sellPrice(gold: 20);
             Item.rare = ModContent.RarityType<EnigmaRarity>();
-            Item.UseSound = SoundID.Item11;
+            Item.UseSound = SoundID.Item5;
             Item.autoReuse = true;
-            Item.shoot = ProjectileID.Bullet;
+            Item.shoot = ModContent.ProjectileType<QuestionSeekerBolt>();
             Item.shootSpeed = 16f;
-            Item.useAmmo = AmmoID.Bullet;
             Item.noMelee = true;
-        }
-        
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect1", "Bullets split into 3 homing seekers on first hit"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect2", "Hit enemies are connected by chain lightning"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect3", "Every 5th bullet is a paradox bolt that pierces infinitely"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaLore", "'Each shot poses a question that unravels certainty itself'") 
-            { 
-                OverrideColor = EnigmaPurple 
-            });
+            Item.useAmmo = AmmoID.Arrow;
         }
         
         public override void HoldItem(Player player)
         {
-            // === SUBTLE SILENT MEASURE HOLD EFFECT ===
-            // Shot counter indicator - single subtle particle
-            if (shotCounter >= 3 && Main.rand.NextBool(15))
+            Lighting.AddLight(player.Center, EnigmaPurple.ToVector3() * 0.1f);
+        }
+        
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect", "Fires reality-warping arrows that split into homing seekers on hit"));
+            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect2", "Every 5th shot is a Paradox Piercing Bolt with chain lightning"));
+            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect3", "Seekers hunt down nearby enemies with relentless precision"));
+            tooltips.Add(new TooltipLine(Mod, "EnigmaLore", "'Silence measures what sound cannot — the space between notes where truth resides.'")
             {
-                Vector2 barrelPos = player.Center + new Vector2(player.direction * 30f, -5f);
-                Color chargeColor = Color.Lerp(EnigmaPurple, EnigmaGreen, (shotCounter - 3) / 2f);
-                var charge = new GlowSparkParticle(barrelPos + Main.rand.NextVector2Circular(6f, 6f), 
-                    Main.rand.NextVector2Circular(0.5f, 0.5f), chargeColor, 0.12f, 10);
-                MagnumParticleHandler.SpawnParticle(charge);
-            }
-            
-            // Subtle ambient light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.07f) * 0.1f + 0.9f;
-            Lighting.AddLight(player.Center, EnigmaPurple.ToVector3() * pulse * 0.25f);
+                OverrideColor = EnigmaPurple
+            });
         }
         
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             shotCounter++;
-            
-            bool isParadoxArrow = shotCounter >= 5;
-            if (isParadoxArrow)
-                shotCounter = 0;
-            
-            // Spawn main bullet
-            int projType = isParadoxArrow ? 
-                ModContent.ProjectileType<ParadoxPiercingBolt>() : 
-                ModContent.ProjectileType<QuestionSeekerBolt>();
-            
-            Projectile.NewProjectile(source, position, velocity, projType, damage, knockback, player.whoAmI);
-            
-            // Muzzle flash with gradient
-            Vector2 muzzlePos = position + velocity.SafeNormalize(Vector2.Zero) * 25f;
+            bool isParadoxArrow = (shotCounter % 5 == 0);
             
             if (isParadoxArrow)
             {
-                // Enhanced muzzle flash for paradox arrow with multi-layer bloom
-                EnhancedParticles.BloomFlare(muzzlePos, EnigmaGreen, 0.8f, 18, 4, 1.1f);
-                EnhancedParticles.BloomFlare(muzzlePos, EnigmaGreen, 0.65f, 16, 3, 0.9f);
-CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
-                SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 0.6f }, muzzlePos);
+                int paradoxDamage = (int)(damage * 2.0f);
+                Projectile.NewProjectile(source, position, velocity,
+                    ModContent.ProjectileType<ParadoxPiercingBolt>(),
+                    paradoxDamage, knockback * 2f, player.whoAmI);
+                    
+                SoundEngine.PlaySound(SoundID.Item125 with { Pitch = -0.3f, Volume = 0.7f }, position);
             }
             else
             {
-                // Normal muzzle flash - clean and focused
-                EnhancedParticles.BloomFlare(muzzlePos, EnigmaPurple, 0.45f, 12, 2, 0.7f);
-                CustomParticles.HaloRing(muzzlePos, EnigmaGreen * 0.4f, 0.2f, 10);
-                
-                // Occasional music notes
-                if (Main.rand.NextBool(3))
-                    ThemedParticles.EnigmaMusicNotes(muzzlePos, 2, 20f);
+                Projectile.NewProjectile(source, position, velocity,
+                    ModContent.ProjectileType<QuestionSeekerBolt>(),
+                    damage, knockback, player.whoAmI);
             }
             
             return false;
         }
     }
     
-    /// <summary>
-    /// Main bullet that splits on first hit
-    /// </summary>
     public class QuestionSeekerBolt : ModProjectile
     {
-        private static readonly Color EnigmaBlack = new Color(15, 10, 20);
-        private static readonly Color EnigmaDeepPurple = new Color(80, 20, 120);
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color EnigmaGreenFlame = new Color(50, 220, 100);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         
         private bool hasSplit = false;
-        private static List<int> recentlyHitEnemies = new List<int>();
-        
-        // Eye texture index for mysterious watching effect
+        private List<int> recentlyHitEnemies = new List<int>();
         private int eyeTextureIndex = 0;
         
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/GodEye";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MusicNote";
         
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 12;
-            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+            ProjectileID.Sets.CultistIsResistantTo[Projectile.type] = true;
         }
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            
-            // Load sparkle and flare textures for dazzling trail
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/GodEye").Value;
-            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle" + (1 + (Projectile.whoAmI % 8))).Value;
-            Texture2D eyeTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnigmaEye1").Value;
-            
+            SpriteBatch sb = Main.spriteBatch;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 flareOrigin = flareTex.Size() / 2f;
-            Vector2 sparkleOrigin = sparkleTex.Size() / 2f;
-            Vector2 eyeOrigin = eyeTex.Size() / 2f;
             
-            // Switch to additive blending for sparkly magical look
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            // === SPARKLE TRAIL - Dazzling magical sparkles behind the bullet ===
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            // === Shader overlay: Phantom echo multi-ghost seeker trail ===
             {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float trailProgress = (float)i / Projectile.oldPos.Length;
-                float trailAlpha = (1f - trailProgress) * 0.85f;
-                float trailScale = (1f - trailProgress * 0.5f) * 0.45f;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                
-                // Gradient color along trail
-                Color trailColor = Color.Lerp(EnigmaGreenFlame, EnigmaPurple, trailProgress);
-                
-                // Draw sparkle at each trail position
-                float sparkleRot = Main.GameUpdateCount * 0.15f + i * 0.5f;
-                spriteBatch.Draw(sparkleTex, trailPos, null, trailColor * trailAlpha, sparkleRot, sparkleOrigin, trailScale, SpriteEffects.None, 0f);
-                
-                // Additional flare sparkles offset for more density
-                if (i % 2 == 0)
-                {
-                    Vector2 offsetPos = trailPos + new Vector2(MathF.Sin(i * 0.7f) * 6f, MathF.Cos(i * 0.7f) * 6f);
-                    spriteBatch.Draw(flareTex, offsetPos, null, EnigmaGreen * trailAlpha * 0.6f, 0f, flareOrigin, trailScale * 0.5f, SpriteEffects.None, 0f);
-                }
+                Texture2D shBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
+                EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.SilentSeekerTrail,
+                    shBloom, drawPos, shBloom.Size() / 2f, 0.8f,
+                    SilentUtils.QuestionViolet.ToVector3(), SilentUtils.EnigmaEmerald.ToVector3(),
+                    opacity: 0.5f, intensity: 1.0f, rotation: Projectile.velocity.ToRotation(),
+                    noiseTexture: ShaderLoader.GetNoiseTexture("PerlinNoise"),
+                    techniqueName: "SilentSeekerFlow");
             }
             
-            // === MYSTERIOUS EYE - Watching from within the bullet ===
-            float eyePulse = 0.8f + MathF.Sin(Main.GameUpdateCount * 0.1f) * 0.2f;
-            float eyeRot = Projectile.velocity.ToRotation();
-            spriteBatch.Draw(eyeTex, drawPos, null, EnigmaPurple * 0.6f, eyeRot, eyeOrigin, 0.35f * eyePulse, SpriteEffects.None, 0f);
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
-            // === CORE FLARE - Bright energetic center ===
-            float pulse = 0.9f + MathF.Sin(Main.GameUpdateCount * 0.2f) * 0.15f;
-            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreen * 0.9f, 0f, flareOrigin, 0.5f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(flareTex, drawPos, null, EnigmaPurple * 0.7f, 0f, flareOrigin, 0.35f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreen * 0.8f, 0f, flareOrigin, 0.2f * pulse, SpriteEffects.None, 0f);
+            // Velocity-stretched glow trail
+            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            float rot = Projectile.velocity.ToRotation();
+            Vector2 trailScale = new Vector2(16f / pixel.Width, 6f / pixel.Height);
+            sb.Draw(pixel, drawPos, null, SilentUtils.QuestionViolet * 0.7f, rot, pixel.Size() / 2f, trailScale, SpriteEffects.None, 0f);
             
-            // === RADIAL SPARKLE BURST around core ===
-            for (int i = 0; i < 4; i++)
-            {
-                float angle = Main.GameUpdateCount * 0.08f + i * MathHelper.PiOver2;
-                Vector2 sparkleOffset = angle.ToRotationVector2() * (12f + MathF.Sin(Main.GameUpdateCount * 0.15f + i) * 4f);
-                Color sparkleColor = Color.Lerp(EnigmaGreen, EnigmaPurple, (float)i / 4f);
-                spriteBatch.Draw(sparkleTex, drawPos + sparkleOffset, null, sparkleColor * 0.7f, angle, sparkleOrigin, 0.25f, SpriteEffects.None, 0f);
-            }
+            // Bloom core
+            Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
+            sb.Draw(bloom, drawPos, null, SilentUtils.QuestionViolet * 0.6f, 0f, bloom.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, SilentUtils.AnswerWhite * 0.3f, 0f, bloom.Size() / 2f, 0.08f, SpriteEffects.None, 0f);
             
-            // Restore normal blending
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
+            SilentUtils.ExitShaderRegion(sb);
             return false;
-        }
-        
-        private Color GetEnigmaGradient(float progress)
-        {
-            if (progress < 0.5f)
-                return Color.Lerp(EnigmaBlack, EnigmaPurple, progress * 2f);
-            else
-                return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
         }
         
         public override void SetDefaults()
         {
-            Projectile.width = 14;
-            Projectile.height = 14;
+            Projectile.width = 16;
+            Projectile.height = 16;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Ranged;
-            Projectile.penetrate = 1;
-            Projectile.timeLeft = 300;
+            Projectile.penetrate = 2;
+            Projectile.timeLeft = 240;
             Projectile.tileCollide = true;
+            Projectile.ignoreWater = true;
             Projectile.extraUpdates = 1;
         }
         
@@ -254,373 +163,210 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
             
-            // Cycle eye texture for mysterious effect
+            // Cycle eye texture for visual variety
             if (Projectile.timeLeft % 30 == 0)
-                eyeTextureIndex = Main.rand.Next(8);
+                eyeTextureIndex = (eyeTextureIndex + 1) % 3;
             
-            // === CALAMITY-STANDARD RADIANT TRAIL EFFECTS ===
-            // Heavy dust trails (2+ per frame) - void bullet stream
-            for (int d = 0; d < 2; d++)
+            Lighting.AddLight(Projectile.Center, EnigmaPurple.ToVector3() * 0.3f);
+            
+            // Trail particles
+            if (Main.GameUpdateCount % 2 == 0)
             {
-                Vector2 dustOffset = Main.rand.NextVector2Circular(6f, 6f);
-                Dust dustPurple = Dust.NewDustPerfect(Projectile.Center + dustOffset, DustID.PurpleTorch, 
-                    -Projectile.velocity * 0.2f + Main.rand.NextVector2Circular(1f, 1f), 0, EnigmaPurple, 1.2f);
-                dustPurple.noGravity = true;
-                dustPurple.fadeIn = 1.4f;
-                
-                Dust dustGreen = Dust.NewDustPerfect(Projectile.Center + dustOffset * 0.6f, DustID.CursedTorch, 
-                    -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(0.8f, 0.8f), 0, EnigmaGreen, 1.0f);
-                dustGreen.noGravity = true;
-                dustGreen.fadeIn = 1.3f;
+                SilentParticleHandler.Spawn(new SeekerTrailDot(
+                    Projectile.Center + Main.rand.NextVector2Circular(4f, 4f),
+                    SilentUtils.QuestionViolet,
+                    Main.rand.NextFloat(0.1f, 0.2f),
+                    20));
             }
-            
-            // Contrasting sparkles (1-in-2) - enigma shimmer
-            if (Main.rand.NextBool(2))
+            if (Main.GameUpdateCount % 4 == 0)
             {
-                Vector2 sparkleOffset = Main.rand.NextVector2Circular(8f, 8f);
-                var sparkle = new SparkleParticle(Projectile.Center + sparkleOffset, 
-                    -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(0.5f, 0.5f), 
-                    EnigmaGreenFlame, 0.4f, 18);
-                MagnumParticleHandler.SpawnParticle(sparkle);
+                Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
+                    ModContent.DustType<SilentMeasureDust>(), Projectile.velocity.X * -0.2f, Projectile.velocity.Y * -0.2f);
             }
-            
-            // Enigma shimmer trails (1-in-3) - void hue cycling
-            if (Main.rand.NextBool(3))
-            {
-                float hue = Main.rand.NextFloat(0.28f, 0.45f); // Purple-green void range
-                Color shimmerColor = Main.hslToRgb(hue, 0.85f, 0.65f);
-                var shimmer = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.12f, 
-                    shimmerColor, 0.32f, 20, true);
-                MagnumParticleHandler.SpawnParticle(shimmer);
-            }
-            
-            // Pearlescent void effect (1-in-4)
-            if (Main.rand.NextBool(4))
-            {
-                float shift = (float)Math.Sin(Main.GameUpdateCount * 0.1f + Projectile.whoAmI) * 0.5f + 0.5f;
-                Color pearlColor = Color.Lerp(EnigmaPurple, EnigmaGreenFlame, shift) * 0.75f;
-                CustomParticles.GenericFlare(Projectile.Center, pearlColor, 0.35f, 14);
-            }
-            
-            // Frequent flares (1-in-2) - arcane radiance
-            if (Main.rand.NextBool(2))
-            {
-                Vector2 flareOffset = Main.rand.NextVector2Circular(5f, 5f);
-                CustomParticles.GenericFlare(Projectile.Center + flareOffset, 
-                    GetEnigmaGradient(Main.rand.NextFloat()), 0.3f, 12);
-            }
-            
-            // Music note trail (1-in-6) - the silent measure whispers
-            if (Main.rand.NextBool(6))
-            {
-                Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreenFlame, Main.rand.NextFloat());
-                Vector2 noteVel = -Projectile.velocity * 0.05f + new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -0.8f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.85f, 30);
-            }
-            
-            // Glyph trail (1-in-8) - enigma rune whisper
-            if (Main.rand.NextBool(8))
-            {
-                CustomParticles.GlyphTrail(Projectile.Center, Projectile.velocity, EnigmaPurple * 0.7f, 0.28f);
-            }
-            
-            // Pulsing mystery light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.1f + 0.9f;
-            Lighting.AddLight(Projectile.Center, EnigmaPurple.ToVector3() * 0.65f * pulse);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 300);
-            var brandNPC = target.GetGlobalNPC<ParadoxBrandNPC>();
-            brandNPC.AddParadoxStack(target, 1);
+            target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 1);
             
-            // === SEEKING CRYSTALS - 33% chance on hit ===
-            if (Main.rand.NextBool(3))
-            {
-                SeekingCrystalHelper.SpawnEnigmaCrystals(
-                    Projectile.GetSource_FromThis(),
-                    target.Center,
-                    Projectile.velocity,
-                    (int)(damageDone * 0.18f),
-                    Projectile.knockBack,
-                    Projectile.owner,
-                    3
-                );
-            }
+            SeekingCrystalHelper.SpawnEnigmaCrystals(
+                Projectile.GetSource_FromThis(),
+                target.Center,
+                Projectile.velocity,
+                (int)(damageDone * 0.2f),
+                5f,
+                Projectile.owner,
+                2
+            );
             
-            // Track hit enemies for chain lightning
-            if (!recentlyHitEnemies.Contains(target.whoAmI))
-                recentlyHitEnemies.Add(target.whoAmI);
+            recentlyHitEnemies.Add(target.whoAmI);
             
-            if (recentlyHitEnemies.Count > 10)
-                recentlyHitEnemies.RemoveAt(0);
-            
-            // SPLIT on first hit!
+            // Split into seekers on first hit
             if (!hasSplit)
             {
                 hasSplit = true;
                 SplitIntoSeekers(target);
             }
             
-            // Chain lightning to other recently hit enemies
+            // Chain lightning damage
             DrawChainLightning(target);
             
-            // === REALITY WARP DISTORTION ===
-            FateRealityDistortion.TriggerChromaticAberration(target.Center, 3f, 10);
+            Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.5f);
             
-            // === ENHANCED UNIFIED VFX HIT EFFECT WITH BLOOM ===
-            UnifiedVFXBloom.EnigmaVariations.ImpactEnhanced(target.Center, 1.0f);
-            
-            // Impact VFX - "?" shaped explosion
-            CreateQuestionMarkExplosion(target.Center);
-            
-            // === WATCHING EYE AT IMPACT ===
-            CustomParticles.EnigmaEyeImpact(target.Center, target.Center, EnigmaGreen, 0.45f);
-            
-            // === ENHANCED MUSIC NOTES BURST ===
-            EnhancedThemedParticles.EnigmaMusicNotesEnhanced(target.Center, 4, 5f);
-            
-            // Ascending sparkle plume at impact point with bloom
-            for (int i = 0; i < 4; i++)
+            // Impact VFX
+            SilentParticleHandler.Spawn(new MeasureImpactRing(target.Center, SilentUtils.QuestionViolet, 0.3f, 20));
+            for (int i = 0; i < Main.rand.Next(3, 6); i++)
             {
-                Vector2 riseVel = new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), -3f - i * 0.8f);
-                
-                var particle = EnhancedParticlePool.GetParticle()
-                    .Setup(target.Center - new Vector2(0, 20f), riseVel, GetEnigmaGradient((float)i / 4f), 0.35f + i * 0.05f, 22)
-                    .WithBloom(2, 0.8f)
-                    .WithDrag(0.96f);
-                EnhancedParticlePool.SpawnParticle(particle);
+                SilentParticleHandler.Spawn(new SeekerTrailDot(
+                    target.Center + Main.rand.NextVector2Circular(12f, 12f),
+                    SilentUtils.QuestionViolet,
+                    Main.rand.NextFloat(0.1f, 0.2f),
+                    15));
             }
-            EnhancedThemedParticles.EnigmaBloomBurstEnhanced(target.Center, 0.5f);
-            
-            // === GLYPH CIRCLE FORMATION ===
-            CustomParticles.GlyphCircle(target.Center, EnigmaPurple, count: 6, radius: 45f, rotationSpeed: 0.06f);
-            
-            // Glyph stacks visualization
-            int stacks = brandNPC.paradoxStacks;
-            if (stacks > 0)
-            {
-                CustomParticles.GlyphStack(target.Center + new Vector2(0, -25f), EnigmaPurple, stacks, 0.28f);
-            }
-            
-            // === DYNAMIC LIGHTING ===
-            Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.8f);
+            SilentParticleHandler.Spawn(new QuestionMarkParticle(
+                target.Center + new Vector2(0f, -24f), new Vector2(0f, -0.5f),
+                SilentUtils.AnswerWhite, 0.4f, 40));
         }
         
         private void SplitIntoSeekers(NPC hitTarget)
         {
-            SoundEngine.PlaySound(SoundID.Item8 with { Pitch = 0.5f, Volume = 0.7f }, Projectile.Center);
+            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 0.5f }, Projectile.Center);
             
-            // Split VFX
-            CustomParticles.GenericFlare(Projectile.Center, EnigmaGreen, 0.8f, 20);
-            CustomParticles.HaloRing(Projectile.Center, EnigmaPurple, 0.45f, 16);
-            CustomParticles.GlyphBurst(Projectile.Center, EnigmaGreen, 6, 4f);
-            
-            // Radial sparkle burst - the arrow shatters into light
-            for (int i = 0; i < 8; i++)
-            {
-                float burstAngle = MathHelper.TwoPi * i / 8f;
-                Vector2 burstVel = burstAngle.ToRotationVector2() * 4.5f;
-                var burst = new GenericGlowParticle(Projectile.Center, burstVel, 
-                    GetEnigmaGradient((float)i / 8f), 0.38f, 18, true);
-                MagnumParticleHandler.SpawnParticle(burst);
-            }
-            ThemedParticles.EnigmaMusicNoteBurst(Projectile.Center, 5, 3f);
-            
-            // Find 3 different targets
-            List<NPC> targets = FindNearestEnemies(hitTarget.Center, 500f, 3, hitTarget.whoAmI);
-            
-            float baseAngle = Projectile.velocity.ToRotation();
-            float[] offsets = { -MathHelper.Pi / 4f, 0f, MathHelper.Pi / 4f };
+            List<NPC> nearbyTargets = FindNearestEnemies(hitTarget.Center, 600f, 3);
             
             for (int i = 0; i < 3; i++)
             {
-                int targetIdx = i < targets.Count ? targets[i].whoAmI : -1;
-                Vector2 newVel = (baseAngle + offsets[i]).ToRotationVector2() * 12f;
-                
-                Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, newVel,
-                    ModContent.ProjectileType<HomingQuestionSeeker>(), Projectile.damage * 2 / 3, Projectile.knockBack * 0.6f, 
-                    Projectile.owner, ai0: targetIdx);
-                
-                // Spawn trail for each seeker direction
-                for (int j = 0; j < 4; j++)
+                Vector2 seekerVel;
+                if (i < nearbyTargets.Count)
                 {
-                    Vector2 trailPos = Projectile.Center + newVel.SafeNormalize(Vector2.Zero) * (j * 12f);
-                    CustomParticles.GenericFlare(trailPos, GetEnigmaGradient((float)i / 3f), 0.35f, 12);
+                    seekerVel = (nearbyTargets[i].Center - Projectile.Center).SafeNormalize(Vector2.UnitX) * 10f;
                 }
+                else
+                {
+                    float angle = MathHelper.TwoPi / 3f * i;
+                    seekerVel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 10f;
+                }
+                
+                Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, seekerVel,
+                    ModContent.ProjectileType<HomingQuestionSeeker>(),
+                    (int)(Projectile.damage * 0.5f), 3f, Projectile.owner);
             }
         }
         
-        private List<NPC> FindNearestEnemies(Vector2 pos, float range, int count, int excludeIndex)
+        private List<NPC> FindNearestEnemies(Vector2 position, float range, int count)
         {
-            List<NPC> found = new List<NPC>();
-            List<(NPC npc, float dist)> candidates = new List<(NPC, float)>();
-            
+            List<NPC> enemies = new List<NPC>();
             foreach (NPC npc in Main.ActiveNPCs)
             {
-                if (npc.friendly || npc.whoAmI == excludeIndex) continue;
-                float dist = Vector2.Distance(pos, npc.Center);
-                if (dist <= range)
-                    candidates.Add((npc, dist));
+                if (npc.friendly) continue;
+                if (Vector2.Distance(npc.Center, position) <= range)
+                    enemies.Add(npc);
             }
-            
-            candidates.Sort((a, b) => a.dist.CompareTo(b.dist));
-            
-            for (int i = 0; i < Math.Min(count, candidates.Count); i++)
-                found.Add(candidates[i].npc);
-            
-            return found;
+            enemies.Sort((a, b) => Vector2.Distance(a.Center, position).CompareTo(Vector2.Distance(b.Center, position)));
+            return enemies.Take(count).ToList();
         }
         
         private void DrawChainLightning(NPC target)
         {
-            foreach (int npcIndex in recentlyHitEnemies)
+            // Chain damage to one nearby enemy (the "lightning" visual is gutted, damage remains)
+            float chainRange = 200f;
+            foreach (NPC npc in Main.ActiveNPCs)
             {
-                if (npcIndex == target.whoAmI) continue;
-                if (npcIndex < 0 || npcIndex >= Main.maxNPCs) continue;
+                if (npc.friendly || npc.whoAmI == target.whoAmI) continue;
+                if (Vector2.Distance(npc.Center, target.Center) > chainRange) continue;
                 
-                NPC other = Main.npc[npcIndex];
-                if (!other.active || other.friendly) continue;
+                npc.SimpleStrikeNPC((int)(Projectile.damage * 0.3f), 0, false, 0f, null, false, 0f, true);
+                npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 180);
                 
-                float dist = Vector2.Distance(target.Center, other.Center);
-                if (dist > 350f) continue;
-                
-                // Draw lightning beam between them
-                MagnumVFX.DrawFractalLightning(target.Center, other.Center, EnigmaGreen, 12, 30f, 4, 0.35f);
-                
-                // Deal bonus chain damage
-                other.SimpleStrikeNPC(Projectile.damage / 3, 0, false, 3f);
-                other.AddBuff(ModContent.BuffType<ParadoxBrand>(), 180);
-                
-                // Lightning sparkle burst at chained target
-                CustomParticles.GenericFlare(other.Center, EnigmaGreen, 0.5f, 16);
-                CustomParticles.HaloRing(other.Center, EnigmaPurple * 0.6f, 0.3f, 12);
-                var chainSparkle = new GenericGlowParticle(other.Center + new Vector2(0, -20f), 
-                    new Vector2(0, -2f), GetEnigmaGradient(0.7f), 0.32f, 18, true);
-                MagnumParticleHandler.SpawnParticle(chainSparkle);
+                // Chain lightning VFX between target and chained enemy
+                Vector2 chainStart = target.Center;
+                Vector2 chainEnd = npc.Center;
+                int chainSegs = Main.rand.Next(6, 11);
+                for (int s = 0; s < chainSegs; s++)
+                {
+                    float t = s / (float)(chainSegs - 1);
+                    Vector2 segPos = Vector2.Lerp(chainStart, chainEnd, t);
+                    Vector2 perp = (chainEnd - chainStart).SafeNormalize(Vector2.UnitX).RotatedBy(MathHelper.PiOver2);
+                    segPos += perp * Main.rand.NextFloat(-8f, 8f);
+                    Color segCol = s % 2 == 0 ? SilentUtils.BrightQuestion : SilentUtils.AnswerWhite;
+                    SilentParticleHandler.Spawn(new ChainLightningParticle(
+                        segPos, (chainEnd - chainStart).SafeNormalize(Vector2.Zero) * 2f, segCol, 0.15f, 12));
+                }
+                break;
             }
-        }
-        
-        private void CreateQuestionMarkExplosion(Vector2 position)
-        {
-            // Dot of the "?"
-            CustomParticles.GenericFlare(position + new Vector2(0, 28f), EnigmaGreen, 0.7f, 22);
-            
-            // Curve of the "?" with gradient
-            for (int i = 0; i < 14; i++)
-            {
-                float t = (float)i / 14f;
-                float curveAngle = MathHelper.Pi * 1.4f * t - MathHelper.Pi * 0.55f;
-                float curveRadius = 22f - t * 10f;
-                float yOffset = -12f - t * 35f;
-                
-                Vector2 curvePos = position + new Vector2((float)Math.Cos(curveAngle) * curveRadius, yOffset);
-                CustomParticles.GenericFlare(curvePos, GetEnigmaGradient(t), 0.45f - t * 0.12f, 20);
-            }
-            
-            // Burst around
-            for (int i = 0; i < 10; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 10f;
-                Vector2 offset = angle.ToRotationVector2() * 35f;
-                CustomParticles.GenericFlare(position + offset, GetEnigmaGradient((float)i / 10f), 0.45f, 18);
-            }
-            
-            CustomParticles.HaloRing(position, EnigmaPurple, 0.5f, 20);
-            CustomParticles.GlyphCircle(position, EnigmaGreen, 6, 40f, 0.05f);
         }
         
         public override void OnKill(int timeLeft)
         {
-            // UNIQUE DEATH: Void Implode - seeker bolt collapses into void
-            DynamicParticleEffects.EnigmaDeathVoidImplode(Projectile.Center, 0.7f);
+            for (int i = 0; i < Main.rand.Next(3, 6); i++)
+            {
+                SilentParticleHandler.Spawn(new SeekerTrailDot(
+                    Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
+                    SilentUtils.QuestionViolet,
+                    Main.rand.NextFloat(0.1f, 0.2f),
+                    20));
+            }
+            SilentParticleHandler.Spawn(new QuestionMarkParticle(
+                Projectile.Center, new Vector2(0f, -0.6f),
+                SilentUtils.QuestionViolet, 0.3f, 30));
+            for (int i = 0; i < Main.rand.Next(2, 4); i++)
+            {
+                Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
+                    ModContent.DustType<SilentMeasureDust>(),
+                    Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-2f, 2f));
+            }
         }
     }
     
-    /// <summary>
-    /// Homing seeker that tracks targets - SPARKLE MISSILE
-    /// </summary>
     public class HomingQuestionSeeker : ModProjectile
     {
-        private static readonly Color EnigmaBlack = new Color(15, 10, 20);
-        private static readonly Color EnigmaDeepPurple = new Color(80, 20, 120);
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color EnigmaGreenFlame = new Color(50, 220, 100);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         
-        private const float HomingStrength = 0.22f;
-        private const float MaxSpeed = 18f;
-        
-        private int TargetIndex => (int)Projectile.ai[0];
         private int eyeTextureIndex = 0;
         
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/LargeEye";
-        
-        public override void SetStaticDefaults()
-        {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 14;
-            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
-        }
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/CursiveMusicNote";
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            
-            // Load sparkle textures for dazzling trail
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/LargeEye").Value;
-            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle" + (1 + (Projectile.whoAmI % 8))).Value;
-            Texture2D eyeTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnigmaEye1").Value;
-            
+            SpriteBatch sb = Main.spriteBatch;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 flareOrigin = flareTex.Size() / 2f;
-            Vector2 sparkleOrigin = sparkleTex.Size() / 2f;
-            Vector2 eyeOrigin = eyeTex.Size() / 2f;
             
-            // Switch to additive blending for magical sparkles
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            // === SPARKLE TRAIL ===
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            // === Shader overlay: Question-mark silhouette echo ===
             {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float trailProgress = (float)i / Projectile.oldPos.Length;
-                float trailAlpha = (1f - trailProgress) * 0.9f;
-                float trailScale = (1f - trailProgress * 0.5f) * 0.35f;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                
-                Color trailColor = Color.Lerp(EnigmaGreenFlame, EnigmaPurple, trailProgress);
-                float sparkleRot = Main.GameUpdateCount * 0.12f + i * 0.4f;
-                spriteBatch.Draw(sparkleTex, trailPos, null, trailColor * trailAlpha, sparkleRot, sparkleOrigin, trailScale, SpriteEffects.None, 0f);
+                Texture2D shBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
+                EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.SilentQuestionBurst,
+                    shBloom, drawPos, shBloom.Size() / 2f, 0.6f,
+                    SilentUtils.QuestionViolet.ToVector3(), SilentUtils.BrightQuestion.ToVector3(),
+                    opacity: 0.4f, intensity: 1.0f, rotation: Projectile.velocity.ToRotation(),
+                    noiseTexture: ShaderLoader.GetNoiseTexture("SimplexNoise"),
+                    techniqueName: "SilentQuestionBlast");
             }
             
-            // === EYE watching from seeker ===
-            float eyePulse = 0.7f + MathF.Sin(Main.GameUpdateCount * 0.12f) * 0.15f;
-            float eyeRot = Projectile.velocity.ToRotation();
-            spriteBatch.Draw(eyeTex, drawPos, null, EnigmaGreen * 0.7f, eyeRot, eyeOrigin, 0.3f * eyePulse, SpriteEffects.None, 0f);
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
-            // === CORE FLARE ===
-            float pulse = 0.85f + MathF.Sin(Main.GameUpdateCount * 0.18f) * 0.15f;
-            spriteBatch.Draw(flareTex, drawPos, null, EnigmaPurple * 0.85f, 0f, flareOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreen * 0.7f, 0f, flareOrigin, 0.28f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreen * 0.75f, 0f, flareOrigin, 0.15f * pulse, SpriteEffects.None, 0f);
+            // Small velocity-stretched glow trail
+            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            float rot = Projectile.velocity.ToRotation();
+            Vector2 trailScale = new Vector2(12f / pixel.Width, 4f / pixel.Height);
+            sb.Draw(pixel, drawPos, null, SilentUtils.EnigmaEmerald * 0.65f, rot, pixel.Size() / 2f, trailScale, SpriteEffects.None, 0f);
             
-            // Restore normal blending
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            // Bloom core
+            Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
+            sb.Draw(bloom, drawPos, null, SilentUtils.EnigmaEmerald * 0.5f, 0f, bloom.Size() / 2f, 0.15f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, SilentUtils.AnswerWhite * 0.25f, 0f, bloom.Size() / 2f, 0.06f, SpriteEffects.None, 0f);
             
+            // Faint glyph overlay
+            Texture2D glyph = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/CursiveMusicNote", AssetRequestMode.ImmediateLoad).Value;
+            float glyphAlpha = 0.15f + MathF.Sin(Projectile.timeLeft * 0.1f) * 0.05f;
+            sb.Draw(glyph, drawPos, null, SilentUtils.QuestionViolet * glyphAlpha, Projectile.rotation + MathHelper.PiOver4,
+                glyph.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
+            
+            SilentUtils.ExitShaderRegion(sb);
             return false;
-        }
-        
-        private Color GetEnigmaGradient(float progress)
-        {
-            if (progress < 0.5f)
-                return Color.Lerp(EnigmaBlack, EnigmaPurple, progress * 2f);
-            else
-                return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
         }
         
         public override void SetDefaults()
@@ -630,8 +376,153 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Ranged;
             Projectile.penetrate = 1;
-            Projectile.timeLeft = 200;
+            Projectile.timeLeft = 180;
             Projectile.tileCollide = false;
+            Projectile.ignoreWater = true;
+        }
+        
+        public override void AI()
+        {
+            Projectile.rotation = Projectile.velocity.ToRotation();
+            
+            // Cycle eye texture
+            if (Projectile.timeLeft % 20 == 0)
+                eyeTextureIndex = (eyeTextureIndex + 1) % 3;
+            
+            // Homing
+            NPC target = null;
+            if (Projectile.ai[0] > 0)
+            {
+                int targetIndex = (int)Projectile.ai[0] - 1;
+                if (targetIndex >= 0 && targetIndex < Main.maxNPCs && Main.npc[targetIndex].active && !Main.npc[targetIndex].friendly)
+                    target = Main.npc[targetIndex];
+            }
+            
+            if (target == null)
+                target = FindClosestEnemy(600f);
+            
+            if (target != null)
+            {
+                Vector2 toTarget = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * 14f, 0.06f);
+            }
+            
+            Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.2f);
+            
+            // Trail particles — every frame
+            SilentParticleHandler.Spawn(new SeekerTrailDot(
+                Projectile.Center + Main.rand.NextVector2Circular(3f, 3f),
+                SilentUtils.EnigmaEmerald,
+                0.1f,
+                15));
+            
+            // Occasional question mark
+            if (Main.GameUpdateCount % 5 == 0)
+            {
+                SilentParticleHandler.Spawn(new QuestionMarkParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    new Vector2(0f, -0.3f),
+                    SilentUtils.BrightQuestion, 0.15f, 20));
+            }
+        }
+        
+        private NPC FindClosestEnemy(float range)
+        {
+            NPC closest = null;
+            float bestDist = range;
+            foreach (NPC npc in Main.ActiveNPCs)
+            {
+                if (npc.friendly) continue;
+                float dist = Vector2.Distance(Projectile.Center, npc.Center);
+                if (dist < bestDist)
+                {
+                    bestDist = dist;
+                    closest = npc;
+                }
+            }
+            return closest;
+        }
+        
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 300);
+            target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 1);
+            
+            Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.4f);
+        }
+        
+        public override void OnKill(int timeLeft)
+        {
+            for (int i = 0; i < Main.rand.Next(3, 6); i++)
+            {
+                SilentParticleHandler.Spawn(new SeekerTrailDot(
+                    Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
+                    SilentUtils.EnigmaEmerald,
+                    Main.rand.NextFloat(0.1f, 0.2f),
+                    18));
+            }
+            SilentParticleHandler.Spawn(new QuestionMarkParticle(
+                Projectile.Center, new Vector2(0f, -0.5f),
+                SilentUtils.EnigmaEmerald, 0.25f, 25));
+            for (int i = 0; i < 2; i++)
+            {
+                Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
+                    ModContent.DustType<SilentMeasureDust>(),
+                    Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-2f, 2f));
+            }
+        }
+    }
+    
+    public class ParadoxPiercingBolt : ModProjectile
+    {
+        private static readonly Color EnigmaPurple = new Color(140, 60, 200);
+        private static readonly Color EnigmaGreen = new Color(50, 220, 100);
+        
+        private int eyeTextureIndex = 0;
+        private List<int> hitEnemies = new List<int>();
+        
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MusicNote";
+        
+        public override bool PreDraw(ref Color lightColor)
+        {
+            SpriteBatch sb = Main.spriteBatch;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
+            
+            // Wide bright glow trail
+            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            float rot = Projectile.velocity.ToRotation();
+            Vector2 trailScale = new Vector2(30f / pixel.Width, 14f / pixel.Height);
+            Color trailColor = Color.Lerp(SilentUtils.BrightQuestion, SilentUtils.AnswerWhite, 0.4f);
+            sb.Draw(pixel, drawPos, null, trailColor * 0.75f, rot, pixel.Size() / 2f, trailScale, SpriteEffects.None, 0f);
+            
+            // Outer bloom — QuestionViolet
+            sb.Draw(bloom, drawPos, null, SilentUtils.QuestionViolet * 0.35f, 0f, bloom.Size() / 2f, 0.5f, SpriteEffects.None, 0f);
+            
+            // Inner bloom — EnigmaEmerald
+            sb.Draw(bloom, drawPos, null, SilentUtils.EnigmaEmerald * 0.6f, 0f, bloom.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
+            
+            // White hot core
+            sb.Draw(bloom, drawPos, null, SilentUtils.AnswerWhite * 0.7f, 0f, bloom.Size() / 2f, 0.15f, SpriteEffects.None, 0f);
+            
+            SilentUtils.ExitShaderRegion(sb);
+            return false;
+        }
+        
+        public override void SetDefaults()
+        {
+            Projectile.width = 20;
+            Projectile.height = 20;
+            Projectile.friendly = true;
+            Projectile.DamageType = DamageClass.Ranged;
+            Projectile.penetrate = 5;
+            Projectile.timeLeft = 240;
+            Projectile.tileCollide = true;
             Projectile.ignoreWater = true;
             Projectile.extraUpdates = 1;
         }
@@ -641,491 +532,102 @@ CustomParticles.GlyphBurst(muzzlePos, EnigmaPurple, count: 6, speed: 4f);
             Projectile.rotation = Projectile.velocity.ToRotation();
             
             // Cycle eye texture
-            if (Projectile.timeLeft % 25 == 0)
-                eyeTextureIndex = Main.rand.Next(8);
-            
-            // Aggressive homing
-            NPC target = null;
-            if (TargetIndex >= 0 && TargetIndex < Main.maxNPCs && Main.npc[TargetIndex].active && !Main.npc[TargetIndex].friendly)
-            {
-                target = Main.npc[TargetIndex];
-            }
-            else
-            {
-                target = FindClosestEnemy(500f);
-            }
-            
-            if (target != null)
-            {
-                Vector2 desiredVel = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero) * MaxSpeed;
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredVel, HomingStrength);
-            }
-            
-            // === CALAMITY-STANDARD RADIANT TRAIL EFFECTS ===
-            // Heavy dust trails (2+ per frame) - void seeker stream
-            for (int d = 0; d < 2; d++)
-            {
-                Vector2 dustOffset = Main.rand.NextVector2Circular(5f, 5f);
-                Dust dustPurple = Dust.NewDustPerfect(Projectile.Center + dustOffset, DustID.PurpleTorch, 
-                    -Projectile.velocity * 0.18f + Main.rand.NextVector2Circular(0.8f, 0.8f), 0, EnigmaPurple, 1.1f);
-                dustPurple.noGravity = true;
-                dustPurple.fadeIn = 1.4f;
-                
-                Dust dustGreen = Dust.NewDustPerfect(Projectile.Center + dustOffset * 0.5f, DustID.CursedTorch, 
-                    -Projectile.velocity * 0.12f + Main.rand.NextVector2Circular(0.6f, 0.6f), 0, EnigmaGreen, 0.9f);
-                dustGreen.noGravity = true;
-                dustGreen.fadeIn = 1.3f;
-            }
-            
-            // Contrasting sparkles (1-in-2) - seeker shimmer
-            if (Main.rand.NextBool(2))
-            {
-                Vector2 sparkleOffset = Main.rand.NextVector2Circular(6f, 6f);
-                var sparkle = new SparkleParticle(Projectile.Center + sparkleOffset, 
-                    -Projectile.velocity * 0.08f + Main.rand.NextVector2Circular(0.4f, 0.4f), 
-                    EnigmaGreen, 0.35f, 16);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-            
-            // Enigma shimmer trails (1-in-3) - void hue cycling
-            if (Main.rand.NextBool(3))
-            {
-                float hue = Main.rand.NextFloat(0.28f, 0.45f); // Purple-green void range
-                Color shimmerColor = Main.hslToRgb(hue, 0.85f, 0.65f);
-                var shimmer = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f, 
-                    shimmerColor, 0.28f, 18, true);
-                MagnumParticleHandler.SpawnParticle(shimmer);
-            }
-            
-            // Pearlescent void effect (1-in-4)
-            if (Main.rand.NextBool(4))
-            {
-                float shift = (float)Math.Sin(Main.GameUpdateCount * 0.1f + Projectile.whoAmI) * 0.5f + 0.5f;
-                Color pearlColor = Color.Lerp(EnigmaPurple, EnigmaGreen, shift) * 0.7f;
-                CustomParticles.GenericFlare(Projectile.Center, pearlColor, 0.3f, 12);
-            }
-            
-            // Frequent flares (1-in-2) - arcane radiance
-            if (Main.rand.NextBool(2))
-            {
-                Vector2 flareOffset = Main.rand.NextVector2Circular(4f, 4f);
-                CustomParticles.GenericFlare(Projectile.Center + flareOffset, 
-                    GetEnigmaGradient(Main.rand.NextFloat()), 0.28f, 10);
-            }
-            
-            // Music note trail (1-in-6) - seeking the answer
-            if (Main.rand.NextBool(6))
-            {
-                Color noteColor = Color.Lerp(EnigmaPurple, EnigmaGreen, Main.rand.NextFloat());
-                Vector2 noteVel = -Projectile.velocity * 0.04f + new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -0.7f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.85f, 28);
-            }
-            
-            // Glyph trail (1-in-8) - enigma rune trail
-            if (Main.rand.NextBool(8))
-            {
-                CustomParticles.GlyphTrail(Projectile.Center, Projectile.velocity, EnigmaPurple * 0.7f, 0.25f);
-            }
-            
-            // Pulsing seeker light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.12f + 0.88f;
-            Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.55f * pulse);
-            Lighting.AddLight(Projectile.Center, EnigmaPurple.ToVector3() * 0.3f * pulse);
-        }
-        
-        private NPC FindClosestEnemy(float range)
-        {
-            NPC closest = null;
-            float closestDist = range;
-            
-            foreach (NPC npc in Main.ActiveNPCs)
-            {
-                if (npc.friendly) continue;
-                float dist = Vector2.Distance(Projectile.Center, npc.Center);
-                if (dist < closestDist)
-                {
-                    closestDist = dist;
-                    closest = npc;
-                }
-            }
-            
-            return closest;
-        }
-        
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 300);
-            var brandNPC = target.GetGlobalNPC<ParadoxBrandNPC>();
-            brandNPC.AddParadoxStack(target, 2);
-            
-            // === REALITY WARP DISTORTION ===
-            FateRealityDistortion.TriggerChromaticAberration(target.Center, 3f, 10);
-            
-            // === NEW UNIFIED VFX HIT EFFECT ===
-            UnifiedVFX.EnigmaVariations.HitEffect(target.Center, 1.2f);
-            
-            // "?" impact
-            CreateQuestionMarkExplosion(target.Center);
-            
-            // === WATCHING EYE AT IMPACT ===
-            CustomParticles.EnigmaEyeImpact(target.Center, target.Center, EnigmaGreen, 0.5f);
-            
-            // === MUSIC NOTES ===
-            ThemedParticles.EnigmaMusicNoteBurst(target.Center, 10, 6f);
-            ThemedParticles.EnigmaMusicNotes(target.Center, 5, 35f);
-            
-            // Cascading sparkle shower on seeker impact
-            for (int i = 0; i < 6; i++)
-            {
-                float cascadeAngle = MathHelper.TwoPi * i / 6f;
-                Vector2 cascadePos = target.Center - new Vector2(0, 30f) + cascadeAngle.ToRotationVector2() * 15f;
-                CustomParticles.GenericFlare(cascadePos, GetEnigmaGradient((float)i / 6f), 0.4f, 16);
-            }
-            
-            // Glyph impact
-            CustomParticles.GlyphImpact(target.Center, EnigmaPurple, EnigmaGreen, 0.55f);
-            
-            // === GLYPH CIRCLE FORMATION ===
-            CustomParticles.GlyphCircle(target.Center, EnigmaPurple, count: 6, radius: 45f, rotationSpeed: 0.06f);
-            
-            // Glyph stacks
-            int stacks = brandNPC.paradoxStacks;
-            if (stacks > 0)
-            {
-                CustomParticles.GlyphStack(target.Center + new Vector2(0, -22f), EnigmaPurple, stacks, 0.26f);
-            }
-            
-            // === DYNAMIC LIGHTING ===
-            Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.8f);
-        }
-        
-        private void CreateQuestionMarkExplosion(Vector2 position)
-        {
-            // Smaller "?" for seekers
-            CustomParticles.GenericFlare(position + new Vector2(0, 20f), EnigmaGreen, 0.55f, 18);
-            
-            for (int i = 0; i < 10; i++)
-            {
-                float t = (float)i / 10f;
-                float curveAngle = MathHelper.Pi * 1.2f * t - MathHelper.Pi * 0.45f;
-                float curveRadius = 16f - t * 7f;
-                float yOffset = -10f - t * 26f;
-                
-                Vector2 curvePos = position + new Vector2((float)Math.Cos(curveAngle) * curveRadius, yOffset);
-                CustomParticles.GenericFlare(curvePos, GetEnigmaGradient(t), 0.38f, 16);
-            }
-            
-            for (int i = 0; i < 7; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 7f;
-                Vector2 offset = angle.ToRotationVector2() * 26f;
-                CustomParticles.GenericFlare(position + offset, GetEnigmaGradient((float)i / 7f), 0.38f, 15);
-            }
-            
-            CustomParticles.HaloRing(position, EnigmaPurple * 0.75f, 0.4f, 16);
-        }
-        
-        public override void OnKill(int timeLeft)
-        {
-            // UNIQUE DEATH: Eye Blink Shatter - homing seeker's eye shatters
-            DynamicParticleEffects.EnigmaDeathEyeBlinkShatter(Projectile.Center, 0.8f);
-        }
-    }
-    
-    /// <summary>
-    /// Special every-5th-shot bullet that pierces infinitely and chains on every hit
-    /// MEGA SPARKLE BOLT - The ultimate mysterious projectile
-    /// </summary>
-    public class ParadoxPiercingBolt : ModProjectile
-    {
-        private static readonly Color EnigmaBlack = new Color(15, 10, 20);
-        private static readonly Color EnigmaDeepPurple = new Color(80, 20, 120);
-        private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color EnigmaGreenFlame = new Color(50, 220, 100);
-        private static readonly Color EnigmaGreen = new Color(50, 220, 100);
-        
-        private List<int> hitEnemies = new List<int>();
-        private int eyeTextureIndex = 0;
-        
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SpikeyEye";
-        
-        public override void SetStaticDefaults()
-        {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
-            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
-        }
-        
-        public override bool PreDraw(ref Color lightColor)
-        {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            
-            // Load sparkle textures for MEGA dazzling trail
-            Texture2D flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/SpikeyEye").Value;
-            Texture2D sparkleTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/PrismaticSparkle" + (1 + (Projectile.whoAmI % 10))).Value;
-            Texture2D eyeTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/EnigmaEye1").Value;
-            
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 flareOrigin = flareTex.Size() / 2f;
-            Vector2 sparkleOrigin = sparkleTex.Size() / 2f;
-            Vector2 eyeOrigin = eyeTex.Size() / 2f;
-            
-            // Switch to additive blending for maximum sparkle
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            // === MEGA SPARKLE TRAIL - Enhanced for paradox bolt ===
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float trailProgress = (float)i / Projectile.oldPos.Length;
-                float trailAlpha = (1f - trailProgress) * 0.95f;
-                float trailScale = (1f - trailProgress * 0.4f) * 0.55f;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                
-                Color trailColor = Color.Lerp(EnigmaGreenFlame, EnigmaPurple, trailProgress);
-                float sparkleRot = Main.GameUpdateCount * 0.18f + i * 0.6f;
-                
-                // Double-layered sparkles for extra density
-                spriteBatch.Draw(sparkleTex, trailPos, null, trailColor * trailAlpha, sparkleRot, sparkleOrigin, trailScale, SpriteEffects.None, 0f);
-                spriteBatch.Draw(flareTex, trailPos, null, EnigmaGreen * trailAlpha * 0.5f, 0f, flareOrigin, trailScale * 0.6f, SpriteEffects.None, 0f);
-                
-                // Extra flare sparks offset
-                if (i % 2 == 0)
-                {
-                    Vector2 offsetPos = trailPos + new Vector2(MathF.Sin(i * 0.8f) * 8f, MathF.Cos(i * 0.8f) * 8f);
-                    spriteBatch.Draw(sparkleTex, offsetPos, null, EnigmaPurple * trailAlpha * 0.6f, -sparkleRot, sparkleOrigin, trailScale * 0.4f, SpriteEffects.None, 0f);
-                }
-            }
-            
-            // === MYSTERIOUS EYES - Multiple watching from the paradox bolt ===
-            float eyePulse = 0.85f + MathF.Sin(Main.GameUpdateCount * 0.12f) * 0.2f;
-            float eyeRot = Projectile.velocity.ToRotation();
-            spriteBatch.Draw(eyeTex, drawPos, null, EnigmaGreen * 0.8f, eyeRot, eyeOrigin, 0.45f * eyePulse, SpriteEffects.None, 0f);
-            
-            // Secondary eye orbiting
-            float orbitAngle = Main.GameUpdateCount * 0.1f;
-            Vector2 orbitOffset = orbitAngle.ToRotationVector2() * 15f;
-            spriteBatch.Draw(eyeTex, drawPos + orbitOffset, null, EnigmaPurple * 0.5f, eyeRot + MathHelper.Pi, eyeOrigin, 0.25f * eyePulse, SpriteEffects.None, 0f);
-            
-            // === MASSIVE CORE FLARE ===
-            float pulse = 0.95f + MathF.Sin(Main.GameUpdateCount * 0.22f) * 0.2f;
-            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreen * 1.0f, 0f, flareOrigin, 0.65f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(flareTex, drawPos, null, EnigmaPurple * 0.8f, 0f, flareOrigin, 0.45f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(flareTex, drawPos, null, EnigmaGreen * 0.9f, 0f, flareOrigin, 0.25f * pulse, SpriteEffects.None, 0f);
-            
-            // === RADIAL SPARKLE BURST - 6 point star ===
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = Main.GameUpdateCount * 0.1f + i * MathHelper.Pi / 3f;
-                float radius = 16f + MathF.Sin(Main.GameUpdateCount * 0.18f + i) * 5f;
-                Vector2 sparkleOffset = angle.ToRotationVector2() * radius;
-                Color sparkleColor = Color.Lerp(EnigmaGreen, EnigmaPurple, (float)i / 6f);
-                spriteBatch.Draw(sparkleTex, drawPos + sparkleOffset, null, sparkleColor * 0.8f, angle * 2f, sparkleOrigin, 0.28f, SpriteEffects.None, 0f);
-            }
-            
-            // Restore normal blending
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            return false;
-        }
-        
-        private Color GetEnigmaGradient(float progress)
-        {
-            if (progress < 0.5f)
-                return Color.Lerp(EnigmaBlack, EnigmaPurple, progress * 2f);
-            else
-                return Color.Lerp(EnigmaPurple, EnigmaGreen, (progress - 0.5f) * 2f);
-        }
-        
-        public override void SetDefaults()
-        {
-            Projectile.width = 16;
-            Projectile.height = 16;
-            Projectile.friendly = true;
-            Projectile.DamageType = DamageClass.Ranged;
-            Projectile.penetrate = -1; // Infinite pierce!
-            Projectile.timeLeft = 400;
-            Projectile.tileCollide = true;
-            Projectile.extraUpdates = 2;
-            Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = 15;
-        }
-        
-        public override void AI()
-        {
-            Projectile.rotation = Projectile.velocity.ToRotation();
-            
-            // Cycle eye texture
             if (Projectile.timeLeft % 20 == 0)
-                eyeTextureIndex = Main.rand.Next(8);
+                eyeTextureIndex = (eyeTextureIndex + 1) % 3;
             
-            // === CALAMITY-STANDARD: HEAVY DUST TRAILS (2+ per frame) ===
-            // Primary void dust - purple torch
-            for (int d = 0; d < 2; d++)
+            Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.4f);
+            
+            // Dense trail particles
+            SilentParticleHandler.Spawn(new ChainLightningParticle(
+                Projectile.Center + Main.rand.NextVector2Circular(4f, 4f),
+                -Projectile.velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(1f, 3f),
+                SilentUtils.BrightQuestion,
+                Main.rand.NextFloat(0.15f, 0.25f),
+                15));
+            
+            if (Main.GameUpdateCount % 2 == 0)
             {
-                Dust dust = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), 
-                    DustID.PurpleTorch, -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(2f, 2f));
-                dust.noGravity = true;
-                dust.scale = 1.3f + Main.rand.NextFloat(0.5f);
-                dust.fadeIn = 1.4f;
+                SilentParticleHandler.Spawn(new SeekerTrailDot(
+                    Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    SilentUtils.EnigmaEmerald,
+                    0.15f,
+                    18));
             }
-            
-            // Secondary cursed dust - green flame
-            Dust greenDust = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f), 
-                DustID.CursedTorch, -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(1.5f, 1.5f));
-            greenDust.noGravity = true;
-            greenDust.scale = 1.1f + Main.rand.NextFloat(0.4f);
-            greenDust.fadeIn = 1.3f;
-            
-            // === CONTRASTING SPARKLES (1-in-2) ===
-            if (Main.rand.NextBool(2))
+            if (Main.GameUpdateCount % 3 == 0)
             {
-                Color sparkleColor = Main.rand.NextBool() ? new Color(140, 60, 200) : new Color(50, 220, 100);
-                var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f),
-                    -Projectile.velocity * 0.08f + Main.rand.NextVector2Circular(1.5f, 1.5f),
-                    sparkleColor, 0.45f, 22);
-                MagnumParticleHandler.SpawnParticle(sparkle);
+                Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
+                    ModContent.DustType<SilentMeasureDust>(),
+                    Projectile.velocity.X * -0.15f, Projectile.velocity.Y * -0.15f);
             }
-            
-            // === SHIMMER TRAIL via hslToRgb (1-in-3) ===
-            if (Main.rand.NextBool(3))
-            {
-                float hue = 0.28f + Main.rand.NextFloat(0.17f); // Purple-green void range
-                Color shimmerColor = Main.hslToRgb(hue, 0.85f, 0.65f);
-                var shimmer = new GenericGlowParticle(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
-                    -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(2f, 2f),
-                    shimmerColor * 0.9f, 0.4f, 18, true);
-                MagnumParticleHandler.SpawnParticle(shimmer);
-            }
-            
-            // === PEARLESCENT VOID EFFECTS (1-in-4) ===
-            if (Main.rand.NextBool(4))
-            {
-                float pearlShift = MathF.Sin(Main.GameUpdateCount * 0.12f + Projectile.whoAmI) * 0.5f + 0.5f;
-                Color pearlColor = Color.Lerp(new Color(15, 10, 20), new Color(140, 60, 200), pearlShift);
-                pearlColor = Color.Lerp(pearlColor, new Color(50, 220, 100), pearlShift * 0.4f);
-                var pearl = new GenericGlowParticle(Projectile.Center,
-                    -Projectile.velocity * 0.06f + Main.rand.NextVector2Circular(1f, 1f),
-                    pearlColor * 0.85f, 0.38f, 20, true);
-                MagnumParticleHandler.SpawnParticle(pearl);
-            }
-            
-            // === FREQUENT FLARES (1-in-2) ===
-            if (Main.rand.NextBool(2))
-            {
-                float progress = (Main.GameUpdateCount * 0.05f) % 1f;
-                Color trailColor = GetEnigmaGradient(progress);
-                CustomParticles.GenericFlare(Projectile.Center, trailColor * 0.9f, 0.45f, 18);
-            }
-            
-            // === MUSIC NOTES (1-in-6 with proper scale 0.85f+) ===
-            if (Main.rand.NextBool(6))
-            {
-                Color noteColor = Color.Lerp(new Color(140, 60, 200), new Color(50, 220, 100), Main.rand.NextFloat());
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), Main.rand.NextFloat(-1.2f, -0.4f));
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.85f + Main.rand.NextFloat(0.15f), 35);
-            }
-            
-            // === GLYPH TRAIL (periodic) ===
-            if (Projectile.timeLeft % 8 == 0)
-            {
-                CustomParticles.GlyphTrail(Projectile.Center, Projectile.velocity, new Color(140, 60, 200), 0.35f);
-            }
-            
-            // === COMET SPARKLE BURSTS (periodic enhancement) ===
-            if (Projectile.timeLeft % 10 == 0)
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    Vector2 cometVel = -Projectile.velocity * 0.12f + Main.rand.NextVector2Circular(2f, 2f);
-                    var comet = new GenericGlowParticle(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), 
-                        cometVel, GetEnigmaGradient((float)i / 4f), 0.42f, 20, true);
-                    MagnumParticleHandler.SpawnParticle(comet);
-                }
-                CustomParticles.HaloRing(Projectile.Center, new Color(50, 220, 100) * 0.45f, 0.22f, 10);
-            }
-            
-            // === PULSING MYSTERY LIGHT ===
-            float pulse = 0.5f + MathF.Sin(Main.GameUpdateCount * 0.15f) * 0.2f;
-            Lighting.AddLight(Projectile.Center, new Color(50, 220, 100).ToVector3() * pulse);
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 360);
-            var brandNPC = target.GetGlobalNPC<ParadoxBrandNPC>();
-            brandNPC.AddParadoxStack(target, 2);
+            target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 2);
             
-            hitEnemies.Add(target.whoAmI);
-            
-            // CHAIN to all previously hit enemies!
-            foreach (int npcIndex in hitEnemies)
+            // Chain lightning damage to nearby enemies
+            if (!hitEnemies.Contains(target.whoAmI))
             {
-                if (npcIndex == target.whoAmI) continue;
-                if (npcIndex < 0 || npcIndex >= Main.maxNPCs) continue;
+                hitEnemies.Add(target.whoAmI);
                 
-                NPC other = Main.npc[npcIndex];
-                if (!other.active || other.friendly) continue;
+                float chainRange = 300f;
+                int chainsHit = 0;
+                foreach (NPC npc in Main.ActiveNPCs)
+                {
+                    if (npc.friendly || npc.whoAmI == target.whoAmI) continue;
+                    if (hitEnemies.Contains(npc.whoAmI)) continue;
+                    if (Vector2.Distance(npc.Center, target.Center) > chainRange) continue;
+                    
+                    npc.SimpleStrikeNPC((int)(Projectile.damage * 0.4f), 0, false, 0f, null, false, 0f, true);
+                    npc.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(npc, 1);
+                    
+                    // Chain lightning VFX between target and chained NPC
+                    {
+                        Vector2 cStart = target.Center;
+                        Vector2 cEnd = npc.Center;
+                        int segs = Main.rand.Next(6, 11);
+                        for (int s = 0; s < segs; s++)
+                        {
+                            float t = s / (float)(segs - 1);
+                            Vector2 segPos = Vector2.Lerp(cStart, cEnd, t);
+                            Vector2 perp = (cEnd - cStart).SafeNormalize(Vector2.UnitX).RotatedBy(MathHelper.PiOver2);
+                            segPos += perp * Main.rand.NextFloat(-10f, 10f);
+                            Color segCol = s % 2 == 0 ? SilentUtils.BrightQuestion : SilentUtils.AnswerWhite;
+                            SilentParticleHandler.Spawn(new ChainLightningParticle(
+                                segPos, (cEnd - cStart).SafeNormalize(Vector2.Zero) * 3f, segCol, 0.2f, 14));
+                        }
+                    }
+                    
+                    chainsHit++;
+                    if (chainsHit >= 3) break;
+                }
                 
-                float dist = Vector2.Distance(target.Center, other.Center);
-                if (dist > 500f) continue;
-                
-                // Draw heavy chain lightning
-                MagnumVFX.DrawFractalLightning(target.Center, other.Center, EnigmaGreen, 15, 40f, 5, 0.45f);
-                
-                // Chain damage
-                other.SimpleStrikeNPC(Projectile.damage / 2, 0, false, 4f);
-                other.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(other, 1);
-                
-                // Sparkle chain indicator at chained target  
-                CustomParticles.GenericFlare(other.Center, EnigmaGreen, 0.5f, 16);
-                var chainGlow = new GenericGlowParticle(other.Center + new Vector2(0, -25f), 
-                    new Vector2(0, -2f), GetEnigmaGradient(0.6f), 0.32f, 16, true);
-                MagnumParticleHandler.SpawnParticle(chainGlow);
+                if (chainsHit > 0)
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 0.3f }, target.Center);
             }
             
-            // Impact VFX
-            CustomParticles.GenericFlare(target.Center, EnigmaGreen, 0.85f, 22);
-            
-            for (int i = 0; i < 12; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 12f;
-                Vector2 offset = angle.ToRotationVector2() * 35f;
-                CustomParticles.GenericFlare(target.Center + offset, GetEnigmaGradient((float)i / 12f), 0.5f, 18);
-            }
-            
-            // Multiple eyes watching
-            // Convergent sparkle ring - reality bends inward
-            for (int i = 0; i < 8; i++)
-            {
-                float ringAngle = MathHelper.TwoPi * i / 8f;
-                Vector2 ringPos = target.Center + ringAngle.ToRotationVector2() * 45f;
-                Vector2 convergeVel = (target.Center - ringPos).SafeNormalize(Vector2.Zero) * 3f;
-                var converge = new GenericGlowParticle(ringPos, convergeVel, 
-                    GetEnigmaGradient((float)i / 8f), 0.4f, 20, true);
-                MagnumParticleHandler.SpawnParticle(converge);
-            }
-            ThemedParticles.EnigmaMusicNoteBurst(target.Center, 6, 3.5f);
-            
-            // Glyph circle
-            CustomParticles.GlyphCircle(target.Center, EnigmaPurple, count: 6, radius: 45f, rotationSpeed: 0.06f);
-            // Glyph stack
-            int stacks = brandNPC.paradoxStacks;
-            if (stacks > 0)
-            {
-                CustomParticles.GlyphStack(target.Center + new Vector2(0, -30f), EnigmaGreen, stacks, 0.32f);
-            }
-            
-            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 0.5f }, target.Center);
+            Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.5f);
         }
         
         public override void OnKill(int timeLeft)
         {
-            // UNIQUE DEATH: Riddle Answered - the ultimate paradox bolt reveals its answer
-            DynamicParticleEffects.EnigmaDeathRiddleAnswered(Projectile.Center, 1.2f);
+            for (int i = 0; i < Main.rand.Next(6, 11); i++)
+            {
+                SilentParticleHandler.Spawn(new ChainLightningParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(10f, 10f),
+                    Main.rand.NextVector2CircularEdge(3f, 3f) * Main.rand.NextFloat(1f, 3f),
+                    SilentUtils.BrightQuestion,
+                    Main.rand.NextFloat(0.15f, 0.25f),
+                    18));
+            }
+            SilentParticleHandler.Spawn(new MeasureImpactRing(Projectile.Center, SilentUtils.AnswerWhite, 0.4f, 22));
+            for (int i = 0; i < Main.rand.Next(4, 6); i++)
+            {
+                Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
+                    ModContent.DustType<SilentMeasureDust>(),
+                    Main.rand.NextFloat(-3f, 3f), Main.rand.NextFloat(-3f, 3f));
+            }
         }
     }
 }

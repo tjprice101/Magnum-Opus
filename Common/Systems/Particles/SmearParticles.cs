@@ -21,7 +21,7 @@ namespace MagnumOpus.Common.Systems.Particles
     /// </summary>
     public class CircularSmearVFX : Particle
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Textures/CircularSmear";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse";
         public override bool UseAdditiveBlend => true;
         public override bool SetLifetime => true;
         public override bool UseCustomDraw => true;
@@ -70,7 +70,7 @@ namespace MagnumOpus.Common.Systems.Particles
     /// </summary>
     public class CircularSmearSmokeyVFX : Particle
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Textures/CircularSmearSmokey";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse";
         public override bool UseAdditiveBlend => true;
         public override bool SetLifetime => true;
         public override bool UseCustomDraw => true;
@@ -121,7 +121,7 @@ namespace MagnumOpus.Common.Systems.Particles
     /// </summary>
     public class SemiCircularSmearVFX : Particle
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Textures/SemiCircularSmear";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse";
         public override bool UseAdditiveBlend => true;
         public override bool SetLifetime => true;
         public override bool UseCustomDraw => true;
@@ -185,7 +185,7 @@ namespace MagnumOpus.Common.Systems.Particles
     /// </summary>
     public class SemiCircularSmearFade : Particle
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Textures/SemiCircularSmear";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse";
         public override bool UseAdditiveBlend => true;
         public override bool SetLifetime => true;
         public override bool UseCustomDraw => true;
@@ -248,7 +248,7 @@ namespace MagnumOpus.Common.Systems.Particles
     /// </summary>
     public class TrientCircularSmear : Particle
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Textures/TrientCircularSmear";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse";
         public override bool UseAdditiveBlend => true;
         public override bool SetLifetime => true;
         public override bool UseCustomDraw => true;
@@ -298,7 +298,7 @@ namespace MagnumOpus.Common.Systems.Particles
     /// </summary>
     public class CritSpark : Particle
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/ThinSparkle";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar";
         public override bool UseAdditiveBlend => true;
         public override bool SetLifetime => true;
         public override bool UseCustomDraw => true;

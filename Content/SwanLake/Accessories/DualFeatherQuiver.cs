@@ -497,7 +497,7 @@ namespace MagnumOpus.Content.SwanLake.Accessories
     /// </summary>
     public class HomingSwanFeather : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/SwanFeather5";
+        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar";
         
         private const float MaxHomingDistance = 500f;
         private const float HomingStrength = 0.18f;

@@ -95,17 +95,17 @@ namespace MagnumOpus.Common.Systems.Metaballs
         public override void SetStaticDefaults()
         {
             // Load both metaball layer textures
-            if (ModContent.HasAsset("MagnumOpus/Assets/VFX/Metaball_EmeraldCosmicNebula"))
+            if (ModContent.HasAsset("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/CosmicNebulaClouds"))
             {
                 emeraldNebulaAsset = ModContent.Request<Texture2D>(
-                    "MagnumOpus/Assets/VFX/Metaball_EmeraldCosmicNebula", 
+                    "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/CosmicNebulaClouds", 
                     AssetRequestMode.ImmediateLoad);
             }
             
-            if (ModContent.HasAsset("MagnumOpus/Assets/VFX/Metaball_ToxicEnergyVortex"))
+            if (ModContent.HasAsset("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/CosmicEnergyVortex"))
             {
                 toxicVortexAsset = ModContent.Request<Texture2D>(
-                    "MagnumOpus/Assets/VFX/Metaball_ToxicEnergyVortex", 
+                    "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/CosmicEnergyVortex", 
                     AssetRequestMode.ImmediateLoad);
             }
         }

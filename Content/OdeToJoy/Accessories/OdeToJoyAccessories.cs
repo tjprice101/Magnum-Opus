@@ -8,9 +8,9 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 using MagnumOpus.Content.OdeToJoy.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
-using MagnumOpus.Content.OdeToJoy.Projectiles;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.OdeToJoy;
+using MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles;
 
 namespace MagnumOpus.Content.OdeToJoy.Accessories
 {
@@ -414,7 +414,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                             Player.GetSource_Accessory(Player.armor.FirstOrDefault(i => i.type == ModContent.ItemType<SymphonyOfBlossoms>())),
                             Player.Center, 
                             direction * 12f,
-                            ModContent.ProjectileType<PetalStormProjectile>(),
+                            ModContent.ProjectileType<PetalBombProjectile>(),
                             (int)(damageDone * 0.6f),
                             3f,
                             Player.whoAmI

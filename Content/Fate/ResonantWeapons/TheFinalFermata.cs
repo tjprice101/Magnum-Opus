@@ -1,3 +1,4 @@
+/* COMMENTED OUT — replaced by TheFinalFermata/TheFinalFermataItem.cs
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -94,3 +95,4 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons
         }
     }
 }
+*/

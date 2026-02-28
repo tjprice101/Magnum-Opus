@@ -10,7 +10,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Content.OdeToJoy;
-using MagnumOpus.Content.OdeToJoy.Projectiles;
+
 using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 using MagnumOpus.Content.OdeToJoy.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;

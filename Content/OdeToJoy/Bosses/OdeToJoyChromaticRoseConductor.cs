@@ -11,7 +11,7 @@ using Terraria.Audio;
 using Terraria.Graphics.Effects;
 using MagnumOpus.Content.OdeToJoy;
 using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
-using MagnumOpus.Content.OdeToJoy.Projectiles;
+
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;

@@ -9,10 +9,9 @@ using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Common.BaseClasses;
 using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
 
-namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
+namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoid
 {
     /// <summary>
     /// VARIATIONS OF THE VOID — Enigma Melee Sword (Item).
@@ -70,11 +69,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons
 
         protected override void OnShoot(Player player, int projectileIndex)
         {
-            // Swing VFX
-            CustomParticles.GenericFlare(player.Center, EnigmaGreen, 0.5f, 12);
-            CustomParticles.HaloRing(player.Center, EnigmaPurple, 0.35f, 10);
-            ThemedParticles.EnigmaMusicNotes(player.Center, 2, 25f);
-
             // On finisher combo (step 2 → just launched step 2 swing, but combo advanced to 0 already)
             // MeleeSwingItemBase advances combo BEFORE calling OnShoot, so step just used = (current - 1 + count) % count
             int justUsedStep = (CurrentComboStep + ComboStepCount - 1) % ComboStepCount;

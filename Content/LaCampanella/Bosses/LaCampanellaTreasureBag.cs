@@ -8,7 +8,13 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using ReLogic.Content;
 using MagnumOpus.Content.LaCampanella.ResonanceEnergies;
-using MagnumOpus.Content.LaCampanella.ResonantWeapons;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator;
 using MagnumOpus.Content.LaCampanella.Accessories;
 using MagnumOpus.Common;
 
@@ -216,12 +222,12 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 ModContent.ItemType<FangOfTheInfiniteBell>(),
                 
                 // Summon weapon
-                ModContent.ItemType<InfernalChimesCalling>(),
+                ModContent.ItemType<InfernalChimesCallingItem>(),
                 
                 // Ranger weapons
-                ModContent.ItemType<PiercingBellsResonance>(),
-                ModContent.ItemType<GrandioseChime>(),
-                ModContent.ItemType<SymphonicBellfireAnnihilator>()
+                ModContent.ItemType<PiercingBellsResonanceItem>(),
+                ModContent.ItemType<GrandioseChimeItem>(),
+                ModContent.ItemType<SymphonicBellfireAnnihilatorItem>()
             };
         }
     }
