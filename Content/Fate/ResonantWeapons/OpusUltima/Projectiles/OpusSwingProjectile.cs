@@ -361,7 +361,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
         {
             if (Main.dedServ || _trailCount < 2) return false;
 
-            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise");
+            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/CosmicNebulaClouds");
             _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
             _flareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16");
 
@@ -443,6 +443,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
             catch { }
         }
 
+        /// <summary>Layer 3: Prismatic chromatic cycling sparks — each spark shifts through the full Fate spectrum.</summary>
         private void DrawLayer3_GoldenSparks(SpriteBatch sb, float progress, float combo)
         {
             if (_flareTex?.Value == null || _trailCount < 3) return;
@@ -458,19 +459,36 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
                 for (int i = 1; i < _trailCount - 1; i += 2)
                 {
                     float t = (float)i / _trailCount;
-                    float sparkAlpha = (1f - t) * (0.3f + combo * 0.4f);
+                    float sparkAlpha = (1f - t) * (0.35f + combo * 0.45f);
 
                     float twinkle = MathF.Sin(time * 0.2f + i * 1.7f) * 0.3f + 0.7f;
                     sparkAlpha *= twinkle;
 
                     if (sparkAlpha < 0.05f) continue;
 
-                    Color sparkCol = Color.Lerp(OpusUtils.OpusCrimson, OpusUtils.GloryGold, t);
-                    Vector2 drawPos = _trailPoints[i] - Main.screenPosition;
-                    float sparkScale = 0.15f + combo * 0.08f;
+                    // === Prismatic color cycling: each spark uses a cosine palette hue ===
+                    float huePhase = time * 0.02f + t * 3f + i * 0.5f;
+                    float r = 0.5f + 0.5f * MathF.Cos(MathHelper.TwoPi * (huePhase + 0.0f));
+                    float g = 0.5f + 0.5f * MathF.Cos(MathHelper.TwoPi * (huePhase + 0.33f));
+                    float b = 0.5f + 0.5f * MathF.Cos(MathHelper.TwoPi * (huePhase + 0.67f));
+                    // Tint toward Fate palette (crimson/gold bias)
+                    Color prismatic = new Color(
+                        (byte)(MathHelper.Clamp(r * 0.6f + 0.4f, 0f, 1f) * 255),
+                        (byte)(MathHelper.Clamp(g * 0.4f + 0.15f, 0f, 1f) * 255),
+                        (byte)(MathHelper.Clamp(b * 0.5f + 0.2f, 0f, 1f) * 255));
 
-                    sb.Draw(tex, drawPos, null, OpusUtils.Additive(sparkCol, sparkAlpha),
+                    Vector2 drawPos = _trailPoints[i] - Main.screenPosition;
+                    float sparkScale = 0.17f + combo * 0.1f;
+
+                    // Main prismatic flare
+                    sb.Draw(tex, drawPos, null, OpusUtils.Additive(prismatic, sparkAlpha),
                         time * 0.5f + i, origin, sparkScale * twinkle, SpriteEffects.None, 0f);
+
+                    // Secondary offset halo (chromatic aberration effect: slightly offset warm/cool colors)
+                    Vector2 offset = new Vector2(MathF.Cos(i * 2.3f), MathF.Sin(i * 2.3f)) * 2f;
+                    Color warm = Color.Lerp(OpusUtils.OpusCrimson, OpusUtils.GloryGold, t);
+                    sb.Draw(tex, drawPos + offset, null, OpusUtils.Additive(warm, sparkAlpha * 0.3f),
+                        time * 0.5f + i, origin, sparkScale * twinkle * 1.2f, SpriteEffects.None, 0f);
                 }
 
                 OpusUtils.EndAdditive(sb);
@@ -521,6 +539,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
             }
         }
 
+        /// <summary>Layer 5: Combo aura — rotating dual-ring prismatic mandala with chromatic bloom.</summary>
         private void DrawLayer5_ComboAura(SpriteBatch sb, float combo)
         {
             if (combo < 0.3f) return;
@@ -529,7 +548,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
             try
             {
                 float auraAlpha = (combo - 0.3f) / 0.7f;
-                float pulse = MathF.Sin((float)Main.timeForVisualEffects * 0.06f) * 0.15f + 0.85f;
+                float time = (float)Main.timeForVisualEffects;
+                float pulse = MathF.Sin(time * 0.06f) * 0.15f + 0.85f;
 
                 OpusUtils.BeginAdditive(sb);
 
@@ -537,15 +557,47 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
                 var tex = _glowTex.Value;
                 Vector2 origin = tex.Size() / 2f;
 
-                // Concentric rings: crimson → gold → white (grows with combo)
-                Color[] ringColors = { OpusUtils.OpusCrimson, OpusUtils.GloryGold, OpusUtils.OpusWhite };
-                for (int ring = 0; ring < 3; ring++)
+                // === Inner rotating prismatic ring (8 points, fast) ===
+                int innerPoints = 8;
+                float innerRadius = 40f + auraAlpha * 15f;
+                float innerRot = time * 0.025f;
+                for (int p = 0; p < innerPoints; p++)
                 {
-                    float ringScale = (0.8f + ring * 0.5f) * pulse;
-                    float ringAlpha = auraAlpha * (1f - ring * 0.25f) * 0.15f;
-                    sb.Draw(tex, center, null, OpusUtils.Additive(ringColors[ring], ringAlpha),
-                        0f, origin, ringScale, SpriteEffects.None, 0f);
+                    float angle = innerRot + p * MathHelper.TwoPi / innerPoints;
+                    Vector2 pos = center + angle.ToRotationVector2() * innerRadius;
+
+                    // Prismatic cycling for each point in the inner ring
+                    float hue = time * 0.015f + p * (1f / innerPoints);
+                    float r = 0.5f + 0.5f * MathF.Cos(MathHelper.TwoPi * hue);
+                    float g = 0.3f + 0.3f * MathF.Cos(MathHelper.TwoPi * (hue + 0.33f));
+                    float b = 0.4f + 0.4f * MathF.Cos(MathHelper.TwoPi * (hue + 0.67f));
+                    Color pointCol = new Color((byte)(r * 255), (byte)(g * 255), (byte)(b * 255));
+
+                    sb.Draw(tex, pos, null, OpusUtils.Additive(pointCol, auraAlpha * 0.15f),
+                        angle, origin, 0.12f * pulse, SpriteEffects.None, 0f);
                 }
+
+                // === Outer counter-rotating ring (5 points, slow, warm colors) ===
+                int outerPoints = 5;
+                float outerRadius = 70f + auraAlpha * 25f;
+                float outerRot = -time * 0.012f;
+                Color[] outerColors = { OpusUtils.OpusCrimson, OpusUtils.GloryGold, OpusUtils.OpusWhite, OpusUtils.GloryGold, OpusUtils.OpusCrimson };
+                for (int p = 0; p < outerPoints; p++)
+                {
+                    float angle = outerRot + p * MathHelper.TwoPi / outerPoints;
+                    Vector2 pos = center + angle.ToRotationVector2() * outerRadius;
+                    float pointAlpha = auraAlpha * (0.1f + combo * 0.08f);
+
+                    sb.Draw(tex, pos, null, OpusUtils.Additive(outerColors[p], pointAlpha),
+                        angle, origin, 0.18f * pulse, SpriteEffects.None, 0f);
+                }
+
+                // Central supernova bloom (bright white core that grows with combo)
+                float coreScale = 0.4f + combo * 0.4f;
+                sb.Draw(tex, center, null, OpusUtils.Additive(OpusUtils.OpusWhite, auraAlpha * 0.12f),
+                    0f, origin, coreScale * pulse, SpriteEffects.None, 0f);
+                sb.Draw(tex, center, null, OpusUtils.Additive(OpusUtils.GloryGold, auraAlpha * 0.08f),
+                    0f, origin, coreScale * 1.5f * pulse, SpriteEffects.None, 0f);
 
                 OpusUtils.EndAdditive(sb);
             }

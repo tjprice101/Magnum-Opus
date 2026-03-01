@@ -116,17 +116,35 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation
             Vector2 drawPos = Item.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
-            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.08f;
+            // Stage spotlight: dramatic sweeping glow with theatrical fade in/out
+            float time = Main.GameUpdateCount * 0.06f;
+            float spotlightAngle = time * 0.6f; // Slow sweeping rotation
+            float spotlightRadius = 4f + (float)Math.Sin(time * 0.4f) * 2f;
+            Vector2 spotOffset = new Vector2((float)Math.Cos(spotlightAngle), (float)Math.Sin(spotlightAngle)) * spotlightRadius;
 
-            // Additive golden glow behind item in world
+            // Theatrical fade: slow crescendo/decrescendo like stage lights
+            float theatricalFade = (float)Math.Sin(time * 0.3f) * 0.5f + 0.5f;
+            float dramaticPulse = 1f + (float)Math.Pow(theatricalFade, 2f) * 0.15f;
+
             spriteBatch.End();
             OvationUtils.BeginAdditive(spriteBatch);
 
-            Color glowColor = OvationUtils.Additive(OvationUtils.SpotlightGold, 0.35f);
-            spriteBatch.Draw(texture, drawPos, null, glowColor, rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            // Sweeping spotlight — orbiting warm glow
+            Color spotColor = OvationUtils.Additive(OvationUtils.SpotlightGold, 0.35f * theatricalFade);
+            spriteBatch.Draw(texture, drawPos + spotOffset, null, spotColor, rotation, origin, scale * dramaticPulse * 1.2f, SpriteEffects.None, 0f);
+
+            // Stage gold base — steady theatrical presence
+            Color stageColor = OvationUtils.Additive(OvationUtils.StageGold, 0.2f);
+            spriteBatch.Draw(texture, drawPos, null, stageColor, rotation, origin, scale * 1.1f, SpriteEffects.None, 0f);
+
+            // Rose applause accent — appears during bright moments
+            Color roseColor = OvationUtils.Additive(OvationUtils.RoseApplause, 0.15f * theatricalFade);
+            spriteBatch.Draw(texture, drawPos - spotOffset * 0.3f, null, roseColor, rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
 
             spriteBatch.End();
             OvationUtils.BeginDefault(spriteBatch);
+
+            Lighting.AddLight(Item.Center, 0.5f * theatricalFade, 0.4f * theatricalFade, 0.1f);
         }
 
         public override void AddRecipes()

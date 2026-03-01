@@ -1,8 +1,8 @@
-// ═══════════════════════════════════════════════════════════════════
-//  CrescendoAuraGlow.fx — Deity ambient aura with radial pulse
+// ══════════════════════════════════════════════════════════════════╁E
+//  CrescendoAuraGlow.fx  EDeity ambient aura with radial pulse
 //  Renders the cosmic deity's ever-present divine light field.
-//  Profile: ps_2_0 / vs_2_0
-// ═══════════════════════════════════════════════════════════════════
+//  Profile: ps_3_0 / vs_2_0
+// ══════════════════════════════════════════════════════════════════╁E
 
 float4x4 uTransformMatrix;
 float uTime;
@@ -43,7 +43,7 @@ float4 AuraPS(VSOutput input) : COLOR0
     float2 d       = uv - 0.5;
     float dist     = saturate(length(d) * 2.0);
 
-    // Radial gradient — bright core, soft falloff
+    // Radial gradient  Ebright core, soft falloff
     float radial   = 1.0 - dist;
     radial        *= radial;
 
@@ -67,6 +67,6 @@ technique AuraGlow
     pass Pass0
     {
         VertexShader = compile vs_2_0 MainVS();
-        PixelShader  = compile ps_2_0 AuraPS();
+        PixelShader  = compile ps_3_0 AuraPS();
     }
 }

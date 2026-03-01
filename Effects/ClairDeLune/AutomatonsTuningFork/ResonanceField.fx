@@ -36,10 +36,12 @@ float4 ResonanceFieldPulsePS(float2 uv : TEXCOORD0) : COLOR0
     float rings = pow(max(sin(ringPhase), 0), 4.0);
     float ringFade = exp(-dist * dist * 1.5); // Fade with distance
 
-    // Standing wave interference — adds complexity at ring intersections
+    // Standing wave interference — abs() reveals ALL interference nodes,
+    // not just positive ones. Two counterpropagating waves at different
+    // frequencies create a visible moiré of reinforcement nodes.
     float interference = sin(dist * 16.0 - uTime * uScrollSpeed * 6.0) *
                          sin(dist * 12.0 + uTime * uScrollSpeed * 2.0);
-    interference = max(interference, 0) * ringFade * 0.3;
+    interference = abs(interference) * ringFade * 0.35;
 
     // Harmonic shimmer from noise
     float harmonic = 0.5;
@@ -73,15 +75,22 @@ float4 ResonanceFieldHarmonicPS(float2 uv : TEXCOORD0) : COLOR0
 
     float dist = length(uv - 0.5) * 2.0;
 
-    // Harmonic overtone pattern — musical frequencies
+    // Harmonic overtone pattern — true musical frequency ratios
+    // Fundamental (root), octave (2x freq), perfect fifth (1.5x freq)
     float fundamental = sin(dist * 6.0 - uTime * 2.0);
     float octave = sin(dist * 12.0 - uTime * 4.0) * 0.5;
     float fifth = sin(dist * 9.0 - uTime * 3.0) * 0.3;
-    float harmonics = max(fundamental + octave + fifth, 0);
+    // Use abs() to show all harmonic nodes — both constructive & destructive
+    float harmonics = abs(fundamental + octave + fifth);
     harmonics = pow(harmonics / 1.8, 2.0) * exp(-dist * 1.5);
 
+    // Visible standing wave nodes at interference peaks
+    float nodePattern = pow(abs(sin(dist * 6.0)), 8.0); // Tight peaks at nodes
+    float nodes = nodePattern * exp(-dist * 2.0) * 0.15;
+
     float3 harmColor = lerp(uColor.rgb, uSecondaryColor.rgb, harmonics * 0.5) * uIntensity * uOverbrightMult * 0.6;
-    float alpha = base.a * uOpacity * harmonics * 0.35;
+    harmColor += uSecondaryColor.rgb * nodes * uIntensity; // Accent at nodes
+    float alpha = base.a * uOpacity * (harmonics * 0.35 + nodes);
 
     return float4(harmColor, alpha);
 }

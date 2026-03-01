@@ -38,6 +38,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
     /// </summary>
     public class SerenadeBeam : ModProjectile
     {
+        public override string Texture => "Terraria/Images/Projectile_1";
+
         // === CONSTANTS ===
         private const int MaxBounces = 5;
         private const int SplitBounceThreshold = 3;

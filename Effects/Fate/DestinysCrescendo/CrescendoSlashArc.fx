@@ -1,8 +1,8 @@
-// ═══════════════════════════════════════════════════════════════════
-//  CrescendoSlashArc.fx — Deity slash impact arc shader
+// ══════════════════════════════════════════════════════════════════╁E
+//  CrescendoSlashArc.fx  EDeity slash impact arc shader
 //  Renders crescent-shaped slash arcs for the deity's melee attacks.
-//  Profile: ps_2_0 / vs_2_0
-// ═══════════════════════════════════════════════════════════════════
+//  Profile: ps_3_0 / vs_2_0
+// ══════════════════════════════════════════════════════════════════╁E
 
 float4x4 uTransformMatrix;
 float uTime;
@@ -70,6 +70,6 @@ technique SlashArc
     pass Pass0
     {
         VertexShader = compile vs_2_0 MainVS();
-        PixelShader  = compile ps_2_0 SlashArcPS();
+        PixelShader  = compile ps_3_0 SlashArcPS();
     }
 }

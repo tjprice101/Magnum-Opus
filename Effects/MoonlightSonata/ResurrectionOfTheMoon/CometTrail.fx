@@ -5,7 +5,7 @@
 //  through gold and violet to deep space black at the tail. Scrolling ember
 //  particles and cooling gradient simulate a streaking celestial body.
 //
-//  ps_2_0 compatible. Two techniques:
+//  ps_3_0 compatible. Two techniques:
 //    CometTrailMain   EFull burning comet tail with ember scrolling and cooling gradient
 //    CometTrailGlow   ESoft wide glow pass for bloom overlay
 // ============================================================================

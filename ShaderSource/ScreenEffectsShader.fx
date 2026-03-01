@@ -153,30 +153,30 @@ technique Technique1
 {
     pass ChromaticAberration
     {
-        PixelShader = compile ps_2_0 ChromaticAberration();
+        PixelShader = compile ps_3_0 ChromaticAberration();
     }
     pass RadialBlur
     {
-        PixelShader = compile ps_2_0 RadialBlur();
+        PixelShader = compile ps_3_0 RadialBlur();
     }
     pass Vignette
     {
-        PixelShader = compile ps_2_0 Vignette();
+        PixelShader = compile ps_3_0 Vignette();
     }
     pass ColorFlash
     {
-        PixelShader = compile ps_2_0 ColorFlash();
+        PixelShader = compile ps_3_0 ColorFlash();
     }
     pass WaveDistortion
     {
-        PixelShader = compile ps_2_0 WaveDistortion();
+        PixelShader = compile ps_3_0 WaveDistortion();
     }
     pass HeatDistortion
     {
-        PixelShader = compile ps_2_0 HeatDistortion();
+        PixelShader = compile ps_3_0 HeatDistortion();
     }
     pass RealityCrack
     {
-        PixelShader = compile ps_2_0 RealityCrack();
+        PixelShader = compile ps_3_0 RealityCrack();
     }
 }

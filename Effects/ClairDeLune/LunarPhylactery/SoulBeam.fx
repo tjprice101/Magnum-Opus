@@ -71,18 +71,30 @@ float4 SoulBeamAuraPS(float2 uv : TEXCOORD0) : COLOR0
     float aura = exp(-dist * dist * 2.0);
     float breathe = 0.5 + 0.5 * sin(uTime * 1.5);
 
+    // Soul wisp tendrils — anisotropic falloff creates wispy upward shapes
+    float angle = atan2(uv.y - 0.5, uv.x - 0.5);
+    float upBias = max(0, -sin(angle)); // Stronger upward
+    float tendril = pow(max(sin(angle * 3.0 + uTime * 2.0), 0.0), 6.0) * upBias;
+    float wispFade = exp(-dist * 1.5) * tendril * 0.4;
+
     // Gentle moonlit shimmer
     float shimmer = 0.5;
     if (uHasSecondaryTex)
     {
-        float2 shimUV = uv * uSecondaryTexScale + float2(uTime * 0.02, -uTime * 0.02);
+        float2 shimUV = uv * uSecondaryTexScale + float2(uTime * 0.02, -uTime * 0.04);
         shimmer = tex2D(uImage1, shimUV).r;
     }
 
-    float3 auraColor = lerp(uColor.rgb, uSecondaryColor.rgb, shimmer * 0.4) * uIntensity * uOverbrightMult * 0.5;
-    float alpha = base.a * uOpacity * aura * (0.15 + breathe * 0.1);
+    float3 auraColor = lerp(uColor.rgb, uSecondaryColor.rgb, shimmer * 0.4);
+    auraColor *= uIntensity * uOverbrightMult * 0.5;
 
-    return float4(auraColor, alpha);
+    // Wisp tendrils use a slightly warmer pearl tint
+    float3 wispColor = uSecondaryColor.rgb * uIntensity * uOverbrightMult;
+
+    float3 finalColor = auraColor * aura * (0.15 + breathe * 0.1) + wispColor * wispFade;
+    float alpha = base.a * uOpacity * (aura * (0.18 + breathe * 0.12) + wispFade);
+
+    return float4(finalColor, alpha);
 }
 
 technique SoulBeamTether

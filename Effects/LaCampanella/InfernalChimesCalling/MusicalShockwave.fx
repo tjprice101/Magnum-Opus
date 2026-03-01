@@ -1,5 +1,5 @@
 // =============================================================================
-// Infernal Chimes Calling — Musical Shockwave Shader (Enhanced)
+// Infernal Chimes Calling  EMusical Shockwave Shader (Enhanced)
 // =============================================================================
 // Radial expanding shockwave for the 5th-hit AoE. A true bell-curve
 // gaussian wavefront expands outward, leaving harmonically-decaying echo
@@ -111,6 +111,6 @@ technique TrailPass
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 MusicalShockwavePS();
+        PixelShader = compile ps_3_0 MusicalShockwavePS();
     }
 }

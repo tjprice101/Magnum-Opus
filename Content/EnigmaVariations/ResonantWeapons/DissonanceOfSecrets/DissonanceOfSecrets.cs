@@ -12,6 +12,7 @@ using ReLogic.Content;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Shaders;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecrets.Particles;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecrets.Dusts;
@@ -373,7 +374,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
             Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float velRot = Projectile.velocity.ToRotation();

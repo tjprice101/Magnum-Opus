@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Utilities;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Particles
@@ -78,7 +79,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Particles
         {
             if (!_initialized) return;
 
-            Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetPointBloom();
             if (pixel == null) return;
 
             // Pass 1: alpha-blended particles

@@ -72,14 +72,14 @@ float4 OvertureAuraPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : 
     {
         float lineRadius = 0.12 + (float)i * 0.06;
         float lineDist = abs(dist - lineRadius);
-        float line = exp(-lineDist * lineDist * 800.0);
+        float lineVal = exp(-lineDist * lineDist * 800.0);
         
         // Staff lines wave gently
         float lineWave = sin(angle * 4.0 + uTime * uScrollSpeed * 2.0 + (float)i * 1.2) * 0.01;
         float lineDistWaved = abs(dist - lineRadius - lineWave);
-        line = exp(-lineDistWaved * lineDistWaved * 800.0);
+        lineVal = exp(-lineDistWaved * lineDistWaved * 800.0);
         
-        staffLines += line * 0.4;
+        staffLines += lineVal * 0.4;
     }
     
     float pattern = waves * 0.6 + staffLines * 0.4;

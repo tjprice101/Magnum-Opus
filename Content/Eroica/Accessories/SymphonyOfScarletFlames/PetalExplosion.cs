@@ -212,7 +212,8 @@ namespace MagnumOpus.Content.Eroica.Accessories.SymphonyOfScarletFlames
         
         private void DrawExplosionGlow(SpriteBatch spriteBatch)
         {
-            Texture2D glowTex = TextureAssets.Extra[ExtrasID.SharpTears].Value; // Soft glow texture
+            Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+            if (glowTex == null) return;
             
             // Outer scarlet glow
             float outerScale = 2.5f * glowIntensity;
@@ -240,7 +241,8 @@ namespace MagnumOpus.Content.Eroica.Accessories.SymphonyOfScarletFlames
         
         private void DrawShockwaveRing(SpriteBatch spriteBatch)
         {
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetPointBloom();
+            if (pixel == null) return;
             
             int segments = 48;
             float thickness = 8f * glowIntensity;

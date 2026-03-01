@@ -5,6 +5,7 @@ using ReLogic.Content;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Particles;
 using MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Utilities;
 
@@ -20,6 +21,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         private static Asset<Texture2D> _bloomTex;
+        private static Asset<Texture2D> _softBloomTex;
 
         public override void SetDefaults()
         {
@@ -133,16 +135,48 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
         {
             _bloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
                 "Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
+            _softBloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
 
             Texture2D tex = _bloomTex.Value;
+            Texture2D softBloom = _softBloomTex.Value;
             Vector2 origin = tex.Size() / 2f;
+            Vector2 sOrigin = softBloom.Size() / 2f;
             SpriteBatch sb = Main.spriteBatch;
-
-            sb.End();
-            PetalStormUtils.BeginAdditive(sb);
+            float time = (float)Main.GameUpdateCount / 60f;
 
             float pulse = 1f + (float)Math.Sin(Projectile.ai[0] * 0.15f) * 0.2f;
             float alphaFade = 1f - (Projectile.alpha / 255f);
+            float lifeProgress = Math.Min(Projectile.ai[0] / 120f, 1f);
+
+            sb.End();
+
+            // ═══ Layer 1: PollenDrift BloomDetonation — growing volatile glow as bomb ages ═══
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            Effect pollenShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyPollenDriftShader);
+            if (pollenShader != null)
+            {
+                pollenShader.Parameters["uTime"]?.SetValue(time);
+                pollenShader.Parameters["uColor"]?.SetValue(PetalStormUtils.AmberFlame.ToVector3());
+                pollenShader.Parameters["uSecondaryColor"]?.SetValue(PetalStormUtils.GoldenExplosion.ToVector3());
+                pollenShader.Parameters["uOpacity"]?.SetValue(alphaFade * (0.3f + lifeProgress * 0.4f));
+                pollenShader.Parameters["uIntensity"]?.SetValue(1.0f + lifeProgress * 1.2f);
+                pollenShader.Parameters["uRadius"]?.SetValue(0.4f);
+                pollenShader.Parameters["uWindSpeed"]?.SetValue(0.6f + lifeProgress * 0.8f);
+                pollenShader.CurrentTechnique = pollenShader.Techniques["BloomDetonationTechnique"];
+                pollenShader.CurrentTechnique.Passes[0].Apply();
+
+                float shaderScale = 0.6f * pulse * (1f + lifeProgress * 0.5f);
+                sb.Draw(softBloom, Projectile.Center - Main.screenPosition, null, Color.White,
+                    0f, sOrigin, shaderScale, SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+
+            // ═══ Layer 2: Additive trail + bloom body ═══
+            PetalStormUtils.BeginAdditive(sb);
 
             // 8-position old position trail
             for (int i = Projectile.oldPos.Length - 1; i >= 1; i--)
@@ -285,6 +319,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         private static Asset<Texture2D> _bloomTex;
+        private static Asset<Texture2D> _softBloomTex;
 
         public override void SetDefaults()
         {
@@ -370,16 +405,46 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
         {
             _bloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
                 "Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
+            _softBloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
 
             Texture2D tex = _bloomTex.Value;
+            Texture2D softBloom = _softBloomTex.Value;
             Vector2 origin = tex.Size() / 2f;
+            Vector2 sOrigin = softBloom.Size() / 2f;
             SpriteBatch sb = Main.spriteBatch;
-
-            sb.End();
-            PetalStormUtils.BeginAdditive(sb);
+            float time = (float)Main.GameUpdateCount / 60f;
 
             float pulse = 1f + (float)Math.Sin(Projectile.ai[0] * 0.25f) * 0.12f;
             float alphaFade = 1f - (Projectile.alpha / 255f);
+
+            sb.End();
+
+            // ═══ Layer 1: PollenDrift PollenTrail — organic drifting wake behind shrapnel ═══
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            Effect pollenShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyPollenDriftShader);
+            if (pollenShader != null)
+            {
+                pollenShader.Parameters["uTime"]?.SetValue(time);
+                pollenShader.Parameters["uColor"]?.SetValue(PetalStormUtils.GunmetalGreen.ToVector3());
+                pollenShader.Parameters["uSecondaryColor"]?.SetValue(PetalStormUtils.AmberFlame.ToVector3());
+                pollenShader.Parameters["uOpacity"]?.SetValue(alphaFade * 0.35f);
+                pollenShader.Parameters["uIntensity"]?.SetValue(0.8f);
+                pollenShader.Parameters["uRadius"]?.SetValue(0.25f);
+                pollenShader.Parameters["uWindSpeed"]?.SetValue(1.2f);
+                pollenShader.CurrentTechnique = pollenShader.Techniques["PollenTrailTechnique"];
+                pollenShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(softBloom, Projectile.Center - Main.screenPosition, null, Color.White,
+                    Projectile.rotation, sOrigin, 0.35f * pulse, SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+
+            // ═══ Layer 2: Additive bloom body ═══
+            PetalStormUtils.BeginAdditive(sb);
 
             // Outer green glow
             Color outerColor = PetalStormUtils.Additive(

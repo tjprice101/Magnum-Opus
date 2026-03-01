@@ -1,5 +1,5 @@
 // =============================================================================
-// Ignition of the Bell — Infernal Geyser Shader (Enhanced)
+// Ignition of the Bell  EInfernal Geyser Shader (Enhanced)
 // =============================================================================
 // Concentrated column of bell fire for the alt-fire charge attack. The beam
 // widens and intensifies with charge level (uPhase). Features rising ember
@@ -125,6 +125,6 @@ technique TrailPass
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 InfernalGeyserPS();
+        PixelShader = compile ps_3_0 InfernalGeyserPS();
     }
 }

@@ -12,6 +12,8 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Autumn.Materials;
+using MagnumOpus.Content.Autumn.Bosses.Systems;
+using MagnumOpus.Common.Systems.Bosses;
 
 namespace MagnumOpus.Content.Autumn.Bosses
 {
@@ -187,6 +189,11 @@ namespace MagnumOpus.Content.Autumn.Bosses
             UpdateDifficultyTier();
             UpdateAggression();
             SpawnAmbientParticles();
+            
+            BossIndexTracker.Autunno = NPC.whoAmI;
+            
+            if (State != BossPhase.Spawning && State != BossPhase.Dying)
+                AutunnoBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier);
             
             float distToTarget = Vector2.Distance(NPC.Center, target.Center);
             if (distToTarget > EnrageDistance && State != BossPhase.Enraged)
@@ -1134,6 +1141,10 @@ namespace MagnumOpus.Content.Autumn.Bosses
             Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
             Vector2 drawPos = NPC.Center - screenPos;
             Vector2 origin = texture.Size() / 2f;
+            Rectangle sourceRect = texture.Bounds;
+            
+            // Shader layer: Decay aura
+            AutunnoBossShaderSystem.DrawDecayAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, false);
             
             // Withering trail
             for (int i = 0; i < NPC.oldPos.Length - 1; i++)
@@ -1146,6 +1157,10 @@ namespace MagnumOpus.Content.Autumn.Bosses
                 spriteBatch.Draw(texture, trailPos, null, trailColor, NPC.rotation, origin, trailScale, SpriteEffects.None, 0f);
             }
             
+            // Shader layer: Leaf trail when moving fast
+            if (NPC.velocity.Length() > 5f)
+                AutunnoBossShaderSystem.DrawLeafTrail(spriteBatch, NPC, screenPos, texture, sourceRect, origin, false);
+            
             // Glow layers
             float pulse = (float)Math.Sin(Timer * 0.085f) * 0.11f + 1f;
             
@@ -1156,6 +1171,10 @@ namespace MagnumOpus.Content.Autumn.Bosses
             Color midGlow = FadingGold * 0.42f;
             midGlow.A = 0;
             spriteBatch.Draw(texture, drawPos, null, midGlow, NPC.rotation, origin, NPC.scale * pulse * 1.09f, SpriteEffects.None, 0f);
+            
+            // Shader layer: Death dissolve
+            if (State == BossPhase.Dying)
+                AutunnoBossShaderSystem.DrawFinalHarvestDissolve(spriteBatch, NPC, screenPos, texture, sourceRect, origin, deathTimer / 110f);
             
             // Main sprite
             SpriteEffects effects = NPC.spriteDirection == 1 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;

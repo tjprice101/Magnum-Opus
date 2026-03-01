@@ -382,7 +382,7 @@ technique EtherealTechnique
 {
     pass EtherealPass
     {
-        PixelShader = compile ps_2_0 EtherealBloom();
+        PixelShader = compile ps_3_0 EtherealBloom();
     }
 }
 
@@ -390,7 +390,7 @@ technique InfernalTechnique
 {
     pass InfernalPass
     {
-        PixelShader = compile ps_2_0 InfernalBloom();
+        PixelShader = compile ps_3_0 InfernalBloom();
     }
 }
 
@@ -398,7 +398,7 @@ technique CelestialTechnique
 {
     pass CelestialPass
     {
-        PixelShader = compile ps_2_0 CelestialBloom();
+        PixelShader = compile ps_3_0 CelestialBloom();
     }
 }
 
@@ -406,7 +406,7 @@ technique ChromaticTechnique
 {
     pass ChromaticPass
     {
-        PixelShader = compile ps_2_0 ChromaticBloom();
+        PixelShader = compile ps_3_0 ChromaticBloom();
     }
 }
 
@@ -414,6 +414,6 @@ technique VoidTechnique
 {
     pass VoidPass
     {
-        PixelShader = compile ps_2_0 VoidBloom();
+        PixelShader = compile ps_3_0 VoidBloom();
     }
 }

@@ -7,6 +7,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Particles;
 using MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Utilities;
 
@@ -23,6 +24,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Projectiles
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         private static Asset<Texture2D> _bloomTex;
+        private static Asset<Texture2D> _softBloomTex;
 
         // AI state
         private bool reachedTarget = false;
@@ -267,36 +269,92 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Projectiles
 
             _bloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
                 "Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
+            _softBloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
 
-            Texture2D tex = _bloomTex.Value;
-            Vector2 origin = tex.Size() / 2f;
+            Texture2D bloom = _bloomTex.Value;
+            Texture2D softBloom = _softBloomTex.Value;
+            Vector2 bOrigin = bloom.Size() / 2f;
+            Vector2 sOrigin = softBloom.Size() / 2f;
             SpriteBatch sb = Main.spriteBatch;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            sb.End();
-            ElysianUtils.BeginAdditive(sb);
+            float time = (float)Main.GameUpdateCount / 60f;
+            float frameTime = Projectile.ai[0];
+            float pulse = 1f + (float)Math.Sin(frameTime * 0.15f) * 0.18f;
+            float rotSlow = frameTime * 0.02f;
 
-            float time = Projectile.ai[0];
-            float pulse = 1f + (float)Math.Sin(time * 0.15f) * 0.18f;
-            float rotSlow = time * 0.02f;
+            sb.End();
+
+            // ═══ Layer 1: FloralSigil — rotating flower-of-life botanical pattern ═══
+            Effect auraShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyCelebrationAuraShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (auraShader != null)
+            {
+                auraShader.Parameters["uTime"]?.SetValue(time);
+                auraShader.Parameters["uColor"]?.SetValue(ElysianUtils.ElysianGold.ToVector3());
+                auraShader.Parameters["uSecondaryColor"]?.SetValue(ElysianUtils.VineGreen.ToVector3());
+                auraShader.Parameters["uOpacity"]?.SetValue(0.55f);
+                auraShader.Parameters["uIntensity"]?.SetValue(1.4f);
+                auraShader.Parameters["uRadius"]?.SetValue(0.42f);
+                auraShader.Parameters["uRotation"]?.SetValue(rotSlow);
+                auraShader.CurrentTechnique = auraShader.Techniques["FloralSigilTechnique"];
+                auraShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(softBloom, drawPos, null, Color.White, 0f, sOrigin,
+                    1.6f * pulse, SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+
+            // ═══ Layer 2: GardenBloom — pulsing petal bloom overlay ═══
+            Effect bloomShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyGardenBloomShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (bloomShader != null)
+            {
+                bloomShader.Parameters["uTime"]?.SetValue(time);
+                bloomShader.Parameters["uColor"]?.SetValue(ElysianUtils.GoldenVerdict.ToVector3());
+                bloomShader.Parameters["uSecondaryColor"]?.SetValue(ElysianUtils.RoseJudgment.ToVector3());
+                bloomShader.Parameters["uOpacity"]?.SetValue(0.5f);
+                bloomShader.Parameters["uIntensity"]?.SetValue(1.2f);
+                bloomShader.Parameters["uRadius"]?.SetValue(0.38f);
+                bloomShader.Parameters["uPulseSpeed"]?.SetValue(2.5f);
+                bloomShader.CurrentTechnique = bloomShader.Techniques["JubilantPulseTechnique"];
+                bloomShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(softBloom, drawPos, null, Color.White, 0f, sOrigin,
+                    1.0f * pulse, SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+
+            // ═══ Layer 3: Additive glow layers (fallback-safe) ═══
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Outer golden glow
-            Color outerGlow = ElysianUtils.Additive(ElysianUtils.ElysianGold, 0.5f);
-            sb.Draw(tex, drawPos, null, outerGlow, rotSlow, origin, 1.1f * pulse, SpriteEffects.None, 0f);
+            Color outerGlow = ElysianUtils.Additive(ElysianUtils.ElysianGold, 0.4f);
+            sb.Draw(softBloom, drawPos, null, outerGlow, rotSlow, sOrigin, 1.1f * pulse, SpriteEffects.None, 0f);
 
             // Mid green shimmer
-            float greenPulse = 0.6f + (float)Math.Sin(time * 0.2f + 1.5f) * 0.25f;
-            Color midGlow = ElysianUtils.Additive(ElysianUtils.VineGreen, 0.4f * greenPulse);
-            sb.Draw(tex, drawPos, null, midGlow, -rotSlow * 1.3f, origin, 0.85f * pulse, SpriteEffects.None, 0f);
+            float greenPulse = 0.6f + (float)Math.Sin(frameTime * 0.2f + 1.5f) * 0.25f;
+            Color midGlow = ElysianUtils.Additive(ElysianUtils.VineGreen, 0.3f * greenPulse);
+            sb.Draw(bloom, drawPos, null, midGlow, -rotSlow * 1.3f, bOrigin, 0.75f * pulse, SpriteEffects.None, 0f);
 
             // Inner bright core
-            Color core = ElysianUtils.Additive(ElysianUtils.PureRadiance, 0.45f);
-            sb.Draw(tex, drawPos, null, core, rotSlow * 2f, origin, 0.4f * pulse, SpriteEffects.None, 0f);
+            Color core = ElysianUtils.Additive(ElysianUtils.PureRadiance, 0.5f);
+            sb.Draw(bloom, drawPos, null, core, rotSlow * 2f, bOrigin, 0.35f * pulse, SpriteEffects.None, 0f);
 
             // Rose accent shimmer
-            float roseShimmer = (float)Math.Sin(time * 0.25f) * 0.5f + 0.5f;
+            float roseShimmer = (float)Math.Sin(frameTime * 0.25f) * 0.5f + 0.5f;
             Color roseGlow = ElysianUtils.Additive(ElysianUtils.RoseJudgment, 0.2f * roseShimmer);
-            sb.Draw(tex, drawPos, null, roseGlow, rotSlow * 0.7f, origin, 0.65f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, roseGlow, rotSlow * 0.7f, bOrigin, 0.6f * pulse, SpriteEffects.None, 0f);
 
             sb.End();
             ElysianUtils.BeginDefault(sb);
@@ -315,6 +373,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Projectiles
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         private static Asset<Texture2D> _bloomTex;
+        private static Asset<Texture2D> _softBloomTex;
 
         public override void SetDefaults()
         {
@@ -400,26 +459,57 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Projectiles
         {
             _bloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
                 "Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
+            _softBloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
 
-            Texture2D tex = _bloomTex.Value;
-            Vector2 origin = tex.Size() / 2f;
+            Texture2D bloom = _bloomTex.Value;
+            Texture2D softBloom = _softBloomTex.Value;
+            Vector2 bOrigin = bloom.Size() / 2f;
+            Vector2 sOrigin = softBloom.Size() / 2f;
             SpriteBatch sb = Main.spriteBatch;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            sb.End();
-            ElysianUtils.BeginAdditive(sb);
+            float time = (float)Main.GameUpdateCount / 60f;
 
             float pulse = 1f + (float)Math.Sin(Projectile.ai[0] * 0.25f) * 0.12f;
+            float speed = Projectile.velocity.Length();
+            float stretchFactor = 1f + speed * 0.015f;
+
+            sb.End();
+
+            // ═══ PollenDrift shader — drifting seed trail behind the missile ═══
+            Effect pollenShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyPollenDriftShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (pollenShader != null)
+            {
+                pollenShader.Parameters["uTime"]?.SetValue(time);
+                pollenShader.Parameters["uColor"]?.SetValue(ElysianUtils.VineGreen.ToVector3());
+                pollenShader.Parameters["uSecondaryColor"]?.SetValue(ElysianUtils.ElysianGold.ToVector3());
+                pollenShader.Parameters["uOpacity"]?.SetValue(0.55f);
+                pollenShader.Parameters["uIntensity"]?.SetValue(1.2f);
+                pollenShader.CurrentTechnique = pollenShader.Techniques["PollenTrailTechnique"];
+                pollenShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(bloom, drawPos, null, Color.White, Projectile.rotation, bOrigin,
+                    new Vector2(0.6f * stretchFactor * pulse, 0.35f * pulse), SpriteEffects.None, 0f);
+            }
 
             // Outer green glow
-            Color outerGlow = ElysianUtils.Additive(ElysianUtils.VineGreen, 0.6f);
-            sb.Draw(tex, drawPos, null, outerGlow, Projectile.rotation, origin,
-                new Vector2(0.5f * pulse, 0.3f * pulse), SpriteEffects.None, 0f);
+            Color outerGlow = ElysianUtils.Additive(ElysianUtils.VineGreen, 0.5f);
+            sb.Draw(bloom, drawPos, null, outerGlow, Projectile.rotation, bOrigin,
+                new Vector2(0.45f * pulse, 0.28f * pulse), SpriteEffects.None, 0f);
+
+            // Soft golden halo
+            Color haloColor = ElysianUtils.Additive(ElysianUtils.ElysianGold, 0.2f);
+            sb.Draw(softBloom, drawPos, null, haloColor, 0f, sOrigin,
+                0.3f * pulse, SpriteEffects.None, 0f);
 
             // Inner bright core
-            Color core = ElysianUtils.Additive(ElysianUtils.PureRadiance, 0.4f);
-            sb.Draw(tex, drawPos, null, core, Projectile.rotation, origin,
-                new Vector2(0.25f * pulse, 0.15f * pulse), SpriteEffects.None, 0f);
+            Color core = ElysianUtils.Additive(ElysianUtils.PureRadiance, 0.45f);
+            sb.Draw(bloom, drawPos, null, core, Projectile.rotation, bOrigin,
+                new Vector2(0.22f * pulse, 0.13f * pulse), SpriteEffects.None, 0f);
 
             sb.End();
             ElysianUtils.BeginDefault(sb);

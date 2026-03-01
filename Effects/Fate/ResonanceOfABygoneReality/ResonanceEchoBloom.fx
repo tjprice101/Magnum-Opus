@@ -1,5 +1,5 @@
 // ResonanceEchoBloom.fx
-// Echo / memory ripple bloom — expanding ring of cosmic memory.
+// Echo / memory ripple bloom  Eexpanding ring of cosmic memory.
 
 sampler uImage0 : register(s0);
 
@@ -44,6 +44,6 @@ technique Technique1
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 EchoBloomPS();
+        PixelShader = compile ps_3_0 EchoBloomPS();
     }
 }

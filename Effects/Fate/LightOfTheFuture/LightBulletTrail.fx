@@ -1,5 +1,5 @@
 // =============================================================================
-// Light of the Future — Bullet Trail Shader (ps_2_0 optimized)
+// Light of the Future  EBullet Trail Shader (ps_3_0 optimized)
 // =============================================================================
 // Accelerating cosmic bullet trail. Two passes: main trail + glow aura.
 // =============================================================================
@@ -61,7 +61,7 @@ technique BulletTrailMain
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 BulletTrailPS();
+        PixelShader = compile ps_3_0 BulletTrailPS();
     }
 }
 
@@ -69,6 +69,6 @@ technique AccelGlowPass
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 AccelGlowPS();
+        PixelShader = compile ps_3_0 AccelGlowPS();
     }
 }

@@ -62,7 +62,7 @@ technique GuillotineSlashTechnique
 {
     pass GuillotineSlash
     {
-        PixelShader = compile ps_2_0 GuillotineSlashMain();
+        PixelShader = compile ps_3_0 GuillotineSlashMain();
     }
 }
 
@@ -70,6 +70,6 @@ technique ExecutionMarkTechnique
 {
     pass ExecutionMark
     {
-        PixelShader = compile ps_2_0 ExecutionMarkMain();
+        PixelShader = compile ps_3_0 ExecutionMarkMain();
     }
 }

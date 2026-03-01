@@ -151,30 +151,41 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning
             Vector2 position = Item.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
+            // Greatsword weight: deep slow breathing with rotation drift and thorny swell
             float time = Main.GameUpdateCount * 0.06f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.1f;
-            float flicker = Main.rand.NextFloat(0.9f, 1f);
+            float breathe = (float)Math.Sin(time * 0.5f); // Very slow, heavy breathing (~12s period)
+            float heavyPulse = 1f + breathe * 0.2f; // Large amplitude — feels weighty
+            float thornSwell = (float)Math.Sin(time * 1.3f + 0.8f); // Off-phase swell
+            float rotDrift = (float)Math.Sin(time * 0.35f) * 0.04f; // Subtle rotation sway
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Golden outer glow
-            spriteBatch.Draw(texture, position, null, ReckoningUtils.Additive(ReckoningUtils.JubilantGold, 0.35f * flicker),
-                rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
-            // Green inner glow
-            spriteBatch.Draw(texture, position, null, ReckoningUtils.Additive(ReckoningUtils.ForestGreen, 0.3f * flicker),
-                rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            // Deep forest outer aura — large, slow, brooding
+            float outerScale = scale * heavyPulse * 1.45f + Math.Max(0f, thornSwell) * 0.08f;
+            spriteBatch.Draw(texture, position, null, ReckoningUtils.Additive(ReckoningUtils.ForestGreen, 0.3f + breathe * 0.08f),
+                rotation + rotDrift, origin, outerScale, SpriteEffects.None, 0f);
 
-            float shimmer = (float)Math.Sin(time * 3f) * 0.5f + 0.5f;
-            spriteBatch.Draw(texture, position, null, ReckoningUtils.Additive(ReckoningUtils.WhiteBloom, 0.2f * shimmer),
-                rotation, origin, scale * pulse * 1.05f, SpriteEffects.None, 0f);
+            // Golden thorn accent — appears on swell peaks
+            float thornIntensity = Math.Max(0f, thornSwell);
+            spriteBatch.Draw(texture, position, null, ReckoningUtils.Additive(ReckoningUtils.JubilantGold, 0.25f * thornIntensity),
+                rotation + rotDrift, origin, scale * heavyPulse * 1.2f, SpriteEffects.None, 0f);
+
+            // Core verdant — steady inner strength
+            spriteBatch.Draw(texture, position, null, ReckoningUtils.Additive(ReckoningUtils.VerdantGold, 0.2f),
+                rotation + rotDrift, origin, scale * 1.05f, SpriteEffects.None, 0f);
+
+            // White bloom on exhale peak (breathe approaching 1)
+            float exhaleFlash = (float)Math.Pow(Math.Max(0f, breathe), 4f);
+            spriteBatch.Draw(texture, position, null, ReckoningUtils.Additive(ReckoningUtils.WhiteBloom, 0.3f * exhaleFlash),
+                rotation + rotDrift, origin, scale * (1f + exhaleFlash * 0.15f), SpriteEffects.None, 0f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            Lighting.AddLight(Item.Center, 0.6f, 0.5f, 0.15f);
+            Lighting.AddLight(Item.Center, 0.35f + exhaleFlash * 0.4f, 0.55f, 0.12f);
             return true;
         }
 

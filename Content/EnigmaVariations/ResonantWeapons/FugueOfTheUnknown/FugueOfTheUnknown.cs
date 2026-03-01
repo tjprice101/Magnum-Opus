@@ -12,6 +12,7 @@ using ReLogic.Content;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Shaders;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.Particles;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.Dusts;
@@ -203,7 +204,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
                 float velAngle = Projectile.velocity.ToRotation();
 
                 // Stretched MagicPixel "motion trail" behind the voice
-                var pixel = TextureAssets.MagicPixel.Value;
+                var pixel = MagnumTextureRegistry.GetSoftGlow();
+                if (pixel == null) return false;
                 float trailLength = MathHelper.Clamp(speed * 3f, 20f, 80f);
                 Rectangle trailRect = new Rectangle(0, 0, (int)trailLength, 6);
                 Vector2 trailOrigin = new Vector2(trailLength, 3f); // anchor at right-center so it trails behind
@@ -507,6 +509,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
     /// </summary>
     public class EchoMark : ModBuff
     {
+        public override string Texture => "Terraria/Images/Buff_24";
+
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

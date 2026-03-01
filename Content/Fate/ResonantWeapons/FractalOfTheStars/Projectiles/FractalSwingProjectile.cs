@@ -403,7 +403,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
         {
             if (Main.dedServ || _trailCount < 2) return false;
 
-            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise");
+            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/StarFieldScatter");
             _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
             _flareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16");
 
@@ -486,7 +486,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
             catch { }
         }
 
-        /// <summary>Layer 3: Star spark accents (additive sprites along arc).</summary>
+        /// <summary>Layer 3: Constellation star nodes connected by light lines along the swing arc.</summary>
         private void DrawLayer3_StarSparks(SpriteBatch sb, float progress, float combo)
         {
             if (_flareTex?.Value == null || _trailCount < 3) return;
@@ -499,26 +499,57 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
                 Vector2 origin = tex.Size() / 2f;
                 float time = (float)Main.timeForVisualEffects;
 
+                // === Constellation connecting lines between every other star node ===
+                for (int i = 1; i < _trailCount - 3; i += 2)
+                {
+                    int j = i + 2;
+                    if (j >= _trailCount) break;
+
+                    float tA = (float)i / _trailCount;
+                    float tB = (float)j / _trailCount;
+                    float lineAlpha = (1f - (tA + tB) * 0.5f) * (0.15f + combo * 0.2f);
+
+                    if (lineAlpha < 0.03f) continue;
+
+                    Vector2 posA = _trailPoints[i] - Main.screenPosition;
+                    Vector2 posB = _trailPoints[j] - Main.screenPosition;
+                    Color lineCol = FractalUtils.Additive(FractalUtils.ConstellationWhite, lineAlpha * 0.6f);
+
+                    // Draw thin connecting line as stretched flare
+                    Vector2 delta = posB - posA;
+                    float dist = delta.Length();
+                    if (dist < 2f) continue;
+                    float angle = delta.ToRotation();
+                    float lineScaleX = dist / tex.Width;
+                    sb.Draw(tex, posA, null, lineCol, angle, new Vector2(0, tex.Height * 0.5f),
+                        new Vector2(lineScaleX, 0.03f), SpriteEffects.None, 0f);
+                }
+
+                // === Star node sprites at each trail position ===
                 for (int i = 1; i < _trailCount - 1; i += 2)
                 {
                     float t = (float)i / _trailCount;
                     float sparkAlpha = (1f - t) * (0.3f + combo * 0.4f);
 
-                    // Star twinkle
-                    float twinkle = MathF.Sin(time * 0.25f + i * 2.1f) * 0.3f + 0.7f;
+                    // Slower, deliberate twinkle (geometric precision, not random shimmer)
+                    float twinkle = MathF.Sin(time * 0.15f + i * MathHelper.TwoPi / 7f) * 0.25f + 0.75f;
                     sparkAlpha *= twinkle;
 
                     if (sparkAlpha < 0.05f) continue;
 
                     Color sparkCol = FractalUtils.GetStarShimmer(time * 0.03f + t * 5f);
                     Vector2 drawPos = _trailPoints[i] - Main.screenPosition;
-                    float sparkScale = 0.15f + combo * 0.08f;
+                    float sparkScale = 0.18f + combo * 0.1f;
 
-                    // Draw 4-point star shape (two crossed flares)
+                    // Diamond-oriented 4-point star (static rotation for geometric feel)
                     sb.Draw(tex, drawPos, null, FractalUtils.Additive(sparkCol, sparkAlpha),
-                        time * 0.3f + i, origin, sparkScale * twinkle, SpriteEffects.None, 0f);
-                    sb.Draw(tex, drawPos, null, FractalUtils.Additive(sparkCol, sparkAlpha * 0.6f),
-                        time * 0.3f + i + MathHelper.PiOver2, origin, sparkScale * twinkle * 0.7f, SpriteEffects.None, 0f);
+                        MathHelper.PiOver4, origin, sparkScale * twinkle, SpriteEffects.None, 0f);
+                    sb.Draw(tex, drawPos, null, FractalUtils.Additive(sparkCol, sparkAlpha * 0.7f),
+                        MathHelper.PiOver4 + MathHelper.PiOver2, origin, sparkScale * twinkle * 0.8f, SpriteEffects.None, 0f);
+
+                    // Small bright core dot at each node
+                    sb.Draw(tex, drawPos, null, FractalUtils.Additive(FractalUtils.ConstellationWhite, sparkAlpha * 0.5f),
+                        0f, origin, sparkScale * 0.25f, SpriteEffects.None, 0f);
                 }
 
                 FractalUtils.EndAdditive(sb);
@@ -566,7 +597,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
             }
         }
 
-        /// <summary>Layer 5: Combo aura — stellar concentric rings when combo high.</summary>
+        /// <summary>Layer 5: Combo aura — rotating hexagonal constellation orbit when combo high.</summary>
         private void DrawLayer5_ComboAura(SpriteBatch sb, float combo)
         {
             if (combo < 0.4f) return;
@@ -575,7 +606,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
             try
             {
                 float auraAlpha = (combo - 0.4f) / 0.6f; // 0→1 over 0.4→1.0
-                float pulse = MathF.Sin((float)Main.timeForVisualEffects * 0.06f) * 0.15f + 0.85f;
+                float time = (float)Main.timeForVisualEffects;
 
                 FractalUtils.BeginAdditive(sb);
 
@@ -583,20 +614,33 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
                 var tex = _glowTex.Value;
                 Vector2 origin = tex.Size() / 2f;
 
-                // Concentric stellar rings
-                for (int ring = 0; ring < 3; ring++)
+                // Slowly rotating geometric orbit points (hexagonal arrangement)
+                int pointCount = 6;
+                float orbitRadius = 55f + auraAlpha * 25f;
+                float rotAngle = time * 0.015f;
+                for (int p = 0; p < pointCount; p++)
                 {
-                    float ringScale = (0.8f + ring * 0.5f) * pulse;
-                    float ringAlpha = auraAlpha * (1f - ring * 0.25f) * 0.12f;
-                    Color ringCol = ring switch
-                    {
-                        0 => FractalUtils.FractalPurple,
-                        1 => FractalUtils.StarGold,
-                        _ => FractalUtils.ConstellationWhite,
-                    };
-                    sb.Draw(tex, center, null, FractalUtils.Additive(ringCol, ringAlpha),
-                        0f, origin, ringScale, SpriteEffects.None, 0f);
+                    float angle = rotAngle + p * MathHelper.TwoPi / pointCount;
+                    Vector2 pointPos = center + angle.ToRotationVector2() * orbitRadius;
+                    float pointAlpha = auraAlpha * 0.18f;
+
+                    // Alternate gold and purple for geometric constellation feel
+                    Color pointCol = p % 2 == 0 ? FractalUtils.StarGold : FractalUtils.FractalPurple;
+                    sb.Draw(tex, pointPos, null, FractalUtils.Additive(pointCol, pointAlpha),
+                        angle, origin, 0.15f, SpriteEffects.None, 0f);
+
+                    // Faint connecting line from orbit point to center
+                    Vector2 delta = center - pointPos;
+                    float dist = delta.Length();
+                    float lineAngle = delta.ToRotation();
+                    sb.Draw(tex, pointPos, null, FractalUtils.Additive(FractalUtils.ConstellationWhite, pointAlpha * 0.3f),
+                        lineAngle, new Vector2(0, tex.Height * 0.5f),
+                        new Vector2(dist / tex.Width, 0.015f), SpriteEffects.None, 0f);
                 }
+
+                // Subtle central star glow
+                sb.Draw(tex, center, null, FractalUtils.Additive(FractalUtils.StarGold, auraAlpha * 0.08f),
+                    0f, origin, 0.6f, SpriteEffects.None, 0f);
 
                 FractalUtils.EndAdditive(sb);
             }

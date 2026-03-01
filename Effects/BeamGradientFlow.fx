@@ -121,6 +121,6 @@ technique GradientBeamTechnique
     pass MainPass
     {
         VertexShader = compile vs_2_0 MainVS();
-        PixelShader = compile ps_2_0 GradientFlowPS();
+        PixelShader = compile ps_3_0 GradientFlowPS();
     }
 }

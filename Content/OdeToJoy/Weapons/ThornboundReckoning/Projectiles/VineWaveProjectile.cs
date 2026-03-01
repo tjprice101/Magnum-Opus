@@ -5,6 +5,7 @@ using ReLogic.Content;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Particles;
 using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Utilities;
 
@@ -12,15 +13,19 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
 {
     // ═══════════════════════════════════════════════════════════
     // VineWaveProjectile — rolling wave of thorny golden vines
-    // 8-point trail cache, stretched bloom rendering, green→gold gradient
+    // 16-point trail cache, shader-driven TriumphantTrail rendering,
+    // green→gold gradient with vine energy veins, layered additive bloom
     // ═══════════════════════════════════════════════════════════
     public class VineWaveProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         private static Asset<Texture2D> _bloomTex;
-        private Vector2[] trailCache = new Vector2[8];
-        private float[] trailRotations = new float[8];
+        private static Asset<Texture2D> _softBloomTex;
+        private static Asset<Texture2D> _noiseTex;
+        private Vector2[] trailCache = new Vector2[16];
+        private float[] trailRotations = new float[16];
+        private float[] trailWidths = new float[16];
         private bool trailInitialized = false;
 
         public override void SetDefaults()
@@ -119,49 +124,124 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
         {
             _bloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
                 "Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
+            _softBloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
 
-            Texture2D tex = _bloomTex.Value;
-            Vector2 origin = tex.Size() / 2f;
+            Texture2D bloom = _bloomTex.Value;
+            Texture2D softBloom = _softBloomTex.Value;
+            Vector2 bloomOrigin = bloom.Size() / 2f;
+            Vector2 softOrigin = softBloom.Size() / 2f;
             SpriteBatch sb = Main.spriteBatch;
+
+            float time = (float)Main.GameUpdateCount / 60f;
+            float pulse = 1f + (float)Math.Sin(Projectile.ai[0] * 0.3f) * 0.15f;
 
             sb.End();
 
-            // Draw trail in additive mode
+            // ═══ Layer 1: Shader-driven trail (TriumphantTrail — golden energy veins) ═══
+            Effect trailShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyTriumphantTrailShader);
+            bool hasTrailShader = trailShader != null;
+
+            if (hasTrailShader)
+            {
+                trailShader.Parameters["uTime"]?.SetValue(time);
+                trailShader.Parameters["uColor"]?.SetValue(ReckoningUtils.JubilantGold.ToVector3());
+                trailShader.Parameters["uSecondaryColor"]?.SetValue(ReckoningUtils.ForestGreen.ToVector3());
+                trailShader.Parameters["uIntensity"]?.SetValue(1.4f);
+                trailShader.CurrentTechnique = trailShader.Techniques["TriumphantTrailTechnique"];
+
+                sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                // Draw trail segments connecting consecutive cache points (oldest→newest)
+                for (int i = trailCache.Length - 2; i >= 0; i--)
+                {
+                    float trailT = (float)i / (trailCache.Length - 1); // 0 = newest, 1 = oldest
+                    float trailFade = 1f - trailT;
+
+                    Vector2 segStart = trailCache[i + 1];
+                    Vector2 segEnd = trailCache[i];
+                    float segLen = Vector2.Distance(segStart, segEnd);
+                    if (segLen < 1f) continue;
+
+                    float segAngle = (segEnd - segStart).ToRotation();
+                    float segWidth = MathHelper.Lerp(10f, 38f, trailFade);
+                    Vector2 midpoint = (segStart + segEnd) / 2f;
+
+                    // Per-segment opacity fade along trail
+                    trailShader.Parameters["uOpacity"]?.SetValue(trailFade * 0.85f);
+                    trailShader.CurrentTechnique.Passes[0].Apply();
+
+                    sb.Draw(bloom, midpoint - Main.screenPosition, null, Color.White, segAngle, bloomOrigin,
+                        new Vector2(segLen / bloom.Width * 1.1f, segWidth / bloom.Height), SpriteEffects.None, 0f);
+                }
+
+                sb.End();
+            }
+            else
+            {
+                // Fallback: particle-based trail (original rendering)
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                for (int i = trailCache.Length - 1; i >= 0; i--)
+                {
+                    float trailT = (float)i / (trailCache.Length - 1);
+                    float trailFade = 1f - trailT;
+                    float trailScale = MathHelper.Lerp(0.8f, 0.2f, trailT);
+                    Color trailColor = ReckoningUtils.Additive(
+                        Color.Lerp(ReckoningUtils.ForestGreen, ReckoningUtils.JubilantGold, trailT),
+                        trailFade * 0.6f);
+                    float rot = i < trailCache.Length - 1 ?
+                        (trailCache[i] - trailCache[i + 1]).ToRotation() : trailRotations[i];
+                    sb.Draw(bloom, trailCache[i] - Main.screenPosition, null, trailColor, rot, bloomOrigin,
+                        new Vector2(trailScale * 1.5f, trailScale * 0.6f), SpriteEffects.None, 0f);
+                }
+
+                sb.End();
+            }
+
+            // ═══ Layer 2: Pulsing garden bloom body (GardenBloom — JubilantPulse) ═══
+            Effect bloomShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyGardenBloomShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (bloomShader != null)
+            {
+                bloomShader.Parameters["uTime"]?.SetValue(time);
+                bloomShader.Parameters["uColor"]?.SetValue(ReckoningUtils.JubilantGold.ToVector3());
+                bloomShader.Parameters["uSecondaryColor"]?.SetValue(ReckoningUtils.VerdantGold.ToVector3());
+                bloomShader.Parameters["uOpacity"]?.SetValue(0.7f);
+                bloomShader.Parameters["uIntensity"]?.SetValue(1.3f);
+                bloomShader.Parameters["uRadius"]?.SetValue(0.42f);
+                bloomShader.Parameters["uPulseSpeed"]?.SetValue(3.5f);
+                bloomShader.CurrentTechnique = bloomShader.Techniques["JubilantPulseTechnique"];
+                bloomShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(softBloom, Projectile.Center - Main.screenPosition, null, Color.White,
+                    Projectile.rotation, softOrigin, 1.1f * pulse, SpriteEffects.None, 0f);
+            }
+            else
+            {
+                Color mainColor = ReckoningUtils.Additive(ReckoningUtils.JubilantGold, 0.8f);
+                sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, mainColor,
+                    Projectile.rotation, bloomOrigin, 0.9f * pulse, SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+
+            // ═══ Layer 3: Inner white-hot core + verdant accent (simple additive) ═══
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            float lifeProgress = 1f - (Projectile.timeLeft / 60f);
+            Color coreColor = ReckoningUtils.Additive(ReckoningUtils.WhiteBloom, 0.55f);
+            sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, coreColor,
+                Projectile.rotation, bloomOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
 
-            // Draw trail points (oldest to newest)
-            for (int i = trailCache.Length - 1; i >= 0; i--)
-            {
-                float trailT = (float)i / (trailCache.Length - 1); // 0 = newest, 1 = oldest
-                float trailFade = 1f - trailT;
-                float trailScale = MathHelper.Lerp(0.8f, 0.2f, trailT);
-
-                // Green→Gold gradient along trail
-                Color trailColor = ReckoningUtils.Additive(
-                    Color.Lerp(ReckoningUtils.ForestGreen, ReckoningUtils.JubilantGold, trailT),
-                    trailFade * 0.6f);
-
-                // Stretch along velocity direction
-                float rot = i < trailCache.Length - 1 ?
-                    (trailCache[i] - trailCache[i + 1]).ToRotation() : trailRotations[i];
-
-                sb.Draw(tex, trailCache[i] - Main.screenPosition, null, trailColor, rot, origin,
-                    new Vector2(trailScale * 1.5f, trailScale * 0.6f), SpriteEffects.None, 0f);
-            }
-
-            // Draw main body bloom
-            float pulse = 1f + (float)Math.Sin(Projectile.ai[0] * 0.3f) * 0.15f;
-            Color mainColor = ReckoningUtils.Additive(ReckoningUtils.JubilantGold, 0.8f);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, mainColor,
-                Projectile.rotation, origin, 0.9f * pulse, SpriteEffects.None, 0f);
-
-            // Inner white core
-            Color coreColor = ReckoningUtils.Additive(ReckoningUtils.WhiteBloom, 0.5f);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, coreColor,
-                Projectile.rotation, origin, 0.45f * pulse, SpriteEffects.None, 0f);
+            Color accentColor = ReckoningUtils.Additive(ReckoningUtils.ForestGreen, 0.2f);
+            sb.Draw(softBloom, Projectile.Center - Main.screenPosition, null, accentColor,
+                Projectile.rotation, softOrigin, 0.65f * pulse, SpriteEffects.None, 0f);
 
             sb.End();
             ReckoningUtils.BeginDefault(sb);
@@ -179,6 +259,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         private static Asset<Texture2D> _bloomTex;
+        private static Asset<Texture2D> _softBloomTex;
         private bool hasSpawnedBurst = false;
         private float currentScale = 0f;
 
@@ -293,32 +374,81 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
         {
             _bloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
                 "Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
+            _softBloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
 
-            Texture2D tex = _bloomTex.Value;
-            Vector2 origin = tex.Size() / 2f;
+            Texture2D bloom = _bloomTex.Value;
+            Texture2D softBloom = _softBloomTex.Value;
+            Vector2 bOrigin = bloom.Size() / 2f;
+            Vector2 sOrigin = softBloom.Size() / 2f;
             SpriteBatch sb = Main.spriteBatch;
 
             float fade = Projectile.timeLeft / 30f;
+            float time = (float)Main.GameUpdateCount / 60f;
 
             sb.End();
 
+            // ═══ Layer 1: CelebrationAura — expanding concentric golden rings ═══
+            Effect auraShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyCelebrationAuraShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (auraShader != null)
+            {
+                auraShader.Parameters["uTime"]?.SetValue(time);
+                auraShader.Parameters["uColor"]?.SetValue(ReckoningUtils.JubilantGold.ToVector3());
+                auraShader.Parameters["uSecondaryColor"]?.SetValue(ReckoningUtils.VerdantGold.ToVector3());
+                auraShader.Parameters["uOpacity"]?.SetValue(fade * 0.6f);
+                auraShader.Parameters["uIntensity"]?.SetValue(1.5f);
+                auraShader.Parameters["uRadius"]?.SetValue(0.45f);
+                auraShader.Parameters["uRingCount"]?.SetValue(5f);
+                auraShader.CurrentTechnique = auraShader.Techniques["CelebrationAuraTechnique"];
+                auraShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(softBloom, Projectile.Center - Main.screenPosition, null, Color.White,
+                    0f, sOrigin, currentScale * 2.8f, SpriteEffects.None, 0f);
+            }
+
+            // ═══ Layer 2: GardenBloom — 5-petal floral bloom shape ═══
+            Effect bloomShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyGardenBloomShader);
+
+            if (bloomShader != null)
+            {
+                bloomShader.Parameters["uTime"]?.SetValue(time);
+                bloomShader.Parameters["uColor"]?.SetValue(ReckoningUtils.JubilantGold.ToVector3());
+                bloomShader.Parameters["uSecondaryColor"]?.SetValue(ReckoningUtils.RoseGold.ToVector3());
+                bloomShader.Parameters["uOpacity"]?.SetValue(fade * 0.75f);
+                bloomShader.Parameters["uIntensity"]?.SetValue(1.5f);
+                bloomShader.Parameters["uRadius"]?.SetValue(0.4f);
+                bloomShader.Parameters["uPulseSpeed"]?.SetValue(5f);
+                bloomShader.CurrentTechnique = bloomShader.Techniques["GardenBloomTechnique"];
+                bloomShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(softBloom, Projectile.Center - Main.screenPosition, null, Color.White,
+                    0f, sOrigin, currentScale * 2f, SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+
+            // ═══ Layer 3: Bright additive core and outer glow ═══
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Outer golden glow — expanding ring
-            Color outerColor = ReckoningUtils.Additive(ReckoningUtils.JubilantGold, fade * 0.5f);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, outerColor,
-                0f, origin, currentScale * 2f, SpriteEffects.None, 0f);
+            // Outer golden glow
+            Color outerColor = ReckoningUtils.Additive(ReckoningUtils.JubilantGold, fade * 0.45f);
+            sb.Draw(softBloom, Projectile.Center - Main.screenPosition, null, outerColor,
+                0f, sOrigin, currentScale * 2.2f, SpriteEffects.None, 0f);
 
-            // Mid-layer — verdant gold
-            Color midColor = ReckoningUtils.Additive(ReckoningUtils.VerdantGold, fade * 0.6f);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, midColor,
-                0f, origin, currentScale * 1.3f, SpriteEffects.None, 0f);
+            // Mid-layer verdant gold
+            Color midColor = ReckoningUtils.Additive(ReckoningUtils.VerdantGold, fade * 0.55f);
+            sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, midColor,
+                0f, bOrigin, currentScale * 1.3f, SpriteEffects.None, 0f);
 
-            // Inner white-hot core
-            Color coreColor = ReckoningUtils.Additive(ReckoningUtils.WhiteBloom, fade * 0.7f);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, coreColor,
-                0f, origin, currentScale * 0.6f, SpriteEffects.None, 0f);
+            // White-hot core
+            Color coreColor = ReckoningUtils.Additive(ReckoningUtils.WhiteBloom, fade * 0.75f);
+            sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, coreColor,
+                0f, bOrigin, currentScale * 0.55f, SpriteEffects.None, 0f);
 
             sb.End();
             ReckoningUtils.BeginDefault(sb);

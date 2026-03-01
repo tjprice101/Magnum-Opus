@@ -11,7 +11,9 @@ using Terraria.Audio;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Content.Eroica.Pets;
+using MagnumOpus.Content.Eroica.Bosses.Systems;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using static MagnumOpus.Common.Systems.BossDialogueSystem;
@@ -200,6 +202,10 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 hasRegisteredHealthBar = true;
             }
             
+            // Register with global boss index tracker
+            BossIndexTracker.EroicaRetribution = NPC.whoAmI;
+            BossIndexTracker.EroicaPhase = phase2Started ? (difficultyTier + 1) : 0;
+            
             if (State == BossPhase.Dying)
             {
                 UpdateDeathAnimation();
@@ -266,6 +272,10 @@ namespace MagnumOpus.Content.Eroica.Bosses
             Timer++;
             UpdateAnimation();
             SpawnAmbientParticles();
+            
+            // Enhanced shader-driven musical accents
+            if (phase2Started)
+                EroicaBossShaderSystem.SpawnMusicalAccents(NPC, fightTimer, difficultyTier);
             
             // Boss dialogue system - combat taunts and player HP checks
             if (phase2Started)
@@ -384,6 +394,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 
                 // NEW: Use VFXIntegration for phase transition effects
                 VFXIntegration.OnPhaseTransition("Eroica", NPC.Center);
+                
+                // SHADER: Sakura transition VFX with shader overlay
+                EroicaBossShaderSystem.DrawPhaseTransition(Main.spriteBatch, NPC, Main.screenPosition, 1f, true);
                 
                 CustomParticles.GenericFlare(NPC.Center, Color.White, 1.5f, 25);
                 for (int i = 0; i < 12; i++)
@@ -726,6 +739,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     
                     // NEW: Also show converging ring via TelegraphSystem
                     TelegraphSystem.ConvergingRing(NPC.Center, 60f, telegraphTime, EroicaGold);
+                    
+                    // SHADER: Enhanced sword dash telegraph with musical VFX layers
+                    EroicaAttackVFX.SwordDashTelegraph(NPC.Center, dashDirection);
                 }
                 
                 // Charging particles - use RainbowGradientSystem for color cycling
@@ -780,6 +796,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 
                 // PHASE 10: Heroic fanfare VFX during dash
                 Phase10Integration.Eroica.DashFanfare(NPC.Center, NPC.velocity);
+                
+                // SHADER: Layered sword dash trail particles
+                EroicaAttackVFX.SwordDashTrail(NPC.Center, NPC.velocity);
                 
                 if (Timer >= dashDuration)
                 {
@@ -886,6 +905,10 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     
                     BossVFXOptimizer.AttackReleaseBurst(NPC.Center, EroicaGold, EroicaScarlet, 0.7f);
                     SoundEngine.PlaySound(SoundID.Item12 with { Pitch = 0.1f }, NPC.Center);
+                    
+                    // SHADER: Heroic barrage telegraph ring
+                    EroicaAttackVFX.HeroicBarrageTelegraph(NPC.Center);
+                    EroicaAttackVFX.HeroicBarrageRelease(NPC.Center, SubPhase);
                     
                     // PHASE 10: Musical barrage enhancement
                     Phase10Integration.Eroica.MarchingBarrage(NPC.Center, Timer);
@@ -1263,6 +1286,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     // Show ground impact warning
                     Vector2 impactPos = NPC.Center + dashDirection * 500f;
                     VFXIntegration.DiveImpactWarning(impactPos, 80f, progress, "Eroica");
+                    
+                    // SHADER: Phoenix dive telegraph with layered VFX
+                    EroicaAttackVFX.PhoenixDiveTelegraph(NPC.Center, target.Center);
                 }
                 
                 if (Timer >= 13) // Shorter telegraph (was 25)
@@ -1305,6 +1331,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 {
                     MagnumScreenEffects.AddScreenShake(15f);
                     VFXIntegration.UltimateAttackRelease("Eroica", NPC.Center, 1.2f);
+                    
+                    // SHADER: Massive phoenix impact burst
+                    EroicaAttackVFX.PhoenixDiveImpact(NPC.Center);
                     
                     // GROUND EXPLOSION: Spawn projectiles in all directions with gradient
                     if (Main.netMode != NetmodeID.MultiplayerClient)
@@ -1650,6 +1679,10 @@ namespace MagnumOpus.Content.Eroica.Bosses
             VFXIntegration.SetChromaticAberration(progress * 0.3f);
             VFXIntegration.SetVignette(progress * 0.6f);
             
+            // SHADER: Phoenix flame burst intensifies as death approaches
+            if (progress > 0.3f)
+                EroicaBossShaderSystem.DrawPhoenixFlame(Main.spriteBatch, NPC.Center, Main.screenPosition, progress);
+            
             if (deathTimer % 8 == 0)
             {
                 MagnumScreenEffects.AddScreenShake(4f + progress * 15f);
@@ -1743,7 +1776,21 @@ namespace MagnumOpus.Content.Eroica.Bosses
             Vector2 drawPos = NPC.Center - screenPos;
             SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             
-            if (phase2Started && NPC.velocity.Length() > 8f)
+            // === SHADER LAYER 1: Valor Aura (behind everything) ===
+            if (phase2Started)
+            {
+                EroicaBossShaderSystem.DrawValorAura(spriteBatch, NPC, screenPos,
+                    aggressionLevel, difficultyTier, isEnraged);
+            }
+            
+            // === SHADER LAYER 2: Heroic Trail (shader-driven afterimages) ===
+            if (phase2Started && NPC.velocity.Length() > 6f)
+            {
+                EroicaBossShaderSystem.DrawHeroicTrail(spriteBatch, NPC, screenPos,
+                    tex, sourceRect, origin, isEnraged);
+            }
+            // Fallback: standard afterimages for lower velocities
+            else if (phase2Started && NPC.velocity.Length() > 3f)
             {
                 for (int i = 0; i < NPC.oldPos.Length; i++)
                 {
@@ -1754,10 +1801,28 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 }
             }
             
+            // === SHADER LAYER 3: Death Dissolve (replaces normal drawing when dying) ===
+            if (State == BossPhase.Dying && deathTimer > 0)
+            {
+                float dissolveProgress = Math.Clamp(deathTimer / 180f, 0f, 1f);
+                EroicaBossShaderSystem.DrawDeathDissolve(spriteBatch, NPC, screenPos,
+                    tex, sourceRect, origin, dissolveProgress);
+            }
+            
+            // === SHADER LAYER 4: Phase Transition Flash ===
+            if (State == BossPhase.Phase1_Transition)
+            {
+                float transitionProgress = Math.Clamp(Timer / 90f, 0f, 1f);
+                EroicaBossShaderSystem.DrawPhaseTransition(spriteBatch, NPC, screenPos,
+                    transitionProgress, true);
+            }
+            
+            // Glow outline layer
             Color glowColor = isEnraged ? EroicaCrimson : Color.Lerp(EroicaGold, EroicaScarlet, (float)Math.Sin(Timer * 0.05f) * 0.5f + 0.5f);
             glowColor.A = 0;
             spriteBatch.Draw(tex, drawPos, sourceRect, glowColor * 0.35f, NPC.rotation, origin, NPC.scale * 1.12f, effects, 0f);
             
+            // Main sprite
             Color mainColor = NPC.IsABestiaryIconDummy ? Color.White : Lighting.GetColor((int)(NPC.Center.X / 16), (int)(NPC.Center.Y / 16));
             mainColor = Color.Lerp(mainColor, Color.White, 0.35f);
             spriteBatch.Draw(tex, drawPos, sourceRect, mainColor * ((255 - NPC.alpha) / 255f), NPC.rotation, origin, NPC.scale, effects, 0f);

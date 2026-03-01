@@ -140,24 +140,46 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.SinCollector.Projectiles
             if (!bloomTexture.IsLoaded) return false;
             var tex = bloomTexture.Value;
 
-            // Trail
+            // Trail — dual-layer with outer crimson and inner gold for tracer depth
             for (int i = 1; i < TrailLength; i++)
             {
                 if (trailCache[i] == Vector2.Zero) continue;
                 float p = i / (float)TrailLength;
                 float alpha = (1f - p) * 0.5f;
-                Color c = SinUtils.GetSinColor(p * 0.6f);
-                Main.EntitySpriteDraw(tex, trailCache[i] - Main.screenPosition, null, SinUtils.Additive(c, alpha),
-                    Projectile.rotation, tex.Size() / 2f, new Vector2((1f - p) * 0.5f, (1f - p) * 0.15f), SpriteEffects.None, 0);
+
+                // Outer crimson layer — wider for ambient glow
+                Color outerColor = SinUtils.GetSinColor(p * 0.6f);
+                Main.EntitySpriteDraw(tex, trailCache[i] - Main.screenPosition, null, SinUtils.Additive(outerColor, alpha * 0.7f),
+                    Projectile.rotation, tex.Size() / 2f, new Vector2((1f - p) * 0.6f, (1f - p) * 0.2f), SpriteEffects.None, 0);
+
+                // Inner gold hot tracer — tighter, brighter
+                Color innerColor = Color.Lerp(SinUtils.MuzzleGold, SinUtils.WhiteFlash, (1f - p) * 0.5f);
+                Main.EntitySpriteDraw(tex, trailCache[i] - Main.screenPosition, null, SinUtils.Additive(innerColor, alpha * 0.4f),
+                    Projectile.rotation, tex.Size() / 2f, new Vector2((1f - p) * 0.35f, (1f - p) * 0.08f), SpriteEffects.None, 0);
             }
 
-            // Core
+            // Core — outer ember glow
             Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition, null,
                 SinUtils.Additive(SinUtils.TrackingEmber, 0.7f), Projectile.rotation, tex.Size() / 2f,
                 new Vector2(0.6f, 0.2f), SpriteEffects.None, 0);
+            // Core — hot white center
             Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition, null,
                 SinUtils.Additive(SinUtils.WhiteFlash, 0.4f), Projectile.rotation, tex.Size() / 2f,
                 new Vector2(0.3f, 0.1f), SpriteEffects.None, 0);
+
+            // Muzzle cross-flare at bullet tip — gives the round a distinctive sharp flash
+            float crossAlpha = 0.3f + 0.1f * (float)Math.Sin(Main.GameUpdateCount * 0.4f);
+            Color crossColor = SinUtils.Additive(SinUtils.MuzzleGold, crossAlpha);
+            Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition, null, crossColor,
+                Projectile.rotation, tex.Size() / 2f, new Vector2(0.08f, 0.8f), SpriteEffects.None, 0);
+            Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition, null, crossColor,
+                Projectile.rotation + MathHelper.PiOver2, tex.Size() / 2f, new Vector2(0.08f, 0.45f), SpriteEffects.None, 0);
+
+            // Leading velocity line — thin bright tracer extending ahead
+            Vector2 ahead = Projectile.Center + Projectile.velocity.SafeNormalize(Vector2.Zero) * 12f;
+            Main.EntitySpriteDraw(tex, ahead - Main.screenPosition, null,
+                SinUtils.Additive(SinUtils.WhiteFlash, 0.2f), Projectile.rotation, tex.Size() / 2f,
+                new Vector2(0.5f, 0.04f), SpriteEffects.None, 0);
 
             return false;
         }

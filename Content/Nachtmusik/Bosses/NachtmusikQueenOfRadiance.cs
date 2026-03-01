@@ -17,6 +17,8 @@ using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.Nachtmusik.Bosses.Systems;
+using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Content.Nachtmusik.Enemies;
 
 namespace MagnumOpus.Content.Nachtmusik.Bosses
@@ -353,6 +355,12 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             float lightIntensity = isEnraged ? 1.3f : (isPhase2 ? 1.1f : 0.9f);
             Color lightColor = isPhase2 ? Gold : Violet;
             Lighting.AddLight(NPC.Center, lightColor.ToVector3() * lightIntensity);
+            
+            BossIndexTracker.NachtmusikQueen = NPC.whoAmI;
+            BossIndexTracker.NachtmusikPhase = difficultyTier;
+            
+            if (State != BossPhase.Spawning)
+                NachtmusikBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier, isPhase2);
         }
 
         public override bool CheckDead()
@@ -2393,6 +2401,28 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             
             Vector2 drawPos = NPC.Center - screenPos;
             Vector2 origin = texture.Size() / 2f;
+            
+            // === Shader: Starfield Aura ===
+            if (State != BossPhase.Spawning)
+                NachtmusikBossShaderSystem.DrawStarfieldAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, isEnraged);
+            
+            // === Shader: Nebula Dash Trail (when moving fast) ===
+            if (NPC.velocity.Length() > BaseSpeed)
+                NachtmusikBossShaderSystem.DrawNebulaDashTrail(spriteBatch, NPC, screenPos, texture, new Rectangle(0, 0, texture.Width, texture.Height), origin, isEnraged);
+            
+            // === Shader: Phase2 Awakening (during Phase2_Awakening) ===
+            if (State == BossPhase.Phase2_Awakening)
+            {
+                float transitionProgress = Timer / 90f;
+                NachtmusikBossShaderSystem.DrawPhase2Awakening(spriteBatch, NPC, screenPos, transitionProgress);
+            }
+            
+            // === Shader: Stellar Dissolve (during TrueDeath) ===
+            if (State == BossPhase.TrueDeath)
+            {
+                float dissolveProgress = deathTimer / 180f;
+                NachtmusikBossShaderSystem.DrawStellarDissolve(spriteBatch, NPC, screenPos, texture, new Rectangle(0, 0, texture.Width, texture.Height), origin, dissolveProgress);
+            }
             
             // Draw afterimages for dashing
             if (NPC.velocity.Length() > BaseSpeed)

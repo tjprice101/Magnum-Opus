@@ -17,6 +17,8 @@ using MagnumOpus.Content.SwanLake.ResonanceEnergies;
 using MagnumOpus.Content.SwanLake.ResonantOres;
 using MagnumOpus.Content.SwanLake.HarmonicCores;
 using MagnumOpus.Content.Materials.EnemyDrops;
+using MagnumOpus.Common.Systems.Bosses;
+using MagnumOpus.Common.Systems.Shaders;
 
 namespace MagnumOpus.Content.SwanLake.Enemies
 {
@@ -1146,6 +1148,41 @@ namespace MagnumOpus.Content.SwanLake.Enemies
             int frameY = currentFrame / FrameColumns;
             Rectangle sourceRect = new Rectangle(frameX * frameWidth, frameY * frameHeight, frameWidth, frameHeight);
             origin = new Vector2(frameWidth / 2f, frameHeight / 2f);
+
+            SpriteEffects shaderEffects = NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+
+            // Shader-driven aura layer
+            Effect auraShader = EnemyShaderManager.GetShader(EnemyShaderManager.PrimaFeatherAura);
+            if (auraShader != null)
+            {
+                float auraIntensity = 0.8f + (float)Math.Sin(gracePulse * 2f) * 0.2f;
+                EnemyShaderManager.ApplyAuraParams(auraShader, NPC, new Color(240, 240, 255), new Color(180, 100, 200), auraIntensity);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.Draw(texture, drawPos, sourceRect, Color.White, NPC.rotation + pirouetteRotation, origin, NPC.scale * 1.15f, shaderEffects, 0f);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
+            // Shader-driven trail layer (only when moving fast)
+            if (NPC.velocity.Length() > 4f)
+            {
+                Effect trailShader = EnemyShaderManager.GetShader(EnemyShaderManager.PrimaGraceTrail);
+                if (trailShader != null)
+                {
+                    EnemyShaderManager.ApplyTrailParams(trailShader, NPC, new Color(240, 240, 255), new Color(180, 100, 200), NPC.velocity.Length() / 12f);
+                    spriteBatch.End();
+                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
+                    for (int t = 1; t <= 3; t++)
+                    {
+                        Vector2 trailPos = drawPos - NPC.velocity * t * 2f;
+                        float trailAlpha = 1f - (t / 4f);
+                        spriteBatch.Draw(texture, trailPos, sourceRect, Color.White * trailAlpha, NPC.rotation + pirouetteRotation, origin, NPC.scale, shaderEffects, 0f);
+                    }
+                    spriteBatch.End();
+                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
             
             // Draw afterimages
             for (int i = NPC.oldPos.Length - 1; i >= 0; i--)

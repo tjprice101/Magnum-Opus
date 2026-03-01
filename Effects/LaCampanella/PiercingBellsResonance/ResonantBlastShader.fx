@@ -1,8 +1,8 @@
 // =============================================================================
-// Piercing Bells Resonance — Resonant Blast Shader (Enhanced)
+// Piercing Bells Resonance  EResonant Blast Shader (Enhanced)
 // =============================================================================
 // The 20th-shot resonant blast explosion. Multiple concentric bell-shaped
-// wavefronts expand with exponentially decaying amplitude — like a struck
+// wavefronts expand with exponentially decaying amplitude  Elike a struck
 // bell reverberating. Harmonic interference patterns create brilliant
 // nodes where wavefronts overlap. Central detonation core flashes white-hot
 // then decays through the fire palette.
@@ -113,6 +113,6 @@ technique AutoPass
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 ResonantBlastPS();
+        PixelShader = compile ps_3_0 ResonantBlastPS();
     }
 }

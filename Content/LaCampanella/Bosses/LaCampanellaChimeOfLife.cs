@@ -16,8 +16,10 @@ using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling;
 using MagnumOpus.Content.LaCampanella.HarmonicCores;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.LaCampanella.Bosses.Systems;
 using static MagnumOpus.Common.Systems.BossDialogueSystem;
 
 namespace MagnumOpus.Content.LaCampanella.Bosses
@@ -244,9 +246,17 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     break;
             }
             
+            // Boss index tracking for shader systems
+            BossIndexTracker.LaCampanellaChime = NPC.whoAmI;
+            BossIndexTracker.LaCampanellaPhase = difficultyTier;
+
             Timer++;
             UpdateAnimation();
             SpawnAmbientParticles();
+
+            // Enhanced shader-driven musical accents
+            if (State != BossPhase.Spawning && State != BossPhase.Dying)
+                LaCampanellaBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier);
             
             // Dialogue triggers at HP thresholds only
             
@@ -2148,7 +2158,20 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Vector2 origin = new Vector2(frameWidth / 2f, frameHeight / 2f);
             Vector2 drawPos = NPC.Center - screenPos;
             
-            if ((State == BossPhase.Slam && SubPhase >= 3) || isEnraged)
+            // === SHADER LAYER 1: Bell Aura ===
+            if (State != BossPhase.Spawning)
+            {
+                LaCampanellaBossShaderSystem.DrawBellAura(spriteBatch, NPC, screenPos,
+                    difficultyTier * 0.3f, difficultyTier, isEnraged);
+            }
+            
+            // === SHADER LAYER 2: Infernal Trail ===
+            if (NPC.velocity.Length() > 5f)
+            {
+                LaCampanellaBossShaderSystem.DrawInfernalTrail(spriteBatch, NPC, screenPos,
+                    tex, sourceRect, origin, isEnraged);
+            }
+            else if ((State == BossPhase.Slam && SubPhase >= 3) || isEnraged)
             {
                 for (int i = 0; i < NPC.oldPos.Length; i++)
                 {
@@ -2157,6 +2180,14 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     Vector2 trailPos = NPC.oldPos[i] + NPC.Size / 2f - screenPos;
                     spriteBatch.Draw(tex, trailPos, sourceRect, trailColor, NPC.rotation, origin, NPC.scale * (1f - progress * 0.1f), SpriteEffects.None, 0f);
                 }
+            }
+            
+            // === SHADER LAYER 3: Death Dissolve ===
+            if (State == BossPhase.Dying && deathTimer > 0)
+            {
+                float dissolveProgress = Math.Clamp(deathTimer / 200f, 0f, 1f);
+                LaCampanellaBossShaderSystem.DrawChimeDissolve(spriteBatch, NPC, screenPos,
+                    tex, sourceRect, origin, dissolveProgress);
             }
             
             float pulse = (float)Math.Sin(Timer * 0.07f) * 0.3f + 0.7f;

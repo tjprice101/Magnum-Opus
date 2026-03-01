@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.Graphics.Effects;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Common.Systems
 {
@@ -325,7 +326,8 @@ namespace MagnumOpus.Common.Systems
         {
             if (maxDepth >= 0 && minDepth < 0)
             {
-                Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+                Texture2D pixel = MagnumTextureRegistry.GetPixelTexture();
+                if (pixel == null) return;
                 
                 // Draw void black base with subtle purple gradient
                 DrawVoidBackground(spriteBatch, pixel);

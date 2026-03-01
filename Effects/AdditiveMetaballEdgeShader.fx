@@ -1,5 +1,5 @@
 // =============================================================================
-// AdditiveMetaballEdgeShader.fx - ps_2_0 Compatible (FNA/MojoShader)
+// AdditiveMetaballEdgeShader.fx - ps_3_0 Compatible (FNA/MojoShader)
 // =============================================================================
 // Downported from SM4.0 source (ShaderSource/AdditiveMetaballEdgeShader.fx).
 // Additive blending shader for fire/plasma metaball effects.
@@ -7,7 +7,7 @@
 // Samples the center pixel plus 4 cardinal neighbors, averages them,
 // finds the darkest channel, and brightens toward white based on intensity.
 //
-// Only 5 texture samples  Ewell within ps_2_0 instruction limits.
+// Only 5 texture samples  Ewell within ps_3_0 instruction limits.
 // =============================================================================
 
 // Metaball render target (auto-bound by SpriteBatch to slot 0)
@@ -67,6 +67,6 @@ technique DefaultTechnique
 {
     pass ParticlePass
     {
-        PixelShader = compile ps_2_0 AdditiveMetaballPS();
+        PixelShader = compile ps_3_0 AdditiveMetaballPS();
     }
 }

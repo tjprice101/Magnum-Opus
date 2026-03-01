@@ -108,14 +108,14 @@ technique Technique1
 {
     pass BloomPass
     {
-        PixelShader = compile ps_2_0 BloomShader();
+        PixelShader = compile ps_3_0 BloomShader();
     }
     pass GradientBloomPass
     {
-        PixelShader = compile ps_2_0 GradientBloomShader();
+        PixelShader = compile ps_3_0 GradientBloomShader();
     }
     pass FlarePass
     {
-        PixelShader = compile ps_2_0 FlareShader();
+        PixelShader = compile ps_3_0 FlareShader();
     }
 }

@@ -132,17 +132,37 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus
             Vector2 drawPos = Item.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
-            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.08f;
+            // Chorus swell: multi-frequency layered shimmer building like choir voices
+            float time = Main.GameUpdateCount * 0.06f;
+            float voice1 = (float)Math.Sin(time * 0.8f) * 0.5f + 0.5f; // Bass voice
+            float voice2 = (float)Math.Sin(time * 1.5f + 1f) * 0.5f + 0.5f; // Tenor voice
+            float voice3 = (float)Math.Sin(time * 2.2f + 2f) * 0.5f + 0.5f; // Soprano voice
+            float swell = (voice1 + voice2 + voice3) / 3f;
 
-            // Additive golden glow behind item in world
             spriteBatch.End();
             ChorusUtils.BeginAdditive(spriteBatch);
 
-            Color glowColor = ChorusUtils.Additive(ChorusUtils.TriumphGold, 0.35f);
-            spriteBatch.Draw(texture, drawPos, null, glowColor, rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            // Bass layer — deep gold, large
+            Color bassColor = ChorusUtils.Additive(ChorusUtils.HarmonyGold, 0.2f * voice1);
+            spriteBatch.Draw(texture, drawPos, null, bassColor, rotation, origin, scale * (1.25f + voice1 * 0.1f), SpriteEffects.None, 0f);
+
+            // Tenor layer — triumph gold, medium
+            Color tenorColor = ChorusUtils.Additive(ChorusUtils.TriumphGold, 0.25f * voice2);
+            spriteBatch.Draw(texture, drawPos, null, tenorColor, rotation, origin, scale * (1.12f + voice2 * 0.06f), SpriteEffects.None, 0f);
+
+            // Soprano layer — crescendo rose, small bright
+            Color sopranoColor = ChorusUtils.Additive(ChorusUtils.CrescendoRose, 0.2f * voice3);
+            spriteBatch.Draw(texture, drawPos, null, sopranoColor, rotation, origin, scale * (1.05f + voice3 * 0.04f), SpriteEffects.None, 0f);
+
+            // Resonance white when voices align
+            float resonance = (float)Math.Pow(swell, 3f);
+            Color resColor = ChorusUtils.Additive(ChorusUtils.FinaleWhite, 0.3f * resonance);
+            spriteBatch.Draw(texture, drawPos, null, resColor, rotation, origin, scale * (1f + resonance * 0.08f), SpriteEffects.None, 0f);
 
             spriteBatch.End();
             ChorusUtils.BeginDefault(spriteBatch);
+
+            Lighting.AddLight(Item.Center, 0.4f * swell, 0.35f * swell, 0.1f * swell);
         }
 
         public override void AddRecipes()

@@ -12,6 +12,7 @@ using ReLogic.Content;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Shaders;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence.Particles;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence.Dusts;
@@ -57,7 +58,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Velocity-stretched MagicPixel trail — CadenceViolet energy streak
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
+            if (pixel == null) return false;
             float rot = Projectile.velocity.ToRotation();
             float speed = Projectile.velocity.Length();
             Vector2 trailScale = new Vector2(MathHelper.Clamp(speed * 3f, 10f, 24f), 10f);
@@ -212,7 +214,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetPointBloom();
 
             // Layer 1: Large outer glow — CadenceViolet, low opacity breathing
             sb.Draw(bloom, drawPos, null, CadenceUtils.CadenceViolet * 0.2f * intensity, 0f,

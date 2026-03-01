@@ -21,25 +21,61 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         // =====================================================================
         public static void HoldItemVFX(Player player)
         {
+            float time = (float)Main.timeForVisualEffects * 0.04f;
+
+            // === ORBITING VOID GLYPHS === Authority dust orbiting at fixed radius
+            if (Main.rand.NextBool(2))
+            {
+                float orbitAngle = time * 1.5f + Main.rand.NextFloat() * 0.3f;
+                float orbitRadius = 24f + (float)Math.Sin(time * 2f) * 6f;
+                Vector2 orbitPos = player.Center + new Vector2(
+                    (float)Math.Cos(orbitAngle) * orbitRadius,
+                    (float)Math.Sin(orbitAngle) * orbitRadius * 0.7f);
+                Vector2 tangent = new Vector2(-(float)Math.Sin(orbitAngle), (float)Math.Cos(orbitAngle)) * 0.6f;
+
+                Dust glyph = Dust.NewDustPerfect(orbitPos, DustID.PurpleTorch, tangent, 0, default, 0.85f);
+                glyph.noGravity = true;
+                glyph.fadeIn = 1.1f;
+            }
+
+            // === GRAVITY-WELL DUST === Motes spiraling inward — drawn to the blade's authority
             if (Main.rand.NextBool(3))
             {
-                // Dark cosmic motes drift around the blade — void authority
-                Vector2 offset = Main.rand.NextVector2Circular(30f, 30f);
-                Vector2 pos = player.Center + offset;
-                Dust d = Dust.NewDustPerfect(pos, DustID.PurpleTorch,
-                    Main.rand.NextVector2Circular(0.4f, 0.4f), 0, default, 0.7f);
+                float spawnAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                float spawnDist = 35f + Main.rand.NextFloat() * 15f;
+                Vector2 spawnPos = player.Center + spawnAngle.ToRotationVector2() * spawnDist;
+                Vector2 toCenter = player.Center - spawnPos;
+                if (toCenter != Vector2.Zero) toCenter.Normalize();
+                Vector2 tangent2 = new Vector2(-toCenter.Y, toCenter.X) * 0.4f;
+                Vector2 vel = toCenter * 1.2f + tangent2;
+
+                Dust d = Dust.NewDustPerfect(spawnPos, DustID.PurpleTorch, vel, 0, default, 0.55f);
                 d.noGravity = true;
-                d.fadeIn = 0.9f;
+                d.fadeIn = 0.7f;
             }
 
-            if (Main.rand.NextBool(8))
+            // === VOID-CRACK FLASH === Occasional thin line of dust — the execution decree signature
+            if (Main.rand.NextBool(25))
             {
-                // Occasional violet authority spark
-                NachtmusikVFXLibrary.SpawnTwinklingStars(player.Center, 1, 25f);
+                float crackAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                Vector2 crackDir = crackAngle.ToRotationVector2();
+                for (int i = 0; i < 4; i++)
+                {
+                    Vector2 crackPos = player.Center + crackDir * (8f + i * 7f);
+                    Dust crack = Dust.NewDustPerfect(crackPos, DustID.PurpleTorch,
+                        crackDir * 0.3f, 0, default, 0.4f);
+                    crack.noGravity = true;
+                    crack.fadeIn = 0.5f;
+                }
             }
 
-            // Subtle cosmic lighting
-            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.3f);
+            // Subtle authority twinkling
+            if (Main.rand.NextBool(10))
+            {
+                NachtmusikVFXLibrary.SpawnTwinklingStars(player.Center, 1, 28f);
+            }
+
+            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.35f);
         }
 
         // =====================================================================

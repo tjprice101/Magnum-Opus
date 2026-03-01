@@ -18,8 +18,13 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Primitives
         private static BasicEffect _basicEffect;
         private static GraphicsDevice _device;
 
-        public override void PostSetupContent()
+        /// <summary>
+        /// Lazily initializes the BasicEffect on the main thread (during rendering).
+        /// Cannot be done in PostSetupContent because FNA3D requires main-thread calls.
+        /// </summary>
+        private static void EnsureInitialized()
         {
+            if (_basicEffect != null) return;
             _device = Main.graphics.GraphicsDevice;
             _basicEffect = new BasicEffect(_device)
             {
@@ -33,6 +38,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Primitives
         {
             _basicEffect?.Dispose();
             _basicEffect = null;
+            _device = null;
         }
 
         /// <summary>
@@ -42,6 +48,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Primitives
         /// </summary>
         public static void RenderTrail(Vector2[] points, RequiemTrailSettings settings, int pointCount, int smoothing = 2)
         {
+            EnsureInitialized();
             if (_device == null || _basicEffect == null || pointCount < 2) return;
 
             // Count valid (non-zero) points

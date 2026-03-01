@@ -4,6 +4,7 @@ using System;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.ID;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Common.Systems
 {
@@ -266,11 +267,13 @@ namespace MagnumOpus.Common.Systems
 
                 Vector2 drawPos = proj.oldPos[i] + proj.Size * 0.5f - Main.screenPosition;
                 
-                // Draw a simple diamond/star shape using the magic pixel
+                // Draw a simple diamond/star shape
+                Texture2D pixelTex = MagnumTextureRegistry.GetPixelTexture();
+                if (pixelTex == null) continue;
                 for (int j = 0; j < 4; j++)
                 {
                     Vector2 offset = (MathHelper.PiOver2 * j + proj.oldRot[i]).ToRotationVector2() * auraHeight * scale;
-                    Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, drawPos + offset, 
+                    Main.spriteBatch.Draw(pixelTex, drawPos + offset, 
                         new Rectangle(0, 0, 1, 1), color, 0f, Vector2.Zero, 
                         new Vector2(2f, auraHeight * scale), SpriteEffects.None, 0f);
                 }
@@ -315,8 +318,10 @@ namespace MagnumOpus.Common.Systems
             float length = direction.Length();
             float rotation = direction.ToRotation();
 
-            // Use magic pixel stretched to make a line
-            spriteBatch.Draw(TextureAssets.MagicPixel.Value, start - Main.screenPosition,
+            // Use pixel texture stretched to make a line
+            Texture2D lineTex = MagnumTextureRegistry.GetPixelTexture();
+            if (lineTex == null) return;
+            spriteBatch.Draw(lineTex, start - Main.screenPosition,
                 new Rectangle(0, 0, 1, 1), color, rotation, new Vector2(0, 0.5f),
                 new Vector2(length, thickness), SpriteEffects.None, 0f);
         }

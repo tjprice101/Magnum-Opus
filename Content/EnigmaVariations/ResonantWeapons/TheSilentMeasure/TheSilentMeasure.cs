@@ -11,6 +11,7 @@ using Terraria.Audio;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Shaders;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
 using Terraria.GameContent;
 using ReLogic.Content;
@@ -132,7 +133,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Velocity-stretched glow trail
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
+            if (pixel == null) return false;
             float rot = Projectile.velocity.ToRotation();
             Vector2 trailScale = new Vector2(16f / pixel.Width, 6f / pixel.Height);
             sb.Draw(pixel, drawPos, null, SilentUtils.QuestionViolet * 0.7f, rot, pixel.Size() / 2f, trailScale, SpriteEffects.None, 0f);
@@ -349,7 +351,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Small velocity-stretched glow trail
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetPointBloom();
+            if (pixel == null) return false;
             float rot = Projectile.velocity.ToRotation();
             Vector2 trailScale = new Vector2(12f / pixel.Width, 4f / pixel.Height);
             sb.Draw(pixel, drawPos, null, SilentUtils.EnigmaEmerald * 0.65f, rot, pixel.Size() / 2f, trailScale, SpriteEffects.None, 0f);
@@ -495,7 +498,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
             Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             
             // Wide bright glow trail
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
+            if (pixel == null) return false;
             float rot = Projectile.velocity.ToRotation();
             Vector2 trailScale = new Vector2(30f / pixel.Width, 14f / pixel.Height);
             Color trailColor = Color.Lerp(SilentUtils.BrightQuestion, SilentUtils.AnswerWhite, 0.4f);

@@ -9,8 +9,10 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.SwanLake.Bosses.Systems;
 using static MagnumOpus.Common.Systems.BossDialogueSystem;
 
 namespace MagnumOpus.Content.SwanLake.Bosses
@@ -265,6 +267,13 @@ namespace MagnumOpus.Content.SwanLake.Bosses
 
             // Ambient particles
             SpawnAmbientParticles();
+
+            // Boss index tracking for shader systems
+            BossIndexTracker.SwanLakeFractal = NPC.whoAmI;
+            BossIndexTracker.SwanLakeMood = (int)currentMood;
+            
+            // Enhanced shader-driven musical accents
+            SwanLakeBossShaderSystem.SpawnMusicalAccents(NPC, (int)Timer, 0, (int)currentMood);
 
             // State machine
             switch (State)
@@ -3235,6 +3244,25 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             Vector2 origin = new Vector2(frameWidth / 2f, frameHeight / 2f);
             SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 
+            // === SHADER LAYER 1: Prismatic Aura ===
+            SwanLakeBossShaderSystem.DrawPrismaticAura(spriteBatch, NPC, screenPos,
+                (int)currentMood, 0, false);
+
+            // === SHADER LAYER 2: Feather Trail ===
+            if (NPC.velocity.Length() > 4f)
+            {
+                SwanLakeBossShaderSystem.DrawFeatherTrail(spriteBatch, NPC, screenPos,
+                    texture, sourceRect, origin, (int)currentMood);
+            }
+
+            // === SHADER LAYER 3: Monochrome Dissolve ===
+            if (isDying && deathTimer > 0)
+            {
+                float dissolveProgress = Math.Clamp(deathTimer / (float)DeathAnimationDuration, 0f, 1f);
+                SwanLakeBossShaderSystem.DrawMonochromeDissolve(spriteBatch, NPC, screenPos,
+                    texture, sourceRect, origin, dissolveProgress);
+            }
+
             // Pulse effect - enhanced during death
             float pulse = 1f + (float)Math.Sin(pulseTimer * 3f) * 0.05f;
             if (isDying)
@@ -3287,7 +3315,8 @@ namespace MagnumOpus.Content.SwanLake.Bosses
         {
             // Draw COMPLETELY BLACK background like a void night sky
             Rectangle screenRect = new Rectangle(0, 0, Main.screenWidth, Main.screenHeight);
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetPointBloom();
+            if (pixel == null) return;
             
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Matrix.Identity);

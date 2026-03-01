@@ -1,5 +1,5 @@
 // ResonanceMuzzleFlash.fx
-// Muzzle flash / impact flash shader — radial burst with rapid falloff.
+// Muzzle flash / impact flash shader  Eradial burst with rapid falloff.
 
 sampler uImage0 : register(s0);
 
@@ -40,6 +40,6 @@ technique Technique1
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 MuzzleFlashPS();
+        PixelShader = compile ps_3_0 MuzzleFlashPS();
     }
 }

@@ -1,8 +1,8 @@
-// ═══════════════════════════════════════════════════════════════════
-//  SymphonyFragmentTrail.fx — Blade fragment scatter trail
+// ══════════════════════════════════════════════════════════════════╁E
+//  SymphonyFragmentTrail.fx  EBlade fragment scatter trail
 //  Sharp, jagged trail that dissolves rapidly.
-//  Profile: ps_2_0 / vs_2_0
-// ═══════════════════════════════════════════════════════════════════
+//  Profile: ps_3_0 / vs_2_0
+// ══════════════════════════════════════════════════════════════════╁E
 
 float4x4 uTransformMatrix;
 float uTime;
@@ -44,7 +44,7 @@ float4 FragmentPS(VSOutput input) : COLOR0
     float jitter = sin(along * 25.132 + uTime * 8.0) * 0.15 * along;
     float edge   = 1.0 - smoothstep(0.0, 0.38 + jitter, across);
 
-    // Quadratic decay — fragments burn out fast
+    // Quadratic decay  Efragments burn out fast
     float fade = (1.0 - along) * (1.0 - along);
 
     // Hot core color push
@@ -63,6 +63,6 @@ technique FragmentTrail
     pass Pass0
     {
         VertexShader = compile vs_2_0 MainVS();
-        PixelShader  = compile ps_2_0 FragmentPS();
+        PixelShader  = compile ps_3_0 FragmentPS();
     }
 }

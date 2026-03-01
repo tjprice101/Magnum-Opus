@@ -4,6 +4,7 @@ using Terraria;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
 {
@@ -44,8 +45,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
             if (Main.dedServ || _pool == null) return;
 
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D glow = TextureAssets.Extra[ExtrasID.SharpTears].Value;
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            Texture2D pixel = MagnumTextureRegistry.GetPointBloom();
+            if (glow == null || pixel == null) return;
 
             // Pass 1: Bloom underlayer (larger, softer, lower opacity)
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,

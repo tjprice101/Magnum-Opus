@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Utilities;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Particles
@@ -29,13 +30,20 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Particl
         public override void Draw(SpriteBatch sb)
         {
             float alpha = MathHelper.SmoothStep(0.7f, 0f, Progress);
-            Texture2D tex = Terraria.GameContent.TextureAssets.Extra[174].Value;
+            Texture2D tex = MagnumTextureRegistry.GetWideEllipse();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             Color col = Color.Lerp(WingspanUtils.EtherealWhite,
                 WingspanUtils.GetPrismaticEdge(Rotation), 0.3f);
 
             sb.Draw(tex, drawPos, null, col * alpha, Rotation,
                 tex.Size() * 0.5f, new Vector2(Scale * 0.4f, Scale * 0.1f), SpriteEffects.None, 0f);
+
+            // Additive bloom overlay
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            if (glow != null)
+                sb.Draw(glow, drawPos, null, col * alpha * 0.4f, Rotation,
+                    glow.Size() * 0.5f, new Vector2(Scale * 0.6f, Scale * 0.15f), SpriteEffects.None, 0f);
         }
     }
 
@@ -57,11 +65,18 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Particl
         public override void Draw(SpriteBatch sb)
         {
             float alpha = 1f - Progress;
-            Texture2D tex = Terraria.GameContent.TextureAssets.Extra[174].Value;
+            Texture2D tex = MagnumTextureRegistry.GetPointBloom();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
 
             sb.Draw(tex, drawPos, null, DrawColor * alpha, 0f,
                 tex.Size() * 0.5f, Scale * 0.1f, SpriteEffects.None, 0f);
+
+            // Additive bloom overlay
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            if (glow != null)
+                sb.Draw(glow, drawPos, null, DrawColor * alpha * 0.35f, 0f,
+                    glow.Size() * 0.5f, Scale * 0.18f, SpriteEffects.None, 0f);
         }
     }
 
@@ -82,13 +97,20 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Particl
         public override void Draw(SpriteBatch sb)
         {
             float alpha = (1f - Progress) * (1f - Progress);
-            Texture2D tex = Terraria.GameContent.TextureAssets.Extra[174].Value;
+            Texture2D tex = MagnumTextureRegistry.GetRadialBloom();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             Color col = Color.Lerp(Color.White, WingspanUtils.WingGold, Progress);
 
             // Wing shape: stretched horizontally
             sb.Draw(tex, drawPos, null, col * alpha * 0.6f, Rotation,
                 tex.Size() * 0.5f, new Vector2(Scale * 1.2f, Scale * 0.3f), SpriteEffects.None, 0f);
+
+            // Additive bloom overlay
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            if (glow != null)
+                sb.Draw(glow, drawPos, null, col * alpha * 0.3f, Rotation,
+                    glow.Size() * 0.5f, new Vector2(Scale * 1.8f, Scale * 0.45f), SpriteEffects.None, 0f);
         }
     }
 
@@ -109,11 +131,19 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Particl
         public override void Draw(SpriteBatch sb)
         {
             float alpha = (1f - Progress) * 0.7f;
-            Texture2D tex = Terraria.GameContent.TextureAssets.Extra[174].Value;
+            Texture2D tex = MagnumTextureRegistry.GetStar4Soft();
+            if (tex == null) return;
             Color col = WingspanUtils.GetPrismaticEdge(Rotation + Progress * MathHelper.TwoPi);
+            Vector2 drawPos = Position - Main.screenPosition;
 
-            sb.Draw(tex, Position - Main.screenPosition, null, col * alpha, 0f,
+            sb.Draw(tex, drawPos, null, col * alpha, 0f,
                 tex.Size() * 0.5f, Scale * 0.06f, SpriteEffects.None, 0f);
+
+            // Additive bloom overlay
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            if (glow != null)
+                sb.Draw(glow, drawPos, null, col * alpha * 0.4f, 0f,
+                    glow.Size() * 0.5f, Scale * 0.1f, SpriteEffects.None, 0f);
         }
     }
 }

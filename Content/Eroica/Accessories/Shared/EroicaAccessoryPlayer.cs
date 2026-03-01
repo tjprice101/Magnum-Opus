@@ -9,6 +9,7 @@ using Terraria.Audio;
 using Terraria.DataStructures;
 using ReLogic.Content;
 using static Terraria.ModLoader.PlayerDrawLayer;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Eroica.Accessories.PyreOfTheFallenHero;
 using MagnumOpus.Content.Eroica.Accessories.SymphonyOfScarletFlames;
 using MagnumOpus.Content.Eroica.Accessories.SakurasBurningWill;
@@ -552,7 +553,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                 
                 // Draw small diamond marks
                 spriteBatch.Draw(
-                    Terraria.GameContent.TextureAssets.MagicPixel.Value,
+                    MagnumTextureRegistry.GetPointBloom(),
                     drawPos + offset,
                     new Rectangle(0, 0, 4, 4),
                     markColor * pulse,
@@ -574,7 +575,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                     new Color(100, 100, 100, 100);
                 
                 spriteBatch.Draw(
-                    Terraria.GameContent.TextureAssets.MagicPixel.Value,
+                    MagnumTextureRegistry.GetPointBloom(),
                     drawPos + stackOffset,
                     new Rectangle(0, 0, 3, 3),
                     stackColor * pulse,

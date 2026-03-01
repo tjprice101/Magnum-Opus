@@ -1,11 +1,11 @@
 // =============================================================================
-// Grandiose Chime — Mine Shader (Enhanced)
+// Grandiose Chime  EMine Shader (Enhanced)
 // =============================================================================
 // Proximity mine with bell-mandala alarm pattern. Dormant: slow pulsing glow
 // with faint concentric music staff circles. Armed: rapid alarm flash with
 // expanding danger rings, fire corona at outer perimeter, and rotating
 // angular warning geometry. Centre features a bright bell-glyph.
-// Distinct from all other weapons — a STATIC radial trap effect.
+// Distinct from all other weapons  Ea STATIC radial trap effect.
 // =============================================================================
 
 sampler uImage0 : register(s0);
@@ -85,7 +85,7 @@ float4 MinePS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
     float sparks = HashNoise(sparkUV);
     sparks = step(0.93, sparks) * coronaZone * armed;
 
-    // --- Color: dormant amber → armed fierce orange → triggered white-flash ---
+    // --- Color: dormant amber ↁEarmed fierce orange ↁEtriggered white-flash ---
     float3 dormantColor = uColor * 0.5;
     float3 armedColor = uColor;
     float3 dangerColor = uSecondaryColor;
@@ -113,6 +113,6 @@ technique AutoPass
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 MinePS();
+        PixelShader = compile ps_3_0 MinePS();
     }
 }

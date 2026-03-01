@@ -1,5 +1,5 @@
 // =============================================================================
-// Symphonic Bellfire Annihilator — Crescendo Shader (Enhanced)
+// Symphonic Bellfire Annihilator  ECrescendo Shader (Enhanced)
 // =============================================================================
 // Building musical crescendo for the charged special attack. Energy
 // intensifies from a quiet ember hum (pianissimo) to a searing blast
@@ -132,6 +132,6 @@ technique AutoPass
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 CrescendoPS();
+        PixelShader = compile ps_3_0 CrescendoPS();
     }
 }

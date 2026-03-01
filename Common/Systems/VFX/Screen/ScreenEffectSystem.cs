@@ -6,6 +6,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Common.Systems
 {
@@ -429,7 +430,8 @@ namespace MagnumOpus.Common.Systems
             float rotation = direction.ToRotation();
             
             // Draw the slice as overlapping lines with gradient
-            Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetPixelTexture();
+            if (pixel == null) return;
             
             // Outer glow (dark pink)
             for (int i = 0; i < 3; i++)

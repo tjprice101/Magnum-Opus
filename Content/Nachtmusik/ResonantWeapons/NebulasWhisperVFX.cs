@@ -21,26 +21,52 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         // =====================================================================
         public static void HoldItemVFX(Player player)
         {
+            float time = (float)Main.timeForVisualEffects * 0.03f;
+
+            // === OUTER COSMIC PURPLE NEBULA LAYER === Slow, wide, atmospheric drift
+            if (Main.rand.NextBool(3))
+            {
+                float outerAngle = time * 0.4f + Main.rand.NextFloat() * MathHelper.Pi;
+                float outerRadius = 28f + Main.rand.NextFloat() * 15f;
+                Vector2 outerPos = player.Center + new Vector2(
+                    (float)Math.Cos(outerAngle) * outerRadius,
+                    (float)Math.Sin(outerAngle) * outerRadius * 0.8f);
+                Vector2 driftVel = new Vector2(
+                    (float)Math.Sin(time * 0.7f) * 0.25f,
+                    (float)Math.Cos(time * 0.5f) * 0.2f);
+
+                Dust outer = Dust.NewDustPerfect(outerPos, DustID.PurpleTorch,
+                    driftVel, 0, default, 0.7f);
+                outer.noGravity = true;
+                outer.fadeIn = 1.0f;
+            }
+
+            // === INNER NEBULA PINK CORE === Tighter orbit, warmer tone
             if (Main.rand.NextBool(4))
             {
-                // Drifting nebula wisps
-                Vector2 offset = Main.rand.NextVector2Circular(28f, 28f);
-                Vector2 vel = Main.rand.NextVector2Circular(0.4f, 0.4f);
+                float innerAngle = time * 0.8f + Main.rand.NextFloat() * MathHelper.Pi;
+                float innerRadius = 14f + Main.rand.NextFloat() * 10f;
+                Vector2 innerPos = player.Center + new Vector2(
+                    (float)Math.Cos(innerAngle) * innerRadius,
+                    (float)Math.Sin(innerAngle) * innerRadius * 0.6f);
 
-                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.PinkTorch, vel, 0, default, 0.5f);
-                d.noGravity = true;
-                d.fadeIn = 0.8f;
+                Dust inner = Dust.NewDustPerfect(innerPos, DustID.PinkTorch,
+                    Main.rand.NextVector2Circular(0.2f, 0.2f), 0, default, 0.55f);
+                inner.noGravity = true;
+                inner.fadeIn = 0.8f;
             }
 
-            if (Main.rand.NextBool(8))
+            // === IRIDESCENT SHIMMER === Rare bright spark deep within the nebula
+            if (Main.rand.NextBool(12))
             {
-                // Cosmic purple accent mote
-                Dust p = Dust.NewDustPerfect(player.Center + Main.rand.NextVector2Circular(20f, 20f),
-                    DustID.PurpleTorch, Main.rand.NextVector2Circular(0.2f, 0.2f), 0, default, 0.4f);
-                p.noGravity = true;
+                Vector2 shimmerPos = player.Center + Main.rand.NextVector2Circular(16f, 16f);
+                Dust shimmer = Dust.NewDustPerfect(shimmerPos, DustID.Enchanted_Gold,
+                    Vector2.Zero, 0, default, 0.3f);
+                shimmer.noGravity = true;
+                shimmer.fadeIn = 0.4f;
             }
 
-            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.2f);
+            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.22f);
         }
 
         // =====================================================================
@@ -58,20 +84,39 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         // =====================================================================
         public static void MuzzleFlashVFX(Vector2 muzzlePos, Vector2 direction)
         {
-            // Soft nebula gas puff
-            for (int i = 0; i < 6; i++)
+            // === WIDE NEBULA GAS DISCHARGE === Broad atmospheric cone
+            for (int i = 0; i < 8; i++)
             {
-                Vector2 vel = direction * (2f + Main.rand.NextFloat() * 2f)
-                    + Main.rand.NextVector2Circular(2f, 2f);
-                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.PinkTorch;
-                Dust d = Dust.NewDustPerfect(muzzlePos, dustType, vel, 0, default, 0.9f);
+                float spread = MathHelper.ToRadians(35f);
+                Vector2 vel = direction.RotatedBy(Main.rand.NextFloat(-spread, spread))
+                    * (1.5f + Main.rand.NextFloat() * 2.5f);
+                int dustType = Main.rand.NextBool(3) ? DustID.PinkTorch : DustID.PurpleTorch;
+                Dust d = Dust.NewDustPerfect(muzzlePos, dustType, vel, 0, default, 1.0f);
                 d.noGravity = true;
-                d.fadeIn = 1f;
+                d.fadeIn = 1.1f;
             }
 
-            NachtmusikVFXLibrary.SpawnMusicNotes(muzzlePos, 1, 12f, 0.4f, 0.6f, 20);
-            NachtmusikVFXLibrary.DrawBloom(muzzlePos, 0.3f, 0.6f);
-            NachtmusikVFXLibrary.AddPaletteLighting(muzzlePos, 0.4f, 0.5f);
+            // Lingering gas cloud at muzzle
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 cloudVel = Main.rand.NextVector2Circular(1f, 1f);
+                Dust cloud = Dust.NewDustPerfect(muzzlePos + Main.rand.NextVector2Circular(6f, 6f),
+                    DustID.PurpleTorch, cloudVel, 0, default, 0.8f);
+                cloud.noGravity = true;
+                cloud.fadeIn = 1.2f;
+            }
+
+            // Deep cosmic accent flash
+            if (Main.rand.NextBool(2))
+            {
+                Dust shimmer = Dust.NewDustPerfect(muzzlePos, DustID.Enchanted_Gold,
+                    direction * 0.5f, 0, default, 0.35f);
+                shimmer.noGravity = true;
+            }
+
+            NachtmusikVFXLibrary.SpawnMusicNotes(muzzlePos, 1, 14f, 0.4f, 0.6f, 22);
+            NachtmusikVFXLibrary.DrawBloom(muzzlePos, 0.35f, 0.65f);
+            NachtmusikVFXLibrary.AddPaletteLighting(muzzlePos, 0.4f, 0.55f);
         }
 
         // =====================================================================

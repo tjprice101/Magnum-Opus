@@ -1,5 +1,5 @@
 // =============================================================================
-// Symphonic Bellfire Annihilator — Explosion Shader (Enhanced)
+// Symphonic Bellfire Annihilator  EExplosion Shader (Enhanced)
 // =============================================================================
 // Massive detonation with mushroom-cloud structure. A rising hot centre
 // spreads into a flattening cap. Multi-ring blast wavefronts propagate
@@ -125,6 +125,6 @@ technique AutoPass
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 ExplosionPS();
+        PixelShader = compile ps_3_0 ExplosionPS();
     }
 }

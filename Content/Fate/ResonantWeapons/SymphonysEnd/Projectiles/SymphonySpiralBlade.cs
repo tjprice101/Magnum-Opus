@@ -190,13 +190,14 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
             // 1. End default SpriteBatch for custom rendering
             sb.End();
 
-            // 2. Draw trail
+            // 2. Draw trail (shader-driven)
             DrawTrail();
 
-            // 3. Draw blade sprite with additive glow
+            // 3. Chromatic afterimage echoes + blade sprite (additive)
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
+            DrawAfterimages(sb);
             DrawBlade(sb);
             sb.End();
 
@@ -206,6 +207,46 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
                 null, Main.GameViewMatrix.TransformationMatrix);
 
             return false;
+        }
+
+        /// <summary>Chromatic-separated afterimage echoes along the spiral path.</summary>
+        private void DrawAfterimages(SpriteBatch sb)
+        {
+            Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
+            Vector2 origin = tex.Size() * 0.5f;
+            float age = Age;
+            float time = (float)Main.timeForVisualEffects;
+
+            // Draw RGB-separated echoes at old positions
+            for (int i = 2; i < Projectile.oldPos.Length; i += 2)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+
+                float t = (float)i / Projectile.oldPos.Length;
+                float echoAlpha = (1f - t) * 0.25f;
+                float echoScale = 0.45f * (1f - t * 0.3f);
+
+                Vector2 basePos = Projectile.oldPos[i] + Projectile.Size * 0.5f - Main.screenPosition;
+                float rot = Projectile.oldRot[i];
+
+                // Chromatic separation: offset pink and violet slightly in opposite directions
+                Vector2 chromOffset = new Vector2(MathF.Cos(rot), MathF.Sin(rot)) * (2f + t * 3f);
+
+                // Violet echo (offset backward)
+                sb.Draw(tex, basePos - chromOffset, null,
+                    SymphonyUtils.Additive(SymphonyUtils.SymphonyViolet, echoAlpha * 0.6f),
+                    rot, origin, echoScale * 1.1f, SpriteEffects.None, 0f);
+
+                // Pink echo (offset forward)
+                sb.Draw(tex, basePos + chromOffset, null,
+                    SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, echoAlpha * 0.5f),
+                    rot, origin, echoScale, SpriteEffects.None, 0f);
+
+                // Faint white core echo
+                sb.Draw(tex, basePos, null,
+                    SymphonyUtils.Additive(SymphonyUtils.FinalWhite, echoAlpha * 0.2f),
+                    rot, origin, echoScale * 0.6f, SpriteEffects.None, 0f);
+            }
         }
 
         private void DrawTrail()
@@ -233,6 +274,26 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
             float pulse = 1f + MathF.Sin((float)Main.timeForVisualEffects * 0.08f) * 0.1f;
             float scale = 0.5f * pulse;
             float age   = Age;
+            float time  = (float)Main.timeForVisualEffects;
+
+            // Harmonic overtone ring — small rotating satellites around the blade
+            int harmonics = 3;
+            float ringRadius = 12f + MathF.Sin(time * 0.06f) * 3f;
+            for (int h = 0; h < harmonics; h++)
+            {
+                float hAngle = time * 0.1f * (1f + h * 0.5f) + h * MathHelper.TwoPi / harmonics;
+                Vector2 hPos = drawPos + hAngle.ToRotationVector2() * ringRadius;
+                float hAlpha = 0.2f + age * 0.15f;
+                Color hCol = h switch
+                {
+                    0 => SymphonyUtils.SymphonyViolet,
+                    1 => SymphonyUtils.SymphonyPink,
+                    _ => SymphonyUtils.FinalWhite,
+                };
+                sb.Draw(tex, hPos, null,
+                    SymphonyUtils.Additive(hCol, hAlpha * 0.4f),
+                    Projectile.rotation + h * MathHelper.PiOver2, origin, scale * 0.35f, SpriteEffects.None, 0f);
+            }
 
             // Outer violet glow
             sb.Draw(tex, drawPos, null,

@@ -301,7 +301,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
             if (Main.dedServ || _trailCount < 2) return false;
 
             // Lazy load textures
-            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise");
+            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise");
             _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
             _flareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16");
 
@@ -385,7 +385,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
             catch { }
         }
 
-        /// <summary>Layer 3: Constellation spark accents (additive sprites along arc).</summary>
+        /// <summary>Layer 3: Ink droplet accents — bleeding splotches that drip and fade like spilled ink along the arc.</summary>
         private void DrawLayer3_ConstellationSparks(SpriteBatch sb, float progress, float combo)
         {
             if (_flareTex?.Value == null || _trailCount < 3) return;
@@ -398,24 +398,45 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
                 Vector2 origin = tex.Size() / 2f;
                 float time = (float)Main.timeForVisualEffects;
 
-                // Draw sparks along the trailing edge
                 for (int i = 1; i < _trailCount - 1; i += 2)
                 {
                     float t = (float)i / _trailCount;
                     float sparkAlpha = (1f - t) * (0.3f + combo * 0.4f);
 
-                    // Twinkle
-                    float twinkle = MathF.Sin(time * 0.2f + i * 1.7f) * 0.3f + 0.7f;
-                    sparkAlpha *= twinkle;
+                    // Slow, mournful pulse (not twinkling — dirge-like)
+                    float dirge = MathF.Sin(time * 0.08f + i * 1.3f) * 0.2f + 0.8f;
+                    sparkAlpha *= dirge;
 
                     if (sparkAlpha < 0.05f) continue;
 
-                    Color sparkCol = RequiemUtils.PaletteLerp(t * 0.8f + 0.1f);
+                    // Ink-dark crimson splotches — darker than other weapons
+                    Color inkColor = Color.Lerp(RequiemUtils.CosmicVoid, RequiemUtils.BrightCrimson, 0.3f + t * 0.3f);
                     Vector2 drawPos = _trailPoints[i] - Main.screenPosition;
-                    float sparkScale = 0.15f + combo * 0.08f;
 
-                    sb.Draw(tex, drawPos, null, RequiemUtils.Additive(sparkCol, sparkAlpha),
-                        time * 0.5f + i, origin, sparkScale * twinkle, SpriteEffects.None, 0f);
+                    // Gravity drip: ink droplets slowly drift downward over time
+                    float dripOffset = MathF.Sin(i * 2.1f) * 3f + t * 5f;
+                    drawPos.Y += dripOffset;
+
+                    // Main ink splotch (larger, irregular scale for ink-blob feel)
+                    float splotchScale = (0.2f + combo * 0.12f) * (0.8f + MathF.Sin(i * 3.7f) * 0.3f);
+                    sb.Draw(tex, drawPos, null, RequiemUtils.Additive(inkColor, sparkAlpha * 0.8f),
+                        i * 1.5f, origin, splotchScale, SpriteEffects.None, 0f);
+
+                    // Faint crimson bleed halo around each splotch
+                    sb.Draw(tex, drawPos, null, RequiemUtils.Additive(RequiemUtils.BrightCrimson, sparkAlpha * 0.25f),
+                        i * 1.5f, origin, splotchScale * 1.8f, SpriteEffects.None, 0f);
+
+                    // Every 3rd node: fading note silhouette (musical staff ghost)
+                    if (i % 3 == 0)
+                    {
+                        float noteAlpha = sparkAlpha * 0.35f * (1f - t);
+                        float noteScale = 0.1f + combo * 0.05f;
+                        Color noteColor = RequiemUtils.Additive(RequiemUtils.FatePurple, noteAlpha);
+                        // Slight rotation gives each "note" a hand-written feel
+                        float noteRot = MathF.Sin(time * 0.05f + i * 2.3f) * 0.3f;
+                        sb.Draw(tex, drawPos + new Vector2(0, -4f), null, noteColor,
+                            noteRot, origin, noteScale, SpriteEffects.None, 0f);
+                    }
                 }
 
                 RequiemUtils.EndAdditive(sb);
@@ -464,7 +485,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
             }
         }
 
-        /// <summary>Layer 5: Combo aura when combo intensity is high enough.</summary>
+        /// <summary>Layer 5: Combo aura — ink pooling effect: dark splotches that bleed outward from the player.</summary>
         private void DrawLayer5_ComboAura(SpriteBatch sb, float combo)
         {
             if (combo < 0.5f) return;
@@ -473,7 +494,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
             try
             {
                 float auraAlpha = (combo - 0.5f) * 2f; // 0→1 over 0.5→1.0
-                float pulse = MathF.Sin((float)Main.timeForVisualEffects * 0.06f) * 0.15f + 0.85f;
+                float time = (float)Main.timeForVisualEffects;
 
                 RequiemUtils.BeginAdditive(sb);
 
@@ -481,15 +502,32 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
                 var tex = _glowTex.Value;
                 Vector2 origin = tex.Size() / 2f;
 
-                // Concentric rings expanding outward
-                for (int ring = 0; ring < 3; ring++)
+                // Ink pool: asymmetric dark splotches that slowly bleed outward
+                int splotchCount = 5;
+                for (int s = 0; s < splotchCount; s++)
                 {
-                    float ringScale = (0.8f + ring * 0.5f) * pulse;
-                    float ringAlpha = auraAlpha * (1f - ring * 0.25f) * 0.15f;
-                    Color ringCol = RequiemUtils.PaletteLerp(0.2f + ring * 0.2f);
-                    sb.Draw(tex, center, null, RequiemUtils.Additive(ringCol, ringAlpha),
-                        0f, origin, ringScale, SpriteEffects.None, 0f);
+                    // Each splotch has a unique angular offset and drift pattern
+                    float baseAngle = s * MathHelper.TwoPi / splotchCount + MathF.Sin(s * 3.7f) * 0.5f;
+                    float driftAngle = baseAngle + MathF.Sin(time * 0.008f + s * 1.9f) * 0.3f;
+                    float driftRadius = 30f + auraAlpha * 25f + MathF.Sin(time * 0.012f + s * 2.3f) * 10f;
+
+                    Vector2 splotchPos = center + driftAngle.ToRotationVector2() * driftRadius;
+                    // Gravity drip: splotches drift downward slightly
+                    splotchPos.Y += auraAlpha * 8f;
+
+                    float splotchAlpha = auraAlpha * 0.12f;
+                    // Dark crimson ink with void undertone
+                    Color inkCol = Color.Lerp(RequiemUtils.CosmicVoid, RequiemUtils.BrightCrimson, 0.4f + s * 0.1f);
+                    float splotchScale = (0.5f + s * 0.15f) * (0.9f + MathF.Sin(time * 0.01f + s) * 0.1f);
+
+                    sb.Draw(tex, splotchPos, null, RequiemUtils.Additive(inkCol, splotchAlpha),
+                        s * 1.2f, origin, splotchScale, SpriteEffects.None, 0f);
                 }
+
+                // Faint crimson haze at center (ink spreading from the weapon)
+                float hazeAlpha = auraAlpha * 0.06f;
+                sb.Draw(tex, center, null, RequiemUtils.Additive(RequiemUtils.BrightCrimson, hazeAlpha),
+                    0f, origin, 0.7f, SpriteEffects.None, 0f);
 
                 RequiemUtils.EndAdditive(sb);
             }

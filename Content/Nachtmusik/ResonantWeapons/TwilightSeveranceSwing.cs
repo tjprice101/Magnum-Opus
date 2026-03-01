@@ -108,7 +108,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         protected override Color[] GetPalette() => TwilightPalette;
 
         protected override CalamityStyleTrailRenderer.TrailStyle GetTrailStyle()
-            => CalamityStyleTrailRenderer.TrailStyle.Cosmic;
+            => CalamityStyleTrailRenderer.TrailStyle.Ice;
 
         protected override string GetSmearTexturePath(int comboStep) => comboStep switch
         {

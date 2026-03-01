@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.GameContent;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Utilities;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Particles
@@ -31,7 +32,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Particles
 
         public override void Draw(SpriteBatch sb)
         {
-            Texture2D tex = TextureAssets.MagicPixel.Value;
+            Texture2D tex = MagnumTextureRegistry.GetPointBloom();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             float stretch = Math.Max(Velocity.Length() * 0.6f, 2f);
             Color c = Color.Lerp(DrawColor, RoseThornChainsawUtils.DeepThorn, LifeRatio) * (1f - LifeRatio);
@@ -72,7 +74,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Particles
 
         public override void Draw(SpriteBatch sb)
         {
-            Texture2D tex = TextureAssets.MagicPixel.Value;
+            Texture2D tex = MagnumTextureRegistry.GetWideEllipse();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             float opacity = (1f - LifeRatio);
             Color petalColor = Color.Lerp(DrawColor, RoseThornChainsawUtils.WhiteBloom, LifeRatio * 0.3f) * opacity;
@@ -108,7 +111,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Particles
 
         public override void Draw(SpriteBatch sb)
         {
-            Texture2D tex = TextureAssets.MagicPixel.Value;
+            Texture2D tex = MagnumTextureRegistry.GetSoftGlow();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             float opacity = (1f - LifeRatio) * 0.55f;
             Color c = Color.Lerp(DrawColor, RoseThornChainsawUtils.DeepThorn, LifeRatio * 0.4f) * opacity;
@@ -140,7 +144,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Particles
 
         public override void Draw(SpriteBatch sb)
         {
-            Texture2D tex = TextureAssets.MagicPixel.Value;
+            Texture2D tex = MagnumTextureRegistry.GetPointBloom();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             float pulse = 1f + (float)Math.Sin(Lifetime * 0.3f) * 0.3f;
             Color c = Color.Lerp(DrawColor, RoseThornChainsawUtils.SunlightYellow, (float)Math.Sin(Lifetime * 0.2f) * 0.5f + 0.5f) * (1f - LifeRatio);
@@ -170,7 +175,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Particles
 
         public override void Draw(SpriteBatch sb)
         {
-            Texture2D tex = TextureAssets.MagicPixel.Value;
+            Texture2D tex = MagnumTextureRegistry.GetRadialBloom();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             float opacity = (1f - (float)Math.Pow(LifeRatio, 2)) * 0.5f;
             sb.Draw(tex, drawPos, new Rectangle(0, 0, 1, 1), DrawColor * opacity,

@@ -130,17 +130,38 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony
             Vector2 drawPos = Item.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
-            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.08f;
+            // Water flow: smooth continuous sinusoidal with aqua/green color cycling
+            float time = Main.GameUpdateCount * 0.06f;
+            float flow1 = (float)Math.Sin(time * 1.1f); // Primary flow wave
+            float flow2 = (float)Math.Sin(time * 1.7f + 0.5f); // Secondary ripple
+            float flowPulse = 1f + (flow1 * 0.06f + flow2 * 0.04f);
+            float colorCycle = (float)Math.Sin(time * 0.5f) * 0.5f + 0.5f; // Slow aqua↔green
 
-            // Additive golden glow behind item in world
+            // Gentle upward drift like fountain spray
+            float sprayDrift = (float)Math.Sin(time * 0.8f) * 2f;
+            Vector2 sprayOffset = new Vector2(0f, -Math.Abs(sprayDrift));
+
             spriteBatch.End();
             FountainUtils.BeginAdditive(spriteBatch);
 
-            Color glowColor = FountainUtils.Additive(FountainUtils.GoldenSpray, 0.35f);
-            spriteBatch.Draw(texture, drawPos, null, glowColor, rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            // Aqua flow layer — smooth flowing presence
+            Color aquaColor = Color.Lerp(FountainUtils.AquaGlow, FountainUtils.HealingGreen, colorCycle);
+            Color aquaGlow = FountainUtils.Additive(aquaColor, 0.3f);
+            spriteBatch.Draw(texture, drawPos + sprayOffset, null, aquaGlow, rotation, origin, scale * flowPulse * 1.2f, SpriteEffects.None, 0f);
+
+            // Golden spray accent
+            Color goldGlow = FountainUtils.Additive(FountainUtils.GoldenSpray, 0.2f + flow1 * 0.08f);
+            spriteBatch.Draw(texture, drawPos, null, goldGlow, rotation, origin, scale * flowPulse * 1.08f, SpriteEffects.None, 0f);
+
+            // Rose splash on wave peaks
+            float splashIntensity = Math.Max(0f, flow1 * flow2);
+            Color splashColor = FountainUtils.Additive(FountainUtils.RoseSplash, 0.2f * splashIntensity);
+            spriteBatch.Draw(texture, drawPos + sprayOffset * 0.5f, null, splashColor, rotation, origin, scale * 1.04f, SpriteEffects.None, 0f);
 
             spriteBatch.End();
             FountainUtils.BeginDefault(spriteBatch);
+
+            Lighting.AddLight(Item.Center, 0.2f, 0.4f + colorCycle * 0.15f, 0.35f);
         }
 
         public override void AddRecipes()

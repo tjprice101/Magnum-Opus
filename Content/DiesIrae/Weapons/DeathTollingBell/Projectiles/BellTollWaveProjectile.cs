@@ -139,15 +139,32 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
             float lifeRatio = Projectile.timeLeft / 60f;
             Color coreColor = GetRingColor(RingIndex, 0.5f);
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            float rot = Projectile.velocity.ToRotation();
 
-            // Outer glow
+            // Outer glow - ring-index-varying shape
             float pulseScale = 0.8f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.2f + RingIndex);
-            Main.EntitySpriteDraw(tex, drawPos, null, coreColor * alpha * 0.5f, 0f, tex.Size() / 2f,
-                pulseScale, SpriteEffects.None, 0);
+            // Inner ring (0) = tight focused, Mid (1) = standard, Outer (2) = wide flare
+            float xStretch = RingIndex switch { 0 => 1.2f, 1 => 1f, _ => 0.7f };
+            float yStretch = RingIndex switch { 0 => 0.6f, 1 => 1f, _ => 1.4f };
+            Main.EntitySpriteDraw(tex, drawPos, null, coreColor * alpha * 0.5f, rot, tex.Size() / 2f,
+                new Vector2(pulseScale * xStretch, pulseScale * yStretch), SpriteEffects.None, 0);
 
             // Inner bright core
-            Main.EntitySpriteDraw(tex, drawPos, null, BellUtils.BellWhite * alpha * 0.3f, 0f, tex.Size() / 2f,
-                pulseScale * 0.35f, SpriteEffects.None, 0);
+            Main.EntitySpriteDraw(tex, drawPos, null, BellUtils.BellWhite * alpha * 0.3f, rot, tex.Size() / 2f,
+                new Vector2(pulseScale * xStretch * 0.35f, pulseScale * yStretch * 0.35f), SpriteEffects.None, 0);
+
+            // Ring edge accent - a perpendicular stretched glow for ring appearance
+            var pointBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
+            if (pointBloom.IsLoaded)
+            {
+                var pb = pointBloom.Value;
+                float perpRot = rot + MathHelper.PiOver2;
+                float edgeAlpha = alpha * 0.25f * lifeRatio;
+                Color edgeColor = BellUtils.Additive(GetRingColor(RingIndex, 0.8f), edgeAlpha);
+                float edgeScale = 0.4f + RingIndex * 0.15f;
+                Main.EntitySpriteDraw(pb, drawPos, null, edgeColor, perpRot, pb.Size() / 2f,
+                    new Vector2(edgeScale, 0.08f), SpriteEffects.None, 0);
+            }
         }
 
         private void DrawTrailGlow()
@@ -165,8 +182,19 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
                 float progress = i / (float)TrailLength;
                 float trailAlpha = (1f - progress) * alpha * 0.4f;
                 float scale = (1f - progress) * 0.4f;
+
+                // Velocity-aligned stretched trail segments instead of round dots
+                float rot = Projectile.velocity.ToRotation();
                 Main.EntitySpriteDraw(tex, trailCache[i] - Main.screenPosition, null, baseColor * trailAlpha,
-                    0f, tex.Size() / 2f, scale, SpriteEffects.None, 0);
+                    rot, tex.Size() / 2f, new Vector2(scale * 1.8f, scale * 0.5f), SpriteEffects.None, 0);
+
+                // Secondary dimmer glow at perpendicular for ring-like appearance
+                if (i % 2 == 0)
+                {
+                    Color accentColor = GetRingColor(RingIndex, 0.7f + progress * 0.3f);
+                    Main.EntitySpriteDraw(tex, trailCache[i] - Main.screenPosition, null, accentColor * trailAlpha * 0.3f,
+                        rot + MathHelper.PiOver2, tex.Size() / 2f, new Vector2(scale * 0.6f, scale * 0.15f), SpriteEffects.None, 0);
+                }
             }
         }
 

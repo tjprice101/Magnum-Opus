@@ -6,6 +6,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Common.Systems
 {
@@ -15,8 +16,11 @@ namespace MagnumOpus.Common.Systems
     /// </summary>
     public static class MagnumVFX
     {
-        // Commonly used extra texture IDs for VFX
-        private const int SoftGlowTextureId = ExtrasID.SharpTears;
+        /// <summary>Gets a soft glow texture from the VFX asset library instead of vanilla SharpTears.</summary>
+        private static Texture2D GetSoftGlowTexture()
+        {
+            return MagnumTextureRegistry.GetSoftGlow() ?? MagnumTextureRegistry.GetPointBloom();
+        }
         
         // ================== ADDITIVE BLENDING UTILITIES ==================
         
@@ -673,7 +677,8 @@ namespace MagnumOpus.Common.Systems
         /// </summary>
         private static void DrawLightningPathSprite(List<Vector2> path, Color color, float thickness)
         {
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetPixelTexture();
+            if (pixel == null) return;
             
             for (int i = 0; i < path.Count - 1; i++)
             {
@@ -911,7 +916,8 @@ namespace MagnumOpus.Common.Systems
         {
             if (projectile.oldPos.Length < 2) return;
             
-            Texture2D texture = TextureAssets.MagicPixel.Value;
+            Texture2D texture = MagnumTextureRegistry.GetSoftGlow();
+            if (texture == null) return;
             
             for (int i = 0; i < projectile.oldPos.Length - 1; i++)
             {
@@ -952,7 +958,8 @@ namespace MagnumOpus.Common.Systems
         {
             if (projectile.oldPos.Length < 2) return;
             
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
+            if (pixel == null) return;
             int trailCount = (int)(projectile.oldPos.Length * trailLength);
             
             for (int i = 0; i < trailCount - 1; i++)
@@ -995,7 +1002,8 @@ namespace MagnumOpus.Common.Systems
         {
             if (projectile.oldPos.Length < 2) return;
             
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
+            if (pixel == null) return;
             int trailCount = (int)(projectile.oldPos.Length * trailLength);
             
             for (int i = 0; i < trailCount - 1; i++)
@@ -1237,7 +1245,8 @@ namespace MagnumOpus.Common.Systems
             float length = direction.Length();
             float rotation = direction.ToRotation();
             
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
+            if (pixel == null) return;
             
             // Outer purple glow
             Main.spriteBatch.Draw(pixel, start - Main.screenPosition, new Rectangle(0, 0, 1, 1),
@@ -1514,7 +1523,8 @@ namespace MagnumOpus.Common.Systems
         public static void DrawEroicaPrismaticGem(SpriteBatch spriteBatch, Vector2 position, 
             float scale = 1f, float alpha = 1f, float pulsePhase = 0f)
         {
-            Texture2D glowTex = TextureAssets.Extra[SoftGlowTextureId].Value;
+            Texture2D glowTex = GetSoftGlowTexture();
+            if (glowTex == null) return;
             Vector2 drawPos = position - Main.screenPosition;
             Vector2 origin = glowTex.Size() / 2f;
             
@@ -1550,7 +1560,8 @@ namespace MagnumOpus.Common.Systems
         public static void DrawMoonlightPrismaticGem(SpriteBatch spriteBatch, Vector2 position, 
             float scale = 1f, float alpha = 1f, float pulsePhase = 0f)
         {
-            Texture2D glowTex = TextureAssets.Extra[SoftGlowTextureId].Value;
+            Texture2D glowTex = GetSoftGlowTexture();
+            if (glowTex == null) return;
             Vector2 drawPos = position - Main.screenPosition;
             Vector2 origin = glowTex.Size() / 2f;
             
@@ -1587,7 +1598,8 @@ namespace MagnumOpus.Common.Systems
             Color outerColor, Color midColor, Color innerColor, Color coreColor,
             float scale = 1f, float alpha = 1f, float pulsePhase = 0f)
         {
-            Texture2D glowTex = TextureAssets.Extra[SoftGlowTextureId].Value;
+            Texture2D glowTex = GetSoftGlowTexture();
+            if (glowTex == null) return;
             Vector2 drawPos = position - Main.screenPosition;
             Vector2 origin = glowTex.Size() / 2f;
             
@@ -1841,7 +1853,8 @@ namespace MagnumOpus.Common.Systems
         public static void DrawItemBackglow(SpriteBatch spriteBatch, Item item, Vector2 position, 
             Color glowColor, float rotation, float scale, float glowScale = 1.5f)
         {
-            Texture2D glowTex = TextureAssets.Extra[SoftGlowTextureId].Value;
+            Texture2D glowTex = GetSoftGlowTexture();
+            if (glowTex == null) return;
             
             // Pulse the glow
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 1f;
@@ -1874,7 +1887,8 @@ namespace MagnumOpus.Common.Systems
         public static void DrawSlashWhoosh(SpriteBatch spriteBatch, Vector2 position, float rotation,
             Color slashColor, float scale = 1f, float alpha = 0.8f)
         {
-            Texture2D slashTex = TextureAssets.Extra[SoftGlowTextureId].Value; // Soft glow circle
+            Texture2D slashTex = GetSoftGlowTexture();
+            if (slashTex == null) return;
             Vector2 drawPos = position - Main.screenPosition;
             
             // Draw stretched ellipse for slash effect
@@ -1891,7 +1905,8 @@ namespace MagnumOpus.Common.Systems
         public static void DrawChargeUpEffect(SpriteBatch spriteBatch, Vector2 position, Color color,
             float chargeProgress, float maxScale = 60f)
         {
-            Texture2D ringTex = TextureAssets.Extra[SoftGlowTextureId].Value;
+            Texture2D ringTex = GetSoftGlowTexture();
+            if (ringTex == null) return;
             Vector2 drawPos = position - Main.screenPosition;
             Vector2 origin = ringTex.Size() / 2f;
             
@@ -1918,7 +1933,8 @@ namespace MagnumOpus.Common.Systems
         public static void DrawBloomFlare(SpriteBatch spriteBatch, Vector2 position, Color color,
             float scale = 1f, float rotation = 0f, float alpha = 1f)
         {
-            Texture2D bloomTex = TextureAssets.Extra[SoftGlowTextureId].Value;
+            Texture2D bloomTex = GetSoftGlowTexture();
+            if (bloomTex == null) return;
             Vector2 drawPos = position - Main.screenPosition;
             Vector2 origin = bloomTex.Size() / 2f;
             
@@ -1943,7 +1959,8 @@ namespace MagnumOpus.Common.Systems
         public static void DrawRippleRing(SpriteBatch spriteBatch, Vector2 position, Color color,
             float progress, float maxRadius = 100f, float thickness = 10f)
         {
-            Texture2D ringTex = TextureAssets.Extra[SoftGlowTextureId].Value;
+            Texture2D ringTex = GetSoftGlowTexture();
+            if (ringTex == null) return;
             Vector2 drawPos = position - Main.screenPosition;
             Vector2 origin = ringTex.Size() / 2f;
             
@@ -2016,7 +2033,8 @@ namespace MagnumOpus.Common.Systems
         public static void DrawLayeredLaserBeam(SpriteBatch spriteBatch, Vector2 start, Vector2 end, 
             Color coreColor, float width = 8f, float intensity = 1f, float pulse = 0f)
         {
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
+            if (pixel == null) return;
             Vector2 direction = end - start;
             float length = direction.Length();
             float rotation = direction.ToRotation();
@@ -2064,7 +2082,8 @@ namespace MagnumOpus.Common.Systems
         /// </summary>
         private static void DrawBeamTerminator(SpriteBatch spriteBatch, Vector2 position, Color color, float size, float intensity)
         {
-            Texture2D bloomTex = TextureAssets.Extra[SoftGlowTextureId].Value; // Soft glow circle
+            Texture2D bloomTex = GetSoftGlowTexture();
+            if (bloomTex == null) return;
             Vector2 drawPos = position - Main.screenPosition;
             Vector2 origin = bloomTex.Size() / 2f;
             float scale = size / bloomTex.Width * 4f;
@@ -2083,7 +2102,8 @@ namespace MagnumOpus.Common.Systems
         public static void DrawEroicaLaserBeam(SpriteBatch spriteBatch, Vector2 start, Vector2 end, 
             float width = 10f, float intensity = 1f, float pulse = 0f)
         {
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
+            if (pixel == null) return;
             Vector2 direction = end - start;
             float length = direction.Length();
             float rotation = direction.ToRotation();
@@ -2140,7 +2160,8 @@ namespace MagnumOpus.Common.Systems
         public static void DrawMoonlightLaserBeam(SpriteBatch spriteBatch, Vector2 start, Vector2 end, 
             float width = 10f, float intensity = 1f, float pulse = 0f)
         {
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
+            if (pixel == null) return;
             Vector2 direction = end - start;
             float length = direction.Length();
             float rotation = direction.ToRotation();
@@ -2264,7 +2285,8 @@ namespace MagnumOpus.Common.Systems
         public static void DrawEnergyOrb(SpriteBatch spriteBatch, Vector2 position, Color coreColor, 
             float size = 20f, float intensity = 1f, float pulse = 0f)
         {
-            Texture2D bloomTex = TextureAssets.Extra[SoftGlowTextureId].Value;
+            Texture2D bloomTex = GetSoftGlowTexture();
+            if (bloomTex == null) return;
             Vector2 drawPos = position - Main.screenPosition;
             Vector2 origin = bloomTex.Size() / 2f;
             

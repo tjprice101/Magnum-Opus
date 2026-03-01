@@ -1,6 +1,6 @@
-// FermataTemporalWave.fx — Temporal distortion expanding wave on cast.
+// FermataTemporalWave.fx  ETemporal distortion expanding wave on cast.
 // Renders an expanding ring of temporal energy when the staff is used.
-// Target: ps_2_0  |  Standard uniforms.
+// Target: ps_3_0  |  Standard uniforms.
 
 sampler uImage0 : register(s0);
 

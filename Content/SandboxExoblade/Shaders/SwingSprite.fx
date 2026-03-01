@@ -63,6 +63,6 @@ technique Technique1
 {
     pass SwingPass
     {
-        PixelShader = compile ps_2_0 main();
+        PixelShader = compile ps_3_0 main();
     }
 }

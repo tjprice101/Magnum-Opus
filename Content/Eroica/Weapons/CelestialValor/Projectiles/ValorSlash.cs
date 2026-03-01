@@ -14,6 +14,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
     /// </summary>
     public class ValorSlash : ModProjectile
     {
+        public override string Texture => "Terraria/Images/Projectile_1";
+
         public override void SetDefaults()
         {
             Projectile.width = 440;

@@ -1,8 +1,8 @@
 // =============================================================================
-// Grandiose Chime — Barrage Shader (Enhanced)
+// Grandiose Chime  EBarrage Shader (Enhanced)
 // =============================================================================
 // Rapid-fire burning note projectile trail. Strong staccato rhythm is
-// VISIBLE — each note pulses bright/dim in rapid succession like a
+// VISIBLE  Eeach note pulses bright/dim in rapid succession like a
 // pianist's hammers striking bells. Compressed fire dart shape with
 // brilliant head flare, musical tremolo vibration in the body, and
 // scattered ember sparks in the wake.
@@ -112,6 +112,6 @@ technique AutoPass
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 BarragePS();
+        PixelShader = compile ps_3_0 BarragePS();
     }
 }

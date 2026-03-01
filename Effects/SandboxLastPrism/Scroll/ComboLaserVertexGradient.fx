@@ -149,6 +149,6 @@ technique BasicColorDrawing
     }
     pass MainPS
     {
-        PixelShader = compile ps_2_0 ComboLaser();
+        PixelShader = compile ps_3_0 ComboLaser();
     }
 };

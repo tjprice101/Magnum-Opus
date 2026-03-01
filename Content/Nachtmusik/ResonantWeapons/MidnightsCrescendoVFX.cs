@@ -21,25 +21,42 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         // =====================================================================
         public static void HoldItemVFX(Player player)
         {
-            if (Main.rand.NextBool(4))
-            {
-                // Ascending star motes — the crescendo is always rising
-                Vector2 offset = new Vector2(Main.rand.NextFloat(-25f, 25f), Main.rand.NextFloat(5f, 25f));
-                Vector2 pos = player.Center + offset;
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.8f); // Always ascending
+            float time = (float)Main.timeForVisualEffects * 0.05f;
 
-                Dust d = Dust.NewDustPerfect(pos, DustID.BlueTorch, vel, 0, default, 0.6f);
+            // === ASCENDING MUSICAL STAIRCASE === Dust spawns in rising step positions
+            if (Main.rand.NextBool(3))
+            {
+                int step = (int)(time * 2f) % 5;
+                float xOffset = -16f + step * 8f;
+                float yOffset = 15f - step * 8f; // Ascending
+                Vector2 pos = player.Center + new Vector2(xOffset, yOffset);
+                Vector2 vel = new Vector2(0.2f, -1.2f - step * 0.3f);
+                Dust d = Dust.NewDustPerfect(pos, DustID.BlueTorch, vel, 0, default, 0.55f + step * 0.08f);
                 d.noGravity = true;
                 d.fadeIn = 0.8f;
             }
 
-            if (Main.rand.NextBool(12))
+            // === INTENSITY PULSING === Bloom-like dust that pulses with musical rhythm
+            if (Main.rand.NextBool(5))
             {
-                // Rising star spark
-                NachtmusikVFXLibrary.SpawnTwinklingStars(player.Center + new Vector2(0, -15f), 1, 20f);
+                float pulse = (float)Math.Sin(time * 3.5f) * 0.5f + 0.5f;
+                float radius = 18f + pulse * 12f;
+                Vector2 offset = Main.rand.NextVector2CircularEdge(radius, radius * 0.6f);
+                Vector2 vel = new Vector2(0, -0.6f * (1f + pulse));
+                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.BlueTorch,
+                    vel, 0, default, 0.4f + pulse * 0.3f);
+                d.noGravity = true;
+                d.fadeIn = 0.7f;
             }
 
-            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.25f);
+            // === RISING STAR FOUNTAIN === Bright ascending sparks from below
+            if (Main.rand.NextBool(8))
+            {
+                Vector2 sparkPos = player.Center + new Vector2(Main.rand.NextFloat(-10f, 10f), 10f);
+                NachtmusikVFXLibrary.SpawnTwinklingStars(sparkPos, 1, 15f);
+            }
+
+            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.28f);
         }
 
         // =====================================================================

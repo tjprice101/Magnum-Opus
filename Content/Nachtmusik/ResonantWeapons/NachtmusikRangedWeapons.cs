@@ -6,6 +6,7 @@ using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.GameContent;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
@@ -91,7 +92,62 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         }
         
         public override Vector2? HoldoutOffset() => new Vector2(-5f, 0f);
-        
+
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            Texture2D tex = TextureAssets.Item[Item.type].Value;
+            Vector2 pos = Item.Center - Main.screenPosition;
+            Vector2 origin = tex.Size() * 0.5f;
+
+            float time = Main.GameUpdateCount * 0.06f;
+            float pulse = 1f + (float)Math.Sin(time * 2.2f) * 0.08f;
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Constellation blue precision outer ring
+            spriteBatch.Draw(tex, pos, null, NachtmusikPalette.ConstellationBlue with { A = 0 } * 0.35f,
+                rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
+
+            // Star gold crosshair shimmer
+            float crosshairPulse = (float)Math.Sin(time * 3.5f) * 0.5f + 0.5f;
+            spriteBatch.Draw(tex, pos, null, NachtmusikPalette.StarGold with { A = 0 } * 0.25f * crosshairPulse,
+                rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+
+            // Star white precision core
+            spriteBatch.Draw(tex, pos, null, NachtmusikPalette.StarWhite with { A = 0 } * 0.2f,
+                rotation, origin, scale * pulse * 1.05f, SpriteEffects.None, 0f);
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            Lighting.AddLight(Item.Center, NachtmusikPalette.ConstellationBlue.ToVector3() * 0.4f);
+            return true;
+        }
+
+        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        {
+            Texture2D tex = TextureAssets.Item[Item.type].Value;
+            float time = Main.GameUpdateCount * 0.05f;
+            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.06f;
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+
+            Color glowColor = NachtmusikPalette.GetStarfieldGradient((float)Math.Sin(time * 0.8f) * 0.5f + 0.5f) * 0.25f;
+            spriteBatch.Draw(tex, position, frame, glowColor, 0f, origin, scale * pulse * 1.1f, SpriteEffects.None, 0f);
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+
+            spriteBatch.Draw(tex, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
+            return false;
+        }
+
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Triple", "Fires three constellation bolts per shot"));
@@ -150,7 +206,65 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         }
         
         public override Vector2? HoldoutOffset() => new Vector2(-3f, 0f);
-        
+
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            Texture2D tex = TextureAssets.Item[Item.type].Value;
+            Vector2 pos = Item.Center - Main.screenPosition;
+            Vector2 origin = tex.Size() * 0.5f;
+
+            float time = Main.GameUpdateCount * 0.04f;
+            // Slow nebula breathing — soft, atmospheric pulsing
+            float breathe = 1f + (float)Math.Sin(time * 1.3f) * 0.12f;
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Diffuse cosmic purple nebula haze — wide, soft
+            spriteBatch.Draw(tex, pos, null, NachtmusikPalette.CosmicPurple with { A = 0 } * 0.3f,
+                rotation, origin, scale * breathe * 1.45f, SpriteEffects.None, 0f);
+
+            // Nebula pink mid-layer — the whisper's color
+            float nebulaShift = (float)Math.Sin(time * 1.8f) * 0.15f + 0.85f;
+            spriteBatch.Draw(tex, pos, null, NachtmusikPalette.NebulaPink with { A = 0 } * 0.28f * nebulaShift,
+                rotation, origin, scale * breathe * 1.25f, SpriteEffects.None, 0f);
+
+            // Serenade glow inner warmth
+            spriteBatch.Draw(tex, pos, null, NachtmusikPalette.SerenadeGlow with { A = 0 } * 0.22f,
+                rotation, origin, scale * breathe * 1.1f, SpriteEffects.None, 0f);
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            Lighting.AddLight(Item.Center, NachtmusikPalette.NebulaPink.ToVector3() * 0.35f);
+            return true;
+        }
+
+        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        {
+            Texture2D tex = TextureAssets.Item[Item.type].Value;
+            float time = Main.GameUpdateCount * 0.035f;
+            float breathe = 1f + (float)Math.Sin(time * 1.5f) * 0.08f;
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+
+            // Nebula pink/purple cycling glow
+            float cycle = (float)Math.Sin(time * 0.6f) * 0.5f + 0.5f;
+            Color glowColor = Color.Lerp(NachtmusikPalette.CosmicPurple, NachtmusikPalette.NebulaPink, cycle) * 0.26f;
+            spriteBatch.Draw(tex, position, frame, glowColor, 0f, origin, scale * breathe * 1.12f, SpriteEffects.None, 0f);
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+
+            spriteBatch.Draw(tex, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
+            return false;
+        }
+
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Split", "Shots split into 4 nebula fragments on first hit"));
@@ -224,7 +338,66 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         }
         
         public override Vector2? HoldoutOffset() => new Vector2(-6f, 0f);
-        
+
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            Texture2D tex = TextureAssets.Item[Item.type].Value;
+            Vector2 pos = Item.Center - Main.screenPosition;
+            Vector2 origin = tex.Size() * 0.5f;
+
+            float time = Main.GameUpdateCount * 0.05f;
+            // Warm starlit pulsing — like a distant star twinkling
+            float twinkle = 1f + (float)Math.Sin(time * 2.5f) * 0.06f
+                + (float)Math.Sin(time * 4.1f) * 0.03f;
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Deep blue stellar foundation
+            spriteBatch.Draw(tex, pos, null, NachtmusikPalette.DeepBlue with { A = 0 } * 0.3f,
+                rotation, origin, scale * twinkle * 1.35f, SpriteEffects.None, 0f);
+
+            // Warm star gold melody glow — the serenade's warmth
+            float warmPulse = (float)Math.Sin(time * 1.7f) * 0.5f + 0.5f;
+            spriteBatch.Draw(tex, pos, null, NachtmusikPalette.StarGold with { A = 0 } * 0.3f * warmPulse,
+                rotation, origin, scale * twinkle * 1.2f, SpriteEffects.None, 0f);
+
+            // Moonlit silver highlight core
+            spriteBatch.Draw(tex, pos, null, NachtmusikPalette.MoonlitSilver with { A = 0 } * 0.2f,
+                rotation, origin, scale * twinkle * 1.08f, SpriteEffects.None, 0f);
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            Lighting.AddLight(Item.Center, NachtmusikPalette.StarGold.ToVector3() * 0.35f);
+            return true;
+        }
+
+        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        {
+            Texture2D tex = TextureAssets.Item[Item.type].Value;
+            float time = Main.GameUpdateCount * 0.04f;
+            float twinkle = 1f + (float)Math.Sin(time * 2.3f) * 0.07f;
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+
+            // Warm gold-to-silver cycling — serenade warmth
+            float cycle = (float)Math.Sin(time * 0.7f) * 0.5f + 0.5f;
+            Color glowColor = Color.Lerp(NachtmusikPalette.StarGold, NachtmusikPalette.MoonlitSilver, cycle) * 0.24f;
+            spriteBatch.Draw(tex, position, frame, glowColor, 0f, origin, scale * twinkle * 1.1f, SpriteEffects.None, 0f);
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+
+            spriteBatch.Draw(tex, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
+            return false;
+        }
+
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Stars", "Fires 4-5 homing star projectiles per shot"));

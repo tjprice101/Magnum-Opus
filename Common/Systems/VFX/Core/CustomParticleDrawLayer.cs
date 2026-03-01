@@ -4,6 +4,7 @@ using Terraria;
 using Terraria.GameContent;
 using Terraria.ModLoader;
 using Terraria.UI;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Common.Systems
 {
@@ -82,7 +83,8 @@ namespace MagnumOpus.Common.Systems
         private void DrawChromaticAberrationOverlay(SpriteBatch spriteBatch, Vector2 offset)
         {
             // Draw subtle colored overlays offset from screen center to simulate chromatic aberration
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetPointBloom();
+            if (pixel == null) return;
             Rectangle screenRect = new Rectangle(0, 0, Main.screenWidth, Main.screenHeight);
             
             // End the current UI spritebatch before starting our own
@@ -104,7 +106,8 @@ namespace MagnumOpus.Common.Systems
         
         private void DrawInversionOverlay(SpriteBatch spriteBatch, float intensity)
         {
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetPointBloom();
+            if (pixel == null) return;
             
             // End the current UI spritebatch before starting our own
             spriteBatch.End();

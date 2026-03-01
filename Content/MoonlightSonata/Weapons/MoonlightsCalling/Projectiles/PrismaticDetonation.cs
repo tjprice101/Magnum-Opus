@@ -25,6 +25,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
     /// </summary>
     public class PrismaticDetonation : ModProjectile
     {
+        public override string Texture => "Terraria/Images/Projectile_1";
+
         private const int Lifetime = 30;
         private const float MaxRadius = 300f;
 

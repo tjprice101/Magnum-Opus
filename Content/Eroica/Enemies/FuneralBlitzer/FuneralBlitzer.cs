@@ -12,6 +12,8 @@ using MagnumOpus.Content.Materials.EnemyDrops;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Content.Eroica.Enemies.EroicanCenturion;
+using MagnumOpus.Common.Systems.Bosses;
+using MagnumOpus.Common.Systems.Shaders;
 
 namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 {
@@ -566,6 +568,39 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
             Color glowColor = new Color(200, 50, 40, 0) * 0.55f * pulse;
 
             SpriteEffects baseEffect = SpriteEffects.FlipHorizontally;
+            SpriteEffects effects = NPC.spriteDirection == 1 ? SpriteEffects.None : baseEffect;
+
+            // Shader-driven aura layer
+            Effect auraShader = EnemyShaderManager.GetShader(EnemyShaderManager.BlitzerFuneralAura);
+            if (auraShader != null)
+            {
+                EnemyShaderManager.ApplyAuraParams(auraShader, NPC, new Color(100, 20, 20), new Color(200, 50, 50), pulse);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.Draw(texture, drawPos, sourceRect, Color.White, NPC.rotation, origin, drawScale * 1.15f, effects, 0f);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
+            // Shader-driven trail layer (only when moving fast)
+            if (NPC.velocity.Length() > 4f)
+            {
+                Effect trailShader = EnemyShaderManager.GetShader(EnemyShaderManager.BlitzerExplosionFlash);
+                if (trailShader != null)
+                {
+                    EnemyShaderManager.ApplyTrailParams(trailShader, NPC, new Color(100, 20, 20), new Color(200, 50, 50), NPC.velocity.Length() / 12f);
+                    spriteBatch.End();
+                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
+                    for (int t = 1; t <= 3; t++)
+                    {
+                        Vector2 trailPos = drawPos - NPC.velocity * t * 2f;
+                        float trailAlpha = 1f - (t / 4f);
+                        spriteBatch.Draw(texture, trailPos, sourceRect, Color.White * trailAlpha, NPC.rotation, origin, drawScale, effects, 0f);
+                    }
+                    spriteBatch.End();
+                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
 
             for (int i = 0; i < 4; i++)
             {

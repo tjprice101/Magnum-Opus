@@ -1,5 +1,5 @@
 // =============================================================================
-// Symphonic Bellfire Annihilator — Rocket Trail Shader (Enhanced)
+// Symphonic Bellfire Annihilator  ERocket Trail Shader (Enhanced)
 // =============================================================================
 // Thick, turbulent exhaust plume for rocket projectiles. Full FBM smoke
 // billowing with embedded flame pockets. Exhaust ring nodes form periodic
@@ -85,7 +85,7 @@ float4 RocketTrailPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : C
     float4 secTex = tex2D(uImage1, secUV);
     float secVal = lerp(1.0, secTex.r * 0.5 + 0.6, uHasSecondaryTex * 0.3);
 
-    // ---- 5-stop colour gradient: nozzle → flame → smoke ----
+    // ---- 5-stop colour gradient: nozzle ↁEflame ↁEsmoke ----
     float3 cWhite  = float3(1.0, 0.96, 0.88);
     float3 cBright = uSecondaryColor;
     float3 cFlame  = uColor;
@@ -122,6 +122,6 @@ technique AutoPass
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 RocketTrailPS();
+        PixelShader = compile ps_3_0 RocketTrailPS();
     }
 }

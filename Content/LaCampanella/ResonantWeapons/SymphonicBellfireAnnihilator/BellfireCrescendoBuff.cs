@@ -9,6 +9,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
     /// </summary>
     public class BellfireCrescendoBuff : ModBuff
     {
+        public override string Texture => "Terraria/Images/Buff_24";
+
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;

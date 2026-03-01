@@ -113,30 +113,43 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious
             Vector2 position = Item.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
+            // Choral harmonics: three overlapping frequencies creating complex interference
             float time = Main.GameUpdateCount * 0.06f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.1f;
-            float flicker = Main.rand.NextFloat(0.9f, 1f);
+            float harmonic1 = (float)Math.Sin(time * 1.0f); // Fundamental (bass)
+            float harmonic2 = (float)Math.Sin(time * 2.3f); // Second harmonic (tenor)
+            float harmonic3 = (float)Math.Sin(time * 3.7f); // Third harmonic (soprano)
+            float interference = (harmonic1 + harmonic2 + harmonic3) / 3f; // Combined wave
+            float choralPulse = 1f + interference * 0.12f;
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Warm amber glow
-            spriteBatch.Draw(texture, position, null, HymnUtils.Additive(HymnUtils.WarmAmber, 0.35f * flicker),
-                rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
-            // Brilliant gold inner glow
-            spriteBatch.Draw(texture, position, null, HymnUtils.Additive(HymnUtils.BrilliantGold, 0.25f * flicker),
-                rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            // Bass layer — warm amber, driven by fundamental
+            float bassIntensity = (harmonic1 * 0.5f + 0.5f);
+            spriteBatch.Draw(texture, position, null, HymnUtils.Additive(HymnUtils.WarmAmber, 0.25f * bassIntensity),
+                rotation, origin, scale * (1.25f + harmonic1 * 0.08f), SpriteEffects.None, 0f);
 
-            float shimmer = (float)Math.Sin(time * 3f) * 0.5f + 0.5f;
-            spriteBatch.Draw(texture, position, null, HymnUtils.Additive(HymnUtils.DivineLight, 0.2f * shimmer),
-                rotation, origin, scale * pulse * 1.05f, SpriteEffects.None, 0f);
+            // Tenor layer — brilliant gold, driven by second harmonic
+            float tenorIntensity = (harmonic2 * 0.5f + 0.5f);
+            spriteBatch.Draw(texture, position, null, HymnUtils.Additive(HymnUtils.BrilliantGold, 0.2f * tenorIntensity),
+                rotation, origin, scale * (1.15f + harmonic2 * 0.06f), SpriteEffects.None, 0f);
+
+            // Soprano layer — rose harmony, driven by third harmonic
+            float sopranoIntensity = (harmonic3 * 0.5f + 0.5f);
+            spriteBatch.Draw(texture, position, null, HymnUtils.Additive(HymnUtils.RoseHarmony, 0.18f * sopranoIntensity),
+                rotation, origin, scale * (1.08f + harmonic3 * 0.04f), SpriteEffects.None, 0f);
+
+            // Divine resonance — white flash when all harmonics align
+            float resonance = Math.Max(0f, interference * 2f - 0.5f); // Only peaks when all align
+            spriteBatch.Draw(texture, position, null, HymnUtils.Additive(HymnUtils.DivineLight, 0.35f * resonance),
+                rotation, origin, scale * choralPulse * 1.02f, SpriteEffects.None, 0f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            Lighting.AddLight(Item.Center, 0.5f, 0.45f, 0.12f);
+            Lighting.AddLight(Item.Center, 0.45f + resonance * 0.3f, 0.4f + resonance * 0.25f, 0.1f + resonance * 0.15f);
             return true;
         }
 

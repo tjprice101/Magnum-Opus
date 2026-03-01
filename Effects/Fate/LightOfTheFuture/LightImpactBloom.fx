@@ -1,5 +1,5 @@
 // =============================================================================
-// Light of the Future — Impact Bloom Shader (ps_2_0 optimized)
+// Light of the Future  EImpact Bloom Shader (ps_3_0 optimized)
 // =============================================================================
 // Expanding impact shockwave ring with colour split.
 // =============================================================================
@@ -43,6 +43,6 @@ technique ImpactBloomMain
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 ImpactBloomPS();
+        PixelShader = compile ps_3_0 ImpactBloomPS();
     }
 }

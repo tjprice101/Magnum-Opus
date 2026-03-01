@@ -1,11 +1,11 @@
 // =============================================================================
-// Dual-Fated Chime — Inferno Waltz Aura Shader (Enhanced)
+// Dual-Fated Chime  EInferno Waltz Aura Shader (Enhanced)
 // =============================================================================
 // Radial inferno aura for the spinning Waltz attack. Concentric bell-toll
 // shockwave rings expand outward while fire spokes whirl in a pinwheel.
 // FBM-driven flame turbulence, bell-shaped radial energy bands, and
 // ember particle scatter at the outer perimeter. The waltz intensifies
-// with uPhase (spin progress) — more spokes, brighter fire, tighter rings.
+// with uPhase (spin progress)  Emore spokes, brighter fire, tighter rings.
 // =============================================================================
 
 sampler uImage0 : register(s0);
@@ -159,6 +159,6 @@ technique WaltzAuraMain
     pass P0
     {
         VertexShader = compile vs_2_0 WaltzVS();
-        PixelShader = compile ps_2_0 WaltzAuraPS();
+        PixelShader = compile ps_3_0 WaltzAuraPS();
     }
 }

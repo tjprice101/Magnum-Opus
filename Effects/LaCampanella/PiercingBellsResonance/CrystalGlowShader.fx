@@ -1,5 +1,5 @@
 // =============================================================================
-// Piercing Bells Resonance — Crystal Glow Shader (Enhanced)
+// Piercing Bells Resonance  ECrystal Glow Shader (Enhanced)
 // =============================================================================
 // Ethereal crystal glow for seeking crystal projectiles. Sharp 6-fold
 // diamond facets with internal fire caustics that shift as orientation
@@ -120,6 +120,6 @@ technique AutoPass
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 CrystalGlowPS();
+        PixelShader = compile ps_3_0 CrystalGlowPS();
     }
 }

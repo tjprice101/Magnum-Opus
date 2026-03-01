@@ -6,7 +6,7 @@ using Terraria.ModLoader;
 
 namespace MagnumOpus.Content.Eroica.Weapons.TriumphantFractal.Shaders
 {
-    public class FractalShaderLoader : ModSystem
+    public class TriumphantFractalShaderLoader : ModSystem
     {
         // TriumphantFractalShader.fx passes
         public const string FractalEnergyTrailKey = "MagnumOpus:FractalEnergyTrail";

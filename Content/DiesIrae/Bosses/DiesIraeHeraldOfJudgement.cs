@@ -25,6 +25,8 @@ using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.DiesIrae.Bosses.Systems;
+using MagnumOpus.Common.Systems.Bosses;
 
 namespace MagnumOpus.Content.DiesIrae.Bosses
 {
@@ -260,6 +262,12 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             
             float lightIntensity = isEnraged ? 1.5f : 1.0f;
             Lighting.AddLight(NPC.Center, EmberOrange.ToVector3() * lightIntensity);
+            
+            BossIndexTracker.DiesIraeHerald = NPC.whoAmI;
+            BossIndexTracker.DiesIraePhase = difficultyTier;
+            
+            if (State != BossPhase.Spawning && State != BossPhase.Death)
+                DiesIraeBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier, isEnraged);
         }
 
         public override bool CheckDead()
@@ -1411,6 +1419,25 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             Texture2D texture = TextureAssets.Npc[Type].Value;
             Vector2 drawPos = NPC.Center - screenPos;
             Vector2 origin = texture.Size() / 2f;
+            
+            // === Shader: Hellfire Aura ===
+            if (State != BossPhase.Spawning)
+                DiesIraeBossShaderSystem.DrawHellfireAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, isEnraged);
+            
+            // === Shader: Judgment Trail (supplement existing trail during attacks) ===
+            if (State == BossPhase.Attack && NPC.velocity.Length() > 6f)
+                DiesIraeBossShaderSystem.DrawJudgmentTrail(spriteBatch, NPC, screenPos, texture, new Rectangle(0, 0, texture.Width, texture.Height), origin, isEnraged);
+            
+            // === Shader: Wrath Escalation (tied to difficulty tier) ===
+            if (difficultyTier > 0)
+                DiesIraeBossShaderSystem.DrawWrathEscalation(spriteBatch, NPC, screenPos, difficultyTier, difficultyTier / 3f);
+            
+            // === Shader: Final Judgment Dissolve (during Death) ===
+            if (State == BossPhase.Death)
+            {
+                float dissolveProgress = deathTimer / 180f;
+                DiesIraeBossShaderSystem.DrawFinalJudgmentDissolve(spriteBatch, NPC, screenPos, texture, new Rectangle(0, 0, texture.Width, texture.Height), origin, dissolveProgress);
+            }
             
             // === AMBIENT FIRE AURA - Constant burning presence ===
             float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.15f;

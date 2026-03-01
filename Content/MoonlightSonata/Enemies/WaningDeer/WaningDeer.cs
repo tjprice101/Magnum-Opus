@@ -15,6 +15,8 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Common.Systems.VFX.Optimization;
+using MagnumOpus.Common.Systems.Bosses;
+using MagnumOpus.Common.Systems.Shaders;
 
 namespace MagnumOpus.Content.MoonlightSonata.Enemies
 {
@@ -1028,6 +1030,38 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.3f + 0.7f;
             float glowMult = pulse * auraIntensity;
             SpriteEffects effects = NPC.spriteDirection == 1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+
+            // Shader-driven aura layer
+            Effect auraShader = EnemyShaderManager.GetShader(EnemyShaderManager.WaningDeerLunarAura);
+            if (auraShader != null)
+            {
+                EnemyShaderManager.ApplyAuraParams(auraShader, NPC, new Color(140, 100, 200), new Color(100, 170, 255), auraIntensity);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.Draw(texture, drawPos, sourceRect, Color.White, NPC.rotation, origin, drawScale * 1.15f, effects, 0f);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
+            // Shader-driven trail layer (only when moving fast)
+            if (NPC.velocity.Length() > 4f)
+            {
+                Effect trailShader = EnemyShaderManager.GetShader(EnemyShaderManager.WaningDeerMoonbeamTrail);
+                if (trailShader != null)
+                {
+                    EnemyShaderManager.ApplyTrailParams(trailShader, NPC, new Color(140, 100, 200), new Color(100, 170, 255), NPC.velocity.Length() / 12f);
+                    spriteBatch.End();
+                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
+                    for (int t = 1; t <= 3; t++)
+                    {
+                        Vector2 trailPos = drawPos - NPC.velocity * t * 2f;
+                        float trailAlpha = 1f - (t / 4f);
+                        spriteBatch.Draw(texture, trailPos, sourceRect, Color.White * trailAlpha, NPC.rotation, origin, drawScale, effects, 0f);
+                    }
+                    spriteBatch.End();
+                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
 
             // === 4-layer {A=0} bloom stack ===
             // Layer 1: Outer dark purple aura

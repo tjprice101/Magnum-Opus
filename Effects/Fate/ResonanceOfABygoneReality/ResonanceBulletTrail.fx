@@ -58,7 +58,7 @@ technique BulletMain
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 BulletMainPS();
+        PixelShader = compile ps_3_0 BulletMainPS();
     }
 }
 
@@ -66,6 +66,6 @@ technique BulletGlow
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 BulletGlowPS();
+        PixelShader = compile ps_3_0 BulletGlowPS();
     }
 }

@@ -20,8 +20,10 @@ using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoid;
 using MagnumOpus.Content.EnigmaVariations.HarmonicCores;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.EnigmaVariations.Bosses.Systems;
 using static MagnumOpus.Common.Systems.BossDialogueSystem;
 
 namespace MagnumOpus.Content.EnigmaVariations.Bosses
@@ -266,6 +268,12 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             Timer++;
             UpdateAnimation();
             SpawnAmbientParticles();
+            
+            BossIndexTracker.EnigmaHollowMystery = NPC.whoAmI;
+            BossIndexTracker.EnigmaPhase = difficultyTier;
+            
+            if (State != BossPhase.Spawning && State != BossPhase.Dying)
+                EnigmaBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier);
             
             NPC.spriteDirection = NPC.direction = (target.Center.X > NPC.Center.X) ? 1 : -1;
             
@@ -3186,8 +3194,22 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             Vector2 drawPos = NPC.Center - screenPos;
             SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             
+            // Shader: Void aura behind boss (skip during spawn)
+            if (State != BossPhase.Spawning)
+            {
+                float aggressionLevel = MathHelper.Clamp((float)NPC.life / NPC.lifeMax, 0f, 1f);
+                aggressionLevel = 1f - aggressionLevel; // more aggressive as HP drops
+                EnigmaBossShaderSystem.DrawVoidAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, isEnraged);
+            }
+            
+            // Shader: Shadow trail when moving fast or enraged, fallback to vanilla afterimage
             if (NPC.velocity.Length() > 10f || isEnraged)
             {
+                EnigmaBossShaderSystem.DrawShadowTrail(spriteBatch, NPC, screenPos, tex, sourceRect, origin, isEnraged);
+            }
+            else if (NPC.velocity.Length() > 6f)
+            {
+                // Lighter vanilla afterimage fallback for moderate speed
                 for (int i = 0; i < NPC.oldPos.Length; i++)
                 {
                     float progress = (float)i / NPC.oldPos.Length;
@@ -3197,11 +3219,29 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 }
             }
             
+            // Shader: Dissolve effect during death
+            if (State == BossPhase.Dying)
+            {
+                float dissolveProgress = MathHelper.Clamp(deathTimer / 180f, 0f, 1f);
+                EnigmaBossShaderSystem.DrawUnveilingDissolve(spriteBatch, NPC, screenPos, tex, sourceRect, origin, dissolveProgress);
+            }
+            
+            // Shader: Teleport warp during fade
+            if (State == BossPhase.Teleport)
+            {
+                float warpProgress = isFading
+                    ? MathHelper.Clamp(NPC.alpha / 255f, 0f, 1f)
+                    : MathHelper.Clamp(1f - NPC.alpha / 255f, 0f, 1f);
+                EnigmaBossShaderSystem.DrawTeleportWarp(spriteBatch, NPC, screenPos, warpProgress, difficultyTier >= 2);
+            }
+            
+            // Existing glow pulse
             float pulse = (float)Math.Sin(Timer * 0.08f) * 0.3f + 0.7f;
             Color glowColor = isEnraged ? EnigmaGreen : Color.Lerp(EnigmaPurple, EnigmaGreen, pulse);
             glowColor.A = 0;
             spriteBatch.Draw(tex, drawPos, sourceRect, glowColor * 0.35f, NPC.rotation, origin, NPC.scale * 1.1f, effects, 0f);
             
+            // Existing main sprite draw
             Color mainColor = NPC.IsABestiaryIconDummy ? Color.White : Lighting.GetColor((int)(NPC.Center.X / 16), (int)(NPC.Center.Y / 16));
             mainColor = Color.Lerp(mainColor, Color.White, 0.3f);
             spriteBatch.Draw(tex, drawPos, sourceRect, mainColor * ((255 - NPC.alpha) / 255f), NPC.rotation, origin, NPC.scale, effects, 0f);

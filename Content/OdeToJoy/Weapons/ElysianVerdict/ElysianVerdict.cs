@@ -79,30 +79,43 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict
             Vector2 position = Item.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
+            // Orbiting dual glow: two glow layers orbit around the item creating living energy
             float time = Main.GameUpdateCount * 0.06f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.1f;
-            float flicker = Main.rand.NextFloat(0.9f, 1f);
+            float orbitAngle1 = time * 1.4f; // Primary orbit speed
+            float orbitAngle2 = time * -0.9f + MathHelper.Pi; // Counter-rotating secondary
+            float orbitRadius = 5f + (float)Math.Sin(time * 0.7f) * 2f; // Breathing orbit distance
+            float basePulse = 1f + (float)Math.Sin(time * 1.5f) * 0.06f;
+
+            Vector2 orbit1 = new Vector2((float)Math.Cos(orbitAngle1), (float)Math.Sin(orbitAngle1)) * orbitRadius;
+            Vector2 orbit2 = new Vector2((float)Math.Cos(orbitAngle2), (float)Math.Sin(orbitAngle2)) * orbitRadius;
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Golden outer glow
-            spriteBatch.Draw(texture, position, null, ElysianUtils.Additive(ElysianUtils.GoldenVerdict, 0.35f * flicker),
-                rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
-            // Green inner glow
-            spriteBatch.Draw(texture, position, null, ElysianUtils.Additive(ElysianUtils.VineGreen, 0.3f * flicker),
-                rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            // Primary verdant orbit glow
+            spriteBatch.Draw(texture, position + orbit1, null, ElysianUtils.Additive(ElysianUtils.VineGreen, 0.35f),
+                rotation, origin, scale * basePulse * 1.2f, SpriteEffects.None, 0f);
 
-            float shimmer = (float)Math.Sin(time * 3f) * 0.5f + 0.5f;
-            spriteBatch.Draw(texture, position, null, ElysianUtils.Additive(ElysianUtils.PureRadiance, 0.2f * shimmer),
-                rotation, origin, scale * pulse * 1.05f, SpriteEffects.None, 0f);
+            // Secondary golden orbit glow
+            spriteBatch.Draw(texture, position + orbit2, null, ElysianUtils.Additive(ElysianUtils.GoldenVerdict, 0.3f),
+                rotation, origin, scale * basePulse * 1.15f, SpriteEffects.None, 0f);
+
+            // Central steady core
+            spriteBatch.Draw(texture, position, null, ElysianUtils.Additive(ElysianUtils.ElysianGold, 0.2f),
+                rotation, origin, scale * basePulse * 1.05f, SpriteEffects.None, 0f);
+
+            // Radiance flash when orbits cross paths (proximity-based)
+            float orbitDist = Vector2.Distance(orbit1, orbit2);
+            float crossFlash = Math.Max(0f, 1f - orbitDist / (orbitRadius * 1.5f));
+            spriteBatch.Draw(texture, position, null, ElysianUtils.Additive(ElysianUtils.PureRadiance, 0.3f * crossFlash),
+                rotation, origin, scale * (1f + crossFlash * 0.15f), SpriteEffects.None, 0f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            Lighting.AddLight(Item.Center, 0.5f, 0.45f, 0.12f);
+            Lighting.AddLight(Item.Center, 0.45f + crossFlash * 0.2f, 0.5f, 0.15f);
             return true;
         }
 

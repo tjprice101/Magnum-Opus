@@ -6,6 +6,7 @@ using ReLogic.Content;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Particles;
 using MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Utilities;
 
@@ -22,6 +23,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         private static Asset<Texture2D> _bloomTex;
+        private static Asset<Texture2D> _softBloomTex;
 
         public override void SetDefaults()
         {
@@ -128,17 +130,36 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
         {
             _bloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
                 "Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
+            _softBloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
 
             Texture2D tex = _bloomTex.Value;
+            Texture2D softBloom = _softBloomTex.Value;
             Vector2 origin = tex.Size() / 2f;
+            Vector2 sOrigin = softBloom.Size() / 2f;
             SpriteBatch sb = Main.spriteBatch;
-
-            sb.End();
-            ThornSprayUtils.BeginAdditive(sb);
+            float time = (float)Main.GameUpdateCount / 60f;
 
             float alphaFade = 1f - (Projectile.alpha / 255f);
             float pulse = 1f + (float)Math.Sin(Projectile.ai[0] * 0.25f) * 0.12f;
             float rot = Projectile.velocity.ToRotation();
+
+            sb.End();
+
+            // ═══ Layer 1: TriumphantTrail shader on afterimage trail ═══
+            Effect trailShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyTriumphantTrailShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (trailShader != null)
+            {
+                trailShader.Parameters["uTime"]?.SetValue(time);
+                trailShader.Parameters["uColor"]?.SetValue(ThornSprayUtils.VerdantBolt.ToVector3());
+                trailShader.Parameters["uSecondaryColor"]?.SetValue(ThornSprayUtils.ThornGreen.ToVector3());
+                trailShader.Parameters["uIntensity"]?.SetValue(1.0f);
+                trailShader.CurrentTechnique = trailShader.Techniques["TriumphantTrailTechnique"];
+            }
 
             // Trail from old positions
             for (int i = Projectile.oldPos.Length - 1; i >= 1; i--)
@@ -146,6 +167,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
                 float trailFade = (1f - (float)i / Projectile.oldPos.Length) * alphaFade;
+
+                if (trailShader != null)
+                {
+                    trailShader.Parameters["uOpacity"]?.SetValue(trailFade * 0.4f);
+                    trailShader.CurrentTechnique.Passes[0].Apply();
+                }
+
                 Color trailCol = ThornSprayUtils.Additive(ThornSprayUtils.ThornGreen, trailFade * 0.35f);
                 sb.Draw(tex, trailPos, null, trailCol, rot, origin,
                     new Vector2(0.2f * pulse, 0.08f) * (1f - (float)i / Projectile.oldPos.Length),
@@ -155,7 +183,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
             // Velocity-stretched outer glow
             float speed = Projectile.velocity.Length();
             float stretch = 1f + speed * 0.06f;
-            Color outerCol = ThornSprayUtils.Additive(ThornSprayUtils.VerdantBolt, 0.55f * alphaFade);
+            Color outerCol = ThornSprayUtils.Additive(ThornSprayUtils.VerdantBolt, 0.5f * alphaFade);
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null, outerCol, rot, origin,
                 new Vector2(0.25f * stretch * pulse, 0.12f * pulse), SpriteEffects.None, 0f);
 
@@ -363,13 +391,35 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
             Texture2D tex = _bloomTex.Value;
             Vector2 origin = tex.Size() / 2f;
             SpriteBatch sb = Main.spriteBatch;
-
-            sb.End();
-            ThornSprayUtils.BeginAdditive(sb);
+            float time = (float)Main.GameUpdateCount / 60f;
 
             float progress = Math.Clamp(Projectile.ai[0] / DetonationTime, 0f, 1f);
             float pulse = 1f + (float)Math.Sin(Projectile.ai[0] * 0.2f) * 0.3f * progress;
             float growScale = (0.12f + progress * 0.2f) * pulse;
+
+            sb.End();
+
+            // ═══ Layer 1: VerdantSlash ThornImpact shader — radial thorn burst charging up ═══
+            Effect slashShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyVerdantSlashShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (slashShader != null && progress > 0.3f)
+            {
+                float chargeAlpha = (progress - 0.3f) / 0.7f;
+                slashShader.Parameters["uTime"]?.SetValue(time);
+                slashShader.Parameters["uColor"]?.SetValue(ThornSprayUtils.AmberWarn.ToVector3());
+                slashShader.Parameters["uSecondaryColor"]?.SetValue(ThornSprayUtils.ExplosionGold.ToVector3());
+                slashShader.Parameters["uOpacity"]?.SetValue(chargeAlpha * 0.4f);
+                slashShader.Parameters["uIntensity"]?.SetValue(0.8f + progress);
+                slashShader.Parameters["uComboProgress"]?.SetValue(progress);
+                slashShader.CurrentTechnique = slashShader.Techniques["ThornImpactTechnique"];
+                slashShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(tex, Projectile.Center - Main.screenPosition, null, Color.White,
+                    0f, origin, growScale * 3f, SpriteEffects.None, 0f);
+            }
 
             // Color shifts green -> amber -> gold as timer approaches detonation
             Color baseCol = ThornSprayUtils.MulticolorLerp(progress,

@@ -5,6 +5,7 @@ using ReLogic.Content;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Particles;
 using MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Utilities;
 
@@ -20,6 +21,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Projectiles
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         private static Asset<Texture2D> _bloomTex;
+        private static Asset<Texture2D> _softBloomTex;
 
         public override void SetDefaults()
         {
@@ -116,31 +118,55 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Projectiles
         {
             _bloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
                 "Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
+            _softBloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
 
             Texture2D tex = _bloomTex.Value;
+            Texture2D softBloom = _softBloomTex.Value;
             Vector2 origin = tex.Size() / 2f;
+            Vector2 sOrigin = softBloom.Size() / 2f;
             SpriteBatch sb = Main.spriteBatch;
-
-            sb.End();
-            PollinatorUtils.BeginAdditive(sb);
+            float time = (float)Main.GameUpdateCount / 60f;
 
             float pulse = 1f + (float)Math.Sin(Projectile.ai[0] * 0.2f) * 0.15f;
             float alphaFade = 1f - (Projectile.alpha / 255f);
 
+            sb.End();
+
+            // ═══ Layer 1: PollenDrift shader — drifting pollen aura around the seed ═══
+            Effect pollenShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyPollenDriftShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (pollenShader != null)
+            {
+                pollenShader.Parameters["uTime"]?.SetValue(time);
+                pollenShader.Parameters["uColor"]?.SetValue(PollinatorUtils.PollenGold.ToVector3());
+                pollenShader.Parameters["uSecondaryColor"]?.SetValue(PollinatorUtils.LeafGreen.ToVector3());
+                pollenShader.Parameters["uOpacity"]?.SetValue(0.45f * alphaFade);
+                pollenShader.Parameters["uIntensity"]?.SetValue(1.0f);
+                pollenShader.CurrentTechnique = pollenShader.Techniques["PollenTrailTechnique"];
+                pollenShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(softBloom, Projectile.Center - Main.screenPosition, null, Color.White,
+                    Projectile.rotation, sOrigin, 0.6f * pulse, SpriteEffects.None, 0f);
+            }
+
             // Outer green-gold glow
-            Color outerColor = PollinatorUtils.Additive(PollinatorUtils.LeafGreen, 0.5f * alphaFade);
+            Color outerColor = PollinatorUtils.Additive(PollinatorUtils.LeafGreen, 0.4f * alphaFade);
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null, outerColor, Projectile.rotation, origin,
-                0.45f * pulse, SpriteEffects.None, 0f);
+                0.4f * pulse, SpriteEffects.None, 0f);
 
             // Core pollen gold
-            Color coreColor = PollinatorUtils.Additive(PollinatorUtils.PollenGold, 0.7f * alphaFade);
+            Color coreColor = PollinatorUtils.Additive(PollinatorUtils.PollenGold, 0.65f * alphaFade);
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null, coreColor, Projectile.rotation, origin,
-                0.25f * pulse, SpriteEffects.None, 0f);
+                0.22f * pulse, SpriteEffects.None, 0f);
 
             // Inner white hot center
             Color whiteCore = PollinatorUtils.Additive(PollinatorUtils.PureLight, 0.4f * alphaFade);
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null, whiteCore, Projectile.rotation, origin,
-                0.12f * pulse, SpriteEffects.None, 0f);
+                0.1f * pulse, SpriteEffects.None, 0f);
 
             sb.End();
             PollinatorUtils.BeginDefault(sb);
@@ -159,6 +185,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Projectiles
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         private static Asset<Texture2D> _bloomTex;
+        private static Asset<Texture2D> _softBloomTex;
         private bool hasExploded = false;
 
         public override void SetDefaults()
@@ -288,32 +315,58 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Projectiles
         {
             _bloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
                 "Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
+            _softBloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
 
             Texture2D tex = _bloomTex.Value;
+            Texture2D softBloom = _softBloomTex.Value;
             Vector2 origin = tex.Size() / 2f;
+            Vector2 sOrigin = softBloom.Size() / 2f;
             SpriteBatch sb = Main.spriteBatch;
-
-            sb.End();
-            PollinatorUtils.BeginAdditive(sb);
+            float time = (float)Main.GameUpdateCount / 60f;
 
             float lifeProgress = Projectile.ai[0] / 180f;
             float growPulse = 1f + lifeProgress * 0.4f + (float)Math.Sin(Projectile.ai[0] * 0.25f) * 0.2f;
             float alphaFade = 1f - (Projectile.alpha / 255f);
 
+            sb.End();
+
+            // ═══ Layer 1: GardenBloom shader — growing floral body with petal structure ═══
+            Effect gardenShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyGardenBloomShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (gardenShader != null)
+            {
+                gardenShader.Parameters["uTime"]?.SetValue(time);
+                gardenShader.Parameters["uColor"]?.SetValue(PollinatorUtils.SunGold.ToVector3());
+                gardenShader.Parameters["uSecondaryColor"]?.SetValue(PollinatorUtils.PollenGold.ToVector3());
+                gardenShader.Parameters["uOpacity"]?.SetValue(0.5f * alphaFade);
+                gardenShader.Parameters["uIntensity"]?.SetValue(1.3f + lifeProgress * 0.5f);
+                gardenShader.Parameters["uRadius"]?.SetValue(0.35f);
+                gardenShader.Parameters["uPulseSpeed"]?.SetValue(2.0f);
+                gardenShader.CurrentTechnique = gardenShader.Techniques["GardenBloomTechnique"];
+                gardenShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(softBloom, Projectile.Center - Main.screenPosition, null, Color.White,
+                    Projectile.rotation, sOrigin, 0.8f * growPulse, SpriteEffects.None, 0f);
+            }
+
             // Outer golden glow — grows over time
-            Color outerColor = PollinatorUtils.Additive(PollinatorUtils.SunGold, 0.55f * alphaFade);
+            Color outerColor = PollinatorUtils.Additive(PollinatorUtils.SunGold, 0.45f * alphaFade);
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null, outerColor, Projectile.rotation, origin,
-                0.6f * growPulse, SpriteEffects.None, 0f);
+                0.55f * growPulse, SpriteEffects.None, 0f);
 
             // Middle pollen gold
-            Color midColor = PollinatorUtils.Additive(PollinatorUtils.PollenGold, 0.7f * alphaFade);
+            Color midColor = PollinatorUtils.Additive(PollinatorUtils.PollenGold, 0.6f * alphaFade);
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null, midColor, Projectile.rotation, origin,
-                0.35f * growPulse, SpriteEffects.None, 0f);
+                0.3f * growPulse, SpriteEffects.None, 0f);
 
             // Core white center
             Color coreColor = PollinatorUtils.Additive(PollinatorUtils.PureLight, 0.5f * alphaFade);
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null, coreColor, Projectile.rotation, origin,
-                0.18f * growPulse, SpriteEffects.None, 0f);
+                0.15f * growPulse, SpriteEffects.None, 0f);
 
             sb.End();
             PollinatorUtils.BeginDefault(sb);
@@ -332,6 +385,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Projectiles
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         private static Asset<Texture2D> _bloomTex;
+        private static Asset<Texture2D> _softBloomTex;
 
         public override void SetDefaults()
         {
@@ -414,29 +468,55 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Projectiles
         {
             _bloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
                 "Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
+            _softBloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
 
             Texture2D tex = _bloomTex.Value;
+            Texture2D softBloom = _softBloomTex.Value;
             Vector2 origin = tex.Size() / 2f;
+            Vector2 sOrigin = softBloom.Size() / 2f;
             SpriteBatch sb = Main.spriteBatch;
-
-            sb.End();
-            PollinatorUtils.BeginAdditive(sb);
+            float time = (float)Main.GameUpdateCount / 60f;
 
             float pulse = 1f + (float)Math.Sin(Projectile.ai[0] * 0.3f) * 0.1f;
             float alphaFade = 1f - (Projectile.alpha / 255f);
             float lifeFade = Projectile.timeLeft / 120f;
 
+            sb.End();
+
+            // ═══ Layer 1: GardenBloom JubilantPulse — petal-shaped pulsing glow ═══
+            Effect gardenShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyGardenBloomShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (gardenShader != null)
+            {
+                gardenShader.Parameters["uTime"]?.SetValue(time);
+                gardenShader.Parameters["uColor"]?.SetValue(PollinatorUtils.RoseBlush.ToVector3());
+                gardenShader.Parameters["uSecondaryColor"]?.SetValue(PollinatorUtils.PollenGold.ToVector3());
+                gardenShader.Parameters["uOpacity"]?.SetValue(0.4f * alphaFade * lifeFade);
+                gardenShader.Parameters["uIntensity"]?.SetValue(1.0f);
+                gardenShader.Parameters["uRadius"]?.SetValue(0.3f);
+                gardenShader.Parameters["uPulseSpeed"]?.SetValue(3.0f);
+                gardenShader.CurrentTechnique = gardenShader.Techniques["JubilantPulseTechnique"];
+                gardenShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(softBloom, Projectile.Center - Main.screenPosition, null, Color.White,
+                    Projectile.rotation, sOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
+            }
+
             // Outer rose glow
-            Color outerColor = PollinatorUtils.Additive(PollinatorUtils.RoseBlush, 0.5f * alphaFade * lifeFade);
+            Color outerColor = PollinatorUtils.Additive(PollinatorUtils.RoseBlush, 0.4f * alphaFade * lifeFade);
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null, outerColor, Projectile.rotation, origin,
-                0.3f * pulse, SpriteEffects.None, 0f);
+                0.25f * pulse, SpriteEffects.None, 0f);
 
             // Core pink-white
             Color coreColor = PollinatorUtils.Additive(
                 Color.Lerp(PollinatorUtils.RoseBlush, PollinatorUtils.PureLight, 0.4f),
-                0.6f * alphaFade * lifeFade);
+                0.55f * alphaFade * lifeFade);
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null, coreColor, Projectile.rotation, origin,
-                0.15f * pulse, SpriteEffects.None, 0f);
+                0.12f * pulse, SpriteEffects.None, 0f);
 
             sb.End();
             PollinatorUtils.BeginDefault(sb);

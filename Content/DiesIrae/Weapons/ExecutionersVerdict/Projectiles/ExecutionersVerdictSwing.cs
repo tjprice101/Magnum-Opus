@@ -11,6 +11,7 @@ using MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Utilities;
 using MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Particles;
 using MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Primitives;
 using MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Buffs;
+using MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Shaders;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Projectiles
 {
@@ -383,10 +384,26 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Projectiles
                     smoothing: 4,
                     shaderSetup: () =>
                     {
-                        // Use passthrough rendering — shader coloring handled by vertex colors
                         var device = Main.graphics.GraphicsDevice;
                         device.BlendState = BlendState.Additive;
                         device.RasterizerState = RasterizerState.CullNone;
+
+                        // Apply GuillotineBlade shader for dark-blade-with-blood-edge character
+                        if (ExecutionersVerdictShaderLoader.HasGuillotine)
+                        {
+                            var shader = ExecutionersVerdictShaderLoader.GuillotineShader.Value;
+                            shader.Parameters["uTime"]?.SetValue((float)Main.GameUpdateCount * 0.04f);
+                            shader.Parameters["uColor"]?.SetValue(ExecutionersVerdictUtils.VoidBlack.ToVector3());
+                            shader.Parameters["uSecondaryColor"]?.SetValue(ExecutionersVerdictUtils.BloodRed.ToVector3());
+                            shader.Parameters["uOpacity"]?.SetValue(1f);
+                            shader.Parameters["uIntensity"]?.SetValue(1.5f + (int)Phase * 0.3f);
+                            shader.Parameters["uScrollSpeed"]?.SetValue(1.2f);
+                            shader.Parameters["uDistortionAmt"]?.SetValue(0.06f + (Phase == SwingPhase.GuillotineDrop ? 0.08f : 0f));
+                            shader.Parameters["uOverbrightMult"]?.SetValue(2.8f + (int)Phase * 0.4f);
+                            shader.Parameters["uExecuteThreshold"]?.SetValue(Phase == SwingPhase.GuillotineDrop ? 0.9f : 0.2f + (int)Phase * 0.15f);
+                            shader.CurrentTechnique = shader.Techniques["GuillotineSlashTechnique"];
+                            shader.CurrentTechnique.Passes[0].Apply();
+                        }
                     });
 
                 VerdictTrailRenderer.RenderTrail(trailCache, settings);
@@ -410,34 +427,63 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Projectiles
             float angle = Projectile.rotation;
             Vector2 tipPos = Owner.MountedCenter + angle.ToRotationVector2() * BladeLength;
             Vector2 midPos = Owner.MountedCenter + angle.ToRotationVector2() * (BladeLength * 0.6f);
+            Vector2 rootPos = Owner.MountedCenter + angle.ToRotationVector2() * (BladeLength * 0.25f);
 
             float swingIntensity = (float)Math.Sin(SwingProgress * MathHelper.Pi);
+            float time = Main.GlobalTimeWrappedHourly;
 
             // End current batch, start additive
             sb.End();
             ExecutionersVerdictUtils.BeginAdditive(sb);
 
-            // Layer 1: Blood-red outer glow at blade tip
             var tipBloom = bloomTex.Value;
+            var coreGlow = glowTex.Value;
+
+            // Layer 1: Blood-red outer glow at blade tip
             float tipScale = (0.4f + swingIntensity * 0.4f) * (1f + (int)Phase * 0.15f);
             sb.Draw(tipBloom, tipPos - Main.screenPosition, null,
                 ExecutionersVerdictUtils.Additive(ExecutionersVerdictUtils.BloodRed, swingIntensity * 0.5f),
                 0f, tipBloom.Size() / 2f, tipScale, SpriteEffects.None, 0f);
 
-            // Layer 2: Burning core at blade mid
-            var coreGlow = glowTex.Value;
+            // Layer 2: Burning core at blade mid — stretched along blade
             float coreScale = 0.3f + swingIntensity * 0.3f;
             sb.Draw(coreGlow, midPos - Main.screenPosition, null,
                 ExecutionersVerdictUtils.Additive(ExecutionersVerdictUtils.BurningCrimson, swingIntensity * 0.4f),
                 angle, coreGlow.Size() / 2f, new Vector2(coreScale * 2f, coreScale), SpriteEffects.None, 0f);
 
-            // Layer 3: Guillotine Drop — extra heavy bloom
+            // Layer 3: Dark edge aura along blade root — unique void-black radiance
+            float rootPulse = 0.2f + swingIntensity * 0.15f;
+            sb.Draw(tipBloom, rootPos - Main.screenPosition, null,
+                ExecutionersVerdictUtils.Additive(ExecutionersVerdictUtils.DarkCrimson, rootPulse),
+                angle, tipBloom.Size() / 2f, new Vector2(coreScale * 1.5f, coreScale * 0.5f), SpriteEffects.None, 0f);
+
+            // Layer 4: Guillotine Drop — escalating heavy bloom with ash-white flash
             if (Phase == SwingPhase.GuillotineDrop && SwingProgress > 0.3f)
             {
                 float dropIntensity = (SwingProgress - 0.3f) / 0.7f;
+                float dropPulse = 1f + (float)Math.Sin(time * 12f) * 0.1f * dropIntensity;
                 sb.Draw(tipBloom, tipPos - Main.screenPosition, null,
-                    ExecutionersVerdictUtils.Additive(ExecutionersVerdictUtils.AshWhite, dropIntensity * 0.4f),
-                    0f, tipBloom.Size() / 2f, tipScale * 1.5f, SpriteEffects.None, 0f);
+                    ExecutionersVerdictUtils.Additive(ExecutionersVerdictUtils.AshWhite, dropIntensity * 0.5f),
+                    0f, tipBloom.Size() / 2f, tipScale * 1.6f * dropPulse, SpriteEffects.None, 0f);
+
+                // Ember glow haze from blade — widens as drop accelerates
+                sb.Draw(tipBloom, midPos - Main.screenPosition, null,
+                    ExecutionersVerdictUtils.Additive(ExecutionersVerdictUtils.EmberGlow, dropIntensity * 0.3f),
+                    angle, tipBloom.Size() / 2f, new Vector2(tipScale * 2f, tipScale * 0.8f) * dropPulse, SpriteEffects.None, 0f);
+            }
+
+            // Layer 5: Blade tip cross-flare (judgment glint)
+            if (swingIntensity > 0.3f)
+            {
+                float flareAngle = time * 3f;
+                float flareAlpha = (swingIntensity - 0.3f) / 0.7f * 0.35f;
+                float flareLen = 15f + swingIntensity * 10f;
+                sb.Draw(coreGlow, tipPos - Main.screenPosition, null,
+                    ExecutionersVerdictUtils.Additive(ExecutionersVerdictUtils.ExecutionGold, flareAlpha),
+                    flareAngle, coreGlow.Size() / 2f, new Vector2(flareLen / coreGlow.Width, 2f / coreGlow.Height) * 4f, SpriteEffects.None, 0f);
+                sb.Draw(coreGlow, tipPos - Main.screenPosition, null,
+                    ExecutionersVerdictUtils.Additive(ExecutionersVerdictUtils.ExecutionGold, flareAlpha),
+                    flareAngle + MathHelper.PiOver2, coreGlow.Size() / 2f, new Vector2(flareLen / coreGlow.Width, 2f / coreGlow.Height) * 4f, SpriteEffects.None, 0f);
             }
 
             sb.End();
@@ -447,7 +493,10 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Projectiles
         private void DrawNearbyExecutionMarks(SpriteBatch sb)
         {
             bloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
+            glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
             if (!bloomTex.IsLoaded) return;
+
+            bool hasMarks = false;
 
             // Show execution marks above low-HP enemies in range
             foreach (NPC npc in Main.ActiveNPCs)
@@ -461,26 +510,54 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Projectiles
                 Color markColor = ExecutionersVerdictUtils.GetExecutionColor(hp);
                 if (markColor == Color.Transparent) continue;
 
-                Vector2 markPos = npc.Top + new Vector2(0, -20f);
-                float pulse = 0.3f + (1f - hp / 0.30f) * 0.5f;
-                float pulseMod = 1f + (float)Math.Sin(Main.GlobalTimeWrappedHourly * 6f) * 0.15f;
-
-                sb.End();
-                ExecutionersVerdictUtils.BeginAdditive(sb);
-
-                var tex = bloomTex.Value;
-                sb.Draw(tex, markPos - Main.screenPosition, null,
-                    ExecutionersVerdictUtils.Additive(markColor),
-                    0f, tex.Size() / 2f, pulse * pulseMod * 0.5f, SpriteEffects.None, 0f);
-
-                // Second inner layer if below execute threshold
-                if (hp < 0.15f)
+                if (!hasMarks)
                 {
-                    sb.Draw(tex, markPos - Main.screenPosition, null,
-                        ExecutionersVerdictUtils.Additive(ExecutionersVerdictUtils.AshWhite, 0.6f),
-                        0f, tex.Size() / 2f, pulse * pulseMod * 0.25f, SpriteEffects.None, 0f);
+                    sb.End();
+                    ExecutionersVerdictUtils.BeginAdditive(sb);
+                    hasMarks = true;
                 }
 
+                Vector2 markPos = npc.Top + new Vector2(0, -20f);
+                float executeUrgency = 1f - hp / 0.30f;
+                float pulse = 0.3f + executeUrgency * 0.5f;
+                float pulseMod = 1f + (float)Math.Sin(Main.GlobalTimeWrappedHourly * (4f + executeUrgency * 6f)) * (0.1f + executeUrgency * 0.2f);
+
+                var tex = bloomTex.Value;
+
+                // Outer ring — expands and contracts rhythmically
+                float ringScale = pulse * pulseMod * 0.6f;
+                sb.Draw(tex, markPos - Main.screenPosition, null,
+                    ExecutionersVerdictUtils.Additive(markColor, 0.6f),
+                    0f, tex.Size() / 2f, ringScale, SpriteEffects.None, 0f);
+
+                // Core glow — intensifies as HP drops
+                sb.Draw(tex, markPos - Main.screenPosition, null,
+                    ExecutionersVerdictUtils.Additive(ExecutionersVerdictUtils.EmberGlow, 0.3f * executeUrgency),
+                    0f, tex.Size() / 2f, ringScale * 0.5f, SpriteEffects.None, 0f);
+
+                // Below execute threshold — WHITE flash with cross-flare
+                if (hp < 0.15f)
+                {
+                    float flashUrgency = 1f - hp / 0.15f;
+                    float flashPulse = 1f + (float)Math.Sin(Main.GlobalTimeWrappedHourly * 12f) * 0.3f;
+                    sb.Draw(tex, markPos - Main.screenPosition, null,
+                        ExecutionersVerdictUtils.Additive(ExecutionersVerdictUtils.AshWhite, 0.5f * flashUrgency * flashPulse),
+                        0f, tex.Size() / 2f, pulse * pulseMod * 0.3f, SpriteEffects.None, 0f);
+
+                    // Vertical execution line above target
+                    if (glowTex.IsLoaded)
+                    {
+                        var glow = glowTex.Value;
+                        float lineAlpha = flashUrgency * 0.4f * flashPulse;
+                        sb.Draw(glow, markPos - Main.screenPosition, null,
+                            ExecutionersVerdictUtils.Additive(ExecutionersVerdictUtils.BloodRed, lineAlpha),
+                            0f, glow.Size() / 2f, new Vector2(0.06f, 0.8f + flashUrgency * 0.4f), SpriteEffects.None, 0f);
+                    }
+                }
+            }
+
+            if (hasMarks)
+            {
                 sb.End();
                 ExecutionersVerdictUtils.ResetSpriteBatch(sb);
             }

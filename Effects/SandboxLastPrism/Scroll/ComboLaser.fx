@@ -87,6 +87,6 @@ technique Technique1
 {
     pass Aura
     {
-        PixelShader = compile ps_2_0 ComboLaserPixel();
+        PixelShader = compile ps_3_0 ComboLaserPixel();
     }
 }

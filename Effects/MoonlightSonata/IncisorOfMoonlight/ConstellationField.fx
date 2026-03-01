@@ -92,7 +92,7 @@ float ConstellationLines(float2 uv, float density)
 
     float lineAccum = 0.0;
 
-    // Check connections to neighboring cells (simplified for ps_2_0)
+    // Check connections to neighboring cells (simplified for ps_3_0)
     float hash0 = frac(sin(dot(cellID, float2(419.2, 371.9))) * 43758.5453);
     float star0 = step(0.55 - uPhase * 0.2, hash0);
 

@@ -23,6 +23,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
     /// </summary>
     public class CometCore : ModProjectile
     {
+        public override string Texture => "Terraria/Images/Projectile_1";
+
         // =================================================================
         // CONSTANTS
         // =================================================================

@@ -7,6 +7,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Buffs;
 using MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Particles;
 using MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Primitives;
@@ -447,12 +448,16 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Projectiles
             float tipDist = 100f;
             Vector2 tipPos = drawPos + Projectile.rotation.ToRotationVector2() * tipDist;
             float flareAngle = Main.GameUpdateCount * 0.08f;
-            sb.Draw(TextureAssets.MagicPixel.Value, tipPos, new Rectangle(0, 0, 1, 1),
-                Additive(WrathsCleaverUtils.HellfireGold, 0.5f * pulse), flareAngle,
-                new Vector2(0.5f), new Vector2(20f, 3f) * pulse, SpriteEffects.None, 0f);
-            sb.Draw(TextureAssets.MagicPixel.Value, tipPos, new Rectangle(0, 0, 1, 1),
-                Additive(WrathsCleaverUtils.HellfireGold, 0.5f * pulse), flareAngle + MathHelper.PiOver2,
-                new Vector2(0.5f), new Vector2(20f, 3f) * pulse, SpriteEffects.None, 0f);
+            Texture2D flareTex = MagnumTextureRegistry.GetPointBloom();
+            Texture2D flareGlowTex = MagnumTextureRegistry.GetSoftGlow();
+            if (flareTex != null)
+                sb.Draw(flareTex, tipPos, new Rectangle(0, 0, 1, 1),
+                    Additive(WrathsCleaverUtils.HellfireGold, 0.5f * pulse), flareAngle,
+                    new Vector2(0.5f), new Vector2(20f, 3f) * pulse, SpriteEffects.None, 0f);
+            if (flareGlowTex != null)
+                sb.Draw(flareGlowTex, tipPos, new Rectangle(0, 0, 1, 1),
+                    Additive(WrathsCleaverUtils.HellfireGold, 0.5f * pulse), flareAngle + MathHelper.PiOver2,
+                    new Vector2(0.5f), new Vector2(20f, 3f) * pulse, SpriteEffects.None, 0f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,

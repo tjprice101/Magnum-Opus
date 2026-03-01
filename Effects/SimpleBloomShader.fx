@@ -68,7 +68,7 @@ technique DefaultTechnique
 {
     pass DefaultPass
     {
-        PixelShader = compile ps_2_0 UnifiedBloom();
+        PixelShader = compile ps_3_0 UnifiedBloom();
     }
 }
 
@@ -76,7 +76,7 @@ technique EtherealTechnique
 {
     pass EtherealPass
     {
-        PixelShader = compile ps_2_0 EtherealBloom();
+        PixelShader = compile ps_3_0 EtherealBloom();
     }
 }
 
@@ -84,6 +84,6 @@ technique InfernalTechnique
 {
     pass InfernalPass
     {
-        PixelShader = compile ps_2_0 InfernalBloom();
+        PixelShader = compile ps_3_0 InfernalBloom();
     }
 }

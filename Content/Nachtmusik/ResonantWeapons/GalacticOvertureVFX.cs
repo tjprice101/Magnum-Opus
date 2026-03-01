@@ -21,30 +21,43 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         // =====================================================================
         public static void HoldItemVFX(Player player, int minionCount)
         {
-            // Sweeping wave-like motes circling outward — the overture builds
-            if (Main.rand.NextBool(3))
-            {
-                float time = (float)Main.timeForVisualEffects * 0.025f;
-                float angle = time + Main.rand.NextFloat() * MathHelper.TwoPi;
-                float radius = 22f + minionCount * 5f + (float)Math.Sin(time * 3f) * 6f;
-                Vector2 orbPos = player.Center + new Vector2(
-                    (float)Math.Cos(angle) * radius,
-                    (float)Math.Sin(angle) * radius * 0.4f);
+            float time = (float)Main.timeForVisualEffects * 0.03f;
 
-                int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.PurpleTorch;
-                Dust d = Dust.NewDustPerfect(orbPos, dustType,
-                    Main.rand.NextVector2Circular(0.4f, 0.4f), 0, default, 0.5f);
+            // === SWEEPING WAVE ARCS === Golden dust in wide sine-wave orchestral arcs
+            if (Main.rand.NextBool(2))
+            {
+                float wavePhase = time * 2f + Main.rand.NextFloat() * MathHelper.Pi;
+                float waveX = (float)Math.Sin(wavePhase) * (22f + minionCount * 4f);
+                float waveY = (float)Math.Cos(wavePhase * 0.5f) * 10f;
+                Vector2 wavePos = player.Center + new Vector2(waveX, waveY);
+                Vector2 waveVel = new Vector2((float)Math.Cos(wavePhase), -(float)Math.Sin(wavePhase * 0.5f)) * 0.4f;
+
+                int dustType = Main.rand.NextBool(3) ? DustID.PurpleTorch : DustID.GoldFlame;
+                Dust d = Dust.NewDustPerfect(wavePos, dustType, waveVel, 0, default, 0.5f);
                 d.noGravity = true;
                 d.fadeIn = 0.7f;
             }
 
-            // Occasional twinkling star accent
+            // === ORCHESTRAL GOLDEN RADIANCE === Expanding outward glow pulses
+            if (Main.rand.NextBool(6))
+            {
+                float pulse = (float)Math.Sin(time * 4f) * 0.5f + 0.5f;
+                float expandRadius = 16f + pulse * 12f;
+                float expandAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                Vector2 expandPos = player.Center + expandAngle.ToRotationVector2() * expandRadius;
+                Dust g = Dust.NewDustPerfect(expandPos, DustID.GoldFlame,
+                    expandAngle.ToRotationVector2() * 0.3f * pulse, 0, default, 0.4f + pulse * 0.2f);
+                g.noGravity = true;
+                g.fadeIn = 0.6f;
+            }
+
+            // Occasional twinkling accent
             if (Main.rand.NextBool(8))
             {
                 NachtmusikVFXLibrary.SpawnTwinklingStars(player.Center, 1, 26f + minionCount * 3f);
             }
 
-            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.2f + minionCount * 0.04f);
+            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.22f + minionCount * 0.04f);
         }
 
         // =====================================================================

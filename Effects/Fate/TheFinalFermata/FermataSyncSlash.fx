@@ -1,6 +1,6 @@
-// FermataSyncSlash.fx — Synchronized slash burst effect.
+// FermataSyncSlash.fx  ESynchronized slash burst effect.
 // Renders the visual burst when all swords slash simultaneously.
-// Target: ps_2_0  |  Standard uniforms.
+// Target: ps_3_0  |  Standard uniforms.
 
 sampler uImage0 : register(s0);
 
@@ -21,7 +21,7 @@ float4 PS_SyncSlash(float2 coords : TEXCOORD0) : COLOR0
     float dist = length(center);
     float angle = atan2(center.y, center.x);
     
-    // Slash arc — directional energy burst
+    // Slash arc  Edirectional energy burst
     float slashDiff = angle - uSlashAngle;
     // Wrap to [-PI, PI]
     slashDiff = slashDiff - floor(slashDiff / 6.28318530 + 0.5) * 6.28318530;

@@ -1,8 +1,8 @@
-// ═══════════════════════════════════════════════════════════════════
-//  CrescendoSummonBloom.fx — Summoning explosion bloom shader
+// ══════════════════════════════════════════════════════════════════╁E
+//  CrescendoSummonBloom.fx  ESummoning explosion bloom shader
 //  Renders the divine eruption when the cosmic deity is summoned.
-//  Profile: ps_2_0 / vs_2_0
-// ═══════════════════════════════════════════════════════════════════
+//  Profile: ps_3_0 / vs_2_0
+// ══════════════════════════════════════════════════════════════════╁E
 
 float4x4 uTransformMatrix;
 float uTime;
@@ -70,6 +70,6 @@ technique SummonBloom
     pass Pass0
     {
         VertexShader = compile vs_2_0 MainVS();
-        PixelShader  = compile ps_2_0 SummonBloomPS();
+        PixelShader  = compile ps_3_0 SummonBloomPS();
     }
 }

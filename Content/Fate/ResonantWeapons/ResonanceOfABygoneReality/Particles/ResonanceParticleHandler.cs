@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
 {
@@ -69,7 +70,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
         {
             if (_particles == null || Main.dedServ) return;
 
-            Texture2D glow = Terraria.GameContent.TextureAssets.Extra[98].Value;
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
             if (glow == null) return;
 
             // Pass 1: Additive bloom layer

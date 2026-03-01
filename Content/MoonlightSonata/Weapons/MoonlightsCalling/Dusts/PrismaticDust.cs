@@ -10,6 +10,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Dusts
     /// </summary>
     public class PrismaticDust : ModDust
     {
+        // Uses SoftCircle for neutral base — hue cycling applied in Update()
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
+
         public override void OnSpawn(Dust dust)
         {
             dust.noGravity = true;

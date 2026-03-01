@@ -1,6 +1,6 @@
-// FermataOrbitRing.fx — Hexagonal orbit ring visualization.
+// FermataOrbitRing.fx  EHexagonal orbit ring visualization.
 // Renders the geometric formation ring where spectral swords orbit.
-// Target: ps_2_0  |  Standard uniforms.
+// Target: ps_3_0  |  Standard uniforms.
 
 sampler uImage0 : register(s0);
 

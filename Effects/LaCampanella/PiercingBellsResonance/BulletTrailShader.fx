@@ -1,5 +1,5 @@
 // =============================================================================
-// Piercing Bells Resonance — Bullet Trail Shader (Enhanced)
+// Piercing Bells Resonance  EBullet Trail Shader (Enhanced)
 // =============================================================================
 // High-speed bullet tracer trail. Supersonic compression-wave brightening
 // near the head, phosphorus-burn afterimage that decays along length.
@@ -102,6 +102,6 @@ technique AutoPass
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 BulletTrailPS();
+        PixelShader = compile ps_3_0 BulletTrailPS();
     }
 }

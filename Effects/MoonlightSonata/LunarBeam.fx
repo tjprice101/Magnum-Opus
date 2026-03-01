@@ -181,7 +181,7 @@ technique CrescentBeam
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 CrescentBeamPS();
+        PixelShader = compile ps_3_0 CrescentBeamPS();
     }
 }
 
@@ -189,6 +189,6 @@ technique CrescentCorona
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 CrescentCoronaPS();
+        PixelShader = compile ps_3_0 CrescentCoronaPS();
     }
 }

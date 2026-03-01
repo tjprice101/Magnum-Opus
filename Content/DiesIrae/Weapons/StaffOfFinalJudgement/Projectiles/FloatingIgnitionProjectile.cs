@@ -153,15 +153,55 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgement.Projectiles
             float pulse = 0.8f + 0.2f * (float)Math.Sin(Main.GameUpdateCount * 0.2f + OrbIndex * 1.3f);
             float scale = timer < OrbitPhase ? 0.4f : 0.5f;
 
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
             // Outer glow
-            Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition, null,
+            Main.EntitySpriteDraw(tex, drawPos, null,
                 JudgementUtils.Additive(JudgementUtils.WrathCrimson, 0.3f * pulse), 0f, tex.Size() / 2f, scale * 1.5f, SpriteEffects.None, 0);
             // Mid glow
-            Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition, null,
+            Main.EntitySpriteDraw(tex, drawPos, null,
                 JudgementUtils.Additive(JudgementUtils.JudgmentFlame, 0.5f * pulse), 0f, tex.Size() / 2f, scale, SpriteEffects.None, 0);
             // Core
-            Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition, null,
+            Main.EntitySpriteDraw(tex, drawPos, null,
                 JudgementUtils.Additive(JudgementUtils.DivineWhite, 0.3f * pulse), 0f, tex.Size() / 2f, scale * 0.3f, SpriteEffects.None, 0);
+
+            // Orbit phase enhancements
+            if (timer < OrbitPhase)
+            {
+                float orbitProgress = timer / (float)OrbitPhase;
+
+                // Rotating sigil ring around the orb — thin arcane circle
+                float ringRot = Main.GameUpdateCount * 0.04f + OrbIndex * MathHelper.TwoPi / 5f;
+                float ringScale = 0.8f + 0.15f * (float)Math.Sin(timer * 0.15f);
+                Color ringColor = JudgementUtils.Additive(JudgementUtils.JudgmentFlame, 0.15f * (1f - orbitProgress));
+                Main.EntitySpriteDraw(tex, drawPos, null, ringColor, ringRot, tex.Size() / 2f,
+                    new Vector2(ringScale, 0.04f), SpriteEffects.None, 0);
+                Main.EntitySpriteDraw(tex, drawPos, null, ringColor, ringRot + MathHelper.PiOver2, tex.Size() / 2f,
+                    new Vector2(ringScale, 0.04f), SpriteEffects.None, 0);
+                Main.EntitySpriteDraw(tex, drawPos, null, ringColor * 0.6f, ringRot + MathHelper.PiOver4, tex.Size() / 2f,
+                    new Vector2(ringScale * 0.7f, 0.03f), SpriteEffects.None, 0);
+                Main.EntitySpriteDraw(tex, drawPos, null, ringColor * 0.6f, ringRot - MathHelper.PiOver4, tex.Size() / 2f,
+                    new Vector2(ringScale * 0.7f, 0.03f), SpriteEffects.None, 0);
+
+                // Connecting energy lines to cursor center (faint)
+                Vector2 toCursor = cursorTarget - Main.screenPosition;
+                Vector2 midpoint = Vector2.Lerp(drawPos, toCursor, 0.5f);
+                float lineRot = (toCursor - drawPos).ToRotation();
+                float lineDist = Vector2.Distance(drawPos, toCursor);
+                float lineAlpha = 0.08f * (1f - orbitProgress);
+                Color lineColor = JudgementUtils.Additive(JudgementUtils.DetonationGold, lineAlpha);
+                Main.EntitySpriteDraw(tex, midpoint, null, lineColor, lineRot, tex.Size() / 2f,
+                    new Vector2(lineDist / tex.Width, 0.02f), SpriteEffects.None, 0);
+            }
+            else
+            {
+                // Homing phase: velocity-aligned fire streak behind
+                float velRot = Projectile.velocity.ToRotation();
+                float homingAlpha = 0.2f + 0.1f * (float)Math.Sin(timer * 0.25f);
+                Main.EntitySpriteDraw(tex, drawPos, null,
+                    JudgementUtils.Additive(JudgementUtils.JudgmentFlame, homingAlpha), velRot, tex.Size() / 2f,
+                    new Vector2(0.8f, 0.1f), SpriteEffects.None, 0);
+            }
 
             return false;
         }

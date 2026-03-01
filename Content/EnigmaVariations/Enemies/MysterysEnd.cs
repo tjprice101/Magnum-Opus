@@ -16,6 +16,8 @@ using MagnumOpus.Content.EnigmaVariations.Debuffs;
 using MagnumOpus.Content.EnigmaVariations.ResonanceEnergies;
 using MagnumOpus.Content.EnigmaVariations.ResonantOres;
 using MagnumOpus.Content.Materials.EnemyDrops;
+using MagnumOpus.Common.Systems.Bosses;
+using MagnumOpus.Common.Systems.Shaders;
 
 namespace MagnumOpus.Content.EnigmaVariations.Enemies
 {
@@ -759,6 +761,38 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
             Vector2 origin = new Vector2(frameWidth / 2f, frameHeight / 2f);
             // FIXED: Sprite is drawn facing left by default, flip when facing right
             SpriteEffects effects = NPC.spriteDirection == 1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+
+            // Shader-driven aura layer
+            Effect auraShader = EnemyShaderManager.GetShader(EnemyShaderManager.MysteryVoidAura);
+            if (auraShader != null)
+            {
+                EnemyShaderManager.ApplyAuraParams(auraShader, NPC, new Color(80, 40, 140), new Color(40, 180, 80), eyeGlow);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.Draw(texture, drawPos, frame, Color.White, 0f, origin, NPC.scale * 1.15f, effects, 0f);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
+            // Shader-driven trail layer (only when moving fast)
+            if (NPC.velocity.Length() > 4f)
+            {
+                Effect trailShader = EnemyShaderManager.GetShader(EnemyShaderManager.MysteryParadoxTrail);
+                if (trailShader != null)
+                {
+                    EnemyShaderManager.ApplyTrailParams(trailShader, NPC, new Color(80, 40, 140), new Color(40, 180, 80), NPC.velocity.Length() / 12f);
+                    spriteBatch.End();
+                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
+                    for (int t = 1; t <= 3; t++)
+                    {
+                        Vector2 trailPos = drawPos - NPC.velocity * t * 2f;
+                        float trailAlpha = 1f - (t / 4f);
+                        spriteBatch.Draw(texture, trailPos, frame, Color.White * trailAlpha, 0f, origin, NPC.scale, effects, 0f);
+                    }
+                    spriteBatch.End();
+                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
             
             // Glow underlay
             if (eyeGlow > 0.3f)

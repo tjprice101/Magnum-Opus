@@ -13,7 +13,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
     /// Phase 1 = Crescendo (rising sweep)
     /// Phase 2 = Forte (wide horizontal + convergence)
     /// </summary>
-    public class ConductorPlayer : ModPlayer
+    public class ConstellationConductorPlayer : ModPlayer
     {
         /// <summary>Current combo phase (0=Downbeat, 1=Crescendo, 2=Forte).</summary>
         public int ComboPhase;
@@ -96,9 +96,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
         }
     }
 
-    public static class ConductorPlayerExtensions
+    public static class ConstellationConductorPlayerExtensions
     {
-        public static ConductorPlayer Conductor(this Player player)
-            => player.GetModPlayer<ConductorPlayer>();
+        public static ConstellationConductorPlayer Conductor(this Player player)
+            => player.GetModPlayer<ConstellationConductorPlayer>();
     }
 }

@@ -282,75 +282,26 @@ namespace MagnumOpus.Common.Systems.VFX
         
         private void LoadAllTextures()
         {
-            // Note: Filenames have spaces - they're loaded with the exact names
+            // TODO: These 30 VFX textures do not exist yet. The asset directory is
+            // "Assets/VFX Asset Library/" with subdirectories: ImpactEffects/, BeamTextures/,
+            // ScreenEffects/, SlashArcs/, TrailsAndRibbons/, GlowAndBloom/, Lightning/,
+            // ColorGradients/, NoiseTextures/, MasksAndShapes/.
+            // When assets are created, uncomment the corresponding LoadTexture calls below
+            // and update paths to match actual filenames in "Assets/VFX Asset Library/".
+            //
+            // All fields remain null (set in ClearAllTextures) — consumers must null-check.
             
-            // ==========================================
-            // IMPACT TEXTURES
-            // ==========================================
-            Impact.StarBurst = LoadTexture("Assets/VFX/Impacts/4-Point Star Impact Burst");
-            Impact.ComboArc = LoadTexture("Assets/VFX/Impacts/Combo Finisher Impact Arc");
-            Impact.RippleRings = LoadTexture("Assets/VFX/Impacts/Concentric Impact Ripple Rings");
-            Impact.SlashMark = LoadTexture("Assets/VFX/Impacts/Directional Hit Slash Mark");
-            Impact.Shockwave = LoadTexture("Assets/VFX/Impacts/Expanding Shockwave Ring");
-            Impact.ExplosionFlash = LoadTexture("Assets/VFX/Impacts/Explosion Flash Burst");
-            Impact.SlashCross = LoadTexture("Assets/VFX/Impacts/X-Shaped Slash Impact Cross");
+            // Impact textures — need: StarBurst, ComboArc, RippleRings, SlashMark, Shockwave, ExplosionFlash, SlashCross
+            // Beam textures — need: CoreSegment, ImpactSplash, MuzzleFlare, OuterGlow
+            // Screen textures — need: ChromaticRing, ChromaticSeparation, SpeedLines
+            // Smear textures — need: DoubleLayer, CrescentArc
+            // Trail textures — need: CometTrail, DissolvingTrail, EmberScatter, SpiralTrail, SparkleField
+            // Light ray textures — need: Cone, RadialGodRays, DirectionalShaft
+            // Bloom textures — need: HexBokeh, AnamorphicStreak, ConcentricGlow, SoftBloom
+            // Afterimage textures — need: MotionBlurStreak
+            // Lightning textures — need: ArcBranch
             
-            // ==========================================
-            // BEAM TEXTURES
-            // ==========================================
-            BeamEnhanced.CoreSegment = LoadTexture("Assets/VFX/Beams/Beam Core Segment (Tileable)");
-            BeamEnhanced.ImpactSplash = LoadTexture("Assets/VFX/Beams/Beam Impact Splash");
-            BeamEnhanced.MuzzleFlare = LoadTexture("Assets/VFX/Beams/Beam Muzzle Flare Origin");
-            BeamEnhanced.OuterGlow = LoadTexture("Assets/VFX/Beams/Beam Outer Glow (Tileable)");
-            
-            // ==========================================
-            // SCREEN EFFECT TEXTURES
-            // ==========================================
-            Screen.ChromaticRing = LoadTexture("Assets/VFX/Screen/Chromatic Ring Distortion Map");
-            Screen.ChromaticSeparation = LoadTexture("Assets/VFX/Screen/Chromatic Separation Base Layer");
-            Screen.SpeedLines = LoadTexture("Assets/VFX/Screen/Radial Speed Lines Zoom Blur");
-            
-            // ==========================================
-            // SMEAR TEXTURES
-            // ==========================================
-            Smear.DoubleLaye = LoadTexture("Assets/VFX/Smears/Double-Layer Smear Effect");
-            Smear.CrescentArc = LoadTexture("Assets/VFX/Smears/Wide Crescent Arc Slash");
-            
-            // ==========================================
-            // TRAIL TEXTURES
-            // ==========================================
-            Trail.CometTrail = LoadTexture("Assets/VFX/Trails/Comet Trail Gradient Fade");
-            Trail.DissolvingTrail = LoadTexture("Assets/VFX/Trails/Dissolving Particle Trail");
-            Trail.EmberScatter = LoadTexture("Assets/VFX/Trails/Ember Particle Scatter");
-            Trail.SpiralTrail = LoadTexture("Assets/VFX/Trails/Full Rotation Spiral Trail");
-            Trail.SparkleField = LoadTexture("Assets/VFX/Trails/Sparkle Particle Field");
-            
-            // ==========================================
-            // LIGHT RAY TEXTURES
-            // ==========================================
-            LightRay.Cone = LoadTexture("Assets/VFX/LightRays/Concentrated Light Cone");
-            LightRay.RadialGodRays = LoadTexture("Assets/VFX/LightRays/Radial God Rays Full Circle");
-            LightRay.DirectionalShaft = LoadTexture("Assets/VFX/LightRays/Single Directional Light Shaft");
-            
-            // ==========================================
-            // BLOOM TEXTURES
-            // ==========================================
-            Bloom.HexBokeh = LoadTexture("Assets/VFX/Blooms/Hexagonal Bokeh Array");
-            Bloom.AnamorphicStreak = LoadTexture("Assets/VFX/Blooms/Horizontal Anamorphic Streak");
-            Bloom.ConcentricGlow = LoadTexture("Assets/VFX/Blooms/Multi-Ring Concentric Glow Stack");
-            Bloom.SoftBloom = LoadTexture("Assets/VFX/Blooms/Perfect Soft Color Bloom");
-            
-            // ==========================================
-            // AFTERIMAGE TEXTURES
-            // ==========================================
-            Afterimage.MotionBlurStreak = LoadTexture("Assets/VFX/Afterimages/Horizontal Motion Blur Streak");
-            
-            // ==========================================
-            // LIGHTNING TEXTURES
-            // ==========================================
-            Lightning.ArcBranch = LoadTexture("Assets/VFX/Lightning/Lightning Arc Branch Pattern");
-            
-            LogLoadStatus();
+            Mod.Logger.Info("[VFXEnhanced] Texture loading skipped — 30 placeholder entries have no assets yet.");
         }
         
         private Texture2D LoadTexture(string path)

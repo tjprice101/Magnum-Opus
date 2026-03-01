@@ -10,6 +10,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Utilities;
 using MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Particles;
 using MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Primitives;
+using MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Shaders;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Projectiles
 {
@@ -126,6 +127,19 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Projectiles
                             var device = Main.graphics.GraphicsDevice;
                             device.BlendState = BlendState.Additive;
                             device.RasterizerState = RasterizerState.CullNone;
+
+                            // Apply WrathShardTrail shader for solar gradient trail
+                            if (EclipseShaderLoader.HasEclipseOrb)
+                            {
+                                var shader = EclipseShaderLoader.EclipseOrbShader.Value;
+                                shader.Parameters["uTime"]?.SetValue((float)Main.GameUpdateCount * 0.06f);
+                                shader.Parameters["uColor"]?.SetValue(EclipseUtils.MidCorona.ToVector3());
+                                shader.Parameters["uSecondaryColor"]?.SetValue(EclipseUtils.SolarGold.ToVector3());
+                                shader.Parameters["uOpacity"]?.SetValue(0.9f);
+                                shader.Parameters["uIntensity"]?.SetValue(2f);
+                                shader.CurrentTechnique = shader.Techniques["WrathShardTrailTechnique"];
+                                shader.CurrentTechnique.Passes[0].Apply();
+                            }
                         });
                     EclipseTrailRenderer.RenderTrail(trailPoints, settings);
                     Main.graphics.GraphicsDevice.BlendState = BlendState.AlphaBlend;

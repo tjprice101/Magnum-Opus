@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.GameContent;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
 {
@@ -100,7 +101,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
         private static void DrawFallback(Vector2[] positions, Vector2 half,
             int count, SymphonyTrailSettings settings)
         {
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
+            if (pixel == null) return;
 
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
                 SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone,

@@ -104,30 +104,41 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator
             Vector2 position = Item.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
+            // Organic pollen drift: asymmetric wobble with warm floating specks feel
             float time = Main.GameUpdateCount * 0.06f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.1f;
-            float flicker = Main.rand.NextFloat(0.9f, 1f);
+            float drift1 = (float)Math.Sin(time * 0.9f + 0.3f); // Slow organic drift X
+            float drift2 = (float)Math.Cos(time * 0.7f); // Different freq drift Y
+            float warmth = (float)Math.Sin(time * 1.4f) * 0.5f + 0.5f; // Warm color cycle
+            float pollenPulse = 1f + (float)Math.Sin(time * 1.1f) * 0.08f + (float)Math.Sin(time * 2.7f) * 0.04f;
+
+            // Asymmetric organic offset — like a gentle breeze
+            Vector2 driftOffset = new Vector2(drift1 * 3f, drift2 * 2f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Golden pollen glow
-            spriteBatch.Draw(texture, position, null, PollinatorUtils.Additive(PollinatorUtils.PollenGold, 0.35f * flicker),
-                rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
-            // Green leaf glow
-            spriteBatch.Draw(texture, position, null, PollinatorUtils.Additive(PollinatorUtils.LeafGreen, 0.25f * flicker),
-                rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            // Warm pollen outer — drifts with organic offset
+            spriteBatch.Draw(texture, position + driftOffset, null, PollinatorUtils.Additive(PollinatorUtils.PollenGold, 0.3f),
+                rotation, origin, scale * pollenPulse * 1.3f, SpriteEffects.None, 0f);
 
-            float shimmer = (float)Math.Sin(time * 3f) * 0.5f + 0.5f;
-            spriteBatch.Draw(texture, position, null, PollinatorUtils.Additive(PollinatorUtils.PureLight, 0.2f * shimmer),
-                rotation, origin, scale * pulse * 1.05f, SpriteEffects.None, 0f);
+            // Counter-drifting leaf accent
+            spriteBatch.Draw(texture, position - driftOffset * 0.6f, null, PollinatorUtils.Additive(PollinatorUtils.LeafGreen, 0.2f),
+                rotation, origin, scale * pollenPulse * 1.15f, SpriteEffects.None, 0f);
+
+            // Rose blush — fades in/out with warmth cycle
+            spriteBatch.Draw(texture, position + driftOffset * 0.3f, null, PollinatorUtils.Additive(PollinatorUtils.RoseBlush, 0.18f * warmth),
+                rotation, origin, scale * 1.08f, SpriteEffects.None, 0f);
+
+            // Central core — steady warm glow
+            spriteBatch.Draw(texture, position, null, PollinatorUtils.Additive(PollinatorUtils.SunGold, 0.15f),
+                rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            Lighting.AddLight(Item.Center, 0.5f, 0.45f, 0.12f);
+            Lighting.AddLight(Item.Center, 0.45f, 0.4f + warmth * 0.1f, 0.1f);
             return true;
         }
 

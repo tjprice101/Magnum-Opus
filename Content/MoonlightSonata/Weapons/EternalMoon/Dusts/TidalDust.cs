@@ -10,6 +10,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Dusts
     /// </summary>
     public class TidalDust : ModDust
     {
+        // Uses PointBloom for soft luminous mote — tinted violet-blue in GetAlpha
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
+
         public override void OnSpawn(Dust dust)
         {
             dust.noGravity = true;

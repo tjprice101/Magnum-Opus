@@ -1,5 +1,5 @@
 // =============================================================================
-// Dual-Fated Chime — Infernal Flame Slash Shader (Enhanced)
+// Dual-Fated Chime  EInfernal Flame Slash Shader (Enhanced)
 // =============================================================================
 // Heavy greatsword slash arc rendered as a massive sheet of bell-fire.
 // Multi-octave FBM turbulence drives organic flame shapes. Bell-toll pulse
@@ -70,7 +70,7 @@ float4 InfernalFlameSlashPS(float4 sampleColor : COLOR0, float2 coords : TEXCOOR
     float profile = SlashProfile(coords.y);
     float coreIntensity = exp(-pow(abs(coords.y - 0.5) * 4.0, 2.0));
 
-    // FBM flame turbulence — two layers scrolling at different speeds
+    // FBM flame turbulence  Etwo layers scrolling at different speeds
     float2 flameUV1 = coords * float2(uNoiseScale * 2.5, 3.0);
     flameUV1.x -= uTime * uScrollSpeed * 1.4;
     flameUV1.y += sin(coords.x * 6.0 + uTime * 4.0) * 0.06;
@@ -90,13 +90,13 @@ float4 InfernalFlameSlashPS(float4 sampleColor : COLOR0, float2 coords : TEXCOOR
     float texDetail = lerp(1.0, 0.5 + noiseTex.r * 0.7, uHasSecondaryTex);
     flame *= texDetail;
 
-    // Bell-toll pulse nodes — rhythmic intensity peaks along the arc
+    // Bell-toll pulse nodes  Erhythmic intensity peaks along the arc
     float bellFreq = 5.0;
     float bellToll = sin(coords.x * bellFreq * 6.28318 - uTime * 6.0);
     bellToll = pow(saturate(bellToll), 3.0);  // Sharp bright peaks
     float bellBrightness = bellToll * profile * 0.35;
 
-    // 5-stop fire gradient: smoke → ember → flame → gold → white-hot
+    // 5-stop fire gradient: smoke ↁEember ↁEflame ↁEgold ↁEwhite-hot
     float3 smokeColor = float3(0.04, 0.015, 0.005);
     float3 emberColor = float3(0.5, 0.12, 0.02);
     float3 flameColor = uColor;
@@ -112,14 +112,14 @@ float4 InfernalFlameSlashPS(float4 sampleColor : COLOR0, float2 coords : TEXCOOR
     // Bell-toll highlights punch through at pulse nodes
     color = lerp(color, whiteHot, bellBrightness);
 
-    // Ember detachment at outer edges — scattered bright sparks
+    // Ember detachment at outer edges  Escattered bright sparks
     float edgeDist = abs(coords.y - 0.5) * 2.0;
     float emberZone = saturate(edgeDist - 0.5) * 2.0;
     float emberSparks = HashNoise(coords * float2(40.0, 20.0) + uTime * float2(3.0, 1.0));
     emberSparks = step(0.92, emberSparks) * emberZone * flame;
     color += float3(1.0, 0.7, 0.2) * emberSparks * 2.0;
 
-    // Fire flicker — compound frequency for organic feel
+    // Fire flicker  Ecompound frequency for organic feel
     float flicker = sin(uTime * 14.0 + coords.x * 8.0) * 0.08;
     flicker += sin(uTime * 23.0 + coords.x * 13.0) * 0.05;
     flicker = flicker + 0.87;
@@ -140,6 +140,6 @@ technique InfernalFlameMain
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 InfernalFlameSlashPS();
+        PixelShader = compile ps_3_0 InfernalFlameSlashPS();
     }
 }

@@ -231,7 +231,7 @@ float4 SlashSmearPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : CO
 // Masking: Blade alpha (from uImage0) confines shimmer to blade silhouette.
 //   QuadraticBump edge fade + tip bias prevent harsh boundaries.
 //
-// Instruction budget: ~55 ALU + 3 TEX (within ps_2_0 64+32 limit)
+// Instruction budget: ~55 ALU + 3 TEX (within ps_3_0 64+32 limit)
 // =============================================================================
 
 float4 ShimmerOverlayPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0

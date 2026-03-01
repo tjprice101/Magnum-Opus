@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.Graphics.Shaders;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Utilities;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Primitives
@@ -215,7 +216,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Primitives
         public void DrawLineFallback(Vector2[] positions, CodaTrailSettings settings, float[] completionRatios)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
             if (pixel == null) return;
 
             for (int i = 1; i < positions.Length; i++)

@@ -11,7 +11,7 @@
 //   SummonCircleMain  ECore sigil body with rotating rings + phase nodes
 //   SummonCircleGlow  ESofter wider bloom pass for aura halo
 //
-// FNA/XNA compatible  Eps_2_0 profile.
+// FNA/XNA compatible  Eps_3_0 profile.
 // ============================================================
 
 sampler uImage0 : register(s0); // Primary sprite texture

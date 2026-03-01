@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.Bosses;
 
 namespace MagnumOpus.Common.Systems.Shaders
 {
@@ -230,6 +231,16 @@ namespace MagnumOpus.Common.Systems.Shaders
         // Enigma Variations — FugueOfTheUnknown weapon-specific shaders
         public const string FugueVoiceTrailShader = "EnigmaVariations/FugueOfTheUnknown/FugueVoiceTrail";
         public const string FugueConvergenceShader = "EnigmaVariations/FugueOfTheUnknown/FugueConvergence";
+
+        // Ode to Joy — theme-wide shared shaders
+        public const string OdeToJoyTriumphantTrailShader = "OdeToJoy/TriumphantTrail";
+        public const string OdeToJoyGardenBloomShader = "OdeToJoy/GardenBloom";
+        public const string OdeToJoyCelebrationAuraShader = "OdeToJoy/CelebrationAura";
+
+        // Ode to Joy — weapon-class-specific shaders
+        public const string OdeToJoyVerdantSlashShader = "OdeToJoy/VerdantSlash";
+        public const string OdeToJoyPollenDriftShader = "OdeToJoy/PollenDrift";
+        public const string OdeToJoyJubilantHarmonyShader = "OdeToJoy/JubilantHarmony";
 
         // Noise texture names (without extension) - in Assets/VFX/Noise/
         private static readonly string[] NoiseTextureNames = new[]
@@ -479,6 +490,142 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(DissonanceRiddleTrailShader);
                 LoadShader(FugueVoiceTrailShader);
                 LoadShader(FugueConvergenceShader);
+
+                // Ode to Joy — theme-wide + weapon-class shaders
+                LoadShader(OdeToJoyTriumphantTrailShader);
+                LoadShader(OdeToJoyGardenBloomShader);
+                LoadShader(OdeToJoyCelebrationAuraShader);
+                LoadShader(OdeToJoyVerdantSlashShader);
+                LoadShader(OdeToJoyPollenDriftShader);
+                LoadShader(OdeToJoyJubilantHarmonyShader);
+
+                // ═══════════════════════════════════════════════════════
+                // BOSS SHADERS — loaded via BossShaderManager key paths
+                // ═══════════════════════════════════════════════════════
+
+                // Eroica boss
+                LoadShader(BossShaderManager.EroicaValorAura);
+                LoadShader(BossShaderManager.EroicaHeroicTrail);
+                LoadShader(BossShaderManager.EroicaPhoenixFlame);
+                LoadShader(BossShaderManager.EroicaSakuraTransition);
+                LoadShader(BossShaderManager.EroicaDeathDissolveFx);
+
+                // La Campanella boss
+                LoadShader(BossShaderManager.CampanellaBellAura);
+                LoadShader(BossShaderManager.CampanellaInfernalTrail);
+                LoadShader(BossShaderManager.CampanellaResonanceWave);
+                LoadShader(BossShaderManager.CampanellaFirewall);
+                LoadShader(BossShaderManager.CampanellaChimeDissolve);
+
+                // Swan Lake boss
+                LoadShader(BossShaderManager.SwanPrismaticAura);
+                LoadShader(BossShaderManager.SwanFeatherTrail);
+                LoadShader(BossShaderManager.SwanFractalBeam);
+                LoadShader(BossShaderManager.SwanMoodTransition);
+                LoadShader(BossShaderManager.SwanMonochromeDissolve);
+
+                // Enigma Variations boss
+                LoadShader(BossShaderManager.EnigmaVoidAura);
+                LoadShader(BossShaderManager.EnigmaShadowTrail);
+                LoadShader(BossShaderManager.EnigmaParadoxRift);
+                LoadShader(BossShaderManager.EnigmaTeleportWarp);
+                LoadShader(BossShaderManager.EnigmaUnveilingDissolve);
+
+                // Fate boss
+                LoadShader(BossShaderManager.FateCosmicAura);
+                LoadShader(BossShaderManager.FateConstellationTrail);
+                LoadShader(BossShaderManager.FateTimeSlice);
+                LoadShader(BossShaderManager.FateAwakeningShatter);
+                LoadShader(BossShaderManager.FateCosmicDeathRift);
+
+                // Nachtmusik boss
+                LoadShader(BossShaderManager.NachtmusikStarfieldAura);
+                LoadShader(BossShaderManager.NachtmusikNebulaDashTrail);
+                LoadShader(BossShaderManager.NachtmusikSupernovaBlast);
+                LoadShader(BossShaderManager.NachtmusikPhase2Awakening);
+                LoadShader(BossShaderManager.NachtmusikStellarDissolve);
+
+                // Ode to Joy boss
+                LoadShader(BossShaderManager.OdeGardenAura);
+                LoadShader(BossShaderManager.OdeVineTrail);
+                LoadShader(BossShaderManager.OdePetalStorm);
+                LoadShader(BossShaderManager.OdeChromaticBloom);
+                LoadShader(BossShaderManager.OdeJubilantDissolve);
+
+                // Dies Irae boss
+                LoadShader(BossShaderManager.DiesHellfireAura);
+                LoadShader(BossShaderManager.DiesJudgmentTrail);
+                LoadShader(BossShaderManager.DiesApocalypseRay);
+                LoadShader(BossShaderManager.DiesWrathEscalation);
+                LoadShader(BossShaderManager.DiesFinalJudgmentDissolve);
+
+                // Autunno boss (seasonal)
+                LoadShader(BossShaderManager.AutunnoDecayAura);
+                LoadShader(BossShaderManager.AutunnoLeafTrail);
+                LoadShader(BossShaderManager.AutunnoWitheringWind);
+                LoadShader(BossShaderManager.AutunnoHarvestMoon);
+                LoadShader(BossShaderManager.AutunnoFinalHarvest);
+
+                // Primavera boss (seasonal)
+                LoadShader(BossShaderManager.PrimaveraBloomAura);
+                LoadShader(BossShaderManager.PrimaveraPetalTrail);
+                LoadShader(BossShaderManager.PrimaveraGrowthPulse);
+                LoadShader(BossShaderManager.PrimaveraVernalStorm);
+                LoadShader(BossShaderManager.PrimaveraRebirthDissolve);
+
+                // L'Estate boss (seasonal)
+                LoadShader(BossShaderManager.EstateSolarAura);
+                LoadShader(BossShaderManager.EstateHeatHazeTrail);
+                LoadShader(BossShaderManager.EstateSolarFlare);
+                LoadShader(BossShaderManager.EstateZenithBeam);
+                LoadShader(BossShaderManager.EstateSupernovaDissolve);
+
+                // L'Inverno boss (seasonal)
+                LoadShader(BossShaderManager.InvernoFrostAura);
+                LoadShader(BossShaderManager.InvernoIceTrail);
+                LoadShader(BossShaderManager.InvernoBlizzardVortex);
+                LoadShader(BossShaderManager.InvernoFreezeRay);
+                LoadShader(BossShaderManager.InvernoAbsoluteZeroDissolve);
+
+                // ═══════════════════════════════════════════════════════
+                // ENEMY SHADERS — 2 per mini-boss enemy (Aura + Trail)
+                // ═══════════════════════════════════════════════════════
+
+                // Waning Deer (Moonlight Sonata)
+                LoadShader(EnemyShaderManager.WaningDeerLunarAura);
+                LoadShader(EnemyShaderManager.WaningDeerMoonbeamTrail);
+
+                // Crawler of the Bell (La Campanella)
+                LoadShader(EnemyShaderManager.CrawlerBellAura);
+                LoadShader(EnemyShaderManager.CrawlerInfernalTrail);
+
+                // Shattered Prima (Swan Lake)
+                LoadShader(EnemyShaderManager.PrimaFeatherAura);
+                LoadShader(EnemyShaderManager.PrimaGraceTrail);
+
+                // Eroican Centurion
+                LoadShader(EnemyShaderManager.CenturionValorAura);
+                LoadShader(EnemyShaderManager.CenturionChargeTrail);
+
+                // Behemoth of Valor
+                LoadShader(EnemyShaderManager.BehemothWarAura);
+                LoadShader(EnemyShaderManager.BehemothSlamWave);
+
+                // Funeral Blitzer
+                LoadShader(EnemyShaderManager.BlitzerFuneralAura);
+                LoadShader(EnemyShaderManager.BlitzerExplosionFlash);
+
+                // Stolen Valor
+                LoadShader(EnemyShaderManager.StolenValorAura);
+                LoadShader(EnemyShaderManager.StolenValorMinionLink);
+
+                // Mystery's End (Enigma Variations)
+                LoadShader(EnemyShaderManager.MysteryVoidAura);
+                LoadShader(EnemyShaderManager.MysteryParadoxTrail);
+
+                // Herald of Fate
+                LoadShader(EnemyShaderManager.HeraldCosmicAura);
+                LoadShader(EnemyShaderManager.HeraldConstellationTrail);
 
                 _shadersEnabled = _shaders.Count > 0;
 

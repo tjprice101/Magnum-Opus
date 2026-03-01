@@ -6,6 +6,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Particles;
 using MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Utilities;
 
@@ -20,6 +21,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Projectiles
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         private static Asset<Texture2D> _bloomTex;
+        private static Asset<Texture2D> _softBloomTex;
 
         public override void SetDefaults()
         {
@@ -97,27 +99,60 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Projectiles
         {
             _bloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
                 "Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
+            _softBloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
 
-            Texture2D tex = _bloomTex.Value;
-            Vector2 origin = tex.Size() / 2f;
+            Texture2D bloom = _bloomTex.Value;
+            Texture2D softBloom = _softBloomTex.Value;
+            Vector2 bOrigin = bloom.Size() / 2f;
+            Vector2 sOrigin = softBloom.Size() / 2f;
             SpriteBatch sb = Main.spriteBatch;
 
             float rot = Projectile.velocity.ToRotation();
             float speed = Projectile.velocity.Length();
             float stretchX = 0.5f + speed * 0.04f;
             float stretchY = 0.2f;
+            float time = (float)Main.GameUpdateCount / 60f;
 
             sb.End();
-            AnthemUtils.BeginAdditive(sb);
 
+            // ═══ Layer 1: JubilantHarmony — harmonic wave aura around the shard ═══
+            Effect harmonyShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyJubilantHarmonyShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (harmonyShader != null)
+            {
+                harmonyShader.Parameters["uTime"]?.SetValue(time);
+                harmonyShader.Parameters["uColor"]?.SetValue(AnthemUtils.BrilliantAmber.ToVector3());
+                harmonyShader.Parameters["uSecondaryColor"]?.SetValue(AnthemUtils.RoseTint.ToVector3());
+                harmonyShader.Parameters["uOpacity"]?.SetValue(0.6f);
+                harmonyShader.Parameters["uIntensity"]?.SetValue(1.3f);
+                harmonyShader.Parameters["uRadius"]?.SetValue(0.4f);
+                harmonyShader.Parameters["uHarmonicFreq"]?.SetValue(2.0f);
+                harmonyShader.CurrentTechnique = harmonyShader.Techniques["SymphonicAuraTechnique"];
+                harmonyShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(softBloom, Projectile.Center - Main.screenPosition, null, Color.White, rot, sOrigin,
+                    new Vector2(stretchX * 1.6f, stretchY * 3f), SpriteEffects.None, 0f);
+            }
+
+            // ═══ Layer 2: Additive glow body + core ═══
             // Outer golden glow
-            Color outer = AnthemUtils.Additive(AnthemUtils.BrilliantAmber, 0.6f);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, outer, rot, origin,
+            Color outer = AnthemUtils.Additive(AnthemUtils.BrilliantAmber, 0.55f);
+            sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, outer, rot, bOrigin,
                 new Vector2(stretchX * 1.3f, stretchY * 1.5f), SpriteEffects.None, 0f);
+
+            // Mid rose-tinted shimmer
+            float shimmer = (float)Math.Sin(time * 4f) * 0.5f + 0.5f;
+            Color roseGlow = AnthemUtils.Additive(AnthemUtils.RoseTint, shimmer * 0.2f);
+            sb.Draw(softBloom, Projectile.Center - Main.screenPosition, null, roseGlow, rot, sOrigin,
+                new Vector2(stretchX * 1.1f, stretchY * 2f), SpriteEffects.None, 0f);
 
             // Inner bright core
             Color core = AnthemUtils.Additive(AnthemUtils.GloryWhite, 0.75f);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, core, rot, origin,
+            sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, core, rot, bOrigin,
                 new Vector2(stretchX * 0.7f, stretchY * 0.7f), SpriteEffects.None, 0f);
 
             sb.End();
@@ -314,7 +349,9 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Projectiles
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         private static Asset<Texture2D> _bloomTex;
+        private static Asset<Texture2D> _softBloomTex;
         private static Asset<Texture2D> _noteTex;
+        private static Asset<Texture2D> _beamTex;
         private Vector2 beamDirection;
         private bool hasInitialized;
 
@@ -421,49 +458,86 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Projectiles
 
             _bloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
                 "Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
+            _softBloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
+            _beamTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/BeamTextures/HorizontalBeamStreakSegment", AssetRequestMode.ImmediateLoad);
 
-            Texture2D tex = _bloomTex.Value;
-            Vector2 origin = tex.Size() / 2f;
+            Texture2D bloom = _bloomTex.Value;
+            Texture2D softBloom = _softBloomTex.Value;
+            Texture2D beamStreak = _beamTex.Value;
+            Vector2 bOrigin = bloom.Size() / 2f;
+            Vector2 sOrigin = softBloom.Size() / 2f;
+            Vector2 beamOrigin = new Vector2(0f, beamStreak.Height / 2f);
             SpriteBatch sb = Main.spriteBatch;
-
-            sb.End();
-            AnthemUtils.BeginAdditive(sb);
 
             float fade = MathHelper.Clamp((float)Projectile.timeLeft / 20f, 0f, 1f);
             float rot = beamDirection.ToRotation();
-
-            // Main beam body — stretched PointBloom along direction
+            float time = (float)Main.GameUpdateCount / 60f;
             float beamLength = 900f;
             Vector2 beamMid = Projectile.Center + beamDirection * (beamLength * 0.5f) - Main.screenPosition;
-            float scaleX = beamLength / tex.Width;
+
+            sb.End();
+
+            // ═══ Layer 1: HarmonicBeam shader — standing-wave beam body with staff lines ═══
+            Effect harmonyShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyJubilantHarmonyShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (harmonyShader != null)
+            {
+                harmonyShader.Parameters["uTime"]?.SetValue(time);
+                harmonyShader.Parameters["uColor"]?.SetValue(AnthemUtils.BrilliantAmber.ToVector3());
+                harmonyShader.Parameters["uSecondaryColor"]?.SetValue(AnthemUtils.RoseTint.ToVector3());
+                harmonyShader.Parameters["uOpacity"]?.SetValue(fade * 0.85f);
+                harmonyShader.Parameters["uIntensity"]?.SetValue(1.5f);
+                harmonyShader.Parameters["uHarmonicFreq"]?.SetValue(1.5f);
+                harmonyShader.CurrentTechnique = harmonyShader.Techniques["HarmonicBeamTechnique"];
+                harmonyShader.CurrentTechnique.Passes[0].Apply();
+
+                // Draw as a stretched beam quad; UV.x maps along length, UV.y maps across width
+                float beamScaleX = beamLength / bloom.Width;
+                float beamScaleY = 0.55f * fade;
+                sb.Draw(bloom, beamMid, null, Color.White, rot, bOrigin,
+                    new Vector2(beamScaleX, beamScaleY), SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+
+            // ═══ Layer 2: Additive glow layers ═══
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            float scaleX = beamLength / bloom.Width;
             float scaleY = 0.35f * fade;
 
             // Outer warm amber glow
-            Color outerGlow = AnthemUtils.Additive(AnthemUtils.BrilliantAmber, fade * 0.5f);
-            sb.Draw(tex, beamMid, null, outerGlow, rot, origin,
+            Color outerGlow = AnthemUtils.Additive(AnthemUtils.BrilliantAmber, fade * 0.4f);
+            sb.Draw(bloom, beamMid, null, outerGlow, rot, bOrigin,
                 new Vector2(scaleX, scaleY * 2.5f), SpriteEffects.None, 0f);
 
             // Mid golden body
             Color midGold = AnthemUtils.Additive(
                 Color.Lerp(AnthemUtils.RichGold, AnthemUtils.GloryWhite, fade * 0.3f),
-                fade * 0.7f);
-            sb.Draw(tex, beamMid, null, midGold, rot, origin,
+                fade * 0.55f);
+            sb.Draw(bloom, beamMid, null, midGold, rot, bOrigin,
                 new Vector2(scaleX, scaleY * 1.2f), SpriteEffects.None, 0f);
 
-            // Inner bright white-gold core
-            Color coreCol = AnthemUtils.Additive(AnthemUtils.GloryWhite, fade * 0.85f);
-            sb.Draw(tex, beamMid, null, coreCol, rot, origin,
-                new Vector2(scaleX, scaleY * 0.4f), SpriteEffects.None, 0f);
+            // Inner white-gold core
+            Color coreCol = AnthemUtils.Additive(AnthemUtils.GloryWhite, fade * 0.8f);
+            sb.Draw(bloom, beamMid, null, coreCol, rot, bOrigin,
+                new Vector2(scaleX, scaleY * 0.35f), SpriteEffects.None, 0f);
 
-            // Origin bloom flare
-            Color originBloom = AnthemUtils.Additive(AnthemUtils.BrilliantAmber, fade * 0.6f);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, originBloom, rot, origin,
-                new Vector2(1.5f * fade, 1.5f * fade), SpriteEffects.None, 0f);
+            // Origin bloom flare with SoftRadialBloom
+            Color originBloom = AnthemUtils.Additive(AnthemUtils.BrilliantAmber, fade * 0.65f);
+            sb.Draw(softBloom, Projectile.Center - Main.screenPosition, null, originBloom, rot, sOrigin,
+                new Vector2(1.6f * fade, 1.6f * fade), SpriteEffects.None, 0f);
 
-            // Rose-tinted shimmer pulsing along the beam
-            float shimmer = (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.5f + 0.5f;
-            Color roseShimmer = AnthemUtils.Additive(AnthemUtils.RoseTint, fade * shimmer * 0.25f);
-            sb.Draw(tex, beamMid, null, roseShimmer, rot, origin,
+            // Rose-tinted pulsing shimmer
+            float shimmer = (float)Math.Sin(time * 4f) * 0.5f + 0.5f;
+            Color roseShimmer = AnthemUtils.Additive(AnthemUtils.RoseTint, fade * shimmer * 0.3f);
+            sb.Draw(bloom, beamMid, null, roseShimmer, rot, bOrigin,
                 new Vector2(scaleX * 0.9f, scaleY * 1.8f), SpriteEffects.None, 0f);
 
             sb.End();

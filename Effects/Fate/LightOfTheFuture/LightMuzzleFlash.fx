@@ -1,5 +1,5 @@
 // =============================================================================
-// Light of the Future — Muzzle Flash Shader (ps_2_0 optimized)
+// Light of the Future  EMuzzle Flash Shader (ps_3_0 optimized)
 // =============================================================================
 // Radial gold-white flash burst at muzzle point.
 // =============================================================================
@@ -42,6 +42,6 @@ technique MuzzleFlashMain
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 MuzzleFlashPS();
+        PixelShader = compile ps_3_0 MuzzleFlashPS();
     }
 }

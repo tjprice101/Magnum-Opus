@@ -7,7 +7,7 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.Eroica.Weapons.TriumphantFractal.Particles
 {
     [Autoload(Side = ModSide.Client)]
-    public class FractalParticleHandler : ModSystem
+    public class TriumphantFractalParticleHandler : ModSystem
     {
         private static readonly List<FractalParticle> _particles = new();
         private const int MaxParticles = 600;

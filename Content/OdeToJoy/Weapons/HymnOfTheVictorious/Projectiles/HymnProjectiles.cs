@@ -5,6 +5,7 @@ using ReLogic.Content;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Particles;
 using MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Utilities;
 
@@ -22,6 +23,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         private static Asset<Texture2D> _bloomTex;
+        private static Asset<Texture2D> _softBloomTex;
         private static Asset<Texture2D> _noteTex;
 
         /// <summary>ai[0] = timer, ai[1] = orbit index (0-7), ai[2] = launch direction angle</summary>
@@ -173,38 +175,64 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
         {
             _bloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
                 "Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
+            _softBloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
             _noteTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
                 "Assets/Particles Asset Library/MusicNote", AssetRequestMode.ImmediateLoad);
 
             Texture2D bloom = _bloomTex.Value;
+            Texture2D softBloom = _softBloomTex.Value;
             Texture2D note = _noteTex.Value;
-            Vector2 bloomOrigin = bloom.Size() / 2f;
+            Vector2 bOrigin = bloom.Size() / 2f;
+            Vector2 sOrigin = softBloom.Size() / 2f;
             Vector2 noteOrigin = note.Size() / 2f;
             SpriteBatch sb = Main.spriteBatch;
+            float time = (float)Main.GameUpdateCount / 60f;
 
             sb.End();
-            HymnUtils.BeginAdditive(sb);
 
             float pulse = 1f + (float)Math.Sin(Projectile.ai[0] * 0.25f) * 0.2f;
             float gatherIntensity = Projectile.ai[0] < 30f ? Projectile.ai[0] / 30f : 1f;
 
+            // ═══ Layer 1: SymphonicAura shader — harmonic rings orbiting the note ═══
+            Effect harmonyShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyJubilantHarmonyShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (harmonyShader != null)
+            {
+                harmonyShader.Parameters["uTime"]?.SetValue(time);
+                harmonyShader.Parameters["uColor"]?.SetValue(HymnUtils.BrilliantGold.ToVector3());
+                harmonyShader.Parameters["uSecondaryColor"]?.SetValue(HymnUtils.HealGreen.ToVector3());
+                harmonyShader.Parameters["uOpacity"]?.SetValue(0.5f * gatherIntensity);
+                harmonyShader.Parameters["uIntensity"]?.SetValue(1.2f);
+                harmonyShader.Parameters["uRadius"]?.SetValue(0.4f);
+                harmonyShader.Parameters["uHarmonicFreq"]?.SetValue(1.5f);
+                harmonyShader.CurrentTechnique = harmonyShader.Techniques["SymphonicAuraTechnique"];
+                harmonyShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(softBloom, Projectile.Center - Main.screenPosition, null, Color.White,
+                    0f, sOrigin, 0.8f * pulse, SpriteEffects.None, 0f);
+            }
+
             // Outer golden glow
-            Color outerColor = HymnUtils.Additive(HymnUtils.WarmAmber, 0.45f * gatherIntensity);
-            sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, outerColor, Projectile.rotation, bloomOrigin,
-                0.55f * pulse, SpriteEffects.None, 0f);
+            Color outerColor = HymnUtils.Additive(HymnUtils.WarmAmber, 0.4f * gatherIntensity);
+            sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, outerColor, Projectile.rotation, bOrigin,
+                0.5f * pulse, SpriteEffects.None, 0f);
 
             // Core brilliant gold
-            Color coreColor = HymnUtils.Additive(HymnUtils.BrilliantGold, 0.7f * gatherIntensity);
-            sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, coreColor, Projectile.rotation, bloomOrigin,
-                0.3f * pulse, SpriteEffects.None, 0f);
+            Color coreColor = HymnUtils.Additive(HymnUtils.BrilliantGold, 0.65f * gatherIntensity);
+            sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, coreColor, Projectile.rotation, bOrigin,
+                0.28f * pulse, SpriteEffects.None, 0f);
 
             // Inner white hot center
             Color whiteCore = HymnUtils.Additive(HymnUtils.DivineLight, 0.5f * gatherIntensity);
-            sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, whiteCore, Projectile.rotation, bloomOrigin,
-                0.15f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, whiteCore, Projectile.rotation, bOrigin,
+                0.14f * pulse, SpriteEffects.None, 0f);
 
-            // Music note overlay — smaller, tinted gold
-            Color noteCol = HymnUtils.Additive(HymnUtils.BrilliantGold, 0.6f * gatherIntensity);
+            // Music note overlay
+            Color noteCol = HymnUtils.Additive(HymnUtils.BrilliantGold, 0.55f * gatherIntensity);
             sb.Draw(note, Projectile.Center - Main.screenPosition, null, noteCol, Projectile.rotation * 0.3f, noteOrigin,
                 0.2f * pulse, SpriteEffects.None, 0f);
 
@@ -226,6 +254,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         private static Asset<Texture2D> _bloomTex;
+        private static Asset<Texture2D> _softBloomTex;
         private static Asset<Texture2D> _noteTex;
 
         /// <summary>ai[0] = timer, ai[1] = has healed flag (0 or 1)</summary>
@@ -366,47 +395,80 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
         {
             _bloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
                 "Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
+            _softBloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
             _noteTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
                 "Assets/Particles Asset Library/MusicNote", AssetRequestMode.ImmediateLoad);
 
             Texture2D bloom = _bloomTex.Value;
+            Texture2D softBloom = _softBloomTex.Value;
             Texture2D note = _noteTex.Value;
-            Vector2 bloomOrigin = bloom.Size() / 2f;
+            Vector2 bOrigin = bloom.Size() / 2f;
+            Vector2 sOrigin = softBloom.Size() / 2f;
             Vector2 noteOrigin = note.Size() / 2f;
             SpriteBatch sb = Main.spriteBatch;
 
             float progress = Projectile.ai[0] / 30f;
             float fade = 1f - progress;
             float fadeAlpha = fade * fade;
+            float time = (float)Main.GameUpdateCount / 60f;
 
             sb.End();
-            HymnUtils.BeginAdditive(sb);
+
+            // ═══ Layer 1: CelebrationAura — expanding golden ring waves ═══
+            Effect auraShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyCelebrationAuraShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (auraShader != null)
+            {
+                auraShader.Parameters["uTime"]?.SetValue(time);
+                auraShader.Parameters["uColor"]?.SetValue(HymnUtils.BrilliantGold.ToVector3());
+                auraShader.Parameters["uSecondaryColor"]?.SetValue(HymnUtils.HealGreen.ToVector3());
+                auraShader.Parameters["uOpacity"]?.SetValue(fadeAlpha * 0.65f);
+                auraShader.Parameters["uIntensity"]?.SetValue(1.6f);
+                auraShader.Parameters["uRadius"]?.SetValue(0.45f);
+                auraShader.Parameters["uRingCount"]?.SetValue(6f);
+                auraShader.CurrentTechnique = auraShader.Techniques["CelebrationAuraTechnique"];
+                auraShader.CurrentTechnique.Passes[0].Apply();
+
+                float auraScale = MathHelper.Lerp(1.5f, 5f, (float)Math.Sqrt(progress));
+                sb.Draw(softBloom, Projectile.Center - Main.screenPosition, null, Color.White,
+                    0f, sOrigin, auraScale, SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+
+            // ═══ Layer 2: Additive bloom body + notes + green heal shimmer ═══
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Massive expanding golden bloom
             float bloomScale = MathHelper.Lerp(0.5f, 4f, (float)Math.Sqrt(progress));
-            Color bloomCol = HymnUtils.Additive(HymnUtils.BrilliantGold, fadeAlpha * 0.7f);
+            Color bloomCol = HymnUtils.Additive(HymnUtils.BrilliantGold, fadeAlpha * 0.6f);
             sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, bloomCol,
-                progress * 0.5f, bloomOrigin, bloomScale, SpriteEffects.None, 0f);
+                progress * 0.5f, bOrigin, bloomScale, SpriteEffects.None, 0f);
 
             // Divine white core
-            Color coreCol = HymnUtils.Additive(HymnUtils.DivineLight, fadeAlpha * 0.9f);
+            Color coreCol = HymnUtils.Additive(HymnUtils.DivineLight, fadeAlpha * 0.8f);
             sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, coreCol,
-                -progress * 0.3f, bloomOrigin, bloomScale * 0.4f, SpriteEffects.None, 0f);
+                -progress * 0.3f, bOrigin, bloomScale * 0.35f, SpriteEffects.None, 0f);
 
-            // Warm amber ring
+            // Warm amber ring cross
             float ringScale = MathHelper.Lerp(0.3f, 5f, progress);
-            Color ringCol = HymnUtils.Additive(HymnUtils.WarmAmber, fadeAlpha * 0.4f);
+            Color ringCol = HymnUtils.Additive(HymnUtils.WarmAmber, fadeAlpha * 0.35f);
             sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, ringCol,
-                progress * 0.8f, bloomOrigin, new Vector2(ringScale, ringScale * 0.2f), SpriteEffects.None, 0f);
+                progress * 0.8f, bOrigin, new Vector2(ringScale, ringScale * 0.2f), SpriteEffects.None, 0f);
             sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, ringCol,
-                progress * 0.8f + MathHelper.PiOver2, bloomOrigin, new Vector2(ringScale, ringScale * 0.2f), SpriteEffects.None, 0f);
+                progress * 0.8f + MathHelper.PiOver2, bOrigin, new Vector2(ringScale, ringScale * 0.2f), SpriteEffects.None, 0f);
 
-            // Rose harmony accent flash (early frames only)
+            // Rose harmony accent flash (early frames)
             if (progress < 0.4f)
             {
-                Color roseCol = HymnUtils.Additive(HymnUtils.RoseHarmony, fadeAlpha * 0.35f);
-                sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, roseCol,
-                    progress * 2f, bloomOrigin, bloomScale * 0.6f, SpriteEffects.None, 0f);
+                Color roseCol = HymnUtils.Additive(HymnUtils.RoseHarmony, fadeAlpha * 0.3f);
+                sb.Draw(softBloom, Projectile.Center - Main.screenPosition, null, roseCol,
+                    progress * 2f, sOrigin, bloomScale * 0.55f, SpriteEffects.None, 0f);
             }
 
             // Cascading music notes spinning outward
@@ -416,16 +478,15 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
                 float angle = MathHelper.TwoPi / noteCount * i + progress * MathHelper.TwoPi;
                 float dist = 30f + progress * 120f;
                 Vector2 notePos = Projectile.Center + angle.ToRotationVector2() * dist;
-
-                Color noteCol = HymnUtils.Additive(HymnUtils.BrilliantGold, fadeAlpha * 0.5f);
+                Color noteCol = HymnUtils.Additive(HymnUtils.BrilliantGold, fadeAlpha * 0.45f);
                 sb.Draw(note, notePos - Main.screenPosition, null, noteCol,
                     angle + MathHelper.PiOver4, noteOrigin, 0.25f * fade, SpriteEffects.None, 0f);
             }
 
             // Heal green shimmer
-            Color greenShimmer = HymnUtils.Additive(HymnUtils.HealGreen, fadeAlpha * 0.25f);
-            sb.Draw(bloom, Projectile.Center - Main.screenPosition, null, greenShimmer,
-                progress * -1.2f, bloomOrigin, bloomScale * 0.7f, SpriteEffects.None, 0f);
+            Color greenShimmer = HymnUtils.Additive(HymnUtils.HealGreen, fadeAlpha * 0.22f);
+            sb.Draw(softBloom, Projectile.Center - Main.screenPosition, null, greenShimmer,
+                progress * -1.2f, sOrigin, bloomScale * 0.65f, SpriteEffects.None, 0f);
 
             sb.End();
             HymnUtils.BeginDefault(sb);

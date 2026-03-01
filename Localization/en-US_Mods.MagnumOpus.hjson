@@ -4367,6 +4367,71 @@ Buffs: {
 		DisplayName: Moonlit Stasis
 		Description: Mods.MagnumOpus.Buffs.MoonlitStasis.Description
 	}
+
+	ExecutionBrand: {
+		DisplayName: Execution Brand
+		Description: Mods.MagnumOpus.Buffs.ExecutionBrand.Description
+	}
+
+	PyreImmolation: {
+		DisplayName: Pyre Immolation
+		Description: Mods.MagnumOpus.Buffs.PyreImmolation.Description
+	}
+
+	HellfireImmolation: {
+		DisplayName: Hellfire Immolation
+		Description: Mods.MagnumOpus.Buffs.HellfireImmolation.Description
+	}
+
+	WrathMark: {
+		DisplayName: Wrath Mark
+		Description: Mods.MagnumOpus.Buffs.WrathMark.Description
+	}
+
+	HeroicBurn: {
+		DisplayName: Heroic Burn
+		Description: Mods.MagnumOpus.Buffs.HeroicBurn.Description
+	}
+
+	ValorStagger: {
+		DisplayName: Valor Stagger
+		Description: Mods.MagnumOpus.Buffs.ValorStagger.Description
+	}
+
+	PetalWound: {
+		DisplayName: Petal Wound
+		Description: Mods.MagnumOpus.Buffs.PetalWound.Description
+	}
+
+	SakuraBlight: {
+		DisplayName: Sakura Blight
+		Description: Mods.MagnumOpus.Buffs.SakuraBlight.Description
+	}
+
+	CrescendoDeityBuff: {
+		DisplayName: Crescendo Deity Buff
+		Description: Mods.MagnumOpus.Buffs.CrescendoDeityBuff.Description
+	}
+
+	LunarStasis: {
+		DisplayName: Lunar Stasis
+		Description: Mods.MagnumOpus.Buffs.LunarStasis.Description
+	}
+
+	TidalDrowning: {
+		DisplayName: Tidal Drowning
+		Description: Mods.MagnumOpus.Buffs.TidalDrowning.Description
+	}
+
+	MusicalDissonance: {
+		DisplayName: Musical Dissonance
+		Description: Mods.MagnumOpus.Buffs.MusicalDissonance.Description
+	}
+
+	LunarImpact: {
+		DisplayName: Lunar Impact
+		Description: Mods.MagnumOpus.Buffs.LunarImpact.Description
+	}
 }
 
 Items: {
@@ -7136,6 +7201,56 @@ Items: {
 		Tooltip: ""
 		DisplayName: Exoblade
 	}
+
+	CodaOfAnnihilationItem: {
+		DisplayName: Coda Of Annihilation Item
+		Tooltip: ""
+	}
+
+	DestinysCrescendoItem: {
+		DisplayName: Destinys Crescendo Item
+		Tooltip: ""
+	}
+
+	FractalOfTheStarsItem: {
+		DisplayName: Fractal Of The Stars Item
+		Tooltip: ""
+	}
+
+	LightOfTheFutureItem: {
+		DisplayName: Light Of The Future Item
+		Tooltip: ""
+	}
+
+	OpusUltimaItem: {
+		DisplayName: Opus Ultima Item
+		Tooltip: ""
+	}
+
+	RequiemOfRealityItem: {
+		DisplayName: Requiem Of Reality Item
+		Tooltip: ""
+	}
+
+	ResonanceOfABygoneRealityItem: {
+		DisplayName: Resonance Of A Bygone Reality Item
+		Tooltip: ""
+	}
+
+	SymphonysEndItem: {
+		DisplayName: Symphonys End Item
+		Tooltip: ""
+	}
+
+	TheConductorsLastConstellationItem: {
+		DisplayName: The Conductors Last Constellation Item
+		Tooltip: ""
+	}
+
+	TheFinalFermataItem: {
+		DisplayName: The Final Fermata Item
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -7267,7 +7382,9 @@ Projectiles: {
 	StellarBolt.DisplayName: Stellar Bolt
 	AcceleratingCosmicRound.DisplayName: Accelerating Cosmic Round
 	CodaHeldSwingProjectile.DisplayName: Coda Held Swing Projectile
+	CodaHeldSwing.DisplayName: Coda Held Swing
 	CodaZenithSwordProjectile.DisplayName: Coda Zenith Sword Projectile
+	CodaZenithSword.DisplayName: Coda Zenith Sword
 	CosmicBeamHeldSword.DisplayName: Cosmic Beam Held Sword
 	CosmicDeityMinion.DisplayName: Cosmic Deity Minion
 	CosmicElectricityStaff.DisplayName: Cosmic Electricity Staff
@@ -7282,6 +7399,7 @@ Projectiles: {
 	OrbitingSpectralBlade.DisplayName: Orbiting Spectral Blade
 	PrismaticBeam.DisplayName: Prismatic Beam
 	RequiemSpectralBladeProjectile.DisplayName: Requiem Spectral Blade Projectile
+	RequiemSpectralBlade.DisplayName: Requiem Spectral Blade
 	SpectralSlashingBlade.DisplayName: Spectral Slashing Blade
 	SpectralSwordBeam.DisplayName: Spectral Sword Beam
 	SpiralingSpectralBlade.DisplayName: Spiraling Spectral Blade
@@ -7305,6 +7423,7 @@ Projectiles: {
 	BurningMusicalNote.DisplayName: Burning Musical Note
 	CampanellaChoirMinion.DisplayName: Campanella Choir Minion
 	ChimeCycloneProjectile.DisplayName: Chime Cyclone Projectile
+	ChimeCycloneProj.DisplayName: Chime Cyclone Proj
 	ChoirFlameWave.DisplayName: Choir Flame Wave
 	DualFatedChimeProjectile.DisplayName: Dual Fated Chime Projectile
 	GrandCrescendoWave.DisplayName: Grand Crescendo Wave
@@ -7312,9 +7431,11 @@ Projectiles: {
 	HomingBellRocket.DisplayName: Homing Bell Rocket
 	HomingMusicNote.DisplayName: Homing Music Note
 	IgnitionThrustProjectile.DisplayName: Ignition Thrust Projectile
+	IgnitionThrustProj.DisplayName: Ignition Thrust Proj
 	InfernalBellMinion.DisplayName: Infernal Bell Minion
 	InfernalBellWave.DisplayName: Infernal Bell Wave
 	InfernoWaltzProjectile.DisplayName: Inferno Waltz Projectile
+	InfernoWaltzProj.DisplayName: Inferno Waltz Proj
 	InfiniteBellExplosiveProjectile.DisplayName: Infinite Bell Explosive Projectile
 	InfiniteBellSpiralProjectile.DisplayName: Infinite Bell Spiral Projectile
 	MusicNoteMine.DisplayName: Music Note Mine
@@ -7435,6 +7556,7 @@ Projectiles: {
 	StormIcicle.DisplayName: Storm Icicle
 	NebulaStarfallProjectile.DisplayName: Nebula Starfall Projectile
 	SeekingCrystalProjectile.DisplayName: Seeking Crystal Projectile
+	SeekingCrystalProj.DisplayName: Seeking Crystal Proj
 	ClairProj_MoonbeamSparkle.DisplayName: Clair Proj_ Moonbeam Sparkle
 	ClairProj_MoonlitNotes.DisplayName: Clair Proj_ Moonlit Notes
 	ClairProj_MoonlitRipple.DisplayName: Clair Proj_ Moonlit Ripple
@@ -7674,4 +7796,88 @@ Projectiles: {
 	IncisorSwingProj.DisplayName: Incisor Swing Proj
 	LunarBeamProj.DisplayName: Lunar Beam Proj
 	LunarNova.DisplayName: Lunar Nova
+	JudgmentFlameProjectile.DisplayName: Judgment Flame Projectile
+	PurgatoryEmberProjectile.DisplayName: Purgatory Ember Projectile
+	IgnitedWrathBallProjectile.DisplayName: Ignited Wrath Ball Projectile
+	WrathShrapnelProjectile.DisplayName: Wrath Shrapnel Projectile
+	BellTollingMinion.DisplayName: Bell Tolling Minion
+	BellTollWaveProjectile.DisplayName: Bell Toll Wave Projectile
+	EclipseOrbProjectile.DisplayName: Eclipse Orb Projectile
+	EclipseWrathShard.DisplayName: Eclipse Wrath Shard
+	ExecutionersVerdictSwing.DisplayName: Executioners Verdict Swing
+	SpectralVerdictSlash.DisplayName: Spectral Verdict Slash
+	VerdictBolt.DisplayName: Verdict Bolt
+	BlazingShardProjectile.DisplayName: Blazing Shard Projectile
+	JudgmentRayProjectile.DisplayName: Judgment Ray Projectile
+	JudgmentSigilMinion.DisplayName: Judgment Sigil Minion
+	SinBulletProjectile.DisplayName: Sin Bullet Projectile
+	SpinningCleaverCopyProjectile.DisplayName: Spinning Cleaver Copy Projectile
+	FloatingIgnitionProjectile.DisplayName: Floating Ignition Projectile
+	WrathDemonMinion.DisplayName: Wrath Demon Minion
+	WrathFireballProjectile.DisplayName: Wrath Fireball Projectile
+	WrathCrystallizedFlame.DisplayName: Wrath Crystallized Flame
+	WrathsCleaverSwing.DisplayName: Wraths Cleaver Swing
+	ValorBeam.DisplayName: Valor Beam
+	ValorBoom.DisplayName: Valor Boom
+	ValorSlash.DisplayName: Valor Slash
+	ValorSlashCreator.DisplayName: Valor Slash Creator
+	CrescendoCosmicBeam.DisplayName: Crescendo Cosmic Beam
+	CrescendoDeityMinion.DisplayName: Crescendo Deity Minion
+	FractalOrbitBlade.DisplayName: Fractal Orbit Blade
+	FractalSwingProjectile.DisplayName: Fractal Swing Projectile
+	LightAcceleratingBullet.DisplayName: Light Accelerating Bullet
+	LightCosmicRocket.DisplayName: Light Cosmic Rocket
+	OpusEnergyBallProjectile.DisplayName: Opus Energy Ball Projectile
+	OpusSwingProjectile.DisplayName: Opus Swing Projectile
+	RequiemCosmicNote.DisplayName: Requiem Cosmic Note
+	RequiemSwingProjectile.DisplayName: Requiem Swing Projectile
+	ResonanceRapidBullet.DisplayName: Resonance Rapid Bullet
+	ResonanceSpectralBlade.DisplayName: Resonance Spectral Blade
+	SymphonyBladeFragment.DisplayName: Symphony Blade Fragment
+	SymphonySpiralBlade.DisplayName: Symphony Spiral Blade
+	ConductorSwingProjectile.DisplayName: Conductor Swing Projectile
+	ConductorSwordBeam.DisplayName: Conductor Sword Beam
+	FermataSlashWave.DisplayName: Fermata Slash Wave
+	FermataSpectralSwordNew.DisplayName: Fermata Spectral Sword New
+	BellFlameWaveProj.DisplayName: Bell Flame Wave Proj
+	DualFatedChimeSwingProj.DisplayName: Dual Fated Chime Swing Proj
+	EmpoweredLightningProj.DisplayName: Empowered Lightning Proj
+	InfiniteBellOrbProj.DisplayName: Infinite Bell Orb Proj
+	BellfireNoteProj.DisplayName: Bellfire Note Proj
+	GrandioseBeamProj.DisplayName: Grandiose Beam Proj
+	KillEchoProj.DisplayName: Kill Echo Proj
+	NoteMineProj.DisplayName: Note Mine Proj
+	InfernalGeyserProj.DisplayName: Infernal Geyser Proj
+	MinionShockwaveProj.DisplayName: Minion Shockwave Proj
+	ResonantBlastProj.DisplayName: Resonant Blast Proj
+	ResonantNoteProj.DisplayName: Resonant Note Proj
+	StaccatoBulletProj.DisplayName: Staccato Bullet Proj
+	BellfireRocketProj.DisplayName: Bellfire Rocket Proj
+	GrandCrescendoWaveProj.DisplayName: Grand Crescendo Wave Proj
+	EternalMoonCrescentSlash.DisplayName: Eternal Moon Crescent Slash
+	EternalMoonGhost.DisplayName: Eternal Moon Ghost
+	PrismaticDetonation.DisplayName: Prismatic Detonation
+	SerenadeBeam.DisplayName: Serenade Beam
+	SerenadeHoldout.DisplayName: Serenade Holdout
+	ChainLightningBolt.DisplayName: Chain Lightning Bolt
+	FountainWaterBolt.DisplayName: Fountain Water Bolt
+	PetalSplashProjectile.DisplayName: Petal Splash Projectile
+	OrbitalNoteProjectile.DisplayName: Orbital Note Projectile
+	PetalShrapnelProjectile.DisplayName: Petal Shrapnel Projectile
+	PetalStormZone.DisplayName: Petal Storm Zone
+	ChainsawHoldoutProjectile.DisplayName: Chainsaw Holdout Projectile
+	JubilantPetalProjectile.DisplayName: Jubilant Petal Projectile
+	PollenBurstProjectile.DisplayName: Pollen Burst Projectile
+	StickyThornProjectile.DisplayName: Sticky Thorn Projectile
+	ThornSplinterProjectile.DisplayName: Thorn Splinter Projectile
+	SeasonalHomingPetalProjectile.DisplayName: Seasonal Homing Petal Projectile
+	BlackSwanFlareProj.DisplayName: Black Swan Flare Proj
+	BlackSwanSwingProj.DisplayName: Black Swan Swing Proj
+	PearlescentRocketProj.DisplayName: Pearlescent Rocket Proj
+	AriaDetonationProj.DisplayName: Aria Detonation Proj
+	ChromaticBoltProj.DisplayName: Chromatic Bolt Proj
+	IridescentCrystalProj.DisplayName: Iridescent Crystal Proj
+	WingspanBoltProj.DisplayName: Wingspan Bolt Proj
+	DestructionHaloProj.DisplayName: Destruction Halo Proj
+	LamentBulletProj.DisplayName: Lament Bullet Proj
 }

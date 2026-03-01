@@ -12,6 +12,7 @@ using MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.Shade
 using MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.Particles;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.Primitives;
 using MagnumOpus.Content.SwanLake.Debuffs;
+using MagnumOpus.Common.Systems.VFX;
 using ReLogic.Content;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.Projectiles
@@ -382,7 +383,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
         private void DrawRocketSprite(SpriteBatch sb, Color lightColor)
         {
             // Draw a small glowing orb as the rocket body (no separate texture needed)
-            Texture2D tex = Terraria.GameContent.TextureAssets.Extra[174].Value;
+            Texture2D tex = MagnumTextureRegistry.GetRadialBloom();
+            if (tex == null) return;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = tex.Size() * 0.5f;
             float alpha = (255 - Projectile.alpha) / 255f;
@@ -392,6 +394,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
                 (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.5f + 0.5f);
 
             sb.Draw(tex, drawPos, null, body * alpha, Projectile.rotation, origin, scale, SpriteEffects.None, 0f);
+
+            // Additive bloom overlay
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            if (glow != null)
+                sb.Draw(glow, drawPos, null, body * alpha * 0.4f, Projectile.rotation,
+                    glow.Size() * 0.5f, scale * 1.8f, SpriteEffects.None, 0f);
         }
 
         private NPC FindClosestNPC(float maxRange)

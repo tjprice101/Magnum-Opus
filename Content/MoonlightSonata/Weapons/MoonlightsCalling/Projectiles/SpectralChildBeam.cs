@@ -24,6 +24,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
     /// </summary>
     public class SpectralChildBeam : ModProjectile
     {
+        public override string Texture => "Terraria/Images/Projectile_1";
+
         private const int TrailLength = 18;
         private const float ChildBeamWidth = 14f;
 

@@ -1,5 +1,5 @@
 // =============================================================================
-// Coda of Annihilation — Annihilation Bloom Shader
+// Coda of Annihilation  EAnnihilation Bloom Shader
 // =============================================================================
 // Ultimate bloom/flash for critical moments: spawn flashes, finisher explosions,
 // convergence events. Expanding radial glow with chromatic shift and cosmic pulse.
@@ -19,7 +19,7 @@ float4 AnnihilationBloomMainPS(float4 sampleColor : COLOR0, float2 coords : TEXC
     float2 delta = coords - center;
     float dist = length(delta);
     
-    // Soft radial glow — Gaussian-like falloff
+    // Soft radial glow  EGaussian-like falloff
     float glow = exp(-dist * dist * 8.0);
     
     // Cosmic chromatic ring
@@ -44,6 +44,6 @@ technique AnnihilationBloomMain
 {
     pass AnnihilationBloomMainPass
     {
-        PixelShader = compile ps_2_0 AnnihilationBloomMainPS();
+        PixelShader = compile ps_3_0 AnnihilationBloomMainPS();
     }
 }

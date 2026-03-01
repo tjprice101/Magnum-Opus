@@ -1,5 +1,5 @@
 // =============================================================================
-// Infernal Chimes Calling — Choir Minion Trail (Enhanced)
+// Infernal Chimes Calling  EChoir Minion Trail (Enhanced)
 // =============================================================================
 // Trail for summoned choir minion as it glides. Three parallel ghost-echo
 // trails overlap like choir voices singing in harmony. FBM ember turbulence
@@ -122,6 +122,6 @@ technique TrailPass
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 ChoirMinionTrailPS();
+        PixelShader = compile ps_3_0 ChoirMinionTrailPS();
     }
 }

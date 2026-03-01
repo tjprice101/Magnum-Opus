@@ -13,8 +13,8 @@
 //
 //   Quality          | Taps | Shader Model
 //   -----------------|------|--------------
-//   Standard         |  5   | ps_2_0
-//   HQ               |  9   | ps_2_0
+//   Standard         |  5   | ps_3_0
+//   HQ               |  9   | ps_3_0
 //   Ultra            | 13   | ps_3_0
 //
 // Compile:
@@ -308,14 +308,14 @@ float4 ArcSweepBlur13(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : 
 
 
 // =============================================================================
-//  TECHNIQUES  EStandard (5-tap ps_2_0)
+//  TECHNIQUES  EStandard (5-tap ps_3_0)
 // =============================================================================
 
 technique DirectionalBlurTechnique
 {
     pass DirectionalBlurPass
     {
-        PixelShader = compile ps_2_0 DirectionalBlur5();
+        PixelShader = compile ps_3_0 DirectionalBlur5();
     }
 }
 
@@ -323,7 +323,7 @@ technique RadialBlurTechnique
 {
     pass RadialBlurPass
     {
-        PixelShader = compile ps_2_0 RadialBlur5();
+        PixelShader = compile ps_3_0 RadialBlur5();
     }
 }
 
@@ -331,19 +331,19 @@ technique ArcSweepBlurTechnique
 {
     pass ArcSweepBlurPass
     {
-        PixelShader = compile ps_2_0 ArcSweepBlur5();
+        PixelShader = compile ps_3_0 ArcSweepBlur5();
     }
 }
 
 // =============================================================================
-//  TECHNIQUES  EHigh Quality (9-tap ps_2_0)
+//  TECHNIQUES  EHigh Quality (9-tap ps_3_0)
 // =============================================================================
 
 technique DirectionalBlurHQTechnique
 {
     pass DirectionalBlurHQPass
     {
-        PixelShader = compile ps_2_0 DirectionalBlur9();
+        PixelShader = compile ps_3_0 DirectionalBlur9();
     }
 }
 
@@ -351,7 +351,7 @@ technique RadialBlurHQTechnique
 {
     pass RadialBlurHQPass
     {
-        PixelShader = compile ps_2_0 RadialBlur9();
+        PixelShader = compile ps_3_0 RadialBlur9();
     }
 }
 
@@ -359,19 +359,19 @@ technique ArcSweepBlurHQTechnique
 {
     pass ArcSweepBlurHQPass
     {
-        PixelShader = compile ps_2_0 ArcSweepBlur9();
+        PixelShader = compile ps_3_0 ArcSweepBlur9();
     }
 }
 
 // =============================================================================
-//  TECHNIQUES  EUltra Quality (13-tap ps_2_0)
+//  TECHNIQUES  EUltra Quality (13-tap ps_3_0)
 // =============================================================================
 
 technique DirectionalBlurUltraTechnique
 {
     pass DirectionalBlurUltraPass
     {
-        PixelShader = compile ps_2_0 DirectionalBlur13();
+        PixelShader = compile ps_3_0 DirectionalBlur13();
     }
 }
 
@@ -379,7 +379,7 @@ technique RadialBlurUltraTechnique
 {
     pass RadialBlurUltraPass
     {
-        PixelShader = compile ps_2_0 RadialBlur13();
+        PixelShader = compile ps_3_0 RadialBlur13();
     }
 }
 
@@ -387,6 +387,6 @@ technique ArcSweepBlurUltraTechnique
 {
     pass ArcSweepBlurUltraPass
     {
-        PixelShader = compile ps_2_0 ArcSweepBlur13();
+        PixelShader = compile ps_3_0 ArcSweepBlur13();
     }
 }

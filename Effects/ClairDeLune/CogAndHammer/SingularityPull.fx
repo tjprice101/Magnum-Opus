@@ -72,13 +72,26 @@ float4 SingularityCorePS(float2 uv : TEXCOORD0) : COLOR0
     float4 base = tex2D(uImage0, uv);
     float dist = length(uv - 0.5) * 2.0;
 
-    // Intense core glow with event horizon ring
+    // Intense core glow — tight central singularity
     float core = exp(-dist * dist * 16.0);
-    float horizon = exp(-pow((dist - 0.3) * 10.0, 2.0)) * 0.5;
-    float pulse = 0.5 + 0.5 * sin(uTime * 5.0);
 
-    float total = core + horizon;
-    float3 coreColor = lerp(uSecondaryColor.rgb, float3(0.96, 0.97, 1.0), core) * uIntensity * uOverbrightMult;
+    // Event horizon ring — softened for visibility at game resolution
+    float horizon = exp(-pow((dist - 0.3) * 5.0, 2.0)) * 0.6;
+
+    // Secondary accretion ring — fainter outer shimmer
+    float outerRing = exp(-pow((dist - 0.55) * 4.0, 2.0)) * 0.2;
+
+    float pulse = 0.5 + 0.5 * sin(uTime * 5.0);
+    float breathe = 0.5 + 0.5 * sin(uTime * 1.8);
+
+    float total = core + horizon + outerRing * breathe;
+
+    // Gradient from secondary color (outer) → white-hot (core)
+    float3 whiteHot = float3(0.96, 0.97, 1.0);
+    float3 coreColor = lerp(uSecondaryColor.rgb, whiteHot, core);
+    coreColor = lerp(coreColor, uColor.rgb, outerRing * 0.3);
+    coreColor *= uIntensity * uOverbrightMult;
+
     float alpha = base.a * uOpacity * total * (0.5 + pulse * 0.2);
 
     return float4(coreColor, alpha);

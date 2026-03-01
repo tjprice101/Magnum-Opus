@@ -136,7 +136,7 @@ technique RippleTechnique
 {
     pass RipplePass
     {
-        PixelShader = compile ps_2_0 RipplePS();
+        PixelShader = compile ps_3_0 RipplePS();
     }
 }
 
@@ -144,7 +144,7 @@ technique HeatHazeTechnique
 {
     pass HeatHazePass
     {
-        PixelShader = compile ps_2_0 HeatHazePS();
+        PixelShader = compile ps_3_0 HeatHazePS();
     }
 }
 
@@ -152,6 +152,6 @@ technique ChromaticTechnique
 {
     pass ChromaticPass
     {
-        PixelShader = compile ps_2_0 ChromaticPS();
+        PixelShader = compile ps_3_0 ChromaticPS();
     }
 }

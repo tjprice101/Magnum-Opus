@@ -10,6 +10,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Utilities;
 using MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Particles;
 using MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Primitives;
+using MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Shaders;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Projectiles
 {
@@ -221,6 +222,19 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Projectiles
                             var device = Main.graphics.GraphicsDevice;
                             device.BlendState = BlendState.Additive;
                             device.RasterizerState = RasterizerState.CullNone;
+
+                            // Apply WrathShardTrail shader for solar fire gradient on trail
+                            if (EclipseShaderLoader.HasEclipseOrb)
+                            {
+                                var shader = EclipseShaderLoader.EclipseOrbShader.Value;
+                                shader.Parameters["uTime"]?.SetValue((float)Main.GameUpdateCount * 0.05f);
+                                shader.Parameters["uColor"]?.SetValue(EclipseUtils.InnerCorona.ToVector3());
+                                shader.Parameters["uSecondaryColor"]?.SetValue(EclipseUtils.OuterCorona.ToVector3());
+                                shader.Parameters["uOpacity"]?.SetValue(1f);
+                                shader.Parameters["uIntensity"]?.SetValue(2.5f);
+                                shader.CurrentTechnique = shader.Techniques["WrathShardTrailTechnique"];
+                                shader.CurrentTechnique.Passes[0].Apply();
+                            }
                         });
                     EclipseTrailRenderer.RenderTrail(trailPoints, trailSettings);
                     Main.graphics.GraphicsDevice.BlendState = BlendState.AlphaBlend;
@@ -259,16 +273,26 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Projectiles
             sb.Draw(glow, drawPos, null, EclipseUtils.Additive(EclipseUtils.SolarWhite, 0.7f),
                 0f, glow.Size() / 2f, 0.2f * pulse, SpriteEffects.None, 0f);
 
-            // Orbiting spark points (5-point corona ring)
+            // Orbiting spark points (5-point corona ring) with oscillating radius
             float sparkOrbit = time * 4f;
+            float sparkRadiusPulse = 16f + 4f * (float)Math.Sin(time * 6f);
             for (int i = 0; i < 5; i++)
             {
                 float a = sparkOrbit + MathHelper.TwoPi * i / 5f;
-                Vector2 sparkOff = a.ToRotationVector2() * 16f * pulse;
-                Color sparkColor = EclipseUtils.CoronaLerp((float)i / 5f);
+                Vector2 sparkOff = a.ToRotationVector2() * sparkRadiusPulse * pulse;
+                Color sparkColor = EclipseUtils.CoronaLerp((float)i / 5f + time * 0.3f);
                 sb.Draw(glow, drawPos + sparkOff, null, EclipseUtils.Additive(sparkColor, 0.5f),
                     -sparkOrbit, glow.Size() / 2f, 0.12f * pulse, SpriteEffects.None, 0f);
             }
+
+            // Layer 6: Blood red prominence tendrils (2 counter-rotating stretched glows)
+            float prominenceAngle1 = time * 1.5f;
+            float prominenceAngle2 = -time * 1.2f + MathHelper.Pi;
+            float prominenceScale = 0.3f * pulse;
+            sb.Draw(glow, drawPos, null, EclipseUtils.Additive(EclipseUtils.EclipseBlood, 0.25f),
+                prominenceAngle1, glow.Size() / 2f, new Vector2(prominenceScale * 3f, prominenceScale * 0.8f), SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, EclipseUtils.Additive(EclipseUtils.MidCorona, 0.2f),
+                prominenceAngle2, glow.Size() / 2f, new Vector2(prominenceScale * 2.5f, prominenceScale * 0.6f), SpriteEffects.None, 0f);
 
             sb.End();
             EclipseUtils.ResetSpriteBatch(sb);

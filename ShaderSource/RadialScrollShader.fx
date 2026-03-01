@@ -4,7 +4,7 @@
 // Multi-technique radial scrolling shader with theme presets.
 // Supports: Orbs, Portals, Auras, Energy Fields, Vortexes
 //
-// COMPILE: fxc /T ps_2_0 /E PSRadialScroll /Fo RadialScrollShader.fxb RadialScrollShader.fx
+// COMPILE: fxc /T ps_3_0 /E PSRadialScroll /Fo RadialScrollShader.fxb RadialScrollShader.fx
 // ============================================================================
 
 // --- SAMPLERS ---
@@ -78,7 +78,7 @@ float Vignette(float radius, float size, float blend)
     return 1.0 - smoothstep(size - blend, size + blend, radius);
 }
 
-// QuadraticBump: 0→1→0 curve (peaks at 0.5)
+// QuadraticBump: 0ↁEↁE curve (peaks at 0.5)
 float QuadraticBump(float x)
 {
     return x * (4.0 - x * 4.0);
@@ -137,7 +137,7 @@ float4 PSDualPhase(float2 uv : TEXCOORD0) : COLOR0
     float4 sample0 = tex2D(uImage0, uv0);
     float4 sample1 = tex2D(uImage0, uv1);
     
-    // Blend factor oscillates 0→1→0
+    // Blend factor oscillates 0ↁEↁE
     float blend = abs(frac(uTime * uFlowSpeed) * 2.0 - 1.0);
     
     // Seamless interpolation
@@ -353,7 +353,7 @@ technique RadialBasic
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 PSRadialBasic();
+        PixelShader = compile ps_3_0 PSRadialBasic();
     }
 }
 
@@ -361,7 +361,7 @@ technique DualPhase
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 PSDualPhase();
+        PixelShader = compile ps_3_0 PSDualPhase();
     }
 }
 
@@ -369,7 +369,7 @@ technique Distorted
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 PSDistorted();
+        PixelShader = compile ps_3_0 PSDistorted();
     }
 }
 
@@ -377,7 +377,7 @@ technique MultiLayer
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 PSMultiLayer();
+        PixelShader = compile ps_3_0 PSMultiLayer();
     }
 }
 
@@ -385,7 +385,7 @@ technique GradientMapped
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 PSGradientMapped();
+        PixelShader = compile ps_3_0 PSGradientMapped();
     }
 }
 
@@ -393,7 +393,7 @@ technique PulsingOrb
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 PSPulsingOrb();
+        PixelShader = compile ps_3_0 PSPulsingOrb();
     }
 }
 
@@ -401,6 +401,6 @@ technique Vortex
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 PSVortex();
+        PixelShader = compile ps_3_0 PSVortex();
     }
 }

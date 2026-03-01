@@ -1,9 +1,10 @@
 // =============================================================================
 // The Conductor's Last Constellation — Swing Trail Shader
 // =============================================================================
-// Conductor/baton-themed cosmic swing arc with electric cyan lightning threads,
-// deep void base, golden flashes, and silver star dust.
-// Two techniques: ConductorSwingMain (core trail) + ConductorSwingGlow (wide bloom).
+// BATON LIGHTNING FIELD: Sharp, jagged, branching lightning arcs — not smooth
+// noise threads. Electric field lines converge at conductor nodes. Real zigzag
+// bolt geometry via step-displaced paths. The conductor's baton commands the
+// electricity of the cosmos itself.
 // =============================================================================
 
 sampler uImage0 : register(s0);
@@ -37,78 +38,131 @@ float SmoothNoise(float2 p)
     return lerp(lerp(a, b, f.x), lerp(c, d, f.x), f.y);
 }
 
-// Main swing trail: conductor lightning with electric cyan threads
+// --- Lightning bolt path: sharp zigzag displacement ---
+// Returns distance to a jagged bolt running along the trail's length
+float LightningBolt(float2 coords, float seed, float segments, float amplitude)
+{
+    // Divide the trail into segments; at each junction the bolt snaps to a new y
+    float segX = coords.x * segments;
+    float segID = floor(segX);
+    float segFrac = frac(segX);
+
+    // Sharp y-displacement at each segment boundary (zigzag)
+    float y0 = (HashNoise(float2(segID, seed)) - 0.5) * amplitude;
+    float y1 = (HashNoise(float2(segID + 1.0, seed)) - 0.5) * amplitude;
+
+    // Linear interpolation within segment (straight line between junctions)
+    float boltY = lerp(y0, y1, segFrac);
+
+    // Distance from bolt center to current pixel
+    float dist = abs(coords.y - 0.5 - boltY);
+    return dist;
+}
+
+// --- Electric arc node: bright convergence point ---
+float ArcNode(float2 coords, float2 nodePos, float radius)
+{
+    float d = length(coords - nodePos);
+    float core = smoothstep(radius, 0.0, d);
+    float halo = smoothstep(radius * 3.0, 0.0, d) * 0.3;
+    return core + halo;
+}
+
+// Main swing trail: branching lightning bolts
 float4 SwingMainPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
 {
     float4 baseTex = tex2D(uImage0, coords);
 
     float progress = coords.x;
     float cross = abs(coords.y - 0.5) * 2.0;
-
-    // Scrolling electric turbulence
-    float2 fireUV = float2(progress * uNoiseScale - uTime * uScrollSpeed, coords.y * 3.0);
-    float fire1 = SmoothNoise(fireUV * 4.0);
-    float fire2 = SmoothNoise(fireUV * 9.0 + 3.14);
-    float fire = fire1 * 0.55 + fire2 * 0.45;
-
-    // Core: hot centre, tapers to edges
-    float core = saturate(1.0 - cross / 0.3);
-    core = core * core;
-
-    // Body: wider glow region
-    float body = saturate(1.0 - cross);
-    body = sqrt(body);
-
-    // Leading edge hotspot
-    float leading = saturate(1.0 - progress * 2.0);
-    leading = leading * leading;
-
-    // Lightning thread pattern — jagged horizontal lines
-    float2 threadUV = coords * float2(30.0, 8.0) + float2(uTime * 3.0, 0.0);
-    float thread = SmoothNoise(threadUV);
-    float threadLine = step(0.7, thread) * body;
-    float threadGlow = smoothstep(0.5, 0.8, thread) * body * 0.4;
-
-    // Electric arc nodes
-    float2 nodeUV = coords * float2(10.0, 4.0);
-    float node = HashNoise(floor(nodeUV));
-    node = step(0.82, node) * saturate(1.0 - cross * 1.5);
-    float nodePulse = sin(uTime * 5.0 + node * 25.0) * 0.3 + 0.7;
-    node *= nodePulse;
-
-    // Combo intensity scales fire
     float combo = saturate(uPhase);
-    float comboFire = fire * (0.5 + combo * 0.5);
 
-    // Secondary texture detail
-    float2 secUV = float2(progress * uSecondaryTexScale - uTime * 0.3, coords.y * 2.0);
+    // --- Time-varying seed for bolt animation (bolts reform rapidly) ---
+    float boltTime = floor(uTime * 8.0); // Bolts snap to new paths 8x per second
+    float boltLerp = frac(uTime * 8.0);  // Smooth transition between paths
+    boltLerp = boltLerp * boltLerp * (3.0 - 2.0 * boltLerp); // smoothstep
+
+    // --- Primary lightning bolt (main arc) ---
+    float segments = 12.0 + combo * 6.0;
+    float amp = 0.15 + combo * 0.05;
+    float dist1a = LightningBolt(coords, boltTime, segments, amp);
+    float dist1b = LightningBolt(coords, boltTime + 1.0, segments, amp);
+    float dist1 = lerp(dist1a, dist1b, boltLerp);
+    float bolt1Core = smoothstep(0.015, 0.0, dist1);   // bright thin core
+    float bolt1Glow = smoothstep(0.08, 0.0, dist1);    // wider glow
+    float bolt1Haze = smoothstep(0.2, 0.0, dist1);     // ambient scatter
+
+    // --- Secondary bolt (branching fork, offset path) ---
+    float dist2a = LightningBolt(coords, boltTime + 47.0, segments * 0.7, amp * 0.7);
+    float dist2b = LightningBolt(coords, boltTime + 48.0, segments * 0.7, amp * 0.7);
+    float dist2 = lerp(dist2a, dist2b, boltLerp);
+    float bolt2Core = smoothstep(0.01, 0.0, dist2) * 0.6;
+    float bolt2Glow = smoothstep(0.06, 0.0, dist2) * 0.4;
+
+    // Branch forks away from main bolt at ~40% along trail
+    float branchMask = smoothstep(0.3, 0.5, progress) * (1.0 - smoothstep(0.8, 1.0, progress));
+    bolt2Core *= branchMask;
+    bolt2Glow *= branchMask;
+
+    // --- Tertiary micro-bolts (combo-dependent, adds density) ---
+    float microBolt = 0.0;
+    if (combo > 0.3)
+    {
+        float dist3 = LightningBolt(coords, boltTime + 100.0, 20.0, 0.08);
+        float dist3b = LightningBolt(coords, boltTime + 101.0, 20.0, 0.08);
+        float dist3m = lerp(dist3, dist3b, boltLerp);
+        microBolt = smoothstep(0.008, 0.0, dist3m) * (combo - 0.3) * 1.5;
+    }
+
+    // --- Arc nodes: bright convergence points along the bolt path ---
+    float nodes = 0.0;
+    [unroll] for (int n = 0; n < 4; n++)
+    {
+        float nx = (n + 0.5) / 4.0;
+        float ny = 0.5 + (HashNoise(float2(n, boltTime)) - 0.5) * amp;
+        float nodePulse = sin(uTime * 6.0 + n * 1.57) * 0.3 + 0.7;
+        nodes += ArcNode(coords, float2(nx, ny), 0.025) * nodePulse;
+    }
+
+    // --- Electric field ambient: low-frequency crackling in the background ---
+    float field = SmoothNoise(coords * float2(6.0, 4.0) + uTime * 1.5);
+    field = smoothstep(0.5, 0.7, field) * (1.0 - cross) * 0.25;
+
+    // --- Leading edge flash ---
+    float leading = saturate(1.0 - progress * 2.5);
+    leading = leading * leading * leading;
+
+    // --- Secondary texture ---
+    float2 secUV = float2(progress * uSecondaryTexScale - uTime * 0.5, coords.y * 2.0);
     float4 secTex = tex2D(uImage1, secUV);
-    float detail = lerp(1.0, secTex.r, uHasSecondaryTex * 0.25);
+    float detail = lerp(1.0, secTex.r, uHasSecondaryTex * 0.2);
 
-    // Color: void → purple → cyan conductor → gold lightning → white celestial
-    float3 voidCol = float3(0.03, 0.02, 0.06);
-    float3 purpleCol = uSecondaryColor;
-    float3 cyanCol = uColor;
-    float3 goldCol = float3(1.0, 0.86, 0.31);
-    float3 whiteHot = float3(0.94, 0.96, 1.0);
+    // --- Color: void → purple field → cyan bolt → gold node → white flash ---
+    float3 voidCol = float3(0.02, 0.015, 0.04);
+    float3 purpleField = uSecondaryColor * 0.5;
+    float3 cyanBolt = uColor;
+    float3 goldNode = float3(1.0, 0.86, 0.31);
+    float3 whiteFlash = float3(0.95, 0.97, 1.0);
 
-    float3 color = lerp(voidCol, purpleCol, body * 0.5);
-    color = lerp(color, cyanCol, body * comboFire);
-    color = lerp(color, goldCol, core * leading * 0.5);
-    color = lerp(color, whiteHot, core * leading * 0.3);
-    color += cyanCol * threadLine * 2.0;
-    color += goldCol * threadGlow;
-    color += whiteHot * node * 1.5;
+    float3 color = voidCol;
+    color = lerp(color, purpleField, bolt1Haze + field);
+    color += cyanBolt * (bolt1Glow + bolt2Glow) * 1.5;
+    color += whiteFlash * (bolt1Core + bolt2Core + microBolt) * 2.0;
+    color += goldNode * nodes * 2.5;
+    color = lerp(color, whiteFlash, leading * 0.4);
     color *= detail;
 
-    float alpha = (body * 0.45 + core * 0.4 + threadLine * 0.1 + node * 0.05) * (1.0 - progress * 0.4);
+    // --- Alpha: mostly dark with sharp bright bolts ---
+    float body = saturate(1.0 - cross);
+    float alpha = (body * 0.15 + bolt1Haze * 0.15 + bolt1Glow * 0.25 + bolt1Core * 0.25 + nodes * 0.15 + field * 0.05);
+    alpha *= (1.0 - progress * 0.3);
     alpha *= uOpacity * sampleColor.a * baseTex.a;
     float3 finalColor = color * uIntensity * baseTex.rgb;
 
     return ApplyOverbright(finalColor, alpha);
 }
 
-// Wide glow underlayer with conductor purple-cyan haze
+// Wide glow: electric purple-cyan haze with flickering
 float4 SwingGlowPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
 {
     float4 baseTex = tex2D(uImage0, coords);
@@ -116,17 +170,21 @@ float4 SwingGlowPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COL
     float progress = coords.x;
     float cross = abs(coords.y - 0.5) * 2.0;
 
-    float glow = saturate(1.0 - cross);
-    glow = glow * glow * glow;
+    float glow = exp(-cross * cross * 2.5);
 
-    float pulse = sin(uTime * 2.5 + progress * 6.0) * 0.15 + 0.85;
+    // Electric flicker: rapid random brightness variation
+    float flicker = HashNoise(float2(floor(uTime * 12.0), progress * 4.0));
+    flicker = 0.7 + flicker * 0.3;
 
-    // Electric shimmer in the glow
-    float shimmer = SmoothNoise(coords * float2(15.0, 5.0) + uTime * 0.5) * 0.2;
+    // Bolt echo in glow
+    float boltEcho = LightningBolt(coords, floor(uTime * 6.0), 8.0, 0.12);
+    boltEcho = smoothstep(0.15, 0.0, boltEcho) * 0.3;
 
-    float3 glowColor = lerp(float3(0.03, 0.02, 0.06), uSecondaryColor * 0.5, glow);
-    glowColor += float3(0.16, 0.78, 0.86) * shimmer * glow; // Cyan shimmer
-    float alpha = glow * (1.0 - progress * 0.5) * uOpacity * sampleColor.a * baseTex.a * pulse * 0.5;
+    float3 glowColor = lerp(float3(0.02, 0.015, 0.04), uSecondaryColor * 0.35, glow * 0.5);
+    glowColor += uColor * boltEcho * glow;
+    glowColor += float3(0.1, 0.6, 0.7) * glow * glow * 0.2; // Ambient cyan
+
+    float alpha = glow * (1.0 - progress * 0.45) * uOpacity * sampleColor.a * baseTex.a * flicker * 0.45;
 
     return ApplyOverbright(glowColor * uIntensity, alpha);
 }

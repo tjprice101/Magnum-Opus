@@ -339,7 +339,7 @@ namespace MagnumOpus.Common.Systems.VFX
             }
 
             // Draw trail as connected quads using line list approximation
-            Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow() ?? Terraria.GameContent.TextureAssets.MagicPixel.Value;
             for (int i = 0; i < positions.Length - 1; i++)
             {
                 float progress = i / (float)(positions.Length - 1);

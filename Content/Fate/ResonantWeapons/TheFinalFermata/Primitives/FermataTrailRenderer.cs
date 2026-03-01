@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Utilities;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Primitives
@@ -61,7 +62,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Primitives
         {
             if (_count < 2) return;
 
-            Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
             if (pixel == null) return;
 
             bool wasAdditive = false;

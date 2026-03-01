@@ -22,6 +22,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
     /// </summary>
     public class ValorBeam : ModProjectile
     {
+        public override string Texture => "Terraria/Images/Projectile_1";
+
         private int TargetIndex = -1;
         private const int NoHomeTime = 20;
         private const float MaxTrailWidth = 26f;

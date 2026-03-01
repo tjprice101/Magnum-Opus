@@ -10,6 +10,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Dusts
     /// </summary>
     public class CometDust : ModDust
     {
+        // Uses PointBloom for bright comet core — gradient coloring in Update()
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
+
         public override void OnSpawn(Dust dust)
         {
             dust.noGravity = true;

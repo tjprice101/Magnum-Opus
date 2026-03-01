@@ -1,5 +1,5 @@
 // =============================================================================
-// Ignition of the Bell — Cyclone Flame Shader (Enhanced)
+// Ignition of the Bell  ECyclone Flame Shader (Enhanced)
 // =============================================================================
 // Tightening fire tornado vortex for the cyclone AoE. Logarithmic spiral
 // arms pull inward with FBM turbulence. A calm dark eye sits at the centre
@@ -121,6 +121,6 @@ technique TrailPass
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 CycloneFlamePS();
+        PixelShader = compile ps_3_0 CycloneFlamePS();
     }
 }

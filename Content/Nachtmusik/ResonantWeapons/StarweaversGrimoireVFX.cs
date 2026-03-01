@@ -21,25 +21,55 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         // =====================================================================
         public static void HoldItemVFX(Player player)
         {
-            if (Main.rand.NextBool(5))
-            {
-                // Orbiting arcane star motes
-                float angle = (float)Main.timeForVisualEffects * 0.04f + Main.rand.NextFloat() * MathHelper.TwoPi;
-                float radius = 20f + Main.rand.NextFloat() * 15f;
-                Vector2 pos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+            float time = (float)Main.timeForVisualEffects * 0.04f;
 
-                Dust d = Dust.NewDustPerfect(pos, DustID.PurpleTorch,
-                    Main.rand.NextVector2Circular(0.3f, 0.3f), 0, default, 0.5f);
-                d.noGravity = true;
-                d.fadeIn = 0.7f;
+            // === CONSTELLATION WEB BUILDING === Star points form connecting pattern
+            int webPoints = 5;
+            if (Main.rand.NextBool(4))
+            {
+                for (int i = 0; i < webPoints; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / webPoints + time * 0.6f;
+                    float radius = 22f + (float)Math.Sin(time * 1.5f + i) * 5f;
+                    Vector2 starPos = player.Center + new Vector2(
+                        (float)Math.Cos(angle) * radius,
+                        (float)Math.Sin(angle) * radius * 0.55f);
+
+                    if (Main.rand.NextBool(2))
+                    {
+                        Dust d = Dust.NewDustPerfect(starPos, DustID.PurpleTorch,
+                            Vector2.Zero, 0, default, 0.45f);
+                        d.noGravity = true;
+                        d.fadeIn = 0.6f;
+                    }
+                }
             }
 
+            // === STAR-WEB CONNECTING LINES === Occasional gold dust between constellation points
             if (Main.rand.NextBool(10))
             {
-                NachtmusikVFXLibrary.SpawnTwinklingStars(player.Center, 1, 30f);
+                int a = Main.rand.Next(webPoints);
+                int b = (a + 2) % webPoints;
+                float angleA = MathHelper.TwoPi * a / webPoints + time * 0.6f;
+                float angleB = MathHelper.TwoPi * b / webPoints + time * 0.6f;
+                float rA = 22f, rB = 22f;
+                Vector2 posA = player.Center + new Vector2((float)Math.Cos(angleA) * rA, (float)Math.Sin(angleA) * rA * 0.55f);
+                Vector2 posB = player.Center + new Vector2((float)Math.Cos(angleB) * rB, (float)Math.Sin(angleB) * rB * 0.55f);
+                float t = Main.rand.NextFloat();
+                Vector2 linePos = Vector2.Lerp(posA, posB, t);
+                Dust line = Dust.NewDustPerfect(linePos, DustID.GoldFlame,
+                    Vector2.Zero, 0, default, 0.3f);
+                line.noGravity = true;
+                line.fadeIn = 0.4f;
             }
 
-            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.2f);
+            // Arcane shimmer
+            if (Main.rand.NextBool(10))
+            {
+                NachtmusikVFXLibrary.SpawnTwinklingStars(player.Center, 1, 28f);
+            }
+
+            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.22f);
         }
 
         // =====================================================================

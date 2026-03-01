@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Eroica.Weapons.TriumphantFractal.Utilities;
 using MagnumOpus.Content.Eroica.Weapons.TriumphantFractal.Particles;
 using MagnumOpus.Content.Eroica.Weapons.TriumphantFractal.Primitives;
@@ -16,7 +17,7 @@ using MagnumOpus.Content.Eroica.Weapons.TriumphantFractal.Dusts;
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
     /// <summary>
-    /// Triumphant Fractal projectile — homing fractal geometry with lightning flourishes.
+    /// Triumphant Fractal projectile  Ehoming fractal geometry with lightning flourishes.
     /// Self-contained VFX: GPU trail, lightning arcs, fractal afterimages, impact geometry.
     /// </summary>
     public class TriumphantFractalProjectile : ModProjectile
@@ -113,7 +114,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 activeLightning.Add((Projectile.Center, lightningEnd, 0f));
 
                 // Spawn lightning arc particle
-                FractalParticleHandler.SpawnParticle(new LightningArcParticle(
+                TriumphantFractalParticleHandler.SpawnParticle(new LightningArcParticle(
                     Projectile.Center,
                     (lightningEnd - Projectile.Center).SafeNormalize(Vector2.UnitX) * 2f,
                     Color.Lerp(FractalUtils.LightningBlue, FractalUtils.FractalGold, Main.rand.NextFloat(0.3f)),
@@ -148,7 +149,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 Vector2 sparkVel = -Projectile.velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(1f, 3f)
                     + perpendicular * Main.rand.NextFloatDirection() * 2f;
 
-                FractalParticleHandler.SpawnParticle(new FractalSparkParticle(
+                TriumphantFractalParticleHandler.SpawnParticle(new FractalSparkParticle(
                     Projectile.Center + perpendicular * Main.rand.NextFloatDirection() * 5f,
                     sparkVel,
                     Color.Lerp(FractalUtils.FractalGold, FractalUtils.CrystalWhite, Main.rand.NextFloat(0.3f)),
@@ -160,7 +161,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Fractal notes along path
             if (Main.rand.NextBool(10))
             {
-                FractalParticleHandler.SpawnParticle(new FractalNoteParticle(
+                TriumphantFractalParticleHandler.SpawnParticle(new FractalNoteParticle(
                     Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
                     new Vector2(Main.rand.NextFloatDirection() * 0.5f, -Main.rand.NextFloat(0.4f, 1f)),
                     Color.Lerp(FractalUtils.FractalGold, FractalUtils.FractalViolet, Main.rand.NextFloat()),
@@ -175,7 +176,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Geometry flash
             Color flashColor = FractalUtils.CrystalWhite;
             flashColor.A = 0;
-            FractalParticleHandler.SpawnParticle(new GeometryFlashParticle(
+            TriumphantFractalParticleHandler.SpawnParticle(new GeometryFlashParticle(
                 Projectile.Center, Vector2.Zero, flashColor, 1.0f, 12
             ));
 
@@ -184,7 +185,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             for (int i = 0; i < sparkCount; i++)
             {
                 float angle = MathHelper.TwoPi * i / sparkCount + Main.rand.NextFloatDirection() * 0.15f;
-                FractalParticleHandler.SpawnParticle(new FractalSparkParticle(
+                TriumphantFractalParticleHandler.SpawnParticle(new FractalSparkParticle(
                     Projectile.Center,
                     angle.ToRotationVector2() * Main.rand.NextFloat(4f, 10f),
                     Color.Lerp(FractalUtils.FractalGold, FractalUtils.FractalViolet, Main.rand.NextFloat()),
@@ -197,7 +198,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             for (int i = 0; i < 4; i++)
             {
                 float angle = MathHelper.TwoPi * i / 4f + Main.rand.NextFloatDirection() * 0.3f;
-                FractalParticleHandler.SpawnParticle(new LightningArcParticle(
+                TriumphantFractalParticleHandler.SpawnParticle(new LightningArcParticle(
                     Projectile.Center,
                     angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f),
                     FractalUtils.LightningBlue,
@@ -209,14 +210,14 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Fractal bloom
             Color bloomColor = FractalUtils.FractalGold;
             bloomColor.A = 0;
-            FractalParticleHandler.SpawnParticle(new FractalBloomParticle(
+            TriumphantFractalParticleHandler.SpawnParticle(new FractalBloomParticle(
                 Projectile.Center, Vector2.Zero, bloomColor, 0.8f, 14
             ));
 
             // Music notes from explosion
             for (int i = 0; i < 3; i++)
             {
-                FractalParticleHandler.SpawnParticle(new FractalNoteParticle(
+                TriumphantFractalParticleHandler.SpawnParticle(new FractalNoteParticle(
                     Projectile.Center + Main.rand.NextVector2Circular(12f, 12f),
                     new Vector2(Main.rand.NextFloatDirection() * 1f, -Main.rand.NextFloat(0.6f, 1.5f)),
                     Color.Lerp(FractalUtils.FractalGold, FractalUtils.GeometryPink, Main.rand.NextFloat()),
@@ -379,7 +380,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     float segRot = segDir.ToRotation();
                     Vector2 midPoint = (prevPoint + basePoint) / 2f - Main.screenPosition;
 
-                    sb.Draw(TextureAssets.MagicPixel.Value, midPoint, new Rectangle(0, 0, 1, 1),
+                    sb.Draw(MagnumTextureRegistry.GetPointBloom(), midPoint, new Rectangle(0, 0, 1, 1),
                         arcColor * alpha, segRot, new Vector2(0.5f, 0.5f),
                         new Vector2(segLen, 2f * (1f - lifeProgress)), SpriteEffects.None, 0f);
 

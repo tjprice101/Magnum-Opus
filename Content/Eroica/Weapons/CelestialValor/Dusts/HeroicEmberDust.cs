@@ -6,6 +6,9 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Dusts
 {
     public class HeroicEmberDust : ModDust
     {
+        // Uses SoftRadialBloom for warm ember glow — shader-tinted at runtime via GetAlpha
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom";
+
         public override void OnSpawn(Dust dust)
         {
             dust.noLight = false;

@@ -8,6 +8,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Utilities;
 using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Particles;
+using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Shaders;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
 {
@@ -27,6 +28,11 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
         // ─── Textures ───
         private static Asset<Texture2D> glowTexture;
         private static Asset<Texture2D> bloomTexture;
+        private static Asset<Texture2D> maskTexture;
+
+        // ─── Toll flash state ───
+        private int tollFlashTimer = 0;
+        private const int TollFlashDuration = 18;
 
         // ─── AI State ───
         private ref float TollCooldown => ref Projectile.ai[0];
@@ -87,6 +93,10 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
 
             // ── Ambient VFX ──
             SpawnAmbientParticles();
+
+            // ── Toll flash decay ──
+            if (tollFlashTimer > 0)
+                tollFlashTimer--;
         }
 
         private bool CheckActive(Player owner)
@@ -243,6 +253,9 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
                 Vector2 vel = Main.rand.NextVector2Circular(4f, 4f) + new Vector2(0, -1f);
                 BellParticleHandler.SpawnParticle(new BellEmberParticle(Projectile.Center, vel, 0.3f, 30));
             }
+
+            // ── Trigger toll flash overlay ──
+            tollFlashTimer = TollFlashDuration;
         }
 
         private void SpawnChargeParticles()
@@ -292,6 +305,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
             DrawBellGlow();
             DrawBellBody(lightColor);
             DrawChargeAura();
+            DrawTollFlash();
             return false;
         }
 
@@ -345,10 +359,101 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
             float intensity = ChargeProgress / ChargeTime;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            // Pulsing aura ring
+            // Pulsing outer aura ring — dual-layer for richer look
             float ringScale = 1.5f + intensity * 0.5f + (float)Math.Sin(ChargeProgress * 0.3f) * 0.2f;
             Color ringColor = Color.Lerp(BellUtils.DarkSmoke, BellUtils.BurningResonance, intensity) * intensity * 0.3f;
             Main.EntitySpriteDraw(tex, drawPos, null, ringColor, 0f, tex.Size() / 2f, ringScale, SpriteEffects.None, 0);
+
+            // Inner resonance ring — counter-rotates and pulses at different frequency
+            float innerScale = 0.8f + intensity * 0.3f + (float)Math.Sin(ChargeProgress * 0.5f + 1.5f) * 0.15f;
+            Color innerColor = Color.Lerp(BellUtils.TollCrimson, BellUtils.HellfireGold, intensity) * intensity * 0.2f;
+            Main.EntitySpriteDraw(tex, drawPos, null, innerColor, -ChargeProgress * 0.1f, tex.Size() / 2f, innerScale, SpriteEffects.None, 0);
+
+            // Gathering glyph cross-flare at high charge (>60%)
+            if (intensity > 0.6f)
+            {
+                bloomTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
+                if (bloomTexture.IsLoaded)
+                {
+                    var bloom = bloomTexture.Value;
+                    float flareAlpha = (intensity - 0.6f) / 0.4f;
+                    Color flareColor = BellUtils.Additive(BellUtils.EmberOrange, 0.35f * flareAlpha);
+                    // Vertical cross
+                    Main.EntitySpriteDraw(bloom, drawPos, null, flareColor, 0f, bloom.Size() / 2f,
+                        new Vector2(0.15f, 1.5f * flareAlpha), SpriteEffects.None, 0);
+                    // Horizontal cross
+                    Main.EntitySpriteDraw(bloom, drawPos, null, flareColor, MathHelper.PiOver2, bloom.Size() / 2f,
+                        new Vector2(0.15f, 1.5f * flareAlpha), SpriteEffects.None, 0);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draws a dramatic flash overlay when the bell tolls — expanding concentric rings
+        /// with shader-driven rendering if BellToll.fx is available, or fallback bloom rings.
+        /// </summary>
+        private void DrawTollFlash()
+        {
+            if (tollFlashTimer <= 0) return;
+
+            bloomTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
+            if (!bloomTexture.IsLoaded) return;
+            var tex = bloomTexture.Value;
+
+            float flashProgress = 1f - (float)tollFlashTimer / TollFlashDuration;
+            float flashAlpha = (float)Math.Pow(1f - flashProgress, 1.5f); // fast fade
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
+            // Layer 1: Massive white flash burst (immediate)
+            float burstScale = 1f + flashProgress * 4f;
+            Main.EntitySpriteDraw(tex, drawPos, null, BellUtils.Additive(BellUtils.BellWhite, 0.6f * flashAlpha),
+                0f, tex.Size() / 2f, burstScale, SpriteEffects.None, 0);
+
+            // Layer 2: Crimson expanding ring
+            float ring1Scale = 0.5f + flashProgress * 5f;
+            float ring1Alpha = flashAlpha * 0.5f * (1f - flashProgress);
+            Main.EntitySpriteDraw(tex, drawPos, null, BellUtils.Additive(BellUtils.TollCrimson, ring1Alpha),
+                0f, tex.Size() / 2f, ring1Scale, SpriteEffects.None, 0);
+
+            // Layer 3: Orange expanding ring (delayed)
+            if (flashProgress > 0.15f)
+            {
+                float ring2T = (flashProgress - 0.15f) / 0.85f;
+                float ring2Scale = 0.3f + ring2T * 4.5f;
+                float ring2Alpha = (1f - ring2T) * 0.4f;
+                Main.EntitySpriteDraw(tex, drawPos, null, BellUtils.Additive(BellUtils.EmberOrange, ring2Alpha),
+                    0f, tex.Size() / 2f, ring2Scale, SpriteEffects.None, 0);
+            }
+
+            // Layer 4: Gold inner core that lingers
+            float coreAlpha = flashAlpha * 0.8f;
+            Main.EntitySpriteDraw(tex, drawPos, null, BellUtils.Additive(BellUtils.HellfireGold, coreAlpha),
+                0f, tex.Size() / 2f, 0.4f + flashProgress * 0.3f, SpriteEffects.None, 0);
+
+            // Layer 5: Cross-flare on initial impact
+            if (flashProgress < 0.4f)
+            {
+                var pointBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
+                if (pointBloom.IsLoaded)
+                {
+                    var pb = pointBloom.Value;
+                    float crossAlpha = (1f - flashProgress / 0.4f) * 0.5f;
+                    Color crossColor = BellUtils.Additive(BellUtils.BellWhite, crossAlpha);
+                    float crossScale = 1.5f + flashProgress * 3f;
+                    // Vertical
+                    Main.EntitySpriteDraw(pb, drawPos, null, crossColor, 0f, pb.Size() / 2f,
+                        new Vector2(0.12f, crossScale), SpriteEffects.None, 0);
+                    // Horizontal
+                    Main.EntitySpriteDraw(pb, drawPos, null, crossColor, MathHelper.PiOver2, pb.Size() / 2f,
+                        new Vector2(0.12f, crossScale), SpriteEffects.None, 0);
+                    // Diagonal 45°
+                    Main.EntitySpriteDraw(pb, drawPos, null, crossColor * 0.5f, MathHelper.PiOver4, pb.Size() / 2f,
+                        new Vector2(0.08f, crossScale * 0.7f), SpriteEffects.None, 0);
+                    // Diagonal -45°
+                    Main.EntitySpriteDraw(pb, drawPos, null, crossColor * 0.5f, -MathHelper.PiOver4, pb.Size() / 2f,
+                        new Vector2(0.08f, crossScale * 0.7f), SpriteEffects.None, 0);
+                }
+            }
         }
     }
 }

@@ -9,6 +9,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Eroica.Accessories.SakurasBurningWill
 {
@@ -307,7 +308,8 @@ namespace MagnumOpus.Content.Eroica.Accessories.SakurasBurningWill
         
         private void DrawAfterimages(SpriteBatch spriteBatch)
         {
-            Texture2D glowTex = TextureAssets.Extra[ExtrasID.SharpTears].Value; // Soft glow texture
+            Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+            if (glowTex == null) return;
             
             // Draw each afterimage with decreasing opacity
             for (int i = 0; i < AfterimageCount; i++)
@@ -337,7 +339,8 @@ namespace MagnumOpus.Content.Eroica.Accessories.SakurasBurningWill
         
         private void DrawGhostlyForm(SpriteBatch spriteBatch)
         {
-            Texture2D glowTex = TextureAssets.Extra[ExtrasID.SharpTears].Value;
+            Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+            if (glowTex == null) return;
             
             float pulse = (float)Math.Sin(glowPulse) * 0.15f + 1f;
             float fadeAlpha = Projectile.timeLeft < 60 ? Projectile.timeLeft / 60f : 1f;
@@ -449,7 +452,8 @@ namespace MagnumOpus.Content.Eroica.Accessories.SakurasBurningWill
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            Texture2D glowTex = TextureAssets.Extra[ExtrasID.SharpTears].Value;
+            Texture2D glowTex = MagnumTextureRegistry.GetRadialBloom();
+            if (glowTex == null) return false;
             
             // Draw trail using oldPos
             for (int i = 0; i < Projectile.oldPos.Length; i++)

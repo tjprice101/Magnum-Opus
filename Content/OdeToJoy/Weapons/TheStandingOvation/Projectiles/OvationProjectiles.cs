@@ -7,6 +7,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Utilities;
 using MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Particles;
 
@@ -209,20 +210,43 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
             Vector2 origin = texture.Size() / 2f;
 
             float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.1f;
+            float time = (float)Main.GameUpdateCount / 60f;
             SpriteEffects effects = Projectile.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            SpriteBatch sb = Main.spriteBatch;
 
-            // Golden glow aura behind minion
-            Main.spriteBatch.End();
-            OvationUtils.BeginAdditive(Main.spriteBatch);
+            sb.End();
 
-            Color glowColor = OvationUtils.Additive(OvationUtils.SpotlightGold, 0.4f);
-            Main.spriteBatch.Draw(texture, drawPos, null, glowColor, 0f, origin, pulse * 1.3f, effects, 0f);
+            // ═══ Layer 1: CelebrationAura shader — golden ring aura behind minion ═══
+            Effect auraShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyCelebrationAuraShader);
 
-            Main.spriteBatch.End();
-            OvationUtils.BeginDefault(Main.spriteBatch);
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (auraShader != null)
+            {
+                auraShader.Parameters["uTime"]?.SetValue(time);
+                auraShader.Parameters["uColor"]?.SetValue(OvationUtils.SpotlightGold.ToVector3());
+                auraShader.Parameters["uSecondaryColor"]?.SetValue(OvationUtils.EncoreGreen.ToVector3());
+                auraShader.Parameters["uOpacity"]?.SetValue(0.25f);
+                auraShader.Parameters["uIntensity"]?.SetValue(1.0f);
+                auraShader.Parameters["uRadius"]?.SetValue(0.35f);
+                auraShader.Parameters["uRingCount"]?.SetValue(3f);
+                auraShader.CurrentTechnique = auraShader.Techniques["CelebrationAuraTechnique"];
+                auraShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(texture, drawPos, null, Color.White, 0f, origin,
+                    pulse * 1.6f, effects, 0f);
+            }
+
+            // Golden glow behind minion
+            Color glowColor = OvationUtils.Additive(OvationUtils.SpotlightGold, 0.35f);
+            sb.Draw(texture, drawPos, null, glowColor, 0f, origin, pulse * 1.3f, effects, 0f);
+
+            sb.End();
+            OvationUtils.BeginDefault(sb);
 
             // Main sprite
-            Main.spriteBatch.Draw(texture, drawPos, null, lightColor, 0f, origin, pulse, effects, 0f);
+            sb.Draw(texture, drawPos, null, lightColor, 0f, origin, pulse, effects, 0f);
 
             return false;
         }
@@ -318,32 +342,56 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
-            Main.spriteBatch.End();
-            OvationUtils.BeginAdditive(Main.spriteBatch);
+            SpriteBatch sb = Main.spriteBatch;
+            float time = (float)Main.GameUpdateCount / 60f;
 
-            // Translucent trailing afterimages
+            sb.End();
+
+            // ═══ Layer 1: TriumphantTrail shader on afterimages — golden energy trail ═══
+            Effect trailShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyTriumphantTrailShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (trailShader != null)
+            {
+                trailShader.Parameters["uTime"]?.SetValue(time);
+                trailShader.Parameters["uColor"]?.SetValue(OvationUtils.StageGold.ToVector3());
+                trailShader.Parameters["uSecondaryColor"]?.SetValue(OvationUtils.SpotlightGold.ToVector3());
+                trailShader.Parameters["uIntensity"]?.SetValue(1.2f);
+                trailShader.CurrentTechnique = trailShader.Techniques["TriumphantTrailTechnique"];
+            }
+
+            // Draw afterimages with shader
             for (int i = 0; i < Projectile.oldPos.Length && i < 5; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 Vector2 oldDraw = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
                 float afterFade = 1f - (i / 5f);
+
+                if (trailShader != null)
+                {
+                    trailShader.Parameters["uOpacity"]?.SetValue(afterFade * 0.35f);
+                    trailShader.CurrentTechnique.Passes[0].Apply();
+                }
+
                 Color afterColor = OvationUtils.Additive(OvationUtils.StageGold, afterFade * 0.3f);
-                Main.spriteBatch.Draw(texture, oldDraw, null, afterColor, Projectile.rotation, origin,
+                sb.Draw(texture, oldDraw, null, afterColor, Projectile.rotation, origin,
                     Projectile.scale * 0.5f * (1f - i * 0.12f), SpriteEffects.None, 0f);
             }
 
             // Main golden wave glow
-            Color mainGlow = OvationUtils.Additive(OvationUtils.SpotlightGold, 0.7f);
-            Main.spriteBatch.Draw(texture, drawPos, null, mainGlow, Projectile.rotation, origin,
+            Color mainGlow = OvationUtils.Additive(OvationUtils.SpotlightGold, 0.65f);
+            sb.Draw(texture, drawPos, null, mainGlow, Projectile.rotation, origin,
                 Projectile.scale * 0.6f, SpriteEffects.None, 0f);
 
             // Bright inner core
             Color coreColor = OvationUtils.Additive(OvationUtils.JoyfulWhite, 0.5f);
-            Main.spriteBatch.Draw(texture, drawPos, null, coreColor, Projectile.rotation, origin,
-                Projectile.scale * 0.35f, SpriteEffects.None, 0f);
+            sb.Draw(texture, drawPos, null, coreColor, Projectile.rotation, origin,
+                Projectile.scale * 0.3f, SpriteEffects.None, 0f);
 
-            Main.spriteBatch.End();
-            OvationUtils.BeginDefault(Main.spriteBatch);
+            sb.End();
+            OvationUtils.BeginDefault(sb);
 
             return false;
         }

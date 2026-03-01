@@ -560,3 +560,296 @@ Effects/<ThemeName>/<WeaponName>/
 
 See `Effects/SandboxLastPrism/` and `Effects/MoonlightSonata/` for canonical examples.
 
+## VFX Compositing — Toolkit, Techniques & Decision-Making
+
+> *Creating polished effects from minimal assets is about understanding how textures, shaders, blend modes, and layering combine. This section teaches the visual vocabulary — not rigid recipes.*
+
+### Core Philosophy: Ask First, Build Second
+
+**Before implementing ANY visual effect, ASK the user these questions:**
+
+1. **What is the visual identity of this specific weapon/effect?** (Sharp and crystalline? Organic and flowing? Ethereal and ghostly? Violent and explosive? Graceful and sweeping?)
+2. **What emotional weight should the effect carry?** (Subtle ambient glow? Dramatic screen-commanding presence? Understated elegance? Raw overwhelming power?)
+3. **What existing effects in MagnumOpus or the reference repos are closest to what they want?** (Get a concrete anchor point before designing.)
+4. **How important is this effect in the weapon's hierarchy?** (Is this the signature move that defines the weapon, or a secondary accent? This determines how many layers and how much complexity to invest.)
+5. **Are there specific techniques they want used or avoided?** (Maybe they want noise distortion, maybe they explicitly don't. Maybe they want SDF math instead of texture masks. Ask.)
+6. **What assets already exist that could serve this effect?** (Check `Assets/VFX/` subfolders and the weapon's own asset folder before requesting new ones.)
+
+**Do NOT assume the answers.** Different weapons within the same theme should use different techniques — that's what makes them unique. The user's creative direction determines the approach.
+
+### The Compositing Vocabulary
+
+These are the fundamental building blocks for constructing visual effects. Each one is a tool with strengths and trade-offs. Understanding them means knowing WHEN to reach for each one — not applying all of them every time.
+
+#### Texture-Based Techniques
+
+**UV-Scrolled Textures**
+Animates a texture along a mesh (trail strip, beam quad) by offsetting UV coordinates over time. The texture tiles or stretches along the mesh, creating the illusion of flowing energy, fire, water, or any continuous moving surface.
+
+```hlsl
+// The basic idea — scroll a texture along UV.x over time
+float2 scrolledUV = float2(uv.x + time * scrollSpeed, uv.y);
+float4 color = tex2D(bodyTex, scrolledUV);
+```
+
+- **Best for**: Trails, beams, ribbons, any long continuous shape that needs internal movement
+- **Character depends entirely on the texture**: A smooth gradient texture scrolls cleanly. A noisy texture scrolls chaotically. A structured texture (staff lines, wave patterns) scrolls rhythmically.
+- **Reference textures**: `Assets/VFX/Trails/`, `Assets/VFX/Beams/`, `Assets/VFX/Ribbons/`
+
+**Noise Distortion**
+Offsets UV coordinates using values sampled from a noise texture, warping the visual output of another texture or shape. Creates organic, living movement.
+
+```hlsl
+// Sample noise to get a distortion offset
+float2 noiseUV = uv * noiseScale + time * noiseScrollSpeed;
+float2 distortion = (tex2D(noiseTex, noiseUV).rg - 0.5) * distortStrength;
+// Apply distortion to the main texture's UVs
+float4 color = tex2D(mainTex, uv + distortion);
+```
+
+- **Best for**: Organic energy, fire, magical auras, anything that should feel alive and unpredictable
+- **NOT good for**: Clean geometric effects, sharp crystalline visuals, precise mechanical shapes
+- **Different noise textures create radically different feels**:
+
+| Noise Type | Visual Character | Feels Like |
+|-----------|-----------------|------------|
+| Perlin | Smooth, flowing, cloud-like | Gentle wind, calm water, soft magic |
+| FBM (Fractal Brownian Motion) | Layered, detailed, turbulent | Fire, roiling energy, storm clouds |
+| Voronoi / Cellular | Cell-like, cracked, crystalline | Ice fractures, shattered glass, geometric energy |
+| Marble / Swirl | Veined, flowing, directional | Liquid, blood flow, cosmic swirls |
+| Cosmic / Nebula | Space-like, vast, colorful | Celestial effects, astral energy, cosmic power |
+
+- **Reference textures**: `Assets/VFX/Noise/` (19 types available — read the filenames to understand their character)
+
+**Alpha Masking**
+Multiplies a mask texture against an effect to control where it's visible. Shapes, feathers, or cuts the effect without changing the underlying technique.
+
+```hlsl
+// Mask controls visibility — white = fully visible, black = invisible
+float maskValue = tex2D(maskTex, uv).a;
+finalColor *= maskValue;
+```
+
+- **Best for**: Shaping falloff (soft edges, tapered tips), creating rings/crescents from solid shapes, feathering hard edges, vignetting
+- **Reference textures**: `Assets/VFX/Masks/`
+
+**Color Ramp / LUT Sampling**
+Maps a grayscale intensity value to a color gradient by sampling a 1D texture. Instead of coloring effects with uniform tints, this lets intensity drive color — hot cores are one color, cool edges are another.
+
+```hlsl
+// intensity is 0.0 (cold/edge) to 1.0 (hot/core)
+float intensity = baseTex.r * edgeFade * tipFade;
+float4 themedColor = tex2D(colorRampTex, float2(intensity, 0));
+```
+
+- **Best for**: Consistent theme coloring across different effect types, temperature-mapped effects (hot core → cool edge), ensuring multiple weapons in a theme share a cohesive palette without looking identical
+- **Reference textures**: `Assets/VFX/LUT/`
+
+#### Shader Math Techniques (No Texture Required)
+
+**Smoothstep Edge Fading**
+Uses `smoothstep()` to create soft transitions based on UV coordinates. Essential for trail edges, beam edges, and tip fade-outs.
+
+```hlsl
+// Soft edge fade — uv.y is 0 at one edge, 1 at the other, with 0.5 at center
+float edgeFade = smoothstep(0.0, 0.15, uv.y) * smoothstep(1.0, 0.85, uv.y);
+// Tip fade — uv.x is 0 at start, 1 at tip
+float tipFade = smoothstep(1.0, 0.7, uv.x);
+```
+
+- **Best for**: Every trail and beam needs edge handling. This is a fundamental building block.
+
+**SDF (Signed Distance Field) Math**
+Computes shape boundaries mathematically rather than from textures. Gives perfectly sharp or perfectly smooth edges at any resolution.
+
+```hlsl
+// Circle SDF — distance from center
+float dist = length(uv - 0.5) * 2.0;
+float circle = smoothstep(radius + softness, radius - softness, dist);
+
+// Ring SDF
+float ring = smoothstep(outerRadius + soft, outerRadius - soft, dist)
+           - smoothstep(innerRadius + soft, innerRadius - soft, dist);
+```
+
+- **Best for**: Clean geometric shapes, expanding rings/shockwaves, procedural auras, anything that should feel precise and mathematical rather than organic
+- **Pairs well with**: Noise distortion applied to the distance field for organic-geometric hybrids
+
+**Procedural Animation (sin, cos, frac, etc.)**
+Shader-computed oscillation, pulsing, wave patterns without any texture dependencies.
+
+```hlsl
+// Pulsing glow
+float pulse = 0.8 + 0.2 * sin(time * pulseSpeed);
+// Standing wave pattern (musical!)
+float wave = sin(uv.x * frequency + time * speed) * amplitude;
+// Harmonic node highlights
+float harmonic = abs(sin(uv.x * PI * nodeCount));
+```
+
+- **Best for**: Rhythmic pulsing, standing waves, harmonic patterns, anything that should feel like it has a heartbeat or musical timing
+- **Especially relevant for MagnumOpus**: Standing wave math, harmonic nodes, and frequency-based patterns are naturally musical
+
+#### Blend Modes
+
+How draw calls combine with what's already on screen. Choosing the wrong blend mode is one of the most common reasons an effect looks wrong.
+
+| Blend Mode | SpriteBatch State | What It Does Visually | When To Use |
+|-----------|------------------|----------------------|-------------|
+| **Additive** | `BlendState.Additive` | Adds light. Colors stack and brighten. Black = invisible. | Glow, energy, fire, bloom, anything luminous. THE default for VFX overlays. |
+| **Alpha Blend** | `BlendState.AlphaBlend` | Standard transparency. Can darken and occlude. | Smoke, solid shapes, anything that should block what's behind it. |
+| **Multiply** | Custom: `Src=DestColor, Dest=Zero` | Darkens. White = no change, black = full darken. | Shadows, dark overlays, screen vignettes. Rarely used for weapon VFX. |
+| **Screen** | Custom: `Src=One, Dest=InvSrcColor` | Lightens softly without the blowout of additive. | Subtle glow, soft light, effects that should brighten without becoming blindingly white. |
+
+**Critical insight**: Additive blending makes black pixels invisible. This is why VFX textures are typically bright shapes on black backgrounds — the black disappears, leaving only the glow. If your texture has a non-black background and you use additive blending, the background will add unwanted light to the scene.
+
+#### Multi-Layer Compositing
+
+The difference between a flat effect and a rich one is almost always layering. But the NUMBER, TYPE, and STYLE of layers depends entirely on the effect's identity.
+
+**What layering means in practice:**
+
+```
+An effect has visual DEPTH when you can perceive:
+- A hot/bright core vs. a cooler/dimmer outer region
+- Internal detail or movement vs. an overall shape
+- Scattered accents that break the silhouette
+- Interaction with the environment (glow on nearby surfaces, screen effects)
+```
+
+**Ways to achieve layering:**
+- **Multiple draw passes** at different scales/opacities (stacked bloom sprites)
+- **Multiple shader passes** with different parameters (body pass + core pass)
+- **Shader-internal layering** (one shader samples multiple textures and combines them)
+- **Mixed GPU + CPU** (shader trail + particle accents spawned along edges)
+- **Temporal layering** (afterimages from previous frames create depth over time)
+
+**There is no correct number of layers.** A subtle ambient glow might need 2 layers. A boss's ultimate attack might need 8. The weapon's importance and the moment's dramatic weight determine the investment.
+
+**Multi-scale bloom stacking** (a common and effective technique):
+
+```csharp
+// Drawing the same soft texture at multiple scales with decreasing opacity
+// creates a convincing glow without any shader at all.
+// The specific colors, scales, and opacities depend on the effect.
+
+// Tight bright core
+spriteBatch.Draw(bloomTex, pos, null, brightColor * coreOpacity, 0f, origin, smallScale, SpriteEffects.None, 0f);
+// Medium glow
+spriteBatch.Draw(bloomTex, pos, null, midColor * midOpacity, 0f, origin, mediumScale, SpriteEffects.None, 0f);
+// Wide soft ambient
+spriteBatch.Draw(bloomTex, pos, null, outerColor * outerOpacity, 0f, origin, largeScale, SpriteEffects.None, 0f);
+```
+
+This works because each layer contributes different visual information: the core says "this is the light source," the mid layer says "this is the glow radius," and the outer layer says "this light affects the surrounding area." Together they create depth.
+
+#### Primitive Mesh Construction
+
+For trails and beams, the C# side builds a triangle strip mesh that the GPU renders with a shader. The mesh is constructed from a series of positions (recorded over time for trails, or computed geometrically for beams) expanded into quads.
+
+**How trail meshes work conceptually:**
+
+```
+Each frame, record the trail emitter's position.
+For each recorded position, create two vertices offset perpendicular to the trail direction.
+UV.x maps along the trail length (0 = oldest, 1 = newest — or reversed).
+UV.y maps across the trail width (0 = one edge, 1 = other edge).
+The shader receives these UVs and does all the visual work.
+```
+
+- **Study Calamity's PrimitiveTrail implementations** for production-quality mesh construction
+- **MagnumOpus's existing trail systems** in `Common/Systems/VFX/Trails/` may already handle mesh construction — check before writing new code
+
+#### Screen-Space Effects
+
+Effects that modify the entire screen or a region of it. High-impact but should be used sparingly — overuse causes visual fatigue.
+
+- **Screen distortion**: Warps the screen behind/around an effect (heat haze, gravity, spatial tears)
+- **Chromatic aberration**: Splits RGB channels for prismatic fringing (cosmic effects, high-energy impacts)
+- **Screen flash**: Brief white/colored overlay (big impacts, phase transitions)
+- **Screen shake**: Camera offset (impacts, detonations) — technically not a shader but part of the VFX toolkit
+
+**Reserve these for moments that DESERVE them.** A basic projectile impact doesn't need screen shake. A boss phase transition does.
+
+### Quality Standards (Outcomes, Not Methods)
+
+These define what a finished effect should achieve. HOW you achieve them is creative freedom guided by the weapon's identity.
+
+1. **Visual Depth**: Important effects should not look flat. There should be a perceivable difference between core and edge, between the effect and its ambient influence. The technique for achieving this varies — it could be layered draw calls, shader-internal compositing, temporal afterimages, or something else entirely.
+
+2. **Theme-Consistent Coloring**: The effect's colors must read as belonging to its theme at a glance. How you apply color — LUT ramps, vertex colors, shader uniforms, hardcoded values, procedural math — is your choice. The result matters.
+
+3. **Edge Quality**: Effects should have intentional edges, not raw texture cutoffs. Whether that's a shader `smoothstep`, a mask texture, vertex alpha fade, feathered sprite edges, or SDF soft boundaries depends on the effect.
+
+4. **Motion and Life**: Static effects feel dead. Something should move, pulse, scroll, oscillate, or evolve. A trail that doesn't scroll internally looks like a painted stripe. A bloom that doesn't pulse looks like a flat circle.
+
+5. **Proportional Complexity**: Scale visual investment to the moment's importance. A passive hold effect is simpler than a swing trail, which is simpler than a finisher, which is simpler than a boss phase transition. Don't over-invest in ambient effects or under-invest in signature moments.
+
+6. **Technical Cleanliness**: Effects should use the correct blend mode (additive for glow, alpha for smoke). Textures designed for black backgrounds should be drawn additively. Glow shouldn't occlude things behind it. Trails should fade at their tips, not cut off abruptly.
+
+### Anti-Patterns (What To Avoid)
+
+- **Single-pass flatness**: Drawing one texture with one tint and calling it a finished effect. Even two layers (body + glow) dramatically improve visual quality.
+- **Noise on everything**: Noise distortion creates organic movement, but not every effect is organic. A crystalline ice slash, a precise laser beam, or a clean geometric sigil should NOT be noise-distorted. Choose techniques that match the visual identity.
+- **Wrong blend mode**: Drawing glow/energy effects in alpha blend (they'll have visible dark edges from the black background). Drawing smoke/solid shapes in additive (they'll look ethereal instead of solid).
+- **Copy-paste VFX between weapons**: Two weapons using identical effects with only color changes. Even within a theme, each weapon should use different techniques or apply shared techniques differently.
+- **Inventing from scratch**: Always check reference repos (`Calamity`, `Coralite`, `VFX+`) and existing MagnumOpus code before writing new rendering systems. Someone has almost certainly solved a similar problem.
+- **Over-engineering simple moments**: A subtle ambient particle doesn't need a custom shader with 5 texture inputs. Match complexity to importance.
+- **Under-engineering signature moments**: A weapon's defining attack should not be a single `Main.spriteBatch.Draw()` call. This is where layering, shaders, and full compositing pay off.
+
+### Asset Library Quick Reference
+
+Before designing any effect, check what's already available. These are real directories in the project:
+
+| Folder | What's Inside | Visual Character |
+|--------|--------------|-----------------|
+| `Assets/VFX/Trails/` | Strip textures for UV-mapped trail meshes | Comet trails, spiral energy, ember scatters, sparkle fields — various clean and noisy styles |
+| `Assets/VFX/Beams/` | Strip textures for beam rendering | Designed for UV.x = along beam, UV.y = across beam |
+| `Assets/VFX/Blooms/` | Soft glow shapes | Circular, feathered, radial falloff — for additive bloom stacking |
+| `Assets/VFX/Masks/` | Alpha shapes for masking | Crescents, circles, rings, feathered edges — multiply against effects to shape them |
+| `Assets/VFX/Noise/` | 19 noise texture types | Cosmic, nebula, Voronoi, FBM, marble, perlin, cellular — each has distinct character (see noise table above) |
+| `Assets/VFX/Smears/` | Motion smear textures | Directional streaks, swing arc overlays |
+| `Assets/VFX/Ribbons/` | Flowing ribbon textures | Graceful, curved, flowing continuous shapes |
+| `Assets/VFX/Lightning/` | Bolt and arc textures | Electrical, branching, jagged energy |
+| `Assets/VFX/Impacts/` | Burst and explosion textures | Radial impact shapes |
+| `Assets/VFX/LightRays/` | God ray / radial light textures | Dramatic directional light, divine/cosmic moments |
+| `Assets/VFX/LUT/` | Color gradient ramps | Sample with `tex2D(lut, float2(intensity, 0))` for themed color mapping |
+| `Assets/VFX/Afterimages/` | Afterimage effect textures | Motion trails, ghosting, speed visualization |
+| `Assets/VFX/Overlays/` | Screen overlay textures | Full-screen or regional overlay effects |
+| `Assets/VFX/Screen/` | Screen-space effect textures | Distortion maps, transition masks |
+| `Assets/Particles Asset Library/` | 107+ particle sprites | Sparkles, glyphs, halos, explosions, lightning, smoke, sword arcs, feathers, music notes, magic fields, flare spikes, circular masks |
+
+**If an effect needs a texture that doesn't exist, STOP and request it with a Midjourney prompt.** Do not use placeholders or skip the effect.
+
+### Decision Process (How To Approach a New Effect)
+
+This is a thinking framework, not a checklist. Work through these considerations when designing any new visual effect:
+
+1. **Understand the weapon's identity.** What does it feel like to wield? What's its musical soul? Is it aggressive or graceful? Chaotic or precise? This determines which techniques are appropriate.
+
+2. **Identify the effect type.** Is this a trail, a beam, a bloom/glow, an impact, a projectile, an aura, a screen effect? Each has different technical foundations.
+
+3. **Check existing implementations.** Search MagnumOpus's codebase for similar effects. Search Calamity, Coralite, and VFX+ for reference implementations. Read the actual code — don't guess.
+
+4. **Check available assets.** Browse `Assets/VFX/` and the weapon's own asset folder. What textures already exist that could serve this effect? What's missing?
+
+5. **Choose techniques that match the identity.** Organic flowing energy → noise distortion + scrolled textures. Sharp crystalline power → SDF math + clean edges. Ethereal ghostly presence → afterimages + soft bloom + low opacity. Explosive violent impact → radial burst + screen shake + particle shower. Musical resonance → standing wave math + harmonic pulsing.
+
+6. **Determine layer count by importance.** Ambient/passive → 1-2 layers. Active effect → 2-4 layers. Signature attack → 3-6+ layers. Boss phase transition → as many as needed.
+
+7. **Ask the user when uncertain.** If you're not sure whether an effect should be sharp or soft, noisy or clean, subtle or dramatic — ASK. Don't guess. The user's creative vision determines the direction.
+
+### When In Doubt, Ask These Questions
+
+If at any point during VFX implementation you are uncertain about direction, **stop and ask the user**. Specific questions are better than vague ones:
+
+- "Should this trail feel organic and flowing (noise-distorted, soft edges) or clean and precise (sharp edges, geometric)?"
+- "For the bloom on this projectile, should it be a tight focused glow or a wide ambient haze?"
+- "This weapon's impact — should it feel like a detonation (radial burst, screen shake) or a slice (directional smear, clean cut)?"
+- "I see [X noise texture] and [Y noise texture] in Assets/VFX/Noise/. Which character fits better — the cellular Voronoi look or the smooth Perlin look?"
+- "Should this effect use a color ramp from Assets/VFX/LUT/ for its coloring, or is a simpler uniform tint more appropriate here?"
+- "How visually prominent should this be? Is it a background accent or a center-stage moment?"
+- "I found [reference implementation] in Calamity/Coralite — is this the direction you want, or should we diverge?"
+- "This effect could work as a pure shader solution or as layered sprite draws. Do you have a preference for the rendering approach?"
+
+**Asking questions is not a failure — it's how we ensure every effect matches the creative vision.** The goal is collaborative iteration, not autonomous guessing.

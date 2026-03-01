@@ -93,7 +93,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.GrimoireOfCondemnation.Projectiles
                 }
             }
 
-            // Chain lightning between nearby shards
+            // Chain lightning between nearby shards — proper zigzag bolt segments
             if (timer % 8 == 0)
             {
                 foreach (var other in activeShards)
@@ -105,6 +105,12 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.GrimoireOfCondemnation.Projectiles
                         Color lightningColor = GrimoireUtils.GetGrimoireColor(Main.rand.NextFloat(0.4f, 0.8f));
                         GrimoireParticleHandler.Spawn(new ChainLightningSegment(
                             Projectile.Center, other.Projectile.Center, lightningColor, 6));
+
+                        // Endpoint glow flashes at both shards
+                        GrimoireParticleHandler.Spawn(new GrimoireImpactBloom(
+                            Projectile.Center, lightningColor * 0.5f, 0.3f, 5));
+                        GrimoireParticleHandler.Spawn(new GrimoireImpactBloom(
+                            other.Projectile.Center, lightningColor * 0.5f, 0.3f, 5));
                     }
                 }
             }
@@ -143,16 +149,48 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.GrimoireOfCondemnation.Projectiles
             var tex = bloomTexture.Value;
 
             float pulse = 0.8f + 0.2f * (float)Math.Sin(timer * 0.2f + ShardIndex);
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
             // Outer glow
-            Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition, null,
+            Main.EntitySpriteDraw(tex, drawPos, null,
                 GrimoireUtils.Additive(GrimoireUtils.CurseRed, 0.3f * pulse), 0f, tex.Size() / 2f, 0.5f, SpriteEffects.None, 0);
             // Core
-            Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition, null,
+            Main.EntitySpriteDraw(tex, drawPos, null,
                 GrimoireUtils.Additive(GrimoireUtils.CondemnOrange, 0.5f * pulse), 0f, tex.Size() / 2f, 0.25f, SpriteEffects.None, 0);
             // Hot center
-            Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition, null,
+            Main.EntitySpriteDraw(tex, drawPos, null,
                 GrimoireUtils.Additive(GrimoireUtils.ParchmentWhite, 0.3f * pulse), 0f, tex.Size() / 2f, 0.1f, SpriteEffects.None, 0);
+
+            // Spiral trail when in flight — velocity-aligned stretch
+            if (!stuck && Projectile.velocity.LengthSquared() > 1f)
+            {
+                float velRot = Projectile.velocity.ToRotation();
+                Main.EntitySpriteDraw(tex, drawPos, null,
+                    GrimoireUtils.Additive(GrimoireUtils.CondemnOrange, 0.2f), velRot, tex.Size() / 2f,
+                    new Vector2(0.6f, 0.08f), SpriteEffects.None, 0);
+            }
+
+            // Stuck pulsating glow — ticking time bomb visual
+            if (stuck && stuckTarget != null)
+            {
+                float stuckProgress = stuckTimer / 30f;
+                float tickPulse = (float)Math.Abs(Math.Sin(stuckTimer * 0.3f));
+                Color tickColor = Color.Lerp(GrimoireUtils.CurseRed, GrimoireUtils.ParchmentWhite, stuckProgress * tickPulse);
+                float tickScale = 0.4f + stuckProgress * 0.6f + tickPulse * 0.2f;
+                Main.EntitySpriteDraw(tex, drawPos, null,
+                    GrimoireUtils.Additive(tickColor, 0.35f * (0.5f + stuckProgress)), 0f, tex.Size() / 2f, tickScale, SpriteEffects.None, 0);
+
+                // Cross-flare at critical moment (last 10 ticks)
+                if (stuckTimer >= 20)
+                {
+                    float urgency = (stuckTimer - 20f) / 10f;
+                    Color crossColor = GrimoireUtils.Additive(GrimoireUtils.ParchmentWhite, 0.3f * urgency);
+                    Main.EntitySpriteDraw(tex, drawPos, null, crossColor, 0f, tex.Size() / 2f,
+                        new Vector2(0.06f, 0.6f * urgency), SpriteEffects.None, 0);
+                    Main.EntitySpriteDraw(tex, drawPos, null, crossColor, MathHelper.PiOver2, tex.Size() / 2f,
+                        new Vector2(0.06f, 0.6f * urgency), SpriteEffects.None, 0);
+                }
+            }
 
             return false;
         }

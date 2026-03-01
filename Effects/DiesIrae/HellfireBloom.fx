@@ -44,7 +44,7 @@ technique HellfireBloomTechnique
 {
     pass HellfireBloom
     {
-        PixelShader = compile ps_2_0 HellfireBloomMain();
+        PixelShader = compile ps_3_0 HellfireBloomMain();
     }
 }
 
@@ -52,6 +52,6 @@ technique JudgmentMarkTechnique
 {
     pass JudgmentMark
     {
-        PixelShader = compile ps_2_0 JudgmentMarkGlow();
+        PixelShader = compile ps_3_0 JudgmentMarkGlow();
     }
 }

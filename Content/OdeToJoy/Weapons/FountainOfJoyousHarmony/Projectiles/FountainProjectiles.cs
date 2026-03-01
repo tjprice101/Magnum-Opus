@@ -7,6 +7,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Utilities;
 using MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Particles;
 
@@ -24,6 +25,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
 
         private ref float AttackTimer => ref Projectile.ai[0];
         private ref float HealTimer => ref Projectile.ai[1];
+
+        private static Asset<Texture2D> _softBloomTex;
 
         public override void SetStaticDefaults()
         {
@@ -161,13 +164,39 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = tex.Size() / 2f;
 
-            // Additive golden glow behind fountain
             SpriteBatch sb = Main.spriteBatch;
-            sb.End();
-            FountainUtils.BeginAdditive(sb);
+            float time = (float)Main.GameUpdateCount / 60f;
 
+            sb.End();
+
+            // ═══ Layer 1: JubilantHarmony SymphonicAura — harmonic healing rings around fountain ═══
+            Effect harmonyShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyJubilantHarmonyShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (harmonyShader != null)
+            {
+                // Healing pulse intensity based on heal timer
+                float healCharge = Math.Min(HealTimer / 60f, 1f);
+
+                harmonyShader.Parameters["uTime"]?.SetValue(time);
+                harmonyShader.Parameters["uColor"]?.SetValue(FountainUtils.GoldenSpray.ToVector3());
+                harmonyShader.Parameters["uSecondaryColor"]?.SetValue(FountainUtils.AquaGlow.ToVector3());
+                harmonyShader.Parameters["uOpacity"]?.SetValue(0.2f + healCharge * 0.15f);
+                harmonyShader.Parameters["uIntensity"]?.SetValue(0.8f + healCharge * 0.4f);
+                harmonyShader.Parameters["uRadius"]?.SetValue(0.35f);
+                harmonyShader.Parameters["uHarmonicFreq"]?.SetValue(1.0f + healCharge * 0.5f);
+                harmonyShader.CurrentTechnique = harmonyShader.Techniques["SymphonicAuraTechnique"];
+                harmonyShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(tex, drawPos, null, Color.White, 0f, origin,
+                    Projectile.scale * 1.8f, SpriteEffects.None, 0f);
+            }
+
+            // Additive golden glow behind fountain
             float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.06f;
-            Color glow = FountainUtils.Additive(FountainUtils.GoldenSpray, 0.3f);
+            Color glow = FountainUtils.Additive(FountainUtils.GoldenSpray, 0.28f);
             sb.Draw(tex, drawPos, null, glow, 0f, origin, Projectile.scale * pulse * 1.2f, SpriteEffects.None, 0f);
 
             sb.End();
@@ -188,6 +217,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
     public class FountainWaterBolt : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
+
+        private static Asset<Texture2D> _softBloomTex;
 
         public override void SetDefaults()
         {
@@ -269,20 +300,40 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
             Vector2 origin = tex.Size() / 2f;
 
             SpriteBatch sb = Main.spriteBatch;
-            sb.End();
-            FountainUtils.BeginAdditive(sb);
+            float time = (float)Main.GameUpdateCount / 60f;
 
-            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.14f) * 0.1f;
+            sb.End();
+
+            // ═══ Layer 1: PollenDrift shader — liquid pollen trail around the bolt ═══
+            Effect pollenShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyPollenDriftShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (pollenShader != null)
+            {
+                pollenShader.Parameters["uTime"]?.SetValue(time);
+                pollenShader.Parameters["uColor"]?.SetValue(FountainUtils.AquaGlow.ToVector3());
+                pollenShader.Parameters["uSecondaryColor"]?.SetValue(FountainUtils.GoldenSpray.ToVector3());
+                pollenShader.Parameters["uOpacity"]?.SetValue(0.4f);
+                pollenShader.Parameters["uIntensity"]?.SetValue(1.0f);
+                pollenShader.CurrentTechnique = pollenShader.Techniques["PollenTrailTechnique"];
+                pollenShader.CurrentTechnique.Passes[0].Apply();
+
+                float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.14f) * 0.1f;
+                sb.Draw(tex, drawPos, null, Color.White, Projectile.rotation, origin,
+                    0.5f * pulse, SpriteEffects.None, 0f);
+            }
 
             // Outer aqua glow
-            Color outerGlow = FountainUtils.Additive(FountainUtils.AquaGlow, 0.5f);
+            Color outerGlow = FountainUtils.Additive(FountainUtils.AquaGlow, 0.45f);
             sb.Draw(tex, drawPos, null, outerGlow, Projectile.rotation, origin,
-                0.5f * pulse, SpriteEffects.None, 0f);
+                0.45f, SpriteEffects.None, 0f);
 
             // Golden core
-            Color coreGlow = FountainUtils.Additive(FountainUtils.GoldenSpray, 0.8f);
+            Color coreGlow = FountainUtils.Additive(FountainUtils.GoldenSpray, 0.7f);
             sb.Draw(tex, drawPos, null, coreGlow, Projectile.rotation, origin,
-                0.25f * pulse, SpriteEffects.None, 0f);
+                0.22f, SpriteEffects.None, 0f);
 
             sb.End();
             FountainUtils.BeginDefault(sb);

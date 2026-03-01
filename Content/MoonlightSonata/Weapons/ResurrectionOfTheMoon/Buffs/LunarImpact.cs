@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Buffs
     /// </summary>
     public class LunarImpact : ModBuff
     {
+        public override string Texture => "Terraria/Images/Buff_24";
+
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

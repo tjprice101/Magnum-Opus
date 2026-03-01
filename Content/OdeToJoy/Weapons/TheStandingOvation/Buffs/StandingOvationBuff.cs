@@ -10,7 +10,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Buffs
     /// </summary>
     public class StandingOvationBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_0";
+        public override string Texture => "Terraria/Images/Buff_1";
 
         public override void SetStaticDefaults()
         {

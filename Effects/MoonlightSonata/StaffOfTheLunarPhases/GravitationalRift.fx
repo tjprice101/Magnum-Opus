@@ -10,7 +10,7 @@
 //   GravitationalRiftMain  ECore vortex body with spiral arms
 //   GravitationalRiftGlow  EWider soft bloom pass for the rift halo
 //
-// FNA/XNA compatible  Eps_2_0 profile.
+// FNA/XNA compatible  Eps_3_0 profile.
 // ============================================================
 
 sampler uImage0 : register(s0); // Primary sprite texture

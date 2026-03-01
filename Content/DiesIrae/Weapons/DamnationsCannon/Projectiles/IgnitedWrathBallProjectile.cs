@@ -127,24 +127,46 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon.Projectiles
             if (!bloomTexture.IsLoaded) return false;
             var tex = bloomTexture.Value;
 
-            // Trail glow
+            // Trail glow — velocity-aligned stretched afterimages
+            float velRot = Projectile.velocity.ToRotation();
             for (int i = 1; i < TrailLength; i++)
             {
                 if (trailCache[i] == Vector2.Zero) continue;
                 float p = i / (float)TrailLength;
                 Color c = DamnationUtils.GetDamnationColor(p * 0.5f);
+                float trailAlpha = (1f - p) * 0.35f;
+                float trailScale = (1f - p) * 0.6f;
+                // Elongated along velocity for fiery comet look
                 Main.EntitySpriteDraw(tex, trailCache[i] - Main.screenPosition, null,
-                    DamnationUtils.Additive(c, (1f - p) * 0.3f), 0f, tex.Size() / 2f, (1f - p) * 0.6f, SpriteEffects.None, 0);
+                    DamnationUtils.Additive(c, trailAlpha), velRot, tex.Size() / 2f,
+                    new Vector2(trailScale * 2.2f, trailScale * 0.5f), SpriteEffects.None, 0);
             }
 
             // Core layers
             float pulse = 0.9f + 0.1f * (float)Math.Sin(Main.GameUpdateCount * 0.2f);
-            Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition, null,
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
+            // Outer wrath glow
+            Main.EntitySpriteDraw(tex, drawPos, null,
                 DamnationUtils.Additive(DamnationUtils.WrathOrange, 0.5f * pulse), 0f, tex.Size() / 2f, 1f, SpriteEffects.None, 0);
-            Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition, null,
+            // Mid explosion gold
+            Main.EntitySpriteDraw(tex, drawPos, null,
                 DamnationUtils.Additive(DamnationUtils.ExplosionGold, 0.4f * pulse), 0f, tex.Size() / 2f, 0.6f, SpriteEffects.None, 0);
-            Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition, null,
+            // Hot white center
+            Main.EntitySpriteDraw(tex, drawPos, null,
                 DamnationUtils.Additive(DamnationUtils.DetonationWhite, 0.3f * pulse), 0f, tex.Size() / 2f, 0.3f, SpriteEffects.None, 0);
+
+            // Rotating cross-flare — gives the ball a fiery star appearance
+            float flareRot = Projectile.rotation;
+            Color flareColor = DamnationUtils.Additive(DamnationUtils.ExplosionGold, 0.25f * pulse);
+            Main.EntitySpriteDraw(tex, drawPos, null, flareColor, flareRot, tex.Size() / 2f,
+                new Vector2(0.15f, 1.2f * pulse), SpriteEffects.None, 0);
+            Main.EntitySpriteDraw(tex, drawPos, null, flareColor, flareRot + MathHelper.PiOver2, tex.Size() / 2f,
+                new Vector2(0.15f, 1.2f * pulse), SpriteEffects.None, 0);
+
+            // Dark red underpaint halo — rim glow behind the core
+            Main.EntitySpriteDraw(tex, drawPos, null,
+                DamnationUtils.Additive(DamnationUtils.DamnationRed, 0.15f), 0f, tex.Size() / 2f, 1.4f, SpriteEffects.None, 0);
 
             return false;
         }

@@ -5,6 +5,7 @@ using System;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Common.Systems.Particles
 {
@@ -38,8 +39,8 @@ namespace MagnumOpus.Common.Systems.Particles
             }
             catch { }
             
-            // Fallback to magic pixel
-            return TextureAssets.MagicPixel.Value;
+            // Fallback to registry pixel texture, then magic pixel as ultimate fallback
+            return MagnumTextureRegistry.GetPixelTexture() ?? TextureAssets.MagicPixel.Value;
         }
         
         /// <summary>
@@ -47,7 +48,7 @@ namespace MagnumOpus.Common.Systems.Particles
         /// </summary>
         public static Texture2D GetGeneratedTexture(string name)
         {
-            return ParticleTextureGenerator.GetTexture(name) ?? TextureAssets.MagicPixel.Value;
+            return ParticleTextureGenerator.GetTexture(name) ?? MagnumTextureRegistry.GetPixelTexture() ?? TextureAssets.MagicPixel.Value;
         }
         
         /// <summary>
@@ -713,7 +714,7 @@ namespace MagnumOpus.Common.Systems.Particles
         
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
-            Texture2D tex = TextureAssets.MagicPixel.Value;
+            Texture2D tex = MagnumTextureRegistry.GetPixelTexture() ?? TextureAssets.MagicPixel.Value;
             Vector2 drawPos = Position - Main.screenPosition;
             
             // Draw line using scaled pixel

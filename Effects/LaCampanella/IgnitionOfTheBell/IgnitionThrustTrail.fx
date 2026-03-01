@@ -1,11 +1,11 @@
 // =============================================================================
-// Ignition of the Bell — Thrust Trail Shader (Enhanced)
+// Ignition of the Bell  EThrust Trail Shader (Enhanced)
 // =============================================================================
 // Supersonic directional flame jet for the 3-phase thrust combo. Gaussian
 // core with narrowing spearhead profile, shock-diamond compression nodes
 // that flash along the jet axis, FBM turbulence for organic fire, and
 // afterburn plasma shimmer at the edges. Feels like concentrated
-// infernal propulsion — a lance of compressed bell-fire.
+// infernal propulsion  Ea lance of compressed bell-fire.
 // =============================================================================
 
 sampler uImage0 : register(s0);
@@ -116,6 +116,6 @@ technique TrailPass
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 IgnitionThrustPS();
+        PixelShader = compile ps_3_0 IgnitionThrustPS();
     }
 }

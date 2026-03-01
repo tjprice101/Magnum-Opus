@@ -9,7 +9,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Buffs
     /// </summary>
     public class HellfireImmolation : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_OnFire";
+        public override string Texture => "Terraria/Images/Buff_24";
 
         public override void SetStaticDefaults()
         {
@@ -31,7 +31,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Buffs
     /// </summary>
     public class WrathMark : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_OnFire";
+        public override string Texture => "Terraria/Images/Buff_24";
 
         public override void SetStaticDefaults()
         {

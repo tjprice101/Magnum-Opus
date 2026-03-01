@@ -67,30 +67,40 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury
             Vector2 position = Item.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
+            // Rapier rhythm: rapid staccato thrust-pulse with directional extension
             float time = Main.GameUpdateCount * 0.06f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.1f;
-            float flicker = Main.rand.NextFloat(0.9f, 1f);
+            float thrustCycle = (float)Math.Sin(time * 5f); // Fast rhythmic thrust
+            float thrustPulse = 1f + Math.Max(0f, thrustCycle) * 0.18f; // Only extends on positive phase
+            float restPulse = 1f + (float)Math.Sin(time * 1.2f) * 0.04f; // Gentle idle breathe
+            float pulse = MathHelper.Lerp(restPulse, thrustPulse, 0.7f);
+            float colorShift = (float)Math.Sin(time * 4f) * 0.5f + 0.5f; // Rapid green↔gold
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Golden outer glow
-            spriteBatch.Draw(texture, position, null, GardenersUtils.Additive(GardenersUtils.JubilantGold, 0.35f * flicker),
-                rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
-            // Rose-blush inner glow
-            spriteBatch.Draw(texture, position, null, GardenersUtils.Additive(GardenersUtils.RoseBlush, 0.25f * flicker),
-                rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            // Directional thrust glow — extends along blade axis
+            Vector2 thrustDir = (rotation + MathHelper.PiOver4).ToRotationVector2();
+            Vector2 thrustOffset = thrustDir * Math.Max(0f, thrustCycle) * 4f;
+            Color outerColor = Color.Lerp(GardenersUtils.StemGreen, GardenersUtils.JubilantGold, colorShift);
+            spriteBatch.Draw(texture, position + thrustOffset, null, GardenersUtils.Additive(outerColor, 0.4f),
+                rotation, origin, new Vector2(scale * pulse * 1.4f, scale * pulse * 1.15f), SpriteEffects.None, 0f);
 
-            float shimmer = (float)Math.Sin(time * 3f) * 0.5f + 0.5f;
-            spriteBatch.Draw(texture, position, null, GardenersUtils.Additive(GardenersUtils.SunlightWhite, 0.2f * shimmer),
-                rotation, origin, scale * pulse * 1.05f, SpriteEffects.None, 0f);
+            // Rose accent — counter-phase for visual depth
+            float rosePhase = (float)Math.Sin(time * 5f + 1.5f) * 0.5f + 0.5f;
+            spriteBatch.Draw(texture, position, null, GardenersUtils.Additive(GardenersUtils.RoseBlush, 0.3f * rosePhase),
+                rotation, origin, scale * (1f + rosePhase * 0.12f) * 1.1f, SpriteEffects.None, 0f);
+
+            // White flash on thrust peak — bright staccato accent
+            float flashIntensity = (float)Math.Pow(Math.Max(0f, thrustCycle), 3f);
+            spriteBatch.Draw(texture, position + thrustOffset * 0.5f, null, GardenersUtils.Additive(GardenersUtils.SunlightWhite, 0.35f * flashIntensity),
+                rotation, origin, scale * (1f + flashIntensity * 0.1f), SpriteEffects.None, 0f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            Lighting.AddLight(Item.Center, 0.6f, 0.5f, 0.15f);
+            Lighting.AddLight(Item.Center, 0.5f + flashIntensity * 0.3f, 0.45f + flashIntensity * 0.2f, 0.1f);
             return true;
         }
 

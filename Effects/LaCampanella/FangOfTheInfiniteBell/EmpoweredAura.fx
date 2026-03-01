@@ -1,5 +1,5 @@
 // =============================================================================
-// Fang of the Infinite Bell — Empowered Aura Shader (Enhanced)
+// Fang of the Infinite Bell  EEmpowered Aura Shader (Enhanced)
 // =============================================================================
 // Arcane sigil field around the player during empowerment. Distinct from
 // DualFated's fire aura: this is a contained magical resonance field with
@@ -157,6 +157,6 @@ technique TrailPass
     pass P0
     {
         VertexShader = compile vs_2_0 AuraVS();
-        PixelShader = compile ps_2_0 EmpoweredAuraPS();
+        PixelShader = compile ps_3_0 EmpoweredAuraPS();
     }
 }

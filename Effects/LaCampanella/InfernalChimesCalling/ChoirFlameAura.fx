@@ -1,5 +1,5 @@
 // =============================================================================
-// Infernal Chimes Calling — Choir Flame Aura (Enhanced)
+// Infernal Chimes Calling  EChoir Flame Aura (Enhanced)
 // =============================================================================
 // Ambient aura around the summoned choir minion. Counter-rotating concentric
 // harmonic rings pulse outward like resonating sound. Musical-notation-shaped
@@ -133,6 +133,6 @@ technique TrailPass
     pass P0
     {
         VertexShader = compile vs_2_0 ChoirAuraVS();
-        PixelShader = compile ps_2_0 ChoirFlameAuraPS();
+        PixelShader = compile ps_3_0 ChoirFlameAuraPS();
     }
 }

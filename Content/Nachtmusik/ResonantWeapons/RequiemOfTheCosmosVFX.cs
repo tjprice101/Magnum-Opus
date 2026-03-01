@@ -21,23 +21,44 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         // =====================================================================
         public static void HoldItemVFX(Player player)
         {
-            if (Main.rand.NextBool(4))
-            {
-                // Slow cosmic void motes being drawn inward
-                Vector2 offset = Main.rand.NextVector2Circular(35f, 35f);
-                Vector2 pos = player.Center + offset;
-                Vector2 vel = (player.Center - pos) * 0.02f; // Drawn inward
+            float time = (float)Main.timeForVisualEffects * 0.03f;
 
-                Dust d = Dust.NewDustPerfect(pos, DustID.PurpleTorch, vel, 0, default, 0.6f);
+            // === INWARD-SPIRALING VOID === Dust spiraling inward like cosmic accretion
+            if (Main.rand.NextBool(3))
+            {
+                float spawnAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                float spawnDist = 32f + Main.rand.NextFloat() * 12f;
+                Vector2 spawnPos = player.Center + spawnAngle.ToRotationVector2() * spawnDist;
+                Vector2 toCenter = player.Center - spawnPos;
+                if (toCenter != Vector2.Zero) toCenter.Normalize();
+                // Strong tangential component — creates spiral
+                Vector2 tangent = new Vector2(-toCenter.Y, toCenter.X);
+                Vector2 vel = toCenter * 0.8f + tangent * 1.4f;
+
+                Dust d = Dust.NewDustPerfect(spawnPos, DustID.PurpleTorch, vel, 0, default, 0.65f);
                 d.noGravity = true;
-                d.fadeIn = 0.8f;
+                d.fadeIn = 0.85f;
             }
 
+            // === COSMIC VOID DEEPENING === Dense dust concentrated near center
+            if (Main.rand.NextBool(5))
+            {
+                Vector2 coreOffset = Main.rand.NextVector2Circular(10f, 10f);
+                Dust core = Dust.NewDustPerfect(player.Center + coreOffset, DustID.PurpleTorch,
+                    -coreOffset * 0.02f, 0, default, 0.7f);
+                core.noGravity = true;
+                core.fadeIn = 0.9f;
+            }
+
+            // === GOLDEN REQUIEM FLECKS === Rare golden motes in the void
             if (Main.rand.NextBool(8))
             {
-                // Golden cosmic fleck
-                Vector2 goldOffset = Main.rand.NextVector2Circular(20f, 20f);
-                Dust g = Dust.NewDustPerfect(player.Center + goldOffset, DustID.Enchanted_Gold,
+                float goldAngle = time * 1.2f + Main.rand.NextFloat() * MathHelper.TwoPi;
+                float goldRadius = 15f + Main.rand.NextFloat() * 10f;
+                Vector2 goldPos = player.Center + new Vector2(
+                    (float)Math.Cos(goldAngle) * goldRadius,
+                    (float)Math.Sin(goldAngle) * goldRadius);
+                Dust g = Dust.NewDustPerfect(goldPos, DustID.Enchanted_Gold,
                     Main.rand.NextVector2Circular(0.3f, 0.3f), 0, default, 0.4f);
                 g.noGravity = true;
             }

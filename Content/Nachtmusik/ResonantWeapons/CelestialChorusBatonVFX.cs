@@ -21,11 +21,27 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         // =====================================================================
         public static void HoldItemVFX(Player player, int minionCount)
         {
+            float time = (float)Main.timeForVisualEffects * 0.04f;
+
+            // === MUSIC STAFF LINES === Horizontal dust lines around the player like music staff
+            if (Main.rand.NextBool(4))
+            {
+                int staffLine = Main.rand.Next(5); // 5 staff lines
+                float yPosition = -14f + staffLine * 7f;
+                float xShift = (float)Math.Sin(time * 2f + staffLine) * 16f;
+                Vector2 staffPos = player.Center + new Vector2(xShift, yPosition);
+
+                Dust d = Dust.NewDustPerfect(staffPos, DustID.BlueTorch,
+                    new Vector2(0.4f * (staffLine % 2 == 0 ? 1 : -1), 0), 0, default, 0.35f);
+                d.noGravity = true;
+                d.fadeIn = 0.5f;
+            }
+
             // Music note motes orbit the player — count scales with active minions
             int noteFreq = Math.Max(1, 6 - minionCount);
             if (Main.rand.NextBool(noteFreq))
             {
-                float angle = (float)Main.timeForVisualEffects * 0.04f + Main.rand.NextFloat() * MathHelper.TwoPi;
+                float angle = time * 1.2f + Main.rand.NextFloat() * MathHelper.TwoPi;
                 float radius = 20f + minionCount * 4f;
                 Vector2 orbPos = player.Center + new Vector2(
                     (float)Math.Cos(angle) * radius,
@@ -34,18 +50,23 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
                 NachtmusikVFXLibrary.SpawnMusicNotes(orbPos, 1, 6f, 0.3f, 0.6f, 16);
             }
 
-            // Soft harmonic haze intensifies with more minions
-            if (Main.rand.NextBool(5))
+            // === HARMONIC RESONANCE PULSES === Expanding ring dust that pulses outward
+            if (Main.rand.NextBool(15))
             {
-                float haze = 0.3f + minionCount * 0.05f;
-                Vector2 offset = Main.rand.NextVector2Circular(24f, 24f);
-                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.BlueTorch,
-                    Main.rand.NextVector2Circular(0.3f, 0.3f), 0, default, haze);
-                d.noGravity = true;
-                d.fadeIn = 0.7f;
+                int ringPoints = 6 + minionCount;
+                float ringRadius = 18f;
+                for (int i = 0; i < ringPoints; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / ringPoints;
+                    Vector2 ringPos = player.Center + angle.ToRotationVector2() * ringRadius;
+                    Dust ring = Dust.NewDustPerfect(ringPos, DustID.BlueTorch,
+                        angle.ToRotationVector2() * 0.8f, 0, default, 0.3f);
+                    ring.noGravity = true;
+                    ring.fadeIn = 0.4f;
+                }
             }
 
-            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.15f + minionCount * 0.03f);
+            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.18f + minionCount * 0.03f);
         }
 
         // =====================================================================

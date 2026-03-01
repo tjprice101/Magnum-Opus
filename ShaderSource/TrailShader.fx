@@ -77,10 +77,10 @@ technique Technique1
 {
     pass TrailPass
     {
-        PixelShader = compile ps_2_0 TrailShader();
+        PixelShader = compile ps_3_0 TrailShader();
     }
     pass BloomPass
     {
-        PixelShader = compile ps_2_0 TrailBloomShader();
+        PixelShader = compile ps_3_0 TrailBloomShader();
     }
 }

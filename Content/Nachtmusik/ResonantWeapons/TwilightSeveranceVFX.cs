@@ -21,30 +21,58 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantWeapons
         // =====================================================================
         public static void HoldItemVFX(Player player)
         {
-            if (Main.rand.NextBool(4))
+            float time = (float)Main.timeForVisualEffects * 0.06f;
+            float oscillation = (float)Math.Sin(time * 1.2f) * 0.5f + 0.5f;
+
+            // === SPLIT-POLARITY STREAMS === Dusk flows one way, silver the other
+            if (Main.rand.NextBool(3))
             {
-                // Oscillating dusk↔dawn shimmer particles
-                float oscillation = (float)Math.Sin(Main.timeForVisualEffects * 0.08) * 0.5f + 0.5f;
-                Color shimmerColor = Color.Lerp(NachtmusikPalette.DuskViolet, NachtmusikPalette.MoonlitSilver, oscillation);
+                // Dusk violet stream — flows left/downward
+                Vector2 duskOffset = new Vector2(-14f - Main.rand.NextFloat() * 12f, Main.rand.NextFloat(-8f, 12f));
+                Vector2 duskVel = new Vector2(-0.6f, 0.3f) * oscillation;
+                Dust dusk = Dust.NewDustPerfect(player.Center + duskOffset, DustID.PurpleTorch,
+                    duskVel, 0, default, 0.55f);
+                dusk.noGravity = true;
+                dusk.fadeIn = 0.7f;
 
-                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
-                Vector2 vel = Main.rand.NextVector2Circular(0.3f, 0.3f);
-
-                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.PurpleTorch, vel, 0, default, 0.5f);
-                d.noGravity = true;
-                d.fadeIn = 0.7f;
-            }
-
-            if (Main.rand.NextBool(10))
-            {
-                // Silver edge mote — the blade's dimensional echo
-                Vector2 edgeOffset = Main.rand.NextVector2CircularEdge(20f, 20f);
-                Dust silver = Dust.NewDustPerfect(player.Center + edgeOffset, DustID.SilverFlame,
-                    edgeOffset * 0.02f, 0, default, 0.4f);
+                // Silver stream — flows right/upward
+                Vector2 silverOffset = new Vector2(14f + Main.rand.NextFloat() * 12f, Main.rand.NextFloat(-12f, 8f));
+                Vector2 silverVel = new Vector2(0.6f, -0.3f) * (1f - oscillation);
+                Dust silver = Dust.NewDustPerfect(player.Center + silverOffset, DustID.SilverFlame,
+                    silverVel, 0, default, 0.45f);
                 silver.noGravity = true;
+                silver.fadeIn = 0.6f;
             }
 
-            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.2f);
+            // === DIMENSIONAL TEAR LINE === Thin alternating dusk/silver dust line
+            if (Main.rand.NextBool(8))
+            {
+                float tearAngle = time * 0.8f;
+                Vector2 tearDir = new Vector2((float)Math.Cos(tearAngle), (float)Math.Sin(tearAngle));
+                for (int i = -2; i <= 2; i++)
+                {
+                    Vector2 tearPos = player.Center + tearDir * (i * 6f);
+                    int tearDust = (i + 2) % 2 == 0 ? DustID.PurpleTorch : DustID.SilverFlame;
+                    Dust t = Dust.NewDustPerfect(tearPos, tearDust,
+                        tearDir * 0.2f * i, 0, default, 0.35f);
+                    t.noGravity = true;
+                    t.fadeIn = 0.4f;
+                }
+            }
+
+            // === SPEED LINES === Quick razor-thin streaks radiating outward
+            if (Main.rand.NextBool(6))
+            {
+                float lineAngle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                Vector2 lineDir = lineAngle.ToRotationVector2();
+                Vector2 linePos = player.Center + lineDir * 20f;
+                Dust speed = Dust.NewDustPerfect(linePos, DustID.SilverFlame,
+                    lineDir * 2.5f, 0, default, 0.3f);
+                speed.noGravity = true;
+                speed.fadeIn = 0.4f;
+            }
+
+            NachtmusikVFXLibrary.AddNachtmusikLight(player.Center, 0.22f);
         }
 
         // =====================================================================

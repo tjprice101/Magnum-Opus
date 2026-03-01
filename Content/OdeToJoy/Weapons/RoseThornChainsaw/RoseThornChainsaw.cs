@@ -85,31 +85,41 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw
             Vector2 position = Item.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
+            // Chainsaw buzz: high-frequency micro-jitter with rapid pink↔green color oscillation
             float time = Main.GameUpdateCount * 0.06f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.1f;
-            float flicker = Main.rand.NextFloat(0.9f, 1f);
+            float buzz = (float)Math.Sin(time * 12f) * 0.03f; // Very fast, tiny amplitude vibration
+            float buzzPulse = 1f + buzz;
+            float motorHum = (float)Math.Sin(time * 8f); // Mechanical hum
+            float colorFlash = (float)Math.Sin(time * 6f) * 0.5f + 0.5f; // Rapid green↔pink
+
+            // Micro-jitter offset simulating buzzing blade
+            Vector2 jitter = new Vector2(
+                (float)Math.Sin(time * 15f) * 1.2f,
+                (float)Math.Cos(time * 13f) * 0.8f);
 
             RoseThornChainsawUtils.BeginAdditive(spriteBatch);
 
-            // Verdant outer glow
-            spriteBatch.Draw(texture, position, null,
-                RoseThornChainsawUtils.Additive(RoseThornChainsawUtils.VerdantGreen, 0.35f * flicker),
-                rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
+            // Venomous outer buzz — green-dominant, jittering
+            Color outerColor = Color.Lerp(RoseThornChainsawUtils.VerdantGreen, RoseThornChainsawUtils.VenomViolet, colorFlash * 0.4f);
+            spriteBatch.Draw(texture, position + jitter, null,
+                RoseThornChainsawUtils.Additive(outerColor, 0.35f + motorHum * 0.05f),
+                rotation, origin, scale * buzzPulse * 1.25f, SpriteEffects.None, 0f);
 
-            // Golden inner glow
-            spriteBatch.Draw(texture, position, null,
-                RoseThornChainsawUtils.Additive(RoseThornChainsawUtils.GoldenPollen, 0.3f * flicker),
-                rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            // Rose-pink inner oscillation — counter-phase to outer
+            Color innerColor = Color.Lerp(RoseThornChainsawUtils.RosePink, RoseThornChainsawUtils.GoldenPollen, 1f - colorFlash);
+            spriteBatch.Draw(texture, position - jitter * 0.5f, null,
+                RoseThornChainsawUtils.Additive(innerColor, 0.28f),
+                rotation, origin, scale * (1f - buzz) * 1.12f, SpriteEffects.None, 0f);
 
-            // White shimmer accent
-            float shimmer = (float)Math.Sin(time * 3f) * 0.5f + 0.5f;
+            // White sparking core — staccato mechanical flash
+            float sparkFlash = (float)Math.Pow(Math.Max(0f, (float)Math.Sin(time * 9f)), 6f); // Sharp narrow peaks
             spriteBatch.Draw(texture, position, null,
-                RoseThornChainsawUtils.Additive(RoseThornChainsawUtils.WhiteBloom, 0.2f * shimmer),
-                rotation, origin, scale * pulse * 1.05f, SpriteEffects.None, 0f);
+                RoseThornChainsawUtils.Additive(RoseThornChainsawUtils.WhiteBloom, 0.4f * sparkFlash),
+                rotation, origin, scale * (1f + sparkFlash * 0.08f), SpriteEffects.None, 0f);
 
             RoseThornChainsawUtils.BeginDefault(spriteBatch);
 
-            Lighting.AddLight(Item.Center, 0.5f, 0.7f, 0.2f);
+            Lighting.AddLight(Item.Center, 0.4f + sparkFlash * 0.2f, 0.6f + motorHum * 0.1f, 0.25f);
             return true;
         }
 

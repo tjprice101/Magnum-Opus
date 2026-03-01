@@ -4,6 +4,7 @@ using Terraria;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
 {
@@ -48,8 +49,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
                 SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
 
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
-            Texture2D glow  = TextureAssets.Extra[ExtrasID.SharpTears].Value;
+            Texture2D pixel = MagnumTextureRegistry.GetPointBloom();
+            Texture2D glow  = MagnumTextureRegistry.GetSoftGlow();
+            if (pixel == null || glow == null) return;
 
             for (int i = 0; i < PoolSize; i++)
             {

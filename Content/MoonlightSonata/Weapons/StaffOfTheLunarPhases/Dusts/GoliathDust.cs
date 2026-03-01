@@ -11,6 +11,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Dusts
     /// </summary>
     public class GoliathDust : ModDust
     {
+        // Uses feather_circle128PMA for soft cosmic mote with feathered edges
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/feather_circle128PMA";
+
         public override void OnSpawn(Dust dust)
         {
             dust.noGravity = true;

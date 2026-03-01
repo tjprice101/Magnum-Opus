@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
 {
@@ -56,7 +57,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
         private static void DrawLineFallback(SpriteBatch sb, Vector2[] points, int count,
             ResonanceTrailSettings settings)
         {
-            Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
             if (pixel == null) return;
 
             for (int i = 0; i < count - 1; i++)

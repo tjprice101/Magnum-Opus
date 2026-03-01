@@ -12,6 +12,8 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Spring.Materials;
+using MagnumOpus.Content.Spring.Bosses.Systems;
+using MagnumOpus.Common.Systems.Bosses;
 
 namespace MagnumOpus.Content.Spring.Bosses
 {
@@ -192,6 +194,11 @@ namespace MagnumOpus.Content.Spring.Bosses
             UpdateDifficultyTier();
             UpdateAggression();
             SpawnAmbientParticles();
+            
+            BossIndexTracker.Primavera = NPC.whoAmI;
+            
+            if (State != BossPhase.Spawning && State != BossPhase.Dying)
+                PrimaveraBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier);
             
             // Enrage check
             float distToTarget = Vector2.Distance(NPC.Center, target.Center);
@@ -1221,6 +1228,10 @@ namespace MagnumOpus.Content.Spring.Bosses
             Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
             Vector2 drawPos = NPC.Center - screenPos;
             Vector2 origin = texture.Size() / 2f;
+            Rectangle sourceRect = texture.Bounds;
+            
+            // Shader layer: Bloom aura
+            PrimaveraBossShaderSystem.DrawBloomAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, false);
             
             // Trail
             for (int i = 0; i < NPC.oldPos.Length - 1; i++)
@@ -1233,6 +1244,10 @@ namespace MagnumOpus.Content.Spring.Bosses
                 spriteBatch.Draw(texture, trailPos, null, trailColor, NPC.rotation, origin, trailScale, SpriteEffects.None, 0f);
             }
             
+            // Shader layer: Petal trail when moving fast
+            if (NPC.velocity.Length() > 5f)
+                PrimaveraBossShaderSystem.DrawPetalTrail(spriteBatch, NPC, screenPos, texture, sourceRect, origin, false);
+            
             // Glow layers
             float pulse = (float)Math.Sin(Timer * 0.08f) * 0.1f + 1f;
             
@@ -1243,6 +1258,10 @@ namespace MagnumOpus.Content.Spring.Bosses
             Color midGlow = SpringBlue * 0.4f;
             midGlow.A = 0;
             spriteBatch.Draw(texture, drawPos, null, midGlow, NPC.rotation, origin, NPC.scale * pulse * 1.08f, SpriteEffects.None, 0f);
+            
+            // Shader layer: Death dissolve
+            if (State == BossPhase.Dying)
+                PrimaveraBossShaderSystem.DrawRebirthDissolve(spriteBatch, NPC, screenPos, texture, sourceRect, origin, deathTimer / 120f);
             
             // Main sprite
             SpriteEffects effects = NPC.spriteDirection == 1 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;

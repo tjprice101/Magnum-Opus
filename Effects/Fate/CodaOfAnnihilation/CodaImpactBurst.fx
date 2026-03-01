@@ -1,5 +1,5 @@
 // =============================================================================
-// Coda of Annihilation — Impact Burst Shader
+// Coda of Annihilation  EImpact Burst Shader
 // =============================================================================
 // Radial impact explosion with shockwave rings and cosmic energy dispersion.
 // Used when flying swords or held swing strikes an enemy.
@@ -26,11 +26,11 @@ float4 ImpactBurstMainPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0)
     float ring = 1.0 - saturate(abs(dist - ringRadius) / ringWidth);
     ring *= ring;
     
-    // Inner flash — bright core
+    // Inner flash  Ebright core
     float innerFlash = saturate(1.0 - dist * 4.0) * (1.0 - uTime);
     innerFlash *= innerFlash;
     
-    // Energy dispersion — simplified radial pattern
+    // Energy dispersion  Esimplified radial pattern
     float rays = sin(delta.x * 14.0 + uTime * 3.0) * 0.5 + 0.5;
     rays *= saturate(1.0 - dist * 2.0);
     
@@ -48,6 +48,6 @@ technique ImpactBurstMain
 {
     pass ImpactBurstMainPass
     {
-        PixelShader = compile ps_2_0 ImpactBurstMainPS();
+        PixelShader = compile ps_3_0 ImpactBurstMainPS();
     }
 }

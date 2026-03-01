@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Utilities;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Particles
@@ -24,12 +25,19 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Particle
         public override void Draw(SpriteBatch spriteBatch)
         {
             float alpha = 1f - Progress;
-            Texture2D tex = Terraria.GameContent.TextureAssets.Extra[174].Value;
+            Texture2D tex = MagnumTextureRegistry.GetPointBloom();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             Color shifting = ChromaticSwanUtils.GetChromatic(Progress);
 
             spriteBatch.Draw(tex, drawPos, null, shifting * alpha, 0f,
                 tex.Size() * 0.5f, Scale * 0.12f, SpriteEffects.None, 0f);
+
+            // Additive bloom overlay
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            if (glow != null)
+                spriteBatch.Draw(glow, drawPos, null, shifting * alpha * 0.4f, 0f,
+                    glow.Size() * 0.5f, Scale * 0.2f, SpriteEffects.None, 0f);
         }
     }
 
@@ -55,13 +63,20 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Particle
         public override void Draw(SpriteBatch spriteBatch)
         {
             float alpha = MathHelper.SmoothStep(1f, 0f, Progress);
-            Texture2D tex = Terraria.GameContent.TextureAssets.Extra[174].Value;
+            Texture2D tex = MagnumTextureRegistry.GetPointBloom();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
 
             // Note body — white with chromatic tint
             Color noteColor = Color.Lerp(Color.White, ChromaticSwanUtils.GetChromatic(Progress * 2f), 0.4f);
             spriteBatch.Draw(tex, drawPos, null, noteColor * alpha, Rotation,
                 tex.Size() * 0.5f, new Vector2(Scale * 0.08f, Scale * 0.15f), SpriteEffects.None, 0f);
+
+            // Additive bloom overlay
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            if (glow != null)
+                spriteBatch.Draw(glow, drawPos, null, noteColor * alpha * 0.35f, Rotation,
+                    glow.Size() * 0.5f, new Vector2(Scale * 0.12f, Scale * 0.22f), SpriteEffects.None, 0f);
         }
     }
 
@@ -84,7 +99,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Particle
             float radius = MathHelper.Lerp(0f, _maxRadius, (float)Math.Sqrt(t));
             float alpha = (1f - t) * (1f - t);
 
-            Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetPixelTexture();
+            if (pixel == null) return;
             int segments = 64;
             float thickness = MathHelper.Lerp(4f, 1f, t);
 
@@ -99,6 +115,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Particle
 
                 spriteBatch.Draw(pixel, drawPos, new Rectangle(0, 0, 1, 1), col * alpha * Scale,
                     0f, Vector2.Zero, thickness, SpriteEffects.None, 0f);
+            }
+
+            // Bloom overlay at ring center
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            if (glow != null)
+            {
+                Color bloomCol = ChromaticSwanUtils.GetSpectrumColor(t * 0.5f);
+                spriteBatch.Draw(glow, Position - Main.screenPosition, null, bloomCol * alpha * 0.3f * Scale,
+                    0f, glow.Size() * 0.5f, radius / 40f, SpriteEffects.None, 0f);
             }
         }
     }
@@ -123,13 +148,20 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Particle
         public override void Draw(SpriteBatch spriteBatch)
         {
             float alpha = 1f - Progress * Progress;
-            Texture2D tex = Terraria.GameContent.TextureAssets.Extra[174].Value;
+            Texture2D tex = MagnumTextureRegistry.GetEllipse();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             Color col = ChromaticSwanUtils.GetChromatic(Progress);
 
             // Elongated shard shape
             spriteBatch.Draw(tex, drawPos, null, col * alpha, Rotation,
                 tex.Size() * 0.5f, new Vector2(Scale * 0.05f, Scale * 0.2f), SpriteEffects.None, 0f);
+
+            // Additive bloom overlay
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            if (glow != null)
+                spriteBatch.Draw(glow, drawPos, null, col * alpha * 0.35f, Rotation,
+                    glow.Size() * 0.5f, new Vector2(Scale * 0.08f, Scale * 0.3f), SpriteEffects.None, 0f);
         }
     }
 }

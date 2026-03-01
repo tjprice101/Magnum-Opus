@@ -10,6 +10,7 @@ using Terraria.Audio;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Shaders;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
 using Terraria.GameContent;
 using ReLogic.Content;
@@ -47,7 +48,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
             float startConeAngle = MathHelper.ToRadians(30f);
             float currentConeAngle = startConeAngle * (1f - convergenceProgress);
 
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
             Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
 
             // === Shader overlay: Tri-stream chromatic convergence beam ===
@@ -358,7 +359,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
             float pulse = 1f + 0.08f * MathF.Sin(Main.GameUpdateCount * 0.2f);
 
             Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetPointBloom();
 
             // === Shader overlay: Voronoi cell fracture explosion ===
             EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.VoidSwingTrail,

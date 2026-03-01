@@ -103,10 +103,10 @@ namespace MagnumOpus.Common.BaseClasses
         protected virtual SoundStyle GetSwingSound() => SoundID.Item71 with { Pitch = -0.3f + ComboStep * 0.15f };
 
         /// <summary>
-        /// Blade texture to draw. Default: BreakerBlade.
-        /// Override to return your own weapon sprite.
+        /// Blade texture to draw. Override to return your own weapon sprite.
+        /// Default: SoftGlow from VFX library (override this in your weapon's swing projectile).
         /// </summary>
-        protected virtual Texture2D GetBladeTexture() => Terraria.GameContent.TextureAssets.Item[ItemID.BreakerBlade].Value;
+        protected virtual Texture2D GetBladeTexture() => MagnumTextureRegistry.GetSoftGlow();
 
         /// <summary>Light color per frame (RGB vector). Override for non-fire themes.</summary>
         protected virtual Vector3 GetLightColor()
@@ -552,7 +552,8 @@ namespace MagnumOpus.Common.BaseClasses
         /// <summary>Draws lens flare at blade tip. Called INSIDE the additive batch — no state changes needed (M-1 fix).</summary>
         private void DrawLensFlareInner(SpriteBatch sb)
         {
-            Texture2D flareTex = Terraria.GameContent.TextureAssets.Extra[98].Value;
+            Texture2D flareTex = MagnumTextureRegistry.GetRadialBloom();
+            if (flareTex == null) return;
             Vector2 tipWorld = Owner.MountedCenter + SwordDirection * CurrentPhase.BladeLength;
             Vector2 tipScreen = tipWorld - Main.screenPosition;
             Vector2 flareOrigin = flareTex.Size() * 0.5f;

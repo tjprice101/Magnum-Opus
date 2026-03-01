@@ -31,26 +31,26 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Shaders
         {
             // CodaZenithTrail.fx — two techniques
             HasZenithTrail = TryLoadMiscShader(
-                "Effects/Fate/CodaOfAnnihilation/CodaZenithTrail",
+                "MagnumOpus/Effects/Fate/CodaOfAnnihilation/CodaZenithTrail",
                 "ZenithMain", "MagnumOpus:CodaZenithTrail");
 
             HasZenithGlow = TryLoadMiscShader(
-                "Effects/Fate/CodaOfAnnihilation/CodaZenithTrail",
+                "MagnumOpus/Effects/Fate/CodaOfAnnihilation/CodaZenithTrail",
                 "ZenithGlow", "MagnumOpus:CodaZenithGlow");
 
             // CodaSwingArc.fx
             HasSwingArc = TryLoadMiscShader(
-                "Effects/Fate/CodaOfAnnihilation/CodaSwingArc",
+                "MagnumOpus/Effects/Fate/CodaOfAnnihilation/CodaSwingArc",
                 "SwingArcMain", "MagnumOpus:CodaSwingArc");
 
             // CodaImpactBurst.fx
             HasImpactBurst = TryLoadMiscShader(
-                "Effects/Fate/CodaOfAnnihilation/CodaImpactBurst",
+                "MagnumOpus/Effects/Fate/CodaOfAnnihilation/CodaImpactBurst",
                 "ImpactBurstMain", "MagnumOpus:CodaImpactBurst");
 
             // CodaAnnihilationBloom.fx
             HasAnnihilationBloom = TryLoadMiscShader(
-                "Effects/Fate/CodaOfAnnihilation/CodaAnnihilationBloom",
+                "MagnumOpus/Effects/Fate/CodaOfAnnihilation/CodaAnnihilationBloom",
                 "AnnihilationBloomMain", "MagnumOpus:CodaAnnihilationBloom");
         }
 

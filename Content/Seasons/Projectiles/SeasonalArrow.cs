@@ -202,7 +202,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                         float angle = MathHelper.TwoPi * i / 5f;
                         Vector2 petalVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 7f);
                         Projectile.NewProjectile(Projectile.GetSource_FromAI(), target.Center, petalVel,
-                            ModContent.ProjectileType<HomingPetalProjectile>(), Projectile.damage / 3, Projectile.knockBack * 0.3f, Projectile.owner);
+                            ModContent.ProjectileType<SeasonalHomingPetalProjectile>(), Projectile.damage / 3, Projectile.knockBack * 0.3f, Projectile.owner);
                     }
                     target.AddBuff(BuffID.Poisoned, 180);
                     break;
@@ -403,7 +403,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// Homing Petal - Spring arrow split projectile
     /// TRUE_VFX_STANDARDS: Dense dust, orbiting music notes, layered spinning flares
     /// </summary>
-    public class HomingPetalProjectile : ModProjectile
+    public class SeasonalHomingPetalProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         

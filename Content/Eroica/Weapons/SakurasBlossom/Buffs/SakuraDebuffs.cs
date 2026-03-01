@@ -6,6 +6,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom.Buffs
 {
     public class SakuraBlight : ModBuff
     {
+        public override string Texture => "Terraria/Images/Buff_24";
+
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;
@@ -28,6 +30,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom.Buffs
 
     public class PetalWound : ModBuff
     {
+        public override string Texture => "Terraria/Images/Buff_24";
+
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

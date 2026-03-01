@@ -10,6 +10,8 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Materials.EnemyDrops;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Bosses;
+using MagnumOpus.Common.Systems.Shaders;
 
 namespace MagnumOpus.Content.Eroica.Enemies.EroicanCenturion
 {
@@ -655,6 +657,38 @@ namespace MagnumOpus.Content.Eroica.Enemies.EroicanCenturion
             Color goldGlow = new Color(255, 200, 100, 0) * 0.3f * pulse;
 
             SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+
+            // Shader-driven aura layer
+            Effect auraShader = EnemyShaderManager.GetShader(EnemyShaderManager.CenturionValorAura);
+            if (auraShader != null)
+            {
+                EnemyShaderManager.ApplyAuraParams(auraShader, NPC, new Color(220, 50, 30), new Color(255, 200, 100), pulse);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.Draw(texture, drawPos, sourceRect, Color.White, NPC.rotation, origin, drawScale * 1.15f, effects, 0f);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
+            // Shader-driven trail layer (only when moving fast)
+            if (NPC.velocity.Length() > 4f)
+            {
+                Effect trailShader = EnemyShaderManager.GetShader(EnemyShaderManager.CenturionChargeTrail);
+                if (trailShader != null)
+                {
+                    EnemyShaderManager.ApplyTrailParams(trailShader, NPC, new Color(220, 50, 30), new Color(255, 200, 100), NPC.velocity.Length() / 12f);
+                    spriteBatch.End();
+                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
+                    for (int t = 1; t <= 3; t++)
+                    {
+                        Vector2 trailPos = drawPos - NPC.velocity * t * 2f;
+                        float trailAlpha = 1f - (t / 4f);
+                        spriteBatch.Draw(texture, trailPos, sourceRect, Color.White * trailAlpha, NPC.rotation, origin, drawScale, effects, 0f);
+                    }
+                    spriteBatch.End();
+                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
 
             // Red glow
             for (int i = 0; i < 4; i++)

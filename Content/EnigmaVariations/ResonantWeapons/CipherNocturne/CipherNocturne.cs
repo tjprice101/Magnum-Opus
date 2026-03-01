@@ -12,6 +12,7 @@ using ReLogic.Content;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Shaders;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Particles;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Dusts;
@@ -126,7 +127,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
             float baseWidth = 4f + channelFactor * 16f; // 4 → 20px
             
             // Pixel texture for line drawing
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
+            if (pixel == null) return false;
             
             // === Shader overlay: Digital data-stream cipher beam ===
             {

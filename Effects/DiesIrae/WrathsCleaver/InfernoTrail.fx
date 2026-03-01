@@ -69,7 +69,7 @@ technique InfernoTrailTechnique
 {
     pass InfernoMain
     {
-        PixelShader = compile ps_2_0 InfernoTrailMain();
+        PixelShader = compile ps_3_0 InfernoTrailMain();
     }
 }
 
@@ -77,6 +77,6 @@ technique InfernoEmbersTechnique
 {
     pass InfernoEmbers
     {
-        PixelShader = compile ps_2_0 InfernoTrailEmbers();
+        PixelShader = compile ps_3_0 InfernoTrailEmbers();
     }
 }

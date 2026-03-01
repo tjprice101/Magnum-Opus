@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Buffs
     /// </summary>
     public class ExecutionBrand : ModBuff
     {
+        public override string Texture => "Terraria/Images/Buff_24";
+
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;
@@ -26,6 +28,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Buffs
     /// </summary>
     public class PyreImmolation : ModBuff
     {
+        public override string Texture => "Terraria/Images/Buff_24";
+
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

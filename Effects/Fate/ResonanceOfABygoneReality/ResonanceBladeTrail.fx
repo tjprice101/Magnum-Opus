@@ -1,5 +1,5 @@
 // ResonanceBladeTrail.fx
-// Spectral blade slash trail — ghostly arc with edge glow and shimmer.
+// Spectral blade slash trail  Eghostly arc with edge glow and shimmer.
 
 sampler uImage0 : register(s0);
 
@@ -23,7 +23,7 @@ float4 BladeTrailPS(VSOutput input) : COLOR0
     float trailFade = 1.0 - uv.x;
     trailFade = trailFade * trailFade;
 
-    // Edge glow — bright at edges, softer in center
+    // Edge glow  Ebright at edges, softer in center
     float edgeDist = abs(uv.y - 0.5) * 2.0;
     float edgeGlow = pow(max(edgeDist, 0.0), 2.0) * 0.6;
     float centerFill = 1.0 - edgeDist;
@@ -42,6 +42,6 @@ technique Technique1
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 BladeTrailPS();
+        PixelShader = compile ps_3_0 BladeTrailPS();
     }
 }

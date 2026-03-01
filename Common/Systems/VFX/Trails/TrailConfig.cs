@@ -671,8 +671,8 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
             }
             catch
             {
-                // Fallback to vanilla texture
-                return Terraria.GameContent.TextureAssets.MagicPixel.Value;
+                // Fallback to registry pixel texture, then vanilla
+                return MagnumTextureRegistry.GetPixelTexture() ?? Terraria.GameContent.TextureAssets.MagicPixel.Value;
             }
         }
         

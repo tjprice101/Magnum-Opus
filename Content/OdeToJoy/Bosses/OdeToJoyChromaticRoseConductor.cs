@@ -15,6 +15,8 @@ using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.OdeToJoy.Bosses.Systems;
+using MagnumOpus.Common.Systems.Bosses;
 using static MagnumOpus.Common.Systems.BossDialogueSystem;
 
 namespace MagnumOpus.Content.OdeToJoy.Bosses
@@ -311,6 +313,12 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             
             Timer++;
             NPC.spriteDirection = NPC.Center.X < target.Center.X ? 1 : -1;
+            
+            BossIndexTracker.OdeToJoyConductor = NPC.whoAmI;
+            BossIndexTracker.OdeToJoyPhase = difficultyTier;
+            
+            if (State != BossPhase.Spawning && State != BossPhase.Dying)
+                OdeToJoyBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier, isPhase2);
         }
         
         #region Phase Transition System
@@ -1279,6 +1287,32 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
         
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
+            Texture2D texture = Terraria.GameContent.TextureAssets.Npc[Type].Value;
+            Rectangle frame = NPC.frame;
+            Vector2 origin = frame.Size() / 2f;
+            
+            // === Shader: Garden Aura ===
+            if (State != BossPhase.Spawning)
+                OdeToJoyBossShaderSystem.DrawGardenAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, isEnraged);
+            
+            // === Shader: Vine Trail (when moving fast) ===
+            if (NPC.velocity.Length() > 6f)
+                OdeToJoyBossShaderSystem.DrawVineTrail(spriteBatch, NPC, screenPos, texture, frame, origin, isEnraged);
+            
+            // === Shader: Chromatic Bloom (during PhaseTransition) ===
+            if (State == BossPhase.PhaseTransition)
+            {
+                float transitionProgress = Timer / 90f;
+                OdeToJoyBossShaderSystem.DrawChromaticBloom(spriteBatch, NPC, screenPos, transitionProgress);
+            }
+            
+            // === Shader: Jubilant Dissolve (during Dying) ===
+            if (State == BossPhase.Dying)
+            {
+                float dissolveProgress = deathTimer / 180f;
+                OdeToJoyBossShaderSystem.DrawJubilantDissolve(spriteBatch, NPC, screenPos, texture, frame, origin, dissolveProgress);
+            }
+            
             // Trail afterimages
             for (int i = 0; i < NPC.oldPos.Length - 1; i++)
             {
@@ -1287,10 +1321,6 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 Color trailColor = Color.Lerp(RosePink, GoldenPollen, progress) * alpha;
                 
                 Vector2 drawPos = NPC.oldPos[i] + NPC.Size / 2f - screenPos;
-                
-                Texture2D texture = Terraria.GameContent.TextureAssets.Npc[Type].Value;
-                Rectangle frame = NPC.frame;
-                Vector2 origin = frame.Size() / 2f;
                 
                 spriteBatch.Draw(texture, drawPos, frame, trailColor, NPC.rotation, origin, NPC.scale * (1f - progress * 0.2f), NPC.spriteDirection == 1 ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0f);
             }

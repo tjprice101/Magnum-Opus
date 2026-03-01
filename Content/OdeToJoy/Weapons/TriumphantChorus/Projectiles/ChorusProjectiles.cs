@@ -7,6 +7,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Utilities;
 using MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Particles;
 
@@ -27,6 +28,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
         private ref float FinaleTimer => ref Projectile.ai[1];
 
         private float orbitAngle;
+
+        private static Asset<Texture2D> _softBloomTex;
 
         public override void SetStaticDefaults()
         {
@@ -230,17 +233,50 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            _softBloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
+
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
+            Texture2D softBloom = _softBloomTex.Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = tex.Size() / 2f;
+            Vector2 sOrigin = softBloom.Size() / 2f;
 
             SpriteBatch sb = Main.spriteBatch;
+            float time = (float)Main.GameUpdateCount / 60f;
+            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.07f) * 0.08f;
 
-            // Additive golden glow behind minion
+            // ═══ Layer 1: JubilantHarmony — choral harmonic rings around the minion ═══
             sb.End();
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            Effect harmonyShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyJubilantHarmonyShader);
+            if (harmonyShader != null)
+            {
+                // Swell intensity based on Finale timer — minion glows brighter as Finale approaches
+                float finaleCharge = Math.Min(FinaleTimer / 300f, 1f);
+                float choralSwell = 0.3f + finaleCharge * 0.4f;
+
+                harmonyShader.Parameters["uTime"]?.SetValue(time);
+                harmonyShader.Parameters["uColor"]?.SetValue(ChorusUtils.TriumphGold.ToVector3());
+                harmonyShader.Parameters["uSecondaryColor"]?.SetValue(ChorusUtils.CrescendoRose.ToVector3());
+                harmonyShader.Parameters["uOpacity"]?.SetValue(choralSwell);
+                harmonyShader.Parameters["uIntensity"]?.SetValue(1.0f + finaleCharge * 0.8f);
+                harmonyShader.Parameters["uRadius"]?.SetValue(0.35f);
+                harmonyShader.Parameters["uHarmonicFreq"]?.SetValue(1.2f + finaleCharge * 1.5f);
+                harmonyShader.CurrentTechnique = harmonyShader.Techniques["SymphonicAuraTechnique"];
+                harmonyShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(softBloom, drawPos, null, Color.White,
+                    0f, sOrigin, 0.7f * pulse * (1f + finaleCharge * 0.3f), SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+
+            // ═══ Layer 2: Additive glow layers ═══
             ChorusUtils.BeginAdditive(sb);
 
-            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.07f) * 0.08f;
             Color glow = ChorusUtils.Additive(ChorusUtils.TriumphGold, 0.3f);
             sb.Draw(tex, drawPos, null, glow, Projectile.rotation, origin,
                 Projectile.scale * pulse * 1.25f, SpriteEffects.None, 0f);
@@ -272,6 +308,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         private bool IsFinaleBlast => Projectile.ai[0] == 1f;
+
+        private static Asset<Texture2D> _softBloomTex;
 
         public override void SetDefaults()
         {
@@ -366,16 +404,75 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            _softBloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
+
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
+            Texture2D softBloom = _softBloomTex.Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = tex.Size() / 2f;
+            Vector2 sOrigin = softBloom.Size() / 2f;
 
             SpriteBatch sb = Main.spriteBatch;
-            sb.End();
-            ChorusUtils.BeginAdditive(sb);
-
+            float time = (float)Main.GameUpdateCount / 60f;
             float sizeMult = IsFinaleBlast ? 2f : 1f;
             float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
+
+            sb.End();
+
+            // ═══ Layer 1: Shader-driven aura — Finale blasts get CelebrationAura expanding rings ═══
+            if (IsFinaleBlast)
+            {
+                sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Effect auraShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyCelebrationAuraShader);
+                if (auraShader != null)
+                {
+                    auraShader.Parameters["uTime"]?.SetValue(time * 1.5f);
+                    auraShader.Parameters["uColor"]?.SetValue(ChorusUtils.TriumphGold.ToVector3());
+                    auraShader.Parameters["uSecondaryColor"]?.SetValue(ChorusUtils.FinaleWhite.ToVector3());
+                    auraShader.Parameters["uOpacity"]?.SetValue(0.55f);
+                    auraShader.Parameters["uIntensity"]?.SetValue(1.8f);
+                    auraShader.Parameters["uRadius"]?.SetValue(0.5f);
+                    auraShader.Parameters["uRingCount"]?.SetValue(4f);
+                    auraShader.CurrentTechnique = auraShader.Techniques["CelebrationAuraTechnique"];
+                    auraShader.CurrentTechnique.Passes[0].Apply();
+
+                    sb.Draw(softBloom, drawPos, null, Color.White,
+                        0f, sOrigin, 1.2f * pulse, SpriteEffects.None, 0f);
+                }
+
+                sb.End();
+            }
+            else
+            {
+                // Normal blasts get subtle JubilantHarmony harmonic shimmer
+                sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Effect harmonyShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyJubilantHarmonyShader);
+                if (harmonyShader != null)
+                {
+                    harmonyShader.Parameters["uTime"]?.SetValue(time);
+                    harmonyShader.Parameters["uColor"]?.SetValue(ChorusUtils.HarmonyGold.ToVector3());
+                    harmonyShader.Parameters["uSecondaryColor"]?.SetValue(ChorusUtils.CrescendoRose.ToVector3());
+                    harmonyShader.Parameters["uOpacity"]?.SetValue(0.35f);
+                    harmonyShader.Parameters["uIntensity"]?.SetValue(1.0f);
+                    harmonyShader.Parameters["uRadius"]?.SetValue(0.3f);
+                    harmonyShader.Parameters["uHarmonicFreq"]?.SetValue(2.0f);
+                    harmonyShader.CurrentTechnique = harmonyShader.Techniques["SymphonicAuraTechnique"];
+                    harmonyShader.CurrentTechnique.Passes[0].Apply();
+
+                    sb.Draw(softBloom, drawPos, null, Color.White,
+                        0f, sOrigin, 0.45f * pulse, SpriteEffects.None, 0f);
+                }
+
+                sb.End();
+            }
+
+            // ═══ Layer 2: Additive bloom body ═══
+            ChorusUtils.BeginAdditive(sb);
 
             // Outer golden glow
             Color outer = ChorusUtils.Additive(ChorusUtils.HarmonyGold, 0.4f);

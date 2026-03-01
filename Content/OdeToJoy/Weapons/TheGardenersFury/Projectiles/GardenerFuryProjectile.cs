@@ -6,6 +6,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Graphics.CameraModifiers;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Particles;
 using MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Utilities;
 
@@ -23,6 +24,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         private static Asset<Texture2D> _bloomTex;
+        private static Asset<Texture2D> _softBloomTex;
 
         /// <summary>Maximum extension distance from player center in pixels.</summary>
         private const float MaxExtension = 100f;
@@ -283,9 +285,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
         {
             _bloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
                 "Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
+            _softBloomTex ??= ModContent.GetInstance<MagnumOpus>().Assets.Request<Texture2D>(
+                "Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
 
-            Texture2D tex = _bloomTex.Value;
-            Vector2 origin = tex.Size() / 2f;
+            Texture2D bloom = _bloomTex.Value;
+            Texture2D softBloom = _softBloomTex.Value;
+            Vector2 bOrigin = bloom.Size() / 2f;
+            Vector2 sOrigin = softBloom.Size() / 2f;
             Player owner = Main.player[Projectile.owner];
 
             float comboIntensity = Math.Clamp(ComboAtFire / 10f, 0f, 1f);
@@ -319,36 +325,69 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
             Vector2 basePos = owner.MountedCenter - Main.screenPosition;
             float rot = thrustDirection.ToRotation();
             float bladeLength = MaxExtension * extensionProgress;
+            float time = (float)Main.GameUpdateCount / 60f;
 
             sb.End();
-            GardenersUtils.BeginAdditive(sb);
-
-            // ── Stretched blade beam from player to tip ──
-            Color bladeColor = GardenersUtils.Additive(
-                Color.Lerp(GardenersUtils.GoldenPetal, GardenersUtils.JubilantGold, comboIntensity),
-                0.6f + comboIntensity * 0.3f);
 
             Vector2 beamCenter = (tipPos + basePos) / 2f;
-            float beamScaleX = bladeLength / tex.Width * 1.1f;
-            float beamScaleY = 0.12f + comboIntensity * 0.06f;
+            float beamScaleX = bladeLength / bloom.Width * 1.1f;
+            float beamScaleY = 0.14f + comboIntensity * 0.08f;
 
-            sb.Draw(tex, beamCenter, null, bladeColor, rot, origin,
+            // ═══ Layer 1: VerdantSlash shader — vine-entwined blade beam ═══
+            Effect slashShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyVerdantSlashShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (slashShader != null)
+            {
+                slashShader.Parameters["uTime"]?.SetValue(time);
+                slashShader.Parameters["uColor"]?.SetValue(GardenersUtils.StemGreen.ToVector3());
+                slashShader.Parameters["uSecondaryColor"]?.SetValue(GardenersUtils.JubilantGold.ToVector3());
+                slashShader.Parameters["uOpacity"]?.SetValue(0.8f + comboIntensity * 0.2f);
+                slashShader.Parameters["uIntensity"]?.SetValue(1.3f + comboIntensity * 0.5f);
+                slashShader.Parameters["uComboProgress"]?.SetValue(comboIntensity);
+                slashShader.CurrentTechnique = slashShader.Techniques["VerdantSlashTechnique"];
+                slashShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(bloom, beamCenter, null, Color.White, rot, bOrigin,
+                    new Vector2(beamScaleX, beamScaleY * 2.2f), SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+
+            // ═══ Layer 2: Additive glow layers ═══
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Stretched blade beam
+            Color bladeColor = GardenersUtils.Additive(
+                Color.Lerp(GardenersUtils.GoldenPetal, GardenersUtils.JubilantGold, comboIntensity),
+                0.5f + comboIntensity * 0.3f);
+            sb.Draw(bloom, beamCenter, null, bladeColor, rot, bOrigin,
                 new Vector2(beamScaleX, beamScaleY), SpriteEffects.None, 0f);
 
             // Brighter inner core beam
-            Color coreColor = GardenersUtils.Additive(GardenersUtils.SunlightWhite, 0.35f + comboIntensity * 0.25f);
-            sb.Draw(tex, beamCenter, null, coreColor, rot, origin,
-                new Vector2(beamScaleX * 0.7f, beamScaleY * 0.5f), SpriteEffects.None, 0f);
+            Color coreColor = GardenersUtils.Additive(GardenersUtils.SunlightWhite, 0.3f + comboIntensity * 0.25f);
+            sb.Draw(bloom, beamCenter, null, coreColor, rot, bOrigin,
+                new Vector2(beamScaleX * 0.7f, beamScaleY * 0.45f), SpriteEffects.None, 0f);
 
-            // ── Bright glow at tip ──
+            // ═══ Layer 3: Bright tip glow with SoftRadialBloom ═══
             float tipPulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.3f) * 0.15f;
             float tipGlowScale = (0.35f + comboIntensity * 0.25f) * tipPulse;
 
-            Color tipColor = GardenersUtils.Additive(GardenersUtils.JubilantGold, 0.8f + comboIntensity * 0.2f);
-            sb.Draw(tex, tipPos, null, tipColor, 0f, origin, tipGlowScale, SpriteEffects.None, 0f);
+            Color tipColor = GardenersUtils.Additive(GardenersUtils.JubilantGold, 0.7f + comboIntensity * 0.2f);
+            sb.Draw(softBloom, tipPos, null, tipColor, 0f, sOrigin, tipGlowScale, SpriteEffects.None, 0f);
 
             Color tipCore = GardenersUtils.Additive(GardenersUtils.SunlightWhite, 0.5f + comboIntensity * 0.3f);
-            sb.Draw(tex, tipPos, null, tipCore, 0f, origin, tipGlowScale * 0.5f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, tipPos, null, tipCore, 0f, bOrigin, tipGlowScale * 0.45f, SpriteEffects.None, 0f);
+
+            // Rose accent at combo 5+
+            if (comboIntensity >= 0.5f)
+            {
+                Color roseAccent = GardenersUtils.Additive(GardenersUtils.RoseBlush, (comboIntensity - 0.5f) * 0.5f);
+                sb.Draw(softBloom, tipPos, null, roseAccent, 0f, sOrigin, tipGlowScale * 1.3f, SpriteEffects.None, 0f);
+            }
 
             sb.End();
             GardenersUtils.BeginDefault(sb);
@@ -560,25 +599,47 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
             Texture2D tex = _bloomTex.Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            float time = (float)Main.GameUpdateCount / 60f;
 
             SpriteBatch sb = Main.spriteBatch;
             sb.End();
-            GardenersUtils.BeginAdditive(sb);
 
             float fade = Projectile.timeLeft / 90f;
             float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.25f) * 0.1f;
 
+            // ═══ GardenBloom shader — petal-shaped pulsing glow ═══
+            Effect bloomShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyGardenBloomShader);
+
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (bloomShader != null)
+            {
+                bloomShader.Parameters["uTime"]?.SetValue(time);
+                bloomShader.Parameters["uColor"]?.SetValue(GardenersUtils.JubilantGold.ToVector3());
+                bloomShader.Parameters["uSecondaryColor"]?.SetValue(GardenersUtils.RoseBlush.ToVector3());
+                bloomShader.Parameters["uOpacity"]?.SetValue(fade * 0.6f);
+                bloomShader.Parameters["uIntensity"]?.SetValue(1.3f);
+                bloomShader.Parameters["uRadius"]?.SetValue(0.4f);
+                bloomShader.Parameters["uPulseSpeed"]?.SetValue(4f);
+                bloomShader.CurrentTechnique = bloomShader.Techniques["JubilantPulseTechnique"];
+                bloomShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(tex, drawPos, null, Color.White, Projectile.rotation, origin,
+                    0.55f * pulse, SpriteEffects.None, 0f);
+            }
+
             // Outer golden glow
-            Color outerCol = GardenersUtils.Additive(GardenersUtils.JubilantGold, fade * 0.7f);
-            sb.Draw(tex, drawPos, null, outerCol, Projectile.rotation, origin, 0.4f * pulse, SpriteEffects.None, 0f);
+            Color outerCol = GardenersUtils.Additive(GardenersUtils.JubilantGold, fade * 0.65f);
+            sb.Draw(tex, drawPos, null, outerCol, Projectile.rotation, origin, 0.38f * pulse, SpriteEffects.None, 0f);
 
             // Rose-blush mid layer
-            Color midCol = GardenersUtils.Additive(GardenersUtils.RoseBlush, fade * 0.5f);
-            sb.Draw(tex, drawPos, null, midCol, Projectile.rotation * 0.7f, origin, 0.28f * pulse, SpriteEffects.None, 0f);
+            Color midCol = GardenersUtils.Additive(GardenersUtils.RoseBlush, fade * 0.45f);
+            sb.Draw(tex, drawPos, null, midCol, Projectile.rotation * 0.7f, origin, 0.26f * pulse, SpriteEffects.None, 0f);
 
             // Hot white core
             Color coreCol = GardenersUtils.Additive(GardenersUtils.SunlightWhite, fade * 0.5f);
-            sb.Draw(tex, drawPos, null, coreCol, 0f, origin, 0.14f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(tex, drawPos, null, coreCol, 0f, origin, 0.13f * pulse, SpriteEffects.None, 0f);
 
             sb.End();
             GardenersUtils.BeginDefault(sb);

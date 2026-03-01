@@ -84,30 +84,44 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory
             Vector2 position = Item.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
+            // Fanfare crescendo: builds from quiet glow to periodic bright golden flash
             float time = Main.GameUpdateCount * 0.06f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.1f;
-            float flicker = Main.rand.NextFloat(0.9f, 1f);
+            float fanfareCycle = Main.GameUpdateCount % 120f / 120f; // 0→1 over ~2 seconds
+            float crescendo = (float)Math.Pow(fanfareCycle, 2.5f); // Slow build, sharp peak
+            float fanfareFlash = fanfareCycle > 0.9f ? (fanfareCycle - 0.9f) / 0.1f : 0f; // Bright flash in last 10%
+            float baseGlow = 0.15f + crescendo * 0.25f;
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Golden outer glow
-            spriteBatch.Draw(texture, position, null, AnthemUtils.Additive(AnthemUtils.BrilliantAmber, 0.35f * flicker),
-                rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
-            // Rose inner glow
-            spriteBatch.Draw(texture, position, null, AnthemUtils.Additive(AnthemUtils.RoseTint, 0.25f * flicker),
-                rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            // Building amber glow — grows with crescendo
+            float outerScale = scale * (1.15f + crescendo * 0.25f);
+            spriteBatch.Draw(texture, position, null, AnthemUtils.Additive(AnthemUtils.BrilliantAmber, baseGlow),
+                rotation, origin, outerScale, SpriteEffects.None, 0f);
 
-            float shimmer = (float)Math.Sin(time * 3f) * 0.5f + 0.5f;
-            spriteBatch.Draw(texture, position, null, AnthemUtils.Additive(AnthemUtils.GloryWhite, 0.2f * shimmer),
-                rotation, origin, scale * pulse * 1.05f, SpriteEffects.None, 0f);
+            // Rich gold mid layer — appears as crescendo builds
+            spriteBatch.Draw(texture, position, null, AnthemUtils.Additive(AnthemUtils.RichGold, crescendo * 0.3f),
+                rotation, origin, scale * (1.08f + crescendo * 0.12f), SpriteEffects.None, 0f);
+
+            // Rose accent fading in during buildup
+            float roseIntensity = (float)Math.Sin(fanfareCycle * MathHelper.Pi) * 0.2f;
+            spriteBatch.Draw(texture, position, null, AnthemUtils.Additive(AnthemUtils.RoseTint, roseIntensity),
+                rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
+
+            // Fanfare white flash — blinding burst at cycle peak
+            if (fanfareFlash > 0f)
+            {
+                float flashScale = scale * (1.3f + fanfareFlash * 0.5f);
+                spriteBatch.Draw(texture, position, null, AnthemUtils.Additive(AnthemUtils.GloryWhite, fanfareFlash * 0.6f),
+                    rotation, origin, flashScale, SpriteEffects.None, 0f);
+            }
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            Lighting.AddLight(Item.Center, 0.5f, 0.45f, 0.12f);
+            Lighting.AddLight(Item.Center, 0.4f + fanfareFlash * 0.5f, 0.35f + fanfareFlash * 0.4f, 0.08f + fanfareFlash * 0.2f);
             return true;
         }
 

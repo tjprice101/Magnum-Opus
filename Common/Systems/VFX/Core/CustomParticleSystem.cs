@@ -112,129 +112,165 @@ namespace MagnumOpus.Common.Systems
         
         public override void Load()
         {
+            // Load textures using EXISTING assets from VFX Asset Library, SandboxLastPrism,
+            // SandboxChromaticEruption, and Particles Asset Library.
+            // Each array is populated individually with try/catch so one missing texture
+            // doesn't prevent the rest from loading.
+
+            string pal = "MagnumOpus/Assets/Particles Asset Library/";
+            string vfx = "MagnumOpus/Assets/VFX Asset Library";
+            string slp = "MagnumOpus/Assets/SandboxLastPrism";
+            string ce  = "MagnumOpus/Assets/SandboxChromaticEruption";
+            string pv  = "MagnumOpus/Assets/SandboxPhotoviscerator";
+
+            int loaded = 0;
+
+            // === FLARES & GLOWS — use SandboxLastPrism flares + VFX blooms ===
+            EnergyFlares[0] = TryLoad($"{slp}/Pixel/Flare", ref loaded);
+            EnergyFlares[1] = TryLoad($"{slp}/Pixel/PartiGlow", ref loaded);
+
+            FlareSparkles[0] = TryLoad($"{slp}/Flare/flare_16", ref loaded);
+            FlareSparkles[1] = TryLoad($"{slp}/Flare/Simple Lens Flare_11", ref loaded);
+            FlareSparkles[2] = TryLoad($"{vfx}/GlowAndBloom/PointBloom", ref loaded);
+            FlareSparkles[3] = TryLoad($"{vfx}/GlowAndBloom/SoftRadialBloom", ref loaded);
+            FlareSparkles[4] = TryLoad($"{pv}/Particle_SmallBloom", ref loaded);
+            FlareSparkles[5] = TryLoad($"{pv}/Particle_BloomCircle", ref loaded);
+
+            SoftGlows[0] = TryLoad($"{slp}/Orbs/SoftGlow", ref loaded);
+            SoftGlows[1] = TryLoad($"{slp}/Orbs/SoftGlow64", ref loaded);
+            SoftGlows[2] = TryLoad($"{slp}/Orbs/feather_circle128PMA", ref loaded);
+
+            // === MUSICAL NOTES — these actually exist in Particles Asset Library ===
+            MusicNotes[0] = TryLoad(pal + "MusicNote", ref loaded);
+            MusicNotes[1] = TryLoad(pal + "CursiveMusicNote", ref loaded);
+            MusicNotes[2] = TryLoad(pal + "MusicNoteWithSlashes", ref loaded);
+            MusicNotes[3] = TryLoad(pal + "QuarterNote", ref loaded);
+            MusicNotes[4] = TryLoad(pal + "TallMusicNote", ref loaded);
+            MusicNotes[5] = TryLoad(pal + "WholeNote", ref loaded);
+
+            // === SPARKLES & STARS — use actual star PNGs from Particles/Stars ===
+            TwilightSparkles[0] = TryLoad(pal + "Stars/4PointedStarSoft", ref loaded);
+            TwilightSparkles[1] = TryLoad(pal + "Stars/ThinTall4PointedStar", ref loaded);
+            TwilightSparkles[2] = TryLoad(pal + "Stars/4PointedStarHard", ref loaded);
+
+            SparkleCluster[0] = TryLoad(pal + "Stars/4PointedStarHard", ref loaded);
+            SparkleCluster[1] = TryLoad(pal + "Stars/4PointedStarSoft", ref loaded);
+            SparkleCluster[2] = TryLoad(pal + "Stars/ThinTall4PointedStar", ref loaded);
+
+            Stars[0] = TryLoad(pal + "Stars/4PointedStarHard", ref loaded);
+            Stars[1] = TryLoad(pal + "Stars/4PointedStarSoft", ref loaded);
+            Stars[2] = TryLoad(pal + "Stars/ThinTall4PointedStar", ref loaded);
+            Stars[3] = TryLoad($"{slp}/Pixel/Flare", ref loaded);
+            Stars[4] = TryLoad($"{vfx}/MasksAndShapes/SoftCircle", ref loaded);
+            Stars[5] = TryLoad($"{vfx}/GlowAndBloom/PointBloom", ref loaded);
+            Stars[6] = TryLoad($"{slp}/Pixel/PartiGlow", ref loaded);
+
+            // === IMPACTS — use VFX impact + bloom textures ===
+            Impacts[0] = TryLoad($"{vfx}/ImpactEffects/ImpactEllipse", ref loaded);
+            Impacts[1] = TryLoad($"{vfx}/GlowAndBloom/PointBloom", ref loaded);
+            Impacts[2] = TryLoad($"{vfx}/GlowAndBloom/SoftRadialBloom", ref loaded);
+
+            FlameImpacts[0] = TryLoad($"{vfx}/ImpactEffects/ImpactEllipse", ref loaded);
+            FlameImpacts[1] = TryLoad($"{slp}/Orbs/whiteFireEyeA", ref loaded);
+            FlameImpacts[2] = TryLoad($"{vfx}/GlowAndBloom/SoftRadialBloom", ref loaded);
+
+            // === SWORD ARCS — use trail/beam/mask shapes for arc rendering ===
+            SwordArcs[0] = TryLoad($"{vfx}/TrailsAndRibbons/BasicTrail", ref loaded);
+            SwordArcs[1] = TryLoad($"{slp}/Trails/EnergyTex", ref loaded);
+            SwordArcs[2] = TryLoad($"{slp}/Trails/spark_06", ref loaded);
+            SwordArcs[3] = TryLoad($"{slp}/Trails/ThinGlowLine", ref loaded);
+            SwordArcs[4] = TryLoad($"{slp}/Trails/Trail5Loop", ref loaded);
+            SwordArcs[5] = TryLoad($"{slp}/Trails/Clear/GlowTrailClear", ref loaded);
+            SwordArcs[6] = TryLoad($"{slp}/Trails/Clear/ThinLineGlowClear", ref loaded);
+            SwordArcs[7] = TryLoad($"{vfx}/BeamTextures/HorizontalBeamStreakSegment", ref loaded);
+            SwordArcs[8] = TryLoad($"{slp}/Trails/Extra_196_Black", ref loaded);
+
+            // === HALOS — use mask shapes for halo rendering ===
+            GlowingHalos[0] = TryLoad($"{vfx}/MasksAndShapes/SoftCircle", ref loaded);
+            GlowingHalos[1] = TryLoad($"{vfx}/MasksAndShapes/HardCircleMask", ref loaded);
+            GlowingHalos[2] = TryLoad($"{vfx}/MasksAndShapes/VerticalEllipse", ref loaded);
+            GlowingHalos[3] = TryLoad($"{vfx}/MasksAndShapes/WideSoftEllipse", ref loaded);
+            GlowingHalos[4] = TryLoad($"{slp}/Orbs/circle_05", ref loaded);
+
+            // === ENIGMA EYES — use SoftCircle + noise for procedural eyes ===
+            EnigmaEyes[0] = TryLoad($"{vfx}/MasksAndShapes/SmallHardCircleMask", ref loaded);
+            EnigmaEyes[1] = TryLoad($"{vfx}/MasksAndShapes/HardCircleMask", ref loaded);
+            EnigmaEyes[2] = TryLoad($"{vfx}/NoiseTextures/CosmicEnergyVortex", ref loaded);
+            EnigmaEyes[3] = TryLoad($"{vfx}/MasksAndShapes/SoftCircle", ref loaded);
+            EnigmaEyes[4] = TryLoad($"{vfx}/NoiseTextures/NebulaWispNoise", ref loaded);
+            EnigmaEyes[5] = TryLoad($"{vfx}/MasksAndShapes/VerticalEllipse", ref loaded);
+            EnigmaEyes[6] = TryLoad($"{vfx}/NoiseTextures/VoronoiCellNoise", ref loaded);
+            EnigmaEyes[7] = TryLoad($"{vfx}/NoiseTextures/RealityCrackPattern", ref loaded);
+
+            // === GLYPHS — use noise/cosmic textures as glyph stand-ins ===
+            Glyphs[0]  = TryLoad($"{vfx}/NoiseTextures/CosmicEnergyVortex", ref loaded);
+            Glyphs[1]  = TryLoad($"{vfx}/NoiseTextures/CosmicNebulaClouds", ref loaded);
+            Glyphs[2]  = TryLoad($"{vfx}/NoiseTextures/DestinyThreadPattern", ref loaded);
+            Glyphs[3]  = TryLoad($"{vfx}/NoiseTextures/MusicalWavePattern", ref loaded);
+            Glyphs[4]  = TryLoad($"{vfx}/NoiseTextures/NebulaWispNoise", ref loaded);
+            Glyphs[5]  = TryLoad($"{vfx}/NoiseTextures/RealityCrackPattern", ref loaded);
+            Glyphs[6]  = TryLoad($"{vfx}/NoiseTextures/StarFieldScatter", ref loaded);
+            Glyphs[7]  = TryLoad($"{vfx}/NoiseTextures/SoftCircularCaustics", ref loaded);
+            Glyphs[8]  = TryLoad($"{vfx}/NoiseTextures/VoronoiCellNoise", ref loaded);
+            Glyphs[9]  = TryLoad($"{vfx}/NoiseTextures/VoronoiNoise", ref loaded);
+            Glyphs[10] = TryLoad($"{vfx}/NoiseTextures/TileableMarbleNoise", ref loaded);
+            Glyphs[11] = TryLoad($"{vfx}/NoiseTextures/UniversalRadialFlowNoise", ref loaded);
+
+            // === SWAN FEATHERS — use ellipse/glow shapes tinted white at runtime ===
+            SwanFeathers[0] = TryLoad($"{vfx}/MasksAndShapes/VerticalEllipse", ref loaded);
+            SwanFeathers[1] = TryLoad($"{vfx}/MasksAndShapes/WideSoftEllipse", ref loaded);
+            SwanFeathers[2] = TryLoad($"{slp}/Orbs/feather_circle128PMA", ref loaded);
+            SwanFeathers[3] = TryLoad($"{vfx}/MasksAndShapes/SoftCircle", ref loaded);
+            SwanFeathers[4] = TryLoad($"{slp}/Orbs/SoftGlow", ref loaded);
+            SwanFeathers[5] = TryLoad($"{vfx}/MasksAndShapes/VerticalEllipse", ref loaded);
+            SwanFeathers[6] = TryLoad($"{vfx}/MasksAndShapes/WideSoftEllipse", ref loaded);
+            SwanFeathers[7] = TryLoad($"{slp}/Orbs/feather_circle128PMA", ref loaded);
+            SwanFeathers[8] = TryLoad($"{vfx}/MasksAndShapes/SoftCircle", ref loaded);
+            SwanFeathers[9] = TryLoad($"{slp}/Orbs/SoftGlow64", ref loaded);
+
+            // === FLAME WISPS — use fire eye + bloom ===
+            FlameWisps[0] = TryLoad($"{slp}/Orbs/whiteFireEyeA", ref loaded);
+            FlameWisps[1] = TryLoad($"{slp}/Orbs/circle_05", ref loaded);
+
+            // === TRAILS — use trail textures from SandboxLastPrism ===
+            ParticleTrails[0] = TryLoad($"{vfx}/TrailsAndRibbons/BasicTrail", ref loaded);
+            ParticleTrails[1] = TryLoad($"{slp}/Trails/EnergyTex", ref loaded);
+            ParticleTrails[2] = TryLoad($"{slp}/Trails/spark_06", ref loaded);
+            ParticleTrails[3] = TryLoad($"{slp}/Trails/ThinGlowLine", ref loaded);
+
+            // === MAGIC SPARKLE FIELDS — use noise + caustics ===
+            MagicSparkleFields[0] = TryLoad($"{vfx}/NoiseTextures/SoftCircularCaustics", ref loaded);
+            MagicSparkleFields[1] = TryLoad($"{vfx}/NoiseTextures/StarFieldScatter", ref loaded);
+            MagicSparkleFields[2] = TryLoad($"{vfx}/NoiseTextures/MusicalWavePattern", ref loaded);
+            MagicSparkleFields[3] = TryLoad($"{vfx}/NoiseTextures/CosmicNebulaClouds", ref loaded);
+            MagicSparkleFields[4] = TryLoad($"{vfx}/NoiseTextures/PerlinNoise", ref loaded);
+            MagicSparkleFields[5] = TryLoad($"{vfx}/NoiseTextures/SimplexNoise", ref loaded);
+            MagicSparkleFields[6] = TryLoad($"{vfx}/NoiseTextures/TileableFBMNoise", ref loaded);
+            MagicSparkleFields[7] = TryLoad($"{vfx}/NoiseTextures/VornoiEdgeNoise", ref loaded);
+
+            // === PRISMATIC SPARKLES — use star variants ===
+            PrismaticSparkles[0] = TryLoad(pal + "Stars/4PointedStarHard", ref loaded);
+            PrismaticSparkles[1] = TryLoad(pal + "Stars/4PointedStarSoft", ref loaded);
+            PrismaticSparkles[2] = TryLoad(pal + "Stars/ThinTall4PointedStar", ref loaded);
+
+            // === MISC — use smoke/mist from CE ===
+            CrossParticles[0] = TryLoad($"{ce}/SmallGreyscaleCircle", ref loaded);
+            CrossParticles[1] = TryLoad($"{vfx}/MasksAndShapes/SmallHardCircleMask", ref loaded);
+
+            TexturesLoaded = loaded > 0;
+            Mod.Logger.Info($"CustomParticleSystem: Loaded {loaded} textures from VFX Asset Library");
+        }
+
+        /// <summary>Individual asset loader that never throws — returns null on failure.</summary>
+        private static Asset<Texture2D> TryLoad(string path, ref int counter)
+        {
             try
             {
-                string basePath = "MagnumOpus/Assets/Particles Asset Library/";
-                
-                // === FLARES & GLOWS ===
-                EnergyFlares[0] = ModContent.Request<Texture2D>(basePath + "EnergyFlare", AssetRequestMode.ImmediateLoad);
-                EnergyFlares[1] = ModContent.Request<Texture2D>(basePath + "EnergyFlare4", AssetRequestMode.ImmediateLoad);
-                
-                FlareSparkles[0] = ModContent.Request<Texture2D>(basePath + "FlareSparkle", AssetRequestMode.ImmediateLoad);
-                FlareSparkles[1] = ModContent.Request<Texture2D>(basePath + "FlareSpikeBurst", AssetRequestMode.ImmediateLoad);
-                FlareSparkles[2] = ModContent.Request<Texture2D>(basePath + "SmallBurstFlare", AssetRequestMode.ImmediateLoad);
-                FlareSparkles[3] = ModContent.Request<Texture2D>(basePath + "GlintSparkleFlare", AssetRequestMode.ImmediateLoad);
-                FlareSparkles[4] = ModContent.Request<Texture2D>(basePath + "GlintTwilightSparkleFlare", AssetRequestMode.ImmediateLoad);
-                FlareSparkles[5] = ModContent.Request<Texture2D>(basePath + "ThinSparkleFlare", AssetRequestMode.ImmediateLoad);
-                
-                SoftGlows[0] = ModContent.Request<Texture2D>(basePath + "SoftGlow2", AssetRequestMode.ImmediateLoad);
-                SoftGlows[1] = ModContent.Request<Texture2D>(basePath + "SoftGlow3", AssetRequestMode.ImmediateLoad);
-                SoftGlows[2] = ModContent.Request<Texture2D>(basePath + "SoftGlow4", AssetRequestMode.ImmediateLoad);
-                
-                // === MUSICAL NOTES ===
-                MusicNotes[0] = ModContent.Request<Texture2D>(basePath + "MusicNote", AssetRequestMode.ImmediateLoad);
-                MusicNotes[1] = ModContent.Request<Texture2D>(basePath + "CursiveMusicNote", AssetRequestMode.ImmediateLoad);
-                MusicNotes[2] = ModContent.Request<Texture2D>(basePath + "MusicNoteWithSlashes", AssetRequestMode.ImmediateLoad);
-                MusicNotes[3] = ModContent.Request<Texture2D>(basePath + "QuarterNote", AssetRequestMode.ImmediateLoad);
-                MusicNotes[4] = ModContent.Request<Texture2D>(basePath + "TallMusicNote", AssetRequestMode.ImmediateLoad);
-                MusicNotes[5] = ModContent.Request<Texture2D>(basePath + "WholeNote", AssetRequestMode.ImmediateLoad);
-                
-                // === SPARKLES & STARS ===
-                TwilightSparkles[0] = ModContent.Request<Texture2D>(basePath + "TwilightSparkle", AssetRequestMode.ImmediateLoad);
-                TwilightSparkles[1] = ModContent.Request<Texture2D>(basePath + "SmallTwilightSparkle", AssetRequestMode.ImmediateLoad);
-                TwilightSparkles[2] = ModContent.Request<Texture2D>(basePath + "TwinkleSparkle", AssetRequestMode.ImmediateLoad);
-                
-                SparkleCluster[0] = ModContent.Request<Texture2D>(basePath + "ConstellationStyleSparkle", AssetRequestMode.ImmediateLoad);
-                SparkleCluster[1] = ModContent.Request<Texture2D>(basePath + "BarrageOfGlintsAndSparkles", AssetRequestMode.ImmediateLoad);
-                SparkleCluster[2] = ModContent.Request<Texture2D>(basePath + "ManySparklesInCLuster", AssetRequestMode.ImmediateLoad);
-                
-                Stars[0] = ModContent.Request<Texture2D>(basePath + "Star", AssetRequestMode.ImmediateLoad);
-                Stars[1] = ModContent.Request<Texture2D>(basePath + "StarBurst1", AssetRequestMode.ImmediateLoad);
-                Stars[2] = ModContent.Request<Texture2D>(basePath + "StarBurst2", AssetRequestMode.ImmediateLoad);
-                Stars[3] = ModContent.Request<Texture2D>(basePath + "StarryStarburst", AssetRequestMode.ImmediateLoad);
-                Stars[4] = ModContent.Request<Texture2D>(basePath + "CircularStarRing", AssetRequestMode.ImmediateLoad);
-                Stars[5] = ModContent.Request<Texture2D>(basePath + "CrescentSparkleMoon", AssetRequestMode.ImmediateLoad);
-                Stars[6] = ModContent.Request<Texture2D>(basePath + "ShatteredStarlight", AssetRequestMode.ImmediateLoad);
-                
-                // === IMPACTS & EXPLOSIONS ===
-                Impacts[0] = ModContent.Request<Texture2D>(basePath + "Impact", AssetRequestMode.ImmediateLoad);
-                Impacts[1] = ModContent.Request<Texture2D>(basePath + "SmallBurst", AssetRequestMode.ImmediateLoad);
-                Impacts[2] = ModContent.Request<Texture2D>(basePath + "SparkleBurst", AssetRequestMode.ImmediateLoad);
-                
-                FlameImpacts[0] = ModContent.Request<Texture2D>(basePath + "FlameImpactExplosion", AssetRequestMode.ImmediateLoad);
-                FlameImpacts[1] = ModContent.Request<Texture2D>(basePath + "FlameWispImpactExplosion", AssetRequestMode.ImmediateLoad);
-                FlameImpacts[2] = ModContent.Request<Texture2D>(basePath + "LargeFlameImpactExplosion", AssetRequestMode.ImmediateLoad);
-                
-                // === SWORD ARCS ===
-                SwordArcs[0] = ModContent.Request<Texture2D>(basePath + "SwordArc1", AssetRequestMode.ImmediateLoad);
-                SwordArcs[1] = ModContent.Request<Texture2D>(basePath + "SwordArc2", AssetRequestMode.ImmediateLoad);
-                SwordArcs[2] = ModContent.Request<Texture2D>(basePath + "SwordArc3", AssetRequestMode.ImmediateLoad);
-                SwordArcs[3] = ModContent.Request<Texture2D>(basePath + "SwordArc6", AssetRequestMode.ImmediateLoad);
-                SwordArcs[4] = ModContent.Request<Texture2D>(basePath + "SwordArc8", AssetRequestMode.ImmediateLoad);
-                SwordArcs[5] = ModContent.Request<Texture2D>(basePath + "SimpleArcSwordSlash", AssetRequestMode.ImmediateLoad);
-                SwordArcs[6] = ModContent.Request<Texture2D>(basePath + "CurvedSwordSlash", AssetRequestMode.ImmediateLoad);
-                SwordArcs[7] = ModContent.Request<Texture2D>(basePath + "FlamingArcSwordSlash", AssetRequestMode.ImmediateLoad);
-                SwordArcs[8] = ModContent.Request<Texture2D>(basePath + "SwordArcSlashWave", AssetRequestMode.ImmediateLoad);
-                
-                // === HALOS ===
-                GlowingHalos[0] = ModContent.Request<Texture2D>(basePath + "GlowingHalo1", AssetRequestMode.ImmediateLoad);
-                GlowingHalos[1] = ModContent.Request<Texture2D>(basePath + "GlowingHalo2", AssetRequestMode.ImmediateLoad);
-                GlowingHalos[2] = ModContent.Request<Texture2D>(basePath + "GlowingHalo4", AssetRequestMode.ImmediateLoad);
-                GlowingHalos[3] = ModContent.Request<Texture2D>(basePath + "GlowingHalo5", AssetRequestMode.ImmediateLoad);
-                GlowingHalos[4] = ModContent.Request<Texture2D>(basePath + "GlowingHalo6", AssetRequestMode.ImmediateLoad);
-                
-                // === ENIGMA EYES ===
-                EnigmaEyes[0] = ModContent.Request<Texture2D>(basePath + "EnigmaEye1", AssetRequestMode.ImmediateLoad);
-                EnigmaEyes[1] = ModContent.Request<Texture2D>(basePath + "ActivatedEnigmaEye", AssetRequestMode.ImmediateLoad);
-                EnigmaEyes[2] = ModContent.Request<Texture2D>(basePath + "BurstingEye", AssetRequestMode.ImmediateLoad);
-                EnigmaEyes[3] = ModContent.Request<Texture2D>(basePath + "CircularEnigmaEye", AssetRequestMode.ImmediateLoad);
-                EnigmaEyes[4] = ModContent.Request<Texture2D>(basePath + "GodEye", AssetRequestMode.ImmediateLoad);
-                EnigmaEyes[5] = ModContent.Request<Texture2D>(basePath + "LargeEye", AssetRequestMode.ImmediateLoad);
-                EnigmaEyes[6] = ModContent.Request<Texture2D>(basePath + "SpikeyEye", AssetRequestMode.ImmediateLoad);
-                EnigmaEyes[7] = ModContent.Request<Texture2D>(basePath + "TriangularEye", AssetRequestMode.ImmediateLoad);
-                
-                // === GLYPHS ===
-                for (int i = 0; i < 12; i++)
-                    Glyphs[i] = ModContent.Request<Texture2D>($"{basePath}Glyphs{i + 1}", AssetRequestMode.ImmediateLoad);
-                
-                // === SWAN FEATHERS ===
-                for (int i = 0; i < 10; i++)
-                    SwanFeathers[i] = ModContent.Request<Texture2D>($"{basePath}SwanFeather{i + 1}", AssetRequestMode.ImmediateLoad);
-                
-                // === FLAME WISPS ===
-                FlameWisps[0] = ModContent.Request<Texture2D>(basePath + "FlamingWispProjectileSmall", AssetRequestMode.ImmediateLoad);
-                FlameWisps[1] = ModContent.Request<Texture2D>(basePath + "TallFlamingWispProjectile", AssetRequestMode.ImmediateLoad);
-                
-                // === TRAILS ===
-                for (int i = 0; i < 4; i++)
-                    ParticleTrails[i] = ModContent.Request<Texture2D>($"{basePath}ParticleTrail{i + 1}", AssetRequestMode.ImmediateLoad);
-                
-                // === MAGIC SPARKLE FIELDS ===
-                MagicSparkleFields[0] = ModContent.Request<Texture2D>(basePath + "MagicSparklField4", AssetRequestMode.ImmediateLoad);
-                MagicSparkleFields[1] = ModContent.Request<Texture2D>(basePath + "MagicSparklField6", AssetRequestMode.ImmediateLoad);
-                MagicSparkleFields[2] = ModContent.Request<Texture2D>(basePath + "MagicSparklField7", AssetRequestMode.ImmediateLoad);
-                MagicSparkleFields[3] = ModContent.Request<Texture2D>(basePath + "MagicSparklField8", AssetRequestMode.ImmediateLoad);
-                MagicSparkleFields[4] = ModContent.Request<Texture2D>(basePath + "MagicSparklField9", AssetRequestMode.ImmediateLoad);
-                MagicSparkleFields[5] = ModContent.Request<Texture2D>(basePath + "MagicSparklField10", AssetRequestMode.ImmediateLoad);
-                MagicSparkleFields[6] = ModContent.Request<Texture2D>(basePath + "MagicSparklField11", AssetRequestMode.ImmediateLoad);
-                MagicSparkleFields[7] = ModContent.Request<Texture2D>(basePath + "MagicSparklField12", AssetRequestMode.ImmediateLoad);
-                
-                // === PRISMATIC SPARKLES ===
-                PrismaticSparkles[0] = ModContent.Request<Texture2D>(basePath + "PrismaticSparkle11", AssetRequestMode.ImmediateLoad);
-                PrismaticSparkles[1] = ModContent.Request<Texture2D>(basePath + "PrismaticSparkle13", AssetRequestMode.ImmediateLoad);
-                PrismaticSparkles[2] = ModContent.Request<Texture2D>(basePath + "PrismaticSparkle14", AssetRequestMode.ImmediateLoad);
-                
-                // === MISC ===
-                CrossParticles[0] = ModContent.Request<Texture2D>(basePath + "CrossParticleBlack", AssetRequestMode.ImmediateLoad);
-                CrossParticles[1] = ModContent.Request<Texture2D>(basePath + "CrossParticleWhite", AssetRequestMode.ImmediateLoad);
-                
-                TexturesLoaded = true;
+                var asset = ModContent.Request<Texture2D>(path, AssetRequestMode.ImmediateLoad);
+                if (asset != null) counter++;
+                return asset;
             }
-            catch (Exception ex)
-            {
-                Mod.Logger.Error($"Failed to load particle textures: {ex.Message}");
-                TexturesLoaded = false;
-            }
+            catch { return null; }
         }
         
         public override void Unload()

@@ -82,7 +82,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             // Draw a custom beam effect using primitives
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+            Texture2D texture = MagnumTextureRegistry.GetSoftGlow();
+            if (texture == null) return false;
             
             // Main beam
             Rectangle beamRect = new Rectangle((int)(Projectile.position.X - Main.screenPosition.X), 

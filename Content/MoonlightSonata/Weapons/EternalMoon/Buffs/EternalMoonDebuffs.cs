@@ -10,6 +10,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Buffs
     /// </summary>
     public class TidalDrowning : ModBuff
     {
+        public override string Texture => "Terraria/Images/Buff_24";
+
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;
@@ -42,6 +44,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Buffs
     /// </summary>
     public class LunarStasis : ModBuff
     {
+        public override string Texture => "Terraria/Images/Buff_44";
+
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

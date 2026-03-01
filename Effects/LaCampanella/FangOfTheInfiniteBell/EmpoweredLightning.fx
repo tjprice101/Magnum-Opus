@@ -1,11 +1,11 @@
 // =============================================================================
-// Fang of the Infinite Bell — Empowered Lightning Shader (Enhanced)
+// Fang of the Infinite Bell  EEmpowered Lightning Shader (Enhanced)
 // =============================================================================
 // Arcane lightning bolt with branching fractal structure. Unlike raw fire,
-// this is channeled magical energy — a contained infernal thunderbolt with
+// this is channeled magical energy  Ea contained infernal thunderbolt with
 // multi-layered jagged paths, phosphorescent afterglow corridor, branching
 // sub-arcs, and bell-shaped strike intensification at the terminus.
-// The bolt feels alive — constantly shifting, crackling, splitting.
+// The bolt feels alive  Econstantly shifting, crackling, splitting.
 // =============================================================================
 
 sampler uImage0 : register(s0);
@@ -26,7 +26,7 @@ float uSecondaryTexScroll;
 float4 ApplyOverbright(float3 c, float a) { return float4(c * uOverbrightMult, a); }
 float HashNoise(float2 p) { return frac(sin(dot(p, float2(12.9898, 78.233))) * 43758.5453); }
 
-// Stepped noise for jagged bolt paths (not smooth — intentionally blocky)
+// Stepped noise for jagged bolt paths (not smooth  Eintentionally blocky)
 float JaggedNoise(float2 p)
 {
     float2 i = floor(p);
@@ -58,7 +58,7 @@ float4 EmpoweredLightningPS(float4 sampleColor : COLOR0, float2 coords : TEXCOOR
 
     float totalJag = jag1 * 0.15 + jag2 * 0.07 + jag3 * 0.03;
 
-    // Primary bolt core — extremely tight gaussian along displaced centerline
+    // Primary bolt core  Eextremely tight gaussian along displaced centerline
     float boltCenter = coords.y - 0.5 + totalJag;
     float primaryBolt = exp(-boltCenter * boltCenter * 80.0);  // Razor-thin core
     float primaryGlow = exp(-boltCenter * boltCenter * 12.0);   // Wider corona
@@ -136,6 +136,6 @@ technique TrailPass
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 EmpoweredLightningPS();
+        PixelShader = compile ps_3_0 EmpoweredLightningPS();
     }
 }

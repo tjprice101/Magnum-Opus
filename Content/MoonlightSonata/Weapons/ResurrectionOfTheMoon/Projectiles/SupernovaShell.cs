@@ -24,6 +24,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
     /// </summary>
     public class SupernovaShell : ModProjectile
     {
+        public override string Texture => "Terraria/Images/Projectile_1";
+
         // =================================================================
         // CONSTANTS
         // =================================================================

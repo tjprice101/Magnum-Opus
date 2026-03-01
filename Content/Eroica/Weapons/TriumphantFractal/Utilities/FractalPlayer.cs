@@ -3,7 +3,7 @@ using Terraria.ModLoader;
 
 namespace MagnumOpus.Content.Eroica.Weapons.TriumphantFractal.Utilities
 {
-    public class FractalPlayer : ModPlayer
+    public class TriumphantFractalPlayer : ModPlayer
     {
         /// <summary>
         /// Accumulates as fractal projectiles hit enemies.
@@ -18,8 +18,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.TriumphantFractal.Utilities
         }
     }
 
-    public static class FractalPlayerExtensions
+    public static class TriumphantFractalPlayerExtensions
     {
-        public static FractalPlayer TriumphantFractal(this Player player) => player.GetModPlayer<FractalPlayer>();
+        public static TriumphantFractalPlayer TriumphantFractal(this Player player) => player.GetModPlayer<TriumphantFractalPlayer>();
     }
 }

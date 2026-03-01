@@ -277,7 +277,7 @@ technique ScrollFlameTechnique
 {
     pass Pass0
     {
-        PixelShader = compile ps_2_0 ScrollFlameTrail();
+        PixelShader = compile ps_3_0 ScrollFlameTrail();
     }
 }
 
@@ -285,7 +285,7 @@ technique ScrollCosmicTechnique
 {
     pass Pass0
     {
-        PixelShader = compile ps_2_0 ScrollCosmicTrail();
+        PixelShader = compile ps_3_0 ScrollCosmicTrail();
     }
 }
 
@@ -293,7 +293,7 @@ technique ScrollEnergyTechnique
 {
     pass Pass0
     {
-        PixelShader = compile ps_2_0 ScrollEnergyTrail();
+        PixelShader = compile ps_3_0 ScrollEnergyTrail();
     }
 }
 
@@ -301,7 +301,7 @@ technique ScrollVoidTechnique
 {
     pass Pass0
     {
-        PixelShader = compile ps_2_0 ScrollVoidTrail();
+        PixelShader = compile ps_3_0 ScrollVoidTrail();
     }
 }
 
@@ -309,6 +309,6 @@ technique ScrollHolyTechnique
 {
     pass Pass0
     {
-        PixelShader = compile ps_2_0 ScrollHolyTrail();
+        PixelShader = compile ps_3_0 ScrollHolyTrail();
     }
 }

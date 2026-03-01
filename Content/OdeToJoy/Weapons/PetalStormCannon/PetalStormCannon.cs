@@ -89,30 +89,43 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon
             Vector2 position = Item.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
+            // Cannon recoil breathing: slow deep inhale then sharp exhale kick
             float time = Main.GameUpdateCount * 0.05f;
-            float pulse = 1f + (float)Math.Sin(time * 1.8f) * 0.1f;
-            float flicker = Main.rand.NextFloat(0.9f, 1f);
+            float breathCycle = (time * 0.4f) % MathHelper.TwoPi; // Full breath cycle
+            float inhale = MathHelper.Clamp((float)Math.Sin(breathCycle), 0f, 1f); // Slow inhale (scale grows)
+            float exhale = (float)Math.Pow(Math.Max(0f, -(float)Math.Sin(breathCycle)), 3f); // Sharp exhale kick
+            float cannonScale = 1f + inhale * 0.15f + exhale * 0.25f; // Grows slow, kicks fast
+
+            // Recoil offset along rotation axis on exhale
+            Vector2 recoilDir = (rotation + MathHelper.PiOver4).ToRotationVector2();
+            Vector2 recoilOffset = -recoilDir * exhale * 3f;
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Golden amber glow
-            spriteBatch.Draw(texture, position, null, PetalStormUtils.Additive(PetalStormUtils.AmberFlame, 0.35f * flicker),
-                rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
-            // Rose burst accent
-            spriteBatch.Draw(texture, position, null, PetalStormUtils.Additive(PetalStormUtils.RoseBurst, 0.2f * flicker),
-                rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            // Deep amber charging — builds during inhale
+            spriteBatch.Draw(texture, position, null, PetalStormUtils.Additive(PetalStormUtils.AmberFlame, 0.2f + inhale * 0.2f),
+                rotation, origin, scale * (1.15f + inhale * 0.12f), SpriteEffects.None, 0f);
 
-            float shimmer = (float)Math.Sin(time * 2.5f) * 0.5f + 0.5f;
-            spriteBatch.Draw(texture, position, null, PetalStormUtils.Additive(PetalStormUtils.WhiteFlash, 0.2f * shimmer),
-                rotation, origin, scale * pulse * 1.05f, SpriteEffects.None, 0f);
+            // Rose heat buildup
+            spriteBatch.Draw(texture, position, null, PetalStormUtils.Additive(PetalStormUtils.RoseBurst, 0.15f * inhale),
+                rotation, origin, scale * (1.05f + inhale * 0.08f), SpriteEffects.None, 0f);
+
+            // Exhale muzzle flash — sharp golden burst with recoil offset
+            if (exhale > 0.05f)
+            {
+                spriteBatch.Draw(texture, position + recoilOffset, null, PetalStormUtils.Additive(PetalStormUtils.GoldenExplosion, 0.5f * exhale),
+                    rotation, origin, scale * cannonScale * 1.3f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(texture, position + recoilOffset * 0.5f, null, PetalStormUtils.Additive(PetalStormUtils.WhiteFlash, 0.4f * exhale),
+                    rotation, origin, scale * (1f + exhale * 0.1f), SpriteEffects.None, 0f);
+            }
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            Lighting.AddLight(Item.Center, 0.55f, 0.42f, 0.1f);
+            Lighting.AddLight(Item.Center, 0.45f + exhale * 0.4f, 0.35f + exhale * 0.2f, 0.08f + exhale * 0.1f);
             return true;
         }
 

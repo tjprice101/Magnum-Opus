@@ -22,7 +22,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
     ///   - Own particle system (ConductorParticleHandler)
     ///   - Own GPU trail renderer (ConductorTrailRenderer)
     ///   - Own shader pipeline (ConductorShaderLoader → 4 .fx files, 5 keys)
-    ///   - Own ModPlayer state (ConductorPlayer via player.Conductor())
+    ///   - Own ModPlayer state (ConstellationConductorPlayer via player.Conductor())
     ///   - Own projectiles (ConductorSwingProjectile, ConductorSwordBeam)
     ///
     /// ATTACK PATTERN:

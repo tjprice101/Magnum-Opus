@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.GameContent;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Utilities;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Particles
@@ -42,7 +43,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Particles
 
         public override void Draw(SpriteBatch sb)
         {
-            Texture2D tex = TextureAssets.MagicPixel.Value;
+            Texture2D tex = MagnumTextureRegistry.GetPointBloom();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             float stretch = Math.Max(Velocity.Length() * 0.7f, 2f);
             Vector2 origin = new Vector2(0.5f, 0.5f);
@@ -88,7 +90,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Particles
 
         public override void Draw(SpriteBatch sb)
         {
-            Texture2D tex = TextureAssets.MagicPixel.Value;
+            Texture2D tex = MagnumTextureRegistry.GetWideEllipse();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             float opacity = (1f - LifeRatio) * fadeRate;
             Color smokeColor = Color.Lerp(DrawColor, WrathsCleaverUtils.CharcoalBlack, LifeRatio * 0.5f) * opacity;
@@ -136,7 +139,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Particles
 
         public override void Draw(SpriteBatch sb)
         {
-            Texture2D tex = TextureAssets.MagicPixel.Value;
+            Texture2D tex = MagnumTextureRegistry.GetSoftGlow();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             float opacity = (1f - LifeRatio);
             float pulse = 1f + (float)Math.Sin(Lifetime * 0.15f) * 0.2f;
@@ -178,7 +182,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Particles
 
         public override void Draw(SpriteBatch sb)
         {
-            Texture2D tex = TextureAssets.MagicPixel.Value;
+            Texture2D tex = MagnumTextureRegistry.GetRadialBloom();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             float opacity = (1f - (float)Math.Pow(LifeRatio, 2)) * 0.6f;
             Color bloomColor = DrawColor * opacity;
@@ -220,7 +225,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Particles
 
         public override void Draw(SpriteBatch sb)
         {
-            Texture2D tex = TextureAssets.MagicPixel.Value;
+            Texture2D tex = MagnumTextureRegistry.GetPointBloom();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             float stretch = Math.Max(Velocity.Length() * 0.5f, 1.5f);
             float opacity = 1f - LifeRatio;

@@ -59,12 +59,17 @@ float4 TemporalDrillGlowPS(float2 uv : TEXCOORD0) : COLOR0
     float4 base = tex2D(uImage0, uv);
     float centerDist = abs(uv.y - 0.5) * 2.0;
     float glow = exp(-centerDist * centerDist * 2.5);
+
+    // Faint spiral rings echo the bore pattern — ghostly afterimage of the drill
+    float spiralEcho = pow(abs(sin(uv.x * 12.0 + uv.y * 4.0 - uTime * uScrollSpeed * 3.0)), 3.0) * 0.2;
+
     float pulse = 0.5 + 0.5 * sin(uTime * 4.0 + uv.x * 8.0);
 
     float3 glowColor = lerp(uColor.rgb, uSecondaryColor.rgb, 0.4) * uIntensity * uOverbrightMult;
-    float alpha = base.a * uOpacity * glow * (0.3 + pulse * 0.15);
+    float3 spiralTint = float3(0.7, 0.3, 0.47) * spiralEcho * glow * uIntensity; // Temporal crimson echo
+    float alpha = base.a * uOpacity * glow * (0.3 + pulse * 0.15 + spiralEcho);
 
-    return float4(glowColor, alpha);
+    return float4(glowColor * glow + spiralTint, alpha);
 }
 
 technique TemporalDrillBore

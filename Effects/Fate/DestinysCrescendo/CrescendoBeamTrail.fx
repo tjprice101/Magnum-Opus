@@ -1,8 +1,8 @@
-// ═══════════════════════════════════════════════════════════════════
-//  CrescendoBeamTrail.fx — Cosmic deity beam trail shader
+// ══════════════════════════════════════════════════════════════════╁E
+//  CrescendoBeamTrail.fx  ECosmic deity beam trail shader
 //  Two techniques: BeamMain (core beam) + BeamGlow (outer glow layer)
-//  Profile: ps_2_0 / vs_2_0
-// ═══════════════════════════════════════════════════════════════════
+//  Profile: ps_3_0 / vs_2_0
+// ══════════════════════════════════════════════════════════════════╁E
 
 float4x4 uTransformMatrix;
 float uTime;
@@ -49,10 +49,10 @@ float4 BeamMainPS(VSOutput input) : COLOR0
     float scroll   = sin(along * 18.85 + uTime * 12.0) * 0.08 * (1.0 - along);
     float edge     = 1.0 - smoothstep(0.0, 0.35 + scroll, across);
 
-    // Core hotspot — bright center line
+    // Core hotspot  Ebright center line
     float core     = 1.0 - smoothstep(0.0, 0.12, across);
 
-    // Fade along length — keeps head bright, tail vanishes
+    // Fade along length  Ekeeps head bright, tail vanishes
     float fade     = pow(1.0 - along, 1.6);
 
     // Pulse
@@ -99,7 +99,7 @@ technique BeamMain
     pass Pass0
     {
         VertexShader = compile vs_2_0 MainVS();
-        PixelShader  = compile ps_2_0 BeamMainPS();
+        PixelShader  = compile ps_3_0 BeamMainPS();
     }
 }
 
@@ -108,6 +108,6 @@ technique BeamGlow
     pass Pass0
     {
         VertexShader = compile vs_2_0 MainVS();
-        PixelShader  = compile ps_2_0 BeamGlowPS();
+        PixelShader  = compile ps_3_0 BeamGlowPS();
     }
 }

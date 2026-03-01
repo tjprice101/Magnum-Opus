@@ -66,14 +66,22 @@ float4 ArcanePageFlowPS(float2 uv : TEXCOORD0) : COLOR0
 float4 ArcanePageGlowPS(float2 uv : TEXCOORD0) : COLOR0
 {
     float4 base = tex2D(uImage0, uv);
-    float dist = length(uv - float2(0.5, 0.5)) * 2.0;
-    float glow = exp(-dist * dist * 2.0);
+
+    // Page-shaped glow — rectangular falloff instead of circular
+    float xDist = abs(uv.x - 0.5) * 2.0;
+    float yDist = abs(uv.y - 0.5) * 2.0;
+    float pageShape = exp(-xDist * xDist * 3.0) * exp(-yDist * yDist * 1.5);
+
+    // Faint drifting script lines visible in the glow
+    float ghostScript = pow(max(sin(uv.y * 30.0 - uTime * 0.5), 0.0), 8.0) * 0.15;
+
     float pulse = 0.5 + 0.5 * sin(uTime * 2.5);
 
     float3 glowColor = lerp(uColor.rgb, uSecondaryColor.rgb, 0.6) * uIntensity * uOverbrightMult;
-    float alpha = base.a * uOpacity * glow * (0.15 + pulse * 0.1);
+    float3 scriptHint = uSecondaryColor.rgb * uIntensity * ghostScript;
+    float alpha = base.a * uOpacity * (pageShape * (0.15 + pulse * 0.1) + ghostScript);
 
-    return float4(glowColor, alpha);
+    return float4(glowColor * pageShape + scriptHint, alpha);
 }
 
 technique ArcanePageFlow

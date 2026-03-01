@@ -536,7 +536,8 @@ namespace MagnumOpus.Common.Systems.VFX
         public static void DrawDebug(this VerletChain chain, SpriteBatch spriteBatch, Color color)
         {
             Vector2[] positions = chain.GetPositions();
-            Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetPixelTexture();
+            if (pixel == null) return;
             
             for (int i = 0; i < positions.Length - 1; i++)
             {

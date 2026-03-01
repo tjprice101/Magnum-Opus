@@ -1,10 +1,10 @@
 // =============================================================================
-// MetaballEdgeShader.fx - ps_2_0 Compatible (FNA/MojoShader)
+// MetaballEdgeShader.fx - ps_3_0 Compatible (FNA/MojoShader)
 // =============================================================================
 // Downported from SM4.0 source (ShaderSource/MetaballEdgeShader.fx).
 // Detects edges of metaball shapes and applies edge color with outer glow.
 //
-// Simplified for ps_2_0 instruction limits:
+// Simplified for ps_3_0 instruction limits:
 //   - Outer glow: 2 rings x 4 directions (8 samples) instead of 4x8 (32)
 //   - Edge detection: 4 cardinal neighbors instead of full 3x3 Sobel
 //   - Branch-free: uses step()/lerp() instead of dynamic if/else

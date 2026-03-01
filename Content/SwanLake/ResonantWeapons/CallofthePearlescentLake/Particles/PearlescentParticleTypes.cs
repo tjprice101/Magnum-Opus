@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.Particles
 {
@@ -34,7 +35,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
             float thickness = MathHelper.Lerp(3f, 1f, t);
 
             // Draw ring as a series of points approximating a circle
-            Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetPixelTexture();
+            if (pixel == null) return;
             int segments = 48;
             for (int i = 0; i < segments; i++)
             {
@@ -49,6 +51,14 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
 
                 spriteBatch.Draw(pixel, drawPos, new Rectangle(0, 0, 1, 1), shimmer * alpha * Scale,
                     0f, Vector2.Zero, thickness, SpriteEffects.None, 0f);
+            }
+
+            // Bloom overlay at ring center
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            if (glow != null)
+            {
+                spriteBatch.Draw(glow, Position - Main.screenPosition, null, DrawColor * alpha * 0.3f * Scale,
+                    0f, glow.Size() * 0.5f, radius / 40f, SpriteEffects.None, 0f);
             }
         }
     }
@@ -75,12 +85,17 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
             float alpha = 1f - Progress;
             alpha *= alpha; // Quadratic fade
 
-            Texture2D tex = Terraria.GameContent.TextureAssets.Extra[174].Value; // Soft glow
+            Texture2D tex = MagnumTextureRegistry.GetSoftGlow();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             Vector2 origin = tex.Size() * 0.5f;
 
             spriteBatch.Draw(tex, drawPos, null, DrawColor * alpha * 0.4f, Rotation,
                 origin, Scale * 0.5f, SpriteEffects.None, 0f);
+
+            // Additive bloom overlay — larger, softer
+            spriteBatch.Draw(tex, drawPos, null, DrawColor * alpha * 0.2f, Rotation,
+                origin, Scale * 0.8f, SpriteEffects.None, 0f);
         }
     }
 
@@ -102,7 +117,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
         public override void Draw(SpriteBatch spriteBatch)
         {
             float alpha = (1f - Progress) * 0.9f;
-            Texture2D tex = Terraria.GameContent.TextureAssets.Extra[174].Value;
+            Texture2D tex = MagnumTextureRegistry.GetPointBloom();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             Vector2 origin = tex.Size() * 0.5f;
 
@@ -112,6 +128,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
             // Pearlescent halo
             spriteBatch.Draw(tex, drawPos, null, DrawColor * alpha * 0.5f, 0f,
                 origin, Scale * 0.35f, SpriteEffects.None, 0f);
+
+            // Additive bloom overlay
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            if (glow != null)
+                spriteBatch.Draw(glow, drawPos, null, DrawColor * alpha * 0.3f, 0f,
+                    glow.Size() * 0.5f, Scale * 0.5f, SpriteEffects.None, 0f);
         }
     }
 
@@ -142,7 +164,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
         public override void Draw(SpriteBatch spriteBatch)
         {
             float alpha = 1f - Progress * Progress;
-            Texture2D tex = Terraria.GameContent.TextureAssets.Extra[174].Value;
+            Texture2D tex = MagnumTextureRegistry.GetWideEllipse();
+            if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             Vector2 origin = tex.Size() * 0.5f;
 
@@ -156,6 +179,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
 
             spriteBatch.Draw(tex, drawPos, null, final_color * alpha, Rotation,
                 origin, scale, SpriteEffects.None, 0f);
+
+            // Additive bloom overlay
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            if (glow != null)
+                spriteBatch.Draw(glow, drawPos, null, final_color * alpha * 0.35f, Rotation,
+                    glow.Size() * 0.5f, new Vector2(Scale * 0.9f, Scale * 0.22f), SpriteEffects.None, 0f);
         }
     }
 }

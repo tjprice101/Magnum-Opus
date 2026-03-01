@@ -1,5 +1,5 @@
 // =============================================================================
-// Incisor of Moonlight — Swing Sprite Rotation Shader
+// Incisor of Moonlight  ESwing Sprite Rotation Shader
 // =============================================================================
 // Rotates the square weapon sprite around its pommel origin to render
 // the blade during swing animations. Only works on square sprites.
@@ -51,6 +51,6 @@ technique Technique1
 {
     pass IncisorSwingPass
     {
-        PixelShader = compile ps_2_0 main();
+        PixelShader = compile ps_3_0 main();
     }
 }

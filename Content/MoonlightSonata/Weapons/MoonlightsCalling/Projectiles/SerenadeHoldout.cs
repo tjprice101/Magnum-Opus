@@ -33,6 +33,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
     /// </summary>
     public class SerenadeHoldout : ModProjectile
     {
+        public override string Texture => "Terraria/Images/Projectile_1";
+
         // === CONSTANTS ===
         private const int MaxChannelTime = 180; // 3 seconds
         private const float MaxBeamLength = 2400f;

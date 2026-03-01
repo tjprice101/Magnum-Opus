@@ -1,10 +1,10 @@
 // =============================================================================
-// Dual-Fated Chime — Bell Flame Trail Shader (Enhanced)
+// Dual-Fated Chime  EBell Flame Trail Shader (Enhanced)
 // =============================================================================
 // Homing flame-wave sub-projectile trail. Organic fire turbulence via FBM
 // with bell-toll standing wave nodes that create rhythmic bright/dark pulses.
 // Asymmetric cross-section (flames rise upward). Smoldering ember wake with
-// heat-shimmer distortion. Distinct from the slash — this is a flowing river
+// heat-shimmer distortion. Distinct from the slash  Ethis is a flowing river
 // of fire, not a cutting arc.
 // =============================================================================
 
@@ -53,7 +53,7 @@ float4 BellFlameTrailPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) 
 {
     float4 baseTex = tex2D(uImage0, coords);
 
-    // Asymmetric cross-section — flames lean upward (lower y = top of trail)
+    // Asymmetric cross-section  Eflames lean upward (lower y = top of trail)
     float center = abs(coords.y - 0.48) * 2.0;  // Slightly off-center
     float riseShift = (0.5 - coords.y) * 0.12;   // Upward flame lean
     float body = saturate(1.0 - center * 1.15);
@@ -74,7 +74,7 @@ float4 BellFlameTrailPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) 
     float texBlend = lerp(1.0, 0.5 + noiseTex.r * 0.7, uHasSecondaryTex);
     fire *= texBlend;
 
-    // Bell-toll standing wave nodes — bright pulses at regular intervals
+    // Bell-toll standing wave nodes  Ebright pulses at regular intervals
     float bellPhase = coords.x * 8.0 - uTime * 6.0;
     float bellToll = sin(bellPhase * 6.28318);
     bellToll = pow(saturate(bellToll), 4.0);
@@ -84,7 +84,7 @@ float4 BellFlameTrailPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) 
     bellHarmonic = pow(saturate(bellHarmonic), 5.0) * 0.4;
     float bellTotal = bellToll + bellHarmonic;
 
-    // Heat shimmer — sinusoidal UV displacement
+    // Heat shimmer  Esinusoidal UV displacement
     float shimmerX = sin(coords.x * 12.0 + uTime * 5.0) * 0.02 * body;
     float shimmerY = cos(coords.x * 8.0 + uTime * 3.5) * 0.015 * body;
 
@@ -130,6 +130,6 @@ technique BellFlameMain
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 BellFlameTrailPS();
+        PixelShader = compile ps_3_0 BellFlameTrailPS();
     }
 }

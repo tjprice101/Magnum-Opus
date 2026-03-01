@@ -274,14 +274,38 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
             if (!glowTexture.IsLoaded) return;
             var tex = glowTexture.Value;
 
+            float bounceProgress = 1f - BouncesRemaining / (float)MaxBounces;
+            float heatMultiplier = 1f + bounceProgress * 1.5f; // Escalates with bounces
+
             for (int i = 1; i < TrailLength; i++)
             {
                 if (trailCache[i] == Vector2.Zero) continue;
                 float progress = i / (float)TrailLength;
-                float alpha = (1f - progress) * 0.5f;
+                float alpha = (1f - progress) * 0.5f * heatMultiplier;
                 Color c = ChainUtils.GetChainColor(progress * 0.7f);
-                Main.EntitySpriteDraw(tex, trailCache[i] - Main.screenPosition, null, ChainUtils.Additive(c, alpha),
-                    trailRotations[i], tex.Size() / 2f, (1f - progress) * 0.4f, SpriteEffects.None, 0);
+
+                // Directional stretched afterimage — aligned to trail segment for chain-link feel
+                float segRot = trailRotations[i];
+                float baseScale = (1f - progress) * 0.4f;
+
+                // Outer glow layer — elongated along rotation
+                Main.EntitySpriteDraw(tex, trailCache[i] - Main.screenPosition, null, ChainUtils.Additive(c, alpha * 0.6f),
+                    segRot, tex.Size() / 2f, new Vector2(baseScale * 2.5f, baseScale * 0.4f), SpriteEffects.None, 0);
+
+                // Inner hot core — brighter, tighter, escalates with bounces
+                Color hotCore = Color.Lerp(ChainUtils.MoltenLink, ChainUtils.WhiteHot, bounceProgress * 0.5f);
+                Main.EntitySpriteDraw(tex, trailCache[i] - Main.screenPosition, null, ChainUtils.Additive(hotCore, alpha * 0.3f * heatMultiplier),
+                    segRot, tex.Size() / 2f, new Vector2(baseScale * 1.5f, baseScale * 0.2f), SpriteEffects.None, 0);
+
+                // Chain link connector glow between segments (every other point)
+                if (i < TrailLength - 1 && trailCache[i + 1] != Vector2.Zero && i % 2 == 0)
+                {
+                    Vector2 mid = (trailCache[i] + trailCache[i + 1]) / 2f;
+                    float linkRot = (trailCache[i] - trailCache[i + 1]).ToRotation() + MathHelper.PiOver2;
+                    float linkAlpha = alpha * 0.2f;
+                    Main.EntitySpriteDraw(tex, mid - Main.screenPosition, null, ChainUtils.Additive(ChainUtils.HellfireChain, linkAlpha),
+                        linkRot, tex.Size() / 2f, new Vector2(baseScale * 0.8f, baseScale * 0.15f), SpriteEffects.None, 0);
+                }
             }
         }
 
@@ -301,12 +325,38 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float pulse = 0.7f + 0.2f * (float)Math.Sin(Main.GameUpdateCount * 0.15f);
+            float bounceProgress = 1f - BouncesRemaining / (float)MaxBounces;
+            float heatMultiplier = 1f + bounceProgress * 0.8f;
 
-            // Core glow
-            Main.EntitySpriteDraw(tex, drawPos, null, ChainUtils.Additive(ChainUtils.MoltenLink, 0.3f * pulse),
+            // Core glow — escalates with bounces
+            Main.EntitySpriteDraw(tex, drawPos, null, ChainUtils.Additive(ChainUtils.MoltenLink, 0.3f * pulse * heatMultiplier),
                 0f, tex.Size() / 2f, 0.8f, SpriteEffects.None, 0);
-            Main.EntitySpriteDraw(tex, drawPos, null, ChainUtils.Additive(ChainUtils.WhiteHot, 0.15f * pulse),
+            Main.EntitySpriteDraw(tex, drawPos, null, ChainUtils.Additive(ChainUtils.WhiteHot, 0.15f * pulse * heatMultiplier),
                 0f, tex.Size() / 2f, 0.4f, SpriteEffects.None, 0);
+
+            // Bounce heat ring — appears after first bounce, pulsing
+            if (bounceProgress > 0)
+            {
+                float ringPulse = 0.8f + 0.3f * (float)Math.Sin(Main.GameUpdateCount * 0.3f);
+                Color ringColor = ChainUtils.Additive(ChainUtils.HellfireChain, 0.12f * bounceProgress * ringPulse);
+                Main.EntitySpriteDraw(tex, drawPos, null, ringColor, 0f, tex.Size() / 2f, 1.2f + bounceProgress * 0.3f, SpriteEffects.None, 0);
+            }
+
+            // Spinning cross-flare on later bounces (signature chain judgment look)
+            if (bounceProgress >= 0.5f)
+            {
+                glowTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
+                if (glowTexture.IsLoaded)
+                {
+                    var pb = glowTexture.Value;
+                    float crossAlpha = (bounceProgress - 0.5f) * 0.4f;
+                    Color crossColor = ChainUtils.Additive(ChainUtils.WhiteHot, crossAlpha);
+                    Main.EntitySpriteDraw(pb, drawPos, null, crossColor, Projectile.rotation, pb.Size() / 2f,
+                        new Vector2(0.1f, 0.6f), SpriteEffects.None, 0);
+                    Main.EntitySpriteDraw(pb, drawPos, null, crossColor, Projectile.rotation + MathHelper.PiOver2, pb.Size() / 2f,
+                        new Vector2(0.1f, 0.6f), SpriteEffects.None, 0);
+                }
+            }
         }
     }
 }

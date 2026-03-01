@@ -72,12 +72,19 @@ float4 GearSwingTrailPS(float2 uv : TEXCOORD0) : COLOR0
     float edge = 1.0 - abs(uv.y - 0.5) * 2.0;
     float trail = trailFade * pow(edge, 3.0);
 
+    // Ghost gear teeth — faint echo of the gear pattern fading into the trail
+    float ghostTeeth = step(0.75, abs(sin(uv.x * 40.0))) * step(0.85, edge);
+    float ghostFade = trailFade * 0.25; // Much fainter than main arc
+
     float3 trailColor = lerp(uColor.rgb, uSecondaryColor.rgb, 0.5) * uIntensity * 0.6;
     trailColor *= uOverbrightMult;
 
-    float alpha = base.a * uOpacity * trail * 0.5;
+    // Ghost teeth tint slightly brighter
+    float3 toothColor = uSecondaryColor.rgb * uIntensity * ghostTeeth * ghostFade;
 
-    return float4(trailColor, alpha);
+    float alpha = base.a * uOpacity * (trail * 0.5 + ghostTeeth * ghostFade * 0.3);
+
+    return float4(trailColor * trail + toothColor, alpha);
 }
 
 technique GearSwingArc

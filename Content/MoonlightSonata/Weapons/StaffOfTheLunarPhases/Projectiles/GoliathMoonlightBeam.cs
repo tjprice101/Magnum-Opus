@@ -23,6 +23,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
     /// </summary>
     public class GoliathMoonlightBeam : ModProjectile
     {
+        public override string Texture => "Terraria/Images/Projectile_1";
+
         // =================================================================
         // CONSTANTS
         // =================================================================

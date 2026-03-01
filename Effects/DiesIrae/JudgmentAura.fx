@@ -64,7 +64,7 @@ technique JudgmentAuraTechnique
 {
     pass JudgmentAura
     {
-        PixelShader = compile ps_2_0 JudgmentAuraMain();
+        PixelShader = compile ps_3_0 JudgmentAuraMain();
     }
 }
 
@@ -72,6 +72,6 @@ technique JudgmentAuraFillTechnique
 {
     pass JudgmentAuraFill
     {
-        PixelShader = compile ps_2_0 JudgmentAuraFill();
+        PixelShader = compile ps_3_0 JudgmentAuraFill();
     }
 }

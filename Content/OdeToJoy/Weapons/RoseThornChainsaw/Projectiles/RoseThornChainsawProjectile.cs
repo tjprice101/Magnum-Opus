@@ -1,11 +1,14 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Particles;
 using MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Utilities;
 
@@ -204,8 +207,33 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
             Texture2D bloom = TextureAssets.Projectile[Type].Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 bloomOrigin = bloom.Size() / 2f;
+            float time = (float)Main.GameUpdateCount / 60f;
 
             sb.End();
+
+            // ═══ Layer 1: VerdantSlash — buzzing chainsaw aura ═══
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            Effect slashShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyVerdantSlashShader);
+            if (slashShader != null)
+            {
+                slashShader.Parameters["uTime"]?.SetValue(time * 3f);
+                slashShader.Parameters["uColor"]?.SetValue(RoseThornChainsawUtils.VerdantGreen.ToVector3());
+                slashShader.Parameters["uSecondaryColor"]?.SetValue(RoseThornChainsawUtils.GoldenPollen.ToVector3());
+                slashShader.Parameters["uOpacity"]?.SetValue(0.4f);
+                slashShader.Parameters["uIntensity"]?.SetValue(1.5f);
+                slashShader.Parameters["uRadius"]?.SetValue(0.5f);
+                slashShader.CurrentTechnique = slashShader.Techniques["VerdantSlashTechnique"];
+                slashShader.CurrentTechnique.Passes[0].Apply();
+
+                sb.Draw(bloom, drawPos, null, Color.White,
+                    Projectile.rotation, bloomOrigin, 1.6f, SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+
+            // ═══ Layer 2: Additive glow + teeth ═══
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
@@ -414,13 +442,44 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             Texture2D bloom = TextureAssets.Projectile[Type].Value;
             Vector2 bloomOrigin = bloom.Size() / 2f;
+            float time = (float)Main.GameUpdateCount / 60f;
 
             sb.End();
+
+            // ═══ Layer 1: TriumphantTrail — verdant energy trail wake ═══
+            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            Effect trailShader = ShaderLoader.GetShader(ShaderLoader.OdeToJoyTriumphantTrailShader);
+            int count = trailFilled ? TrailLength : trailIndex;
+            if (trailShader != null && count > 2)
+            {
+                trailShader.Parameters["uTime"]?.SetValue(time);
+                trailShader.Parameters["uColor"]?.SetValue(RoseThornChainsawUtils.VerdantGreen.ToVector3());
+                trailShader.Parameters["uSecondaryColor"]?.SetValue(RoseThornChainsawUtils.ThornGreen.ToVector3());
+                trailShader.Parameters["uOpacity"]?.SetValue(0.45f);
+                trailShader.Parameters["uIntensity"]?.SetValue(1.2f);
+                trailShader.CurrentTechnique = trailShader.Techniques["TriumphantTrailTechnique"];
+                trailShader.CurrentTechnique.Passes[0].Apply();
+
+                // Draw trail segments with shader
+                for (int i = 1; i < count; i++)
+                {
+                    int curIdx = (trailIndex - count + i + TrailLength) % TrailLength;
+                    Vector2 cur = trailPositions[curIdx] - Main.screenPosition;
+                    float progress = (float)i / count;
+                    sb.Draw(bloom, cur, null, Color.White * (progress * 0.6f),
+                        0f, bloomOrigin, 0.2f * progress, SpriteEffects.None, 0f);
+                }
+            }
+
+            sb.End();
+
+            // ═══ Layer 2: Additive trail dots + connecting lines + core glow ═══
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // ── Trail ──
-            int count = trailFilled ? TrailLength : trailIndex;
             for (int i = 1; i < count; i++)
             {
                 // Read positions in chronological order
@@ -444,7 +503,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
                 float len = diff.Length();
                 if (len > 1f)
                 {
-                    Texture2D px = TextureAssets.MagicPixel.Value;
+                    Texture2D px = MagnumTextureRegistry.GetPointBloom();
+                    if (px == null) continue;
                     sb.Draw(px, prev, new Rectangle(0, 0, 1, 1),
                         RoseThornChainsawUtils.Additive(trailColor, alpha * 0.5f),
                         diff.ToRotation(), new Vector2(0f, 0.5f),

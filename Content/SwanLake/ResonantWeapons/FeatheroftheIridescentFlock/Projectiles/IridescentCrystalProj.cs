@@ -11,6 +11,7 @@ using MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFlock.Sh
 using MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFlock.Particles;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFlock.Primitives;
 using MagnumOpus.Content.SwanLake.Debuffs;
+using MagnumOpus.Common.Systems.VFX;
 using ReLogic.Content;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFlock.Projectiles
@@ -306,7 +307,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
 
             if (crystals.Count < 3) return;
 
-            Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+            Texture2D pixel = MagnumTextureRegistry.GetPointBloom();
+            if (pixel == null) return;
             float alpha = 0.25f + (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f;
 
             sb.End();
@@ -401,13 +403,20 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
         private void DrawCrystalSprite(SpriteBatch sb, Color lightColor)
         {
             // Draw as a small glowing diamond shape
-            Texture2D tex = Terraria.GameContent.TextureAssets.Extra[174].Value;
+            Texture2D tex = MagnumTextureRegistry.GetRadialBloom();
+            if (tex == null) return;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = tex.Size() * 0.5f;
             Color body = FlockUtils.GetOilSheen(_orbitAngle, Main.GameUpdateCount);
 
             sb.Draw(tex, drawPos, null, body, Projectile.rotation, origin,
                 new Vector2(0.1f, 0.18f), SpriteEffects.None, 0f);
+
+            // Additive bloom overlay
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            if (glow != null)
+                sb.Draw(glow, drawPos, null, body * 0.4f, Projectile.rotation,
+                    glow.Size() * 0.5f, new Vector2(0.15f, 0.27f), SpriteEffects.None, 0f);
         }
 
         private NPC FindClosestNPC(float maxRange)

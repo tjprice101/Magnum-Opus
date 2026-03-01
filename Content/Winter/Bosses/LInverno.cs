@@ -12,6 +12,8 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Winter.Materials;
+using MagnumOpus.Content.Winter.Bosses.Systems;
+using MagnumOpus.Common.Systems.Bosses;
 
 namespace MagnumOpus.Content.Winter.Bosses
 {
@@ -189,6 +191,11 @@ namespace MagnumOpus.Content.Winter.Bosses
             UpdateDifficultyTier();
             UpdateAggression();
             SpawnAmbientParticles();
+            
+            BossIndexTracker.LInverno = NPC.whoAmI;
+            
+            if (State != BossPhase.Spawning && State != BossPhase.Dying)
+                LInvernoBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier);
             
             float distToTarget = Vector2.Distance(NPC.Center, target.Center);
             if (distToTarget > EnrageDistance && State != BossPhase.Enraged)
@@ -1208,6 +1215,10 @@ namespace MagnumOpus.Content.Winter.Bosses
             Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
             Vector2 drawPos = NPC.Center - screenPos;
             Vector2 origin = texture.Size() / 2f;
+            Rectangle sourceRect = texture.Bounds;
+            
+            // Shader layer: Frost aura
+            LInvernoBossShaderSystem.DrawFrostAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, false);
             
             // Frost trail
             for (int i = 0; i < NPC.oldPos.Length - 1; i++)
@@ -1220,6 +1231,10 @@ namespace MagnumOpus.Content.Winter.Bosses
                 spriteBatch.Draw(texture, trailPos, null, trailColor, NPC.rotation, origin, trailScale, SpriteEffects.None, 0f);
             }
             
+            // Shader layer: Ice trail when moving fast
+            if (NPC.velocity.Length() > 5f)
+                LInvernoBossShaderSystem.DrawIceTrail(spriteBatch, NPC, screenPos, texture, sourceRect, origin, false);
+            
             // Glow layers
             float pulse = (float)Math.Sin(Timer * 0.08f) * 0.12f + 1f;
             
@@ -1230,6 +1245,10 @@ namespace MagnumOpus.Content.Winter.Bosses
             Color midGlow = CrystalCyan * 0.45f;
             midGlow.A = 0;
             spriteBatch.Draw(texture, drawPos, null, midGlow, NPC.rotation, origin, NPC.scale * pulse * 1.1f, SpriteEffects.None, 0f);
+            
+            // Shader layer: Death dissolve
+            if (State == BossPhase.Dying)
+                LInvernoBossShaderSystem.DrawAbsoluteZeroDissolve(spriteBatch, NPC, screenPos, texture, sourceRect, origin, deathTimer / 115f);
             
             // Main sprite
             SpriteEffects effects = NPC.spriteDirection == 1 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;

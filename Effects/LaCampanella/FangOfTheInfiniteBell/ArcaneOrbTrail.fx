@@ -1,8 +1,8 @@
 // =============================================================================
-// Fang of the Infinite Bell — Arcane Orb Trail Shader (Enhanced)
+// Fang of the Infinite Bell  EArcane Orb Trail Shader (Enhanced)
 // =============================================================================
 // Mystical orb trail for homing projectiles. Unlike DualFated's raw fire,
-// this is ARCANE energy — swirling vortex currents with crystalline fractal
+// this is ARCANE energy  Eswirling vortex currents with crystalline fractal
 // shimmer, bifurcated dual-stream wake, and phosphorescent afterglow.
 // The orb's inner energy rotates like a contained magical storm.
 // =============================================================================
@@ -94,7 +94,7 @@ float4 ArcaneOrbTrailPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) 
     float texDetail = lerp(1.0, 0.5 + noiseTex.r * 0.7, uHasSecondaryTex);
     vortexEnergy *= texDetail;
 
-    // --- Arcane color gradient (distinct from fire — more violet-amber-gold) ---
+    // --- Arcane color gradient (distinct from fire  Emore violet-amber-gold) ---
     float3 voidBase = uColor * 0.25;
     float3 arcaneAmber = uColor;
     float3 brightGold = uSecondaryColor;
@@ -136,6 +136,6 @@ technique TrailPass
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 ArcaneOrbTrailPS();
+        PixelShader = compile ps_3_0 ArcaneOrbTrailPS();
     }
 }

@@ -212,7 +212,8 @@ namespace MagnumOpus.Content.Eroica.Accessories.PyreOfTheFallenHero
         private void DrawSlashRing(SpriteBatch spriteBatch, float radius, float alpha, int trailIndex)
         {
             // Use a simple pixel texture for the ring segments
-            Texture2D glowTex = TextureAssets.MagicPixel.Value;
+            Texture2D glowTex = MagnumTextureRegistry.GetPointBloom();
+            if (glowTex == null) return;
             
             int segments = 60;
             float thickness = 20f - (trailIndex >= 0 ? trailIndex * 2f : 0f);
@@ -242,7 +243,8 @@ namespace MagnumOpus.Content.Eroica.Accessories.PyreOfTheFallenHero
         private void DrawCenterGlow(SpriteBatch spriteBatch)
         {
             // Draw a large soft glow in the center
-            Texture2D glowTex = TextureAssets.Extra[ExtrasID.SharpTears].Value; // Soft glow texture
+            Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+            if (glowTex == null) return;
             
             float glowScale = (currentRadius / MaxRadius) * 2f + 1f;
             float glowAlpha = 1f - (currentRadius / MaxRadius) * 0.7f;

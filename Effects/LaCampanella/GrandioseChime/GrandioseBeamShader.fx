@@ -1,11 +1,11 @@
 // =============================================================================
-// Grandiose Chime — Beam Shader (Enhanced)
+// Grandiose Chime  EBeam Shader (Enhanced)
 // =============================================================================
 // Radiant concentrated beam with true standing wave harmonic interference.
-// The beam vibrates with visible antinodes and nodes — like a plucked string
+// The beam vibrates with visible antinodes and nodes  Elike a plucked string
 // made of fire. Spectral dispersion at beam edges splits the gold into
 // component hues. Bell-toll pulse pressure nodes brighten periodically.
-// Unique identity: a MUSICAL beam — you can "see" the sound waves.
+// Unique identity: a MUSICAL beam  Eyou can "see" the sound waves.
 // =============================================================================
 
 sampler uImage0 : register(s0);
@@ -127,6 +127,6 @@ technique AutoPass
 {
     pass P0
     {
-        PixelShader = compile ps_2_0 GrandioseBeamPS();
+        PixelShader = compile ps_3_0 GrandioseBeamPS();
     }
 }

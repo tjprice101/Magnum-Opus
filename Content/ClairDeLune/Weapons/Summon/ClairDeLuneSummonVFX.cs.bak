@@ -1,0 +1,545 @@
+using System;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Terraria;
+using Terraria.ID;
+using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.Particles;
+
+namespace MagnumOpus.Content.ClairDeLune.Weapons.Summon
+{
+    // =========================================================================
+    //  LunarPhylacteryVFX — Soul Beam
+    //  Shader: SoulBeam.fx (SoulBeamTether + SoulBeamAura)
+    //  Identity: Moonlit soul tether — the phylactery binds lunar souls
+    //  that fire ethereal beams of pearl-blue light at enemies.
+    // =========================================================================
+    public static class LunarPhylacteryVFX
+    {
+        public static void HoldItemVFX(Player player)
+        {
+            float time = (float)Main.timeForVisualEffects;
+
+            // Ghostly soul wisps — ethereal luminous motes rising gently like trapped souls
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 wispPos = player.Center + Main.rand.NextVector2Circular(22f, 16f);
+                // Wisps rise with a gentle sinusoidal sway
+                float sway = (float)Math.Sin(time * 0.05f + wispPos.X * 0.02f) * 0.4f;
+                Vector2 vel = new Vector2(sway, -Main.rand.NextFloat(0.4f, 0.9f));
+                Color wispCol = Color.Lerp(ClairDeLunePalette.PearlBlue, ClairDeLunePalette.PearlWhite,
+                    Main.rand.NextFloat(0.3f, 0.7f));
+                Dust d = Dust.NewDustPerfect(wispPos, DustID.IceTorch, vel, 0, default, 0.4f);
+                d.noGravity = true;
+                d.fadeIn = 0.6f;
+            }
+
+            // Faint soul tether line — sparkle connecting player to a phantom position
+            if (Main.rand.NextBool(8))
+            {
+                float tetherAngle = time * 0.02f;
+                Vector2 phantomPos = player.Center + tetherAngle.ToRotationVector2() * 30f;
+                Vector2 mid = (player.Center + phantomPos) * 0.5f + Main.rand.NextVector2Circular(3f, 3f);
+                var tether = new SparkleParticle(mid, Vector2.Zero,
+                    ClairDeLunePalette.PearlBlue * 0.4f, 0.12f, 10);
+                MagnumParticleHandler.SpawnParticle(tether);
+            }
+
+            if (Main.rand.NextBool(8))
+                ClairDeLuneVFXLibrary.SpawnMoonlitMist(player.Center, 1, 15f, 0.15f);
+
+            ClairDeLuneVFXLibrary.AddClairDeLuneLight(player.Center, 0.25f);
+        }
+
+        public static void PreDrawInWorldBloom(SpriteBatch sb, Texture2D tex, Vector2 pos,
+            Vector2 origin, float rotation, float scale)
+        {
+            if (ClairDeLuneShaderManager.HasSoulBeam)
+            {
+                ClairDeLuneShaderManager.BeginShaderAdditive(sb);
+                ClairDeLuneShaderManager.ApplySoulBeamAura((float)Main.timeForVisualEffects * 0.025f);
+
+                sb.Draw(tex, pos - Main.screenPosition, null,
+                    ClairDeLunePalette.PearlBlue * 0.45f, rotation, origin, scale * 1.04f,
+                    SpriteEffects.None, 0f);
+
+                ClairDeLuneShaderManager.RestoreSpriteBatch(sb);
+            }
+            else
+            {
+                ClairDeLuneVFXLibrary.DrawClairDeLuneBloomStack(sb, pos,
+                    ClairDeLunePalette.PearlBlue, ClairDeLunePalette.PearlWhite, scale * 0.25f, 0.4f);
+            }
+        }
+
+        public static void SummonVFX(Vector2 summonPos)
+        {
+            // === SIGNATURE: SOUL CIRCLE MATERIALIZATION — wisps converge into form ===
+            int dustCount = 18;
+            for (int i = 0; i < dustCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / dustCount;
+                float radius = 42f;
+                Vector2 dustPos = summonPos + angle.ToRotationVector2() * radius;
+                // Spiral inward with ethereal sway
+                Vector2 inward = (summonPos - dustPos) * 0.06f;
+                Vector2 tangential = new Vector2(-inward.Y, inward.X) * 0.4f;
+                Vector2 vel = inward + tangential + Vector2.UnitY * -0.5f;
+
+                Color soulCol = Color.Lerp(ClairDeLunePalette.PearlBlue, ClairDeLunePalette.PearlWhite,
+                    (float)i / dustCount);
+                Dust d = Dust.NewDustPerfect(dustPos, DustID.IceTorch, vel, 0, default, 0.8f);
+                d.noGravity = true;
+                d.fadeIn = 0.9f;
+
+                // Ghost glow particles on the outer ring
+                if (i % 3 == 0)
+                {
+                    var ghost = new GenericGlowParticle(dustPos, vel * 0.8f,
+                        soulCol * 0.6f, 0.25f, 18, true);
+                    MagnumParticleHandler.SpawnParticle(ghost);
+                }
+            }
+
+            ClairDeLuneVFXLibrary.SpawnPearlBurst(summonPos, 10, 4.5f, 0.32f);
+            ClairDeLuneVFXLibrary.SpawnGradientHaloRings(summonPos, 4, 0.4f);
+            ClairDeLuneVFXLibrary.SpawnMusicNotes(summonPos, 3, 15f, 0.4f, 0.8f, 25);
+            ClairDeLuneVFXLibrary.DrawBloom(summonPos, 0.55f, 0.85f);
+            ClairDeLuneVFXLibrary.AddPaletteLighting(summonPos, 0.3f, 0.7f);
+        }
+
+        public static void MinionAmbientVFX(Vector2 minionPos)
+        {
+            float time = (float)Main.timeForVisualEffects;
+
+            // Ethereal soul wisp — rising luminous motes with gentle sway
+            if (Main.rand.NextBool(3))
+            {
+                float sway = (float)Math.Sin(time * 0.06f + minionPos.X * 0.01f) * 0.3f;
+                Vector2 offset = Main.rand.NextVector2Circular(10f, 8f);
+                Dust d = Dust.NewDustPerfect(minionPos + offset, DustID.IceTorch,
+                    new Vector2(sway, -Main.rand.NextFloat(0.2f, 0.5f)), 0, default, 0.3f);
+                d.noGravity = true;
+                d.fadeIn = 0.4f;
+            }
+
+            // Faint pearl pulse — rhythmic ghost glow
+            if (Main.rand.NextBool(8))
+            {
+                float pulseAlpha = (float)Math.Sin(time * 0.04f) * 0.3f + 0.3f;
+                var pulse = new GenericGlowParticle(
+                    minionPos + Main.rand.NextVector2Circular(6f, 6f), Vector2.Zero,
+                    ClairDeLunePalette.PearlBlue * pulseAlpha, 0.1f, 8, true);
+                MagnumParticleHandler.SpawnParticle(pulse);
+            }
+
+            if (Main.rand.NextBool(14))
+                ClairDeLuneVFXLibrary.SpawnPearlSparkle(minionPos, Main.rand.NextVector2Circular(0.5f, 0.5f));
+
+            ClairDeLuneVFXLibrary.AddPaletteLighting(minionPos, 0.3f, 0.22f);
+        }
+
+        public static void SoulBeamFireVFX(Vector2 minionPos, Vector2 beamDirection)
+        {
+            // === SIGNATURE: ETHEREAL BEAM LAUNCH — soul energy gathers then streaks forward ===
+            for (int i = 0; i < 8; i++)
+            {
+                float spread = Main.rand.NextFloat(-0.2f, 0.2f);
+                Vector2 vel = beamDirection.RotatedBy(spread) * (4f + Main.rand.NextFloat() * 4f)
+                    + Main.rand.NextVector2Circular(0.6f, 0.6f);
+                Color beamCol = Color.Lerp(ClairDeLunePalette.PearlBlue, ClairDeLunePalette.PearlWhite,
+                    Main.rand.NextFloat(0.3f, 0.8f));
+                Dust d = Dust.NewDustPerfect(minionPos, DustID.IceTorch, vel, 0, default, 0.7f);
+                d.noGravity = true;
+                d.fadeIn = 0.8f;
+
+                // Ghost glow trail accents
+                if (i % 3 == 0)
+                {
+                    var glow = new GenericGlowParticle(minionPos, vel * 0.7f,
+                        beamCol * 0.6f, 0.2f, 12, true);
+                    MagnumParticleHandler.SpawnParticle(glow);
+                }
+            }
+
+            // Ethereal flash at launch point
+            var flash = new SparkleParticle(minionPos, Vector2.Zero,
+                ClairDeLunePalette.PearlWhite * 0.8f, 0.3f, 8);
+            MagnumParticleHandler.SpawnParticle(flash);
+
+            ClairDeLuneVFXLibrary.SpawnPearlBurst(minionPos, 4, 2.5f, 0.22f);
+            ClairDeLuneVFXLibrary.SpawnMusicNotes(minionPos, 1, 8f, 0.3f, 0.5f, 12);
+            ClairDeLuneVFXLibrary.AddPaletteLighting(minionPos, 0.3f, 0.45f);
+        }
+
+        public static void SoulBeamImpactVFX(Vector2 hitPos)
+        {
+            ClairDeLuneVFXLibrary.ProjectileImpact(hitPos, 0);
+
+            // === SIGNATURE: ETHEREAL SOUL DISSIPATION — ghost wisps scatter from impact ===
+            int dustCount = 12;
+            for (int i = 0; i < dustCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / dustCount;
+                float speed = 3f + Main.rand.NextFloat() * 2.5f;
+                Vector2 vel = angle.ToRotationVector2() * speed;
+                Dust d = Dust.NewDustPerfect(hitPos, DustID.IceTorch, vel, 0, default, 0.8f);
+                d.noGravity = true;
+                d.fadeIn = 0.9f;
+
+                // Ethereal ghost glow wisps rising upward from impact
+                if (i % 2 == 0)
+                {
+                    Vector2 wispVel = vel * 0.5f + Vector2.UnitY * -1.5f;
+                    Color wispCol = Color.Lerp(ClairDeLunePalette.PearlBlue, ClairDeLunePalette.PearlWhite,
+                        (float)i / dustCount);
+                    var wisp = new GenericGlowParticle(hitPos, wispVel, wispCol * 0.6f, 0.2f, 16, true);
+                    MagnumParticleHandler.SpawnParticle(wisp);
+                }
+            }
+
+            ClairDeLuneVFXLibrary.SpawnPearlBurst(hitPos, 6, 3.5f, 0.28f);
+            ClairDeLuneVFXLibrary.SpawnMusicNotes(hitPos, 1, 10f, 0.3f, 0.55f, 15);
+            ClairDeLuneVFXLibrary.DrawBloom(hitPos, 0.35f, 0.55f);
+            ClairDeLuneVFXLibrary.AddPaletteLighting(hitPos, 0.3f, 0.45f);
+        }
+    }
+
+    // =========================================================================
+    //  GearDrivenArbiterVFX — Judgment Mark
+    //  Shader: JudgmentMark.fx (JudgmentMarkSigil + JudgmentMarkDetonate)
+    //  Identity: Clockwork judgment sigil — the arbiter marks enemies with
+    //  rotating gear sigils that detonate in righteous mechanical fury.
+    // =========================================================================
+    public static class GearDrivenArbiterVFX
+    {
+        public static void HoldItemVFX(Player player)
+        {
+            float time = (float)Main.timeForVisualEffects;
+
+            // Rotating gear sigil idle — 4 brass dots rotating in a gear pattern
+            if (Main.rand.NextBool(2))
+            {
+                float gearAngle = time * 0.05f;
+                for (int i = 0; i < 4; i++)
+                {
+                    float toothAngle = gearAngle + i * MathHelper.PiOver2;
+                    // Gear-tooth pattern: dots alternate between inner and outer radius
+                    float toothRadius = 15f + (float)Math.Abs(Math.Sin(toothAngle * 4f)) * 5f;
+                    Vector2 toothPos = player.Center + toothAngle.ToRotationVector2() * toothRadius;
+                    Dust d = Dust.NewDustPerfect(toothPos, DustID.GoldFlame,
+                        (toothAngle + MathHelper.PiOver2).ToRotationVector2() * 0.2f, 0, default, 0.3f);
+                    d.noGravity = true;
+                    d.fadeIn = 0.4f;
+                }
+            }
+
+            // Judgment glow — warm brass ambience
+            if (Main.rand.NextBool(8))
+            {
+                var glow = new GenericGlowParticle(
+                    player.Center + Main.rand.NextVector2Circular(16f, 16f), Vector2.Zero,
+                    ClairDeLunePalette.MoonbeamGold * 0.3f, 0.1f, 8, true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+
+            if (Main.rand.NextBool(12))
+                ClairDeLuneVFXLibrary.SpawnPearlShimmer(player.Center, 1, 20f, 0.15f);
+
+            ClairDeLuneVFXLibrary.AmbientClockworkAura(player.Center, time);
+            ClairDeLuneVFXLibrary.AddClairDeLuneLight(player.Center, 0.2f);
+        }
+
+        public static void PreDrawInWorldBloom(SpriteBatch sb, Texture2D tex, Vector2 pos,
+            Vector2 origin, float rotation, float scale)
+        {
+            if (ClairDeLuneShaderManager.HasJudgmentMark)
+            {
+                ClairDeLuneShaderManager.BeginShaderAdditive(sb);
+                ClairDeLuneShaderManager.ApplyJudgmentMarkDetonate((float)Main.timeForVisualEffects * 0.03f, 0f);
+
+                sb.Draw(tex, pos - Main.screenPosition, null,
+                    ClairDeLunePalette.ClockworkBrass * 0.5f, rotation, origin, scale * 1.04f,
+                    SpriteEffects.None, 0f);
+
+                ClairDeLuneShaderManager.RestoreSpriteBatch(sb);
+            }
+            else
+            {
+                ClairDeLuneVFXLibrary.DrawClairDeLuneBloomStack(sb, pos,
+                    ClairDeLunePalette.ClockworkBrass, ClairDeLunePalette.MoonbeamGold, scale * 0.25f, 0.35f);
+            }
+        }
+
+        public static void SummonVFX(Vector2 summonPos)
+        {
+            // === SIGNATURE: GEAR-SIGIL MATERIALIZATION — interlocking gear rings converge ===
+            // Two counter-rotating rings of brass gear particles
+            for (int ring = 0; ring < 2; ring++)
+            {
+                int count = 10 + ring * 4;
+                float ringRadius = 30f + ring * 10f;
+                float ringDir = (ring == 0) ? 1f : -1f;
+                for (int i = 0; i < count; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / count;
+                    Vector2 dustPos = summonPos + angle.ToRotationVector2() * ringRadius;
+                    // Interlocking spiral convergence
+                    Vector2 inward = (summonPos - dustPos) * 0.05f;
+                    Vector2 tangential = new Vector2(-inward.Y, inward.X) * ringDir * 0.6f;
+                    Vector2 vel = inward + tangential;
+
+                    int dustType = (ring == 0) ? DustID.GoldFlame : DustID.IceTorch;
+                    Dust d = Dust.NewDustPerfect(dustPos, dustType, vel, 0, default, 0.7f);
+                    d.noGravity = true;
+                    d.fadeIn = 0.8f;
+
+                    // Gear glow particles for the outer ring
+                    if (ring == 1 && i % 2 == 0)
+                    {
+                        Color gearCol = ClairDeLunePalette.GetClockworkGradient((float)i / count);
+                        var gear = new GenericGlowParticle(dustPos, vel * 0.8f,
+                            gearCol * 0.6f, 0.22f, 16, true);
+                        MagnumParticleHandler.SpawnParticle(gear);
+                    }
+                }
+            }
+
+            ClairDeLuneVFXLibrary.SpawnPearlBurst(summonPos, 8, 4f, 0.28f);
+            ClairDeLuneVFXLibrary.SpawnGradientHaloRings(summonPos, 4, 0.35f);
+            ClairDeLuneVFXLibrary.SpawnMusicNotes(summonPos, 3, 14f, 0.4f, 0.7f, 22);
+            ClairDeLuneVFXLibrary.DrawBloom(summonPos, 0.5f, 0.75f);
+            ClairDeLuneVFXLibrary.AddPaletteLighting(summonPos, 0.6f, 0.65f);
+        }
+
+        public static void MinionAmbientVFX(Vector2 minionPos)
+        {
+            float time = (float)Main.timeForVisualEffects;
+
+            // Orbiting gear sigil dots — 4 brass points rotating around the minion
+            if (Main.rand.NextBool(2))
+            {
+                float ringAngle = time * 0.05f;
+                float toothRadius = 10f + (float)Math.Abs(Math.Sin(ringAngle * 3f)) * 3f;
+                Vector2 ringOffset = ringAngle.ToRotationVector2() * toothRadius;
+                Dust d = Dust.NewDustPerfect(minionPos + ringOffset, DustID.GoldFlame,
+                    Vector2.Zero, 0, default, 0.28f);
+                d.noGravity = true;
+            }
+
+            // Pearl accent at opposite side
+            if (Main.rand.NextBool(6))
+            {
+                float antiAngle = time * 0.05f + MathHelper.Pi;
+                Vector2 antiPos = minionPos + antiAngle.ToRotationVector2() * 8f;
+                Dust pearl = Dust.NewDustPerfect(antiPos, DustID.IceTorch,
+                    Vector2.Zero, 0, default, 0.2f);
+                pearl.noGravity = true;
+            }
+
+            ClairDeLuneVFXLibrary.AddPaletteLighting(minionPos, 0.6f, 0.22f);
+        }
+
+        public static void JudgmentStrikeVFX(Vector2 strikePos)
+        {
+            // === SIGNATURE: JUDGMENT DETONATION — expanding gear rings with golden verdict ===
+            // Two counter-rotating detonation rings
+            for (int ring = 0; ring < 2; ring++)
+            {
+                int count = 10 + ring * 4;
+                float ringDir = (ring == 0) ? 1f : -1f;
+                for (int i = 0; i < count; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / count + ring * 0.15f;
+                    float speed = (5f + Main.rand.NextFloat() * 3f) * (1f + ring * 0.3f);
+                    Vector2 vel = (angle + ringDir * 0.12f).ToRotationVector2() * speed;
+
+                    int dustType = (ring == 0)
+                        ? ((i % 2 == 0) ? DustID.GoldFlame : DustID.IceTorch)
+                        : DustID.GoldFlame;
+                    Dust d = Dust.NewDustPerfect(strikePos, dustType, vel, 0, default, 1f);
+                    d.noGravity = true;
+                    d.fadeIn = 1.1f;
+
+                    // Golden verdict glow on outer ring
+                    if (ring == 1 && i % 2 == 0)
+                    {
+                        Color verdictCol = ClairDeLunePalette.GetClockworkGradient((float)i / count);
+                        var verdict = new GenericGlowParticle(strikePos, vel * 0.7f,
+                            verdictCol * 0.8f, 0.3f, 16, true);
+                        MagnumParticleHandler.SpawnParticle(verdict);
+                    }
+                }
+            }
+
+            // Judgment cross — 4-point expanding brass cross for dramatic verdict
+            for (int p = 0; p < 4; p++)
+            {
+                float crossAngle = p * MathHelper.PiOver2 + MathHelper.PiOver4;
+                Vector2 crossVel = crossAngle.ToRotationVector2() * 7f;
+                var crossGlow = new GenericGlowParticle(strikePos, crossVel,
+                    ClairDeLunePalette.MoonbeamGold * 0.9f, 0.35f, 14, true);
+                MagnumParticleHandler.SpawnParticle(crossGlow);
+            }
+
+            ClairDeLuneVFXLibrary.SpawnRadialDustBurst(strikePos, 14, 6f, DustID.GoldFlame);
+            ClairDeLuneVFXLibrary.SpawnPearlBurst(strikePos, 10, 4.5f, 0.35f);
+            ClairDeLuneVFXLibrary.SpawnGradientHaloRings(strikePos, 5, 0.42f);
+            ClairDeLuneVFXLibrary.SpawnMusicNotes(strikePos, 3, 16f, 0.45f, 0.8f, 25);
+            ClairDeLuneVFXLibrary.DrawBloom(strikePos, 0.65f, 0.95f);
+            ClairDeLuneVFXLibrary.AddPaletteLighting(strikePos, 0.6f, 0.85f);
+        }
+
+        public static void MarkTargetVFX(Vector2 targetPos, float markProgress = 0f)
+        {
+            float intensity = MathHelper.Clamp(markProgress, 0f, 1f);
+            float time = (float)Main.timeForVisualEffects;
+            float ringAngle = time * 0.03f;
+
+            // Gear-sigil forming around target — 4 points with gear-tooth modulation
+            for (int i = 0; i < 4; i++)
+            {
+                float angle = ringAngle + MathHelper.PiOver2 * i;
+                float toothMod = 1f + 0.2f * (float)Math.Sin(angle * 4f); // Gear teeth
+                float radius = (20f + 8f * intensity) * toothMod;
+                Vector2 dustPos = targetPos + angle.ToRotationVector2() * radius;
+                Dust d = Dust.NewDustPerfect(dustPos, DustID.GoldFlame,
+                    (angle + MathHelper.PiOver2).ToRotationVector2() * 0.3f * intensity,
+                    0, default, 0.4f * (0.5f + intensity * 0.5f));
+                d.noGravity = true;
+            }
+
+            // Counter-rotating inner pearl ring (visible only at higher progress)
+            if (intensity > 0.3f && Main.rand.NextBool(2))
+            {
+                float innerAngle = -ringAngle * 1.5f;
+                float innerRadius = 12f + 4f * intensity;
+                Vector2 innerPos = targetPos + innerAngle.ToRotationVector2() * innerRadius;
+                Dust pearl = Dust.NewDustPerfect(innerPos, DustID.IceTorch,
+                    Vector2.Zero, 0, default, 0.25f * intensity);
+                pearl.noGravity = true;
+            }
+
+            // Sparkle as mark completes
+            if (intensity > 0.5f && Main.rand.NextBool(3))
+                ClairDeLuneVFXLibrary.SpawnPearlSparkle(targetPos, Main.rand.NextVector2Circular(0.5f, 0.5f));
+
+            // Glow buildup at high progress
+            if (intensity > 0.7f && Main.rand.NextBool(4))
+            {
+                var buildup = new GenericGlowParticle(
+                    targetPos + Main.rand.NextVector2Circular(8f, 8f), Vector2.Zero,
+                    ClairDeLunePalette.MoonbeamGold * 0.4f * intensity, 0.12f, 8, true);
+                MagnumParticleHandler.SpawnParticle(buildup);
+            }
+
+            ClairDeLuneVFXLibrary.AddPaletteLighting(targetPos, 0.6f, 0.2f * intensity);
+        }
+    }
+
+    // =========================================================================
+    //  AutomatonsTuningForkVFX — Resonance Field
+    //  Shader: ResonanceField.fx (ResonanceFieldPulse + ResonanceFieldHarmonic)
+    //  Identity: Harmonic resonance pulse — the tuning fork emits expanding
+    //  concentric pulses of pure harmonic energy that heal and empower.
+    // =========================================================================
+    public static class AutomatonsTuningForkVFX
+    {
+        public static void HoldItemVFX(Player player)
+        {
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(24f, 24f);
+                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.IceTorch,
+                    offset * 0.01f, 0, default, 0.35f);
+                d.noGravity = true;
+                d.fadeIn = 0.5f;
+            }
+
+            if (Main.rand.NextBool(8))
+                ClairDeLuneVFXLibrary.SpawnMoonlitMist(player.Center, 1, 18f, 0.12f);
+
+            ClairDeLuneVFXLibrary.AddClairDeLuneLight(player.Center, 0.22f);
+        }
+
+        public static void PreDrawInWorldBloom(SpriteBatch sb, Texture2D tex, Vector2 pos,
+            Vector2 origin, float rotation, float scale)
+        {
+            if (ClairDeLuneShaderManager.HasResonanceField)
+            {
+                ClairDeLuneShaderManager.BeginShaderAdditive(sb);
+                ClairDeLuneShaderManager.ApplyResonanceFieldHarmonic((float)Main.timeForVisualEffects * 0.025f);
+
+                sb.Draw(tex, pos - Main.screenPosition, null,
+                    ClairDeLunePalette.SoftBlue * 0.45f, rotation, origin, scale * 1.04f,
+                    SpriteEffects.None, 0f);
+
+                ClairDeLuneShaderManager.RestoreSpriteBatch(sb);
+            }
+            else
+            {
+                ClairDeLuneVFXLibrary.DrawClairDeLuneBloomStack(sb, pos,
+                    ClairDeLunePalette.SoftBlue, ClairDeLunePalette.PearlWhite, scale * 0.25f, 0.35f);
+            }
+        }
+
+        public static void SummonVFX(Vector2 summonPos)
+        {
+            int dustCount = 12;
+            for (int i = 0; i < dustCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / dustCount;
+                float radius = 30f;
+                Vector2 dustPos = summonPos + angle.ToRotationVector2() * radius;
+                Vector2 vel = (summonPos - dustPos) * 0.04f;
+                Dust d = Dust.NewDustPerfect(dustPos, DustID.IceTorch, vel, 0, default, 0.7f);
+                d.noGravity = true;
+                d.fadeIn = 0.8f;
+            }
+
+            ClairDeLuneVFXLibrary.SpawnPearlBurst(summonPos, 6, 3.5f, 0.25f);
+            ClairDeLuneVFXLibrary.SpawnMusicNotes(summonPos, 3, 14f, 0.4f, 0.8f, 22);
+            ClairDeLuneVFXLibrary.DrawBloom(summonPos, 0.4f, 0.7f);
+            ClairDeLuneVFXLibrary.AddPaletteLighting(summonPos, 0.3f, 0.6f);
+        }
+
+        public static void MinionAmbientVFX(Vector2 minionPos)
+        {
+            if (Main.rand.NextBool(4))
+            {
+                float pulse = (float)Math.Sin(Main.timeForVisualEffects * 0.04) * 0.5f + 0.5f;
+                float radius = 8f + 6f * pulse;
+                float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                Vector2 dustPos = minionPos + angle.ToRotationVector2() * radius;
+                Dust d = Dust.NewDustPerfect(dustPos, DustID.IceTorch,
+                    Vector2.Zero, 0, default, 0.25f * (0.5f + pulse * 0.5f));
+                d.noGravity = true;
+            }
+
+            ClairDeLuneVFXLibrary.AddPaletteLighting(minionPos, 0.3f, 0.2f);
+        }
+
+        public static void ResonancePulseVFX(Vector2 pulseCenter, float pulseRadius = 120f)
+        {
+            int ringCount = 20;
+            for (int i = 0; i < ringCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / ringCount;
+                Vector2 ringPos = pulseCenter + angle.ToRotationVector2() * pulseRadius;
+                Vector2 vel = (ringPos - pulseCenter).SafeNormalize(Vector2.Zero) * 2f;
+                Dust d = Dust.NewDustPerfect(ringPos, DustID.IceTorch, vel, 0, default, 0.9f);
+                d.noGravity = true;
+                d.fadeIn = 1f;
+            }
+
+            ClairDeLuneVFXLibrary.SpawnRadialDustBurst(pulseCenter, 16, 5f, DustID.IceTorch);
+            ClairDeLuneVFXLibrary.SpawnPearlBurst(pulseCenter, 10, 5f, 0.35f);
+            ClairDeLuneVFXLibrary.SpawnGradientHaloRings(pulseCenter, 4, 0.4f);
+            ClairDeLuneVFXLibrary.SpawnOrbitingNotes(pulseCenter, Vector2.Zero, 4, 40f);
+            ClairDeLuneVFXLibrary.SpawnMusicNotes(pulseCenter, 3, 18f, 0.45f, 0.85f, 25);
+            ClairDeLuneVFXLibrary.DrawBloom(pulseCenter, 0.6f, 0.9f);
+            ClairDeLuneVFXLibrary.AddPaletteLighting(pulseCenter, 0.3f, 0.8f);
+        }
+    }
+}

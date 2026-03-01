@@ -15,6 +15,8 @@ using MagnumOpus.Content.Fate.Debuffs;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.Fate.Bosses.Systems;
+using MagnumOpus.Common.Systems.Bosses;
 using static MagnumOpus.Common.Systems.BossDialogueSystem;
 
 namespace MagnumOpus.Content.Fate.Bosses
@@ -278,6 +280,13 @@ namespace MagnumOpus.Content.Fate.Bosses
             
             float lightIntensity = isEnraged ? 1.4f : 1.0f;
             Lighting.AddLight(NPC.Center, FatePalette.BrightCrimson.ToVector3() * lightIntensity * 0.6f);
+            
+            BossIndexTracker.FateWardenOfMelodies = NPC.whoAmI;
+            BossIndexTracker.FatePhase = difficultyTier;
+            BossIndexTracker.FateAwakened = hasAwakened;
+            
+            if (State != BossPhase.Spawning && State != BossPhase.Dying)
+                FateBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier, hasAwakened);
         }
 
         #region Core AI Methods
@@ -1532,6 +1541,28 @@ namespace MagnumOpus.Content.Fate.Bosses
             Vector2 drawPos = NPC.Center - screenPos;
             Vector2 origin = new Vector2(texture.Width / 2f, frameHeight / 2f);
             SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            
+            // === Shader: Cosmic Aura ===
+            if (State != BossPhase.Spawning)
+                FateBossShaderSystem.DrawCosmicAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, isEnraged);
+            
+            // === Shader: Constellation Trail (when moving fast) ===
+            if (NPC.velocity.Length() > 6f)
+                FateBossShaderSystem.DrawConstellationTrail(spriteBatch, NPC, screenPos, texture, frame, origin, isEnraged);
+            
+            // === Shader: Awakening Shatter (during Awakening phase) ===
+            if (State == BossPhase.Awakening)
+            {
+                float transitionProgress = awakeningTimer / (float)AwakeningDuration;
+                FateBossShaderSystem.DrawAwakeningShatter(spriteBatch, NPC, screenPos, transitionProgress);
+            }
+            
+            // === Shader: Cosmic Death Rift (during Dying phase) ===
+            if (State == BossPhase.Dying)
+            {
+                float dissolveProgress = deathTimer / 180f;
+                FateBossShaderSystem.DrawCosmicDeathRift(spriteBatch, NPC, screenPos, texture, frame, origin, dissolveProgress);
+            }
             
             // Afterimage trail
             for (int i = NPC.oldPos.Length - 1; i >= 0; i--)

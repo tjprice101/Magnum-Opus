@@ -74,7 +74,7 @@ technique WrathSlashTechnique
 {
     pass WrathSlashMain
     {
-        PixelShader = compile ps_2_0 WrathSlashMain();
+        PixelShader = compile ps_3_0 WrathSlashMain();
     }
 }
 
@@ -82,6 +82,6 @@ technique WrathSlashGlowTechnique
 {
     pass WrathSlashGlow
     {
-        PixelShader = compile ps_2_0 WrathSlashGlow();
+        PixelShader = compile ps_3_0 WrathSlashGlow();
     }
 }

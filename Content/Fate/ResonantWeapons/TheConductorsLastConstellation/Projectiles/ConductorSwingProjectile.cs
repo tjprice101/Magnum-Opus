@@ -450,7 +450,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
         {
             if (Main.dedServ || _trailCount < 2) return false;
 
-            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise");
+            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/MusicalWavePattern");
             _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
             _flareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16");
 
@@ -533,7 +533,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             catch { }
         }
 
-        /// <summary>Layer 3: Lightning spark accents with zigzag positioning along arc.</summary>
+        /// <summary>Layer 3: Lightning bolt forks — zigzag sparks with forking branches and arc nodes.</summary>
         private void DrawLayer3_LightningSparks(SpriteBatch sb, float progress, float combo)
         {
             if (_flareTex?.Value == null || _trailCount < 3) return;
@@ -546,19 +546,21 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
                 Vector2 origin = tex.Size() / 2f;
                 float time = (float)Main.timeForVisualEffects;
 
+                // === Primary lightning bolt nodes along the arc ===
                 for (int i = 1; i < _trailCount - 1; i += 2)
                 {
                     float t = (float)i / _trailCount;
                     float sparkAlpha = (1f - t) * (0.3f + combo * 0.4f);
 
-                    // Electric flicker
-                    float flicker = MathF.Sin(time * 0.4f + i * 3.1f) * 0.35f + 0.65f;
+                    // Rapid electric flicker (reforms 6x/sec for jagged feel)
+                    float flickerSeed = MathF.Floor(time * 0.1f + i * 0.7f);
+                    float flicker = (MathF.Sin(flickerSeed * 127.1f) * 0.5f + 0.5f) * 0.4f + 0.6f;
                     sparkAlpha *= flicker;
 
                     if (sparkAlpha < 0.05f) continue;
 
-                    // Zigzag offset perpendicular to trail
-                    float zigzag = MathF.Sin(i * 1.7f + time * 0.15f) * 6f;
+                    // Zigzag offset perpendicular to trail (sharper displacement)
+                    float zigzag = MathF.Sin(i * 1.7f + time * 0.15f) * 8f;
                     Vector2 tangent = Vector2.Zero;
                     if (i > 0 && i < _trailCount - 1)
                         tangent = _trailPoints[i + 1] - _trailPoints[i - 1];
@@ -569,11 +571,65 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
                     Vector2 drawPos = _trailPoints[i] + perp * zigzag - Main.screenPosition;
                     float sparkScale = 0.15f + combo * 0.08f;
 
-                    // Draw crossed flares (4-point star)
+                    // Primary arc node (brighter, with cyan core)
                     sb.Draw(tex, drawPos, null, ConductorUtils.Additive(sparkCol, sparkAlpha),
                         time * 0.3f + i, origin, sparkScale * flicker, SpriteEffects.None, 0f);
-                    sb.Draw(tex, drawPos, null, ConductorUtils.Additive(sparkCol, sparkAlpha * 0.6f),
-                        time * 0.3f + i + MathHelper.PiOver2, origin, sparkScale * flicker * 0.7f, SpriteEffects.None, 0f);
+                    sb.Draw(tex, drawPos, null, ConductorUtils.Additive(ConductorUtils.CelestialWhite, sparkAlpha * 0.4f),
+                        0f, origin, sparkScale * 0.3f, SpriteEffects.None, 0f);
+
+                    // === Forking branch bolts — spawn 1-2 short forks from brighter nodes ===
+                    if (sparkAlpha > 0.15f && i < _trailCount - 3)
+                    {
+                        int forkCount = sparkAlpha > 0.25f ? 2 : 1;
+                        for (int f = 0; f < forkCount; f++)
+                        {
+                            float forkAngle = (MathF.Sin(flickerSeed * (37.7f + f * 91.3f)) - 0.5f) * MathHelper.PiOver2;
+                            Vector2 forkDir = (tangent.ToRotation() + forkAngle + perp.ToRotation() * 0.3f).ToRotationVector2();
+                            float forkLen = 12f + MathF.Sin(flickerSeed * 53.1f) * 8f;
+                            Vector2 forkEnd = drawPos + forkDir * forkLen;
+
+                            // Draw fork as stretched flare
+                            Vector2 fDelta = forkEnd - drawPos;
+                            float fDist = fDelta.Length();
+                            if (fDist > 2f)
+                            {
+                                float fAngle = fDelta.ToRotation();
+                                sb.Draw(tex, drawPos, null,
+                                    ConductorUtils.Additive(ConductorUtils.ConductorCyan, sparkAlpha * 0.5f),
+                                    fAngle, new Vector2(0, tex.Height * 0.5f),
+                                    new Vector2(fDist / tex.Width, 0.04f), SpriteEffects.None, 0f);
+
+                                // Tiny terminus spark at fork end
+                                sb.Draw(tex, forkEnd, null,
+                                    ConductorUtils.Additive(ConductorUtils.CelestialWhite, sparkAlpha * 0.3f),
+                                    time + f * 2f, origin, sparkScale * 0.4f, SpriteEffects.None, 0f);
+                            }
+                        }
+                    }
+                }
+
+                // === Connecting bolt segments between consecutive arc nodes ===
+                for (int i = 1; i < _trailCount - 3; i += 2)
+                {
+                    int j = i + 2;
+                    if (j >= _trailCount) break;
+
+                    float tAvg = (float)(i + j) / (2f * _trailCount);
+                    float segAlpha = (1f - tAvg) * (0.1f + combo * 0.15f);
+                    if (segAlpha < 0.03f) continue;
+
+                    Vector2 posA = _trailPoints[i] - Main.screenPosition;
+                    Vector2 posB = _trailPoints[j] - Main.screenPosition;
+
+                    // Thin electric connecting bolt
+                    Vector2 delta = posB - posA;
+                    float dist = delta.Length();
+                    if (dist < 3f) continue;
+                    float angle = delta.ToRotation();
+                    sb.Draw(tex, posA, null,
+                        ConductorUtils.Additive(ConductorUtils.ConductorCyan, segAlpha),
+                        angle, new Vector2(0, tex.Height * 0.5f),
+                        new Vector2(dist / tex.Width, 0.025f), SpriteEffects.None, 0f);
                 }
 
                 ConductorUtils.EndAdditive(sb);
@@ -620,7 +676,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             }
         }
 
-        /// <summary>Layer 5: Combo aura — electric concentric rings when combo high.</summary>
+        /// <summary>Layer 5: Combo aura — expanding electric pulse waves that radiate outward.</summary>
         private void DrawLayer5_ComboAura(SpriteBatch sb, float combo)
         {
             if (combo < 0.4f) return;
@@ -629,7 +685,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             try
             {
                 float auraAlpha = (combo - 0.4f) / 0.6f;
-                float pulse = MathF.Sin((float)Main.timeForVisualEffects * 0.06f) * 0.15f + 0.85f;
+                float time = (float)Main.timeForVisualEffects;
 
                 ConductorUtils.BeginAdditive(sb);
 
@@ -637,20 +693,38 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
                 var tex = _glowTex.Value;
                 Vector2 origin = tex.Size() / 2f;
 
-                // Concentric electric rings
-                for (int ring = 0; ring < 3; ring++)
+                // === Expanding pulse wave rings (like sonar pings radiating outward) ===
+                int waveCount = 3;
+                float wavePeriod = 1.8f; // seconds per wave cycle
+                for (int w = 0; w < waveCount; w++)
                 {
-                    float ringScale = (0.8f + ring * 0.5f) * pulse;
-                    float ringAlpha = auraAlpha * (1f - ring * 0.25f) * 0.12f;
-                    Color ringCol = ring switch
+                    // Each wave is offset in phase so they stagger
+                    float wavePhase = (time * 0.017f + w * (1f / waveCount)) % 1f;
+                    float waveRadius = wavePhase * 100f;
+                    float waveAlpha = auraAlpha * (1f - wavePhase) * 0.2f; // fades as it expands
+                    float waveWidth = 0.04f + wavePhase * 0.02f; // thins slightly as it expands
+
+                    if (waveAlpha < 0.02f) continue;
+
+                    // Draw the expanding ring as multiple points on a circle
+                    int segments = 12;
+                    for (int s = 0; s < segments; s++)
                     {
-                        0 => ConductorUtils.BatonPurple,
-                        1 => ConductorUtils.ConductorCyan,
-                        _ => ConductorUtils.LightningGold,
-                    };
-                    sb.Draw(tex, center, null, ConductorUtils.Additive(ringCol, ringAlpha),
-                        0f, origin, ringScale, SpriteEffects.None, 0f);
+                        float angle = s * MathHelper.TwoPi / segments;
+                        Vector2 pos = center + angle.ToRotationVector2() * waveRadius;
+
+                        // Alternate cyan and purple segments for electric feel
+                        Color segCol = s % 2 == 0 ? ConductorUtils.ConductorCyan : ConductorUtils.BatonPurple;
+                        sb.Draw(tex, pos, null, ConductorUtils.Additive(segCol, waveAlpha),
+                            angle, origin, waveWidth * 3f, SpriteEffects.None, 0f);
+                    }
                 }
+
+                // Central electric core (flickers)
+                float coreFlicker = MathF.Sin(time * 0.35f) * 0.3f + 0.7f;
+                sb.Draw(tex, center, null,
+                    ConductorUtils.Additive(ConductorUtils.ConductorCyan, auraAlpha * 0.1f * coreFlicker),
+                    0f, origin, 0.5f, SpriteEffects.None, 0f);
 
                 ConductorUtils.EndAdditive(sb);
             }

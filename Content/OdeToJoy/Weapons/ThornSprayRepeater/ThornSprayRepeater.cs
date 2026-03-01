@@ -85,30 +85,34 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater
             Vector2 position = Item.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
+            // Sharp angular flicker: stepped square-wave-like oscillation with thorny edge
             float time = Main.GameUpdateCount * 0.05f;
-            float pulse = 1f + (float)Math.Sin(time * 1.8f) * 0.1f;
-            float flicker = Main.rand.NextFloat(0.9f, 1f);
+            float rawSine = (float)Math.Sin(time * 3.5f);
+            float squarePulse = rawSine > 0 ? 1f : 0.6f; // Abrupt on/off stepped feel
+            float thornEdge = (float)Math.Abs(Math.Sin(time * 5f)); // Sharp angular spikes
+            float bangFlash = (float)Math.Pow(Math.Max(0f, (float)Math.Sin(time * 7f)), 8f); // Narrow bright spikes
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Verdant green glow
-            spriteBatch.Draw(texture, position, null, ThornSprayUtils.Additive(ThornSprayUtils.VerdantBolt, 0.3f * flicker),
-                rotation, origin, scale * pulse * 1.25f, SpriteEffects.None, 0f);
-            // Amber accent
-            spriteBatch.Draw(texture, position, null, ThornSprayUtils.Additive(ThornSprayUtils.AmberWarn, 0.2f * flicker),
-                rotation, origin, scale * pulse * 1.1f, SpriteEffects.None, 0f);
+            // Base verdant — abrupt intensity stepping
+            spriteBatch.Draw(texture, position, null, ThornSprayUtils.Additive(ThornSprayUtils.VerdantBolt, 0.25f * squarePulse),
+                rotation, origin, scale * (1.15f + thornEdge * 0.12f), SpriteEffects.None, 0f);
 
-            float shimmer = (float)Math.Sin(time * 2.5f) * 0.5f + 0.5f;
-            spriteBatch.Draw(texture, position, null, ThornSprayUtils.Additive(ThornSprayUtils.FlashWhite, 0.15f * shimmer),
-                rotation, origin, scale * pulse * 1.05f, SpriteEffects.None, 0f);
+            // Amber warning — pulses on off-phase for contrast
+            spriteBatch.Draw(texture, position, null, ThornSprayUtils.Additive(ThornSprayUtils.AmberWarn, 0.2f * (1f - squarePulse + 0.4f)),
+                rotation, origin, scale * (1.05f + thornEdge * 0.06f), SpriteEffects.None, 0f);
+
+            // Muzzle flash spike — sharp narrow white bursts
+            spriteBatch.Draw(texture, position, null, ThornSprayUtils.Additive(ThornSprayUtils.FlashWhite, 0.45f * bangFlash),
+                rotation, origin, scale * (1f + bangFlash * 0.15f), SpriteEffects.None, 0f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            Lighting.AddLight(Item.Center, 0.2f, 0.45f, 0.1f);
+            Lighting.AddLight(Item.Center, 0.2f + bangFlash * 0.3f, 0.4f * squarePulse, 0.08f);
             return true;
         }
 

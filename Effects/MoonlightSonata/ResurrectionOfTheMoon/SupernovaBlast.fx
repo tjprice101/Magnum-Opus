@@ -5,7 +5,7 @@
 //  of white-hot energy, and a cooling central crater. Used for ricochet impacts,
 //  on-hit detonations, and the grand finale supernova.
 //
-//  ps_2_0 compatible. Two techniques:
+//  ps_3_0 compatible. Two techniques:
 //    SupernovaBlastMain    EFull radial explosion with crater rings and radial lances
 //    SupernovaBlastRing    ERing-only pass for shockwave overlay
 // ============================================================================

@@ -7,6 +7,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Buffs;
 using MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Particles;
 using MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Primitives;
@@ -173,7 +174,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Projectiles
 
             // Draw orb
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Texture2D tex = TextureAssets.MagicPixel.Value;
+            Texture2D tex = MagnumTextureRegistry.GetPointBloom();
+            if (tex == null) return false;
             float pulse = 1f + (float)Math.Sin(Timer * 0.2f) * 0.15f;
 
             sb.End();
